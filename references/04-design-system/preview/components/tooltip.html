@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Tooltip — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .tt-host { position: relative; display: inline-flex; cursor: default; }
+  .tt-host > .c-tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px); left: 50%;
+    transform: translateX(-50%);
+  }
+  .tt-arrow::after {
+    content: ""; position: absolute;
+    top: 100%; left: 50%;
+    margin-left: -4px;
+    border: 4px solid transparent;
+    border-top-color: var(--theme-bg4);
+  }
+  .tt-trigger {
+    padding: var(--sp-3) var(--sp-6);
+    background: var(--theme-bg3);
+    border: 1px dashed var(--theme-border);
+    border-radius: var(--r-md);
+    font-size: var(--fs-label);
+    color: var(--theme-text2);
+  }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components · v2 addition</div>
+    <div class="pv-title">Tooltip</div>
+    <div class="pv-sub">スタイルのみ提供。位置決めは呼び出し側（本体は ECharts 内部 + floating-ui）。単行で短い補足用です。</div>
+  </div>
+  <div class="pv-meta">c-tooltip</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Static positioning</span><span class="pv-section-hint">triger の上に配置</span></div>
+  <div class="pv-example pv-example--pad-lg" style="gap: var(--sp-12); justify-content: space-around;">
+
+    <div class="tt-host">
+      <span class="c-tooltip tt-arrow">前年同曜日比較</span>
+      <span class="tt-trigger">↑ 4.0%</span>
+    </div>
+
+    <div class="tt-host">
+      <span class="c-tooltip tt-arrow">粗利 ÷ 売上</span>
+      <span class="tt-trigger">粗利率 24.8%</span>
+    </div>
+
+    <div class="tt-host">
+      <span class="c-tooltip tt-arrow">同曜日 4 週平均で推定</span>
+      <span class="tt-trigger">推定値</span>
+    </div>
+
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Raw appearance</span><span class="pv-section-hint">吹き出しの形を確認したい場合</span></div>
+  <div class="pv-example">
+    <span class="c-tooltip">前年同曜日比較</span>
+    <span class="c-tooltip">客数 × 客単価 × 点数 × 価格 × 構成比</span>
+    <span class="c-tooltip">粗利 = 売上 − 原価</span>
+  </div>
+</section>
+
+</body>
+</html>

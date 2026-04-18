@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Radii — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .r-card { display: flex; flex-direction: column; gap: var(--sp-4); align-items: flex-start; }
+  .r-box {
+    width: 120px; height: 88px;
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+  }
+  .r-name { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .r-token { font-family: var(--font-mono); font-size: var(--fs-micro); color: #a5b4fc; background: var(--theme-active-bg); padding: 1px 5px; border-radius: var(--r-sm); width: fit-content; }
+  .r-use { font-size: var(--fs-micro); color: var(--theme-text3); }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Foundations</div>
+    <div class="pv-title">Radii</div>
+    <div class="pv-sub">6 / 10 / 12 / 16 / 999 の 5 段階。4px は使いません — <span class="pv-code">--r-sm (6px)</span> が下限です。</div>
+  </div>
+  <div class="pv-meta">--r-*</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Scale</span>
+    <span class="pv-section-hint">--r-*</span>
+  </div>
+  <div class="pv-example pv-example--grid">
+    <div class="r-card">
+      <div class="r-box" style="border-radius: var(--r-sm);"></div>
+      <div class="r-name">sm</div>
+      <div class="r-token">--r-sm · 6px</div>
+      <div class="r-use">チップ内・コンテキストメニュー・小コントロール</div>
+    </div>
+    <div class="r-card">
+      <div class="r-box" style="border-radius: var(--r-md);"></div>
+      <div class="r-name">md</div>
+      <div class="r-token">--r-md · 10px</div>
+      <div class="r-use">ナビボタン・通常ボタン・入力欄</div>
+    </div>
+    <div class="r-card">
+      <div class="r-box" style="border-radius: var(--r-lg);"></div>
+      <div class="r-name">lg</div>
+      <div class="r-token">--r-lg · 12px</div>
+      <div class="r-use">カード・KPIカード（最もよく使う）</div>
+    </div>
+    <div class="r-card">
+      <div class="r-box" style="border-radius: var(--r-xl);"></div>
+      <div class="r-name">xl</div>
+      <div class="r-token">--r-xl · 16px</div>
+      <div class="r-use">モーダル・大パネル</div>
+    </div>
+    <div class="r-card">
+      <div class="r-box" style="border-radius: var(--r-pill);"></div>
+      <div class="r-name">pill</div>
+      <div class="r-token">--r-pill · 999px</div>
+      <div class="r-use">チップグループ・ピルバッジ</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

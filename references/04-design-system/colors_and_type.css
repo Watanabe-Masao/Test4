@@ -1,0 +1,410 @@
+/* ============================================================
+   Shiire-Arari Design System v2.1 — Colors & Type
+   仕入粗利管理ツール / Purchase & Gross-Profit Management Tool
+
+   v2.1 は Test4 本体実装 (app/src/presentation/theme/) を正本として
+   外部に説明する documentation layer です。全トークンは以下の 2 ファイルと
+   1:1 で対応します:
+     - app/src/presentation/theme/tokens.ts   (palette + 数値トークン)
+     - app/src/presentation/theme/theme.ts    (ThemeColors, InteractiveColors,
+                                               ChartColors, ChartSemanticColors,
+                                               ElevationTokens, AppTheme)
+
+   アクセス方法の対応 (docs/theme-object.md §Access paths 参照):
+     styled-components  →  theme.colors.bg  /  theme.chart.semantic.sales
+     本 CSS (preview用)  →  var(--theme-bg)  /  var(--chart-sales)
+     ECharts option     →  theme.chart.semantic.sales (JS 側で注入)
+                            または colorSystem.statusAlpha('positive', 0.3)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ==========================================================
+     LAYER 1  PALETTE  — tokens.ts の palette オブジェクトと完全一致
+     Test4 の命名は flat (primary, primaryDark)。CSS では "-" を使う慣習。
+     docs/tokens.md §Palette で対応表を提供。
+     ========================================================== */
+
+  /* Primary */
+  --c-primary:      #6366f1;   /* palette.primary */
+  --c-primary-dark: #4f46e5;   /* palette.primaryDark */
+
+  /* Semantic status (raw hues — theme 意味層ではない) */
+  --c-success:      #34d399;
+  --c-success-dark: #22c55e;
+  --c-success-deep: #16a34a;
+  --c-warning:      #fbbf24;
+  --c-warning-dark: #f59e0b;
+  --c-warning-deep: #d97706;
+  --c-danger:       #f87171;
+  --c-danger-dark:  #ef4444;
+  --c-danger-deep:  #dc2626;
+  --c-info:         #38bdf8;
+  --c-info-dark:    #0ea5e9;
+
+  /* Extended hues */
+  --c-purple:      #a78bfa;
+  --c-purple-dark: #8b5cf6;
+  --c-purple-deep: #7c3aed;
+  --c-cyan:        #22d3ee;
+  --c-cyan-dark:   #06b6d4;
+  --c-cyan-deep:   #0891b2;
+  --c-pink:        #f472b6;
+  --c-pink-dark:   #ec4899;
+  --c-lime:        #a3e635;
+  --c-lime-dark:   #84cc16;
+  --c-orange:      #f97316;
+  --c-orange-dark: #ea580c;
+  --c-blue:        #60a5fa;
+  --c-blue-dark:   #3b82f6;
+  --c-slate:       #94a3b8;
+  --c-slate-dark:  #64748b;
+
+  /* Neutral */
+  --c-white: #ffffff;
+  --c-black: #000000;
+
+  /* Color Universal Design (Wong 2011)
+     — palette.positive / negative / caution として定義済み。
+     trend UI は palette.success.dark / palette.danger.dark ではなく
+     こちらを使うのが Test4 のルール (semanticColors.ts)。 */
+  --c-positive:      #0ea5e9;
+  --c-positive-dark: #0284c7;
+  --c-negative:      #f97316;
+  --c-negative-dark: #ea580c;
+  --c-caution:       #eab308;
+  --c-caution-dark:  #ca8a04;
+
+  /* ==========================================================
+     LAYER 2  THEME (dark default)  — theme.ts の darkTheme 展開値
+     ========================================================== */
+
+  /* theme.colors.{bg,bg2,bg3,bg4,text,text2,text3,text4,border} */
+  --theme-bg:      #09090b;   /* page background (L0) */
+  --theme-bg2:     #0f1117;   /* nav rail, sidebar  (L1) */
+  --theme-bg3:     #16181f;   /* cards, panels      (L2) */
+  --theme-bg4:     #1c1f28;   /* hover, popover     (L3) */
+  --theme-text:    #f4f4f5;   /* primary text       */
+  --theme-text2:   #a1a1aa;   /* body copy          */
+  --theme-text3:   #71717a;   /* captions, metadata */
+  --theme-text4:   #52525b;   /* disabled / placeholder */
+  --theme-border:  rgba(255, 255, 255, 0.06);
+
+  /* theme.interactive.* */
+  --theme-hover-bg:  rgba(255, 255, 255, 0.08);
+  --theme-active-bg: rgba(99, 102, 241, 0.2);
+  --theme-subtle-bg: rgba(255, 255, 255, 0.04);
+  --theme-muted-bg:  rgba(255, 255, 255, 0.06);
+  --theme-backdrop:  rgba(0, 0, 0, 0.5);
+
+  /* theme.elevation.* */
+  --theme-elev-popup:   0 4px 12px rgba(0, 0, 0, 0.15);
+  --theme-elev-tooltip: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --theme-elev-overlay: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  /* ==========================================================
+     LAYER 2  CHART — theme.chart.* と theme.chart.semantic.*
+     mode 非依存 (dark/light で同値)。Test4 の設計どおり。
+     ========================================================== */
+
+  /* theme.chart series palette (10 色、max) */
+  --chart-series-1:  var(--c-primary);
+  --chart-series-2:  var(--c-success-dark);
+  --chart-series-3:  var(--c-warning-dark);
+  --chart-series-4:  var(--c-danger-dark);
+  --chart-series-5:  var(--c-cyan-dark);
+  --chart-series-6:  var(--c-pink-dark);
+  --chart-series-7:  var(--c-purple-dark);
+  --chart-series-8:  var(--c-orange-dark);
+  --chart-series-9:  var(--c-blue-dark);
+  --chart-series-10: var(--c-lime-dark);
+
+  /* theme.chart stores palette (6 色、max) */
+  --chart-store-1: var(--c-primary);
+  --chart-store-2: var(--c-success-dark);
+  --chart-store-3: var(--c-warning-dark);
+  --chart-store-4: var(--c-danger-dark);
+  --chart-store-5: var(--c-cyan-dark);
+  --chart-store-6: var(--c-pink-dark);
+
+  /* theme.chart.{currentYear, previousYear, budget, barPositive, barNegative} */
+  --chart-current-year:   var(--c-primary);
+  --chart-previous-year:  var(--c-slate);
+  --chart-budget:         var(--c-info-dark);
+  --chart-bar-positive:   var(--c-success-dark);
+  --chart-bar-negative:   var(--c-danger-dark);
+
+  /* theme.chart.semantic.* — 業務概念 → 色の中央マッピング
+     Test4 固有。新規チャート実装時はここから拾う。 */
+
+  /* 当年 (実線・棒の主色) */
+  --chart-sales:              var(--c-primary);       /* 売上 */
+  --chart-budget-semantic:    var(--c-success-dark);  /* 予算 (semantic.budget) */
+  --chart-gross-profit:       var(--c-purple-dark);   /* 粗利 */
+  --chart-gross-profit-rate:  var(--c-purple-dark);   /* 粗利率 */
+  --chart-customers:          var(--c-cyan-dark);     /* 客数 */
+  --chart-transaction-value:  var(--c-purple-dark);   /* 客単価 */
+  --chart-quantity:           var(--c-info-dark);     /* 販売点数 */
+  --chart-discount:           var(--c-danger-dark);   /* 売変 (値引き) */
+  --chart-markup-rate:        var(--c-warning-dark);  /* 値入率 */
+  --chart-purchase-cost:      var(--c-orange-dark);   /* 仕入原価 */
+
+  /* 前年 (当年色の 60% 不透明 = '#xxxxxx60')
+     CSS 変数で 60% alpha を付ける標準手法は rgba(...)。Test4 JS 側では
+     `${palette.primary}60` のような 8-digit hex で付けている。
+     docs/tokens.md §Prev-year alpha pattern 参照。 */
+  --chart-sales-prev:         #6366f160;
+  --chart-budget-prev:        #22c55e60;
+  --chart-gross-profit-prev:  #8b5cf660;
+  --chart-customers-prev:     #06b6d460;
+  --chart-quantity-prev:      #0ea5e960;
+  --chart-discount-prev:      #ef444460;
+
+  /* 差異・状態 */
+  --chart-positive:           var(--c-success-dark);  /* プラス差異 */
+  --chart-negative:           var(--c-danger-dark);   /* マイナス差異 */
+  --chart-neutral:            var(--c-slate);         /* 中立・基準線 */
+
+  /* 外部データ */
+  --chart-temp-high:          var(--c-danger-dark);
+  --chart-temp-low:           var(--c-primary);
+
+  /* 分析 */
+  --chart-moving-average:         var(--c-primary);
+  --chart-moving-average-metric:  var(--c-orange);
+
+  /* ==========================================================
+     LAYER 2  CATEGORY GRADIENTS — tokens.categoryGradients
+     取引区分・業務分類ごとのグラデーション。部門色ではない点に注意。
+     詳細は docs/category-gradients.md
+     ========================================================== */
+
+  /* 取引区分 (Transaction direction) */
+  --gradient-ti:   linear-gradient(135deg, #4ade80, #22c55e);  /* TI 店入 */
+  --gradient-to:   linear-gradient(135deg, #fb7185, #f43f5e);  /* TO 店出 */
+  --gradient-bi:   linear-gradient(135deg, #60a5fa, #3b82f6);  /* BI 部入 */
+  --gradient-bo:   linear-gradient(135deg, #c084fc, #a855f7);  /* BO 部出 */
+
+  /* 業務分類 (Operational classification) */
+  --gradient-daily:    linear-gradient(135deg, #fbbf24, #f59e0b);  /* デイリー */
+  --gradient-market:   linear-gradient(135deg, #fbbf24, #f59e0b);  /* 市場 */
+  --gradient-lfc:      linear-gradient(135deg, #60a5fa, #3b82f6);  /* LFC */
+  --gradient-salad:    linear-gradient(135deg, #4ade80, #22c55e);  /* サラダ */
+  --gradient-kakou:    linear-gradient(135deg, #c084fc, #a855f7);  /* 加工 */
+  --gradient-chokuden: linear-gradient(135deg, #22d3ee, #06b6d4);  /* 直伝 */
+  --gradient-hana:     linear-gradient(135deg, #f472b6, #ec4899);  /* 花 */
+  --gradient-sanchoku: linear-gradient(135deg, #a3e635, #84cc16);  /* 産直 */
+
+  /* 集計区分 (Aggregation) */
+  --gradient-cost-inclusion: linear-gradient(135deg, #f97316, #ea580c);  /* 原価算入費 (旧名 consumable/消耗品) */
+  --gradient-tenkan:         linear-gradient(135deg, #fb7185, #f43f5e);  /* 店間 */
+  --gradient-bumonkan:       linear-gradient(135deg, #a78bfa, #8b5cf6);  /* 部門間 */
+  --gradient-other:          linear-gradient(135deg, #94a3b8, #64748b);  /* その他 */
+
+  /* ==========================================================
+     TYPOGRAPHY  — tokens.typography
+     ========================================================== */
+  --font-sans: 'Noto Sans JP', system-ui, -apple-system, 'Hiragino Kaku Gothic ProN',
+    'Hiragino Sans', Meiryo, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-micro:   0.55rem;   /*  8.8px — バッジカウント、タイムスタンプ */
+  --fs-caption: 0.6rem;    /*  9.6px — 軸ラベル、サブタイトル (最多使用) */
+  --fs-label:   0.68rem;   /* 10.9px — テーブルセル、タブ */
+  --fs-body:    0.78rem;   /* 12.5px — 本文、入力フィールド */
+  --fs-title:   0.9rem;    /* 14.4px — カードタイトル */
+  --fs-heading: 1.1rem;    /* 17.6px — ページタイトル */
+  --fs-display: 1.4rem;    /* 22.4px — ヒーロー数値 */
+
+  --fw-normal:    400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+  --fw-extrabold: 800;
+
+  /* ECharts 用フォントサイズ (px 整数)
+     CSS 変数としては参照機会が少ないが、対応表として記載。
+     実際の使用は JS 側 chartFontSize.* で。 */
+  /* --chart-fs-axis:       10px */
+  /* --chart-fs-tooltip:    11px */
+  /* --chart-fs-title:      13px */
+  /* --chart-fs-annotation: 10px */
+
+  /* ==========================================================
+     SPACING  — tokens.spacing
+     ========================================================== */
+  --sp-0:  0px;
+  --sp-1:  3px;
+  --sp-2:  4px;
+  --sp-3:  6px;
+  --sp-4:  8px;
+  --sp-5:  10px;
+  --sp-6:  12px;
+  --sp-7:  14px;
+  --sp-8:  16px;
+  --sp-9:  18px;
+  --sp-10: 20px;
+  --sp-12: 24px;
+
+  /* ==========================================================
+     RADIUS / SHADOW / MOTION  — tokens.{radii, shadows, transitions, interaction}
+     ========================================================== */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-pill: 999px;
+
+  --sh-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --sh-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --sh-lg: 0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  --t-fast:   0.15s;
+  --t-normal: 0.25s;
+  --t-slow:   0.35s;
+  --ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --hover-lift:  translateY(-1px);
+  --press-scale: scale(0.98);
+  --focus-ring:  0 0 0 2px rgba(99, 102, 241, 0.4);
+
+  /* ==========================================================
+     LAYOUT  — tokens.layout
+     ========================================================== */
+  --nav-width:         56px;
+  --sidebar-width:     260px;
+  --nav-icon-size:     40px;
+  --logo-size:         36px;
+  --section-icon-size: 32px;
+
+  /* ==========================================================
+     Z-INDEX  — tokens.zIndex
+     ========================================================== */
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-modal:    1000;
+  --z-toast:    1100;
+  --z-tooltip:  1200;
+
+  /* ==========================================================
+     MODAL  — tokens.modal
+     ========================================================== */
+  --modal-width-sm:     400px;
+  --modal-width-md:     480px;
+  --modal-width-lg:     640px;
+  --modal-max-height:   80vh;
+  --modal-backdrop-blur: 12px;
+  --modal-container-blur: 20px;
+
+  /* ==========================================================
+     BREAKPOINTS  — tokens.breakpoints
+     ========================================================== */
+  --bp-sm: 700px;
+  --bp-md: 900px;
+  --bp-lg: 1100px;
+  --bp-xl: 1200px;
+}
+
+/* ============================================================
+   LIGHT THEME — theme.ts の lightTheme 展開値
+   Test4 では JS 側 (ThemeProvider) で切替。本 CSS では
+   [data-theme='light'] で preview の切替を再現する (DS documentation 用)。
+   ============================================================ */
+[data-theme='light'] {
+  --theme-bg:     #f8fafc;
+  --theme-bg2:    #ffffff;
+  --theme-bg3:    #f1f5f9;
+  --theme-bg4:    #e2e8f0;
+  --theme-text:   #0f172a;
+  --theme-text2:  #475569;
+  --theme-text3:  #64748b;
+  --theme-text4:  #94a3b8;
+  --theme-border: rgba(0, 0, 0, 0.08);
+
+  --theme-hover-bg:  rgba(0, 0, 0, 0.06);
+  --theme-active-bg: rgba(99, 102, 241, 0.08);
+  --theme-subtle-bg: rgba(0, 0, 0, 0.02);
+  --theme-muted-bg:  rgba(0, 0, 0, 0.04);
+  /* interactive.backdrop と elevation.* は Test4 実装でも mode 非依存 */
+}
+
+/* ============================================================
+   SEMANTIC TYPE ROLES
+   CSS クラスとして提供するタイポ役割。styled-components で書くときは
+   typography.fontSize.* を参照してください (theme object 経由)。
+   ============================================================ */
+.ds-h1 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-heading);
+  font-weight: var(--fw-bold);
+  color: var(--theme-text);
+  letter-spacing: -0.01em;
+}
+.ds-h2 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-title);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text);
+}
+.ds-h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text2);
+}
+.ds-body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-normal);
+  color: var(--theme-text);
+  line-height: 1.5;
+}
+.ds-caption {
+  font-family: var(--font-sans);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-normal);
+  color: var(--theme-text3);
+}
+.ds-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ds-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-title);
+  font-weight: var(--fw-bold);
+  color: var(--theme-text);
+  font-variant-numeric: tabular-nums;
+}
+.ds-num-display {
+  font-family: var(--font-mono);
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  color: var(--theme-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.ds-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ds-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  color: var(--theme-text2);
+}
+.ds-micro {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>KPI Card — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">KPI Card</div>
+    <div class="pv-sub">製品のシグネチャー要素。ラベル + 大きな mono 数値 + トレンド + サブ行 + 式ヒント。トレンドは CUD-safe のトークンを参照します。</div>
+  </div>
+  <div class="pv-meta">c-kpi</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Dashboard row</span><span class="pv-section-hint">4 カード × accent border-top</span></div>
+  <div class="pv-example pv-example--pad-lg" style="gap: var(--sp-6);">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); width: 100%;">
+
+      <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-primary);">
+        <div class="c-kpi__label">売上 <span class="c-badge c-badge--success">達成</span></div>
+        <div class="c-kpi__row">
+          <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>12,483,200</span>
+          <span class="c-kpi__trend c-kpi__trend--up">↑ 4.0%</span>
+        </div>
+        <div class="c-kpi__sub">予算 ¥12,000,000</div>
+        <div class="c-kpi__formula">= Σ(日別売上)</div>
+      </div>
+
+      <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-success-dark);">
+        <div class="c-kpi__label">粗利 <span class="c-badge c-badge--info">実在庫</span></div>
+        <div class="c-kpi__row">
+          <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>3,095,800</span>
+          <span class="c-kpi__trend c-kpi__trend--up">↑ 1.2pt</span>
+        </div>
+        <div class="c-kpi__sub">粗利率 24.8%</div>
+        <div class="c-kpi__formula">= 売上 − 原価</div>
+      </div>
+
+      <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-cyan-dark);">
+        <div class="c-kpi__label">客数</div>
+        <div class="c-kpi__row">
+          <span class="c-kpi__value">9,724<span class="c-kpi__unit">人</span></span>
+          <span class="c-kpi__trend c-kpi__trend--down">↓ 0.8%</span>
+        </div>
+        <div class="c-kpi__sub">PI値 1.24 / 日</div>
+        <div class="c-kpi__formula">= Σ(レシート)</div>
+      </div>
+
+      <div class="c-kpi c-kpi--accent" style="--c-accent: var(--c-purple-dark);">
+        <div class="c-kpi__label">客単価 <span class="c-badge c-badge--warning">推定</span></div>
+        <div class="c-kpi__row">
+          <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>1,284</span>
+          <span class="c-kpi__trend c-kpi__trend--down">↓ 2.1%</span>
+        </div>
+        <div class="c-kpi__sub">2,483 → 2,501 点</div>
+        <div class="c-kpi__formula">= 売上 ÷ 客数</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Minimal</span><span class="pv-section-hint">trend / sub / formula なし</span></div>
+  <div class="pv-example">
+    <div class="c-kpi" style="min-width: 220px;">
+      <div class="c-kpi__label">レシート</div>
+      <div class="c-kpi__row"><span class="c-kpi__value">12,048<span class="c-kpi__unit">件</span></span></div>
+    </div>
+    <div class="c-kpi" style="min-width: 220px;">
+      <div class="c-kpi__label">値引額</div>
+      <div class="c-kpi__row"><span class="c-kpi__value"><span class="c-kpi__unit">¥</span>81,240</span></div>
+      <div class="c-kpi__sub">販売点数の 2.1%</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Flat trend</span><span class="pv-section-hint">前期比 ±1% 以内</span></div>
+  <div class="pv-example">
+    <div class="c-kpi" style="min-width: 220px;">
+      <div class="c-kpi__label">ロス金額</div>
+      <div class="c-kpi__row">
+        <span class="c-kpi__value"><span class="c-kpi__unit">¥</span>14,820</span>
+        <span class="c-kpi__trend c-kpi__trend--flat">→ 0.3%</span>
+      </div>
+      <div class="c-kpi__sub">前月比ほぼ横ばい</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

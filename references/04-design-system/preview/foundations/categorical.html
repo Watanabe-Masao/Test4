@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Category Gradients — Shiire-Arari DS v2.1</title>
+  <link rel="stylesheet" href="../../colors_and_type.css">
+  <link rel="stylesheet" href="../../components.css">
+  <link rel="stylesheet" href="../_preview.css">
+  <style>
+    .gradient-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--sp-4);
+    }
+    .gradient-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      padding: var(--sp-5);
+      background: var(--theme-bg3);
+      border: 1px solid var(--theme-border);
+      border-radius: var(--r-md);
+    }
+    .gradient-swatch {
+      height: 56px;
+      border-radius: var(--r-sm);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+    .gradient-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--sp-3);
+    }
+    .gradient-jp {
+      font-family: var(--font-sans);
+      font-size: var(--fs-label);
+      font-weight: var(--fw-semibold);
+      color: var(--theme-text);
+    }
+    .gradient-en {
+      font-family: var(--font-mono);
+      font-size: var(--fs-micro);
+      color: var(--theme-text3);
+    }
+    .gradient-desc {
+      font-family: var(--font-sans);
+      font-size: var(--fs-micro);
+      color: var(--theme-text3);
+    }
+    .chip-demo-row {
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      margin-top: var(--sp-4);
+    }
+    .chip-demo {
+      padding: var(--sp-2) var(--sp-5);
+      border-radius: var(--r-pill);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: var(--fs-micro);
+      font-weight: var(--fw-semibold);
+    }
+    .card-demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--sp-5);
+      margin-top: var(--sp-5);
+    }
+    .card-demo {
+      background: var(--theme-bg3);
+      border: 1px solid var(--theme-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      position: relative;
+      overflow: hidden;
+    }
+    .card-demo::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+    }
+    .card-demo-title {
+      font-size: var(--fs-label);
+      font-weight: var(--fw-semibold);
+      color: var(--theme-text);
+    }
+    .card-demo-value {
+      font-family: var(--font-mono);
+      font-size: var(--fs-title);
+      font-weight: var(--fw-bold);
+      color: var(--theme-text);
+      font-variant-numeric: tabular-nums;
+      margin-top: var(--sp-2);
+    }
+  </style>
+</head>
+<body>
+
+<header class="pv-header">
+  <h1 class="pv-title">Category Gradients</h1>
+  <div class="pv-sub">
+    取引区分と業務分類を表すグラデーショントークン <code>--gradient-*</code>。
+    Test4 本体の <code>tokens.categoryGradients</code> と 1:1 対応しています。
+    部門 (青果・精肉 …) ではなく、取引方向や業務分類で色分けする設計です。
+  </div>
+  <nav class="pv-nav"><a href="../index.html">← 一覧へ戻る</a></nav>
+</header>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">Group 1 — 取引区分 (Transaction direction)</h2>
+  <div class="pv-sub">ペア構造: 入 (TI/BI) と 出 (TO/BO)。店間 (TI/TO) と部門間 (BI/BO)。</div>
+
+  <div class="gradient-grid" style="margin-top: var(--sp-5);">
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-ti);"></div>
+      <div class="gradient-label"><span class="gradient-jp">TI 店入</span><span class="gradient-en">--gradient-ti</span></div>
+      <div class="gradient-desc">店間移動の入荷側 · 緑系 · #4ade80 → #22c55e</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-to);"></div>
+      <div class="gradient-label"><span class="gradient-jp">TO 店出</span><span class="gradient-en">--gradient-to</span></div>
+      <div class="gradient-desc">店間移動の出荷側 · 赤ピンク系 · #fb7185 → #f43f5e</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-bi);"></div>
+      <div class="gradient-label"><span class="gradient-jp">BI 部入</span><span class="gradient-en">--gradient-bi</span></div>
+      <div class="gradient-desc">部門間移動の入荷側 · 青系 · #60a5fa → #3b82f6</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-bo);"></div>
+      <div class="gradient-label"><span class="gradient-jp">BO 部出</span><span class="gradient-en">--gradient-bo</span></div>
+      <div class="gradient-desc">部門間移動の出荷側 · 紫系 · #c084fc → #a855f7</div>
+    </div>
+  </div>
+
+  <div class="chip-demo-row">
+    <span class="chip-demo" style="background: var(--gradient-ti);">TI 店間入</span>
+    <span class="chip-demo" style="background: var(--gradient-to);">TO 店間出</span>
+    <span class="chip-demo" style="background: var(--gradient-bi);">BI 部門間入</span>
+    <span class="chip-demo" style="background: var(--gradient-bo);">BO 部門間出</span>
+  </div>
+</section>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">Group 2 — 業務分類 (Operational classification)</h2>
+
+  <div class="gradient-grid" style="margin-top: var(--sp-5);">
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-daily);"></div>
+      <div class="gradient-label"><span class="gradient-jp">デイリー</span><span class="gradient-en">--gradient-daily</span></div>
+      <div class="gradient-desc">デイリー部門 / 日配品 · 琥珀系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-market);"></div>
+      <div class="gradient-label"><span class="gradient-jp">市場</span><span class="gradient-en">--gradient-market</span></div>
+      <div class="gradient-desc">市場仕入 · 琥珀系 (daily と同色)</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-lfc);"></div>
+      <div class="gradient-label"><span class="gradient-jp">LFC</span><span class="gradient-en">--gradient-lfc</span></div>
+      <div class="gradient-desc">Local Fresh Center / 物流拠点 · 青系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-salad);"></div>
+      <div class="gradient-label"><span class="gradient-jp">サラダ</span><span class="gradient-en">--gradient-salad</span></div>
+      <div class="gradient-desc">サラダ加工 · 緑系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-kakou);"></div>
+      <div class="gradient-label"><span class="gradient-jp">加工</span><span class="gradient-en">--gradient-kakou</span></div>
+      <div class="gradient-desc">加工品 (惣菜加工等) · 紫系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-chokuden);"></div>
+      <div class="gradient-label"><span class="gradient-jp">直伝</span><span class="gradient-en">--gradient-chokuden</span></div>
+      <div class="gradient-desc">直伝 (メーカー直伝送) · シアン系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-hana);"></div>
+      <div class="gradient-label"><span class="gradient-jp">花</span><span class="gradient-en">--gradient-hana</span></div>
+      <div class="gradient-desc">花・生花部門 · ピンク系</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-sanchoku);"></div>
+      <div class="gradient-label"><span class="gradient-jp">産直</span><span class="gradient-en">--gradient-sanchoku</span></div>
+      <div class="gradient-desc">産地直送 · ライム系</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">Group 3 — 集計区分 (Aggregation)</h2>
+  <div class="pv-sub">ti+to / bi+bo の合計、および原価算入費・その他。</div>
+
+  <div class="gradient-grid" style="margin-top: var(--sp-5);">
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-cost-inclusion);"></div>
+      <div class="gradient-label"><span class="gradient-jp">原価算入費</span><span class="gradient-en">--gradient-cost-inclusion</span></div>
+      <div class="gradient-desc">原価に算入される費目 · オレンジ系 · 旧名 consumable/消耗品</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-tenkan);"></div>
+      <div class="gradient-label"><span class="gradient-jp">店間</span><span class="gradient-en">--gradient-tenkan</span></div>
+      <div class="gradient-desc">店間移動の合計 (ti+to) · 赤ピンク系 (to と色相リンク)</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-bumonkan);"></div>
+      <div class="gradient-label"><span class="gradient-jp">部門間</span><span class="gradient-en">--gradient-bumonkan</span></div>
+      <div class="gradient-desc">部門間移動の合計 (bi+bo) · 紫系 (bo と色相リンク)</div>
+    </div>
+    <div class="gradient-card">
+      <div class="gradient-swatch" style="background: var(--gradient-other);"></div>
+      <div class="gradient-label"><span class="gradient-jp">その他</span><span class="gradient-en">--gradient-other</span></div>
+      <div class="gradient-desc">その他 · スレート系</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">カード帯で使う例</h2>
+  <div class="pv-sub">上辺 3px のアクセント帯としてグラデーションを使用。</div>
+
+  <div class="card-demo-grid">
+    <div class="card-demo" style="--accent: var(--gradient-ti);">
+      <div class="card-demo-title">TI 店間入</div>
+      <div class="card-demo-value">¥1,240,580</div>
+    </div>
+    <div class="card-demo" style="--accent: var(--gradient-to);">
+      <div class="card-demo-title">TO 店間出</div>
+      <div class="card-demo-value">¥980,120</div>
+    </div>
+    <div class="card-demo" style="--accent: var(--gradient-bi);">
+      <div class="card-demo-title">BI 部門間入</div>
+      <div class="card-demo-value">¥620,400</div>
+    </div>
+    <div class="card-demo" style="--accent: var(--gradient-bo);">
+      <div class="card-demo-title">BO 部門間出</div>
+      <div class="card-demo-value">¥520,900</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <h2 class="pv-section-title">設計ルール</h2>
+  <ul class="pv-list">
+    <li>135° を全グラデーションで固定。ブランドロゴ・プライマリボタンと揃える</li>
+    <li>単色ではなくグラデーションを使うことで、高彩度でも視覚負荷を下げる</li>
+    <li>部門 (青果/精肉/鮮魚 …) ではなく取引区分・業務分類で色分け</li>
+    <li>小さなドット (8×8px 以下) で使うとグラデーションが見えないので、そのサイズでは 1 色目を <code>background-color</code> として併用</li>
+    <li>詳細は <code>docs/category-gradients.md</code></li>
+  </ul>
+</section>
+
+</body>
+</html>

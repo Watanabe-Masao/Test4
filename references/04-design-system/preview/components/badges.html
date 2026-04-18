@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Badge — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">Badge</div>
+    <div class="pv-sub">ステータス・カテゴリ・件数を示す小ラベル。fg / bg / border の 3 トークンで構成されていて、dark / light 両モードで対称。</div>
+  </div>
+  <div class="pv-meta">c-badge</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Status variants</span><span class="pv-section-hint">c-badge--*</span></div>
+  <div class="pv-example">
+    <span class="c-badge c-badge--success">完了</span>
+    <span class="c-badge c-badge--warning">推定</span>
+    <span class="c-badge c-badge--danger">未達</span>
+    <span class="c-badge c-badge--info">実在庫</span>
+    <span class="c-badge c-badge--neutral">—</span>
+    <span class="c-badge c-badge--brand">新規</span>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Pill shape</span><span class="pv-section-hint">c-badge--pill</span></div>
+  <div class="pv-example">
+    <span class="c-badge c-badge--success c-badge--pill">計算済み</span>
+    <span class="c-badge c-badge--info c-badge--pill">PI 値 1.24</span>
+    <span class="c-badge c-badge--brand c-badge--pill">WASM</span>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Inline in context</span><span class="pv-section-hint">KPI ラベルに並置</span></div>
+  <div class="pv-example pv-example--stack">
+    <div style="display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-micro); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em;">
+      粗利
+      <span class="c-badge c-badge--success">実在庫</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-micro); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em;">
+      客単価
+      <span class="c-badge c-badge--warning">推定</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-micro); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em;">
+      残予算
+      <span class="c-badge c-badge--danger">未達</span>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">With icon / counter</span><span class="pv-section-hint">絵文字 or unicode</span></div>
+  <div class="pv-example">
+    <span class="c-badge c-badge--success">✓ 計算済み</span>
+    <span class="c-badge c-badge--info">ℹ 根拠あり</span>
+    <span class="c-badge c-badge--warning">⚠ 推定</span>
+    <span class="c-badge c-badge--neutral c-badge--pill">12</span>
+  </div>
+</section>
+
+</body>
+</html>

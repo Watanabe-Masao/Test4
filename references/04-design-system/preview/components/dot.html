@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Status Dot — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .d-row { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-label); color: var(--theme-text2); padding: var(--sp-3) 0; border-bottom: 1px solid var(--theme-border); }
+  .d-row:last-child { border-bottom: 0; }
+  .d-label { min-width: 80px; font-size: var(--fs-micro); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">Status Dot</div>
+    <div class="pv-sub">8px の状態インジケータ。<span class="pv-code">pulse</span> バリアントは計算中の呼吸アニメーションです（1.2s）。</div>
+  </div>
+  <div class="pv-meta">c-dot</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Variants</span><span class="pv-section-hint">c-dot--*</span></div>
+  <div class="pv-example pv-example--stack">
+    <div class="d-row"><span class="d-label">success</span><span class="c-dot c-dot--success"></span> 計算済み</div>
+    <div class="d-row"><span class="d-label">info · pulse</span><span class="c-dot c-dot--info c-dot--pulse"></span> 計算中…</div>
+    <div class="d-row"><span class="d-label">warning</span><span class="c-dot c-dot--warning"></span> 注意が必要</div>
+    <div class="d-row"><span class="d-label">danger</span><span class="c-dot c-dot--danger"></span> エラー</div>
+    <div class="d-row"><span class="d-label">idle</span><span class="c-dot c-dot--idle"></span> 未計算</div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Calculation queue</span><span class="pv-section-hint">サイドバーの計算進捗によくある形</span></div>
+  <div class="pv-example pv-example--stack" style="min-width: 320px;">
+    <div class="d-row"><span class="c-dot c-dot--success"></span> <span style="flex: 1;">粗利計算</span><span style="color: var(--c-success-dark); font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600;">済</span></div>
+    <div class="d-row"><span class="c-dot c-dot--success"></span> <span style="flex: 1;">要因分解</span><span style="color: var(--c-success-dark); font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600;">済</span></div>
+    <div class="d-row"><span class="c-dot c-dot--info c-dot--pulse"></span> <span style="flex: 1;">需要予測</span><span style="color: var(--c-info-dark); font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600;">実行中</span></div>
+    <div class="d-row"><span class="c-dot c-dot--idle"></span> <span style="flex: 1;">天気相関</span><span style="color: var(--theme-text3); font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 600;">待機</span></div>
+  </div>
+</section>
+
+</body>
+</html>

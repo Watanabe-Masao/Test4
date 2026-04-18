@@ -9,6 +9,7 @@
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
 | `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 57 |
+| `04-design-system/` | Design System v2.1（本体 `presentation/theme/` の外部 documentation layer） | 49 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 ## 正本一覧
@@ -284,3 +285,28 @@
 | `03-guides/purchase-cost-unification-plan.md` | 仕入原価統合計画 |
 | `03-guides/legacy-governance-retirement.md` | レガシーガバナンス廃止 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） |
+
+### Design System v2.1
+
+> 本体 `app/src/presentation/theme/` (tokens.ts + theme.ts + semanticColors.ts + colorSystem.ts) の外部 documentation layer。
+> 本体コードには影響しない資産のみを格納する。
+
+| ファイル | 内容 |
+|---------|------|
+| `04-design-system/README.md` | Design System v2.1 正本 |
+| `04-design-system/SKILL.md` | DS 運用スキル |
+| `04-design-system/colors_and_type.css` | v2.1 CSS 変数（本体 tokens.ts と同期） |
+| `04-design-system/components.css` | v2.1 コンポーネント CSS |
+| `04-design-system/docs/tokens.md` | 全トークン一覧 |
+| `04-design-system/docs/theme-object.md` | AppTheme オブジェクト構造 |
+| `04-design-system/docs/chart-semantic-colors.md` | 業務概念 → 色マップ |
+| `04-design-system/docs/category-gradients.md` | ti/to/bi/bo グラデーション |
+| `04-design-system/docs/trend-helpers.md` | `sc.*` トレンド判定関数 |
+| `04-design-system/docs/echarts-integration.md` | ECharts 統合パターン |
+| `04-design-system/docs/content-and-voice.md` | コンテンツ・トーン |
+| `04-design-system/docs/visual-foundations.md` | 視覚基礎 |
+| `04-design-system/docs/iconography.md` | アイコン運用 |
+| `04-design-system/docs/v2-to-v2.1-changes.md` | v2.0 → v2.1 変更点 |
+| `04-design-system/docs/route-b-guide.md` | 配置手順 + PR 本文テンプレート |
+| `04-design-system/preview/index.html` | インタラクティブプレビュー入口 |
+| `04-design-system/ui_kits/app/index.html` | アプリ UI キット |

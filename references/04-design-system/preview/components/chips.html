@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Chip Group — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">Chip Group</div>
+    <div class="pv-sub">ビュー切替の標準パターン。製品ではタブの代わりにこれを使います — 期間・指標・比較対象の切替全てがこれ。</div>
+  </div>
+  <div class="pv-meta">c-chipgroup / c-chip</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">基本</span><span class="pv-section-hint">期間切替</span></div>
+  <div class="pv-example">
+    <div class="c-chipgroup" role="tablist">
+      <button class="c-chip" role="tab">年次</button>
+      <button class="c-chip" role="tab" aria-selected="true">月次</button>
+      <button class="c-chip" role="tab">週次</button>
+      <button class="c-chip" role="tab">日次</button>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">指標切替</span><span class="pv-section-hint">売上 / 粗利 / 客数</span></div>
+  <div class="pv-example">
+    <div class="c-chipgroup" role="tablist">
+      <button class="c-chip" role="tab" aria-selected="true">売上</button>
+      <button class="c-chip" role="tab">粗利</button>
+      <button class="c-chip" role="tab">客数</button>
+      <button class="c-chip" role="tab">客単価</button>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">比較対象</span><span class="pv-section-hint">予算 / 前年 / 同曜日</span></div>
+  <div class="pv-example">
+    <div class="c-chipgroup">
+      <button class="c-chip" aria-selected="true">実績</button>
+      <button class="c-chip">予算</button>
+      <button class="c-chip">前年</button>
+      <button class="c-chip">同曜日</button>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">複数を横並び</span><span class="pv-section-hint">チャートカードのヘッダでよくある形</span></div>
+  <div class="pv-example" style="justify-content: flex-end;">
+    <div class="c-chipgroup">
+      <button class="c-chip" aria-selected="true">売上</button>
+      <button class="c-chip">粗利</button>
+    </div>
+    <div class="c-chipgroup">
+      <button class="c-chip" aria-selected="true">月次</button>
+      <button class="c-chip">週次</button>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

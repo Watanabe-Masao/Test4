@@ -1,0 +1,488 @@
+/* ============================================================
+   Shiire-Arari DS v2.1 — Components
+   Test4 本体 (app/src/presentation/) で使われる代表的な UI 要素を、
+   DS プレビュー用に CSS 変数で再現したもの。
+
+   本体実装は styled-components で書かれており、本 CSS は
+   「同じ見た目になるように theme.ts のトークンを CSS 変数経由で
+   参照している」という位置づけです。クラス名 (c-btn など) は DS
+   プレビュー内でのみ有効で、本体コードには登場しません。
+
+   v2.0 との差分:
+     - v2.0 の --color-* は全廃。--theme-* / --chart-* / --c-* に統一
+     - c-badge の status variant は theme に該当実装がないため DS 独自として明記
+     - 新コンポーネントとして c-kpi-sparkline-dot を追加 (Test4 に見られる pattern)
+   ============================================================ */
+
+/* ────────────────────────────── Buttons ── */
+.c-btn {
+  all: unset;
+  cursor: pointer;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-6);
+  border-radius: var(--r-md);
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  transition:
+    opacity   var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+}
+.c-btn:focus-visible { box-shadow: var(--focus-ring); }
+.c-btn:active { transform: var(--press-scale); opacity: 0.95; }
+
+.c-btn--primary {
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+  color: var(--c-white);
+}
+.c-btn--primary:hover { opacity: 0.9; transform: var(--hover-lift); }
+
+.c-btn--success {
+  background: linear-gradient(135deg, var(--c-success), var(--c-success-dark));
+  color: var(--c-white);
+}
+.c-btn--success:hover { opacity: 0.9; transform: var(--hover-lift); }
+
+.c-btn--outline {
+  color: var(--theme-text);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--theme-border);
+}
+.c-btn--outline:hover { background: var(--theme-hover-bg); }
+
+.c-btn--ghost {
+  color: var(--theme-text2);
+  background: transparent;
+}
+.c-btn--ghost:hover { color: var(--theme-text); background: var(--theme-hover-bg); }
+
+.c-btn--danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--c-danger-dark);
+  box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.28);
+}
+.c-btn--danger:hover { background: rgba(239, 68, 68, 0.2); }
+
+.c-btn--sm { padding: var(--sp-2) var(--sp-4); font-size: var(--fs-micro); }
+.c-btn--lg { padding: var(--sp-4) var(--sp-8); font-size: var(--fs-body); }
+.c-btn[disabled], .c-btn[aria-disabled='true'] {
+  opacity: 0.45; cursor: not-allowed; pointer-events: none;
+}
+
+/* ────────────────────────────── Badges ──
+   Test4 本体には「badge」専用の styled-components がない可能性があります。
+   その場合、この c-badge は DS 独自の推奨パターンとなります。
+   status variant の色は theme.ts の semanticColors (sc.*) に準じます。 */
+.c-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+.c-badge--success { color: var(--c-success-dark); background: rgba(52, 211, 153, 0.14); border-color: rgba(52, 211, 153, 0.28); }
+.c-badge--warning { color: var(--c-warning-deep); background: rgba(245, 158, 11, 0.14); border-color: rgba(245, 158, 11, 0.28); }
+.c-badge--danger  { color: var(--c-danger-dark);  background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.28); }
+.c-badge--info    { color: var(--c-info-dark);    background: rgba(56, 189, 248, 0.14);  border-color: rgba(56, 189, 248, 0.28); }
+.c-badge--neutral { color: var(--theme-text2);    background: rgba(148, 163, 184, 0.14); border-color: rgba(148, 163, 184, 0.28); }
+.c-badge--brand   { color: #a5b4fc;               background: rgba(99, 102, 241, 0.16);  border-color: rgba(99, 102, 241, 0.28); }
+
+/* CUD semantic variants — 方向性を示すときは status より semanticColors を推奨 */
+.c-badge--positive { color: var(--c-positive); background: rgba(14, 165, 233, 0.14); border-color: rgba(14, 165, 233, 0.28); }
+.c-badge--negative { color: var(--c-negative); background: rgba(249, 115, 22, 0.14); border-color: rgba(249, 115, 22, 0.28); }
+.c-badge--caution  { color: var(--c-caution);  background: rgba(234, 179, 8, 0.14);  border-color: rgba(234, 179, 8, 0.28); }
+
+.c-badge--pill { border-radius: var(--r-pill); padding: 2px 8px; }
+
+/* ────────────────────────────── Chip group (segmented) ── */
+.c-chipgroup {
+  display: inline-flex;
+  gap: 0;
+  padding: 2px;
+  background: var(--theme-bg3);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-pill);
+}
+.c-chip {
+  all: unset;
+  cursor: pointer;
+  padding: var(--sp-2) var(--sp-5);
+  border-radius: var(--r-pill);
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text2);
+  min-width: 32px;
+  text-align: center;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.c-chip:hover { color: var(--theme-text); }
+.c-chip[aria-selected='true'], .c-chip.is-on {
+  background: var(--c-primary);
+  color: var(--c-white);
+}
+
+/* ────────────────────────────── Card ── */
+.c-card {
+  background: var(--theme-bg3);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  box-shadow: var(--sh-sm);
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.c-card--hover:hover { transform: var(--hover-lift); box-shadow: var(--sh-md); }
+.c-card--accent { border-top: 2px solid var(--c-accent, var(--c-primary)); }
+.c-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-6); }
+.c-card__title { font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--theme-text); }
+.c-card__subtitle { font-size: var(--fs-micro); color: var(--theme-text3); margin-top: 2px; }
+
+/* ────────────────────────────── KPI card ──
+   Test4 本体の KPI カードは presentation/features/*/kpi/* に散らばっています。
+   本 DS 版は形だけの参照実装。 */
+.c-kpi {
+  background: var(--theme-bg3);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+  box-shadow: var(--sh-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.c-kpi:hover { transform: var(--hover-lift); box-shadow: var(--sh-md); }
+.c-kpi--accent { border-top: 2px solid var(--c-accent, var(--c-primary)); }
+.c-kpi__label {
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  color: var(--theme-text3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.c-kpi__row { display: flex; align-items: baseline; gap: var(--sp-3); }
+.c-kpi__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-display);
+  font-weight: var(--fw-bold);
+  color: var(--theme-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.c-kpi__unit { font-size: 0.7em; color: var(--theme-text2); margin-right: 1px; }
+.c-kpi__trend {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+/* trend は CUD semantic を使用 — sc.cond / sc.positive / sc.negative 相当 */
+.c-kpi__trend--up   { color: var(--c-positive); }
+.c-kpi__trend--down { color: var(--c-negative); }
+.c-kpi__trend--flat { color: var(--theme-text3); }
+.c-kpi__sub { font-size: var(--fs-micro); color: var(--theme-text3); }
+.c-kpi__formula {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  color: var(--theme-text4);
+  margin-top: var(--sp-1);
+}
+
+/* ────────────────────────────── Table ── */
+.c-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+}
+.c-table thead th {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-6);
+  font-size: var(--fs-micro);
+  color: var(--theme-text3);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-bg3);
+  position: sticky;
+  top: 0;
+}
+.c-table tbody td {
+  padding: var(--sp-3) var(--sp-6);
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text);
+}
+.c-table tbody tr:last-child td { border-bottom: 0; }
+.c-table tbody tr:hover td { background: var(--theme-hover-bg); }
+
+.c-table .num, .c-table th.num, .c-table td.num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.c-table__dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  margin-right: var(--sp-3);
+  vertical-align: middle;
+}
+.c-table__bar { position: relative; }
+.c-table__bar > span { position: relative; z-index: 1; }
+.c-table__bar::before {
+  content: "";
+  position: absolute;
+  right: 0; top: 2px; bottom: 2px;
+  width: var(--bar-w, 0%);
+  background: var(--bar-color, var(--c-primary));
+  opacity: 0.18;
+  border-radius: var(--r-sm);
+}
+.c-table--compact tbody td { padding: var(--sp-2) var(--sp-5); }
+.c-table--zebra tbody tr:nth-child(odd) td { background: var(--theme-subtle-bg); }
+
+/* ────────────────────────────── Form ── */
+.c-field { display: flex; flex-direction: column; gap: var(--sp-2); }
+.c-field__label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  color: var(--theme-text2);
+}
+.c-field__hint {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  color: var(--theme-text3);
+}
+.c-field__error {
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  color: var(--c-danger-dark);
+}
+.c-input, .c-select, .c-textarea {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  border-radius: var(--r-md);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: box-shadow var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+[data-theme='light'] .c-input,
+[data-theme='light'] .c-select,
+[data-theme='light'] .c-textarea {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14);
+}
+.c-input::placeholder, .c-textarea::placeholder { color: var(--theme-text4); }
+.c-input:hover, .c-select:hover, .c-textarea:hover { background: var(--theme-subtle-bg); }
+.c-input:focus-visible, .c-select:focus-visible, .c-textarea:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--c-primary), var(--focus-ring);
+}
+.c-input[aria-invalid='true'] { box-shadow: inset 0 0 0 1px var(--c-danger-dark); }
+.c-input[disabled] { opacity: 0.5; cursor: not-allowed; }
+.c-input--mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+.c-select {
+  padding-right: var(--sp-8);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--theme-text3) 50%),
+    linear-gradient(135deg, var(--theme-text3) 50%, transparent 50%);
+  background-position: right 12px center, right 7px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.c-textarea { min-height: 72px; }
+
+.c-checkbox, .c-radio {
+  display: inline-flex; align-items: center; gap: var(--sp-3);
+  cursor: pointer;
+  font-size: var(--fs-label);
+  color: var(--theme-text);
+}
+.c-checkbox input, .c-radio input { accent-color: var(--c-primary); }
+
+/* ────────────────────────────── Modal ── */
+.c-modal-backdrop {
+  position: fixed; inset: 0;
+  background: var(--theme-backdrop);
+  backdrop-filter: blur(var(--modal-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-10);
+  animation: c-fade-in var(--t-normal) var(--ease);
+}
+.c-modal {
+  background: var(--theme-bg2);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-lg);
+  min-width: var(--modal-width-sm);
+  max-width: var(--modal-width-md);
+  width: 100%;
+  max-height: var(--modal-max-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: c-modal-in var(--t-slow) var(--spring);
+}
+.c-modal--wide { max-width: var(--modal-width-lg); }
+.c-modal__head {
+  padding: var(--sp-8) var(--sp-8) var(--sp-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--sp-6);
+}
+.c-modal__title {
+  font-size: var(--fs-heading);
+  font-weight: var(--fw-bold);
+  color: var(--theme-text);
+  letter-spacing: -0.01em;
+}
+.c-modal__subtitle { font-size: var(--fs-caption); color: var(--theme-text3); margin-top: 2px; }
+.c-modal__close {
+  all: unset; cursor: pointer;
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--theme-text3);
+  font-size: 18px;
+}
+.c-modal__close:hover { background: var(--theme-hover-bg); color: var(--theme-text); }
+.c-modal__body {
+  padding: 0 var(--sp-8) var(--sp-8);
+  font-size: var(--fs-body);
+  color: var(--theme-text);
+  line-height: 1.6;
+  overflow-y: auto;
+}
+.c-modal__foot {
+  padding: var(--sp-6) var(--sp-8);
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-bg3);
+  display: flex; justify-content: flex-end; gap: var(--sp-4);
+}
+@keyframes c-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes c-modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ────────────────────────────── Toast ── */
+.c-toast-wrap {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 360px;
+}
+.c-toast {
+  display: grid;
+  grid-template-columns: 3px auto 1fr auto;
+  align-items: center;
+  gap: var(--sp-4);
+  background: var(--theme-bg3);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-6);
+  box-shadow: var(--sh-lg);
+  font-size: var(--fs-label);
+  color: var(--theme-text);
+  animation: c-toast-in var(--t-slow) var(--spring);
+}
+.c-toast__rail { align-self: stretch; border-radius: 2px; }
+.c-toast--success .c-toast__rail { background: var(--c-success-dark); }
+.c-toast--warning .c-toast__rail { background: var(--c-warning-dark); }
+.c-toast--danger  .c-toast__rail { background: var(--c-danger-dark); }
+.c-toast--info    .c-toast__rail { background: var(--c-info-dark); }
+.c-toast__icon { font-size: 14px; }
+.c-toast__body { display: flex; flex-direction: column; gap: 2px; }
+.c-toast__title { font-weight: var(--fw-semibold); }
+.c-toast__desc  { font-size: var(--fs-micro); color: var(--theme-text3); }
+.c-toast__close {
+  all: unset; cursor: pointer;
+  color: var(--theme-text3);
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+}
+.c-toast__close:hover { background: var(--theme-hover-bg); color: var(--theme-text); }
+@keyframes c-toast-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ────────────────────────────── Tooltip ── */
+.c-tooltip {
+  display: inline-flex;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--theme-bg4);
+  color: var(--theme-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-micro);
+  border-radius: var(--r-sm);
+  box-shadow: var(--theme-elev-tooltip);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ────────────────────────────── Empty state ── */
+.c-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px var(--sp-10); gap: var(--sp-4);
+  color: var(--theme-text3); text-align: center;
+}
+.c-empty__icon { font-size: 36px; }
+.c-empty__title { font-size: var(--fs-heading); font-weight: var(--fw-bold); color: var(--theme-text); }
+.c-empty__desc  { font-size: var(--fs-body); color: var(--theme-text3); max-width: 360px; }
+
+/* ────────────────────────────── Status dot ── */
+.c-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.c-dot--success { background: var(--c-success-dark); }
+.c-dot--warning { background: var(--c-warning-dark); }
+.c-dot--danger  { background: var(--c-danger-dark); }
+.c-dot--info    { background: var(--c-info); }
+.c-dot--idle    { background: var(--theme-text4); }
+.c-dot--pulse   { animation: c-pulse 1.2s ease-in-out infinite; }
+@keyframes c-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ────────────────────────────── Divider ── */
+.c-divider {
+  border: 0;
+  border-top: 1px solid var(--theme-border);
+  margin: var(--sp-6) 0;
+}

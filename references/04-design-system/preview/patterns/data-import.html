@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Data Import Pattern — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .di-layout { display: grid; grid-template-columns: 320px 1fr; gap: var(--sp-8); }
+  .di-side {
+    background: var(--theme-bg2);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-8);
+    display: flex; flex-direction: column; gap: var(--sp-8);
+  }
+  .di-head { display: flex; flex-direction: column; gap: var(--sp-1); }
+  .di-eyebrow { font-size: var(--fs-micro); font-weight: var(--fw-semibold); color: var(--theme-text3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .di-title { font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--theme-text); }
+
+  .di-drop {
+    border: 1.5px dashed var(--theme-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-10);
+    display: flex; flex-direction: column; align-items: center; gap: var(--sp-3);
+    text-align: center; cursor: pointer;
+    transition: border-color var(--t-normal) var(--ease), background var(--t-normal) var(--ease);
+  }
+  .di-drop:hover { border-color: var(--c-primary); background: var(--theme-subtle-bg); }
+  .di-drop-ic {
+    width: 40px; height: 40px; border-radius: var(--r-md);
+    background: var(--theme-active-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #a5b4fc;
+  }
+  .di-drop-primary { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .di-drop-secondary { font-size: var(--fs-caption); color: var(--theme-text3); line-height: 1.5; max-width: 220px; }
+
+  .di-section { display: flex; flex-direction: column; gap: var(--sp-4); }
+  .di-section-head { display: flex; justify-content: space-between; align-items: center; }
+  .di-section-title { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text2); }
+  .di-section-count { font-family: var(--font-mono); font-size: var(--fs-micro); color: var(--theme-text3); }
+
+  .di-file {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: var(--sp-3); align-items: center;
+    padding: var(--sp-4) var(--sp-5);
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-md);
+  }
+  .di-file-ic { font-size: 14px; }
+  .di-file-name { font-size: var(--fs-label); font-weight: var(--fw-medium); color: var(--theme-text); }
+  .di-file-meta { font-size: var(--fs-micro); color: var(--theme-text3); display: flex; gap: var(--sp-2); align-items: center; margin-top: 2px; font-family: var(--font-mono); }
+  .di-file-x {
+    all: unset; cursor: pointer; color: var(--theme-text3);
+    width: 18px; height: 18px; border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .di-file-x:hover { background: var(--theme-hover-bg); color: var(--theme-text); }
+
+  .di-calc-row {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-3) 0;
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .di-calc-row:last-child { border-bottom: 0; }
+  .di-calc-name { flex: 1; font-size: var(--fs-label); color: var(--theme-text2); }
+  .di-calc-st { font-size: var(--fs-micro); font-weight: var(--fw-semibold); font-family: var(--font-mono); }
+  .di-calc-st-done { color: var(--c-success-dark); }
+  .di-calc-st-run  { color: var(--c-info-dark); }
+  .di-calc-st-idle { color: var(--theme-text3); }
+
+  .di-main {
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-lg);
+    padding: 0;
+    overflow: hidden;
+  }
+  .di-main-head {
+    padding: var(--sp-8);
+    display: flex; flex-direction: column; gap: var(--sp-2);
+    border-bottom: 1px solid var(--theme-border);
+  }
+  .di-main-title { font-size: var(--fs-title); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .di-main-sub { font-size: var(--fs-micro); color: var(--theme-text3); }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Patterns</div>
+    <div class="pv-title">Data Import</div>
+    <div class="pv-sub">左のサイドバーが主役。Dropzone、ファイルリスト、計算キュー（Status Dot の実運用例）。テーブル・バッジ・ボタン・トーストが一画面に揃います。</div>
+  </div>
+  <div class="pv-meta">c-dot · c-badge · c-table · dropzone</div>
+</header>
+
+<div class="di-layout">
+
+  <!-- Sidebar -->
+  <aside class="di-side">
+    <div class="di-head">
+      <span class="di-eyebrow">Data Management</span>
+      <span class="di-title">データ取り込み</span>
+    </div>
+
+    <div class="di-drop">
+      <div class="di-drop-ic">📁</div>
+      <div class="di-drop-primary">ファイルをドロップ</div>
+      <div class="di-drop-secondary">.xlsx / .csv / .tsv<br />または下のボタンから選択</div>
+      <button class="c-btn c-btn--primary c-btn--sm" style="margin-top: var(--sp-3);">ファイルを選択</button>
+    </div>
+
+    <div class="di-section">
+      <div class="di-section-head">
+        <span class="di-section-title">取り込み済み</span>
+        <span class="di-section-count">3 件</span>
+      </div>
+
+      <div class="di-file">
+        <span class="di-file-ic">📊</span>
+        <div>
+          <div class="di-file-name">売上日計_202511.xlsx</div>
+          <div class="di-file-meta">48,293 rows · 2025-11-01 — 11-30</div>
+        </div>
+        <button class="di-file-x" aria-label="削除">×</button>
+      </div>
+
+      <div class="di-file">
+        <span class="di-file-ic">🛒</span>
+        <div>
+          <div class="di-file-name">仕入実績_202511.csv</div>
+          <div class="di-file-meta">12,841 rows · 2025-11-01 — 11-30</div>
+        </div>
+        <button class="di-file-x" aria-label="削除">×</button>
+      </div>
+
+      <div class="di-file">
+        <span class="di-file-ic">💰</span>
+        <div>
+          <div class="di-file-name">予算_202511.xlsx</div>
+          <div class="di-file-meta">214 rows · 2025-11 月次</div>
+        </div>
+        <button class="di-file-x" aria-label="削除">×</button>
+      </div>
+    </div>
+
+    <div class="di-section">
+      <div class="di-section-head">
+        <span class="di-section-title">計算状態</span>
+        <span class="di-section-count">2 / 4 完了</span>
+      </div>
+
+      <div>
+        <div class="di-calc-row">
+          <span class="c-dot c-dot--success"></span>
+          <span class="di-calc-name">粗利計算</span>
+          <span class="di-calc-st di-calc-st-done">済</span>
+        </div>
+        <div class="di-calc-row">
+          <span class="c-dot c-dot--success"></span>
+          <span class="di-calc-name">要因分解</span>
+          <span class="di-calc-st di-calc-st-done">済</span>
+        </div>
+        <div class="di-calc-row">
+          <span class="c-dot c-dot--info c-dot--pulse"></span>
+          <span class="di-calc-name">需要予測</span>
+          <span class="di-calc-st di-calc-st-run">実行中</span>
+        </div>
+        <div class="di-calc-row">
+          <span class="c-dot c-dot--idle"></span>
+          <span class="di-calc-name">天気相関</span>
+          <span class="di-calc-st di-calc-st-idle">待機</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="di-main">
+    <div class="di-main-head">
+      <div class="di-main-title">取り込みプレビュー — 売上日計_202511.xlsx</div>
+      <div class="di-main-sub">先頭 6 行を表示 · 列マッピングは自動推定</div>
+    </div>
+
+    <table class="c-table c-table--compact" style="width: 100%;">
+      <thead>
+        <tr>
+          <th style="padding-left: var(--sp-8);">日付</th>
+          <th>店舗</th>
+          <th>部門</th>
+          <th class="num">売上</th>
+          <th class="num">客数</th>
+          <th class="num">点数</th>
+          <th style="padding-right: var(--sp-8);">列マッピング</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>101 本店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-ti)"></span>店間入</td>
+          <td class="num">128,400</td>
+          <td class="num">312</td>
+          <td class="num">1,082</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--success">自動推定</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>101 本店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-to)"></span>店間出</td>
+          <td class="num">98,240</td>
+          <td class="num">184</td>
+          <td class="num">612</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--success">自動推定</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>101 本店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-bi)"></span>部門間入</td>
+          <td class="num">72,180</td>
+          <td class="num">141</td>
+          <td class="num">498</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--warning">要確認</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>102 駅前店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-ti)"></span>店間入</td>
+          <td class="num">144,820</td>
+          <td class="num">394</td>
+          <td class="num">1,241</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--success">自動推定</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>102 駅前店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-to)"></span>店間出</td>
+          <td class="num">112,040</td>
+          <td class="num">218</td>
+          <td class="num">704</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--success">自動推定</span></td>
+        </tr>
+        <tr>
+          <td style="padding-left: var(--sp-8);">2025-11-01</td>
+          <td>102 駅前店</td>
+          <td><span class="c-table__dot" style="background: var(--gradient-bo)"></span>部門間出</td>
+          <td class="num">68,320</td>
+          <td class="num">148</td>
+          <td class="num">389</td>
+          <td style="padding-right: var(--sp-8);"><span class="c-badge c-badge--success">自動推定</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="padding: var(--sp-6) var(--sp-8); border-top: 1px solid var(--theme-border); display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: var(--fs-micro); color: var(--theme-text3);">残り 48,287 行が同様のフォーマットで続きます</span>
+      <div style="display: flex; gap: var(--sp-4);">
+        <button class="c-btn c-btn--ghost">列マッピングを編集</button>
+        <button class="c-btn c-btn--primary">この内容で取り込み</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

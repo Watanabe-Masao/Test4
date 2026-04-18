@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Shadow & Motion — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+  .sh-card {
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-8);
+    display: flex; flex-direction: column; gap: var(--sp-3);
+    min-height: 112px;
+  }
+  .sh-name { font-size: var(--fs-label); font-weight: var(--fw-semibold); color: var(--theme-text); }
+  .sh-token { font-family: var(--font-mono); font-size: var(--fs-micro); color: #a5b4fc; background: var(--theme-active-bg); padding: 1px 5px; border-radius: var(--r-sm); width: fit-content; }
+  .sh-use { font-size: var(--fs-micro); color: var(--theme-text3); line-height: 1.5; }
+
+  .m-demo {
+    display: flex; gap: var(--sp-6); align-items: center;
+    padding: var(--sp-6);
+    background: var(--theme-bg3);
+    border: 1px solid var(--theme-border);
+    border-radius: var(--r-md);
+  }
+  .m-ball {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--c-primary), var(--c-purple-dark));
+    border-radius: 999px;
+  }
+  .m-fast   { animation: mv 1.5s var(--ease) infinite alternate; }
+  .m-normal { animation: mv 2.5s var(--ease) infinite alternate; }
+  .m-slow   { animation: mv 3.5s var(--ease) infinite alternate; }
+  .m-spring { animation: mv 2.5s var(--spring) infinite alternate; }
+  @keyframes mv { from { transform: translateX(0); } to { transform: translateX(140px); } }
+</style>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Foundations</div>
+    <div class="pv-title">Shadow &amp; Motion</div>
+    <div class="pv-sub">ダーク既定の環境で視認可能なぎりぎりの弱さが基本。モーダル／ポップアップのみ α=15% で存在感を出します。</div>
+  </div>
+  <div class="pv-meta">--sh-* / --t-* / --ease / --spring</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Shadow</span>
+    <span class="pv-section-hint">--sh-*</span>
+  </div>
+  <div class="pv-example pv-example--grid pv-example--pad-lg">
+    <div class="sh-card" style="box-shadow: var(--sh-sm);">
+      <div class="sh-name">sm</div>
+      <div class="sh-token">--sh-sm</div>
+      <div class="sh-use">カード at rest。ほぼ感じないくらい。</div>
+    </div>
+    <div class="sh-card" style="box-shadow: var(--sh-md);">
+      <div class="sh-name">md</div>
+      <div class="sh-token">--sh-md</div>
+      <div class="sh-use">カード hover。sm → md で 1px リフト。</div>
+    </div>
+    <div class="sh-card" style="box-shadow: var(--sh-lg);">
+      <div class="sh-name">lg</div>
+      <div class="sh-token">--sh-lg</div>
+      <div class="sh-use">モーダル・ポップオーバー。</div>
+    </div>
+    <div class="sh-card" style="box-shadow: var(--sh-popup);">
+      <div class="sh-name">popup</div>
+      <div class="sh-token">--sh-popup</div>
+      <div class="sh-use">ドロップダウン・コンテキストメニュー。</div>
+    </div>
+    <div class="sh-card" style="box-shadow: var(--sh-tooltip);">
+      <div class="sh-name">tooltip</div>
+      <div class="sh-token">--sh-tooltip</div>
+      <div class="sh-use">ツールチップ吹き出し。</div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head">
+    <span class="pv-section-title">Motion — durations</span>
+    <span class="pv-section-hint">--t-fast / --t-normal / --t-slow</span>
+  </div>
+  <div class="pv-example pv-example--stack">
+    <div>
+      <div class="sh-token" style="margin-bottom: var(--sp-3);">--t-fast · 0.15s / ease</div>
+      <div class="m-demo"><div class="m-ball m-fast"></div><span style="color: var(--theme-text3); font-size: var(--fs-micro);">ホバー・チップ切り替え</span></div>
+    </div>
+    <div>
+      <div class="sh-token" style="margin-bottom: var(--sp-3);">--t-normal · 0.25s / ease</div>
+      <div class="m-demo"><div class="m-ball m-normal"></div><span style="color: var(--theme-text3); font-size: var(--fs-micro);">既定。多くの遷移。</span></div>
+    </div>
+    <div>
+      <div class="sh-token" style="margin-bottom: var(--sp-3);">--t-slow · 0.35s / ease</div>
+      <div class="m-demo"><div class="m-ball m-slow"></div><span style="color: var(--theme-text3); font-size: var(--fs-micro);">モーダル・トースト入場の感じ。</span></div>
+    </div>
+    <div>
+      <div class="sh-token" style="margin-bottom: var(--sp-3);">--spring · cubic-bezier(0.34, 1.56, 0.64, 1)</div>
+      <div class="m-demo"><div class="m-ball m-spring"></div><span style="color: var(--theme-text3); font-size: var(--fs-micro);">モーダル・トーストの入場に（やや弾む）。</span></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Empty State — Shiire-Arari DS v2.1</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="../../components.css">
+<link rel="stylesheet" href="../_preview.css">
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <div class="pv-eyebrow">Components</div>
+    <div class="pv-title">Empty State</div>
+    <div class="pv-sub">データ未ロードや未実装ページのフォールバック。アイコンは emoji / unicode のみ、イラストは使いません。</div>
+  </div>
+  <div class="pv-meta">c-empty</div>
+</header>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Data not loaded</span><span class="pv-section-hint">初回起動</span></div>
+  <div class="pv-example" style="padding: 0;">
+    <div class="c-empty" style="width: 100%;">
+      <div class="c-empty__icon">📊</div>
+      <div class="c-empty__title">データを読み込んでください</div>
+      <div class="c-empty__desc">左のサイドバーからファイルをドラッグ＆ドロップすると自動で計算されます。</div>
+      <div style="margin-top: var(--sp-4);">
+        <button class="c-btn c-btn--primary">ファイルを選択</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Page placeholder</span><span class="pv-section-hint">未実装 / 開発中</span></div>
+  <div class="pv-grid pv-grid--2">
+    <div class="pv-example" style="padding: 0;">
+      <div class="c-empty" style="width: 100%;">
+        <div class="c-empty__icon">🌤</div>
+        <div class="c-empty__title">天気相関</div>
+        <div class="c-empty__desc">気象庁データとの売上相関分析。データの準備ができ次第表示されます。</div>
+      </div>
+    </div>
+
+    <div class="pv-example" style="padding: 0;">
+      <div class="c-empty" style="width: 100%;">
+        <div class="c-empty__icon">🔮</div>
+        <div class="c-empty__title">需要予測</div>
+        <div class="c-empty__desc">週別予測・曜日パターン・着地予測。計算が進むとこのページに結果が現れます。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pv-section">
+  <div class="pv-section-head"><span class="pv-section-title">Error / empty result</span><span class="pv-section-hint">検索 0 件・フィルタでデータ無し</span></div>
+  <div class="pv-example" style="padding: 0;">
+    <div class="c-empty" style="width: 100%;">
+      <div class="c-empty__icon">🔍</div>
+      <div class="c-empty__title">該当するカテゴリがありません</div>
+      <div class="c-empty__desc">絞り込み条件を変更するか、期間を広げて再検索してください。</div>
+      <div style="margin-top: var(--sp-4);">
+        <button class="c-btn c-btn--outline">フィルタを解除</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
