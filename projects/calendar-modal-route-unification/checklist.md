@@ -9,7 +9,7 @@
 
 ## Phase A: paired handler 統一
 
-* [ ] `useDayDetailPlan` 内の `categoryTimeRecordsHandler` 直接呼び出し箇所を棚卸しし、件数を `HANDOFF.md` に記録する
+* [x] `useDayDetailPlan` 内の `categoryTimeRecordsHandler` 直接呼び出し箇所を棚卸しし、件数を `HANDOFF.md` に記録する
 * [ ] 棚卸しした全箇所を `categoryTimeRecordsPairHandler` 経由に置換する
 * [ ] モーダル表示の回帰テスト（当年・前年・前年比較）を実行し、表示崩れがないことを確認する
 * [ ] handler 統一後も `selectCtsWithFallback` への依存が残っていないかを grep で確認し、依存先一覧を `HANDOFF.md` に記録する
