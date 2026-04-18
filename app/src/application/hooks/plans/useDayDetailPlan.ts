@@ -1,12 +1,10 @@
 /**
  * useDayDetailPlan — 日別詳細の Screen Query Plan
  *
- * 10 本のクエリ（CTS 5系統 + Summary 3系統 + Weather 2系統）を一括管理し、
- * isPrevYear fallback を plan 内に閉じる。
- * CTS は pair handler（dayPair / cumPair）+ 単発（wow）+ フォールバック 2 系統。
- *
- * dayDetailDataLogic.ts の純粋関数（入力構築・fallback 選択・集約）を使用し、
- * plan 本体はクエリ発行と結果の組み立てのみを担当する。
+ * カテゴリ leaf 日次比較（当日 + 累計）+ TimeSlot 集計（時間帯）+ Summary +
+ * Weather を一括管理する。比較 fallback（前年空 → 当年同日付救済）は
+ * `useCategoryLeafDailyBundle` 内部で畳み込むため、plan 本体は bundle 結果を
+ * そのまま返す。
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
@@ -22,8 +20,13 @@ import type {
   TimeSlotFrame,
   TimeSlotSeries,
 } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import { useCategoryLeafDailyBundle } from '@/application/hooks/categoryLeafDaily/useCategoryLeafDailyBundle'
+import type {
+  CategoryLeafDailyFrame,
+  CategoryLeafDailyEntry,
+  CategoryLeafDailySeries,
+} from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { categoryTimeRecordsHandler } from '@/application/queries/cts/CategoryTimeRecordsHandler'
-import { categoryTimeRecordsPairHandler } from '@/application/queries/cts/CategoryTimeRecordsPairHandler'
 import { storeDaySummaryHandler } from '@/application/queries/summary/StoreDaySummaryHandler'
 import { weatherHourlyHandler } from '@/application/queries/weather/WeatherHourlyHandler'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
@@ -31,39 +34,44 @@ import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
   resolveDayDetailRanges,
   buildCtsInput,
-  buildCtsPairInput,
   buildDayComparisonScope,
   buildSummaryInput,
   buildWeatherInput,
-  selectCtsWithFallbackFromPair,
   aggregateSummary,
   EMPTY_RECORDS,
   ZERO_SUMMARY,
 } from '../duckdb/dayDetailDataLogic'
 import type { DaySummary } from '../duckdb/dayDetailDataLogic'
-import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
 
-const emptyRecords = EMPTY_RECORDS
+const emptyEntries: readonly CategoryLeafDailyEntry[] = EMPTY_RECORDS
 const zeroSummary = ZERO_SUMMARY
 
-/** resolveDayDetailRanges の戻り値型  *
- * @responsibility R:query-plan
- */
 type DayDetailRanges = ReturnType<typeof resolveDayDetailRanges>
 
 export interface DayDetailPlanResult {
   readonly daySummary: DaySummary
   readonly prevDaySummary: DaySummary
-  readonly dayRecords: readonly CategoryTimeSalesRecord[]
-  readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly wowPrevDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
+  /** 当日の leaf 群 — dayLeafBundle.currentSeries.entries と同一参照 */
+  readonly dayRecords: readonly CategoryLeafDailyEntry[]
+  /** 比較日の leaf 群（fallback 反映後）*/
+  readonly prevDayRecords: readonly CategoryLeafDailyEntry[]
+  /** 前週同曜日 leaf 群（単発取得、bundle 対象外） */
+  readonly wowPrevDayRecords: readonly CategoryLeafDailyEntry[]
+  /** 累計 leaf 群 */
+  readonly cumRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumPrevRecords: readonly CategoryLeafDailyEntry[]
+  /** 当日 leaf series */
+  readonly dayLeafCurrentSeries: CategoryLeafDailySeries | null
+  readonly dayLeafComparisonSeries: CategoryLeafDailySeries | null
+  /** 累計 leaf series */
+  readonly cumLeafCurrentSeries: CategoryLeafDailySeries | null
+  readonly cumLeafComparisonSeries: CategoryLeafDailySeries | null
   readonly weatherHourly: readonly HourlyWeatherRecord[] | undefined
   readonly prevWeatherHourly: readonly HourlyWeatherRecord[] | undefined
   /** 時間帯集計 lane（当日）— HourlyChart の amount/quantity 源 */
   readonly timeSlotCurrentSeries: TimeSlotSeries | null
-  /** 時間帯集計 lane（前年同日 — comparisonScope.alignmentMode に従う） */
+  /** 時間帯集計 lane（比較日） */
   readonly timeSlotComparisonSeries: TimeSlotSeries | null
   readonly comparisonProvenance: PlanComparisonProvenance
 }
@@ -75,21 +83,37 @@ export function useDayDetailPlan(
   weatherStoreId: string | undefined,
   comparisonScope: ComparisonScope | null,
 ): DayDetailPlanResult {
-  // ── CTS 入力（pair 化済 5 系統を1 useMemo に集約） ──
-  // dayPair / cumPair は (day, prevDay) / (cum, cumPrev) を pair handler で同時取得する。
-  // wow は比較相手を持たないため単発のまま。
-  // prevDayFallback / cumPrevFallback は前年スコープが空のときの当年スコープ救済で、
-  //   data-flow-unification 完了後も Phase B で bundle 経由化と同時に撤廃判断する。
-  const cts = useMemo(
-    () => ({
-      dayPair: buildCtsPairInput(ranges.singleDayRange, ranges.prevDayRange, selectedStoreIds),
-      prevDayFallback: buildCtsInput(ranges.prevDayRange, selectedStoreIds),
-      wow: buildCtsInput(ranges.wowRange, selectedStoreIds),
-      cumPair: buildCtsPairInput(ranges.cumRange, ranges.cumPrevRange, selectedStoreIds),
-      cumPrevFallback: buildCtsInput(ranges.cumPrevRange, selectedStoreIds),
-    }),
-    [ranges, selectedStoreIds],
+  // ── Leaf 日次 bundle の frame（当日 / 累計）──
+  const dayLeafFrame = useMemo<CategoryLeafDailyFrame | null>(() => {
+    if (selectedStoreIds.size === 0) return null
+    return {
+      dateRange: ranges.singleDayRange,
+      storeIds: [...selectedStoreIds],
+      comparison: buildDayComparisonScope(comparisonScope, ranges),
+    }
+  }, [ranges, selectedStoreIds, comparisonScope])
+
+  const cumLeafFrame = useMemo<CategoryLeafDailyFrame | null>(() => {
+    if (selectedStoreIds.size === 0) return null
+    return {
+      dateRange: ranges.cumRange,
+      storeIds: [...selectedStoreIds],
+      comparison: buildDayComparisonScope(comparisonScope, {
+        singleDayRange: ranges.cumRange,
+        prevDayRange: ranges.cumPrevRange,
+      }),
+    }
+  }, [ranges, selectedStoreIds, comparisonScope])
+
+  const dayLeafBundle = useCategoryLeafDailyBundle(queryExecutor, dayLeafFrame)
+  const cumLeafBundle = useCategoryLeafDailyBundle(queryExecutor, cumLeafFrame)
+
+  // ── wow（単発、bundle 対象外）──
+  const wowInput = useMemo(
+    () => buildCtsInput(ranges.wowRange, selectedStoreIds),
+    [ranges.wowRange, selectedStoreIds],
   )
+  const wowResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, wowInput)
 
   // ── Summary 入力（3系統を1 useMemo に集約） ──
   const summary = useMemo(
@@ -110,33 +134,6 @@ export function useDayDetailPlan(
     [weatherStoreId, ranges],
   )
 
-  // ── CTS クエリ実行 ──
-  const dayPairResult = useQueryWithHandler(
-    queryExecutor,
-    categoryTimeRecordsPairHandler,
-    cts.dayPair,
-  )
-  const prevDayFallback = useQueryWithHandler(
-    queryExecutor,
-    categoryTimeRecordsHandler,
-    cts.prevDayFallback,
-  )
-  const wowResult = useQueryWithHandler(queryExecutor, categoryTimeRecordsHandler, cts.wow)
-  const cumPairResult = useQueryWithHandler(
-    queryExecutor,
-    categoryTimeRecordsPairHandler,
-    cts.cumPair,
-  )
-  const cumPrevFallback = useQueryWithHandler(
-    queryExecutor,
-    categoryTimeRecordsHandler,
-    cts.cumPrevFallback,
-  )
-
-  const prevDayRecords = selectCtsWithFallbackFromPair(dayPairResult, prevDayFallback)
-  const cumPrevRecords = selectCtsWithFallbackFromPair(cumPairResult, cumPrevFallback)
-
-  // ── Summary クエリ実行 ──
   const curSummaryResult = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, summary.cur)
   const prevSummaryResult = useQueryWithHandler(queryExecutor, storeDaySummaryHandler, summary.prev)
   const prevSummaryFallback = useQueryWithHandler(
@@ -150,13 +147,9 @@ export function useDayDetailPlan(
     aggregateSummary(prevSummaryFallback.data?.records) ??
     zeroSummary
 
-  // ── Weather クエリ実行 ──
   const weatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.cur)
   const prevWeatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.prev)
 
-  // ── TimeSlot 集計 lane（当日 + 比較日）──
-  // HourlyChart の amount/quantity 集計源。leaf-grain（カテゴリ詳細）用の raw CTS は
-  // 別経路で dayRecords / prevDayRecords に保持する。
   const timeSlotFrame = useMemo<TimeSlotFrame | null>(() => {
     if (selectedStoreIds.size === 0) return null
     return {
@@ -170,19 +163,23 @@ export function useDayDetailPlan(
   const comparisonProvenance = useMemo<PlanComparisonProvenance>(
     () => ({
       window: yoyWindow(ranges.prevDayRange),
-      comparisonAvailable: dayPairResult.data?.comparison != null || prevDayFallback.data != null,
+      comparisonAvailable: dayLeafBundle.comparisonSeries != null,
     }),
-    [ranges.prevDayRange, dayPairResult.data, prevDayFallback.data],
+    [ranges.prevDayRange, dayLeafBundle.comparisonSeries],
   )
 
   return {
     daySummary,
     prevDaySummary,
-    dayRecords: dayPairResult.data?.current?.records ?? emptyRecords,
-    prevDayRecords,
-    wowPrevDayRecords: wowResult.data?.records ?? emptyRecords,
-    cumRecords: cumPairResult.data?.current?.records ?? emptyRecords,
-    cumPrevRecords,
+    dayRecords: dayLeafBundle.currentSeries?.entries ?? emptyEntries,
+    prevDayRecords: dayLeafBundle.comparisonSeries?.entries ?? emptyEntries,
+    wowPrevDayRecords: wowResult.data?.records ?? emptyEntries,
+    cumRecords: cumLeafBundle.currentSeries?.entries ?? emptyEntries,
+    cumPrevRecords: cumLeafBundle.comparisonSeries?.entries ?? emptyEntries,
+    dayLeafCurrentSeries: dayLeafBundle.currentSeries,
+    dayLeafComparisonSeries: dayLeafBundle.comparisonSeries,
+    cumLeafCurrentSeries: cumLeafBundle.currentSeries,
+    cumLeafComparisonSeries: cumLeafBundle.comparisonSeries,
     weatherHourly: weatherResult.data?.records ?? undefined,
     prevWeatherHourly: prevWeatherResult.data?.records ?? undefined,
     timeSlotCurrentSeries: timeSlotBundle.currentSeries,

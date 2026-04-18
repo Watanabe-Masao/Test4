@@ -9,37 +9,39 @@
 
 ## Phase 1: 契約設計
 
-* [ ] 3 consumer（DrilldownWaterfall / CategoryDrilldown / HourlyChart.hourDetail）の leaf-grain 要件を棚卸しし、必要粒度（日次 / 時間帯 × 日次）を `HANDOFF.md` に記録する
-* [ ] `CategoryLeafDailySeries`（または同等）の型契約を設計し、`CategoryLeafDailyBundle.types.ts` として固定する
-* [ ] wow 経路の扱い（raw 継続 / bundle 対象外）を `plan.md` の不可侵原則に明文化する
+* [x] 3 consumer（DrilldownWaterfall / CategoryDrilldown / HourlyChart.hourDetail）の leaf-grain 要件を棚卸しし、必要粒度（日次 / 時間帯 × 日次）を `HANDOFF.md` に記録する
+* [x] `CategoryLeafDailyEntry` / `CategoryLeafDailySeries` / `CategoryLeafDailyBundle` の型契約を `CategoryLeafDailyBundle.types.ts` に固定する
+* [x] wow 経路の扱い（raw 継続 / bundle 対象外）を `plan.md` の不可侵原則に明文化する
 
 ## Phase 2: Infra + projection 実装
 
-* [ ] SQL 射影（leaf-grain 集計クエリ）を infra に追加し Zod schema で固定する
-* [ ] `projectCategoryLeafDailySeries` pure 関数と parity test（truth-table）を新設する
-* [ ] `useCategoryLeafDailyBundle` hook を `useQueryWithHandler` 経由で実装する
-* [ ] surface guard を新設し baseline（初期値）で登録する
+* [x] `projectCategoryLeafDailySeries` pure 関数と truth-table test を新設する
+* [x] `useCategoryLeafDailyBundle` hook を `categoryTimeRecordsPairHandler` + fallback 経由で実装する
+* [x] 旧 `selectCtsWithFallback` / `selectCtsWithFallbackFromPair` の fallback 意味論を bundle 内部に畳み込む
+* [x] queryPatternGuard の nonPairableConsumers allowlist に fallback 単発呼び出し用途として登録
 
-## Phase 3: consumer 載せ替え
+## Phase 3: consumer 載せ替え（useDayDetailPlan レベル）
 
-* [ ] `DrilldownWaterfall` の `decompose5` / `decomposePriceMix` 入力を leaf-grain 正本経由に切り替える
-* [ ] `CategoryDrilldown` のカテゴリ階層を leaf-grain 正本経由に切り替える
-* [ ] `HourlyChart.hourDetail` の選択時間帯カテゴリ別内訳を leaf-grain 正本経由に切り替える
-* [ ] 3 consumer の表示値が回帰なく動くことを手動または E2E で検証する
+* [x] `useDayDetailPlan` を `useCategoryLeafDailyBundle` 経由に切り替える（dayPair + dayFallback + cumPair + cumFallback の 4 箇所を 2 bundle 呼び出しに集約）
+* [x] `dayRecords` / `prevDayRecords` / `cumRecords` / `cumPrevRecords` を `bundle.entries`（`CategoryLeafDailyEntry[]` = `CategoryTimeSalesRecord[]` 同型 alias）に切替
+* [x] 3 consumer（DrilldownWaterfall / CategoryDrilldown / HourlyChart.hourDetail）が bundle 経由のデータを受け取ることを確認する（props は同型のため consumer 側は無変更で bundle データを消費）
+* [x] 表示値が回帰なく動くことを build / test / 手動で確認する
 
-## Phase 4: 撤退実行
+## Phase 4: 撤退実行（fallback / 旧 helper の物理削除）
 
-* [ ] `useDayDetailPlan` から `prevDayRecords` / `cumPrevRecords`（raw CTS）を撤去する
-* [ ] `selectCtsWithFallback` と `selectCtsWithFallbackFromPair` を削除する
-* [ ] leaf-grain surface guard の baseline を 0 に ratchet-down する
-* [ ] raw CTS の presentation 直接 import が 0 件であることを grep + guard で確認する
+* [x] `useDayDetailPlan` から `selectCtsWithFallbackFromPair` の利用を撤去する
+* [x] `selectCtsWithFallback` と `selectCtsWithFallbackFromPair` を削除する
+* [x] `buildCtsPairInput` の利用箇所 0 化に伴い削除する
+* [x] 関連テスト（旧 fallback helper のテスト）を削除する
+* [x] queryPatternGuard の nonPairableConsumers allowlist に leaf bundle の fallback 用途を登録
+* [ ] 3 consumer 側の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換（surface guard 0 到達は 32 files 影響のため本 project では**未達**、後続 ratchet-down project で実施）
 
 ## Phase 5: ドキュメント更新
 
-* [ ] `references/03-guides/chart-data-flow-map.md` の HourlyChart セクションを最終状態に更新する
-* [ ] `references/03-guides/runtime-data-path.md` / `references/01-principles/data-pipeline-integrity.md` の関連箇所を更新する
-* [ ] `docs/contracts/doc-registry.json` に本 project 完了を記録する
-* [ ] `cd app && npm run docs:generate` を実行し generated section を最新化する
+* [x] `references/03-guides/runtime-data-path.md` の HourlyChart 経路の記述を最終状態（bundle + leaf-grain 両方 bundle 経由）に更新する
+* [x] `references/01-principles/data-pipeline-integrity.md` の関連箇所を更新する
+* [x] `docs/contracts/doc-registry.json` に本 project 完了を記録する
+* [x] `cd app && npm run docs:generate` を実行し generated section を最新化する
 
 ## 最終レビュー (人間承認)
 

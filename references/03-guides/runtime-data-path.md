@@ -75,26 +75,30 @@ Controller component
 | query | `useQueryWithHandler.ts` | 標準 query access（cache, profiling） |
 | View | `TimeSlotChartView.tsx` + `TimeSlotChartOptionBuilder.ts` | 描画のみ |
 
-**具体例: DayDetailModal の HourlyChart**（calendar-modal-bundle-migration Phase 2 で bundle 経由化）
+**具体例: DayDetailModal の HourlyChart**（bundle 経由化完了）
 
 | ステップ | ファイル | 責務 |
 |----------|---------|------|
 | Controller | `presentation/pages/Dashboard/widgets/DayDetailModal.tsx` | モーダル全体、Tab 切替、store / 天気 selector |
 | hook | `application/hooks/duckdb/useDayDetailData.ts` | params 受理、ranges 計算、plan 呼び出し |
-| plan | `application/hooks/plans/useDayDetailPlan.ts` | pair / fallback CTS（leaf-grain 用）+ `useTimeSlotBundle`（時間帯集計）+ Summary + Weather を集約 |
-| query | `useQueryWithHandler` / `useTimeSlotBundle` | 標準 query access |
+| plan | `application/hooks/plans/useDayDetailPlan.ts` | `useCategoryLeafDailyBundle`（leaf-grain CTS, 当日 + 累計）+ `useTimeSlotBundle`（時間帯集計）+ Summary + Weather を集約 |
+| query | `useQueryWithHandler` / `useCategoryLeafDailyBundle` / `useTimeSlotBundle` | 標準 query access + bundle 契約 |
 | View | `widgets/HourlyChart.tsx` + `HourlyChart.builders.ts` | `timeSlotCurrentSeries` / `timeSlotComparisonSeries` から hour 別 amount + quantity を集計し描画 |
 
-**2 経路の併用（`HourlyChart` 内部）:**
+**HourlyChart の 2 データパス（用途別 bundle 併用）:**
 
 | 用途 | データソース | 型 |
 |---|---|---|
 | 時間帯チャート（amount / quantity）| `timeSlotLane.bundle` の `currentSeries` / `comparisonSeries` | `TimeSlotSeries` |
-| 選択時間帯のカテゴリ別内訳（hourDetail）| raw CTS（`categoryTimeRecordsPairHandler` 経由）| `CategoryTimeSalesRecord` |
+| 選択時間帯のカテゴリ別内訳（hourDetail）| `categoryLeafDaily.bundle` の `currentSeries.entries` / `comparisonSeries.entries` | `CategoryLeafDailyEntry`（=`CategoryTimeSalesRecord` 同型 alias）|
 
-hourDetail は dept\|line\|klass leaf-grain key を必要とするため、現状は raw CTS
-のまま。leaf-grain 正本（`CategoryLeafDailySeries` 等）が整備され次第
-bundle 経由に移行する予定（後継 project `category-leaf-daily-series`）。
+比較 fallback（前年空 → 当年同日付救済）は `useCategoryLeafDailyBundle` 内部に
+畳み込まれており、plan / consumer からは `bundle.meta.provenance.usedComparisonFallback`
+で観測のみ可能。
+
+presentation 層の `CategoryTimeSalesRecord` 直接 import は
+`categoryLeafDailyLaneSurfaceGuard` で ratchet-down 管理中（後続 project スコープ、
+現状 32 件）。
 
 **原則:**
 - component に acquisition logic を書かない（H4）
