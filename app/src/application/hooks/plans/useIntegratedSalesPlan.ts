@@ -52,6 +52,10 @@ export interface IntegratedSalesPlanResult {
   readonly dailyQuantity: DailyQuantityData | undefined
   readonly maOverlays: MovingAverageOverlays
   readonly comparisonProvenance: PlanComparisonProvenance
+  /** 日別点数クエリまたはMAクエリがフェッチ中であるかを示す（描画タイミング同期用） */
+  readonly isLoading: boolean
+  /** 日別点数クエリまたはMAクエリで発生した最初のエラー（取得失敗をUIに通知） */
+  readonly error: Error | null
 }
 
 /**
@@ -106,11 +110,11 @@ export function useIntegratedSalesPlan(
     () => buildQtyPairInput(currentDateRange, storeIds, prevYearDateRange),
     [currentDateRange, storeIds, prevYearDateRange],
   )
-  const { data: qtyPairOut } = useQueryWithHandler(
-    queryExecutor,
-    dailyQuantityPairHandler,
-    qtyPairInput,
-  )
+  const {
+    data: qtyPairOut,
+    isLoading: qtyPairLoading,
+    error: qtyPairError,
+  } = useQueryWithHandler(queryExecutor, dailyQuantityPairHandler, qtyPairInput)
   const dailyQuantity = useMemo(
     () =>
       aggregateDailyQuantity(
@@ -141,5 +145,8 @@ export function useIntegratedSalesPlan(
     }
   }, [prevYearDateRange, prevYearScope?.dowOffset, qtyPairOut])
 
-  return { dailyQuantity, maOverlays, comparisonProvenance }
+  const isLoading = qtyPairLoading || maOverlays.isLoading
+  const error = qtyPairError ?? maOverlays.error
+
+  return { dailyQuantity, maOverlays, comparisonProvenance, isLoading, error }
 }

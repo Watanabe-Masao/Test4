@@ -41,6 +41,8 @@ type StateFixture = {
   analysisContext: null
   drillTabDateRange: null
   maOverlays: never[]
+  planLoading: boolean
+  planError: Error | null
   rangeLabel: string
   handleDayClick: ReturnType<typeof vi.fn>
   handleDayRangeSelect: ReturnType<typeof vi.fn>
@@ -79,6 +81,8 @@ function defaultStateFixture(): StateFixture {
     analysisContext: null,
     drillTabDateRange: null,
     maOverlays: [],
+    planLoading: false,
+    planError: null,
     rangeLabel: '',
     handleDayClick: vi.fn(),
     handleDayRangeSelect: vi.fn(),
