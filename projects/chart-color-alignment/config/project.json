@@ -1,0 +1,14 @@
+{
+  "$comment": "Chart 側のデザインシステムを screenshots で示された新方針に合わせる project。(1) 全 chart の 前年バー を palette.slate に統一 (2) 売変 subtype 71-74 の色を theme.semantic に昇格 (3) 累計売変率を theme.semantic に昇格 (4) v2.1 DS doc を追随。詳細: references/03-guides/project-checklist-governance.md §4。",
+  "projectId": "chart-color-alignment",
+  "title": "Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize",
+  "kind": "project",
+  "status": "active",
+  "projectRoot": "projects/chart-color-alignment",
+  "entrypoints": {
+    "aiContext": "projects/chart-color-alignment/AI_CONTEXT.md",
+    "handoff": "projects/chart-color-alignment/HANDOFF.md",
+    "plan": "projects/chart-color-alignment/plan.md",
+    "checklist": "projects/chart-color-alignment/checklist.md"
+  }
+}

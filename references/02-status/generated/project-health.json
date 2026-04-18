@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-18T14:53:42.994Z",
+  "timestamp": "2026-04-18T15:40:52.174Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 13,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 515,
-    "checkedCheckboxes": 455
+    "totalCheckboxes": 543,
+    "checkedCheckboxes": 457
   },
   "projects": [
     {
@@ -101,6 +101,19 @@
       "progress": 0.955,
       "entrypoint": "projects/completed/category-leaf-daily-series/AI_CONTEXT.md",
       "checklistPath": "projects/completed/category-leaf-daily-series/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "chart-color-alignment",
+      "title": "Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 2,
+      "total": 28,
+      "progress": 0.071,
+      "entrypoint": "projects/chart-color-alignment/AI_CONTEXT.md",
+      "checklistPath": "projects/chart-color-alignment/checklist.md",
       "parent": null
     },
     {
