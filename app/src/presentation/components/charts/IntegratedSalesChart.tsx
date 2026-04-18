@@ -108,6 +108,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     analysisContext,
     drillTabDateRange,
     maOverlays,
+    planLoading,
+    planError,
     rangeLabel,
     // handlers
     handleDayClick,
@@ -209,6 +211,8 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
               showMovingAverage={showMovingAverage}
               onShowMovingAverageChange={setShowMovingAverage}
               hasActiveSelection={pendingRange != null}
+              isLoading={planLoading}
+              error={planError}
             />
             {canDrill && (
               <DrillHint>クリックでカテゴリ分析 / ダブルクリック or ドラッグで時間帯内訳</DrillHint>

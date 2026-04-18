@@ -11,6 +11,7 @@
  */
 import { useState, useCallback, memo } from 'react'
 import { ChartCard } from './ChartCard'
+import { ChartLoading, ChartError } from './ChartState'
 import { ViewToggle, ViewBtn, Sep, GroupLabel, RightGroup } from './DailySalesChart.styles'
 import { useChartTheme } from './chartTheme'
 import { DowPresetSelector } from './DowPresetSelector'
@@ -60,6 +61,10 @@ interface Props {
   onShowMovingAverageChange?: (show: boolean) => void
   /** 範囲選択後のハイライトを維持する（pendingRange 存在時） */
   hasActiveSelection?: boolean
+  /** 関連クエリ（dailyQuantity / MA 等）のフェッチ中フラグ */
+  isLoading?: boolean
+  /** 関連クエリで発生したエラー（UIに取得失敗を通知） */
+  error?: Error | null
 }
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -109,6 +114,8 @@ export const DailySalesChart = memo(function DailySalesChart({
   showMovingAverage,
   onShowMovingAverageChange,
   hasActiveSelection,
+  isLoading = false,
+  error = null,
 }: Props) {
   const ct = useChartTheme()
   const [view, setViewInternal] = useState<ViewType>('standard')
@@ -211,11 +218,18 @@ export const DailySalesChart = memo(function DailySalesChart({
     </ViewToggle>
   )
 
-  return (
-    <ChartCard title={VIEW_TITLES[view][diffTarget]} toolbar={toolbar} ariaLabel="日別売上チャート">
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '4px', flexWrap: 'wrap' }}>
-        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
-      </div>
+  // ── 描画タイミング同期 ──
+  // 関連クエリ（日別点数・移動平均）がフェッチ中は空のチャート領域を出さず
+  // スケルトンに切り替え、全データが揃ってから一括描画する。
+  // これにより「棒 → 折れ線」の時差描画を防ぎ、取得中/取得失敗を明示できる。
+  const renderBody = () => {
+    if (error) {
+      return <ChartError message={`データ取得に失敗しました: ${error.message}`} />
+    }
+    if (isLoading) {
+      return <ChartLoading />
+    }
+    return (
       <DailySalesChartBody
         data={data}
         view={view}
@@ -237,6 +251,15 @@ export const DailySalesChart = memo(function DailySalesChart({
         showMovingAverage={showMovingAverage}
         hasActiveSelection={hasActiveSelection}
       />
+    )
+  }
+
+  return (
+    <ChartCard title={VIEW_TITLES[view][diffTarget]} toolbar={toolbar} ariaLabel="日別売上チャート">
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '4px', flexWrap: 'wrap' }}>
+        <DowPresetSelector selectedDows={selectedDows} onChange={handleDowChange} />
+      </div>
+      {renderBody()}
     </ChartCard>
   )
 })

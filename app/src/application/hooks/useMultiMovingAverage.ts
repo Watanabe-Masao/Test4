@@ -23,6 +23,10 @@ export interface MovingAverageOverlays {
   readonly metricCur?: readonly DailySeriesPoint[]
   readonly metricPrev?: readonly DailySeriesPoint[]
   readonly metricLabel?: string
+  /** 少なくとも1つのMAクエリがフェッチ中であるかを示す（描画タイミング同期用） */
+  readonly isLoading: boolean
+  /** MAクエリで発生した最初のエラー（取得失敗をUIに通知） */
+  readonly error: Error | null
 }
 
 const METRIC_LABELS: Record<string, string> = {
@@ -104,7 +108,11 @@ export function useMultiMovingAverage(
     }),
     [extraMetrics],
   )
-  const { data: curOut } = useMovingAverageOverlay(executor, curScope, showMA, curConfig)
+  const {
+    data: curOut,
+    isLoading: curLoading,
+    error: curError,
+  } = useMovingAverageOverlay(executor, curScope, showMA, curConfig)
 
   // 2. 前年MA（売上 + extraMetrics を1クエリで取得）
   //
@@ -123,12 +131,11 @@ export function useMultiMovingAverage(
     }),
     [extraMetrics],
   )
-  const { data: prevOut } = useMovingAverageOverlay(
-    executor,
-    prevScope,
-    showMA && hasPrev,
-    prevConfig,
-  )
+  const {
+    data: prevOut,
+    isLoading: prevLoading,
+    error: prevError,
+  } = useMovingAverageOverlay(executor, prevScope, showMA && hasPrev, prevConfig)
 
   return useMemo<MovingAverageOverlays>(
     () => ({
@@ -143,7 +150,20 @@ export function useMultiMovingAverage(
             )
           : undefined,
       metricLabel: secondaryMetric ? METRIC_LABELS[secondaryMetric] : undefined,
+      isLoading: showMA && (curLoading || (hasPrev && prevLoading)),
+      error: curError ?? prevError ?? null,
     }),
-    [curOut, prevOut, hasMetric, secondaryMetric],
+    [
+      curOut,
+      prevOut,
+      hasMetric,
+      secondaryMetric,
+      showMA,
+      hasPrev,
+      curLoading,
+      prevLoading,
+      curError,
+      prevError,
+    ],
   )
 }

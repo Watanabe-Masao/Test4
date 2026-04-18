@@ -63,7 +63,12 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
   })
 
   // ── Screen Query Plan（クエリ取得を plan に委譲） ──
-  const { dailyQuantity, maOverlays } = useIntegratedSalesPlan({
+  const {
+    dailyQuantity,
+    maOverlays,
+    isLoading: planLoading,
+    error: planError,
+  } = useIntegratedSalesPlan({
     queryExecutor,
     currentDateRange,
     selectedStoreIds,
@@ -111,6 +116,8 @@ export function useIntegratedSalesState(params: UseIntegratedSalesStateParams) {
     analysisContext: contexts.analysisContext,
     drillTabDateRange: contexts.drillTabDateRange,
     maOverlays,
+    planLoading,
+    planError,
     rangeLabel,
     // handlers
     handleDayClick: drill.handleDayClick,
