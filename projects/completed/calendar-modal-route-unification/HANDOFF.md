@@ -5,11 +5,12 @@
 
 ## 1. 現在地
 
-**Phase A 完了（Option C 採用）。** 棚卸し（§1.1）と方針判断（§3.5）を経て、
-`useDayDetailPlan` の (day, prevDay) / (cum, cumPrev) を `categoryTimeRecordsPairHandler`
-経由に置換。wow は単発のまま、prevDayFallback / cumPrevFallback は Phase B で
-撤廃判断する。lint / build / test:guards (694) / 関連テスト (225) すべて green。
-次は Phase B（数量・時間帯の bundle 経由化）。
+**Phase A 完了 + B-3 採用で archive へ。** Phase A の handler 統一は完了し、
+lint / build / test:guards (694) / 関連テスト (225) すべて green。Phase B 棚卸しで
+`timeSlotLane.bundle` が HourlyChart の要件（quantity + wow）を満たさないことが
+判明したため、Phase B/C/D は後継 project `calendar-modal-bundle-migration` に
+全面移管する（plan.md §B-3 採用 参照）。次は本 project の archive と後継 project
+の起票。
 
 ### Phase A 適用後の handler 呼び出し（5 箇所）
 
@@ -170,3 +171,6 @@ B が最も方針整合的だが、レンダー初回の空ハンドリングを
 | `projects/completed/data-flow-unification/HANDOFF.md` | 先行 project。§5 に Phase A/B/C の原計画 |
 | `references/03-guides/runtime-data-path.md` | 正本 lane / Screen Plan lane |
 | `references/01-principles/data-pipeline-integrity.md` | データパイプライン整合性 |
+| `projects/calendar-modal-bundle-migration/AI_CONTEXT.md` | 後継 project（Phase B/C/D 移管先） |
+
+Archived: 2026-04-18

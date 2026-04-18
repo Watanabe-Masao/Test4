@@ -1,5 +1,26 @@
 # plan — calendar-modal-route-unification
 
+## B-3 採用（2026-04-18）— Phase B/C/D を後継 project に移管
+
+Phase B 棚卸しで以下の構造的制約が判明した:
+
+- `timeSlotLane.bundle` の現契約は **金額のみ**で `quantity` フィールドを持たない
+- `timeSlotLane.bundle` は **wow alignment（前週同曜日）** を持たず、sameDate /
+  sameDayOfWeek のみ
+- HourlyChart は時間帯別の **金額・点数の両方** + **WoW 比較** を要求するため、
+  契約拡張なしには bundle 経由化できない
+- DrilldownWaterfall / CategoryDrilldown は leaf-grain（dept\|line\|klass）を要求
+  するため `categoryDailyLane.bundle`（dept 粒度）でも経由化できない（Phase C 領域）
+
+このまま Phase B を強行すると「金額は bundle、点数は raw、wow も raw」の混在状態に
+なり、plan §0「複数の動線を混ぜない原則」に反する。したがって以下の方針を採用する:
+
+- 本 project は **Phase A（handler 統一）の完了をもって archive** する
+- Phase B/C/D は後継 project `calendar-modal-bundle-migration` に全面移管する
+- 後継 project は最初に `timeSlotLane` 契約拡張（quantity + wow）を行い、
+  その上で HourlyChart の bundle 経由化を実施する
+- leaf-grain 対応（CategoryLeafDailySeries 新設）はさらに後の project とする
+
 ## Phase A 方針決定（2026-04-18）
 
 棚卸しの結果（HANDOFF.md §3.5 参照）、フォールバック層の存続判断として
