@@ -58,29 +58,18 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *     を `CategoryLeafDailyEntry` 参照に置換。YoYWaterfallChart.builders.ts は
  *     `DailyRecord` との combined import を 2 行に分離。残 3 件は Phase 4
  *     (context / widget 基盤 + Admin) で 0 到達予定。
+ *   - Phase 4 / baseline 0 到達 (2026-04-19): 3 → 0。RawDataTabBuilders.ts の
+ *     型 import を `CategoryLeafDailyEntry` に置換。useUnifiedWidgetContext.ts /
+ *     components/widgets/types.ts の JSDoc コメントから `CategoryTimeSalesRecord`
+ *     の literal 言及を除去 (動作は不変。guard は comments も \\b word boundary で
+ *     match するため reword が必要だった)。allowlist 空。新規追加は禁止 (固定モード)。
  *
- * 各 entry の reason は presentation-cts-surface-ratchetdown の Phase 構造
- * (plan.md) に対応する移行グループを示す。Phase 完了時にまとめて削除する。
+ * ratchet-down 完了。以降本 guard は「追加禁止」固定モードとして機能する。
  */
 const CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST: readonly {
   readonly path: string
   readonly reason: string
-}[] = [
-  // ── Phase 4: context / widget 基盤 ────────────────────────────────────
-  {
-    path: 'presentation/components/widgets/types.ts',
-    reason: 'phase-4: widget 基盤 type 定義',
-  },
-  {
-    path: 'presentation/hooks/useUnifiedWidgetContext.ts',
-    reason: 'phase-4: 統合 widget context (slice 配信)',
-  },
-  // ── Phase 4: Admin ────────────────────────────────────────────────────
-  {
-    path: 'presentation/pages/Admin/RawDataTabBuilders.ts',
-    reason: 'phase-4: Admin RawData タブ (生データ表示)',
-  },
-]
+}[] = []
 
 const CATEGORY_LEAF_DAILY_ALLOWLIST_PATHS = new Set(
   CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST.map((e) => e.path),
@@ -89,14 +78,14 @@ const CATEGORY_LEAF_DAILY_ALLOWLIST_PATHS = new Set(
 const RAW_RECORD_TYPE_PATTERNS: readonly RegExp[] = [/\bCategoryTimeSalesRecord\b/]
 
 /**
- * 現 baseline = 3 件 (production only, Phase 3 完了後)。
- * 初期 baseline 23 → 17 → 12 → 8 → 3 (DrilldownWaterfall/CategoryFactor 6 件 +
- * HourlyChart/DayDetail タブ 5 件 + useDrilldown 系 hook 4 件 + YoYWaterfall +
- * 階層/PeriodFilter 5 件消化)。
+ * 現 baseline = 0 件 (production only, 全 Phase 完了 = 追加禁止 固定モード)。
+ * 初期 baseline 23 → 17 → 12 → 8 → 3 → 0 (全 23 ファイルを
+ * `CategoryLeafDailyEntry` 参照に移行完了)。
  * `timeSlotLaneSurfaceGuard` と同じ policy で test ファイルは guard 対象外。
- * ratchet-down で 0 を目指す。新規追加は禁止 (allowlist 数の単調減少)。
+ * 本 guard は以降「追加禁止」固定モードとして presentation 層 (production) への
+ * 新規 `CategoryTimeSalesRecord` 参照混入を阻止する。
  */
-const CATEGORY_LEAF_DAILY_BASELINE = 3
+const CATEGORY_LEAF_DAILY_BASELINE = 0
 
 describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdown Phase 1)', () => {
   it('G6-CLD: CategoryTimeSalesRecord の presentation 層 import は allowlist 内に限定される', () => {

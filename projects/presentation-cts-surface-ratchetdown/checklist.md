@@ -27,15 +27,15 @@
 
 ## Phase 4: context / widget 基盤 + Admin
 
-* [ ] `useUnifiedWidgetContext` / `presentation/components/widgets/types.ts` の同 import を置換する
-* [ ] `presentation/pages/Admin/RawDataTabBuilders.ts` の同 import を置換する
-* [ ] baseline を Phase 4 後の件数に ratchet-down する
+* [x] `useUnifiedWidgetContext` / `presentation/components/widgets/types.ts` の同 import を置換する（JSDoc コメントの literal 言及を reword）
+* [x] `presentation/pages/Admin/RawDataTabBuilders.ts` の同 import を置換する
+* [x] baseline を Phase 4 後の件数に ratchet-down する（3 → 0）
 
 ## Phase 5: 残りとガード永続化
 
-* [ ] 残 presentation ファイルの同 import を置換する
-* [ ] baseline を 0 に到達させる
-* [ ] guard を「追加禁止」固定モードに移行する
+* [x] 残 presentation ファイルの同 import を置換する（Phase 4 で吸収完了）
+* [x] baseline を 0 に到達させる
+* [x] guard を「追加禁止」固定モードに移行する
 
 ## 最終レビュー (人間承認)
 

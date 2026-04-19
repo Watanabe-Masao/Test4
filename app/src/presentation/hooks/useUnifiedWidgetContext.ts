@@ -176,7 +176,7 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   const storeDailyBundle = useStoreDailyBundle(query.queryExecutor, storeDailyFrame)
 
   // ── 部門×日次レーン (unify-period-analysis Phase 6.5 Step B) ──
-  // storeDailyLane の sibling。raw CategoryTimeSalesRecord を presentation
+  // storeDailyLane の sibling。raw CTS レコードを presentation
   // に漏らさず、CategoryDailySeries (projection 済み) を bundle 経由で
   // 配布する。比較期間は同 comparison scope を流用。
   const categoryDailyFrame = useMemo<CategoryDailyFrame | null>(() => {

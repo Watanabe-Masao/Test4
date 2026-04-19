@@ -5,12 +5,12 @@
  * 全 index 構築を一括実行し、useMemo の数を削減する。
  */
 import { aggregateAllStores, indexByStoreDay, type StoreDayIndex } from '@/domain/models/record'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 
 /** CTS レコードを store×day の売上合計に集約 */
 function buildCtsIndex(
-  records: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
 ): StoreDayIndex<{ amount: number }> {
   const idx: Record<string, Record<number, { amount: number }>> = {}
   for (const rec of records) {
