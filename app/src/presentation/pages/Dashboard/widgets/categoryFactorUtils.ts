@@ -7,10 +7,10 @@ import {
   decomposePriceMix as decomposePriceMixDomain,
   type CategoryQtyAmt,
 } from '@/application/hooks/calculation'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 export function recordsToCategoryQtyAmt(
-  records: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
 ): CategoryQtyAmt[] {
   return records.map((r) => ({
     key: `${r.department.code}|${r.line.code}|${r.klass.code}`,
@@ -20,11 +20,11 @@ export function recordsToCategoryQtyAmt(
 }
 
 /**
- * CategoryTimeSalesRecord[] を受け取り、ドメイン層の decomposePriceMix に委譲する。
+ * CategoryLeafDailyEntry[] を受け取り、ドメイン層の decomposePriceMix に委譲する。
  */
 export function decomposePriceMix(
-  curRecords: readonly CategoryTimeSalesRecord[],
-  prevRecords: readonly CategoryTimeSalesRecord[],
+  curRecords: readonly CategoryLeafDailyEntry[],
+  prevRecords: readonly CategoryLeafDailyEntry[],
 ): { priceEffect: number; mixEffect: number } | null {
   return decomposePriceMixDomain(
     recordsToCategoryQtyAmt(curRecords),

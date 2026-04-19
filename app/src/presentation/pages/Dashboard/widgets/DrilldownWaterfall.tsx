@@ -23,7 +23,7 @@ import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculat
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
 import { buildRecordAggregates } from './DrilldownWaterfall.builders'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { DetailSectionTitle } from '../DashboardPage.styles'
 import { sc } from '@/presentation/theme/semanticColors'
 import {
@@ -61,8 +61,8 @@ export function DrilldownWaterfall({
   pySales: number
   dayCust: number
   pyCust: number
-  dayRecords: readonly CategoryTimeSalesRecord[]
-  prevDayRecords: readonly CategoryTimeSalesRecord[]
+  dayRecords: readonly CategoryLeafDailyEntry[]
+  prevDayRecords: readonly CategoryLeafDailyEntry[]
   curLabel?: string
   prevLabel?: string
 }) {

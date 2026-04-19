@@ -3,7 +3,7 @@
  *
  * useMemo 内の純粋関数部分を抽出（C1: 1ファイル = 1変更理由）。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { COLORS, type HourCategoryItem } from './drilldownUtils'
 
 /**
@@ -11,7 +11,7 @@ import { COLORS, type HourCategoryItem } from './drilldownUtils'
  * min〜max の範囲でゼロ埋めした配列を返す。
  */
 export function buildHourlyData(
-  recs: readonly CategoryTimeSalesRecord[],
+  recs: readonly CategoryLeafDailyEntry[],
 ): { hour: number; amount: number; quantity: number }[] {
   const map = new Map<number, { amount: number; quantity: number }>()
   for (const rec of recs) {
@@ -58,8 +58,8 @@ export function computeSelectedData(
  */
 export function buildHourCategoryDetail(
   selectedHours: ReadonlySet<number>,
-  dayRecords: readonly CategoryTimeSalesRecord[],
-  prevDayRecords: readonly CategoryTimeSalesRecord[],
+  dayRecords: readonly CategoryLeafDailyEntry[],
+  prevDayRecords: readonly CategoryLeafDailyEntry[],
   hourlyMode: string,
 ): HourCategoryItem[] {
   if (selectedHours.size === 0) return []

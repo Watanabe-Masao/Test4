@@ -7,7 +7,7 @@
  * フィルタ済みレコードとドリルアイテムの構築は useDrilldownRecords に分離。
  */
 import { useState, useMemo, useCallback } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {
   getHierarchyLevel,
   type HierarchyFilter,
@@ -31,11 +31,11 @@ export type { DrillItem, CompareMode, SortKey }
 /* ── 入力 Props 型 ──────────────────────────── */
 
 export interface CategoryDrilldownProps {
-  records: readonly CategoryTimeSalesRecord[]
-  prevRecords: readonly CategoryTimeSalesRecord[]
+  records: readonly CategoryLeafDailyEntry[]
+  prevRecords: readonly CategoryLeafDailyEntry[]
   budget: number
-  cumRecords: readonly CategoryTimeSalesRecord[]
-  cumPrevRecords: readonly CategoryTimeSalesRecord[]
+  cumRecords: readonly CategoryLeafDailyEntry[]
+  cumPrevRecords: readonly CategoryLeafDailyEntry[]
   cumBudget: number
   actual: number
   ach: number
@@ -47,7 +47,7 @@ export interface CategoryDrilldownProps {
   year: number
   month: number
   day: number
-  wowRecords?: readonly CategoryTimeSalesRecord[]
+  wowRecords?: readonly CategoryLeafDailyEntry[]
   wowPrevSales?: number
   canWoW?: boolean
 }

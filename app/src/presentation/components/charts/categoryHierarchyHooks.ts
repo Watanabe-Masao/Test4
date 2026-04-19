@@ -6,7 +6,7 @@
  * @responsibility R:context
  */
 import { useContext } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { HierarchyContext } from './categoryHierarchyContextDef'
 import type { HierarchyFilter } from './categoryHierarchyContextDef'
 
@@ -18,9 +18,9 @@ export function useCategoryHierarchy() {
 
 /** レコードを現在の階層フィルタで絞り込む */
 export function filterByHierarchy(
-  records: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
   filter: HierarchyFilter,
-): readonly CategoryTimeSalesRecord[] {
+): readonly CategoryLeafDailyEntry[] {
   if (!filter.departmentCode && !filter.lineCode) return records
   return records.filter((r) => {
     if (filter.departmentCode && r.department.code !== filter.departmentCode) return false

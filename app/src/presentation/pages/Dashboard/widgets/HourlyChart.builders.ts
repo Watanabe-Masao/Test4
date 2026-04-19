@@ -4,7 +4,8 @@
  * React hooks を使わない純粋関数。
  * 依存関係が類似する複数の useMemo を 1 関数にまとめる。
  */
-import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { computeSelectedData, buildHourCategoryDetail } from './HourlyChart.logic'
 import {
@@ -131,8 +132,8 @@ export function buildPaddedDataSets(
 export function buildSelectedDetail(
   selectedHours: Set<number>,
   paddedData: readonly { hour: number; amount: number; quantity: number }[],
-  dayRecords: readonly CategoryTimeSalesRecord[],
-  prevDayRecords: readonly CategoryTimeSalesRecord[],
+  dayRecords: readonly CategoryLeafDailyEntry[],
+  prevDayRecords: readonly CategoryLeafDailyEntry[],
   hourlyMode: 'actual' | 'prev',
 ): SelectedDetail {
   const selectedData = computeSelectedData(selectedHours, paddedData)

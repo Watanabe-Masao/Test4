@@ -4,7 +4,7 @@
  * React hooks (useMemo) を使わない純粋関数。
  * useDrilldownRecords.ts から呼ばれ、フィルタリングとアイテム構築を担う。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {
   filterByHierarchy,
   type HierarchyFilter,
@@ -14,19 +14,19 @@ import { buildDrillItems, type DrillItem, type MetricKey } from './drilldownUtil
 type DrillLevel = 'department' | 'line' | 'klass'
 
 export interface DrilldownFilteredRecords {
-  readonly dayFiltered: readonly CategoryTimeSalesRecord[]
-  readonly dayFilteredYoYPrev: readonly CategoryTimeSalesRecord[]
-  readonly dayFilteredWoWPrev: readonly CategoryTimeSalesRecord[]
-  readonly cumFiltered: readonly CategoryTimeSalesRecord[]
-  readonly cumFilteredYoYPrev: readonly CategoryTimeSalesRecord[]
+  readonly dayFiltered: readonly CategoryLeafDailyEntry[]
+  readonly dayFilteredYoYPrev: readonly CategoryLeafDailyEntry[]
+  readonly dayFilteredWoWPrev: readonly CategoryLeafDailyEntry[]
+  readonly cumFiltered: readonly CategoryLeafDailyEntry[]
+  readonly cumFilteredYoYPrev: readonly CategoryLeafDailyEntry[]
 }
 
 interface RecordSets {
-  readonly records: readonly CategoryTimeSalesRecord[]
-  readonly prevRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
-  readonly wowRecords: readonly CategoryTimeSalesRecord[]
+  readonly records: readonly CategoryLeafDailyEntry[]
+  readonly prevRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumPrevRecords: readonly CategoryLeafDailyEntry[]
+  readonly wowRecords: readonly CategoryLeafDailyEntry[]
 }
 
 /** 5 種のフィルタリングを一括実行する pure 関数 */

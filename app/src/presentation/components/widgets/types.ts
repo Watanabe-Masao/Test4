@@ -193,10 +193,10 @@ export interface UnifiedWidgetContext {
    *
    * `timeSlotLane` / `freePeriodLane` / `storeDailyLane` の sibling として、
    * 部門×日次次元を別レーンに切り出している。presentation は
-   * `bundle.currentSeries.entries[i].daily` のみを触り、
-   * `CategoryTimeSalesRecord` の直接 import は行わない
-   * (`categoryDailyLaneSurfaceGuard` で ratchet-down、Phase 6.5-5 で
-   * YoYWaterfall ecosystem の baseline 0 到達目標)。
+   * `bundle.currentSeries.entries[i].daily` のみを触り、raw CTS 型の
+   * 直接 import は行わない
+   * (`categoryDailyLaneSurfaceGuard` / `categoryLeafDailyLaneSurfaceGuard`
+   * で baseline 0 到達済み)。
    */
   readonly categoryDailyLane?: Readonly<{
     frame: CategoryDailyFrame | null

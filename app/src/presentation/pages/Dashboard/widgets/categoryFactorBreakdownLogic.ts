@@ -4,7 +4,7 @@
  * useMemo の純粋関数部分を抽出（C1: 1ファイル = 1変更理由）。
  * コンポーネントは描画のみ、ロジックはここに閉じる。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {
   decompose2,
   decompose3,
@@ -20,14 +20,14 @@ import type {
 } from './categoryFactorBreakdown.types'
 
 interface FilteredRecords {
-  readonly cur: readonly CategoryTimeSalesRecord[]
-  readonly prev: readonly CategoryTimeSalesRecord[]
+  readonly cur: readonly CategoryLeafDailyEntry[]
+  readonly prev: readonly CategoryLeafDailyEntry[]
 }
 
 /** レコードを現在のドリルパスでフィルタする */
 export function filterRecordsByDrillPath(
-  curRecords: readonly CategoryTimeSalesRecord[],
-  prevRecords: readonly CategoryTimeSalesRecord[],
+  curRecords: readonly CategoryLeafDailyEntry[],
+  prevRecords: readonly CategoryLeafDailyEntry[],
   drillPath: readonly { level: DrillLevel; code: string }[],
 ): FilteredRecords {
   let fc = curRecords
@@ -46,7 +46,7 @@ export function filterRecordsByDrillPath(
 
 /** サブカテゴリが存在するかチェック */
 export function checkHasSubCategories(
-  filteredCur: readonly CategoryTimeSalesRecord[],
+  filteredCur: readonly CategoryLeafDailyEntry[],
   currentLevel: DrillLevel,
 ): boolean {
   if (currentLevel === 'class') return false
@@ -72,7 +72,7 @@ export function computeFactorItems(
   prevCustomers: number,
   compact: boolean,
 ): FactorItem[] {
-  const keyOf = (r: CategoryTimeSalesRecord) => {
+  const keyOf = (r: CategoryLeafDailyEntry) => {
     if (currentLevel === 'dept')
       return { code: r.department.code, name: r.department.name || r.department.code }
     if (currentLevel === 'line') return { code: r.line.code, name: r.line.name || r.line.code }
@@ -115,12 +115,12 @@ export function computeFactorItems(
     return false
   }
 
-  const childKeyOf = (r: CategoryTimeSalesRecord) => {
+  const childKeyOf = (r: CategoryLeafDailyEntry) => {
     if (currentLevel === 'dept') return `${r.line.code}|${r.klass.code}`
     return r.klass.code
   }
 
-  const filterByGroup = (recs: readonly CategoryTimeSalesRecord[], code: string) => {
+  const filterByGroup = (recs: readonly CategoryLeafDailyEntry[], code: string) => {
     if (currentLevel === 'dept') return recs.filter((r) => r.department.code === code)
     if (currentLevel === 'line') return recs.filter((r) => r.line.code === code)
     return recs.filter((r) => r.klass.code === code)

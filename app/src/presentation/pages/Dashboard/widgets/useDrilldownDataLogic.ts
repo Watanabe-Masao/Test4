@@ -3,7 +3,7 @@
  *
  * useMemo の純粋関数部分を抽出（C1: 1ファイル = 1変更理由）。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyHooks'
 import {
   aggregateForDrill,
@@ -32,10 +32,10 @@ export function buildBreadcrumb(filter: HierarchyFilter): { label: string; f: Hi
 
 /** 階層レベルに応じたカラーマップを構築する */
 export function buildLevelColorMap(
-  records: readonly CategoryTimeSalesRecord[],
-  cumRecords: readonly CategoryTimeSalesRecord[],
-  cumFiltered: readonly CategoryTimeSalesRecord[],
-  dayFiltered: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
+  cumRecords: readonly CategoryLeafDailyEntry[],
+  cumFiltered: readonly CategoryLeafDailyEntry[],
+  dayFiltered: readonly CategoryLeafDailyEntry[],
   currentLevel: DrillLevel,
 ): Map<string, string> {
   const map = new Map<string, string>()

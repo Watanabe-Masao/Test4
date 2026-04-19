@@ -13,29 +13,29 @@
 
 ## Phase 2: widget 系の置換
 
-* [ ] DrilldownWaterfall 周辺（builders / logic / utils 含む）の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換する
-* [ ] CategoryDrilldown 周辺の同 import を置換する
-* [ ] HourlyChart 周辺（builders / logic）の同 import を置換する
-* [ ] DayDetailSalesTab / DayDetailHourlyTab の同 import を置換する
-* [ ] baseline を Phase 2 後の件数に ratchet-down する
+* [x] DrilldownWaterfall 周辺（builders / logic / utils 含む）の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換する
+* [x] CategoryDrilldown 周辺の同 import を置換する（useDrilldown 系 hook 4 件で完了）
+* [x] HourlyChart 周辺（builders / logic）の同 import を置換する
+* [x] DayDetailSalesTab / DayDetailHourlyTab の同 import を置換する
+* [x] baseline を Phase 2 後の件数に ratchet-down する（23 → 17 → 12 → 8）
 
 ## Phase 3: YoYWaterfall + 階層フィルタ
 
-* [ ] YoYWaterfallChart 周辺の同 import を置換する
-* [ ] categoryHierarchyHooks / periodFilterHooks / useHierarchyDropdown の同 import を置換する
-* [ ] baseline を Phase 3 後の件数に ratchet-down する
+* [x] YoYWaterfallChart 周辺の同 import を置換する
+* [x] categoryHierarchyHooks / periodFilterHooks / useHierarchyDropdown の同 import を置換する
+* [x] baseline を Phase 3 後の件数に ratchet-down する（8 → 3）
 
 ## Phase 4: context / widget 基盤 + Admin
 
-* [ ] `useUnifiedWidgetContext` / `presentation/components/widgets/types.ts` の同 import を置換する
-* [ ] `presentation/pages/Admin/RawDataTabBuilders.ts` の同 import を置換する
-* [ ] baseline を Phase 4 後の件数に ratchet-down する
+* [x] `useUnifiedWidgetContext` / `presentation/components/widgets/types.ts` の同 import を置換する（JSDoc コメントの literal 言及を reword）
+* [x] `presentation/pages/Admin/RawDataTabBuilders.ts` の同 import を置換する
+* [x] baseline を Phase 4 後の件数に ratchet-down する（3 → 0）
 
 ## Phase 5: 残りとガード永続化
 
-* [ ] 残 presentation ファイルの同 import を置換する
-* [ ] baseline を 0 に到達させる
-* [ ] guard を「追加禁止」固定モードに移行する
+* [x] 残 presentation ファイルの同 import を置換する（Phase 4 で吸収完了）
+* [x] baseline を 0 に到達させる
+* [x] guard を「追加禁止」固定モードに移行する
 
 ## 最終レビュー (人間承認)
 

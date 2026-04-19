@@ -9,7 +9,7 @@ import { useState, useMemo, useCallback, Fragment, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -49,8 +49,8 @@ export const CategoryFactorBreakdown = memo(function CategoryFactorBreakdown({
   curLabel = '当年',
   prevLabel = '前年',
 }: {
-  curRecords: readonly CategoryTimeSalesRecord[]
-  prevRecords: readonly CategoryTimeSalesRecord[]
+  curRecords: readonly CategoryLeafDailyEntry[]
+  prevRecords: readonly CategoryLeafDailyEntry[]
   curCustomers?: number
   prevCustomers?: number
   compact?: boolean

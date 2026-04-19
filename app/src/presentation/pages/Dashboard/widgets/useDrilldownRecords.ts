@@ -6,7 +6,7 @@
  * @guard G5 useMemo 上限分離
  */
 import { useMemo } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyHooks'
 import type { DrillItem, MetricKey } from './drilldownUtils'
 import {
@@ -19,11 +19,11 @@ import { buildLevelColorMap } from './useDrilldownDataLogic'
 type DrillLevel = 'department' | 'line' | 'klass'
 
 interface DrilldownRecordsParams {
-  readonly records: readonly CategoryTimeSalesRecord[]
-  readonly prevRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumPrevRecords: readonly CategoryTimeSalesRecord[]
-  readonly wowRecords: readonly CategoryTimeSalesRecord[]
+  readonly records: readonly CategoryLeafDailyEntry[]
+  readonly prevRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumPrevRecords: readonly CategoryLeafDailyEntry[]
+  readonly wowRecords: readonly CategoryLeafDailyEntry[]
   readonly filter: HierarchyFilter
   readonly currentLevel: DrillLevel
   readonly metric: MetricKey

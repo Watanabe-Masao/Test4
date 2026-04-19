@@ -6,7 +6,8 @@
  * 複数時間帯を選択して分類別内訳を表示可能。
  */
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import type { CategoryTimeSalesRecord, HourlyWeatherRecord } from '@/domain/models/record'
+import type { HourlyWeatherRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 import { toComma } from '@/presentation/components/charts/chartTheme'
 import { formatPercent } from '@/domain/formatting'
@@ -79,8 +80,8 @@ export const HourlyChart = memo(function HourlyChart({
   curDateKey,
 }: {
   /** leaf-grain 用 raw CTS（カテゴリ別内訳パネルで使用）*/
-  dayRecords: readonly CategoryTimeSalesRecord[]
-  prevDayRecords: readonly CategoryTimeSalesRecord[]
+  dayRecords: readonly CategoryLeafDailyEntry[]
+  prevDayRecords: readonly CategoryLeafDailyEntry[]
   /** 時間帯集計 series（timeSlotLane.bundle 由来）— amount / quantity 合算源 */
   currentSeries: TimeSlotSeries | null
   comparisonSeries: TimeSlotSeries | null
