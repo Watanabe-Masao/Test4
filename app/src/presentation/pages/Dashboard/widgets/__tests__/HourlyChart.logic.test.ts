@@ -5,20 +5,26 @@ import {
   buildHourCategoryDetail,
   buildCumulativeData,
 } from '../HourlyChart.logic'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 const makeRec = (
   dept: string,
   line: string,
   klass: string,
   slots: { hour: number; amount: number; quantity: number }[],
-): CategoryTimeSalesRecord =>
+): CategoryLeafDailyEntry =>
   ({
     department: { code: dept, name: dept },
     line: { code: line, name: line },
     klass: { code: klass, name: klass },
+    deptCode: dept,
+    deptName: dept,
+    lineCode: line,
+    lineName: line,
+    klassCode: klass,
+    klassName: klass,
     timeSlots: slots,
-  }) as unknown as CategoryTimeSalesRecord
+  }) as unknown as CategoryLeafDailyEntry
 
 describe('buildHourlyData', () => {
   it('returns empty array for no records', () => {

@@ -5,7 +5,7 @@ import {
   buildDrillItems,
   COLORS,
 } from '@/presentation/pages/Dashboard/widgets/drilldownUtils'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 const makeRec = (
   dept: string,
@@ -13,14 +13,20 @@ const makeRec = (
   klass: string,
   amount: number,
   quantity: number,
-): CategoryTimeSalesRecord =>
+): CategoryLeafDailyEntry =>
   ({
     department: { code: dept, name: `Dept${dept}` },
     line: { code: line, name: `Line${line}` },
     klass: { code: klass, name: `Klass${klass}` },
+    deptCode: dept,
+    deptName: `Dept${dept}`,
+    lineCode: line,
+    lineName: `Line${line}`,
+    klassCode: klass,
+    klassName: `Klass${klass}`,
     totalAmount: amount,
     totalQuantity: quantity,
-  }) as unknown as CategoryTimeSalesRecord
+  }) as unknown as CategoryLeafDailyEntry
 
 describe('fmtSen', () => {
   it('formats zero correctly', () => {
@@ -55,7 +61,7 @@ describe('COLORS palette', () => {
 })
 
 describe('aggregateForDrill', () => {
-  const records: CategoryTimeSalesRecord[] = [
+  const records: CategoryLeafDailyEntry[] = [
     makeRec('D1', 'L1', 'K1', 100, 5),
     makeRec('D1', 'L1', 'K2', 200, 10),
     makeRec('D1', 'L2', 'K3', 50, 2),
@@ -96,7 +102,7 @@ describe('aggregateForDrill', () => {
 })
 
 describe('buildDrillItems', () => {
-  const records: CategoryTimeSalesRecord[] = [
+  const records: CategoryLeafDailyEntry[] = [
     makeRec('D1', 'L1', 'K1', 200, 10),
     makeRec('D2', 'L2', 'K2', 100, 5),
   ]

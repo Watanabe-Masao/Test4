@@ -16,6 +16,8 @@ import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'
 import { currentOnly, yoyWindow, wowWindow } from '@/domain/models/ComparisonWindow'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
+import { toCategoryLeafDailyEntries } from '@/application/hooks/categoryLeafDaily/projectCategoryLeafDailySeries'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
 import {
@@ -24,6 +26,7 @@ import {
 } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 
 const EMPTY_RECORDS: readonly CategoryTimeSalesRecord[] = []
+const EMPTY_ENTRIES: readonly CategoryLeafDailyEntry[] = []
 
 /** fallback 解決結果 — UI は comparisonSource を表示判断に使える  *
  * @responsibility R:query-plan
@@ -41,8 +44,8 @@ export interface YoYWaterfallPlanInput {
 }
 
 export interface YoYWaterfallPlanResult {
-  readonly currentRecords: readonly CategoryTimeSalesRecord[]
-  readonly comparisonRecords: readonly CategoryTimeSalesRecord[]
+  readonly currentRecords: readonly CategoryLeafDailyEntry[]
+  readonly comparisonRecords: readonly CategoryLeafDailyEntry[]
   readonly comparisonSource: ComparisonSource
   readonly comparisonProvenance: PlanComparisonProvenance
   readonly isLoading: boolean
@@ -98,26 +101,34 @@ export function useYoYWaterfallPlan(
     fallbackInput,
   )
 
-  // ── Fallback resolution ──
-  const currentRecords = curOutput?.records ?? EMPTY_RECORDS
+  // ── Fallback resolution (category-leaf-daily-entry-shape-break Phase 1:
+  //    acquisition 境界で projection を適用し CategoryLeafDailyEntry[] として
+  //    配布する) ──
+  const currentRecords = useMemo<readonly CategoryLeafDailyEntry[]>(
+    () => (curOutput ? toCategoryLeafDailyEntries(curOutput.records) : EMPTY_ENTRIES),
+    [curOutput],
+  )
 
   const { comparisonRecords, comparisonSource } = useMemo<{
-    comparisonRecords: readonly CategoryTimeSalesRecord[]
+    comparisonRecords: readonly CategoryLeafDailyEntry[]
     comparisonSource: ComparisonSource
   }>(() => {
     if (!prevDateRange) {
-      return { comparisonRecords: EMPTY_RECORDS, comparisonSource: 'none' as const }
+      return { comparisonRecords: EMPTY_ENTRIES, comparisonSource: 'none' as const }
     }
-    const primaryRecords = prevOutput?.records ?? []
+    const primaryRecords: readonly CategoryTimeSalesRecord[] = prevOutput?.records ?? EMPTY_RECORDS
     if (isPrevYear && primaryRecords.length === 0) {
       // isPrevYear=true だが primary が空 → fallback を使用
+      const fallbackRecords: readonly CategoryTimeSalesRecord[] =
+        fallbackOutput?.records ?? EMPTY_RECORDS
       return {
-        comparisonRecords: fallbackOutput?.records ?? EMPTY_RECORDS,
+        comparisonRecords: toCategoryLeafDailyEntries(fallbackRecords),
         comparisonSource: 'fallback' as const,
       }
     }
     return {
-      comparisonRecords: primaryRecords.length > 0 ? primaryRecords : EMPTY_RECORDS,
+      comparisonRecords:
+        primaryRecords.length > 0 ? toCategoryLeafDailyEntries(primaryRecords) : EMPTY_ENTRIES,
       comparisonSource: 'primary' as const,
     }
   }, [prevDateRange, prevOutput, isPrevYear, fallbackOutput])

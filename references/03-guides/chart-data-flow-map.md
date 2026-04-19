@@ -87,10 +87,16 @@ HourlyChart
 - `timeSlotLane.bundle` は `calendar-modal-bundle-migration` Phase 1 で
   `byHourQuantity` / `totalQuantity` / `grandTotalQuantity` が additive 追加された
 - `categoryLeafDaily.bundle` は `category-leaf-daily-series` で新設された。
-  `CategoryLeafDailyEntry` は `CategoryTimeSalesRecord` の同型 alias（後続
-  ratchet-down project で 32 件の presentation 直 import を置換する予定）
+  `CategoryLeafDailyEntry` は `CategoryTimeSalesRecord` の intersection 型に
+  進化中（`category-leaf-daily-entry-shape-break` Phase 1 で flat field
+  `deptCode / deptName / lineCode / lineName / klassCode / klassName` を並行提供。
+  Phase 4 で alias 解除 → 独立 interface 化予定）
 - fallback 意味論は `useCategoryLeafDailyBundle` 内部に畳み込まれており、
   consumer は `bundle.meta.provenance.usedComparisonFallback` で観測のみ可能
+- **acquisition 境界の projection**: `useDayDetailPlan` (wow 単発経路) と
+  `useYoYWaterfallPlan` (3 query path) は各々の query 結果に対して
+  `toCategoryLeafDailyEntries` を適用し、下流には flat field 付き entry を
+  配布する。plan 以外の consumer が手動で projection を組まない
 
 ## YoYChart (unify-period-analysis Phase 5 見本実装)
 

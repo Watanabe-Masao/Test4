@@ -50,11 +50,26 @@ export interface CategoryLeafDailyFrame {
 /**
  * leaf-grain `(dept, line, klass)` 1 件分のエントリ。
  *
- * 初期実装では `CategoryTimeSalesRecord` と同一構造。presentation は
- * 直接 `CategoryTimeSalesRecord` を import する代わりに本型を使う。
- * 時期を見て独自構造（例: 時間帯配列を fixed-24 化など）に進化させる。
+ * 現在は `CategoryTimeSalesRecord` を基底に **flat field を並行提供する
+ * intersection 型** (category-leaf-daily-entry-shape-break Phase 1, 2026-04-19)。
+ * presentation は新 flat field (`deptCode` / `deptName` / `lineCode` / `lineName` /
+ * `klassCode` / `klassName`) を参照する。nested field (`department.code` 等) は
+ * 既存 consumer の非破壊経路として残存するが、Phase 4 で intersection を解除して
+ * 独立 interface に昇格する予定 (nested field は entry から除外され、
+ * presentation は raw 型と構造的に分離される)。
+ *
+ * **flat field の生成点は `projectCategoryLeafDailySeries` のみ。** consumer が
+ * 手動で `{ ...rec, deptCode: rec.department.code }` 等を組まない
+ * (`plan.md` 不可侵原則 §3)。
  */
-export type CategoryLeafDailyEntry = CategoryTimeSalesRecord
+export type CategoryLeafDailyEntry = CategoryTimeSalesRecord & {
+  readonly deptCode: string
+  readonly deptName: string
+  readonly lineCode: string
+  readonly lineName: string
+  readonly klassCode: string
+  readonly klassName: string
+}
 
 // ── Series ────────────────────────────────────────────────
 

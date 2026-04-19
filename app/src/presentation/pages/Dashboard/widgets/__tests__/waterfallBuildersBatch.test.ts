@@ -8,16 +8,23 @@ import {
   buildPeriodAggregates,
   buildPISummary,
 } from '../YoYWaterfallChart.builders'
-import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+import type { DailyRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
-function makeCts(totalQuantity: number, totalAmount: number = 1000): CategoryTimeSalesRecord {
+function makeCts(totalQuantity: number, totalAmount: number = 1000): CategoryLeafDailyEntry {
   return {
     totalQuantity,
     totalAmount,
     department: { code: 'd1', name: 'D' },
     line: { code: 'l1', name: 'L' },
     klass: { code: 'k1', name: 'K' },
-  } as unknown as CategoryTimeSalesRecord
+    deptCode: 'd1',
+    deptName: 'D',
+    lineCode: 'l1',
+    lineName: 'L',
+    klassCode: 'k1',
+    klassName: 'K',
+  } as unknown as CategoryLeafDailyEntry
 }
 
 // ─── buildRecordAggregates ───────────────────

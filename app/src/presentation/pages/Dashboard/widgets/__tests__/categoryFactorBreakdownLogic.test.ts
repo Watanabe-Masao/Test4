@@ -14,7 +14,7 @@ import {
   computeWaterfallItems,
   computeTotals,
 } from '../categoryFactorBreakdownLogic'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { FactorItem } from '../categoryFactorBreakdown.types'
 
 function makeRec(
@@ -23,14 +23,20 @@ function makeRec(
   klassCode: string,
   qty = 10,
   amt = 1000,
-): CategoryTimeSalesRecord {
+): CategoryLeafDailyEntry {
   return {
     department: { code: deptCode, name: `Dept ${deptCode}` },
     line: { code: lineCode, name: `Line ${lineCode}` },
     klass: { code: klassCode, name: `Klass ${klassCode}` },
+    deptCode,
+    deptName: `Dept ${deptCode}`,
+    lineCode,
+    lineName: `Line ${lineCode}`,
+    klassCode,
+    klassName: `Klass ${klassCode}`,
     totalQuantity: qty,
     totalAmount: amt,
-  } as unknown as CategoryTimeSalesRecord
+  } as unknown as CategoryLeafDailyEntry
 }
 
 function makeItem(overrides: Partial<FactorItem> = {}): FactorItem {
