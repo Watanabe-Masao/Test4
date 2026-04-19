@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-19T02:06:10.017Z",
+  "timestamp": "2026-04-19T02:18:22.854Z",
   "summary": {
     "active": 6,
     "archived": 13,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 543,
-    "checkedCheckboxes": 460
+    "checkedCheckboxes": 465
   },
   "projects": [
     {
@@ -187,9 +187,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 3,
+      "checked": 8,
       "total": 18,
-      "progress": 0.167,
+      "progress": 0.444,
       "entrypoint": "projects/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
       "checklistPath": "projects/presentation-cts-surface-ratchetdown/checklist.md",
       "parent": null

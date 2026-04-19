@@ -13,11 +13,11 @@
 
 ## Phase 2: widget 系の置換
 
-* [ ] DrilldownWaterfall 周辺（builders / logic / utils 含む）の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換する
-* [ ] CategoryDrilldown 周辺の同 import を置換する
-* [ ] HourlyChart 周辺（builders / logic）の同 import を置換する
-* [ ] DayDetailSalesTab / DayDetailHourlyTab の同 import を置換する
-* [ ] baseline を Phase 2 後の件数に ratchet-down する
+* [x] DrilldownWaterfall 周辺（builders / logic / utils 含む）の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換する
+* [x] CategoryDrilldown 周辺の同 import を置換する（useDrilldown 系 hook 4 件で完了）
+* [x] HourlyChart 周辺（builders / logic）の同 import を置換する
+* [x] DayDetailSalesTab / DayDetailHourlyTab の同 import を置換する
+* [x] baseline を Phase 2 後の件数に ratchet-down する（23 → 17 → 12 → 8）
 
 ## Phase 3: YoYWaterfall + 階層フィルタ
 
