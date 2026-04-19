@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildRecordAggregates } from '../DrilldownWaterfall.builders'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 const makeRec = (
   dept: string,
@@ -8,7 +8,7 @@ const makeRec = (
   klass: string,
   qty: number,
   amt: number,
-): CategoryTimeSalesRecord =>
+): CategoryLeafDailyEntry =>
   ({
     year: 2024,
     month: 3,
@@ -17,10 +17,16 @@ const makeRec = (
     department: { code: dept, name: dept },
     line: { code: line, name: line },
     klass: { code: klass, name: klass },
+    deptCode: dept,
+    deptName: dept,
+    lineCode: line,
+    lineName: line,
+    klassCode: klass,
+    klassName: klass,
     timeSlots: [],
     totalQuantity: qty,
     totalAmount: amt,
-  }) as unknown as CategoryTimeSalesRecord
+  }) as unknown as CategoryLeafDailyEntry
 
 describe('buildRecordAggregates', () => {
   it('returns zero state for empty inputs', () => {

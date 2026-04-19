@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { recordsToCategoryQtyAmt } from '@/presentation/pages/Dashboard/widgets/categoryFactorUtils'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 const rec = (
   dept: string,
@@ -8,14 +8,20 @@ const rec = (
   klass: string,
   qty: number,
   amt: number,
-): CategoryTimeSalesRecord =>
+): CategoryLeafDailyEntry =>
   ({
     department: { code: dept, name: `Dept${dept}` },
     line: { code: line, name: `Line${line}` },
     klass: { code: klass, name: `Klass${klass}` },
+    deptCode: dept,
+    deptName: `Dept${dept}`,
+    lineCode: line,
+    lineName: `Line${line}`,
+    klassCode: klass,
+    klassName: `Klass${klass}`,
     totalQuantity: qty,
     totalAmount: amt,
-  }) as unknown as CategoryTimeSalesRecord
+  }) as unknown as CategoryLeafDailyEntry
 
 describe('recordsToCategoryQtyAmt', () => {
   it('returns empty array for empty input', () => {

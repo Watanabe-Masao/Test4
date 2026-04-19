@@ -26,6 +26,7 @@ import type {
   CategoryLeafDailyEntry,
   CategoryLeafDailySeries,
 } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
+import { toCategoryLeafDailyEntries } from '@/application/hooks/categoryLeafDaily/projectCategoryLeafDailySeries'
 import { categoryTimeRecordsHandler } from '@/application/queries/cts/CategoryTimeRecordsHandler'
 import { storeDaySummaryHandler } from '@/application/queries/summary/StoreDaySummaryHandler'
 import { weatherHourlyHandler } from '@/application/queries/weather/WeatherHourlyHandler'
@@ -38,13 +39,12 @@ import {
   buildSummaryInput,
   buildWeatherInput,
   aggregateSummary,
-  EMPTY_RECORDS,
   ZERO_SUMMARY,
 } from '../duckdb/dayDetailDataLogic'
 import type { DaySummary } from '../duckdb/dayDetailDataLogic'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 
-const emptyEntries: readonly CategoryLeafDailyEntry[] = EMPTY_RECORDS
+const emptyEntries: readonly CategoryLeafDailyEntry[] = []
 const zeroSummary = ZERO_SUMMARY
 
 type DayDetailRanges = ReturnType<typeof resolveDayDetailRanges>
@@ -168,12 +168,17 @@ export function useDayDetailPlan(
     [ranges.prevDayRange, dayLeafBundle.comparisonSeries],
   )
 
+  const wowPrevDayRecords = useMemo<readonly CategoryLeafDailyEntry[]>(
+    () => (wowResult.data ? toCategoryLeafDailyEntries(wowResult.data.records) : emptyEntries),
+    [wowResult.data],
+  )
+
   return {
     daySummary,
     prevDaySummary,
     dayRecords: dayLeafBundle.currentSeries?.entries ?? emptyEntries,
     prevDayRecords: dayLeafBundle.comparisonSeries?.entries ?? emptyEntries,
-    wowPrevDayRecords: wowResult.data?.records ?? emptyEntries,
+    wowPrevDayRecords,
     cumRecords: cumLeafBundle.currentSeries?.entries ?? emptyEntries,
     cumPrevRecords: cumLeafBundle.comparisonSeries?.entries ?? emptyEntries,
     dayLeafCurrentSeries: dayLeafBundle.currentSeries,

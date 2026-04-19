@@ -5,12 +5,18 @@
  * 全 index 構築を一括実行し、useMemo の数を削減する。
  */
 import { aggregateAllStores, indexByStoreDay, type StoreDayIndex } from '@/domain/models/record'
-import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 
-/** CTS レコードを store×day の売上合計に集約 */
+/**
+ * CTS レコードを store×day の売上合計に集約。
+ *
+ * 使用 field は `storeId / day / totalAmount` のみで、dept/line/klass は不要。
+ * raw CTS 型と `CategoryLeafDailyEntry` の双方を structural subtype で受け付ける
+ * ため、projection を挟まず直接消費できる (category-leaf-daily-entry-shape-break
+ * Phase 1: 必要のない projection を強制しない方針)。
+ */
 function buildCtsIndex(
-  records: readonly CategoryLeafDailyEntry[],
+  records: readonly { readonly storeId: string; readonly day: number; readonly totalAmount: number }[],
 ): StoreDayIndex<{ amount: number }> {
   const idx: Record<string, Record<number, { amount: number }>> = {}
   for (const rec of records) {
