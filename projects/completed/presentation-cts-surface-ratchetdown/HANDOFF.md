@@ -4,9 +4,28 @@
 
 ## 1. 現在地
 
-**未着手。** `category-leaf-daily-series` が完了・archive されたことで bundle 契約と
-`CategoryLeafDailyEntry` 型は整った。本 project は presentation 層の
-`CategoryTimeSalesRecord` 直接 import 32 件を段階的に 0 に置換する。
+**完了・archive 済み (2026-04-19)。** presentation 層の `CategoryTimeSalesRecord`
+直接 import 23 件 (production / test 除外) を 6 commit で baseline 0 に到達。
+guard (`categoryLeafDailyLaneSurfaceGuard`) を「追加禁止」固定モードに移行し、
+副次として `categoryDailyLaneSurfaceGuard` の YoYWaterfall "permanent floor"
+(3/3) も 0 に解消。
+
+alias 解除 (独立構造化) は scope 外。後続 project
+`category-leaf-daily-entry-shape-break` に移管し、presentation が raw 型を
+**見えない** (alias 経由も触れない) 状態を Option B (flat 独立構造) で実現する。
+
+### 成果サマリ
+
+| Phase | Files | 成果 |
+|---|---|---|
+| 1 | +guard | `categoryLeafDailyLaneSurfaceGuard` 新設 (baseline 23) |
+| 2 batch-1 | 6 | DrilldownWaterfall + CategoryFactor (23→17) |
+| 2 batch-2 | 5 | HourlyChart + DayDetail tabs (17→12) |
+| 2 batch-3 | 4 | useDrilldown hooks (12→8) |
+| 3 | 5 | YoYWaterfall + 階層/PeriodFilter (8→3) |
+| 4 | 3 | context/widget 基盤 + Admin (3→0、固定モード移行) |
+
+累積: 23 production ファイル移行 / +361 -149 行 / 全コミットで Hard Gate PASS。
 
 ## 2. 次にやること
 
@@ -120,3 +139,6 @@ fixture に `totalAmount` 等の詳細フィールドを直接書く箇所では
 | `app/src/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types.ts` | `CategoryLeafDailyEntry` 定義元 |
 | `app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts` | 参考実装 |
 | `projects/completed/category-leaf-daily-series/HANDOFF.md` | 先行 project |
+| `projects/category-leaf-daily-entry-shape-break/HANDOFF.md` | 後続 project (alias 解除 / 独立構造化) |
+
+Archived: 2026-04-19

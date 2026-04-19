@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-19T11:36:31.352Z
+> Generated: 2026-04-19T13:54:37.320Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -72,12 +72,12 @@
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 6 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 13 / 100 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 14 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 543 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 474 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 565 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 475 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 1 | OK |
 
 ## バンドル性能

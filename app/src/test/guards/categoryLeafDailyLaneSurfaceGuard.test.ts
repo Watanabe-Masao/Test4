@@ -20,8 +20,8 @@
 // `timeSlotLaneSurfaceGuard` と同様に collectTsFiles の test 除外に任せる
 // (HANDOFF §3.2)。
 //
-// @see projects/presentation-cts-surface-ratchetdown/HANDOFF.md
-// @see projects/presentation-cts-surface-ratchetdown/plan.md
+// @see projects/completed/presentation-cts-surface-ratchetdown/HANDOFF.md
+// @see projects/completed/presentation-cts-surface-ratchetdown/plan.md
 // @see app/src/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types.ts
 // @see app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts (参考実装)
 import { describe, it, expect } from 'vitest'
@@ -119,7 +119,7 @@ describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdow
             '  3. やむを得ず追加する場合は CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST に reason を添えて登録し、',
             '     CATEGORY_LEAF_DAILY_BASELINE を更新する (ratchet-up は禁止 — Phase 計画と整合させること)',
             '',
-            '詳細: projects/presentation-cts-surface-ratchetdown/HANDOFF.md',
+            '詳細: projects/completed/presentation-cts-surface-ratchetdown/HANDOFF.md',
           ].join('\n')
         : undefined,
     ).toEqual([])
@@ -173,13 +173,14 @@ describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdow
   })
 
   it('presentation-cts-surface-ratchetdown 方針ドキュメントが存在する (意思決定の固定先)', () => {
+    // archive 後は projects/completed/ 配下に移動済み (2026-04-19)
     const handoffFile = path.resolve(
       SRC_DIR,
-      '../../projects/presentation-cts-surface-ratchetdown/HANDOFF.md',
+      '../../projects/completed/presentation-cts-surface-ratchetdown/HANDOFF.md',
     )
     const planFile = path.resolve(
       SRC_DIR,
-      '../../projects/presentation-cts-surface-ratchetdown/plan.md',
+      '../../projects/completed/presentation-cts-surface-ratchetdown/plan.md',
     )
     expect(fs.existsSync(handoffFile), 'HANDOFF.md が存在しない').toBe(true)
     expect(fs.existsSync(planFile), 'plan.md が存在しない').toBe(true)
