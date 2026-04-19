@@ -1,0 +1,12 @@
+{
+  "projectId": "day-detail-modal-prev-year-investigation",
+  "title": "DayDetailModal 前年データ空表示バグ調査 — 3/5-factor / 時間帯分析 / ドリルダウンが表示されない原因の特定",
+  "status": "active",
+  "projectRoot": "projects/day-detail-modal-prev-year-investigation",
+  "entrypoints": {
+    "aiContext": "projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md",
+    "handoff": "projects/day-detail-modal-prev-year-investigation/HANDOFF.md",
+    "plan": "projects/day-detail-modal-prev-year-investigation/plan.md",
+    "checklist": "projects/day-detail-modal-prev-year-investigation/checklist.md"
+  }
+}
