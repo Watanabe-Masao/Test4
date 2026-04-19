@@ -35,11 +35,32 @@ export interface ProjectCategoryLeafDailySeriesOptions {
 }
 
 /**
+ * records 参照をキーとした projection 結果のキャッシュ。
+ *
+ * 同一 records array が渡された場合に同じ entries 参照を返すことで、
+ * 下流の useMemo 依存配列 (DrilldownWaterfall / HourlyChart / CategoryFactor
+ * 系の record-based memoized aggregations) の不要な再計算を防ぐ。
+ *
+ * WeakMap のため records array が GC 対象になれば cache 自体も自動解放される。
+ * records は `readonly CategoryTimeSalesRecord[]` (= Array オブジェクト) で
+ * 非プリミティブなため WeakMap のキーとして有効。
+ */
+const entriesCache = new WeakMap<
+  readonly CategoryTimeSalesRecord[],
+  readonly CategoryLeafDailyEntry[]
+>()
+
+/**
  * raw CTS records を flat field 付きの `CategoryLeafDailyEntry[]` に変換する。
  *
  * **flat field 生成の唯一実装。** series を作らない (grandTotals / dayCount が不要な)
  * 経路 (例: 単発 wow query / YoYWaterfall plan の raw records / Admin builders)
  * から呼ばれ、`projectCategoryLeafDailySeries` 内部でも再利用される。
+ *
+ * **identity 保証**: 同一 records 参照に対しては同じ entries 参照を返す
+ * (WeakMap メモ化)。これにより pairResult/fallbackResult オブジェクトが毎
+ * render で再生成される状況でも、下流の record-based memoized aggregations
+ * (drilldown / hourly / filter builders) が stable なデータで再計算されない。
  *
  * consumer が手動で `{ ...rec, deptCode: rec.department.code }` 等を組まない
  * (category-leaf-daily-entry-shape-break plan.md §不可侵原則 §3)。
@@ -47,7 +68,9 @@ export interface ProjectCategoryLeafDailySeriesOptions {
 export function toCategoryLeafDailyEntries(
   records: readonly CategoryTimeSalesRecord[],
 ): readonly CategoryLeafDailyEntry[] {
-  return records.map((r) => ({
+  const cached = entriesCache.get(records)
+  if (cached !== undefined) return cached
+  const entries: readonly CategoryLeafDailyEntry[] = records.map((r) => ({
     ...r,
     deptCode: r.department.code,
     deptName: r.department.name,
@@ -56,6 +79,8 @@ export function toCategoryLeafDailyEntries(
     klassCode: r.klass.code,
     klassName: r.klass.name,
   }))
+  entriesCache.set(records, entries)
+  return entries
 }
 
 export function projectCategoryLeafDailySeries(

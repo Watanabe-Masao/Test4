@@ -16,7 +16,11 @@ import type { MonthlyData } from '@/domain/models/MonthlyData'
  * Phase 1: 必要のない projection を強制しない方針)。
  */
 function buildCtsIndex(
-  records: readonly { readonly storeId: string; readonly day: number; readonly totalAmount: number }[],
+  records: readonly {
+    readonly storeId: string
+    readonly day: number
+    readonly totalAmount: number
+  }[],
 ): StoreDayIndex<{ amount: number }> {
   const idx: Record<string, Record<number, { amount: number }>> = {}
   for (const rec of records) {
