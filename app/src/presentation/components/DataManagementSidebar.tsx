@@ -72,10 +72,11 @@ export function DataManagementSidebar({
   )
   const autoBackup = useAutoBackup(repo, backupTrigger)
 
-  // 自動インポート
+  // 自動インポート — summary を返すことで useAutoImport 側が
+  // per-file 成功/失敗を見て fingerprint を正確に commit できるようにする（安全設計）。
   const handleAutoImportFiles = useCallback(
     async (files: File[]) => {
-      await importFiles(files)
+      return await importFiles(files)
     },
     [importFiles],
   )

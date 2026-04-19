@@ -174,7 +174,15 @@ export function SettingsModal({
                     >
                       {autoBackup.isBacking ? '...' : '保存'}
                     </FolderSmallBtn>
-                    <FolderSmallBtn onClick={() => autoBackup.clearFolder()}>解除</FolderSmallBtn>
+                    <FolderSmallBtn
+                      onClick={() => {
+                        if (window.confirm('バックアップ先の設定を解除しますか？')) {
+                          autoBackup.clearFolder()
+                        }
+                      }}
+                    >
+                      解除
+                    </FolderSmallBtn>
                   </>
                 ) : (
                   <FolderSmallBtn onClick={() => autoBackup.selectFolder()}>
@@ -215,7 +223,30 @@ export function SettingsModal({
                         >
                           {autoImport.isScanning ? '...' : 'スキャン'}
                         </FolderSmallBtn>
-                        <FolderSmallBtn onClick={() => autoImport.clearFolder()}>
+                        <FolderSmallBtn
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                '処理済み指紋をクリアしてフォルダ内の全ファイルを再取込しますか？',
+                              )
+                            ) {
+                              autoImport.rescanAll().then((files) => {
+                                showToast?.(`全再スキャン: ${files.length}件`, 'success')
+                              })
+                            }
+                          }}
+                          disabled={autoImport.isScanning}
+                          title="処理済み指紋を忘れて全ファイルを再取込"
+                        >
+                          全再スキャン
+                        </FolderSmallBtn>
+                        <FolderSmallBtn
+                          onClick={() => {
+                            if (window.confirm('自動取込の設定を解除しますか？')) {
+                              autoImport.clearFolder()
+                            }
+                          }}
+                        >
                           解除
                         </FolderSmallBtn>
                       </>

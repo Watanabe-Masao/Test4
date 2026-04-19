@@ -2,69 +2,57 @@
  * 自動インポートフック
  *
  * ユーザー指定フォルダを監視し、新規・更新ファイルを自動取込する。
- * ファイルの最終更新日時とサイズのハッシュで二重取込を防止する。
+ *
+ * 安全設計（構造的保証）:
+ *  - fingerprint の processed 化は per-file ok=true に紐付ける（silent drop で未取込の
+ *    ファイルが「処理済み」化してしまうデータロスを防ぐ）。
+ *  - scan に再入ロック（scanningRef）を張り、起動時/定期/手動スキャンの競合を防ぐ。
+ *  - rescanAll は processed をクリアして全件再取込する可逆操作。フォルダ設定は保持。
  *
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
  */
 import { useCallback, useEffect, useRef, useReducer } from 'react'
 import { useFileSystemAdapter } from '@/application/context/useAdapters'
 import { autoImportReducer, createInitialAutoImportState } from './autoImportReducer'
-import { loadJson, saveJson, loadRaw, saveRaw } from '@/application/adapters/uiPersistenceAdapter'
+import { loadRaw, saveRaw } from '@/application/adapters/uiPersistenceAdapter'
+import type { ImportSummary } from '@/domain/models/ImportResult'
+import {
+  fileFingerprint,
+  loadProcessedFingerprints,
+  saveProcessedFingerprints,
+  collectSuccessFilenames,
+} from './autoImportProcessedLedger'
 
-/** インポート対象の拡張子 */
 const IMPORTABLE_EXTENSIONS = ['.xlsx', '.xls', '.csv'] as const
-
-/** localStorage キー（処理済みファイル指紋を永続化） */
-const PROCESSED_FILES_KEY = 'shiire-arari-import-processed'
-
-/** 処理済みファイルの識別子（名前 + サイズ + 最終更新日時） */
-function fileFingerprint(name: string, size: number, lastModified: number): string {
-  return `${name}|${size}|${lastModified}`
-}
-
-/** 処理済みファイル指紋を adapter 経由で復元する */
-function loadProcessedFingerprints(): Set<string> {
-  return new Set(loadJson<string[]>(PROCESSED_FILES_KEY, []))
-}
-
-/** 処理済みファイル指紋を adapter 経由で保存する */
-function saveProcessedFingerprints(fingerprints: Set<string>): void {
-  saveJson(PROCESSED_FILES_KEY, [...fingerprints])
-}
-
-/** 定期スキャン間隔（5分） */
 const AUTO_SYNC_INTERVAL_MS = 5 * 60 * 1000
-
-/** localStorage キー（自動同期の有効/無効を永続化） */
 const AUTO_SYNC_ENABLED_KEY = 'shiire-arari-auto-sync-enabled'
 
+/**
+ * 自動取込のファイル投入コールバック。
+ * 戻り値の ImportSummary を使って per-file の成否を fingerprint commit に反映する。
+ * void の場合は旧互換動作（全件成功扱い）。
+ */
+export type AutoImportFileHandler = (files: File[]) => Promise<ImportSummary | void>
+
 export interface AutoImportState {
-  /** File System Access API 対応ブラウザか */
   readonly supported: boolean
-  /** インポートフォルダが設定済みか */
   readonly folderConfigured: boolean
-  /** フォルダ名（表示用） */
   readonly folderName: string | null
-  /** 最後のスキャン日時 */
   readonly lastScanAt: string | null
-  /** スキャン中か */
   readonly isScanning: boolean
-  /** 最後のスキャンで取り込んだファイル数 */
   readonly lastImportCount: number
-  /** エラーメッセージ */
+  readonly lastSkippedCount: number
   readonly error: string | null
-  /** 定期自動同期が有効か */
   readonly autoSyncEnabled: boolean
+  readonly processedCount: number
 }
 
 export interface AutoImportActions {
-  /** インポートフォルダを選択する */
   selectFolder: () => Promise<boolean>
-  /** インポートフォルダ設定を解除する */
   clearFolder: () => Promise<void>
-  /** 手動でフォルダをスキャンし、新規ファイルを取り込む */
   scanNow: () => Promise<File[]>
-  /** 定期自動同期の有効/無効を切り替える */
+  /** processed 指紋をクリアして全件再取込する（フォルダ設定は維持） */
+  rescanAll: () => Promise<File[]>
   setAutoSync: (enabled: boolean) => void
 }
 
@@ -73,7 +61,7 @@ function loadInitialAutoSync(): boolean {
 }
 
 export function useAutoImport(
-  onFilesFound: (files: File[]) => Promise<void>,
+  onFilesFound: AutoImportFileHandler,
 ): AutoImportState & AutoImportActions {
   const fileSystemAdapter = useFileSystemAdapter()
   const supported = fileSystemAdapter.isFileSystemAccessSupported()
@@ -83,30 +71,25 @@ export function useAutoImport(
     createInitialAutoImportState,
   )
 
-  /** 処理済みファイルの指紋セット（localStorage から復元） */
   const processedRef = useRef(loadProcessedFingerprints())
+  const scanningRef = useRef(false)
 
-  // 起動時に保存済みハンドルを復元
   const initRef = useRef(false)
   useEffect(() => {
     if (!supported || initRef.current) return
     initRef.current = true
     fileSystemAdapter.getStoredHandle('import').then((h) => {
-      if (h) {
-        dispatch({ type: 'RESTORE_HANDLE', handle: h })
-      }
+      if (h) dispatch({ type: 'RESTORE_HANDLE', handle: h })
     })
   }, [supported, fileSystemAdapter])
 
   const selectFolder = useCallback(async () => {
     const handle = await fileSystemAdapter.pickDirectory('import')
-    if (handle) {
-      dispatch({ type: 'SELECT_FOLDER', handle })
-      processedRef.current = new Set()
-      saveProcessedFingerprints(processedRef.current)
-      return true
-    }
-    return false
+    if (!handle) return false
+    dispatch({ type: 'SELECT_FOLDER', handle })
+    processedRef.current = new Set()
+    saveProcessedFingerprints(processedRef.current)
+    return true
   }, [fileSystemAdapter])
 
   const clearFolder = useCallback(async () => {
@@ -116,48 +99,71 @@ export function useAutoImport(
     saveProcessedFingerprints(processedRef.current)
   }, [fileSystemAdapter])
 
-  const scanNow = useCallback(async (): Promise<File[]> => {
-    if (!state.dirHandle) return []
-    dispatch({ type: 'SCAN_START' })
-    try {
-      const entries = await fileSystemAdapter.listFiles(state.dirHandle, [...IMPORTABLE_EXTENSIONS])
-      const newFiles: File[] = []
-      const newFingerprints: string[] = []
+  const runScan = useCallback(
+    async (forceAll: boolean): Promise<File[]> => {
+      if (!state.dirHandle) return []
+      if (scanningRef.current) return []
+      scanningRef.current = true
 
-      for (const entry of entries) {
-        const file = await entry.handle.getFile()
-        // entry.name は相対パス（サブディレクトリ含む）なので同名ファイルも区別できる
-        const fp = fileFingerprint(entry.name, file.size, file.lastModified)
-        if (processedRef.current.has(fp)) continue
-        newFingerprints.push(fp)
-        newFiles.push(file)
-      }
+      dispatch({ type: 'SCAN_START' })
+      try {
+        const entries = await fileSystemAdapter.listFiles(state.dirHandle, [
+          ...IMPORTABLE_EXTENSIONS,
+        ])
+        const filenameToFingerprints = new Map<string, string[]>()
+        const newFiles: File[] = []
 
-      // onFilesFound を先に実行 — 成功後にのみ processed 化する
-      if (newFiles.length > 0) {
-        await onFilesFound(newFiles)
-        // import 成功 → processed に追加（失敗時は再試行可能）
-        for (const fp of newFingerprints) {
-          processedRef.current.add(fp)
+        for (const entry of entries) {
+          const file = await entry.handle.getFile()
+          const fp = fileFingerprint(entry.name, file.size, file.lastModified)
+          if (!forceAll && processedRef.current.has(fp)) continue
+          const bucket = filenameToFingerprints.get(file.name) ?? []
+          bucket.push(fp)
+          filenameToFingerprints.set(file.name, bucket)
+          newFiles.push(file)
         }
-        saveProcessedFingerprints(processedRef.current)
+
+        const skippedCount = entries.length - newFiles.length
+        let imported = 0
+
+        if (newFiles.length > 0) {
+          const summary = await onFilesFound(newFiles)
+          const successFilenames = collectSuccessFilenames(summary, newFiles)
+          imported = successFilenames.size
+          for (const filename of successFilenames) {
+            const fps = filenameToFingerprints.get(filename)
+            if (!fps) continue
+            for (const fp of fps) processedRef.current.add(fp)
+          }
+          saveProcessedFingerprints(processedRef.current)
+        }
+
+        dispatch({
+          type: 'SCAN_SUCCESS',
+          importCount: imported,
+          skippedCount,
+          processedCount: processedRef.current.size,
+          scanAt: new Date().toISOString(),
+        })
+        return newFiles
+      } catch (err) {
+        dispatch({ type: 'SCAN_ERROR', error: err instanceof Error ? err.message : String(err) })
+        return []
+      } finally {
+        dispatch({ type: 'SCAN_END' })
+        scanningRef.current = false
       }
+    },
+    [state.dirHandle, onFilesFound, fileSystemAdapter],
+  )
 
-      dispatch({
-        type: 'SCAN_SUCCESS',
-        importCount: newFiles.length,
-        scanAt: new Date().toISOString(),
-      })
+  const scanNow = useCallback((): Promise<File[]> => runScan(false), [runScan])
 
-      return newFiles
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      dispatch({ type: 'SCAN_ERROR', error: msg })
-      return []
-    } finally {
-      dispatch({ type: 'SCAN_END' })
-    }
-  }, [state.dirHandle, onFilesFound, fileSystemAdapter])
+  const rescanAll = useCallback(async (): Promise<File[]> => {
+    processedRef.current = new Set()
+    saveProcessedFingerprints(processedRef.current)
+    return runScan(true)
+  }, [runScan])
 
   // 起動時にフォルダが設定されていれば自動スキャン（1回）
   const autoScanRef = useRef(false)
@@ -177,9 +183,7 @@ export function useAutoImport(
   scanNowRef.current = scanNow
   useEffect(() => {
     if (!state.dirHandle || !state.autoSyncEnabled) return
-    const id = setInterval(() => {
-      scanNowRef.current()
-    }, AUTO_SYNC_INTERVAL_MS)
+    const id = setInterval(() => scanNowRef.current(), AUTO_SYNC_INTERVAL_MS)
     return () => clearInterval(id)
   }, [state.dirHandle, state.autoSyncEnabled])
 
@@ -190,11 +194,14 @@ export function useAutoImport(
     lastScanAt: state.lastScanAt,
     isScanning: state.isScanning,
     lastImportCount: state.lastImportCount,
+    lastSkippedCount: state.lastSkippedCount,
     error: state.error,
     autoSyncEnabled: state.autoSyncEnabled,
+    processedCount: state.processedCount,
     selectFolder,
     clearFolder,
     scanNow,
+    rescanAll,
     setAutoSync,
   }
 }
