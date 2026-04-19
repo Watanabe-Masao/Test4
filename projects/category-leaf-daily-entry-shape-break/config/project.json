@@ -1,0 +1,12 @@
+{
+  "projectId": "category-leaf-daily-entry-shape-break",
+  "title": "CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化)",
+  "status": "active",
+  "projectRoot": "projects/category-leaf-daily-entry-shape-break",
+  "entrypoints": {
+    "aiContext": "projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md",
+    "handoff": "projects/category-leaf-daily-entry-shape-break/HANDOFF.md",
+    "plan": "projects/category-leaf-daily-entry-shape-break/plan.md",
+    "checklist": "projects/category-leaf-daily-entry-shape-break/checklist.md"
+  }
+}

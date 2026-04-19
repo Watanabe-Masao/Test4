@@ -13,7 +13,7 @@
 |---|---|---|---|
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `presentation-cts-surface-ratchetdown` | project | presentation 層の CategoryTimeSalesRecord 直接 import を 32→0 に ratchet-down | [`projects/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../projects/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
+| `category-leaf-daily-entry-shape-break` | project | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 
@@ -31,6 +31,7 @@
 | `calendar-modal-route-unification` | 2026-04-18 | カレンダーモーダル正規ルート統一 — Phase A handler 統一を実施し B-3 採用で archive。Phase B/C/D は後継 project に移管 | [`projects/completed/calendar-modal-route-unification/`](../../projects/completed/calendar-modal-route-unification/) |
 | `calendar-modal-bundle-migration` | 2026-04-18 | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化。Phase 3 削除実行は後継 project に移管 | [`projects/completed/calendar-modal-bundle-migration/`](../../projects/completed/calendar-modal-bundle-migration/) |
 | `category-leaf-daily-series` | 2026-04-18 | カテゴリ leaf-grain 正本化 — CategoryLeafDailyBundle 新設 + fallback 畳み込み + 旧 helper 物理削除。presentation 32 件 ratchet-down は後継 project に移管 | [`projects/completed/category-leaf-daily-series/`](../../projects/completed/category-leaf-daily-series/) |
+| `presentation-cts-surface-ratchetdown` | 2026-04-19 | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down。guard 固定モード移行。alias 解除 (独立構造化) は後継 project に移管 | [`projects/completed/presentation-cts-surface-ratchetdown/`](../../projects/completed/presentation-cts-surface-ratchetdown/) |
 
 ## 課題発見時のフロー
 

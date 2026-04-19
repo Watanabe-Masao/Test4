@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-19T11:36:31.358Z",
+  "timestamp": "2026-04-19T13:54:37.327Z",
   "summary": {
     "active": 6,
-    "archived": 13,
+    "archived": 14,
     "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 543,
-    "checkedCheckboxes": 474
+    "totalCheckboxes": 565,
+    "checkedCheckboxes": 475
   },
   "projects": [
     {
@@ -88,6 +88,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/calendar-modal-route-unification/AI_CONTEXT.md",
       "checklistPath": "projects/completed/calendar-modal-route-unification/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "category-leaf-daily-entry-shape-break",
+      "title": "CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化)",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 22,
+      "progress": 0,
+      "entrypoint": "projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md",
+      "checklistPath": "projects/category-leaf-daily-entry-shape-break/checklist.md",
       "parent": null
     },
     {
@@ -183,15 +196,15 @@
     },
     {
       "projectId": "presentation-cts-surface-ratchetdown",
-      "title": "presentation 層の CategoryTimeSalesRecord 直接 import を 32→0 に ratchet-down",
+      "title": "presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 17,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 18,
       "total": 18,
-      "progress": 0.944,
-      "entrypoint": "projects/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
-      "checklistPath": "projects/presentation-cts-surface-ratchetdown/checklist.md",
+      "progress": 1,
+      "entrypoint": "projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
       "parent": null
     },
     {

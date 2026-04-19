@@ -1,0 +1,12 @@
+{
+  "projectId": "presentation-cts-surface-ratchetdown",
+  "title": "presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down",
+  "status": "archived",
+  "projectRoot": "projects/completed/presentation-cts-surface-ratchetdown",
+  "entrypoints": {
+    "aiContext": "projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
+    "handoff": "projects/completed/presentation-cts-surface-ratchetdown/HANDOFF.md",
+    "plan": "projects/completed/presentation-cts-surface-ratchetdown/plan.md",
+    "checklist": "projects/completed/presentation-cts-surface-ratchetdown/checklist.md"
+  }
+}
