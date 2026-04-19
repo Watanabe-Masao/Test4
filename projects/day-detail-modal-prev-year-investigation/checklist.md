@@ -5,6 +5,12 @@
 >
 > 規約: `references/03-guides/project-checklist-governance.md` §3。
 
+## Phase 0: 静的解析で候補の構造シグナルを確認 (完了)
+
+* [x] 3 候補のコードパスを読み、observable 値と候補のマッピングを裏付け (HANDOFF.md §1.1)
+* [x] 仮説ランキング: B (最有力) / A (次点) / C (低) を HANDOFF.md に記録
+* [x] 既知 fix (`useDuckDB.ts` L216-235) の存在と発火条件を確認
+
 ## Phase 1: runtime 観測で原因層を絞る (10 分目安)
 
 * [ ] React DevTools で `dayLeafBundle.currentSeries.entries` の長さと `entries[0]` を確認する
@@ -12,6 +18,7 @@
 * [ ] DuckDB console で `time_slots` の prev/cur 件数を確認する
 * [ ] `dayLeafBundle.meta.provenance.usedComparisonFallback` の値を確認する
 * [ ] 候補 A (query 0 行) / B (time_slots JOIN 空) / C (ingest 集計) のいずれかに確定する
+* [ ] (B 候補確定時) `dataStore.appData.prevYear.categoryTimeSales.records[0].timeSlots.length` を確認し、ingest 時点か INSERT 時点かを切り分ける
 
 ## Phase 2: 原因の精密特定
 

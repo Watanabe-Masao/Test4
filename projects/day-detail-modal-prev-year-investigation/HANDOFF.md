@@ -4,9 +4,9 @@
 
 ## 1. 現在地
 
-**未着手。** 先行セッション (2026-04-19) で 3 症状
-(要因分解 2-factor のみ / 時間帯分析「データなし」 / ドリルダウン非表示) を
-観測し、以下を切り分け済み:
+**Phase 1: 静的解析パート完了 / runtime 観測パート未着手。** 先行セッション
+(2026-04-19) で 3 症状 (要因分解 2-factor のみ / 時間帯分析「データなし」 /
+ドリルダウン非表示) を観測し、以下を切り分け済み:
 
 - Phase 1 (category-leaf-daily-entry-shape-break) は無関係 (型 alias 置換のみ)
 - Worker timeout (`useCalculation`) は別の処理系 (main dashboard 用) で、
@@ -14,11 +14,91 @@
 
 残る候補: **データ or クエリ or インジェスト** の 3 択 (`AI_CONTEXT.md` §Why 参照)。
 
+### 1.1 静的解析による事前絞り込み (2026-04-19 追記)
+
+コードパスを静的に読解し、候補 A/B/C の判別に使える構造シグナルを確認した。
+runtime 観測なしで原因層を確定することはできないが、**runtime 観測時に見る
+場所**と**各候補の予測値**を精密化できた。
+
+#### データフロー (prev year lane)
+
+1. xlsx import → `CategoryTimeSalesProcessor` が `timeSlots: TimeSlotEntry[]`
+   を含む `CategoryTimeSalesRecord[]` を生成
+   (`app/src/infrastructure/dataProcessing/CategoryTimeSalesProcessor.ts:154-182`)
+2. IndexedDB に `categoryTimeSales` slice として保存 (timeSlots 含む)
+3. `useLoadComparisonData` → `loadComparisonDataAsync` が IndexedDB から
+   prev year 月を読み出し、`dataStore.appData.prevYear` に書き込む
+   (`app/src/features/comparison/application/loadComparisonDataAsync.ts:135-143, 219`)
+4. `useDuckDB` が `prevYear` fingerprint の変化を検知し
+   `loadMonth(..., isPrevYear=true)` を呼ぶ
+   (`app/src/application/runtime-adapters/useDuckDB.ts:142-150` 初回 /
+   `202-213` 差分 / `216-235` prevYear のみ更新)
+5. `insertCategoryTimeSales(conn, db, records, isPrevYear=true)` が
+   `category_time_sales` + `time_slots` 両方に `is_prev_year=true` で INSERT
+   (`app/src/infrastructure/duckdb/tableInserts.ts:57-111`)
+   - **重要**: `time_slots` 行は `rec.timeSlots` の各要素で生成される
+     (L90-105)。`rec.timeSlots === []` なら 0 行
+6. pair handler が `isPrevYear=COMPARISON_SCOPE (=true)` で comparison 側を
+   実行 (`createPairedHandler.ts:51-57`)
+7. `queryCategoryTimeRecords` が `category_time_sales LEFT JOIN time_slots`
+   を実行 (`ctsHierarchyQueries.ts:212-230`)。JOIN キーは 6 個
+   (`store_id / date_key / dept_code / line_code / klass_code / is_prev_year`)
+8. `groupRowsToRecords` が `pushRecord` で `CategoryTimeSalesRecord` に変換
+   (`ctsHierarchyQueries.ts:235-282`)。**time_slots が NULL でも pushRecord は
+   呼ばれる** — `row.hour === null` のときは `timeSlots: []` 付きの record が
+   作られる (L252-254, L260 の push)
+
+#### 構造的に重要な分岐
+
+**(a) L216-235 の既知バグ fix**: `useDuckDB.ts` に「前年データだけ更新された
+場合の再ロード」ブランチが明示的に書かれている (`#時間帯前年表示バグ` の
+fix コメント付き)。条件は `prevYearFp !== loadedPrevYearFp.current`。
+**このブランチが発火しない条件が残っているか** が B 候補の主要仮説。
+
+**(b) `computeMonthFingerprint` は `timeSlots` を見ない**:
+`app/src/application/hooks/duckdbFingerprint.ts:37-48` は
+`data.categoryTimeSales.records.length` のみ使う。prev year の CTS records
+数が同じで timeSlots 中身だけ変わった場合、fingerprint は変化せず再ロード
+されない。ただし初回ロード時は fingerprint 変化があるのでこの経路は通常
+問題にならない。
+
+**(c) `pushRecord` が time_slots 空でも record を返す**: これにより
+- A 候補 (CTS 0 行) → `entries.length === 0`
+- B 候補 (CTS あり / time_slots 0 行) → `entries[0].timeSlots.length === 0`,
+  `totalQuantity > 0`
+- C 候補 (CTS に totalQuantity=0) → `entries[0].totalQuantity === 0`
+という Phase 1 checklist 通りの discrimination が runtime 観測で可能。
+
+#### 観測済み事実と整合する仮説ランキング
+
+**B 候補 (最有力)**: カード値 (1,411,635 等) は StoreResult 経由なので CTS
+の total_amount が populated なら説明可能。一方、時間帯タブ / 3-5 factor /
+ドリルダウンは `timeSlots` に依存する。prev year の
+`CategoryTimeSalesRecord[].timeSlots === []` であれば、上記 3 症状すべて
+説明できる。原因候補:
+- prev year を legacy xlsx formatで import した過去データが timeSlots 無しで
+  IndexedDB に残存
+- `mergeAdjacentMonthRecords` による隣接月 renumbering で中心月データ不在
+
+**A 候補 (次点)**: `prevYear` が dataStore で null または CTS records 0。
+`useLoadComparisonData` の `sourceMonth.year === 0` ガード
+(`useLoadComparisonData.ts:76`) が誤発火するケースなど。カード値が出ている
+ことと整合しにくい (StoreResult も同じ prev year 月から取るため) が、
+別経路で取得される可能性は残る。
+
+**C 候補 (低)**: ingest 時点で totalQuantity=0 の異常値。parser に populated
+データが来ているのでコードパス上は考えにくいが、xlsx 側データそのものが
+不正の可能性は否定できない。
+
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。**最初の 10 分で原因層を絞り込む**調査から着手する。
 
 ### 高優先 (Phase 1: runtime 観測で原因層を絞る)
+
+> **静的解析の裏付けあり (§1.1 参照)**: observable 値と候補のマッピングは
+> `pushRecord` の挙動 (time_slots NULL でも record を返す) と JOIN キー
+> (6 個) から構造的に裏付け済み。
 
 - **DevTools の React component tree で DayDetailModal を開いた状態で `dayLeafBundle.currentSeries.entries[0]` の内容を確認**
   - `timeSlots: []` なら time_slots JOIN が空 → **B 候補**
@@ -29,9 +109,14 @@
   SELECT COUNT(*) FROM category_time_sales WHERE is_prev_year = TRUE;
   SELECT COUNT(*) FROM time_slots WHERE is_prev_year = TRUE;
   ```
-  0 件なら **A / C 候補確定** (ingest 層の問題)
+  - cts >0, ts 0 → **B 確定**
+  - 両方 0 → **A / C のいずれか** (次に IndexedDB 側の records 数を確認)
 - `meta.provenance.usedComparisonFallback` が `true` か確認 (bundle の fallback
   発火有無)
+- **追加確認 (B 候補ならここまで追う)**:
+  `dataStore.appData.prevYear.categoryTimeSales.records[0].timeSlots.length`
+  を DevTools で確認。`0` なら ingest 前から timeSlots 空 → 根本原因は
+  IndexedDB 側 / xlsx import 時点
 
 ### 中優先 (Phase 2: 原因確定)
 
