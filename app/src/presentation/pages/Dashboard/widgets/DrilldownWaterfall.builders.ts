@@ -4,7 +4,7 @@
  * React hooks を使わない純粋関数。
  * 依存関係が類似する useMemo を統合する。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { decomposePriceMix } from './categoryFactorUtils'
 
 export interface RecordAggregates {
@@ -19,8 +19,8 @@ export interface RecordAggregates {
  * 3 useMemo → 1 に統合。
  */
 export function buildRecordAggregates(
-  dayRecords: readonly CategoryTimeSalesRecord[],
-  prevDayRecords: readonly CategoryTimeSalesRecord[],
+  dayRecords: readonly CategoryLeafDailyEntry[],
+  prevDayRecords: readonly CategoryLeafDailyEntry[],
 ): RecordAggregates {
   const curTotalQty = dayRecords.reduce((s, r) => s + r.totalQuantity, 0)
   const prevTotalQty = prevDayRecords.reduce((s, r) => s + r.totalQuantity, 0)

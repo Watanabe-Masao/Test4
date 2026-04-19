@@ -4,7 +4,7 @@
  * DayDetailModal のカテゴリドリルダウン機能で使用する
  * 集計ロジック・型定義・定数を集約する。
  */
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { palette } from '@/presentation/theme/tokens'
 
 /* ── 色パレット ──────────────────────────── */
@@ -70,7 +70,7 @@ export interface HourCategoryItem {
 /* ── 集計関数 ─────────────────────────────── */
 
 export function aggregateForDrill(
-  records: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
   level: 'department' | 'line' | 'klass',
 ) {
   const map = new Map<
@@ -108,8 +108,8 @@ export function aggregateForDrill(
 }
 
 export function buildDrillItems(
-  filtered: readonly CategoryTimeSalesRecord[],
-  filteredPrev: readonly CategoryTimeSalesRecord[],
+  filtered: readonly CategoryLeafDailyEntry[],
+  filteredPrev: readonly CategoryLeafDailyEntry[],
   level: 'department' | 'line' | 'klass',
   metric: MetricKey,
   colorMap: Map<string, string>,

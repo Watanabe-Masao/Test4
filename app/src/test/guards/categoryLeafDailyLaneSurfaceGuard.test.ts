@@ -37,6 +37,11 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *
  * ratchet-down 履歴:
  *   - Phase 1 (2026-04-19): baseline 23 (initial pin / production only)
+ *   - Phase 2 batch-1 (2026-04-19): 23 → 17。DrilldownWaterfall + CategoryFactor
+ *     クラスタ 6 ファイル (DrilldownWaterfall.tsx / .builders.ts /
+ *     CategoryFactorBreakdown.tsx / categoryFactorBreakdownLogic.ts /
+ *     categoryFactorUtils.ts / drilldownUtils.ts) を `CategoryLeafDailyEntry`
+ *     参照に置換。
  *
  * 各 entry の reason は presentation-cts-surface-ratchetdown の Phase 構造
  * (plan.md) に対応する移行グループを示す。Phase 完了時にまとめて削除する。
@@ -65,30 +70,6 @@ const CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST: readonly {
   {
     path: 'presentation/pages/Dashboard/widgets/DayDetailSalesTab.tsx',
     reason: 'phase-2: DayDetailModal タブ (DrilldownWaterfall 接続)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
-    reason: 'phase-2: DrilldownWaterfall 系 (Shapley 5 要素分解)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.builders.ts',
-    reason: 'phase-2: DrilldownWaterfall 系 (Shapley 5 要素分解)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/CategoryFactorBreakdown.tsx',
-    reason: 'phase-2: CategoryFactor 系 (DrilldownWaterfall 兄弟)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/categoryFactorBreakdownLogic.ts',
-    reason: 'phase-2: CategoryFactor 系 (DrilldownWaterfall 兄弟)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/categoryFactorUtils.ts',
-    reason: 'phase-2: CategoryFactor 系 (DrilldownWaterfall 兄弟)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/drilldownUtils.ts',
-    reason: 'phase-2: DrilldownWaterfall 支援 utils',
   },
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
@@ -151,11 +132,12 @@ const CATEGORY_LEAF_DAILY_ALLOWLIST_PATHS = new Set(
 const RAW_RECORD_TYPE_PATTERNS: readonly RegExp[] = [/\bCategoryTimeSalesRecord\b/]
 
 /**
- * 初期 baseline = 23 件 (production only)。
+ * 現 baseline = 17 件 (production only, Phase 2 batch-1 後)。
+ * 初期 baseline 23 → 17 (DrilldownWaterfall + CategoryFactor クラスタ 6 件消化)。
  * `timeSlotLaneSurfaceGuard` と同じ policy で test ファイルは guard 対象外。
  * ratchet-down で 0 を目指す。新規追加は禁止 (allowlist 数の単調減少)。
  */
-const CATEGORY_LEAF_DAILY_BASELINE = 23
+const CATEGORY_LEAF_DAILY_BASELINE = 17
 
 describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdown Phase 1)', () => {
   it('G6-CLD: CategoryTimeSalesRecord の presentation 層 import は allowlist 内に限定される', () => {
