@@ -16,7 +16,10 @@
  *      consumer が参照可能（Phase 4 で独立 interface 化する際に解除予定）
  */
 import { describe, it, expect } from 'vitest'
-import { projectCategoryLeafDailySeries } from '../projectCategoryLeafDailySeries'
+import {
+  projectCategoryLeafDailySeries,
+  toCategoryLeafDailyEntries,
+} from '../projectCategoryLeafDailySeries'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 
 function makeRec(
@@ -117,5 +120,36 @@ describe('projectCategoryLeafDailySeries', () => {
     // nested field も引き続きアクセス可能 (intersection 型)
     expect(entry.department.code).toBe('D001')
     expect(entry.department.name).toBe('青果')
+  })
+
+  it('identity 保証: 同じ records 参照を渡すと同じ entries 参照を返す (WeakMap memoize)', () => {
+    // pairResult/fallbackResult が毎 render で再生成される状況下で、
+    // 下流の record-based memoized aggregations が stable データで
+    // 不要な再計算を起こさないための identity 契約。
+    const records = [makeRec('D1', 'L1', 'K1', 100, 5), makeRec('D2', 'L2', 'K2', 200, 10)]
+    const entries1 = toCategoryLeafDailyEntries(records)
+    const entries2 = toCategoryLeafDailyEntries(records)
+    expect(entries1).toBe(entries2)
+    // 個別 entry 参照も当然同一
+    expect(entries1[0]).toBe(entries2[0])
+    expect(entries1[1]).toBe(entries2[1])
+  })
+
+  it('identity 保証: projectCategoryLeafDailySeries 経由でも同じ records で同じ entries 参照', () => {
+    const records = [makeRec('D1', 'L1', 'K1', 100, 5)]
+    const s1 = projectCategoryLeafDailySeries(records, { dayCount: 1 })
+    const s2 = projectCategoryLeafDailySeries(records, { dayCount: 1 })
+    // series object 自体は毎回 new だが、重要なのは entries 配列の identity
+    expect(s1.entries).toBe(s2.entries)
+  })
+
+  it('identity 保証: 異なる records 配列 (同値) は別 entries 参照 (期待される動作)', () => {
+    // WeakMap は「同じ array 参照」のみヒットする。
+    // 内容が同値でも新しい array は新しい entries を生成する (これで正しい)。
+    const records1 = [makeRec('D1', 'L1', 'K1', 100, 5)]
+    const records2 = [makeRec('D1', 'L1', 'K1', 100, 5)]
+    const entries1 = toCategoryLeafDailyEntries(records1)
+    const entries2 = toCategoryLeafDailyEntries(records2)
+    expect(entries1).not.toBe(entries2)
   })
 })
