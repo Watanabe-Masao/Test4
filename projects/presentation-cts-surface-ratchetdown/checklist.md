@@ -7,9 +7,9 @@
 
 ## Phase 1: guard 新設
 
-* [ ] `categoryLeafDailyLaneSurfaceGuard.test.ts` を新設する
-* [ ] 初期 baseline を現状値（test 除外後の production 件数）で固定する
-* [ ] guard が CI で PASS することを確認する
+* [x] `categoryLeafDailyLaneSurfaceGuard.test.ts` を新設する
+* [x] 初期 baseline を現状値（test 除外後の production 件数）で固定する
+* [x] guard が CI で PASS することを確認する
 
 ## Phase 2: widget 系の置換
 
