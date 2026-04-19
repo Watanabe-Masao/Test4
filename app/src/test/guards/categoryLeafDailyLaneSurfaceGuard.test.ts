@@ -52,6 +52,12 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *     useDrilldownRecordsBuilders.ts) を `CategoryLeafDailyEntry` 参照に置換。
  *     これで Phase 2 (widget 系) 完了。残 8 件は Phase 3 以降 (YoYWaterfall +
  *     階層フィルタ + context/widget 基盤 + Admin)。
+ *   - Phase 3 (2026-04-19): 8 → 3。YoYWaterfall 系 2 ファイル
+ *     (YoYWaterfallChart.builders.ts / .data.ts) + 階層・PeriodFilter 系 3 ファイル
+ *     (categoryHierarchyHooks.ts / periodFilterHooks.ts / useHierarchyDropdown.ts)
+ *     を `CategoryLeafDailyEntry` 参照に置換。YoYWaterfallChart.builders.ts は
+ *     `DailyRecord` との combined import を 2 行に分離。残 3 件は Phase 4
+ *     (context / widget 基盤 + Admin) で 0 到達予定。
  *
  * 各 entry の reason は presentation-cts-surface-ratchetdown の Phase 構造
  * (plan.md) に対応する移行グループを示す。Phase 完了時にまとめて削除する。
@@ -60,28 +66,6 @@ const CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST: readonly {
   readonly path: string
   readonly reason: string
 }[] = [
-  // ── Phase 3: YoYWaterfall 系 ──────────────────────────────────────────
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.builders.ts',
-    reason: 'phase-3: YoYWaterfall 系 (前年差 waterfall widget)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/YoYWaterfallChart.data.ts',
-    reason: 'phase-3: YoYWaterfall 系 (前年差 waterfall widget)',
-  },
-  // ── Phase 3: 階層・PeriodFilter 系 ─────────────────────────────────────
-  {
-    path: 'presentation/components/charts/categoryHierarchyHooks.ts',
-    reason: 'phase-3: カテゴリ階層 hook (dept/line/klass dropdown)',
-  },
-  {
-    path: 'presentation/components/charts/periodFilterHooks.ts',
-    reason: 'phase-3: PeriodFilter hook (期間絞り込み)',
-  },
-  {
-    path: 'presentation/components/charts/useHierarchyDropdown.ts',
-    reason: 'phase-3: 階層 dropdown hook',
-  },
   // ── Phase 4: context / widget 基盤 ────────────────────────────────────
   {
     path: 'presentation/components/widgets/types.ts',
@@ -105,13 +89,14 @@ const CATEGORY_LEAF_DAILY_ALLOWLIST_PATHS = new Set(
 const RAW_RECORD_TYPE_PATTERNS: readonly RegExp[] = [/\bCategoryTimeSalesRecord\b/]
 
 /**
- * 現 baseline = 8 件 (production only, Phase 2 完了後)。
- * 初期 baseline 23 → 17 → 12 → 8 (DrilldownWaterfall/CategoryFactor 6 件 +
- * HourlyChart/DayDetail タブ 5 件 + useDrilldown 系 hook 4 件消化)。
+ * 現 baseline = 3 件 (production only, Phase 3 完了後)。
+ * 初期 baseline 23 → 17 → 12 → 8 → 3 (DrilldownWaterfall/CategoryFactor 6 件 +
+ * HourlyChart/DayDetail タブ 5 件 + useDrilldown 系 hook 4 件 + YoYWaterfall +
+ * 階層/PeriodFilter 5 件消化)。
  * `timeSlotLaneSurfaceGuard` と同じ policy で test ファイルは guard 対象外。
  * ratchet-down で 0 を目指す。新規追加は禁止 (allowlist 数の単調減少)。
  */
-const CATEGORY_LEAF_DAILY_BASELINE = 8
+const CATEGORY_LEAF_DAILY_BASELINE = 3
 
 describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdown Phase 1)', () => {
   it('G6-CLD: CategoryTimeSalesRecord の presentation 層 import は allowlist 内に限定される', () => {

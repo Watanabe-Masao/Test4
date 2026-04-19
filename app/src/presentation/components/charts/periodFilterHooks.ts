@@ -10,7 +10,7 @@
  * @responsibility R:state-machine
  */
 import { useState, useCallback } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { AggregateMode } from './periodFilterUtils'
 
 export type { AggregateMode } from './periodFilterUtils'
@@ -29,7 +29,7 @@ export interface PeriodFilterResult extends PeriodFilterState {
   setMode: (mode: AggregateMode) => void
   toggleDow: (dow: number) => void
   /** 期間 + 曜日でフィルタ済みレコードを返す */
-  filterRecords: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
+  filterRecords: (records: readonly CategoryLeafDailyEntry[]) => readonly CategoryLeafDailyEntry[]
   /** year/month (曜日計算用) */
   year: number
   month: number
@@ -81,7 +81,7 @@ export function usePeriodFilter(
   }, [])
 
   const filterRecords = useCallback(
-    (records: readonly CategoryTimeSalesRecord[]) => {
+    (records: readonly CategoryLeafDailyEntry[]) => {
       let result = records.filter((r) => r.day >= dayRange[0] && r.day <= dayRange[1])
       if (mode === 'dowAvg' && selectedDows.size > 0) {
         result = result.filter((r) => {

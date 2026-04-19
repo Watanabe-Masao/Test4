@@ -17,7 +17,8 @@
  * として残す (`CategoryDailySeries` は dept 単位のため leaf-grain を持たない)。
  */
 import type { DateRange } from '@/domain/models/calendar'
-import type { CategoryTimeSalesRecord, DailyRecord } from '@/domain/models/record'
+import type { DailyRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 import {
@@ -98,9 +99,9 @@ export interface PeriodAggregatesInput {
    * `CategoryDailySeries` は dept 単位のため `dept|line|klass` key を必要とする
    * `decomposePriceMix` に渡せない。Phase 6.5 Step B scope 外。
    */
-  readonly periodCTS: readonly CategoryTimeSalesRecord[]
+  readonly periodCTS: readonly CategoryLeafDailyEntry[]
   /** Shapley 5-factor 比較期入力 (同上、intentional permanent floor) */
-  readonly periodPrevCTS: readonly CategoryTimeSalesRecord[]
+  readonly periodPrevCTS: readonly CategoryLeafDailyEntry[]
   /**
    * Phase 6.5-5b: 数量合計は `ctx.categoryDailyLane.bundle.currentSeries` から
    * 取得する。null のときは 0 (bundle 未ロード時の flicker 回避)。

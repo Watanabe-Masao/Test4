@@ -21,9 +21,9 @@
 
 ## Phase 3: YoYWaterfall + 階層フィルタ
 
-* [ ] YoYWaterfallChart 周辺の同 import を置換する
-* [ ] categoryHierarchyHooks / periodFilterHooks / useHierarchyDropdown の同 import を置換する
-* [ ] baseline を Phase 3 後の件数に ratchet-down する
+* [x] YoYWaterfallChart 周辺の同 import を置換する
+* [x] categoryHierarchyHooks / periodFilterHooks / useHierarchyDropdown の同 import を置換する
+* [x] baseline を Phase 3 後の件数に ratchet-down する（8 → 3）
 
 ## Phase 4: context / widget 基盤 + Admin
 

@@ -6,7 +6,7 @@
  * @responsibility R:state-machine
  */
 import { useState, useMemo, useCallback } from 'react'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 
 interface HierarchyOption {
   code: string
@@ -27,12 +27,12 @@ export interface HierarchyFilterResult extends HierarchyFilterState {
   departments: HierarchyOption[]
   lines: HierarchyOption[]
   klasses: HierarchyOption[]
-  applyFilter: (records: readonly CategoryTimeSalesRecord[]) => readonly CategoryTimeSalesRecord[]
+  applyFilter: (records: readonly CategoryLeafDailyEntry[]) => readonly CategoryLeafDailyEntry[]
 }
 
 /** 部門/ライン/クラスの絞り込みプルダウン用 hook */
 export function useHierarchyDropdown(
-  records: readonly CategoryTimeSalesRecord[],
+  records: readonly CategoryLeafDailyEntry[],
   selectedStoreIds: ReadonlySet<string>,
 ): HierarchyFilterResult {
   const [deptCode, setDeptCode] = useState('')
@@ -102,7 +102,7 @@ export function useHierarchyDropdown(
   }, [storeFiltered, deptCode, lineCode])
 
   const applyFilter = useCallback(
-    (recs: readonly CategoryTimeSalesRecord[]) => {
+    (recs: readonly CategoryLeafDailyEntry[]) => {
       let result = recs
       if (deptCode) result = result.filter((r) => r.department.code === deptCode)
       if (lineCode) result = result.filter((r) => r.line.code === lineCode)

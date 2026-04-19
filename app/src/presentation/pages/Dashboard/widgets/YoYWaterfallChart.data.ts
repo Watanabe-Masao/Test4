@@ -4,7 +4,7 @@
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { calculateShare } from '@/domain/calculations/utils'
 import { recordsToCategoryQtyAmt } from './categoryFactorUtils'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 
 export interface WaterfallItem {
@@ -75,8 +75,8 @@ interface FactorDataParams {
   readonly prevTotalQty: number
   readonly priceMix: unknown
   readonly activeLevel: DecompLevel
-  readonly periodCTS: readonly CategoryTimeSalesRecord[]
-  readonly periodPrevCTS: readonly CategoryTimeSalesRecord[]
+  readonly periodCTS: readonly CategoryLeafDailyEntry[]
+  readonly periodPrevCTS: readonly CategoryLeafDailyEntry[]
   readonly prevLabel: string
   readonly curLabel: string
 }
