@@ -44,10 +44,7 @@ const prevYearParams: CtsFilterParams = {
 }
 
 function logSignature(label: string, records: readonly CategoryTimeSalesRecord[]): void {
-  const lines = [
-    `\n=== 候補 ${label} シグネチャ ===`,
-    `entries.length         = ${records.length}`,
-  ]
+  const lines = [`\n=== 候補 ${label} シグネチャ ===`, `entries.length         = ${records.length}`]
   if (records.length > 0) {
     const r = records[0]
     lines.push(

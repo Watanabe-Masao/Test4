@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-19T16:11:36.807Z",
+  "timestamp": "2026-04-19T16:53:45.151Z",
   "summary": {
     "active": 7,
     "archived": 14,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 576,
-    "checkedCheckboxes": 475
+    "totalCheckboxes": 581,
+    "checkedCheckboxes": 479
   },
   "projects": [
     {
@@ -161,9 +161,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
-      "total": 11,
-      "progress": 0,
+      "checked": 4,
+      "total": 16,
+      "progress": 0.25,
       "entrypoint": "projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md",
       "checklistPath": "projects/day-detail-modal-prev-year-investigation/checklist.md",
       "parent": null
