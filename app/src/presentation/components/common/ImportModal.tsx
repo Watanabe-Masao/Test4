@@ -3,6 +3,7 @@
  *
  * サイドバーのインポートボタンから開く。
  * FileDropZone + UploadCard + ImportProgress をモーダル内に配置。
+ * フォルダ同期サブセクションは ImportModalFolderSync に分離。
  * @responsibility R:form
  */
 import { useCallback, useState, useMemo } from 'react'
@@ -12,6 +13,7 @@ import { UploadCard } from './UploadCard'
 import { ImportProgress as ImportProgressSteps } from './ImportWizard'
 import { ImportProgressBar } from './ImportProgressBar'
 import { ImportSummaryCard } from './ImportWizard'
+import { ImportModalFolderSync } from './ImportModalFolderSync'
 import styled from 'styled-components'
 import type { DataType } from '@/domain/models/storeTypes'
 import type { ImportSummary } from '@/domain/models/ImportResult'
@@ -61,54 +63,6 @@ const PrivacyDot = styled.span`
 
 const Section = styled.div`
   margin-bottom: 16px;
-`
-
-const FolderSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.micro};
-`
-
-const FolderRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`
-
-const FolderDot = styled.span<{ $active: boolean }>`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.palette.positive : theme.colors.text4};
-  flex-shrink: 0;
-`
-
-const FolderBtn = styled.button`
-  font-size: ${({ theme }) => theme.typography.fontSize.micro};
-  padding: 2px 8px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.radii.sm};
-  background: transparent;
-  color: ${({ theme }) => theme.colors.text2};
-  cursor: pointer;
-  white-space: nowrap;
-
-  &:hover {
-    background: ${({ theme }) => theme.colors.bg4};
-  }
-`
-
-const FolderName = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  color: ${({ theme }) => theme.colors.text3};
 `
 
 interface ImportModalProps {
@@ -197,43 +151,7 @@ export function ImportModal({ onClose, autoBackup, autoImport }: ImportModalProp
         </PrivacyInfoBox>
       </Section>
 
-      {(autoBackup?.supported || autoImport?.supported) && (
-        <FolderSection>
-          <strong style={{ fontSize: '0.75rem' }}>フォルダ同期</strong>
-          {autoBackup?.supported && (
-            <FolderRow>
-              <FolderDot $active={autoBackup.folderConfigured} />
-              {autoBackup.folderConfigured ? (
-                <>
-                  <FolderName title={autoBackup.folderName ?? undefined}>
-                    バックアップ: {autoBackup.folderName}
-                  </FolderName>
-                  <FolderBtn onClick={() => autoBackup.backupNow()}>保存</FolderBtn>
-                </>
-              ) : (
-                <FolderBtn onClick={() => autoBackup.selectFolder()}>
-                  バックアップ先を選択
-                </FolderBtn>
-              )}
-            </FolderRow>
-          )}
-          {autoImport?.supported && (
-            <FolderRow>
-              <FolderDot $active={autoImport.folderConfigured} />
-              {autoImport.folderConfigured ? (
-                <>
-                  <FolderName title={autoImport.folderName ?? undefined}>
-                    自動取込: {autoImport.folderName}
-                  </FolderName>
-                  <FolderBtn onClick={() => autoImport.scanNow()}>スキャン</FolderBtn>
-                </>
-              ) : (
-                <FolderBtn onClick={() => autoImport.selectFolder()}>取込元を選択</FolderBtn>
-              )}
-            </FolderRow>
-          )}
-        </FolderSection>
-      )}
+      <ImportModalFolderSync autoBackup={autoBackup} autoImport={autoImport} />
     </Modal>
   )
 }

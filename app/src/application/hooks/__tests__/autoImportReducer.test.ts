@@ -22,8 +22,10 @@ describe('createInitialAutoImportState', () => {
       lastScanAt: null,
       isScanning: false,
       lastImportCount: 0,
+      lastSkippedCount: 0,
       error: null,
       autoSyncEnabled: false,
+      processedCount: 0,
     })
   })
 
@@ -46,13 +48,24 @@ describe('autoImportReducer', () => {
     expect(s.autoSyncEnabled).toBe(false)
   })
 
-  it('SELECT_FOLDER は dirHandle + folderName 設定 + error クリア', () => {
-    const withError: AutoImportReducerState = { ...init, error: 'previous' }
+  it('SELECT_FOLDER は dirHandle + folderName 設定 + error/processed/last* クリア', () => {
+    const withState: AutoImportReducerState = {
+      ...init,
+      error: 'previous',
+      processedCount: 10,
+      lastImportCount: 3,
+      lastSkippedCount: 7,
+      lastScanAt: '2026-03-01',
+    }
     const h = mockHandle('new')
-    const s = autoImportReducer(withError, { type: 'SELECT_FOLDER', handle: h })
+    const s = autoImportReducer(withState, { type: 'SELECT_FOLDER', handle: h })
     expect(s.dirHandle).toBe(h)
     expect(s.folderName).toBe('new')
     expect(s.error).toBeNull()
+    expect(s.processedCount).toBe(0)
+    expect(s.lastImportCount).toBe(0)
+    expect(s.lastSkippedCount).toBe(0)
+    expect(s.lastScanAt).toBeNull()
   })
 
   it('CLEAR_FOLDER は dirHandle とメタを null/0 リセット', () => {
@@ -62,15 +75,19 @@ describe('autoImportReducer', () => {
       folderName: 'x',
       lastScanAt: '2026-03-01',
       lastImportCount: 42,
+      lastSkippedCount: 5,
       error: 'err',
       autoSyncEnabled: true,
+      processedCount: 99,
     }
     const s = autoImportReducer(withData, { type: 'CLEAR_FOLDER' })
     expect(s.dirHandle).toBeNull()
     expect(s.folderName).toBeNull()
     expect(s.lastScanAt).toBeNull()
     expect(s.lastImportCount).toBe(0)
+    expect(s.lastSkippedCount).toBe(0)
     expect(s.error).toBeNull()
+    expect(s.processedCount).toBe(0)
     // autoSyncEnabled は保持される
     expect(s.autoSyncEnabled).toBe(true)
   })
@@ -82,14 +99,18 @@ describe('autoImportReducer', () => {
     expect(s.error).toBeNull()
   })
 
-  it('SCAN_SUCCESS は lastScanAt と lastImportCount を設定', () => {
+  it('SCAN_SUCCESS は lastScanAt / lastImportCount / lastSkippedCount / processedCount を設定', () => {
     const s = autoImportReducer(init, {
       type: 'SCAN_SUCCESS',
       importCount: 5,
+      skippedCount: 3,
+      processedCount: 8,
       scanAt: '2026-03-15T10:00',
     })
     expect(s.lastScanAt).toBe('2026-03-15T10:00')
     expect(s.lastImportCount).toBe(5)
+    expect(s.lastSkippedCount).toBe(3)
+    expect(s.processedCount).toBe(8)
     // isScanning は変化しない（SCAN_END が処理する）
     expect(s.isScanning).toBe(false)
   })
@@ -124,8 +145,15 @@ describe('autoImportReducer', () => {
     let s = autoImportReducer(init, { type: 'SELECT_FOLDER', handle: h })
     s = autoImportReducer(s, { type: 'SCAN_START' })
     expect(s.isScanning).toBe(true)
-    s = autoImportReducer(s, { type: 'SCAN_SUCCESS', importCount: 3, scanAt: '2026-03-01' })
+    s = autoImportReducer(s, {
+      type: 'SCAN_SUCCESS',
+      importCount: 3,
+      skippedCount: 0,
+      processedCount: 3,
+      scanAt: '2026-03-01',
+    })
     expect(s.lastImportCount).toBe(3)
+    expect(s.processedCount).toBe(3)
     s = autoImportReducer(s, { type: 'SCAN_END' })
     expect(s.isScanning).toBe(false)
     expect(s.folderName).toBe('dir')
