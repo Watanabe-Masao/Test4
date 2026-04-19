@@ -90,6 +90,35 @@ fix コメント付き)。条件は `prevYearFp !== loadedPrevYearFp.current`。
 データが来ているのでコードパス上は考えにくいが、xlsx 側データそのものが
 不正の可能性は否定できない。
 
+### 1.2 候補シグネチャカタログ (diagnostic test で機械確定)
+
+診断テスト: `app/src/infrastructure/duckdb/__tests__/dayDetailPrevYearCandidateSignatures.test.ts`
+
+実行: `cd app && npx vitest run src/infrastructure/duckdb/__tests__/dayDetailPrevYearCandidateSignatures.test.ts --reporter=verbose`
+
+`queryCategoryTimeRecords` に各候補の SQL 結果を注入して得られた observable
+シグネチャ:
+
+| 候補 | entries.length | entries[0].totalQuantity | entries[0].timeSlots.length | totalAmount |
+|---|---:|---:|---:|---:|
+| **A** (CTS 0 件) | 0 | - | - | - |
+| **B** (CTS あり / time_slots NULL) | 1 | 120 | 0 | 150000 |
+| **C** (CTS あり / totalQuantity=0) | 1 | 0 | 0 | 0 |
+| 正常 | 1 | 120 | 2 | 150000 |
+
+**runtime 観測時の判定手順** (ブラウザ console で DayDetailModal を開いた状態で):
+
+1. `dayLeafBundle.currentSeries.entries.length` を見る
+2. `> 0` なら `entries[0].totalQuantity` と `entries[0].timeSlots.length` を見る
+3. 上の表と突合して候補確定
+
+B 候補が観測されれば、次に
+`dataStore.appData.prevYear.categoryTimeSales.records[0].timeSlots.length`
+を確認し、
+- `=== 0` → 原因は ingest 前 (IndexedDB or xlsx import)
+- `> 0` → 原因は `insertCategoryTimeSales` → `time_slots` INSERT 時点
+  (fingerprint の再ロード漏れ等 / useDuckDB.ts L216-235 の fix が効いていない)
+
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。**最初の 10 分で原因層を絞り込む**調査から着手する。

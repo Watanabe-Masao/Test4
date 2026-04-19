@@ -10,6 +10,7 @@
 * [x] 3 候補のコードパスを読み、observable 値と候補のマッピングを裏付け (HANDOFF.md §1.1)
 * [x] 仮説ランキング: B (最有力) / A (次点) / C (低) を HANDOFF.md に記録
 * [x] 既知 fix (`useDuckDB.ts` L216-235) の存在と発火条件を確認
+* [x] 候補シグネチャカタログを diagnostic test で機械化 (HANDOFF.md §1.2) — console のみで候補確定可能な状態
 
 ## Phase 1: runtime 観測で原因層を絞る (10 分目安)
 
