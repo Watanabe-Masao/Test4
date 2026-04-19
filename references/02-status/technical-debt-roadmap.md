@@ -39,7 +39,7 @@
 | Project Governance | OK | 6/20 / 5/20 / 0/0 / 13/100 |
 
 
-> 生成: 2026-04-19T01:46:18.402Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-19T02:06:10.011Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

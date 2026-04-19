@@ -42,6 +42,11 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *     CategoryFactorBreakdown.tsx / categoryFactorBreakdownLogic.ts /
  *     categoryFactorUtils.ts / drilldownUtils.ts) を `CategoryLeafDailyEntry`
  *     参照に置換。
+ *   - Phase 2 batch-2 (2026-04-19): 17 → 12。HourlyChart + DayDetail タブ
+ *     クラスタ 5 ファイル (HourlyChart.tsx / .builders.ts / .logic.ts /
+ *     DayDetailHourlyTab.tsx / DayDetailSalesTab.tsx) を `CategoryLeafDailyEntry`
+ *     参照に置換。HourlyChart 系は `HourlyWeatherRecord` との combined import を
+ *     2 行に分離。
  *
  * 各 entry の reason は presentation-cts-surface-ratchetdown の Phase 構造
  * (plan.md) に対応する移行グループを示す。Phase 完了時にまとめて削除する。
@@ -50,27 +55,7 @@ const CATEGORY_LEAF_DAILY_RAW_RECORD_ALLOWLIST: readonly {
   readonly path: string
   readonly reason: string
 }[] = [
-  // ── Phase 2: widget 系 (DayDetailModal 直下 + 支援ファイル) ─────────────
-  {
-    path: 'presentation/pages/Dashboard/widgets/HourlyChart.tsx',
-    reason: 'phase-2: HourlyChart 系 (DayDetailModal 時間帯タブ)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/HourlyChart.builders.ts',
-    reason: 'phase-2: HourlyChart 系 (DayDetailModal 時間帯タブ)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/HourlyChart.logic.ts',
-    reason: 'phase-2: HourlyChart 系 (DayDetailModal 時間帯タブ)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DayDetailHourlyTab.tsx',
-    reason: 'phase-2: DayDetailModal タブ (HourlyChart 接続)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DayDetailSalesTab.tsx',
-    reason: 'phase-2: DayDetailModal タブ (DrilldownWaterfall 接続)',
-  },
+  // ── Phase 2: useDrilldown 系 hook (DayDetailModal 直下) ─────────────
   {
     path: 'presentation/pages/Dashboard/widgets/useDrilldownData.ts',
     reason: 'phase-2: useDrilldown 系 hook',
@@ -132,12 +117,13 @@ const CATEGORY_LEAF_DAILY_ALLOWLIST_PATHS = new Set(
 const RAW_RECORD_TYPE_PATTERNS: readonly RegExp[] = [/\bCategoryTimeSalesRecord\b/]
 
 /**
- * 現 baseline = 17 件 (production only, Phase 2 batch-1 後)。
- * 初期 baseline 23 → 17 (DrilldownWaterfall + CategoryFactor クラスタ 6 件消化)。
+ * 現 baseline = 12 件 (production only, Phase 2 batch-2 後)。
+ * 初期 baseline 23 → 17 → 12 (DrilldownWaterfall/CategoryFactor 6 件 +
+ * HourlyChart/DayDetail タブ 5 件消化)。
  * `timeSlotLaneSurfaceGuard` と同じ policy で test ファイルは guard 対象外。
  * ratchet-down で 0 を目指す。新規追加は禁止 (allowlist 数の単調減少)。
  */
-const CATEGORY_LEAF_DAILY_BASELINE = 17
+const CATEGORY_LEAF_DAILY_BASELINE = 12
 
 describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdown Phase 1)', () => {
   it('G6-CLD: CategoryTimeSalesRecord の presentation 層 import は allowlist 内に限定される', () => {

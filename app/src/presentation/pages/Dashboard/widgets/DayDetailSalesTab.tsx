@@ -5,7 +5,7 @@
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {
   DetailSection,
   DetailSectionTitle,
@@ -31,10 +31,10 @@ interface DayDetailSalesTabProps {
   readonly compLabel: string
   readonly actual: number
   readonly dayCust: number
-  readonly dayRecords: readonly CategoryTimeSalesRecord[]
-  readonly compDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly prevDayRecords: readonly CategoryTimeSalesRecord[]
-  readonly wowPrevDayRecords: readonly CategoryTimeSalesRecord[]
+  readonly dayRecords: readonly CategoryLeafDailyEntry[]
+  readonly compDayRecords: readonly CategoryLeafDailyEntry[]
+  readonly prevDayRecords: readonly CategoryLeafDailyEntry[]
+  readonly wowPrevDayRecords: readonly CategoryLeafDailyEntry[]
   readonly budget: number
   readonly cumBudget: number
   readonly cumSales: number
@@ -50,8 +50,8 @@ interface DayDetailSalesTabProps {
   readonly day: number
   readonly month: number
   readonly year: number
-  readonly cumCategoryRecords: readonly CategoryTimeSalesRecord[]
-  readonly cumPrevCategoryRecords: readonly CategoryTimeSalesRecord[]
+  readonly cumCategoryRecords: readonly CategoryLeafDailyEntry[]
+  readonly cumPrevCategoryRecords: readonly CategoryLeafDailyEntry[]
 }
 
 export function DayDetailSalesTab({
