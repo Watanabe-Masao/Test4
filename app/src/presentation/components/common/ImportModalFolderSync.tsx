@@ -133,9 +133,7 @@ function ImportRow({ autoImport }: { autoImport: AutoImportState & AutoImportAct
             <FolderBtn
               onClick={() => {
                 if (
-                  window.confirm(
-                    '処理済み指紋をクリアしてフォルダ内の全ファイルを再取込しますか？',
-                  )
+                  window.confirm('処理済み指紋をクリアしてフォルダ内の全ファイルを再取込しますか？')
                 ) {
                   autoImport.rescanAll()
                 }
@@ -167,9 +165,7 @@ function ImportRow({ autoImport }: { autoImport: AutoImportState & AutoImportAct
             <>
               <span>
                 最終{' '}
-                {autoImport.lastScanAt
-                  ? new Date(autoImport.lastScanAt).toLocaleTimeString()
-                  : '-'}
+                {autoImport.lastScanAt ? new Date(autoImport.lastScanAt).toLocaleTimeString() : '-'}
               </span>
               <span>取込 {autoImport.lastImportCount}</span>
               <span>既処理 {autoImport.processedCount}</span>

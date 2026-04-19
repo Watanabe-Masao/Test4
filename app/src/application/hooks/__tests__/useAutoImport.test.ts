@@ -214,10 +214,7 @@ describe('useAutoImport — 安全設計', () => {
 
   it('selectFolder で processed がクリアされる（前フォルダの指紋を引き継がない）', async () => {
     // 事前に前回分を localStorage に残しておく
-    localStorage.setItem(
-      'shiire-arari-import-processed',
-      JSON.stringify(['stale|1|1']),
-    )
+    localStorage.setItem('shiire-arari-import-processed', JSON.stringify(['stale|1|1']))
 
     const handle = makeDirHandle('newFolder')
     mockFileSystemAdapter.pickDirectory.mockResolvedValue(handle)
