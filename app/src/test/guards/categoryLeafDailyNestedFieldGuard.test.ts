@@ -48,8 +48,10 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *     - 内訳: categoryFactorBreakdownLogic.ts / useHierarchyDropdown.ts /
  *       drilldownUtils.ts / HourlyChart.logic.ts / DrilldownWaterfall.tsx /
  *       categoryHierarchyHooks.ts / categoryFactorUtils.ts
- *   - Phase 3 (予定): 1 PR で 1-2 ファイルずつ flat field (deptCode 等) に
- *     置換して ratchet-down
+ *   - Phase 3 batch-1 (2026-04-20): 7 → 5。DrilldownWaterfall クラスタ
+ *     2 ファイル (DrilldownWaterfall.tsx / drilldownUtils.ts) を flat field
+ *     (deptCode / deptName / lineCode / lineName / klassCode / klassName) 参照に置換。
+ *   - Phase 3 batch-2 以降 (予定): 残 5 ファイルを段階的に置換
  *   - Phase 4 (予定): baseline 0 到達。alias を intersection → 独立 interface
  *     に昇格させ nested field の型レベル消滅と同時に guard を固定モードへ
  */
@@ -67,16 +69,8 @@ const CATEGORY_LEAF_DAILY_NESTED_FIELD_ALLOWLIST: readonly {
     reason: 'Phase 3 移行対象。階層ドロップダウンの集計 / フィルタで 3 レベル全て参照 (13 件)',
   },
   {
-    path: 'presentation/pages/Dashboard/widgets/drilldownUtils.ts',
-    reason: 'Phase 3 移行対象。ドリルダウン util で dept/line/klass の code+name 参照 (8 件)',
-  },
-  {
     path: 'presentation/pages/Dashboard/widgets/HourlyChart.logic.ts',
     reason: 'Phase 3 移行対象。HourlyChart の logic で dept/line/klass 参照 (4 件)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
-    reason: 'Phase 3 移行対象。DrilldownWaterfall の render 内で dept/line/klass 参照 (4 件)',
   },
   {
     path: 'presentation/components/charts/categoryHierarchyHooks.ts',
@@ -101,10 +95,10 @@ const CATEGORY_LEAF_DAILY_NESTED_ALLOWLIST_PATHS = new Set(
 const NESTED_FIELD_PATTERN = /\.(department|line|klass)\.(code|name)\b/
 
 /**
- * 現 baseline = 7 件 (production only, Phase 2 初期固定)。
- * Phase 3 で 1 PR あたり 1-2 ファイルを flat field 参照に置換して単調減少させる。
+ * 現 baseline = 5 件 (production only, Phase 3 batch-1 完了後)。
+ * Phase 3 batch-2 以降で残ファイルを flat field 参照に置換して単調減少させる。
  */
-const CATEGORY_LEAF_DAILY_NESTED_BASELINE = 7
+const CATEGORY_LEAF_DAILY_NESTED_BASELINE = 5
 
 describe('categoryLeafDailyNestedFieldGuard (category-leaf-daily-entry-shape-break Phase 2)', () => {
   it('G6-CLD-NESTED: CategoryLeafDailyEntry の nested field (.department/.line/.klass) の presentation 参照は allowlist 内に限定される', () => {

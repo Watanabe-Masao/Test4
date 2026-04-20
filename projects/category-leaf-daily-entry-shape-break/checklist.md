@@ -21,7 +21,7 @@
 
 ## Phase 3: consumer 段階移行 (ratchet-down)
 
-* [ ] DrilldownWaterfall 周辺の nested field access を flat field に置換する
+* [x] DrilldownWaterfall 周辺の nested field access を flat field に置換する (2026-04-20: batch-1 / DrilldownWaterfall.tsx + drilldownUtils.ts / baseline 7 → 5)
 * [ ] HourlyChart 周辺の nested field access を flat field に置換する
 * [ ] YoYWaterfall + 階層・Period フィルタの nested field access を flat field に置換する
 * [ ] useDrilldown hooks / context / Admin の nested field access を flat field に置換する

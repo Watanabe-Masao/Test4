@@ -86,16 +86,16 @@ export function aggregateForDrill(
   for (const rec of records) {
     let key: string, name: string, childKey: string
     if (level === 'department') {
-      key = rec.department.code
-      name = rec.department.name || key
-      childKey = rec.line.code
+      key = rec.deptCode
+      name = rec.deptName || key
+      childKey = rec.lineCode
     } else if (level === 'line') {
-      key = rec.line.code
-      name = rec.line.name || key
-      childKey = rec.klass.code
+      key = rec.lineCode
+      name = rec.lineName || key
+      childKey = rec.klassCode
     } else {
-      key = rec.klass.code
-      name = rec.klass.name || key
+      key = rec.klassCode
+      name = rec.klassName || key
       childKey = ''
     }
     const ex = map.get(key) ?? { code: key, name, amount: 0, quantity: 0, children: new Set() }

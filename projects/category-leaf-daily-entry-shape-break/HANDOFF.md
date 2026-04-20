@@ -40,6 +40,19 @@
 - `categoryLeafDailyLaneSurfaceGuard` (import surface / baseline 0 固定) との
   2 層防御が成立。Phase 3 以降は field surface 側を単調減少させる。
 
+### 1.3 Phase 3 batch-1 完了 (2026-04-20)
+
+- DrilldownWaterfall クラスタ 2 ファイルを flat field 参照に置換:
+  - `DrilldownWaterfall.tsx` (4 件 → 0)
+  - `drilldownUtils.ts` (8 件 → 0)
+- 置換内容: `rec.department.code` → `rec.deptCode` / `rec.department.name` →
+  `rec.deptName` / 同様に `.line.*` → `lineCode/lineName` /
+  `.klass.*` → `klassCode/klassName`
+- guard baseline: 7 → 5 に ratchet-down
+- 残 5 ファイル (合計 36 refs): categoryFactorBreakdownLogic (16) /
+  useHierarchyDropdown (13) / HourlyChart.logic (4) /
+  categoryHierarchyHooks (2) / categoryFactorUtils (1)
+
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。
