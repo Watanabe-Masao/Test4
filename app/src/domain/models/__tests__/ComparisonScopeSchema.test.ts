@@ -89,7 +89,8 @@ describe('ComparisonScopeSchema', () => {
   })
 
   it('必須フィールド欠落を拒否', () => {
-    const { alignmentMode: _1, ...rest } = validScope
+    const rest = { ...validScope } as Partial<typeof validScope>
+    delete rest.alignmentMode
     expect(ComparisonScopeSchema.safeParse(rest).success).toBe(false)
   })
 
