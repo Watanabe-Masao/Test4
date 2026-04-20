@@ -26,7 +26,7 @@ import { toAxisYen } from './chartTheme'
 
 type DecompLevel = 2 | 3
 
-interface DailyDecomp {
+export interface DailyDecomp {
   readonly day: number
   readonly factors: readonly { readonly name: string; readonly value: number }[]
   readonly diff: number
@@ -34,13 +34,13 @@ interface DailyDecomp {
 }
 
 /** 日別集約データ */
-interface DayAgg {
+export interface DayAgg {
   sales: number
   customers: number
   totalQty: number
 }
 
-function aggregateByDay(
+export function aggregateByDay(
   rows: readonly { day: number; sales: number; customers: number; totalQuantity: number }[],
 ): Map<number, DayAgg> {
   const m = new Map<number, DayAgg>()
@@ -54,7 +54,7 @@ function aggregateByDay(
   return m
 }
 
-function buildDailyDecomp(
+export function buildDailyDecomp(
   curRows: readonly { day: number; sales: number; customers: number; totalQuantity: number }[],
   prevRows: readonly { day: number; sales: number; customers: number; totalQuantity: number }[],
   level: DecompLevel,
