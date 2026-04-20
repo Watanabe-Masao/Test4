@@ -75,20 +75,20 @@ interface DragState {
 // ── ユーティリティ ──
 
 /** ピクセル → 日数変換（連続値） */
-function pxToDay(px: number, trackWidth: number, min: number, max: number): number {
+export function pxToDay(px: number, trackWidth: number, min: number, max: number): number {
   if (trackWidth <= 0) return min
   const ratio = px / trackWidth
   return min + ratio * (max - min)
 }
 
 /** 日数 → パーセント変換 */
-function dayToPct(day: number, min: number, max: number): number {
+export function dayToPct(day: number, min: number, max: number): number {
   if (max === min) return 0
   return ((day - min) / (max - min)) * 100
 }
 
 /** 値をクランプ */
-function clamp(v: number, lo: number, hi: number): number {
+export function clamp(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, v))
 }
 

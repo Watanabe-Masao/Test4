@@ -28,7 +28,11 @@ type HeatMode = 'gpRate' | 'budgetDev'
 
 // ─── Color Logic ────────────────────────────────────────
 
-function rateToColor(rate: number, target: number, warning: number): { bg: string; text: string } {
+export function rateToColor(
+  rate: number,
+  target: number,
+  warning: number,
+): { bg: string; text: string } {
   if (rate >= target) {
     const intensity = Math.min((rate - target) / 0.05, 1)
     const alpha = 0.25 + intensity * 0.35
@@ -45,7 +49,7 @@ function rateToColor(rate: number, target: number, warning: number): { bg: strin
 }
 
 /** 予算乖離率 → 色。0%=白、+方向=青(良好)、-方向=赤(未達) */
-function deviationToColor(dev: number): { bg: string; text: string } {
+export function deviationToColor(dev: number): { bg: string; text: string } {
   if (dev >= 0) {
     // Over budget (good): blue
     const intensity = Math.min(dev / 0.15, 1)

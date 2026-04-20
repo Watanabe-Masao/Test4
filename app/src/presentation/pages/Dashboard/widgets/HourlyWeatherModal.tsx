@@ -60,7 +60,7 @@ const HOURLY_METRIC_OPTIONS: readonly { key: HourlyRightMetric; label: string }[
   { key: 'humidity', label: '湿度' },
 ]
 
-function buildSummary(records: readonly HourlyWeatherRecord[]) {
+export function buildSummary(records: readonly HourlyWeatherRecord[]) {
   if (records.length === 0) return null
   const temps = records.map((r) => r.temperature)
   const totalPrecip = records.reduce((s, r) => s + r.precipitation, 0)

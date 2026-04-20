@@ -83,14 +83,14 @@ function renderItemsDailyRows(
 
 // ─── Chart Data ───────────────────────────────────────
 
-interface YoYDailyChartData {
+export interface YoYDailyChartData {
   readonly day: number
   readonly cumCurrent: number
   readonly cumPrev: number
 }
 
 /** Build cumulative chart data from daily rows without mutable reassignment */
-function buildCumulativeYoYData<T extends { readonly day: number }>(
+export function buildCumulativeYoYData<T extends { readonly day: number }>(
   rows: readonly T[],
   getCurrent: (row: T) => number,
   getPrev: (row: T) => number,

@@ -78,7 +78,7 @@ const METHOD_FORMULAS: Record<DowGapMethod, string> = {
   adjustedMean: 'Σ(外れ値除外平均 × 日数差)',
 }
 
-function getDow(year: number, month: number, day: number): number {
+export function getDow(year: number, month: number, day: number): number {
   return new Date(year, month - 1, day).getDay()
 }
 
@@ -104,7 +104,7 @@ type ViewMode = 'daily' | 'cumulative'
 // ── Helpers ──
 
 /** 月曜始まりの週番号 (1-based) */
-function weekNumber(year: number, month: number, day: number): number {
+export function weekNumber(year: number, month: number, day: number): number {
   const firstDow = new Date(year, month - 1, 1).getDay()
   const mondayBased = firstDow === 0 ? 6 : firstDow - 1
   return Math.floor((day - 1 + mondayBased) / 7) + 1
