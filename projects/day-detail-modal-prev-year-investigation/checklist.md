@@ -14,23 +14,20 @@
 
 ## Phase 1: runtime 観測で原因層を絞る (10 分目安)
 
-* [ ] React DevTools で `dayLeafBundle.currentSeries.entries` の長さと `entries[0]` を確認する
-* [ ] DuckDB console で `category_time_sales` の prev/cur 件数を確認する (SQL direct)
-* [ ] DuckDB console で `time_slots` の prev/cur 件数を確認する
-* [ ] `dayLeafBundle.meta.provenance.usedComparisonFallback` の値を確認する
-* [ ] 候補 A (query 0 行) / B (time_slots JOIN 空) / C (ingest 集計) のいずれかに確定する
-* [ ] (B 候補確定時) `dataStore.appData.prevYear.categoryTimeSales.records[0].timeSlots.length` を確認し、ingest 時点か INSERT 時点かを切り分ける
+* [x] 本番環境で `useDayDetailPlanObservation` の localStorage フラグを有効化 → ブラウザ console で観測値を取得 (2026-04-20)
+* [x] 観測値を HANDOFF.md §1.3 に記録し、A/B/C いずれでもなく新候補 D (frame null) と判定
 
 ## Phase 2: 原因の精密特定
 
-* [ ] Phase 1 で絞った候補に対して、問題のコード or データ or 設定を 1-3 箇所に特定する
-* [ ] 特定箇所を HANDOFF.md に記録する
+* [x] `useDayDetailPlan.ts` L88-95 の `if (selectedStoreIds.size === 0) return null` が「全店」モードで発火して frame 自体が構築されないことを特定
+* [x] 同パターンが dayLeafFrame / cumLeafFrame / timeSlotFrame の 3 箇所に重複していることを特定
+* [x] `useCategoryLeafDailyBundle` / `useTimeSlotBundle` が空 storeIds を undefined (全店) として正しく扱う実装であることを確認 → 早期 return 側が誤り
 
 ## Phase 3: fix 方針の決定 + 引き渡し
 
-* [ ] fix 規模を判定する (軽微 / 複数層 / データ再整備)
-* [ ] 引き渡し先を決定する (`quick-fixes` / 新 fix project / `references/03-guides/` 運用手順)
-* [ ] 引き渡し先に task を追加し reference を HANDOFF.md に記録する
+* [x] fix 規模を判定: 軽微 (1 ファイル、3 箇所の早期 return 削除)
+* [x] 引き渡し先: `quick-fixes` に observation hook 削除 task を追加 / 本体 fix は PR `claude/day-detail-modal-store-frame-fix`
+* [x] HANDOFF.md §1.4 に fix 方針 + PR リンクを記録
 
 ## 最終レビュー (人間承認)
 

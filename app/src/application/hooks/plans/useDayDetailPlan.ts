@@ -85,26 +85,28 @@ export function useDayDetailPlan(
   comparisonScope: ComparisonScope | null,
 ): DayDetailPlanResult {
   // ── Leaf 日次 bundle の frame（当日 / 累計）──
-  const dayLeafFrame = useMemo<CategoryLeafDailyFrame | null>(() => {
-    if (selectedStoreIds.size === 0) return null
-    return {
+  // 空 Set = 全店フィルタなし (bundle が空配列 → undefined に変換する)。
+  // 早期 null return 禁止 (summary/weather と同様に「全店」は有効な scope)。
+  const dayLeafFrame = useMemo<CategoryLeafDailyFrame>(
+    () => ({
       dateRange: ranges.singleDayRange,
       storeIds: [...selectedStoreIds],
       comparison: buildDayComparisonScope(comparisonScope, ranges),
-    }
-  }, [ranges, selectedStoreIds, comparisonScope])
+    }),
+    [ranges, selectedStoreIds, comparisonScope],
+  )
 
-  const cumLeafFrame = useMemo<CategoryLeafDailyFrame | null>(() => {
-    if (selectedStoreIds.size === 0) return null
-    return {
+  const cumLeafFrame = useMemo<CategoryLeafDailyFrame>(
+    () => ({
       dateRange: ranges.cumRange,
       storeIds: [...selectedStoreIds],
       comparison: buildDayComparisonScope(comparisonScope, {
         singleDayRange: ranges.cumRange,
         prevDayRange: ranges.cumPrevRange,
       }),
-    }
-  }, [ranges, selectedStoreIds, comparisonScope])
+    }),
+    [ranges, selectedStoreIds, comparisonScope],
+  )
 
   const dayLeafBundle = useCategoryLeafDailyBundle(queryExecutor, dayLeafFrame)
   const cumLeafBundle = useCategoryLeafDailyBundle(queryExecutor, cumLeafFrame)
@@ -151,8 +153,7 @@ export function useDayDetailPlan(
   const weatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.cur)
   const prevWeatherResult = useQueryWithHandler(queryExecutor, weatherHourlyHandler, weather.prev)
 
-  const timeSlotFrame = useMemo<TimeSlotFrame | null>(() => {
-    if (selectedStoreIds.size === 0) return null
+  const timeSlotFrame = useMemo<TimeSlotFrame>(() => {
     return {
       dateRange: ranges.singleDayRange,
       storeIds: [...selectedStoreIds],
