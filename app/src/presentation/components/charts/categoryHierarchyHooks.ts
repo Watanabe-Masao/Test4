@@ -23,8 +23,8 @@ export function filterByHierarchy(
 ): readonly CategoryLeafDailyEntry[] {
   if (!filter.departmentCode && !filter.lineCode) return records
   return records.filter((r) => {
-    if (filter.departmentCode && r.department.code !== filter.departmentCode) return false
-    if (filter.lineCode && r.line.code !== filter.lineCode) return false
+    if (filter.departmentCode && r.deptCode !== filter.departmentCode) return false
+    if (filter.lineCode && r.lineCode !== filter.lineCode) return false
     return true
   })
 }

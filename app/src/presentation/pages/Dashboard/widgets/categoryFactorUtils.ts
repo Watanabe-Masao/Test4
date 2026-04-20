@@ -13,7 +13,7 @@ export function recordsToCategoryQtyAmt(
   records: readonly CategoryLeafDailyEntry[],
 ): CategoryQtyAmt[] {
   return records.map((r) => ({
-    key: `${r.department.code}|${r.line.code}|${r.klass.code}`,
+    key: `${r.deptCode}|${r.lineCode}|${r.klassCode}`,
     qty: r.totalQuantity,
     amt: r.totalAmount,
   }))
