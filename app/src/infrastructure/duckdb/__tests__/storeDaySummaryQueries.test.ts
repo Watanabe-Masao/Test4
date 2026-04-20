@@ -194,14 +194,18 @@ describe('queryDailyCumulative', () => {
 })
 
 describe('materializeSummary', () => {
-  it('VIEW/TABLE 両対応で DROP してからマテリアライズする', async () => {
+  it('実型 (VIEW) に応じて DROP してからマテリアライズする', async () => {
     const capturedSql: string[] = []
     const conn = {
       query: vi.fn((sql: string) => {
         capturedSql.push(sql)
-        // information_schema クエリには 0 行（TABLE 未存在）を返す
-        if (sql.includes('information_schema')) {
+        // materializeSummary 先頭の BASE TABLE 存在チェック: 0 件（未マテリアライズ）を返す
+        if (sql.includes('information_schema') && sql.includes("table_type = 'BASE TABLE'")) {
           return Promise.resolve({ toArray: () => [{ 'count_star()': 0 }] })
+        }
+        // dropStoreDaySummaryByActualType の型判定: VIEW を返す
+        if (sql.includes('information_schema') && sql.includes('table_type FROM')) {
+          return Promise.resolve({ toArray: () => [{ table_type: 'VIEW' }] })
         }
         // COUNT(*) クエリには行数を返す
         if (sql.includes('SELECT COUNT(*)')) {
@@ -211,16 +215,44 @@ describe('materializeSummary', () => {
       }),
     }
     const result = await materializeSummary(conn as never)
+    // information_schema で実型を判定してから 1 回だけ DROP を発行する
     expect(capturedSql).toEqual(
       expect.arrayContaining([
         expect.stringContaining('CREATE TABLE store_day_summary_mat'),
         expect.stringContaining('DROP VIEW IF EXISTS store_day_summary'),
-        expect.stringContaining('DROP TABLE IF EXISTS store_day_summary'),
         expect.stringContaining('RENAME TO store_day_summary'),
       ]),
     )
+    // 実型は VIEW なので DROP TABLE は発行されない
+    expect(capturedSql.some((q) => q.includes('DROP TABLE IF EXISTS store_day_summary'))).toBe(
+      false,
+    )
     expect(result.skipped).toBe(false)
     expect(result.rowCount).toBe(100)
+  })
+
+  it('実型 (BASE TABLE) に応じて DROP してからマテリアライズする (force=true)', async () => {
+    const capturedSql: string[] = []
+    const conn = {
+      query: vi.fn((sql: string) => {
+        capturedSql.push(sql)
+        if (sql.includes('information_schema') && sql.includes("table_type = 'BASE TABLE'")) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 1 }] })
+        }
+        if (sql.includes('information_schema') && sql.includes('table_type FROM')) {
+          return Promise.resolve({ toArray: () => [{ table_type: 'BASE TABLE' }] })
+        }
+        if (sql.includes('SELECT COUNT(*)')) {
+          return Promise.resolve({ toArray: () => [{ 'count_star()': 200 }] })
+        }
+        return Promise.resolve({ toArray: () => [] })
+      }),
+    }
+    const result = await materializeSummary(conn as never, true)
+    // BASE TABLE なので DROP TABLE が発行される（DROP VIEW は発行されない）
+    expect(capturedSql.some((q) => q.includes('DROP TABLE IF EXISTS store_day_summary'))).toBe(true)
+    expect(capturedSql.some((q) => q.includes('DROP VIEW IF EXISTS store_day_summary'))).toBe(false)
+    expect(result.skipped).toBe(false)
   })
 
   it('既に TABLE として存在する場合はスキップする', async () => {

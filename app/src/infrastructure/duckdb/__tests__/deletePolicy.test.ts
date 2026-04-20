@@ -15,14 +15,27 @@ import {
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 
 /** Build a mock connection that records every query */
-function createMockConn(): {
+function createMockConn(options?: { storeDaySummaryType?: 'VIEW' | 'BASE TABLE' | null }): {
   conn: AsyncDuckDBConnection
   queries: string[]
   mock: ReturnType<typeof vi.fn>
 } {
+  const storeDaySummaryType: 'VIEW' | 'BASE TABLE' | null =
+    options && 'storeDaySummaryType' in options ? (options.storeDaySummaryType ?? null) : 'VIEW'
   const queries: string[] = []
   const mock = vi.fn(async (sql: string) => {
     queries.push(sql)
+    // dropStoreDaySummaryByActualType が information_schema で実型を問い合わせる。
+    // mock はその結果として VIEW or BASE TABLE を返し、正しい DROP を誘導する。
+    if (
+      sql.includes('information_schema.tables') &&
+      sql.includes('table_type') &&
+      sql.includes('store_day_summary')
+    ) {
+      return {
+        toArray: () => (storeDaySummaryType === null ? [] : [{ table_type: storeDaySummaryType }]),
+      }
+    }
     return { toArray: () => [] }
   })
   const conn = {
@@ -119,13 +132,22 @@ describe('deletePrevYearMonth', () => {
 })
 
 describe('resetTables', () => {
-  it('drops VIEW and TABLE for store_day_summary, drops non-persistent tables, then recreates', async () => {
-    const { conn, queries } = createMockConn()
+  it('drops store_day_summary by actual type (VIEW), drops non-persistent tables, then recreates', async () => {
+    const { conn, queries } = createMockConn({ storeDaySummaryType: 'VIEW' })
     await resetTables(conn)
 
-    // Drops store_day_summary as both VIEW and TABLE
+    // information_schema で実型を特定してから DROP を発行する
+    expect(
+      queries.some(
+        (q) =>
+          q.includes('information_schema.tables') &&
+          q.includes('table_type') &&
+          q.includes('store_day_summary'),
+      ),
+    ).toBe(true)
+    // mock が VIEW を返すため DROP VIEW のみ発行され、DROP TABLE は発行されない
     expect(queries.some((q) => q.includes('DROP VIEW IF EXISTS store_day_summary'))).toBe(true)
-    expect(queries.some((q) => q.includes('DROP TABLE IF EXISTS store_day_summary'))).toBe(true)
+    expect(queries.some((q) => q.includes('DROP TABLE IF EXISTS store_day_summary'))).toBe(false)
 
     // weather_hourly must NOT be dropped
     expect(queries.some((q) => q === 'DROP TABLE IF EXISTS weather_hourly')).toBe(false)
@@ -140,20 +162,24 @@ describe('resetTables', () => {
     expect(queries.some((q) => /CREATE.*VIEW/i.test(q))).toBe(true)
   })
 
-  it('tolerates DROP VIEW/TABLE failures (type mismatch)', async () => {
-    const queries: string[] = []
-    const mock = vi.fn(async (sql: string) => {
-      queries.push(sql)
-      if (sql.includes('DROP VIEW IF EXISTS store_day_summary')) {
-        throw new Error('type mismatch')
-      }
-      return { toArray: () => [] }
-    })
-    const conn = { query: mock } as unknown as AsyncDuckDBConnection
+  it('drops store_day_summary as TABLE when information_schema reports BASE TABLE', async () => {
+    const { conn, queries } = createMockConn({ storeDaySummaryType: 'BASE TABLE' })
+    await resetTables(conn)
 
-    // Should NOT throw — type mismatch is swallowed
-    await expect(resetTables(conn)).resolves.toBeUndefined()
-    // The catch block should still emit the TABLE drop
-    expect(queries.some((q) => q.includes('DROP TABLE IF EXISTS store_day_summary'))).toBe(true)
+    // mock が BASE TABLE を返すため DROP TABLE のみ発行され、DROP VIEW は発行されない
+    expect(queries.some((q) => q === 'DROP TABLE IF EXISTS store_day_summary')).toBe(true)
+    expect(queries.some((q) => q.includes('DROP VIEW IF EXISTS store_day_summary'))).toBe(false)
+  })
+
+  it('skips store_day_summary DROP when information_schema reports no such table', async () => {
+    const { conn, queries } = createMockConn({ storeDaySummaryType: null })
+    await resetTables(conn)
+
+    // 実型が特定できない（存在しない）場合は DROP を発行しない
+    expect(queries.some((q) => q.includes('DROP VIEW IF EXISTS store_day_summary'))).toBe(false)
+    expect(queries.some((q) => q === 'DROP TABLE IF EXISTS store_day_summary')).toBe(false)
+    // それでも CREATE は実行される
+    expect(queries.some((q) => /CREATE TABLE/.test(q))).toBe(true)
+    expect(queries.some((q) => /CREATE.*VIEW/i.test(q))).toBe(true)
   })
 })
