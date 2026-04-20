@@ -28,18 +28,28 @@
     - margin 2.27 pt の安全引き上げ、不可侵原則 #1 遵守
     - 同 commit で aggregationUtilities.ts dead file 削除 + pre-push tsc → tsc -b 拡張
       + AR-TSIG-TEST-04 (tautology assertion) hard gate 昇格
+  - **Step 3-40 (pure+vm bulk)**: 閾値 ratchet up 45 → 47 (2026-04-20)
+    - 79 tests / 7 files 追加:
+      - conditionPanelYoY.vm.test.ts (19 tests, 441 line file の helper 群をカバー)
+      - PrevYearComparisonChartLogic.test.ts (11 tests / 94 lines)
+      - GrossProfitAmountChartLogic.test.ts (9 tests / 79 lines)
+      - DiscountTrendChartLogic.test.ts (8 tests / 136 lines)
+      - StoreHourlyChartLogic.test.ts (12 tests / cosineSimilarity + findCoreTime)
+      - useDrilldownDataLogic.test.ts (16 tests / buildBreadcrumb + sortDrillItems)
+      - ChartParts.test.ts (4 tests / formatDateKey + 定数検証)
+    - 既存 main CI を最新 5 run まで確認（全 success）→ test:e2e checkbox を close
+    - 予想 coverage: 47.27 → ~48.3 (pure function rate 0.013pt/test 想定、margin ~1.3pt)
 
-derivedStatus: in_progress / 12 of 15 (80%)
+derivedStatus: in_progress / 13 of 15 (87%)
 
-**残 3 checkbox (checklist 状態)**:
-- coverage 閾値 lines: 70 (現在 45 / 現実値 47.27)
-- CI で coverage 70% 達成 (23 pt 不足)
-- `npm run test:e2e` CI 通過確認 (実作業ほぼなし)
+**残 2 checkbox (checklist 状態)**:
+- coverage 閾値 lines: 70 (現在 47 / 予想現実値 ~48.3)
+- CI で coverage 70% 達成 (~22 pt 不足)
 
 **ratchet up history**:
 ```
-35 → 36 (Step 3-8) → 37 (Step 3-14) → 45 (Step 3-39 本セッション)
-                                       ↑ margin 2.27 pt
+35 → 36 (Step 3-8) → 37 (Step 3-14) → 45 (Step 3-39) → 47 (Step 3-40 本セッション)
+                                                        ↑ margin ~1.3 pt
 target → 70 (Phase 3 完了時)
 ```
 
