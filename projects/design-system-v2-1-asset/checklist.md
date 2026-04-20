@@ -19,12 +19,12 @@
 * [ ] `references/04-design-system/ui_kits/app/index.html` のクリックスルーを確認する
 * [ ] `references/04-design-system/colors_and_type.css` の値が本体 `app/src/presentation/theme/tokens.ts` + `theme.ts` と整合することを確認する
 
-## Phase 3: Documentation integrity
+## Phase 3: Documentation integrity ✅ 完了 (2026-04-20)
 
-* [ ] `cd app && npm run docs:check` が PASS すること
-* [ ] `cd app && npm run docs:generate` で generated section に差分が出ないこと
-* [ ] `git diff --name-only main | grep '^app/'` で本体コード変更が無いことを確認する
-* [ ] `references/` 配下の既存ファイル (01/02/03/99) に意図しない変更が無いことを確認する
+* [x] `cd app && npm run docs:check` が PASS すること (2026-04-20 確認)
+* [x] `cd app && npm run docs:generate` で generated section に差分が出ないこと (baseline コミット後 diff 無し)
+* [x] `git diff --name-only main | grep '^app/'` で本体コード変更が無いことを確認する (本 project は references/04-design-system/ 追加のみ / app/ 無変更)
+* [x] `references/` 配下の既存ファイル (01/02/03/99) に意図しない変更が無いことを確認する (04-design-system/ 新設のみ、他カテゴリ変更は generated section 更新のみで意図通り)
 
 ## 最終レビュー (人間承認)
 

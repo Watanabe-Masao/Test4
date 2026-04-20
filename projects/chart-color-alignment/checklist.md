@@ -9,40 +9,40 @@
 * [x] branch `feat/chart-color-alignment` を main から作成
 * [x] projects/chart-color-alignment/ に 5-doc + config/project.json 配置
 
-## Phase 1: theme 拡張
+## Phase 1: theme 拡張 ✅ 完了 (main 取り込み済み)
 
-* [ ] `tokens.ts` の palette に `purpleMid: '#a855f7'` を追加
-* [ ] `theme.ts` の `ChartSemanticColors` interface に 6 field 追加 (discountPolicy / discountRegister / discountWaste / discountSampling / cumulativeDiscountRate / cumulativeDiscountRatePrev)
-* [ ] `theme.ts` の `semantic.salesPrev / budgetPrev / grossProfitPrev / customersPrev / quantityPrev / discountPrev` を全て `palette.slate` に変更
-* [ ] `theme.ts` の `semantic` に 6 field の値を追加 (discount subtype + 累計率)
-* [ ] `cd app && npm run build` PASS (型エラー無し)
-* [ ] `cd app && npm run test:guards` PASS
+* [x] `tokens.ts` の palette に `purpleMid: '#a855f7'` を追加
+* [x] `theme.ts` の `ChartSemanticColors` interface に 6 field 追加 (discountPolicy / discountRegister / discountWaste / discountSampling / cumulativeDiscountRate / cumulativeDiscountRatePrev)
+* [x] `theme.ts` の `semantic.salesPrev / budgetPrev / grossProfitPrev / customersPrev / quantityPrev / discountPrev` を全て `palette.slate` に変更
+* [x] `theme.ts` の `semantic` に 6 field の値を追加 (discount subtype + 累計率)
+* [x] `cd app && npm run build` PASS (型エラー無し)
+* [x] `cd app && npm run test:guards` PASS
 
-## Phase 2: chart 移行
+## Phase 2: chart 移行 ✅ 完了 (main 取り込み済み)
 
-* [ ] `DiscountTrendChart.tsx` の hard-coded `DISCOUNT_COLORS` 配列を除去し、theme 経由に置換
-* [ ] `DiscountTrendChart.tsx` の累計売変率参照を `semantic.cumulativeDiscountRate` 経由に置換
-* [ ] `grep -rn "#[0-9a-f]\{6\}" app/src/presentation/components/charts/DiscountTrend*` で新規 hex literal 0 件
-* [ ] `cd app && npm run lint` PASS
-* [ ] `cd app && npm run build` PASS
-* [ ] `cd app && npm run test:guards` PASS
+* [x] `DiscountTrendChart.tsx` の hard-coded `DISCOUNT_COLORS` 配列を除去し、theme 経由に置換 (DISCOUNT_COLOR_KEYS として維持、値は `theme.chart.semantic[key]` 経由)
+* [x] `DiscountTrendChart.tsx` の累計売変率参照を `semantic.cumulativeDiscountRate` 経由に置換
+* [x] `grep -rn "#[0-9a-f]\{6\}" app/src/presentation/components/charts/DiscountTrend*` で新規 hex literal 0 件
+* [x] `cd app && npm run lint` PASS
+* [x] `cd app && npm run build` PASS
+* [x] `cd app && npm run test:guards` PASS
 
-## Phase 3: v2.1 DS doc 追随
+## Phase 3: v2.1 DS doc 追随 ✅ 完了 (main 取り込み済み)
 
-* [ ] `colors_and_type.css` の `--chart-sales-prev / --chart-budget-prev / --chart-gross-profit-prev / --chart-customers-prev / --chart-quantity-prev / --chart-discount-prev` を `var(--c-slate)` に変更
-* [ ] `colors_and_type.css` に `--chart-discount-71 / -72 / -73 / -74` を追加
-* [ ] `colors_and_type.css` に `--chart-cumulative-discount-rate / --chart-cumulative-discount-rate-prev` を追加
-* [ ] `colors_and_type.css` の palette 層に `--c-purple-mid: #a855f7` を追加
-* [ ] `docs/chart-semantic-colors.md` に「前年バーは常に slate」ルール + 売変 subtype 表 + 累計率 表 を明記
-* [ ] `docs/tokens.md` に `purpleMid` を追加
-* [ ] `preview/chart-semantic/index.html` に新 chip (discount subtype 4 + 累計率 2) を追加
+* [x] `colors_and_type.css` の `--chart-sales-prev / --chart-budget-prev / --chart-gross-profit-prev / --chart-customers-prev / --chart-quantity-prev / --chart-discount-prev` を `var(--c-slate)` に変更
+* [x] `colors_and_type.css` に `--chart-discount-71 / -72 / -73 / -74` を追加
+* [x] `colors_and_type.css` に `--chart-cumulative-discount-rate / --chart-cumulative-discount-rate-prev` を追加
+* [x] `colors_and_type.css` の palette 層に `--c-purple-mid: #a855f7` を追加
+* [x] `docs/chart-semantic-colors.md` に「前年バーは常に slate」ルール + 売変 subtype 表 + 累計率 表 を明記
+* [x] `docs/tokens.md` に `purpleMid` を追加 (`--c-purple-mid: #a855f7` を `--c-purple / -mid / -dark / -deep` 行に含めて記載)
+* [x] `preview/chart-semantic/index.html` に新 chip (discount subtype 4 + 累計率 2) を追加
 
-## Phase 4: 検証
+## Phase 4: 検証 ✅ 自動検証完了 / 視覚確認は人間タスク
 
-* [ ] `cd app && npm run lint` PASS
-* [ ] `cd app && npm run build` PASS
-* [ ] `cd app && npm run test:guards` PASS
-* [ ] `cd app && npm run docs:check` PASS
+* [x] `cd app && npm run lint` PASS (2026-04-20)
+* [x] `cd app && npm run build` PASS (2026-04-20)
+* [x] `cd app && npm run test:guards` PASS (705 tests / 2026-04-20)
+* [x] `cd app && npm run docs:check` PASS (2026-04-20)
 * [ ] 人間: `references/04-design-system/preview/index.html` + 実アプリで前年バー gray を視覚確認
 * [ ] 人間: 売変チャート (DiscountTrendChart) で 71-74 の色が実装前と同じであることを視覚確認
 
