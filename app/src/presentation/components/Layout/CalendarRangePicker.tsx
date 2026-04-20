@@ -26,49 +26,14 @@ import {
   DayPickerWrapper,
 } from './CalendarRangePicker.styles'
 
-// ── CalendarDate ↔ Date 変換 ──
+// ── CalendarDate ↔ Date 変換 / Preset 定義（DualPeriodPicker と共通） ──
 
-function toJsDate(d: AppDateRange['from']): Date {
-  return new Date(d.year, d.month - 1, d.day)
-}
-
-function fromJsDate(d: Date): AppDateRange['from'] {
-  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() }
-}
-
-// ── Preset 定義 ──
-
-interface Preset {
-  readonly label: string
-  readonly key: string
-  readonly range: AppDateRange
-}
-
-function buildPresets(year: number, month: number, daysInMonth: number): readonly Preset[] {
-  const monthEnd = { year, month, day: daysInMonth }
-  return [
-    {
-      label: '月全日',
-      key: 'full',
-      range: { from: { year, month, day: 1 }, to: monthEnd },
-    },
-    {
-      label: '上旬',
-      key: 'early',
-      range: { from: { year, month, day: 1 }, to: { year, month, day: 10 } },
-    },
-    {
-      label: '中旬',
-      key: 'mid',
-      range: { from: { year, month, day: 11 }, to: { year, month, day: 20 } },
-    },
-    {
-      label: '下旬',
-      key: 'late',
-      range: { from: { year, month, day: 21 }, to: monthEnd },
-    },
-  ]
-}
+import {
+  toJsDate,
+  fromJsDate,
+  buildP1Presets as buildPresets,
+  type P1Preset as Preset,
+} from './DualPeriodPicker.helpers'
 
 // ── Props ──
 
