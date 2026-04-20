@@ -632,10 +632,10 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6543/7000 / 2242/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
-| Project Governance | OK | 5/20 / 4/20 / 0/0 / 16/100 |
+| Project Governance | OK | 3/20(-2) / 2/20(-2) / 0/0 / 18/100(+2) |
 
 
-> 生成: 2026-04-20T10:56:03.172Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-20T11:40:22.442Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

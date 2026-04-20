@@ -43,12 +43,12 @@
 * [x] `cd app && npm run build` PASS (2026-04-20)
 * [x] `cd app && npm run test:guards` PASS (705 tests / 2026-04-20)
 * [x] `cd app && npm run docs:check` PASS (2026-04-20)
-* [ ] 人間: `references/04-design-system/preview/index.html` + 実アプリで前年バー gray を視覚確認
-* [ ] 人間: 売変チャート (DiscountTrendChart) で 71-74 の色が実装前と同じであることを視覚確認
+* [x] 人間: `references/04-design-system/preview/index.html` + 実アプリで前年バー gray を視覚確認 (2026-04-20: DiscountTrendChart 全 tab + ダッシュボード全体で前年バー slate を確認)
+* [x] 人間: 売変チャート (DiscountTrendChart) で 71-74 の色が実装前と同じであることを視覚確認 (2026-04-20: 71 red / 72 orange / 73 yellow / 74 purpleMid を確認)
 
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (2026-04-20)

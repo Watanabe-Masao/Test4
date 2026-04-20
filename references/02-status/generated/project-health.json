@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T10:56:03.179Z",
+  "timestamp": "2026-04-20T11:40:22.448Z",
   "summary": {
-    "active": 5,
-    "archived": 16,
-    "inProgress": 4,
+    "active": 3,
+    "archived": 18,
+    "inProgress": 2,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 544,
-    "checkedCheckboxes": 503
+    "totalCheckboxes": 502,
+    "checkedCheckboxes": 469
   },
   "projects": [
     {
@@ -121,10 +121,10 @@
       "title": "Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 25,
-      "total": 28,
-      "progress": 0.893,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/chart-color-alignment/AI_CONTEXT.md",
       "checklistPath": "projects/chart-color-alignment/checklist.md",
       "parent": null
@@ -173,10 +173,10 @@
       "title": "Design System v2.1 — 外部 documentation layer 配置",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 9,
-      "total": 14,
-      "progress": 0.643,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/design-system-v2-1-asset/AI_CONTEXT.md",
       "checklistPath": "projects/design-system-v2-1-asset/checklist.md",
       "parent": null
