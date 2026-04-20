@@ -114,7 +114,8 @@ describe('buildDailySeries', () => {
     return {
       date: { year: y, month: m, day: d },
       dateKey,
-      sourceMonthKey: `${y}-${String(m).padStart(2, '0')}` as DailySeriesSourceRow['sourceMonthKey'],
+      sourceMonthKey:
+        `${y}-${String(m).padStart(2, '0')}` as DailySeriesSourceRow['sourceMonthKey'],
       values: { sales: value },
     }
   }
