@@ -13,7 +13,6 @@
 |---|---|---|---|
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `category-leaf-daily-entry-shape-break` | project | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 
@@ -33,6 +32,7 @@
 | `category-leaf-daily-series` | 2026-04-18 | カテゴリ leaf-grain 正本化 — CategoryLeafDailyBundle 新設 + fallback 畳み込み + 旧 helper 物理削除。presentation 32 件 ratchet-down は後継 project に移管 | [`projects/completed/category-leaf-daily-series/`](../../projects/completed/category-leaf-daily-series/) |
 | `presentation-cts-surface-ratchetdown` | 2026-04-19 | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down。guard 固定モード移行。alias 解除 (独立構造化) は後継 project に移管 | [`projects/completed/presentation-cts-surface-ratchetdown/`](../../projects/completed/presentation-cts-surface-ratchetdown/) |
 | `day-detail-modal-prev-year-investigation` | 2026-04-20 | DayDetailModal 前年データ空表示バグ調査 — 候補 D (「全店」モードで frame null) 確定 + fix 実施 (PR #1094) + 本番確認 OK | [`projects/completed/day-detail-modal-prev-year-investigation/`](../../projects/completed/day-detail-modal-prev-year-investigation/) |
+| `category-leaf-daily-entry-shape-break` | 2026-04-20 | CategoryLeafDailyEntry 独立構造化 — Phase 1 (intersection + flat field 並行提供) → Phase 2 (field surface guard 新設 / baseline 7) → Phase 3 (4 batches で 48 refs / 7 ファイル flat field 置換) → Phase 4 (intersection → 独立 interface 昇格 / nested field 型レベル消滅) → Phase 5 (field surface guard 固定モード化)。2 層防御 (import surface + field surface 両方 baseline 0 固定) 完成 | [`projects/completed/category-leaf-daily-entry-shape-break/`](../../projects/completed/category-leaf-daily-entry-shape-break/) |
 
 ## 課題発見時のフロー
 

@@ -48,4 +48,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (Phase 1-5 完了 / 本 PR 反映後に最終レビュー)
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (2026-04-20: Phase 1-5 完了 / 最終レビュー承認 → `projects/completed/` に archive)

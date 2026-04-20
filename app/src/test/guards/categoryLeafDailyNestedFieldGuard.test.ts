@@ -22,8 +22,8 @@
 // `categoryLeafDailyLaneSurfaceGuard` と同様に collectTsFiles の test 除外に
 // 任せる。
 //
-// @see projects/category-leaf-daily-entry-shape-break/HANDOFF.md
-// @see projects/category-leaf-daily-entry-shape-break/plan.md
+// @see projects/completed/category-leaf-daily-entry-shape-break/HANDOFF.md
+// @see projects/completed/category-leaf-daily-entry-shape-break/plan.md
 // @see app/src/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types.ts
 // @see app/src/application/hooks/categoryLeafDaily/projectCategoryLeafDailySeries.ts
 // @see app/src/test/guards/categoryLeafDailyLaneSurfaceGuard.test.ts (先行 2 層防御)
@@ -113,7 +113,7 @@ describe('categoryLeafDailyNestedFieldGuard (category-leaf-daily-entry-shape-bre
             '  3. やむを得ず追加する場合は CATEGORY_LEAF_DAILY_NESTED_FIELD_ALLOWLIST に reason を添えて登録し、',
             '     CATEGORY_LEAF_DAILY_NESTED_BASELINE を更新する (ratchet-up は禁止)',
             '',
-            '詳細: projects/category-leaf-daily-entry-shape-break/HANDOFF.md',
+            '詳細: projects/completed/category-leaf-daily-entry-shape-break/HANDOFF.md',
           ].join('\n')
         : undefined,
     ).toEqual([])

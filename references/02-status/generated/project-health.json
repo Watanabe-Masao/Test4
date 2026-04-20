@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T10:11:15.072Z",
+  "timestamp": "2026-04-20T10:27:28.180Z",
   "summary": {
-    "active": 6,
-    "archived": 15,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 16,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 566,
-    "checkedCheckboxes": 497
+    "totalCheckboxes": 544,
+    "checkedCheckboxes": 476
   },
   "projects": [
     {
@@ -95,10 +95,10 @@
       "title": "CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化)",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 21,
-      "total": 22,
-      "progress": 0.955,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md",
       "checklistPath": "projects/category-leaf-daily-entry-shape-break/checklist.md",
       "parent": null
