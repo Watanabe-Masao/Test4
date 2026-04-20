@@ -6,6 +6,10 @@ v2.1 を Test4 リポジトリに保管する唯一の手順。v2.0 の経路 A
 対象リポジトリ: `github.com/Watanabe-Masao/Test4`
 想定ブランチ名: `feat/design-system-v2.1-asset`
 
+> **注記 (2026-04-20)**: 本 doc は DS v2.1 配置当時の手順記録。実行済み
+> project は `projects/completed/design-system-v2-1-asset/` に archive 済み。
+> 以降の path 参照は歴史的記録であり、live な active project ではない。
+
 ---
 
 ## 配置先
@@ -32,10 +36,10 @@ Test4/references/
 
 ## AAG プロジェクト登録
 
-### `projects/design-system-v2-1-asset/` を新設
+### `projects/completed/design-system-v2-1-asset/` を新設
 
 ```
-projects/design-system-v2-1-asset/
+projects/completed/design-system-v2-1-asset/
 ├── HANDOFF.md
 └── checklist.md
 ```
@@ -138,7 +142,7 @@ mkdir -p references/04-design-system
 cp -r "$DS_SRC"/* references/04-design-system/
 
 # 5. AAG プロジェクト登録
-mkdir -p projects/design-system-v2-1-asset
+mkdir -p projects/completed/design-system-v2-1-asset
 # HANDOFF.md / checklist.md は上記の通り作成
 
 # 6. 確認
@@ -251,7 +255,7 @@ v2.1 は立場を逆転し、「本体実装の外部説明」として書き直
 ## Scope
 
 - 追加: references/04-design-system/ (44 files)
-- 追加: projects/design-system-v2-1-asset/ (HANDOFF + checklist)
+- 追加: projects/completed/design-system-v2-1-asset/ (HANDOFF + checklist)
 - 更新: references/README.md (目次追記)
 - 更新: docs/contracts/doc-registry.json (カテゴリ追加 + 履歴記載)
 
@@ -264,7 +268,7 @@ v2.1 は立場を逆転し、「本体実装の外部説明」として書き直
 
 ## Linked
 
-- projects/design-system-v2-1-asset/
+- projects/completed/design-system-v2-1-asset/
 - 参考: references/04-design-system/docs/v2-to-v2.1-changes.md (v2.0 との
   差分詳細)
 

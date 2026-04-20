@@ -258,7 +258,7 @@ export async function materializeSummary(
       return { rowCount, createMs: 0, totalMs: 0, skipped: true }
     }
     // force=true: 既存 TABLE を DROP して VIEW を再作成し、再マテリアライズする
-    await safeDropObject(conn, 'store_day_summary', 'TABLE')
+    await dropStoreDaySummaryByActualType(conn)
     await conn.query(STORE_DAY_SUMMARY_VIEW_DDL)
   }
 
@@ -266,9 +266,9 @@ export async function materializeSummary(
   await conn.query('CREATE TABLE store_day_summary_mat AS SELECT * FROM store_day_summary')
   const createMs = performance.now() - start
 
-  // DuckDB は型不一致で IF EXISTS でもエラーになるため両方試す
-  await safeDropObject(conn, 'store_day_summary', 'VIEW')
-  await safeDropObject(conn, 'store_day_summary', 'TABLE')
+  // store_day_summary の実型 (VIEW or BASE TABLE) を information_schema で判定し、
+  // 正しい DROP を 1 回だけ発行する (型不一致警告ノイズを抑制)
+  await dropStoreDaySummaryByActualType(conn)
   await conn.query('ALTER TABLE store_day_summary_mat RENAME TO store_day_summary')
 
   const totalMs = performance.now() - start
@@ -283,16 +283,23 @@ export async function materializeSummary(
   return { rowCount, createMs: Math.round(createMs), totalMs: Math.round(totalMs), skipped: false }
 }
 
-/** DuckDB の DROP ... IF EXISTS が型不一致でエラーになる問題を吸収 */
-async function safeDropObject(
-  conn: AsyncDuckDBConnection,
-  name: string,
-  type: 'VIEW' | 'TABLE',
-): Promise<void> {
-  try {
-    await conn.query(`DROP ${type} IF EXISTS ${name}`)
-  } catch (err) {
-    // 型不一致（VIEW vs TABLE）の場合は無視
-    console.warn('[duckdb] safeDropObject failed:', err)
+/**
+ * `store_day_summary` の実際の型 (VIEW or BASE TABLE) を
+ * `information_schema` から判定し、正しい DROP 文を発行する。
+ *
+ * DuckDB の `DROP VIEW IF EXISTS` は対象が TABLE だと Catalog Error を投げ、
+ * `DROP TABLE IF EXISTS` は対象が VIEW だと同様のエラーになる。
+ * 従来は両方 try-catch で試していたが、毎回片方が必ずエラーになり警告ノイズを
+ * 出し続けていた。型を先に確定させることで警告を消す。
+ */
+async function dropStoreDaySummaryByActualType(conn: AsyncDuckDBConnection): Promise<void> {
+  const tableType = await queryScalar<string>(
+    conn,
+    "SELECT table_type FROM information_schema.tables WHERE table_name = 'store_day_summary'",
+  )
+  if (tableType === 'VIEW') {
+    await conn.query('DROP VIEW IF EXISTS store_day_summary')
+  } else if (tableType === 'BASE TABLE') {
+    await conn.query('DROP TABLE IF EXISTS store_day_summary')
   }
 }

@@ -14,6 +14,7 @@
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { ALL_TABLE_DDLS, STORE_DAY_SUMMARY_VIEW_DDL, TABLE_NAMES } from './schemas'
+import { queryScalar } from './queryRunner'
 
 // ── テーブル分類定数 ──
 
@@ -44,15 +45,12 @@ export const PREV_YEAR_INSERT_TABLES: readonly string[] = ['purchase', 'special_
  */
 export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
   // DROP all tables (including materialized summary if exists)
-  // DuckDB は DROP VIEW/TABLE IF EXISTS でも型不一致でエラーになるため try-catch で吸収
-  for (const type of ['VIEW', 'TABLE'] as const) {
-    try {
-      await conn.query(`DROP ${type} IF EXISTS store_day_summary`)
-    } catch (err) {
-      // 型不一致（VIEW vs TABLE）の場合は無視
-      console.warn('[duckdb] DROP failed (type mismatch):', err)
-    }
-  }
+  // store_day_summary は状況により VIEW にも BASE TABLE にもなるため、
+  // information_schema で実際の型を先に確認してから正しい DROP を発行する
+  // (DuckDB は `DROP VIEW IF EXISTS` でも対象が TABLE だと Catalog Error を
+  // 投げるため、blind な try-catch は警告ノイズを出し続けてしまう)
+  await dropStoreDaySummaryByActualType(conn)
+
   for (const name of TABLE_NAMES) {
     if (PERSISTENT_TABLES.has(name)) continue
     await conn.query(`DROP TABLE IF EXISTS ${name}`)
@@ -65,6 +63,26 @@ export async function resetTables(conn: AsyncDuckDBConnection): Promise<void> {
 
   // CREATE VIEW
   await conn.query(STORE_DAY_SUMMARY_VIEW_DDL)
+}
+
+/**
+ * `store_day_summary` の実際の型 (VIEW or BASE TABLE) を
+ * `information_schema` から判定し、正しい DROP 文を発行する。
+ *
+ * 存在しなければ何もしない。型判定に失敗した場合のみ、fallback として
+ * 両方の DROP を try-catch で実行する (保険)。
+ */
+async function dropStoreDaySummaryByActualType(conn: AsyncDuckDBConnection): Promise<void> {
+  const tableType = await queryScalar<string>(
+    conn,
+    "SELECT table_type FROM information_schema.tables WHERE table_name = 'store_day_summary'",
+  )
+  if (tableType === 'VIEW') {
+    await conn.query('DROP VIEW IF EXISTS store_day_summary')
+  } else if (tableType === 'BASE TABLE') {
+    await conn.query('DROP TABLE IF EXISTS store_day_summary')
+  }
+  // tableType == null: 存在しない → DROP 不要
 }
 
 /**

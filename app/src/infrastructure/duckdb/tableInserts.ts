@@ -22,6 +22,27 @@ import type {
 import { toDateKeyFromParts } from '@/domain/models/calendar'
 import { bulkInsert } from './dataConversions'
 
+/**
+ * calendar day が month の有効範囲 [1, daysInMonth] 内かを判定する。
+ *
+ * 隣接月マージ (`mergeAdjacentMonthRecords`) で生成される extended day
+ * (underflow: `day <= 0` / overflow: `day > daysInMonth`) を DuckDB insert
+ * から除外するための guard。
+ *
+ * extended day は in-memory `sourceDataIndex` の sameDayOfWeek 整列ロジック
+ * 用途に生成されるが、DuckDB には「その月の実在日」以外を insert すると
+ * `toDateKeyFromParts(year, month, -3)` が `"YYYY-MM--3"` 形式になり、
+ * 後続の `date_key::DATE` CAST で Conversion Error を起こす。
+ *
+ * 隣接月の実データ自体は、各月の load 時に本来の year/month/day で
+ * insert 済みなので filter しても DuckDB query 側でデータ欠損は起きない。
+ */
+function isValidCalendarDay(year: number, month: number, day: number): boolean {
+  if (day < 1) return false
+  const daysInMonth = new Date(year, month, 0).getDate()
+  return day <= daysInMonth
+}
+
 /** ClassifiedSalesRecord[] → classified_sales テーブル */
 export async function insertClassifiedSales(
   conn: AsyncDuckDBConnection,
@@ -31,7 +52,11 @@ export async function insertClassifiedSales(
 ): Promise<number> {
   if (records.length === 0) return 0
 
-  const rows = records.map((rec) => ({
+  // 隣接月マージで生成される extended day (day <= 0 / day > daysInMonth) は
+  // 実データが別月に存在する重複 + 不正な date_key を生むため除外する。
+  const validRecords = records.filter((rec) => isValidCalendarDay(rec.year, rec.month, rec.day))
+
+  const rows = validRecords.map((rec) => ({
     year: rec.year,
     month: rec.month,
     day: rec.day,
@@ -66,6 +91,8 @@ export async function insertCategoryTimeSales(
   const tsRows: Record<string, unknown>[] = []
 
   for (const rec of records) {
+    // 隣接月マージの extended day を除外 (Bug A: date_key "YYYY-MM--3" 防止)
+    if (!isValidCalendarDay(rec.year, rec.month, rec.day)) continue
     const dateKey = toDateKeyFromParts(rec.year, rec.month, rec.day)
     const dow = new Date(rec.year, rec.month - 1, rec.day).getDay()
 
