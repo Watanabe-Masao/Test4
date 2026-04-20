@@ -19,14 +19,14 @@
 * [x] orphan / stale / allowlist の 3 テストを `categoryLeafDailyLaneSurfaceGuard` と同形で実装する (flat field 生成点の存在確認も追加で計 5 tests)
 * [x] guard が CI で PASS することを確認する
 
-## Phase 3: consumer 段階移行 (ratchet-down)
+## Phase 3: consumer 段階移行 (ratchet-down) ✅ 完了 (2026-04-20)
 
-* [ ] DrilldownWaterfall 周辺の nested field access を flat field に置換する
-* [ ] HourlyChart 周辺の nested field access を flat field に置換する
-* [ ] YoYWaterfall + 階層・Period フィルタの nested field access を flat field に置換する
-* [ ] useDrilldown hooks / context / Admin の nested field access を flat field に置換する
-* [ ] 各 PR で guard baseline を更新して単調減少させる
-* [ ] baseline を 0 に到達させる
+* [x] DrilldownWaterfall 周辺の nested field access を flat field に置換する (2026-04-20: batch-1 / DrilldownWaterfall.tsx + drilldownUtils.ts / baseline 7 → 5)
+* [x] HourlyChart 周辺の nested field access を flat field に置換する (2026-04-20: batch-2 / HourlyChart.logic.ts / baseline 5 → 4)
+* [x] YoYWaterfall + 階層・Period フィルタの nested field access を flat field に置換する (2026-04-20: batch-3 / categoryHierarchyHooks.ts + useHierarchyDropdown.ts / baseline 4 → 2)
+* [x] useDrilldown hooks / context / Admin の nested field access を flat field に置換する (2026-04-20: batch-4 / categoryFactorUtils.ts + categoryFactorBreakdownLogic.ts / baseline 2 → 0)
+* [x] 各 PR で guard baseline を更新して単調減少させる
+* [x] baseline を 0 に到達させる
 
 ## Phase 4: alias 解除 + 独立 interface 化
 

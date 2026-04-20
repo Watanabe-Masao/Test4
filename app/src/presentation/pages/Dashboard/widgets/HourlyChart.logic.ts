@@ -72,11 +72,11 @@ export function buildHourCategoryDetail(
     for (const slot of rec.timeSlots) {
       if (!selectedHours.has(slot.hour)) continue
       if (slot.amount === 0 && slot.quantity === 0) continue
-      const key = `${rec.department.code}|${rec.line.code}|${rec.klass.code}`
+      const key = `${rec.deptCode}|${rec.lineCode}|${rec.klassCode}`
       const ex = map.get(key) ?? {
-        dept: rec.department.name || rec.department.code,
-        line: rec.line.name || rec.line.code,
-        klass: rec.klass.name || rec.klass.code,
+        dept: rec.deptName || rec.deptCode,
+        line: rec.lineName || rec.lineCode,
+        klass: rec.klassName || rec.klassCode,
         amount: 0,
         quantity: 0,
       }

@@ -34,11 +34,11 @@ export function filterRecordsByDrillPath(
   let fp = prevRecords
   for (const entry of drillPath) {
     if (entry.level === 'dept') {
-      fc = fc.filter((r) => r.department.code === entry.code)
-      fp = fp.filter((r) => r.department.code === entry.code)
+      fc = fc.filter((r) => r.deptCode === entry.code)
+      fp = fp.filter((r) => r.deptCode === entry.code)
     } else if (entry.level === 'line') {
-      fc = fc.filter((r) => r.line.code === entry.code)
-      fp = fp.filter((r) => r.line.code === entry.code)
+      fc = fc.filter((r) => r.lineCode === entry.code)
+      fp = fp.filter((r) => r.lineCode === entry.code)
     }
   }
   return { cur: fc, prev: fp }
@@ -53,9 +53,9 @@ export function checkHasSubCategories(
   const childKeys = new Set<string>()
   for (const r of filteredCur) {
     if (currentLevel === 'dept') {
-      childKeys.add(`${r.department.code}|${r.line.code}`)
+      childKeys.add(`${r.deptCode}|${r.lineCode}`)
     } else {
-      childKeys.add(`${r.line.code}|${r.klass.code}`)
+      childKeys.add(`${r.lineCode}|${r.klassCode}`)
     }
     if (childKeys.size > 1) return true
   }
@@ -73,10 +73,9 @@ export function computeFactorItems(
   compact: boolean,
 ): FactorItem[] {
   const keyOf = (r: CategoryLeafDailyEntry) => {
-    if (currentLevel === 'dept')
-      return { code: r.department.code, name: r.department.name || r.department.code }
-    if (currentLevel === 'line') return { code: r.line.code, name: r.line.name || r.line.code }
-    return { code: r.klass.code, name: r.klass.name || r.klass.code }
+    if (currentLevel === 'dept') return { code: r.deptCode, name: r.deptName || r.deptCode }
+    if (currentLevel === 'line') return { code: r.lineCode, name: r.lineName || r.lineCode }
+    return { code: r.klassCode, name: r.klassName || r.klassCode }
   }
 
   const curG = new Map<string, { name: string; qty: number; amt: number }>()
@@ -102,28 +101,28 @@ export function computeFactorItems(
     if (currentLevel === 'dept') {
       const lines = new Set<string>()
       for (const r of filtered.cur) {
-        if (r.department.code === code) lines.add(r.line.code)
+        if (r.deptCode === code) lines.add(r.lineCode)
         if (lines.size > 1) return true
       }
       return false
     }
     const klasses = new Set<string>()
     for (const r of filtered.cur) {
-      if (r.line.code === code) klasses.add(r.klass.code)
+      if (r.lineCode === code) klasses.add(r.klassCode)
       if (klasses.size > 1) return true
     }
     return false
   }
 
   const childKeyOf = (r: CategoryLeafDailyEntry) => {
-    if (currentLevel === 'dept') return `${r.line.code}|${r.klass.code}`
-    return r.klass.code
+    if (currentLevel === 'dept') return `${r.lineCode}|${r.klassCode}`
+    return r.klassCode
   }
 
   const filterByGroup = (recs: readonly CategoryLeafDailyEntry[], code: string) => {
-    if (currentLevel === 'dept') return recs.filter((r) => r.department.code === code)
-    if (currentLevel === 'line') return recs.filter((r) => r.line.code === code)
-    return recs.filter((r) => r.klass.code === code)
+    if (currentLevel === 'dept') return recs.filter((r) => r.deptCode === code)
+    if (currentLevel === 'line') return recs.filter((r) => r.lineCode === code)
+    return recs.filter((r) => r.klassCode === code)
   }
 
   const allCodes = new Set([...curG.keys(), ...prevG.keys()])

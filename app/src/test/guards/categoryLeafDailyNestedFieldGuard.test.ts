@@ -48,45 +48,23 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *     - 内訳: categoryFactorBreakdownLogic.ts / useHierarchyDropdown.ts /
  *       drilldownUtils.ts / HourlyChart.logic.ts / DrilldownWaterfall.tsx /
  *       categoryHierarchyHooks.ts / categoryFactorUtils.ts
- *   - Phase 3 (予定): 1 PR で 1-2 ファイルずつ flat field (deptCode 等) に
- *     置換して ratchet-down
- *   - Phase 4 (予定): baseline 0 到達。alias を intersection → 独立 interface
- *     に昇格させ nested field の型レベル消滅と同時に guard を固定モードへ
+ *   - Phase 3 batch-1 (2026-04-20): 7 → 5。DrilldownWaterfall クラスタ
+ *     2 ファイル (DrilldownWaterfall.tsx / drilldownUtils.ts) を flat field
+ *     (deptCode / deptName / lineCode / lineName / klassCode / klassName) 参照に置換。
+ *   - Phase 3 batch-2 (2026-04-20): 5 → 4。HourlyChart.logic.ts の 4 件を
+ *     flat field 参照に置換 (key 文字列生成 + dept/line/klass label フォールバック)。
+ *   - Phase 3 batch-3 (2026-04-20): 4 → 2。Hierarchy フィルタ 2 ファイル
+ *     (categoryHierarchyHooks.ts / useHierarchyDropdown.ts) を flat field 参照に置換。
+ *   - Phase 3 batch-4 (2026-04-20): 2 → 0。CategoryFactor 系 2 ファイル
+ *     (categoryFactorUtils.ts / categoryFactorBreakdownLogic.ts) を flat field 参照に置換。
+ *     presentation production 層で nested field 参照が物理的に 0 に到達。
+ *   - Phase 4 (予定): alias を intersection → 独立 interface に昇格させ
+ *     nested field の型レベル消滅と同時に guard を「追加禁止」固定モードへ
  */
 const CATEGORY_LEAF_DAILY_NESTED_FIELD_ALLOWLIST: readonly {
   readonly path: string
   readonly reason: string
-}[] = [
-  {
-    path: 'presentation/pages/Dashboard/widgets/categoryFactorBreakdownLogic.ts',
-    reason:
-      'Phase 3 移行対象。CategoryFactorBreakdown の集計 logic で dept/line/klass の code+name を複数箇所で読む (16 件)',
-  },
-  {
-    path: 'presentation/components/charts/useHierarchyDropdown.ts',
-    reason: 'Phase 3 移行対象。階層ドロップダウンの集計 / フィルタで 3 レベル全て参照 (13 件)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/drilldownUtils.ts',
-    reason: 'Phase 3 移行対象。ドリルダウン util で dept/line/klass の code+name 参照 (8 件)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/HourlyChart.logic.ts',
-    reason: 'Phase 3 移行対象。HourlyChart の logic で dept/line/klass 参照 (4 件)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx',
-    reason: 'Phase 3 移行対象。DrilldownWaterfall の render 内で dept/line/klass 参照 (4 件)',
-  },
-  {
-    path: 'presentation/components/charts/categoryHierarchyHooks.ts',
-    reason: 'Phase 3 移行対象。階層フィルタの判定で dept/line 参照 (2 件)',
-  },
-  {
-    path: 'presentation/pages/Dashboard/widgets/categoryFactorUtils.ts',
-    reason: 'Phase 3 移行対象。CategoryFactor util で dept/line/klass 参照 (1 件)',
-  },
-]
+}[] = []
 
 const CATEGORY_LEAF_DAILY_NESTED_ALLOWLIST_PATHS = new Set(
   CATEGORY_LEAF_DAILY_NESTED_FIELD_ALLOWLIST.map((e) => e.path),
@@ -101,10 +79,12 @@ const CATEGORY_LEAF_DAILY_NESTED_ALLOWLIST_PATHS = new Set(
 const NESTED_FIELD_PATTERN = /\.(department|line|klass)\.(code|name)\b/
 
 /**
- * 現 baseline = 7 件 (production only, Phase 2 初期固定)。
- * Phase 3 で 1 PR あたり 1-2 ファイルを flat field 参照に置換して単調減少させる。
+ * 現 baseline = 0 件 (production only, Phase 3 batch-1〜4 完了後)。
+ * presentation 層で nested field 参照が物理的に消失。以降は新規混入の防止のみ。
+ * Phase 4 で alias 解除を実施すると型レベルでも消滅し、本 guard は
+ * 「追加禁止」固定モードへ移行する。
  */
-const CATEGORY_LEAF_DAILY_NESTED_BASELINE = 7
+const CATEGORY_LEAF_DAILY_NESTED_BASELINE = 0
 
 describe('categoryLeafDailyNestedFieldGuard (category-leaf-daily-entry-shape-break Phase 2)', () => {
   it('G6-CLD-NESTED: CategoryLeafDailyEntry の nested field (.department/.line/.klass) の presentation 参照は allowlist 内に限定される', () => {

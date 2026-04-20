@@ -40,6 +40,41 @@
 - `categoryLeafDailyLaneSurfaceGuard` (import surface / baseline 0 固定) との
   2 層防御が成立。Phase 3 以降は field surface 側を単調減少させる。
 
+### 1.3 Phase 3 完了 (2026-04-20) — baseline 0 到達
+
+4 batches で presentation production 層の nested field 参照を物理的に 0 に。
+
+| batch | ファイル | refs | baseline |
+|---|---|---:|---:|
+| 1 | DrilldownWaterfall.tsx / drilldownUtils.ts | 4 + 8 = 12 | 7 → 5 |
+| 2 | HourlyChart.logic.ts | 4 | 5 → 4 |
+| 3 | categoryHierarchyHooks.ts / useHierarchyDropdown.ts | 2 + 13 = 15 | 4 → 2 |
+| 4 | categoryFactorUtils.ts / categoryFactorBreakdownLogic.ts | 1 + 16 = 17 | 2 → 0 |
+
+置換内容 (全 batches 共通):
+- `rec.department.code` → `rec.deptCode`
+- `rec.department.name` → `rec.deptName`
+- `rec.line.code` → `rec.lineCode`
+- `rec.line.name` → `rec.lineName`
+- `rec.klass.code` → `rec.klassCode`
+- `rec.klass.name` → `rec.klassName`
+
+flat field は Phase 1 時点で `projectCategoryLeafDailySeries` /
+`toCategoryLeafDailyEntries` が生成しており、参照置換のみで動作は不変。
+計 48 references を 7 ファイルから除去し、guard `CATEGORY_LEAF_DAILY_NESTED_BASELINE` を
+0 に更新。allowlist も空に。
+
+## 2. 次にやること (Phase 4)
+
+- `CategoryLeafDailyEntry` の intersection 型を **独立 interface** に昇格:
+  `type CategoryLeafDailyEntry = CategoryTimeSalesRecord & { deptCode, ... }` を
+  `interface CategoryLeafDailyEntry { deptCode, deptName, ..., timeSlots, totalAmount, totalQuantity, year, month, day, storeId }` に変更
+- `projectCategoryLeafDailySeries` で raw → flat 完全変換 (nested field を entry
+  構造から除外)
+- parity test を新 shape で更新
+- `categoryLeafDailyNestedFieldGuard` を「追加禁止」固定モード化
+- `categoryLeafDailyLaneSurfaceGuard` (import) との 2 層防御確定
+
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。

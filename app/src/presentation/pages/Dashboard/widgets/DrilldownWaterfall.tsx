@@ -165,16 +165,16 @@ export function DrilldownWaterfall({
 
     const curDepts = new Map<string, { name: string; amount: number }>()
     for (const rec of dayRecords) {
-      const code = rec.department.code
-      const ex = curDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
+      const code = rec.deptCode
+      const ex = curDepts.get(code) ?? { name: rec.deptName || code, amount: 0 }
       ex.amount += rec.totalAmount
       curDepts.set(code, ex)
     }
 
     const prevDepts = new Map<string, { name: string; amount: number }>()
     for (const rec of prevDayRecords) {
-      const code = rec.department.code
-      const ex = prevDepts.get(code) ?? { name: rec.department.name || code, amount: 0 }
+      const code = rec.deptCode
+      const ex = prevDepts.get(code) ?? { name: rec.deptName || code, amount: 0 }
       ex.amount += rec.totalAmount
       prevDepts.set(code, ex)
     }

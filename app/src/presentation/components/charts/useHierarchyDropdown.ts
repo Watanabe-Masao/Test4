@@ -50,12 +50,12 @@ export function useHierarchyDropdown(
   const departments = useMemo(() => {
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of storeFiltered) {
-      const ex = map.get(rec.department.code)
+      const ex = map.get(rec.deptCode)
       if (ex) {
         ex.total += rec.totalAmount
       } else {
-        map.set(rec.department.code, {
-          name: rec.department.name || rec.department.code,
+        map.set(rec.deptCode, {
+          name: rec.deptName || rec.deptCode,
           total: rec.totalAmount,
         })
       }
@@ -66,16 +66,14 @@ export function useHierarchyDropdown(
   }, [storeFiltered])
 
   const lines = useMemo(() => {
-    const filtered = deptCode
-      ? storeFiltered.filter((r) => r.department.code === deptCode)
-      : storeFiltered
+    const filtered = deptCode ? storeFiltered.filter((r) => r.deptCode === deptCode) : storeFiltered
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of filtered) {
-      const ex = map.get(rec.line.code)
+      const ex = map.get(rec.lineCode)
       if (ex) {
         ex.total += rec.totalAmount
       } else {
-        map.set(rec.line.code, { name: rec.line.name || rec.line.code, total: rec.totalAmount })
+        map.set(rec.lineCode, { name: rec.lineName || rec.lineCode, total: rec.totalAmount })
       }
     }
     return Array.from(map.entries())
@@ -85,15 +83,15 @@ export function useHierarchyDropdown(
 
   const klasses = useMemo(() => {
     let filtered = storeFiltered
-    if (deptCode) filtered = filtered.filter((r) => r.department.code === deptCode)
-    if (lineCode) filtered = filtered.filter((r) => r.line.code === lineCode)
+    if (deptCode) filtered = filtered.filter((r) => r.deptCode === deptCode)
+    if (lineCode) filtered = filtered.filter((r) => r.lineCode === lineCode)
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of filtered) {
-      const ex = map.get(rec.klass.code)
+      const ex = map.get(rec.klassCode)
       if (ex) {
         ex.total += rec.totalAmount
       } else {
-        map.set(rec.klass.code, { name: rec.klass.name || rec.klass.code, total: rec.totalAmount })
+        map.set(rec.klassCode, { name: rec.klassName || rec.klassCode, total: rec.totalAmount })
       }
     }
     return Array.from(map.entries())
@@ -104,9 +102,9 @@ export function useHierarchyDropdown(
   const applyFilter = useCallback(
     (recs: readonly CategoryLeafDailyEntry[]) => {
       let result = recs
-      if (deptCode) result = result.filter((r) => r.department.code === deptCode)
-      if (lineCode) result = result.filter((r) => r.line.code === lineCode)
-      if (klassCode) result = result.filter((r) => r.klass.code === klassCode)
+      if (deptCode) result = result.filter((r) => r.deptCode === deptCode)
+      if (lineCode) result = result.filter((r) => r.lineCode === lineCode)
+      if (klassCode) result = result.filter((r) => r.klassCode === klassCode)
       return result
     },
     [deptCode, lineCode, klassCode],
