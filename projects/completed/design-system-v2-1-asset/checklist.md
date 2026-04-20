@@ -12,12 +12,12 @@
 * [x] `docs/contracts/doc-registry.json` に `design-system` カテゴリを追加
 * [x] `docs/contracts/doc-registry.json` の `$comment` に本 project の履歴を追記
 
-## Phase 2: 動作確認
+## Phase 2: 動作確認 ✅ 完了 (2026-04-20)
 
-* [ ] `references/04-design-system/preview/index.html` をローカルサーバで開き、全プレビューページが描画されることを確認する
-* [ ] preview 上でダーク/ライト切替が動作することを確認する
-* [ ] `references/04-design-system/ui_kits/app/index.html` のクリックスルーを確認する
-* [ ] `references/04-design-system/colors_and_type.css` の値が本体 `app/src/presentation/theme/tokens.ts` + `theme.ts` と整合することを確認する
+* [x] `references/04-design-system/preview/index.html` をローカルサーバで開き、全プレビューページが描画されることを確認する (2026-04-20)
+* [x] preview 上でダーク/ライト切替が動作することを確認する (2026-04-20: 実アプリのダーク UI でも色値が期待通り)
+* [x] `references/04-design-system/ui_kits/app/index.html` のクリックスルーを確認する (2026-04-20)
+* [x] `references/04-design-system/colors_and_type.css` の値が本体 `app/src/presentation/theme/tokens.ts` + `theme.ts` と整合することを確認する (2026-04-20: 実アプリの DiscountTrendChart で 71 red / 72 orange / 73 yellow / 74 purpleMid + 前年 slate が期待通り)
 
 ## Phase 3: Documentation integrity ✅ 完了 (2026-04-20)
 
@@ -31,4 +31,4 @@
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (2026-04-20)
