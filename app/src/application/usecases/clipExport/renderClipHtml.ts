@@ -9,7 +9,7 @@ import { CSS_CONTENT } from './clipCss'
 import { JS_CONTENT } from './clipJs'
 
 /** HTML 特殊文字のエスケープ */
-function escapeHtml(s: string): string {
+export function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
