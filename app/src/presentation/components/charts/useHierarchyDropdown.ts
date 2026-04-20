@@ -66,9 +66,7 @@ export function useHierarchyDropdown(
   }, [storeFiltered])
 
   const lines = useMemo(() => {
-    const filtered = deptCode
-      ? storeFiltered.filter((r) => r.deptCode === deptCode)
-      : storeFiltered
+    const filtered = deptCode ? storeFiltered.filter((r) => r.deptCode === deptCode) : storeFiltered
     const map = new Map<string, { name: string; total: number }>()
     for (const rec of filtered) {
       const ex = map.get(rec.lineCode)

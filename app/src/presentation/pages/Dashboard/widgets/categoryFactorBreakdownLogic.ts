@@ -73,8 +73,7 @@ export function computeFactorItems(
   compact: boolean,
 ): FactorItem[] {
   const keyOf = (r: CategoryLeafDailyEntry) => {
-    if (currentLevel === 'dept')
-      return { code: r.deptCode, name: r.deptName || r.deptCode }
+    if (currentLevel === 'dept') return { code: r.deptCode, name: r.deptName || r.deptCode }
     if (currentLevel === 'line') return { code: r.lineCode, name: r.lineName || r.lineCode }
     return { code: r.klassCode, name: r.klassName || r.klassCode }
   }
