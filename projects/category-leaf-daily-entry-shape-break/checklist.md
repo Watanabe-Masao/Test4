@@ -5,19 +5,19 @@
 >
 > 規約: `references/03-guides/project-checklist-governance.md` §3。
 
-## Phase 1: flat shape 追加 + projection 層拡張 (非破壊)
+## Phase 1: flat shape 追加 + projection 層拡張 (非破壊) ✅ 完了 (2026-04-19)
 
-* [ ] `CategoryLeafDailyEntry` を intersection 型に変更し flat field (`deptCode / deptName / lineCode / lineName / klassCode / klassName`) を追加する
-* [ ] `projectCategoryLeafDailySeries` を拡張し flat field を生成する
-* [ ] parity test で `projection(r).deptCode === r.department.code` 等 6 不変を固定する
-* [ ] 既存 consumer 未変更で build / test / guard が全 PASS することを確認する
+* [x] `CategoryLeafDailyEntry` を intersection 型に変更し flat field (`deptCode / deptName / lineCode / lineName / klassCode / klassName`) を追加する
+* [x] `projectCategoryLeafDailySeries` を拡張し flat field を生成する (`toCategoryLeafDailyEntries` 純関数として切り出し)
+* [x] parity test で `projection(r).deptCode === r.department.code` 等 6 不変を固定する
+* [x] 既存 consumer 未変更で build / test / guard が全 PASS することを確認する
 
-## Phase 2: 新 guard 新設 + 初期 baseline 固定
+## Phase 2: 新 guard 新設 + 初期 baseline 固定 ✅ 完了 (2026-04-20)
 
-* [ ] `categoryLeafDailyNestedFieldGuard.test.ts` を新設する
-* [ ] presentation 層 (production) の `.department.` / `.line.` / `.klass.` access 数を初期 baseline として固定する
-* [ ] orphan / stale / allowlist の 3 テストを `categoryLeafDailyLaneSurfaceGuard` と同形で実装する
-* [ ] guard が CI で PASS することを確認する
+* [x] `categoryLeafDailyNestedFieldGuard.test.ts` を新設する
+* [x] presentation 層 (production) の `.department.` / `.line.` / `.klass.` access 数を初期 baseline として固定する (7 ファイル)
+* [x] orphan / stale / allowlist の 3 テストを `categoryLeafDailyLaneSurfaceGuard` と同形で実装する (flat field 生成点の存在確認も追加で計 5 tests)
+* [x] guard が CI で PASS することを確認する
 
 ## Phase 3: consumer 段階移行 (ratchet-down)
 

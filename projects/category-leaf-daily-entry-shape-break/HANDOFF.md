@@ -4,14 +4,41 @@
 
 ## 1. 現在地
 
-**未着手。** 先行 project `presentation-cts-surface-ratchetdown` で presentation
-層の `CategoryTimeSalesRecord` 直接 import は 0 に到達し、guard も固定モードに
+**Phase 1-2 完了 / Phase 3 未着手 (2026-04-20)。**
+
+先行 project `presentation-cts-surface-ratchetdown` で presentation 層の
+`CategoryTimeSalesRecord` 直接 import は 0 に到達し、guard も固定モードに
 移行済み。しかし `CategoryLeafDailyEntry = CategoryTimeSalesRecord` の **型 alias**
 のため、TypeScript 上は依然 raw 型と同一で、presentation は alias 経由で
 `.department.code` 等の raw フィールドに触れる。
 
 本 project は `CategoryLeafDailyEntry` を **flat 独立 interface** に進化させ、
 真の structural isolation を達成する。
+
+### 1.1 Phase 1 完了 (2026-04-19)
+
+- `CategoryLeafDailyEntry` を intersection 型に進化させ flat field
+  (`deptCode / deptName / lineCode / lineName / klassCode / klassName`) を並行提供
+- `projectCategoryLeafDailySeries.ts` に `toCategoryLeafDailyEntries` 純関数を
+  切り出し、flat field 生成の唯一点とした
+- parity test 3 件で nested ↔ flat の 6 不変を凍結
+- `useDayDetailPlan` / `useYoYWaterfallPlan` の acquisition 境界で projection を適用し
+  下流には flat field 付き entry を配布
+
+### 1.2 Phase 2 完了 (2026-04-20)
+
+- `categoryLeafDailyNestedFieldGuard.test.ts` を新設 (5 tests: 本体 + baseline +
+  orphan + stale + flat field 生成点の存在確認)
+- 初期 baseline 7 ファイル (production only) を固定:
+  - `categoryFactorBreakdownLogic.ts` (16 件)
+  - `useHierarchyDropdown.ts` (13 件)
+  - `drilldownUtils.ts` (8 件)
+  - `HourlyChart.logic.ts` (4 件)
+  - `DrilldownWaterfall.tsx` (4 件)
+  - `categoryHierarchyHooks.ts` (2 件)
+  - `categoryFactorUtils.ts` (1 件)
+- `categoryLeafDailyLaneSurfaceGuard` (import surface / baseline 0 固定) との
+  2 層防御が成立。Phase 3 以降は field surface 側を単調減少させる。
 
 ## 2. 次にやること
 
