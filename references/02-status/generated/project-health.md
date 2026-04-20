@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-20T10:27:28.180Z
+> 生成: 2026-04-20T10:56:03.179Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 544 |
-| 全 project の checked checkbox 総数 | 476 |
+| 全 project の checked checkbox 総数 | 503 |
 
 ## projects
 
@@ -30,11 +30,11 @@
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
 | `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **archived** | — | — | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `category-leaf-daily-series` | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | **archived** | — | 21/22 (96%) | [`projects/completed/category-leaf-daily-series/AI_CONTEXT.md`](../../../projects/completed/category-leaf-daily-series/AI_CONTEXT.md) |
-| `chart-color-alignment` | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize | **in_progress** | — | 2/28 (7%) | [`projects/chart-color-alignment/AI_CONTEXT.md`](../../../projects/chart-color-alignment/AI_CONTEXT.md) |
+| `chart-color-alignment` | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize | **in_progress** | — | 25/28 (89%) | [`projects/chart-color-alignment/AI_CONTEXT.md`](../../../projects/chart-color-alignment/AI_CONTEXT.md) |
 | `data-flow-unification` | 前年データフロー統合 — IndexedDB to DuckDB 経路の一本化 | **archived** | — | 21/21 (100%) | [`projects/completed/data-flow-unification/AI_CONTEXT.md`](../../../projects/completed/data-flow-unification/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` | データロード冪等化 — 残存防御の固定化 | **archived** | — | 21/21 (100%) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `day-detail-modal-prev-year-investigation` | DayDetailModal 前年データ空表示バグ調査 — 3/5-factor / 時間帯分析 / ドリルダウンが表示されない原因の特定 | **archived** | — | — | [`projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md`](../../../projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md) |
-| `design-system-v2-1-asset` | Design System v2.1 — 外部 documentation layer 配置 | **in_progress** | — | 5/14 (36%) | [`projects/design-system-v2-1-asset/AI_CONTEXT.md`](../../../projects/design-system-v2-1-asset/AI_CONTEXT.md) |
+| `design-system-v2-1-asset` | Design System v2.1 — 外部 documentation layer 配置 | **in_progress** | — | 9/14 (64%) | [`projects/design-system-v2-1-asset/AI_CONTEXT.md`](../../../projects/design-system-v2-1-asset/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
