@@ -41,7 +41,6 @@ import {
   aggregateSummary,
   ZERO_SUMMARY,
 } from '../duckdb/dayDetailDataLogic'
-import { useDayDetailPlanObservation } from './useDayDetailPlanObservation'
 import type { DaySummary } from '../duckdb/dayDetailDataLogic'
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 
@@ -161,9 +160,6 @@ export function useDayDetailPlan(
     }
   }, [ranges, selectedStoreIds, comparisonScope])
   const timeSlotBundle = useTimeSlotBundle(queryExecutor, timeSlotFrame)
-
-  // DEV-only: day-detail-modal-prev-year-investigation Phase 1 観測ログ
-  useDayDetailPlanObservation(dayLeafBundle, timeSlotBundle)
 
   const comparisonProvenance = useMemo<PlanComparisonProvenance>(
     () => ({

@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T02:41:55.721Z",
+  "timestamp": "2026-04-20T03:51:57.364Z",
   "summary": {
-    "active": 7,
-    "archived": 14,
-    "inProgress": 6,
+    "active": 6,
+    "archived": 15,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 579,
-    "checkedCheckboxes": 487
+    "totalCheckboxes": 566,
+    "checkedCheckboxes": 476
   },
   "projects": [
     {
@@ -160,10 +160,10 @@
       "title": "DayDetailModal 前年データ空表示バグ調査 — 3/5-factor / 時間帯分析 / ドリルダウンが表示されない原因の特定",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 12,
-      "total": 13,
-      "progress": 0.923,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md",
       "checklistPath": "projects/day-detail-modal-prev-year-investigation/checklist.md",
       "parent": null
@@ -252,9 +252,9 @@
       "kind": "collection",
       "declaredStatus": "active",
       "derivedStatus": "collection",
-      "checked": 4,
+      "checked": 5,
       "total": 5,
-      "progress": 0.8,
+      "progress": 1,
       "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
       "checklistPath": "projects/quick-fixes/checklist.md",
       "parent": null
