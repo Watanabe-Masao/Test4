@@ -104,7 +104,7 @@ HourlyChart
   で undefined (全店フィルタなし) に変換する。frame を null にすると
   `absentBundle()` が返り全 CTS / TimeSlot クエリが未実行になるため (summary 系
   は動作するがこの 2 系統だけ死ぬ)、早期 null return は禁止。
-  詳細: `projects/day-detail-modal-prev-year-investigation/HANDOFF.md` §1.4
+  詳細: `projects/completed/day-detail-modal-prev-year-investigation/HANDOFF.md` §1.4
 
 ## YoYChart (unify-period-analysis Phase 5 見本実装)
 

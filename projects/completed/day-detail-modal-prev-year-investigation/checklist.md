@@ -36,4 +36,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (原因層の確定 + 引き渡し先の task) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (原因層の確定 + 引き渡し先の task) を人間がレビューし、archive プロセスへの移行を承認する (2026-04-20: PR #1094 merge + 本番確認 OK)
