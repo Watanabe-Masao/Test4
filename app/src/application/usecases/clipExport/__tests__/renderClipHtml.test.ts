@@ -31,9 +31,7 @@ describe('escapeHtml', () => {
   })
 
   it('複数の特殊文字を全て変換', () => {
-    expect(escapeHtml('<a href="x">&y</a>')).toBe(
-      '&lt;a href=&quot;x&quot;&gt;&amp;y&lt;/a&gt;',
-    )
+    expect(escapeHtml('<a href="x">&y</a>')).toBe('&lt;a href=&quot;x&quot;&gt;&amp;y&lt;/a&gt;')
   })
 
   it('& は最初に変換される（順序保証 — 後続の &lt; 等が二重変換されない）', () => {

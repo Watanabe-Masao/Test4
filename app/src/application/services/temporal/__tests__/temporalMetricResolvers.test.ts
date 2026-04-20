@@ -34,22 +34,15 @@ describe('TEMPORAL_METRIC_RESOLVERS', () => {
   })
 
   it('transactionValue: customers=0 で null（0 除算ガード）', () => {
-    expect(
-      TEMPORAL_METRIC_RESOLVERS.transactionValue({ ...baseRow, customers: 0 }),
-    ).toBeNull()
+    expect(TEMPORAL_METRIC_RESOLVERS.transactionValue({ ...baseRow, customers: 0 })).toBeNull()
   })
 
   it('grossProfitRate = (sales - coreSales) / sales（売変率扱い）', () => {
-    expect(TEMPORAL_METRIC_RESOLVERS.grossProfitRate(baseRow)).toBeCloseTo(
-      (1000 - 800) / 1000,
-      10,
-    ) // 0.2
+    expect(TEMPORAL_METRIC_RESOLVERS.grossProfitRate(baseRow)).toBeCloseTo((1000 - 800) / 1000, 10) // 0.2
   })
 
   it('grossProfitRate: coreSales=0 で null（売上はあるが core 0）', () => {
-    expect(
-      TEMPORAL_METRIC_RESOLVERS.grossProfitRate({ ...baseRow, coreSales: 0 }),
-    ).toBeNull()
+    expect(TEMPORAL_METRIC_RESOLVERS.grossProfitRate({ ...baseRow, coreSales: 0 })).toBeNull()
   })
 
   it('全 6 メトリクスが定義されている', () => {
