@@ -83,7 +83,7 @@ describe('sc 色定数', () => {
     expect(sc.cautionDark).toMatch(/^#[0-9a-f]{6}$/i)
   })
 
-  it('neutral が定義されている', () => {
-    expect(sc.neutral).toBeDefined()
+  it('neutral は HEX 色値（palette.slate）', () => {
+    expect(sc.neutral).toMatch(/^#[0-9a-f]{6}$/i)
   })
 })
