@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T08:39:54.418Z",
+  "timestamp": "2026-04-20T10:27:28.173Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -153,9 +153,9 @@
         "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/pages/Insight/useInsightData.ts",
         "app/src/application/hooks/useMetricBreakdown.ts",
+        "app/src/presentation/hooks/useUnifiedWidgetContext.ts",
         "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
-        "app/src/presentation/components/charts/CvTimeSeriesChart.tsx",
-        "app/src/presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx"
+        "app/src/application/hooks/plans/useDayDetailPlan.ts"
       ],
       "budget": 10
     },
@@ -702,7 +702,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 6,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -741,7 +741,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 15,
+      "value": 16,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -797,7 +797,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 5,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -875,7 +875,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 566,
+      "value": 544,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -913,7 +913,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 490,
+      "value": 476,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

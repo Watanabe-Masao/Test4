@@ -64,16 +64,34 @@ flat field は Phase 1 時点で `projectCategoryLeafDailySeries` /
 計 48 references を 7 ファイルから除去し、guard `CATEGORY_LEAF_DAILY_NESTED_BASELINE` を
 0 に更新。allowlist も空に。
 
-## 2. 次にやること (Phase 4)
+### 1.4 Phase 4 + 5 完了 (2026-04-20) — 独立 interface 化 + 固定モード化
 
-- `CategoryLeafDailyEntry` の intersection 型を **独立 interface** に昇格:
-  `type CategoryLeafDailyEntry = CategoryTimeSalesRecord & { deptCode, ... }` を
-  `interface CategoryLeafDailyEntry { deptCode, deptName, ..., timeSlots, totalAmount, totalQuantity, year, month, day, storeId }` に変更
-- `projectCategoryLeafDailySeries` で raw → flat 完全変換 (nested field を entry
-  構造から除外)
-- parity test を新 shape で更新
-- `categoryLeafDailyNestedFieldGuard` を「追加禁止」固定モード化
-- `categoryLeafDailyLaneSurfaceGuard` (import) との 2 層防御確定
+**`CategoryLeafDailyEntry` が独立 interface に昇格。structural isolation 完成。**
+
+- 旧 `type CategoryLeafDailyEntry = CategoryTimeSalesRecord & { deptCode, ... }`
+  を `interface CategoryLeafDailyEntry { year, month, day, storeId, deptCode,
+  deptName, lineCode, lineName, klassCode, klassName, totalQuantity,
+  totalAmount, timeSlots }` に変更
+- nested field (`department.code` 等) は型レベルで消滅。consumer は raw
+  record と構造的に完全分離される
+- `projectCategoryLeafDailySeries` / `toCategoryLeafDailyEntries` の spread を
+  明示 field コピーに差し替え (raw record 経由の nested field は projection 段で
+  flat field に変換して廃棄)
+- parity test 11 件 (Phase 1 の flat-field parity 維持 + Phase 4 の保持
+  フィールド保証 1 件追加)
+- `categoryLeafDailyNestedFieldGuard`: allowlist 空 + baseline 0 の「追加禁止」
+  固定モードに移行
+- `categoryLeafDailyLaneSurfaceGuard` (import surface / baseline 0 固定) と
+  合わせて 2 層防御確定:
+  - **import 軸**: `CategoryTimeSalesRecord` 型を presentation で直接 import 禁止
+  - **field 軸**: `CategoryLeafDailyEntry` 上の nested field 参照禁止 (型レベル
+    消滅で構造的にも不可)
+
+## 2. 次にやること
+
+Phase 1-5 完了。最終レビュー (人間承認) で archive プロセスに移行。
+追加作業は無し。後続 project は本 project の成果 (`CategoryLeafDailyEntry`
+独立 interface + 2 層 guard) を前提として作業できる。
 
 ## 2. 次にやること
 

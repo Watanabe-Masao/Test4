@@ -25,9 +25,10 @@ function makeRec(
   amt = 1000,
 ): CategoryLeafDailyEntry {
   return {
-    department: { code: deptCode, name: `Dept ${deptCode}` },
-    line: { code: lineCode, name: `Line ${lineCode}` },
-    klass: { code: klassCode, name: `Klass ${klassCode}` },
+    year: 2026,
+    month: 1,
+    day: 1,
+    storeId: '1',
     deptCode,
     deptName: `Dept ${deptCode}`,
     lineCode,
@@ -36,7 +37,8 @@ function makeRec(
     klassName: `Klass ${klassCode}`,
     totalQuantity: qty,
     totalAmount: amt,
-  } as unknown as CategoryLeafDailyEntry
+    timeSlots: [],
+  }
 }
 
 function makeItem(overrides: Partial<FactorItem> = {}): FactorItem {
@@ -69,14 +71,14 @@ describe('filterRecordsByDrillPath', () => {
     expect(result.prev).toEqual(prev)
   })
 
-  it('dept drill: department.code で filter', () => {
+  it('dept drill: deptCode で filter', () => {
     const cur = [makeRec('D1', 'L1', 'K1'), makeRec('D2', 'L2', 'K2')]
     const result = filterRecordsByDrillPath(cur, [], [{ level: 'dept', code: 'D1' }])
     expect(result.cur).toHaveLength(1)
-    expect(result.cur[0].department.code).toBe('D1')
+    expect(result.cur[0].deptCode).toBe('D1')
   })
 
-  it('line drill: line.code で filter', () => {
+  it('line drill: lineCode で filter', () => {
     const cur = [makeRec('D1', 'L1', 'K1'), makeRec('D1', 'L2', 'K2')]
     const result = filterRecordsByDrillPath(
       cur,
@@ -87,14 +89,14 @@ describe('filterRecordsByDrillPath', () => {
       ],
     )
     expect(result.cur).toHaveLength(1)
-    expect(result.cur[0].line.code).toBe('L1')
+    expect(result.cur[0].lineCode).toBe('L1')
   })
 
   it('prev records も同じ drillPath で filter される', () => {
     const prev = [makeRec('D1', 'L1', 'K1'), makeRec('D2', 'L2', 'K2')]
     const result = filterRecordsByDrillPath([], prev, [{ level: 'dept', code: 'D2' }])
     expect(result.prev).toHaveLength(1)
-    expect(result.prev[0].department.code).toBe('D2')
+    expect(result.prev[0].deptCode).toBe('D2')
   })
 })
 

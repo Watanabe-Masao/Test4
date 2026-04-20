@@ -2,15 +2,17 @@
  * projectCategoryLeafDailySeries — pure projection from raw CTS records to leaf series
  *
  * `CategoryTimeSalesRecord[]` を `CategoryLeafDailySeries` にラップする。
- * entries は raw record を基底に **flat field** (`deptCode` / `deptName` /
- * `lineCode` / `lineName` / `klassCode` / `klassName`) を computed して付与する
- * (category-leaf-daily-entry-shape-break Phase 1)。
+ * entries は raw nested field (`department.code` 等) を読み取り、**独立 interface**
+ * の `CategoryLeafDailyEntry` (flat 階層フィールドのみ) に変換する
+ * (category-leaf-daily-entry-shape-break Phase 4)。
  *
  * ## 責務
  *
  *   - entries を stable order（dateKey → dept → line → klass）で保持
- *   - nested field (`department.code` 等) から flat field (`deptCode` 等) を生成
- *     し entry に同梱する (**flat field 生成の唯一点**)
+ *   - raw nested field (`department.code` 等) から flat 階層フィールド
+ *     (`deptCode` 等) を生成し、保持フィールド (year/month/day/storeId/
+ *     totalAmount/totalQuantity/timeSlots) を明示的にコピーして entry を構成する
+ *     (**nested field は entry 構造から除外される。変換の唯一点**)
  *   - grandTotals（amount / quantity）を計算
  *   - dayCount を伝搬
  *
@@ -18,7 +20,7 @@
  *
  *   - entries の粒度変更（現状 records をそのまま採用）
  *   - comparison / fallback の解決（bundle hook の責務）
- *   - flat field の consumer 側手動生成 (**必ず本関数を経由すること**)
+ *   - consumer 側の手動変換 (**必ず本関数を経由すること**)
  *
  * @responsibility R:transform
  */
@@ -51,19 +53,26 @@ const entriesCache = new WeakMap<
 >()
 
 /**
- * raw CTS records を flat field 付きの `CategoryLeafDailyEntry[]` に変換する。
+ * raw CTS records を独立 `CategoryLeafDailyEntry[]` に変換する。
  *
- * **flat field 生成の唯一実装。** series を作らない (grandTotals / dayCount が不要な)
- * 経路 (例: 単発 wow query / YoYWaterfall plan の raw records / Admin builders)
- * から呼ばれ、`projectCategoryLeafDailySeries` 内部でも再利用される。
+ * **変換の唯一実装 (Phase 4 以降、独立 interface)。** series を作らない
+ * (grandTotals / dayCount が不要な) 経路 (例: 単発 wow query / YoYWaterfall plan
+ * の raw records / Admin builders) から呼ばれ、
+ * `projectCategoryLeafDailySeries` 内部でも再利用される。
+ *
+ * raw nested field (`r.department.code` 等) を読み取り、flat 階層フィールド
+ * (`deptCode` 等) + 保持フィールド (year/month/day/storeId/totalAmount/
+ * totalQuantity/timeSlots) を明示的にコピーする。**nested field は entry 構造から
+ * 除外される** (structural isolation)。
  *
  * **identity 保証**: 同一 records 参照に対しては同じ entries 参照を返す
  * (WeakMap メモ化)。これにより pairResult/fallbackResult オブジェクトが毎
  * render で再生成される状況でも、下流の record-based memoized aggregations
  * (drilldown / hourly / filter builders) が stable なデータで再計算されない。
  *
- * consumer が手動で `{ ...rec, deptCode: rec.department.code }` 等を組まない
- * (category-leaf-daily-entry-shape-break plan.md §不可侵原則 §3)。
+ * consumer が手動で raw record から組み立てることは禁止
+ * (category-leaf-daily-entry-shape-break plan.md §不可侵原則 §3 /
+ * `categoryLeafDailyNestedFieldGuard` 固定モード)。
  */
 export function toCategoryLeafDailyEntries(
   records: readonly CategoryTimeSalesRecord[],
@@ -71,13 +80,19 @@ export function toCategoryLeafDailyEntries(
   const cached = entriesCache.get(records)
   if (cached !== undefined) return cached
   const entries: readonly CategoryLeafDailyEntry[] = records.map((r) => ({
-    ...r,
+    year: r.year,
+    month: r.month,
+    day: r.day,
+    storeId: r.storeId,
     deptCode: r.department.code,
     deptName: r.department.name,
     lineCode: r.line.code,
     lineName: r.line.name,
     klassCode: r.klass.code,
     klassName: r.klass.name,
+    totalQuantity: r.totalQuantity,
+    totalAmount: r.totalAmount,
+    timeSlots: r.timeSlots,
   }))
   entriesCache.set(records, entries)
   return entries
@@ -98,8 +113,8 @@ export function projectCategoryLeafDailySeries(
     quantity += r.totalQuantity
   }
 
-  // flat field を computed して付与 (nested field は存置 = intersection 型のため)。
-  // Phase 4 で独立 interface 化する際、nested field を entry から除外する形に変更する。
+  // Phase 4 以降: raw nested field を flat field + 保持フィールドに変換。
+  // nested field は entry 構造から除外される (structural isolation)。
   const entries = toCategoryLeafDailyEntries(records)
 
   return {
