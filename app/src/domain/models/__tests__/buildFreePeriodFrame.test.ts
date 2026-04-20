@@ -22,7 +22,7 @@ const baseSelection: PeriodSelection = {
     to: { year: 2025, month: 3, day: 31 },
   },
   comparisonEnabled: false,
-  activePreset: 'prevYear',
+  activePreset: 'prevYearSameMonth',
 }
 
 describe('buildFreePeriodFrame', () => {
