@@ -36,9 +36,10 @@ describe('calculateBudgetAnalysis', () => {
     expect(r.budgetAchievementRate).toBeCloseTo(0.1, 5)
   })
 
-  it('dailyCumulative は TS から補完される', () => {
+  it('dailyCumulative は TS から補完される（Record 型の非 null オブジェクト）', () => {
     const r = calculateBudgetAnalysis(budgetInput())
-    expect(r.dailyCumulative).toBeDefined()
+    expect(r.dailyCumulative).not.toBeNull()
+    expect(typeof r.dailyCumulative).toBe('object')
   })
 
   it('totalSales=0 で budgetAchievementRate=0', () => {
