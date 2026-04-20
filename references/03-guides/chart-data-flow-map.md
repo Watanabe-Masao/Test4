@@ -97,6 +97,14 @@ HourlyChart
   `useYoYWaterfallPlan` (3 query path) は各々の query 結果に対して
   `toCategoryLeafDailyEntries` を適用し、下流には flat field 付き entry を
   配布する。plan 以外の consumer が手動で projection を組まない
+- **「全店」モード (空 storeIds Set) の扱い**: `useDayDetailPlan` の
+  `dayLeafFrame` / `cumLeafFrame` / `timeSlotFrame` は frame を null にせず
+  `storeIds: []` で構築する。bundle 側 (`useCategoryLeafDailyBundle` /
+  `useTimeSlotBundle`) が `sortedStoreIds.length > 0 ? sortedStoreIds : undefined`
+  で undefined (全店フィルタなし) に変換する。frame を null にすると
+  `absentBundle()` が返り全 CTS / TimeSlot クエリが未実行になるため (summary 系
+  は動作するがこの 2 系統だけ死ぬ)、早期 null return は禁止。
+  詳細: `projects/day-detail-modal-prev-year-investigation/HANDOFF.md` §1.4
 
 ## YoYChart (unify-period-analysis Phase 5 見本実装)
 
