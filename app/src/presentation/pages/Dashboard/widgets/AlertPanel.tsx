@@ -7,10 +7,8 @@
 import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
-import { formatPercent } from '@/domain/formatting'
 import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
-import type { Alert, AlertSeverity } from '@/application/hooks/analytics'
-import type { MetricId } from '@/domain/models/analysis'
+import type { AlertSeverity } from '@/application/hooks/analytics'
 import type { WidgetContext } from './types'
 import {
   Wrapper,
@@ -28,48 +26,13 @@ import {
   ExplainLink,
   EmptyState,
 } from './AlertPanel.styles'
-
-// ─── Alert → MetricId Mapping ───────────────────────────
-
-const ALERT_METRIC_MAP: Record<string, MetricId> = {
-  'gp-rate-target': 'invMethodGrossProfitRate',
-  'daily-sales-prev-year': 'salesTotal',
-  'cost-inclusion-ratio': 'totalCostInclusion',
-  'budget-achievement': 'budgetAchievementRate',
-  'discount-rate': 'discountRate',
-}
-
-// ─── Alert Value Formatters (threshold/actual/delta) ────
-
-/** アラートルールが比率ベースかどうかを判定 */
-function isRateAlert(alert: Alert): boolean {
-  return ['gp-rate-target', 'cost-inclusion-ratio', 'budget-achievement', 'discount-rate'].includes(
-    alert.ruleId,
-  )
-}
-
-function formatAlertValue(alert: Alert, fmtCurrency: (v: number) => string): string {
-  if (isRateAlert(alert)) return formatPercent(alert.value)
-  return fmtCurrency(alert.value)
-}
-
-function formatAlertThreshold(alert: Alert, fmtCurrency: (v: number) => string): string {
-  if (isRateAlert(alert)) return formatPercent(alert.threshold)
-  return fmtCurrency(alert.threshold)
-}
-
-function formatAlertDelta(alert: Alert, fmtCurrency: (v: number) => string): string {
-  const delta = alert.value - alert.threshold
-  const sign = delta >= 0 ? '+' : ''
-  if (isRateAlert(alert)) return `${sign}${formatPercent(delta).replace('%', 'pt')}`
-  return `${sign}${fmtCurrency(delta)}`
-}
-
-const SEVERITY_ICONS: Record<AlertSeverity, string> = {
-  critical: '!',
-  warning: '!',
-  info: 'i',
-}
+import {
+  ALERT_METRIC_MAP,
+  SEVERITY_ICONS,
+  formatAlertValue,
+  formatAlertThreshold,
+  formatAlertDelta,
+} from './AlertPanel.helpers'
 
 // ─── Component ──────────────────────────────────────────
 
