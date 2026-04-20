@@ -4,15 +4,62 @@
 
 ## 1. 現在地
 
-**Phase 1: 静的解析パート完了 / runtime 観測パート未着手。** 先行セッション
-(2026-04-19) で 3 症状 (要因分解 2-factor のみ / 時間帯分析「データなし」 /
-ドリルダウン非表示) を観測し、以下を切り分け済み:
+**Phase 1-3 完了 / 原因確定 + fix PR 提出済み (2026-04-20)**
 
-- Phase 1 (category-leaf-daily-entry-shape-break) は無関係 (型 alias 置換のみ)
-- Worker timeout (`useCalculation`) は別の処理系 (main dashboard 用) で、
-  DayDetailModal の CTS/time_slots クエリとは独立
+3 症状 (要因分解 2-factor のみ / 時間帯分析「データなし」 /
+ドリルダウン非表示) の原因を **新候補 D (frame null による query 未実行)** と確定。
+fix PR: `claude/day-detail-modal-store-frame-fix` (本 project checklist 参照)。
 
-残る候補: **データ or クエリ or インジェスト** の 3 択 (`AI_CONTEXT.md` §Why 参照)。
+切り分け済み事項:
+- `category-leaf-daily-entry-shape-break` は無関係 (型 alias 置換のみ)
+- Worker timeout (`useCalculation`) は別の処理系 (main dashboard 用) で独立
+- 候補 A/B/C (データ / クエリ / インジェスト) はいずれも不成立 — 本番観測で確定
+
+### 1.3 runtime 観測結果 (2026-04-20)
+
+`useDayDetailPlanObservation` の localStorage フラグ (`__debug_dayDetailPrevYear=1`)
+を本番環境で有効化し、DayDetailModal を開いて取得:
+
+```
+[DayDetailModal:prev-year-observation] {
+  current:    { entriesLen: null, firstTotalQty: null, firstTimeSlotsLen: null }
+  comparison: { entriesLen: null, firstTotalQty: null, firstTimeSlotsLen: null }
+  provenance: { usedComparisonFallback: false, mappingKind: 'none' }
+  timeSlot:   { currentSeriesNull: true, comparisonSeriesNull: true }
+}
+```
+
+全フィールドが null / 'none' / true → `absentBundle()` 返却 →
+`frame === null` で CTS / TimeSlot クエリが 1 本も実行されていない。
+
+A/B/C のいずれでもなく **新候補 D**: frame 構築そのものが短絡している。
+
+### 1.4 原因 (Phase 2) と fix 方針 (Phase 3)
+
+**原因**: `useDayDetailPlan.ts` の 3 useMemo (dayLeafFrame / cumLeafFrame /
+timeSlotFrame) にある `if (selectedStoreIds.size === 0) return null` が、
+「全店」モード (空 Set = `selectAllStores` の正しい表現) で発火して frame を
+null にしてしまう。
+
+`useCategoryLeafDailyBundle` / `useTimeSlotBundle` は **空 storeIds を undefined
+(全店フィルタなし) に自動変換**する正しい実装 (`sortedStoreIds.length > 0 ?
+sortedStoreIds : undefined`)。summary/weather 系は早期 return を持たないため
+「全店」でも動作し、カード値のみ表示される → 「summary は出るが factor /
+時間帯 / ドリルダウンが空」の観測症状と完全一致。
+
+**fix**: 3 useMemo の早期 null return を削除し、frame を常に非 null で構築する。
+`useCategoryLeafDailyBundle` / `useTimeSlotBundle` 側は無修正 (既に正しい)。
+
+- PR: `claude/day-detail-modal-store-frame-fix`
+- 対象ファイル: `app/src/application/hooks/plans/useDayDetailPlan.ts` のみ
+- 規模: 軽微 (1 ファイル、L87-107 + L154-163 の編集)
+- 引き渡し: `projects/quick-fixes/checklist.md` に observation hook 削除 task を追加
+
+### 1.5 観測 hook の扱い
+
+`useDayDetailPlanObservation` は原因確定後の regression 検出にも有用だが、
+hook 自身の JSDoc に「原因確定後に削除」と明記してあるため、本 fix PR 反映後に
+`projects/quick-fixes/checklist.md` の task で削除する。
 
 ### 1.1 静的解析による事前絞り込み (2026-04-19 追記)
 
