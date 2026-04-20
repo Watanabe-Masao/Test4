@@ -34,7 +34,17 @@ function createMockHandles(): MockDuckDBHandles {
         const count = fileName ? (fileRowCounts.get(fileName) ?? 0) : 0
         return { toArray: () => Array.from({ length: count }, () => ({ 1: 1 })) }
       }
-      return undefined
+      // dropStoreDaySummaryByActualType が information_schema.tables を参照するため
+      // VIEW として存在することを mock で通知する
+      if (
+        typeof sql === 'string' &&
+        sql.includes('information_schema.tables') &&
+        sql.includes('table_type') &&
+        sql.includes('store_day_summary')
+      ) {
+        return { toArray: () => [{ table_type: 'VIEW' }] }
+      }
+      return { toArray: () => [] }
     }),
   } as unknown as AsyncDuckDBConnection
 
@@ -71,9 +81,13 @@ describe('resetTables', () => {
 
     const calls = queryMock.mock.calls.map((c) => c[0] as string)
 
-    // Verify DROP VIEW/TABLE (DuckDB は型不一致でエラーするため VIEW → TABLE の順)
-    expect(calls[0]).toBe('DROP VIEW IF EXISTS store_day_summary')
-    expect(calls[1]).toBe('DROP TABLE IF EXISTS store_day_summary')
+    // dropStoreDaySummaryByActualType: information_schema で実型を特定してから
+    // 正しい型の DROP を 1 回だけ発行する（mock は VIEW を返す）
+    expect(calls[0]).toContain('information_schema.tables')
+    expect(calls[0]).toContain('store_day_summary')
+    expect(calls).toContain('DROP VIEW IF EXISTS store_day_summary')
+    // 実型を判定しているため、反対側の DROP は発行されない
+    expect(calls).not.toContain('DROP TABLE IF EXISTS store_day_summary')
 
     // Verify all tables are dropped (except persistent cache tables like weather_hourly)
     const persistentTables = new Set(['weather_hourly'])
