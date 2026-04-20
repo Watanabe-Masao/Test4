@@ -53,6 +53,54 @@ derivedStatus: in_progress / 13 of 15 (87%)
 target → 70 (Phase 3 完了時)
 ```
 
+## 1.5. Deferred — Domain 層への昇格候補（次セッション検討）
+
+Phase 3 の pure 関数抽出で **266 tests** を追加した過程で、「そもそも
+presentation に置くべきでない業務ロジック」が混入していることが判明した。
+次セッションで domain 層への移動を検討する。詳細は本 section。
+
+### 明確な domain 候補（= 業務意味を持つ）
+
+| 関数 | 現在地 | 移動先候補 | 理由 |
+|---|---|---|---|
+| `toJsDate` / `fromJsDate` | `DualPeriodPicker.helpers` | `domain/models/CalendarDate.ts` | CalendarDate ↔ Date 変換は calendar の基本契約。既に 2 箇所で共有 |
+| `weekNumber(y, m, d)` | `PrevYearBudgetDetailPanel` | `domain/models/CalendarDate.ts` | 「月曜始まり週番号」は純粋暦計算。既存 `getDow(date)` と隣接配置 |
+| `getDow(y, m, d)` | `PrevYearBudgetDetailPanel` | 既存 `domain/models/CalendarDate.ts::getDow(date)` と統合 | 引数形式違いの同一ロジック。重複解消 |
+| `cosineSimilarity` | `StoreHourlyChartLogic` | `domain/calculations/utils` or `domain/utils/math.ts` | 純粋数学ユーティリティ。Store 依存ゼロ |
+| `findCoreTime` | `StoreHourlyChartLogic` | `domain/calculations/` 分析群 | 「コアタイム = 売上上位 80% 帯」は業務概念 |
+
+### Calculation と Presentation 分離候補（refactor コスト中）
+
+| 関数 | 現在地 | 問題 |
+|---|---|---|
+| `buildCumulativeData` | `PrevYearComparisonChartLogic` | 累計計算（domain）と `ChartRenderModel`（presentation）が同居 |
+| `buildGpData` | `GrossProfitAmountChartLogic` | 粗利累計計算 + `GpPoint` 形状変換が同居 |
+| `buildDiscountData` | `DiscountTrendChartLogic` | 売変率計算 + `discountEntries` 整形が同居 |
+
+→ calculation part を domain に切り出し、presentation は薄いラッパーにする。
+
+### 残すもの（Presentation 相当）
+
+- 全フォーマッタ（`fmt` / `diffStr` / `formatDuration` / `formatDateRange` / `formatAlertValue` 他）
+- 全カラーマッパ（`ratioColor` / `rateToColor` / `gapColor` 他）
+- 座標系（`pxToDay` / `dayToPct` / `clamp`）
+- VM 構築（`buildComparisonInventoryData` / `buildStoreInventoryEntries` / `buildCols`）
+- ファイル filter（`isAcceptedFile`）、分類 resolver（`resolveCategoryLabel`）
+
+### 推奨アクション順序
+
+1. **最優先**: CalendarDate 関連 3 件（`toJsDate` / `fromJsDate` / `weekNumber`）の domain 統合
+   - 既存 `getDow(date)` との signature 統合も含む
+   - 重複した `buildP1Presets`（現在 DualPeriodPicker.helpers に存在、CalendarRangePicker で import 再利用中）は domain に移すかは要議論（業務ロジックではなく UI preset UX のため残置でも可）
+2. **次点**: `cosineSimilarity` / `findCoreTime` を domain へ
+3. **任意**: calculation/presentation 混在 3 件の分離（Phase 3 完了後でも可）
+
+### 判断基準（CLAUDE.md A1 準拠）
+
+- domain = 業務意味を持つ純粋ロジック（暦・指標計算・業務概念）
+- presentation = 描画専用（フォーマット・色・座標・VM 形状）
+- 迷ったら「業務意味を変えずに UI 技術を変えた場合、この関数は残るか？」で判定
+
 ## 2. 次にやること — Phase 3 残作業 (本セッション後の更新)
 
 ### 戦略の確定 (本セッションの実証で更新)
