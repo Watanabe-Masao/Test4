@@ -4,6 +4,8 @@
  * component 側で inline 化されていた 4 formatter と 2 マップを切り出す。
  * 値の解釈（rate vs 金額）と severity → アイコン変換は純粋関数なので
  * 単独テスト可能。
+ *
+ * @responsibility R:transform
  */
 import { formatPercent } from '@/domain/formatting'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'

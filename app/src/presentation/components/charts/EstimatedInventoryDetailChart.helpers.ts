@@ -1,3 +1,11 @@
+/**
+ * EstimatedInventoryDetailChart — pure helpers
+ *
+ * Component 内の useMemo body から抽出した 5 種の pure 関数群（filter / 集約 /
+ * 比較モード store エントリ構築 / 比較 chart データ構築）。
+ *
+ * @responsibility R:transform
+ */
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { InventoryDetailRow } from '@/application/hooks/calculation'
 import { computeEstimatedInventoryDetails } from '@/application/hooks/calculation'

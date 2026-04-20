@@ -5,6 +5,8 @@
  * preset 生成 / preset 検索ロジックを切り出す。
  *
  * 方針: 描画 component は pure 関数を組み合わせるだけ（C1 / F7 準拠）。
+ *
+ * @responsibility R:utility
  */
 import type { DateRange as AppDateRange } from '@/domain/models/calendar'
 import { toDateKey } from '@/domain/models/calendar'

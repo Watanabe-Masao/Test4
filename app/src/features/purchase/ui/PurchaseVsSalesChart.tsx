@@ -21,7 +21,7 @@ import {
 
 // ── データ構築 ──
 
-function buildSalesVsCostData(daily: PurchaseDailyData) {
+export function buildSalesVsCostData(daily: PurchaseDailyData) {
   const salesMap = new Map(daily.current.map((d) => [d.day, d]))
   const allDays = Array.from(new Set([...daily.current.map((d) => d.day)])).sort((a, b) => a - b)
 
@@ -52,7 +52,7 @@ function buildSalesVsCostData(daily: PurchaseDailyData) {
 
 // ── フォーマッタ ──
 
-function fmtYen(v: number): string {
+export function fmtYen(v: number): string {
   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
   if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}K`
   return String(v)
