@@ -15,15 +15,12 @@ import {
 } from '../movingAverageBridge'
 import type { MovingAveragePoint } from '@/domain/calculations/temporal/computeMovingAverage'
 
-const policy = {
-  missingAs: 'ok-zero' as const,
-  minRequired: 1,
-}
+const policy: 'strict' | 'partial' = 'partial'
 
 const sampleSeries: readonly MovingAveragePoint[] = [
-  { dateKey: '2026-03-01', value: 10, status: 'ok' as const },
-  { dateKey: '2026-03-02', value: 20, status: 'ok' as const },
-  { dateKey: '2026-03-03', value: 30, status: 'ok' as const },
+  { value: 10, status: 'ok' },
+  { value: 20, status: 'ok' },
+  { value: 30, status: 'ok' },
 ]
 
 describe('movingAverageBridge mode switch', () => {
