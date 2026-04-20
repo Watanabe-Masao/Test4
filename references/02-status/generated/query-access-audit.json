@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-04-14T07:34:17.034Z",
+  "timestamp": "2026-04-20T10:00:32.535Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
     "screenPlanHooks": 28,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 10,
-    "正規経路_facadeHook": 5,
+    "正規経路_facadeHook": 6,
     "bundleHookDef": 1,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
     "禁止経路_infraDuckdbDirect": 0,
-    "weather_applicationHook": 6,
+    "weather_applicationHook": 5,
     "禁止経路_weatherInfraDirect": 0
   },
   "detail": {
@@ -123,6 +123,7 @@
       "application/usecases/clipExport/buildClipBundle.ts"
     ],
     "facadeHook": [
+      "presentation/components/widgets/types.ts",
       "presentation/hooks/slices/useChartInteractionSlice.ts",
       "presentation/hooks/slices/useComparisonSlice.ts",
       "presentation/hooks/slices/useQuerySlice.ts",
@@ -136,7 +137,6 @@
     "asyncQueryDirect": [],
     "infraDuckdbDirect": [],
     "weatherRoutes": [
-      "presentation/components/charts/WeatherAnalysisPanel.tsx",
       "presentation/components/charts/WeatherCorrelationChart.tsx",
       "presentation/components/charts/WeatherCorrelationChart.vm.ts",
       "presentation/hooks/slices/useWeatherSlice.ts",

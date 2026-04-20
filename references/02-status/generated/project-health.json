@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T08:39:54.424Z",
+  "timestamp": "2026-04-20T10:11:15.072Z",
   "summary": {
     "active": 6,
     "archived": 15,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 566,
-    "checkedCheckboxes": 490
+    "checkedCheckboxes": 497
   },
   "projects": [
     {
@@ -96,9 +96,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 14,
+      "checked": 21,
       "total": 22,
-      "progress": 0.636,
+      "progress": 0.955,
       "entrypoint": "projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md",
       "checklistPath": "projects/category-leaf-daily-entry-shape-break/checklist.md",
       "parent": null

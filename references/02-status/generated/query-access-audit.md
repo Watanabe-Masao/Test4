@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-14T07:34:17.034Z
+> Generated: 2026-04-20T10:00:32.535Z
 
 ## Route Summary
 
@@ -11,7 +11,7 @@
 | Screen Plan hook（plan 化済み） | 28 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 10 | 正規 |
-| facade / bundle hook 使用（正規） | 5 | 正規 |
+| facade / bundle hook 使用（正規） | 6 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -131,6 +131,7 @@
 
 ### facadeHook
 
+- presentation/components/widgets/types.ts
 - presentation/hooks/slices/useChartInteractionSlice.ts
 - presentation/hooks/slices/useComparisonSlice.ts
 - presentation/hooks/slices/useQuerySlice.ts
@@ -143,7 +144,6 @@
 
 ### weatherRoutes
 
-- presentation/components/charts/WeatherAnalysisPanel.tsx
 - presentation/components/charts/WeatherCorrelationChart.tsx
 - presentation/components/charts/WeatherCorrelationChart.vm.ts
 - presentation/hooks/slices/useWeatherSlice.ts

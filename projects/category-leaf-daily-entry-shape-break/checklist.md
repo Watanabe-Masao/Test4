@@ -28,18 +28,18 @@
 * [x] 各 PR で guard baseline を更新して単調減少させる
 * [x] baseline を 0 に到達させる
 
-## Phase 4: alias 解除 + 独立 interface 化
+## Phase 4: alias 解除 + 独立 interface 化 ✅ 完了 (2026-04-20)
 
-* [ ] `CategoryLeafDailyEntry` を intersection から独立 interface に昇格する
-* [ ] `projectCategoryLeafDailySeries` で raw → flat 完全変換に切り替える (nested field を entry 構造から除外)
-* [ ] parity test を新 shape で更新して不変を固定する
-* [ ] presentation から raw nested field access が型レベルで不可能であることを確認する
+* [x] `CategoryLeafDailyEntry` を intersection から独立 interface に昇格する (2026-04-20: intersection `CategoryTimeSalesRecord & { deptCode, ... }` → `interface CategoryLeafDailyEntry { year/month/day/storeId/deptCode/deptName/lineCode/lineName/klassCode/klassName/totalQuantity/totalAmount/timeSlots }`)
+* [x] `projectCategoryLeafDailySeries` で raw → flat 完全変換に切り替える (nested field を entry 構造から除外) — `toCategoryLeafDailyEntries` の spread を明示コピーに差し替え
+* [x] parity test を新 shape で更新して不変を固定する (11 tests / Phase 4 Preserved フィールド保証 1 test を追加)
+* [x] presentation から raw nested field access が型レベルで不可能であることを確認する (`npx tsc -b --noEmit` エラーなし)
 
-## Phase 5: guard 固定化 + 2 層防御の確定
+## Phase 5: guard 固定化 + 2 層防御の確定 ✅ 完了 (2026-04-20)
 
-* [ ] `categoryLeafDailyNestedFieldGuard` を「追加禁止」固定モードに移行する
-* [ ] `categoryLeafDailyLaneSurfaceGuard` (import surface) との 2 層防御が成立することを確認する
-* [ ] guard-test-map.md / doc-registry.json に新 guard を登録する
+* [x] `categoryLeafDailyNestedFieldGuard` を「追加禁止」固定モードに移行する (allowlist 空固定 / baseline 0 / describe ラベルに「固定モード」明記)
+* [x] `categoryLeafDailyLaneSurfaceGuard` (import surface) との 2 層防御が成立することを確認する (import 軸 = baseline 0 固定 / field 軸 = baseline 0 固定)
+* [x] guard-test-map.md / doc-registry.json に新 guard を登録する (Phase 2 時点で登録済み。Phase 4/5 完了状態を追記)
 
 ## 最終レビュー (人間承認)
 
@@ -48,4 +48,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (Phase 1-5 完了 / 本 PR 反映後に最終レビュー)

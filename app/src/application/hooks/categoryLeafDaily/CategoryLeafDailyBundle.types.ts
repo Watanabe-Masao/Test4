@@ -35,7 +35,7 @@
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
-import type { CategoryTimeSalesRecord } from '@/domain/models/record'
+import type { TimeSlotEntry } from '@/domain/models/record'
 
 // ── Frame ────────────────────────────────────────────────
 
@@ -50,25 +50,37 @@ export interface CategoryLeafDailyFrame {
 /**
  * leaf-grain `(dept, line, klass)` 1 件分のエントリ。
  *
- * 現在は `CategoryTimeSalesRecord` を基底に **flat field を並行提供する
- * intersection 型** (category-leaf-daily-entry-shape-break Phase 1, 2026-04-19)。
- * presentation は新 flat field (`deptCode` / `deptName` / `lineCode` / `lineName` /
- * `klassCode` / `klassName`) を参照する。nested field (`department.code` 等) は
- * 既存 consumer の非破壊経路として残存するが、Phase 4 で intersection を解除して
- * 独立 interface に昇格する予定 (nested field は entry から除外され、
- * presentation は raw 型と構造的に分離される)。
+ * **独立 interface** (category-leaf-daily-entry-shape-break Phase 4, 2026-04-20)。
+ * 旧 `CategoryTimeSalesRecord` の intersection 型だった状態を解除し、
+ * `CategoryTimeSalesRecord` とは構造的に完全に分離されている。
  *
- * **flat field の生成点は `projectCategoryLeafDailySeries` のみ。** consumer が
- * 手動で `{ ...rec, deptCode: rec.department.code }` 等を組まない
- * (`plan.md` 不可侵原則 §3)。
+ * - **flat 階層フィールド**: `deptCode` / `deptName` / `lineCode` / `lineName` /
+ *   `klassCode` / `klassName`。nested field (`.department.code` 等) は存在しない
+ *   (型レベルで消滅)。
+ * - **保持フィールド**: `year` / `month` / `day` / `storeId` / `totalQuantity` /
+ *   `totalAmount` / `timeSlots` は raw record から直接 projection される。
+ *
+ * **変換の唯一点は `projectCategoryLeafDailySeries` / `toCategoryLeafDailyEntries`。**
+ * consumer が手動で raw record から組み立てることは禁止
+ * (`plan.md` 不可侵原則 §3 / `categoryLeafDailyNestedFieldGuard` 固定モード)。
+ *
+ * @see projectCategoryLeafDailySeries
+ * @see categoryLeafDailyNestedFieldGuard.test.ts
  */
-export type CategoryLeafDailyEntry = CategoryTimeSalesRecord & {
+export interface CategoryLeafDailyEntry {
+  readonly year: number
+  readonly month: number
+  readonly day: number
+  readonly storeId: string
   readonly deptCode: string
   readonly deptName: string
   readonly lineCode: string
   readonly lineName: string
   readonly klassCode: string
   readonly klassName: string
+  readonly totalQuantity: number
+  readonly totalAmount: number
+  readonly timeSlots: readonly TimeSlotEntry[]
 }
 
 // ── Series ────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-20T08:39:54.418Z",
+  "timestamp": "2026-04-20T10:11:15.065Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -153,9 +153,9 @@
         "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/pages/Insight/useInsightData.ts",
         "app/src/application/hooks/useMetricBreakdown.ts",
+        "app/src/presentation/hooks/useUnifiedWidgetContext.ts",
         "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
-        "app/src/presentation/components/charts/CvTimeSeriesChart.tsx",
-        "app/src/presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx"
+        "app/src/application/hooks/plans/useDayDetailPlan.ts"
       ],
       "budget": 10
     },
@@ -537,9 +537,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 2,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -913,7 +913,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 490,
+      "value": 497,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -988,9 +988,9 @@
   ],
   "summary": {
     "totalKpis": 40,
-    "ok": 40,
+    "ok": 39,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }

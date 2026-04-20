@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-14T07:33:29.419Z
+> Generated: 2026-04-20T10:03:15.735Z
 
 ## Allowlist Summary
 
@@ -25,6 +25,7 @@
 
 ## Facade Hooks
 
+- application/hooks/categoryDaily/useCategoryDailyBundle.ts
 - application/hooks/duckdb/useAdvancedQueries.ts
 - application/hooks/duckdb/useAsyncQuery.ts
 - application/hooks/duckdb/useCtsAggregationQueries.ts
@@ -40,17 +41,19 @@
 - application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
 - application/hooks/duckdb/useSummaryQueries.ts
 - application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/plans/useDayDetailPlan.ts
 - application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/storeDaily/useStoreDailyBundle.ts
 - application/hooks/useAnalysisInput.ts
 - application/hooks/useAnalyticsResolver.ts
 - application/hooks/useAppShortcuts.ts
 - application/hooks/useAutoBackup.ts
 - application/hooks/useAutoImport.ts
-- application/hooks/useAutoLoadPrevYear.ts
 - application/hooks/useBackup.ts
 - application/hooks/useCalculation.ts
 - application/hooks/useClipExport.ts
 - application/hooks/useComparisonContext.ts
+- application/hooks/useComparisonModule.ts
 - application/hooks/useDeviceSync.ts
 - application/hooks/useDrillAction.ts
 - application/hooks/useEtrnStationSearch.ts
@@ -65,6 +68,7 @@
 - application/hooks/useMonthSwitcher.ts
 - application/hooks/useMonthlyHistory.ts
 - application/hooks/useMultiMovingAverage.ts
+- application/hooks/usePageComparisonModule.ts
 - application/hooks/usePeriodAwareKpi.ts
 - application/hooks/usePersistence.ts
 - application/hooks/usePrevYearWeather.ts
@@ -91,16 +95,16 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 487 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 495 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 518 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 434 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 532 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 448 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
-| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 222 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 226 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
-| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 343 |
-| presentation/components/charts/CvTimeSeriesChart.tsx | 5 | 5 | 247 |
-| presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx | 7 | 3 | 440 |
+| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 347 |
+| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 345 |
+| application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 196 |
 
 ## Near-Limit Files (≥80%)
 

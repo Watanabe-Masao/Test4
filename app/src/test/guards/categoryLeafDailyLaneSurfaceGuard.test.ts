@@ -165,7 +165,8 @@ describe('categoryLeafDailyLaneSurfaceGuard (presentation-cts-surface-ratchetdow
     const content = fs.readFileSync(typeFile, 'utf-8')
     // 置換先となる主要 export を固定する
     expect(content).toContain('export interface CategoryLeafDailyFrame')
-    expect(content).toContain('export type CategoryLeafDailyEntry')
+    // Phase 4 (2026-04-20): intersection (type) → 独立 interface に昇格済み
+    expect(content).toContain('export interface CategoryLeafDailyEntry')
     expect(content).toContain('export interface CategoryLeafDailySeries')
     expect(content).toContain('export interface CategoryLeafDailyBundle')
     expect(content).toContain('export interface CategoryLeafDailyProvenance')

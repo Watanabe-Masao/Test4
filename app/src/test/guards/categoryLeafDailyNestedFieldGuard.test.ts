@@ -1,26 +1,22 @@
 // categoryLeafDailyNestedFieldGuard — CategoryLeafDailyEntry の nested field
 // 参照 (.department.code / .line.name / .klass.code 等) を presentation 層で
-// ratchet-down 管理し、alias 解除 (Phase 4) に向けた field surface の 2 層防御を敷く。
+// 「追加禁止」固定モード化した guard (2 層防御の field surface 軸)。
 //
-// category-leaf-daily-entry-shape-break Phase 2 (2026-04-20):
-// Phase 1 で `CategoryLeafDailyEntry` を intersection 型に進化させ flat field
-// (`deptCode / deptName / lineCode / lineName / klassCode / klassName`) を
-// 並行提供した。ただし intersection のため raw 側の nested field
-// (`.department.code` 等) も依然アクセス可能。
+// category-leaf-daily-entry-shape-break Phase 4 完了 (2026-04-20):
+// `CategoryLeafDailyEntry` は独立 interface に昇格し、nested field は型レベルで
+// 消滅した。本 guard も allowlist 空 + baseline 0 の固定モードに移行し、
+// 新規 nested field 参照の混入を阻止する (再帰防止)。
 //
 // 先行 `categoryLeafDailyLaneSurfaceGuard` (baseline 0 / 固定モード) は
-// `CategoryTimeSalesRecord` **型 import** を封じるが、alias 経由の field 参照
-// までは検出できない。本 guard は **field access surface** を別軸で管理し、
-// 「alias 側に触れる presentation」を段階的に flat field に移行する。
+// `CategoryTimeSalesRecord` **型 import** を封じる。本 guard は field access
+// surface を封じ、両軸で presentation の raw 型露出を阻止する 2 層防御を構成する。
 //
-// 狙い:
+// 沿革:
 //
-//   1. 初期 baseline 7 ファイル (production only) を allowlist 化し、新規
-//      widget が nested field access を追加するのを防ぐ
-//   2. Phase 3 で consumer を段階移行 (1 PR で 1-2 ファイル) し baseline を
-//      ratchet-down する
-//   3. baseline 0 到達後 (Phase 4 alias 解除と同時)、guard を「追加禁止」
-//      固定モードに移行する → field surface でも 2 層防御が完成する
+//   1. Phase 2 (2026-04-20): 初期 baseline 7 ファイル (production only) を
+//      allowlist 化
+//   2. Phase 3 (2026-04-20): 4 batches で 7 → 0 に ratchet-down
+//   3. Phase 4 (2026-04-20): alias 解除 + 本 guard 固定モード化
 //
 // test ファイルは fixture 構築のため nested field 参照が自然なので
 // `categoryLeafDailyLaneSurfaceGuard` と同様に collectTsFiles の test 除外に
@@ -58,8 +54,9 @@ const SRC_DIR = path.resolve(__dirname, '../..')
  *   - Phase 3 batch-4 (2026-04-20): 2 → 0。CategoryFactor 系 2 ファイル
  *     (categoryFactorUtils.ts / categoryFactorBreakdownLogic.ts) を flat field 参照に置換。
  *     presentation production 層で nested field 参照が物理的に 0 に到達。
- *   - Phase 4 (予定): alias を intersection → 独立 interface に昇格させ
- *     nested field の型レベル消滅と同時に guard を「追加禁止」固定モードへ
+ *   - Phase 4 (2026-04-20): 独立 interface 昇格完了。`CategoryLeafDailyEntry` から
+ *     nested field (`.department` / `.line` / `.klass`) が型レベルで消滅。
+ *     本 guard は「追加禁止」固定モードへ移行。以降 allowlist を育てない。
  */
 const CATEGORY_LEAF_DAILY_NESTED_FIELD_ALLOWLIST: readonly {
   readonly path: string
@@ -79,15 +76,15 @@ const CATEGORY_LEAF_DAILY_NESTED_ALLOWLIST_PATHS = new Set(
 const NESTED_FIELD_PATTERN = /\.(department|line|klass)\.(code|name)\b/
 
 /**
- * 現 baseline = 0 件 (production only, Phase 3 batch-1〜4 完了後)。
- * presentation 層で nested field 参照が物理的に消失。以降は新規混入の防止のみ。
- * Phase 4 で alias 解除を実施すると型レベルでも消滅し、本 guard は
- * 「追加禁止」固定モードへ移行する。
+ * baseline = 0 固定 (Phase 4 完了、2026-04-20 以降)。
+ * `CategoryLeafDailyEntry` は独立 interface となり nested field は型レベルで
+ * アクセス不可。本 guard は「追加禁止」固定モードとして、新規 allowlist 追加も
+ * 含めて nested field 混入を阻止する。
  */
 const CATEGORY_LEAF_DAILY_NESTED_BASELINE = 0
 
-describe('categoryLeafDailyNestedFieldGuard (category-leaf-daily-entry-shape-break Phase 2)', () => {
-  it('G6-CLD-NESTED: CategoryLeafDailyEntry の nested field (.department/.line/.klass) の presentation 参照は allowlist 内に限定される', () => {
+describe('categoryLeafDailyNestedFieldGuard (category-leaf-daily-entry-shape-break Phase 4 固定モード)', () => {
+  it('G6-CLD-NESTED: CategoryLeafDailyEntry の nested field (.department/.line/.klass) の presentation 参照は一切禁止 (allowlist 空固定)', () => {
     const presFiles = collectTsFiles(path.join(SRC_DIR, 'presentation'))
     const violations: string[] = []
 

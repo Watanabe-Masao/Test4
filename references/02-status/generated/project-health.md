@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-20T08:39:54.424Z
+> 生成: 2026-04-20T10:11:15.072Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 566 |
-| 全 project の checked checkbox 総数 | 490 |
+| 全 project の checked checkbox 総数 | 497 |
 
 ## projects
 
@@ -28,7 +28,7 @@
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
-| `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **in_progress** | — | 14/22 (64%) | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
+| `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **in_progress** | — | 21/22 (96%) | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `category-leaf-daily-series` | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | **archived** | — | 21/22 (96%) | [`projects/completed/category-leaf-daily-series/AI_CONTEXT.md`](../../../projects/completed/category-leaf-daily-series/AI_CONTEXT.md) |
 | `chart-color-alignment` | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize | **in_progress** | — | 2/28 (7%) | [`projects/chart-color-alignment/AI_CONTEXT.md`](../../../projects/chart-color-alignment/AI_CONTEXT.md) |
 | `data-flow-unification` | 前年データフロー統合 — IndexedDB to DuckDB 経路の一本化 | **archived** | — | 21/21 (100%) | [`projects/completed/data-flow-unification/AI_CONTEXT.md`](../../../projects/completed/data-flow-unification/AI_CONTEXT.md) |
