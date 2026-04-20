@@ -65,7 +65,7 @@ const CATEGORY_COLORS: Record<PresetCategoryId, string> = {
 }
 
 /** ユーザーカテゴリのラベルを解決する（プリセット → PRESET_CATEGORY_LABELS、ユーザー → userCategoryLabels） */
-function resolveCategoryLabel(
+export function resolveCategoryLabel(
   id: string,
   userCategoryLabels: Readonly<Record<string, string>>,
 ): string {
@@ -74,7 +74,7 @@ function resolveCategoryLabel(
 }
 
 /** カテゴリの色を解決する */
-function resolveCategoryColor(id: string): string {
+export function resolveCategoryColor(id: string): string {
   if (isUserCategory(id)) return '#14b8a6'
   return CATEGORY_COLORS[id as PresetCategoryId] ?? palette.slate
 }

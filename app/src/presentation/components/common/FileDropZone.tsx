@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef, type DragEvent } from 'react'
 import { Zone, FolderButton, Icon, MainText, HintText } from './FileDropZone.styles'
 
-const ACCEPT_EXTENSIONS = ['.xlsx', '.xls', '.csv']
+export const ACCEPT_EXTENSIONS = ['.xlsx', '.xls', '.csv']
 
-function isAcceptedFile(name: string): boolean {
+export function isAcceptedFile(name: string): boolean {
   const lower = name.toLowerCase()
   return ACCEPT_EXTENSIONS.some((ext) => lower.endsWith(ext))
 }
@@ -55,7 +55,7 @@ async function collectFilesFromEntries(items: DataTransferItemList): Promise<Fil
 }
 
 /** input[webkitdirectory] から取得した FileList を拡張子フィルタする */
-function filterAcceptedFiles(fileList: FileList): File[] {
+export function filterAcceptedFiles(fileList: FileList): File[] {
   const result: File[] = []
   for (let i = 0; i < fileList.length; i++) {
     if (isAcceptedFile(fileList[i].name)) result.push(fileList[i])

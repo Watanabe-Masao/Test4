@@ -91,10 +91,12 @@ export async function queryStoreCustomers(
     { type: 'storeIds', storeIds: params.storeIds },
   ]
   const where = buildTypedWhere(conditions)
+  // CAST で BIGINT に明示変換する。SUM(INTEGER) は DuckDB では HUGEINT を返すため、
+  // Arrow 経由で Uint32Array / Decimal として渡る場合があり Zod z.number() が落ちる。
   const sql = `
     SELECT
       store_id,
-      COALESCE(SUM(customers), 0) AS "totalCustomers"
+      CAST(COALESCE(SUM(customers), 0) AS BIGINT) AS "totalCustomers"
     FROM store_day_summary
     ${where}
     GROUP BY store_id`

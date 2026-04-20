@@ -34,6 +34,9 @@
 * [x] `vitest.config.ts` の coverage include に `presentation/` を追加する
 * [x] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 * [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
+  - Step 3-40 (2026-04-20): 45 → 47 に進捗。残 23 pt を継続 ratchet up
 * [ ] CI で coverage 70% を満たすことを確認する
+  - Step 3-40 時点の予想現実値 ~48.3%（要 +22 pt）
 * [x] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
-* [ ] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
+* [x] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
+  - Step 3-40 (2026-04-20): main 最新 5 CI run が全 success (runs #2039〜#2047)

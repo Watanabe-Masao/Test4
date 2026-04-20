@@ -40,7 +40,7 @@ interface Props {
   readonly gridRight?: number
 }
 
-interface ColData {
+export interface ColData {
   readonly hour: string
   readonly current: number
   readonly prev: number
@@ -48,7 +48,11 @@ interface ColData {
   readonly ratio: number | null
 }
 
-function buildCols(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boolean): ColData[] {
+export function buildCols(
+  data: readonly ChartRow[],
+  metric: MetricToggle,
+  hasPrev: boolean,
+): ColData[] {
   const curKey = metric === 'amount' ? 'amount' : 'quantity'
   const prevKey = metric === 'amount' ? 'prevAmount' : 'prevQuantity'
 
@@ -61,7 +65,7 @@ function buildCols(data: readonly ChartRow[], metric: MetricToggle, hasPrev: boo
   })
 }
 
-function weatherByHour(
+export function weatherByHour(
   data: readonly WeatherHourlyDisplay[] | undefined,
 ): ReadonlyMap<number, WeatherHourlyDisplay> {
   if (!data) return new Map()

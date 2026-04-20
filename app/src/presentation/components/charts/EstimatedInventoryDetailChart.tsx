@@ -22,7 +22,15 @@ import {
   TotalRow,
   StoreDot,
 } from './EstimatedInventoryDetailChart.styles'
-import { createFmt, AGG_LABELS } from './EstimatedInventoryDetailChart.helpers'
+import {
+  createFmt,
+  AGG_LABELS,
+  filterInventoryDayRange,
+  filterNonEmptyInventoryRows,
+  summarizeInventoryTotals,
+  buildStoreInventoryEntries,
+  buildComparisonInventoryData,
+} from './EstimatedInventoryDetailChart.helpers'
 import type { ViewMode } from './EstimatedInventoryDetailChart.helpers'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
@@ -95,78 +103,27 @@ export const EstimatedInventoryDetailChart = memo(function EstimatedInventoryDet
   ])
 
   const aggChartData = useMemo(
-    () => details.filter((r) => r.day >= rangeStart && r.day <= rangeEnd),
+    () => filterInventoryDayRange(details, rangeStart, rangeEnd),
     [details, rangeStart, rangeEnd],
   )
 
-  const tableRows = useMemo(
-    () => details.filter((r) => r.sales > 0 || r.inventoryCost !== 0 || r.estCogs !== 0),
-    [details],
-  )
+  const tableRows = useMemo(() => filterNonEmptyInventoryRows(details), [details])
 
-  const totals = useMemo(() => {
-    let sales = 0,
-      coreSales = 0,
-      grossSales = 0,
-      invCost = 0,
-      cogs = 0,
-      cons = 0
-    for (const r of tableRows) {
-      sales += r.sales
-      coreSales += r.coreSales
-      grossSales += r.grossSales
-      invCost += r.inventoryCost
-      cogs += r.estCogs
-      cons += r.costInclusionCost
-    }
-    return { sales, coreSales, grossSales, invCost, cogs, cons }
-  }, [tableRows])
+  const totals = useMemo(() => summarizeInventoryTotals(tableRows), [tableRows])
 
   /* ---- 比較モード: 店舗ごとの推定在庫データ ---- */
-  const storeEntries = useMemo(() => {
-    if (!comparisonResults || !stores) return []
-    return comparisonResults.map((r) => ({
-      storeId: r.storeId,
-      name: stores.get(r.storeId)?.name ?? r.storeId,
-      hasInventory: r.openingInventory != null,
-      result: r,
-    }))
-  }, [comparisonResults, stores])
+  const storeEntries = useMemo(
+    () => buildStoreInventoryEntries(comparisonResults, stores),
+    [comparisonResults, stores],
+  )
 
-  const compChartData = useMemo(() => {
-    if (!canCompare) return []
-
-    // 店舗ごとに推定在庫を計算
-    const detailsByStore = new Map<string, InventoryDetailRow[]>()
-    for (const s of storeEntries) {
-      if (s.hasInventory) {
-        detailsByStore.set(
-          s.storeId,
-          computeEstimatedInventoryDetails(
-            s.result.daily,
-            daysInMonth,
-            s.result.openingInventory!,
-            s.result.closingInventory,
-            s.result.coreMarkupRate,
-            s.result.discountRate,
-          ),
-        )
-      }
-    }
-
-    const data: Record<string, number | null>[] = []
-    for (let d = 1; d <= daysInMonth; d++) {
-      const entry: Record<string, number | null> = { day: d }
-      for (const s of storeEntries) {
-        const rows = detailsByStore.get(s.storeId)
-        entry[`${s.name}_推定在庫`] = rows?.[d - 1]?.estimated ?? null
-        entry[`${s.name}_仕入原価`] = rows?.[d - 1]?.inventoryCost ?? 0
-        entry[`${s.name}_推定原価`] = rows?.[d - 1]?.estCogs ?? 0
-      }
-      data.push(entry)
-    }
-    return data.filter((d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
-  }, [canCompare, storeEntries, daysInMonth, rangeStart, rangeEnd])
+  const compChartData = useMemo(
+    () =>
+      canCompare
+        ? buildComparisonInventoryData(storeEntries, daysInMonth, rangeStart, rangeEnd)
+        : [],
+    [canCompare, storeEntries, daysInMonth, rangeStart, rangeEnd],
+  )
 
   if (!hasInventory || details.length === 0) return null
 

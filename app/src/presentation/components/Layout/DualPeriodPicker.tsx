@@ -38,50 +38,12 @@ import {
   PresetChip,
   DayPickerWrapper,
 } from './CalendarRangePicker.styles'
-
-// ── CalendarDate ↔ Date 変換 ──
-
-function toJsDate(d: AppDateRange['from']): Date {
-  return new Date(d.year, d.month - 1, d.day)
-}
-
-function fromJsDate(d: Date): AppDateRange['from'] {
-  return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() }
-}
-
-// ── Period1 Presets ──
-
-interface P1Preset {
-  readonly label: string
-  readonly key: string
-  readonly range: AppDateRange
-}
-
-function buildP1Presets(year: number, month: number, daysInMonth: number): readonly P1Preset[] {
-  const monthEnd = { year, month, day: daysInMonth }
-  return [
-    {
-      label: '月全日',
-      key: 'full',
-      range: { from: { year, month, day: 1 }, to: monthEnd },
-    },
-    {
-      label: '上旬',
-      key: 'early',
-      range: { from: { year, month, day: 1 }, to: { year, month, day: 10 } },
-    },
-    {
-      label: '中旬',
-      key: 'mid',
-      range: { from: { year, month, day: 11 }, to: { year, month, day: 20 } },
-    },
-    {
-      label: '下旬',
-      key: 'late',
-      range: { from: { year, month, day: 21 }, to: monthEnd },
-    },
-  ]
-}
+import {
+  toJsDate,
+  fromJsDate,
+  buildP1Presets,
+  findActivePresetKey,
+} from './DualPeriodPicker.helpers'
 
 // ── Period2 Comparison Presets ──
 
@@ -139,14 +101,10 @@ export function DualPeriodPicker({
     () => buildP1Presets(year, month, daysInMonth),
     [year, month, daysInMonth],
   )
-  const p1ActivePresetKey = useMemo(() => {
-    const f = toDateKey(period1.from)
-    const t = toDateKey(period1.to)
-    return (
-      p1Presets.find((p) => toDateKey(p.range.from) === f && toDateKey(p.range.to) === t)?.key ??
-      null
-    )
-  }, [period1, p1Presets])
+  const p1ActivePresetKey = useMemo(
+    () => findActivePresetKey(period1, p1Presets),
+    [period1, p1Presets],
+  )
   const p1Days = dateRangeDays(period1)
 
   const handleP1Select = useCallback(

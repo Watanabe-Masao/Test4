@@ -94,11 +94,11 @@ const METRICS: readonly MetricDef[] = [
   { label: '日照時間', accent: '#f59e0b', value: (s) => s.sunshineHours, unit: 'h' },
 ]
 
-function fmt(n: number): string {
+export function fmt(n: number): string {
   return n.toFixed(1)
 }
 
-function diffStr(cur: number, prev: number): string {
+export function diffStr(cur: number, prev: number): string {
   const d = cur - prev
   return d >= 0 ? `+${d.toFixed(1)}` : d.toFixed(1)
 }

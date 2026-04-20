@@ -11,8 +11,6 @@
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBConditionMatrix 直接 import）
  */
 import { useMemo, memo } from 'react'
-import { palette } from '@/presentation/theme/tokens'
-import { formatPercent } from '@/domain/formatting'
 import { dateRangeDays } from '@/domain/models/calendar'
 import type { DateRange } from '@/domain/models/calendar'
 import {
@@ -21,10 +19,8 @@ import {
 } from '@/application/hooks/plans/useConditionMatrixPlan'
 import {
   buildConditionMatrix,
-  type MatrixCell,
   type MatrixRowData,
   type TrendDirectionRow,
-  type TrendDirection,
 } from '@/application/queries/advanced'
 // DualPeriodSlider はページレベルに統合済み（C-3/C-4）
 import type { WidgetContext } from './types'
@@ -41,20 +37,9 @@ import {
   WarningMsg,
   DirectionArrow,
 } from './ConditionMatrixTable.styles'
+import { ratioColor, formatRatio, directionArrow } from './ConditionMatrixTable.helpers'
 
 // ─── Helpers ────────────────────────────────────────────
-
-function ratioColor(ratio: number | null): string | undefined {
-  if (ratio == null) return undefined
-  if (ratio >= 1.02) return palette.positive
-  if (ratio >= 0.98) return undefined
-  return palette.negative
-}
-
-function formatRatio(c: MatrixCell): string {
-  if (c.ratio == null) return '-'
-  return formatPercent(c.ratio)
-}
 
 /** マトリクス列定義 */
 interface ColumnDef {
@@ -85,12 +70,6 @@ function renderMatrixRow(row: MatrixRowData, isSeparator = false) {
       })}
     </MTr>
   )
-}
-
-function directionArrow(dir: TrendDirection): string {
-  if (dir === 'up') return '↑'
-  if (dir === 'down') return '↓'
-  return '→'
 }
 
 function renderDirectionRow(row: TrendDirectionRow) {

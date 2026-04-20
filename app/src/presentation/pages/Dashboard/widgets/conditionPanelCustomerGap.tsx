@@ -57,11 +57,11 @@ interface StoreGapRow {
   readonly gap: CustomerGapResult | null
 }
 
-function gapColor(v: number): string {
+export function gapColor(v: number): string {
   return v >= 0 ? '#10b981' : '#ef4444'
 }
 
-function fmtGap(v: number): string {
+export function fmtGap(v: number): string {
   return `${v >= 0 ? '+' : ''}${formatPercent(v, 1)}`
 }
 

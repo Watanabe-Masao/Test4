@@ -23,14 +23,14 @@ import {
 // DEV モードでのみレンダリング
 const isDev = import.meta.env.DEV
 
-function formatDuration(ms: number | null): string {
+export function formatDuration(ms: number | null): string {
   if (ms === null) return '...'
   if (ms < 1) return '<1ms'
   if (ms < 1000) return `${Math.round(ms)}ms`
   return `${(ms / 1000).toFixed(2)}s`
 }
 
-function truncateSql(sql: string, maxLen = 80): string {
+export function truncateSql(sql: string, maxLen = 80): string {
   const single = sql.replace(/\s+/g, ' ').trim()
   return single.length > maxLen ? single.slice(0, maxLen) + '...' : single
 }
