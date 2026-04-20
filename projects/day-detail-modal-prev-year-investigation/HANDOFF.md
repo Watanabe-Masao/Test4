@@ -106,19 +106,25 @@ fix コメント付き)。条件は `prevYearFp !== loadedPrevYearFp.current`。
 | **C** (CTS あり / totalQuantity=0) | 1 | 0 | 0 | 0 |
 | 正常 | 1 | 120 | 2 | 150000 |
 
-**runtime 観測時の判定手順** (ブラウザ console のみで完結):
+**runtime 観測時の判定手順** (本番環境でも完結):
 
-1. dev server (`cd app && npm run dev`) を起動
-2. DayDetailModal を開く (任意の日付)
-3. console に自動出力される `[DayDetailModal:prev-year-observation]` ログを確認
+1. 本番環境にデプロイ済みであることを確認 (本 branch / PR を merge してデプロイ)
+2. ブラウザで対象ページを開く
+3. DevTools → Console で有効化:
+   `localStorage.setItem('__debug_dayDetailPrevYear', '1')`
+4. ページをリロード
+5. DayDetailModal を開く (任意の日付)
+6. Console に自動出力される `[DayDetailModal:prev-year-observation]` ログを確認
    - `comparison.entriesLen === 0` → **A**
    - `comparison.entriesLen > 0 && comparison.firstTimeSlotsLen === 0` → **B**
    - `comparison.firstTotalQty === 0` → **C**
    - `provenance.usedComparisonFallback === true` → primary 空 → fallback 発火
-4. 上の表（§1.2）と突合して候補確定
+7. 上の表（§1.2）と突合して候補確定
+8. 調査終了後は `localStorage.removeItem('__debug_dayDetailPrevYear')`
 
 **ログ実装**: `app/src/application/hooks/plans/useDayDetailPlanObservation.ts`
-(DEV only、`import.meta.env.DEV === true` のときのみ発火。原因確定後に削除)
+(localStorage フラグで on/off。デフォルト off なので通常ユーザーには影響なし。
+原因確定後に削除)
 
 B 候補が観測されれば、次に
 `dataStore.appData.prevYear.categoryTimeSales.records[0].timeSlots.length`

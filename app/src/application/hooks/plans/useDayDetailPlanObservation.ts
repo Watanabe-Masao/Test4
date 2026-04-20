@@ -1,7 +1,19 @@
 /**
  * useDayDetailPlanObservation — DayDetailModal 前年データ空表示バグの runtime 観測ログ
  *
- * DEV のみ発火。project: day-detail-modal-prev-year-investigation (Phase 1)
+ * production-safe: localStorage フラグで on/off。デフォルト off。
+ * project: day-detail-modal-prev-year-investigation (Phase 1)
+ *
+ * ## 有効化手順 (本番環境でも動作)
+ *
+ * 1. ブラウザ DevTools → Console で以下を実行:
+ *    `localStorage.setItem('__debug_dayDetailPrevYear', '1')`
+ * 2. ページをリロード (observation hook は dep 変化で発火するため、初回描画から
+ *    有効になるようリロードが確実)
+ * 3. DayDetailModal を開く → Console に `[DayDetailModal:prev-year-observation]`
+ *    が scalar 変化のたびに 1 行ずつ出る
+ * 4. 調査終了後:
+ *    `localStorage.removeItem('__debug_dayDetailPrevYear')`
  *
  * ログされる scalar のみを dep 配列に並べることで、bundle object の identity
  * 変化（pair/fallback の useQueryWithHandler は毎 render で新しい `{data,
@@ -21,6 +33,13 @@ import { useEffect } from 'react'
 import type { CategoryLeafDailyBundle } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { TimeSlotBundle } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
 
+const DEBUG_FLAG_KEY = '__debug_dayDetailPrevYear'
+
+function isObservationEnabled(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.localStorage?.getItem(DEBUG_FLAG_KEY) === '1'
+}
+
 export function useDayDetailPlanObservation(
   dayLeafBundle: CategoryLeafDailyBundle,
   timeSlotBundle: TimeSlotBundle,
@@ -38,7 +57,7 @@ export function useDayDetailPlanObservation(
   const tsComparisonNull = timeSlotBundle.comparisonSeries == null
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return
+    if (!isObservationEnabled()) return
     if (isLoading) return
     console.log('[DayDetailModal:prev-year-observation]', {
       current: {
