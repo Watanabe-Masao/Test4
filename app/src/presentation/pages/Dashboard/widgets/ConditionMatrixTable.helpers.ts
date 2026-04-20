@@ -3,6 +3,8 @@
  *
  * マトリクスセルの色分け判定・率表示・方向アイコンの 3 関数。
  * React 非依存の pure。component 側は JSX 組み立てのみに集中する（C4 準拠）。
+ *
+ * @responsibility R:transform
  */
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'

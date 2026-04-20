@@ -40,7 +40,11 @@ describe('collectSuccessFilenames', () => {
     results: { filename: string; ok: boolean }[],
     successCount: number,
   ): ImportSummary {
-    return { results, successCount, failureCount: results.length - successCount } as ImportSummary
+    return {
+      results,
+      successCount,
+      failureCount: results.length - successCount,
+    } as unknown as ImportSummary
   }
 
   it('summary=undefined（void）は全 submitted を success 扱い（互換動作）', () => {
