@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **Healthy** |
+| **総合評価** | **RISK** |
 | 前回比 | Flat |
-| リリース影響 | No |
-| 最終更新 | 2026-04-19T16:53:45.147Z |
+| リリース影響 | Yes |
+| 最終更新 | 2026-04-20T02:40:03.792Z |
 
 ## Hard Gate
 
-**PASS** — 全ゲート通過
+**FAIL**
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- PASS: Doc 更新義務違反数
+- FAIL: Doc 更新義務違反数
 - PASS: review overdue ルール数
 - PASS: checklist 完了済みだが archive 未実施の project 数
 
@@ -36,12 +36,16 @@
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 7/20 / in_progress な project 数（open required checkbox あり）: 6/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 14/100 |
 
-## Recent Changes
+## Top Risks
 
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| 全 project の required checkbox 総数 | 576 | 581 | +5 ! |
-| 全 project の checked checkbox 総数 | 475 | 479 | +4 ! |
+**1. Doc 更新義務違反数**
+- 状態: 1 / budget 0（100% 超過）
+- ファイル: `—`
+- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
+
+## Recommended Actions
+
+1. Doc 更新義務違反数 を budget 0 以下に修正する
 
 ---
 
