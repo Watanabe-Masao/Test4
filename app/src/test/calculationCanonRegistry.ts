@@ -463,6 +463,22 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     rateOwnership: 'n/a',
     fallbackPolicy: 'current',
   },
+  'budgetSimulator.ts': {
+    tag: 'required',
+    reason: '予算達成シミュレーター — 残期間 what-if 試算 (yoy/ach/dow) + 基盤KPI',
+    zodAdded: true,
+    semanticClass: 'analytic',
+    authorityKind: 'analytic-authoritative',
+    methodFamily: 'budget_simulation',
+    runtimeStatus: 'current',
+    ownerKind: 'maintenance',
+    contractId: 'ANA-010',
+    bridgeKind: 'analytics',
+    rateOwnership: 'engine',
+    fallbackPolicy: 'none',
+    notes:
+      'projects/budget-achievement-simulator の Phase 1 成果物。既存 projectLinear / calculateYoYRatio / calculateAchievementRate / prorateBudget を再利用する orchestration 層',
+  },
   'algorithms/advancedForecast.ts': {
     tag: 'required',
     reason: 'WMA・回帰・天気調整予測（current/analytics、forecastBridge 経由 WASM 部分稼働）',

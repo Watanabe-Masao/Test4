@@ -20,11 +20,11 @@
 
 ## Phase 1: Pure 計算 Domain 層
 
-* [ ] `app/src/domain/calculations/budgetSimulator.ts` を作成し、KPI 計算関数を実装した
-* [ ] `app/src/domain/calculations/__tests__/budgetSimulator.test.ts` を作成し、不変条件テストが PASS する
-* [ ] `calculationCanonRegistry` に新規 pure 関数を `semanticClass` 付きで登録した
-* [ ] `npm run lint` / `npm run format:check` が PASS する
-* [ ] `npm run test:guards` が PASS する
+* [x] `app/src/domain/calculations/budgetSimulator.ts` を作成し、KPI 計算関数を実装した
+* [x] `app/src/domain/calculations/__tests__/budgetSimulator.test.ts` を作成し、不変条件テストが PASS する
+* [x] `calculationCanonRegistry` に新規 pure 関数を `semanticClass` 付きで登録した
+* [x] `npm run lint` / `npm run format:check` が PASS する
+* [x] `npm run test:guards` が PASS する
 
 ## Phase 2: Application 層（ViewModel / Hooks）
 
