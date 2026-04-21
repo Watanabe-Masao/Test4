@@ -6,13 +6,14 @@
  *
  * props は既存の `BudgetTabContent` と同じ (InsightData + StoreResult + onExplain)。
  *
- * Phase 3 MVP: KPI テーブル + 基準日スライダー + モード切替 + yoy/ach 入力 + dow 簡易入力。
- * ドリルダウン / 日別 override カレンダー / チャートは後続 (Phase 3.5+)。
+ * Phase 3 MVP: KPI テーブル + 基準日スライダー + モード切替 + yoy/ach/dow 入力
+ * Phase 3.5: サブコンポーネント分離 + DayCalendarInput + DrilldownPanel
+ * Phase 3.6 (予定): ECharts による StripChart / DailyBarChart / ProjectionBarChart
  *
  * @responsibility R:widget
  */
-import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
+import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
@@ -31,30 +32,23 @@ import { useSimulatorScenario } from '../application/useSimulatorScenario'
 import { useSimulatorState } from '../application/useSimulatorState'
 import { buildSimulatorWidgetVm, type SimulatorWidgetRow } from './BudgetSimulatorWidget.vm'
 import {
-  DayInputRow,
-  DayInputLabel,
-  DayInputField,
-  SliderRow,
-  SliderLabel,
-  SliderInput,
-  ModeInputPanel,
-  DowInputsGrid,
-  DowInputCell,
+  DiffNegative,
+  DiffNeutral,
+  DiffPositive,
   GroupRow,
   HighlightRow,
   SmallText,
-  DiffPositive,
-  DiffNegative,
-  DiffNeutral,
 } from './BudgetSimulatorWidget.styles'
+import { TimelineSlider } from './TimelineSlider'
+import { RemainingInputPanel } from './RemainingInputPanel'
+import { DayCalendarInput } from './DayCalendarInput'
+import { DrilldownPanel } from './DrilldownPanel'
 
 interface Props {
   readonly d: InsightData
   readonly r: StoreResult
   readonly onExplain: (metricId: MetricId) => void
 }
-
-const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 
 export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
   const scenario = useSimulatorScenario({
@@ -120,23 +114,14 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
       </KpiGrid>
 
       {/* ── 基準日スライダー ── */}
-      <Card>
-        <CardTitle>
-          基準日: {d.year}年 {d.month}月 {vm.kpis.currentDay}日 （残 {vm.kpis.remainingDays}日）
-        </CardTitle>
-        <SliderRow>
-          <SliderLabel>1日</SliderLabel>
-          <SliderInput
-            type="range"
-            min={1}
-            max={scenario.daysInMonth}
-            value={vm.kpis.currentDay}
-            onChange={(e) => state.setCurrentDay(Number(e.target.value))}
-            aria-label="基準日スライダー"
-          />
-          <SliderLabel>{scenario.daysInMonth}日</SliderLabel>
-        </SliderRow>
-      </Card>
+      <TimelineSlider
+        year={d.year}
+        month={d.month}
+        currentDay={vm.kpis.currentDay}
+        daysInMonth={scenario.daysInMonth}
+        remainingDays={vm.kpis.remainingDays}
+        onChange={state.setCurrentDay}
+      />
 
       {/* ── モード切替 (残期間シミュレーション) ── */}
       <ToggleSection>
@@ -154,76 +139,35 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
       </ToggleSection>
 
       {/* ── モード別入力 ── */}
-      <ModeInputPanel>
-        {state.mode === 'yoy' && (
-          <DayInputRow>
-            <DayInputLabel htmlFor="sim-yoy-input">残期間の前年比 (%)</DayInputLabel>
-            <DayInputField
-              id="sim-yoy-input"
-              type="number"
-              min={0}
-              step={1}
-              value={state.yoyInput}
-              onChange={(e) => state.setYoyInput(Number(e.target.value))}
-            />
-          </DayInputRow>
-        )}
-        {state.mode === 'ach' && (
-          <DayInputRow>
-            <DayInputLabel htmlFor="sim-ach-input">残期間の予算達成率 (%)</DayInputLabel>
-            <DayInputField
-              id="sim-ach-input"
-              type="number"
-              min={0}
-              step={1}
-              value={state.achInput}
-              onChange={(e) => state.setAchInput(Number(e.target.value))}
-            />
-          </DayInputRow>
-        )}
-        {state.mode === 'dow' && (
-          <>
-            <ToggleSection>
-              <ChipGroup>
-                <Chip $active={state.dowBase === 'yoy'} onClick={() => state.setDowBase('yoy')}>
-                  基準: 前年
-                </Chip>
-                <Chip $active={state.dowBase === 'ach'} onClick={() => state.setDowBase('ach')}>
-                  基準: 予算
-                </Chip>
-              </ChipGroup>
-            </ToggleSection>
-            <DowInputsGrid>
-              {DOW_LABELS.map((label, idx) => (
-                <DowInputCell key={label}>
-                  <label htmlFor={`sim-dow-${idx}`}>{label}</label>
-                  <DayInputField
-                    id={`sim-dow-${idx}`}
-                    type="number"
-                    min={0}
-                    step={1}
-                    value={state.dowInputs[idx]}
-                    onChange={(e) => {
-                      const n = Number(e.target.value)
-                      const next = [...state.dowInputs] as [
-                        number,
-                        number,
-                        number,
-                        number,
-                        number,
-                        number,
-                        number,
-                      ]
-                      next[idx] = n
-                      state.setDowInputs(next)
-                    }}
-                  />
-                </DowInputCell>
-              ))}
-            </DowInputsGrid>
-          </>
-        )}
-      </ModeInputPanel>
+      <RemainingInputPanel
+        mode={state.mode}
+        yoyInput={state.yoyInput}
+        achInput={state.achInput}
+        dowInputs={state.dowInputs}
+        dowBase={state.dowBase}
+        onYoyChange={state.setYoyInput}
+        onAchChange={state.setAchInput}
+        onDowChange={state.setDowInputs}
+        onDowBaseChange={state.setDowBase}
+      />
+
+      {/* ── 日別 override (dow モード時のみ) ── */}
+      {state.mode === 'dow' && (
+        <DayCalendarInput
+          year={d.year}
+          month={d.month}
+          daysInMonth={scenario.daysInMonth}
+          currentDay={vm.kpis.currentDay}
+          dowInputs={state.dowInputs}
+          dowBase={state.dowBase}
+          dayOverrides={state.dayOverrides}
+          weekStart={state.weekStart}
+          onWeekStartChange={state.setWeekStart}
+          onOverrideChange={state.setDayOverride}
+          onOverrideClear={state.clearDayOverride}
+          onResetAll={state.resetDayOverrides}
+        />
+      )}
 
       {/* ── KPI テーブル (4 セクション) ── */}
       <Card>
@@ -243,6 +187,9 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
           </Table>
         </TableWrapper>
       </Card>
+
+      {/* ── ドリルダウン (週別・曜日別) ── */}
+      <DrilldownPanel scenario={scenario} weekStart={state.weekStart} d={d} />
     </>
   )
 }

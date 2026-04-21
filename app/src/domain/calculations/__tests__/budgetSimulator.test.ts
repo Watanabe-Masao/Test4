@@ -11,6 +11,8 @@ import {
   computeRemainingSales,
   computeDailyProjection,
   computeDowCounts,
+  aggregateDowAverages,
+  aggregateWeeks,
   pctForDay,
   dowOf,
   SimulatorScenarioSchema,
@@ -418,5 +420,106 @@ describe('SimulatorScenarioSchema', () => {
       })
       expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
     })
+  })
+})
+
+// ── 集計関数 ──
+
+describe('aggregateDowAverages', () => {
+  it('7 曜日の出現カウント合計 === 集計対象日数', () => {
+    const s = makeScenario() // 2026-04-01 = 水
+    const agg = aggregateDowAverages(s)
+    expect(agg).toHaveLength(7)
+    const totalCount = agg.reduce((a, r) => a + r.count, 0)
+    expect(totalCount).toBe(30)
+  })
+
+  it('budgetTotal / actualTotal / lyTotal の全曜日合計 === 全期間合計', () => {
+    const s = makeScenario()
+    const agg = aggregateDowAverages(s)
+    const sumBudget = agg.reduce((a, r) => a + r.budgetTotal, 0)
+    const sumActual = agg.reduce((a, r) => a + r.actualTotal, 0)
+    const sumLy = agg.reduce((a, r) => a + r.lyTotal, 0)
+    expect(sumBudget).toBeCloseTo(100 * 30, 5)
+    expect(sumActual).toBeCloseTo(90 * 30, 5)
+    expect(sumLy).toBeCloseTo(80 * 30, 5)
+  })
+
+  it('budgetAvg === budgetTotal / count', () => {
+    const s = makeScenario()
+    const agg = aggregateDowAverages(s)
+    for (const row of agg) {
+      if (row.count > 0) {
+        expect(row.budgetAvg).toBeCloseTo(row.budgetTotal / row.count, 5)
+      }
+    }
+  })
+
+  it('範囲指定 (rangeStart/rangeEnd) で部分集計', () => {
+    const s = makeScenario()
+    const agg = aggregateDowAverages(s, 1, 7) // 最初の 1 週間
+    const totalCount = agg.reduce((a, r) => a + r.count, 0)
+    expect(totalCount).toBe(7)
+  })
+
+  it('label は [日, 月, 火, 水, 木, 金, 土]', () => {
+    const s = makeScenario()
+    const agg = aggregateDowAverages(s)
+    expect(agg.map((r) => r.label)).toEqual(['日', '月', '火', '水', '木', '金', '土'])
+  })
+})
+
+describe('aggregateWeeks', () => {
+  it('weekStart=1 (月曜始まり): 2026-04 → 先頭週は 4/1(水)〜4/5(日)、後続は月曜始まり', () => {
+    const s = makeScenario()
+    const weeks = aggregateWeeks(s, 1)
+    // 2026-04-01 = 水, 4-05 = 日, 4-06 = 月
+    // 先頭週: 4/1-4/5 (水〜日、月曜境界未到達のため 5 日)
+    expect(weeks[0].startDay).toBe(1)
+    expect(weeks[0].endDay).toBe(5)
+    // 第 2 週: 4/6 (月) から開始
+    expect(weeks[1].startDay).toBe(6)
+    expect(weeks[1].endDay).toBe(12)
+  })
+
+  it('weekStart=0 (日曜始まり): 2026-04-05 (日) が週境界', () => {
+    const s = makeScenario()
+    const weeks = aggregateWeeks(s, 0)
+    expect(weeks[0].startDay).toBe(1) // 水
+    expect(weeks[0].endDay).toBe(4) // 土
+    expect(weeks[1].startDay).toBe(5) // 日
+  })
+
+  it('全週の actualTotal 合計 === 全期間の actual 合計', () => {
+    const s = makeScenario()
+    const weeks = aggregateWeeks(s, 1)
+    const sum = weeks.reduce((a, w) => a + w.actualTotal, 0)
+    expect(sum).toBeCloseTo(90 * 30, 5)
+  })
+
+  it('achievement = actualTotal / budgetTotal × 100', () => {
+    const s = makeScenario()
+    const weeks = aggregateWeeks(s, 1)
+    for (const w of weeks) {
+      if (w.budgetTotal > 0) {
+        // actual=90, budget=100 均一 → 90%
+        expect(w.achievement).toBeCloseTo(90, 5)
+      }
+    }
+  })
+
+  it('budgetTotal=0 の週 → achievement は null', () => {
+    const s = makeScenario({ dailyBudget: new Array(30).fill(0) })
+    const weeks = aggregateWeeks(s, 1)
+    for (const w of weeks) {
+      expect(w.achievement).toBeNull()
+    }
+  })
+
+  it('rangeStart/rangeEnd で部分集計', () => {
+    const s = makeScenario()
+    const weeks = aggregateWeeks(s, 1, 10, 20)
+    const sumDays = weeks.reduce((a, w) => a + (w.endDay - w.startDay + 1), 0)
+    expect(sumDays).toBe(11) // 10..20 inclusive
   })
 })

@@ -46,13 +46,14 @@
 * [x] `BudgetSimulatorWidget.styles.ts` を分離し、デザイントークン (`theme.colors.palette` / `theme.radii` / `theme.spacing`) 経由で色・間隔を指定した
 * [x] `features/budget/index.ts` / `ui/index.ts` に widget と VM を barrel export した
 * [x] `INSIGHT_WIDGETS` に `'insight-budget-simulator'` エントリを追加した
-* [ ] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した（MVP: 本体に inline）
-* [ ] `RemainingInputPanel.tsx`（④入力部の複雑化時に分離）を実装した
-* [ ] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き）を実装した
-* [ ] `DrilldownPanel.tsx`（週別・曜日別・日別カレンダー・日別棒グラフ）を実装した
-* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を **ECharts** で実装した
-* [ ] `app/src/stories/BudgetSimulator.stories.tsx` を追加した
-* [ ] `npm run test:visual`（visual regression）が PASS する
+* [x] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した
+* [x] `RemainingInputPanel.tsx`（mode 別入力 UI の分離）を実装した
+* [x] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き、full-month calendar）を実装した
+* [x] `DrilldownPanel.tsx`（週別・曜日別テーブル集計）を実装した
+* [x] `aggregateDowAverages` / `aggregateWeeks` を domain 層に pure function として追加した (`budgetSimulatorAggregations.ts`)
+* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を **ECharts** で実装した (Phase 3.6)
+* [ ] `app/src/stories/BudgetSimulator.stories.tsx` を追加した (Phase 3.6)
+* [ ] `npm run test:visual`（visual regression）が PASS する (Phase 3.6)
 
 ## Phase 4: 組込み（PAGE_REGISTRY / Nav / routes）
 

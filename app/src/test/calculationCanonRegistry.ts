@@ -479,6 +479,22 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     notes:
       'projects/budget-achievement-simulator の Phase 1 成果物。既存 projectLinear / calculateYoYRatio / calculateAchievementRate / prorateBudget を再利用する orchestration 層。SimulatorScenarioSchema は daysInMonth === new Date(year, month, 0).getDate() を強制 (グレゴリオ暦整合性)',
   },
+  'budgetSimulatorAggregations.ts': {
+    tag: 'required',
+    reason: '予算達成シミュレーター ドリルダウン集計 (aggregateDowAverages / aggregateWeeks)',
+    zodAdded: false,
+    semanticClass: 'analytic',
+    authorityKind: 'analytic-authoritative',
+    methodFamily: 'budget_simulation',
+    runtimeStatus: 'current',
+    ownerKind: 'maintenance',
+    contractId: 'ANA-010',
+    bridgeKind: 'analytics',
+    rateOwnership: 'n/a',
+    fallbackPolicy: 'none',
+    notes:
+      'budgetSimulator.ts のサイズ制限 (G5 ≤300 行) 対応で分離した Phase 3.5 成果物。入力は既に parse 済みの SimulatorScenario のため Zod 再適用は不要 (domain 内部消費)',
+  },
   'algorithms/advancedForecast.ts': {
     tag: 'required',
     reason: 'WMA・回帰・天気調整予測（current/analytics、forecastBridge 経由 WASM 部分稼働）',
