@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   cosineSimilarity,
-  findCoreTime,
+  findCoreTimeByThreshold,
   CORE_THRESHOLD,
   SIMILARITY_HIGH,
 } from './StoreHourlyChartLogic'
@@ -48,14 +48,14 @@ describe('cosineSimilarity', () => {
   })
 })
 
-describe('findCoreTime', () => {
+describe('findCoreTimeByThreshold', () => {
   it('全 0 の入力は hourMin〜hourMax / turnover=12', () => {
     const empty = new Map<number, number>([
       [10, 0],
       [11, 0],
       [12, 0],
     ])
-    expect(findCoreTime(empty, 10, 12)).toEqual({ start: 10, end: 12, turnover: 12 })
+    expect(findCoreTimeByThreshold(empty, 10, 12)).toEqual({ start: 10, end: 12, turnover: 12 })
   })
 
   it('売上の 80% を占める時間帯を昇順の範囲として返す', () => {
@@ -68,7 +68,7 @@ describe('findCoreTime', () => {
       [11, 80],
       [12, 10],
     ])
-    const r = findCoreTime(hourly, 10, 12)
+    const r = findCoreTimeByThreshold(hourly, 10, 12)
     expect(r.start).toBe(10)
     expect(r.end).toBe(11)
   })
@@ -80,7 +80,7 @@ describe('findCoreTime', () => {
       [12, 100],
       [13, 60],
     ])
-    const r = findCoreTime(hourly, 11, 13)
+    const r = findCoreTimeByThreshold(hourly, 11, 13)
     expect(r.turnover).toBe(13)
   })
 
@@ -92,7 +92,7 @@ describe('findCoreTime', () => {
       [12, 90],
       [13, 80],
     ])
-    const r = findCoreTime(hourly, 10, 13)
+    const r = findCoreTimeByThreshold(hourly, 10, 13)
     expect(r.turnover).toBe(13)
   })
 
@@ -103,7 +103,7 @@ describe('findCoreTime', () => {
       [11, 0],
       [12, 100],
     ])
-    const r = findCoreTime(hourly, 10, 12)
+    const r = findCoreTimeByThreshold(hourly, 10, 12)
     expect(r.start).toBe(12)
     expect(r.end).toBe(12)
   })

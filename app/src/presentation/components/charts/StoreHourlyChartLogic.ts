@@ -17,6 +17,7 @@
  * @responsibility R:calculation
  */
 import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
+import { cosineSimilarity } from '@/domain/calculations/algorithms/correlation'
 import { STORE_COLORS } from './chartTheme'
 
 // ─── Types ──────────────────────────────────────────
@@ -64,22 +65,21 @@ export const SIMILARITY_HIGH = 0.95
 
 // ─── Pure Helpers ───────────────────────────────────
 
-/** コサイン類似度 */
-export function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
-  let dotProduct = 0
-  let normA = 0
-  let normB = 0
-  for (let i = 0; i < a.length; i++) {
-    dotProduct += a[i] * b[i]
-    normA += a[i] * a[i]
-    normB += b[i] * b[i]
-  }
-  const denom = Math.sqrt(normA) * Math.sqrt(normB)
-  return denom > 0 ? dotProduct / denom : 0
-}
+// cosineSimilarity は `domain/calculations/algorithms/correlation` に昇格済み。
+// 旧 `presentation` 側の重複を削除し、domain 版を使用する（Phase A Step 2）。
+export { cosineSimilarity }
 
-/** コアタイム算出（売上の上位 CORE_THRESHOLD を占める時間帯） */
-export function findCoreTime(
+/**
+ * コアタイム算出（売上の上位 CORE_THRESHOLD を占める時間帯）
+ *
+ * **note:** `domain/calculations/timeSlotCalculations.ts::findCoreTime` は
+ * 「3連続時間帯の累計最大ウィンドウ」を返す別アルゴリズム。本関数は presentation
+ * 固有の「上位 80% 累計帯 + 折り返し時間」計算で、domain 昇格するには
+ * 別 contract の発行が必要（Phase B 以降の課題）。
+ *
+ * @responsibility R:calculation
+ */
+export function findCoreTimeByThreshold(
   hourlyAmounts: ReadonlyMap<number, number>,
   hourMin: number,
   hourMax: number,
@@ -158,7 +158,7 @@ export function buildStoreHourlyData(
       }
     }
 
-    const { start, end, turnover } = findCoreTime(hourMap, hourMin, hourMax)
+    const { start, end, turnover } = findCoreTimeByThreshold(hourMap, hourMin, hourMax)
 
     return {
       storeId: entry.storeId,
