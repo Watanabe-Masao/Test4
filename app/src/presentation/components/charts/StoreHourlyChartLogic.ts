@@ -17,7 +17,7 @@
  * @responsibility R:calculation
  */
 import type { TimeSlotSeries } from '@/application/hooks/timeSlot/TimeSlotBundle.types'
-import { cosineSimilarity } from '@/domain/calculations/algorithms/correlation'
+import { cosineSimilarity } from '@/application/hooks/useStatistics'
 import { STORE_COLORS } from './chartTheme'
 
 // ─── Types ──────────────────────────────────────────
@@ -66,7 +66,7 @@ export const SIMILARITY_HIGH = 0.95
 // ─── Pure Helpers ───────────────────────────────────
 
 // cosineSimilarity は `domain/calculations/algorithms/correlation` に昇格済み。
-// 旧 `presentation` 側の重複を削除し、domain 版を使用する（Phase A Step 2）。
+// presentation 層は application/hooks/useStatistics 経由で import（A1 層境界準拠、Phase A Step 2）。
 export { cosineSimilarity }
 
 /**

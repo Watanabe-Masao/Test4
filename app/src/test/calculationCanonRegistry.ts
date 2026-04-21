@@ -586,7 +586,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
 
   'utils.ts': {
     tag: 'not-needed',
-    reason: 'safeDivide 等のプリミティブ',
+    reason:
+      'safeDivide 等のプリミティブ + 汎用統計関数 (calculateMovingAverage / calculatePartialMovingAverage)。非 authoritative',
     zodAdded: false,
     semanticClass: 'utility',
     authorityKind: 'non-authoritative',

@@ -39,3 +39,10 @@ export type {
 
 // ── 標準偏差（forecast モジュール内） ──────────────────
 export { calculateStdDev } from '@/application/services/forecastBridge'
+
+// ── Z-score / 母標準偏差（rawAggregation より） ────────
+export {
+  zScore,
+  stddevPop,
+  coefficientOfVariation,
+} from '@/domain/calculations/rawAggregation/statisticalFunctions'
