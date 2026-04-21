@@ -206,8 +206,7 @@ const RowRender = memo(function RowRender({
 
   const isOpen = row.drillKey != null && drill === row.drillKey
   const RowComp = row.highlight ? HighlightRow : row.drillKey ? ClickableTr : Tr
-  const wrapLabel = (node: React.ReactNode) =>
-    row.small ? <SmallText>{node}</SmallText> : node
+  const wrapLabel = (node: React.ReactNode) => (row.small ? <SmallText>{node}</SmallText> : node)
 
   return (
     <>
