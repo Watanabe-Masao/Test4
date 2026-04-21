@@ -28,11 +28,14 @@
 
 ## Phase 2: Application 層（ViewModel / Hooks）
 
-* [ ] `app/src/features/budget-simulator/application/useSimulatorState.ts` を実装した
-* [ ] `app/src/features/budget-simulator/application/useSimulatorScenario.ts` を実装した
-* [ ] `app/src/features/budget-simulator/ui/BudgetSimulatorPage.vm.ts` を実装した
-* [ ] `BudgetSimulatorPage.vm.test.ts` と hook テストが PASS する
-* [ ] localStorage のキーが `budget-simulator:*` プレフィックスに統一されている
+> **配置変更** (ユーザー方針): 新規 feature 作成 → **既存 `features/budget/` 内 widget embed**。
+> ファイル名は widget プレフィックス。
+
+* [x] `app/src/features/budget/application/useSimulatorState.ts` を実装した
+* [x] `app/src/features/budget/application/useSimulatorScenario.ts` を実装した
+* [x] `app/src/features/budget/ui/BudgetSimulatorWidget.vm.ts` を実装した
+* [x] `BudgetSimulatorWidget.vm.test.ts` と hook テスト (useSimulatorScenario / useSimulatorState) が PASS する
+* [x] localStorage のキーが `shiire-arari-budget-simulator-*` プレフィックスに統一されている（既存 `shiire-arari-*` 命名規約に準拠）
 
 ## Phase 3: Presentation 層（ページ + サブコンポーネント）
 
