@@ -1,0 +1,85 @@
+# checklist — responsibility-taxonomy-v2（子: 責務軸）
+
+> 役割: completion 判定の入力（required checkbox の集合）。
+> やってはいけないこと / 常時チェック / 恒久ルールは plan.md に書く。
+>
+> 規約: `references/03-guides/project-checklist-governance.md` §3。
+
+## Phase 0: Inventory
+
+* [ ] `references/02-status/responsibility-taxonomy-inventory.yaml` が作成されている
+* [ ] 現行 v1 の 20 タグ全てに Origin（採択日・採択者 or legacy-unknown）が記入されている
+* [ ] 35+ 対象ファイルの現 v1 タグが全件記録されている
+* [ ] 未分類件数と層別分布が baseline として記録されている
+* [ ] タグ不一致 48 件の分布が記録されている
+
+## Phase 1: Schema 設計
+
+* [ ] `references/01-principles/responsibility-taxonomy-schema.md` が作成されている
+* [ ] v2 R:tag vocabulary が ≤ 15 で定義されている
+* [ ] Antibody Pairs が列挙されている
+* [ ] 各 R:tag に対応 T:kind の TBD エントリがある（interlock の入口）
+* [ ] R:utility / R:misc 等の捨て場タグが含まれていない
+* [ ] `app/src/test/responsibilityTaxonomyRegistryV2.ts` が新規作成され v1 と併存している
+
+## Phase 2: Migration Path
+
+* [ ] `references/03-guides/responsibility-v1-to-v2-migration-map.md` が作成されている
+* [ ] `R:unclassified` が v2 registry に active tag として登録されている
+* [ ] v1 タグなし → v2 `R:unclassified` の変換方針が明文化されている
+* [ ] 1:1 マッピング不能なタグが `R:unclassified` への退避対象として列挙されている
+
+## Phase 3: Guard 実装
+
+* [ ] `app/src/test/guards/responsibilityTagGuardV2.test.ts` が PASS している
+* [ ] interlock 検証 guard が R:tag → 必須 T:kind の存在を検証している
+* [ ] 未分類 baseline が ratchet-down で管理されている
+* [ ] タグなし ≠ `R:unclassified` が hard fail で検出される
+* [ ] v1 guard と v2 guard が並行運用されている
+
+## Phase 4: Pilot
+
+* [ ] Pilot 対象ファイルリスト（≤ 20）が確定している
+* [ ] Pilot 対象に v2 タグが付与されている
+* [ ] Pilot で発見された Schema 問題が review window に上程 or 解決済みである
+
+## Phase 5: Operations
+
+* [ ] `references/03-guides/responsibility-taxonomy-operations.md` が作成されている
+* [ ] 新 R:tag 提案テンプレートが定義されている
+* [ ] R:tag 撤退テンプレートが定義されている
+* [ ] test-taxonomy-v2 との同期 review window 連絡手順が明記されている
+
+## Phase 6: Migration Rollout
+
+* [ ] 全対象ファイルに v2 タグ（`R:unclassified` 含む）が付与されている
+* [ ] v1 registry と v2 registry の整合検証 guard が PASS している
+* [ ] health KPI に v2 未分類件数 baseline が登録されている
+* [ ] v1/v2 ギャップ件数 baseline が登録されている
+
+## Phase 7: v1 Deprecation
+
+* [ ] v1 registry / guard に `@deprecated since:` コメントが追記されている
+* [ ] v1 撤去期限（90 日以上先）が設定されている
+* [ ] 移行期限が CLAUDE.md または references/ から参照可能である
+
+## Phase 8: v1 Retirement
+
+* [ ] `app/src/test/responsibilityTagRegistry.ts` が削除されている
+* [ ] `app/src/test/guards/responsibilityTagGuard.test.ts` が削除されている
+* [ ] 旧 R:tag を禁止する新 guard が PASS している
+* [ ] v1 関連の allowlist / ratchet baseline が削除されている
+
+## Phase 9: Legacy Collection
+
+* [ ] v1 参照検索（`responsibilityTagRegistry[^V]` 等）が 0 件である
+* [ ] `references/03-guides/responsibility-separation-catalog.md` が v2 版に更新されている
+* [ ] `CLAUDE.md` §G8 の参照が v2 に統一されている
+* [ ] v1 時代の古いコメント / TODO が掃除されている
+
+## 最終レビュー (人間承認)
+
+> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+
+* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

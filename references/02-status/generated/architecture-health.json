@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-21T02:12:09.729Z",
+  "timestamp": "2026-04-21T03:04:31.691Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -702,7 +702,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 3,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -732,7 +732,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 20
@@ -789,7 +792,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
@@ -797,7 +803,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 2,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -827,7 +833,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 20
@@ -866,7 +875,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ],
       "budget": 10
@@ -875,7 +887,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 502,
+      "value": 607,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -905,7 +917,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
@@ -943,7 +958,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ]
     },
@@ -951,7 +969,7 @@
       "id": "project.checklist.subprojectCount",
       "label": "サブ project 数（parent フィールドあり）",
       "category": "docs",
-      "value": 1,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -981,7 +999,10 @@
         "projects/presentation-quality-hardening/checklist.md",
         "projects/pure-calculation-reorg/checklist.md",
         "projects/quick-fixes/checklist.md",
+        "projects/responsibility-taxonomy-v2/checklist.md",
+        "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
+        "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md"
       ]
     }

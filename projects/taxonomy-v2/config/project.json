@@ -1,0 +1,12 @@
+{
+  "projectId": "taxonomy-v2",
+  "title": "分類体系 v2（責務軸 + テスト軸の制度化: 親）",
+  "status": "active",
+  "projectRoot": "projects/taxonomy-v2",
+  "entrypoints": {
+    "aiContext": "projects/taxonomy-v2/AI_CONTEXT.md",
+    "handoff": "projects/taxonomy-v2/HANDOFF.md",
+    "plan": "projects/taxonomy-v2/plan.md",
+    "checklist": "projects/taxonomy-v2/checklist.md"
+  }
+}

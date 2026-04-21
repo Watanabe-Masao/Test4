@@ -1,0 +1,13 @@
+{
+  "projectId": "test-taxonomy-v2",
+  "title": "テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退）",
+  "status": "active",
+  "parent": "taxonomy-v2",
+  "projectRoot": "projects/test-taxonomy-v2",
+  "entrypoints": {
+    "aiContext": "projects/test-taxonomy-v2/AI_CONTEXT.md",
+    "handoff": "projects/test-taxonomy-v2/HANDOFF.md",
+    "plan": "projects/test-taxonomy-v2/plan.md",
+    "checklist": "projects/test-taxonomy-v2/checklist.md"
+  }
+}
