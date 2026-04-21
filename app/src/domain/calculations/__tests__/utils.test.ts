@@ -18,6 +18,7 @@ import {
   calculateItemsPerCustomer,
   calculateAveragePricePerItem,
   calculateMovingAverage,
+  calculatePartialMovingAverage,
 } from '../utils'
 
 describe('safeNumber', () => {
@@ -107,5 +108,43 @@ describe('calculateMovingAverage', () => {
   it('窓サイズ 1 → 元の値と同じ', () => {
     const result = calculateMovingAverage([10, 20, 30], 1)
     expect(result).toEqual([10, 20, 30])
+  })
+})
+
+describe('calculatePartialMovingAverage', () => {
+  it('先頭でも利用可能な値で平均を返す（NaN にしない）', () => {
+    const result = calculatePartialMovingAverage([10, 20, 30, 40, 50], 3)
+    expect(result).toHaveLength(5)
+    expect(result[0]).toBe(10) // 1件のみ → 10
+    expect(result[1]).toBe(15) // (10+20)/2
+    expect(result[2]).toBe(20) // (10+20+30)/3
+    expect(result[3]).toBe(30) // (20+30+40)/3
+    expect(result[4]).toBe(40) // (30+40+50)/3
+  })
+
+  it('値 0（データなし）は分母から除外', () => {
+    const result = calculatePartialMovingAverage([0, 10, 20], 3)
+    expect(result[0]).toBeNull() // 0件
+    expect(result[1]).toBe(10) // (10)/1
+    expect(result[2]).toBe(15) // (10+20)/2
+  })
+
+  it('全値 0 は null', () => {
+    const result = calculatePartialMovingAverage([0, 0, 0], 3)
+    expect(result).toEqual([null, null, null])
+  })
+
+  it('空入力 → 空配列', () => {
+    expect(calculatePartialMovingAverage([], 3)).toEqual([])
+  })
+
+  it('窓サイズ 1 → 元の値と同じ（0 は null）', () => {
+    expect(calculatePartialMovingAverage([10, 0, 30], 1)).toEqual([10, null, 30])
+  })
+
+  it('窓サイズが入力より大きい → 利用可能分で平均', () => {
+    const result = calculatePartialMovingAverage([10, 20], 5)
+    expect(result[0]).toBe(10)
+    expect(result[1]).toBe(15) // (10+20)/2
   })
 })

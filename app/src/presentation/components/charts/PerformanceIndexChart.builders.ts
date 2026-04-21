@@ -16,6 +16,7 @@ import {
   calculateTransactionValue,
   calculateShare,
   calculateGrossProfitRate,
+  calculatePartialMovingAverage,
 } from '@/domain/calculations/utils'
 import { calculateStdDev } from '@/application/hooks/useStatistics'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
@@ -66,21 +67,8 @@ export interface PerformanceStats {
   gp: StatEntry
 }
 
-/** partial MA: ウィンドウ不足でも利用可能な分で計算（月初からMA表示）  *
- * @responsibility R:chart-option
- */
-function calculatePartialMovingAverage(
-  values: readonly number[],
-  window: number,
-): (number | null)[] {
-  return values.map((_, i) => {
-    const start = Math.max(0, i - window + 1)
-    const slice = values.slice(start, i + 1)
-    const valid = slice.filter((v) => v > 0)
-    if (valid.length === 0) return null
-    return valid.reduce((s, v) => s + v, 0) / valid.length
-  })
-}
+// calculatePartialMovingAverage は domain/calculations/utils へ昇格済み
+// （Phase A 追加）。import 経由で利用する。
 
 export type ViewType = 'piAmount' | 'piQuantity' | 'deviation' | 'zScore'
 

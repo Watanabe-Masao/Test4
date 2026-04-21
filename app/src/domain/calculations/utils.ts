@@ -177,7 +177,11 @@ export function calculateAveragePricePerItem(sales: number, totalQty: number): n
 }
 
 /**
- * 移動平均を計算する
+ * 移動平均を計算する（strict: ウィンドウ不足は NaN）
+ *
+ * ウィンドウ幅に満たない先頭要素は NaN を返す。月初から MA 表示したい場合は
+ * 代わりに `calculatePartialMovingAverage` を使用する。
+ *
  * @param values 値の配列
  * @param window ウィンドウサイズ
  * @returns 各位置の移動平均（先頭 window-1 個は NaN）
@@ -188,6 +192,34 @@ export function calculateMovingAverage(values: readonly number[], window: number
     let sum = 0
     for (let j = i - window + 1; j <= i; j++) sum += values[j]
     return sum / window
+  })
+}
+
+/**
+ * 部分移動平均（partial: ウィンドウ不足でも利用可能分で計算）
+ *
+ * `calculateMovingAverage` との違い:
+ * - 先頭 `window-1` 個も NaN にせず、利用可能な要素分で平均を返す（trailing）
+ * - 値ゼロ（= データなし）は分母に含めない（`v > 0` フィルタ）
+ * - 有効値ゼロ件なら `null`
+ *
+ * 用途: 月初から MA を表示したいチャート（月中観測）。strict MA は週後半から
+ * しか表示できないが、本関数は 1 日目から意味のある値を返す。
+ *
+ * @param values 値の配列
+ * @param window trailing ウィンドウサイズ
+ * @returns 各位置の partial trailing average（有効値がなければ null）
+ */
+export function calculatePartialMovingAverage(
+  values: readonly number[],
+  window: number,
+): (number | null)[] {
+  return values.map((_, i) => {
+    const start = Math.max(0, i - window + 1)
+    const slice = values.slice(start, i + 1)
+    const valid = slice.filter((v) => v > 0)
+    if (valid.length === 0) return null
+    return valid.reduce((s, v) => s + v, 0) / valid.length
   })
 }
 
