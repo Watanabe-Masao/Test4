@@ -1,8 +1,7 @@
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { HourDowMatrixRow } from '@/application/queries/cts/HourDowMatrixHandler'
-import { calculateStdDev } from '@/domain/calculations/forecast'
-import { zScore } from '@/domain/calculations/rawAggregation/statisticalFunctions'
+import { calculateStdDev, zScore } from '@/application/hooks/useStatistics'
 
 // ── Types ──
 

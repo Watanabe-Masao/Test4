@@ -99,7 +99,21 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
 export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
   // ClassifiedSales.ts — DiscountEntry.ts に分割。export 16→8。許可リスト卒業
   // AsyncState.ts — AsyncStateFactories.ts に分割。export 14→4。許可リスト卒業
-  // CalendarDate.ts — DateRangeChunks.ts に分割。export 9→7。許可リスト卒業
+  // CalendarDate.ts — 過去に 9→7 で卒業したが、Phase A Step 1 で CalendarDate ↔ Date
+  //   変換（toJsDate / fromJsDate）+ weekNumber を昇格したため 10 に増加。
+  //   CalendarDate 周辺の日付 primitive は責務が一貫しているため本ファイル内に集約保持。
+  //   将来 P12 制約を厳しくするなら DateUtils.ts 等に分離検討。
+  {
+    path: 'domain/models/CalendarDate.ts',
+    limit: 11,
+    ruleId: 'AR-RESP-EXPORT-DENSITY',
+    reason:
+      'Phase A Step 1 で toJsDate / fromJsDate / weekNumber を昇格（CalendarDate 周辺 primitive の集約）',
+    category: 'structural',
+    removalCondition:
+      'CalendarDate ↔ Date 変換群を別ファイル（例: CalendarDateConversions.ts）に分離',
+    lifecycle: 'permanent',
+  },
   // DaySerial.ts — 未使用関数 2 件を削除。export 9→6。許可リスト卒業
 ] as const
 
