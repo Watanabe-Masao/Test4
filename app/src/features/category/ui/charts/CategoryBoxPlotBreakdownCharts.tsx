@@ -6,6 +6,7 @@
  */
 import { useState, useMemo } from 'react'
 import type { StoreBreakdownItem, DateBreakdownItem } from '@/application/hooks/duckdb'
+import { niceAxisMax } from '@/presentation/components/charts/chartAxisUtils'
 import type { ChartTheme } from '@/features/category/ui/charts/CategoryBoxPlotChart.vm'
 
 // ── StoreBreakdownChart ──
@@ -34,9 +35,7 @@ export function StoreBreakdownChart({
 
   const xMax = useMemo(() => {
     if (items.length === 0) return 100
-    const m = Math.max(...items.map((d) => d.value))
-    const mag = Math.pow(10, Math.floor(Math.log10(m || 1)))
-    return Math.ceil(m / mag) * mag * 1.05
+    return niceAxisMax(Math.max(...items.map((d) => d.value)))
   }, [items])
 
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
@@ -188,9 +187,7 @@ export function DateBreakdownChart({
 
   const xMax = useMemo(() => {
     if (items.length === 0) return 100
-    const m = Math.max(...items.map((d) => d.value))
-    const mag = Math.pow(10, Math.floor(Math.log10(m || 1)))
-    return Math.ceil(m / mag) * mag * 1.05
+    return niceAxisMax(Math.max(...items.map((d) => d.value)))
   }, [items])
 
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
