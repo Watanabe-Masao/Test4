@@ -48,6 +48,14 @@ export const SimulatorScenarioSchema = z
     lyDaily: z.array(z.number()),
     actualDaily: z.array(z.number()),
   })
+  // daysInMonth は year/month のグレゴリオ暦日数と一致しなければならない。
+  // new Date(year, month, 0) は「翌月の前日」= 当月末日を返す (month は 1-indexed)。
+  // Feb+31 のような入力を許すと dowOf が内部で翌月へ繰り越し、曜日カウントと
+  // 残期間売上計算が暗黙に壊れるためスキーマで弾く。
+  .refine((s) => s.daysInMonth === new Date(s.year, s.month, 0).getDate(), {
+    message: 'daysInMonth must match Gregorian calendar for given year/month',
+    path: ['daysInMonth'],
+  })
   .refine(
     (s) =>
       s.dailyBudget.length === s.daysInMonth &&

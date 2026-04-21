@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-21T10:44:06.941Z
+> 生成: 2026-04-21T11:07:09.896Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 649 |
-| 全 project の checked checkbox 総数 | 476 |
+| 全 project の checked checkbox 総数 | 481 |
 
 ## projects
 
@@ -26,7 +26,7 @@
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
-| `budget-achievement-simulator` | 予算達成シミュレーター | **in_progress** | — | 6/42 (14%) | [`projects/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/budget-achievement-simulator/AI_CONTEXT.md) |
+| `budget-achievement-simulator` | 予算達成シミュレーター | **in_progress** | — | 11/42 (26%) | [`projects/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/budget-achievement-simulator/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
 | `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **archived** | — | — | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |

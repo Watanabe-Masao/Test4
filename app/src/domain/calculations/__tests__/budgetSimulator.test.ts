@@ -346,4 +346,77 @@ describe('SimulatorScenarioSchema', () => {
     const s = makeScenario({ monthlyBudget: -100 })
     expect(() => SimulatorScenarioSchema.parse(s)).toThrow()
   })
+
+  // daysInMonth と year/month の整合性チェック
+  describe('daysInMonth は year/month のグレゴリオ暦と一致する必要がある', () => {
+    it('2026年2月 (非閏年) + daysInMonth=31 → parse error', () => {
+      const s = makeScenario({
+        year: 2026,
+        month: 2,
+        daysInMonth: 31,
+        dailyBudget: uniform(31, 100),
+        lyDaily: uniform(31, 80),
+        actualDaily: uniform(31, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
+    })
+
+    it('2025年2月 (非閏年) + daysInMonth=29 → parse error', () => {
+      const s = makeScenario({
+        year: 2025,
+        month: 2,
+        daysInMonth: 29,
+        dailyBudget: uniform(29, 100),
+        lyDaily: uniform(29, 80),
+        actualDaily: uniform(29, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
+    })
+
+    it('2024年2月 (閏年) + daysInMonth=29 → parse 成功', () => {
+      const s = makeScenario({
+        year: 2024,
+        month: 2,
+        daysInMonth: 29,
+        dailyBudget: uniform(29, 100),
+        lyDaily: uniform(29, 80),
+        actualDaily: uniform(29, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).not.toThrow()
+    })
+
+    it('2024年2月 (閏年) + daysInMonth=28 → parse error', () => {
+      const s = makeScenario({
+        year: 2024,
+        month: 2,
+        daysInMonth: 28,
+        dailyBudget: uniform(28, 100),
+        lyDaily: uniform(28, 80),
+        actualDaily: uniform(28, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
+    })
+
+    it('2026年4月 + daysInMonth=31 → parse error (4月は30日)', () => {
+      const s = makeScenario({
+        daysInMonth: 31,
+        dailyBudget: uniform(31, 100),
+        lyDaily: uniform(31, 80),
+        actualDaily: uniform(31, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
+    })
+
+    it('2026年1月 + daysInMonth=30 → parse error (1月は31日)', () => {
+      const s = makeScenario({
+        year: 2026,
+        month: 1,
+        daysInMonth: 30,
+        dailyBudget: uniform(30, 100),
+        lyDaily: uniform(30, 80),
+        actualDaily: uniform(30, 90),
+      })
+      expect(() => SimulatorScenarioSchema.parse(s)).toThrow(/Gregorian calendar/)
+    })
+  })
 })
