@@ -141,14 +141,13 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
         {/* dow モード時のみ日別 override カレンダー */}
         {state.mode === 'dow' && (
           <DayCalendarInput
-            year={year}
-            month={month}
-            daysInMonth={scenario.daysInMonth}
+            scenario={scenario}
             currentDay={vm.kpis.currentDay}
             dowInputs={state.dowInputs}
             dowBase={state.dowBase}
             dayOverrides={state.dayOverrides}
             weekStart={state.weekStart}
+            fmtCurrency={fmtCurrency}
             onWeekStartChange={state.setWeekStart}
             onOverrideChange={state.setDayOverride}
             onOverrideClear={state.clearDayOverride}
@@ -163,9 +162,9 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
         <SimChartWrap>
           <SimChartLbl>月内 日次推移（残期間予測）</SimChartLbl>
           <ProjectionBarChart
+            scenario={scenario}
             dailyProjection={vm.dailyProjection}
             currentDay={vm.kpis.currentDay}
-            daysInMonth={scenario.daysInMonth}
           />
         </SimChartWrap>
       </SimInputSection>
@@ -236,7 +235,13 @@ const RowRender = memo(function RowRender({
       {isOpen && row.drillKey && (
         <DrillRow>
           <td colSpan={6}>
-            <DrilldownPanel scenario={scenario} weekStart={weekStart} fmtCurrency={fmtCurrency} />
+            <DrilldownPanel
+              scenario={scenario}
+              weekStart={weekStart}
+              fmtCurrency={fmtCurrency}
+              kind={row.drillKey!}
+              currentDay={currentDay}
+            />
           </td>
         </DrillRow>
       )}

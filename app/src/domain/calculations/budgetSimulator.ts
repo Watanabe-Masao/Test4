@@ -26,6 +26,8 @@ export interface SimulatorScenario {
   readonly dailyBudget: readonly number[]
   readonly lyDaily: readonly number[]
   readonly actualDaily: readonly number[]
+  /** 前年データの最終有効日 (1-based)。null=full month。本番は経過日キャップあり */
+  readonly lyCoverageDay: number | null
 }
 
 export const SimulatorScenarioSchema = z
@@ -38,6 +40,7 @@ export const SimulatorScenarioSchema = z
     dailyBudget: z.array(z.number()),
     lyDaily: z.array(z.number()),
     actualDaily: z.array(z.number()),
+    lyCoverageDay: z.number().int().min(1).max(31).nullable(),
   })
   // daysInMonth は year/month のグレゴリオ暦日数と一致しなければならない。
   // new Date(year, month, 0) は「翌月の前日」= 当月末日を返す (month は 1-indexed)。

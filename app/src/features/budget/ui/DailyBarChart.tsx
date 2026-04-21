@@ -1,8 +1,9 @@
 /**
- * DailyBarChart — 日別売上バー + 移動平均ライン (ECharts)
+ * DailyBarChart — 当期 + 前年 side-by-side bars + 2 本の 7日移動平均 line
  *
- * 任意の日別シリーズ (actualDaily / dailyBudget / lyDaily) を bar として描画し、
- * 移動平均を line overlay で重ねる。drilldown 等で使用。
+ * プロトタイプの ProjectionBarChart + MA overlay 相当。
+ * - 当期 bar (primary color) + 前年 bar (gray)
+ * - 当期 7日MA (solid line) + 前年 7日MA (dashed line)
  *
  * @responsibility R:chart-view
  */
@@ -24,21 +25,16 @@ import {
 import { toCommaYen } from '@/presentation/components/charts/echartsOptionBuilders'
 
 interface Props {
-  /** 日別値配列 (0-indexed、length = daysInMonth) */
+  /** 当期の日別値 (0-indexed、length = daysInMonth) */
   readonly data: readonly number[]
-  /** 日別比較値配列 (前年等)。省略時は非表示 */
+  /** 前年の日別値 (同上)。null/undefined の場合は比較非表示 */
   readonly compare?: readonly number[] | null
-  /** 系列ラベル */
   readonly label?: string
-  /** 比較系列ラベル */
   readonly compareLabel?: string
   /** 描画範囲 [start, end) — 0-indexed。省略時は全期間 */
   readonly rangeStart?: number
   readonly rangeEnd?: number
-  /** 移動平均ウィンドウ */
   readonly maWindow?: number
-  /** bar の色。省略時は theme primary */
-  readonly color?: string
   readonly title?: string
   readonly height?: number
 }
@@ -46,41 +42,61 @@ interface Props {
 function buildOption(
   values: readonly number[],
   compare: readonly number[] | null,
-  compareLabel: string,
   label: string,
+  compareLabel: string,
   startIdx: number,
   maWindow: number,
-  color: string,
   theme: AppTheme,
 ): EChartsOption {
   const days = values.map((_, i) => String(startIdx + i + 1))
-  const maRaw = calculatePartialMovingAverage(values, maWindow)
-  const ma = maRaw.map((v) => (v == null ? null : v))
+  const maCurrent = calculatePartialMovingAverage(values, maWindow).map((v) =>
+    v == null ? null : v,
+  )
+  const maCompare = compare
+    ? calculatePartialMovingAverage(compare, maWindow).map((v) => (v == null ? null : v))
+    : null
 
   const series: NonNullable<EChartsOption['series']> = [
     {
       name: label,
       type: 'bar',
       data: values.map((v) => v),
-      ...barDefaults({ color, opacity: 0.75 }),
-    },
-    {
-      name: `${maWindow}日移動平均`,
-      type: 'line',
-      data: ma,
-      ...lineDefaults({ color: theme.colors.palette.primaryDark, width: 2 }),
-      connectNulls: true,
-      z: 5,
+      ...barDefaults({ color: theme.colors.palette.primary, opacity: 0.8 }),
     },
   ]
 
   if (compare) {
     series.push({
       name: compareLabel,
-      type: 'line',
+      type: 'bar',
+      // 前年 bar: 当期と同じ x 位置の横に並ぶ (ECharts の grouped bar デフォルト)
       data: compare.map((v) => v),
-      ...lineDefaults({ color: theme.chart.previousYear, dashed: true, width: 1.5 }),
+      itemStyle: {
+        color: theme.colors.text3,
+        opacity: 0.55,
+        borderRadius: [2, 2, 0, 0],
+      },
+      barMaxWidth: 16,
+    })
+  }
+
+  series.push({
+    name: `${label} ${maWindow}日移動平均`,
+    type: 'line',
+    data: maCurrent,
+    ...lineDefaults({ color: theme.colors.palette.warningDark, width: 2 }),
+    connectNulls: true,
+    z: 5,
+  })
+
+  if (maCompare) {
+    series.push({
+      name: `${compareLabel} ${maWindow}日移動平均`,
+      type: 'line',
+      data: maCompare,
+      ...lineDefaults({ color: theme.colors.text3, dashed: true, width: 1.5 }),
       connectNulls: true,
+      z: 4,
     })
   }
 
@@ -108,17 +124,15 @@ function buildOption(
 export const DailyBarChart = memo(function DailyBarChart({
   data,
   compare,
-  label = '実績',
+  label = '当期',
   compareLabel = '前年',
   rangeStart = 0,
   rangeEnd,
   maWindow = 7,
-  color,
   title = '日別推移',
   height = 260,
 }: Props) {
   const theme = useTheme() as AppTheme
-  const effColor = color ?? theme.colors.palette.primary
 
   const slice = useMemo(() => {
     const end = rangeEnd ?? data.length
@@ -129,23 +143,11 @@ export const DailyBarChart = memo(function DailyBarChart({
   }, [data, compare, rangeStart, rangeEnd])
 
   const option = useMemo(
-    () =>
-      buildOption(
-        slice.values,
-        slice.cmp,
-        compareLabel,
-        label,
-        rangeStart,
-        maWindow,
-        effColor,
-        theme,
-      ),
-    [slice, label, compareLabel, rangeStart, maWindow, effColor, theme],
+    () => buildOption(slice.values, slice.cmp, label, compareLabel, rangeStart, maWindow, theme),
+    [slice, label, compareLabel, rangeStart, maWindow, theme],
   )
 
-  if (slice.values.length === 0) {
-    return null
-  }
+  if (slice.values.length === 0) return null
 
   return (
     <ChartCard title={title} ariaLabel={title}>

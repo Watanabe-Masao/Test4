@@ -284,6 +284,106 @@ export const DrillTitle = styled.h4`
   color: ${({ theme }) => theme.colors.text};
 `
 
+// ── DrillCalendar (カレンダービュー) ──
+
+export const DrillCalendarGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(8, 1fr); /* 7 曜日 + 合計 */
+  gap: ${({ theme }) => theme.spacing[1]};
+`
+
+interface DrillDowHeadProps {
+  readonly $sun?: boolean
+  readonly $sat?: boolean
+}
+
+export const DrillDowHead = styled.div<DrillDowHeadProps>`
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: ${({ theme }) => theme.spacing[2]} 0;
+  color: ${({ theme, $sun, $sat }) =>
+    $sun
+      ? theme.colors.palette.negative
+      : $sat
+        ? theme.colors.palette.primary
+        : theme.colors.text3};
+`
+
+interface DrillCellProps {
+  readonly $empty?: boolean
+  readonly $outOfRange?: boolean
+  readonly $weekend?: boolean
+  readonly $weekSum?: boolean
+  readonly $avg?: boolean
+}
+
+export const DrillCell = styled.div<DrillCellProps>`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+  padding: ${({ theme }) => theme.spacing[2]};
+  min-height: 76px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme, $weekSum, $avg, $weekend }) =>
+    $weekSum || $avg
+      ? theme.colors.bg2
+      : $weekend
+        ? `${theme.colors.palette.primary}08`
+        : theme.colors.bg};
+  opacity: ${({ $empty, $outOfRange }) => ($empty ? 0 : $outOfRange ? 0.5 : 1)};
+  ${({ $empty }) => ($empty ? 'visibility: hidden;' : '')}
+`
+
+export const DrillCellHead = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.75rem;
+
+  & > .num {
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.text};
+  }
+  & > .dwlabel {
+    color: ${({ theme }) => theme.colors.text3};
+    font-size: 0.7rem;
+  }
+`
+
+export const DrillBarTrack = styled.div`
+  height: 3px;
+  background: ${({ theme }) => theme.colors.border};
+  border-radius: 999px;
+  overflow: hidden;
+`
+
+export const DrillBarFill = styled.div<{ readonly $pct: number }>`
+  width: ${({ $pct }) => Math.max(0, Math.min(100, $pct))}%;
+  height: 100%;
+  background: ${({ theme }) => theme.colors.palette.primary};
+`
+
+export const DrillCellAmt = styled.div`
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  font-variant-numeric: tabular-nums;
+`
+
+export const DrillCellYoY = styled.div<{ readonly $positive: boolean }>`
+  font-size: 0.7rem;
+  color: ${({ theme, $positive }) =>
+    $positive ? theme.colors.palette.positive : theme.colors.palette.negative};
+  font-variant-numeric: tabular-nums;
+`
+
+export const DrillCellOOR = styled.div`
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text3};
+`
+
 // ── 行クリックで展開するドリル行 ──
 
 export const DrillRow = styled.tr`
