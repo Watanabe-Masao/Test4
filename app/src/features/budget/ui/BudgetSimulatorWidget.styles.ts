@@ -284,6 +284,19 @@ export const DrillTitle = styled.h4`
   color: ${({ theme }) => theme.colors.text};
 `
 
+/**
+ * 曜日別テーブル用のグループヘッダ (今年 / 前年 / 比較 の 3 列 group)
+ */
+export const DrillGroupHead = styled.th`
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
 // ── DrillCalendar (カレンダービュー) ──
 
 export const DrillCalendarGrid = styled.div`
