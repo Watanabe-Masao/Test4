@@ -1,0 +1,13 @@
+{
+  "$comment": "予算達成シミュレーター — Claude Design でプロトタイプ化した新規画面を本体に移植する project",
+  "projectId": "budget-achievement-simulator",
+  "title": "予算達成シミュレーター",
+  "status": "active",
+  "projectRoot": "projects/budget-achievement-simulator",
+  "entrypoints": {
+    "aiContext": "projects/budget-achievement-simulator/AI_CONTEXT.md",
+    "handoff": "projects/budget-achievement-simulator/HANDOFF.md",
+    "plan": "projects/budget-achievement-simulator/plan.md",
+    "checklist": "projects/budget-achievement-simulator/checklist.md"
+  }
+}
