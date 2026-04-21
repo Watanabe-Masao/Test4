@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-21T03:50:00.391Z",
+  "timestamp": "2026-04-21T08:59:34.770Z",
   "summary": {
-    "active": 6,
+    "active": 7,
     "archived": 18,
-    "inProgress": 5,
+    "inProgress": 6,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 607,
-    "checkedCheckboxes": 470
+    "totalCheckboxes": 649,
+    "checkedCheckboxes": 476
   },
   "projects": [
     {
@@ -62,6 +62,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
       "checklistPath": "projects/completed/architecture-decision-backlog/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "budget-achievement-simulator",
+      "title": "予算達成シミュレーター",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 6,
+      "total": 42,
+      "progress": 0.143,
+      "entrypoint": "projects/budget-achievement-simulator/AI_CONTEXT.md",
+      "checklistPath": "projects/budget-achievement-simulator/checklist.md",
       "parent": null
     },
     {
