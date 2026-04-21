@@ -49,11 +49,14 @@
 * [x] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した
 * [x] `RemainingInputPanel.tsx`（mode 別入力 UI の分離）を実装した
 * [x] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き、full-month calendar）を実装した
-* [x] `DrilldownPanel.tsx`（週別・曜日別テーブル集計）を実装した
+* [x] `DrilldownPanel.tsx`（週別・曜日別テーブル集計 + DailyBarChart embed）を実装した
 * [x] `aggregateDowAverages` / `aggregateWeeks` を domain 層に pure function として追加した (`budgetSimulatorAggregations.ts`)
-* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を **ECharts** で実装した (Phase 3.6)
-* [ ] `app/src/stories/BudgetSimulator.stories.tsx` を追加した (Phase 3.6)
-* [ ] `npm run test:visual`（visual regression）が PASS する (Phase 3.6)
+* [x] `ProjectionBarChart.tsx` (ECharts bar) を実装し widget に組込んだ
+* [x] `DailyBarChart.tsx` (ECharts bar + 移動平均 line overlay) を実装し DrilldownPanel に組込んだ
+* [x] `StripChart.tsx` (SVG コンパクトストリップ) を実装し KPI テーブルの「日次推移」列に組込んだ
+* [x] `app/src/stories/BudgetSimulator.stories.tsx` を追加した (9 stories)
+* [ ] `npm run test:visual`（visual regression）が PASS する — Storybook 起動に WASM ビルドが必要なため CI (wasm-build → fast-gate) で検証
+* [ ] `DrillCalendar.tsx` (カレンダーヒートマップ) は Phase 3.7 以降の拡張として保留
 
 ## Phase 4: 組込み（PAGE_REGISTRY / Nav / routes）
 

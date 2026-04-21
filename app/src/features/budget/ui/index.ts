@@ -8,3 +8,10 @@ export {
   type SimulatorWidgetRow,
   type DrillKey,
 } from './BudgetSimulatorWidget.vm'
+export { TimelineSlider } from './TimelineSlider'
+export { RemainingInputPanel } from './RemainingInputPanel'
+export { DayCalendarInput } from './DayCalendarInput'
+export { DrilldownPanel } from './DrilldownPanel'
+export { ProjectionBarChart } from './ProjectionBarChart'
+export { DailyBarChart } from './DailyBarChart'
+export { StripChart } from './StripChart'

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-21T12:49:02.039Z
+> Generated: 2026-04-21T13:18:44.548Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -76,16 +76,16 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 650 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 495 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 653 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 499 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 3 | OK |
 
 ## バンドル性能
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6571 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2252 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6577 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2257 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

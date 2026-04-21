@@ -24,6 +24,7 @@ import {
   DrillSection,
   DrillTitle,
 } from './BudgetSimulatorWidget.styles'
+import { DailyBarChart } from './DailyBarChart'
 
 interface Props {
   readonly scenario: SimulatorScenario
@@ -38,6 +39,18 @@ export function DrilldownPanel({ scenario, weekStart, d }: Props) {
   return (
     <Card>
       <CardTitle>ドリルダウン集計</CardTitle>
+
+      <DrillSection>
+        <DrillTitle>日別実績 + 7日移動平均 (全期間)</DrillTitle>
+        <DailyBarChart
+          data={scenario.actualDaily}
+          compare={scenario.lyDaily}
+          label="実績"
+          compareLabel="前年"
+          title=""
+          height={240}
+        />
+      </DrillSection>
 
       <DrillSection>
         <DrillTitle>曜日別 (全期間)</DrillTitle>

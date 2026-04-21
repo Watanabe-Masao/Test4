@@ -43,6 +43,8 @@ import { TimelineSlider } from './TimelineSlider'
 import { RemainingInputPanel } from './RemainingInputPanel'
 import { DayCalendarInput } from './DayCalendarInput'
 import { DrilldownPanel } from './DrilldownPanel'
+import { ProjectionBarChart } from './ProjectionBarChart'
+import { StripChart } from './StripChart'
 
 interface Props {
   readonly d: InsightData
@@ -181,24 +183,32 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
                 <Th>前年実績</Th>
                 <Th>前年比</Th>
                 <Th>達成率</Th>
+                <Th>日次推移</Th>
               </tr>
             </thead>
-            <tbody>{vm.rows.map((row, i) => renderRow(row, i, d))}</tbody>
+            <tbody>{vm.rows.map((row, i) => renderRow(row, i, d, vm.kpis.currentDay))}</tbody>
           </Table>
         </TableWrapper>
       </Card>
 
-      {/* ── ドリルダウン (週別・曜日別) ── */}
+      {/* ── ④用: 残期間予測バーチャート (ECharts) ── */}
+      <ProjectionBarChart
+        dailyProjection={vm.dailyProjection}
+        currentDay={vm.kpis.currentDay}
+        daysInMonth={scenario.daysInMonth}
+      />
+
+      {/* ── ドリルダウン (週別・曜日別 + 日別バーチャート) ── */}
       <DrilldownPanel scenario={scenario} weekStart={state.weekStart} d={d} />
     </>
   )
 }
 
-function renderRow(row: SimulatorWidgetRow, i: number, d: InsightData) {
+function renderRow(row: SimulatorWidgetRow, i: number, d: InsightData, currentDay: number) {
   if (row.group) {
     return (
       <GroupRow key={`g-${i}`}>
-        <td colSpan={5}>{row.group}</td>
+        <td colSpan={6}>{row.group}</td>
       </GroupRow>
     )
   }
@@ -217,6 +227,16 @@ function renderRow(row: SimulatorWidgetRow, i: number, d: InsightData) {
       <Td>{row.ly != null ? `¥${d.fmtCurrency(row.ly)}` : '—'}</Td>
       <Td>{renderDiff(row.yoy)}</Td>
       <Td>{renderDiff(row.ach)}</Td>
+      <Td>
+        {row.strip != null ? (
+          <StripChart
+            data={row.strip}
+            highlightRange={row.stripRange}
+            currentDay={currentDay}
+            variant={row.stripType}
+          />
+        ) : null}
+      </Td>
     </RowComponent>
   )
 }
