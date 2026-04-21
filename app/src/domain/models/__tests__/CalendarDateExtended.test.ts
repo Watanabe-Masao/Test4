@@ -4,6 +4,9 @@ import {
   toDateKeyFromParts,
   fromDateKey,
   getDow,
+  toJsDate,
+  fromJsDate,
+  weekNumber,
   isSameDate,
   dateRangeDays,
   dateRangeToKeys,
@@ -125,6 +128,69 @@ describe('CalendarDate utilities', () => {
       }
       const { fromKey, toKey } = dateRangeToKeys(range)
       expect(fromKey < toKey).toBe(true)
+    })
+  })
+
+  describe('toJsDate', () => {
+    it('CalendarDate → JS Date (month は -1 ずらし)', () => {
+      const d = toJsDate({ year: 2026, month: 3, day: 15 })
+      expect(d.getFullYear()).toBe(2026)
+      expect(d.getMonth()).toBe(2) // 0-index
+      expect(d.getDate()).toBe(15)
+    })
+
+    it('1月 1日 → new Date(y, 0, 1)', () => {
+      const d = toJsDate({ year: 2026, month: 1, day: 1 })
+      expect(d.getMonth()).toBe(0)
+    })
+  })
+
+  describe('fromJsDate', () => {
+    it('JS Date → CalendarDate (month は +1 ずらし)', () => {
+      const cd = fromJsDate(new Date(2026, 2, 15))
+      expect(cd).toEqual({ year: 2026, month: 3, day: 15 })
+    })
+
+    it('toJsDate との round-trip', () => {
+      const src = { year: 2025, month: 11, day: 30 }
+      expect(fromJsDate(toJsDate(src))).toEqual(src)
+    })
+  })
+
+  describe('weekNumber', () => {
+    it('2026-03-01（月初の日曜）は week 1', () => {
+      expect(weekNumber({ year: 2026, month: 3, day: 1 })).toBe(1)
+    })
+
+    it('2026-03-02（月曜、月初翌日）は week 2', () => {
+      expect(weekNumber({ year: 2026, month: 3, day: 2 })).toBe(2)
+    })
+
+    it('2026-03-08（日曜、2 週目の末日）は week 2', () => {
+      expect(weekNumber({ year: 2026, month: 3, day: 8 })).toBe(2)
+    })
+
+    it('2026-03-09（月曜）は week 3', () => {
+      expect(weekNumber({ year: 2026, month: 3, day: 9 })).toBe(3)
+    })
+
+    it('2026-03-31（火曜）は week 6', () => {
+      expect(weekNumber({ year: 2026, month: 3, day: 31 })).toBe(6)
+    })
+
+    it('2026-01-01（木曜）は week 1', () => {
+      // firstDow=4 → mondayBased=3 → (0+3)/7=0 → +1 → week 1
+      expect(weekNumber({ year: 2026, month: 1, day: 1 })).toBe(1)
+    })
+
+    it('2026-01-05（月曜）は week 2（月曜始まり）', () => {
+      // firstDow=4 → mondayBased=3 → (4+3)/7=1 → +1 → week 2
+      expect(weekNumber({ year: 2026, month: 1, day: 5 })).toBe(2)
+    })
+
+    it('月初が水曜でも 1 日は week 1', () => {
+      // 2026-04-01 は水曜 → firstDow=3 → mondayBased=2 → (0+2)/7=0 → +1 → week 1
+      expect(weekNumber({ year: 2026, month: 4, day: 1 })).toBe(1)
     })
   })
 })

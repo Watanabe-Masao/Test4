@@ -79,6 +79,47 @@ export function getDow(date: CalendarDate): number {
   return new Date(date.year, date.month - 1, date.day).getDay()
 }
 
+/**
+ * CalendarDate を JavaScript Date に変換する。
+ *
+ * month は 1-index なので new Date には -1 して渡す。
+ * local timezone で生成される（UTC ではない）。
+ *
+ * @example
+ * toJsDate({ year: 2026, month: 3, day: 15 }) // → Date(2026-03-15 local)
+ */
+export function toJsDate(date: CalendarDate): Date {
+  return new Date(date.year, date.month - 1, date.day)
+}
+
+/**
+ * JavaScript Date を CalendarDate に変換する。
+ *
+ * getMonth() は 0-index なので +1 して 1-index 化する。
+ * local timezone で解釈される。
+ *
+ * @example
+ * fromJsDate(new Date(2026, 2, 15)) // → { year: 2026, month: 3, day: 15 }
+ */
+export function fromJsDate(jsDate: Date): CalendarDate {
+  return { year: jsDate.getFullYear(), month: jsDate.getMonth() + 1, day: jsDate.getDate() }
+}
+
+/**
+ * CalendarDate の月曜始まりの週番号 (1-based) を取得する。
+ *
+ * 月初の曜日を基準に、月曜を週の開始日として week 番号を算出する。
+ * 例: 月初が水曜なら、1〜5 日が第 1 週、6〜12 日が第 2 週、…
+ *
+ * @example
+ * weekNumber({ year: 2026, month: 3, day: 1 }) // → 1
+ */
+export function weekNumber(date: CalendarDate): number {
+  const firstDow = new Date(date.year, date.month - 1, 1).getDay()
+  const mondayBased = firstDow === 0 ? 6 : firstDow - 1
+  return Math.floor((date.day - 1 + mondayBased) / 7) + 1
+}
+
 // formatCalendarDate は toDateKey と同一出力のため統合。toDateKey を使用すること
 
 /**

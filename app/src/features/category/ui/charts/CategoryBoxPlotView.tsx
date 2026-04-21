@@ -12,6 +12,7 @@ import {
   type BoxPlotStats,
 } from '@/application/hooks/duckdb'
 import { EmptyState } from '@/presentation/components/common/layout'
+import { niceAxisMax } from '@/presentation/components/charts/chartAxisUtils'
 import { MapLegend, LegendItem } from '@/features/category/ui/charts/CategoryBoxPlotChart.styles'
 import type {
   ChartTheme,
@@ -74,9 +75,7 @@ export function BoxPlotView({
 
   const xMax = useMemo(() => {
     if (boxData.length === 0) return 100
-    const m = Math.max(...boxData.map((d) => d.max))
-    const mag = Math.pow(10, Math.floor(Math.log10(m)))
-    return Math.ceil(m / mag) * mag * 1.05
+    return niceAxisMax(Math.max(...boxData.map((d) => d.max)))
   }, [boxData])
 
   if (boxData.length === 0) {

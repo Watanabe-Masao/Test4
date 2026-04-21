@@ -3,13 +3,13 @@
  *
  * 対象:
  * - DeptTrendChartLogic: buildDeptTrendData (クロス集計 + sorted keys)
- * - StoreHourlyChartLogic: cosineSimilarity, findCoreTime, buildStoreHourlyData
+ * - StoreHourlyChartLogic: cosineSimilarity, findCoreTimeByThreshold, buildStoreHourlyData
  */
 import { describe, it, expect } from 'vitest'
 import { buildDeptTrendData } from '../DeptTrendChartLogic'
 import {
   cosineSimilarity,
-  findCoreTime,
+  findCoreTimeByThreshold,
   buildStoreHourlyData,
   CORE_THRESHOLD,
 } from '../StoreHourlyChartLogic'
@@ -118,10 +118,10 @@ describe('cosineSimilarity', () => {
 
 // ─── findCoreTime ───────────────────────
 
-describe('findCoreTime', () => {
+describe('findCoreTimeByThreshold', () => {
   it('全て 0 → start=min, end=max, turnover=12', () => {
     const hourMap = new Map<number, number>()
-    const result = findCoreTime(hourMap, 8, 22)
+    const result = findCoreTimeByThreshold(hourMap, 8, 22)
     expect(result.start).toBe(8)
     expect(result.end).toBe(22)
     expect(result.turnover).toBe(12)
@@ -133,7 +133,7 @@ describe('findCoreTime', () => {
       [10, 1000],
       [14, 0],
     ])
-    const result = findCoreTime(hourMap, 8, 22)
+    const result = findCoreTimeByThreshold(hourMap, 8, 22)
     expect(result.start).toBe(10)
     expect(result.end).toBe(10)
   })
@@ -144,7 +144,7 @@ describe('findCoreTime', () => {
       [12, 500],
       [14, 400],
     ])
-    const result = findCoreTime(hourMap, 8, 22)
+    const result = findCoreTimeByThreshold(hourMap, 8, 22)
     // sorted: [12:500, 14:400, 10:100]; threshold=1000*0.8=800
     // 500 -> 900 >= 800 stop. coreHours = [12,14] sorted = [12,14]
     expect(result.start).toBe(12)

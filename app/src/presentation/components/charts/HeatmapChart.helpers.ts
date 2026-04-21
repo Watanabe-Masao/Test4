@@ -1,6 +1,8 @@
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { HourDowMatrixRow } from '@/application/queries/cts/HourDowMatrixHandler'
+import { calculateStdDev } from '@/domain/calculations/forecast'
+import { zScore } from '@/domain/calculations/rawAggregation/statisticalFunctions'
 
 // ── Types ──
 
@@ -71,11 +73,9 @@ export function buildHeatmapData(rows: readonly HourDowMatrixRow[]): HeatmapData
     }
   }
 
-  // Z-score 計算: 全セルの平均・標準偏差を求める
+  // Z-score 計算: 全セルの平均・標準偏差を求める（domain 関数を使用）
   const values = dailyAvgs.map((d) => d.avg)
-  const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length
-  const stdDev = Math.sqrt(variance)
+  const { mean, stdDev } = calculateStdDev(values)
 
   const cells = new Map<string, CellData>()
   let maxValue = 0
@@ -85,14 +85,14 @@ export function buildHeatmapData(rows: readonly HourDowMatrixRow[]): HeatmapData
   let peakValue = 0
 
   for (const { hour, dow, avg } of dailyAvgs) {
-    const zScore = stdDev > 0 ? (avg - mean) / stdDev : 0
-    const isAnomaly = Math.abs(zScore) >= Z_SCORE_THRESHOLD
+    const z = zScore(avg, mean, stdDev)
+    const isAnomaly = Math.abs(z) >= Z_SCORE_THRESHOLD
 
     cells.set(cellKey(hour, dow), {
       hour,
       dow,
       dailyAvg: Math.round(avg),
-      zScore: Math.round(zScore * 100) / 100,
+      zScore: Math.round(z * 100) / 100,
       isAnomaly,
     })
 
