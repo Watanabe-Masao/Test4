@@ -37,17 +37,20 @@
 * [x] `BudgetSimulatorWidget.vm.test.ts` と hook テスト (useSimulatorScenario / useSimulatorState) が PASS する
 * [x] localStorage のキーが `shiire-arari-budget-simulator-*` プレフィックスに統一されている（既存 `shiire-arari-*` 命名規約に準拠）
 
-## Phase 3: Presentation 層（ページ + サブコンポーネント）
+## Phase 3: Presentation 層（Widget + サブコンポーネント）
 
-* [ ] `BudgetSimulatorPage.tsx` を実装した
-* [ ] `TimelineSlider.tsx` を実装した
-* [ ] `KpiTable.tsx` を実装した
-* [ ] `RemainingInputPanel.tsx`（④入力部・3 モードトグル）を実装した
+> **配置変更**: 新規ページ → **features/budget/ 内 widget**。
+> ファイル名は `BudgetSimulatorWidget.tsx` (ページではなく widget)。
+
+* [x] `BudgetSimulatorWidget.tsx` (MVP: KPI grid + 基準日スライダー + モード切替 + yoy/ach/dow 入力 + KPI テーブル) を実装した
+* [x] `BudgetSimulatorWidget.styles.ts` を分離し、デザイントークン (`theme.colors.palette` / `theme.radii` / `theme.spacing`) 経由で色・間隔を指定した
+* [x] `features/budget/index.ts` / `ui/index.ts` に widget と VM を barrel export した
+* [x] `INSIGHT_WIDGETS` に `'insight-budget-simulator'` エントリを追加した
+* [ ] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した（MVP: 本体に inline）
+* [ ] `RemainingInputPanel.tsx`（④入力部の複雑化時に分離）を実装した
 * [ ] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き）を実装した
 * [ ] `DrilldownPanel.tsx`（週別・曜日別・日別カレンダー・日別棒グラフ）を実装した
-* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を実装した
-* [ ] `features/budget-simulator/index.ts`（public API）と `manifest.ts`（ownership）を作成した
-* [ ] styled-components の `*.styles.ts` を分離し、デザイントークン経由で色・間隔を指定した
+* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を **ECharts** で実装した
 * [ ] `app/src/stories/BudgetSimulator.stories.tsx` を追加した
 * [ ] `npm run test:visual`（visual regression）が PASS する
 
