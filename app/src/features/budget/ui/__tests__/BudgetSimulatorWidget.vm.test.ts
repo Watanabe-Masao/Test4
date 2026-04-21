@@ -17,6 +17,7 @@ const makeScenario = (overrides: Partial<SimulatorScenario> = {}): SimulatorScen
   dailyBudget: uniform(30, 100),
   lyDaily: uniform(30, 80),
   actualDaily: uniform(30, 90),
+  lyCoverageDay: null,
   ...overrides,
 })
 

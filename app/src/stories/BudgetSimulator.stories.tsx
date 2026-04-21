@@ -27,6 +27,7 @@ const FIXTURE_SCENARIO: SimulatorScenario = {
   dailyBudget: uniform(30, 100_000),
   lyDaily: uniform(30, 80_000),
   actualDaily: uniform(15, 95_000).concat(uniform(15, 0)),
+  lyCoverageDay: null,
 }
 
 const meta: Meta = {

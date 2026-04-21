@@ -133,25 +133,42 @@ export function buildSimulatorWidgetVm(input: {
 
   const finalLanding = kpis.elapsedActual + remainingSales
   const finalVsBudget = pct(finalLanding, scenario.monthlyBudget)
-  const finalVsLY = pct(finalLanding, scenario.lyMonthly)
+  // 前年比は full-month 前年データがある場合のみ意味がある
+  const lyIsFullMonth = scenario.lyCoverageDay === null
+  const finalVsLY = lyIsFullMonth ? pct(finalLanding, scenario.lyMonthly) : null
   const landingDiff = finalLanding - scenario.monthlyBudget
 
   const curInput = mode === 'yoy' ? yoyInput : mode === 'ach' ? achInput : 0
 
   // ── 行データ構築 (プロトタイプ App.jsx L127-140 準拠) ──
 
+  // elapsedLY は lyDaily[0..currentDay) の合計。currentDay ≤ lyCoverageDay なら信頼可能
   const elapsedLY = kpis.remLY > 0 ? scenario.lyMonthly - kpis.remLY : scenario.lyMonthly
+  const elapsedLYValid =
+    scenario.lyCoverageDay === null || kpis.currentDay <= scenario.lyCoverageDay
+  const elapsedLYforRow = elapsedLYValid ? elapsedLY : null
+
   const elapsedRate = (kpis.currentDay / scenario.daysInMonth) * 100
   const requiredPerDay = kpis.remainingDays > 0 ? kpis.requiredRemaining / kpis.remainingDays : 0
   const lyPerDay = kpis.remainingDays > 0 ? kpis.remLY / kpis.remainingDays : 0
+
+  // 月間行の前年実績 / 前年比は full-month 前年データがある場合のみ表示
+  const monthlyLyForRow = lyIsFullMonth ? scenario.lyMonthly : null
+  const monthlyYoYForRow = lyIsFullMonth ? kpis.monthlyYoY : null
+
+  // 残期間行の前年実績 (remLY) は full-month 前年データがある場合のみ (elapsed 以降カバレッジ必要)
+  const remLYForRow = lyIsFullMonth ? kpis.remLY : null
+  const remBudgetYoYForRow = lyIsFullMonth ? kpis.remBudgetYoY : null
+  const requiredYoYForRow = lyIsFullMonth ? kpis.requiredYoY : null
+  const lyPerDayForRow = lyIsFullMonth ? lyPerDay : null
 
   const rows: readonly SimulatorWidgetRow[] = [
     { group: '① 月間' },
     {
       lbl: '月間売上予算',
       val: scenario.monthlyBudget,
-      ly: scenario.lyMonthly,
-      yoy: kpis.monthlyYoY,
+      ly: monthlyLyForRow,
+      yoy: monthlyYoYForRow,
       strip: scenario.dailyBudget,
       stripType: 'budget',
       drillKey: 'monthlyBudget',
@@ -162,8 +179,8 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '経過予算',
       val: kpis.elapsedBudget,
-      ly: elapsedLY,
-      yoy: pct(kpis.elapsedBudget, elapsedLY),
+      ly: elapsedLYforRow,
+      yoy: elapsedLYforRow != null ? pct(kpis.elapsedBudget, elapsedLYforRow) : null,
       strip: scenario.dailyBudget,
       stripType: 'budget',
       stripRange: [0, kpis.currentDay],
@@ -172,8 +189,8 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '経過実績',
       val: kpis.elapsedActual,
-      ly: elapsedLY,
-      yoy: kpis.elapsedYoY,
+      ly: elapsedLYforRow,
+      yoy: elapsedLYValid ? kpis.elapsedYoY : null,
       ach: kpis.elapsedAchievement,
       strip: scenario.actualDaily,
       stripType: 'actual',
@@ -186,8 +203,8 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '残期間予算',
       val: kpis.remBudget,
-      ly: kpis.remLY,
-      yoy: kpis.remBudgetYoY,
+      ly: remLYForRow,
+      yoy: remBudgetYoYForRow,
       strip: scenario.dailyBudget,
       stripType: 'budget',
       stripRange: [kpis.currentDay, scenario.daysInMonth],
@@ -196,15 +213,15 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '予算達成に必要な売上',
       val: kpis.requiredRemaining,
-      ly: kpis.remLY,
-      yoy: kpis.requiredYoY,
+      ly: remLYForRow,
+      yoy: requiredYoYForRow,
       ach: kpis.requiredAchievement,
       small: true,
     },
     {
       lbl: '1日あたり必要売上',
       val: requiredPerDay,
-      ly: lyPerDay,
+      ly: lyPerDayForRow,
       yoy: null,
       small: true,
     },
@@ -214,8 +231,8 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '残期間 予測売上',
       val: remainingSales,
-      ly: kpis.remLY,
-      yoy: pct(remainingSales, kpis.remLY),
+      ly: remLYForRow,
+      yoy: remLYForRow != null ? pct(remainingSales, remLYForRow) : null,
       small: true,
       strip: dailyProjection,
       stripType: 'projection',
@@ -223,7 +240,7 @@ export function buildSimulatorWidgetVm(input: {
     {
       lbl: '月末着地見込',
       val: finalLanding,
-      ly: scenario.lyMonthly,
+      ly: monthlyLyForRow,
       yoy: finalVsLY,
       ach: finalVsBudget,
       highlight: true,

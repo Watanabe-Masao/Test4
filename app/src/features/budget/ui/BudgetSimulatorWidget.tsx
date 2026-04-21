@@ -236,7 +236,13 @@ const RowRender = memo(function RowRender({
       {isOpen && row.drillKey && (
         <DrillRow>
           <td colSpan={6}>
-            <DrilldownPanel scenario={scenario} weekStart={weekStart} fmtCurrency={fmtCurrency} />
+            <DrilldownPanel
+              scenario={scenario}
+              weekStart={weekStart}
+              fmtCurrency={fmtCurrency}
+              kind={row.drillKey!}
+              currentDay={currentDay}
+            />
           </td>
         </DrillRow>
       )}

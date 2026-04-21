@@ -42,14 +42,22 @@ export function useSimulatorScenario(input: UseSimulatorScenarioInput): Simulato
     const actualDaily = new Array<number>(daysInMonth)
 
     let lyMonthly = 0
+    let lastLyNonZeroDay = 0
     for (let i = 0; i < daysInMonth; i++) {
       const day = i + 1
       dailyBudget[i] = result.budgetDaily.get(day) ?? 0
       const ly = getPrevYearDailySales(prevYear, year, month, day)
       lyDaily[i] = ly
       lyMonthly += ly
+      if (ly > 0) lastLyNonZeroDay = day
       actualDaily[i] = result.daily.get(day)?.sales ?? 0
     }
+
+    // 前年データが最終日まであれば full month coverage。
+    // PrevYearData は経過日数キャップ済みのため、lastLyNonZeroDay < daysInMonth が
+    // 通常。full coverage 扱いは「最終日まで非 0 値がある」場合のみ。
+    const lyCoverageDay: number | null =
+      prevYear.hasPrevYear && lastLyNonZeroDay === daysInMonth ? null : lastLyNonZeroDay || null
 
     return {
       year,
@@ -60,6 +68,7 @@ export function useSimulatorScenario(input: UseSimulatorScenarioInput): Simulato
       dailyBudget,
       lyDaily,
       actualDaily,
+      lyCoverageDay,
     }
   }, [result, prevYear, year, month])
 }
