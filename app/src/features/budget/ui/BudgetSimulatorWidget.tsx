@@ -63,8 +63,7 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
 
   // full-month 前年売上: FreePeriodReadModel の comparisonSummary.totalSales を使う
   // (ConditionSummary widget と同じソース)。未利用ページでは undefined → 従来挙動に fallback。
-  const fullMonthLyTotal =
-    ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
+  const fullMonthLyTotal = ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
 
   const scenario = useSimulatorScenario({
     result,
