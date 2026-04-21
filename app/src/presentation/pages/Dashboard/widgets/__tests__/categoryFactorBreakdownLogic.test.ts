@@ -359,9 +359,7 @@ describe('computeFactorItems', () => {
     const many = Array.from({ length: 20 }, (_, i) =>
       makeRec(`D${i}`, `L${i}`, `K${i}`, 10, 1000 + i * 100),
     )
-    const prev = Array.from({ length: 20 }, (_, i) =>
-      makeRec(`D${i}`, `L${i}`, `K${i}`, 10, 1000),
-    )
+    const prev = Array.from({ length: 20 }, (_, i) => makeRec(`D${i}`, `L${i}`, `K${i}`, 10, 1000))
     const compact = computeFactorItems({ cur: many, prev }, 'dept', 2, false, 0, 0, true)
     const full = computeFactorItems({ cur: many, prev }, 'dept', 2, false, 0, 0, false)
     expect(compact).toHaveLength(8)

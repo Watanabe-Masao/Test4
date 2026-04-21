@@ -145,13 +145,16 @@ function makeStore(overrides: Partial<StoreResult> = {}): StoreResult {
   }
 }
 
-function makePrevYearKpi(hasPrevYear: boolean, contributions: readonly {
-  storeId: string
-  day: number
-  sales: number
-  customers: number
-  discount: number
-}[] = []): PrevYearMonthlyKpi {
+function makePrevYearKpi(
+  hasPrevYear: boolean,
+  contributions: readonly {
+    storeId: string
+    day: number
+    sales: number
+    customers: number
+    discount: number
+  }[] = [],
+): PrevYearMonthlyKpi {
   const storeContributions = contributions.map((c) => ({
     storeId: c.storeId,
     originalDay: c.day,
@@ -199,7 +202,13 @@ describe('buildDailyDetailRows — sales', () => {
     const rows = buildDailyDetailRows(sr, 'sales', 3, 30)
     expect(rows).toHaveLength(3)
     expect(rows[0]).toMatchObject({ day: 1, budget: 1000, actual: 1200, diff: 200 })
-    expect(rows[2]).toMatchObject({ day: 3, budget: 3000, actual: 3600, cumBudget: 6000, cumActual: 6600 })
+    expect(rows[2]).toMatchObject({
+      day: 3,
+      budget: 3000,
+      actual: 3600,
+      cumBudget: 6000,
+      cumActual: 6600,
+    })
     // achievement = 120% for day 1
     expect(rows[0].achievement).toBeCloseTo(120, 3)
   })
@@ -426,8 +435,8 @@ describe('buildDailyDiscountRows', () => {
             sales: 1000,
             discountAbsolute: 100,
             discountEntries: [
-              { type: '71', amount: 60 },
-              { type: '72', amount: 40 },
+              { type: '71', label: '値引71', amount: 60 },
+              { type: '72', label: '値引72', amount: 40 },
             ],
           }),
         ],
@@ -439,6 +448,7 @@ describe('buildDailyDiscountRows', () => {
       { type: '71', amount: 60 },
       { type: '72', amount: 40 },
     ])
+    // Note: buildDailyDiscountRows は label を剥がして type/amount のみに整形する
     // totalRate = 100 / (1000 + 100) ≈ 9.09%
     expect(rows[0].totalRate).toBeCloseTo((100 / 1100) * 100, 2)
   })
