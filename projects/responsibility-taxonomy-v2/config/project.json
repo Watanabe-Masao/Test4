@@ -1,0 +1,13 @@
+{
+  "projectId": "responsibility-taxonomy-v2",
+  "title": "責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退）",
+  "status": "active",
+  "parent": "taxonomy-v2",
+  "projectRoot": "projects/responsibility-taxonomy-v2",
+  "entrypoints": {
+    "aiContext": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
+    "handoff": "projects/responsibility-taxonomy-v2/HANDOFF.md",
+    "plan": "projects/responsibility-taxonomy-v2/plan.md",
+    "checklist": "projects/responsibility-taxonomy-v2/checklist.md"
+  }
+}

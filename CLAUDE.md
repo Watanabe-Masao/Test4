@@ -620,7 +620,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -632,10 +632,10 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6544/7000 / 2243/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
-| Project Governance | OK | 3/20 / 2/20 / 0/0 / 18/100 |
+| Project Governance | OK | 6/20(+3) / 5/20(+3) / 0/0 / 18/100 |
 
 
-> 生成: 2026-04-21T02:12:09.729Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-21T03:04:31.691Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

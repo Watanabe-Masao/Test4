@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-21T02:12:09.737Z",
+  "timestamp": "2026-04-21T03:04:31.697Z",
   "summary": {
-    "active": 3,
+    "active": 6,
     "archived": 18,
-    "inProgress": 2,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 502,
+    "totalCheckboxes": 607,
     "checkedCheckboxes": 470
   },
   "projects": [
@@ -260,6 +260,32 @@
       "parent": null
     },
     {
+      "projectId": "responsibility-taxonomy-v2",
+      "title": "責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 43,
+      "progress": 0,
+      "entrypoint": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
+      "checklistPath": "projects/responsibility-taxonomy-v2/checklist.md",
+      "parent": "taxonomy-v2"
+    },
+    {
+      "projectId": "taxonomy-v2",
+      "title": "分類体系 v2（責務軸 + テスト軸の制度化: 親）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 21,
+      "progress": 0,
+      "entrypoint": "projects/taxonomy-v2/AI_CONTEXT.md",
+      "checklistPath": "projects/taxonomy-v2/checklist.md",
+      "parent": null
+    },
+    {
       "projectId": "test-signal-integrity",
       "title": "AAG Test Signal Integrity — 品質シグナル保全と False Green 防止",
       "kind": "project",
@@ -271,6 +297,19 @@
       "entrypoint": "projects/completed/test-signal-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/completed/test-signal-integrity/checklist.md",
       "parent": null
+    },
+    {
+      "projectId": "test-taxonomy-v2",
+      "title": "テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 41,
+      "progress": 0,
+      "entrypoint": "projects/test-taxonomy-v2/AI_CONTEXT.md",
+      "checklistPath": "projects/test-taxonomy-v2/checklist.md",
+      "parent": "taxonomy-v2"
     },
     {
       "projectId": "unify-period-analysis",
