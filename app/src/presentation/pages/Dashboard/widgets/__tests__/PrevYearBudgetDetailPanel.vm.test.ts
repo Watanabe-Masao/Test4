@@ -152,8 +152,8 @@ describe('buildBudgetDetailRows', () => {
       budget,
       2025,
       4,
-      (_y, _m, d) => Math.ceil(d / 7),
-      (_y, _m, d) => d % 7,
+      (date) => Math.ceil(date.day / 7),
+      (date) => date.day % 7,
     )
     expect(rows).toHaveLength(1)
     const r = rows[0]

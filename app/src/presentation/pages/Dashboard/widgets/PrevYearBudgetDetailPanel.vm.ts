@@ -98,14 +98,17 @@ export interface BudgetDetailRow {
  * 比較ポイント + budget → BudgetDetailRow[] を構築する。
  * dailyMapping shape を知らず、comparison subsystem が定義した
  * 整形済みポイントデータのみを受け取る。
+ *
+ * `weekNumberFn` / `getDowFn` は domain 層の CalendarDate-based API を
+ * そのまま受け入れる（Phase A Step 1 で統合）。
  */
 export function buildBudgetDetailRows(
   points: readonly ComparisonPoint[],
   budgetDaily: ReadonlyMap<number, number>,
   targetYear: number,
   targetMonth: number,
-  weekNumberFn: (y: number, m: number, d: number) => number,
-  getDowFn: (y: number, m: number, d: number) => number,
+  weekNumberFn: (date: { year: number; month: number; day: number }) => number,
+  getDowFn: (date: { year: number; month: number; day: number }) => number,
 ): readonly BudgetDetailRow[] {
   return points.map((pt) => ({
     currentDay: pt.currentDay,
@@ -116,8 +119,8 @@ export function buildBudgetDetailRows(
     prevCustomers: pt.customers,
     prevCtsQuantity: pt.ctsQuantity,
     budget: budgetDaily.get(pt.currentDay) ?? 0,
-    week: weekNumberFn(targetYear, targetMonth, pt.currentDay),
-    dow: getDowFn(pt.sourceDate.year, pt.sourceDate.month, pt.sourceDate.day),
+    week: weekNumberFn({ year: targetYear, month: targetMonth, day: pt.currentDay }),
+    dow: getDowFn(pt.sourceDate),
   }))
 }
 

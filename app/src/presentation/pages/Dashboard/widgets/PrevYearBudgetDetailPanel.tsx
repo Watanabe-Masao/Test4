@@ -18,6 +18,10 @@ import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { safeDivide, calculateTransactionValue } from '@/domain/calculations/utils'
 import {
+  getDow as getDowFromDate,
+  weekNumber as weekNumberFromDate,
+} from '@/domain/models/calendar'
+import {
   aggregateWeeklyTotals,
   computeEstimatedCustomerGap,
   computeEstimatedUnitPriceImpact,
@@ -78,9 +82,8 @@ const METHOD_FORMULAS: Record<DowGapMethod, string> = {
   adjustedMean: 'Σ(外れ値除外平均 × 日数差)',
 }
 
-export function getDow(year: number, month: number, day: number): number {
-  return new Date(year, month - 1, day).getDay()
-}
+// getDow / weekNumber は domain/models/CalendarDate へ昇格済み（Phase A Step 1）。
+// 本ファイルでは domain の CalendarDate-based API を使用する。
 
 // ── Types ──
 
@@ -100,15 +103,6 @@ interface PrevYearBudgetDetailPanelProps {
 }
 
 type ViewMode = 'daily' | 'cumulative'
-
-// ── Helpers ──
-
-/** 月曜始まりの週番号 (1-based) */
-export function weekNumber(year: number, month: number, day: number): number {
-  const firstDow = new Date(year, month - 1, 1).getDay()
-  const mondayBased = firstDow === 0 ? 6 : firstDow - 1
-  return Math.floor((day - 1 + mondayBased) / 7) + 1
-}
 
 // ── Component ──
 
@@ -151,8 +145,8 @@ export function PrevYearBudgetDetailPanel({
         budgetDaily,
         targetYear,
         targetMonth,
-        weekNumber,
-        getDow,
+        weekNumberFromDate,
+        getDowFromDate,
       ),
     [comparisonPoints, budgetDaily, targetYear, targetMonth],
   )
