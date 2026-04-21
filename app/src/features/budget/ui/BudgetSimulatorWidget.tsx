@@ -1,25 +1,24 @@
 /**
  * 予算達成シミュレーター Widget
  *
- * InsightPage に embed する widget。月内の任意の基準日から月末着地を
- * リアルタイム試算する。プロトタイプ骨格を本番アーキテクチャに移植。
- *
- * props は既存の `BudgetTabContent` と同じ (InsightData + StoreResult + onExplain)。
+ * UnifiedWidgetContext に直接依存することで、InsightPage 以外のページ
+ * (Dashboard 等) でも利用可能。月内の任意の基準日から月末着地をリアルタイム試算。
  *
  * Phase 3 MVP: KPI テーブル + 基準日スライダー + モード切替 + yoy/ach/dow 入力
  * Phase 3.5: サブコンポーネント分離 + DayCalendarInput + DrilldownPanel
- * Phase 3.6 (予定): ECharts による StripChart / DailyBarChart / ProjectionBarChart
+ * Phase 3.6: ECharts 経由の ProjectionBarChart / DailyBarChart / StripChart
+ * Phase 3.7: ctx 直接利用に変更 (InsightData 非依存化)
  *
  * @responsibility R:widget
  */
+import { useMemo } from 'react'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
-import type { MetricId } from '@/domain/models/analysis'
-import type { StoreResult } from '@/domain/models/storeTypes'
-import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
+import { formatPercent } from '@/domain/formatting'
+import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import {
   Table,
   TableWrapper,
@@ -46,23 +45,21 @@ import { DrilldownPanel } from './DrilldownPanel'
 import { ProjectionBarChart } from './ProjectionBarChart'
 import { StripChart } from './StripChart'
 
+type Fmt = UnifiedWidgetContext['fmtCurrency']
+
 interface Props {
-  readonly d: InsightData
-  readonly r: StoreResult
-  readonly onExplain: (metricId: MetricId) => void
+  readonly ctx: UnifiedWidgetContext
 }
 
-export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
-  const scenario = useSimulatorScenario({
-    result: r,
-    prevYear: d.prevYear,
-    year: d.year,
-    month: d.month,
-  })
+export function BudgetSimulatorWidget({ ctx }: Props) {
+  const { result, prevYear, year, month, fmtCurrency, onExplain } = ctx
 
-  const state = useSimulatorState(r.elapsedDays || 1, scenario.daysInMonth)
+  const scenario = useSimulatorScenario({ result, prevYear, year, month })
 
-  const vm = buildSimulatorWidgetVm({ scenario, state })
+  const state = useSimulatorState(result.elapsedDays || 1, scenario.daysInMonth)
+
+  // 頻繁な state 更新 (スライダー・入力変更) に対し計算を 1 回に抑える
+  const vm = useMemo(() => buildSimulatorWidgetVm({ scenario, state }), [scenario, state])
 
   return (
     <>
@@ -70,8 +67,8 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
       <KpiGrid>
         <KpiCard
           label="月末着地見込"
-          value={d.fmtCurrency(vm.finalLanding)}
-          subText={`予算比: ${vm.finalVsBudget != null ? d.formatPercent(vm.finalVsBudget / 100) : '—'}`}
+          value={fmtCurrency(vm.finalLanding)}
+          subText={`予算比: ${vm.finalVsBudget != null ? formatPercent(vm.finalVsBudget / 100) : '—'}`}
           accent={
             vm.finalVsBudget != null && vm.finalVsBudget >= 100
               ? sc.positive
@@ -89,13 +86,13 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
         />
         <KpiCard
           label="経過実績"
-          value={d.fmtCurrency(vm.kpis.elapsedActual)}
+          value={fmtCurrency(vm.kpis.elapsedActual)}
           subText={`${vm.kpis.currentDay}/${scenario.daysInMonth}日経過`}
           accent={palette.primary}
         />
         <KpiCard
           label="残期間必要売上"
-          value={d.fmtCurrency(vm.kpis.requiredRemaining)}
+          value={fmtCurrency(vm.kpis.requiredRemaining)}
           subText={`残${vm.kpis.remainingDays}日`}
           accent={palette.infoDark}
           onClick={() => onExplain('remainingBudget')}
@@ -104,10 +101,10 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
           label="予算達成率 (実績)"
           value={
             vm.kpis.elapsedAchievement != null
-              ? d.formatPercent(vm.kpis.elapsedAchievement / 100)
+              ? formatPercent(vm.kpis.elapsedAchievement / 100)
               : '—'
           }
-          subText={`経過予算: ${d.fmtCurrency(vm.kpis.elapsedBudget)}`}
+          subText={`経過予算: ${fmtCurrency(vm.kpis.elapsedBudget)}`}
           accent={sc.achievement(
             vm.kpis.elapsedAchievement != null ? vm.kpis.elapsedAchievement / 100 : 0,
           )}
@@ -117,8 +114,8 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
 
       {/* ── 基準日スライダー ── */}
       <TimelineSlider
-        year={d.year}
-        month={d.month}
+        year={year}
+        month={month}
         currentDay={vm.kpis.currentDay}
         daysInMonth={scenario.daysInMonth}
         remainingDays={vm.kpis.remainingDays}
@@ -156,8 +153,8 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
       {/* ── 日別 override (dow モード時のみ) ── */}
       {state.mode === 'dow' && (
         <DayCalendarInput
-          year={d.year}
-          month={d.month}
+          year={year}
+          month={month}
           daysInMonth={scenario.daysInMonth}
           currentDay={vm.kpis.currentDay}
           dowInputs={state.dowInputs}
@@ -186,7 +183,9 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
                 <Th>日次推移</Th>
               </tr>
             </thead>
-            <tbody>{vm.rows.map((row, i) => renderRow(row, i, d, vm.kpis.currentDay))}</tbody>
+            <tbody>
+              {vm.rows.map((row, i) => renderRow(row, i, fmtCurrency, vm.kpis.currentDay))}
+            </tbody>
           </Table>
         </TableWrapper>
       </Card>
@@ -199,12 +198,12 @@ export function BudgetSimulatorWidget({ d, r, onExplain }: Props) {
       />
 
       {/* ── ドリルダウン (週別・曜日別 + 日別バーチャート) ── */}
-      <DrilldownPanel scenario={scenario} weekStart={state.weekStart} d={d} />
+      <DrilldownPanel scenario={scenario} weekStart={state.weekStart} fmtCurrency={fmtCurrency} />
     </>
   )
 }
 
-function renderRow(row: SimulatorWidgetRow, i: number, d: InsightData, currentDay: number) {
+function renderRow(row: SimulatorWidgetRow, i: number, fmtCurrency: Fmt, currentDay: number) {
   if (row.group) {
     return (
       <GroupRow key={`g-${i}`}>
@@ -223,8 +222,8 @@ function renderRow(row: SimulatorWidgetRow, i: number, d: InsightData, currentDa
       <Td>
         <LabelWrapper>{row.lbl}</LabelWrapper>
       </Td>
-      <Td>{row.val != null ? <LabelWrapper>¥{d.fmtCurrency(row.val)}</LabelWrapper> : '—'}</Td>
-      <Td>{row.ly != null ? `¥${d.fmtCurrency(row.ly)}` : '—'}</Td>
+      <Td>{row.val != null ? <LabelWrapper>¥{fmtCurrency(row.val)}</LabelWrapper> : '—'}</Td>
+      <Td>{row.ly != null ? `¥${fmtCurrency(row.ly)}` : '—'}</Td>
       <Td>{renderDiff(row.yoy)}</Td>
       <Td>{renderDiff(row.ach)}</Td>
       <Td>

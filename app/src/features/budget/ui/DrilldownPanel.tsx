@@ -1,14 +1,12 @@
 /**
- * DrilldownPanel — 週別 / 曜日別の集計テーブル
+ * DrilldownPanel — 週別 / 曜日別の集計テーブル + 日別バーチャート
  *
  * Phase 1 domain の `aggregateWeeks` / `aggregateDowAverages` を呼び、
- * 全期間 (月初〜月末) の集計を表示する。ユーザーは「なぜこの達成率か」を
- * 1 画面で追える。
- *
- * Phase 3.5 MVP: テーブルのみ (ECharts チャートは Phase 3.6 で追加)
+ * 全期間 (月初〜月末) の集計を表示する。
  *
  * @responsibility R:widget
  */
+import { useMemo } from 'react'
 import {
   aggregateDowAverages,
   aggregateWeeks,
@@ -16,7 +14,7 @@ import {
 } from '@/domain/calculations/budgetSimulator'
 import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { Table, TableWrapper, Th, Td, Tr } from '@/presentation/pages/Insight/InsightPage.styles'
-import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
+import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import {
   DiffNegative,
   DiffPositive,
@@ -26,15 +24,18 @@ import {
 } from './BudgetSimulatorWidget.styles'
 import { DailyBarChart } from './DailyBarChart'
 
+type Fmt = UnifiedWidgetContext['fmtCurrency']
+
 interface Props {
   readonly scenario: SimulatorScenario
   readonly weekStart: 0 | 1
-  readonly d: InsightData
+  readonly fmtCurrency: Fmt
 }
 
-export function DrilldownPanel({ scenario, weekStart, d }: Props) {
-  const dow = aggregateDowAverages(scenario)
-  const weeks = aggregateWeeks(scenario, weekStart)
+export function DrilldownPanel({ scenario, weekStart, fmtCurrency }: Props) {
+  // scenario が変わるたびに再計算を避けるため memoize
+  const dow = useMemo(() => aggregateDowAverages(scenario), [scenario])
+  const weeks = useMemo(() => aggregateWeeks(scenario, weekStart), [scenario, weekStart])
 
   return (
     <Card>
@@ -74,10 +75,10 @@ export function DrilldownPanel({ scenario, weekStart, d }: Props) {
                   <Tr key={row.dow}>
                     <Td>{row.label}</Td>
                     <Td>{row.count}</Td>
-                    <Td>¥{d.fmtCurrency(row.budgetTotal)}</Td>
-                    <Td>¥{d.fmtCurrency(row.actualTotal)}</Td>
-                    <Td>¥{d.fmtCurrency(row.lyTotal)}</Td>
-                    <Td>¥{d.fmtCurrency(row.actualAvg)}</Td>
+                    <Td>¥{fmtCurrency(row.budgetTotal)}</Td>
+                    <Td>¥{fmtCurrency(row.actualTotal)}</Td>
+                    <Td>¥{fmtCurrency(row.lyTotal)}</Td>
+                    <Td>¥{fmtCurrency(row.actualAvg)}</Td>
                     <Td>{renderPct(yoy)}</Td>
                   </Tr>
                 )
@@ -108,9 +109,9 @@ export function DrilldownPanel({ scenario, weekStart, d }: Props) {
                   <Td>
                     {w.startDay}日〜{w.endDay}日
                   </Td>
-                  <Td>¥{d.fmtCurrency(w.budgetTotal)}</Td>
-                  <Td>¥{d.fmtCurrency(w.actualTotal)}</Td>
-                  <Td>¥{d.fmtCurrency(w.lyTotal)}</Td>
+                  <Td>¥{fmtCurrency(w.budgetTotal)}</Td>
+                  <Td>¥{fmtCurrency(w.actualTotal)}</Td>
+                  <Td>¥{fmtCurrency(w.lyTotal)}</Td>
                   <Td>{renderPct(w.achievement)}</Td>
                 </Tr>
               ))}

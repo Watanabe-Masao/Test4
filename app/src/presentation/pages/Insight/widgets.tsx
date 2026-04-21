@@ -27,11 +27,14 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     label: '予算達成シミュレーター',
     group: 'インサイト',
     size: 'full',
+    // UnifiedWidgetContext の必須フィールド (result / year / month / prevYear /
+    // fmtCurrency / onExplain) のみで動作するため、InsightPage 以外
+    // (Dashboard 等) でも利用可能。
     render: (ctx) => {
-      if (!ctx.insightData) return null
-      return <BudgetSimulatorWidget d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
+      if (!ctx.result) return null
+      return <BudgetSimulatorWidget ctx={ctx} />
     },
-    isVisible: (ctx) => ctx.insightData != null,
+    isVisible: (ctx) => ctx.result != null,
   },
   {
     id: 'insight-gross-profit',
