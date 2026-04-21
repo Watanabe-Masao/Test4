@@ -39,17 +39,24 @@
       - ChartParts.test.ts (4 tests / formatDateKey + 定数検証)
     - 既存 main CI を最新 5 run まで確認（全 success）→ test:e2e checkbox を close
     - 予想 coverage: 47.27 → ~48.3 (pure function rate 0.013pt/test 想定、margin ~1.3pt)
+  - **Step 3-41 (pure function wave 8)**: 閾値 ratchet up 47 → 48 (2026-04-21)
+    - 42 tests 追加（既存 2 ファイルの拡充 + 1 新規）:
+      - categoryFactorBreakdownLogic.test.ts: computeFactorItems (Shapley 2/3/5 factor) を
+        新規カバー（16 tests / 177 行の meaty decomposition function）
+      - conditionSummaryDailyBuilders.test.ts: 5 builder 関数を新規カバー
+        （26 tests / sales/markupRate/discountRate/gpRate/gp + YoY 系 4 関数）
+    - coverage 実測: 49.14 → 49.73 (+0.59 pt)、margin 1.73 pt
 
 derivedStatus: in_progress / 13 of 15 (87%)
 
 **残 2 checkbox (checklist 状態)**:
-- coverage 閾値 lines: 70 (現在 47 / 予想現実値 ~48.3)
-- CI で coverage 70% 達成 (~22 pt 不足)
+- coverage 閾値 lines: 70 (現在 48 / 実測 49.73)
+- CI で coverage 70% 達成 (~20 pt 不足)
 
 **ratchet up history**:
 ```
-35 → 36 (Step 3-8) → 37 (Step 3-14) → 45 (Step 3-39) → 47 (Step 3-40 本セッション)
-                                                        ↑ margin ~1.3 pt
+35 → 36 (Step 3-8) → 37 (Step 3-14) → 45 (Step 3-39) → 47 (Step 3-40) → 48 (Step 3-41)
+                                                                         ↑ margin 1.73 pt
 target → 70 (Phase 3 完了時)
 ```
 

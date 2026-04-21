@@ -90,10 +90,14 @@ export default defineConfig({
         //    conditionPanelYoY.vm / GrossProfit / Discount / PrevYearComparison /
         //    StoreHourly / useDrilldownDataLogic / ChartParts を新規カバー。
         //    margin ~1-2 pt の安全 ratchet up)
+        // - 2026-04-21 Step 3-41: 47 → 48 (42 件の pure function test 追加。
+        //    categoryFactorBreakdownLogic.computeFactorItems (Shapley 2/3/5 factor) +
+        //    conditionSummaryDailyBuilders の 5 builder を新規カバー。
+        //    coverage 49.14 → 49.73 (+0.59 pt)、margin 1.73 pt の安全 ratchet up)
         // - 目標: 70 (Phase 3 完了時)
         // - 詳細: projects/presentation-quality-hardening/HANDOFF.md §2 Step 4
         // - 不可侵原則 #1: 機械的引き上げ禁止 = test 追加と並行する
-        lines: 47,
+        lines: 48,
         'src/domain/calculations/**': {
           lines: 80,
         },
