@@ -25,6 +25,7 @@ import {
   DiffNegative,
   DiffPositive,
   DiffNeutral,
+  DrillGroupHead,
   DrillSection,
   DrillTitle,
 } from './BudgetSimulatorWidget.styles'
@@ -171,9 +172,18 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
     [view.primarySeries, compareSeries, view.rangeStart, view.rangeEnd],
   )
 
-  // 曜日別・週別は全期間 (予算 vs 前年)
-  const dow = useMemo(() => aggregateDowAverages(scenario), [scenario])
-  const weeks = useMemo(() => aggregateWeeks(scenario, weekStart), [scenario, weekStart])
+  // 曜日別・週別は drill 種別に応じた範囲で集計
+  // - ① 月間 (monthlyBudget): 全期間 1..daysInMonth
+  // - ② 経過 (elapsedBudget / elapsedActual): 1..currentDay
+  // - ③ 残期間 (remBudget): currentDay+1..daysInMonth
+  const dow = useMemo(
+    () => aggregateDowAverages(scenario, view.rangeStart, view.rangeEnd),
+    [scenario, view.rangeStart, view.rangeEnd],
+  )
+  const weeks = useMemo(
+    () => aggregateWeeks(scenario, weekStart, view.rangeStart, view.rangeEnd),
+    [scenario, weekStart, view.rangeStart, view.rangeEnd],
+  )
 
   return (
     <Card>
@@ -222,29 +232,60 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
         />
       </DrillSection>
 
-      {/* (5) 曜日別テーブル */}
+      {/* (5) 曜日別テーブル — 今年 / 前年 / 比較 の 3 グループ */}
       <DrillSection>
-        <DrillTitle>曜日別 (全期間・予算 vs 前年)</DrillTitle>
+        <DrillTitle>
+          曜日別 ({view.rangeStart}〜{view.rangeEnd}日・予算 vs 前年)
+        </DrillTitle>
         <TableWrapper>
           <Table>
             <thead>
               <tr>
-                <Th>曜日</Th>
+                <DrillGroupHead rowSpan={2}>曜日</DrillGroupHead>
+                <DrillGroupHead colSpan={3}>今年の月間予算 ({scenario.year}年)</DrillGroupHead>
+                <DrillGroupHead colSpan={3}>前年実績 ({scenario.year - 1}年)</DrillGroupHead>
+                <DrillGroupHead colSpan={2}>比較</DrillGroupHead>
+              </tr>
+              <tr>
                 <Th>日数</Th>
                 <Th>予算合計</Th>
+                <Th>曜日平均</Th>
+                <Th>日数</Th>
                 <Th>前年合計</Th>
-                <Th>予算の前年比</Th>
+                <Th>曜日平均</Th>
+                <Th>差異</Th>
+                <Th>予算前年比</Th>
               </tr>
             </thead>
             <tbody>
               {dow.map((row) => {
+                // 前年暦 (year-1, month) の曜日別日数を計算
+                const prevCount = countDowInRange(
+                  scenario.year - 1,
+                  scenario.month,
+                  row.dow,
+                  view.rangeStart,
+                  view.rangeEnd,
+                )
+                const currentDowAvg = row.count > 0 ? row.budgetTotal / row.count : 0
+                const prevDowAvg = prevCount > 0 ? row.lyTotal / prevCount : 0
+                const diff = row.budgetTotal - row.lyTotal
                 const yoy = row.lyTotal > 0 ? (row.budgetTotal / row.lyTotal) * 100 : null
                 return (
                   <Tr key={row.dow}>
                     <Td>{row.label}</Td>
-                    <Td>{row.count}</Td>
+                    {/* 今年 */}
+                    <Td>{row.count}日</Td>
                     <Td>¥{fmtCurrency(row.budgetTotal)}</Td>
+                    <Td>¥{fmtCurrency(currentDowAvg)}</Td>
+                    {/* 前年 */}
+                    <Td>{prevCount}日</Td>
                     <Td>¥{fmtCurrency(row.lyTotal)}</Td>
+                    <Td>¥{fmtCurrency(prevDowAvg)}</Td>
+                    {/* 比較 */}
+                    <Td>
+                      {diff >= 0 ? '+' : ''}¥{fmtCurrency(diff)}
+                    </Td>
                     <Td>{renderPct(yoy)}</Td>
                   </Tr>
                 )
@@ -256,7 +297,9 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
 
       {/* (6) 週別テーブル */}
       <DrillSection>
-        <DrillTitle>週別 (全期間・予算 vs 前年)</DrillTitle>
+        <DrillTitle>
+          週別 ({view.rangeStart}〜{view.rangeEnd}日・予算 vs 前年)
+        </DrillTitle>
         <TableWrapper>
           <Table>
             <thead>
@@ -265,12 +308,14 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
                 <Th>期間</Th>
                 <Th>予算合計</Th>
                 <Th>前年合計</Th>
-                <Th>予算の前年比</Th>
+                <Th>差異</Th>
+                <Th>予算前年比</Th>
               </tr>
             </thead>
             <tbody>
               {weeks.map((w) => {
                 const budgetYoY = w.lyTotal > 0 ? (w.budgetTotal / w.lyTotal) * 100 : null
+                const diff = w.budgetTotal - w.lyTotal
                 return (
                   <Tr key={w.weekIndex}>
                     <Td>第{w.weekIndex + 1}週</Td>
@@ -279,6 +324,9 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
                     </Td>
                     <Td>¥{fmtCurrency(w.budgetTotal)}</Td>
                     <Td>¥{fmtCurrency(w.lyTotal)}</Td>
+                    <Td>
+                      {diff >= 0 ? '+' : ''}¥{fmtCurrency(diff)}
+                    </Td>
                     <Td>{renderPct(budgetYoY)}</Td>
                   </Tr>
                 )
@@ -384,4 +432,25 @@ function renderPct(value: number | null) {
   const formatted = `${value.toFixed(1)}%`
   if (value >= 100) return <DiffPositive>{formatted}</DiffPositive>
   return <DiffNegative>{formatted}</DiffNegative>
+}
+
+/**
+ * 指定年月の [rangeStart, rangeEnd] (1-based, inclusive) における指定曜日の日数を数える。
+ * 前年と今年で曜日の日数が異なるため、個別にカウントする必要がある。
+ */
+function countDowInRange(
+  year: number,
+  month: number,
+  targetDow: number,
+  rangeStart: number,
+  rangeEnd: number,
+): number {
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const start = Math.max(1, rangeStart)
+  const end = Math.min(daysInMonth, rangeEnd)
+  let count = 0
+  for (let d = start; d <= end; d++) {
+    if (new Date(year, month - 1, d).getDay() === targetDow) count++
+  }
+  return count
 }

@@ -284,6 +284,19 @@ export const DrillTitle = styled.h4`
   color: ${({ theme }) => theme.colors.text};
 `
 
+/**
+ * 曜日別テーブル用のグループヘッダ (今年 / 前年 / 比較 の 3 列 group)
+ */
+export const DrillGroupHead = styled.th`
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.bg2};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  color: ${({ theme }) => theme.colors.text2};
+`
+
 // ── DrillCalendar (カレンダービュー) ──
 
 export const DrillCalendarGrid = styled.div`
@@ -656,4 +669,59 @@ export const SimChartLbl = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.text2};
   margin-bottom: ${({ theme }) => theme.spacing[2]};
+`
+
+// ── 結果表示カード (仕様書 §07 結果表示) ──
+
+export const SimResultGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-top: ${({ theme }) => theme.spacing[4]};
+  padding: ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.bg};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.md};
+`
+
+interface SimResultCardProps {
+  readonly $highlight?: boolean
+  readonly $positive?: boolean
+  readonly $negative?: boolean
+}
+
+export const SimResultCard = styled.div<SimResultCardProps>`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+  padding: ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme, $highlight }) =>
+    $highlight ? `${theme.colors.palette.primary}10` : 'transparent'};
+  border: 1px solid
+    ${({ theme, $highlight }) => ($highlight ? theme.colors.palette.primary : theme.colors.border)};
+`
+
+export const SimResultLabel = styled.div`
+  font-size: 0.78rem;
+  color: ${({ theme }) => theme.colors.text2};
+  font-weight: 600;
+`
+
+export const SimResultValue = styled.div<SimResultCardProps>`
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${({ theme, $positive, $negative }) =>
+    $positive
+      ? theme.colors.palette.positive
+      : $negative
+        ? theme.colors.palette.negative
+        : theme.colors.text};
+`
+
+export const SimResultSub = styled.div`
+  font-size: 0.72rem;
+  color: ${({ theme }) => theme.colors.text3};
+  font-variant-numeric: tabular-nums;
 `

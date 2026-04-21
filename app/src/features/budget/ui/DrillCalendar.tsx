@@ -129,8 +129,9 @@ export const DrillCalendar = memo(function DrillCalendar({
       count++
     }
     const avg = count > 0 ? total / count : 0
+    const cmpAvg = count > 0 ? cmpTotal / count : 0
     const yoy = cmpTotal > 0 ? (total / cmpTotal) * 100 : null
-    return { avg, yoy }
+    return { avg, cmpAvg, yoy }
   }, [data, compare, rStart, rEnd])
 
   return (
@@ -160,6 +161,7 @@ export const DrillCalendar = memo(function DrillCalendar({
               const val = data[day - 1] ?? 0
               const cmp = compare ? (compare[day - 1] ?? 0) : 0
               const yoy = cmp > 0 ? (val / cmp) * 100 : null
+              const diff = val - cmp
               const barPct = val > 0 ? (val / maxDaily) * 100 : 0
 
               return (
@@ -173,10 +175,16 @@ export const DrillCalendar = memo(function DrillCalendar({
                       <DrillBarTrack>
                         <DrillBarFill $pct={barPct} />
                       </DrillBarTrack>
-                      <DrillCellAmt>¥{fmtCurrency(val)}</DrillCellAmt>
+                      {compare && (
+                        <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                          {compareLabel} ¥{fmtCurrency(cmp)}
+                        </div>
+                      )}
+                      <DrillCellAmt>当期 ¥{fmtCurrency(val)}</DrillCellAmt>
                       {yoy != null && (
                         <DrillCellYoY $positive={yoy >= 100}>
-                          {compareLabel}比 {yoy.toFixed(0)}%
+                          {compareLabel}比 {yoy.toFixed(0)}% / 差 {diff >= 0 ? '+' : ''}¥
+                          {fmtCurrency(diff)}
                         </DrillCellYoY>
                       )}
                     </>
@@ -194,10 +202,17 @@ export const DrillCalendar = memo(function DrillCalendar({
               <DrillCellHead>
                 <span className="num">W{ri + 1}</span>
               </DrillCellHead>
-              <DrillCellAmt>¥{fmtCurrency(weekTotals[ri].total)}</DrillCellAmt>
+              {compare && (
+                <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                  {compareLabel} ¥{fmtCurrency(weekTotals[ri].cmpTotal)}
+                </div>
+              )}
+              <DrillCellAmt>当期 ¥{fmtCurrency(weekTotals[ri].total)}</DrillCellAmt>
               {weekTotals[ri].yoy != null && (
                 <DrillCellYoY $positive={weekTotals[ri].yoy >= 100}>
-                  {weekTotals[ri].yoy.toFixed(0)}%
+                  {weekTotals[ri].yoy.toFixed(0)}% / 差{' '}
+                  {weekTotals[ri].total - weekTotals[ri].cmpTotal >= 0 ? '+' : ''}¥
+                  {fmtCurrency(weekTotals[ri].total - weekTotals[ri].cmpTotal)}
                 </DrillCellYoY>
               )}
             </DrillCell>
@@ -208,16 +223,22 @@ export const DrillCalendar = memo(function DrillCalendar({
         {dowHeaders.map((dw) => {
           const a = dowAvgs[dw]
           const isWE = dw === 0 || dw === 6
+          const diff = a.avg - a.cmpAvg
           return (
             <DrillCell key={`avg-${dw}`} $avg $weekend={isWE}>
               <DrillCellHead>
                 <span className="num">平均</span>
                 <span className="dwlabel">{a.count}日</span>
               </DrillCellHead>
-              <DrillCellAmt>¥{fmtCurrency(a.avg)}</DrillCellAmt>
+              {compare && (
+                <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                  {compareLabel} ¥{fmtCurrency(a.cmpAvg)}
+                </div>
+              )}
+              <DrillCellAmt>当期 ¥{fmtCurrency(a.avg)}</DrillCellAmt>
               {a.yoy != null && (
                 <DrillCellYoY $positive={a.yoy >= 100}>
-                  {compareLabel}比 {a.yoy.toFixed(0)}%
+                  {a.yoy.toFixed(0)}% / 差 {diff >= 0 ? '+' : ''}¥{fmtCurrency(diff)}
                 </DrillCellYoY>
               )}
             </DrillCell>
@@ -227,10 +248,17 @@ export const DrillCalendar = memo(function DrillCalendar({
           <DrillCellHead>
             <span className="num">日平均</span>
           </DrillCellHead>
-          <DrillCellAmt>¥{fmtCurrency(overallAvg.avg)}</DrillCellAmt>
+          {compare && (
+            <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+              {compareLabel} ¥{fmtCurrency(overallAvg.cmpAvg ?? 0)}
+            </div>
+          )}
+          <DrillCellAmt>当期 ¥{fmtCurrency(overallAvg.avg)}</DrillCellAmt>
           {overallAvg.yoy != null && (
             <DrillCellYoY $positive={overallAvg.yoy >= 100}>
-              {compareLabel}比 {overallAvg.yoy.toFixed(0)}%
+              {overallAvg.yoy.toFixed(0)}% / 差{' '}
+              {overallAvg.avg - (overallAvg.cmpAvg ?? 0) >= 0 ? '+' : ''}¥
+              {fmtCurrency(overallAvg.avg - (overallAvg.cmpAvg ?? 0))}
             </DrillCellYoY>
           )}
         </DrillCell>

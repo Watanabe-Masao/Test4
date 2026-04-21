@@ -167,7 +167,10 @@ export function computeKpis(scenario: SimulatorScenario, currentDay: number): Si
 
   // 残期間
   const remBudget = monthlyBudget - elapsedBudget
-  const remLY = sumRange(lyDaily, d, daysInMonth)
+  // 残期間前年売上: alignment キャップ (本番) により lyDaily スライスが 0 に
+  // なりうるため、scenario.lyMonthly (full-month 値) と elapsedLY の差分を使う。
+  // override が無ければ lyMonthly = sum(lyDaily) で同一結果。
+  const remLY = Math.max(0, lyMonthly - elapsedLY)
   const remainingDays = daysInMonth - d
 
   // 必要な残期間売上 = max(0, 月間予算 - 経過実績)
@@ -223,7 +226,9 @@ export function computeRemainingSales(input: RemainingSalesInput): number {
   const d = clampDay(currentDay, daysInMonth)
 
   if (mode === 'yoy') {
-    const remLY = sumRange(lyDaily, d, daysInMonth)
+    // remLY: lyDaily スライスは capped 時に 0 になるため、lyMonthly - elapsedLY で導出
+    const elapsedLY = sumRange(lyDaily, 0, d)
+    const remLY = Math.max(0, scenario.lyMonthly - elapsedLY)
     return remLY * (yoyInput / 100)
   }
 
