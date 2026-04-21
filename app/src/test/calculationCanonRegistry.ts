@@ -477,7 +477,7 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     rateOwnership: 'engine',
     fallbackPolicy: 'none',
     notes:
-      'projects/budget-achievement-simulator の Phase 1 成果物。既存 projectLinear / calculateYoYRatio / calculateAchievementRate / prorateBudget を再利用する orchestration 層。SimulatorScenarioSchema は daysInMonth === new Date(year, month, 0).getDate() を強制 (グレゴリオ暦整合性)',
+      'projects/budget-achievement-simulator の Phase 1 成果物。既存 projectLinear / calculateYoYRatio / calculateAchievementRate / prorateBudget を再利用する orchestration 層。SimulatorScenarioSchema は daysInMonth === new Date(year, month, 0).getDate() を強制 (グレゴリオ暦整合性)。remLY は lyMonthly - elapsedLY で導出 (lyDaily alignment キャップ耐性)',
   },
   'budgetSimulatorAggregations.ts': {
     tag: 'required',
