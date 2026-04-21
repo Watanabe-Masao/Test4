@@ -1,122 +1,287 @@
 /**
  * RemainingInputPanel — 残期間シミュレーションの入力パネル
  *
- * mode (yoy/ach/dow) に応じた入力 UI を提供する。
- * - yoy: 前年比 % の単一入力
- * - ach: 予算達成率 % の単一入力
- * - dow: 7 曜日係数 + 前年/予算の base 選択
- *
- * state 管理は親 (useSimulatorState) に閉じ、本コンポーネントは props で受けて描画のみ。
+ * プロトタイプ c-sim-input-body / c-dow-body 相当。
+ * - yoy/ach: 数値入力 + range (50-150) + 4 プリセットボタン
+ * - dow: 基準トグル + プリセット + 7 曜日 grid + DayCalendar (親が追加)
  *
  * @responsibility R:form
  */
-import { Chip, ChipGroup } from '@/presentation/components/common/forms'
-import { ToggleSection } from '@/presentation/pages/Insight/InsightPage.styles'
-import type { DowBase, DowFactors, SimulatorMode } from '@/domain/calculations/budgetSimulator'
+import { useMemo } from 'react'
+import type {
+  DowBase,
+  DowFactors,
+  SimulatorMode,
+  SimulatorScenario,
+} from '@/domain/calculations/budgetSimulator'
+import { dowOf } from '@/domain/calculations/budgetSimulator'
+import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import {
-  DayInputField,
-  DayInputLabel,
-  DayInputRow,
-  DowInputCell,
-  DowInputsGrid,
-  ModeInputPanel,
+  DowBaseLabel,
+  DowBaseRow,
+  DowCol,
+  DowColCount,
+  DowColMoney,
+  DowColName,
+  DowColValInput,
+  DowColValRow,
+  DowGridCols,
+  DowGridPanel,
+  DowPresetBtn,
+  NumInputField,
+  NumInputGroup,
+  NumRangeSlider,
+  PresetBtn,
+  PresetsRow,
+  SimInputBody,
 } from './BudgetSimulatorWidget.styles'
 
+type Fmt = UnifiedWidgetContext['fmtCurrency']
+
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
+// プロトタイプ準拠: 月火水木金土日 の順で表示
+const DOW_ORDER: readonly number[] = [1, 2, 3, 4, 5, 6, 0]
 
 interface Props {
+  readonly scenario: SimulatorScenario
+  readonly currentDay: number
   readonly mode: SimulatorMode
   readonly yoyInput: number
   readonly achInput: number
   readonly dowInputs: DowFactors
   readonly dowBase: DowBase
+  readonly dayOverrides: Readonly<Record<number, number>>
+  readonly fmtCurrency: Fmt
   readonly onYoyChange: (n: number) => void
   readonly onAchChange: (n: number) => void
   readonly onDowChange: (inputs: DowFactors) => void
   readonly onDowBaseChange: (b: DowBase) => void
 }
 
-export function RemainingInputPanel({
-  mode,
-  yoyInput,
-  achInput,
+const PRESETS_YOY = [
+  { lbl: '前年同水準', v: 100 },
+  { lbl: '+5%', v: 105 },
+  { lbl: '+10%', v: 110 },
+  { lbl: '−5%', v: 95 },
+] as const
+
+const PRESETS_ACH = [
+  { lbl: '100%達成', v: 100 },
+  { lbl: '105%達成', v: 105 },
+  { lbl: '110%達成', v: 110 },
+  { lbl: '90%止まり', v: 90 },
+] as const
+
+export function RemainingInputPanel(props: Props) {
+  const {
+    scenario,
+    currentDay,
+    mode,
+    yoyInput,
+    achInput,
+    dowInputs,
+    dowBase,
+    dayOverrides,
+    fmtCurrency,
+    onYoyChange,
+    onAchChange,
+    onDowChange,
+    onDowBaseChange,
+  } = props
+
+  if (mode !== 'dow') {
+    const curInput = mode === 'yoy' ? yoyInput : achInput
+    const setCur = mode === 'yoy' ? onYoyChange : onAchChange
+    const presets = mode === 'yoy' ? PRESETS_YOY : PRESETS_ACH
+
+    return (
+      <SimInputBody>
+        <NumInputGroup>
+          <NumInputField
+            type="number"
+            min={0}
+            step={0.5}
+            value={curInput}
+            onChange={(e) => setCur(Number(e.target.value) || 0)}
+          />
+          <span className="u">%</span>
+        </NumInputGroup>
+        <NumRangeSlider
+          type="range"
+          min={50}
+          max={150}
+          step={0.5}
+          value={curInput}
+          onChange={(e) => setCur(Number(e.target.value))}
+        />
+        <PresetsRow>
+          {presets.map((p) => (
+            <PresetBtn
+              key={p.v}
+              type="button"
+              $active={Math.abs(curInput - p.v) < 0.1}
+              onClick={() => setCur(p.v)}
+            >
+              <span className="pl">{p.lbl}</span>
+              <span className="pv">{p.v}%</span>
+            </PresetBtn>
+          ))}
+        </PresetsRow>
+      </SimInputBody>
+    )
+  }
+
+  // dow mode
+  return (
+    <DowInputGrid
+      scenario={scenario}
+      currentDay={currentDay}
+      dowInputs={dowInputs}
+      dowBase={dowBase}
+      dayOverrides={dayOverrides}
+      fmtCurrency={fmtCurrency}
+      onDowChange={onDowChange}
+      onDowBaseChange={onDowBaseChange}
+    />
+  )
+}
+
+interface DowInputGridProps {
+  readonly scenario: SimulatorScenario
+  readonly currentDay: number
+  readonly dowInputs: DowFactors
+  readonly dowBase: DowBase
+  readonly dayOverrides: Readonly<Record<number, number>>
+  readonly fmtCurrency: Fmt
+  readonly onDowChange: (inputs: DowFactors) => void
+  readonly onDowBaseChange: (b: DowBase) => void
+}
+
+function DowInputGrid({
+  scenario,
+  currentDay,
   dowInputs,
   dowBase,
-  onYoyChange,
-  onAchChange,
+  dayOverrides,
+  fmtCurrency,
   onDowChange,
   onDowBaseChange,
-}: Props) {
+}: DowInputGridProps) {
+  const baseSeries = dowBase === 'yoy' ? scenario.lyDaily : scenario.dailyBudget
+
+  // 各曜日の残期間 baseSum / effectiveSum / override count を計算
+  const dowStats = useMemo(() => {
+    const stats: Record<
+      number,
+      { count: number; overCount: number; baseSum: number; effectiveSum: number }
+    > = {}
+    for (let dw = 0; dw < 7; dw++) {
+      stats[dw] = { count: 0, overCount: 0, baseSum: 0, effectiveSum: 0 }
+    }
+    for (let d = currentDay; d < scenario.daysInMonth; d++) {
+      const dayNum = d + 1
+      const dw = dowOf(scenario.year, scenario.month, dayNum)
+      const override = dayOverrides[dayNum]
+      const pct = override != null ? override : dowInputs[dw]
+      stats[dw].count++
+      stats[dw].baseSum += baseSeries[d] ?? 0
+      stats[dw].effectiveSum += (baseSeries[d] ?? 0) * (pct / 100)
+      if (override != null) stats[dw].overCount++
+    }
+    return stats
+  }, [scenario, currentDay, dowInputs, dayOverrides, baseSeries])
+
+  const autoFromActual = () => {
+    const actual = scenario.actualDaily
+    const base = baseSeries
+    const next: [number, number, number, number, number, number, number] = [
+      100, 100, 100, 100, 100, 100, 100,
+    ]
+    for (let dw = 0; dw < 7; dw++) {
+      let actualSum = 0
+      let baseSum = 0
+      for (let d = 0; d < currentDay; d++) {
+        if (dowOf(scenario.year, scenario.month, d + 1) === dw) {
+          actualSum += actual[d] ?? 0
+          baseSum += base[d] ?? 0
+        }
+      }
+      if (baseSum > 0) next[dw] = (actualSum / baseSum) * 100
+    }
+    onDowChange(next)
+  }
+
+  const resetAll = () => onDowChange([100, 100, 100, 100, 100, 100, 100])
+
+  const setDow = (dw: number, v: number) => {
+    const next = [...dowInputs] as [number, number, number, number, number, number, number]
+    next[dw] = v
+    onDowChange(next)
+  }
+
   return (
-    <ModeInputPanel>
-      {mode === 'yoy' && (
-        <DayInputRow>
-          <DayInputLabel htmlFor="sim-yoy-input">残期間の前年比 (%)</DayInputLabel>
-          <DayInputField
-            id="sim-yoy-input"
-            type="number"
-            min={0}
-            step={1}
-            value={yoyInput}
-            onChange={(e) => onYoyChange(Number(e.target.value))}
-          />
-        </DayInputRow>
-      )}
-      {mode === 'ach' && (
-        <DayInputRow>
-          <DayInputLabel htmlFor="sim-ach-input">残期間の予算達成率 (%)</DayInputLabel>
-          <DayInputField
-            id="sim-ach-input"
-            type="number"
-            min={0}
-            step={1}
-            value={achInput}
-            onChange={(e) => onAchChange(Number(e.target.value))}
-          />
-        </DayInputRow>
-      )}
-      {mode === 'dow' && (
-        <>
-          <ToggleSection>
-            <ChipGroup>
-              <Chip $active={dowBase === 'yoy'} onClick={() => onDowBaseChange('yoy')}>
-                基準: 前年
-              </Chip>
-              <Chip $active={dowBase === 'ach'} onClick={() => onDowBaseChange('ach')}>
-                基準: 予算
-              </Chip>
-            </ChipGroup>
-          </ToggleSection>
-          <DowInputsGrid>
-            {DOW_LABELS.map((label, idx) => (
-              <DowInputCell key={label}>
-                <label htmlFor={`sim-dow-${idx}`}>{label}</label>
-                <DayInputField
-                  id={`sim-dow-${idx}`}
+    <DowGridPanel>
+      <DowBaseRow>
+        <DowBaseLabel>基準:</DowBaseLabel>
+        <PresetsRow>
+          <PresetBtn
+            type="button"
+            $active={dowBase === 'yoy'}
+            onClick={() => onDowBaseChange('yoy')}
+          >
+            <span className="pl">前年</span>
+          </PresetBtn>
+          <PresetBtn
+            type="button"
+            $active={dowBase === 'ach'}
+            onClick={() => onDowBaseChange('ach')}
+          >
+            <span className="pl">予算</span>
+          </PresetBtn>
+        </PresetsRow>
+        <DowPresetBtn type="button" onClick={resetAll}>
+          100% リセット
+        </DowPresetBtn>
+        <DowPresetBtn type="button" onClick={autoFromActual}>
+          実績曜日平均を自動入力
+        </DowPresetBtn>
+      </DowBaseRow>
+
+      <DowGridCols>
+        {DOW_ORDER.map((dw) => {
+          const isWE = dw === 0 || dw === 6
+          const s = dowStats[dw]
+          return (
+            <DowCol key={dw} $weekend={isWE}>
+              <DowColName>{DOW_LABELS[dw]}</DowColName>
+              <DowColCount>
+                {s.count}日{s.overCount > 0 && <span className="ov"> (上書 {s.overCount})</span>}
+              </DowColCount>
+              <DowColValRow>
+                <DowColValInput
                   type="number"
-                  min={0}
                   step={1}
-                  value={dowInputs[idx]}
-                  onChange={(e) => {
-                    const n = Number(e.target.value)
-                    const next = [...dowInputs] as [
-                      number,
-                      number,
-                      number,
-                      number,
-                      number,
-                      number,
-                      number,
-                    ]
-                    next[idx] = n
-                    onDowChange(next)
-                  }}
+                  value={Math.round(dowInputs[dw] * 100) / 100}
+                  onChange={(e) => setDow(dw, Number(e.target.value) || 0)}
                 />
-              </DowInputCell>
-            ))}
-          </DowInputsGrid>
-        </>
-      )}
-    </ModeInputPanel>
+                <span className="u">%</span>
+              </DowColValRow>
+              <NumRangeSlider
+                type="range"
+                min={50}
+                max={150}
+                step={1}
+                value={dowInputs[dw]}
+                onChange={(e) => setDow(dw, Number(e.target.value))}
+              />
+              <DowColMoney>
+                ¥{fmtCurrency(s.baseSum)} <span className="arrow">→</span>
+                <strong>¥{fmtCurrency(s.effectiveSum)}</strong>
+              </DowColMoney>
+            </DowCol>
+          )
+        })}
+      </DowGridCols>
+    </DowGridPanel>
   )
 }

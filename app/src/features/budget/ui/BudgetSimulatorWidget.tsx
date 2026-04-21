@@ -1,41 +1,46 @@
 /**
  * 予算達成シミュレーター Widget
  *
- * UnifiedWidgetContext に直接依存することで、InsightPage 以外のページ
- * (Dashboard 等) でも利用可能。月内の任意の基準日から月末着地をリアルタイム試算。
+ * プロトタイプ構造を踏襲:
+ *   c-head (title + date + slider 横並び)
+ *   c-table-wrap (KPI テーブル、行 click でドリル展開)
+ *   c-sim-input-row (④ 入力セクション: mode / 入力 / 式 / ProjectionChart)
  *
- * Phase 3 MVP: KPI テーブル + 基準日スライダー + モード切替 + yoy/ach/dow 入力
- * Phase 3.5: サブコンポーネント分離 + DayCalendarInput + DrilldownPanel
- * Phase 3.6: ECharts 経由の ProjectionBarChart / DailyBarChart / StripChart
- * Phase 3.7: ctx 直接利用に変更 (InsightData 非依存化)
+ * UnifiedWidgetContext 直接依存で、InsightPage / Dashboard 等の任意ページで動作。
  *
  * @responsibility R:widget
  */
-import { useMemo } from 'react'
-import { Chip, ChipGroup } from '@/presentation/components/common/forms'
-import { Card, CardTitle } from '@/presentation/components/common/layout'
-import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
-import { sc } from '@/presentation/theme/semanticColors'
-import { palette } from '@/presentation/theme/tokens'
+import { memo, useMemo, useState } from 'react'
 import { formatPercent } from '@/domain/formatting'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import {
-  Table,
-  TableWrapper,
-  Td,
-  Th,
-  Tr,
-  ToggleSection,
-} from '@/presentation/pages/Insight/InsightPage.styles'
+import { Table, TableWrapper, Td, Th, Tr } from '@/presentation/pages/Insight/InsightPage.styles'
+import { Card } from '@/presentation/components/common/layout'
+import { dowOf } from '@/domain/calculations/budgetSimulator'
 import { useSimulatorScenario } from '../application/useSimulatorScenario'
 import { useSimulatorState } from '../application/useSimulatorState'
-import { buildSimulatorWidgetVm, type SimulatorWidgetRow } from './BudgetSimulatorWidget.vm'
 import {
+  buildSimulatorWidgetVm,
+  type DrillKey,
+  type SimulatorWidgetRow,
+} from './BudgetSimulatorWidget.vm'
+import {
+  ClickableTr,
   DiffNegative,
   DiffNeutral,
   DiffPositive,
+  DrillCaret,
+  DrillRow,
   GroupRow,
+  HeaderDate,
+  HeaderLeft,
+  HeaderTitle,
   HighlightRow,
+  SimChartLbl,
+  SimChartWrap,
+  SimFormula,
+  SimInputLabel,
+  SimInputSection,
+  SimulatorHeader,
   SmallText,
 } from './BudgetSimulatorWidget.styles'
 import { TimelineSlider } from './TimelineSlider'
@@ -51,198 +56,231 @@ interface Props {
   readonly ctx: UnifiedWidgetContext
 }
 
+const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
+
 export function BudgetSimulatorWidget({ ctx }: Props) {
-  const { result, prevYear, year, month, fmtCurrency, onExplain } = ctx
+  const { result, prevYear, year, month, fmtCurrency } = ctx
 
   const scenario = useSimulatorScenario({ result, prevYear, year, month })
-
   const state = useSimulatorState(result.elapsedDays || 1, scenario.daysInMonth)
-
-  // 頻繁な state 更新 (スライダー・入力変更) に対し計算を 1 回に抑える
   const vm = useMemo(() => buildSimulatorWidgetVm({ scenario, state }), [scenario, state])
 
+  // 行 click で展開するドリルキー
+  const [drill, setDrill] = useState<DrillKey | null>(null)
+  const toggleDrill = (key: DrillKey) => setDrill((prev) => (prev === key ? null : key))
+
+  const dow = dowOf(year, month, vm.kpis.currentDay)
+
   return (
-    <>
-      {/* ── KPI Grid (上段サマリ) ── */}
-      <KpiGrid>
-        <KpiCard
-          label="月末着地見込"
-          value={fmtCurrency(vm.finalLanding)}
-          subText={`予算比: ${vm.finalVsBudget != null ? formatPercent(vm.finalVsBudget / 100) : '—'}`}
-          accent={
-            vm.finalVsBudget != null && vm.finalVsBudget >= 100
-              ? sc.positive
-              : vm.finalVsBudget != null && vm.finalVsBudget >= 95
-                ? palette.primary
-                : sc.negative
-          }
-          trend={
-            vm.finalVsBudget != null && vm.finalVsBudget >= 100
-              ? { direction: 'up', label: '達成見込' }
-              : vm.finalVsBudget != null && vm.finalVsBudget >= 95
-                ? { direction: 'flat', label: '微妙' }
-                : { direction: 'down', label: '未達見込' }
-          }
-        />
-        <KpiCard
-          label="経過実績"
-          value={fmtCurrency(vm.kpis.elapsedActual)}
-          subText={`${vm.kpis.currentDay}/${scenario.daysInMonth}日経過`}
-          accent={palette.primary}
-        />
-        <KpiCard
-          label="残期間必要売上"
-          value={fmtCurrency(vm.kpis.requiredRemaining)}
-          subText={`残${vm.kpis.remainingDays}日`}
-          accent={palette.infoDark}
-          onClick={() => onExplain('remainingBudget')}
-        />
-        <KpiCard
-          label="予算達成率 (実績)"
-          value={
-            vm.kpis.elapsedAchievement != null
-              ? formatPercent(vm.kpis.elapsedAchievement / 100)
-              : '—'
-          }
-          subText={`経過予算: ${fmtCurrency(vm.kpis.elapsedBudget)}`}
-          accent={sc.achievement(
-            vm.kpis.elapsedAchievement != null ? vm.kpis.elapsedAchievement / 100 : 0,
-          )}
-          onClick={() => onExplain('budgetProgressRate')}
-        />
-      </KpiGrid>
-
-      {/* ── 基準日スライダー ── */}
-      <TimelineSlider
-        year={year}
-        month={month}
-        currentDay={vm.kpis.currentDay}
-        daysInMonth={scenario.daysInMonth}
-        remainingDays={vm.kpis.remainingDays}
-        onChange={state.setCurrentDay}
-      />
-
-      {/* ── モード切替 (残期間シミュレーション) ── */}
-      <ToggleSection>
-        <ChipGroup>
-          <Chip $active={state.mode === 'yoy'} onClick={() => state.setMode('yoy')}>
-            前年比
-          </Chip>
-          <Chip $active={state.mode === 'ach'} onClick={() => state.setMode('ach')}>
-            予算達成率
-          </Chip>
-          <Chip $active={state.mode === 'dow'} onClick={() => state.setMode('dow')}>
-            曜日別
-          </Chip>
-        </ChipGroup>
-      </ToggleSection>
-
-      {/* ── モード別入力 ── */}
-      <RemainingInputPanel
-        mode={state.mode}
-        yoyInput={state.yoyInput}
-        achInput={state.achInput}
-        dowInputs={state.dowInputs}
-        dowBase={state.dowBase}
-        onYoyChange={state.setYoyInput}
-        onAchChange={state.setAchInput}
-        onDowChange={state.setDowInputs}
-        onDowBaseChange={state.setDowBase}
-      />
-
-      {/* ── 日別 override (dow モード時のみ) ── */}
-      {state.mode === 'dow' && (
-        <DayCalendarInput
-          year={year}
-          month={month}
-          daysInMonth={scenario.daysInMonth}
+    <Card>
+      {/* ── c-head: Title + Date (left) / Slider (right) ── */}
+      <SimulatorHeader>
+        <HeaderLeft>
+          <HeaderTitle>予算達成シミュレーター</HeaderTitle>
+          <HeaderDate>
+            {year}年 {month}月 <strong>{vm.kpis.currentDay}</strong>日（{DOW_JP[dow]}） ／ 残{' '}
+            {vm.kpis.remainingDays}日
+          </HeaderDate>
+        </HeaderLeft>
+        <TimelineSlider
           currentDay={vm.kpis.currentDay}
+          daysInMonth={scenario.daysInMonth}
+          onChange={state.setCurrentDay}
+        />
+      </SimulatorHeader>
+
+      {/* ── KPI テーブル (4 セクション) ── */}
+      <TableWrapper>
+        <Table>
+          <thead>
+            <tr>
+              <Th>項目</Th>
+              <Th>金額</Th>
+              <Th>前年実績</Th>
+              <Th>前年比</Th>
+              <Th>達成率</Th>
+              <Th>日次推移</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {vm.rows.map((row, i) => (
+              <RowRender
+                key={i}
+                row={row}
+                fmtCurrency={fmtCurrency}
+                currentDay={vm.kpis.currentDay}
+                drill={drill}
+                onToggleDrill={toggleDrill}
+                scenario={scenario}
+                weekStart={state.weekStart}
+              />
+            ))}
+          </tbody>
+        </Table>
+      </TableWrapper>
+
+      {/* ── ④ 着地シミュレーター入力部 ── */}
+      <SimInputSection>
+        <SimInputLabel>④ 残期間の前提を入力</SimInputLabel>
+        <RemainingInputPanel
+          scenario={scenario}
+          currentDay={vm.kpis.currentDay}
+          mode={state.mode}
+          yoyInput={state.yoyInput}
+          achInput={state.achInput}
           dowInputs={state.dowInputs}
           dowBase={state.dowBase}
           dayOverrides={state.dayOverrides}
-          weekStart={state.weekStart}
-          onWeekStartChange={state.setWeekStart}
-          onOverrideChange={state.setDayOverride}
-          onOverrideClear={state.clearDayOverride}
-          onResetAll={state.resetDayOverrides}
+          fmtCurrency={fmtCurrency}
+          onYoyChange={state.setYoyInput}
+          onAchChange={state.setAchInput}
+          onDowChange={state.setDowInputs}
+          onDowBaseChange={state.setDowBase}
         />
-      )}
 
-      {/* ── KPI テーブル (4 セクション) ── */}
-      <Card>
-        <CardTitle>予算達成シミュレーション</CardTitle>
-        <TableWrapper>
-          <Table>
-            <thead>
-              <tr>
-                <Th>項目</Th>
-                <Th>金額</Th>
-                <Th>前年実績</Th>
-                <Th>前年比</Th>
-                <Th>達成率</Th>
-                <Th>日次推移</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {vm.rows.map((row, i) => renderRow(row, i, fmtCurrency, vm.kpis.currentDay))}
-            </tbody>
-          </Table>
-        </TableWrapper>
-      </Card>
+        {/* dow モード時のみ日別 override カレンダー */}
+        {state.mode === 'dow' && (
+          <DayCalendarInput
+            year={year}
+            month={month}
+            daysInMonth={scenario.daysInMonth}
+            currentDay={vm.kpis.currentDay}
+            dowInputs={state.dowInputs}
+            dowBase={state.dowBase}
+            dayOverrides={state.dayOverrides}
+            weekStart={state.weekStart}
+            onWeekStartChange={state.setWeekStart}
+            onOverrideChange={state.setDayOverride}
+            onOverrideClear={state.clearDayOverride}
+            onResetAll={state.resetDayOverrides}
+          />
+        )}
 
-      {/* ── ④用: 残期間予測バーチャート (ECharts) ── */}
-      <ProjectionBarChart
-        dailyProjection={vm.dailyProjection}
-        currentDay={vm.kpis.currentDay}
-        daysInMonth={scenario.daysInMonth}
-      />
+        {/* 式表示 */}
+        <SimFormula>{renderFormula(state.mode, state.dowBase, vm, fmtCurrency)}</SimFormula>
 
-      {/* ── ドリルダウン (週別・曜日別 + 日別バーチャート) ── */}
-      <DrilldownPanel scenario={scenario} weekStart={state.weekStart} fmtCurrency={fmtCurrency} />
-    </>
+        {/* 日次推移チャート */}
+        <SimChartWrap>
+          <SimChartLbl>月内 日次推移（残期間予測）</SimChartLbl>
+          <ProjectionBarChart
+            dailyProjection={vm.dailyProjection}
+            currentDay={vm.kpis.currentDay}
+            daysInMonth={scenario.daysInMonth}
+          />
+        </SimChartWrap>
+      </SimInputSection>
+    </Card>
   )
 }
 
-function renderRow(row: SimulatorWidgetRow, i: number, fmtCurrency: Fmt, currentDay: number) {
+// ─────────────────────────────────────────────────────────
+// 行レンダリング (ドリル展開 inline 対応)
+// ─────────────────────────────────────────────────────────
+
+interface RowProps {
+  readonly row: SimulatorWidgetRow
+  readonly fmtCurrency: Fmt
+  readonly currentDay: number
+  readonly drill: DrillKey | null
+  readonly onToggleDrill: (k: DrillKey) => void
+  readonly scenario: Parameters<typeof DrilldownPanel>[0]['scenario']
+  readonly weekStart: 0 | 1
+}
+
+const RowRender = memo(function RowRender({
+  row,
+  fmtCurrency,
+  currentDay,
+  drill,
+  onToggleDrill,
+  scenario,
+  weekStart,
+}: RowProps) {
   if (row.group) {
     return (
-      <GroupRow key={`g-${i}`}>
+      <GroupRow>
         <td colSpan={6}>{row.group}</td>
       </GroupRow>
     )
   }
 
-  const RowComponent = row.highlight ? HighlightRow : Tr
-  const LabelWrapper = row.small
-    ? SmallText
-    : ({ children }: { children: React.ReactNode }) => <>{children}</>
+  const isOpen = row.drillKey != null && drill === row.drillKey
+  const RowComp = row.highlight ? HighlightRow : row.drillKey ? ClickableTr : Tr
+  const wrapLabel = (node: React.ReactNode) =>
+    row.small ? <SmallText>{node}</SmallText> : node
 
   return (
-    <RowComponent key={`r-${i}`}>
-      <Td>
-        <LabelWrapper>{row.lbl}</LabelWrapper>
-      </Td>
-      <Td>{row.val != null ? <LabelWrapper>¥{fmtCurrency(row.val)}</LabelWrapper> : '—'}</Td>
-      <Td>{row.ly != null ? `¥${fmtCurrency(row.ly)}` : '—'}</Td>
-      <Td>{renderDiff(row.yoy)}</Td>
-      <Td>{renderDiff(row.ach)}</Td>
-      <Td>
-        {row.strip != null ? (
-          <StripChart
-            data={row.strip}
-            highlightRange={row.stripRange}
-            currentDay={currentDay}
-            variant={row.stripType}
-          />
-        ) : null}
-      </Td>
-    </RowComponent>
+    <>
+      <RowComp
+        onClick={row.drillKey ? () => onToggleDrill(row.drillKey!) : undefined}
+        aria-expanded={row.drillKey ? isOpen : undefined}
+      >
+        <Td>
+          {row.drillKey && <DrillCaret>{isOpen ? '▾' : '▸'}</DrillCaret>}
+          {wrapLabel(row.lbl)}
+        </Td>
+        <Td>{row.val != null ? wrapLabel(<>¥{fmtCurrency(row.val)}</>) : '—'}</Td>
+        <Td>{row.ly != null ? `¥${fmtCurrency(row.ly)}` : '—'}</Td>
+        <Td>{renderDiff(row.yoy)}</Td>
+        <Td>{renderDiff(row.ach)}</Td>
+        <Td>
+          {row.strip != null ? (
+            <StripChart
+              data={row.strip}
+              highlightRange={row.stripRange}
+              currentDay={currentDay}
+              variant={row.stripType}
+            />
+          ) : null}
+        </Td>
+      </RowComp>
+      {isOpen && row.drillKey && (
+        <DrillRow>
+          <td colSpan={6}>
+            <DrilldownPanel scenario={scenario} weekStart={weekStart} fmtCurrency={fmtCurrency} />
+          </td>
+        </DrillRow>
+      )}
+    </>
   )
-}
+})
 
 function renderDiff(pctValue: number | null | undefined) {
   if (pctValue == null) return <DiffNeutral>—</DiffNeutral>
   const formatted = `${pctValue.toFixed(1)}%`
   if (pctValue >= 100) return <DiffPositive>{formatted}</DiffPositive>
   return <DiffNegative>{formatted}</DiffNegative>
+}
+
+function renderFormula(
+  mode: 'yoy' | 'ach' | 'dow',
+  dowBase: 'yoy' | 'ach',
+  vm: ReturnType<typeof buildSimulatorWidgetVm>,
+  fmtCurrency: Fmt,
+) {
+  const diffClass = vm.landingDiff >= 0 ? 'diff-ok' : 'diff-bad'
+  const baseLabel = dowBase === 'yoy' ? '前年' : '予算'
+  const baseAmount = mode === 'yoy' ? vm.kpis.remLY : mode === 'ach' ? vm.kpis.remBudget : null
+
+  return (
+    <>
+      {mode === 'dow' ? (
+        <>
+          残期間売上 = Σ(各日 {baseLabel} × 曜日係数) ={' '}
+          <strong>¥{fmtCurrency(vm.remainingSales)}</strong>
+        </>
+      ) : (
+        <>
+          残期間売上 = ¥{fmtCurrency(baseAmount ?? 0)} × {vm.curInput.toFixed(1)}% ={' '}
+          <strong>¥{fmtCurrency(vm.remainingSales)}</strong>
+        </>
+      )}{' '}
+      → 月末着地 <strong className={diffClass}>¥{fmtCurrency(vm.finalLanding)}</strong>（月間予算比{' '}
+      <strong className={diffClass}>
+        {vm.landingDiff >= 0 ? '+' : ''}¥{fmtCurrency(vm.landingDiff)} /{' '}
+        {vm.finalVsBudget != null ? formatPercent(vm.finalVsBudget / 100) : '—'}
+      </strong>
+      ）
+    </>
+  )
 }

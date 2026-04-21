@@ -2,11 +2,12 @@
  * BudgetSimulator コンポーネント群の Storybook
  *
  * fixture scenario で ProjectionBarChart / StripChart / TimelineSlider /
- * RemainingInputPanel / DayCalendarInput / DrilldownPanel を単体確認する。
+ * RemainingInputPanel / DayCalendarInput を単体確認する。
  */
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
 import type { DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'
+import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   ProjectionBarChart,
   StripChart,
@@ -28,13 +29,13 @@ const FIXTURE_SCENARIO: SimulatorScenario = {
   actualDaily: uniform(15, 95_000).concat(uniform(15, 0)),
 }
 
-// ── ProjectionBarChart ──
-
 const meta: Meta = {
   title: 'Features/Budget/Simulator',
   parameters: { layout: 'padded' },
 }
 export default meta
+
+// ── ProjectionBarChart ──
 
 export const ProjectionBarChart_RemainingDays: StoryObj = {
   render: () => (
@@ -87,22 +88,15 @@ export const StripChart_Projection: StoryObj = {
 export const TimelineSlider_Interactive: StoryObj = {
   name: 'TimelineSlider (interactive)',
   render: () => {
-    const TimelineSliderDemo = () => {
+    const Demo = () => {
       const [day, setDay] = useState(15)
       return (
         <div style={{ maxWidth: '640px' }}>
-          <TimelineSlider
-            year={2026}
-            month={4}
-            currentDay={day}
-            daysInMonth={30}
-            remainingDays={30 - day}
-            onChange={setDay}
-          />
+          <TimelineSlider currentDay={day} daysInMonth={30} onChange={setDay} />
         </div>
       )
     }
-    return <TimelineSliderDemo />
+    return <Demo />
   },
 }
 
@@ -112,15 +106,20 @@ export const RemainingInputPanel_YoY: StoryObj = {
   name: 'RemainingInputPanel (yoy)',
   render: () => {
     const Demo = () => {
+      const { format: fmtCurrency } = useCurrencyFormat()
       const [yoy, setYoy] = useState(100)
       return (
-        <div style={{ maxWidth: '640px' }}>
+        <div style={{ maxWidth: '720px' }}>
           <RemainingInputPanel
+            scenario={FIXTURE_SCENARIO}
+            currentDay={15}
             mode="yoy"
             yoyInput={yoy}
             achInput={100}
             dowInputs={[100, 100, 100, 100, 100, 100, 100]}
             dowBase="yoy"
+            dayOverrides={{}}
+            fmtCurrency={fmtCurrency}
             onYoyChange={setYoy}
             onAchChange={() => undefined}
             onDowChange={() => undefined}
@@ -137,15 +136,20 @@ export const RemainingInputPanel_Dow: StoryObj = {
   name: 'RemainingInputPanel (dow, 7 曜日係数)',
   render: () => {
     const Demo = () => {
+      const { format: fmtCurrency } = useCurrencyFormat()
       const [dow, setDow] = useState<DowFactors>([110, 90, 95, 100, 105, 120, 130])
       return (
-        <div style={{ maxWidth: '640px' }}>
+        <div style={{ maxWidth: '900px' }}>
           <RemainingInputPanel
+            scenario={FIXTURE_SCENARIO}
+            currentDay={15}
             mode="dow"
             yoyInput={100}
             achInput={100}
             dowInputs={dow}
             dowBase="yoy"
+            dayOverrides={{}}
+            fmtCurrency={fmtCurrency}
             onYoyChange={() => undefined}
             onAchChange={() => undefined}
             onDowChange={(next) => setDow(next)}
