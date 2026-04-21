@@ -58,18 +58,12 @@ interface Props {
   readonly onDowBaseChange: (b: DowBase) => void
 }
 
-const PRESETS_YOY = [
-  { lbl: '前年同水準', v: 100 },
-  { lbl: '+5%', v: 105 },
-  { lbl: '+10%', v: 110 },
-  { lbl: '−5%', v: 95 },
-] as const
-
-const PRESETS_ACH = [
-  { lbl: '100%達成', v: 100 },
-  { lbl: '105%達成', v: 105 },
-  { lbl: '110%達成', v: 110 },
-  { lbl: '90%止まり', v: 90 },
+// 仕様書準拠: yoy/ach 共通で 95/100/105/110 の 4 プリセット
+const PRESETS = [
+  { lbl: '95%', v: 95 },
+  { lbl: '100%', v: 100 },
+  { lbl: '105%', v: 105 },
+  { lbl: '110%', v: 110 },
 ] as const
 
 export function RemainingInputPanel(props: Props) {
@@ -92,7 +86,7 @@ export function RemainingInputPanel(props: Props) {
   if (mode !== 'dow') {
     const curInput = mode === 'yoy' ? yoyInput : achInput
     const setCur = mode === 'yoy' ? onYoyChange : onAchChange
-    const presets = mode === 'yoy' ? PRESETS_YOY : PRESETS_ACH
+    const presets = PRESETS
 
     return (
       <SimInputBody>
@@ -100,7 +94,8 @@ export function RemainingInputPanel(props: Props) {
           <NumInputField
             type="number"
             min={0}
-            step={0.5}
+            max={200}
+            step={0.1}
             value={curInput}
             onChange={(e) => setCur(Number(e.target.value) || 0)}
           />
@@ -108,9 +103,9 @@ export function RemainingInputPanel(props: Props) {
         </NumInputGroup>
         <NumRangeSlider
           type="range"
-          min={50}
-          max={150}
-          step={0.5}
+          min={0}
+          max={200}
+          step={0.1}
           value={curInput}
           onChange={(e) => setCur(Number(e.target.value))}
         />
@@ -268,9 +263,9 @@ function DowInputGrid({
               </DowColValRow>
               <NumRangeSlider
                 type="range"
-                min={50}
-                max={150}
-                step={1}
+                min={0}
+                max={200}
+                step={0.1}
                 value={dowInputs[dw]}
                 onChange={(e) => setDow(dw, Number(e.target.value))}
               />

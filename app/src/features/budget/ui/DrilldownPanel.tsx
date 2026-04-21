@@ -1,27 +1,24 @@
 /**
  * DrilldownPanel — drill 対象 (kind) に応じた分析ビュー
  *
- * プロトタイプ同様に、クリックされた KPI 行の種別 (kind) に応じて
- * 表示するデータシリーズを切替える。
- *
- * - 月間売上予算 / 経過予算 / 残期間予算: 予算系列 (dailyBudget) を表示、前年 (lyDaily) と比較
- * - 経過実績: 実績系列 (actualDaily) を表示、前年 (lyDaily) と比較
- *
- * ビュー:
- * - カレンダー (全期間)
- * - 日別棒グラフ (実績 + 前年 + 移動平均)
- * - 曜日別テーブル (予算 vs 前年)
- * - 週別テーブル (予算 vs 前年)
+ * 仕様書 §06 Drilldown に準拠:
+ * (1) サマリー: 合計/日平均/最高日/最低日/比較合計/比較比
+ * (2) 比較対象切替 (elapsedActual のみ): 前年 / 予算
+ * (3) カレンダービュー (全期間)
+ * (4) 日別棒グラフ (当期 VS 比較)
+ * (5) 曜日別集計テーブル
+ * (6) 週別集計テーブル
  *
  * @responsibility R:widget
  */
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   aggregateDowAverages,
   aggregateWeeks,
   type SimulatorScenario,
 } from '@/domain/calculations/budgetSimulator'
 import { Card, CardTitle } from '@/presentation/components/common/layout'
+import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { Table, TableWrapper, Th, Td, Tr } from '@/presentation/pages/Insight/InsightPage.styles'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import {
@@ -41,20 +38,22 @@ interface Props {
   readonly scenario: SimulatorScenario
   readonly weekStart: 0 | 1
   readonly fmtCurrency: Fmt
-  /** どの KPI 行からの drill か。系列選択・表示切替に使う */
   readonly kind: DrillKey
-  /** 基準日 (1-based)。経過 drill のとき範囲指定に使う */
   readonly currentDay: number
 }
 
 // ─── drill 種別 → 表示系列のマップ ───
 
+type CompareMode = 'ly' | 'budget'
+
 interface DrillViewSpec {
   readonly primarySeries: readonly number[]
   readonly primaryLabel: string
-  readonly compareSeries: readonly number[] | null
-  readonly compareLabel: string
-  /** カレンダー・チャートのデータ範囲 [start, end] (1-based) */
+  /** 比較切替可否 (elapsedActual のみ true) */
+  readonly switchable: boolean
+  /** デフォルト比較モード */
+  readonly defaultCompareMode: CompareMode
+  /** データが有効な範囲 [start, end] (1-based) */
   readonly rangeStart: number
   readonly rangeEnd: number
   readonly sectionTitle: string
@@ -65,56 +64,114 @@ function resolveView(
   scenario: SimulatorScenario,
   currentDay: number,
 ): DrillViewSpec {
-  const { dailyBudget, actualDaily, lyDaily, daysInMonth } = scenario
+  const { dailyBudget, actualDaily, daysInMonth } = scenario
   switch (kind) {
     case 'elapsedActual':
       return {
         primarySeries: actualDaily,
-        primaryLabel: '実績',
-        compareSeries: lyDaily,
-        compareLabel: '前年',
+        primaryLabel: '経過実績',
+        switchable: true,
+        defaultCompareMode: 'ly',
         rangeStart: 1,
         rangeEnd: currentDay,
-        sectionTitle: '経過実績のドリル (1日〜' + currentDay + '日)',
+        sectionTitle: `経過実績 の内訳 (1〜${currentDay}日)`,
       }
     case 'elapsedBudget':
       return {
         primarySeries: dailyBudget,
-        primaryLabel: '予算',
-        compareSeries: lyDaily,
-        compareLabel: '前年',
+        primaryLabel: '経過予算',
+        switchable: false,
+        defaultCompareMode: 'ly',
         rangeStart: 1,
         rangeEnd: currentDay,
-        sectionTitle: '経過予算のドリル (1日〜' + currentDay + '日)',
+        sectionTitle: `経過予算 の内訳 (1〜${currentDay}日)`,
       }
     case 'remBudget':
       return {
         primarySeries: dailyBudget,
-        primaryLabel: '予算',
-        compareSeries: lyDaily,
-        compareLabel: '前年',
+        primaryLabel: '残期間予算',
+        switchable: false,
+        defaultCompareMode: 'ly',
         rangeStart: currentDay + 1,
         rangeEnd: daysInMonth,
-        sectionTitle: `残期間予算のドリル (${currentDay + 1}日〜${daysInMonth}日)`,
+        sectionTitle: `残期間予算 の内訳 (${currentDay + 1}〜${daysInMonth}日)`,
       }
     case 'monthlyBudget':
     default:
       return {
         primarySeries: dailyBudget,
-        primaryLabel: '予算',
-        compareSeries: lyDaily,
-        compareLabel: '前年',
+        primaryLabel: '月間予算',
+        switchable: false,
+        defaultCompareMode: 'ly',
         rangeStart: 1,
         rangeEnd: daysInMonth,
-        sectionTitle: '月間売上予算のドリル (1日〜' + daysInMonth + '日)',
+        sectionTitle: `月間売上予算 の内訳 (1〜${daysInMonth}日)`,
       }
   }
 }
 
+// ── サマリー計算 ──
+
+interface Summary {
+  readonly total: number
+  readonly dailyAvg: number
+  readonly maxDay: { readonly day: number; readonly value: number } | null
+  readonly minDay: { readonly day: number; readonly value: number } | null
+  readonly cmpTotal: number
+  readonly cmpRatio: number | null // primary / compare × 100
+}
+
+function computeSummary(
+  primary: readonly number[],
+  compare: readonly number[] | null,
+  rangeStart: number,
+  rangeEnd: number,
+): Summary {
+  let total = 0
+  let cmpTotal = 0
+  let count = 0
+  let max: Summary['maxDay'] = null
+  let min: Summary['minDay'] = null
+
+  for (let d = rangeStart; d <= rangeEnd; d++) {
+    const v = primary[d - 1] ?? 0
+    total += v
+    count++
+    if (compare) cmpTotal += compare[d - 1] ?? 0
+    if (v > 0 && (max == null || v > max.value)) max = { day: d, value: v }
+    if (v > 0 && (min == null || v < min.value)) min = { day: d, value: v }
+  }
+  const dailyAvg = count > 0 ? total / count : 0
+  const cmpRatio = cmpTotal > 0 ? (total / cmpTotal) * 100 : null
+  return { total, dailyAvg, maxDay: max, minDay: min, cmpTotal, cmpRatio }
+}
+
+const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
+
+function dowLabelOf(scenario: SimulatorScenario, day: number): string {
+  const dw = new Date(scenario.year, scenario.month - 1, day).getDay()
+  return DOW_JP[dw]
+}
+
+// ─── コンポーネント ───
+
 export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, currentDay }: Props) {
   const view = resolveView(kind, scenario, currentDay)
 
-  // 曜日別 / 週別 は全期間集計 (予算 vs 前年)
+  // 比較モード (elapsedActual のみ切替可、他は固定)
+  const [compareMode, setCompareMode] = useState<CompareMode>(view.defaultCompareMode)
+  const effectiveCompareMode = view.switchable ? compareMode : 'ly'
+
+  const compareSeries = effectiveCompareMode === 'ly' ? scenario.lyDaily : scenario.dailyBudget
+  const compareLabel = effectiveCompareMode === 'ly' ? '前年' : '予算'
+
+  // サマリー
+  const summary = useMemo(
+    () => computeSummary(view.primarySeries, compareSeries, view.rangeStart, view.rangeEnd),
+    [view.primarySeries, compareSeries, view.rangeStart, view.rangeEnd],
+  )
+
+  // 曜日別・週別は全期間 (予算 vs 前年)
   const dow = useMemo(() => aggregateDowAverages(scenario), [scenario])
   const weeks = useMemo(() => aggregateWeeks(scenario, weekStart), [scenario, weekStart])
 
@@ -122,7 +179,18 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
     <Card>
       <CardTitle>{view.sectionTitle}</CardTitle>
 
-      {/* ── カレンダービュー ── */}
+      {/* (1) 比較モードトグル + (2) サマリー行 */}
+      <SummaryRow
+        summary={summary}
+        compareLabel={compareLabel}
+        fmtCurrency={fmtCurrency}
+        scenario={scenario}
+        showToggle={view.switchable}
+        compareMode={effectiveCompareMode}
+        onCompareModeChange={setCompareMode}
+      />
+
+      {/* (3) カレンダービュー */}
       <DrillSection>
         <DrillTitle>
           日別 カレンダー ({view.rangeStart}〜{view.rangeEnd}日)
@@ -130,8 +198,8 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
         <DrillCalendar
           scenario={scenario}
           data={view.primarySeries}
-          compare={view.compareSeries}
-          compareLabel={view.compareLabel}
+          compare={compareSeries}
+          compareLabel={compareLabel}
           rangeStart={view.rangeStart}
           rangeEnd={view.rangeEnd}
           weekStart={weekStart}
@@ -139,22 +207,22 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
         />
       </DrillSection>
 
-      {/* ── 日別棒グラフ (当期 VS 前年) ── */}
+      {/* (4) 日別棒グラフ */}
       <DrillSection>
         <DrillTitle>
-          日別 推移（{view.primaryLabel} VS {view.compareLabel}）
+          日別 推移（{view.primaryLabel} VS {compareLabel}）
         </DrillTitle>
         <DailyBarChart
           data={view.primarySeries}
-          compare={view.compareSeries}
+          compare={compareSeries}
           label={view.primaryLabel}
-          compareLabel={view.compareLabel}
+          compareLabel={compareLabel}
           title=""
           height={260}
         />
       </DrillSection>
 
-      {/* ── 曜日別テーブル (予算 vs 前年) ── */}
+      {/* (5) 曜日別テーブル */}
       <DrillSection>
         <DrillTitle>曜日別 (全期間・予算 vs 前年)</DrillTitle>
         <TableWrapper>
@@ -170,7 +238,6 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
             </thead>
             <tbody>
               {dow.map((row) => {
-                // 予算 / 前年 — 実績は月後半未達日が 0 のため誤解を生むため本テーブルでは表示せず
                 const yoy = row.lyTotal > 0 ? (row.budgetTotal / row.lyTotal) * 100 : null
                 return (
                   <Tr key={row.dow}>
@@ -187,7 +254,7 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
         </TableWrapper>
       </DrillSection>
 
-      {/* ── 週別テーブル (予算 vs 前年) ── */}
+      {/* (6) 週別テーブル */}
       <DrillSection>
         <DrillTitle>週別 (全期間・予算 vs 前年)</DrillTitle>
         <TableWrapper>
@@ -221,6 +288,94 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
         </TableWrapper>
       </DrillSection>
     </Card>
+  )
+}
+
+interface SummaryRowProps {
+  readonly summary: Summary
+  readonly compareLabel: string
+  readonly fmtCurrency: Fmt
+  readonly scenario: SimulatorScenario
+  readonly showToggle: boolean
+  readonly compareMode: CompareMode
+  readonly onCompareModeChange: (m: CompareMode) => void
+}
+
+function SummaryRow({
+  summary,
+  compareLabel,
+  fmtCurrency,
+  scenario,
+  showToggle,
+  compareMode,
+  onCompareModeChange,
+}: SummaryRowProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '1rem 1.5rem',
+        padding: '0.5rem 0',
+        alignItems: 'baseline',
+      }}
+    >
+      {showToggle && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '0.85rem', opacity: 0.75 }}>比較:</span>
+          <ChipGroup>
+            <Chip $active={compareMode === 'ly'} onClick={() => onCompareModeChange('ly')}>
+              前年
+            </Chip>
+            <Chip $active={compareMode === 'budget'} onClick={() => onCompareModeChange('budget')}>
+              予算
+            </Chip>
+          </ChipGroup>
+        </div>
+      )}
+      <SummaryStat label="合計" value={`¥${fmtCurrency(summary.total)}`} bold />
+      <SummaryStat label="日平均" value={`¥${fmtCurrency(summary.dailyAvg)}`} />
+      {summary.maxDay && (
+        <SummaryStat
+          label="最高"
+          value={`¥${fmtCurrency(summary.maxDay.value)}`}
+          sub={`${summary.maxDay.day}日(${dowLabelOf(scenario, summary.maxDay.day)})`}
+        />
+      )}
+      {summary.minDay && (
+        <SummaryStat
+          label="最低"
+          value={`¥${fmtCurrency(summary.minDay.value)}`}
+          sub={`${summary.minDay.day}日(${dowLabelOf(scenario, summary.minDay.day)})`}
+        />
+      )}
+      <SummaryStat label={`${compareLabel}合計`} value={`¥${fmtCurrency(summary.cmpTotal)}`} />
+      {summary.cmpRatio != null && (
+        <SummaryStat label={`${compareLabel}比`} value={renderPct(summary.cmpRatio)} />
+      )}
+    </div>
+  )
+}
+
+function SummaryStat({
+  label,
+  value,
+  sub,
+  bold,
+}: {
+  readonly label: string
+  readonly value: React.ReactNode
+  readonly sub?: string
+  readonly bold?: boolean
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+      <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{label}</span>
+      <span style={{ fontSize: bold ? '0.95rem' : '0.88rem', fontWeight: bold ? 700 : 500 }}>
+        {value}
+      </span>
+      {sub && <span style={{ fontSize: '0.68rem', opacity: 0.55 }}>{sub}</span>}
+    </div>
   )
 }
 

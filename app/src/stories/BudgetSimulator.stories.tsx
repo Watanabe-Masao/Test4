@@ -41,7 +41,11 @@ export default meta
 export const ProjectionBarChart_RemainingDays: StoryObj = {
   render: () => (
     <div style={{ maxWidth: '900px' }}>
-      <ProjectionBarChart dailyProjection={uniform(15, 110_000)} currentDay={15} daysInMonth={30} />
+      <ProjectionBarChart
+        scenario={FIXTURE_SCENARIO}
+        dailyProjection={uniform(15, 110_000)}
+        currentDay={15}
+      />
     </div>
   ),
 }
@@ -50,7 +54,7 @@ export const ProjectionBarChart_MonthEnd: StoryObj = {
   name: 'ProjectionBarChart (月末到達: 空状態)',
   render: () => (
     <div style={{ maxWidth: '900px' }}>
-      <ProjectionBarChart dailyProjection={[]} currentDay={30} daysInMonth={30} />
+      <ProjectionBarChart scenario={FIXTURE_SCENARIO} dailyProjection={[]} currentDay={30} />
     </div>
   ),
 }
@@ -170,17 +174,17 @@ export const DayCalendarInput_NoOverrides: StoryObj = {
   render: () => {
     const Demo = () => {
       const [overrides, setOverrides] = useState<Record<number, number>>({})
+      const { format: fmtCurrency } = useCurrencyFormat()
       return (
         <div style={{ maxWidth: '860px' }}>
           <DayCalendarInput
-            year={2026}
-            month={4}
-            daysInMonth={30}
+            scenario={FIXTURE_SCENARIO}
             currentDay={10}
             dowInputs={[110, 90, 95, 100, 105, 120, 130]}
             dowBase="yoy"
             dayOverrides={overrides}
             weekStart={1}
+            fmtCurrency={fmtCurrency}
             onWeekStartChange={() => undefined}
             onOverrideChange={(day, pct) => setOverrides((p) => ({ ...p, [day]: pct }))}
             onOverrideClear={(day) =>
