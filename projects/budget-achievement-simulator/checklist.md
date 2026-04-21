@@ -28,25 +28,35 @@
 
 ## Phase 2: Application 層（ViewModel / Hooks）
 
-* [ ] `app/src/features/budget-simulator/application/useSimulatorState.ts` を実装した
-* [ ] `app/src/features/budget-simulator/application/useSimulatorScenario.ts` を実装した
-* [ ] `app/src/features/budget-simulator/ui/BudgetSimulatorPage.vm.ts` を実装した
-* [ ] `BudgetSimulatorPage.vm.test.ts` と hook テストが PASS する
-* [ ] localStorage のキーが `budget-simulator:*` プレフィックスに統一されている
+> **配置変更** (ユーザー方針): 新規 feature 作成 → **既存 `features/budget/` 内 widget embed**。
+> ファイル名は widget プレフィックス。
 
-## Phase 3: Presentation 層（ページ + サブコンポーネント）
+* [x] `app/src/features/budget/application/useSimulatorState.ts` を実装した
+* [x] `app/src/features/budget/application/useSimulatorScenario.ts` を実装した
+* [x] `app/src/features/budget/ui/BudgetSimulatorWidget.vm.ts` を実装した
+* [x] `BudgetSimulatorWidget.vm.test.ts` と hook テスト (useSimulatorScenario / useSimulatorState) が PASS する
+* [x] localStorage のキーが `shiire-arari-budget-simulator-*` プレフィックスに統一されている（既存 `shiire-arari-*` 命名規約に準拠）
 
-* [ ] `BudgetSimulatorPage.tsx` を実装した
-* [ ] `TimelineSlider.tsx` を実装した
-* [ ] `KpiTable.tsx` を実装した
-* [ ] `RemainingInputPanel.tsx`（④入力部・3 モードトグル）を実装した
-* [ ] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き）を実装した
-* [ ] `DrilldownPanel.tsx`（週別・曜日別・日別カレンダー・日別棒グラフ）を実装した
-* [ ] `ProjectionBarChart.tsx` / `DailyBarChart.tsx` / `DrillCalendar.tsx` / `StripChart.tsx` を実装した
-* [ ] `features/budget-simulator/index.ts`（public API）と `manifest.ts`（ownership）を作成した
-* [ ] styled-components の `*.styles.ts` を分離し、デザイントークン経由で色・間隔を指定した
-* [ ] `app/src/stories/BudgetSimulator.stories.tsx` を追加した
-* [ ] `npm run test:visual`（visual regression）が PASS する
+## Phase 3: Presentation 層（Widget + サブコンポーネント）
+
+> **配置変更**: 新規ページ → **features/budget/ 内 widget**。
+> ファイル名は `BudgetSimulatorWidget.tsx` (ページではなく widget)。
+
+* [x] `BudgetSimulatorWidget.tsx` (MVP: KPI grid + 基準日スライダー + モード切替 + yoy/ach/dow 入力 + KPI テーブル) を実装した
+* [x] `BudgetSimulatorWidget.styles.ts` を分離し、デザイントークン (`theme.colors.palette` / `theme.radii` / `theme.spacing`) 経由で色・間隔を指定した
+* [x] `features/budget/index.ts` / `ui/index.ts` に widget と VM を barrel export した
+* [x] `INSIGHT_WIDGETS` に `'insight-budget-simulator'` エントリを追加した
+* [x] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した
+* [x] `RemainingInputPanel.tsx`（mode 別入力 UI の分離）を実装した
+* [x] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き、full-month calendar）を実装した
+* [x] `DrilldownPanel.tsx`（週別・曜日別テーブル集計 + DailyBarChart embed）を実装した
+* [x] `aggregateDowAverages` / `aggregateWeeks` を domain 層に pure function として追加した (`budgetSimulatorAggregations.ts`)
+* [x] `ProjectionBarChart.tsx` (ECharts bar) を実装し widget に組込んだ
+* [x] `DailyBarChart.tsx` (ECharts bar + 移動平均 line overlay) を実装し DrilldownPanel に組込んだ
+* [x] `StripChart.tsx` (SVG コンパクトストリップ) を実装し KPI テーブルの「日次推移」列に組込んだ
+* [x] `app/src/stories/BudgetSimulator.stories.tsx` を追加した (9 stories)
+* [ ] `npm run test:visual`（visual regression）が PASS する — Storybook 起動に WASM ビルドが必要なため CI (wasm-build → fast-gate) で検証
+* [ ] `DrillCalendar.tsx` (カレンダーヒートマップ) は Phase 3.7 以降の拡張として保留
 
 ## Phase 4: 組込み（PAGE_REGISTRY / Nav / routes）
 

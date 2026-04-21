@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-21T11:11:52.121Z",
+  "timestamp": "2026-04-21T13:18:44.554Z",
   "summary": {
     "active": 7,
     "archived": 18,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 649,
-    "checkedCheckboxes": 481
+    "totalCheckboxes": 653,
+    "checkedCheckboxes": 499
   },
   "projects": [
     {
@@ -70,9 +70,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 11,
-      "total": 42,
-      "progress": 0.262,
+      "checked": 29,
+      "total": 46,
+      "progress": 0.63,
       "entrypoint": "projects/budget-achievement-simulator/AI_CONTEXT.md",
       "checklistPath": "projects/budget-achievement-simulator/checklist.md",
       "parent": null

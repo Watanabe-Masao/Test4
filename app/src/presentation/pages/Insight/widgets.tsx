@@ -8,6 +8,7 @@ import type { WidgetDef } from '@/presentation/components/widgets'
 import { PiCvBubbleChart } from '@/presentation/components/charts'
 import { BudgetTabContent, GrossProfitTabContent } from './InsightTabBudget'
 import { ForecastTabContent, DecompositionTabContent } from './InsightTabForecast'
+import { BudgetSimulatorWidget } from '@/features/budget'
 
 export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
   {
@@ -18,6 +19,17 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     render: (ctx) => {
       if (!ctx.insightData) return null
       return <BudgetTabContent d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
+    },
+    isVisible: (ctx) => ctx.insightData != null,
+  },
+  {
+    id: 'insight-budget-simulator',
+    label: '予算達成シミュレーター',
+    group: 'インサイト',
+    size: 'full',
+    render: (ctx) => {
+      if (!ctx.insightData) return null
+      return <BudgetSimulatorWidget d={ctx.insightData} r={ctx.result} onExplain={ctx.onExplain} />
     },
     isVisible: (ctx) => ctx.insightData != null,
   },

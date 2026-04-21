@@ -2,19 +2,10 @@
  * 予算達成シミュレーター — what-if 計算 + 基盤 KPI
  *
  * 月内の任意の基準日から「経過予算 / 経過実績 / 残期間必要売上 / 月末着地見込」を
- * リアルタイムに算出する。残期間売上は 3 モード (yoy / achievement / dow) で試算する。
- *
- * ## 責務
- * - 基盤 KPI 集計（computeKpis）— 既存 pure 関数の orchestration 層
- * - 残期間売上の 3 モード what-if 計算（computeRemainingSales）
- * - 日別予測配分・曜日出現カウント（ドリルダウン用）
- *
- * ## 設計原則
- * - pure function（副作用なし、React 非依存）
- * - 既存 domain 関数を再利用（projectLinear / calculateYoYRatio /
- *   calculateAchievementRate / prorateBudget）。既存関数は改変しない
- * - scenario は配列ベース（プロトタイプ準拠、0-indexed で index i = day i+1）
- * - 率は % 整数値で返す（100 = 100%。プロトタイプ計算式を踏襲）
+ * リアルタイムに算出する。残期間売上は 3 モード (yoy / ach / dow) で試算する。
+ * 既存 pure 関数 (projectLinear / calculateYoYRatio / calculateAchievementRate /
+ * prorateBudget) を再利用する orchestration 層。scenario は配列ベース
+ * (0-indexed、index i = day i+1)、率は % 整数 (100 = 100%)。
  *
  * @see projects/budget-achievement-simulator/plan.md
  */
@@ -294,3 +285,12 @@ export function computeDowCounts(scenario: SimulatorScenario, currentDay: number
   }
   return counts
 }
+
+// ── 再 export (集計関数はサイズ制限で別ファイルに分離) ──
+
+export {
+  aggregateDowAverages,
+  aggregateWeeks,
+  type DowAggregation,
+  type WeekAggregation,
+} from './budgetSimulatorAggregations'
