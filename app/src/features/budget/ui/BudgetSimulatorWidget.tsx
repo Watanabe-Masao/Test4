@@ -61,7 +61,18 @@ const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
 export function BudgetSimulatorWidget({ ctx }: Props) {
   const { result, prevYear, year, month, fmtCurrency } = ctx
 
-  const scenario = useSimulatorScenario({ result, prevYear, year, month })
+  // full-month 前年売上: FreePeriodReadModel の comparisonSummary.totalSales を使う
+  // (ConditionSummary widget と同じソース)。未利用ページでは undefined → 従来挙動に fallback。
+  const fullMonthLyTotal =
+    ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
+
+  const scenario = useSimulatorScenario({
+    result,
+    prevYear,
+    year,
+    month,
+    fullMonthLyTotal,
+  })
   const state = useSimulatorState(result.elapsedDays || 1, scenario.daysInMonth)
   const vm = useMemo(() => buildSimulatorWidgetVm({ scenario, state }), [scenario, state])
 
