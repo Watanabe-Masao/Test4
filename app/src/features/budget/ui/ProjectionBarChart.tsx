@@ -63,6 +63,8 @@ function buildOption(
   const maBudget = calculatePartialMovingAverage(dailyBudget, 7).map((v) => (v == null ? null : v))
   const maLy = calculatePartialMovingAverage(lyDaily, 7).map((v) => (v == null ? null : v))
 
+  // 当期 (経過実績 + 残期間予測) は同一 stack で 1 本の bar に統合。
+  // 予算は別系列として 当期 bar の隣に横並び (grouped bar)。
   const series: NonNullable<EChartsOption['series']> = [
     {
       name: '経過実績',
@@ -71,10 +73,9 @@ function buildOption(
       data: elapsedBars,
       itemStyle: {
         color: theme.colors.palette.positive,
-        opacity: 0.85,
         borderRadius: [2, 2, 0, 0],
       },
-      barMaxWidth: 16,
+      barMaxWidth: 14,
     },
     {
       name: '残期間予測',
@@ -83,10 +84,9 @@ function buildOption(
       data: projBars,
       itemStyle: {
         color: theme.colors.palette.warningDark,
-        opacity: 0.85,
         borderRadius: [2, 2, 0, 0],
       },
-      barMaxWidth: 16,
+      barMaxWidth: 14,
     },
     {
       name: '予算',
@@ -94,12 +94,10 @@ function buildOption(
       data: dailyBudget.map((v) => v),
       itemStyle: {
         color: theme.colors.text3,
-        opacity: 0.35,
+        opacity: 0.55,
         borderRadius: [2, 2, 0, 0],
       },
-      barMaxWidth: 16,
-      barGap: '-100%', // 予算を背面に重ねる
-      z: 1,
+      barMaxWidth: 14,
     },
     {
       name: '当期 7日移動平均',

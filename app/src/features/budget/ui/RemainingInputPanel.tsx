@@ -7,7 +7,7 @@
  *
  * @responsibility R:form
  */
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type {
   DowBase,
   DowFactors,
@@ -66,6 +66,46 @@ const PRESETS = [
   { lbl: '110%', v: 110 },
 ] as const
 
+/**
+ * % 入力の raw string 管理 (仕様書 §07 「0 入力の扱い」)。
+ *
+ * - フォーカス中は「空文字」「0」「3.」「-」等の中間状態を保持
+ * - onBlur 時に Number() → 正規化 (NaN → 0、上下限 clamp)
+ * - 外部から value prop が変わったら同期 (プリセットボタン / プリセット適用時)
+ *
+ * 「バックスペースで 0 にしたい」「3.2 を 3. まで消して打ち直し」が自然に動く。
+ */
+function useRawNumericInput(
+  value: number,
+  onChange: (n: number) => void,
+  options?: { readonly min?: number; readonly max?: number },
+) {
+  // focus 中は raw を保持、blur/非 focus 時は value を表示に derive。
+  // これにより useEffect による cascading render を回避する。
+  const [draft, setDraft] = useState<string | null>(null)
+  const raw = draft ?? String(value)
+
+  const handleChange = (next: string) => {
+    setDraft(next)
+    if (next === '' || next === '-' || next.endsWith('.')) return
+    const n = Number(next)
+    if (Number.isFinite(n)) onChange(n)
+  }
+
+  const handleBlur = () => {
+    let n = Number(draft ?? value)
+    if (!Number.isFinite(n) || draft === '') n = 0
+    if (options?.min != null && n < options.min) n = options.min
+    if (options?.max != null && n > options.max) n = options.max
+    setDraft(null)
+    onChange(n)
+  }
+
+  const handleFocus = () => setDraft(String(value))
+
+  return { raw, handleChange, handleBlur, handleFocus }
+}
+
 export function RemainingInputPanel(props: Props) {
   const {
     scenario,
@@ -84,47 +124,17 @@ export function RemainingInputPanel(props: Props) {
   } = props
 
   if (mode !== 'dow') {
-    const curInput = mode === 'yoy' ? yoyInput : achInput
-    const setCur = mode === 'yoy' ? onYoyChange : onAchChange
-    const presets = PRESETS
-
     return (
-      <SimInputBody>
-        <NumInputGroup>
-          <NumInputField
-            type="number"
-            min={0}
-            max={200}
-            step={0.1}
-            value={curInput}
-            onChange={(e) => setCur(Number(e.target.value) || 0)}
-          />
-          <span className="u">%</span>
-        </NumInputGroup>
-        <NumRangeSlider
-          type="range"
-          min={0}
-          max={200}
-          step={0.1}
-          value={curInput}
-          onChange={(e) => setCur(Number(e.target.value))}
-        />
-        <PresetsRow>
-          {presets.map((p) => (
-            <PresetBtn
-              key={p.v}
-              type="button"
-              $active={Math.abs(curInput - p.v) < 0.1}
-              onClick={() => setCur(p.v)}
-            >
-              <span className="pl">{p.lbl}</span>
-              <span className="pv">{p.v}%</span>
-            </PresetBtn>
-          ))}
-        </PresetsRow>
-      </SimInputBody>
+      <SingleModeInput
+        mode={mode}
+        yoyInput={yoyInput}
+        achInput={achInput}
+        onYoyChange={onYoyChange}
+        onAchChange={onAchChange}
+      />
     )
   }
+  // dow mode fallthrough handled below
 
   // dow mode
   return (
@@ -138,6 +148,70 @@ export function RemainingInputPanel(props: Props) {
       onDowChange={onDowChange}
       onDowBaseChange={onDowBaseChange}
     />
+  )
+}
+
+// ── 単一モード (yoy / ach) の入力 ──
+// 仕様書 §07 「0 入力の扱い」準拠: raw string を focus 中に保持し、
+// blur で正規化 (0〜200 に clamp)。
+function SingleModeInput({
+  mode,
+  yoyInput,
+  achInput,
+  onYoyChange,
+  onAchChange,
+}: {
+  readonly mode: 'yoy' | 'ach'
+  readonly yoyInput: number
+  readonly achInput: number
+  readonly onYoyChange: (n: number) => void
+  readonly onAchChange: (n: number) => void
+}) {
+  const curInput = mode === 'yoy' ? yoyInput : achInput
+  const setCur = mode === 'yoy' ? onYoyChange : onAchChange
+
+  const { raw, handleChange, handleBlur, handleFocus } = useRawNumericInput(curInput, setCur, {
+    min: 0,
+    max: 200,
+  })
+
+  return (
+    <SimInputBody>
+      <NumInputGroup>
+        <NumInputField
+          type="number"
+          min={0}
+          max={200}
+          step={0.1}
+          value={raw}
+          onChange={(e) => handleChange(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        <span className="u">%</span>
+      </NumInputGroup>
+      <NumRangeSlider
+        type="range"
+        min={0}
+        max={200}
+        step={0.1}
+        value={curInput}
+        onChange={(e) => setCur(Number(e.target.value))}
+      />
+      <PresetsRow>
+        {PRESETS.map((p) => (
+          <PresetBtn
+            key={p.v}
+            type="button"
+            $active={Math.abs(curInput - p.v) < 0.1}
+            onClick={() => setCur(p.v)}
+          >
+            <span className="pl">{p.lbl}</span>
+            <span className="pv">{p.v}%</span>
+          </PresetBtn>
+        ))}
+      </PresetsRow>
+    </SimInputBody>
   )
 }
 

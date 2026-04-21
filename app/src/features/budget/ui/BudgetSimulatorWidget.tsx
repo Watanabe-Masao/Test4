@@ -40,6 +40,11 @@ import {
   SimFormula,
   SimInputLabel,
   SimInputSection,
+  SimResultCard,
+  SimResultGrid,
+  SimResultLabel,
+  SimResultSub,
+  SimResultValue,
   SimulatorHeader,
   SmallText,
 } from './BudgetSimulatorWidget.styles'
@@ -167,6 +172,39 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
 
         {/* 式表示 */}
         <SimFormula>{renderFormula(state.mode, state.dowBase, vm, fmtCurrency)}</SimFormula>
+
+        {/* ── 結果表示カード (仕様書 §07 結果表示) ── */}
+        <SimResultGrid>
+          <SimResultCard>
+            <SimResultLabel>残期間売上予測</SimResultLabel>
+            <SimResultValue>¥{fmtCurrency(vm.remainingSales)}</SimResultValue>
+            <SimResultSub>残{vm.kpis.remainingDays}日</SimResultSub>
+          </SimResultCard>
+          <SimResultCard $highlight>
+            <SimResultLabel>月末着地見込</SimResultLabel>
+            <SimResultValue>¥{fmtCurrency(vm.finalLanding)}</SimResultValue>
+            <SimResultSub>経過実績 + 残期間予測</SimResultSub>
+          </SimResultCard>
+          <SimResultCard>
+            <SimResultLabel>月間予算との差異</SimResultLabel>
+            <SimResultValue $positive={vm.landingDiff >= 0} $negative={vm.landingDiff < 0}>
+              {vm.landingDiff >= 0 ? '+' : ''}¥{fmtCurrency(vm.landingDiff)}
+            </SimResultValue>
+            <SimResultSub>
+              予算比 {vm.finalVsBudget != null ? `${vm.finalVsBudget.toFixed(1)}%` : '—'}
+            </SimResultSub>
+          </SimResultCard>
+          <SimResultCard>
+            <SimResultLabel>月末着地 前年比</SimResultLabel>
+            <SimResultValue
+              $positive={vm.finalVsLY != null && vm.finalVsLY >= 100}
+              $negative={vm.finalVsLY != null && vm.finalVsLY < 100}
+            >
+              {vm.finalVsLY != null ? `${vm.finalVsLY.toFixed(1)}%` : '—'}
+            </SimResultValue>
+            <SimResultSub>前年 ¥{fmtCurrency(scenario.lyMonthly)}</SimResultSub>
+          </SimResultCard>
+        </SimResultGrid>
 
         {/* 日次推移チャート */}
         <SimChartWrap>
