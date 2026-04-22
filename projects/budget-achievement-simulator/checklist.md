@@ -50,12 +50,12 @@
 
 ## Phase F: 段階的な実データ接続
 
-* [ ] 月次予算を source adapter から scenario に接続した
-* [ ] 日別実績を source adapter から scenario に接続した
-* [ ] 前年同月日別を source adapter から scenario に接続した
-* [ ] 曜日別集計を source adapter から scenario に接続した
-* [ ] 日別 override 反映後の projection が scenario / VM 経由で描画される
-* [ ] 主要欠損ケースで widget が空描画やクラッシュを起こさない
+* [x] 月次予算を source adapter から scenario に接続した
+* [x] 日別実績を source adapter から scenario に接続した
+* [x] 前年同月日別を source adapter から scenario に接続した
+* [x] 曜日別集計を source adapter から scenario に接続した
+* [x] 日別 override 反映後の projection が scenario / VM 経由で描画される
+* [x] 主要欠損ケースで widget が空描画やクラッシュを起こさない
 
 ## Phase G: widget 組込みの整理
 
