@@ -66,14 +66,14 @@
 
 ## Phase H: テストと仕上げ
 
-* [ ] `BudgetSimulatorWidget.vm.test.ts` が reboot 後の構造で PASS する
-* [ ] `useBudgetSimulatorWidgetPlan` または builder 群の unit test を追加した
-* [ ] `npm run lint` が PASS する
-* [ ] `npm run format:check` が PASS する
-* [ ] `npm run test:guards` が PASS する
-* [ ] `npm run test:visual` が PASS する
-* [ ] `cd app && npm run health:check` が warning なしで通る
-* [ ] `cd app && npm run build` が成功する
+* [x] `BudgetSimulatorWidget.vm.test.ts` が reboot 後の構造で PASS する
+* [x] `useBudgetSimulatorWidgetPlan` または builder 群の unit test を追加した
+* [x] `npm run lint` が PASS する
+* [x] `npm run format:check` が PASS する
+* [x] `npm run test:guards` が PASS する
+* [ ] `npm run test:visual` が PASS する (Storybook + WASM 依存のため CI で検証)
+* [x] `cd app && npm run health:check` が warning なしで通る
+* [x] `cd app && npm run build` が成功する
 
 ## 最終レビュー (人間承認)
 
