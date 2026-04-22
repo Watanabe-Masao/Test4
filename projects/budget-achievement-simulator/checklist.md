@@ -17,10 +17,10 @@
 
 ## Phase B: UI 契約の固定
 
-* [ ] `SimulatorScenario` の widget 用入力契約を再確認し、再利用 / 変更点を記録した
-* [ ] `app/src/features/budget/application/mockBudgetSimulatorScenario.ts` を作成した
-* [ ] `BudgetSimulatorWidget` が実データなしで mock scenario を受け取って描画できる
-* [ ] state と scenario の責務分離を `HANDOFF.md` か `AI_CONTEXT.md` に明記した
+* [x] `SimulatorScenario` の widget 用入力契約を再確認し、再利用 / 変更点を記録した
+* [x] `app/src/features/budget/application/mockBudgetSimulatorScenario.ts` を作成した
+* [x] `BudgetSimulatorWidget` が実データなしで mock scenario を受け取って描画できる
+* [x] state と scenario の責務分離を `HANDOFF.md` か `AI_CONTEXT.md` に明記した
 
 ## Phase C: 見た目の再移植
 

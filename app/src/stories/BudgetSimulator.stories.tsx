@@ -6,7 +6,7 @@
  */
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import type { DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'
+import type { DowFactors } from '@/domain/calculations/budgetSimulator'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
   ProjectionBarChart,
@@ -15,20 +15,12 @@ import {
   RemainingInputPanel,
   DayCalendarInput,
 } from '@/features/budget/ui'
+import { DEFAULT_MOCK_SCENARIO } from '@/features/budget/application/mockBudgetSimulatorScenario'
 
 const uniform = (n: number, v: number): number[] => Array.from({ length: n }, () => v)
 
-const FIXTURE_SCENARIO: SimulatorScenario = {
-  year: 2026,
-  month: 4,
-  daysInMonth: 30,
-  monthlyBudget: 3_000_000,
-  lyMonthly: 2_400_000,
-  dailyBudget: uniform(30, 100_000),
-  lyDaily: uniform(30, 80_000),
-  actualDaily: uniform(15, 95_000).concat(uniform(15, 0)),
-  lyCoverageDay: null,
-}
+// reboot plan Phase B: mock scenario は共通 fixture に切り替え。
+const FIXTURE_SCENARIO = DEFAULT_MOCK_SCENARIO
 
 const meta: Meta = {
   title: 'Features/Budget/Simulator',
