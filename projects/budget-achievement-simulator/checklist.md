@@ -34,11 +34,11 @@
 
 ## Phase D: state 管理の接続
 
-* [ ] `useSimulatorState.ts` を再利用または軽修正して reboot 後の UI に接続した
-* [ ] `currentDay` の操作が `BudgetSimulatorView` に反映される
-* [ ] mode 切替が `BudgetSimulatorView` に反映される
-* [ ] day override の操作が `BudgetSimulatorView` に反映される
-* [ ] `weekStart` の変更が calendar / table 表示に反映される
+* [x] `useSimulatorState.ts` を再利用または軽修正して reboot 後の UI に接続した
+* [x] `currentDay` の操作が `BudgetSimulatorView` に反映される
+* [x] mode 切替が `BudgetSimulatorView` に反映される
+* [x] day override の操作が `BudgetSimulatorView` に反映される
+* [x] `weekStart` の変更が calendar / table 表示に反映される
 
 ## Phase E: source adapter の新設
 

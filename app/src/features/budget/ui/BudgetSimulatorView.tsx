@@ -40,6 +40,8 @@ import {
   HeaderLeft,
   HeaderTitle,
   HighlightRow,
+  ModeToggleBtn,
+  ModeToggleRow,
   SimChartLbl,
   SimChartWrap,
   SimFormula,
@@ -132,7 +134,30 @@ export function BudgetSimulatorView({
 
       {/* ── ④ 着地シミュレーター入力部 ── */}
       <SimInputSection>
-        <SimInputLabel>④ 残期間の前提を入力</SimInputLabel>
+        <ModeToggleRow>
+          <SimInputLabel>④ 残期間の前提を入力</SimInputLabel>
+          <ModeToggleBtn
+            type="button"
+            $active={state.mode === 'yoy'}
+            onClick={() => state.setMode('yoy')}
+          >
+            前年比
+          </ModeToggleBtn>
+          <ModeToggleBtn
+            type="button"
+            $active={state.mode === 'ach'}
+            onClick={() => state.setMode('ach')}
+          >
+            予算達成率
+          </ModeToggleBtn>
+          <ModeToggleBtn
+            type="button"
+            $active={state.mode === 'dow'}
+            onClick={() => state.setMode('dow')}
+          >
+            曜日別
+          </ModeToggleBtn>
+        </ModeToggleRow>
         <RemainingInputPanel
           scenario={scenario}
           currentDay={vm.kpis.currentDay}
