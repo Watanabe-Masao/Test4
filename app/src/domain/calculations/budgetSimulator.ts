@@ -1,12 +1,7 @@
 /**
  * 予算達成シミュレーター — what-if 計算 + 基盤 KPI
- *
- * 月内の任意の基準日から「経過予算 / 経過実績 / 残期間必要売上 / 月末着地見込」を
- * リアルタイムに算出する。残期間売上は 3 モード (yoy / ach / dow) で試算する。
- * 既存 pure 関数 (projectLinear / calculateYoYRatio / calculateAchievementRate /
- * prorateBudget) を再利用する orchestration 層。scenario は配列ベース
- * (0-indexed、index i = day i+1)、率は % 整数 (100 = 100%)。
- *
+ * 月内の任意の基準日から経過/残期間/着地見込を試算する orchestration 層。
+ * scenario は 0-indexed 配列ベース、率は % 整数 (100=100%)。
  * @see projects/budget-achievement-simulator/plan.md
  */
 
@@ -167,9 +162,7 @@ export function computeKpis(scenario: SimulatorScenario, currentDay: number): Si
 
   // 残期間
   const remBudget = monthlyBudget - elapsedBudget
-  // 残期間前年売上: alignment キャップ (本番) により lyDaily スライスが 0 に
-  // なりうるため、scenario.lyMonthly (full-month 値) と elapsedLY の差分を使う。
-  // override が無ければ lyMonthly = sum(lyDaily) で同一結果。
+  // remLY: lyDaily キャップ耐性 (lyMonthly = elapsedLY + remLY)
   const remLY = Math.max(0, lyMonthly - elapsedLY)
   const remainingDays = daysInMonth - d
 
@@ -226,7 +219,7 @@ export function computeRemainingSales(input: RemainingSalesInput): number {
   const d = clampDay(currentDay, daysInMonth)
 
   if (mode === 'yoy') {
-    // remLY: lyDaily スライスは capped 時に 0 になるため、lyMonthly - elapsedLY で導出
+    // remLY は lyMonthly - elapsedLY で導出 (capped 耐性)
     const elapsedLY = sumRange(lyDaily, 0, d)
     const remLY = Math.max(0, scenario.lyMonthly - elapsedLY)
     return remLY * (yoyInput / 100)
