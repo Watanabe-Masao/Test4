@@ -24,13 +24,13 @@
 
 ## Phase C: 見た目の再移植
 
-* [ ] `BudgetSimulatorView.tsx` を作成した
-* [ ] KPI header を HTML モック準拠の情報設計に揃えた
-* [ ] 基準日 slider を `BudgetSimulatorView` 配下で mock scenario で動作確認した
-* [ ] mode switch と mode 別入力 UI を mock scenario で動作確認した
-* [ ] KPI table / strip / projection / drilldown の主要 UI が mock scenario で描画される
-* [ ] `app/src/stories/BudgetSimulator.stories.tsx` を reboot 後の構造に追従させた
-* [ ] empty / month-start / mid-month / month-end の少なくとも 4 story が存在する
+* [x] `BudgetSimulatorView.tsx` を作成した
+* [x] KPI header を HTML モック準拠の情報設計に揃えた
+* [x] 基準日 slider を `BudgetSimulatorView` 配下で mock scenario で動作確認した
+* [x] mode switch と mode 別入力 UI を mock scenario で動作確認した
+* [x] KPI table / strip / projection / drilldown の主要 UI が mock scenario で描画される
+* [x] `app/src/stories/BudgetSimulator.stories.tsx` を reboot 後の構造に追従させた
+* [x] empty / month-start / mid-month / month-end の少なくとも 4 story が存在する
 
 ## Phase D: state 管理の接続
 
