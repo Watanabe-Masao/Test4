@@ -3,29 +3,32 @@
  *
  * 仕様書 §07 モード3 カレンダー個別入力 に準拠:
  * - 過去セル (≤ currentDay): 実績額 + 予算達成率 + 前年比 を read-only 表示
- * - 未来セル (> currentDay): % 入力 + ¥ 入力 (相互変換)
+ * - 未来セル (> currentDay): % 入力 + ¥ 入力 (相互変換) + 予測達成率 + 予測前年比
  * - dayOverrides は曜日別 % より優先
+ * - 週合計列 (W1〜W5): 予算合計 / 前年合計 / 予算前年比 (予算 vs 前年)
  * - 全日リセット / 週始まり切替あり
+ *
+ * セル描画は DayCellSlot に分離 (行数圧縮のため)。
  *
  * @responsibility R:form
  */
 import { useMemo } from 'react'
 import type { DowBase, DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'
-import { dowOf, pctForDay } from '@/domain/calculations/budgetSimulator'
+import { dowOf } from '@/domain/calculations/budgetSimulator'
 import { Card, CardTitle } from '@/presentation/components/common/layout'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { ToggleSection } from '@/presentation/pages/Insight/InsightPage.styles'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import {
-  DayCalendarCell,
   DayCalendarGrid,
   DayCalendarHeaderCell,
-  DayCellHeader,
-  DayCellInput,
-  DayCellNumber,
-  DayCellPct,
-  DayCellResetBtn,
+  WeekTotalCell,
+  WeekTotalLabel,
+  WeekTotalRatio,
+  WeekTotalSub,
+  WeekTotalValue,
 } from './BudgetSimulatorWidget.styles'
+import { DayCellSlot } from './DayCalendarCell'
 
 type Fmt = UnifiedWidgetContext['fmtCurrency']
 
@@ -64,7 +67,8 @@ export function DayCalendarInput(props: Props) {
   const { year, month, daysInMonth } = scenario
   const headerLabels = weekStart === 0 ? DOW_LABELS_SUN_FIRST : DOW_LABELS_MON_FIRST
 
-  const layout = useMemo(() => {
+  // 7 日ずつ行分割 (leading/trailing pad 含む)
+  const rows = useMemo(() => {
     const firstDow = dowOf(year, month, 1)
     const leadingPad = (firstDow - weekStart + 7) % 7
     const totalCells = leadingPad + daysInMonth
@@ -73,7 +77,9 @@ export function DayCalendarInput(props: Props) {
     for (let i = 0; i < leadingPad; i++) cells.push(null)
     for (let d = 1; d <= daysInMonth; d++) cells.push(d)
     for (let i = 0; i < trailingPad; i++) cells.push(null)
-    return cells
+    const out: Array<Array<number | null>> = []
+    for (let i = 0; i < cells.length; i += 7) out.push(cells.slice(i, i + 7))
+    return out
   }, [year, month, daysInMonth, weekStart])
 
   return (
@@ -97,10 +103,13 @@ export function DayCalendarInput(props: Props) {
         {headerLabels.map((label) => (
           <DayCalendarHeaderCell key={`h-${label}`}>{label}</DayCalendarHeaderCell>
         ))}
-        {layout.map((day, idx) => (
-          <DayCellSlot
-            key={`c-${idx}`}
-            day={day}
+        <DayCalendarHeaderCell>週合計</DayCalendarHeaderCell>
+
+        {rows.map((rowCells, rowIdx) => (
+          <WeekRowSlots
+            key={`r-${rowIdx}`}
+            weekIndex={rowIdx + 1}
+            cells={rowCells}
             scenario={scenario}
             currentDay={currentDay}
             dowInputs={dowInputs}
@@ -116,8 +125,9 @@ export function DayCalendarInput(props: Props) {
   )
 }
 
-interface SlotProps {
-  readonly day: number | null
+interface WeekRowProps {
+  readonly weekIndex: number
+  readonly cells: ReadonlyArray<number | null>
   readonly scenario: SimulatorScenario
   readonly currentDay: number
   readonly dowInputs: DowFactors
@@ -128,8 +138,9 @@ interface SlotProps {
   readonly onOverrideClear: (day: number) => void
 }
 
-function DayCellSlot({
-  day,
+function WeekRowSlots({
+  weekIndex,
+  cells,
   scenario,
   currentDay,
   dowInputs,
@@ -138,109 +149,50 @@ function DayCellSlot({
   fmtCurrency,
   onOverrideChange,
   onOverrideClear,
-}: SlotProps) {
-  if (day == null) return <DayCalendarCell $empty />
-
-  const { year, month, dailyBudget, lyDaily, actualDaily } = scenario
-  const isPast = day <= currentDay
-  const overridden = dayOverrides[day] != null
-
-  if (isPast) {
-    // 過去セル: 実績額 + 予算達成率 + 前年比 を read-only 表示
-    const actual = actualDaily[day - 1] ?? 0
-    const budget = dailyBudget[day - 1] ?? 0
-    const ly = lyDaily[day - 1] ?? 0
-    const achievement = budget > 0 ? (actual / budget) * 100 : null
-    const yoy = ly > 0 ? (actual / ly) * 100 : null
-    return (
-      <DayCalendarCell $past>
-        <DayCellHeader>
-          <DayCellNumber>{day}</DayCellNumber>
-        </DayCellHeader>
-        <div style={{ fontSize: '0.72rem', fontWeight: 600 }}>¥{fmtCurrency(actual)}</div>
-        {achievement != null && (
-          <div
-            style={{
-              fontSize: '0.65rem',
-              color: achievement >= 100 ? 'var(--positive, #0ea5e9)' : 'var(--negative, #f97316)',
-            }}
-          >
-            達成率 {achievement.toFixed(0)}%
-          </div>
-        )}
-        {yoy != null && (
-          <div
-            style={{
-              fontSize: '0.65rem',
-              color: yoy >= 100 ? 'var(--positive, #0ea5e9)' : 'var(--negative, #f97316)',
-            }}
-          >
-            前年比 {yoy.toFixed(0)}%
-          </div>
-        )}
-      </DayCalendarCell>
-    )
+}: WeekRowProps) {
+  const { dailyBudget, lyDaily } = scenario
+  let budgetSum = 0
+  let lySum = 0
+  let dayCount = 0
+  for (const d of cells) {
+    if (d == null) continue
+    budgetSum += dailyBudget[d - 1] ?? 0
+    lySum += lyDaily[d - 1] ?? 0
+    dayCount++
   }
-
-  // 未来セル: % 入力 + ¥ 入力 (相互変換)
-  const baseSeries = dowBase === 'yoy' ? lyDaily : dailyBudget
-  const baseAmt = baseSeries[day - 1] ?? 0
-  const effectivePct = pctForDay(day, dayOverrides, dowInputs, year, month)
-  const projectedAmt = baseAmt * (effectivePct / 100)
-  const overrideVal = dayOverrides[day]
-
-  const onPctChange = (raw: string) => {
-    if (raw === '') {
-      onOverrideClear(day)
-    } else {
-      const n = Number(raw)
-      if (Number.isFinite(n)) onOverrideChange(day, n)
-    }
-  }
-
-  const onYenChange = (raw: string) => {
-    if (raw === '') {
-      onOverrideClear(day)
-      return
-    }
-    const yen = Number(raw)
-    if (!Number.isFinite(yen) || baseAmt <= 0) return
-    // 相互変換: ¥ → % = (yen / baseAmt) × 100
-    const pct = (yen / baseAmt) * 100
-    onOverrideChange(day, Math.round(pct * 10) / 10)
-  }
+  const budgetVsLy = lySum > 0 ? (budgetSum / lySum) * 100 : null
 
   return (
-    <DayCalendarCell $overridden={overridden}>
-      <DayCellHeader>
-        <DayCellNumber>{day}</DayCellNumber>
-        <DayCellPct>{effectivePct.toFixed(0)}%</DayCellPct>
-      </DayCellHeader>
-      <DayCellInput
-        type="number"
-        min={0}
-        max={300}
-        step={0.1}
-        value={overrideVal ?? ''}
-        placeholder={`${effectivePct.toFixed(0)}%`}
-        onChange={(e) => onPctChange(e.target.value)}
-        aria-label={`${day}日の%`}
-      />
-      <DayCellInput
-        type="number"
-        min={0}
-        step={1000}
-        value={overrideVal != null ? Math.round(projectedAmt) : ''}
-        placeholder={`¥${fmtCurrency(projectedAmt)}`}
-        onChange={(e) => onYenChange(e.target.value)}
-        aria-label={`${day}日の金額`}
-        style={{ fontSize: '0.72rem' }}
-      />
-      {overridden && (
-        <DayCellResetBtn type="button" onClick={() => onOverrideClear(day)}>
-          × リセット
-        </DayCellResetBtn>
-      )}
-    </DayCalendarCell>
+    <>
+      {cells.map((day, idx) => (
+        <DayCellSlot
+          key={`c-${weekIndex}-${idx}`}
+          day={day}
+          scenario={scenario}
+          currentDay={currentDay}
+          dowInputs={dowInputs}
+          dowBase={dowBase}
+          dayOverrides={dayOverrides}
+          fmtCurrency={fmtCurrency}
+          onOverrideChange={onOverrideChange}
+          onOverrideClear={onOverrideClear}
+        />
+      ))}
+      <WeekTotalCell>
+        <WeekTotalLabel>
+          <span>W{weekIndex}</span>
+          <span className="cnt">{dayCount}日</span>
+        </WeekTotalLabel>
+        <WeekTotalValue>予算 ¥{fmtCurrency(budgetSum)}</WeekTotalValue>
+        <WeekTotalSub>前年 ¥{fmtCurrency(lySum)}</WeekTotalSub>
+        <WeekTotalRatio
+          $good={budgetVsLy != null && budgetVsLy >= 100}
+          $bad={budgetVsLy != null && budgetVsLy < 100}
+        >
+          <span>予算/前年</span>
+          <span>{budgetVsLy != null ? `${budgetVsLy.toFixed(0)}%` : '—'}</span>
+        </WeekTotalRatio>
+      </WeekTotalCell>
+    </>
   )
 }

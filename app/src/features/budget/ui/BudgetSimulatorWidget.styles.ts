@@ -184,9 +184,79 @@ export const DiffNeutral = styled.span`
 
 export const DayCalendarGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* 曜日 7 列 + 週合計 1 列 */
+  grid-template-columns: repeat(7, 1fr) minmax(120px, 1.2fr);
   gap: ${({ theme }) => theme.spacing[2]};
   margin-top: ${({ theme }) => theme.spacing[4]};
+`
+
+export const WeekTotalCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+  padding: ${({ theme }) => theme.spacing[2]};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  min-height: 74px;
+`
+
+export const WeekTotalLabel = styled.div`
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.text};
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  & > .cnt {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.text3};
+  }
+`
+
+export const WeekTotalValue = styled.div`
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  font-variant-numeric: tabular-nums;
+`
+
+export const WeekTotalSub = styled.div`
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text3};
+  font-variant-numeric: tabular-nums;
+`
+
+export const WeekTotalRatio = styled.div<{ readonly $good?: boolean; readonly $bad?: boolean }>`
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+  color: ${({ theme, $good, $bad }) =>
+    $good
+      ? theme.colors.palette.positive
+      : $bad
+        ? theme.colors.palette.negative
+        : theme.colors.text3};
+  display: flex;
+  justify-content: space-between;
+`
+
+export const DayCellRatios = styled.div`
+  display: flex;
+  gap: ${({ theme }) => theme.spacing[2]};
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+
+  & > span.good {
+    color: ${({ theme }) => theme.colors.palette.positive};
+  }
+  & > span.bad {
+    color: ${({ theme }) => theme.colors.palette.negative};
+  }
+  & > span.dim {
+    color: ${({ theme }) => theme.colors.text3};
+  }
 `
 
 export const DayCalendarHeaderCell = styled.div`
