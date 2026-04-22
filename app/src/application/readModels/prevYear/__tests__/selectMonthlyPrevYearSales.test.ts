@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { selectMonthlyPrevYearSales } from '../selectMonthlyPrevYearSales'
-import type { PrevYearMonthlyKpi, PrevYearMonthlyKpiEntry } from '../comparisonTypes'
+import type {
+  PrevYearMonthlyKpi,
+  PrevYearMonthlyKpiEntry,
+} from '@/application/comparison/comparisonTypes'
 
 const emptyEntry: PrevYearMonthlyKpiEntry = {
   sales: 0,

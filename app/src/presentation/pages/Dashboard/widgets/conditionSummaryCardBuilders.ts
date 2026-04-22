@@ -17,7 +17,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { PrevYearData } from '@/application/hooks/analytics'
-import { selectMonthlyPrevYearSales } from '@/features/comparison'
+import { selectMonthlyPrevYearSales } from '@/application/readModels/prevYear'
 import type { MetricKey } from './conditionSummaryTypes'
 import { extractMetric, computeAchievement } from './conditionSummaryHelpers'
 import {

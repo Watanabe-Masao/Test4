@@ -15,6 +15,7 @@
 import { useMemo } from 'react'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
+import { selectMonthlyPrevYearSales } from '@/application/readModels/prevYear'
 
 export interface UseFullMonthLyDailyResult {
   readonly daily: ReadonlyMap<number, number> | null
@@ -44,16 +45,13 @@ export function useFullMonthLyDaily(
       // 同じ currentDay に複数 row はない前提だが、防御的に加算。
       map.set(row.currentDay, (map.get(row.currentDay) ?? 0) + row.prevSales)
     }
-    // 月間 前年合計 — 取り込み期間キャップなし。
-    // sameDate: monthlyTotal.sales (alignment 非経由の全日合計)
-    // sameDow : sameDow.sales (同曜日 alignment 経由、fullMonthPeriod1 で月全体)
-    // ConditionSummary の selectMonthlyPrevYearSales と同一セマンティクス
-    // (features 間の直接 import は禁止のため各側でローカル実装)
-    const rawMonthly =
-      mode === 'sameDayOfWeek'
-        ? prevYearMonthlyKpi.sameDow.sales
-        : prevYearMonthlyKpi.monthlyTotal.sales
-    const monthlyTotal = rawMonthly > 0 ? rawMonthly : null
+    // 月間前年合計は ConditionSummary と共有の selector を経由する
+    // (取り込み期間キャップなしの月全体値。期間スコープ値の混入を selector で防ぐ)
+    const projection = selectMonthlyPrevYearSales(
+      prevYearMonthlyKpi,
+      mode === 'sameDayOfWeek' ? 'sameDow' : 'sameDate',
+    )
+    const monthlyTotal = projection.hasPrevYear ? projection.monthlySales : null
     return { daily: map.size > 0 ? map : null, monthlyTotal }
   }, [prevYearMonthlyKpi, comparisonScope])
 }

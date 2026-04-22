@@ -24,6 +24,15 @@
  * - `selectPrevYearSummaryFromFreePeriod(...).totalSales` (同上)
  * - `prevYear.totalSales` (PrevYearData; elapsed cap あり)
  *
+ * ## 配置の理由 (application 層)
+ *
+ * 本 selector は `presentation/` (ConditionSummaryEnhanced) と
+ * `features/budget` (useFullMonthLyDaily) の両方から共有される。feature 間の
+ * 直接 import はアーキテクチャ規約 (AR-CONVENTION-FEATURE-BOUNDARY) で
+ * 禁止されているため、両者が参照できる application 層に配置する。
+ * `selectPrevYearSummaryFromFreePeriod` (`application/readModels/freePeriod/`)
+ * と対をなす配置。
+ *
  * ## mode semantics
  *
  * - `'sameDate'`: 前年同月の全日合計 (`kpi.monthlyTotal.sales`)。
@@ -41,16 +50,12 @@
  * @see features/comparison/application/comparisonTypes.ts `PrevYearMonthlyTotal`
  */
 import { z } from 'zod'
-import type { PrevYearMonthlyKpi } from './comparisonTypes'
+import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 
 export const MonthlyPrevYearSalesModeSchema = z.enum(['sameDate', 'sameDow'])
 export type MonthlyPrevYearSalesMode = z.infer<typeof MonthlyPrevYearSalesModeSchema>
 
-export const MonthlyPrevYearSalesSourceSchema = z.enum([
-  'kpi-sameDate',
-  'kpi-sameDow',
-  'none',
-])
+export const MonthlyPrevYearSalesSourceSchema = z.enum(['kpi-sameDate', 'kpi-sameDow', 'none'])
 export type MonthlyPrevYearSalesSource = z.infer<typeof MonthlyPrevYearSalesSourceSchema>
 
 export const MonthlyPrevYearSalesProjectionSchema = z.object({
@@ -63,9 +68,7 @@ export const MonthlyPrevYearSalesProjectionSchema = z.object({
   /** どの経路で値を取ったか (debug / guard 観測専用、業務分岐には使わない) */
   source: MonthlyPrevYearSalesSourceSchema,
 })
-export type MonthlyPrevYearSalesProjection = z.infer<
-  typeof MonthlyPrevYearSalesProjectionSchema
->
+export type MonthlyPrevYearSalesProjection = z.infer<typeof MonthlyPrevYearSalesProjectionSchema>
 
 const noneProjection = (mode: MonthlyPrevYearSalesMode): MonthlyPrevYearSalesProjection =>
   MonthlyPrevYearSalesProjectionSchema.parse({

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-21T22:47:52.356Z
+> Generated: 2026-04-22T16:39:31.269Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 78 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 79 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
@@ -84,8 +84,8 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6610 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2309 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6631 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2328 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 
