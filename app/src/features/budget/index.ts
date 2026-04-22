@@ -1,7 +1,13 @@
 /**
  * features/budget — 予算分析スライス
  */
-export { BudgetTabContent, GrossProfitTabContent, BudgetSimulatorWidget } from './ui'
+export {
+  BudgetTabContent,
+  GrossProfitTabContent,
+  BudgetSimulatorWidget,
+  BudgetSimulatorView,
+  type BudgetSimulatorViewProps,
+} from './ui'
 export {
   buildBudgetTableRows,
   buildSimulatorWidgetVm,

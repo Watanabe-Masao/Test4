@@ -59,10 +59,10 @@
 
 ## Phase G: widget 組込みの整理
 
-* [ ] `features/budget/index.ts` / `ui/index.ts` の export を reboot 後の構造に追従させた
-* [ ] `INSIGHT_WIDGETS` の該当エントリが reboot 後の `BudgetSimulatorWidget` を指す
-* [ ] widget 登録後も既存 budget widget 群の import cycle が増えていない
-* [ ] widget integration 後に既存 budget 画面で回帰がないことを確認した
+* [x] `features/budget/index.ts` / `ui/index.ts` の export を reboot 後の構造に追従させた
+* [x] `INSIGHT_WIDGETS` の該当エントリが reboot 後の `BudgetSimulatorWidget` を指す
+* [x] widget 登録後も既存 budget widget 群の import cycle が増えていない
+* [x] widget integration 後に既存 budget 画面で回帰がないことを確認した
 
 ## Phase H: テストと仕上げ
 
