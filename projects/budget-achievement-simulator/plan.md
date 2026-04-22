@@ -1,168 +1,364 @@
-# plan — budget-achievement-simulator
+# plan — budget-achievement-simulator (widget reboot)
+
+## 方針
+
+本 project は、既存の途中実装を前提に継ぎ足すのではなく、**widget として再計画**する。
+ただし、すでに成立している pure 計算資産は必要に応じて再利用する。
+特に `budgetSimulator.ts` の `SimulatorScenario` / KPI 計算 / remaining 計算は、契約が安定しているため、**全面破棄ではなく再評価のうえ活用対象**とする。
+
+本計画の主眼は次の 3 点である。
+
+1. **HTML モックを見た目の基準として固定する**
+2. **仮データで UI を先に widget 化する**
+3. **取得経路は後から 1 本ずつ差し込む**
+
+---
+
+## 目的
+
+予算達成シミュレーターを、既存 `features/budget/` 配下で動作する
+**Insight widget** として再実装する。
+
+この widget は、月内の任意基準日に対して
+
+* 経過予算
+* 経過実績
+* 残期間必要売上
+* 月末着地見込
+
+を確認し、さらに
+
+* 残期間前年比
+* 残期間予算達成率
+* 曜日別係数 + 日別上書き
+
+による what-if シミュレーションを可能にする。
+
+---
+
+## 今回の決定事項
+
+### 1. 正本は widget
+
+本機能は **page ではなく widget** として実装する。
+`/budget-simulator` の独立ページは今回のスコープから外す。
+
+### 2. UI 先行
+
+取得経路から作らない。
+まずは **仮の `SimulatorScenario`** を固定し、UI を完成させる。
+
+### 3. HTML は参照実装
+
+アップロードされた HTML モックは見た目確認用の基準とするが、
+その HTML/CSS をそのまま本体へ持ち込まない。
+元 plan の「CSS/JSX の直コピー禁止」は維持する。
+
+### 4. データ取得は adapter に閉じ込める
+
+widget 本体は raw data source や `UnifiedWidgetContext` の shape を直接知らない。
+取得経路は application 層の builder / adapter に隔離する。
+
+---
+
+## スコープ
+
+### 含む
+
+* `features/budget/` 内で動作する `BudgetSimulatorWidget`
+* widget 用の UI 部品再設計
+* 仮データでの Storybook / visual 固定
+* scenario builder / source adapter の新設
+* widget への段階的な実データ接続
+* テストの再整理
+
+### 含まない
+
+* 独立ページ `/budget-simulator`
+* `PAGE_REGISTRY` / `PageMeta` / `pageComponentMap` への登録
+* 既存予算タブ全体の構造変更
+* Excel/CSV インポート仕様変更
+* モバイル最適化
+* 本 widget 外への機能展開
+
+---
 
 ## 不可侵原則
 
-1. **既存 `features/budget/` を改変しない。** 本 project は新規縦スライス
-   `features/budget-simulator/` として追加する。既存予算タブのユーザーに影響を与えない。
-2. **`domain/calculations/` の既存 pure 関数は改変しない。** 再利用は可。
-   新規追加する計算ロジックは新規ファイル（`budgetSimulator.ts` など）に置き、
-   `calculationCanonRegistry` に登録する。
-3. **ページ登録は PAGE_REGISTRY（`application/navigation/pageRegistry.ts`）経由**で行う。
-   `routes.tsx` を手編集しない。メタデータ駆動の原則を守る。
-4. **プロトタイプの CSS/JSX をそのままコピーしない。** 色・スペーシング・フォントは
-   `presentation/theme/tokens.ts` のデザイントークンに変換する。
-   styled-components で記述し、`index.html` に直書きされた CSS は持ち込まない。
-5. **既存 UI プリミティブを優先的に再利用する**（KpiCard / Chip / ChipGroup /
-   Card / CardTitle / DualPeriodSlider）。独自に作るのはプロトタイプ固有の
-   コンポーネントのみ（TimelineSlider / DayCalendarInput / ProjectionBarChart など）。
+1. **widget 本体に取得ロジックを書かない。**
+   UI は `SimulatorScenario` 相当の整形済み入力だけを受ける。
 
-## Phase 構造
+2. **HTML モックを production 実装として埋め込まない。**
+   見本として参照し、styled-components / token ベースに変換する。
 
-### Phase 0: プロトタイプの持ち込み（完了判定: 本 PR マージ時点）
+3. **既存 `domain/calculations/` の pure 関数は原則再利用し、安易に hook 内へ再実装しない。**
+   `budgetSimulator.ts` はすでに scenario 契約と主要計算を持つため、再利用候補とする。
 
-本 project 立ち上げ時の文脈ファイル一式を作成する。
+4. **データ取得差し替えは 1 レーンずつ行う。**
+   UI と取得経路を同時に触らない。
 
-**完了条件:**
+5. **widget integration と visual completion を分離する。**
+   見た目完成前に実データ最適化へ入らない。
 
-- `projects/budget-achievement-simulator/` 配下に AI_CONTEXT / HANDOFF / plan /
-  checklist / config/project.json / aag/execution-overlay.ts が揃っている
-- `CURRENT_PROJECT.md` の active 切り替えは **行わない**（pure-calculation-reorg を
-  継続）。本 project は待機状態で登録する
+---
 
-### Phase 1: Pure 計算 Domain 層
+## 目標アーキテクチャ
 
-プロトタイプ `calc.js` 相当の計算ロジックを pure TypeScript 関数として `domain/calculations/`
-配下に実装する。
+```text
+features/budget/
+  application/
+    buildBudgetSimulatorSource.ts
+    buildBudgetSimulatorScenario.ts
+    useBudgetSimulatorWidgetPlan.ts
+    mockBudgetSimulatorScenario.ts
+  ui/
+    BudgetSimulatorWidget.tsx
+    BudgetSimulatorWidget.vm.ts
+    BudgetSimulatorView.tsx
+    TimelineSlider.tsx
+    RemainingInputPanel.tsx
+    DayCalendarInput.tsx
+    DrilldownPanel.tsx
+    ProjectionBarChart.tsx
+    DailyBarChart.tsx
+    StripChart.tsx
+```
 
-**成果物:**
+### 責務分割
 
-- `app/src/domain/calculations/budgetSimulator.ts`
-  - `computeSimulatorKpis(scenario, currentDay): SimulatorKpis`
-  - `computeRemainingByYoy(remLY, yoyPct)`
-  - `computeRemainingByAchievement(remBudget, achPct)`
-  - `computeRemainingByDow(base, dowFactors, dayOverrides, currentDay, daysInMonth)`
-  - `computeProjectedLanding(elapsedActual, remainingSales)`
-  - `aggregateDowAverages(data, compare, year, month, rangeStart, rangeEnd)`
-  - `aggregateWeeks(data, compare, year, month, rangeStart, rangeEnd, weekStart)`
-- `app/src/domain/calculations/__tests__/budgetSimulator.test.ts`
-  - 不変条件（elapsedDays === 0 の端、daysInMonth = elapsedDays の端など）
-  - YoY / achievement / dow 各モードの出力が整合する
-  - dayOverrides が dow を上書きする
-- `calculationCanonRegistry` に追加（`semanticClass` を明示）
+* `mockBudgetSimulatorScenario.ts`
+  UI 開発用の固定 fixture
 
-**完了条件:**
+* `buildBudgetSimulatorSource.ts`
+  widget context / query result から必要データだけ抽出
 
-- unit テストが PASS
-- `npm run lint` / `npm run format:check` が PASS
-- guard テスト（`test:guards`）が PASS
+* `buildBudgetSimulatorScenario.ts`
+  source → `SimulatorScenario` 変換の pure builder
 
-### Phase 2: Application 層 — ViewModel / Hooks
+* `useBudgetSimulatorWidgetPlan.ts`
+  adapter orchestration。取得経路の差し替え点
 
-プロトタイプ `App.jsx` の useState/useMemo を React 非依存の VM 関数 + React hook に
-分離する。Presentation VM は domain のみに依存し、application には依存しない
-（既存の `InsightTabBudget.vm.ts` と同じ方針）。
+* `BudgetSimulatorView.tsx`
+  表示専用。context を知らない
 
-**成果物:**
+* `BudgetSimulatorWidget.tsx`
+  widget entrypoint。plan hook と view を繋ぐだけ
 
-- `app/src/features/budget-simulator/application/useSimulatorState.ts`
-  - `currentDay` / `mode` / `yoyInput` / `achInput` / `dowInputs` / `dayOverrides` /
-    `weekStart` の状態管理と `localStorage` 連携
-- `app/src/features/budget-simulator/application/useSimulatorScenario.ts`
-  - データソース（DuckDB）から scenario を構築するアプリケーションサービス
-- `app/src/features/budget-simulator/ui/BudgetSimulatorPage.vm.ts`
-  - 表の行データを構築（純関数）
-  - `domain/calculations/budgetSimulator.ts` をラップして UI 形式に変換
-- `app/src/features/budget-simulator/ui/BudgetSimulatorPage.vm.test.ts`
+---
 
-**完了条件:**
+## フェーズ計画
 
-- VM テストが PASS
-- hook のテスト（`@testing-library/react`）が PASS
+### Phase A: Reboot 文脈の正本化
 
-### Phase 3: Presentation 層 — ページ + サブコンポーネント
+既存 project 文書を、page 前提から widget 前提へ更新する。
 
-styled-components でサブコンポーネントを実装し、ページを組み立てる。
+**成果物**
 
-**成果物:**
+* `AI_CONTEXT.md` 更新
+* `plan.md` 更新
+* `checklist.md` 更新
+* `HANDOFF.md` 更新
 
-- `app/src/features/budget-simulator/ui/BudgetSimulatorPage.tsx` — ルートページ
-- `app/src/features/budget-simulator/ui/TimelineSlider.tsx` — 基準日スライダー
-- `app/src/features/budget-simulator/ui/KpiTable.tsx` — ①〜④ の行テーブル
-- `app/src/features/budget-simulator/ui/StripChart.tsx` — 日次ストリップ
-- `app/src/features/budget-simulator/ui/DrilldownPanel.tsx` — 週別/曜日別/日別
-- `app/src/features/budget-simulator/ui/DailyBarChart.tsx` — 棒グラフ + MA
-- `app/src/features/budget-simulator/ui/ProjectionBarChart.tsx` — ④用予測棒グラフ
-- `app/src/features/budget-simulator/ui/DrillCalendar.tsx` — ドリル用カレンダー
-- `app/src/features/budget-simulator/ui/DayCalendarInput.tsx` — 日別入力カレンダー
-- `app/src/features/budget-simulator/ui/RemainingInputPanel.tsx` — ④入力部
-- 各コンポーネントに `*.styles.ts` を分離
-- `app/src/features/budget-simulator/index.ts` — public API
-- `app/src/features/budget-simulator/manifest.ts` — ownership manifest
-- `app/src/stories/BudgetSimulator.stories.tsx` — Storybook エントリ
+**完了条件**
 
-**完了条件:**
+* 文書上の主方針がすべて widget に統一されている
+* page 前提の未完タスクが scope 外または後続扱いに変更されている
 
-- 全コンポーネントが Storybook でレンダリングされる
-- `npm run test:visual` が PASS
-- ECharts は使わずに SVG + CSS で描画（プロトタイプの実装と同じ方針）
+---
 
-### Phase 4: 組込み — PAGE_REGISTRY / Nav / routes
+### Phase B: UI 契約の固定
 
-**成果物:**
+まず UI の入力契約を固定する。
+取得経路は考えず、widget が何を受け取れば描けるかだけ決める。
 
-- `app/src/application/navigation/pageRegistry.ts` に `budget-simulator` エントリ追加
-- `app/src/domain/models/PageMeta.ts` の ViewType に `budget-simulator` 追加
-- `app/src/presentation/pageComponentMap.ts` に lazy import 追加
-- `app/src/features/budget-simulator/index.ts` から `BudgetSimulatorPage` を re-export
-- ナビ / キーボードショートカット / ブレッドクラムは PAGE_REGISTRY から自動生成される
+**成果物**
 
-**完了条件:**
+* `SimulatorScenario` 再確認
+* `BudgetSimulatorWidgetProps` / VM 入力型
+* `mockBudgetSimulatorScenario.ts`
 
-- `/budget-simulator` にアクセスして画面が描画される
-- Nav にメニューアイテムが出る
-- `npm run test:guards` の `pageMetaGuard` が PASS
+**完了条件**
 
-### Phase 5: E2E + Health + 仕上げ
+* widget が実データなしで描画できる
+* state と scenario の責務が分離されている
 
-**成果物:**
+---
 
-- `app/e2e/budget-simulator.spec.ts` — スライダー操作・モード切替・日別上書きの
-  主要フロー
-- `references/02-status/features-migration-status.md` に本 feature を追加
-- `cd app && npm run docs:generate` を実行、project-health に
-  `budget-achievement-simulator` が現れる
-- CHANGELOG.md 更新
+### Phase C: 見た目の再移植
 
-**完了条件:**
+HTML モックを見本に、UI を部品ごとに再整備する。
+この段階ではデータはすべて mock。
 
-- E2E が PASS
-- `npm run health:check` が warning なしで通る
-- `npm run build` が成功
+**成果物**
 
-### Phase 6: 最終レビュー (人間承認)
+* `BudgetSimulatorView.tsx`
+* KPI header / slider / mode switch / input panel / table / drilldown の再整理
+* 既存サブコンポーネントの残置 or 作り直し判定
+* Storybook states の拡充
 
-機能的な Phase 1〜5 がすべて [x] になった後、人間がレビューして承認する。
+**完了条件**
 
-## やってはいけないこと
+* HTML モックと主要レイアウトが視覚的に一致する
+* 代表状態を Storybook で確認できる
+* visual baseline を固定できる
 
-- **既存 `features/budget/` を改変する** → 業務利用中の予算タブに回帰を起こすため禁止
-- **プロトタイプの CSS を `index.html` や `public/` に直置きする** → デザイントークンと
-  乖離し、ダーク/ライトテーマ切替が壊れるため禁止
-- **React CDN + Babel standalone のまま持ち込む** → プロダクションビルドから外れる
-- **pure 計算関数を hook 内で直接書く** → テスト不能になるため禁止。必ず domain/ に置く
-- **`routes.tsx` を直接編集する** → PAGE_REGISTRY 駆動の原則を壊す
-- **`calculationCanonRegistry` に登録せずに新 pure 関数を追加する** → guard テストで
-  FAIL する
+---
 
-## 関連実装
+### Phase D: state 管理の接続
 
-| パス | 役割 |
-|---|---|
-| `app/src/features/budget-simulator/` | 本 project の新規 feature |
-| `app/src/domain/calculations/budgetSimulator.ts` | 新規 pure 計算 |
-| `app/src/application/navigation/pageRegistry.ts` | ページ登録（追加） |
-| `app/src/presentation/pageComponentMap.ts` | lazy import（追加） |
-| `app/src/domain/models/PageMeta.ts` | ViewType 拡張（追加） |
-| `app/src/features/budget/` | 既存予算タブ（**変更しない**、参考元） |
-| `app/src/domain/calculations/budgetAnalysis.ts` | 既存按分ロジック（**変更しない**、再利用） |
-| `app/src/presentation/theme/tokens.ts` | デザイントークン（参照のみ） |
+UI にローカル state を戻す。
+ここではまだ mock scenario を使う。
+
+**成果物**
+
+* `useSimulatorState.ts` の再利用 or 軽修正
+* mode / currentDay / dayOverrides / weekStart の接続
+* state と UI のイベント整合
+
+**完了条件**
+
+* mock scenario で全操作が破綻なく動く
+* local state による UI 崩れがない
+
+---
+
+### Phase E: source adapter の新設
+
+ここで初めて取得経路へ入る。
+widget context から必要値を取り出す adapter を作る。
+
+**成果物**
+
+* `buildBudgetSimulatorSource.ts`
+* `buildBudgetSimulatorScenario.ts`
+* `useBudgetSimulatorWidgetPlan.ts`
+
+**完了条件**
+
+* `BudgetSimulatorView` が raw context を知らない
+* source と scenario の境界が固定される
+* mock と実データが同一 view で差し替え可能
+
+---
+
+### Phase F: 段階的な実データ接続
+
+取得経路を一気に載せず、下記順で差し込む。
+
+1. 月次予算
+2. 日別実績
+3. 前年同月日別
+4. 曜日別集計
+5. 日別 override 反映後の projection
+
+**完了条件**
+
+* 各段階で fallback がある
+* どの経路が未接続か明示できる
+* データ欠損時の widget 表示方針が定義されている
+
+---
+
+### Phase G: widget 組込みの整理
+
+`INSIGHT_WIDGETS` との接続、export、guard を整理する。
+ただし view 側の責務は増やさない。
+
+**成果物**
+
+* widget barrel export 整理
+* widget registration 見直し
+* 依存方向チェック
+
+**完了条件**
+
+* 既存 budget widget 群の構造を壊さない
+* widget 単体差し替えが可能
+
+---
+
+### Phase H: テストと仕上げ
+
+**成果物**
+
+* VM test
+* hook test
+* visual regression
+* E2E 最小フロー
+* health / build 確認
+
+**完了条件**
+
+* UI baseline が安定
+* build / guard / health が通る
+* 主要操作の回帰が防げる
+
+---
+
+## 作り直し時の扱い
+
+### 破棄対象
+
+* page 前提の文書
+* view に acquisition を持たせる構造
+* widget 内のその場変換ロジック
+* raw context 直読みの表示ロジック
+
+### 再利用対象
+
+* `budgetSimulator.ts` の pure 計算群
+* `calculationCanonRegistry` 上の登録資産
+* state hook の考え方
+* 既存 subcomponent のうち見た目と責務が適切なもの
+* Storybook 資産の一部
+
+---
+
+## リスク
+
+### 1. widget なのに page 設計が混ざる
+
+これは現行 project で実際に起きている。
+元の AI_CONTEXT / plan は新規縦スライス + page 前提だったが、checklist は widget embed に移っている。
+今回の再計画ではこれを解消する。
+
+### 2. HTML をそのまま使いたくなる
+
+禁止。見本としてのみ使う。
+
+### 3. UI 完成前に取得経路へ行ってしまう
+
+見た目の不具合とデータ不具合の切り分けができなくなる。
+
+### 4. 既存 pure 計算まで捨てる
+
+`budgetSimulator.ts` はすでに型契約と計算の骨格を持っている。
+ここを無条件に捨てると、逆に工数が増える。
+
+---
+
+## 完了の定義
+
+本 reboot 計画の完了は、次を満たした時点とする。
+
+* widget として visual / interaction が成立している
+* 実データ接続が adapter 経由に閉じ込められている
+* view が raw context を読まない
+* mock / real の切替が可能
+* 既存 budget への副作用がない
+* build / guard / visual / 主要 E2E が通る
+
+---
+
+## 今回の判断
+
+今回の project は「全部捨てる」より、
+**文書・統合方式を捨てて、計算資産と一部 UI 部品を残す**のが合理的。
+
+特に既存正本の
+
+* AI_CONTEXT は widget ではなく page 前提
+* plan も page / vertical slice 前提
+* checklist は途中で widget embed に変更済み
+
+という不整合を、まず文書から解消すべき。
