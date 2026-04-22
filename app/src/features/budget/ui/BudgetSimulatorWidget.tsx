@@ -67,29 +67,24 @@ const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
 export function BudgetSimulatorWidget({ ctx }: Props) {
   const { result, prevYear, year, month, fmtCurrency } = ctx
 
-  // full-month 前年日別売上 — ページの comparisonRows は effectivePeriod2 (alignment +
-  // elapsedDays cap) で絞られるため 17日以降が欠落する。本 widget は独立クエリで
-  // 前年同月 1〜末日を取得し、17日以降も埋める。未取得時 (executor 未 ready など)
-  // は null → 従来挙動 (PrevYearData 経由) に fallback。
-  const { daily: fullMonthLyDaily } = useFullMonthLyDaily(
-    ctx.queryExecutor,
-    year,
-    month,
-    ctx.selectedStoreIds,
+  // full-month 前年日別売上 — PrevYearBudgetDetailPanel と同じデータ源。
+  // `prevYearMonthlyKpi.{sameDate|sameDow}.dailyMapping` は elapsedDays /
+  // スライダー cap の影響を受けず、header の alignmentMode (同日 / 同曜日) で
+  // 選択される full-month 分を常に保持する。未ロードなら null → 従来挙動に fallback。
+  const { daily: fullMonthLyDaily, monthlyTotal: fullMonthLyTotalFromKpi } = useFullMonthLyDaily(
+    ctx.prevYearMonthlyKpi,
+    ctx.comparisonScope,
   )
 
   // full-month 前年月合計: 優先順位
-  //  1. fullMonthLyDaily があればその合計 (真の full-month)
-  //  2. ページの comparisonSummary.totalSales (alignment-capped だが ConditionSummary と整合)
-  //  3. PrevYearData.totalSales (legacy fallback)
+  //  1. prevYearMonthlyKpi.monthlyTotal.sales (alignment 非経由の前年月合計)
+  //  2. freePeriodLane.bundle.fact.comparisonSummary.totalSales (ConditionSummary 互換)
   const fullMonthLyTotal = useMemo<number | null>(() => {
-    if (fullMonthLyDaily && fullMonthLyDaily.size > 0) {
-      let sum = 0
-      for (const v of fullMonthLyDaily.values()) sum += v
-      return sum
+    if (fullMonthLyTotalFromKpi != null && fullMonthLyTotalFromKpi > 0) {
+      return fullMonthLyTotalFromKpi
     }
     return ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
-  }, [fullMonthLyDaily, ctx.freePeriodLane])
+  }, [fullMonthLyTotalFromKpi, ctx.freePeriodLane])
 
   const scenario = useSimulatorScenario({
     result,

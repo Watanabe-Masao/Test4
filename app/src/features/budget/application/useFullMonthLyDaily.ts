@@ -1,84 +1,51 @@
 /**
- * useFullMonthLyDaily — 前年同月 full-month 日別売上を独立クエリで取得
+ * useFullMonthLyDaily — 前年 full-month 日別売上を `prevYearMonthlyKpi` から射影
  *
- * ページレベルの `freePeriodLane.bundle.fact.comparisonRows` は
- * `effectivePeriod2`（alignment + elapsedDays cap）で範囲が絞られるため、
- * 未経過日（17日以降など）の前年データが欠落する。
+ * `PrevYearBudgetDetailPanel` と同じデータ源:
+ *   `prevYearMonthlyKpi.{sameDate|sameDow}.dailyMapping` (`DayMappingRow[]`)
+ * は elapsedDays / スライダー cap の影響を受けず、前年の full-month 分を
+ * 常に保持する。`currentDay → prevSales` の対応が入っているため、
+ * 当年 day をキーに前年日別売上を直接取得できる。
  *
- * 本 hook は当年 (year, month) を指定し、前年同月 1 日〜末日の full-month
- * 範囲を `freePeriodHandler` の comparison 側として直接クエリして、
- * day (当年 day と一致) → sales の Map を返す。
+ * header コンテキスト (同日 / 同曜日) は `comparisonScope.alignmentMode` から
+ * 取得する。null の場合は `sameDate` を既定とする。
  *
- * - 当期側 (currentRows) は当年 full-month を投げる (ページ側のキャッシュと
- *   重なるため追加負荷は小さい)
- * - 比較側 (comparisonRows) を前年 full-month にして day 単位で集計する
- *
- * 取得不可 (prev 年データなし / executor 未 ready) の場合は null を返し、
- * 呼び出し側は `fullMonthLyDaily` 未指定として fallback する。
- *
- * @responsibility R:data-fetch
+ * @responsibility R:transform
  */
 import { useMemo } from 'react'
-import type { QueryExecutor } from '@/application/queries/QueryPort'
-import { freePeriodHandler } from '@/application/queries/freePeriodHandler'
-import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'
-import type { FreePeriodQueryInput } from '@/application/readModels/freePeriod'
-
-function pad2(n: number): string {
-  return String(n).padStart(2, '0')
-}
+import type { ComparisonScope } from '@/domain/models/ComparisonScope'
+import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 
 export interface UseFullMonthLyDailyResult {
   readonly daily: ReadonlyMap<number, number> | null
-  readonly isLoading: boolean
+  readonly monthlyTotal: number | null
 }
 
 /**
- * 前年同月 full-month 日別売上を取得する。
+ * 前年 full-month 日別売上 + 月合計を取得する。
  *
- * @param executor QueryExecutor (DuckDB 経路が準備できていなければ null)
- * @param year 当年
- * @param month 当月 (1-12)
- * @param storeIds 対象店舗 ID (空/undefined で全店)
+ * - 当期の取り込み期間 / elapsedDays に影響されない
+ * - alignmentMode に応じて sameDate / sameDow の dailyMapping を採用
+ * - monthlyTotal は `monthlyTotal.sales` (alignment 非経由の前年全日合計) を返す
  */
 export function useFullMonthLyDaily(
-  executor: QueryExecutor | null | undefined,
-  year: number,
-  month: number,
-  storeIds: ReadonlySet<string> | readonly string[] | undefined,
+  prevYearMonthlyKpi: PrevYearMonthlyKpi | undefined,
+  comparisonScope: ComparisonScope | null | undefined,
 ): UseFullMonthLyDailyResult {
-  const input = useMemo<FreePeriodQueryInput | null>(() => {
-    if (!executor) return null
-    const daysInMonth = new Date(year, month, 0).getDate()
-    const curFrom = `${year}-${pad2(month)}-01`
-    const curTo = `${year}-${pad2(month)}-${pad2(daysInMonth)}`
-    const prevYear = year - 1
-    const prevDaysInMonth = new Date(prevYear, month, 0).getDate()
-    const prevFrom = `${prevYear}-${pad2(month)}-01`
-    const prevTo = `${prevYear}-${pad2(month)}-${pad2(prevDaysInMonth)}`
-    const ids = storeIds
-      ? [...(storeIds instanceof Set ? Array.from(storeIds) : storeIds)].sort()
-      : undefined
-    return {
-      dateFrom: curFrom,
-      dateTo: curTo,
-      storeIds: ids,
-      comparisonDateFrom: prevFrom,
-      comparisonDateTo: prevTo,
+  return useMemo<UseFullMonthLyDailyResult>(() => {
+    if (!prevYearMonthlyKpi || !prevYearMonthlyKpi.hasPrevYear) {
+      return { daily: null, monthlyTotal: null }
     }
-  }, [executor, year, month, storeIds])
-
-  const { data, isLoading } = useQueryWithHandler(executor ?? null, freePeriodHandler, input)
-
-  const daily = useMemo<ReadonlyMap<number, number> | null>(() => {
-    const rows = data?.comparisonRows ?? null
-    if (!rows || rows.length === 0) return null
+    const mode = comparisonScope?.alignmentMode ?? 'sameDate'
+    const entry =
+      mode === 'sameDayOfWeek' ? prevYearMonthlyKpi.sameDow : prevYearMonthlyKpi.sameDate
     const map = new Map<number, number>()
-    for (const row of rows) {
-      map.set(row.day, (map.get(row.day) ?? 0) + row.sales)
+    for (const row of entry.dailyMapping) {
+      // 同じ currentDay に複数 row はない前提だが、防御的に加算。
+      map.set(row.currentDay, (map.get(row.currentDay) ?? 0) + row.prevSales)
     }
-    return map
-  }, [data])
-
-  return { daily, isLoading }
+    // monthlyTotal.sales は alignment 非経由の前年月合計 (予算前年比の正式値)
+    const monthlyTotal = prevYearMonthlyKpi.monthlyTotal.sales
+    return { daily: map.size > 0 ? map : null, monthlyTotal }
+  }, [prevYearMonthlyKpi, comparisonScope])
 }
