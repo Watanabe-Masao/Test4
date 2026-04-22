@@ -1,5 +1,4 @@
 export { useBudgetChartData, type BudgetChartDataPoint } from './useBudgetChartData'
-export { useSimulatorScenario, type UseSimulatorScenarioInput } from './useSimulatorScenario'
 export {
   useSimulatorState,
   STORAGE_KEY_DAY,
@@ -8,3 +7,15 @@ export {
   type SimulatorStateApi,
   type WeekStart,
 } from './useSimulatorState'
+export {
+  buildBudgetSimulatorSource,
+  type BudgetSimulatorSource,
+} from './buildBudgetSimulatorSource'
+export {
+  buildBudgetSimulatorScenario,
+  extractFullMonthLyDaily,
+} from './buildBudgetSimulatorScenario'
+export {
+  useBudgetSimulatorWidgetPlan,
+  type BudgetSimulatorWidgetPlan,
+} from './useBudgetSimulatorWidgetPlan'

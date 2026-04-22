@@ -42,11 +42,11 @@
 
 ## Phase E: source adapter の新設
 
-* [ ] `app/src/features/budget/application/buildBudgetSimulatorSource.ts` を作成した
-* [ ] `app/src/features/budget/application/buildBudgetSimulatorScenario.ts` を作成した
-* [ ] `app/src/features/budget/application/useBudgetSimulatorWidgetPlan.ts` を作成した
-* [ ] `BudgetSimulatorView.tsx` から raw context / raw rows / query input 組み立てを除去した
-* [ ] `BudgetSimulatorWidget.tsx` が `useBudgetSimulatorWidgetPlan.ts` を経由して scenario を取得する
+* [x] `app/src/features/budget/application/buildBudgetSimulatorSource.ts` を作成した
+* [x] `app/src/features/budget/application/buildBudgetSimulatorScenario.ts` を作成した
+* [x] `app/src/features/budget/application/useBudgetSimulatorWidgetPlan.ts` を作成した
+* [x] `BudgetSimulatorView.tsx` から raw context / raw rows / query input 組み立てを除去した
+* [x] `BudgetSimulatorWidget.tsx` が `useBudgetSimulatorWidgetPlan.ts` を経由して scenario を取得する
 
 ## Phase F: 段階的な実データ接続
 
