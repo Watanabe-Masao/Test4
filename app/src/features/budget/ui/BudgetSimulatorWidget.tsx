@@ -18,6 +18,7 @@ import { Card } from '@/presentation/components/common/layout'
 import { dowOf } from '@/domain/calculations/budgetSimulator'
 import { useSimulatorScenario } from '../application/useSimulatorScenario'
 import { useSimulatorState } from '../application/useSimulatorState'
+import { useFullMonthLyDaily } from '../application/useFullMonthLyDaily'
 import {
   buildSimulatorWidgetVm,
   type DrillKey,
@@ -66,22 +67,29 @@ const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
 export function BudgetSimulatorWidget({ ctx }: Props) {
   const { result, prevYear, year, month, fmtCurrency } = ctx
 
-  // full-month 前年売上: FreePeriodReadModel の comparisonSummary.totalSales を使う
-  // (ConditionSummary widget と同じソース)。未利用ページでは undefined → 従来挙動に fallback。
-  const fullMonthLyTotal = ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
+  // full-month 前年日別売上 — ページの comparisonRows は effectivePeriod2 (alignment +
+  // elapsedDays cap) で絞られるため 17日以降が欠落する。本 widget は独立クエリで
+  // 前年同月 1〜末日を取得し、17日以降も埋める。未取得時 (executor 未 ready など)
+  // は null → 従来挙動 (PrevYearData 経由) に fallback。
+  const { daily: fullMonthLyDaily } = useFullMonthLyDaily(
+    ctx.queryExecutor,
+    year,
+    month,
+    ctx.selectedStoreIds,
+  )
 
-  // full-month 前年日別売上: FreePeriodReadModel.fact.comparisonRows を day ごとに合算
-  // (複数店舗 row を集計)。day は前年同月同日 alignment のため当年 day と一致する。
-  // PrevYearData (経過日キャップ) と異なり月末日まで全日カバー。
-  const comparisonRows = ctx.freePeriodLane?.bundle?.fact?.comparisonRows ?? null
-  const fullMonthLyDaily = useMemo<ReadonlyMap<number, number> | null>(() => {
-    if (!comparisonRows || comparisonRows.length === 0) return null
-    const map = new Map<number, number>()
-    for (const row of comparisonRows) {
-      map.set(row.day, (map.get(row.day) ?? 0) + row.sales)
+  // full-month 前年月合計: 優先順位
+  //  1. fullMonthLyDaily があればその合計 (真の full-month)
+  //  2. ページの comparisonSummary.totalSales (alignment-capped だが ConditionSummary と整合)
+  //  3. PrevYearData.totalSales (legacy fallback)
+  const fullMonthLyTotal = useMemo<number | null>(() => {
+    if (fullMonthLyDaily && fullMonthLyDaily.size > 0) {
+      let sum = 0
+      for (const v of fullMonthLyDaily.values()) sum += v
+      return sum
     }
-    return map
-  }, [comparisonRows])
+    return ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
+  }, [fullMonthLyDaily, ctx.freePeriodLane])
 
   const scenario = useSimulatorScenario({
     result,
