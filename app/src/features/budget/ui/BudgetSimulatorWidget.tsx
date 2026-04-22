@@ -70,12 +70,26 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
   // (ConditionSummary widget と同じソース)。未利用ページでは undefined → 従来挙動に fallback。
   const fullMonthLyTotal = ctx.freePeriodLane?.bundle?.fact?.comparisonSummary?.totalSales ?? null
 
+  // full-month 前年日別売上: FreePeriodReadModel.fact.comparisonRows を day ごとに合算
+  // (複数店舗 row を集計)。day は前年同月同日 alignment のため当年 day と一致する。
+  // PrevYearData (経過日キャップ) と異なり月末日まで全日カバー。
+  const comparisonRows = ctx.freePeriodLane?.bundle?.fact?.comparisonRows ?? null
+  const fullMonthLyDaily = useMemo<ReadonlyMap<number, number> | null>(() => {
+    if (!comparisonRows || comparisonRows.length === 0) return null
+    const map = new Map<number, number>()
+    for (const row of comparisonRows) {
+      map.set(row.day, (map.get(row.day) ?? 0) + row.sales)
+    }
+    return map
+  }, [comparisonRows])
+
   const scenario = useSimulatorScenario({
     result,
     prevYear,
     year,
     month,
     fullMonthLyTotal,
+    fullMonthLyDaily,
   })
   const state = useSimulatorState(result.elapsedDays || 1, scenario.daysInMonth)
   const vm = useMemo(() => buildSimulatorWidgetVm({ scenario, state }), [scenario, state])

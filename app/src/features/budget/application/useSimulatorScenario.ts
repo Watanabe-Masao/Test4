@@ -27,6 +27,13 @@ export interface UseSimulatorScenarioInput {
    * FreePeriodReadModel.comparisonSummary.totalSales を推奨)。
    */
   readonly fullMonthLyTotal?: number | null
+  /**
+   * full-month 前年日別売上 (Map<day, sales>)。
+   * 指定すると lyDaily を full-month 値で置換する。day は当年の day-of-month
+   * (前年同月同日 alignment 前提、1-based)。FreePeriodReadModel.fact.comparisonRows
+   * から構築する想定 (キャップなし=月末日まで全日)。
+   */
+  readonly fullMonthLyDaily?: ReadonlyMap<number, number> | null
 }
 
 /**
@@ -39,7 +46,7 @@ export interface UseSimulatorScenarioInput {
  *   (呼び出し側が表示を分岐する責務)
  */
 export function useSimulatorScenario(input: UseSimulatorScenarioInput): SimulatorScenario {
-  const { result, prevYear, year, month, fullMonthLyTotal } = input
+  const { result, prevYear, year, month, fullMonthLyTotal, fullMonthLyDaily } = input
 
   return useMemo<SimulatorScenario>(() => {
     const daysInMonth = new Date(year, month, 0).getDate()
@@ -48,12 +55,15 @@ export function useSimulatorScenario(input: UseSimulatorScenarioInput): Simulato
     const lyDaily = new Array<number>(daysInMonth)
     const actualDaily = new Array<number>(daysInMonth)
 
+    const useFullMonthDaily = fullMonthLyDaily != null && fullMonthLyDaily.size > 0
     let lyDailySum = 0
     let lastLyNonZeroDay = 0
     for (let i = 0; i < daysInMonth; i++) {
       const day = i + 1
       dailyBudget[i] = result.budgetDaily.get(day) ?? 0
-      const ly = getPrevYearDailySales(prevYear, year, month, day)
+      const ly = useFullMonthDaily
+        ? (fullMonthLyDaily!.get(day) ?? 0)
+        : getPrevYearDailySales(prevYear, year, month, day)
       lyDaily[i] = ly
       lyDailySum += ly
       if (ly > 0) lastLyNonZeroDay = day
@@ -62,18 +72,27 @@ export function useSimulatorScenario(input: UseSimulatorScenarioInput): Simulato
 
     // lyMonthly の決定:
     // - fullMonthLyTotal が明示指定されていればそれを使う (full month 値)
-    // - なければ lyDaily の合計 (alignment 済み経過日キャップに依存)
+    // - fullMonthLyDaily が指定されていればその合計 (full month 値)
+    // - どちらもなければ lyDaily の合計 (alignment 済み経過日キャップに依存)
     const lyMonthly =
-      fullMonthLyTotal != null && fullMonthLyTotal > 0 ? fullMonthLyTotal : lyDailySum
+      fullMonthLyTotal != null && fullMonthLyTotal > 0
+        ? fullMonthLyTotal
+        : useFullMonthDaily
+          ? lyDailySum
+          : lyDailySum
 
-    // lyCoverageDay: lyDaily の最終有効日。full month 判定は fullMonthLyTotal があるか、
-    // lyDaily の最終日まで非 0 の場合 null (full coverage)。
+    // lyCoverageDay: full coverage (null) になる条件は
+    // - fullMonthLyDaily が指定されている (full month 配列で書き換え済み)
+    // - fullMonthLyTotal による monthly 上書きあり、かつ daily も最終日まで非 0
+    // - 上書きなしでも lyDaily が最終日まで非 0
     const hasFullMonthOverride = fullMonthLyTotal != null && fullMonthLyTotal > 0
-    const lyCoverageDay: number | null = hasFullMonthOverride
+    const lyCoverageDay: number | null = useFullMonthDaily
       ? null
-      : prevYear.hasPrevYear && lastLyNonZeroDay === daysInMonth
+      : hasFullMonthOverride
         ? null
-        : lastLyNonZeroDay || null
+        : prevYear.hasPrevYear && lastLyNonZeroDay === daysInMonth
+          ? null
+          : lastLyNonZeroDay || null
 
     return {
       year,
@@ -86,5 +105,5 @@ export function useSimulatorScenario(input: UseSimulatorScenarioInput): Simulato
       actualDaily,
       lyCoverageDay,
     }
-  }, [result, prevYear, year, month, fullMonthLyTotal])
+  }, [result, prevYear, year, month, fullMonthLyTotal, fullMonthLyDaily])
 }
