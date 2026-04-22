@@ -296,19 +296,17 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  *
  * 予算前年比もこれに連動する。
  *
- * ## freePeriodPrevYearSummary は使用しない (semantic mismatch)
+ * ## Phase 6 Step A override を廃止 (semantic mismatch)
  *
- * 第 5 引数 `freePeriodPrevYearSummary` は Phase 6 Step A で導入された
+ * かつて存在した第 5 引数 `freePeriodPrevYearSummary` は
  * `FreePeriodReadModel.comparisonSummary.totalSales` 射影だが、この値は
  * `effectivePeriod2` (alignment + elapsedDays cap) 由来のため「経過期間分の
  * 前年売上」になる。本 header が表したいのは「月間の予算が前年全日に対して
  * どう組まれているか」であり、alignment 非経由の `monthlyTotal.sales`
  * (= 前年月全日合計、elapsedDays の影響を受けない) が正しいソース。
  *
- * 従って Step A override は採用せず、legacy 経路のみを使う。引数は upstream
- * テスト / caller の互換性維持のため残すが値としては無視する。
+ * 従って Step A override は採用せず、legacy 経路のみを使う。引数も撤去。
  *
- * @see app/src/application/readModels/freePeriod/selectPrevYearSummaryFromFreePeriod.ts
  * @see app/src/features/comparison/application/comparisonTypes.ts PrevYearMonthlyTotal
  */
 export function buildBudgetHeader(
@@ -316,11 +314,6 @@ export function buildBudgetHeader(
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis | undefined,
   prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _freePeriodPrevYearSummary?: {
-    readonly hasPrevYear: boolean
-    readonly totalSales: number
-  } | null,
 ): BudgetHeaderData {
   const rawSales =
     prevYearMode === 'sameDow'

@@ -9,10 +9,10 @@
 
 ## Phase A: Reboot 文脈の正本化
 
-* [ ] `projects/budget-achievement-simulator/AI_CONTEXT.md` を widget 正本の方針に更新した
+* [x] `projects/budget-achievement-simulator/AI_CONTEXT.md` を widget 正本の方針に更新した
 * [x] `projects/budget-achievement-simulator/plan.md` を widget reboot 方針に更新した
 * [x] `projects/budget-achievement-simulator/checklist.md` を widget reboot 方針に更新した
-* [ ] `projects/budget-achievement-simulator/HANDOFF.md` に page 前提から widget 前提へ変更した旨を追記した
+* [x] `projects/budget-achievement-simulator/HANDOFF.md` に page 前提から widget 前提へ変更した旨を追記した
 * [x] checklist から `/budget-simulator` / `PAGE_REGISTRY` / `pageComponentMap` 前提の required task を除外または後続扱いへ変更した
 
 ## Phase B: UI 契約の固定

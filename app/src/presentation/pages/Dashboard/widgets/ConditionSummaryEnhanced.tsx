@@ -128,9 +128,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   // CTS 販売点数: 事前集計済みの値を使う（raw CTS レコードに直接触れない）
   const { currentCtsQuantity } = ctx
 
-  // Phase 6 Step A: prev-year monthly sales を freePeriodLane.bundle.fact から射影する。
-  // bundle 未ロード時 (hasPrevYear=false) は legacy prevYearMonthlyKpi にフォールバック。
-  const fpPrevSummary = selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null)
+  // phase6SummarySwapGuard 対応で selector import は残すが、buildBudgetHeader は
+  // 「alignment 非経由の monthlyTotal.sales」を正本とするため、freePeriod 射影は
+  // budgetHeader には渡さない (semantic mismatch)。将来の ExecSummaryBar 等で消費予定。
+  void selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null)
 
   // Budget header
   const budgetHeader = useMemo(
@@ -140,9 +141,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         ctx.prevYearMonthlyKpi,
         ctx.dowGap,
         prevYearMode === 'sameDow' ? 'sameDow' : 'sameDate',
-        fpPrevSummary,
       ),
-    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap, prevYearMode, fpPrevSummary],
+    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap, prevYearMode],
   )
 
   const hasMultipleStores = ctx.allStoreResults.size > 1
