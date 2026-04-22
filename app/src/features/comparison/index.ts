@@ -66,3 +66,11 @@ export { useComparisonScope } from './application/hooks/useComparisonScope'
 // 公開 API: Projection context
 export { buildComparisonProjectionContext } from './application/buildComparisonProjectionContext'
 export type { ComparisonProjectionContext } from './application/ComparisonProjectionContext'
+
+// 公開 API: Monthly prev-year sales selector (月間粒度・取り込み期間キャップなし)
+export { selectMonthlyPrevYearSales } from './application/selectMonthlyPrevYearSales'
+export type {
+  MonthlyPrevYearSalesMode,
+  MonthlyPrevYearSalesSource,
+  MonthlyPrevYearSalesProjection,
+} from './application/selectMonthlyPrevYearSales'

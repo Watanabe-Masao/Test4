@@ -17,6 +17,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { PrevYearData } from '@/application/hooks/analytics'
+import { selectMonthlyPrevYearSales } from '@/features/comparison'
 import type { MetricKey } from './conditionSummaryTypes'
 import { extractMetric, computeAchievement } from './conditionSummaryHelpers'
 import {
@@ -290,40 +291,32 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  *
  * ## 期間スコープの意味論
  *
- * prevYearMode に応じて前年売上の取得元を切り替える:
- * - 'sameDate': monthlyTotal（alignment不要の全日合計）を使用
- * - 'sameDow': sameDow.sales（同曜日 alignment 経由の集計）を使用
+ * ヘッダーは「月間粒度の期間プリセット」として機能する。`prevYearMode` による
+ * 前年売上の切替:
+ * - 'sameDate': 前年同月の全日合計 (`kpi.monthlyTotal.sales`)
+ * - 'sameDow' : 前年同曜日 alignment 経由の月全体合計 (`kpi.sameDow.sales`)
  *
- * 予算前年比もこれに連動する。
+ * どちらのモードも **取り込み期間 (elapsedDays / dataEndDay) にキャップされない**
+ * 月全体の値を返す (選択経路は `selectMonthlyPrevYearSales` に集約)。
  *
- * ## Phase 6 Step A: freePeriodPrevYearSummary override
+ * ## 期間スコープ値の使用禁止
  *
- * `freePeriodPrevYearSummary` が渡された場合、prev-year monthly sales を
- * `FreePeriodReadModel.comparisonSummary.totalSales` から取得する (Step A
- * summary swap)。渡されない or `hasPrevYear=false` の場合は legacy
- * `prevYearMonthlyKpi` 経路にフォールバック (bundle 未ロード時の安全網)。
+ * `FreePeriodReadModel.comparisonSummary.totalSales` 等の analysis frame scope
+ * 値はヘッダーでは使用しない。bundle ロード完了で月間ラベルの値が縮む回帰
+ * (「月間前年売上」が elapsed 日までの合計に上書きされる) を防止するため。
  *
- * @see app/src/application/readModels/freePeriod/selectPrevYearSummaryFromFreePeriod.ts
+ * @see features/comparison/application/selectMonthlyPrevYearSales.ts
  */
 export function buildBudgetHeader(
   result: StoreResult,
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis | undefined,
   prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
-  freePeriodPrevYearSummary?: { readonly hasPrevYear: boolean; readonly totalSales: number } | null,
 ): BudgetHeaderData {
-  const legacyRawSales =
-    prevYearMode === 'sameDow'
-      ? prevYearMonthlyKpi.sameDow.sales
-      : prevYearMonthlyKpi.monthlyTotal.sales
-  const legacyPrevYearMonthlySales =
-    prevYearMonthlyKpi.hasPrevYear && legacyRawSales > 0 ? legacyRawSales : null
-
-  // Step A: prefer freePeriod summary when available, fall back to legacy
-  const prevYearMonthlySales =
-    freePeriodPrevYearSummary && freePeriodPrevYearSummary.hasPrevYear
-      ? freePeriodPrevYearSummary.totalSales
-      : legacyPrevYearMonthlySales
+  const prevYearProjection = selectMonthlyPrevYearSales(prevYearMonthlyKpi, prevYearMode)
+  const prevYearMonthlySales = prevYearProjection.hasPrevYear
+    ? prevYearProjection.monthlySales
+    : null
 
   const budgetVsPrevYear =
     prevYearMonthlySales != null && prevYearMonthlySales > 0

@@ -44,8 +44,16 @@ export function useFullMonthLyDaily(
       // 同じ currentDay に複数 row はない前提だが、防御的に加算。
       map.set(row.currentDay, (map.get(row.currentDay) ?? 0) + row.prevSales)
     }
-    // monthlyTotal.sales は alignment 非経由の前年月合計 (予算前年比の正式値)
-    const monthlyTotal = prevYearMonthlyKpi.monthlyTotal.sales
+    // 月間 前年合計 — 取り込み期間キャップなし。
+    // sameDate: monthlyTotal.sales (alignment 非経由の全日合計)
+    // sameDow : sameDow.sales (同曜日 alignment 経由、fullMonthPeriod1 で月全体)
+    // ConditionSummary の selectMonthlyPrevYearSales と同一セマンティクス
+    // (features 間の直接 import は禁止のため各側でローカル実装)
+    const rawMonthly =
+      mode === 'sameDayOfWeek'
+        ? prevYearMonthlyKpi.sameDow.sales
+        : prevYearMonthlyKpi.monthlyTotal.sales
+    const monthlyTotal = rawMonthly > 0 ? rawMonthly : null
     return { daily: map.size > 0 ? map : null, monthlyTotal }
   }, [prevYearMonthlyKpi, comparisonScope])
 }

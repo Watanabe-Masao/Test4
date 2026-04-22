@@ -1,8 +1,8 @@
 // phase6SummarySwapGuard — Phase 6 Step A の summary 差し替え結果を凍結する
 //
 // unify-period-analysis Phase 6 Step A:
-// `ConditionSummaryEnhanced` / `ExecSummaryBarWidget` の prev-year summary
-// 読み出しを `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由
+// `ExecSummaryBarWidget` の prev-year summary 読み出しを
+// `ctx.freePeriodLane.bundle.fact.comparisonSummary` 経由
 // (`selectPrevYearSummaryFromFreePeriod` selector + `preferFreePeriodPrevYearSummary`
 // composer) に差し替えた。本 guard は **再発防止 (regression freeze)** として、
 // 対象 widget で旧 summary 命名のバラ参照が増えないことを per-file count baseline
@@ -10,8 +10,18 @@
 //
 // ## 監視対象 widget
 //
-//   - presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx
 //   - presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx
+//
+// ## ConditionSummaryEnhanced.tsx の除外理由
+//
+// ヘッダーの「月間前年売上」「予算前年比」は **月間粒度のラベル** であり、
+// 期間スコープの `FreePeriodReadModel.comparisonSummary.totalSales` を使うと
+// bundle ロード完了で値が縮む回帰が発生する (取り込み期間キャップが暗黙適用
+// される)。そのため ConditionSummaryEnhanced は月間専用 selector
+// (`selectMonthlyPrevYearSales` / `features/comparison`) を経由する経路に
+// 分離され、本 guard の監視対象から外れた。
+//
+// @see features/comparison/application/selectMonthlyPrevYearSales.ts
 //
 // ## 監視対象パターン (旧命名のバラ参照)
 //
@@ -22,10 +32,6 @@
 //   - `prevYearMonthlyKpi.prevYearMonthlySales`  (legacy 命名の defensive)
 //
 // ## per-file baseline (Step A 完了時点)
-//
-//   - ConditionSummaryEnhanced.tsx: 0 件
-//     (override は `selectPrevYearSummaryFromFreePeriod` 出力を
-//      `buildBudgetHeader` 第 5 引数として渡す形で完結。直接読みなし)
 //
 //   - ExecSummaryBarWidget.tsx: 2 件
 //     (legacy adapter `selectPrevYearSummaryFromLegacy({...})` の引数構築箇所で
@@ -53,12 +59,6 @@ interface BaselineEntry {
 }
 
 const SUMMARY_SWAP_BASELINES: readonly BaselineEntry[] = [
-  {
-    path: 'presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx',
-    maxOccurrences: 0,
-    reason:
-      'Phase 6 Step A: buildBudgetHeader override 経由のみ使用。widget 内に直接 prev-year 旧命名読みは存在しない',
-  },
   {
     path: 'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
     maxOccurrences: 2,

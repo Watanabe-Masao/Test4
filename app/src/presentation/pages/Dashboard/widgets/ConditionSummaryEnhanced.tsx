@@ -18,7 +18,6 @@ import {
   computeRateTrend,
 } from './ConditionSummaryEnhanced.vm'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
-import { selectPrevYearSummaryFromFreePeriod } from '@/application/readModels/freePeriod'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -128,11 +127,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   // CTS 販売点数: 事前集計済みの値を使う（raw CTS レコードに直接触れない）
   const { currentCtsQuantity } = ctx
 
-  // Phase 6 Step A: prev-year monthly sales を freePeriodLane.bundle.fact から射影する。
-  // bundle 未ロード時 (hasPrevYear=false) は legacy prevYearMonthlyKpi にフォールバック。
-  const fpPrevSummary = selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null)
-
   // Budget header
+  // 月間ラベル (月間前年売上・予算前年比) は月全体粒度を保つため、期間スコープの
+  // FreePeriodReadModel.comparisonSummary を使わず、prevYearMonthlyKpi から
+  // selectMonthlyPrevYearSales 経由で取得する。詳細は buildBudgetHeader のコメント。
   const budgetHeader = useMemo(
     () =>
       buildBudgetHeader(
@@ -140,9 +138,8 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
         ctx.prevYearMonthlyKpi,
         ctx.dowGap,
         prevYearMode === 'sameDow' ? 'sameDow' : 'sameDate',
-        fpPrevSummary,
       ),
-    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap, prevYearMode, fpPrevSummary],
+    [ctx.result, ctx.prevYearMonthlyKpi, ctx.dowGap, prevYearMode],
   )
 
   const hasMultipleStores = ctx.allStoreResults.size > 1
