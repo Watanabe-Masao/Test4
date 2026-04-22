@@ -316,6 +316,7 @@ export function buildBudgetHeader(
   prevYearMonthlyKpi: PrevYearMonthlyKpi,
   dowGap: DowGapAnalysis | undefined,
   prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _freePeriodPrevYearSummary?: {
     readonly hasPrevYear: boolean
     readonly totalSales: number
