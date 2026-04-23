@@ -1,8 +1,19 @@
 /**
- * Template Project Overlay — 空 overlay
+ * architecture-debt-recovery Project Overlay — 空 overlay（draft 初期状態）
  *
- * 新 project は全 rule を DEFAULT_EXECUTION_OVERLAY で動かせる。
- * 案件固有の override が必要な rule だけを明示的に書く。
+ * 本 project は `status: "draft"` 初期化。active 昇格（Phase 5）までは
+ * `CURRENT_PROJECT.md` から参照されないため、overlay は空で問題ない。
+ *
+ * Phase 5 で active 昇格する際、experimental rule の reviewPolicy 要件
+ * （architectureRuleGuard）を満たすため、必要な entry を追加する。
+ * `projects/budget-achievement-simulator/aag/execution-overlay.ts` を参考に、
+ * 以下のパターンを想定:
+ *
+ *   - AR-SAFETY-* 系（silent-catch / fire-forget / insert-verify / prod-validation /
+ *     stale-store / worker-timeout）に reviewPolicy + executionPlan + fixNow
+ *   - AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION
+ *   - AR-CURRENT-CANDIDATE-SEPARATION
+ *   - AR-REGISTRY-SINGLE-MASTER
  *
  * 合成ロジック: app/src/test/architectureRules/merged.ts
  * 解決順序: project overlay → DEFAULT_EXECUTION_OVERLAY → error
@@ -14,6 +25,7 @@
  * 参照:
  * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  * - references/03-guides/governance-final-placement-plan.md
+ * - projects/budget-achievement-simulator/aag/execution-overlay.ts（Phase 5 で参照）
  *
  * @responsibility R:utility
  */
@@ -39,13 +51,10 @@ export type ExecutionOverlay = {
 }
 
 /**
- * 新 project 立ち上げ直後は空でよい。
- * 案件固有の override を追加するときは、上書きしたいフィールドだけを書く。
- * 未指定フィールドは DEFAULT_EXECUTION_OVERLAY から補完される。
+ * draft 初期状態 — overlay は空。
  *
- * 例:
- *   export const EXECUTION_OVERLAY: ExecutionOverlay = {
- *     'AR-001': { fixNow: 'debt' }, // priority / effort は defaults を使う
- *   }
+ * active 昇格時（Phase 5）に budget-achievement-simulator の overlay と同等の
+ * entry 群を追加する想定。その時点で本 project の `architecture` owner が
+ * review policy を持つ。
  */
 export const EXECUTION_OVERLAY: ExecutionOverlay = {}
