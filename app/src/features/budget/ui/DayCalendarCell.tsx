@@ -1,8 +1,13 @@
 /**
  * DayCalendarCell — 日別カレンダーの 1 セル
  *
- * 過去セル: 実績 + 達成率 + 前年比 (read-only)
- * 未来セル: % / ¥ 入力 + 予測達成率 + 予測前年比 (書込み可)
+ * 過去セル (read-only):
+ *   [日] 前年 ¥A / 予算 ¥B / 実績 ¥C / 予算比 X% / 前年比 Y%
+ *
+ * 未来セル (書込み可):
+ *   [日] 前年 ¥A / 予算 ¥B / 実績 ¥[入力] / {予算比|前年比} [入力] ({} は dowBase で切替)
+ *
+ * 実績¥ と 比率% は連動する (どちらを編集しても `dayOverrides[day]` = 基準系列に対する%)。
  *
  * @responsibility R:form
  */
@@ -15,7 +20,6 @@ import {
   DayCellInput,
   DayCellNumber,
   DayCellPct,
-  DayCellRatios,
   DayCellResetBtn,
 } from './BudgetSimulatorWidget.styles'
 
@@ -33,9 +37,18 @@ interface SlotProps {
   readonly onOverrideClear: (day: number) => void
 }
 
-function ratioClass(v: number | null): string {
-  if (v == null) return 'dim'
-  return v >= 100 ? 'good' : 'bad'
+function ratioColor(v: number | null, theme: 'good' | 'bad' | 'neutral' = 'neutral'): string {
+  if (v == null) return 'var(--text3, #9ca3af)'
+  if (theme !== 'neutral') return theme === 'good' ? 'var(--pos, #10b981)' : 'var(--neg, #ef4444)'
+  return v >= 100 ? 'var(--pos, #10b981)' : 'var(--neg, #ef4444)'
+}
+
+const rowStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.7rem',
+  fontVariantNumeric: 'tabular-nums',
+  lineHeight: 1.3,
 }
 
 export function DayCellSlot({
@@ -54,11 +67,11 @@ export function DayCellSlot({
   const { year, month, dailyBudget, lyDaily, actualDaily } = scenario
   const isPast = day <= currentDay
   const overridden = dayOverrides[day] != null
+  const budget = dailyBudget[day - 1] ?? 0
+  const ly = lyDaily[day - 1] ?? 0
 
   if (isPast) {
     const actual = actualDaily[day - 1] ?? 0
-    const budget = dailyBudget[day - 1] ?? 0
-    const ly = lyDaily[day - 1] ?? 0
     const achievement = budget > 0 ? (actual / budget) * 100 : null
     const yoy = ly > 0 ? (actual / ly) * 100 : null
     return (
@@ -66,23 +79,40 @@ export function DayCellSlot({
         <DayCellHeader>
           <DayCellNumber>{day}</DayCellNumber>
         </DayCellHeader>
-        <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>¥{fmtCurrency(actual)}</div>
-        <DayCellRatios>
-          <span className={ratioClass(achievement)}>
-            達成 {achievement != null ? `${achievement.toFixed(0)}%` : '—'}
-          </span>
-          <span className={ratioClass(yoy)}>前年 {yoy != null ? `${yoy.toFixed(0)}%` : '—'}</span>
-        </DayCellRatios>
+        <div style={rowStyle}>
+          <span>前年</span>
+          <span>¥{fmtCurrency(ly)}</span>
+        </div>
+        <div style={rowStyle}>
+          <span>予算</span>
+          <span>¥{fmtCurrency(budget)}</span>
+        </div>
+        <div style={{ ...rowStyle, fontWeight: 600 }}>
+          <span>実績</span>
+          <span>¥{fmtCurrency(actual)}</span>
+        </div>
+        <div
+          style={{
+            ...rowStyle,
+            color: ratioColor(achievement),
+          }}
+        >
+          <span>予算比</span>
+          <span>{achievement != null ? `${achievement.toFixed(0)}%` : '—'}</span>
+        </div>
+        <div style={{ ...rowStyle, color: ratioColor(yoy) }}>
+          <span>前年比</span>
+          <span>{yoy != null ? `${yoy.toFixed(0)}%` : '—'}</span>
+        </div>
       </DayCell>
     )
   }
 
+  // 未来セル: 実績 ¥ + 比率 % を連動入力
   const baseSeries = dowBase === 'yoy' ? lyDaily : dailyBudget
   const baseAmt = baseSeries[day - 1] ?? 0
   const effectivePct = pctForDay(day, dayOverrides, dowInputs, year, month)
   const projectedAmt = baseAmt * (effectivePct / 100)
-  const budget = dailyBudget[day - 1] ?? 0
-  const ly = lyDaily[day - 1] ?? 0
   const projAch = budget > 0 ? (projectedAmt / budget) * 100 : null
   const projYoy = ly > 0 ? (projectedAmt / ly) * 100 : null
   const overrideVal = dayOverrides[day]
@@ -90,10 +120,10 @@ export function DayCellSlot({
   const onPctChange = (raw: string) => {
     if (raw === '') {
       onOverrideClear(day)
-    } else {
-      const n = Number(raw)
-      if (Number.isFinite(n)) onOverrideChange(day, n)
+      return
     }
+    const n = Number(raw)
+    if (Number.isFinite(n)) onOverrideChange(day, n)
   }
 
   const onYenChange = (raw: string) => {
@@ -107,40 +137,68 @@ export function DayCellSlot({
     onOverrideChange(day, Math.round(pct * 10) / 10)
   }
 
+  const ratioLabel = dowBase === 'yoy' ? '前年比' : '予算比'
+  const displayPct = overrideVal ?? ''
+
   return (
     <DayCell $overridden={overridden}>
       <DayCellHeader>
         <DayCellNumber>{day}</DayCellNumber>
         <DayCellPct>{effectivePct.toFixed(1)}%</DayCellPct>
       </DayCellHeader>
-      <DayCellInput
-        type="number"
-        min={0}
-        max={300}
-        step={0.1}
-        value={overrideVal ?? ''}
-        placeholder={`${effectivePct.toFixed(0)}%`}
-        onChange={(e) => onPctChange(e.target.value)}
-        aria-label={`${day}日の%`}
-      />
-      <DayCellInput
-        type="number"
-        min={0}
-        step={1000}
-        value={overrideVal != null ? Math.round(projectedAmt) : ''}
-        placeholder={`¥${fmtCurrency(projectedAmt)}`}
-        onChange={(e) => onYenChange(e.target.value)}
-        aria-label={`${day}日の金額`}
-        style={{ fontSize: '0.72rem' }}
-      />
-      <DayCellRatios>
-        <span className={ratioClass(projAch)}>
-          達成 {projAch != null ? `${projAch.toFixed(0)}%` : '—'}
+      <div style={rowStyle}>
+        <span>前年</span>
+        <span>¥{fmtCurrency(ly)}</span>
+      </div>
+      <div style={rowStyle}>
+        <span>予算</span>
+        <span>¥{fmtCurrency(budget)}</span>
+      </div>
+      <div style={{ ...rowStyle, alignItems: 'center', gap: 4 }}>
+        <span>実績</span>
+        <DayCellInput
+          type="number"
+          min={0}
+          step={1000}
+          value={overrideVal != null ? Math.round(projectedAmt) : ''}
+          placeholder={`¥${fmtCurrency(projectedAmt)}`}
+          onChange={(e) => onYenChange(e.target.value)}
+          aria-label={`${day}日の実績額`}
+          style={{ flex: '1 1 auto', textAlign: 'right', fontSize: '0.7rem' }}
+        />
+      </div>
+      <div style={{ ...rowStyle, alignItems: 'center', gap: 4 }}>
+        <span>{ratioLabel}</span>
+        <DayCellInput
+          type="number"
+          min={0}
+          max={300}
+          step={0.1}
+          value={displayPct}
+          placeholder={`${effectivePct.toFixed(0)}%`}
+          onChange={(e) => onPctChange(e.target.value)}
+          aria-label={`${day}日の${ratioLabel}`}
+          style={{ flex: '1 1 auto', textAlign: 'right', fontSize: '0.7rem' }}
+        />
+      </div>
+      <div
+        style={{
+          ...rowStyle,
+          color: ratioColor(dowBase === 'yoy' ? projAch : projYoy),
+          fontSize: '0.65rem',
+        }}
+      >
+        <span>{dowBase === 'yoy' ? '予算比' : '前年比'}</span>
+        <span>
+          {dowBase === 'yoy'
+            ? projAch != null
+              ? `${projAch.toFixed(0)}%`
+              : '—'
+            : projYoy != null
+              ? `${projYoy.toFixed(0)}%`
+              : '—'}
         </span>
-        <span className={ratioClass(projYoy)}>
-          前年 {projYoy != null ? `${projYoy.toFixed(0)}%` : '—'}
-        </span>
-      </DayCellRatios>
+      </div>
       {overridden && (
         <DayCellResetBtn type="button" onClick={() => onOverrideClear(day)}>
           × リセット
