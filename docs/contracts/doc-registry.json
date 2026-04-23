@@ -616,6 +616,20 @@
           "label": "配置手順 + PR 本文テンプレート"
         }
       ]
+    },
+    {
+      "id": "contents",
+      "title": "実装要素の現状把握台帳（05-contents）",
+      "docs": [
+        {
+          "path": "references/05-contents/README.md",
+          "label": "05-contents カテゴリ正本（位置付け + 3 軸 drift 防御 + frontmatter 共通スキーマ）"
+        },
+        {
+          "path": "references/05-contents/widgets/README.md",
+          "label": "widget 仕様書カタログ（45 件 型番割当 + WSS format + freshness policy）"
+        }
+      ]
     }
   ]
 }

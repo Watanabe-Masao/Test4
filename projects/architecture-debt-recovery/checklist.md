@@ -98,7 +98,7 @@
 
 ## Phase 7: 完了 + handoff
 
-* [ ] `projects/completed/architecture-debt-recovery/SUMMARY.md` を作成した（後続 project 参照用）
+* [ ] `projects/architecture-debt-recovery/SUMMARY.md` を作成した（後続 project 参照用。Phase 7 末尾の archive 移動で `projects/completed/architecture-debt-recovery/SUMMARY.md` に移る） 
 * [ ] `references/02-status/open-issues.md` の active/completed projects 表を更新した
 * [ ] `CLAUDE.md` の generated section を最新化した（`docs:generate` + `docs:check` PASS）
 * [ ] `npm run test:guards` PASS
