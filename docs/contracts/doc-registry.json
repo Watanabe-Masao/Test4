@@ -632,6 +632,10 @@
         {
           "path": "references/05-contents/widgets/WID-001.md",
           "label": "WID-001 店別予算達成状況 — Dashboard-local 最小構成 pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-002.md",
+          "label": "WID-002 日別売上チャート — Dashboard-local 17-field ctx 展開 pilot"
         }
       ]
     }
