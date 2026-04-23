@@ -341,6 +341,35 @@ export const DayCellPastMarker = styled.span`
   color: ${({ theme }) => theme.colors.text3};
 `
 
+// ── ④ 残期間モード切替トグル (yoy / ach / dow) ──
+
+export const ModeToggleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+  flex-wrap: wrap;
+`
+
+export const ModeToggleBtn = styled.button<{ readonly $active?: boolean }>`
+  padding: ${({ theme }) => theme.spacing[1]} ${({ theme }) => theme.spacing[3]};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  border: 1px solid
+    ${({ theme, $active }) => ($active ? theme.colors.palette.primary : theme.colors.border)};
+  background: ${({ theme, $active }) =>
+    $active ? `${theme.colors.palette.primary}15` : theme.colors.bg};
+  color: ${({ theme, $active }) => ($active ? theme.colors.palette.primary : theme.colors.text2)};
+  font-weight: ${({ $active }) => ($active ? 600 : 500)};
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+    color: ${({ theme }) => theme.colors.palette.primary};
+  }
+`
+
 // ── ドリルダウン (DrilldownPanel) ──
 
 export const DrillSection = styled.div`
