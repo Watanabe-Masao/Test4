@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-23T15:06:51.971Z
+> 生成: 2026-04-23T23:22:26.512Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 7 |
+| active project 数（archive 未実施を含む） | 8 |
 | archived project 数 | 18 |
-| in_progress project 数 | 6 |
+| in_progress project 数 | 7 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 652 |
-| 全 project の checked checkbox 総数 | 513 |
+| 全 project の required checkbox 総数 | 725 |
+| 全 project の checked checkbox 総数 | 531 |
 
 ## projects
 
@@ -25,6 +25,7 @@
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
+| `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **in_progress** | — | 18/73 (25%) | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 | `budget-achievement-simulator` | 予算達成シミュレーター | **in_progress** | — | 43/45 (96%) | [`projects/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/budget-achievement-simulator/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |

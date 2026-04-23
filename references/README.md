@@ -9,10 +9,23 @@
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
 | `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 57 |
+| `05-contents/` | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 2 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
+
+`05-contents/` は Phase 1 bootstrap 時点では `widgets/` サブカテゴリのみ。今後 `charts/` / `read-models/` / `query-handlers/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+
+### 05-contents/widgets/ 個別 spec（pilot）
+
+| 型番 | 見出し | 概要 |
+|---|---|---|
+| `WID-001.md` | 店別予算達成状況 | Dashboard-local 最小構成 pilot（isVisible predicate + 単一 children） |
+| `WID-002.md` | 日別売上チャート | Dashboard-local 17-field ctx 展開 pilot（props + full ctx 二重注入） |
+| `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
+
+（残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
 
 ## 正本一覧
 

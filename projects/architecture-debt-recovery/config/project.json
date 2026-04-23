@@ -1,0 +1,13 @@
+{
+  "$comment": "widget を入口とする大型改修 project。棚卸し → 真因分析 → 原則制定 → 計画 → 実装（破壊的変更含む）の流れで過去の負債を回収する。budget-achievement-simulator の findings が起点（informed-by 関係、parent ではない）。status は draft — CURRENT_PROJECT.md 切替と activation は別途人間承認後。",
+  "projectId": "architecture-debt-recovery",
+  "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
+  "status": "draft",
+  "projectRoot": "projects/architecture-debt-recovery",
+  "entrypoints": {
+    "aiContext": "projects/architecture-debt-recovery/AI_CONTEXT.md",
+    "handoff": "projects/architecture-debt-recovery/HANDOFF.md",
+    "plan": "projects/architecture-debt-recovery/plan.md",
+    "checklist": "projects/architecture-debt-recovery/checklist.md"
+  }
+}

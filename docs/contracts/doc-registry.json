@@ -616,6 +616,32 @@
           "label": "配置手順 + PR 本文テンプレート"
         }
       ]
+    },
+    {
+      "id": "contents",
+      "title": "実装要素の現状把握台帳（05-contents）",
+      "docs": [
+        {
+          "path": "references/05-contents/README.md",
+          "label": "05-contents カテゴリ正本（位置付け + 3 軸 drift 防御 + frontmatter 共通スキーマ）"
+        },
+        {
+          "path": "references/05-contents/widgets/README.md",
+          "label": "widget 仕様書カタログ（45 件 型番割当 + WSS format + freshness policy）"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-001.md",
+          "label": "WID-001 店別予算達成状況 — Dashboard-local 最小構成 pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-002.md",
+          "label": "WID-002 日別売上チャート — Dashboard-local 17-field ctx 展開 pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-040.md",
+          "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
+        }
+      ]
     }
   ]
 }

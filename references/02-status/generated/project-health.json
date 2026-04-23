@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-23T15:06:51.971Z",
+  "timestamp": "2026-04-23T23:22:26.512Z",
   "summary": {
-    "active": 7,
+    "active": 8,
     "archived": 18,
-    "inProgress": 6,
+    "inProgress": 7,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 652,
-    "checkedCheckboxes": 513
+    "totalCheckboxes": 725,
+    "checkedCheckboxes": 531
   },
   "projects": [
     {
@@ -49,6 +49,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "architecture-debt-recovery",
+      "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
+      "kind": "project",
+      "declaredStatus": "draft",
+      "derivedStatus": "in_progress",
+      "checked": 18,
+      "total": 73,
+      "progress": 0.247,
+      "entrypoint": "projects/architecture-debt-recovery/AI_CONTEXT.md",
+      "checklistPath": "projects/architecture-debt-recovery/checklist.md",
       "parent": null
     },
     {
