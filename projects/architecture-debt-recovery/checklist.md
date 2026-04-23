@@ -29,15 +29,16 @@
 * [ ] `inquiry/05-pure-fn-candidates.md` を作成した（hook / component 内の pure 計算候補）
 * [ ] `inquiry/06-data-pipeline-map.md` を作成した（`InsightData` / `costDetailData` / readModel 経路）
 * [ ] `inquiry/07-complexity-hotspots.md` を作成した（行数 / useMemo 数 / ctx touched 数 + Budget Simulator 7 項目）
+* [ ] `inquiry/08-ui-responsibility-audit.md` を作成した（UI 層の責務分離監査。`presentation/` + `features/*/ui/` に C8 1 文説明テストを適用 + P2-P18 分布）
 * [ ] inquiry 全ファイルに事実源（ファイルパス / 行番号 / commit hash）が付記されている
 * [ ] inquiry 全ファイルに意見 / recommendations / 改修案が書かれていないことを確認した
 * [ ] Phase 1 期間中にコード変更を一切行わなかったことを `git log` で確認した
 
 ## Phase 2: 真因分析
 
-* [ ] `inquiry/08-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
-* [ ] `inquiry/09-hypothesis-interaction.md` を作成した（仮説間の相互作用）
-* [ ] `inquiry/10-recurrence-pattern.md` を作成した（既存対策の回避経緯）
+* [ ] `inquiry/09-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
+* [ ] `inquiry/10-hypothesis-interaction.md` を作成した（仮説間の相互作用）
+* [ ] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
 * [ ] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
 * [ ] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
 * [ ] architecture ロール review 完了
@@ -45,9 +46,9 @@
 
 ## Phase 3: 原則制定
 
-* [ ] `inquiry/11-principle-candidates.md` を作成した（設計原則 v2 候補）
-* [ ] `inquiry/12-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
-* [ ] `inquiry/13-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
+* [ ] `inquiry/12-principle-candidates.md` を作成した（設計原則 v2 候補）
+* [ ] `inquiry/13-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
+* [ ] `inquiry/14-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
 * [ ] 各原則候補に対応する真因仮説（Phase 2）が紐付いている
 * [ ] 各原則候補に既存 9 カテゴリとの差分（追加 / 上書き / 削除）が明記されている
 * [ ] 各原則候補に機械検出方法の粗設計が記載されている
@@ -57,10 +58,10 @@
 
 ## Phase 4: 改修計画
 
-* [ ] `inquiry/14-remediation-plan.md` を作成した（改修単位・依存順・影響範囲・4 ステップ pattern 記載）
-* [ ] `inquiry/15-breaking-changes.md` を作成した（破壊的変更の完全 list）
-* [ ] `inquiry/16-legacy-retirement.md` を作成した（レガシー撤退 list + 撤退期限）
-* [ ] `inquiry/17-sub-project-map.md` を作成した（sub-project の scope / 成功条件 / 依存順）
+* [ ] `inquiry/15-remediation-plan.md` を作成した（改修単位・依存順・影響範囲・4 ステップ pattern 記載）
+* [ ] `inquiry/16-breaking-changes.md` を作成した（破壊的変更の完全 list）
+* [ ] `inquiry/17-legacy-retirement.md` を作成した（レガシー撤退 list + 撤退期限）
+* [ ] `inquiry/18-sub-project-map.md` を作成した（sub-project の scope / 成功条件 / 依存順）
 * [ ] 全改修に「新実装 → 移行 → 削除 → guard」の 4 ステップが記載されている
 * [ ] 全改修にレガシー撤退が紐付いている（「新実装のみ追加」が存在しない）
 * [ ] 全破壊的変更に rollback 手順が記載されている
@@ -70,9 +71,9 @@
 
 ## Phase 5: 既存 project 整理
 
-* [ ] `inquiry/18-predecessor-project-transition.md` を作成した（`budget-achievement-simulator` の扱い確定）
-* [ ] `inquiry/19-current-project-switch-plan.md` を作成した（`CURRENT_PROJECT.md` 切替計画）
-* [ ] `inquiry/20-spawn-sequence.md` を作成した（sub-project 立ち上げ順序）
+* [ ] `inquiry/19-predecessor-project-transition.md` を作成した（`budget-achievement-simulator` の扱い確定）
+* [ ] `inquiry/20-current-project-switch-plan.md` を作成した（`CURRENT_PROJECT.md` 切替計画）
+* [ ] `inquiry/21-spawn-sequence.md` を作成した（sub-project 立ち上げ順序）
 * [ ] `budget-achievement-simulator` cleanup 7 項目の引き継ぎ先 sub-project が確定している
 * [ ] 本 project の `config/project.json` の `status: "draft"` → `"active"` 変更承認済
 * [ ] `open-issues.md` の active projects 表更新方針が確定している
@@ -84,16 +85,16 @@
 > **注意**: 本 Phase は複数 sub-project が並列で進行する。以下の checkbox は
 > umbrella 側の完了判定。各 sub-project の完了判定は sub-project 側の checklist で行う。
 
-* [ ] Phase 4 の `17-sub-project-map.md` に載る全 sub-project が completed 昇格した
-* [ ] Phase 4 の `15-breaking-changes.md` に載る全破壊的変更が実施された
-* [ ] Phase 4 の `16-legacy-retirement.md` の**全項目が削除済み**（レガシー残存 0）
+* [ ] Phase 4 の `18-sub-project-map.md` に載る全 sub-project が completed 昇格した
+* [ ] Phase 4 の `16-breaking-changes.md` に載る全破壊的変更が実施された
+* [ ] Phase 4 の `17-legacy-retirement.md` の**全項目が削除済み**（レガシー残存 0）
 * [ ] Phase 3 の不変条件候補が `references/03-guides/invariant-catalog.md` に登録され guard test 実装済
 * [ ] Phase 3 の原則候補が `references/01-principles/` に配置され `docs/contracts/principles.json` に登録済
 * [ ] 各 sub-project で 4 ステップ pattern（新実装 / 移行 / 削除 / guard）が完遂されたことを確認した
 * [ ] 各 sub-project の CI 全通過（test:guards / build / lint / test:visual / docs:check）を確認した
 * [ ] runtime 回帰テスト（visual / E2E）で主要機能の無回帰を確認した
 * [ ] `references/02-status/generated/architecture-health.json` の KPI が改善または不変であることを確認した
-* [ ] 計画外の破壊的変更 / rename が混入していないことを `15-breaking-changes.md` との突合で確認した
+* [ ] 計画外の破壊的変更 / rename が混入していないことを `16-breaking-changes.md` との突合で確認した
 
 ## Phase 7: 完了 + handoff
 
@@ -115,4 +116,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / inquiry/ 全 20 ファイル / 昇格した原則 / archive 移動) を人間がレビューし、archive プロセスへの移行を承認する
+* [ ] 全 Phase の成果物 (commit / PR / inquiry/ 全 21 ファイル / 昇格した原則 / archive 移動) を人間がレビューし、archive プロセスへの移行を承認する

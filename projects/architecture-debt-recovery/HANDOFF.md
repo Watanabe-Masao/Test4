@@ -98,7 +98,20 @@ Phase 5 まで `projects/budget-achievement-simulator/` を touch しない。
 これは独立 project の在職状態保護。同 project の cleanup 7 項目は
 Phase 4 の remediation-plan で sub-project に吸収する設計。
 
-### 3.8. ブランチ名の不整合
+### 3.8. UI 層は既存で十分にテコ入れされていない前提
+
+`presentation/` と `features/*/ui/` は、過去の機能追加・改修・改廃の積み重ねで
+**責務分離が乱雑な箇所が多い**前提で Phase 1 の棚卸しに入る。特に:
+
+- 1 component が「データ取得 + 状態管理 + 描画」複数責務を抱える
+- 責務タグ (`@responsibility R:*`) と実態の乖離
+- responsibility-separation guard P2-P18 の各指標の分布に偏り
+- C8「1 文説明テスト」で「〜と〜を担う」の AND が入るケース
+
+Phase 1 `inquiry/08-ui-responsibility-audit.md` でこれを重点的に棚卸しする。
+**事実列挙のみ。改修案・recommendations は Phase 2 以降**（原則 #12）。
+
+### 3.9. ブランチ名の不整合
 
 現 branch `claude/budget-simulator-review-dJr9C` は本 project 以前の scope を含む命名。
 Phase 5 で本 project を active 昇格するタイミングで新 branch に切り替えることを検討。

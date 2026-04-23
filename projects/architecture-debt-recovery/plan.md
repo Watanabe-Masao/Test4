@@ -19,6 +19,7 @@
 7. sub-project と文脈保持の運用
 8. 禁止事項
 9. 関連実装・参照
+10. AAG 統合とテスト戦略
 
 ## 1. 位置付け
 
@@ -104,10 +105,11 @@
 | `05-pure-fn-candidates.md` | hook / component 内に埋没している pure 計算候補（`useMemo` 内の計算・inline reducer・等） | AST 走査 |
 | `06-data-pipeline-map.md` | `InsightData` / `costDetailData` / `selectedResults` / 各 readModel / queryHandler 等の data flow マップ | 手動トレース |
 | `07-complexity-hotspots.md` | 行数 / useMemo 数 / ctx touched 数 / 責務タグ / Budget Simulator 7 項目の合流 | 既存 guard の健康診断結果 |
+| `08-ui-responsibility-audit.md` | **UI 層の責務分離監査**。`presentation/` + `features/*/ui/` のファイル単位で C8「1 文説明テスト」を適用し、責務が複合化している箇所 / 責務タグと実態の乖離 / responsibility-separation guard P2-P18 の各指標分布を列挙。**UI 層は既存で十分にテコ入れされておらず、乱雑な箇所が多い前提**で重点監査する | AST + responsibilityTagRegistry |
 
 #### 完了条件
 
-- `inquiry/` 配下に 7 ファイル揃う
+- `inquiry/` 配下に 8 ファイル揃う（01-08）
 - 各ファイルは**事実のみ**（意見・recommendations・改修案を含まない）
 - 各事実に出典（ファイルパス・行番号・commit hash）が付記される
 - review-gate の self-check PASS（台帳としての網羅性・出典の明示性）
@@ -118,7 +120,7 @@
 
 #### 次 Phase への渡し方
 
-- Phase 2 は `inquiry/01-07` を入力として読む
+- Phase 2 は `inquiry/01-08` を入力として読む
 - 台帳は immutable — Phase 2 以降で追加情報が判明しても、台帳を書き換えず新ファイル（例: `inquiry/01a-addendum.md`）で addend する
 - 台帳の不備（事実の欠落）が判明した場合は Phase 1 に戻る（Phase 2 で「棚卸しが不十分」と判定されたら差し戻し）
 
@@ -128,7 +130,7 @@
 
 #### 入力
 
-- Phase 1 の inventory 7 ファイル
+- Phase 1 の inventory 8 ファイル
 - 既存原則（`references/01-principles/design-principles.md` 9 カテゴリ + AAG）
 - 過去の AAG feedback loop 履歴（同じ症状が再発している箇所）
 
@@ -136,9 +138,9 @@
 
 | ファイル | 内容 |
 |---|---|
-| `inquiry/08-symptom-to-hypothesis.md` | 各症状に対して **2 つ以上** の真因候補。各候補に Phase 1 の事実を根拠として紐付ける |
-| `inquiry/09-hypothesis-interaction.md` | 仮説間の相互作用（A が真なら B が真となりやすい / 独立した複数原因の並列等）を図示 |
-| `inquiry/10-recurrence-pattern.md` | 既存対策（guard / allowlist / 原則）が回避された経緯がある箇所。**AAG の「ルールは仮説」思想**に基づく |
+| `inquiry/09-symptom-to-hypothesis.md` | 各症状に対して **2 つ以上** の真因候補。各候補に Phase 1 の事実を根拠として紐付ける |
+| `inquiry/10-hypothesis-interaction.md` | 仮説間の相互作用（A が真なら B が真となりやすい / 独立した複数原因の並列等）を図示 |
+| `inquiry/11-recurrence-pattern.md` | 既存対策（guard / allowlist / 原則）が回避された経緯がある箇所。**AAG の「ルールは仮説」思想**に基づく |
 
 #### 完了条件
 
@@ -172,9 +174,9 @@
 
 | ファイル | 内容 |
 |---|---|
-| `inquiry/11-principle-candidates.md` | 設計原則 v2 の候補。既存 9 カテゴリとの差分（追加・上書き・削除）を明記 |
-| `inquiry/12-invariant-candidates.md` | 新規不変条件の候補。各不変条件に guard test の **設計前書き**（まだ実装はしない） |
-| `inquiry/13-rule-retirement-candidates.md` | 既存原則・rules・guard のうち、**廃止・統合を検討するもの**。廃止理由は Phase 2 の真因に紐付ける |
+| `inquiry/12-principle-candidates.md` | 設計原則 v2 の候補。既存 9 カテゴリとの差分（追加・上書き・削除）を明記 |
+| `inquiry/13-invariant-candidates.md` | 新規不変条件の候補。各不変条件に guard test の **設計前書き**（まだ実装はしない） |
+| `inquiry/14-rule-retirement-candidates.md` | 既存原則・rules・guard のうち、**廃止・統合を検討するもの**。廃止理由は Phase 2 の真因に紐付ける |
 
 #### 完了条件
 
@@ -210,10 +212,10 @@
 
 | ファイル | 内容 |
 |---|---|
-| `inquiry/14-remediation-plan.md` | 改修単位・依存順・影響範囲。各改修に 4 ステップ pattern（新実装 / 移行 / 削除 / guard）を記載 |
-| `inquiry/15-breaking-changes.md` | 破壊的変更の完全 list。各変更に:<br>- 新実装先 / 旧実装削除先<br>- 依存する先行変更<br>- rollback 手順<br>- guard test の設計<br>- 想定 PR 数 |
-| `inquiry/16-legacy-retirement.md` | 不要コード / 旧 API / shim / 「将来削除予定」コメントの撤退 list。各項目に**撤退期限**（Phase 6 の何番目の PR で削除するか） |
-| `inquiry/17-sub-project-map.md` | spawn する sub-project の設計:<br>- 各 sub-project の scope / 成功条件 / 入出力契約<br>- sub-project 間の依存順<br>- 各 sub-project の想定サイズ（Small / Medium / Large） |
+| `inquiry/15-remediation-plan.md` | 改修単位・依存順・影響範囲。各改修に 4 ステップ pattern（新実装 / 移行 / 削除 / guard）を記載 |
+| `inquiry/16-breaking-changes.md` | 破壊的変更の完全 list。各変更に:<br>- 新実装先 / 旧実装削除先<br>- 依存する先行変更<br>- rollback 手順<br>- guard test の設計<br>- 想定 PR 数 |
+| `inquiry/17-legacy-retirement.md` | 不要コード / 旧 API / shim / 「将来削除予定」コメントの撤退 list。各項目に**撤退期限**（Phase 6 の何番目の PR で削除するか） |
+| `inquiry/18-sub-project-map.md` | spawn する sub-project の設計:<br>- 各 sub-project の scope / 成功条件 / 入出力契約<br>- sub-project 間の依存順<br>- 各 sub-project の想定サイズ（Small / Medium / Large） |
 
 #### 完了条件
 
@@ -247,9 +249,9 @@
 
 | ファイル | 内容 |
 |---|---|
-| `inquiry/18-predecessor-project-transition.md` | `budget-achievement-simulator` の扱い:<br>- 吸収（sub-project として取り込む） vs 別扱い（archive）<br>- cleanup 7 項目の引き継ぎ先 sub-project<br>- HANDOFF / checklist の最終更新方針 |
-| `inquiry/19-current-project-switch-plan.md` | `CURRENT_PROJECT.md` 切替のタイミングと手順:<br>- 本 project を `active` 昇格する timing<br>- sub-project を active にするタイミング（umbrella と sub の切替規約） |
-| `inquiry/20-spawn-sequence.md` | sub-project の立ち上げ順序。Phase 4 の依存グラフに基づく具体的スケジュール |
+| `inquiry/19-predecessor-project-transition.md` | `budget-achievement-simulator` の扱い:<br>- 吸収（sub-project として取り込む） vs 別扱い（archive）<br>- cleanup 7 項目の引き継ぎ先 sub-project<br>- HANDOFF / checklist の最終更新方針 |
+| `inquiry/20-current-project-switch-plan.md` | `CURRENT_PROJECT.md` 切替のタイミングと手順:<br>- 本 project を `active` 昇格する timing<br>- sub-project を active にするタイミング（umbrella と sub の切替規約） |
+| `inquiry/21-spawn-sequence.md` | sub-project の立ち上げ順序。Phase 4 の依存グラフに基づく具体的スケジュール |
 
 #### 完了条件
 
@@ -284,8 +286,8 @@
 
 #### 入力
 
-- Phase 4 の `14-remediation-plan.md` / `15-breaking-changes.md` / `16-legacy-retirement.md` / `17-sub-project-map.md`
-- Phase 5 の `20-spawn-sequence.md`
+- Phase 4 の `15-remediation-plan.md` / `16-breaking-changes.md` / `17-legacy-retirement.md` / `18-sub-project-map.md`
+- Phase 5 の `21-spawn-sequence.md`
 - Phase 3 の原則候補 / 不変条件候補（Phase 6 で正本昇格する）
 
 #### 成果物
@@ -295,7 +297,7 @@
 | sub-project 群の完遂 | Phase 4 で identify された sub-project が **全て completed** になる |
 | 新 invariant の正本昇格 | Phase 3 不変条件候補が `references/03-guides/invariant-catalog.md` に登録され、guard test が実装される |
 | 新原則の正本昇格 | Phase 3 原則候補が `references/01-principles/` に配置され、`docs/contracts/principles.json` に登録される |
-| レガシー撤退完了 | Phase 4 の `16-legacy-retirement.md` 全項目が **削除済み** |
+| レガシー撤退完了 | Phase 4 の `17-legacy-retirement.md` 全項目が **削除済み** |
 | health KPI 更新 | `references/02-status/generated/architecture-health.json` が Phase 3 前後で比較可能な状態 |
 
 #### 各 sub-project の必須要件（Phase 4 の計画に上乗せ）
@@ -312,7 +314,7 @@
 - Phase 4 の改修 list が全て消化される
 - sub-project が全て completed に昇格する
 - 新 invariant / 新原則が正本昇格する
-- **レガシー残存 0** — `16-legacy-retirement.md` の全項目が削除済み
+- **レガシー残存 0** — `17-legacy-retirement.md` の全項目が削除済み
 - architecture-health.json の regression-free（KPI が改善または不変）
 
 #### 破壊的変更の許可範囲
@@ -452,7 +454,7 @@ Step L1: 現状の把握
    └─ dead code は即削除候補、consumer 有は撤退計画必要
 
 Step L2: 撤退計画の策定
-   ├─ Phase 4 の 16-legacy-retirement.md に記載
+   ├─ Phase 4 の 17-legacy-retirement.md に記載
    ├─ consumer がある場合: 移行先 API を明記
    └─ 撤退期限（Phase 6 の何番目の PR で削除するか）を確定
 
@@ -484,7 +486,7 @@ Step L3: 実削除
 ### `@deprecated` の扱い
 
 - **新規追加を禁止**（Phase 6 以降）
-- 既存の `@deprecated` は Phase 4 の `16-legacy-retirement.md` に全て列挙する
+- 既存の `@deprecated` は Phase 4 の `17-legacy-retirement.md` に全て列挙する
 - 撤退計画に載らない `@deprecated` は即撤退対象
 
 ## 6. 真因分析のガイドライン
@@ -561,7 +563,7 @@ sub-project の `AI_CONTEXT.md` の Read Order には **必ず以下を含める
 1. 本ファイル
 2. `../architecture-debt-recovery/AI_CONTEXT.md`（umbrella の文脈）
 3. `../architecture-debt-recovery/plan.md`（umbrella の不可侵原則）
-4. `../architecture-debt-recovery/inquiry/14-remediation-plan.md`（umbrella の改修計画）
+4. `../architecture-debt-recovery/inquiry/15-remediation-plan.md`（umbrella の改修計画）
 5. `HANDOFF.md`
 6. `plan.md`
 7. `checklist.md`
@@ -600,9 +602,9 @@ sub-project の `config/project.json`:
 
 | 項目 | 追跡先 |
 |---|---|
-| 各 sub-project の状態 | `inquiry/20-spawn-sequence.md` を更新 |
-| sub-project の実装が原則候補に与える feedback | `inquiry/11-principle-candidates.md` を必要に応じて改訂 |
-| レガシー撤退の進捗 | `inquiry/16-legacy-retirement.md` の checkbox 状態 |
+| 各 sub-project の状態 | `inquiry/21-spawn-sequence.md` を更新 |
+| sub-project の実装が原則候補に与える feedback | `inquiry/12-principle-candidates.md` を必要に応じて改訂 |
+| レガシー撤退の進捗 | `inquiry/17-legacy-retirement.md` の checkbox 状態 |
 | architecture-health KPI の推移 | `references/02-status/generated/architecture-health.json` の snapshot を `inquiry/` に保存 |
 
 ## 8. 禁止事項
@@ -680,4 +682,139 @@ sub-project の `config/project.json`:
 | `app/src/presentation/components/widgets/types.ts` | universal `WidgetDef` / `UnifiedWidgetContext`（Phase 6 改修対象） |
 | `app/src/presentation/pages/Dashboard/widgets/types.ts` | Dashboard `WidgetDef` / `WidgetContext`（Phase 6 改修対象） |
 | `tools/architecture-health/` | health collector / generator（Phase 6 で新 KPI 追加の可能性） |
+
+## 10. AAG 統合とテスト戦略
+
+> **原則**: 本 project の発見・原則・改修は、**一過性の成果ではなく AAG の永続的な仕組み** として残す。
+> 「気をつける」対策は禁止（#12）。全ての insight は **guard test / Architecture Rule / invariant カタログ** のいずれかに機械化される。
+
+### 10.1 AAG 3 層との対応
+
+本 project は AAG 3 層サイクル「発見 → 蓄積 → 評価」と整合する。
+
+| AAG 層 | 本 project の対応 |
+|---|---|
+| **発見** | Phase 1 Inquiry / Phase 2 真因分析 |
+| **蓄積** | Phase 3 原則候補 / Phase 4 計画 / Phase 6 Architecture Rule 実装 |
+| **評価** | Phase 7 health KPI 前後比較 / 原則の sunsetCondition 検証 |
+
+### 10.2 各 Phase での AAG 統合
+
+| Phase | AAG integration 内容 |
+|---|---|
+| Phase 1 | inventory に **既存 guard / rule / allowlist の現状棚卸し** を含める。特に「回避が頻発している guard」「effective でない rule」を識別する |
+| Phase 2 | 真因分析時に既存原則・rule の **回避経緯**（`recurrence-pattern.md`）を評価。AAG の「ルールは仮説」思想で既存 rule を疑う |
+| Phase 3 | 各原則候補に **対応する Architecture Rule の設計前書き** を付ける（detection type / binding / decisionCriteria / migrationRecipe） |
+| Phase 4 | 改修計画の各変更に **先行追加すべき guard test の list** と **除却すべき既存 rule の list** を含める |
+| Phase 6 | 4 ステップ pattern の Step 4 (guard) で、**Architecture Rule を正本登録 + guard test 実装**。allowlist / invariant catalog の更新を含める |
+| Phase 7 | health KPI の前後比較で「Architecture Rule 総数」「guard test 総数」「allowlist 削減数」「reviewPolicy 設定済み rule 数」を記録 |
+
+### 10.3 テスト戦略 — 7 層
+
+本 project の改修は以下の 7 層で保護する。sub-project の checklist は各層の実装有無を**必須項目として含める**。
+
+| 層 | 種別 | 役割 | 既存インフラ例 |
+|---|---|---|---|
+| 1 | 型検証（tsc） | 型レベル不変条件 | `strict mode` / `noUnusedLocals` / `noUnusedParameters` |
+| 2 | lint | コードパターン検出 | `no-any` / responsibilityTag 記法 |
+| 3 | guard test | 構造制約の機械検証 | `app/src/test/guards/*.test.ts`（39 件） |
+| 4 | invariant test | 数学的不変条件 | `budgetAnalysisInvariants.test.ts` / `observation/` |
+| 5 | unit test | pure 関数の振る舞い | `domain/calculations/*.test.ts` |
+| 6 | integration / visual | 描画と UX の振る舞い | Storybook / `test:visual` |
+| 7 | E2E | ユーザーフロー | Playwright `test:e2e` |
+
+**改修の種別ごとの最低テスト要件**:
+
+| 改修種別 | 必須層 |
+|---|---|
+| pure 関数抽出 | 1, 2, 3, 4, 5 |
+| 型再編成（WidgetDef 統合 等） | 1, 2, 3 |
+| component 分割 | 1, 2, 3, 5, 6 |
+| data pipeline 再設計 | 1, 2, 3, 5, 6, 7 |
+| レガシー削除 | 1, 2, 3（+ 削除対象が runtime に影響するなら 6, 7） |
+
+### 10.4 Architecture Rule 化の必須要件
+
+Phase 3 原則候補 → Phase 6 Architecture Rule 昇格時、各 rule に以下を**必ず**定義する。これは `references/03-guides/architecture-rule-system.md` に準拠する。
+
+**構造フィールド（App Domain 側・不変）**:
+
+- `id` — `AR-*` 形式の安定 ID
+- `what` / `why` / `doc` — 学習コスト削減（doc は `references/` へのリンク）
+- `correctPattern` / `example` — 自己修復（どう書けば正しいか）
+- `outdatedPattern` / `codeSignals` — 検出
+- `detection.type` — `import` / `regex` / `count` / `must-include` / `must-only` / `co-change` / `must-not-coexist` / `custom` の 8 種
+- `migrationRecipe` — 違反時の修正手順
+- `decisionCriteria` — 判断の脱属人化
+- `relationships` — 他 rule との因果関係
+- `thresholds` / `baseline` — ratchet-down 運用の数値
+
+**運用フィールド（Project Overlay 側・変動）**:
+
+- `fixNow` — `now` / `debt` / `review` の分類
+- `executionPlan` — effort / priority
+- `reviewPolicy` — owner / lastReviewedAt / reviewCadenceDays
+- `ruleClass` — `invariant` / `default` / `heuristic`
+- `confidence` — 仮説の確信度
+- `sunsetCondition` — この rule が無用になる条件
+- `lifecyclePolicy` — `experimental` / `stable` / `deprecated`
+
+Phase 3 `inquiry/12-principle-candidates.md` はこれら全フィールドの**候補**を埋めた状態で提示する。人間承認後に Phase 6 で正本登録する。
+
+### 10.5 guard test 先行の運用
+
+破壊的変更の 4 ステップ pattern の Step 1（新実装追加）**の前**に、以下を行う:
+
+1. **invariant 追加** — 破壊される可能性のある invariant に guard test を先に書く（RED → GREEN）
+2. **新実装の unit test 先行** — 新実装の振る舞い契約をテストで固定
+3. **integration / visual baseline 固定** — 変更前の runtime 挙動を fixture として保存
+4. **Architecture Rule stub 追加** — 新 rule の outline を追加（`lifecyclePolicy: 'experimental'` でスタート、Phase 終了時に `'stable'` へ）
+
+これにより:
+
+- Step 1 の新実装が invariant / 新 rule を満たすことが機械検証される
+- Step 2 の consumer 移行中に回帰が即検出される
+- Step 3 の旧削除で「削除すべきでなかった」箇所が guard で守られる
+- Step 4 の再発防止が構造的に完成する
+
+### 10.6 allowlist / baseline の運用規律
+
+本 project で扱う allowlist / baseline の原則:
+
+- **新規 allowlist 追加を最小化** — Phase 6 の破壊的変更は allowlist を増やさず、既存 allowlist を**削減する方向**に動く
+- **既存 allowlist の由来を Phase 1 で棚卸し** — `inquiry/07-complexity-hotspots.md` に allowlist 一覧と「追加された理由」を記載
+- **ratchet-down を徹底** — baseline 値は**減少方向のみ許可**。増加方向の baseline 変更は Phase 4 計画に明示が必要
+- **期限付き allowlist（createdAt / expiresAt）** — Phase 6 で追加する allowlist entry は必ず expiresAt を持つ
+
+### 10.7 Test Plan Derived（採用）
+
+DERIVED.md の Q4「テスト計画を先に立ててから実装したいか？」に **Yes**。
+Phase 4 時点で `test-plan.md` を root にコピーし、7 層テストの計画を記述する。
+
+```bash
+cd projects/architecture-debt-recovery
+cp derived/test-plan.md test-plan.md
+```
+
+`test-plan.md` の扱い:
+
+- Phase 4 で各 sub-project が実装すべきテストの全体像を確定
+- Phase 6 で各 sub-project は自分の `test-plan.md`（自 project 内）を持つ
+- Phase 7 で本 project の `test-plan.md` を「実施済み」として review
+
+### 10.8 health KPI 追跡
+
+Phase 6 期間中、以下の health KPI を scratch ノートとして `inquiry/` に保存し、Phase 7 で前後比較する:
+
+| KPI | 追跡目的 |
+|---|---|
+| Architecture Rule 総数 | 仕組み化の量的効果 |
+| guard test 総数 | 機械的防御の量的効果 |
+| allowlist 総 entry 数 | 負債総量の減少 |
+| allowlist 期限切れ entry 数 | temporal governance の健全性 |
+| reviewPolicy 設定済み rule 比率 | lifecycle governance の健全性 |
+| responsibilityTag 未分類ファイル数 | C9「現実把握優先」の進捗 |
+| responsibility-separation baseline | 機械検出 P2-P18 の傾向 |
+| complexity hotspot 候補ファイル数 | 複雑度削減の量的効果 |
+| 複雑性圧（health.json） | PASS 継続性 |
 
