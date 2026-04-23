@@ -139,8 +139,25 @@ specVersion: 1
 | 6. Invariants | 本 widget が守る / 依存する数学的・構造的不変条件 | なし |
 | 7. Co-Change Impact | **どの field / 型 / 契約が変わったら本 widget が壊れるか** の surface 列挙 | なし |
 | 8. Guard / Rule References | 本 widget に関連する既存 guard / AR rule の ID | 関連しない guard の解説 |
+| 9. Pipeline Concerns / Upstream Requests | 本 widget が**観察している**パイプライン品質問題（取得経路の重複 / 脆弱な fallback / 欠落した契約 / 型の曖昧さ / タイミング問題 / raw 走査の埋没）。**事実として記述**する | widget 側での workaround 案 / 修正案 / 「〜すべき」（それは 4 層依存ルール上 presentation の責務外。改善は上位層に要求する） |
 
-**prose は短く**。frontmatter が機械真実を担うため、prose は WHY のみ。数行で書ける節は数行で済ませる。改修者が「この widget を触るとき何が壊れうるか」を把握できれば目的達成。
+**prose は短く**。frontmatter が機械真実を担うため、prose は WHY のみ。数行で書ける節は数行で済ませる。改修者が「この widget を触るとき何が壊れうるか」「この widget を起点にパイプラインのどこが改善要求されているか」を把握できれば目的達成。
+
+### セクション 9「Pipeline Concerns」の書き方補足
+
+presentation 層は 4 層依存ルール上、パイプライン本体（application / domain / infrastructure）を**直接改修する責務を持たない**。widget が抱える不具合体験は、widget が自前で解決せず**上位層への改善要求として記録**する。
+
+**OK（事実としての concern 記録）:**
+- 「`ctx.insightData` は page-local field として UnifiedWidgetContext に optional 配置されている。本 widget は `insightData != null` を isVisible で判定しており、Unified ctx の非対称性が表出している」
+- 「`result.daily` を直接 iterate しており、同じ集計を `storeDailyLane.bundle.currentSeries` 経由で行う chart と重複している」
+- 「`queryExecutor?.isReady === true` の readiness 判定が本 widget 含め 7 widget で重複して書かれている」
+- 「`ForecastToolsWidget` に full ctx を渡しており、子 component の実 ctx 依存が spec 側で静的に特定できない」
+
+**NG（widget 側での workaround / 修正案の記述）:**
+- 「本 widget は fallback を持つべき」「ここで〜を計算すべき」（→ presentation 層が pipeline 問題を吸収する発想。禁止）
+- 「〜に移行すれば解決する」（→ それは Phase 4 改修計画の scope。本 section では改修案を書かない）
+
+記録された concern は Phase 2 真因分析 → Phase 3 原則候補 → Phase 4 改修計画 → Phase 6 実装の経路で上位層の改善として処理される。各 concern に対し「誰が改修すべきか」の責務層（application / domain / infrastructure）を併記することが望ましい（ただし改修案自体は書かない）。
 
 ## 3 軸 drift 防御（親 README §「3 軸の drift 防御」の widgets サブカテゴリでの具体化）
 

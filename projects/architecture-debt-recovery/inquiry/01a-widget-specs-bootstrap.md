@@ -91,6 +91,20 @@
 | WID-044 〜 WID-045 | REPORTS_WIDGETS | 2 |
 | **合計** | | **45** |
 
+### D8. spec は改善要求の起点である（pipeline concern の surfacing）
+
+- 4 層依存ルール（`Presentation → Application → Domain ← Infrastructure`）上、presentation 層は**パイプライン本体を直接改修する責務を持たない**
+- widget が観察する**パイプライン品質問題**（取得経路の重複 / 脆弱な fallback / 欠落した契約 / 型の曖昧さ / タイミング問題 / raw レコード走査の埋没）は、widget 側で workaround せず、**spec に事実として記録**する
+- 記録された concern が Phase 2 真因分析 → Phase 3 原則候補 → Phase 4 改修計画 → Phase 6 実装 の経路で上位層の改善要求として処理される
+- spec の Section 9「Pipeline Concerns / Upstream Requests」を必須セクションとする
+- 改善は **4 ステップ pattern**（新実装 → 移行 → 削除 → guard）+ guard 先行（`plan.md §10.5`）により「全体が壊れないよう段階的に進める」
+- 根拠: widget は困るべきときに困る。困った事実を spec に書く。書かれた事実が上位層への改善要求になる。widget 側で吸収すると改善要求が生まれず、pipeline の病理が永続化する
+
+**Phase 1 における書き方の制約:**
+- concern は**事実として記述**する（例: 「`result.daily` を直接 iterate している」）
+- 改修案は書かない（例: 「readModel 化すべき」は Phase 4）
+- concern に改修責務層（application / domain / infrastructure のどこで直すべきか）の示唆を併記するのは**事実の一部**として許容する（その解釈は Phase 2 以降で検証）
+
 ## bootstrap 時点の landed（本 commit）
 
 - `references/05-contents/README.md`（category 正本。位置付け + 3 軸 drift 防御 + frontmatter 共通スキーマ）

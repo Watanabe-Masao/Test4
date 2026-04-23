@@ -13,6 +13,30 @@
 > - **ユーザー向け機能説明ではない** / **学習用の啓蒙文ではない**
 >
 > 「C9: 現実把握優先」（CLAUDE.md 設計原則）を、各実装要素の粒度で具体化するカタログ。
+
+### 振る舞いの記述は、パイプライン改善の起点になる
+
+本カテゴリの spec は**事実**として書くが、その事実の中には**パイプライン品質の問題**が表面化することがある。例:
+
+- 取得経路の重複（同じデータを複数経路で取得している）
+- 脆弱な fallback（上位契約で保証されるはずの値が optional 扱いで null 分岐が必要）
+- 欠落した契約（readModel になっていない、型の正本が不在）
+- 型の曖昧さ（2 型併存、optional / required 非対称）
+- タイミング問題（初期化順序・readiness 判定の重複）
+- raw レコード走査の埋没（domain 化されていない集計）
+
+presentation 層は 4 層依存ルール（`Presentation → Application → Domain ← Infrastructure`）上、**パイプラインを直接改修する責務を持たない**。widget 側で workaround を書いたり presentation に計算を置いたりすることは、**パイプラインの改善要求を生まないため禁止**。
+
+代わりに、観察された問題を spec の **Pipeline Concerns / Upstream Requests** セクションに**事実として記録**する。記録された concern は:
+
+- Phase 2（真因分析）で仮説の起点になる
+- Phase 3（原則候補）で新 AR rule の根拠になる
+- Phase 4（改修計画）で sub-project の scope を規定する
+- Phase 6（実装）で 4 ステップ pattern（新実装 → 移行 → 削除 → guard）で段階的に改善される
+
+**改善は「全体が壊れないよう充分注意しながら段階的に進める」**（4 ステップ pattern + guard 先行。詳細は `projects/architecture-debt-recovery/plan.md` §10.5）。
+
+> **要点**: widget は困るべきときに困る。困った事実を spec に書く。書かれた事実が上位層への改善要求になる。
 >
 > 位置関係:
 >
