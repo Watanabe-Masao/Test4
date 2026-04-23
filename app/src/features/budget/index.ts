@@ -23,9 +23,11 @@ export {
   buildBudgetSimulatorSource,
   buildBudgetSimulatorScenario,
   extractFullMonthLyDaily,
+  computePeriodSummary,
   type BudgetChartDataPoint,
   type SimulatorState,
   type SimulatorStateApi,
   type BudgetSimulatorSource,
   type BudgetSimulatorWidgetPlan,
+  type PeriodSummary,
 } from './application'

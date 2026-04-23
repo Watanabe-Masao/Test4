@@ -108,7 +108,7 @@ export function DayDetailSalesTab({
           </ToggleBtn>
         </ToggleGroup>
       )}
-      {compSales > 0 && (
+      {compSales > 0 && actual > 0 && (
         <DrilldownWaterfall
           actual={actual}
           pySales={compSales}
@@ -119,6 +119,23 @@ export function DayDetailSalesTab({
           curLabel={curCompLabel}
           prevLabel={compLabel}
         />
+      )}
+      {compSales > 0 && actual === 0 && (
+        <div
+          style={{
+            padding: '16px',
+            marginBottom: '12px',
+            borderRadius: 8,
+            border: '1px dashed rgba(255,255,255,0.18)',
+            background: 'rgba(0,0,0,0.04)',
+            fontSize: '0.82rem',
+            color: 'var(--text2, #64748b)',
+            textAlign: 'center',
+          }}
+          role="status"
+        >
+          当年の実績がまだありません — 前年比ウォーターフォールは分析できません
+        </div>
       )}
       {dayRecords.length > 0 && (
         <CategoryDrilldown

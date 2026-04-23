@@ -1,5 +1,5 @@
 # Current Project
 
-active: pure-calculation-reorg
+active: budget-achievement-simulator
 
-entry: `projects/pure-calculation-reorg/AI_CONTEXT.md`
+entry: `projects/budget-achievement-simulator/AI_CONTEXT.md`

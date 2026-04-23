@@ -47,6 +47,11 @@ interface Props {
   readonly title?: string
   /** 日セルをクリックした時の callback (省略でクリック不可) */
   readonly onDayClick?: (day: number) => void
+  /** 週合計 / 曜日平均 / 日平均 セルをクリックした時の callback (集計範囲 + タイトル) */
+  readonly onPeriodClick?: (info: {
+    readonly title: string
+    readonly days: readonly number[]
+  }) => void
   /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
   readonly weatherIcons?: import('../application/buildWeatherIconMaps').WeatherIconMaps
 }
@@ -62,6 +67,7 @@ export const DrillCalendar = memo(function DrillCalendar({
   fmtCurrency,
   title,
   onDayClick,
+  onPeriodClick,
   weatherIcons,
 }: Props) {
   const { year, month, daysInMonth } = scenario
@@ -228,24 +234,45 @@ export const DrillCalendar = memo(function DrillCalendar({
               )
             })}
             {/* 週合計 */}
-            <DrillCell $weekSum key={`w-${ri}`}>
-              <DrillCellHead>
-                <span className="num">W{ri + 1}</span>
-              </DrillCellHead>
-              {compare && (
-                <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
-                  {compareLabel} ¥{fmtCurrency(weekTotals[ri].cmpTotal)}
-                </div>
-              )}
-              <DrillCellAmt>当期 ¥{fmtCurrency(weekTotals[ri].total)}</DrillCellAmt>
-              {weekTotals[ri].yoy != null && (
-                <DrillCellYoY $positive={weekTotals[ri].yoy >= 100}>
-                  {weekTotals[ri].yoy.toFixed(0)}% / 差{' '}
-                  {weekTotals[ri].total - weekTotals[ri].cmpTotal >= 0 ? '+' : ''}¥
-                  {fmtCurrency(weekTotals[ri].total - weekTotals[ri].cmpTotal)}
-                </DrillCellYoY>
-              )}
-            </DrillCell>
+            {(() => {
+              const weekDays = row.filter((d): d is number => d != null && d >= rStart && d <= rEnd)
+              const clickable = onPeriodClick != null && weekDays.length > 0
+              return (
+                <DrillCell
+                  $weekSum
+                  key={`w-${ri}`}
+                  onClick={
+                    clickable
+                      ? () =>
+                          onPeriodClick({
+                            title: `W${ri + 1} (${weekDays[0]}〜${weekDays[weekDays.length - 1]}日) の詳細`,
+                            days: weekDays,
+                          })
+                      : undefined
+                  }
+                  role={clickable ? 'button' : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  style={clickable ? { cursor: 'pointer' } : undefined}
+                >
+                  <DrillCellHead>
+                    <span className="num">W{ri + 1}</span>
+                  </DrillCellHead>
+                  {compare && (
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                      {compareLabel} ¥{fmtCurrency(weekTotals[ri].cmpTotal)}
+                    </div>
+                  )}
+                  <DrillCellAmt>当期 ¥{fmtCurrency(weekTotals[ri].total)}</DrillCellAmt>
+                  {weekTotals[ri].yoy != null && (
+                    <DrillCellYoY $positive={weekTotals[ri].yoy >= 100}>
+                      {weekTotals[ri].yoy.toFixed(0)}% / 差{' '}
+                      {weekTotals[ri].total - weekTotals[ri].cmpTotal >= 0 ? '+' : ''}¥
+                      {fmtCurrency(weekTotals[ri].total - weekTotals[ri].cmpTotal)}
+                    </DrillCellYoY>
+                  )}
+                </DrillCell>
+              )
+            })()}
           </Fragment>
         ))}
 
@@ -254,8 +281,29 @@ export const DrillCalendar = memo(function DrillCalendar({
           const a = dowAvgs[dw]
           const isWE = dw === 0 || dw === 6
           const diff = a.avg - a.cmpAvg
+          const dowDays: number[] = []
+          for (let d = rStart; d <= rEnd; d++) {
+            if (dowOf(year, month, d) === dw) dowDays.push(d)
+          }
+          const dowClickable = onPeriodClick != null && dowDays.length > 0
           return (
-            <DrillCell key={`avg-${dw}`} $avg $weekend={isWE}>
+            <DrillCell
+              key={`avg-${dw}`}
+              $avg
+              $weekend={isWE}
+              onClick={
+                dowClickable
+                  ? () =>
+                      onPeriodClick({
+                        title: `${month}月 ${DOW_JP[dw]}曜日 (${dowDays.length}日) の詳細`,
+                        days: dowDays,
+                      })
+                  : undefined
+              }
+              role={dowClickable ? 'button' : undefined}
+              tabIndex={dowClickable ? 0 : undefined}
+              style={dowClickable ? { cursor: 'pointer' } : undefined}
+            >
               <DrillCellHead>
                 <span className="num">平均</span>
                 <span className="dwlabel">{a.count}日</span>
@@ -274,24 +322,46 @@ export const DrillCalendar = memo(function DrillCalendar({
             </DrillCell>
           )
         })}
-        <DrillCell $avg $weekSum>
-          <DrillCellHead>
-            <span className="num">日平均</span>
-          </DrillCellHead>
-          {compare && (
-            <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
-              {compareLabel} ¥{fmtCurrency(overallAvg.cmpAvg ?? 0)}
-            </div>
-          )}
-          <DrillCellAmt>当期 ¥{fmtCurrency(overallAvg.avg)}</DrillCellAmt>
-          {overallAvg.yoy != null && (
-            <DrillCellYoY $positive={overallAvg.yoy >= 100}>
-              {overallAvg.yoy.toFixed(0)}% / 差{' '}
-              {overallAvg.avg - (overallAvg.cmpAvg ?? 0) >= 0 ? '+' : ''}¥
-              {fmtCurrency(overallAvg.avg - (overallAvg.cmpAvg ?? 0))}
-            </DrillCellYoY>
-          )}
-        </DrillCell>
+        {(() => {
+          const allDays: number[] = []
+          for (let d = rStart; d <= rEnd; d++) allDays.push(d)
+          const overallClickable = onPeriodClick != null && allDays.length > 0
+          return (
+            <DrillCell
+              $avg
+              $weekSum
+              onClick={
+                overallClickable
+                  ? () =>
+                      onPeriodClick({
+                        title: `${month}月 全体 (${allDays.length}日) の詳細`,
+                        days: allDays,
+                      })
+                  : undefined
+              }
+              role={overallClickable ? 'button' : undefined}
+              tabIndex={overallClickable ? 0 : undefined}
+              style={overallClickable ? { cursor: 'pointer' } : undefined}
+            >
+              <DrillCellHead>
+                <span className="num">日平均</span>
+              </DrillCellHead>
+              {compare && (
+                <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                  {compareLabel} ¥{fmtCurrency(overallAvg.cmpAvg ?? 0)}
+                </div>
+              )}
+              <DrillCellAmt>当期 ¥{fmtCurrency(overallAvg.avg)}</DrillCellAmt>
+              {overallAvg.yoy != null && (
+                <DrillCellYoY $positive={overallAvg.yoy >= 100}>
+                  {overallAvg.yoy.toFixed(0)}% / 差{' '}
+                  {overallAvg.avg - (overallAvg.cmpAvg ?? 0) >= 0 ? '+' : ''}¥
+                  {fmtCurrency(overallAvg.avg - (overallAvg.cmpAvg ?? 0))}
+                </DrillCellYoY>
+              )}
+            </DrillCell>
+          )
+        })()}
       </DrillCalendarGrid>
     </div>
   )

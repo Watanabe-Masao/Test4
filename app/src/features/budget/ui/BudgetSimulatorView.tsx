@@ -77,6 +77,14 @@ export interface BudgetSimulatorViewProps {
    * 未指定の場合はクリック不可 (= セルはリンク化されない)。
    */
   readonly onDayClick?: (day: number) => void
+  /**
+   * 週合計 / 曜日平均 / 日平均 など集計セルをクリックしたときに呼ばれる。
+   * タイトル + 集計対象日配列を受け取る。
+   */
+  readonly onPeriodClick?: (info: {
+    readonly title: string
+    readonly days: readonly number[]
+  }) => void
   /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
   readonly weatherIcons?: WeatherIconMaps
 }
@@ -89,6 +97,7 @@ export function BudgetSimulatorView({
   drill,
   onToggleDrill,
   onDayClick,
+  onPeriodClick,
   weatherIcons,
 }: BudgetSimulatorViewProps) {
   const { year, month } = scenario
@@ -137,6 +146,7 @@ export function BudgetSimulatorView({
                 scenario={scenario}
                 weekStart={state.weekStart}
                 onDayClick={onDayClick}
+                onPeriodClick={onPeriodClick}
                 weatherIcons={weatherIcons}
               />
             ))}
@@ -200,6 +210,7 @@ export function BudgetSimulatorView({
             onOverrideClear={state.clearDayOverride}
             onResetAll={state.resetDayOverrides}
             onDayClick={onDayClick}
+            weatherIcons={weatherIcons}
           />
         )}
 
@@ -263,6 +274,10 @@ interface RowProps {
   readonly scenario: SimulatorScenario
   readonly weekStart: 0 | 1
   readonly onDayClick?: (day: number) => void
+  readonly onPeriodClick?: (info: {
+    readonly title: string
+    readonly days: readonly number[]
+  }) => void
   readonly weatherIcons?: WeatherIconMaps
 }
 
@@ -275,6 +290,7 @@ const RowRender = memo(function RowRender({
   scenario,
   weekStart,
   onDayClick,
+  onPeriodClick,
   weatherIcons,
 }: RowProps) {
   if (row.group) {
@@ -324,6 +340,7 @@ const RowRender = memo(function RowRender({
               kind={row.drillKey}
               currentDay={currentDay}
               onDayClick={onDayClick}
+              onPeriodClick={onPeriodClick}
               weatherIcons={weatherIcons}
             />
           </td>

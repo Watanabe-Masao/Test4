@@ -1,5 +1,4 @@
 import type { WidgetDef } from './types'
-import { MonthlyCalendarWidget } from './MonthlyCalendar'
 import { ForecastToolsWidget } from './ForecastTools'
 import { AlertPanelWidget } from './AlertPanel'
 import {
@@ -14,6 +13,8 @@ import {
 // exec-summary-bar は KpiSummaryTable + ConditionSummaryEnhanced ヘッダに吸収済み
 // analysis-condition-summary は widget-budget-achievement (registryKpiWidgets) に統合済み
 // exec-plan-actual-forecast は ForecastToolsWidget + insight/budget ページに統合済み
+// exec-monthly-calendar (MonthlyCalendar / MonthlyCalendarFC widget) は
+// Budget Simulator (①②③④ + 期間詳細モーダル) に統合済みのため撤去。
 export const WIDGETS_EXEC: readonly WidgetDef[] = [
   {
     id: 'analysis-alert-panel',
@@ -21,13 +22,6 @@ export const WIDGETS_EXEC: readonly WidgetDef[] = [
     group: 'モニタリング',
     size: 'full',
     render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
-  },
-  {
-    id: 'exec-monthly-calendar',
-    label: '月間カレンダー',
-    group: '収益概況',
-    size: 'full',
-    render: (ctx) => <MonthlyCalendarWidget key={ctx.storeKey} ctx={ctx} />,
   },
   // ── パターン分析 ──
   {

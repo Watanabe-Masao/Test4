@@ -37,6 +37,10 @@ interface SlotProps {
   readonly onOverrideClear: (day: number) => void
   /** 日付番号クリックで呼ばれる callback (省略でクリック不可) */
   readonly onDayClick?: (day: number) => void
+  /** 当年の天気絵文字 (無ければ表示なし) */
+  readonly curWeatherIcon?: string
+  /** 前年同日の天気絵文字 (sameDate alignment 前提、無ければ表示なし) */
+  readonly prevWeatherIcon?: string
 }
 
 function ratioColor(v: number | null, theme: 'good' | 'bad' | 'neutral' = 'neutral'): string {
@@ -64,6 +68,8 @@ export function DayCellSlot({
   onOverrideChange,
   onOverrideClear,
   onDayClick,
+  curWeatherIcon,
+  prevWeatherIcon,
 }: SlotProps) {
   if (day == null) return <DayCell $empty />
 
@@ -93,7 +99,14 @@ export function DayCellSlot({
           <DayCellNumber {...numClickProps}>{day}</DayCellNumber>
         </DayCellHeader>
         <div style={rowStyle}>
-          <span>前年</span>
+          <span>
+            {prevWeatherIcon && (
+              <span aria-hidden style={{ marginRight: 2 }}>
+                {prevWeatherIcon}
+              </span>
+            )}
+            前年
+          </span>
           <span>¥{fmtCurrency(ly)}</span>
         </div>
         <div style={rowStyle}>
@@ -101,7 +114,14 @@ export function DayCellSlot({
           <span>¥{fmtCurrency(budget)}</span>
         </div>
         <div style={{ ...rowStyle, fontWeight: 600 }}>
-          <span>実績</span>
+          <span>
+            {curWeatherIcon && (
+              <span aria-hidden style={{ marginRight: 2 }}>
+                {curWeatherIcon}
+              </span>
+            )}
+            実績
+          </span>
           <span>¥{fmtCurrency(actual)}</span>
         </div>
         <div
@@ -160,7 +180,14 @@ export function DayCellSlot({
         <DayCellPct>{effectivePct.toFixed(1)}%</DayCellPct>
       </DayCellHeader>
       <div style={rowStyle}>
-        <span>前年</span>
+        <span>
+          {prevWeatherIcon && (
+            <span aria-hidden style={{ marginRight: 2 }}>
+              {prevWeatherIcon}
+            </span>
+          )}
+          前年
+        </span>
         <span>¥{fmtCurrency(ly)}</span>
       </div>
       <div style={rowStyle}>

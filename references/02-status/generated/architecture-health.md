@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-23T10:46:55.720Z
+> Generated: 2026-04-23T15:06:51.965Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,8 +9,8 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 40 |
-| OK | 40 |
-| WARN | 0 |
+| OK | 39 |
+| WARN | 1 |
 | FAIL | 0 |
 | Hard Gate | PASS |
 
@@ -54,10 +54,10 @@
 | guard.files.count | ガードテストファイル数 | 79 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
-| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
-| guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 148 / 92 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 0 | OK |
+| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 6 | OK |
+| guard.rules.fixNow.review | fixNow=review ルール数（観測） | 3 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 0 / 92 | WARN |
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 17 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
@@ -84,8 +84,8 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6634 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2326 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6605 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2394 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

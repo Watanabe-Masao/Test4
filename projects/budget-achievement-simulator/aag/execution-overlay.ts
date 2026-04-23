@@ -43,10 +43,65 @@ export type ExecutionOverlay = {
  * 新 project 立ち上げ直後は空でよい。
  * 案件固有の override を追加するときは、上書きしたいフィールドだけを書く。
  * 未指定フィールドは DEFAULT_EXECUTION_OVERLAY から補完される。
- *
- * 例:
- *   export const EXECUTION_OVERLAY: ExecutionOverlay = {
- *     'AR-001': { fixNow: 'debt' }, // priority / effort は defaults を使う
- *   }
  */
-export const EXECUTION_OVERLAY: ExecutionOverlay = {}
+
+const SAFETY_REVIEW_POLICY: ReviewPolicy = {
+  owner: 'architecture',
+  lastReviewedAt: '2026-04-23',
+  reviewCadenceDays: 30,
+}
+
+/**
+ * experimental なルールには `reviewPolicy` が必須（architectureRuleGuard）。
+ * 現 project が active の間は architecture owner が 30 日周期で review する。
+ */
+// overlay entry は executionPlan + fixNow を必須とするため、defaults から
+// 取ってくる形で再指定 (reviewPolicy のみの上書きでは executionOverlayGuard
+// が失敗する)。値は defaults.ts のコピー。
+export const EXECUTION_OVERLAY: ExecutionOverlay = {
+  'AR-SAFETY-SILENT-CATCH': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-FIRE-FORGET': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 3 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-INSERT-VERIFY': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-PROD-VALIDATION': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 3 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-STALE-STORE': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-WORKER-TIMEOUT': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 4 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-CURRENT-CANDIDATE-SEPARATION': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-REGISTRY-SINGLE-MASTER': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+}

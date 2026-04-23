@@ -102,6 +102,8 @@ export const HourlyChart = memo(function HourlyChart({
   const { actualData: actualHourlyData, prevData: prevHourlyData, allHours } = dataSets
 
   const hasPrevData = prevHourlyData.length > 0
+  // 当年データの有無: amount 合計 > 0 で判定 (配列が空 or 全日 0 なら欠損扱い)
+  const hasActualData = actualHourlyData.length > 0 && actualHourlyData.some((d) => d.amount > 0)
   const hourlyData = hourlyMode === 'prev' && hasPrevData ? prevHourlyData : actualHourlyData
   const refData = hourlyMode === 'actual' ? prevHourlyData : actualHourlyData
   const displayWeatherHourly =
@@ -268,7 +270,35 @@ export const HourlyChart = memo(function HourlyChart({
         )}
       </ToggleBar>
 
-      <HourlyChartContainer>
+      <HourlyChartContainer
+        style={
+          hourlyMode === 'actual' && !hasActualData
+            ? { filter: 'grayscale(1)', opacity: 0.45, position: 'relative' }
+            : undefined
+        }
+        aria-disabled={hourlyMode === 'actual' && !hasActualData}
+      >
+        {hourlyMode === 'actual' && !hasActualData && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2,
+              pointerEvents: 'none',
+              fontSize: '0.85rem',
+              color: 'var(--text2, #64748b)',
+              background: 'rgba(255,255,255,0.35)',
+              textAlign: 'center',
+              padding: 16,
+            }}
+            role="status"
+          >
+            当年の実績がまだありません — 時間帯分析できません
+          </div>
+        )}
         <HourlyChartWrap ref={wrapRef}>
           <HourlyBarArea>
             {paddedData.map((d, idx) => {

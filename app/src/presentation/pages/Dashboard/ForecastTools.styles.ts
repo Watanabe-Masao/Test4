@@ -73,3 +73,13 @@ export const ToolResultLabel = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.label};
   color: ${({ theme }) => theme.colors.text3};
 `
+
+// MonthlyCalendar widget 撤去に伴い、ForecastTools からのみ参照される
+// PinInputLabel をここへ移設 (旧: MonthlyCalendar.styles.ts)
+export const PinInputLabel = styled.label`
+  display: block;
+  font-size: ${({ theme }) => theme.typography.fontSize.label};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  color: ${({ theme }) => theme.colors.text3};
+  margin-bottom: ${({ theme }) => theme.spacing[3]};
+`

@@ -43,6 +43,11 @@ interface Props {
   readonly currentDay: number
   /** カレンダーセルをクリックした時の callback (省略でクリック不可) */
   readonly onDayClick?: (day: number) => void
+  /** 週合計 / 曜日平均 / 日平均 セルをクリックした時の callback */
+  readonly onPeriodClick?: (info: {
+    readonly title: string
+    readonly days: readonly number[]
+  }) => void
   /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
   readonly weatherIcons?: import('../application/buildWeatherIconMaps').WeatherIconMaps
 }
@@ -167,6 +172,7 @@ export function DrilldownPanel({
   kind,
   currentDay,
   onDayClick,
+  onPeriodClick,
   weatherIcons,
 }: Props) {
   const view = resolveView(kind, scenario, currentDay)
@@ -227,6 +233,7 @@ export function DrilldownPanel({
           weekStart={weekStart}
           fmtCurrency={fmtCurrency}
           onDayClick={onDayClick}
+          onPeriodClick={onPeriodClick}
           weatherIcons={weatherIcons}
         />
       </DrillSection>
