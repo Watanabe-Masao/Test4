@@ -29,6 +29,7 @@ import {
   WeekTotalValue,
 } from './BudgetSimulatorWidget.styles'
 import { DayCellSlot } from './DayCalendarCell'
+import { DowAverageRow } from './DowAverageRow'
 
 type Fmt = UnifiedWidgetContext['fmtCurrency']
 
@@ -120,6 +121,13 @@ export function DayCalendarInput(props: Props) {
             onOverrideClear={onOverrideClear}
           />
         ))}
+
+        <DowAverageRow
+          scenario={scenario}
+          currentDay={currentDay}
+          weekStart={weekStart}
+          fmtCurrency={fmtCurrency}
+        />
       </DayCalendarGrid>
     </Card>
   )

@@ -242,6 +242,59 @@ export const WeekTotalRatio = styled.div<{ readonly $good?: boolean; readonly $b
   justify-content: space-between;
 `
 
+// ── 曜日平均 行 (カレンダーの最下段) ──
+export const DowAverageCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[1]};
+  padding: ${({ theme }) => theme.spacing[2]};
+  border: 1px dashed ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radii.sm};
+  background: ${({ theme }) => theme.colors.bg2};
+  min-height: 74px;
+`
+
+export const DowAverageLabel = styled.div`
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text2};
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  & > .cnt {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: ${({ theme }) => theme.colors.text3};
+  }
+`
+
+export const DowAverageValue = styled.div`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.text};
+  font-variant-numeric: tabular-nums;
+`
+
+export const DowAverageSub = styled.div`
+  font-size: 0.65rem;
+  color: ${({ theme }) => theme.colors.text3};
+  font-variant-numeric: tabular-nums;
+`
+
+export const DowAverageRatio = styled.div<{ readonly $good?: boolean; readonly $bad?: boolean }>`
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
+  color: ${({ theme, $good, $bad }) =>
+    $good
+      ? theme.colors.palette.positive
+      : $bad
+        ? theme.colors.palette.negative
+        : theme.colors.text3};
+  display: flex;
+  justify-content: space-between;
+`
+
 export const DayCellRatios = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing[2]};

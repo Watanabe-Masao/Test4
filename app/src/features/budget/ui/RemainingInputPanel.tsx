@@ -260,9 +260,19 @@ function DowInputGrid({
     return stats
   }, [scenario, currentDay, dowInputs, dayOverrides, baseSeries])
 
-  const autoFromActual = () => {
+  /**
+   * 実績曜日平均から dow% を自動入力する。
+   *
+   * @param source どの基準で自動入力するか
+   *   - 'yoy': 実績 / 前年 × 100 (前年比ベース)
+   *   - 'ach': 実績 / 予算 × 100 (達成率ベース)
+   *   - 'amount': 現在の dowBase (= baseSeries) に対する実績比率。
+   *     表示上の「¥base → ¥effective」の effective が実績平均額と一致する
+   */
+  const autoFromActual = (source: 'yoy' | 'ach' | 'amount') => {
     const actual = scenario.actualDaily
-    const base = baseSeries
+    const compareSeries =
+      source === 'yoy' ? scenario.lyDaily : source === 'ach' ? scenario.dailyBudget : baseSeries
     const next: [number, number, number, number, number, number, number] = [
       100, 100, 100, 100, 100, 100, 100,
     ]
@@ -272,7 +282,7 @@ function DowInputGrid({
       for (let d = 0; d < currentDay; d++) {
         if (dowOf(scenario.year, scenario.month, d + 1) === dw) {
           actualSum += actual[d] ?? 0
-          baseSum += base[d] ?? 0
+          baseSum += compareSeries[d] ?? 0
         }
       }
       if (baseSum > 0) next[dw] = (actualSum / baseSum) * 100
@@ -311,8 +321,27 @@ function DowInputGrid({
         <DowPresetBtn type="button" onClick={resetAll}>
           100% リセット
         </DowPresetBtn>
-        <DowPresetBtn type="button" onClick={autoFromActual}>
-          実績曜日平均を自動入力
+        <DowBaseLabel>実績曜日平均:</DowBaseLabel>
+        <DowPresetBtn
+          type="button"
+          title="各曜日の 実績 / 前年 を dow% に設定"
+          onClick={() => autoFromActual('yoy')}
+        >
+          前年比
+        </DowPresetBtn>
+        <DowPresetBtn
+          type="button"
+          title="各曜日の 実績 / 予算 を dow% に設定"
+          onClick={() => autoFromActual('ach')}
+        >
+          達成率
+        </DowPresetBtn>
+        <DowPresetBtn
+          type="button"
+          title="現在の基準 (前年/予算) に対する実績平均額の比率を dow% に設定"
+          onClick={() => autoFromActual('amount')}
+        >
+          額
         </DowPresetBtn>
       </DowBaseRow>
 
