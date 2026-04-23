@@ -35,6 +35,8 @@ interface SlotProps {
   readonly fmtCurrency: Fmt
   readonly onOverrideChange: (day: number, pct: number) => void
   readonly onOverrideClear: (day: number) => void
+  /** 日付番号クリックで呼ばれる callback (省略でクリック不可) */
+  readonly onDayClick?: (day: number) => void
 }
 
 function ratioColor(v: number | null, theme: 'good' | 'bad' | 'neutral' = 'neutral'): string {
@@ -61,6 +63,7 @@ export function DayCellSlot({
   fmtCurrency,
   onOverrideChange,
   onOverrideClear,
+  onDayClick,
 }: SlotProps) {
   if (day == null) return <DayCell $empty />
 
@@ -70,6 +73,16 @@ export function DayCellSlot({
   const budget = dailyBudget[day - 1] ?? 0
   const ly = lyDaily[day - 1] ?? 0
 
+  const numClickProps = onDayClick
+    ? {
+        onClick: () => onDayClick(day),
+        role: 'button' as const,
+        tabIndex: 0,
+        style: { cursor: 'pointer' as const, textDecoration: 'underline dotted' },
+        'aria-label': `${day}日の詳細を表示`,
+      }
+    : {}
+
   if (isPast) {
     const actual = actualDaily[day - 1] ?? 0
     const achievement = budget > 0 ? (actual / budget) * 100 : null
@@ -77,7 +90,7 @@ export function DayCellSlot({
     return (
       <DayCell $past>
         <DayCellHeader>
-          <DayCellNumber>{day}</DayCellNumber>
+          <DayCellNumber {...numClickProps}>{day}</DayCellNumber>
         </DayCellHeader>
         <div style={rowStyle}>
           <span>前年</span>
@@ -143,7 +156,7 @@ export function DayCellSlot({
   return (
     <DayCell $overridden={overridden}>
       <DayCellHeader>
-        <DayCellNumber>{day}</DayCellNumber>
+        <DayCellNumber {...numClickProps}>{day}</DayCellNumber>
         <DayCellPct>{effectivePct.toFixed(1)}%</DayCellPct>
       </DayCellHeader>
       <div style={rowStyle}>

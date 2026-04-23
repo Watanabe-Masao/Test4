@@ -499,6 +499,15 @@ export const DrillCell = styled.div<DrillCellProps>`
         : theme.colors.bg};
   opacity: ${({ $empty, $outOfRange }) => ($empty ? 0 : $outOfRange ? 0.5 : 1)};
   ${({ $empty }) => ($empty ? 'visibility: hidden;' : '')}
+  transition: border-color 0.12s ease;
+
+  &[role='button']:hover {
+    border-color: ${({ theme }) => theme.colors.palette.primary};
+  }
+  &[role='button']:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.palette.primary};
+    outline-offset: 1px;
+  }
 `
 
 export const DrillCellHead = styled.div`

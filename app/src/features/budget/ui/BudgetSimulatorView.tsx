@@ -71,6 +71,11 @@ export interface BudgetSimulatorViewProps {
   readonly fmtCurrency: CurrencyFormatter
   readonly drill: DrillKey | null
   readonly onToggleDrill: (key: DrillKey) => void
+  /**
+   * ①②③④ カレンダーセルをクリックしたときに呼ばれる。
+   * 未指定の場合はクリック不可 (= セルはリンク化されない)。
+   */
+  readonly onDayClick?: (day: number) => void
 }
 
 export function BudgetSimulatorView({
@@ -80,6 +85,7 @@ export function BudgetSimulatorView({
   fmtCurrency,
   drill,
   onToggleDrill,
+  onDayClick,
 }: BudgetSimulatorViewProps) {
   const { year, month } = scenario
   const dow = dowOf(year, month, vm.kpis.currentDay)
@@ -126,6 +132,7 @@ export function BudgetSimulatorView({
                 onToggleDrill={onToggleDrill}
                 scenario={scenario}
                 weekStart={state.weekStart}
+                onDayClick={onDayClick}
               />
             ))}
           </tbody>
@@ -187,6 +194,7 @@ export function BudgetSimulatorView({
             onOverrideChange={state.setDayOverride}
             onOverrideClear={state.clearDayOverride}
             onResetAll={state.resetDayOverrides}
+            onDayClick={onDayClick}
           />
         )}
 
@@ -249,6 +257,7 @@ interface RowProps {
   readonly onToggleDrill: (k: DrillKey) => void
   readonly scenario: SimulatorScenario
   readonly weekStart: 0 | 1
+  readonly onDayClick?: (day: number) => void
 }
 
 const RowRender = memo(function RowRender({
@@ -259,6 +268,7 @@ const RowRender = memo(function RowRender({
   onToggleDrill,
   scenario,
   weekStart,
+  onDayClick,
 }: RowProps) {
   if (row.group) {
     return (
@@ -306,6 +316,7 @@ const RowRender = memo(function RowRender({
               fmtCurrency={fmtCurrency}
               kind={row.drillKey}
               currentDay={currentDay}
+              onDayClick={onDayClick}
             />
           </td>
         </DrillRow>

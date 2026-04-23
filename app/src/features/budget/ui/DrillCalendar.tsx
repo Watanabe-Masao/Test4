@@ -45,6 +45,8 @@ interface Props {
   readonly weekStart?: 0 | 1
   readonly fmtCurrency: Fmt
   readonly title?: string
+  /** 日セルをクリックした時の callback (省略でクリック不可) */
+  readonly onDayClick?: (day: number) => void
 }
 
 export const DrillCalendar = memo(function DrillCalendar({
@@ -57,6 +59,7 @@ export const DrillCalendar = memo(function DrillCalendar({
   weekStart = 1,
   fmtCurrency,
   title,
+  onDayClick,
 }: Props) {
   const { year, month, daysInMonth } = scenario
   const rStart = Math.max(1, rangeStart)
@@ -164,8 +167,18 @@ export const DrillCalendar = memo(function DrillCalendar({
               const diff = val - cmp
               const barPct = val > 0 ? (val / maxDaily) * 100 : 0
 
+              const clickable = onDayClick != null && !outOfRange
               return (
-                <DrillCell key={`c-${ri}-${ci}`} $weekend={isWE} $outOfRange={outOfRange}>
+                <DrillCell
+                  key={`c-${ri}-${ci}`}
+                  $weekend={isWE}
+                  $outOfRange={outOfRange}
+                  onClick={clickable ? () => onDayClick(day) : undefined}
+                  role={clickable ? 'button' : undefined}
+                  tabIndex={clickable ? 0 : undefined}
+                  aria-label={clickable ? `${day}日の詳細を表示` : undefined}
+                  style={clickable ? { cursor: 'pointer' } : undefined}
+                >
                   <DrillCellHead>
                     <span className="num">{day}</span>
                     <span className="dwlabel">{DOW_JP[dw]}</span>

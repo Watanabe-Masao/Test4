@@ -41,6 +41,8 @@ interface Props {
   readonly fmtCurrency: Fmt
   readonly kind: DrillKey
   readonly currentDay: number
+  /** カレンダーセルをクリックした時の callback (省略でクリック不可) */
+  readonly onDayClick?: (day: number) => void
 }
 
 // ─── drill 種別 → 表示系列のマップ ───
@@ -156,7 +158,14 @@ function dowLabelOf(scenario: SimulatorScenario, day: number): string {
 
 // ─── コンポーネント ───
 
-export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, currentDay }: Props) {
+export function DrilldownPanel({
+  scenario,
+  weekStart,
+  fmtCurrency,
+  kind,
+  currentDay,
+  onDayClick,
+}: Props) {
   const view = resolveView(kind, scenario, currentDay)
 
   // 比較モード (elapsedActual のみ切替可、他は固定)
@@ -214,6 +223,7 @@ export function DrilldownPanel({ scenario, weekStart, fmtCurrency, kind, current
           rangeEnd={view.rangeEnd}
           weekStart={weekStart}
           fmtCurrency={fmtCurrency}
+          onDayClick={onDayClick}
         />
       </DrillSection>
 
