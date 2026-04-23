@@ -6,29 +6,31 @@
  */
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import type { DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'
+import type { DowBase, DowFactors, SimulatorMode } from '@/domain/calculations/budgetSimulator'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import {
+  BudgetSimulatorView,
   ProjectionBarChart,
   StripChart,
   TimelineSlider,
   RemainingInputPanel,
   DayCalendarInput,
+  buildSimulatorWidgetVm,
+  type DrillKey,
 } from '@/features/budget/ui'
+import {
+  DEFAULT_MOCK_SCENARIO,
+  MONTH_START_MOCK_SCENARIO,
+  MONTH_END_MOCK_SCENARIO,
+  NO_PREV_YEAR_MOCK_SCENARIO,
+} from '@/features/budget/application/mockBudgetSimulatorScenario'
+import type { SimulatorStateApi } from '@/features/budget/application/useSimulatorState'
+import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 
 const uniform = (n: number, v: number): number[] => Array.from({ length: n }, () => v)
 
-const FIXTURE_SCENARIO: SimulatorScenario = {
-  year: 2026,
-  month: 4,
-  daysInMonth: 30,
-  monthlyBudget: 3_000_000,
-  lyMonthly: 2_400_000,
-  dailyBudget: uniform(30, 100_000),
-  lyDaily: uniform(30, 80_000),
-  actualDaily: uniform(15, 95_000).concat(uniform(15, 0)),
-  lyCoverageDay: null,
-}
+// reboot plan Phase B: mock scenario は共通 fixture に切り替え。
+const FIXTURE_SCENARIO = DEFAULT_MOCK_SCENARIO
 
 const meta: Meta = {
   title: 'Features/Budget/Simulator',
@@ -202,4 +204,86 @@ export const DayCalendarInput_NoOverrides: StoryObj = {
     }
     return <Demo />
   },
+}
+
+// ── BudgetSimulatorView (Phase C: View を scenario + state で注入) ──
+
+/** scenario の固定値から state / vm を組み立て View を描画する helper */
+function ViewDemo({
+  scenario,
+  initialCurrentDay,
+}: {
+  readonly scenario: SimulatorScenario
+  readonly initialCurrentDay: number
+}) {
+  const { format: fmtCurrency } = useCurrencyFormat()
+  const [currentDay, setCurrentDay] = useState(initialCurrentDay)
+  const [mode, setMode] = useState<SimulatorMode>('yoy')
+  const [yoyInput, setYoyInput] = useState(100)
+  const [achInput, setAchInput] = useState(100)
+  const [dowInputs, setDowInputs] = useState<DowFactors>([100, 100, 100, 100, 100, 100, 100])
+  const [dowBase, setDowBase] = useState<DowBase>('yoy')
+  const [dayOverrides, setDayOverrides] = useState<Record<number, number>>({})
+  const [weekStart, setWeekStart] = useState<0 | 1>(1)
+  const [drill, setDrill] = useState<DrillKey | null>(null)
+
+  const state: SimulatorStateApi = {
+    currentDay,
+    mode,
+    yoyInput,
+    achInput,
+    dowInputs,
+    dowBase,
+    dayOverrides,
+    weekStart,
+    setCurrentDay,
+    setMode,
+    setYoyInput,
+    setAchInput,
+    setDowInputs,
+    setDowBase,
+    setDayOverride: (d, p) => setDayOverrides((prev) => ({ ...prev, [d]: p })),
+    clearDayOverride: (d) =>
+      setDayOverrides((prev) => {
+        const next = { ...prev }
+        delete next[d]
+        return next
+      }),
+    resetDayOverrides: () => setDayOverrides({}),
+    setWeekStart,
+  }
+  const vm = buildSimulatorWidgetVm({ scenario, state })
+
+  return (
+    <div style={{ maxWidth: '1200px' }}>
+      <BudgetSimulatorView
+        scenario={scenario}
+        state={state}
+        vm={vm}
+        fmtCurrency={fmtCurrency}
+        drill={drill}
+        onToggleDrill={(k) => setDrill((prev) => (prev === k ? null : k))}
+      />
+    </div>
+  )
+}
+
+export const View_MonthStart: StoryObj = {
+  name: 'BudgetSimulatorView (月初 — actual なし)',
+  render: () => <ViewDemo scenario={MONTH_START_MOCK_SCENARIO} initialCurrentDay={1} />,
+}
+
+export const View_MidMonth: StoryObj = {
+  name: 'BudgetSimulatorView (月中 — 16 日経過)',
+  render: () => <ViewDemo scenario={DEFAULT_MOCK_SCENARIO} initialCurrentDay={16} />,
+}
+
+export const View_MonthEnd: StoryObj = {
+  name: 'BudgetSimulatorView (月末 — 全日経過済み)',
+  render: () => <ViewDemo scenario={MONTH_END_MOCK_SCENARIO} initialCurrentDay={30} />,
+}
+
+export const View_NoPrevYear: StoryObj = {
+  name: 'BudgetSimulatorView (前年データなし)',
+  render: () => <ViewDemo scenario={NO_PREV_YEAR_MOCK_SCENARIO} initialCurrentDay={16} />,
 }

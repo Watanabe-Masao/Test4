@@ -1,7 +1,13 @@
 /**
  * features/budget — 予算分析スライス
  */
-export { BudgetTabContent, GrossProfitTabContent, BudgetSimulatorWidget } from './ui'
+export {
+  BudgetTabContent,
+  GrossProfitTabContent,
+  BudgetSimulatorWidget,
+  BudgetSimulatorView,
+  type BudgetSimulatorViewProps,
+} from './ui'
 export {
   buildBudgetTableRows,
   buildSimulatorWidgetVm,
@@ -12,9 +18,14 @@ export {
 } from './ui'
 export {
   useBudgetChartData,
-  useSimulatorScenario,
   useSimulatorState,
+  useBudgetSimulatorWidgetPlan,
+  buildBudgetSimulatorSource,
+  buildBudgetSimulatorScenario,
+  extractFullMonthLyDaily,
   type BudgetChartDataPoint,
   type SimulatorState,
   type SimulatorStateApi,
+  type BudgetSimulatorSource,
+  type BudgetSimulatorWidgetPlan,
 } from './application'

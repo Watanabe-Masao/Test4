@@ -2,6 +2,7 @@ export { BudgetTabContent } from './InsightTabBudget'
 export { GrossProfitTabContent } from './InsightTabGrossProfit'
 export { buildBudgetTableRows, type BudgetTableRow } from './InsightTabBudget.vm'
 export { BudgetSimulatorWidget } from './BudgetSimulatorWidget'
+export { BudgetSimulatorView, type BudgetSimulatorViewProps } from './BudgetSimulatorView'
 export {
   buildSimulatorWidgetVm,
   type SimulatorWidgetVm,

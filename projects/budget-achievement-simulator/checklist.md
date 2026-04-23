@@ -1,86 +1,80 @@
-# checklist — budget-achievement-simulator
+# checklist — budget-achievement-simulator (widget reboot)
 
 > 役割: completion 判定の入力（required checkbox の集合）。
-> やってはいけないこと / 常時チェック / 恒久ルールは plan.md に書く。
+> やってはいけないこと / 恒久ルールは plan.md に書く。
 >
 > 規約: `references/03-guides/project-checklist-governance.md` §3。
-> 形式: `* [ ]` または `* [x]` の半角スペース。ネスト不可。
+> 形式: `* [ ]` / `* [x]` のみ。ネスト不可。
 > 各 checkbox は単一の機械的に検証可能な達成条件を表す。
 
-## Phase 0: プロトタイプ持ち込み & project 文脈作成
+## Phase A: Reboot 文脈の正本化
 
-* [x] `projects/budget-achievement-simulator/AI_CONTEXT.md` を作成した
-* [x] `projects/budget-achievement-simulator/HANDOFF.md` を作成した
-* [x] `projects/budget-achievement-simulator/plan.md` を作成した
-* [x] `projects/budget-achievement-simulator/checklist.md` を作成した
-* [x] `projects/budget-achievement-simulator/config/project.json` を作成した
-* [x] `projects/budget-achievement-simulator/aag/execution-overlay.ts` を作成した
-* [ ] `cd app && npm run docs:generate` を実行し、project-health に本 project が現れることを確認した
-* [ ] 本 PR（Phase 0）を人間がレビューし、Phase 1 への進行を承認した
+* [x] `projects/budget-achievement-simulator/AI_CONTEXT.md` を widget 正本の方針に更新した
+* [x] `projects/budget-achievement-simulator/plan.md` を widget reboot 方針に更新した
+* [x] `projects/budget-achievement-simulator/checklist.md` を widget reboot 方針に更新した
+* [x] `projects/budget-achievement-simulator/HANDOFF.md` に page 前提から widget 前提へ変更した旨を追記した
+* [x] checklist から `/budget-simulator` / `PAGE_REGISTRY` / `pageComponentMap` 前提の required task を除外または後続扱いへ変更した
 
-## Phase 1: Pure 計算 Domain 層
+## Phase B: UI 契約の固定
 
-* [x] `app/src/domain/calculations/budgetSimulator.ts` を作成し、KPI 計算関数を実装した
-* [x] `app/src/domain/calculations/__tests__/budgetSimulator.test.ts` を作成し、不変条件テストが PASS する
-* [x] `calculationCanonRegistry` に新規 pure 関数を `semanticClass` 付きで登録した
-* [x] `npm run lint` / `npm run format:check` が PASS する
+* [x] `SimulatorScenario` の widget 用入力契約を再確認し、再利用 / 変更点を記録した
+* [x] `app/src/features/budget/application/mockBudgetSimulatorScenario.ts` を作成した
+* [x] `BudgetSimulatorWidget` が実データなしで mock scenario を受け取って描画できる
+* [x] state と scenario の責務分離を `HANDOFF.md` か `AI_CONTEXT.md` に明記した
+
+## Phase C: 見た目の再移植
+
+* [x] `BudgetSimulatorView.tsx` を作成した
+* [x] KPI header を HTML モック準拠の情報設計に揃えた
+* [x] 基準日 slider を `BudgetSimulatorView` 配下で mock scenario で動作確認した
+* [x] mode switch と mode 別入力 UI を mock scenario で動作確認した
+* [x] KPI table / strip / projection / drilldown の主要 UI が mock scenario で描画される
+* [x] `app/src/stories/BudgetSimulator.stories.tsx` を reboot 後の構造に追従させた
+* [x] empty / month-start / mid-month / month-end の少なくとも 4 story が存在する
+
+## Phase D: state 管理の接続
+
+* [x] `useSimulatorState.ts` を再利用または軽修正して reboot 後の UI に接続した
+* [x] `currentDay` の操作が `BudgetSimulatorView` に反映される
+* [x] mode 切替が `BudgetSimulatorView` に反映される
+* [x] day override の操作が `BudgetSimulatorView` に反映される
+* [x] `weekStart` の変更が calendar / table 表示に反映される
+
+## Phase E: source adapter の新設
+
+* [x] `app/src/features/budget/application/buildBudgetSimulatorSource.ts` を作成した
+* [x] `app/src/features/budget/application/buildBudgetSimulatorScenario.ts` を作成した
+* [x] `app/src/features/budget/application/useBudgetSimulatorWidgetPlan.ts` を作成した
+* [x] `BudgetSimulatorView.tsx` から raw context / raw rows / query input 組み立てを除去した
+* [x] `BudgetSimulatorWidget.tsx` が `useBudgetSimulatorWidgetPlan.ts` を経由して scenario を取得する
+
+## Phase F: 段階的な実データ接続
+
+* [x] 月次予算を source adapter から scenario に接続した
+* [x] 日別実績を source adapter から scenario に接続した
+* [x] 前年同月日別を source adapter から scenario に接続した
+* [x] 曜日別集計を source adapter から scenario に接続した
+* [x] 日別 override 反映後の projection が scenario / VM 経由で描画される
+* [x] 主要欠損ケースで widget が空描画やクラッシュを起こさない
+
+## Phase G: widget 組込みの整理
+
+* [x] `features/budget/index.ts` / `ui/index.ts` の export を reboot 後の構造に追従させた
+* [x] `INSIGHT_WIDGETS` の該当エントリが reboot 後の `BudgetSimulatorWidget` を指す
+* [x] widget 登録後も既存 budget widget 群の import cycle が増えていない
+* [x] widget integration 後に既存 budget 画面で回帰がないことを確認した
+
+## Phase H: テストと仕上げ
+
+* [x] `BudgetSimulatorWidget.vm.test.ts` が reboot 後の構造で PASS する
+* [x] `useBudgetSimulatorWidgetPlan` または builder 群の unit test を追加した
+* [x] `npm run lint` が PASS する
+* [x] `npm run format:check` が PASS する
 * [x] `npm run test:guards` が PASS する
-
-## Phase 2: Application 層（ViewModel / Hooks）
-
-> **配置変更** (ユーザー方針): 新規 feature 作成 → **既存 `features/budget/` 内 widget embed**。
-> ファイル名は widget プレフィックス。
-
-* [x] `app/src/features/budget/application/useSimulatorState.ts` を実装した
-* [x] `app/src/features/budget/application/useSimulatorScenario.ts` を実装した
-* [x] `app/src/features/budget/ui/BudgetSimulatorWidget.vm.ts` を実装した
-* [x] `BudgetSimulatorWidget.vm.test.ts` と hook テスト (useSimulatorScenario / useSimulatorState) が PASS する
-* [x] localStorage のキーが `shiire-arari-budget-simulator-*` プレフィックスに統一されている（既存 `shiire-arari-*` 命名規約に準拠）
-
-## Phase 3: Presentation 層（Widget + サブコンポーネント）
-
-> **配置変更**: 新規ページ → **features/budget/ 内 widget**。
-> ファイル名は `BudgetSimulatorWidget.tsx` (ページではなく widget)。
-
-* [x] `BudgetSimulatorWidget.tsx` (MVP: KPI grid + 基準日スライダー + モード切替 + yoy/ach/dow 入力 + KPI テーブル) を実装した
-* [x] `BudgetSimulatorWidget.styles.ts` を分離し、デザイントークン (`theme.colors.palette` / `theme.radii` / `theme.spacing`) 経由で色・間隔を指定した
-* [x] `features/budget/index.ts` / `ui/index.ts` に widget と VM を barrel export した
-* [x] `INSIGHT_WIDGETS` に `'insight-budget-simulator'` エントリを追加した
-* [x] サブコンポーネント `TimelineSlider.tsx` を独立ファイルに分離した
-* [x] `RemainingInputPanel.tsx`（mode 別入力 UI の分離）を実装した
-* [x] `DayCalendarInput.tsx`（曜日別継承 + 日別上書き、full-month calendar）を実装した
-* [x] `DrilldownPanel.tsx`（週別・曜日別テーブル集計 + DailyBarChart embed）を実装した
-* [x] `aggregateDowAverages` / `aggregateWeeks` を domain 層に pure function として追加した (`budgetSimulatorAggregations.ts`)
-* [x] `ProjectionBarChart.tsx` (ECharts bar) を実装し widget に組込んだ
-* [x] `DailyBarChart.tsx` (ECharts bar + 移動平均 line overlay) を実装し DrilldownPanel に組込んだ
-* [x] `StripChart.tsx` (SVG コンパクトストリップ) を実装し KPI テーブルの「日次推移」列に組込んだ
-* [x] `app/src/stories/BudgetSimulator.stories.tsx` を追加した (9 stories)
-* [ ] `npm run test:visual`（visual regression）が PASS する — Storybook 起動に WASM ビルドが必要なため CI (wasm-build → fast-gate) で検証
-* [ ] `DrillCalendar.tsx` (カレンダーヒートマップ) は Phase 3.7 以降の拡張として保留
-
-## Phase 4: 組込み（PAGE_REGISTRY / Nav / routes）
-
-* [ ] `domain/models/PageMeta.ts` の ViewType に `budget-simulator` を追加した
-* [ ] `application/navigation/pageRegistry.ts` に `budget-simulator` エントリを追加した
-* [ ] `presentation/pageComponentMap.ts` に lazy import を追加した
-* [ ] `/budget-simulator` で画面が正しく描画される
-* [ ] ナビに「予算達成シミュレーター」アイコンが出る
-* [ ] `npm run test:guards`（pageMetaGuard 含む）が PASS する
-
-## Phase 5: E2E + Health + 仕上げ
-
-* [ ] `app/e2e/budget-simulator.spec.ts` を作成し、スライダー / モード切替 / 日別上書きの主要フローをカバーした
-* [ ] `references/02-status/features-migration-status.md` に `budget-simulator` を追加した
-* [ ] `CHANGELOG.md` に本 feature を追加した
-* [ ] `cd app && npm run health:check` が warning なしで通る
-* [ ] `cd app && npm run build` が成功する
-* [ ] `cd app && npm run test:e2e` が PASS する
+* [ ] `npm run test:visual` が PASS する (Storybook + WASM 依存のため CI で検証)
+* [x] `cd app && npm run health:check` が warning なしで通る
+* [x] `cd app && npm run build` が成功する
 
 ## 最終レビュー (人間承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
-> 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
-> `in_progress` のまま留まり、archive obligation は発火しない。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
-
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [ ] reboot 後の plan / checklist / HANDOFF / 実装差分を人間がレビューし、継続実装または PR 化を承認した

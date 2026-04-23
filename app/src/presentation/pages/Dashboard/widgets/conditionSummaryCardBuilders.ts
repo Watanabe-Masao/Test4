@@ -301,11 +301,20 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  *
  * ## 期間スコープ値の使用禁止
  *
- * `FreePeriodReadModel.comparisonSummary.totalSales` 等の analysis frame scope
- * 値はヘッダーでは使用しない。bundle ロード完了で月間ラベルの値が縮む回帰
- * (「月間前年売上」が elapsed 日までの合計に上書きされる) を防止するため。
+ * かつて存在した第 5 引数 `freePeriodPrevYearSummary` は
+ * `FreePeriodReadModel.comparisonSummary.totalSales` 射影だが、この値は
+ * `effectivePeriod2` (alignment + elapsedDays cap) 由来のため「経過期間分の
+ * 前年売上」になる。本 header が表したいのは「月間の予算が前年全日に対して
+ * どう組まれているか」であり、alignment 非経由の `monthlyTotal.sales`
+ * (= 前年月全日合計、elapsedDays の影響を受けない) が正しいソース。
  *
- * @see features/comparison/application/selectMonthlyPrevYearSales.ts
+ * bundle ロード完了で月間ラベルの値が縮む回帰 (「月間前年売上」が
+ * elapsed 日までの合計に上書きされる) を防止するため、`selectMonthlyPrevYearSales`
+ * 経由で一本化し、期間スコープ値は使用禁止とする
+ * (`monthlyPrevYearSalesGuard` で機械的に保証)。
+ *
+ * @see app/src/application/readModels/prevYear/selectMonthlyPrevYearSales.ts
+ * @see app/src/features/comparison/application/comparisonTypes.ts PrevYearMonthlyTotal
  */
 export function buildBudgetHeader(
   result: StoreResult,

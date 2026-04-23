@@ -19,8 +19,8 @@
 //     (ヘッダー「月間前年売上」「予算前年比」)
 //   - presentation/pages/Dashboard/widgets/conditionSummaryCardBuilders.ts
 //     (buildBudgetHeader 実装)
-//   - features/budget/application/useFullMonthLyDaily.ts
-//     (予算シミュレーター「前年合計 (月)」)
+//   - features/budget/application/buildBudgetSimulatorScenario.ts
+//     (予算シミュレーター「前年合計 (月)」= extractFullMonthLyDaily)
 //
 // ## 禁止パターン (コメントを除いた本体コードで検出)
 //
@@ -71,8 +71,9 @@ const MONTHLY_LABEL_FILES: readonly GuardEntry[] = [
     role: 'compute',
   },
   {
-    path: 'features/budget/application/useFullMonthLyDaily.ts',
-    reason: '予算達成シミュレーターの「前年合計 (月)」/「前年比」は月全体を対象とする',
+    path: 'features/budget/application/buildBudgetSimulatorScenario.ts',
+    reason:
+      '予算達成シミュレーターの「前年合計 (月)」/「前年比」は月全体を対象とする (extractFullMonthLyDaily)',
     role: 'compute',
   },
 ]

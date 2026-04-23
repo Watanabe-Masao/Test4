@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-22T16:39:31.269Z",
+  "timestamp": "2026-04-23T07:46:45.629Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -463,7 +463,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6631,
+      "value": 6630,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -484,7 +484,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2328,
+      "value": 2329,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -892,7 +892,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 653,
+      "value": 652,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -934,7 +934,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 499,
+      "value": 513,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

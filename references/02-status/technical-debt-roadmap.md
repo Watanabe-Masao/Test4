@@ -33,13 +33,13 @@
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 79/30(+1) / 0/5 |
-| 性能 | OK | 6631/7000 / 2328/2500 / 919/1000 |
+| 性能 | OK | 6630/7000(-4) / 2329/2500(+3) / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
 | Project Governance | OK | 7/20 / 6/20 / 0/0 / 18/100 |
 
 
-> 生成: 2026-04-22T16:39:31.269Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-23T07:46:45.629Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
