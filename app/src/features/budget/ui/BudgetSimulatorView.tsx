@@ -200,6 +200,7 @@ export function BudgetSimulatorView({
             onOverrideClear={state.clearDayOverride}
             onResetAll={state.resetDayOverrides}
             onDayClick={onDayClick}
+            weatherIcons={weatherIcons}
           />
         )}
 

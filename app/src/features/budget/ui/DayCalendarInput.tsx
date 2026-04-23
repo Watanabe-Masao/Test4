@@ -50,6 +50,8 @@ interface Props {
   readonly onResetAll: () => void
   /** 日付ヘッダクリックで呼ばれる callback (省略でヘッダはクリック不可) */
   readonly onDayClick?: (day: number) => void
+  /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
+  readonly weatherIcons?: import('../application/buildWeatherIconMaps').WeatherIconMaps
 }
 
 export function DayCalendarInput(props: Props) {
@@ -66,6 +68,7 @@ export function DayCalendarInput(props: Props) {
     onOverrideClear,
     onResetAll,
     onDayClick,
+    weatherIcons,
   } = props
 
   const { year, month, daysInMonth } = scenario
@@ -123,6 +126,7 @@ export function DayCalendarInput(props: Props) {
             onOverrideChange={onOverrideChange}
             onOverrideClear={onOverrideClear}
             onDayClick={onDayClick}
+            weatherIcons={weatherIcons}
           />
         ))}
 
@@ -149,6 +153,7 @@ interface WeekRowProps {
   readonly onOverrideChange: (day: number, pct: number) => void
   readonly onOverrideClear: (day: number) => void
   readonly onDayClick?: (day: number) => void
+  readonly weatherIcons?: import('../application/buildWeatherIconMaps').WeatherIconMaps
 }
 
 function WeekRowSlots({
@@ -163,6 +168,7 @@ function WeekRowSlots({
   onOverrideChange,
   onOverrideClear,
   onDayClick,
+  weatherIcons,
 }: WeekRowProps) {
   const { dailyBudget, lyDaily } = scenario
   let budgetSum = 0
@@ -191,6 +197,8 @@ function WeekRowSlots({
           onOverrideChange={onOverrideChange}
           onOverrideClear={onOverrideClear}
           onDayClick={onDayClick}
+          curWeatherIcon={day != null ? weatherIcons?.current.get(day) : undefined}
+          prevWeatherIcon={day != null ? weatherIcons?.prevYear.get(day) : undefined}
         />
       ))}
       <WeekTotalCell>
