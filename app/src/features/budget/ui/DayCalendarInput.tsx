@@ -29,6 +29,7 @@ import {
   WeekTotalValue,
 } from './BudgetSimulatorWidget.styles'
 import { DayCellSlot } from './DayCalendarCell'
+import { DowAverageRow } from './DowAverageRow'
 
 type Fmt = UnifiedWidgetContext['fmtCurrency']
 
@@ -47,6 +48,8 @@ interface Props {
   readonly onOverrideChange: (day: number, pct: number) => void
   readonly onOverrideClear: (day: number) => void
   readonly onResetAll: () => void
+  /** 日付ヘッダクリックで呼ばれる callback (省略でヘッダはクリック不可) */
+  readonly onDayClick?: (day: number) => void
 }
 
 export function DayCalendarInput(props: Props) {
@@ -62,6 +65,7 @@ export function DayCalendarInput(props: Props) {
     onOverrideChange,
     onOverrideClear,
     onResetAll,
+    onDayClick,
   } = props
 
   const { year, month, daysInMonth } = scenario
@@ -118,8 +122,16 @@ export function DayCalendarInput(props: Props) {
             fmtCurrency={fmtCurrency}
             onOverrideChange={onOverrideChange}
             onOverrideClear={onOverrideClear}
+            onDayClick={onDayClick}
           />
         ))}
+
+        <DowAverageRow
+          scenario={scenario}
+          currentDay={currentDay}
+          weekStart={weekStart}
+          fmtCurrency={fmtCurrency}
+        />
       </DayCalendarGrid>
     </Card>
   )
@@ -136,6 +148,7 @@ interface WeekRowProps {
   readonly fmtCurrency: Fmt
   readonly onOverrideChange: (day: number, pct: number) => void
   readonly onOverrideClear: (day: number) => void
+  readonly onDayClick?: (day: number) => void
 }
 
 function WeekRowSlots({
@@ -149,6 +162,7 @@ function WeekRowSlots({
   fmtCurrency,
   onOverrideChange,
   onOverrideClear,
+  onDayClick,
 }: WeekRowProps) {
   const { dailyBudget, lyDaily } = scenario
   let budgetSum = 0
@@ -176,6 +190,7 @@ function WeekRowSlots({
           fmtCurrency={fmtCurrency}
           onOverrideChange={onOverrideChange}
           onOverrideClear={onOverrideClear}
+          onDayClick={onDayClick}
         />
       ))}
       <WeekTotalCell>

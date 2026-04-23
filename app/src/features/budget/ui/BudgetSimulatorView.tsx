@@ -23,6 +23,7 @@ import { dowOf } from '@/domain/calculations/budgetSimulator'
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { SimulatorStateApi } from '../application/useSimulatorState'
+import type { WeatherIconMaps } from '../application/buildWeatherIconMaps'
 import {
   type DrillKey,
   type SimulatorWidgetRow,
@@ -71,6 +72,13 @@ export interface BudgetSimulatorViewProps {
   readonly fmtCurrency: CurrencyFormatter
   readonly drill: DrillKey | null
   readonly onToggleDrill: (key: DrillKey) => void
+  /**
+   * ①②③④ カレンダーセルをクリックしたときに呼ばれる。
+   * 未指定の場合はクリック不可 (= セルはリンク化されない)。
+   */
+  readonly onDayClick?: (day: number) => void
+  /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
+  readonly weatherIcons?: WeatherIconMaps
 }
 
 export function BudgetSimulatorView({
@@ -80,6 +88,8 @@ export function BudgetSimulatorView({
   fmtCurrency,
   drill,
   onToggleDrill,
+  onDayClick,
+  weatherIcons,
 }: BudgetSimulatorViewProps) {
   const { year, month } = scenario
   const dow = dowOf(year, month, vm.kpis.currentDay)
@@ -126,6 +136,8 @@ export function BudgetSimulatorView({
                 onToggleDrill={onToggleDrill}
                 scenario={scenario}
                 weekStart={state.weekStart}
+                onDayClick={onDayClick}
+                weatherIcons={weatherIcons}
               />
             ))}
           </tbody>
@@ -187,6 +199,7 @@ export function BudgetSimulatorView({
             onOverrideChange={state.setDayOverride}
             onOverrideClear={state.clearDayOverride}
             onResetAll={state.resetDayOverrides}
+            onDayClick={onDayClick}
           />
         )}
 
@@ -249,6 +262,8 @@ interface RowProps {
   readonly onToggleDrill: (k: DrillKey) => void
   readonly scenario: SimulatorScenario
   readonly weekStart: 0 | 1
+  readonly onDayClick?: (day: number) => void
+  readonly weatherIcons?: WeatherIconMaps
 }
 
 const RowRender = memo(function RowRender({
@@ -259,6 +274,8 @@ const RowRender = memo(function RowRender({
   onToggleDrill,
   scenario,
   weekStart,
+  onDayClick,
+  weatherIcons,
 }: RowProps) {
   if (row.group) {
     return (
@@ -306,6 +323,8 @@ const RowRender = memo(function RowRender({
               fmtCurrency={fmtCurrency}
               kind={row.drillKey}
               currentDay={currentDay}
+              onDayClick={onDayClick}
+              weatherIcons={weatherIcons}
             />
           </td>
         </DrillRow>

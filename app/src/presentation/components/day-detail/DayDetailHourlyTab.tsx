@@ -12,8 +12,8 @@ import {
   DetailRow,
   DetailLabel,
   DetailValue,
-} from '../DashboardPage.styles'
-import { HourlyChart } from './HourlyChart'
+} from '@/presentation/pages/Dashboard/DashboardPage.styles'
+import { HourlyChart } from '@/presentation/pages/Dashboard/widgets/HourlyChart'
 
 interface WeatherCandidate {
   readonly id: string

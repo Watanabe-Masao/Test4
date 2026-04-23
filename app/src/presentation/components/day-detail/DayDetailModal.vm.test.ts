@@ -16,7 +16,7 @@ import {
   computeCostItemRatio,
   type CompMode,
   type CostItem,
-} from '../DayDetailModal.vm'
+} from './DayDetailModal.vm'
 import type { DailyRecord } from '@/domain/models/record'
 import type { PrevYearData } from '@/application/hooks/analytics'
 
