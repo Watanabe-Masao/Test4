@@ -636,6 +636,10 @@
         {
           "path": "references/05-contents/widgets/WID-002.md",
           "label": "WID-002 日別売上チャート — Dashboard-local 17-field ctx 展開 pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-040.md",
+          "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }
       ]
     }
