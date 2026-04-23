@@ -18,7 +18,6 @@ import {
   computeRateTrend,
 } from './ConditionSummaryEnhanced.vm'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
-import { selectPrevYearSummaryFromFreePeriod } from '@/application/readModels/freePeriod'
 import { formatPercent } from '@/domain/formatting'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { useSettingsStore } from '@/application/stores/settingsStore'
@@ -128,12 +127,10 @@ export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   // CTS 販売点数: 事前集計済みの値を使う（raw CTS レコードに直接触れない）
   const { currentCtsQuantity } = ctx
 
-  // phase6SummarySwapGuard 対応で selector import は残すが、buildBudgetHeader は
-  // 「alignment 非経由の monthlyTotal.sales」を正本とするため、freePeriod 射影は
-  // budgetHeader には渡さない (semantic mismatch)。将来の ExecSummaryBar 等で消費予定。
-  void selectPrevYearSummaryFromFreePeriod(ctx.freePeriodLane?.bundle.fact ?? null)
-
   // Budget header
+  // 月間ラベル (月間前年売上・予算前年比) は月全体粒度を保つため、期間スコープの
+  // FreePeriodReadModel.comparisonSummary を使わず、prevYearMonthlyKpi から
+  // selectMonthlyPrevYearSales 経由で取得する。詳細は buildBudgetHeader のコメント。
   const budgetHeader = useMemo(
     () =>
       buildBudgetHeader(

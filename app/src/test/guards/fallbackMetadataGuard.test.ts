@@ -62,6 +62,13 @@ describe('fallback metadata guard', () => {
     expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
+  /**
+   * 外部データ取得を行わない pure projection ディレクトリは usedFallback の対象外。
+   * 既存 readModel (PrevYearMonthlyKpi 等) からの投影 selector のみを含むため、
+   * silent fallback の発生源になり得ない。
+   */
+  const PROJECTION_ONLY_DIRS = new Set<string>(['prevYear'])
+
   it('新しい readModel ディレクトリが追加されたら検査対象に含まれている', () => {
     if (!fs.existsSync(READ_MODELS_DIR)) return
 
@@ -72,7 +79,7 @@ describe('fallback metadata guard', () => {
 
     const knownDirs = CRITICAL_READ_MODELS.map((p) => p.split('/')[0])
     const knownSet = new Set(knownDirs)
-    const untracked = dirs.filter((d) => !knownSet.has(d))
+    const untracked = dirs.filter((d) => !knownSet.has(d) && !PROJECTION_ONLY_DIRS.has(d))
 
     expect(untracked, formatViolationMessage(rule, untracked)).toEqual([])
   })

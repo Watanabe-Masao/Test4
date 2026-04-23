@@ -16,6 +16,7 @@
  */
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'
+import { selectMonthlyPrevYearSales } from '@/application/readModels/prevYear'
 import type { BudgetSimulatorSource } from './buildBudgetSimulatorSource'
 
 /**
@@ -25,6 +26,9 @@ import type { BudgetSimulatorSource } from './buildBudgetSimulatorSource'
  * - `prevYearMonthlyKpi.{sameDate|sameDow}.dailyMapping` は full-month 分を持つ
  *   (comparisonProjections.ts で elapsedDays なし scope から再構築されている)
  * - 未取得 / hasPrevYear=false なら null (caller 側で PrevYearData fallback)
+ *
+ * `monthlyTotal` は ConditionSummary と共有の `selectMonthlyPrevYearSales`
+ * selector 経由で取得する (取り込み期間キャップなしの月全体値)。
  */
 export function extractFullMonthLyDaily(source: BudgetSimulatorSource): {
   readonly daily: ReadonlyMap<number, number> | null
@@ -40,7 +44,11 @@ export function extractFullMonthLyDaily(source: BudgetSimulatorSource): {
   for (const row of entry.dailyMapping) {
     map.set(row.currentDay, (map.get(row.currentDay) ?? 0) + row.prevSales)
   }
-  const monthlyTotal = prevYearMonthlyKpi.monthlyTotal.sales
+  const projection = selectMonthlyPrevYearSales(
+    prevYearMonthlyKpi,
+    mode === 'sameDayOfWeek' ? 'sameDow' : 'sameDate',
+  )
+  const monthlyTotal = projection.hasPrevYear ? projection.monthlySales : null
   return { daily: map.size > 0 ? map : null, monthlyTotal }
 }
 

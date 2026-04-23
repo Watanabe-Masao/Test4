@@ -17,6 +17,7 @@ import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { PrevYearData } from '@/application/hooks/analytics'
+import { selectMonthlyPrevYearSales } from '@/application/readModels/prevYear'
 import type { MetricKey } from './conditionSummaryTypes'
 import { extractMetric, computeAchievement } from './conditionSummaryHelpers'
 import {
@@ -290,13 +291,15 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  *
  * ## 期間スコープの意味論
  *
- * prevYearMode に応じて前年売上の取得元を切り替える:
- * - 'sameDate': monthlyTotal（alignment不要の全日合計）を使用
- * - 'sameDow': sameDow.sales（同曜日 alignment 経由の集計）を使用
+ * ヘッダーは「月間粒度の期間プリセット」として機能する。`prevYearMode` による
+ * 前年売上の切替:
+ * - 'sameDate': 前年同月の全日合計 (`kpi.monthlyTotal.sales`)
+ * - 'sameDow' : 前年同曜日 alignment 経由の月全体合計 (`kpi.sameDow.sales`)
  *
- * 予算前年比もこれに連動する。
+ * どちらのモードも **取り込み期間 (elapsedDays / dataEndDay) にキャップされない**
+ * 月全体の値を返す (選択経路は `selectMonthlyPrevYearSales` に集約)。
  *
- * ## Phase 6 Step A override を廃止 (semantic mismatch)
+ * ## 期間スコープ値の使用禁止
  *
  * かつて存在した第 5 引数 `freePeriodPrevYearSummary` は
  * `FreePeriodReadModel.comparisonSummary.totalSales` 射影だが、この値は
@@ -305,8 +308,12 @@ function buildDowGapSummary(dowGap: DowGapAnalysis | undefined): DowGapSummary |
  * どう組まれているか」であり、alignment 非経由の `monthlyTotal.sales`
  * (= 前年月全日合計、elapsedDays の影響を受けない) が正しいソース。
  *
- * 従って Step A override は採用せず、legacy 経路のみを使う。引数も撤去。
+ * bundle ロード完了で月間ラベルの値が縮む回帰 (「月間前年売上」が
+ * elapsed 日までの合計に上書きされる) を防止するため、`selectMonthlyPrevYearSales`
+ * 経由で一本化し、期間スコープ値は使用禁止とする
+ * (`monthlyPrevYearSalesGuard` で機械的に保証)。
  *
+ * @see app/src/application/readModels/prevYear/selectMonthlyPrevYearSales.ts
  * @see app/src/features/comparison/application/comparisonTypes.ts PrevYearMonthlyTotal
  */
 export function buildBudgetHeader(
@@ -315,11 +322,10 @@ export function buildBudgetHeader(
   dowGap: DowGapAnalysis | undefined,
   prevYearMode: 'sameDate' | 'sameDow' = 'sameDate',
 ): BudgetHeaderData {
-  const rawSales =
-    prevYearMode === 'sameDow'
-      ? prevYearMonthlyKpi.sameDow.sales
-      : prevYearMonthlyKpi.monthlyTotal.sales
-  const prevYearMonthlySales = prevYearMonthlyKpi.hasPrevYear && rawSales > 0 ? rawSales : null
+  const prevYearProjection = selectMonthlyPrevYearSales(prevYearMonthlyKpi, prevYearMode)
+  const prevYearMonthlySales = prevYearProjection.hasPrevYear
+    ? prevYearProjection.monthlySales
+    : null
 
   const budgetVsPrevYear =
     prevYearMonthlySales != null && prevYearMonthlySales > 0

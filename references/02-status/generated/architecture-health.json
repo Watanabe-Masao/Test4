@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-23T03:50:52.134Z",
+  "timestamp": "2026-04-23T07:46:45.629Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 78,
+      "value": 79,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -306,6 +306,7 @@
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
+        "app/src/test/guards/monthlyPrevYearSalesGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
         "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
@@ -462,7 +463,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6634,
+      "value": 6630,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -483,7 +484,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2326,
+      "value": 2329,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",

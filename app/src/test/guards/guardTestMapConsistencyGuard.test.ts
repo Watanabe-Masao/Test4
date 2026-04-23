@@ -47,8 +47,9 @@ const GUARD_MAP_PATH = path.join(PROJECT_ROOT, 'references/03-guides/guard-test-
  *
  * 初期値: 40（2026-04-12 時点、過去の累積 drift）
  * 目標:   0（全 guard が guard-test-map.md に登録された状態）
+ * 2026-04-22: monthlyPrevYearSalesGuard 追加に伴い +1（41 → 42）
  */
-const MISSING_BASELINE = 41
+const MISSING_BASELINE = 42
 
 function listGuardFilenames(): string[] {
   if (!fs.existsSync(GUARDS_DIR)) return []
