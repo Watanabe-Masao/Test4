@@ -22,17 +22,17 @@
 
 ## Phase 1: Inquiry（棚卸し）
 
-* [ ] `inquiry/01-widget-registries.md` を作成した（9 registry × 全 widget の網羅台帳）
-* [ ] `inquiry/02-widget-ctx-dependency.md` を作成した（ctx field 使用 map）
-* [ ] `inquiry/03-ui-component-orphans.md` を作成した（registry 未登録 UI component 列挙）
-* [ ] `inquiry/04-type-asymmetry.md` を作成した（`WidgetDef` 2 型 + `UnifiedWidgetContext` page-local 棚卸し）
-* [ ] `inquiry/05-pure-fn-candidates.md` を作成した（hook / component 内の pure 計算候補）
-* [ ] `inquiry/06-data-pipeline-map.md` を作成した（`InsightData` / `costDetailData` / readModel 経路）
-* [ ] `inquiry/07-complexity-hotspots.md` を作成した（行数 / useMemo 数 / ctx touched 数 + Budget Simulator 7 項目）
-* [ ] `inquiry/08-ui-responsibility-audit.md` を作成した（UI 層の責務分離監査。`presentation/` + `features/*/ui/` に C8 1 文説明テストを適用 + P2-P18 分布）
-* [ ] inquiry 全ファイルに事実源（ファイルパス / 行番号 / commit hash）が付記されている
-* [ ] inquiry 全ファイルに意見 / recommendations / 改修案が書かれていないことを確認した
-* [ ] Phase 1 期間中にコード変更を一切行わなかったことを `git log` で確認した
+* [x] `inquiry/01-widget-registries.md` を作成した（9 registry × 全 widget の網羅台帳）
+* [x] `inquiry/02-widget-ctx-dependency.md` を作成した（ctx field 使用 map）
+* [x] `inquiry/03-ui-component-orphans.md` を作成した（registry 未登録 UI component 列挙）
+* [x] `inquiry/04-type-asymmetry.md` を作成した（`WidgetDef` 2 型 + `UnifiedWidgetContext` page-local 棚卸し）
+* [x] `inquiry/05-pure-fn-candidates.md` を作成した（hook / component 内の pure 計算候補）
+* [x] `inquiry/06-data-pipeline-map.md` を作成した（`InsightData` / `costDetailData` / readModel 経路）
+* [x] `inquiry/07-complexity-hotspots.md` を作成した（行数 / useMemo 数 / ctx touched 数 + Budget Simulator 7 項目）
+* [x] `inquiry/08-ui-responsibility-audit.md` を作成した（UI 層の責務分離監査。`presentation/` + `features/*/ui/` に C8 1 文説明テストを適用 + P2-P18 分布）
+* [x] inquiry 全ファイルに事実源（ファイルパス / 行番号 / commit hash）が付記されている
+* [x] inquiry 全ファイルに意見 / recommendations / 改修案が書かれていないことを確認した
+* [x] Phase 1 期間中にコード変更を一切行わなかったことを `git log` で確認した
 
 ## Phase 2: 真因分析
 
