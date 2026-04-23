@@ -17,6 +17,7 @@
 
 * [ ] 新規の構造制約は guard test で守られているか
 * [ ] allowlist を追加していないか（追加した場合は ratchet-down か）
+* [ ] allowlist を追加した場合、`ruleId` / `createdAt` / `reviewPolicy` が埋まっているか
 * [ ] 既存 guard を破壊していないか
 
 ## C. ドキュメント
@@ -35,7 +36,7 @@
 
 * [ ] ファイル名・配置が規約通りか
 * [ ] import path alias が正しいか
-* [ ] 責務タグ（`R:*`）が適切か
+* [ ] 新規 / 変更 TS ファイルに primary 責務タグ（`@responsibility R:*`）がちょうど 1 つあるか（例: `R:calculation` / `R:hook` / `R:component`）
 
 ## F. セキュリティ
 

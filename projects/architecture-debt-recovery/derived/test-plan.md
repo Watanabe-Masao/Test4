@@ -53,9 +53,9 @@
 ## 実行計画
 
 ```bash
-cd app && npm run test:guards          # G0-G6
-cd app && npx vitest run <path>        # L0-L3 の特定 suite
-cd app && npm run test:e2e             # L4
+(cd app && npm run test:guards)        # G0-G6
+(cd app && npx vitest run <path>)      # L0-L3 の特定 suite
+(cd app && npm run test:e2e)           # L4
 ```
 
 ## 完了判定
