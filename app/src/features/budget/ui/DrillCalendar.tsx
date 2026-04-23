@@ -47,6 +47,8 @@ interface Props {
   readonly title?: string
   /** 日セルをクリックした時の callback (省略でクリック不可) */
   readonly onDayClick?: (day: number) => void
+  /** 日別天気絵文字 (当年 / 前年 の day→icon)。省略で天気表示なし */
+  readonly weatherIcons?: import('../application/buildWeatherIconMaps').WeatherIconMaps
 }
 
 export const DrillCalendar = memo(function DrillCalendar({
@@ -60,6 +62,7 @@ export const DrillCalendar = memo(function DrillCalendar({
   fmtCurrency,
   title,
   onDayClick,
+  weatherIcons,
 }: Props) {
   const { year, month, daysInMonth } = scenario
   const rStart = Math.max(1, rangeStart)
@@ -168,6 +171,8 @@ export const DrillCalendar = memo(function DrillCalendar({
               const barPct = val > 0 ? (val / maxDaily) * 100 : 0
 
               const clickable = onDayClick != null && !outOfRange
+              const curWeather = weatherIcons?.current.get(day)
+              const prevWeather = weatherIcons?.prevYear.get(day)
               return (
                 <DrillCell
                   key={`c-${ri}-${ci}`}
@@ -190,10 +195,22 @@ export const DrillCalendar = memo(function DrillCalendar({
                       </DrillBarTrack>
                       {compare && (
                         <div style={{ fontSize: '0.68rem', color: 'var(--text2, #64748b)' }}>
+                          {prevWeather && (
+                            <span aria-hidden style={{ marginRight: 2 }}>
+                              {prevWeather}
+                            </span>
+                          )}
                           {compareLabel} ¥{fmtCurrency(cmp)}
                         </div>
                       )}
-                      <DrillCellAmt>当期 ¥{fmtCurrency(val)}</DrillCellAmt>
+                      <DrillCellAmt>
+                        {curWeather && (
+                          <span aria-hidden style={{ marginRight: 2 }}>
+                            {curWeather}
+                          </span>
+                        )}
+                        当期 ¥{fmtCurrency(val)}
+                      </DrillCellAmt>
                       {yoy != null && (
                         <DrillCellYoY $positive={yoy >= 100}>
                           {compareLabel}比 {yoy.toFixed(0)}% / 差 {diff >= 0 ? '+' : ''}¥

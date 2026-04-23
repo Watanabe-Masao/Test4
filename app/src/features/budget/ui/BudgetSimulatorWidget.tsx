@@ -8,11 +8,12 @@
  *
  * @responsibility R:widget
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
-import { DayDetailModal } from '@/presentation/pages/Dashboard/widgets/DayDetailModal'
+import { DayDetailModal } from '@/presentation/components/day-detail'
 import { useBudgetSimulatorWidgetPlan } from '../application/useBudgetSimulatorWidgetPlan'
 import { buildDayDetailModalProps } from '../application/buildDayDetailModalProps'
+import { buildWeatherIconMaps } from '../application/buildWeatherIconMaps'
 import { BudgetSimulatorView } from './BudgetSimulatorView'
 import type { DrillKey } from './BudgetSimulatorWidget.vm'
 
@@ -30,6 +31,11 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
   const modalProps =
     selectedDay != null ? buildDayDetailModalProps(ctx, plan.scenario, selectedDay) : null
 
+  const weatherIcons = useMemo(
+    () => buildWeatherIconMaps(ctx.weatherDaily, ctx.prevYearWeatherDaily),
+    [ctx.weatherDaily, ctx.prevYearWeatherDaily],
+  )
+
   return (
     <>
       <BudgetSimulatorView
@@ -40,6 +46,7 @@ export function BudgetSimulatorWidget({ ctx }: Props) {
         drill={drill}
         onToggleDrill={toggleDrill}
         onDayClick={setSelectedDay}
+        weatherIcons={weatherIcons}
       />
       {modalProps != null && (
         <DayDetailModal {...modalProps} onClose={() => setSelectedDay(null)} />

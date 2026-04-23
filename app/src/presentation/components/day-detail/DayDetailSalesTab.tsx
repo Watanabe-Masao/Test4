@@ -13,10 +13,10 @@ import {
   DetailLabel,
   DetailValue,
   DetailColumns,
-} from '../DashboardPage.styles'
+} from '@/presentation/pages/Dashboard/DashboardPage.styles'
 import { ToggleGroup, ToggleBtn } from './DayDetailModal.styles'
-import { DrilldownWaterfall } from './DrilldownWaterfall'
-import { CategoryDrilldown } from './CategoryDrilldown'
+import { DrilldownWaterfall } from '@/presentation/pages/Dashboard/widgets/DrilldownWaterfall'
+import { CategoryDrilldown } from '@/presentation/pages/Dashboard/widgets/CategoryDrilldown'
 
 export type CompMode = 'yoy' | 'wow'
 

@@ -14,7 +14,7 @@ import {
   DetailRow,
   DetailLabel,
   DetailValue,
-} from '../DashboardPage.styles'
+} from '@/presentation/pages/Dashboard/DashboardPage.styles'
 
 interface DayDetailBreakdownTabProps {
   readonly record: DailyRecord | undefined
