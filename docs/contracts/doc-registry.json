@@ -628,6 +628,10 @@
         {
           "path": "references/05-contents/widgets/README.md",
           "label": "widget 仕様書カタログ（45 件 型番割当 + WSS format + freshness policy）"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-001.md",
+          "label": "WID-001 店別予算達成状況 — Dashboard-local 最小構成 pilot"
         }
       ]
     }

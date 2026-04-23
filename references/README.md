@@ -17,6 +17,14 @@
 
 `05-contents/` は Phase 1 bootstrap 時点では `widgets/` サブカテゴリのみ。今後 `charts/` / `read-models/` / `query-handlers/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
+### 05-contents/widgets/ 個別 spec（pilot）
+
+| 型番 | 見出し | 概要 |
+|---|---|---|
+| `WID-001.md` | 店別予算達成状況 | Dashboard-local 最小構成 pilot（isVisible predicate + 単一 children） |
+
+（残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
+
 ## 正本一覧
 
 各事実の定義元は1箇所。他の文書は正本を参照のみ。
