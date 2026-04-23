@@ -19,3 +19,4 @@ export {
   useBudgetSimulatorWidgetPlan,
   type BudgetSimulatorWidgetPlan,
 } from './useBudgetSimulatorWidgetPlan'
+export { computePeriodSummary, type PeriodSummary } from './periodSummary'

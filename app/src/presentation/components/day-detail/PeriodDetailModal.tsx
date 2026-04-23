@@ -18,6 +18,7 @@ import { CurrencyUnitToggle } from '@/presentation/components/charts'
 import { palette } from '@/presentation/theme/tokens'
 import { sc } from '@/presentation/theme/semanticColors'
 import { dowOf, type SimulatorScenario } from '@/domain/calculations/budgetSimulator'
+import { computePeriodSummary } from '@/features/budget'
 import {
   DetailModalContent,
   DetailHeader,
@@ -42,12 +43,6 @@ export interface PeriodDetailModalProps {
   readonly onClose: () => void
 }
 
-function sumBy(days: readonly number[], series: readonly number[]): number {
-  let sum = 0
-  for (const d of days) sum += series[d - 1] ?? 0
-  return sum
-}
-
 export function PeriodDetailModal({
   title,
   days,
@@ -58,20 +53,18 @@ export function PeriodDetailModal({
   const { formatWithUnit: fmt } = useCurrencyFormat()
   const { year, month, dailyBudget, lyDaily, actualDaily } = scenario
 
-  const budgetSum = sumBy(days, dailyBudget)
-  const lySum = sumBy(days, lyDaily)
-  const actualSum = days.reduce(
-    (acc, d) => acc + (d <= currentDay ? (actualDaily[d - 1] ?? 0) : 0),
-    0,
-  )
-  const elapsedDays = days.filter((d) => d <= currentDay).length
-
-  const diff = actualSum - budgetSum
-  const ach = budgetSum > 0 ? actualSum / budgetSum : null
-  const yoy = lySum > 0 ? actualSum / lySum : null
-  const budgetYoY = lySum > 0 ? budgetSum / lySum : null
-
-  const hasActual = actualSum > 0
+  const summary = computePeriodSummary(days, scenario, currentDay)
+  const {
+    budgetSum,
+    lySum,
+    actualSum,
+    elapsedDays,
+    actualMinusBudget: diff,
+    achievementRate: ach,
+    yoyRatio: yoy,
+    budgetYoyRatio: budgetYoY,
+    hasActual,
+  } = summary
 
   return (
     <PinModalOverlay onClick={onClose}>
