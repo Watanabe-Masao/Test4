@@ -7,6 +7,21 @@ import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 
+// ── Modal Shell (旧 MonthlyCalendar.styles.ts から移設) ──
+// DayDetailModal / PeriodDetailModal のモーダル外殻で使用。
+// 旧称 PinModalOverlay だったが、day-detail が唯一の consumer となったため
+// ここに一本化。re-export で後方互換を維持する。
+export const PinModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? `${palette.black}B3` : `${palette.black}99`};
+  z-index: ${({ theme }) => theme.zIndex.sticky};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
 /* ── Drilldown Styled Components ─────────── */
 
 export const DrillSection = styled.div`

@@ -19,7 +19,6 @@ import { palette } from '@/presentation/theme/tokens'
 import { sc } from '@/presentation/theme/semanticColors'
 import { dowOf, type SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import {
-  PinModalOverlay,
   DetailModalContent,
   DetailHeader,
   DetailTitle,
@@ -29,6 +28,7 @@ import {
   DetailKpiLabel,
   DetailKpiValue,
 } from '@/presentation/pages/Dashboard/DashboardPage.styles'
+import { PinModalOverlay } from './DayDetailModal.styles'
 
 const DOW_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
 

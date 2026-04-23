@@ -24,7 +24,6 @@ import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
-  PinModalOverlay,
   DetailModalContent,
   DetailHeader,
   DetailTitle,
@@ -35,6 +34,7 @@ import {
   DetailKpiValue,
 } from '@/presentation/pages/Dashboard/DashboardPage.styles'
 import {
+  PinModalOverlay,
   TabBar,
   Tab,
   KpiGrid2,

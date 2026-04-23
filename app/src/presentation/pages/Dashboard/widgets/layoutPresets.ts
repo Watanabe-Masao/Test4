@@ -38,7 +38,6 @@ const FIELD_PRESET: LayoutPreset = {
     'widget-budget-achievement',
     'analysis-condition-summary',
     'chart-daily-sales',
-    'exec-monthly-calendar',
     'exec-dow-average',
     'exec-weekly-summary',
     'exec-daily-inventory',

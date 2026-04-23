@@ -51,7 +51,6 @@ export const DEFAULT_DAILY_WIDGET_IDS = [
   'daily-chart-gp-rate',
   'daily-chart-shapley',
   // テーブル・詳細
-  'exec-monthly-calendar',
   'exec-dow-average',
   'exec-weekly-summary',
   'exec-daily-store-sales',

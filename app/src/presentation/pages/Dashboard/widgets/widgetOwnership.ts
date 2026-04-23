@@ -116,10 +116,7 @@ export const WIDGET_OWNERSHIP = {
     owner: 'shared',
     reason: 'アラートは全指標の閾値監視で横断的',
   },
-  'exec-monthly-calendar': {
-    owner: 'shared',
-    reason: '月間カレンダーは日別売上+予算+前年を横断表示',
-  },
+  // 'exec-monthly-calendar' は Budget Simulator (①②③④ + 期間詳細モーダル) に統合され撤去
   'exec-dow-average': {
     owner: 'sales',
     reason: '曜日平均は売上分析の基本ビュー',
