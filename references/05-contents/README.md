@@ -37,6 +37,23 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 **改善は「全体が壊れないよう充分注意しながら段階的に進める」**（4 ステップ pattern + guard 先行。詳細は `projects/architecture-debt-recovery/plan.md` §10.5）。
 
 > **要点**: widget は困るべきときに困る。困った事実を spec に書く。書かれた事実が上位層への改善要求になる。
+
+### 禁止パターンと、なぜ禁止か
+
+この原則を崩すと **局所改善** になり、**課題がすり替わる**。UI だけの都合で実装が進み、全体の一貫性が保てなくなるため。
+
+| 禁止パターン | なぜ禁止か |
+|---|---|
+| widget 側で workaround を書く（fallback / null 吸収 / 独自計算） | 局所改善。同じ pipeline 問題が他 widget でも個別に workaround されて、pipeline の病理が**表面化しなくなる** |
+| 「見える場所で直す」思考（UI に症状が出る → UI を直す） | 課題すり替え。症状の出る階層と原因の階層が違う場合に、症状を隠すだけで原因が残る |
+| UI 都合で domain / application を変更する | 本来の pipeline 設計意図が UI の都合で歪む。**原因階層の設計は UI の要求ではなく pipeline の整合で決まる**べき |
+| widget ごとに違う解決方法で同じ問題を処理 | 全体の一貫性喪失。widget A と widget B が同じ問題を違う方法で解決し、改修時に不整合化する |
+
+### 守るべき原則
+
+- **問題は原因の階層で解決する** — presentation で見えても、原因が application ならそこで直す
+- **widget は「気づく人」であり「解決する人」ではない** — 4 層依存ルール上、presentation は observer
+- widget の concern は**パイプライン全体設計の再考を起動する trigger**。個別対応ではなく、観察された複数 widget の concern を束ねて Phase 4 sub-project 化する
 >
 > 位置関係:
 >

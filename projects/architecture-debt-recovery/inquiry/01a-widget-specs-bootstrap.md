@@ -105,6 +105,20 @@
 - 改修案は書かない（例: 「readModel 化すべき」は Phase 4）
 - concern に改修責務層（application / domain / infrastructure のどこで直すべきか）の示唆を併記するのは**事実の一部**として許容する（その解釈は Phase 2 以降で検証）
 
+**禁止パターン（D8 を崩すと起きること）:**
+
+| 禁止 | なぜ |
+|---|---|
+| widget 側で workaround を書く | 局所改善。pipeline の病理が表面化しなくなり、同じ問題が他 widget でも個別 workaround されて全体不整合が固定化する |
+| 「見える場所で直す」思考（UI に症状 → UI を直す） | 課題すり替え。症状の出る階層と原因の階層が違う場合、症状を隠すだけで原因が残る |
+| UI 都合で domain / application を変更する | pipeline 設計意図が UI の都合で歪む。原因階層の設計は pipeline の整合で決まるべきで、UI 要求で決まるべきではない |
+| widget ごとに違う解決で同じ問題を処理 | 全体一貫性喪失。改修時に不整合が表出する |
+
+**守るべき原則:**
+- **問題は原因の階層で解決する** — presentation で見えても、原因が application なら application で直す
+- **widget は「気づく人」であり「解決する人」ではない**
+- concern は**パイプライン全体設計の再考を起動する trigger**。観察された複数 widget の concern を束ねて Phase 4 sub-project 化する
+
 ## bootstrap 時点の landed（本 commit）
 
 - `references/05-contents/README.md`（category 正本。位置付け + 3 軸 drift 防御 + frontmatter 共通スキーマ）
