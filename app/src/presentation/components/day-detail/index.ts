@@ -9,3 +9,4 @@
  */
 export { DayDetailModal } from './DayDetailModal'
 export type { CompMode } from './DayDetailSalesTab'
+export { PeriodDetailModal, type PeriodDetailModalProps } from './PeriodDetailModal'

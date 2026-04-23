@@ -515,6 +515,36 @@ export const HourlyBar = styled.div<{ $pct: number; $color: string }>`
     opacity: 1;
   }
 `
+
+/** 対比モード: 1 時間帯あたり 当年/前年 の 2 本 bar を並べるためのスロット */
+export const HourlyCompareSlot = styled.div`
+  flex: 1;
+  min-width: 0;
+  margin: 0 1px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  height: 100%;
+  cursor: pointer;
+`
+
+/** 対比モード: 個別 bar (当年 or 前年)。幅はスロット半分 */
+export const HourlyCompareBar = styled.div<{ $pct: number; $color: string }>`
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 2px 2px 0 0;
+  background: ${({ $color }) => $color};
+  opacity: 0.85;
+  height: ${({ $pct }) => Math.max($pct, 1)}%;
+  transition:
+    opacity 0.15s,
+    height 0.3s ease;
+  &:hover {
+    opacity: 1;
+  }
+`
 export const HourlyAxis = styled.div`
   display: flex;
   padding: 0 42px 0 4px;

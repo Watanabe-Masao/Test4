@@ -5,13 +5,13 @@ Project Overlay（案件運用状態）は `projects/<project-id>/aag/execution-
 
 ## ファイル構成
 
-| ファイル | 区分 | 責務 |
-|---|---|---|
-| `rules.ts` | **後方互換 facade** | 物理正本 `app-domain/gross-profit/rule-catalog/base-rules.ts` からの薄い re-export |
-| `merged.ts` | **Derived Artifact** | BaseRule + ExecutionOverlay を ruleId キーで合成 |
-| `index.ts` | **Facade**（consumer 入口） | 型 + 値 + helpers を 1 箇所から re-export |
-| `types.ts` | 型定義 | BaseRule / ArchitectureRule / PrincipleId 等 |
-| `helpers.ts` | ヘルパー関数 | getRuleById / formatViolationMessage / buildAagResponse 等 |
+| ファイル     | 区分                        | 責務                                                                               |
+| ------------ | --------------------------- | ---------------------------------------------------------------------------------- |
+| `rules.ts`   | **後方互換 facade**         | 物理正本 `app-domain/gross-profit/rule-catalog/base-rules.ts` からの薄い re-export |
+| `merged.ts`  | **Derived Artifact**        | BaseRule + ExecutionOverlay を ruleId キーで合成                                   |
+| `index.ts`   | **Facade**（consumer 入口） | 型 + 値 + helpers を 1 箇所から re-export                                          |
+| `types.ts`   | 型定義                      | BaseRule / ArchitectureRule / PrincipleId 等                                       |
+| `helpers.ts` | ヘルパー関数                | getRuleById / formatViolationMessage / buildAagResponse 等                         |
 
 **物理正本**: `app-domain/gross-profit/rule-catalog/base-rules.ts`
 BaseRule 配列は App Domain 側へ物理移動済み（C4 完了）。`@app-domain/*` alias 経由で参照される。
