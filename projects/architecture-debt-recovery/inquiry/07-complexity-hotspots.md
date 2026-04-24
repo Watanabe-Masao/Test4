@@ -80,7 +80,7 @@
 
 ## E. Budget Simulator reboot の残留項目（informed-by）
 
-`projects/budget-achievement-simulator/AI_CONTEXT.md` および本 project `AI_CONTEXT.md` の informed-by 節より、Budget Simulator reboot から継承された findings:
+`projects/completed/budget-achievement-simulator/AI_CONTEXT.md` および本 project `AI_CONTEXT.md` の informed-by 節より、Budget Simulator reboot から継承された findings:
 
 1. 2 つの `WidgetDef` 型並存（型 A / 型 B、詳細は inquiry/04）
 2. `UnifiedWidgetContext` の universal ctx / page-coupled ctx 非対称（`InsightData` / `costDetailData` / `selectedResults` の page-local optional 配置）

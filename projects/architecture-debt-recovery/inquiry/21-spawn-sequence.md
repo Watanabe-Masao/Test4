@@ -29,7 +29,7 @@
 | P-2 | 切替 PR（inquiry/20 §T0 → T1）merge | — |
 | P-3 | `architecture-debt-recovery.status: draft → active` | config/project.json |
 | P-4 | `CURRENT_PROJECT.md` を `architecture-debt-recovery` に切替 | — |
-| P-5 | `projects/budget-achievement-simulator/` を `projects/completed/` へ物理移動 | inquiry/19 archive 手順 |
+| P-5 | `projects/completed/budget-achievement-simulator/` を `projects/completed/` へ物理移動 | inquiry/19 archive 手順 |
 | P-6 | `open-issues.md` の active / archived 欄更新 | inquiry/20 §open-issues |
 
 Wave 0 完了後に Wave 1 spawn 可能。

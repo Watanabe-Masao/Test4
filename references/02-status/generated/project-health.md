@@ -3,15 +3,15 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-24T07:06:36.336Z
+> 生成: 2026-04-24T07:27:01.425Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 8 |
-| archived project 数 | 18 |
-| in_progress project 数 | 7 |
+| active project 数（archive 未実施を含む） | 7 |
+| archived project 数 | 19 |
+| in_progress project 数 | 6 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
@@ -27,7 +27,7 @@
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **in_progress** | — | 52/73 (71%) | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
-| `budget-achievement-simulator` | 予算達成シミュレーター | **in_progress** | — | 43/45 (96%) | [`projects/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/budget-achievement-simulator/AI_CONTEXT.md) |
+| `budget-achievement-simulator` | 予算達成シミュレーター | **archived** | — | 43/45 (96%) | [`projects/completed/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/completed/budget-achievement-simulator/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
 | `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **archived** | — | — | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
