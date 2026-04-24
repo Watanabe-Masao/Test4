@@ -58,14 +58,14 @@
 
 ## Phase 4: 改修計画
 
-* [ ] `inquiry/15-remediation-plan.md` を作成した（改修単位・依存順・影響範囲・4 ステップ pattern 記載）
-* [ ] `inquiry/16-breaking-changes.md` を作成した（破壊的変更の完全 list）
-* [ ] `inquiry/17-legacy-retirement.md` を作成した（レガシー撤退 list + 撤退期限）
-* [ ] `inquiry/18-sub-project-map.md` を作成した（sub-project の scope / 成功条件 / 依存順）
-* [ ] 全改修に「新実装 → 移行 → 削除 → guard」の 4 ステップが記載されている
-* [ ] 全改修にレガシー撤退が紐付いている（「新実装のみ追加」が存在しない）
-* [ ] 全破壊的変更に rollback 手順が記載されている
-* [ ] sub-project 依存グラフが閉路を含まない
+* [x] `inquiry/15-remediation-plan.md` を作成した（改修単位・依存順・影響範囲・4 ステップ pattern 記載）
+* [x] `inquiry/16-breaking-changes.md` を作成した（破壊的変更の完全 list）
+* [x] `inquiry/17-legacy-retirement.md` を作成した（レガシー撤退 list + 撤退期限）
+* [x] `inquiry/18-sub-project-map.md` を作成した（sub-project の scope / 成功条件 / 依存順）
+* [x] 全改修に「新実装 → 移行 → 削除 → guard」の 4 ステップが記載されている
+* [x] 全改修にレガシー撤退が紐付いている（「新実装のみ追加」が存在しない）
+* [x] 全破壊的変更に rollback 手順が記載されている
+* [x] sub-project 依存グラフが閉路を含まない
 * [ ] pm-business + architecture ロール合意
 * [ ] 人間承認: 破壊的変更 list と sub-project 立ち上げ順序
 
