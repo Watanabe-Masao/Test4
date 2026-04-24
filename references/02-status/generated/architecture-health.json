@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T09:36:36.845Z",
+  "timestamp": "2026-04-24T12:20:39.319Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 82,
+      "value": 83,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -330,6 +330,7 @@
         "app/src/test/guards/renderSideEffectGuard.test.ts",
         "app/src/test/guards/responsibilitySeparationGuard.test.ts",
         "app/src/test/guards/responsibilityTagGuard.test.ts",
+        "app/src/test/guards/reviewPolicyRequiredGuard.test.ts",
         "app/src/test/guards/salesFactPathGuard.test.ts",
         "app/src/test/guards/scopeAwareMutationGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
@@ -957,7 +958,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 565,
+      "value": 567,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

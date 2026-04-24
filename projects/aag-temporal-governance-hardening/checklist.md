@@ -8,7 +8,7 @@
 
 ## Phase 1: ADR-D-006 projectDocConsistencyGuard
 
-* [ ] PR1: guard 実装: HANDOFF 現在地と checklist 最大完了 Phase の整合検証
+* [x] PR1: guard 実装: HANDOFF 現在地と checklist 最大完了 Phase の整合検証
 * [ ] PR2: config/project.json.status vs derivedStatus の説明可能性検証
 * [ ] PR3: Phase 着手前の前 Phase review checkbox 残存検出
 * [ ] PR4: required inquiry file 一覧との突合 check
@@ -21,7 +21,7 @@
 
 ## Phase 3: ADR-D-001 reviewPolicy required 昇格（BC-6）
 
-* [ ] PR1: `reviewPolicyRequiredGuard` baseline=92 で追加
+* [x] PR1: `reviewPolicyRequiredGuard` baseline=92 で追加（実 baseline=139。Wave 0 で 9 SAFETY rule 付記 + 以降追加された rule を含む現状把握値）
 * [ ] PR2: 92 rule に reviewPolicy (owner / lastReviewedAt / reviewCadenceDays) bulk 追記
 * [ ] PR3: `RuleOperationalState.reviewPolicy` required 昇格（BC-6）+ baseline=0
 * [ ] PR4: expired rule を docs:check で fail させる lifecycle 監視追加
