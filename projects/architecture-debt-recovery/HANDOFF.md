@@ -5,7 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 1-5 完了 / Wave 0 切替 PR landed / Phase 6 Wave 1 着手可能。status: `active`（2026-04-23 昇格）。`CURRENT_PROJECT.md` = `architecture-debt-recovery`。**
+**Phase 1-5 完了 / Wave 0 切替 landed / Wave 1 3 sub-project spawn 済み（2026-04-23）。status: `active`。`CURRENT_PROJECT.md` = `architecture-debt-recovery`（sub-project 作業開始時に個別切替）。**
+
+### Wave 1 spawn 済み sub-project（本 commit）
+
+| id | lane | status | ADR / 推定 PR |
+|---|---|---|---|
+| `widget-context-boundary` | A | active | A-001〜A-004 / 16 PR |
+| `duplicate-orphan-retirement` | C | active | C-001〜C-004 / 14 PR |
+| `aag-temporal-governance-hardening` | D | active | D-001/002/005/006 先行 12 PR、D-003/004 Wave 2-3 |
+
+SP-B（widget-registry-simplification）は SP-A completed 後に Wave 2 で spawn。
 
 本 project は `budget-achievement-simulator` の reboot で表面化した widget 複雑化問題を起点に、
 **widget / pure 関数 / 型 / コンポーネント / データパイプライン / レガシー撤退** を

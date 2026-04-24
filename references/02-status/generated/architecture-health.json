@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T07:27:01.420Z",
+  "timestamp": "2026-04-24T07:43:16.568Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -703,7 +703,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 7,
+      "value": 10,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -717,6 +717,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -730,6 +731,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -739,7 +741,8 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ],
       "budget": 20
     },
@@ -779,6 +782,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -792,6 +796,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -801,14 +806,15 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 6,
+      "value": 9,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -822,6 +828,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -835,6 +842,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -844,7 +852,8 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ],
       "budget": 20
     },
@@ -866,6 +875,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -879,6 +889,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -888,7 +899,8 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ],
       "budget": 10
     },
@@ -896,7 +908,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 725,
+      "value": 814,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -910,6 +922,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -923,6 +936,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -932,7 +946,8 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ]
     },
     {
@@ -953,6 +968,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -966,6 +982,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -975,14 +992,15 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ]
     },
     {
       "id": "project.checklist.subprojectCount",
       "label": "サブ project 数（parent フィールドあり）",
       "category": "docs",
-      "value": 3,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -996,6 +1014,7 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
+        "projects/aag-temporal-governance-hardening/checklist.md",
         "projects/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
@@ -1009,6 +1028,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
+        "projects/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -1018,7 +1038,8 @@
         "projects/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
-        "projects/completed/unify-period-analysis/checklist.md"
+        "projects/completed/unify-period-analysis/checklist.md",
+        "projects/widget-context-boundary/checklist.md"
       ]
     }
   ],

@@ -11,7 +11,10 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `architecture-debt-recovery` | umbrella | アーキテクチャ負債回収（widget 起点の大型改修） — Phase 1-5 完了、Phase 6 で SP-A/B/C/D を順次 spawn | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
+| `architecture-debt-recovery` | umbrella | アーキテクチャ負債回収（widget 起点の大型改修） — Phase 1-5 完了、Phase 6 Wave 1 で 3 sub-project spawn 済 | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
+| `widget-context-boundary` | sub-project (SP-A) | widget / ctx 型境界再構築 — UnifiedWidgetContext page-local 剥離 / Dashboard 固有集約 / WidgetDef 2 型分離 / discriminated union 化 | [`projects/widget-context-boundary/AI_CONTEXT.md`](../../projects/widget-context-boundary/AI_CONTEXT.md) |
+| `duplicate-orphan-retirement` | sub-project (SP-C) | 複製 / orphan 撤退 — byte-identical widgets.tsx 解消 / useCostDetailData 単一正本化 / Tier D orphan 削除 / barrel metadata 必須化 | [`projects/duplicate-orphan-retirement/AI_CONTEXT.md`](../../projects/duplicate-orphan-retirement/AI_CONTEXT.md) |
+| `aag-temporal-governance-hardening` | sub-project (SP-D) | AAG / Temporal Governance 強化 — reviewPolicy 必須化 / allowlist metadata / G8 補強 / @deprecated metadata / generated remediation / projectDocConsistencyGuard | [`projects/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../projects/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
