@@ -1,19 +1,12 @@
 /**
- * architecture-debt-recovery Project Overlay — 空 overlay（draft 初期状態）
+ * architecture-debt-recovery Project Overlay — active 昇格時 reviewPolicy 整備
  *
- * 本 project は `status: "draft"` 初期化。active 昇格（Phase 5）までは
- * `CURRENT_PROJECT.md` から参照されないため、overlay は空で問題ない。
+ * 本 project は 2026-04-23 Phase 5 人間承認により draft → active 昇格。
+ * `CURRENT_PROJECT.md` = `architecture-debt-recovery` となったため、
+ * experimental rule の reviewPolicy 要件（architectureRuleGuard）を満たす必要がある。
  *
- * Phase 5 で active 昇格する際、experimental rule の reviewPolicy 要件
- * （architectureRuleGuard）を満たすため、必要な entry を追加する。
- * `projects/budget-achievement-simulator/aag/execution-overlay.ts` を参考に、
- * 以下のパターンを想定:
- *
- *   - AR-SAFETY-* 系（silent-catch / fire-forget / insert-verify / prod-validation /
- *     stale-store / worker-timeout）に reviewPolicy + executionPlan + fixNow
- *   - AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION
- *   - AR-CURRENT-CANDIDATE-SEPARATION
- *   - AR-REGISTRY-SINGLE-MASTER
+ * `projects/completed/budget-achievement-simulator/aag/execution-overlay.ts` と
+ * 同構造で、現 architecture owner が 30 日周期で review する規律を確立。
  *
  * 合成ロジック: app/src/test/architectureRules/merged.ts
  * 解決順序: project overlay → DEFAULT_EXECUTION_OVERLAY → error
@@ -25,7 +18,7 @@
  * 参照:
  * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  * - references/03-guides/governance-final-placement-plan.md
- * - projects/budget-achievement-simulator/aag/execution-overlay.ts（Phase 5 で参照）
+ * - projects/completed/budget-achievement-simulator/aag/execution-overlay.ts（参照元）
  *
  * @responsibility R:utility
  */
@@ -50,11 +43,64 @@ export type ExecutionOverlay = {
   readonly [ruleId: string]: RuleExecutionOverlayEntry
 }
 
+const SAFETY_REVIEW_POLICY: ReviewPolicy = {
+  owner: 'architecture',
+  lastReviewedAt: '2026-04-23',
+  reviewCadenceDays: 30,
+}
+
 /**
- * draft 初期状態 — overlay は空。
+ * experimental なルールには `reviewPolicy` が必須（architectureRuleGuard）。
+ * 本 project が active の間は architecture owner が 30 日周期で review する。
  *
- * active 昇格時（Phase 5）に budget-achievement-simulator の overlay と同等の
- * entry 群を追加する想定。その時点で本 project の `architecture` owner が
- * review policy を持つ。
+ * 値は projects/completed/budget-achievement-simulator/aag/execution-overlay.ts のコピー。
+ * executionOverlayGuard が executionPlan + fixNow の両必須を要求するため、
+ * reviewPolicy のみの上書きにせず defaults.ts の値をそのまま再指定している。
  */
-export const EXECUTION_OVERLAY: ExecutionOverlay = {}
+export const EXECUTION_OVERLAY: ExecutionOverlay = {
+  'AR-SAFETY-SILENT-CATCH': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-FIRE-FORGET': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 3 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-INSERT-VERIFY': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-PROD-VALIDATION': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 3 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-STALE-STORE': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SAFETY-WORKER-TIMEOUT': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 4 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 2 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-CURRENT-CANDIDATE-SEPARATION': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+  'AR-REGISTRY-SINGLE-MASTER': {
+    fixNow: 'review',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: SAFETY_REVIEW_POLICY,
+  },
+}

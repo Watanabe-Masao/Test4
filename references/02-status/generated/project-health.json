@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T00:50:33.805Z",
+  "timestamp": "2026-04-24T09:36:36.850Z",
   "summary": {
-    "active": 8,
-    "archived": 18,
-    "inProgress": 7,
+    "active": 10,
+    "archived": 19,
+    "inProgress": 9,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 725,
-    "checkedCheckboxes": 545
+    "totalCheckboxes": 814,
+    "checkedCheckboxes": 565
   },
   "projects": [
     {
@@ -52,14 +52,27 @@
       "parent": null
     },
     {
+      "projectId": "aag-temporal-governance-hardening",
+      "title": "AAG / Temporal Governance 強化（SP-D）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 29,
+      "progress": 0,
+      "entrypoint": "projects/aag-temporal-governance-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-temporal-governance-hardening/checklist.md",
+      "parent": "architecture-debt-recovery"
+    },
+    {
       "projectId": "architecture-debt-recovery",
       "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
       "kind": "project",
-      "declaredStatus": "draft",
+      "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 32,
+      "checked": 52,
       "total": 73,
-      "progress": 0.438,
+      "progress": 0.712,
       "entrypoint": "projects/architecture-debt-recovery/AI_CONTEXT.md",
       "checklistPath": "projects/architecture-debt-recovery/checklist.md",
       "parent": null
@@ -81,13 +94,13 @@
       "projectId": "budget-achievement-simulator",
       "title": "予算達成シミュレーター",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
+      "declaredStatus": "completed",
+      "derivedStatus": "archived",
       "checked": 43,
       "total": 45,
       "progress": 0.956,
-      "entrypoint": "projects/budget-achievement-simulator/AI_CONTEXT.md",
-      "checklistPath": "projects/budget-achievement-simulator/checklist.md",
+      "entrypoint": "projects/completed/budget-achievement-simulator/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/budget-achievement-simulator/checklist.md",
       "parent": null
     },
     {
@@ -221,6 +234,19 @@
       "parent": null
     },
     {
+      "projectId": "duplicate-orphan-retirement",
+      "title": "複製 / orphan 撤退（SP-C）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 25,
+      "progress": 0,
+      "entrypoint": "projects/duplicate-orphan-retirement/AI_CONTEXT.md",
+      "checklistPath": "projects/duplicate-orphan-retirement/checklist.md",
+      "parent": "architecture-debt-recovery"
+    },
+    {
       "projectId": "phase-6-optional-comparison-projection",
       "title": "Phase 6 optional — comparison subsystem projection context",
       "kind": "project",
@@ -349,6 +375,19 @@
       "entrypoint": "projects/completed/unify-period-analysis/AI_CONTEXT.md",
       "checklistPath": "projects/completed/unify-period-analysis/checklist.md",
       "parent": null
+    },
+    {
+      "projectId": "widget-context-boundary",
+      "title": "widget / ctx 型境界再構築（SP-A）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 35,
+      "progress": 0,
+      "entrypoint": "projects/widget-context-boundary/AI_CONTEXT.md",
+      "checklistPath": "projects/widget-context-boundary/checklist.md",
+      "parent": "architecture-debt-recovery"
     }
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "$comment": "architecture-debt-recovery umbrella の Lane C sub-project。複製 / orphan / barrel 残存の撤退 project。parent: architecture-debt-recovery。2026-04-23 Phase 6 Wave 1 で spawn。",
+  "projectId": "duplicate-orphan-retirement",
+  "title": "複製 / orphan 撤退（SP-C）",
+  "status": "active",
+  "parent": "architecture-debt-recovery",
+  "projectRoot": "projects/duplicate-orphan-retirement",
+  "entrypoints": {
+    "aiContext": "projects/duplicate-orphan-retirement/AI_CONTEXT.md",
+    "handoff": "projects/duplicate-orphan-retirement/HANDOFF.md",
+    "plan": "projects/duplicate-orphan-retirement/plan.md",
+    "checklist": "projects/duplicate-orphan-retirement/checklist.md"
+  }
+}

@@ -1,5 +1,5 @@
 # Current Project
 
-active: budget-achievement-simulator
+active: architecture-debt-recovery
 
-entry: `projects/budget-achievement-simulator/AI_CONTEXT.md`
+entry: `projects/architecture-debt-recovery/AI_CONTEXT.md`

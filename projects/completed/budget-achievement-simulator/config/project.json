@@ -1,0 +1,14 @@
+{
+  "$comment": "予算達成シミュレーター — Claude Design でプロトタイプ化した新規画面を本体に移植する project。architecture-debt-recovery Phase 5 承認（2026-04-23）で completed。後続の widget/ctx 構造負債は umbrella project へ引き継ぎ（SUMMARY.md 参照）。",
+  "projectId": "budget-achievement-simulator",
+  "title": "予算達成シミュレーター",
+  "status": "completed",
+  "projectRoot": "projects/completed/budget-achievement-simulator",
+  "entrypoints": {
+    "aiContext": "projects/completed/budget-achievement-simulator/AI_CONTEXT.md",
+    "handoff": "projects/completed/budget-achievement-simulator/HANDOFF.md",
+    "plan": "projects/completed/budget-achievement-simulator/plan.md",
+    "checklist": "projects/completed/budget-achievement-simulator/checklist.md",
+    "summary": "projects/completed/budget-achievement-simulator/SUMMARY.md"
+  }
+}

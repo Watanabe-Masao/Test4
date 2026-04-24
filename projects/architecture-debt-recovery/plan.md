@@ -40,7 +40,7 @@
 
 ### 既存との関係
 
-- `projects/budget-achievement-simulator/` — **informed-by**（findings 提供元）。本 project の `parent` ではなく、独立 project として Phase 5 まで尊重する
+- `projects/completed/budget-achievement-simulator/` — **informed-by**（findings 提供元）。本 project の `parent` ではなく、独立 project として Phase 5 まで尊重する
 - `references/01-principles/design-principles.md` — 既存 9 カテゴリ原則。Phase 3 で差分を候補提示する（既存原則の破棄・上書きは人間承認後）
 - `references/01-principles/adaptive-architecture-governance.md` — AAG 3 層サイクル。本 project の枠組みそのもの
 - Phase 6 で spawn する sub-project — 本 project を `parent` とする
@@ -90,7 +90,7 @@
 #### 入力
 
 - 現 codebase（`app/src/` 全域）
-- `projects/budget-achievement-simulator/` の HANDOFF / plan（findings 提供）
+- `projects/completed/budget-achievement-simulator/` の HANDOFF / plan（findings 提供）
 - `references/02-status/generated/architecture-health.json`（現 KPI）
 - 既存 guard / allowlist（ratchet 状態の確認）
 
@@ -242,7 +242,7 @@
 #### 入力
 
 - Phase 4 の改修計画 / sub-project map
-- `projects/budget-achievement-simulator/` の現状（HANDOFF / checklist）
+- `projects/completed/budget-achievement-simulator/` の現状（HANDOFF / checklist）
 - `references/02-status/open-issues.md` の active projects 表
 
 #### 成果物
@@ -264,7 +264,7 @@
 
 **限定的**:
 
-- `projects/budget-achievement-simulator/` の **project ファイル**（HANDOFF / checklist / config）のみ
+- `projects/completed/budget-achievement-simulator/` の **project ファイル**（HANDOFF / checklist / config）のみ
 - ここでも **コード本体は触らない**（Phase 6 でのみ）
 - 破壊的変更は:
   - `budget-achievement-simulator` の archive 移動（`projects/completed/` へ）
@@ -658,7 +658,7 @@ sub-project の `config/project.json`:
 
 | パス | 関係 |
 |---|---|
-| `projects/budget-achievement-simulator/` | informed-by（findings 提供元）。Phase 5 まで touch 禁止 |
+| `projects/completed/budget-achievement-simulator/` | informed-by（findings 提供元）。Phase 5 まで touch 禁止 |
 | `projects/<sub-project-id>/` | Phase 6 で spawn される sub-project 群 |
 | `projects/completed/` | Phase 7 で本 project がここに移動 |
 

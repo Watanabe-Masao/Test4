@@ -11,6 +11,10 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
+| `architecture-debt-recovery` | umbrella | アーキテクチャ負債回収（widget 起点の大型改修） — Phase 1-5 完了、Phase 6 Wave 1 で 3 sub-project spawn 済 | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
+| `widget-context-boundary` | sub-project (SP-A) | widget / ctx 型境界再構築 — UnifiedWidgetContext page-local 剥離 / Dashboard 固有集約 / WidgetDef 2 型分離 / discriminated union 化 | [`projects/widget-context-boundary/AI_CONTEXT.md`](../../projects/widget-context-boundary/AI_CONTEXT.md) |
+| `duplicate-orphan-retirement` | sub-project (SP-C) | 複製 / orphan 撤退 — byte-identical widgets.tsx 解消 / useCostDetailData 単一正本化 / Tier D orphan 削除 / barrel metadata 必須化 | [`projects/duplicate-orphan-retirement/AI_CONTEXT.md`](../../projects/duplicate-orphan-retirement/AI_CONTEXT.md) |
+| `aag-temporal-governance-hardening` | sub-project (SP-D) | AAG / Temporal Governance 強化 — reviewPolicy 必須化 / allowlist metadata / G8 補強 / @deprecated metadata / generated remediation / projectDocConsistencyGuard | [`projects/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../projects/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
@@ -35,6 +39,7 @@
 | `category-leaf-daily-entry-shape-break` | 2026-04-20 | CategoryLeafDailyEntry 独立構造化 — Phase 1 (intersection + flat field 並行提供) → Phase 2 (field surface guard 新設 / baseline 7) → Phase 3 (4 batches で 48 refs / 7 ファイル flat field 置換) → Phase 4 (intersection → 独立 interface 昇格 / nested field 型レベル消滅) → Phase 5 (field surface guard 固定モード化)。2 層防御 (import surface + field surface 両方 baseline 0 固定) 完成 | [`projects/completed/category-leaf-daily-entry-shape-break/`](../../projects/completed/category-leaf-daily-entry-shape-break/) |
 | `chart-color-alignment` | 2026-04-20 | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize + 累計率 subtype 追加。theme.ts / tokens.ts / DiscountTrendChart.tsx / v2.1 DS CSS + docs + preview を一貫した 3 層 (palette → ChartSemanticColors → chart component) に整備 | [`projects/completed/chart-color-alignment/`](../../projects/completed/chart-color-alignment/) |
 | `design-system-v2-1-asset` | 2026-04-20 | Design System v2.1 外部 documentation layer 配置 — `references/04-design-system/` に 49 ファイル (README / SKILL / docs / preview / ui_kits / assets / CSS) を正本として配置。本体コードは無変更 | [`projects/completed/design-system-v2-1-asset/`](../../projects/completed/design-system-v2-1-asset/) |
+| `budget-achievement-simulator` | 2026-04-23 | 予算達成シミュレーター widget reboot — `BudgetSimulatorWidget` を `features/budget/ui/` に実装、`DayDetailModal`/`PeriodDetailModal` shared 化、Dashboard `MonthlyCalendar` 撤去。reboot 過程で surface した widget/ctx 構造負債 7 項目は umbrella `architecture-debt-recovery` が引き継いで体系回収 (SP-A/B/C/D) | [`projects/completed/budget-achievement-simulator/`](../../projects/completed/budget-achievement-simulator/) |
 
 ## 課題発見時のフロー
 
