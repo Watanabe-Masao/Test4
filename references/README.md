@@ -23,9 +23,51 @@
 |---|---|---|
 | `WID-001.md` | 店別予算達成状況 | Dashboard-local 最小構成 pilot（isVisible predicate + 単一 children） |
 | `WID-002.md` | 日別売上チャート | Dashboard-local 17-field ctx 展開 pilot（props + full ctx 二重注入） |
+| `WID-003.md` | 粗利推移チャート | Dashboard-local、registry file 内 pure helper 使用 |
+| `WID-004.md` | 時間帯×曜日ヒートマップ | Dashboard-local、isVisible 関数参照 + full ctx passthrough |
+| `WID-005.md` | 店舗別時間帯比較 | Dashboard-local、UnifiedStoreHourlyWidget 委譲 |
+| `WID-006.md` | 売上・仕入 店舗比較 | Dashboard-local、render 内 inline logic + lane 経由 |
+| `WID-007.md` | 天気-売上 相関分析 | Dashboard-local、WeatherWidget 委譲 |
+| `WID-008.md` | アラート | Dashboard-local、AlertPanelWidget 委譲 |
+| `WID-009.md` | 曜日平均 | Dashboard-local、renderDowAverage 委譲 |
+| `WID-010.md` | 週別サマリー | Dashboard-local、renderWeeklySummary 委譲 |
+| `WID-011.md` | 売上・売変・客数（日別×店舗） | Dashboard-local、linkTo daily |
+| `WID-012.md` | 日別推定在庫 | Dashboard-local、`computeEstimatedInventory` permanent floor |
+| `WID-013.md` | 店舗別KPI一覧 | Dashboard-local、linkTo reports |
+| `WID-014.md` | 着地予測・ゴールシーク | Dashboard-local、ForecastToolsWidget 委譲 |
+| `WID-015.md` | 粗利ウォーターフォール | Dashboard-local、WaterfallChartWidget 委譲、linkTo insight/decomposition |
+| `WID-016.md` | 粗利率ヒートマップ | Dashboard-local、GrossProfitHeatmapWidget 委譲 |
+| `WID-017.md` | 客数×客単価 効率分析 | Dashboard-local、6-field destructuring |
+| `WID-018.md` | PI値・偏差値・Zスコア | Dashboard-local、16-field + IIFE 2 箇所 |
+| `WID-019.md` | カテゴリPI値・偏差値 | 常時非可視（isVisible false）、統合済みの residual |
+| `WID-020.md` | 因果チェーン分析 | Dashboard-local、inline object literal + 3 null hardcode |
+| `WID-021.md` | 感度分析ダッシュボード | Dashboard-local、IIFE 経由 customerFact |
+| `WID-022.md` | 回帰分析インサイト | Dashboard-local、minimal 3-field |
+| `WID-023.md` | 季節性ベンチマーク | Dashboard-local、prop rename pattern |
+| `WID-024.md` | 売上トレンド分析 | Dashboard-local、DuckDB 3 点セット + isReady gate |
+| `WID-025.md` | 曜日パターン分析 | Dashboard-local、DuckDB、size half 唯一 |
+| `WID-026.md` | カテゴリ構成比推移 | Dashboard-local、DuckDB、2 条件 AND predicate |
+| `WID-027.md` | カテゴリベンチマーク | Dashboard-local、DuckDB |
+| `WID-028.md` | カテゴリ箱ひげ図 | Dashboard-local、DuckDB |
+| `WID-029.md` | CV時系列分析 | Dashboard-local、DuckDB、group 構造分析 |
+| `WID-030.md` | 粗利率トレンド | Unified、Daily page、6-field |
+| `WID-031.md` | シャープリー時系列 | Unified、Daily page、hasPrevYear gate + 二重判定 |
+| `WID-032.md` | 予算と実績（Insight） | Unified、insightData 二重 null check |
+| `WID-033.md` | 予算達成シミュレーター | Unified、features/budget 由来、core required result に null check |
+| `WID-034.md` | 損益構造（Insight） | Unified、WID-032 と同構造 |
+| `WID-035.md` | 予測・パターン | Unified、sub-path forecastData gate |
+| `WID-036.md` | 売上要因分解 | Unified、複合 predicate |
+| `WID-037.md` | カテゴリベンチマーク（Insight） | Unified、DuckDB、3 重防御 |
+| `WID-038.md` | カテゴリ合計分析 | Unified、Category page、6-field + default 適用 |
+| `WID-039.md` | 店舗間比較（Category） | Unified、型 assertion + 2 店舗以上 gate |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
+| `WID-041.md` | 仕入明細 | Unified、costDetailData 二重 null check |
+| `WID-042.md` | 移動明細 | Unified、WID-041 と完全同構造 |
+| `WID-043.md` | 消耗品明細 | Unified、onExplain 追加差分のみ |
+| `WID-044.md` | レポートサマリー | Unified core required only、clean pattern |
+| `WID-045.md` | 部門別KPI | Unified core required only、45 件最終 entry |
 
-（残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
+**45 widget 全件 landed**。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照。
 
 ## 正本一覧
 

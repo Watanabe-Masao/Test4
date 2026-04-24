@@ -638,8 +638,176 @@
           "label": "WID-002 日別売上チャート — Dashboard-local 17-field ctx 展開 pilot"
         },
         {
+          "path": "references/05-contents/widgets/WID-003.md",
+          "label": "WID-003 粗利推移チャート — Dashboard-local、registry 内 pure helper 使用"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-004.md",
+          "label": "WID-004 時間帯×曜日ヒートマップ — Dashboard-local、isVisible 関数参照 + full ctx passthrough"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-005.md",
+          "label": "WID-005 店舗別時間帯比較 — Dashboard-local、UnifiedStoreHourlyWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-006.md",
+          "label": "WID-006 売上・仕入 店舗比較 — Dashboard-local、render 内 inline logic + lane 経由"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-007.md",
+          "label": "WID-007 天気-売上 相関分析 — Dashboard-local、WeatherWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-008.md",
+          "label": "WID-008 アラート — Dashboard-local、storeKey + AlertPanelWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-009.md",
+          "label": "WID-009 曜日平均 — Dashboard-local、renderDowAverage 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-010.md",
+          "label": "WID-010 週別サマリー — Dashboard-local、renderWeeklySummary 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-011.md",
+          "label": "WID-011 売上・売変・客数（日別×店舗）— Dashboard-local、linkTo daily"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-012.md",
+          "label": "WID-012 日別推定在庫 — Dashboard-local、computeEstimatedInventory permanent floor"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-013.md",
+          "label": "WID-013 店舗別KPI一覧 — Dashboard-local、linkTo reports"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-014.md",
+          "label": "WID-014 着地予測・ゴールシーク — Dashboard-local、ForecastToolsWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-015.md",
+          "label": "WID-015 粗利ウォーターフォール — Dashboard-local、WaterfallChartWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-016.md",
+          "label": "WID-016 粗利率ヒートマップ — Dashboard-local、GrossProfitHeatmapWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-017.md",
+          "label": "WID-017 客数×客単価 効率分析 — Dashboard-local、CustomerScatterChart"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-018.md",
+          "label": "WID-018 PI値・偏差値・Zスコア — Dashboard-local、16-field ctx + IIFE 2 箇所"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-019.md",
+          "label": "WID-019 カテゴリPI値・偏差値 — 常時非可視（isVisible false）"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-020.md",
+          "label": "WID-020 因果チェーン分析 — Dashboard-local、inline object literal + 3 null hardcode"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-021.md",
+          "label": "WID-021 感度分析ダッシュボード — Dashboard-local、IIFE 経由 customerFact"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-022.md",
+          "label": "WID-022 回帰分析インサイト — Dashboard-local、minimal 3-field"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-023.md",
+          "label": "WID-023 季節性ベンチマーク — Dashboard-local、prop rename pattern"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-024.md",
+          "label": "WID-024 売上トレンド分析 — Dashboard-local、DuckDB 3 点セット + isReady gate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-025.md",
+          "label": "WID-025 曜日パターン分析 — Dashboard-local、DuckDB、size half 唯一"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-026.md",
+          "label": "WID-026 カテゴリ構成比推移 — Dashboard-local、DuckDB、2 条件 AND predicate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-027.md",
+          "label": "WID-027 カテゴリベンチマーク — Dashboard-local、DuckDB"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-028.md",
+          "label": "WID-028 カテゴリ箱ひげ図 — Dashboard-local、DuckDB"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-029.md",
+          "label": "WID-029 CV時系列分析 — Dashboard-local、DuckDB、group 構造分析"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-030.md",
+          "label": "WID-030 粗利率トレンド — Unified、Daily page、6-field"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-031.md",
+          "label": "WID-031 シャープリー時系列 — Unified、Daily page、hasPrevYear gate + 二重判定"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-032.md",
+          "label": "WID-032 予算と実績 — Unified、Insight page、insightData 二重 null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-033.md",
+          "label": "WID-033 予算達成シミュレーター — Unified、features/budget 由来、core required result に null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-034.md",
+          "label": "WID-034 損益構造 — Unified、Insight page、WID-032 と同構造"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-035.md",
+          "label": "WID-035 予測・パターン — Unified、Insight page、sub-path forecastData gate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-036.md",
+          "label": "WID-036 売上要因分解 — Unified、Insight page、複合 predicate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-037.md",
+          "label": "WID-037 カテゴリベンチマーク（Insight） — Unified、DuckDB、3 重防御"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-038.md",
+          "label": "WID-038 カテゴリ合計分析 — Unified、Category page、6-field + default 適用"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-039.md",
+          "label": "WID-039 店舗間比較（Category） — Unified、型 assertion + 2 店舗以上 gate"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-041.md",
+          "label": "WID-041 仕入明細 — Unified、costDetailData 二重 null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-042.md",
+          "label": "WID-042 移動明細 — Unified、WID-041 と完全同構造"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-043.md",
+          "label": "WID-043 消耗品明細 — Unified、onExplain 追加差分のみ"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-044.md",
+          "label": "WID-044 レポートサマリー — Unified core required only、clean pattern"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-045.md",
+          "label": "WID-045 部門別KPI — Unified core required only、45 件最終 entry"
         }
       ]
     }

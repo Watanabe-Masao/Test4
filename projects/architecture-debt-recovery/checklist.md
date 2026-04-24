@@ -36,24 +36,24 @@
 
 ## Phase 2: 真因分析
 
-* [ ] `inquiry/09-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
-* [ ] `inquiry/10-hypothesis-interaction.md` を作成した（仮説間の相互作用）
-* [ ] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
-* [ ] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
-* [ ] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
+* [x] `inquiry/09-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
+* [x] `inquiry/10-hypothesis-interaction.md` を作成した（仮説間の相互作用）
+* [x] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
+* [x] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
+* [x] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
 * [ ] architecture ロール review 完了
-* [ ] Phase 2 期間中にコード変更を一切行わなかったことを `git log` で確認した
+* [x] Phase 2 期間中にコード変更を一切行わなかったことを `git log` で確認した
 
 ## Phase 3: 原則制定
 
-* [ ] `inquiry/12-principle-candidates.md` を作成した（設計原則 v2 候補）
-* [ ] `inquiry/13-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
-* [ ] `inquiry/14-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
-* [ ] 各原則候補に対応する真因仮説（Phase 2）が紐付いている
-* [ ] 各原則候補に既存 9 カテゴリとの差分（追加 / 上書き / 削除）が明記されている
-* [ ] 各原則候補に機械検出方法の粗設計が記載されている
-* [ ] 各原則候補に sunsetCondition が記載されている
-* [ ] 本 Phase では `references/01-principles/` / `docs/contracts/principles.json` を一切 touch していないことを確認した
+* [x] `inquiry/12-principle-candidates.md` を作成した（設計原則 v2 候補）
+* [x] `inquiry/13-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
+* [x] `inquiry/14-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
+* [x] 各原則候補に対応する真因仮説（Phase 2）が紐付いている
+* [x] 各原則候補に既存 9 カテゴリとの差分（追加 / 上書き / 削除）が明記されている
+* [x] 各原則候補に機械検出方法の粗設計が記載されている
+* [x] 各原則候補に sunsetCondition が記載されている
+* [x] 本 Phase では `references/01-principles/` / `docs/contracts/principles.json` を一切 touch していないことを確認した
 * [ ] architecture ロール review 完了
 
 ## Phase 4: 改修計画
