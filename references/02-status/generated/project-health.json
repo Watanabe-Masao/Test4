@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T20:54:07.882Z",
+  "timestamp": "2026-04-24T21:15:29.906Z",
   "summary": {
     "active": 10,
     "archived": 19,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 814,
-    "checkedCheckboxes": 594
+    "checkedCheckboxes": 596
   },
   "projects": [
     {
@@ -57,9 +57,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 13,
+      "checked": 15,
       "total": 29,
-      "progress": 0.448,
+      "progress": 0.517,
       "entrypoint": "projects/aag-temporal-governance-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/aag-temporal-governance-hardening/checklist.md",
       "parent": "architecture-debt-recovery"
@@ -75,7 +75,11 @@
       "progress": 0.712,
       "entrypoint": "projects/architecture-debt-recovery/AI_CONTEXT.md",
       "checklistPath": "projects/architecture-debt-recovery/checklist.md",
-      "parent": null
+      "parent": null,
+      "generatedArtifacts": {
+        "remediationJson": "references/02-status/generated/architecture-debt-recovery-remediation.json",
+        "remediationMd": "references/02-status/generated/architecture-debt-recovery-remediation.md"
+      }
     },
     {
       "projectId": "architecture-decision-backlog",

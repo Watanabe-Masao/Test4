@@ -16,8 +16,8 @@
 ## Phase 2: ADR-D-005 generated remediation
 
 * [x] PR1: collector 実装 + initial generation（`references/02-status/generated/architecture-debt-recovery-remediation.{md,json}`）
-* [ ] PR2: project-health.json 参照追加
-* [ ] PR3: docs:check drift 検出組み込み
+* [x] PR2: project-health.json 参照追加（architecture-debt-recovery entry に generatedArtifacts.remediationJson / .remediationMd へのリンクを追加）
+* [x] PR3: docs:check drift 検出組み込み（remediation.json の itemCount/BC/LEG/SP count と inquiry 実態の乖離を hard fail に）
 
 ## Phase 3: ADR-D-001 reviewPolicy required 昇格（BC-6）
 
