@@ -1,3 +1,14 @@
+/**
+ * @canonical features/cost-detail/application/useCostDetailData
+ *
+ * 仕入詳細ページの状態 + 派生値統合 hook の **正本**。
+ * presentation/pages/CostDetail/useCostDetailData.ts は ADR-C-002 PR3 で削除予定の
+ * 旧複製（hookCanonicalPathGuard baseline=1 で ratchet-down 中）。
+ *
+ * 参照:
+ * - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-C-002
+ * - app/src/test/guards/hookCanonicalPathGuard.test.ts
+ */
 import { useState, useMemo } from 'react'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection } from '@/application/hooks/ui'
