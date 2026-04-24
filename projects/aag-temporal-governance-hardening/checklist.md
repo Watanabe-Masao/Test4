@@ -9,9 +9,9 @@
 ## Phase 1: ADR-D-006 projectDocConsistencyGuard
 
 * [x] PR1: guard 実装: HANDOFF 現在地と checklist 最大完了 Phase の整合検証
-* [ ] PR2: config/project.json.status vs derivedStatus の説明可能性検証
-* [ ] PR3: Phase 着手前の前 Phase review checkbox 残存検出
-* [ ] PR4: required inquiry file 一覧との突合 check
+* [x] PR2: config/project.json.status vs derivedStatus の説明可能性検証（D3 test 追加）
+* [x] PR3: Phase 着手前の前 Phase review checkbox 残存検出（PR1 で実装済 D2 test がカバー）
+* [x] PR4: required inquiry file 一覧との突合 check（D4 test 追加、plan.md 内 inquiry 参照の実在確認）
 
 ## Phase 2: ADR-D-005 generated remediation
 
