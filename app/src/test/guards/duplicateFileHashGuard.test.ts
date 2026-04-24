@@ -32,23 +32,14 @@ import { collectTsFiles } from '../guardTestHelpers'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 
-const BASELINE_DUPLICATE_GROUP_COUNT = 3
+const BASELINE_DUPLICATE_GROUP_COUNT = 0
 
 /**
  * 既知の duplicate group。各 group は byte-identical な .tsx の絶対 path 集合。
- * ADR-C-001 PR2 完了後（barrel 化）に group が解消され、PR4 で 0 到達。
+ * ADR-C-001 PR2 (2026-04-24) で features 側 widgets.tsx を barrel re-export shim
+ * に置換したため 3 group 全て解消。PR3 で shim 物理削除、PR4 で fixed mode。
  */
-const KNOWN_DUPLICATE_GROUPS: ReadonlyArray<readonly string[]> = [
-  // group 1: features/category/ui/widgets.tsx ↔ presentation/pages/Category/widgets.tsx
-  ['app/src/features/category/ui/widgets.tsx', 'app/src/presentation/pages/Category/widgets.tsx'],
-  // group 2: features/cost-detail/ui/widgets.tsx ↔ presentation/pages/CostDetail/widgets.tsx
-  [
-    'app/src/features/cost-detail/ui/widgets.tsx',
-    'app/src/presentation/pages/CostDetail/widgets.tsx',
-  ],
-  // group 3: features/reports/ui/widgets.tsx ↔ presentation/pages/Reports/widgets.tsx
-  ['app/src/features/reports/ui/widgets.tsx', 'app/src/presentation/pages/Reports/widgets.tsx'],
-]
+const KNOWN_DUPLICATE_GROUPS: ReadonlyArray<readonly string[]> = []
 
 const md5 = (content: string): string => createHash('md5').update(content).digest('hex')
 

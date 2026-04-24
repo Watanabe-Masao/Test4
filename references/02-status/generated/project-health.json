@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T13:51:39.161Z",
+  "timestamp": "2026-04-24T14:04:09.469Z",
   "summary": {
     "active": 10,
     "archived": 19,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 814,
-    "checkedCheckboxes": 574
+    "checkedCheckboxes": 575
   },
   "projects": [
     {
@@ -239,9 +239,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 4,
+      "checked": 5,
       "total": 25,
-      "progress": 0.16,
+      "progress": 0.2,
       "entrypoint": "projects/duplicate-orphan-retirement/AI_CONTEXT.md",
       "checklistPath": "projects/duplicate-orphan-retirement/checklist.md",
       "parent": "architecture-debt-recovery"
