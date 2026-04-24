@@ -9,7 +9,7 @@
 
 ## Phase 1: ADR-C-001 — features/*/ui/widgets.tsx 3 件 byte-identical 解消
 
-* [ ] PR1: `duplicateFileHashGuard` を baseline=3 で追加した
+* [x] PR1: `duplicateFileHashGuard` を baseline=3 で追加した
 * [ ] PR2: 3 file を barrel re-export 化し `@canonical` JSDoc を付記した
 * [ ] PR3: consumer grep で features/ 経由 import 0 を確認後、3 file を削除した（barrel 化のみで consumer 0 の場合）
 * [ ] PR4: `duplicateFileHashGuard` baseline=0 に更新し fixed mode 化した
