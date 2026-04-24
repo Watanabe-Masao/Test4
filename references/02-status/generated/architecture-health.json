@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T08:05:59.907Z",
+  "timestamp": "2026-04-24T08:53:10.655Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -310,6 +310,7 @@
         "app/src/test/guards/noNewDebtGuard.test.ts",
         "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
+        "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/phase6SummarySwapGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
@@ -318,7 +319,6 @@
         "app/src/test/guards/presentationIsolationGuard.test.ts",
         "app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts",
         "app/src/test/guards/projectCompletionConsistencyGuard.test.ts",
-        "app/src/test/guards/projectDocConsistencyGuard.test.ts",
         "app/src/test/guards/projectDocStructureGuard.test.ts",
         "app/src/test/guards/projectStructureGuard.test.ts",
         "app/src/test/guards/purchaseCostImportGuard.test.ts",
