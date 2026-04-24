@@ -726,6 +726,26 @@
           "label": "WID-024 売上トレンド分析 — Dashboard-local、DuckDB 3 点セット + isReady gate"
         },
         {
+          "path": "references/05-contents/widgets/WID-025.md",
+          "label": "WID-025 曜日パターン分析 — Dashboard-local、DuckDB、size half 唯一"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-026.md",
+          "label": "WID-026 カテゴリ構成比推移 — Dashboard-local、DuckDB、2 条件 AND predicate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-027.md",
+          "label": "WID-027 カテゴリベンチマーク — Dashboard-local、DuckDB"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-028.md",
+          "label": "WID-028 カテゴリ箱ひげ図 — Dashboard-local、DuckDB"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-029.md",
+          "label": "WID-029 CV時系列分析 — Dashboard-local、DuckDB、group 構造分析"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }

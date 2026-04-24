@@ -45,6 +45,11 @@
 | `WID-022.md` | 回帰分析インサイト | Dashboard-local、minimal 3-field |
 | `WID-023.md` | 季節性ベンチマーク | Dashboard-local、prop rename pattern |
 | `WID-024.md` | 売上トレンド分析 | Dashboard-local、DuckDB 3 点セット + isReady gate |
+| `WID-025.md` | 曜日パターン分析 | Dashboard-local、DuckDB、size half 唯一 |
+| `WID-026.md` | カテゴリ構成比推移 | Dashboard-local、DuckDB、2 条件 AND predicate |
+| `WID-027.md` | カテゴリベンチマーク | Dashboard-local、DuckDB |
+| `WID-028.md` | カテゴリ箱ひげ図 | Dashboard-local、DuckDB |
+| `WID-029.md` | CV時系列分析 | Dashboard-local、DuckDB、group 構造分析 |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
