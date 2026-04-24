@@ -800,6 +800,14 @@
         {
           "path": "references/05-contents/widgets/WID-043.md",
           "label": "WID-043 消耗品明細 — Unified、onExplain 追加差分のみ"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-044.md",
+          "label": "WID-044 レポートサマリー — Unified core required only、clean pattern"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-045.md",
+          "label": "WID-045 部門別KPI — Unified core required only、45 件最終 entry"
         }
       ]
     }

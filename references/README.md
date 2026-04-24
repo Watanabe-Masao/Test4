@@ -64,8 +64,10 @@
 | `WID-041.md` | 仕入明細 | Unified、costDetailData 二重 null check |
 | `WID-042.md` | 移動明細 | Unified、WID-041 と完全同構造 |
 | `WID-043.md` | 消耗品明細 | Unified、onExplain 追加差分のみ |
+| `WID-044.md` | レポートサマリー | Unified core required only、clean pattern |
+| `WID-045.md` | 部門別KPI | Unified core required only、45 件最終 entry |
 
-（残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
+**45 widget 全件 landed**。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照。
 
 ## 正本一覧
 
