@@ -26,7 +26,7 @@
 ## Phase 3: ADR-C-003 — Tier D orphan 3 件削除（BC-5 破壊的変更）
 
 * [ ] PR1: `orphanUiComponentGuard` を baseline=3 で追加した
-* [ ] PR2: 3 file 削除（`DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + `__tests__/PlanActualForecast.test.tsx` / `RangeComparison.tsx`）+ `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去を実施した
+* [x] PR2: 3 file 削除（`DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + `__tests__/PlanActualForecast.test.tsx` / `RangeComparison.tsx`）+ `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去を実施した（+ `RangeComparison.styles.ts` + cascade orphan `ExecMetric.tsx` も削除）
 * [ ] PR3: `orphanUiComponentGuard` baseline=0 + fixed mode 化した
 * [ ] LEG-014 の `sunsetCondition` 達成を確認した
 * [ ] BC-5 の rollback 手順を PR description に記載した
