@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T07:43:16.568Z",
+  "timestamp": "2026-04-24T09:01:18.396Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 79,
+      "value": 80,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -340,6 +340,7 @@
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
         "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
         "app/src/test/guards/topologyGuard.test.ts",
+        "app/src/test/guards/unifiedWidgetContextNoPageLocalOptionalGuard.test.ts",
         "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
         "app/src/test/guards/versionSyncGuard.test.ts",
         "app/src/test/guards/wasmCrateStructureGuard.test.ts",
