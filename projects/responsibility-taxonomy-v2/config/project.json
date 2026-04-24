@@ -4,10 +4,33 @@
   "status": "active",
   "parent": "taxonomy-v2",
   "projectRoot": "projects/responsibility-taxonomy-v2",
+  "projectization": {
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/test/responsibilityTagRegistry.ts",
+      "app/src/test/guards/",
+      "docs/contracts/",
+      "references/01-principles/taxonomy-origin-journal.md"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "T:* テスト軸の変更（test-taxonomy-v2 の所掌）",
+      "親の 7 不可侵原則を書き換えること（親 taxonomy-v2 の所掌）",
+      "review window 外での R:tag 追加",
+      "R:utility 等の曖昧タグへの再退避（R:unclassified のみ許可）",
+      "AAG 他 2 柱（Architecture Rule / Principles）の変更",
+      "本体アプリ（粗利管理ツール）のコード変更"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
     "handoff": "projects/responsibility-taxonomy-v2/HANDOFF.md",
     "plan": "projects/responsibility-taxonomy-v2/plan.md",
-    "checklist": "projects/responsibility-taxonomy-v2/checklist.md"
+    "checklist": "projects/responsibility-taxonomy-v2/checklist.md",
+    "projectization": "projects/responsibility-taxonomy-v2/projectization.md"
   }
 }

@@ -4,10 +4,34 @@
   "status": "active",
   "parent": "taxonomy-v2",
   "projectRoot": "projects/test-taxonomy-v2",
+  "projectization": {
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/test/testTaxonomyRegistry.ts",
+      "app/src/test/guards/testTaxonomyGuard.test.ts",
+      "app/src/test/guards/testSignalIntegrityGuard.test.ts",
+      "docs/contracts/",
+      "references/01-principles/test-signal-integrity.md"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "R:* 責務軸の変更（responsibility-taxonomy-v2 の所掌）",
+      "親の 7 不可侵原則を書き換えること（親 taxonomy-v2 の所掌）",
+      "review window 外での T:kind 追加",
+      "T:unknown 等の曖昧タグへの退避（T:unclassified のみ許可）",
+      "テスト内容の書き換え（分類のみが scope）",
+      "本体アプリ（粗利管理ツール）のコード変更"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/test-taxonomy-v2/AI_CONTEXT.md",
     "handoff": "projects/test-taxonomy-v2/HANDOFF.md",
     "plan": "projects/test-taxonomy-v2/plan.md",
-    "checklist": "projects/test-taxonomy-v2/checklist.md"
+    "checklist": "projects/test-taxonomy-v2/checklist.md",
+    "projectization": "projects/test-taxonomy-v2/projectization.md"
   }
 }

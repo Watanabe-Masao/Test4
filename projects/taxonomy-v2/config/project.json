@@ -3,10 +3,34 @@
   "title": "分類体系 v2（責務軸 + テスト軸の制度化: 親）",
   "status": "active",
   "projectRoot": "projects/taxonomy-v2",
+  "projectization": {
+    "level": 4,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/test/responsibilityTagRegistry.ts",
+      "app/src/test/guards/",
+      "docs/contracts/",
+      "references/01-principles/",
+      "references/02-status/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "v1 のマイナー修正だけで済ませること",
+      "片軸だけの変更（interlock 崩壊防止）",
+      "review window 外での vocabulary 追加",
+      "未分類タグを曖昧タグに退避（R:unclassified / T:unclassified のみ許可）",
+      "Cognitive Load Ceiling (= 15) を超える語彙追加",
+      "AAG の他 2 柱（Architecture Rule / Principles）を混ぜる"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/taxonomy-v2/AI_CONTEXT.md",
     "handoff": "projects/taxonomy-v2/HANDOFF.md",
     "plan": "projects/taxonomy-v2/plan.md",
-    "checklist": "projects/taxonomy-v2/checklist.md"
+    "checklist": "projects/taxonomy-v2/checklist.md",
+    "projectization": "projects/taxonomy-v2/projectization.md"
   }
 }
