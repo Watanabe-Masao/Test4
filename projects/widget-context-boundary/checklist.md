@@ -6,7 +6,7 @@
 ## Phase 1: ADR-A-001 — UnifiedWidgetContext page-local 5 field 剥離（BC-1）
 
 * [x] PR1: `unifiedWidgetContextNoPageLocalOptionalGuard` baseline=5 で追加
-* [ ] PR2: InsightWidgetContext / CostDetailWidgetContext / CategoryWidgetContext 新設
+* [x] PR2: InsightWidgetContext / CostDetailWidgetContext / CategoryWidgetContext 新設
 * [ ] PR3a: INSIGHT 6 widget を page-specific ctx に切替
 * [ ] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替
 * [ ] PR3c: CATEGORY 2 widget を page-specific ctx に切替
