@@ -50,6 +50,8 @@
 | `WID-027.md` | カテゴリベンチマーク | Dashboard-local、DuckDB |
 | `WID-028.md` | カテゴリ箱ひげ図 | Dashboard-local、DuckDB |
 | `WID-029.md` | CV時系列分析 | Dashboard-local、DuckDB、group 構造分析 |
+| `WID-030.md` | 粗利率トレンド | Unified、Daily page、6-field |
+| `WID-031.md` | シャープリー時系列 | Unified、Daily page、hasPrevYear gate + 二重判定 |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）

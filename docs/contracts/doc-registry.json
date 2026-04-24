@@ -746,6 +746,14 @@
           "label": "WID-029 CV時系列分析 — Dashboard-local、DuckDB、group 構造分析"
         },
         {
+          "path": "references/05-contents/widgets/WID-030.md",
+          "label": "WID-030 粗利率トレンド — Unified、Daily page、6-field"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-031.md",
+          "label": "WID-031 シャープリー時系列 — Unified、Daily page、hasPrevYear gate + 二重判定"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }
