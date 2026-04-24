@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T12:53:36.851Z",
+  "timestamp": "2026-04-24T13:02:39.473Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 85,
+      "value": 86,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -266,6 +266,7 @@
       ],
       "implRefs": [
         "app/src/test/guards/aagDerivedOnlyImportGuard.test.ts",
+        "app/src/test/guards/allowlistMetadataGuard.test.ts",
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/architectureRuleGuard.test.ts",
         "app/src/test/guards/architectureRulesMergeSmokeGuard.test.ts",
@@ -960,7 +961,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 569,
+      "value": 570,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

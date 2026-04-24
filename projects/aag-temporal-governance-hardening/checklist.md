@@ -28,7 +28,7 @@
 
 ## Phase 4: ADR-D-002 allowlist metadata required（BC-7）
 
-* [ ] PR1: `allowlistMetadataGuard` baseline=existing で追加
+* [x] PR1: `allowlistMetadataGuard` baseline=existing で追加（M1: ruleId 未設定 baseline=3 / M2: createdAt 未設定 baseline=4 / M3: active-debt expiresAt 未設定 baseline=11。reviewPolicy field は PR2 で型追加 + bulk 整備）
 * [ ] PR2: 既存 allowlist に ruleId / createdAt / reviewPolicy / expiresAt metadata bulk 追記
 * [ ] PR3: allowlist entry type required 化（BC-7）+ baseline=0
 * [ ] PR4: expiresAt 超過 entry を fail
