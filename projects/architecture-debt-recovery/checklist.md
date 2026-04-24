@@ -36,13 +36,13 @@
 
 ## Phase 2: 真因分析
 
-* [ ] `inquiry/09-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
-* [ ] `inquiry/10-hypothesis-interaction.md` を作成した（仮説間の相互作用）
-* [ ] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
-* [ ] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
-* [ ] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
+* [x] `inquiry/09-symptom-to-hypothesis.md` を作成した（各症状 2 つ以上の仮説）
+* [x] `inquiry/10-hypothesis-interaction.md` を作成した（仮説間の相互作用）
+* [x] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
+* [x] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
+* [x] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
 * [ ] architecture ロール review 完了
-* [ ] Phase 2 期間中にコード変更を一切行わなかったことを `git log` で確認した
+* [x] Phase 2 期間中にコード変更を一切行わなかったことを `git log` で確認した
 
 ## Phase 3: 原則制定
 
