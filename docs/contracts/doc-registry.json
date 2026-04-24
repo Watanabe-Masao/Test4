@@ -778,8 +778,28 @@
           "label": "WID-037 カテゴリベンチマーク（Insight） — Unified、DuckDB、3 重防御"
         },
         {
+          "path": "references/05-contents/widgets/WID-038.md",
+          "label": "WID-038 カテゴリ合計分析 — Unified、Category page、6-field + default 適用"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-039.md",
+          "label": "WID-039 店舗間比較（Category） — Unified、型 assertion + 2 店舗以上 gate"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-041.md",
+          "label": "WID-041 仕入明細 — Unified、costDetailData 二重 null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-042.md",
+          "label": "WID-042 移動明細 — Unified、WID-041 と完全同構造"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-043.md",
+          "label": "WID-043 消耗品明細 — Unified、onExplain 追加差分のみ"
         }
       ]
     }

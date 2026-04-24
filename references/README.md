@@ -58,7 +58,12 @@
 | `WID-035.md` | 予測・パターン | Unified、sub-path forecastData gate |
 | `WID-036.md` | 売上要因分解 | Unified、複合 predicate |
 | `WID-037.md` | カテゴリベンチマーク（Insight） | Unified、DuckDB、3 重防御 |
+| `WID-038.md` | カテゴリ合計分析 | Unified、Category page、6-field + default 適用 |
+| `WID-039.md` | 店舗間比較（Category） | Unified、型 assertion + 2 店舗以上 gate |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
+| `WID-041.md` | 仕入明細 | Unified、costDetailData 二重 null check |
+| `WID-042.md` | 移動明細 | Unified、WID-041 と完全同構造 |
+| `WID-043.md` | 消耗品明細 | Unified、onExplain 追加差分のみ |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
 
