@@ -327,7 +327,9 @@ describe('Architecture Rule Registry', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
-  it('review overdue のルールを検出する', () => {
+  it('review overdue のルールを検出する (ADR-D-001 PR4: hard fail)', () => {
+    // ADR-D-001 PR4 (2026-04-24): lastReviewedAt + reviewCadenceDays 超過を hard fail に昇格。
+    // Temporal Governance の時計機能を本格稼働（cadence を超えて未レビューのルールは CI を止める）。
     const now = Date.now()
     const overdue: string[] = []
 
@@ -341,13 +343,12 @@ describe('Architecture Rule Registry', () => {
       }
     }
 
-    if (overdue.length > 0) {
-      console.log(`\n[review overdue] ${overdue.length} 件:`)
-      for (const o of overdue) console.log(`  ${o}`)
-      console.log('  → lastReviewedAt を更新するか、ルールの見直しを実施してください')
-    }
-
-    expect(true).toBe(true)
+    expect(
+      overdue,
+      `cadence 超過ルール ${overdue.length} 件:\n  ${overdue.join('\n  ')}\n` +
+        '  → 該当 rule の projects/<active>/aag/execution-overlay.ts で\n' +
+        '     reviewPolicy.lastReviewedAt を更新するか、ルール自体の見直しを実施してください。',
+    ).toEqual([])
   })
 
   it('sunsetCondition + 長期未レビューのルールを検出する', () => {

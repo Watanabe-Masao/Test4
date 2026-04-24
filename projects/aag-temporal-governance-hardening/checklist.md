@@ -24,7 +24,7 @@
 * [x] PR1: `reviewPolicyRequiredGuard` baseline=92 で追加（実 baseline=139。Wave 0 で 9 SAFETY rule 付記 + 以降追加された rule を含む現状把握値）
 * [x] PR2: 92 rule に reviewPolicy (owner / lastReviewedAt / reviewCadenceDays) bulk 追記（実際は 139 rule: architecture 89 / implementation 45 / specialist 5。baseline 139→0 到達）
 * [x] PR3: `RuleOperationalState.reviewPolicy` required 昇格（BC-6）+ baseline=0（merged.ts で未設定時の構造エラー throw を追加、型システムで強制）
-* [ ] PR4: expired rule を docs:check で fail させる lifecycle 監視追加
+* [x] PR4: expired rule を docs:check で fail させる lifecycle 監視追加（architectureRuleGuard の review overdue test を log-only から hard fail に昇格。reviewPolicy.lastReviewedAt + reviewCadenceDays 超過で CI が止まる）
 
 ## Phase 4: ADR-D-002 allowlist metadata required（BC-7）
 

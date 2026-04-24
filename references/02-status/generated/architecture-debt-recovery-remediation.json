@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T14:57:00.761Z",
+  "generatedAt": "2026-04-24T15:05:51.445Z",
   "umbrellaProject": "architecture-debt-recovery",
   "itemCount": 18,
   "breakingChangeCount": 7,
@@ -20,12 +20,12 @@
     },
     {
       "id": "aag-temporal-governance-hardening",
-      "checked": 6,
+      "checked": 7,
       "total": 29,
-      "progressRatio": 0.20689655172413793
+      "progressRatio": 0.2413793103448276
     }
   ],
-  "guardImplementedCount": 22,
+  "guardImplementedCount": 23,
   "baselineRemaining": 0,
   "reviewPending": 0
 }
