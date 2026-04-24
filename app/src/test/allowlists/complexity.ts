@@ -14,6 +14,7 @@ export const useMemoLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。useMemo 3 個以下に削減
 ] as const
@@ -29,6 +30,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 6,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'application/hooks/useAutoBackup.ts',
@@ -39,6 +41,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // useTimeSlotData.ts — useTimeSlotPlan に weather retry state を分離。useState 5 個に削減
   // ただし import 行で +1 カウントされ合計 6。default limit (6) と一致するため許可リスト維持
@@ -51,6 +54,7 @@ export const useStateLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 7,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
 ] as const
 
@@ -115,6 +119,7 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 300,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減

@@ -48,11 +48,25 @@ export type RetentionReason = CoreRetentionReason | AppRetentionReason
  */
 export type RemovalKind = 'retire-when' | 'remove-after' | 'block-until'
 
+/**
+ * レビュー周期（allowlist entry の時刻管理）。
+ * ADR-D-002 PR2 (2026-04-24) で追加。
+ * Architecture Rule 側の ReviewPolicy と同形。
+ */
+export interface AllowlistReviewPolicy {
+  readonly owner: string
+  readonly lastReviewedAt: string | null
+  readonly reviewCadenceDays: number
+}
+
 /** カテゴリ型の許可リストエントリ（ファイルパスの例外） */
 export interface AllowlistEntry {
   readonly path: string
-  /** どの Architecture Rule の例外か（例: 'AR-G5-HOOK-MEMO'） */
-  readonly ruleId?: string
+  /**
+   * どの Architecture Rule の例外か（例: 'AR-G5-HOOK-MEMO'）
+   * ADR-D-002 PR3 (2026-04-24) で optional → required 昇格 (BC-7)。
+   */
+  readonly ruleId: string
   readonly reason: string
   readonly category:
     | 'adapter'
@@ -74,12 +88,20 @@ export interface AllowlistEntry {
    */
   readonly retentionReason?: RetentionReason
   // ── 時間軸（Temporal Governance） ──
-  /** 例外の作成日（YYYY-MM-DD） */
-  readonly createdAt?: string
-  /** 有効期限（active-debt のみ推奨） */
+  /**
+   * 例外の作成日（YYYY-MM-DD）。
+   * ADR-D-002 PR3 (2026-04-24) で optional → required 昇格 (BC-7)。
+   */
+  readonly createdAt: string
+  /** 有効期限（active-debt のみ推奨、permanent は optional） */
   readonly expiresAt?: string
   /** 延長回数（2 超でルール review 強制） */
   readonly renewalCount?: number
+  /**
+   * レビュー周期（案件運用）。
+   * ADR-D-002 PR2 (2026-04-24) で追加、PR3 で required 昇格 (BC-7)。
+   */
+  readonly reviewPolicy: AllowlistReviewPolicy
 }
 
 /** 数量型の許可リストエントリ（ファイルごとの数値上限） */

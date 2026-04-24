@@ -52,6 +52,7 @@ export const g3SuppressAllowlist: readonly AllowlistEntry[] = [
     lifecycle: 'permanent',
     retentionReason: 'structural',
     createdAt: '2026-04-13',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'presentation/components/common/FileDropZone.tsx',
@@ -68,6 +69,7 @@ export const g3SuppressAllowlist: readonly AllowlistEntry[] = [
     lifecycle: 'permanent',
     retentionReason: 'structural',
     createdAt: '2026-04-13',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
 ] as const
 

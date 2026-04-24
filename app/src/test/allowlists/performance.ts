@@ -26,6 +26,9 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
     category: 'justified',
     removalCondition: '除去不要 — ドロップダウン候補取得は pair 不要',
     lifecycle: 'permanent',
+    ruleId: 'AR-STRUCT-QUERY-PATTERN',
+    createdAt: '2026-04-24',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'application/hooks/usePerformanceIndexPlan.ts',
@@ -33,6 +36,9 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
     category: 'justified',
     removalCondition: '除去不要 — 比較なしの正当な base handler 使用',
     lifecycle: 'permanent',
+    ruleId: 'AR-STRUCT-QUERY-PATTERN',
+    createdAt: '2026-04-24',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'application/hooks/categoryLeafDaily/useCategoryLeafDailyBundle.ts',
@@ -42,6 +48,9 @@ export const pairJustifiedSingle: readonly AllowlistEntry[] = [
     removalCondition:
       '除去不要 — comparison fallback は「当年 scope を同一日付範囲でもう一度取る」設計上 pair 化不能（pair は date range 一致の同時取得）',
     lifecycle: 'permanent',
+    ruleId: 'AR-STRUCT-QUERY-PATTERN',
+    createdAt: '2026-04-24',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
 ]
 
