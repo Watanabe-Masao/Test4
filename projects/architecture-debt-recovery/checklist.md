@@ -46,14 +46,14 @@
 
 ## Phase 3: 原則制定
 
-* [ ] `inquiry/12-principle-candidates.md` を作成した（設計原則 v2 候補）
-* [ ] `inquiry/13-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
-* [ ] `inquiry/14-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
-* [ ] 各原則候補に対応する真因仮説（Phase 2）が紐付いている
-* [ ] 各原則候補に既存 9 カテゴリとの差分（追加 / 上書き / 削除）が明記されている
-* [ ] 各原則候補に機械検出方法の粗設計が記載されている
-* [ ] 各原則候補に sunsetCondition が記載されている
-* [ ] 本 Phase では `references/01-principles/` / `docs/contracts/principles.json` を一切 touch していないことを確認した
+* [x] `inquiry/12-principle-candidates.md` を作成した（設計原則 v2 候補）
+* [x] `inquiry/13-invariant-candidates.md` を作成した（新規不変条件候補 + guard 設計前書き）
+* [x] `inquiry/14-rule-retirement-candidates.md` を作成した（既存原則の廃止・統合候補）
+* [x] 各原則候補に対応する真因仮説（Phase 2）が紐付いている
+* [x] 各原則候補に既存 9 カテゴリとの差分（追加 / 上書き / 削除）が明記されている
+* [x] 各原則候補に機械検出方法の粗設計が記載されている
+* [x] 各原則候補に sunsetCondition が記載されている
+* [x] 本 Phase では `references/01-principles/` / `docs/contracts/principles.json` を一切 touch していないことを確認した
 * [ ] architecture ロール review 完了
 
 ## Phase 4: 改修計画
