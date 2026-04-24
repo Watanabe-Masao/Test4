@@ -4,6 +4,9 @@
  * 各グループの styled-components は個別ファイルに分割済み。
  * 後方互換のため、全エクスポートをここから re-export する。
  * 新規コードは個別ファイルから直接 import することを推奨。
+ * @sunsetCondition 本 barrel は永続的構造（モジュール entry point / 後方互換 re-export）
+ * @expiresAt 2099-12-31
+ * @reason ADR-C-004 / F1 原則: モジュール entry の後方互換 barrel re-export
  */
 
 // ─── Re-exports from split files ────────────────────────

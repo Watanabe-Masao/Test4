@@ -15,9 +15,10 @@
  *  - `app/src/` 配下の .ts / .tsx で、1 行以上の `^export \* from ...` を含む file
  *  - test / stories / .d.ts は除外
  *
- * 将来（PR2 以降）:
- *  - PR2: 既存 barrel 全てに metadata 追記（bulk）
- *  - PR3: baseline=0 + fixed mode（新規 barrel 追加時は必ず metadata 必須）
+ * ADR-C-004 進捗:
+ *  - PR1 (2026-04-24): baseline=38 で ratchet-down 導入
+ *  - PR2 (2026-04-24): 既存 38 barrel 全てに 3 metadata bulk 追記、baseline=0 到達
+ *  - PR3: baseline=0 + fixed mode（新規 barrel 追加時は必ず metadata 必須）— 本 commit で反映
  *
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-C-004
@@ -35,7 +36,7 @@ import { collectTsFiles } from '../guardTestHelpers'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 
-const BASELINE_MISSING_METADATA = 38
+const BASELINE_MISSING_METADATA = 0
 
 const REQUIRED_TAGS = ['@sunsetCondition', '@expiresAt', '@reason'] as const
 

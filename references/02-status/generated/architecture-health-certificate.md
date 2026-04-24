@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Watch** |
-| 前回比 | Flat |
+| 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-24T14:20:16.405Z |
+| 最終更新 | 2026-04-24T14:32:46.027Z |
 
 ## Hard Gate
 
@@ -42,6 +42,12 @@
 - 状態: 0 / budget 92（-100% 超過）
 - ファイル: `projects/architecture-debt-recovery/aag/execution-overlay.ts`
 - 定義書: `references/03-guides/architecture-rule-system.md`
+
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ## Recommended Actions
 

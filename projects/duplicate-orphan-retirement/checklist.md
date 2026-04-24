@@ -34,9 +34,9 @@
 ## Phase 4: ADR-C-004 — barrel re-export metadata 必須化
 
 * [x] PR1: `barrelReexportMetadataGuard` を baseline=existing barrel count で追加した
-* [ ] PR2: 既存 barrel re-export 全てに `@sunsetCondition` + `@expiresAt` + `@reason` JSDoc を bulk 追記した
-* [ ] PR3: baseline=0 fixed mode（新規追加時は metadata 必須）に移行した
-* [ ] LEG-015 の `sunsetCondition` 達成を確認した
+* [x] PR2: 既存 barrel re-export 全てに `@sunsetCondition` + `@expiresAt` + `@reason` JSDoc を bulk 追記した
+* [x] PR3: baseline=0 fixed mode（新規追加時は metadata 必須）に移行した
+* [x] LEG-015 の `sunsetCondition` 達成を確認した
 
 ## Phase 5: sub-project completion
 

@@ -7,6 +7,9 @@
  * 全ファイルを「必須」「検討」「不要」に分類し、
  * 未分類のファイルが存在しないことをガードテストで保証する。
  *
+ * 2026-04-24 ADR-C-004 PR2: domain/calculations/index.ts (barrel) に
+ * @sunsetCondition / @expiresAt / @reason JSDoc を追加（分類本体は変更なし）。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

@@ -5,6 +5,9 @@
  * - QueryHandler: 全クエリの統一インターフェース
  * - QueryPort: DuckDB接続の抽象化
  * - Handler: 具体的なクエリ実装
+ * @sunsetCondition 本 barrel は永続的構造（モジュール entry point / 後方互換 re-export）
+ * @expiresAt 2099-12-31
+ * @reason ADR-C-004 / F1 原則: モジュール entry の後方互換 barrel re-export
  */
 
 // 契約型
