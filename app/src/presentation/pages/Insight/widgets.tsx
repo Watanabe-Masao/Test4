@@ -39,12 +39,14 @@ function insightWidget(def: {
     size: def.size,
     linkTo: def.linkTo,
     render: (ctx) => {
-      if (!ctx.insightData) return null
-      return def.render(ctx as InsightWidgetContext)
+      const narrowed = ctx as unknown as InsightWidgetContext
+      if (!narrowed.insightData) return null
+      return def.render(narrowed)
     },
     isVisible: (ctx) => {
-      if (!ctx.insightData) return false
-      return def.isVisible ? def.isVisible(ctx as InsightWidgetContext) : true
+      const narrowed = ctx as unknown as InsightWidgetContext
+      if (!narrowed.insightData) return false
+      return def.isVisible ? def.isVisible(narrowed) : true
     },
   }
 }

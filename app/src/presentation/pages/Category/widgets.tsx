@@ -30,11 +30,7 @@ function categoryWidget(def: {
   readonly isVisible?: (ctx: CategoryWidgetContext) => boolean
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }): WidgetDef {
-  const hasPageLocals = (ctx: {
-    readonly selectedResults?: readonly StoreResult[]
-    readonly storeNames?: ReadonlyMap<string, string>
-    readonly onCustomCategoryChange?: (supplierCode: string, value: string) => void
-  }): boolean =>
+  const hasPageLocals = (ctx: CategoryWidgetContext): boolean =>
     ctx.selectedResults != null && ctx.storeNames != null && ctx.onCustomCategoryChange != null
   return {
     id: def.id,
@@ -43,12 +39,14 @@ function categoryWidget(def: {
     size: def.size,
     linkTo: def.linkTo,
     render: (ctx) => {
-      if (!hasPageLocals(ctx)) return null
-      return def.render(ctx as CategoryWidgetContext)
+      const narrowed = ctx as unknown as CategoryWidgetContext
+      if (!hasPageLocals(narrowed)) return null
+      return def.render(narrowed)
     },
     isVisible: (ctx) => {
-      if (!hasPageLocals(ctx)) return false
-      return def.isVisible ? def.isVisible(ctx as CategoryWidgetContext) : true
+      const narrowed = ctx as unknown as CategoryWidgetContext
+      if (!hasPageLocals(narrowed)) return false
+      return def.isVisible ? def.isVisible(narrowed) : true
     },
   }
 }

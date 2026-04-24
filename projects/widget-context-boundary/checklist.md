@@ -10,9 +10,9 @@
 * [x] PR3a: INSIGHT 6 widget を page-specific ctx に切替（insightWidget helper で null check 集約、4 widget が helper 経由、2 widget は page-local 不要のため素の WidgetDef）
 * [x] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替（costDetailWidget helper で null check 集約、4 widget 全て helper 経由）
 * [x] PR3c: CATEGORY 2 widget を page-specific ctx に切替（categoryWidget helper で 3 field null check 集約、2 widget 全て helper 経由）
-* [ ] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
-* [ ] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
-* [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ）
+* [x] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
+* [x] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
+* [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ） — 本 ADR scope 外（WSS freshness policy、別 project で対応）
 
 ## Phase 2: ADR-A-002 — Dashboard 固有 20 field 集約（BC-2）
 

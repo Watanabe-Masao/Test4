@@ -18,9 +18,7 @@ import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analy
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
-import type { CostDetailData } from '@/features/cost-detail'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
@@ -207,16 +205,13 @@ export interface UnifiedWidgetContext {
   /** ページレベルで統一された比較期間。DualPeriod 専用フィールド */
   readonly chartPeriodProps?: import('@/presentation/hooks/dualPeriod').ChartPeriodProps
 
-  // ── Insight 固有 ──
-  readonly insightData?: InsightData
-
-  // ── CostDetail 固有 ──
-  readonly costDetailData?: CostDetailData
-
-  // ── Category 固有 ──
-  readonly selectedResults?: readonly StoreResult[]
-  readonly storeNames?: ReadonlyMap<string, string>
-  readonly onCustomCategoryChange?: (supplierCode: string, value: string) => void
+  // ADR-A-001 PR4 (2026-04-24): 5 page-local optional field を剥離。
+  // 各ページは page-specific context 型を使用すること:
+  //   - Insight 固有 (insightData) → InsightWidgetContext
+  //   - CostDetail 固有 (costDetailData) → CostDetailWidgetContext
+  //   - Category 固有 (selectedResults / storeNames / onCustomCategoryChange) → CategoryWidgetContext
+  // LEG-001〜LEG-003 の sunsetCondition 達成。
+  // unifiedWidgetContextNoPageLocalOptionalGuard baseline 5→0 + fixed mode。
 }
 
 /**

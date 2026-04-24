@@ -40,12 +40,14 @@ function costDetailWidget(def: {
     size: def.size,
     linkTo: def.linkTo,
     render: (ctx) => {
-      if (!ctx.costDetailData) return null
-      return def.render(ctx as CostDetailWidgetContext)
+      const narrowed = ctx as unknown as CostDetailWidgetContext
+      if (!narrowed.costDetailData) return null
+      return def.render(narrowed)
     },
     isVisible: (ctx) => {
-      if (!ctx.costDetailData) return false
-      return def.isVisible ? def.isVisible(ctx as CostDetailWidgetContext) : true
+      const narrowed = ctx as unknown as CostDetailWidgetContext
+      if (!narrowed.costDetailData) return false
+      return def.isVisible ? def.isVisible(narrowed) : true
     },
   }
 }

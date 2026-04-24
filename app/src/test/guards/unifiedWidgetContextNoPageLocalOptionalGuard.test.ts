@@ -38,18 +38,12 @@ import * as path from 'path'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const UNIFIED_CTX_PATH = path.join(PROJECT_ROOT, 'app/src/presentation/components/widgets/types.ts')
 
-// ratchet-down baseline（ADR-A-001 PR4 で 0 に削減予定）
-const BASELINE = 5
+// ADR-A-001 PR4 (2026-04-24): baseline 5→0 達成、fixed mode 移行完了。
+// 5 page-local optional field は InsightWidgetContext / CostDetailWidgetContext /
+// CategoryWidgetContext に剥離済み。LEG-001〜LEG-003 sunsetCondition 達成。
+const BASELINE = 0
 
-// 初期 baseline を構成する page-local optional field
-// PR3 で page-specific ctx に移行後、PR4 で削除、baseline=0 fixed mode に移行
-const KNOWN_PAGE_LOCAL_ALLOWLIST: readonly string[] = [
-  'insightData',
-  'costDetailData',
-  'selectedResults',
-  'storeNames',
-  'onCustomCategoryChange',
-]
+const KNOWN_PAGE_LOCAL_ALLOWLIST: readonly string[] = []
 
 // page-local と判定する field 名のパターン（接頭辞）
 // umbrella inquiry/04 §B-2 に列挙される「<Page> 固有」field と対応
