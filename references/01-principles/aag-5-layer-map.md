@@ -137,6 +137,8 @@
 | `architecture-rule-system.md` | ルール運用ガイド |
 | `allowlist-management.md` | 例外管理手順 |
 | `rollback-policy.md` | Rollback 共通手順 |
+| `project-checklist-governance.md` | projects/ 運用ルール（立ち上げ後の completion 管理） |
+| `projectization-policy.md` | AAG-COA: 変更内容に応じた projectization level / 必要文書 / 不要手続きの判定（立ち上げ前の入口判定） |
 
 ### 4B. Project Operations（Overlay — 案件ごと差し替え）
 

@@ -335,6 +335,15 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 > [`references/03-guides/project-checklist-governance.md`](./references/03-guides/project-checklist-governance.md)
 > （AAG Layer 4A System Operations）。
 
+> **作業開始時の入口判定（AAG-COA）:** 新しい作業は `projects/<id>/` を作る前に
+> [`references/03-guides/projectization-policy.md`](./references/03-guides/projectization-policy.md)
+> （AAG-COA — Change Operation Assessment）の Level 判定を行う。
+> Level 0 は project 化しない（`projects/quick-fixes/checklist.md` に 1 行追加）。
+> Level 1 は軽量 checklist のみ。Level 2+ で `projects/<id>/` を作成する。
+> Level 3+ で breaking-changes / legacy-retirement / guard 設計を要求する。
+> Level 4 のみ sub-project-map を要求する。
+> **目的は project 化を増やすことではなく、必要な governance だけに絞ること**。
+
 ### 3層分離
 
 | 層 | 内容 | 更新主体 |
@@ -620,7 +629,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Flat | Hard Gate: PASS
+**Watch** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -628,7 +637,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 27/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 82/30 / 0/5 |
+| ガード強度 | OK | 83/30 / 0/5 |
 | 性能 | OK | 6605/7000 / 2394/2500 / 919/1000 |
 | Temporal Governance | WARN | 0/0 / 32/32 / 1/12 / 0/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
@@ -637,7 +646,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - reviewPolicy 設定済みルール数 を 0 → 92 に削減する（残 -92）
 
-> 生成: 2026-04-24T09:36:36.845Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-24T14:06:08.708Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

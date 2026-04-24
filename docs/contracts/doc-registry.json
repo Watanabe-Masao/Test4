@@ -448,6 +448,10 @@
         {
           "path": "references/03-guides/new-project-bootstrap-guide.md",
           "label": "新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）"
+        },
+        {
+          "path": "references/03-guides/projectization-policy.md",
+          "label": "AAG-COA — Projectization Policy（立ち上げ前の入口判定 / Level 0-4 / required + forbidden artifacts / breakingChange / legacy-retirement / guard / human approval 判定 / escalation / project.json metadata / projectizationPolicyGuard）"
         }
       ]
     },
