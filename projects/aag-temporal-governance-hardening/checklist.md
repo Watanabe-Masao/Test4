@@ -15,7 +15,7 @@
 
 ## Phase 2: ADR-D-005 generated remediation
 
-* [ ] PR1: collector 実装 + initial generation（`references/02-status/generated/architecture-debt-recovery-remediation.{md,json}`）
+* [x] PR1: collector 実装 + initial generation（`references/02-status/generated/architecture-debt-recovery-remediation.{md,json}`）
 * [ ] PR2: project-health.json 参照追加
 * [ ] PR3: docs:check drift 検出組み込み
 
