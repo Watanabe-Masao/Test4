@@ -52,6 +52,12 @@
 | `WID-029.md` | CV時系列分析 | Dashboard-local、DuckDB、group 構造分析 |
 | `WID-030.md` | 粗利率トレンド | Unified、Daily page、6-field |
 | `WID-031.md` | シャープリー時系列 | Unified、Daily page、hasPrevYear gate + 二重判定 |
+| `WID-032.md` | 予算と実績（Insight） | Unified、insightData 二重 null check |
+| `WID-033.md` | 予算達成シミュレーター | Unified、features/budget 由来、core required result に null check |
+| `WID-034.md` | 損益構造（Insight） | Unified、WID-032 と同構造 |
+| `WID-035.md` | 予測・パターン | Unified、sub-path forecastData gate |
+| `WID-036.md` | 売上要因分解 | Unified、複合 predicate |
+| `WID-037.md` | カテゴリベンチマーク（Insight） | Unified、DuckDB、3 重防御 |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）

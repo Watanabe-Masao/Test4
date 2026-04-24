@@ -754,6 +754,30 @@
           "label": "WID-031 シャープリー時系列 — Unified、Daily page、hasPrevYear gate + 二重判定"
         },
         {
+          "path": "references/05-contents/widgets/WID-032.md",
+          "label": "WID-032 予算と実績 — Unified、Insight page、insightData 二重 null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-033.md",
+          "label": "WID-033 予算達成シミュレーター — Unified、features/budget 由来、core required result に null check"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-034.md",
+          "label": "WID-034 損益構造 — Unified、Insight page、WID-032 と同構造"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-035.md",
+          "label": "WID-035 予測・パターン — Unified、Insight page、sub-path forecastData gate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-036.md",
+          "label": "WID-036 売上要因分解 — Unified、Insight page、複合 predicate"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-037.md",
+          "label": "WID-037 カテゴリベンチマーク（Insight） — Unified、DuckDB、3 重防御"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }
