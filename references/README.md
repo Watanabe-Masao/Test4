@@ -28,6 +28,13 @@
 | `WID-005.md` | 店舗別時間帯比較 | Dashboard-local、UnifiedStoreHourlyWidget 委譲 |
 | `WID-006.md` | 売上・仕入 店舗比較 | Dashboard-local、render 内 inline logic + lane 経由 |
 | `WID-007.md` | 天気-売上 相関分析 | Dashboard-local、WeatherWidget 委譲 |
+| `WID-008.md` | アラート | Dashboard-local、AlertPanelWidget 委譲 |
+| `WID-009.md` | 曜日平均 | Dashboard-local、renderDowAverage 委譲 |
+| `WID-010.md` | 週別サマリー | Dashboard-local、renderWeeklySummary 委譲 |
+| `WID-011.md` | 売上・売変・客数（日別×店舗） | Dashboard-local、linkTo daily |
+| `WID-012.md` | 日別推定在庫 | Dashboard-local、`computeEstimatedInventory` permanent floor |
+| `WID-013.md` | 店舗別KPI一覧 | Dashboard-local、linkTo reports |
+| `WID-014.md` | 着地予測・ゴールシーク | Dashboard-local、ForecastToolsWidget 委譲 |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）

@@ -658,6 +658,34 @@
           "label": "WID-007 天気-売上 相関分析 — Dashboard-local、WeatherWidget 委譲"
         },
         {
+          "path": "references/05-contents/widgets/WID-008.md",
+          "label": "WID-008 アラート — Dashboard-local、storeKey + AlertPanelWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-009.md",
+          "label": "WID-009 曜日平均 — Dashboard-local、renderDowAverage 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-010.md",
+          "label": "WID-010 週別サマリー — Dashboard-local、renderWeeklySummary 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-011.md",
+          "label": "WID-011 売上・売変・客数（日別×店舗）— Dashboard-local、linkTo daily"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-012.md",
+          "label": "WID-012 日別推定在庫 — Dashboard-local、computeEstimatedInventory permanent floor"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-013.md",
+          "label": "WID-013 店舗別KPI一覧 — Dashboard-local、linkTo reports"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-014.md",
+          "label": "WID-014 着地予測・ゴールシーク — Dashboard-local、ForecastToolsWidget 委譲"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }
