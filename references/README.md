@@ -35,6 +35,16 @@
 | `WID-012.md` | 日別推定在庫 | Dashboard-local、`computeEstimatedInventory` permanent floor |
 | `WID-013.md` | 店舗別KPI一覧 | Dashboard-local、linkTo reports |
 | `WID-014.md` | 着地予測・ゴールシーク | Dashboard-local、ForecastToolsWidget 委譲 |
+| `WID-015.md` | 粗利ウォーターフォール | Dashboard-local、WaterfallChartWidget 委譲、linkTo insight/decomposition |
+| `WID-016.md` | 粗利率ヒートマップ | Dashboard-local、GrossProfitHeatmapWidget 委譲 |
+| `WID-017.md` | 客数×客単価 効率分析 | Dashboard-local、6-field destructuring |
+| `WID-018.md` | PI値・偏差値・Zスコア | Dashboard-local、16-field + IIFE 2 箇所 |
+| `WID-019.md` | カテゴリPI値・偏差値 | 常時非可視（isVisible false）、統合済みの residual |
+| `WID-020.md` | 因果チェーン分析 | Dashboard-local、inline object literal + 3 null hardcode |
+| `WID-021.md` | 感度分析ダッシュボード | Dashboard-local、IIFE 経由 customerFact |
+| `WID-022.md` | 回帰分析インサイト | Dashboard-local、minimal 3-field |
+| `WID-023.md` | 季節性ベンチマーク | Dashboard-local、prop rename pattern |
+| `WID-024.md` | 売上トレンド分析 | Dashboard-local、DuckDB 3 点セット + isReady gate |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）

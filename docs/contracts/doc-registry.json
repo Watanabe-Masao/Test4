@@ -686,6 +686,46 @@
           "label": "WID-014 着地予測・ゴールシーク — Dashboard-local、ForecastToolsWidget 委譲"
         },
         {
+          "path": "references/05-contents/widgets/WID-015.md",
+          "label": "WID-015 粗利ウォーターフォール — Dashboard-local、WaterfallChartWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-016.md",
+          "label": "WID-016 粗利率ヒートマップ — Dashboard-local、GrossProfitHeatmapWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-017.md",
+          "label": "WID-017 客数×客単価 効率分析 — Dashboard-local、CustomerScatterChart"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-018.md",
+          "label": "WID-018 PI値・偏差値・Zスコア — Dashboard-local、16-field ctx + IIFE 2 箇所"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-019.md",
+          "label": "WID-019 カテゴリPI値・偏差値 — 常時非可視（isVisible false）"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-020.md",
+          "label": "WID-020 因果チェーン分析 — Dashboard-local、inline object literal + 3 null hardcode"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-021.md",
+          "label": "WID-021 感度分析ダッシュボード — Dashboard-local、IIFE 経由 customerFact"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-022.md",
+          "label": "WID-022 回帰分析インサイト — Dashboard-local、minimal 3-field"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-023.md",
+          "label": "WID-023 季節性ベンチマーク — Dashboard-local、prop rename pattern"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-024.md",
+          "label": "WID-024 売上トレンド分析 — Dashboard-local、DuckDB 3 点セット + isReady gate"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }
