@@ -7,7 +7,7 @@
 | **総合評価** | **Watch** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-24T14:07:15.385Z |
+| 最終更新 | 2026-04-24T14:20:16.405Z |
 
 ## Hard Gate
 
@@ -31,7 +31,7 @@
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 27/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 87/30 / レビュー専用タグ数: 0/5 |
-| **性能** | OK | JS バンドル合計サイズ: 6599/7000 / メインバンドルサイズ: 2388/2500 / ECharts バンドルサイズ: 919/1000 |
+| **性能** | OK | JS バンドル合計サイズ: 6600/7000 / メインバンドルサイズ: 2388/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | WARN | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 0/92 / sunsetCondition 設定済みルール数: 17/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 10/20 / in_progress な project 数（open required checkbox あり）: 9/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 19/100 |
@@ -42,12 +42,6 @@
 - 状態: 0 / budget 92（-100% 超過）
 - ファイル: `projects/architecture-debt-recovery/aag/execution-overlay.ts`
 - 定義書: `references/03-guides/architecture-rule-system.md`
-
-## Recent Changes
-
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| 全 project の checked checkbox 総数 | 575 | 578 | +3 ! |
 
 ## Recommended Actions
 

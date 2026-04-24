@@ -8,7 +8,7 @@ import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { EmptyState } from './CostDetailPage.styles'
-import { useCostDetailData } from './useCostDetailData'
+import { useCostDetailData } from '@/features/cost-detail'
 import { DEFAULT_COST_DETAIL_WIDGET_IDS } from './widgets'
 
 const EMPTY_STORES: ReadonlyMap<string, Store> = new Map()

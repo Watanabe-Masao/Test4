@@ -18,10 +18,10 @@
 ## Phase 2: ADR-C-002 — useCostDetailData 2 箇所並存解消
 
 * [x] PR1: features 版に `@canonical` JSDoc を付記し、`hookCanonicalPathGuard` を baseline=1 で追加した
-* [ ] PR2: 全 consumer を features 版 import に切替えた
-* [ ] PR3: pages 版 file を削除した
-* [ ] PR4: `hookCanonicalPathGuard` baseline=0 + fixed mode 化した
-* [ ] LEG-013 の `sunsetCondition` 達成を確認した
+* [x] PR2: 全 consumer を features 版 import に切替えた
+* [x] PR3: pages 版 file を削除した
+* [x] PR4: `hookCanonicalPathGuard` baseline=0 + fixed mode 化した
+* [x] LEG-013 の `sunsetCondition` 達成を確認した
 
 ## Phase 3: ADR-C-003 — Tier D orphan 3 件削除（BC-5 破壊的変更）
 

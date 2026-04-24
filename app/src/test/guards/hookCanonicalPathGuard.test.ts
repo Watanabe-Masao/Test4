@@ -37,11 +37,11 @@ const KNOWN_HOOKS: readonly HookEntry[] = [
   {
     hookName: 'useCostDetailData',
     canonicalPath: 'app/src/features/cost-detail/application/useCostDetailData.ts',
-    nonCanonicalPaths: ['app/src/presentation/pages/CostDetail/useCostDetailData.ts'],
+    nonCanonicalPaths: [], // ADR-C-002 PR3 (2026-04-24) で pages 版を物理削除
   },
 ]
 
-const BASELINE_NON_CANONICAL_COUNT = 1
+const BASELINE_NON_CANONICAL_COUNT = 0
 
 describe('hookCanonicalPathGuard', () => {
   it('H1: 各 hook の canonicalPath が `@canonical` JSDoc を持つ', () => {
