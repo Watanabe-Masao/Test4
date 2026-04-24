@@ -29,8 +29,10 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
   const overlayContent = readFileSync(overlayPath, "utf-8");
 
   // reviewPolicy 設定率（Project Overlay 側正本）
-  const withReviewPolicy = (overlayContent.match(/reviewPolicy: \{/g) || [])
-    .length;
+  // リテラル `{...}` と 定数参照 `FOO_REVIEW_POLICY` の両形式を検出。
+  const withReviewPolicy = (
+    overlayContent.match(/reviewPolicy:\s*(\{|[A-Z][A-Z0-9_]*)/g) || []
+  ).length;
   kpis.push({
     id: "temporal.rules.reviewPolicy.count",
     label: "reviewPolicy 設定済みルール数",

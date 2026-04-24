@@ -22,7 +22,7 @@
 ## Phase 3: ADR-D-001 reviewPolicy required 昇格（BC-6）
 
 * [x] PR1: `reviewPolicyRequiredGuard` baseline=92 で追加（実 baseline=139。Wave 0 で 9 SAFETY rule 付記 + 以降追加された rule を含む現状把握値）
-* [ ] PR2: 92 rule に reviewPolicy (owner / lastReviewedAt / reviewCadenceDays) bulk 追記
+* [x] PR2: 92 rule に reviewPolicy (owner / lastReviewedAt / reviewCadenceDays) bulk 追記（実際は 139 rule: architecture 89 / implementation 45 / specialist 5。baseline 139→0 到達）
 * [ ] PR3: `RuleOperationalState.reviewPolicy` required 昇格（BC-6）+ baseline=0
 * [ ] PR4: expired rule を docs:check で fail させる lifecycle 監視追加
 

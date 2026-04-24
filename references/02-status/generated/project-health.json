@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T14:32:46.033Z",
+  "timestamp": "2026-04-24T14:46:18.062Z",
   "summary": {
     "active": 10,
     "archived": 19,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 814,
-    "checkedCheckboxes": 585
+    "checkedCheckboxes": 586
   },
   "projects": [
     {
@@ -57,9 +57,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 4,
+      "checked": 5,
       "total": 29,
-      "progress": 0.138,
+      "progress": 0.172,
       "entrypoint": "projects/aag-temporal-governance-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/aag-temporal-governance-hardening/checklist.md",
       "parent": "architecture-debt-recovery"

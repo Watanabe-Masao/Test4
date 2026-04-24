@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T14:32:46.027Z",
+  "timestamp": "2026-04-24T14:46:18.057Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -397,7 +397,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 0,
+      "value": 73,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -408,7 +408,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 6,
+      "value": 54,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -419,7 +419,7 @@
       "id": "guard.rules.fixNow.review",
       "label": "fixNow=review ルール数（観測）",
       "category": "guard",
-      "value": 3,
+      "value": 21,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -563,9 +563,9 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 0,
+      "value": 148,
       "unit": "count",
-      "status": "warn",
+      "status": "ok",
       "owner": "architecture",
       "docRefs": [
         {
@@ -962,7 +962,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 585,
+      "value": 586,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1053,8 +1053,8 @@
   ],
   "summary": {
     "totalKpis": 40,
-    "ok": 39,
-    "warn": 1,
+    "ok": 40,
+    "warn": 0,
     "fail": 0,
     "hardGatePass": true
   }
