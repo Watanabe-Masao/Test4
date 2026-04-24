@@ -5,10 +5,33 @@
   "status": "active",
   "parent": "architecture-debt-recovery",
   "projectRoot": "projects/widget-context-boundary",
+  "projectization": {
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/application/context/",
+      "app/src/application/registries/",
+      "app/src/presentation/widgets/",
+      "app/src/domain/models/",
+      "app/src/test/guards/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "他 Lane（SP-B / SP-C / SP-D）の item",
+      "@widget-id WID-NNN JSDoc 注入（WSS 体系は別 project で扱う）",
+      "Budget Simulator informed-by R4 の specific cleanup（関連 ADR に吸収済み）",
+      "runtime 動作の変更",
+      "新規 widget の追加"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/widget-context-boundary/AI_CONTEXT.md",
     "handoff": "projects/widget-context-boundary/HANDOFF.md",
     "plan": "projects/widget-context-boundary/plan.md",
-    "checklist": "projects/widget-context-boundary/checklist.md"
+    "checklist": "projects/widget-context-boundary/checklist.md",
+    "projectization": "projects/widget-context-boundary/projectization.md"
   }
 }

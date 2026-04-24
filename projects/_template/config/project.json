@@ -1,13 +1,25 @@
 {
-  "$comment": "新規 project の config テンプレート。projects/_template/ をコピーした後、<PROJECT-ID> と <TITLE> を実値に置き換える。AI が立ち上げる場合は references/03-guides/project-checklist-governance.md §10 を参照。",
+  "$comment": "新規 project の config テンプレート。projects/_template/ をコピーした後、<PROJECT-ID> と <TITLE> を実値に置き換え、projectization フィールドを AAG-COA の判定結果で埋める。AI が立ち上げる場合は references/03-guides/projectization-policy.md §3 で Level を決めてから references/03-guides/project-checklist-governance.md §10 の bootstrap 手順に進む。",
   "projectId": "<PROJECT-ID>",
   "title": "<TITLE>",
   "status": "active",
   "projectRoot": "projects/<PROJECT-ID>",
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projects/<id>/projectization.md の1.判定結果と一致させる。判定は可逆（escalate / de-escalate してよい）。詳細: references/03-guides/projectization-policy.md",
+    "level": 2,
+    "changeType": "<bug-fix | new-feature | refactor | architecture-refactor | legacy-retirement | governance-hardening | docs-only>",
+    "implementationScope": [],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": false,
+    "nonGoals": []
+  },
   "entrypoints": {
     "aiContext": "projects/<PROJECT-ID>/AI_CONTEXT.md",
     "handoff": "projects/<PROJECT-ID>/HANDOFF.md",
     "plan": "projects/<PROJECT-ID>/plan.md",
-    "checklist": "projects/<PROJECT-ID>/checklist.md"
+    "checklist": "projects/<PROJECT-ID>/checklist.md",
+    "projectization": "projects/<PROJECT-ID>/projectization.md"
   }
 }

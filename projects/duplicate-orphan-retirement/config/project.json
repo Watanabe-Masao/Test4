@@ -5,10 +5,30 @@
   "status": "active",
   "parent": "architecture-debt-recovery",
   "projectRoot": "projects/duplicate-orphan-retirement",
+  "projectization": {
+    "level": 3,
+    "changeType": "legacy-retirement",
+    "implementationScope": [
+      "app/src/features/",
+      "app/src/presentation/pages/",
+      "app/src/test/guards/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "他 Lane（SP-A / SP-B / SP-D）の item",
+      "本 ADR 4 件に載らない複製 / orphan の撤退",
+      "umbrella の Phase 4 で確定されなかった file の削除",
+      "新機能の追加"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/duplicate-orphan-retirement/AI_CONTEXT.md",
     "handoff": "projects/duplicate-orphan-retirement/HANDOFF.md",
     "plan": "projects/duplicate-orphan-retirement/plan.md",
-    "checklist": "projects/duplicate-orphan-retirement/checklist.md"
+    "checklist": "projects/duplicate-orphan-retirement/checklist.md",
+    "projectization": "projects/duplicate-orphan-retirement/projectization.md"
   }
 }

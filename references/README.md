@@ -8,7 +8,7 @@
 |---|---|---|
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
 | `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 57 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 63 |
 | `05-contents/` | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 2 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
@@ -145,6 +145,7 @@
 | Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類の根拠資料） | `03-guides/read-path-duplicate-audit.md` |
 | projects/ 運用ルール（ドキュメントと課題の分離 / checklist 駆動の completion 管理） | `03-guides/project-checklist-governance.md` |
 | 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証） | `03-guides/new-project-bootstrap-guide.md` |
+| AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4） | `03-guides/projectization-policy.md` |
 | AAG 5.0 4層構造定義 | `01-principles/aag-5-constitution.md` |
 | AAG 5.0 既存ファイル層マッピング | `01-principles/aag-5-layer-map.md` |
 | AAG 5.0 正本/派生/運用物ポリシー | `01-principles/aag-5-source-of-truth-policy.md` |
@@ -334,6 +335,7 @@
 | `03-guides/read-path-duplicate-audit.md` | Read-path 重複耐性 Spot Audit（**根拠資料** — FRAGILE/PARTIAL/SAFE 分類） |
 | `03-guides/project-checklist-governance.md` | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理） |
 | `03-guides/new-project-bootstrap-guide.md` | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト） |
+| `03-guides/projectization-policy.md` | AAG-COA — Projectization Policy（**立ち上げ前の入口判定** — Level 0-4 / required + forbidden artifacts / escalation / project.json metadata / guard 仕様） |
 
 ### 移行・廃止
 

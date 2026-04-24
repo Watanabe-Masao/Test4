@@ -4,10 +4,36 @@
   "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
   "status": "active",
   "projectRoot": "projects/architecture-debt-recovery",
+  "projectization": {
+    "level": 4,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/features/",
+      "app/src/application/",
+      "app/src/presentation/",
+      "app/src/domain/",
+      "app/src/test/",
+      "tools/architecture-health/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "個別 widget の cleanup project 化（Budget Simulator 7 項目は真因の 1 入力）",
+      "新機能追加（負債回収のみ）",
+      "documentation-only 作業",
+      "パフォーマンス最適化",
+      "UI デザイン刷新",
+      "budget-achievement-simulator を Phase 5 まで触ること",
+      "Phase 4/5 計画を経由しない sub-project の立ち上げ"
+    ]
+  },
   "entrypoints": {
     "aiContext": "projects/architecture-debt-recovery/AI_CONTEXT.md",
     "handoff": "projects/architecture-debt-recovery/HANDOFF.md",
     "plan": "projects/architecture-debt-recovery/plan.md",
-    "checklist": "projects/architecture-debt-recovery/checklist.md"
+    "checklist": "projects/architecture-debt-recovery/checklist.md",
+    "projectization": "projects/architecture-debt-recovery/projectization.md"
   }
 }
