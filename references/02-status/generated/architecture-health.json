@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T08:53:10.655Z",
+  "timestamp": "2026-04-24T09:01:18.396Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -310,7 +310,6 @@
         "app/src/test/guards/noNewDebtGuard.test.ts",
         "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
-        "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/phase6SummarySwapGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
@@ -341,6 +340,7 @@
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
         "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
         "app/src/test/guards/topologyGuard.test.ts",
+        "app/src/test/guards/unifiedWidgetContextNoPageLocalOptionalGuard.test.ts",
         "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
         "app/src/test/guards/versionSyncGuard.test.ts",
         "app/src/test/guards/wasmCrateStructureGuard.test.ts",

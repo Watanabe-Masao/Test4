@@ -637,7 +637,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - reviewPolicy 設定済みルール数 を 0 → 92 に削減する（残 -92）
 
-> 生成: 2026-04-24T08:53:10.655Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-24T09:01:18.396Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
