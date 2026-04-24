@@ -159,8 +159,11 @@ export interface RuleOperationalState {
   readonly fixNow?: FixNowClassification
   /** 実行計画（案件固有の工数・優先度）— 全ルール必須 */
   readonly executionPlan: ExecutionPlan
-  /** レビュー周期（案件運用） */
-  readonly reviewPolicy?: ReviewPolicy
+  /**
+   * レビュー周期（案件運用）— 全ルール必須
+   * ADR-D-001 PR3 (2026-04-24) で optional → required 昇格 (BC-6)。
+   */
+  readonly reviewPolicy: ReviewPolicy
   /** experimental ルールの出口（案件の時計） */
   readonly lifecyclePolicy?: LifecyclePolicy
 }

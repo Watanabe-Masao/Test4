@@ -1,27 +1,23 @@
 /**
  * reviewPolicyRequiredGuard —
- * Architecture Rule の `reviewPolicy` 必須化 ratchet-down
+ * Architecture Rule の `reviewPolicy` 必須化 + 時刻フィールド検証
  *
- * projects/architecture-debt-recovery SP-D ADR-D-001 PR1。
+ * projects/architecture-debt-recovery SP-D ADR-D-001。
  *
- * 現在、RuleOperationalState.reviewPolicy は optional。
- * PR3 で required に型レベル昇格するまでの間、新規 rule 追加時に
- * reviewPolicy 未設定のルールが増えないことを ratchet-down で保証する。
+ * 進捗:
+ *  - PR1 (2026-04-24): baseline=139 で ratchet-down 導入
+ *  - PR2 (2026-04-24): 139 rule に bulk 追記、baseline=0 到達
+ *  - PR3 (2026-04-24): RuleOperationalState.reviewPolicy を required 昇格 (BC-6)。
+ *                       本 guard は型システムのバックストップ + 時刻検証に転換
+ *  - PR4 (予定): expiresAt 超過 entry の fail 検出を追加
  *
- * 検出対象:
- *  - R1: reviewPolicy 未設定 rule が baseline を超えない（ratchet-down）
- *  - R2: baseline を構成する unset rule の allowlist と一致する（削除忘れ検出）
- *
- * Baseline の由来:
- *  - ADR-D-001 の当初見積もりは 92 件（inquiry/11 §E 時点）
- *  - Wave 0 切替で 9 SAFETY rule に reviewPolicy 付記済み
- *  - 現状は 139 件の rule が reviewPolicy 未設定（本 baseline の根拠）
- *  - ADR-D-001 PR2 で 92 件を bulk 整備し baseline を減少させる
- *  - ADR-D-001 PR3 で RuleOperationalState.reviewPolicy を required 昇格
- *  - ADR-D-001 PR4 で baseline=0 固定モード移行
+ * 検出対象（PR3 以降）:
+ *  - R1: reviewPolicy 未設定 rule が 0 件（型で強制されるがランタイム確認）
+ *  - R2a-c: allowlist 空の状態を維持（新規 rule 追加時は必ず設定）
  *
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-001
+ *  - projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-6
  *  - references/03-guides/architecture-rule-system.md §Temporal Governance
  *
  * @responsibility R:guard

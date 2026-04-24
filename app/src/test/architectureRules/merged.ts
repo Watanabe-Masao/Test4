@@ -55,7 +55,18 @@ function mergeRules(): readonly ArchitectureRule[] {
     const fixNow = projectOverlay?.fixNow ?? defaultOverlay!.fixNow
     const executionPlan = projectOverlay?.executionPlan ?? defaultOverlay!.executionPlan
     const lifecyclePolicy = projectOverlay?.lifecyclePolicy ?? defaultOverlay?.lifecyclePolicy
+    // ADR-D-001 PR3 (2026-04-24): RuleOperationalState.reviewPolicy は required。
+    // defaults には reviewPolicy が無い（案件固有の時刻フィールドのため）ので、
+    // project overlay が必ず提供する。未提供は構造エラー。
     const reviewPolicy = projectOverlay?.reviewPolicy
+    if (!reviewPolicy) {
+      throw new Error(
+        `[execution-overlay] Missing reviewPolicy for rule: ${rule.id}. ` +
+          `Project overlay (EXECUTION_OVERLAY) must provide reviewPolicy ` +
+          `(owner / lastReviewedAt / reviewCadenceDays) for all rules. ` +
+          `See: projects/architecture-debt-recovery/aag/execution-overlay.ts`,
+      )
+    }
     return {
       ...rule,
       fixNow,
