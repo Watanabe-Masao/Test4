@@ -41,7 +41,7 @@
 * [x] `inquiry/11-recurrence-pattern.md` を作成した（既存対策の回避経緯）
 * [x] 主要症状に対し単一原因への帰着解釈を明示的に拒否した
 * [x] 各仮説に検証可能な形（「X を変えると Y が起きるはず」等）が付与されている
-* [ ] architecture ロール review 完了
+* [x] architecture ロール review 完了
 * [x] Phase 2 期間中にコード変更を一切行わなかったことを `git log` で確認した
 
 ## Phase 3: 原則制定
@@ -54,7 +54,7 @@
 * [x] 各原則候補に機械検出方法の粗設計が記載されている
 * [x] 各原則候補に sunsetCondition が記載されている
 * [x] 本 Phase では `references/01-principles/` / `docs/contracts/principles.json` を一切 touch していないことを確認した
-* [ ] architecture ロール review 完了
+* [x] architecture ロール review 完了
 
 ## Phase 4: 改修計画
 
@@ -66,19 +66,19 @@
 * [x] 全改修にレガシー撤退が紐付いている（「新実装のみ追加」が存在しない）
 * [x] 全破壊的変更に rollback 手順が記載されている
 * [x] sub-project 依存グラフが閉路を含まない
-* [ ] pm-business + architecture ロール合意
-* [ ] 人間承認: 破壊的変更 list と sub-project 立ち上げ順序
+* [x] pm-business + architecture ロール合意
+* [x] 人間承認: 破壊的変更 list と sub-project 立ち上げ順序
 
 ## Phase 5: 既存 project 整理
 
-* [ ] `inquiry/19-predecessor-project-transition.md` を作成した（`budget-achievement-simulator` の扱い確定）
-* [ ] `inquiry/20-current-project-switch-plan.md` を作成した（`CURRENT_PROJECT.md` 切替計画）
-* [ ] `inquiry/21-spawn-sequence.md` を作成した（sub-project 立ち上げ順序）
-* [ ] `budget-achievement-simulator` cleanup 7 項目の引き継ぎ先 sub-project が確定している
-* [ ] 本 project の `config/project.json` の `status: "draft"` → `"active"` 変更承認済
-* [ ] `open-issues.md` の active projects 表更新方針が確定している
-* [ ] 人間承認: `budget-achievement-simulator` の扱い
-* [ ] 人間承認: 本 project の `active` 昇格
+* [x] `inquiry/19-predecessor-project-transition.md` を作成した（`budget-achievement-simulator` の扱い確定）
+* [x] `inquiry/20-current-project-switch-plan.md` を作成した（`CURRENT_PROJECT.md` 切替計画）
+* [x] `inquiry/21-spawn-sequence.md` を作成した（sub-project 立ち上げ順序）
+* [x] `budget-achievement-simulator` cleanup 7 項目の引き継ぎ先 sub-project が確定している
+* [x] 本 project の `config/project.json` の `status: "draft"` → `"active"` 変更承認済
+* [x] `open-issues.md` の active projects 表更新方針が確定している
+* [x] 人間承認: `budget-achievement-simulator` の扱い
+* [x] 人間承認: 本 project の `active` 昇格
 
 ## Phase 6: 実装 + レガシー撤退
 
