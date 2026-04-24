@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-24T07:43:16.568Z",
+  "timestamp": "2026-04-24T08:05:59.907Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 79,
+      "value": 80,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -318,6 +318,7 @@
         "app/src/test/guards/presentationIsolationGuard.test.ts",
         "app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts",
         "app/src/test/guards/projectCompletionConsistencyGuard.test.ts",
+        "app/src/test/guards/projectDocConsistencyGuard.test.ts",
         "app/src/test/guards/projectDocStructureGuard.test.ts",
         "app/src/test/guards/projectStructureGuard.test.ts",
         "app/src/test/guards/purchaseCostImportGuard.test.ts",
