@@ -638,6 +638,26 @@
           "label": "WID-002 日別売上チャート — Dashboard-local 17-field ctx 展開 pilot"
         },
         {
+          "path": "references/05-contents/widgets/WID-003.md",
+          "label": "WID-003 粗利推移チャート — Dashboard-local、registry 内 pure helper 使用"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-004.md",
+          "label": "WID-004 時間帯×曜日ヒートマップ — Dashboard-local、isVisible 関数参照 + full ctx passthrough"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-005.md",
+          "label": "WID-005 店舗別時間帯比較 — Dashboard-local、UnifiedStoreHourlyWidget 委譲"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-006.md",
+          "label": "WID-006 売上・仕入 店舗比較 — Dashboard-local、render 内 inline logic + lane 経由"
+        },
+        {
+          "path": "references/05-contents/widgets/WID-007.md",
+          "label": "WID-007 天気-売上 相関分析 — Dashboard-local、WeatherWidget 委譲"
+        },
+        {
           "path": "references/05-contents/widgets/WID-040.md",
           "label": "WID-040 サマリーKPI（原価明細）— Unified ctx の page-local optional field pilot"
         }

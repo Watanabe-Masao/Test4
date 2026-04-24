@@ -23,6 +23,11 @@
 |---|---|---|
 | `WID-001.md` | 店別予算達成状況 | Dashboard-local 最小構成 pilot（isVisible predicate + 単一 children） |
 | `WID-002.md` | 日別売上チャート | Dashboard-local 17-field ctx 展開 pilot（props + full ctx 二重注入） |
+| `WID-003.md` | 粗利推移チャート | Dashboard-local、registry file 内 pure helper 使用 |
+| `WID-004.md` | 時間帯×曜日ヒートマップ | Dashboard-local、isVisible 関数参照 + full ctx passthrough |
+| `WID-005.md` | 店舗別時間帯比較 | Dashboard-local、UnifiedStoreHourlyWidget 委譲 |
+| `WID-006.md` | 売上・仕入 店舗比較 | Dashboard-local、render 内 inline logic + lane 経由 |
+| `WID-007.md` | 天気-売上 相関分析 | Dashboard-local、WeatherWidget 委譲 |
 | `WID-040.md` | サマリーKPI（原価明細） | Unified ctx の page-local optional field pilot（costDetailData 非対称性） |
 
 （残り 44 件は Phase 6 量産。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照）
