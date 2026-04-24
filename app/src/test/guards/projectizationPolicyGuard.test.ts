@@ -298,8 +298,7 @@ function checkPZ12(p: ActiveProject): Violation[] {
       {
         projectId: p.projectId,
         code: 'PZ-12',
-        message:
-          'Level 2+ project なのに projectization.nonGoals が未定義または空です',
+        message: 'Level 2+ project なのに projectization.nonGoals が未定義または空です',
         hint:
           'projectization.nonGoals に「この project でやらないこと」を 1 件以上列挙してください。\n' +
           ' scope 逸脱の抑止と escalation 判定の基準として機能します。\n' +
