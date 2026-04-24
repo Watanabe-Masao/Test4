@@ -4,9 +4,10 @@
  *
  * projects/architecture-debt-recovery SP-C ADR-C-001 PR1。
  *
- * 現在 3 ペアの widgets.tsx（features/X/ui ↔ presentation/pages/X）が
- * byte-identical で並存。ADR-C-001 PR2 で features 側を barrel re-export 化、
- * PR3 で features 側を物理削除、PR4 で baseline=0 固定モード移行。
+ * 初期: 3 ペアの widgets.tsx（features/X/ui ↔ presentation/pages/X）が
+ * byte-identical で並存。ADR-C-001 PR2 (2026-04-24) で features 側を barrel 化し
+ * duplicate 解消、PR3 で shim 物理削除、PR4 で baseline=0 fixed mode 到達。
+ * 現在は「新規 duplicate 追加禁止」監視フェーズ。
  *
  * 検出対象:
  *  - D1: app/src/ 配下の .tsx ファイルで MD5 hash が一致するグループ数 ≤ baseline

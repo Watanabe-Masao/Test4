@@ -11,9 +11,9 @@
 
 * [x] PR1: `duplicateFileHashGuard` を baseline=3 で追加した
 * [x] PR2: 3 file を barrel re-export 化し `@canonical` JSDoc を付記した
-* [ ] PR3: consumer grep で features/ 経由 import 0 を確認後、3 file を削除した（barrel 化のみで consumer 0 の場合）
-* [ ] PR4: `duplicateFileHashGuard` baseline=0 に更新し fixed mode 化した
-* [ ] LEG-010 / LEG-011 / LEG-012 の `sunsetCondition` 達成を確認した
+* [x] PR3: consumer grep で features/ 経由 import 0 を確認後、3 file を削除した（barrel 化のみで consumer 0 の場合）
+* [x] PR4: `duplicateFileHashGuard` baseline=0 に更新し fixed mode 化した
+* [x] LEG-010 / LEG-011 / LEG-012 の `sunsetCondition` 達成を確認した
 
 ## Phase 2: ADR-C-002 — useCostDetailData 2 箇所並存解消
 
