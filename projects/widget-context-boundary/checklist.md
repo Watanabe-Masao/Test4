@@ -7,9 +7,9 @@
 
 * [x] PR1: `unifiedWidgetContextNoPageLocalOptionalGuard` baseline=5 で追加
 * [x] PR2: InsightWidgetContext / CostDetailWidgetContext / CategoryWidgetContext 新設
-* [ ] PR3a: INSIGHT 6 widget を page-specific ctx に切替
-* [ ] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替
-* [ ] PR3c: CATEGORY 2 widget を page-specific ctx に切替
+* [x] PR3a: INSIGHT 6 widget を page-specific ctx に切替（insightWidget helper で null check 集約、4 widget が helper 経由、2 widget は page-local 不要のため素の WidgetDef）
+* [x] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替（costDetailWidget helper で null check 集約、4 widget 全て helper 経由）
+* [x] PR3c: CATEGORY 2 widget を page-specific ctx に切替（categoryWidget helper で 3 field null check 集約、2 widget 全て helper 経由）
 * [ ] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
 * [ ] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
 * [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ）
