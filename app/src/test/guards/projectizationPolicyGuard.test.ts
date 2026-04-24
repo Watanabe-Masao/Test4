@@ -50,9 +50,16 @@ const PROJECTS_DIR = path.join(PROJECT_ROOT, 'projects')
 /**
  * PZ-1 baseline: `projectization` metadata を持たない active project の件数。
  * ratchet-down: 減少のみ許可。0 に到達したら guard を strict 化できる。
- * 初期値: 2026-04-24 時点の active project（kind=collection を除く）= 9。
+ *
+ * 履歴:
+ * - 2026-04-24 (初期): 9 件（AAG-COA 導入時、全 active project が未付与）
+ * - 2026-04-24 (retroactive 付与 Batch 1): 9 → 5 件
+ *   architecture-debt-recovery / widget-context-boundary /
+ *   duplicate-orphan-retirement / aag-temporal-governance-hardening に metadata 付与。
+ *   残 5 件: presentation-quality-hardening / pure-calculation-reorg /
+ *   responsibility-taxonomy-v2 / taxonomy-v2 / test-taxonomy-v2
  */
-const PZ1_MISSING_METADATA_BASELINE = 9
+const PZ1_MISSING_METADATA_BASELINE = 5
 
 type Level = 0 | 1 | 2 | 3 | 4
 

@@ -41,7 +41,7 @@
 **Next:**
 - reviewPolicy 設定済みルール数 を 0 → 92 に削減する（残 -92）
 
-> 生成: 2026-04-24T14:06:08.708Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-24T14:39:50.679Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
