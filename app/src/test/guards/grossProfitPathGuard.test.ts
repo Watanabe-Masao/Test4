@@ -68,8 +68,6 @@ describe('粗利計算正本ガード', () => {
     'domain/calculations/utils.ts',
     // 在庫法/推定法の詳細分岐を意図的に表示するビュー（正本関数では情報が足りない）
     // これらは「フォールバック後の単一値」ではなく「両方法の内部構造」を表示する
-    'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
-    'presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
     'presentation/pages/Dashboard/widgets/conditionSummaryDailyBuilders.ts',
   ])
 

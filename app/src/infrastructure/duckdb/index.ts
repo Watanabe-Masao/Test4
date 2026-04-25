@@ -95,9 +95,6 @@ export type {
   CategoryBenchmarkParams,
 } from './queries/advancedAnalytics'
 
-export { queryConditionMatrix } from './queries/conditionMatrix'
-export type { ConditionMatrixRow, PeriodMetrics } from './queries/conditionMatrix'
-
 export {
   queryDailyRecords,
   queryPrevYearDailyRecords,

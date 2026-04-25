@@ -136,15 +136,3 @@ export type { DayDetailData, DayDetailDataParams, WeatherCandidate } from './use
 
 // 比較コンテキスト
 export { useComparisonContextQuery } from './useComparisonContextQuery'
-
-// コンディションマトリクス
-export { useDuckDBConditionMatrix, buildConditionMatrix } from './useConditionMatrix'
-export type {
-  ConditionMatrixRow,
-  MatrixCell,
-  MatrixRowData,
-  ConditionMatrixResult,
-  TrendDirection,
-  TrendDirectionCell,
-  TrendDirectionRow,
-} from './useConditionMatrix'

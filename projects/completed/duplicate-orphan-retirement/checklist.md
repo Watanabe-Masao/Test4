@@ -27,9 +27,10 @@
 
 * [x] PR1: `orphanUiComponentGuard` を baseline=7 で追加した（plan.md baseline=3 から実 audit で 7 件検出に修正。inquiry/03 の Explore agent 見落とし 4 件を含む。詳細は `app/src/test/guards/orphanUiComponentGuard.test.ts` 冒頭コメント）
 * [x] PR2: 3 file 削除（`DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + `__tests__/PlanActualForecast.test.tsx` / `RangeComparison.tsx`）+ `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去を実施した（+ `RangeComparison.styles.ts` + cascade orphan `ExecMetric.tsx` も削除）。baseline 7→4 に減算
-* [ ] PR3: `orphanUiComponentGuard` baseline=0 + fixed mode 化した（**残 4 件 (Condition*.tsx 3 + ExecSummaryBarWidget.tsx) の処理方針 — scope 拡張 or 保留 — は `17a-*.md` 承認待ち**）
-* [ ] LEG-014 の `sunsetCondition` 達成を確認した（残 4 件処理確定後）
-* [ ] BC-5 の rollback 手順を PR description に記載した
+* [x] PR3a: 17a Option A 承認 (2026-04-25) を受け F1 (ConditionDetailPanels) + F3 (ConditionSummary) + F4 (ExecSummaryBarWidget) と barrel cascade orphan (conditionPanelMarkupCost / conditionPanelProfitability) を削除。baseline 4→1。phase6SummarySwapGuard.test.ts は F4 唯一対象だったため同時削除
+* [x] PR3b: F2 (ConditionMatrixTable) + 17a 想定 cascade (Plan/Handler/advanced/index.ts) + 拡張 cascade (duckdb hook/logic/test + infrastructure query/test) を削除。`orphanUiComponentGuard` baseline=0 + ALLOWLIST 空 + fixed mode 移行
+* [x] LEG-014 の `sunsetCondition` 達成を確認した（17a Option A 完遂、Tier D orphan + 17a 拡張 4 件 + barrel cascade 全削除済み）
+* [x] BC-5 の rollback 手順を PR description (PR2 / PR3a / PR3b commit message) に記載した（git revert で復元可能、各 PR は独立 revert 可能な単位）
 
 ## Phase 4: ADR-C-004 — barrel re-export metadata 必須化
 

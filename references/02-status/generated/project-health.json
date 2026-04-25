@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T17:23:28.488Z",
+  "timestamp": "2026-04-25T23:24:48.343Z",
   "summary": {
-    "active": 10,
-    "archived": 19,
-    "inProgress": 9,
+    "active": 8,
+    "archived": 21,
+    "inProgress": 7,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 813,
-    "checkedCheckboxes": 620
+    "totalCheckboxes": 814,
+    "checkedCheckboxes": 624
   },
   "projects": [
     {
@@ -241,13 +241,13 @@
       "projectId": "duplicate-orphan-retirement",
       "title": "複製 / orphan 撤退（SP-C）",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 16,
-      "total": 25,
-      "progress": 0.64,
-      "entrypoint": "projects/duplicate-orphan-retirement/AI_CONTEXT.md",
-      "checklistPath": "projects/duplicate-orphan-retirement/checklist.md",
+      "declaredStatus": "completed",
+      "derivedStatus": "archived",
+      "checked": 20,
+      "total": 26,
+      "progress": 0.769,
+      "entrypoint": "projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/duplicate-orphan-retirement/checklist.md",
       "parent": "architecture-debt-recovery"
     },
     {
@@ -384,13 +384,13 @@
       "projectId": "widget-context-boundary",
       "title": "widget / ctx 型境界再構築（SP-A）",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
+      "declaredStatus": "completed",
+      "derivedStatus": "archived",
       "checked": 24,
       "total": 33,
       "progress": 0.727,
-      "entrypoint": "projects/widget-context-boundary/AI_CONTEXT.md",
-      "checklistPath": "projects/widget-context-boundary/checklist.md",
+      "entrypoint": "projects/completed/widget-context-boundary/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/widget-context-boundary/checklist.md",
       "parent": "architecture-debt-recovery"
     }
   ]

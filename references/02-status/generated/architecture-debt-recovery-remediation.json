@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-25T17:23:28.494Z",
+  "generatedAt": "2026-04-25T23:24:48.349Z",
   "umbrellaProject": "architecture-debt-recovery",
   "itemCount": 18,
   "breakingChangeCount": 7,
@@ -7,25 +7,13 @@
   "subProjectCount": 4,
   "subProjects": [
     {
-      "id": "widget-context-boundary",
-      "checked": 24,
-      "total": 33,
-      "progressRatio": 0.7272727272727273
-    },
-    {
-      "id": "duplicate-orphan-retirement",
-      "checked": 16,
-      "total": 25,
-      "progressRatio": 0.64
-    },
-    {
       "id": "aag-temporal-governance-hardening",
       "checked": 15,
       "total": 29,
       "progressRatio": 0.5172413793103449
     }
   ],
-  "guardImplementedCount": 55,
+  "guardImplementedCount": 15,
   "baselineRemaining": 0,
   "reviewPending": 0
 }

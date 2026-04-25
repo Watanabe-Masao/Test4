@@ -12,7 +12,7 @@ export const presentationGetStateLimits: readonly QuantitativeAllowlistEntry[] =
   // StoreKpiTableInner.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // AdminPage.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
   // PrevYearMappingTab.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
-  // ExecSummaryBarWidget.tsx — Zustand selector 経由に移行。getState 0 回。許可リスト卒業
+  // ExecSummaryBarWidget.tsx — Zustand selector 経由に移行 → 17a Option A で 2026-04-25 削除済み
   // conditionSummaryUtils.ts — userCategoryLabels を引数で受け取る pure function に変更。許可リスト卒業
   // useCostDetailData.helpers.ts — userCategoryLabels を引数で受け取る pure function に変更。許可リスト卒業
 ] as const

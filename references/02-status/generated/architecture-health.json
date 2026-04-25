@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T17:23:28.486Z",
+  "timestamp": "2026-04-25T23:24:48.339Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 94,
+      "value": 93,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -318,7 +318,6 @@
         "app/src/test/guards/oldPathImportGuard.test.ts",
         "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
-        "app/src/test/guards/phase6SummarySwapGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/pipelineSafetyGuard.test.ts",
         "app/src/test/guards/presentationComparisonMathGuard.test.ts",
@@ -478,7 +477,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6602,
+      "value": 6601,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -499,7 +498,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2388,
+      "value": 2387,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -753,7 +752,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 10,
+      "value": 8,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -781,7 +780,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -792,7 +791,7 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ],
       "budget": 20
     },
@@ -800,7 +799,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 19,
+      "value": 21,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -846,7 +845,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -857,14 +856,14 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 9,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -892,7 +891,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -903,7 +902,7 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ],
       "budget": 20
     },
@@ -939,7 +938,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -950,7 +949,7 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ],
       "budget": 10
     },
@@ -958,7 +957,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 813,
+      "value": 814,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -986,7 +985,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -997,14 +996,14 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ]
     },
     {
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 620,
+      "value": 624,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1032,7 +1031,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -1043,7 +1042,7 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ]
     },
     {
@@ -1078,7 +1077,7 @@
         "projects/day-detail-modal-prev-year-investigation/checklist.md",
         "projects/design-system-v2-1-asset/checklist.md",
         "projects/completed/docs-and-governance-cohesion/checklist.md",
-        "projects/duplicate-orphan-retirement/checklist.md",
+        "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
         "projects/presentation-quality-hardening/checklist.md",
@@ -1089,7 +1088,7 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md"
       ]
     },
     {

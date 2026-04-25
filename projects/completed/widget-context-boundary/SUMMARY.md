@@ -3,11 +3,11 @@
 > **役割**: completion 記録（draft）。後続 project（SP-B widget-registry-simplification）が
 > 本 sub-project の経緯・成果物・引き継ぎ先を参照するためのサマリ。
 >
-> **status (本 file)**: **draft（人間レビュー待ち）**。本 file は `inquiry/20 §sub-project completion テンプレート` の **step1** にあたる。step2-7（physical move / status 切替 / CURRENT_PROJECT 切替 / open-issues 更新 / umbrella HANDOFF 同期 / projectCompletionConsistencyGuard 確認）は **人間承認後に人間が実施** する。
+> **status (本 file)**: **final（2026-04-25 archive 完了）**。本 file は `inquiry/20 §sub-project completion テンプレート` の **step1**。step2-7（physical move / status 切替 / CURRENT_PROJECT 確認 / open-issues 更新 / umbrella HANDOFF 同期 / projectCompletionConsistencyGuard 確認）も同 commit set で実施完了。
 
 ## 完了日
 
-**2026-04-25 (draft)** — sub-project completion PR の人間承認時に確定。
+**2026-04-25** — Phase 5 sub-project completion PR で archive 完了。
 
 ## 目的（再掲）
 

@@ -67,7 +67,7 @@ const KNOWN_DUPLICATE_INTERFACES: readonly string[] = [
   'ImportSummary',
   'MonthEntry',
   'MovingAverageEntry',
-  'PeriodMetrics',
+  // 'PeriodMetrics': ADR-C-003 PR3b 拡張 cascade で infrastructure/duckdb/queries/conditionMatrix.ts 削除済み (2026-04-25) — 重複解消
   'Props',
   'RawFileEntry',
   'StoreAggregationRow',

@@ -31,24 +31,18 @@ import * as path from 'path'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 
-// ratchet-down baseline
+// fixed mode (baseline=0)
 // - inquiry/03 §Tier D で 3 件が確定していたが、本 guard の実測で 7 件を検出
 // - 追加 4 件（Condition*.tsx / ExecSummaryBarWidget.tsx）は inquiry/03 の Explore agent が見落とし
 // - PR1 時点 baseline=7、ADR-C-003 PR2 (2026-04-24) で LEG-014 scope 3 件を削除し baseline=4 に減算
-// - PR3 で残 4 件の処理方針（scope 追加 or 保留）を決定、最終的に baseline=0 固定
-const BASELINE = 4
+// - 17a-orphan-scope-extension.md Option A 承認 (2026-04-25) で 4 件全削除を決定
+// - PR3a: F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget 削除 → baseline=1
+// - PR3b: F2 ConditionMatrixTable + cascade 削除 → baseline=0 + ALLOWLIST 空 + fixed mode 達成
+const BASELINE = 0
 
-// baseline を構成する既知 orphan。
-// - LEG-014 scope 3 件 (DowGapKpiCard / PlanActualForecast / RangeComparison) は
-//   ADR-C-003 PR2 で削除済み。
-// - 残 4 件は `17a-*.md` addendum 承認待ちで保留中（ADR-C-003 scope 外）。
-const KNOWN_ORPHAN_ALLOWLIST: readonly string[] = [
-  // 本 guard 実測で追加検出（inquiry/03 の agent 見落とし。scope 拡張は `17a-*.md` 承認待ち）
-  'app/src/presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/ConditionSummary.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
-]
+// baseline=0 fixed mode。新規 orphan 発生時は ALLOWLIST に追加する代わりに
+// component を削除するか、明確な理由を allowlist エントリの脚注に記載する。
+const KNOWN_ORPHAN_ALLOWLIST: readonly string[] = []
 
 // 走査対象ディレクトリ
 const SCAN_ROOTS = [
@@ -172,9 +166,9 @@ describe('Orphan UI Component Guard: presentation/pages/*/widgets/ + features/*/
       `orphan 件数 = ${orphans.length} (baseline = ${BASELINE}):\n` +
       orphans.map((o) => `  - ${o}`).join('\n') +
       '\n\n' +
-      'hint: ADR-C-003 PR2 で 3 件削除後、baseline=0 + ALLOWLIST 空 で固定モード化する。' +
+      'hint: ADR-C-003 PR3b 完了 (2026-04-25) で baseline=0 + ALLOWLIST 空 fixed mode 達成。' +
       '\n  新規 orphan 発生時は UI component を削除するか、allowlist に追加して理由を明記する。' +
-      '\n  詳細: projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-014'
+      '\n  詳細: projects/duplicate-orphan-retirement/checklist.md Phase 3'
     expect(orphans.length, message).toBeLessThanOrEqual(BASELINE)
   })
 
