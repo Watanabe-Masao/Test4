@@ -16,7 +16,9 @@ import { WeatherWidget } from './WeatherWidget'
  * 前年は日別仕入原価を持たないため、売上-売変で近似する。
  * 正確な値ではないが傾向比較には有用。
  */
-function buildPrevYearCostMap(ctx: DashboardWidgetContext): ReadonlyMap<number, number> | undefined {
+function buildPrevYearCostMap(
+  ctx: DashboardWidgetContext,
+): ReadonlyMap<number, number> | undefined {
   const { prevYear } = ctx
   if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return undefined
   const costMap = new Map<number, number>()
