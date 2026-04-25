@@ -24,7 +24,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Watch** | 前回比: Flat | Hard Gate: PASS
+**Watch** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -41,7 +41,7 @@
 **Next:**
 - reviewPolicy 設定済みルール数 を 0 → 92 に削減する（残 -92）
 
-> 生成: 2026-04-24T21:47:58.495Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-25T00:07:42.373Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
