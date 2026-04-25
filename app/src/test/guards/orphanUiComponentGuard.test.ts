@@ -35,19 +35,19 @@ const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 // - inquiry/03 §Tier D で 3 件が確定していたが、本 guard の実測で 7 件を検出
 // - 追加 4 件（Condition*.tsx / ExecSummaryBarWidget.tsx）は inquiry/03 の Explore agent が見落とし
 // - PR1 時点 baseline=7、ADR-C-003 PR2 (2026-04-24) で LEG-014 scope 3 件を削除し baseline=4 に減算
-// - PR3 で残 4 件の処理方針（scope 追加 or 保留）を決定、最終的に baseline=0 固定
-const BASELINE = 4
+// - 17a-orphan-scope-extension.md Option A 承認 (2026-04-25) で 4 件全削除を決定
+// - PR3a: F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget 削除 → baseline=1
+// - PR3b: F2 ConditionMatrixTable + cascade 削除 → baseline=0 + ALLOWLIST 空 + fixed mode
+const BASELINE = 1
 
 // baseline を構成する既知 orphan。
-// - LEG-014 scope 3 件 (DowGapKpiCard / PlanActualForecast / RangeComparison) は
-//   ADR-C-003 PR2 で削除済み。
-// - 残 4 件は `17a-*.md` addendum 承認待ちで保留中（ADR-C-003 scope 外）。
+// - LEG-014 scope 3 件 (DowGapKpiCard / PlanActualForecast / RangeComparison) は ADR-C-003 PR2 で削除済み。
+// - 17a 拡張 scope の F1/F3/F4 (ConditionDetailPanels / ConditionSummary / ExecSummaryBarWidget) は
+//   ADR-C-003 PR3a で削除済み (cascade なし)。
+// - 残 1 件 (F2 ConditionMatrixTable) は PR3b で cascade 込み削除予定。
 const KNOWN_ORPHAN_ALLOWLIST: readonly string[] = [
-  // 本 guard 実測で追加検出（inquiry/03 の agent 見落とし。scope 拡張は `17a-*.md` 承認待ち）
-  'app/src/presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx',
+  // PR3b で cascade (useConditionMatrixPlan / ConditionMatrixHandler / advanced/index.ts) 込み削除予定
   'app/src/presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/ConditionSummary.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
 ]
 
 // 走査対象ディレクトリ

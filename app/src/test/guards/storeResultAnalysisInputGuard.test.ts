@@ -29,9 +29,6 @@ const TOTAL_CUSTOMERS_ALLOWLIST = new Set<string>([
   // ReadModelSlice が idle/loading/error の場合に StoreResult.totalCustomers をフォールバックとして使う。
   // これは安全設計上の意図的な利用（DuckDB 未初期化時にもカードを表示するため）。
   'presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx',
-  'presentation/pages/Dashboard/widgets/ConditionSummary.tsx',
-  'presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
-  'presentation/pages/Dashboard/widgets/ExecSummaryBarWidget.tsx',
   'presentation/pages/Dashboard/widgets/DataTableWidgets.tsx',
   'presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx',
 ])

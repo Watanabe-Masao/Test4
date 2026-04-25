@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T13:45:33.134Z",
+  "timestamp": "2026-04-25T17:07:34.514Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 91,
+      "value": 90,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -317,7 +317,6 @@
         "app/src/test/guards/oldPathImportGuard.test.ts",
         "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
-        "app/src/test/guards/phase6SummarySwapGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/pipelineSafetyGuard.test.ts",
         "app/src/test/guards/presentationComparisonMathGuard.test.ts",
