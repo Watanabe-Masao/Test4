@@ -1,0 +1,68 @@
+{
+  "$comment": "CLAUDE.md が満たすべきテスト契約。実際の guard が要求している暗黙依存を明示化する正本。AAG framework: Test Contract（PR1 で導入）。documentation-steward owner。test-contract-collector が KPI を抽出し testContractGuard が CLAUDE.md との整合を検証する。新規 guard を追加して CLAUDE.md に新たな必須トークン要求が生まれた場合、本ファイルにも宣言を追加する。",
+  "version": "1.0.0",
+  "owner": "documentation-steward",
+  "rationale": "暗黙のテスト依存（『この guard が CLAUDE.md にこの文字列を要求する』）を明示化し、CLAUDE.md の安全な編集を可能にする。各 contract は source guard が削除/改変を許さない要素を宣言する。",
+  "contracts": [
+    {
+      "id": "canonicalization-tokens",
+      "label": "正本化体系の必須トークン",
+      "source": "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+      "verification": "CLAUDE.md に各トークンが文字列として出現すること",
+      "tokens": [
+        "readPurchaseCost",
+        "calculateGrossProfit",
+        "readSalesFact",
+        "readDiscountFact",
+        "calculateFactorDecomposition",
+        "useWidgetDataOrchestrator",
+        "canonicalization-principles.md"
+      ]
+    },
+    {
+      "id": "features-modules",
+      "label": "features/ モジュール一覧",
+      "source": "app/src/test/guards/projectStructureGuard.test.ts",
+      "verification": "app/src/features/ 配下の全モジュール名が CLAUDE.md に出現すること（動的）",
+      "dynamicSource": "app/src/features"
+    },
+    {
+      "id": "generated-sections",
+      "label": "AAG generated section マーカー",
+      "source": "tools/architecture-health/src/docs-check.ts",
+      "verification": "GENERATED:START/END マーカー対が CLAUDE.md に存在すること",
+      "sections": [
+        "architecture-health-summary",
+        "test-contract"
+      ]
+    },
+    {
+      "id": "canonical-table",
+      "label": "正本化体系テーブル（実装関数 ↔ 定義書）",
+      "source": "app/src/test/guards/docCodeConsistencyGuard.test.ts",
+      "verification": "CANONICAL_PAIRS の実装関数名と定義書名のペアが CLAUDE.md に共起すること",
+      "pairs": [
+        { "function": "readPurchaseCost", "doc": "purchase-cost-definition.md" },
+        { "function": "calculateGrossProfit", "doc": "gross-profit-definition.md" },
+        { "function": "readSalesFact", "doc": "sales-definition.md" },
+        { "function": "readDiscountFact", "doc": "discount-definition.md" },
+        { "function": "readCustomerFact", "doc": "customer-definition.md" },
+        { "function": "calculateFactorDecomposition", "doc": "authoritative-calculation-definition.md" },
+        { "function": "calculateQuantityPI", "doc": "pi-value-definition.md" },
+        { "function": "calculateCustomerGap", "doc": "customer-gap-definition.md" }
+      ]
+    },
+    {
+      "id": "reference-link-existence",
+      "label": "references リンクの実在性",
+      "source": "app/src/test/guards/docRegistryGuard.test.ts",
+      "verification": "CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要）"
+    },
+    {
+      "id": "no-static-numbers",
+      "label": "本文中のハードコード数値",
+      "source": "app/src/test/guards/docStaticNumberGuard.test.ts",
+      "verification": "現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0）"
+    }
+  ]
+}

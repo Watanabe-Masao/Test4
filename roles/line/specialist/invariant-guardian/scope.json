@@ -1,0 +1,16 @@
+{
+  "$comment": "invariant-guardian のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "invariant-guardian",
+  "category": "line/specialist",
+  "owns": [
+    "app/src/domain/calculations/",
+    "app/src/application/readModels/",
+    "app/src/test/guards/",
+    "references/03-guides/invariant-catalog.md"
+  ],
+  "out_of_scope_warn": [
+    "app/src/presentation/",
+    "app/src/infrastructure/duckdb/"
+  ],
+  "rationale": "invariant-guardian はシャープリー恒等式・計算ルール・ガードテストの数学的正確性を担う。プレゼンテーション層・DB 層への直接介入は越境"
+}

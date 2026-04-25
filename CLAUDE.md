@@ -5,6 +5,31 @@
 仕入荒利管理システム（shiire-arari）。小売業の仕入・売上・在庫データから粗利計算・
 予算分析・売上要因分解・需要予測を行うSPA。
 
+## CLAUDE.md Test Contract
+
+本ファイルは複数の guard が要求する暗黙のテスト依存を持つ。
+編集前に下表で **何が削除/改変できないか** を確認すること。
+
+- 正本: `docs/contracts/test-contract.json`
+- 検証 guard: `app/src/test/guards/testContractGuard.test.ts`
+- 自動生成: `tools/architecture-health/src/collectors/test-contract-collector.ts`
+
+新しい guard が CLAUDE.md に新たな必須要素を要求する場合は、test-contract.json
+にも宣言を追加する（双方向の整合は testContractGuard が機械検証）。
+
+<!-- GENERATED:START test-contract -->
+| Contract | Source guard | 検証内容 | 状態 |
+|---|---|---|---|
+| `canonicalization-tokens` | `canonicalizationSystemGuard.test.ts` | CLAUDE.md に各トークンが文字列として出現すること | OK |
+| `features-modules` | `projectStructureGuard.test.ts` | app/src/features/ 配下の全モジュール名が CLAUDE.md に出現すること（動的） | OK |
+| `generated-sections` | `tools/architecture-health/src/docs-check.ts` | GENERATED:START/END マーカー対が CLAUDE.md に存在すること | OK |
+| `canonical-table` | `docCodeConsistencyGuard.test.ts` | CANONICAL_PAIRS の実装関数名と定義書名のペアが CLAUDE.md に共起すること | OK |
+| `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
+| `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
+
+> 生成: 2026-04-25T22:57:53.695Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+<!-- GENERATED:END test-contract -->
+
 ## ロール・スキルシステム
 
 本プロジェクトでは開発タスクの品質を構造的に保証するために
@@ -152,34 +177,21 @@ ROLE.md と SKILL.md は以下の5層で思想を構造化する:
 | 論理構造 | SKILL.md | 因果関係（XならYが壊れる、なぜならZ） |
 | 方法論 | SKILL.md | 具体的手順 |
 
-### 越境検出
+### 越境検出（mechanism）
 
-作業完了時、以下を自己チェックする:
-- 自分の ROLE.md の Scope に含まれる作業だけを行ったか？
-- Boundary に該当する作業をしていないか？
-- Output の形式に従い、正しい渡し先に渡したか？
+各ロールの編集権限境界は `roles/<role>/scope.json` で宣言される（owns / out_of_scope_warn）。
+pre-commit hook が staged ファイルの role 帰属を informational 表示し、
+`scopeJsonGuard.test.ts` が宣言の整合性を機械検証する。
+**「気をつける」（exhortation）ではなく mechanism として運用する**（G8 適用）。
 
-### フィードバックスパイラル
+### フィードバックスパイラル（mechanism）
 
-品質を継続的に向上させるために、以下のループを回す:
+品質改善ループは AAG の ratchet-down 機構で実装されている。
+- review-gate FAIL → migrationRecipe / fix-now hint で復帰経路が機械生成（`tools/architecture-health/src/aag-response.ts`）
+- 同種バグ 2 回発生 → guard に baseline 追加、ratchet-down で再発防止（`responsibilityTagGuard.test.ts` 等）
+- ロール判断の明確化 → `roles/<role>/ROLE.md` の判断基準セクションを更新
 
-```
-実装 → review-gate → PASS/FAIL
-                        │
-           FAIL: 原因を分析 → 以下のいずれかを更新
-                        │
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-  禁止事項に追加    ガードテスト追加   ROLE/SKILL 改善
-  (CLAUDE.md)     (invariant-guardian) (documentation-steward)
-```
-
-**トリガー:**
-- review-gate が FAIL を出したとき → 原因が構造的なら禁止事項/ガードテストに昇格
-- 同じ種類のバグが2回発生したとき → 機械的検出手段（テスト）を追加
-- ロールの判断に迷いが生じたとき → ROLE.md の判断基準を明確化
-
-**原則:** 「気をつける」で終わらせない。再発を防ぐ構造（テスト、禁止事項、ROLE 改善）に変換する。
+**原則:** 「気をつける」で終わらせない。再発を防ぐ構造（テスト・guard・ratchet-down）に変換する（G8）。
 
 ## プロジェクト構成
 
@@ -620,7 +632,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -628,14 +640,14 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 28/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 90/30 / 0/5 |
-| 性能 | OK | 6601/7000 / 2387/2500 / 919/1000 |
+| ガード強度 | OK | 93/30(-1) / 0/5 |
+| 性能 | OK | 6601/7000(-1) / 2387/2500(-1) / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
-| Project Governance | OK | 8/20 / 7/20 / 0/0 / 21/100 |
+| Project Governance | OK | 8/20(-2) / 7/20(-2) / 0/0 / 21/100(+2) |
 
 
-> 生成: 2026-04-25T17:34:52.644Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-25T22:57:53.686Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

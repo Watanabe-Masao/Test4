@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T17:34:52.644Z",
+  "timestamp": "2026-04-25T22:57:53.686Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 90,
+      "value": 93,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -310,6 +310,7 @@
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
         "app/src/test/guards/hookCanonicalPathGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
+        "app/src/test/guards/manifestGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
         "app/src/test/guards/monthlyPrevYearSalesGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
@@ -339,6 +340,7 @@
         "app/src/test/guards/salesFactPathGuard.test.ts",
         "app/src/test/guards/sameInterfaceNameGuard.test.ts",
         "app/src/test/guards/scopeAwareMutationGuard.test.ts",
+        "app/src/test/guards/scopeJsonGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
         "app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts",
         "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
@@ -346,6 +348,7 @@
         "app/src/test/guards/subprojectParentGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
+        "app/src/test/guards/testContractGuard.test.ts",
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
         "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
         "app/src/test/guards/topologyGuard.test.ts",
@@ -557,6 +560,41 @@
         {
           "kind": "definition",
           "path": "tools/architecture-health/src/collectors/obligation-collector.ts"
+        }
+      ],
+      "implRefs": [],
+      "budget": 0
+    },
+    {
+      "id": "docs.obligation.requiredReads.declaredCount",
+      "label": "Required Reads マップ宣言数",
+      "category": "docs",
+      "value": 9,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "tools/architecture-health/src/collectors/obligation-collector.ts",
+          "section": "PATH_TO_REQUIRED_READS"
+        }
+      ],
+      "implRefs": []
+    },
+    {
+      "id": "docs.obligation.requiredReads.brokenLinks",
+      "label": "Required Reads マップ broken link 数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "tools/architecture-health/src/collectors/obligation-collector.ts",
+          "section": "PATH_TO_REQUIRED_READS"
         }
       ],
       "implRefs": [],
@@ -1052,11 +1090,48 @@
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md"
       ]
+    },
+    {
+      "id": "docs.testContract.declared",
+      "label": "CLAUDE.md テスト契約宣言数",
+      "category": "docs",
+      "value": 6,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "docs/contracts/test-contract.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/test-contract-collector.ts",
+        "app/src/test/guards/testContractGuard.test.ts"
+      ]
+    },
+    {
+      "id": "docs.testContract.violations",
+      "label": "CLAUDE.md テスト契約違反数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "docs/contracts/test-contract.json"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/testContractGuard.test.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 40,
-    "ok": 40,
+    "totalKpis": 44,
+    "ok": 44,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

@@ -1,0 +1,15 @@
+{
+  "$comment": "duckdb-specialist のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "duckdb-specialist",
+  "category": "line/specialist",
+  "owns": [
+    "app/src/infrastructure/duckdb/",
+    "app/src/application/queries/",
+    "references/03-guides/duckdb-architecture.md"
+  ],
+  "out_of_scope_warn": [
+    "app/src/presentation/",
+    "app/src/domain/calculations/"
+  ],
+  "rationale": "duckdb-specialist は DuckDB クエリ・スキーマ・JS との責務境界を担う。計算正本（domain/calculations）・UI への直接介入は越境"
+}

@@ -1,0 +1,14 @@
+{
+  "$comment": "pm-business のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。スキーマ: roles/_schema/scope.schema.md",
+  "role": "pm-business",
+  "category": "staff",
+  "owns": [
+    "projects/"
+  ],
+  "out_of_scope_warn": [
+    "app/src/",
+    "tools/architecture-health/",
+    "docs/contracts/"
+  ],
+  "rationale": "pm-business は指示者・要件アナリスト。タスク分解・作業者決定・完了判定を担い、コード/AAG infrastructure/契約は他ロールに委譲する"
+}

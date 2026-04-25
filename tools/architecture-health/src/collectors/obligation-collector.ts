@@ -9,7 +9,7 @@
 import { execSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import type { HealthKpi } from '../types.js'
+import type { DocRef, HealthKpi } from '../types.js'
 import { renderAagResponse, buildObligationResponse } from '../aag-response.js'
 
 // ---------------------------------------------------------------------------
@@ -157,6 +157,80 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
 ] as const
 
 // ---------------------------------------------------------------------------
+// Required Reads Map — 編集パス → 必読 docs / refs
+//
+// 「特定パスを編集するときに読むべき docs/refs」の宣言マップ。
+// 既存 OBLIGATION_MAP（チェック付き）とは別の関心事であり、
+// CLAUDE.md Trigger Map と UserPromptSubmit hook の基盤データになる。
+//
+// - pathPrefix: 編集パスの prefix（簡易マッチ）
+// - requiredReads: そのパスを編集する前に読むべき docs/refs の path 配列
+// - rationale: なぜ読む必要があるか（人間可読）
+// ---------------------------------------------------------------------------
+
+export interface RequiredReadsRule {
+  readonly pathPrefix: string
+  readonly requiredReads: readonly string[]
+  readonly rationale: string
+}
+
+export const PATH_TO_REQUIRED_READS: readonly RequiredReadsRule[] = [
+  {
+    pathPrefix: 'app/src/application/readModels/grossProfit/',
+    requiredReads: ['references/01-principles/gross-profit-definition.md'],
+    rationale: '粗利 readModel 変更時は粗利定義書を必読（4種の粗利の意味と計算式）',
+  },
+  {
+    pathPrefix: 'app/src/application/readModels/purchaseCost/',
+    requiredReads: ['references/01-principles/purchase-cost-definition.md'],
+    rationale: '仕入原価 readModel 変更時は仕入原価定義書を必読（3独立正本の統合契約）',
+  },
+  {
+    pathPrefix: 'app/src/application/readModels/salesFact/',
+    requiredReads: ['references/01-principles/sales-definition.md'],
+    rationale: '売上 readModel 変更時は売上定義書を必読',
+  },
+  {
+    pathPrefix: 'app/src/application/readModels/discountFact/',
+    requiredReads: ['references/01-principles/discount-definition.md'],
+    rationale: '値引き readModel 変更時は値引き定義書を必読',
+  },
+  {
+    pathPrefix: 'app/src/application/readModels/customerFact/',
+    requiredReads: ['references/01-principles/customer-definition.md'],
+    rationale: '客数 readModel 変更時は客数定義書を必読',
+  },
+  {
+    pathPrefix: 'app/src/application/readModels/factorDecomposition/',
+    requiredReads: ['references/01-principles/authoritative-calculation-definition.md'],
+    rationale: '要因分解 readModel 変更時は authoritative 計算定義書を必読',
+  },
+  {
+    pathPrefix: 'app/src/domain/calculations/',
+    requiredReads: ['references/03-guides/invariant-catalog.md'],
+    rationale: 'ドメイン計算変更時は不変条件カタログを必読（D1/D2/D3 の数学的不変条件）',
+  },
+  {
+    pathPrefix: 'app/src/infrastructure/duckdb/',
+    requiredReads: ['references/03-guides/duckdb-architecture.md'],
+    rationale: 'DuckDB infrastructure 変更時は DuckDB アーキテクチャガイドを必読',
+  },
+  {
+    pathPrefix: 'app/src/application/usecases/explanation/',
+    requiredReads: ['references/03-guides/explanation-architecture.md'],
+    rationale: 'Explanation usecase 変更時は説明責任アーキテクチャを必読（L1→L2→L3 3段階）',
+  },
+] as const
+
+/**
+ * pathPrefix にマッチする RequiredReadsRule を返す（複数マッチあり）。
+ * 将来的に CLAUDE.md Trigger Map / UserPromptSubmit hook が利用する API。
+ */
+export function lookupRequiredReads(changedPath: string): RequiredReadsRule[] {
+  return PATH_TO_REQUIRED_READS.filter((rule) => changedPath.startsWith(rule.pathPrefix))
+}
+
+// ---------------------------------------------------------------------------
 // 収集
 // ---------------------------------------------------------------------------
 
@@ -283,6 +357,59 @@ export function collectObligations(
   })
 
   return kpis
+}
+
+/**
+ * Required Reads マップの宣言数 + broken link 数を KPI として返す。
+ *
+ * - declaredCount: PATH_TO_REQUIRED_READS の宣言数（情報用、status: 'ok'）
+ * - brokenLinks: requiredReads が指す doc が実在しない数（status: brokenLinks > 0 で 'fail'）
+ *
+ * 将来 CLAUDE.md Trigger Map と UserPromptSubmit hook が同じ宣言を参照するため、
+ * リンク健全性をここで保証する。
+ */
+export function collectRequiredReadsKpis(repoRoot: string): HealthKpi[] {
+  let brokenLinks = 0
+  for (const rule of PATH_TO_REQUIRED_READS) {
+    for (const docPath of rule.requiredReads) {
+      const absPath = resolve(repoRoot, docPath)
+      if (!existsSync(absPath)) {
+        brokenLinks++
+      }
+    }
+  }
+
+  const docRefs: DocRef[] = [
+    {
+      kind: 'definition',
+      path: 'tools/architecture-health/src/collectors/obligation-collector.ts',
+    },
+  ]
+
+  return [
+    {
+      id: 'docs.obligation.requiredReads.declaredCount',
+      label: 'Required Reads マップ宣言数',
+      category: 'docs',
+      value: PATH_TO_REQUIRED_READS.length,
+      unit: 'count',
+      status: 'ok',
+      owner: 'documentation-steward',
+      docRefs,
+      implRefs: [],
+    },
+    {
+      id: 'docs.obligation.requiredReads.brokenLinks',
+      label: 'Required Reads マップ broken link 数',
+      category: 'docs',
+      value: brokenLinks,
+      unit: 'count',
+      status: brokenLinks > 0 ? 'fail' : 'ok',
+      owner: 'documentation-steward',
+      docRefs,
+      implRefs: [],
+    },
+  ]
 }
 
 /**

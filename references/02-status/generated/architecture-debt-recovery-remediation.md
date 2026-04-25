@@ -1,6 +1,6 @@
 # architecture-debt-recovery Remediation Snapshot
 
-> 生成: 2026-04-25T17:34:52.652Z
+> 生成: 2026-04-25T22:57:53.701Z
 > 正本: `projects/architecture-debt-recovery/inquiry/15-18`
 
 ## 集計値

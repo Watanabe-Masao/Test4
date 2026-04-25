@@ -1,0 +1,110 @@
+{
+  "$comment": "AI Single Entry Manifest — 動線・階層・発火設計の統一入口。AI セッションは本 manifest を経由して構造化正本（doc-registry / principles / scope / test-contract / obligations）にアクセスする。Phase 3: discovery hints + activeContext (lightweight) を追加。設計原則: rigid rule で AI を縛らず、入口と道具立てだけ最良に。",
+  "version": "1.1.0",
+  "schema": "manifest-v1",
+  "owner": "documentation-steward",
+  "rationale": "AI が必要な時に必要なデータを適切に得るために、動線（path）・階層（L1/L2/L3）・発火（trigger）を 1 ファイルから辿れる状態を作る。既存の構造化正本を重複させず、参照集約のみを行う。AI の context 導出能力を信頼し、思考を rigid に拘束する rule は持たない。",
+  "canonicalSources": {
+    "$comment": "全ての構造化正本（JSON）への参照マップ。AI は本セクションを最初に確認する。",
+    "docRegistry": {
+      "path": "docs/contracts/doc-registry.json",
+      "purpose": "全 doc の所在地マップ + label 索引"
+    },
+    "principles": {
+      "path": "docs/contracts/principles.json",
+      "purpose": "設計原則（A-I+Q）+ obsoleteTerms"
+    },
+    "projectMetadata": {
+      "path": "docs/contracts/project-metadata.json",
+      "purpose": "プロジェクトメタデータ（version 等）"
+    },
+    "testContract": {
+      "path": "docs/contracts/test-contract.json",
+      "purpose": "CLAUDE.md が満たすべきテスト契約（必須トークン宣言）"
+    },
+    "scopeDeclarations": {
+      "$comment": "全ロールの編集権限境界宣言。pre-commit hook + scopeJsonGuard が利用",
+      "directory": "roles/",
+      "filenamePattern": "scope.json",
+      "loaders": [
+        "roles/staff/pm-business/scope.json",
+        "roles/staff/review-gate/scope.json",
+        "roles/staff/documentation-steward/scope.json",
+        "roles/line/architecture/scope.json",
+        "roles/line/implementation/scope.json",
+        "roles/line/specialist/invariant-guardian/scope.json",
+        "roles/line/specialist/duckdb-specialist/scope.json",
+        "roles/line/specialist/explanation-steward/scope.json"
+      ]
+    }
+  },
+  "pathTriggers": {
+    "$comment": "編集パス → 必読 docs マップへの参照。実装は obligation-collector の PATH_TO_REQUIRED_READS。動的に拡張するときはここに追加するのではなく obligation-collector を更新する。",
+    "source": "tools/architecture-health/src/collectors/obligation-collector.ts",
+    "exportedSymbol": "PATH_TO_REQUIRED_READS",
+    "semantics": "prefix match → 必読 docs リスト"
+  },
+  "discovery": {
+    "$comment": "AI が context を導出するときのヒント集。これは『関連するかも』のリンク集であって、強制ルールではない。AI が必要に応じて参照する。byTopic は業務用語起点、byExpertise は専門領域起点。",
+    "policy": "hints-only — manifest は AI を縛らず、見つけやすくする。AI は context から判断して必要な範囲だけ consult する",
+    "byTopic": {
+      "粗利計算": ["references/01-principles/gross-profit-definition.md"],
+      "シャープリー分解": ["references/03-guides/invariant-catalog.md", "references/01-principles/authoritative-calculation-definition.md"],
+      "仕入原価": ["references/01-principles/purchase-cost-definition.md"],
+      "売上ファクト": ["references/01-principles/sales-definition.md"],
+      "値引き": ["references/01-principles/discount-definition.md"],
+      "客数": ["references/01-principles/customer-definition.md"],
+      "客数 GAP": ["references/01-principles/customer-gap-definition.md"],
+      "PI 値": ["references/01-principles/pi-value-definition.md"],
+      "予算": ["references/01-principles/budget-definition.md"],
+      "KPI": ["references/01-principles/kpi-definition.md"],
+      "DuckDB クエリ": ["references/03-guides/duckdb-architecture.md", "references/03-guides/duckdb-data-loading-sequence.md"],
+      "Explanation L1-L3": ["references/03-guides/explanation-architecture.md"],
+      "設計原則": ["references/01-principles/design-principles.md"],
+      "AAG": ["references/01-principles/adaptive-architecture-governance.md", "references/01-principles/adaptive-governance-evolution.md"],
+      "コーディング規約": ["references/03-guides/coding-conventions.md"],
+      "リファクタリング判断": ["references/01-principles/canonicalization-principles.md"]
+    },
+    "byExpertise": {
+      "$comment": "専門性で深掘りしたいときに consult する場所。専門性 (=expertise) はロールの最も価値ある側面",
+      "計算の正しさ": "roles/line/specialist/invariant-guardian/",
+      "DuckDB スキーマ・クエリ": "roles/line/specialist/duckdb-specialist/",
+      "説明責任 (Explanation)": "roles/line/specialist/explanation-steward/",
+      "層跨ぎ・設計判断": "roles/line/architecture/",
+      "コーディング全般": "roles/line/implementation/",
+      "品質判定": "roles/staff/review-gate/",
+      "ドキュメント整合性": "roles/staff/documentation-steward/",
+      "タスク分解・要件整理": "roles/staff/pm-business/"
+    }
+  },
+  "activeContext": {
+    "$comment": "AI が作業中に自由記述で残す notebook。固定 schema は最小限、AI の判断を尊重する。session 内で AI が更新する。session 跨ぎの persist は強制しない（必要なら AI が引き継ぐ）。",
+    "policy": "free-form notebook — AI が自分の context を整理する道具。manifest schema は最小、内容に rule を持たせない",
+    "currentFocus": null,
+    "loadedRefs": [],
+    "openQuestions": [],
+    "sessionNotes": null,
+    "lastUpdated": null
+  },
+  "lifecycle": {
+    "$comment": "manifest 更新 protocol。静的部分（canonicalSources / pathTriggers / discovery）は documentation-steward が更新。activeContext は AI が必要に応じて更新（強制ではない）。",
+    "updatedBy": {
+      "static": "documentation-steward",
+      "activeContext": "AI (free-form, on-demand)"
+    },
+    "updateTrigger": {
+      "static": [
+        "新しい構造化正本（docs/contracts/*.json）追加時",
+        "新しいロール scope.json 追加時",
+        "新しい正本定義書（references/01-principles/*-definition.md）追加時 → discovery.byTopic に追加",
+        "obligation-collector の PATH_TO_REQUIRED_READS 拡張時"
+      ],
+      "activeContext": [
+        "AI が長めの作業に入る時 → currentFocus を free-form で書くと自分の頭が整理される",
+        "重要な refs を読んだ時 → loadedRefs に追加すると後の自分が辿りやすい",
+        "判断に迷った時 → openQuestions に書くと忘れない"
+      ]
+    },
+    "validation": "app/src/test/guards/manifestGuard.test.ts"
+  }
+}

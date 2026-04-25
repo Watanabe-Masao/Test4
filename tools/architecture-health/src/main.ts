@@ -21,10 +21,15 @@ import { collectFromDocs } from "./collectors/doc-collector.js";
 import { collectFromBundle } from "./collectors/bundle-collector.js";
 import {
   collectObligations,
+  collectRequiredReadsKpis,
   reportObligationDetails,
 } from "./collectors/obligation-collector.js";
 import { collectFromCiTiming } from "./collectors/ci-timing-collector.js";
 import { collectFromTemporalGovernance } from "./collectors/temporal-governance-collector.js";
+import {
+  collectFromTestContract,
+  renderTestContractSection,
+} from "./collectors/test-contract-collector.js";
 import {
   collectRemediationSnapshot,
   writeRemediationFiles,
@@ -101,6 +106,7 @@ const ciTimingKpis = collectFromCiTiming(repoRoot);
 
 console.error("[collect] obligations...");
 const obligationKpis = collectObligations(repoRoot, { base });
+const requiredReadsKpis = collectRequiredReadsKpis(repoRoot);
 
 console.error("[collect] temporal governance...");
 const temporalKpis = collectFromTemporalGovernance(repoRoot);
@@ -109,6 +115,9 @@ console.error("[collect] project checklists...");
 const projectChecklistResults = collectProjectChecklists(repoRoot);
 const projectKpis = collectFromProjectChecklists(repoRoot);
 
+console.error("[collect] test contract...");
+const testContractKpis = collectFromTestContract(repoRoot);
+
 const allKpis = [
   ...snapshotKpis,
   ...guardKpis,
@@ -116,8 +125,10 @@ const allKpis = [
   ...bundleKpis,
   ...ciTimingKpis,
   ...obligationKpis,
+  ...requiredReadsKpis,
   ...temporalKpis,
   ...projectKpis,
+  ...testContractKpis,
 ];
 console.error(`[collect] done — ${allKpis.length} KPIs`);
 
@@ -264,7 +275,22 @@ if (!isCheck) {
     },
   ]);
 
-  for (const r of [...results, ...ruleStatsResults, ...structureResults]) {
+  // CLAUDE.md test contract generated section
+  const testContractContent = renderTestContractSection(repoRoot);
+  const testContractResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: "CLAUDE.md",
+      sectionId: "test-contract",
+      content: testContractContent,
+    },
+  ]);
+
+  for (const r of [
+    ...results,
+    ...ruleStatsResults,
+    ...structureResults,
+    ...testContractResults,
+  ]) {
     console.error(`[section] ${r.file} #${r.sectionId}: ${r.status}`);
   }
 
