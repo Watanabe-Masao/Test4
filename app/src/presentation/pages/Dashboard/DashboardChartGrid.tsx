@@ -15,7 +15,11 @@ interface Props {
   /** KPI ウィジェット数（D&D インデックスのオフセット） */
   readonly flatIdxStart: number
   /** ウィジェット1つ分をラップして返す（edit / normal 切替は親が制御） */
-  readonly renderWidget: (widget: UnifiedWidgetDef, flatIndex: number, content: ReactNode) => ReactNode
+  readonly renderWidget: (
+    widget: UnifiedWidgetDef,
+    flatIndex: number,
+    content: ReactNode,
+  ) => ReactNode
 }
 
 export const DashboardChartGrid = memo(function DashboardChartGrid({

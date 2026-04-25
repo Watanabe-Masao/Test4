@@ -8,7 +8,9 @@
 import type { PageKey, UnifiedWidgetDef } from './types'
 import { loadJson, saveJson, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
-export function buildWidgetMap(registry: readonly UnifiedWidgetDef[]): ReadonlyMap<string, UnifiedWidgetDef> {
+export function buildWidgetMap(
+  registry: readonly UnifiedWidgetDef[],
+): ReadonlyMap<string, UnifiedWidgetDef> {
   return new Map(registry.map((w) => [w.id, w]))
 }
 

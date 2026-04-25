@@ -252,7 +252,11 @@ export function DashboardPage() {
               // ADR-A-002 PR4 (2026-04-24): UnifiedWidgetContext から dowGap 削除済。
               // DashboardPage は Dashboard ページなので runtime で必ず populate されている。
               // useUnifiedWidgetContext は値を populate するが、type 側には no longer 露出しないため cast。
-              (ctx as unknown as { dowGap?: import('@/domain/models/ComparisonContext').DowGapAnalysis }).dowGap ?? {
+              (
+                ctx as unknown as {
+                  dowGap?: import('@/domain/models/ComparisonContext').DowGapAnalysis
+                }
+              ).dowGap ?? {
                 dowCounts: [],
                 estimatedImpact: 0,
                 isValid: false,
