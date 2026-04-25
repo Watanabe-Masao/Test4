@@ -41,6 +41,24 @@ interface PathTriggers {
   exportedSymbol: string
   semantics: string
 }
+interface Discovery {
+  policy: string
+  byTopic: Record<string, string[]>
+  byExpertise: Record<string, string>
+}
+interface ActiveContext {
+  policy: string
+  currentFocus: string | null
+  loadedRefs: unknown[]
+  openQuestions: unknown[]
+  sessionNotes: string | null
+  lastUpdated: string | null
+}
+interface Lifecycle {
+  updatedBy: { static: string; activeContext: string }
+  updateTrigger: { static: string[]; activeContext: string[] }
+  validation: string
+}
 interface Manifest {
   version: string
   schema: string
@@ -48,9 +66,10 @@ interface Manifest {
   rationale: string
   canonicalSources: CanonicalSources
   pathTriggers: PathTriggers
-  dispatcherPolicy: { recommendedHandlers: { taskPattern: string }[] }
-  activeContext: object
-  lifecycle: { updatedBy: string; validation: string }
+  dispatcherPolicy?: { recommendedHandlers: { taskPattern: string }[] }
+  discovery: Discovery
+  activeContext: ActiveContext
+  lifecycle: Lifecycle
 }
 
 const manifest: Manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'))
@@ -67,9 +86,51 @@ describe('Manifest Guard: .claude/manifest.json の整合性', () => {
     expect(manifest.rationale).toBeTruthy()
     expect(manifest.canonicalSources).toBeTruthy()
     expect(manifest.pathTriggers).toBeTruthy()
-    expect(manifest.dispatcherPolicy).toBeTruthy()
+    expect(manifest.discovery).toBeTruthy()
     expect(manifest.activeContext).toBeTruthy()
     expect(manifest.lifecycle).toBeTruthy()
+  })
+
+  it('discovery.byTopic の全 doc path が実在する', () => {
+    const violations: string[] = []
+    for (const [topic, paths] of Object.entries(manifest.discovery.byTopic)) {
+      if (topic.startsWith('$')) continue // $comment 等のメタフィールドは skip
+      if (!Array.isArray(paths)) continue
+      for (const docPath of paths) {
+        if (!exists(docPath)) {
+          violations.push(`discovery.byTopic['${topic}']: '${docPath}' が実在しない`)
+        }
+      }
+    }
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+  })
+
+  it('discovery.byExpertise の全 directory path が実在する', () => {
+    const violations: string[] = []
+    for (const [expertise, dirPath] of Object.entries(manifest.discovery.byExpertise)) {
+      if (expertise.startsWith('$')) continue // $comment 等のメタフィールドは skip
+      if (typeof dirPath !== 'string') continue
+      if (!exists(dirPath)) {
+        violations.push(`discovery.byExpertise['${expertise}']: '${dirPath}' が実在しない`)
+      }
+    }
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+  })
+
+  it('activeContext が free-form schema を持つ（rigid rule なし）', () => {
+    const violations: string[] = []
+    const ac = manifest.activeContext
+    // policy フィールドが「free-form notebook」であることを軽く確認（rigid 化したら警告）
+    if (typeof ac.policy !== 'string' || !ac.policy.includes('free-form')) {
+      violations.push(
+        'activeContext.policy が free-form 表記を失っている（rigid 化していないか確認）',
+      )
+    }
+    // currentFocus / loadedRefs / openQuestions / sessionNotes は存在するが値の中身は問わない
+    if (!('currentFocus' in ac)) violations.push('activeContext.currentFocus フィールドが無い')
+    if (!('loadedRefs' in ac)) violations.push('activeContext.loadedRefs フィールドが無い')
+    if (!('openQuestions' in ac)) violations.push('activeContext.openQuestions フィールドが無い')
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
 
   it('canonicalSources の各正本ファイルが実在する', () => {
@@ -154,6 +215,23 @@ describe('Manifest Guard: .claude/manifest.json の整合性', () => {
     const violations: string[] = []
     if (!exists(manifest.lifecycle.validation)) {
       violations.push(`lifecycle.validation '${manifest.lifecycle.validation}' が実在しない`)
+    }
+    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+  })
+
+  it('lifecycle.updatedBy / updateTrigger が static / activeContext の 2 区分を持つ', () => {
+    const violations: string[] = []
+    const ub = manifest.lifecycle.updatedBy
+    if (!ub.static || !ub.activeContext) {
+      violations.push(
+        'lifecycle.updatedBy は static / activeContext の 2 区分が必須（更新主体の責務分離）',
+      )
+    }
+    const ut = manifest.lifecycle.updateTrigger
+    if (!Array.isArray(ut.static) || !Array.isArray(ut.activeContext)) {
+      violations.push(
+        'lifecycle.updateTrigger は static / activeContext の 2 区分が必須（更新契機の責務分離）',
+      )
     }
     expect(violations, formatViolationMessage(rule, violations)).toEqual([])
   })
