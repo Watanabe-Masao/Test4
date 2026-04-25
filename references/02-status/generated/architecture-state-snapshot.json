@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-14T07:33:29.419Z",
+  "timestamp": "2026-04-25T14:14:21.897Z",
   "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
@@ -19,6 +19,7 @@
   "compatReexportCount": 2,
   "activeBridges": [],
   "facadeHooks": [
+    "application/hooks/categoryDaily/useCategoryDailyBundle.ts",
     "application/hooks/duckdb/useAdvancedQueries.ts",
     "application/hooks/duckdb/useAsyncQuery.ts",
     "application/hooks/duckdb/useCtsAggregationQueries.ts",
@@ -34,17 +35,19 @@
     "application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts",
     "application/hooks/duckdb/useSummaryQueries.ts",
     "application/hooks/duckdb/useYoyQueries.ts",
+    "application/hooks/plans/useDayDetailPlan.ts",
     "application/hooks/plans/useIntegratedSalesPlan.ts",
+    "application/hooks/storeDaily/useStoreDailyBundle.ts",
     "application/hooks/useAnalysisInput.ts",
     "application/hooks/useAnalyticsResolver.ts",
     "application/hooks/useAppShortcuts.ts",
     "application/hooks/useAutoBackup.ts",
     "application/hooks/useAutoImport.ts",
-    "application/hooks/useAutoLoadPrevYear.ts",
     "application/hooks/useBackup.ts",
     "application/hooks/useCalculation.ts",
     "application/hooks/useClipExport.ts",
     "application/hooks/useComparisonContext.ts",
+    "application/hooks/useComparisonModule.ts",
     "application/hooks/useDeviceSync.ts",
     "application/hooks/useDrillAction.ts",
     "application/hooks/useEtrnStationSearch.ts",
@@ -59,6 +62,7 @@
     "application/hooks/useMonthSwitcher.ts",
     "application/hooks/useMonthlyHistory.ts",
     "application/hooks/useMultiMovingAverage.ts",
+    "application/hooks/usePageComparisonModule.ts",
     "application/hooks/usePeriodAwareKpi.ts",
     "application/hooks/usePersistence.ts",
     "application/hooks/usePrevYearWeather.ts",
@@ -86,7 +90,7 @@
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 9,
       "stateCount": 6,
-      "lineCount": 487
+      "lineCount": 494
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
@@ -98,13 +102,13 @@
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
       "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 518
+      "lineCount": 532
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 9,
       "stateCount": 5,
-      "lineCount": 434
+      "lineCount": 448
     },
     {
       "file": "presentation/pages/Weather/WeatherPage.tsx",
@@ -116,7 +120,7 @@
       "file": "presentation/pages/Insight/useInsightData.ts",
       "memoCount": 5,
       "stateCount": 7,
-      "lineCount": 222
+      "lineCount": 226
     },
     {
       "file": "application/hooks/useMetricBreakdown.ts",
@@ -125,22 +129,22 @@
       "lineCount": 282
     },
     {
+      "file": "presentation/hooks/useUnifiedWidgetContext.ts",
+      "memoCount": 8,
+      "stateCount": 3,
+      "lineCount": 347
+    },
+    {
       "file": "presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
       "memoCount": 7,
       "stateCount": 4,
-      "lineCount": 343
+      "lineCount": 345
     },
     {
       "file": "presentation/components/charts/CvTimeSeriesChart.tsx",
       "memoCount": 5,
       "stateCount": 5,
       "lineCount": 247
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/DrilldownWaterfall.tsx",
-      "memoCount": 7,
-      "stateCount": 3,
-      "lineCount": 440
     }
   ],
   "nearLimitFiles": [],

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-14T07:34:28.714Z",
+  "timestamp": "2026-04-25T14:15:02.291Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -42,7 +42,8 @@
     "health:check",
     "health:pr-comment",
     "docs:generate",
-    "docs:check"
+    "docs:check",
+    "verify:project"
   ],
   "ci": {
     "wasmBuildDirectCalls": 0,

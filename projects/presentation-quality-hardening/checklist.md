@@ -33,7 +33,7 @@
 * [x] `projects/completed/test-signal-integrity` の Phase 3 完了を確認する（前提条件 — 機能的 Phase 1〜5 完了済、最終人間レビューのみ）
 * [x] `vitest.config.ts` の coverage include に `presentation/` を追加する
 * [x] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
-* [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
-* [ ] CI で coverage 70% を満たすことを確認する
+* [ ] coverage 閾値を `lines: 70` に引き上げる（**現状 `lines: 45`** — Step 3-39 で 37→45 に ratchet 済、Step 3-38 時点で実 coverage 47.27 / margin 2.27。残 25 pt の引き上げは追加 test 必要、不可侵原則 #1 で機械的 ratchet 禁止のため CI で coverage 計測 + 追加 test wave が必要）
+* [ ] CI で coverage 70% を満たすことを確認する（前項とセット）
 * [x] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
-* [ ] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
+* [ ] 拡充 spec が `npm run test:e2e` で全て pass することを確認する（**CI 専用** — Playwright CDN が sandbox host allowlist で blocked、ローカル実行不可）
