@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-25T22:57:53.686Z |
+| 最終更新 | 2026-04-25T23:24:48.339Z |
 
 ## Hard Gate
 
@@ -31,24 +31,11 @@
 | **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 2/3 |
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 28/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
-| **ガード強度** | OK | ガードテストファイル数: 93/30 (-1) / レビュー専用タグ数: 0/5 |
-| **性能** | OK | JS バンドル合計サイズ: 6601/7000 (-1) / メインバンドルサイズ: 2387/2500 (-1) / ECharts バンドルサイズ: 919/1000 |
+| **ガード強度** | OK | ガードテストファイル数: 93/30 / レビュー専用タグ数: 0/5 |
+| **性能** | OK | JS バンドル合計サイズ: 6601/7000 / メインバンドルサイズ: 2387/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 148/92 / sunsetCondition 設定済みルール数: 17/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
-| **Project Governance** | OK | active project 数（archive 未実施を含む）: 8/20 (-2) / in_progress な project 数（open required checkbox あり）: 7/20 (-2) / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 21/100 (+2) |
-
-## Recent Changes
-
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| 全 project の checked checkbox 総数 | 620 | 624 | +4 ! |
-| archived project 数（projects/completed/ 配下） | 19 | 21 | +2 ! |
-| ガードテストファイル数 | 94 | 93 | -1 ! |
-| 全 project の required checkbox 総数 | 813 | 814 | +1 ! |
-| active project 数（archive 未実施を含む） | 10 | 8 | -2 + |
-| in_progress な project 数（open required checkbox あり） | 9 | 7 | -2 + |
-| JS バンドル合計サイズ | 6602 | 6601 | -1 + |
-| メインバンドルサイズ | 2388 | 2387 | -1 + |
+| **Project Governance** | OK | active project 数（archive 未実施を含む）: 8/20 / in_progress な project 数（open required checkbox あり）: 7/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 21/100 |
 
 ---
 
