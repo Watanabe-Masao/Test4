@@ -7,6 +7,8 @@ export type {
   StoreDerivedData,
   StoreResult,
 } from './StoreResult'
+export type { StoreResultSlice } from './StoreResultSlice'
+export { storeResultData, readyStoreResult, EMPTY_STORE_RESULT_SLICE } from './StoreResultSlice'
 export type {
   StoreSalesView,
   StoreInventoryView,

@@ -35,7 +35,7 @@
 
 * [ ] ADR-A-001 / A-002 / A-003 の PR4 完了を確認
 * [x] PR1: `coreRequiredFieldNullCheckGuard` baseline=1（実 audit で 1 件検出: Insight/widgets.tsx の insight-budget-simulator render。当初 plan の baseline=2 から減算）で追加
-* [ ] PR2: StoreResult / PrevYearData の discriminated union 型を並行導入
+* [x] PR2: StoreResult / PrevYearData の discriminated union 型を並行導入（`StoreResultSlice` / `PrevYearDataSlice` を新設、ReadModelSlice 互換のヘルパー＋ファクトリ＋EMPTY シングルトン同梱。consumer 変更 0 件）
 * [ ] PR3: 全 consumer（widget + hook + readModel）を新型に移行
 * [ ] PR4: 旧 shape 削除、guard baseline=0
 * [ ] LEG-007 / LEG-008 の sunsetCondition 達成確認
