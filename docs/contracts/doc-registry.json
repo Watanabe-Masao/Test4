@@ -572,6 +572,38 @@
         {
           "path": "docs/contracts/test-contract.json",
           "label": "CLAUDE.md テスト契約（PR1 で導入）"
+        },
+        {
+          "path": "roles/staff/pm-business/scope.json",
+          "label": "pm-business スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/staff/review-gate/scope.json",
+          "label": "review-gate スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/staff/documentation-steward/scope.json",
+          "label": "documentation-steward スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/line/architecture/scope.json",
+          "label": "architecture スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/line/implementation/scope.json",
+          "label": "implementation スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/line/specialist/invariant-guardian/scope.json",
+          "label": "invariant-guardian スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/line/specialist/duckdb-specialist/scope.json",
+          "label": "duckdb-specialist スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": "roles/line/specialist/explanation-steward/scope.json",
+          "label": "explanation-steward スコープ宣言（PR2 で導入）"
         }
       ]
     },

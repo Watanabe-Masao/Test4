@@ -1,0 +1,12 @@
+{
+  "$comment": "review-gate のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "review-gate",
+  "category": "staff",
+  "owns": [],
+  "out_of_scope_warn": [
+    "app/src/",
+    "tools/architecture-health/src/collectors/",
+    "docs/contracts/"
+  ],
+  "rationale": "review-gate は品質判定（PASS/FAIL）に専念し、修正は implementation に差し戻す。owns が空なのは『編集ではなく検証』の責務を明示するため"
+}

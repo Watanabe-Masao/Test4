@@ -235,6 +235,69 @@ check_docs_generate_autofix() {
   fi
 }
 
+# Check: ロールスコープ照合 (informational)
+# 学習ソース: 2026-04-25 越境検出 mechanism 化 (PR2)
+# 理由: ROLE.md の Boundary prose は exhortation だった。scope.json に宣言した
+#       owns マップで、staged ファイルがどのロールの scope に属するかを表示する。
+#       block はせず、commit 者が「これは自分のロールの責務か?」を即座に判断できる
+#       informational 表示。判断主体は commit 者本人 (AAG 領分外)。
+# severity: warn (informational のみ)
+check_role_scope_info() {
+  SCOPE_FILES=$(find roles -name 'scope.json' 2>/dev/null)
+  [ -z "$SCOPE_FILES" ] && return 0
+
+  # staged ファイルごとに「どの role の owns prefix にマッチするか」を集計
+  # jq があれば使う、なければスキップ (環境依存を避ける)
+  command -v jq > /dev/null 2>&1 || return 0
+
+  # 全 scope.json から (role, prefix) のリストを抽出
+  # 出力フォーマット: "role TAB prefix"
+  ROLE_PREFIXES=$(for sf in $SCOPE_FILES; do
+    R=$(jq -r '.role' "$sf" 2>/dev/null)
+    [ -z "$R" ] || [ "$R" = "null" ] && continue
+    jq -r --arg role "$R" '.owns[]? | "\($role)\t\(.)"' "$sf" 2>/dev/null
+  done)
+  [ -z "$ROLE_PREFIXES" ] && return 0
+
+  # staged ファイルごとに owning role を判定
+  MATCHED_ROLES=""
+  UNMATCHED_FILES=""
+  OLD_IFS="$IFS"
+  IFS='
+'
+  for f in $STAGED; do
+    OWNER=""
+    for line in $ROLE_PREFIXES; do
+      role=$(echo "$line" | cut -f1)
+      prefix=$(echo "$line" | cut -f2)
+      case "$f" in
+        "$prefix"*)
+          OWNER="$role"
+          break
+          ;;
+      esac
+    done
+    if [ -n "$OWNER" ]; then
+      MATCHED_ROLES=$(echo "$MATCHED_ROLES
+$OWNER" | sort -u)
+    else
+      UNMATCHED_FILES="${UNMATCHED_FILES}${f}
+"
+    fi
+  done
+  IFS="$OLD_IFS"
+
+  # 結果を warn として記録 (commit は止めない)
+  if [ -n "$MATCHED_ROLES" ]; then
+    ROLE_SUMMARY=$(echo "$MATCHED_ROLES" | grep -v '^$' | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+    add_warn "[role scope] staged ファイルが属するロール: $ROLE_SUMMARY"
+  fi
+  UNMATCHED_COUNT=$(echo "$UNMATCHED_FILES" | grep -c '^' 2>/dev/null || echo 0)
+  if [ "$UNMATCHED_COUNT" -gt 0 ] && [ "$UNMATCHED_COUNT" != "0" ]; then
+    add_warn "[role scope] どのロールの owns にも属さないファイル: $UNMATCHED_COUNT 件 (scope.json に owns 追加を検討)"
+  fi
+}
+
 # ──────────────────────────────────────────────────────────────────────
 # CHECK_REGISTRY
 # ──────────────────────────────────────────────────────────────────────
@@ -243,6 +306,7 @@ check_docs_generate_autofix() {
 CHECK_REGISTRY="
   check_format_staged
   check_docs_generate_autofix
+  check_role_scope_info
 "
 
 for check in $CHECK_REGISTRY; do

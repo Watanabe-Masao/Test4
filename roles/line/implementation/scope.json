@@ -1,0 +1,17 @@
+{
+  "$comment": "implementation のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "implementation",
+  "category": "line",
+  "owns": [
+    "app/src/",
+    "wasm/",
+    "app/.storybook/"
+  ],
+  "out_of_scope_warn": [
+    "references/01-principles/",
+    "docs/contracts/",
+    "tools/architecture-health/src/config/",
+    "roles/"
+  ],
+  "rationale": "implementation はコードを書く唯一のロール。設計原則・契約・AAG 設定・ロール定義は他ロールに委譲する"
+}

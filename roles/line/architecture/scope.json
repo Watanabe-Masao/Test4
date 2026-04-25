@@ -1,0 +1,15 @@
+{
+  "$comment": "architecture のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "architecture",
+  "category": "line",
+  "owns": [
+    "references/01-principles/",
+    "tools/architecture-health/",
+    "docs/contracts/principles.json",
+    "app-domain/"
+  ],
+  "out_of_scope_warn": [
+    "app/src/presentation/components/"
+  ],
+  "rationale": "architecture は設計原則・正本契約・AAG framework の管理者。コード実装は implementation に委譲し、設計判断と base-rules の進化を担う"
+}

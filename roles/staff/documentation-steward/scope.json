@@ -1,0 +1,18 @@
+{
+  "$comment": "documentation-steward のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "documentation-steward",
+  "category": "staff",
+  "owns": [
+    "references/",
+    "docs/contracts/",
+    "CLAUDE.md",
+    "roles/",
+    "CONTRIBUTING.md",
+    "README.md"
+  ],
+  "out_of_scope_warn": [
+    "app/src/",
+    "wasm/"
+  ],
+  "rationale": "documentation-steward は CLAUDE.md・roles/・references/ とコードの整合性を維持する。コード本体には介入しない"
+}
