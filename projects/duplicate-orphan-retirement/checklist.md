@@ -25,10 +25,10 @@
 
 ## Phase 3: ADR-C-003 — Tier D orphan 3 件削除（BC-5 破壊的変更）
 
-* [ ] PR1: `orphanUiComponentGuard` を baseline=3 で追加した
-* [x] PR2: 3 file 削除（`DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + `__tests__/PlanActualForecast.test.tsx` / `RangeComparison.tsx`）+ `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去を実施した（+ `RangeComparison.styles.ts` + cascade orphan `ExecMetric.tsx` も削除）
-* [ ] PR3: `orphanUiComponentGuard` baseline=0 + fixed mode 化した
-* [ ] LEG-014 の `sunsetCondition` 達成を確認した
+* [x] PR1: `orphanUiComponentGuard` を baseline=7 で追加した（plan.md baseline=3 から実 audit で 7 件検出に修正。inquiry/03 の Explore agent 見落とし 4 件を含む。詳細は `app/src/test/guards/orphanUiComponentGuard.test.ts` 冒頭コメント）
+* [x] PR2: 3 file 削除（`DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + `__tests__/PlanActualForecast.test.tsx` / `RangeComparison.tsx`）+ `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去を実施した（+ `RangeComparison.styles.ts` + cascade orphan `ExecMetric.tsx` も削除）。baseline 7→4 に減算
+* [ ] PR3: `orphanUiComponentGuard` baseline=0 + fixed mode 化した（**残 4 件 (Condition*.tsx 3 + ExecSummaryBarWidget.tsx) の処理方針 — scope 拡張 or 保留 — は `17a-*.md` 承認待ち**）
+* [ ] LEG-014 の `sunsetCondition` 達成を確認した（残 4 件処理確定後）
 * [ ] BC-5 の rollback 手順を PR description に記載した
 
 ## Phase 4: ADR-C-004 — barrel re-export metadata 必須化
