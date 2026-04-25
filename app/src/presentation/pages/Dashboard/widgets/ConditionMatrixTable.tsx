@@ -23,7 +23,7 @@ import {
   type TrendDirectionRow,
 } from '@/application/queries/advanced'
 // DualPeriodSlider はページレベルに統合済み（C-3/C-4）
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   Section,
   SectionTitle,
@@ -91,7 +91,7 @@ function renderDirectionRow(row: TrendDirectionRow) {
 // ─── Component ──────────────────────────────────────────
 
 interface Props {
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
   readonly rangeStart?: number
   readonly rangeEnd?: number
 }

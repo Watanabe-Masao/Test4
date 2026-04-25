@@ -32,7 +32,7 @@ app/src/
 - time-slot
 - weather
 
-> 13 モジュール — 生成: 2026-04-24T21:47:58.506Z
+> 13 モジュール — 生成: 2026-04-25T02:56:16.587Z
 <!-- GENERATED:END features-list -->
 
 ### test/ 構成
@@ -64,9 +64,11 @@ test/
 
 <!-- GENERATED:START guard-files-list -->
 - `aagDerivedOnlyImportGuard.test.ts`
+- `allowlistMetadataGuard.test.ts`
 - `analysisFrameGuard.test.ts`
 - `architectureRuleGuard.test.ts`
 - `architectureRulesMergeSmokeGuard.test.ts`
+- `barrelReexportMetadataGuard.test.ts`
 - `calculationCanonGuard.test.ts`
 - `canonicalInputGuard.test.ts`
 - `canonicalizationSystemGuard.test.ts`
@@ -83,6 +85,7 @@ test/
 - `comparisonProjectionContextImportGuard.test.ts`
 - `comparisonResolvedRangeSurfaceGuard.test.ts`
 - `comparisonScopeGuard.test.ts`
+- `coreRequiredFieldNullCheckGuard.test.ts`
 - `customerFactPathGuard.test.ts`
 - `customerGapPathGuard.test.ts`
 - `dataIntegrityGuard.test.ts`
@@ -92,6 +95,7 @@ test/
 - `docRegistryGuard.test.ts`
 - `docStaticNumberGuard.test.ts`
 - `dualRunExitCriteriaGuard.test.ts`
+- `duplicateFileHashGuard.test.ts`
 - `executionOverlayGuard.test.ts`
 - `factorDecompositionPathGuard.test.ts`
 - `fallbackMetadataGuard.test.ts`
@@ -102,6 +106,7 @@ test/
 - `grossProfitConsistencyGuard.test.ts`
 - `grossProfitPathGuard.test.ts`
 - `guardTestMapConsistencyGuard.test.ts`
+- `hookCanonicalPathGuard.test.ts`
 - `layerBoundaryGuard.test.ts`
 - `migrationTagGuard.test.ts`
 - `monthlyPrevYearSalesGuard.test.ts`
@@ -129,7 +134,9 @@ test/
 - `renderSideEffectGuard.test.ts`
 - `responsibilitySeparationGuard.test.ts`
 - `responsibilityTagGuard.test.ts`
+- `reviewPolicyRequiredGuard.test.ts`
 - `salesFactPathGuard.test.ts`
+- `sameInterfaceNameGuard.test.ts`
 - `scopeAwareMutationGuard.test.ts`
 - `sizeGuard.test.ts`
 - `storeDailyLaneSurfaceGuard.test.ts`
@@ -141,13 +148,14 @@ test/
 - `testSignalIntegrityGuard.test.ts`
 - `timeSlotLaneSurfaceGuard.test.ts`
 - `topologyGuard.test.ts`
+- `unifiedWidgetContextNoDashboardSpecificGuard.test.ts`
 - `unifiedWidgetContextNoPageLocalOptionalGuard.test.ts`
 - `useComparisonModuleLegacyCallerGuard.test.ts`
 - `versionSyncGuard.test.ts`
 - `wasmCrateStructureGuard.test.ts`
 - `weatherCorrelationProjectionGuard.test.ts`
 
-> 83 ファイル — 生成: 2026-04-24T21:47:58.506Z
+> 91 ファイル — 生成: 2026-04-25T02:56:16.588Z
 <!-- GENERATED:END guard-files-list -->
 
 ## レイヤー間の依存ルール

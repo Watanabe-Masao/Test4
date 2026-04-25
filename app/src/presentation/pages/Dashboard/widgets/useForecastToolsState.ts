@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   deriveBaseValues,
   salesSliderRange,
@@ -48,7 +48,7 @@ export interface ForecastToolsState {
 
 // ─── Hook ───────────────────────────────────────────────
 
-export function useForecastToolsState(ctx: WidgetContext): ForecastToolsState {
+export function useForecastToolsState(ctx: DashboardWidgetContext): ForecastToolsState {
   const { result: r, prevYear } = ctx
   const base = deriveBaseValues(r, prevYear)
 

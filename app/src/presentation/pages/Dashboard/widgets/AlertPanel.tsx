@@ -9,7 +9,7 @@ import { useTheme } from 'styled-components'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/hooks/analytics'
 import { getPrevYearDailyValue } from '@/application/comparison/comparisonAccessors'
 import type { AlertSeverity } from '@/application/hooks/analytics'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   Wrapper,
   Header,
@@ -36,7 +36,7 @@ import {
 
 // ─── Component ──────────────────────────────────────────
 
-export function AlertPanelWidget({ ctx }: { ctx: WidgetContext }) {
+export function AlertPanelWidget({ ctx }: { ctx: DashboardWidgetContext }) {
   const theme = useTheme()
   const { fmtCurrency } = ctx
   const r = ctx.result

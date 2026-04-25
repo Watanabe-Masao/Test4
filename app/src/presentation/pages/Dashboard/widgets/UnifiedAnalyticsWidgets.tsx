@@ -20,14 +20,14 @@ import {
   StoreHourlyChart,
   YoYChart,
 } from '@/presentation/components/charts'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 // ── 1. 時間帯別売上 ──
 
 export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   const context = useMemo(
     () => buildSalesAnalysisContext(ctx.currentDateRange, ctx.selectedStoreIds, ctx.prevYearScope),
@@ -47,7 +47,7 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
 export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   return (
     <HeatmapChart
@@ -64,7 +64,7 @@ export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
 export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   return (
     <DeptHourlyChart
@@ -80,7 +80,7 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
 export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   return (
     <StoreHourlyChart
@@ -94,7 +94,7 @@ export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
 
 // ── 5. 前年比較 ──
 
-export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: WidgetContext }) {
+export const UnifiedYoYWidget = memo(function UnifiedYoYWidget({ ctx }: { ctx: DashboardWidgetContext }) {
   return (
     <YoYChart
       queryExecutor={ctx.queryExecutor}

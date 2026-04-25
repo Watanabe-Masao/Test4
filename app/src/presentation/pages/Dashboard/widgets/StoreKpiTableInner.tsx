@@ -14,7 +14,7 @@ import { useUiStore } from '@/application/stores/uiStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { calculationCache } from '@/application/services/calculationCache'
 import type { InventoryConfig } from '@/domain/models/record'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 const EMPTY_SETTINGS: ReadonlyMap<string, InventoryConfig> = new Map()
 import { Button } from '@/presentation/components/common/layout'
@@ -81,7 +81,7 @@ function EditableLandingCell({
   )
 }
 
-export function StoreKpiTableInner({ ctx }: { ctx: WidgetContext }) {
+export function StoreKpiTableInner({ ctx }: { ctx: DashboardWidgetContext }) {
   const dataSettings = useDataStore((s) => s.currentMonthData?.settings ?? EMPTY_SETTINGS)
   const updateInventory = useDataStore((s) => s.updateInventory)
   const invalidateCalculation = useUiStore((s) => s.invalidateCalculation)

@@ -6,7 +6,7 @@
  */
 import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import { migrateWidgetIds } from './widgetMigration'
 
 // ── re-export（後方互換） ──
@@ -14,8 +14,8 @@ export { WIDGET_ID_MIGRATION, migrateWidgetIds } from './widgetMigration'
 export { autoInjectDataWidgets } from './widgetAutoInject'
 
 /** Lazy-initialized widget map (avoids TLA race with WIDGET_REGISTRY) */
-const _widgetMapHolder: { cache: Map<string, WidgetDef> | null } = { cache: null }
-export function getWidgetMap(): Map<string, WidgetDef> {
+const _widgetMapHolder: { cache: Map<string, DashboardWidgetDef> | null } = { cache: null }
+export function getWidgetMap(): Map<string, DashboardWidgetDef> {
   if (!_widgetMapHolder.cache) {
     _widgetMapHolder.cache = new Map(WIDGET_REGISTRY.map((w) => [w.id, w]))
   }

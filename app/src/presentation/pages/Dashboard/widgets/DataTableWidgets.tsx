@@ -7,7 +7,7 @@ import React, { type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent } from '@/domain/formatting'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   STableWrapper,
   STableTitle,
@@ -24,7 +24,7 @@ const DOW_COLORS: Record<number, string | undefined> = {
   6: palette.blueDark,
 }
 
-export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
+export function renderDailyStoreSalesTable(ctx: DashboardWidgetContext): ReactNode {
   const { result: r, allStoreResults, stores, year, month, daysInMonth, fmtCurrency } = ctx
 
   // Individual stores sorted by code
@@ -167,7 +167,7 @@ export function renderDailyStoreSalesTable(ctx: WidgetContext): ReactNode {
 
 /* ── 日別推定在庫テーブル ──────────────────────────────── */
 
-export function renderDailyInventoryTable(ctx: WidgetContext): ReactNode {
+export function renderDailyInventoryTable(ctx: DashboardWidgetContext): ReactNode {
   const { result: r, daysInMonth, fmtCurrency } = ctx
 
   const openingInv = r.openingInventory

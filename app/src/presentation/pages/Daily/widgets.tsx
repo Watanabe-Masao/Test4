@@ -6,9 +6,9 @@
  * Daily 固有のチャート（粗利率トレンド・シャープリー時系列）のみ定義。
  */
 import { GrossProfitRateChart, ShapleyTimeSeriesChart } from '@/presentation/components/charts'
-import type { WidgetDef } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 
-export const DAILY_WIDGETS: readonly WidgetDef[] = [
+export const DAILY_WIDGETS: readonly UnifiedWidgetDef[] = [
   {
     id: 'daily-chart-gp-rate',
     label: '粗利率トレンド',

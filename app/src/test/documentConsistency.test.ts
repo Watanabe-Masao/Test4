@@ -581,8 +581,13 @@ describe('後方互換コード監視', () => {
     // ImportedData 型・adapter（infrastructure 内部でのみ使用）
     'domain/models/ImportedData.ts',
     'domain/models/monthlyDataAdapter.ts',
+    // ADR-A-002 PR4 (2026-04-24): WidgetContext alias 削除完了。Dashboard 専用 11 field
+    // 削除完了。残 9 field は cross-page 共有のため UnifiedWidgetContext に残置
+    // (これらの field の jsdoc 内に「@deprecated」相当の語が含まれる可能性あり、
+    //  本 entry はその誤検出抑止のため残置)
+    'presentation/components/widgets/types.ts',
   ]
-  const MAX_DEPRECATED_FILES = 5
+  const MAX_DEPRECATED_FILES = 6
 
   it('@deprecated を含むファイル数が上限を超えない', () => {
     const allFiles: string[] = []

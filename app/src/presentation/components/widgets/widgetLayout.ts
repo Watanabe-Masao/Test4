@@ -5,16 +5,16 @@
  * 永続化は uiPersistenceAdapter 経由。
  * @responsibility R:utility
  */
-import type { PageKey, WidgetDef } from './types'
+import type { PageKey, UnifiedWidgetDef } from './types'
 import { loadJson, saveJson, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'
 
-export function buildWidgetMap(registry: readonly WidgetDef[]): ReadonlyMap<string, WidgetDef> {
+export function buildWidgetMap(registry: readonly UnifiedWidgetDef[]): ReadonlyMap<string, UnifiedWidgetDef> {
   return new Map(registry.map((w) => [w.id, w]))
 }
 
 export function loadPageLayout(
   pageKey: PageKey,
-  registry: readonly WidgetDef[],
+  registry: readonly UnifiedWidgetDef[],
   defaultIds: readonly string[],
 ): string[] {
   // dashboard は既存の localStorage キーを使い続ける（後方互換）

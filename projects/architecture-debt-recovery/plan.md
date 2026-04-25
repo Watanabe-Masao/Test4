@@ -121,7 +121,7 @@
 #### 次 Phase への渡し方
 
 - Phase 2 は `inquiry/01-08` を入力として読む
-- 台帳は immutable — Phase 2 以降で追加情報が判明しても、台帳を書き換えず新ファイル（例: `inquiry/01a-addendum.md`）で addend する
+- 台帳は immutable — Phase 2 以降で追加情報が判明しても、台帳を書き換えず新ファイル（例: `01a-addendum.md` のような addend）で補足する
 - 台帳の不備（事実の欠落）が判明した場合は Phase 1 に戻る（Phase 2 で「棚卸しが不十分」と判定されたら差し戻し）
 
 ### Phase 2: 真因分析

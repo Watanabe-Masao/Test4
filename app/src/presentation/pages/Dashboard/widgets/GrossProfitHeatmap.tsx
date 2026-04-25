@@ -1,6 +1,6 @@
 import { memo, useState, useMemo } from 'react'
 import { formatPercent } from '@/domain/formatting'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   buildGpRatesFromReadModels,
   buildHeatmapFromStoreResults,
@@ -67,7 +67,7 @@ export function deviationToColor(dev: number): { bg: string; text: string } {
 export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   const { allStoreResults, stores, daysInMonth, targetRate, warningRate, readModels } = ctx
   const [mode, setMode] = useState<HeatMode>('gpRate')

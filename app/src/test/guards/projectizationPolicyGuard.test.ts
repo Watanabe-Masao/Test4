@@ -11,13 +11,18 @@
  * - **PZ-1: `projectization` metadata 欠落** — `config/project.json` に
  *   `projectization` フィールドが無い（kind=collection は除外）。
  *   導入期は baseline 運用（ratchet-down: 減少のみ許可）。
+ *   2026-04-25 に baseline=0 到達 → strict mode。
  * - **PZ-2: `projectization.level` が 0〜4 以外** — 値の妥当性（hard fail）。
+ * - **PZ-3: Level 0 宣言なのに `projects/<id>/` ディレクトリが存在する** — 過剰
+ *   project 化。Level 0 は project 化禁止 / quick-fixes に移管すべき。
  * - **PZ-4: Level 1 なのに Phase 0〜7 full structure** — checklist.md に
  *   `Phase 7` 相当の見出しが存在する（過剰 project 化の検出）。
  * - **PZ-5: Level 1 なのに `inquiry/` が存在する** — 過剰 project 化。
  * - **PZ-6: Level 2 なのに `sub-project-map.md` が存在する** — umbrella 化は Level 4 のみ。
  * - **PZ-7: `breakingChange=true` なのに `breaking-changes.md` がない（Level 3+）**
  * - **PZ-8: `requiresLegacyRetirement=true` なのに `legacy-retirement.md` がない（Level 3+）**
+ * - **PZ-9: `requiresGuard=true` なのに plan / checklist / projectization / inquiry に
+ *   guard 設計の言及がない** — guard 名 / baseline / 検出対象を plan.md に明記する。
  * - **PZ-10: `requiresHumanApproval=true` なのに checklist に最終レビュー checkbox がない**
  * - **PZ-11: Level 4 なのに `sub-project-map.md` がない**
  * - **PZ-12: Level 2+ なのに `nonGoals` が未定義または空**
@@ -150,6 +155,30 @@ function checkPZ2(p: ActiveProject): Violation[] {
   return []
 }
 
+function checkPZ3(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (m.level !== 0) return []
+  // metadata に level=0 が宣言されているのに projects/<id>/ ディレクトリが存在する
+  // = 過剰 project 化（Level 0 は project 化禁止 / quick-fixes に移管すべき）。
+  // この関数が呼ばれている時点で listActiveProjects() がディレクトリを発見しているため、
+  // level=0 の宣言自体が矛盾を意味する（無条件で fail）。
+  return [
+    {
+      projectId: p.projectId,
+      code: 'PZ-3',
+      message:
+        'projectization.level=0 が宣言されていますが projects/<id>/ ディレクトリが存在します（過剰 project 化）',
+      hint:
+        'Level 0 相当の作業は projects/<id>/ を作らず ' +
+        '`projects/quick-fixes/checklist.md` に 1 行追加で対応してください。\n' +
+        ' このディレクトリを `projects/quick-fixes/` に移管するか、' +
+        '実態に合わせて Level 1+ に escalate してください。\n' +
+        ' 詳細: references/03-guides/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
+    },
+  ]
+}
+
 function checkPZ4(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
   if (!m || m.level !== 1) return []
@@ -253,6 +282,74 @@ function checkPZ8(p: ActiveProject): Violation[] {
   return []
 }
 
+/**
+ * PZ-9 で「guard 設計の言及」とみなすパターン。
+ * plan.md / checklist.md / inquiry/*.md のいずれかに 1 つでもマッチすれば PASS。
+ * 過小検出を防ぎつつ、英語 / 日本語 / 具体ファイル名のいずれの記述でも拾えるように設計。
+ */
+const PZ9_GUARD_MENTION_PATTERNS: readonly RegExp[] = [
+  /\bguard\b/i, // "guard 設計" / "Guard test" / "new guard" 等
+  /ガード/, // 日本語表記
+  /baseline\s*=/i, // "baseline=current" 等の baseline 戦略
+  /ratchet/i, // "ratchet-down" 等
+  /\w+Guard\.test\.ts/, // 具体的な guard ファイル名参照
+]
+
+function checkPZ9(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (!m.requiresGuard) return []
+
+  const filesToCheck: string[] = [
+    path.join(p.absDir, 'plan.md'),
+    path.join(p.absDir, 'checklist.md'),
+    path.join(p.absDir, 'projectization.md'),
+  ]
+
+  // inquiry/ が存在すれば配下の .md も検査対象に追加
+  const inquiryDir = path.join(p.absDir, 'inquiry')
+  if (fs.existsSync(inquiryDir) && fs.statSync(inquiryDir).isDirectory()) {
+    for (const entry of fs.readdirSync(inquiryDir)) {
+      if (entry.endsWith('.md')) {
+        filesToCheck.push(path.join(inquiryDir, entry))
+      }
+    }
+  }
+
+  let foundGuardMention = false
+  for (const filePath of filesToCheck) {
+    if (!fs.existsSync(filePath)) continue
+    const content = fs.readFileSync(filePath, 'utf-8')
+    for (const re of PZ9_GUARD_MENTION_PATTERNS) {
+      if (re.test(content)) {
+        foundGuardMention = true
+        break
+      }
+    }
+    if (foundGuardMention) break
+  }
+
+  if (foundGuardMention) return []
+
+  return [
+    {
+      projectId: p.projectId,
+      code: 'PZ-9',
+      message:
+        'requiresGuard=true なのに plan.md / checklist.md / projectization.md / inquiry/ に guard 設計の言及がありません',
+      hint:
+        'plan.md に guard 設計セクションを追加してください:\n' +
+        '   - guard 名（<domain>Guard.test.ts）\n' +
+        '   - 検出対象（import / regex / count / co-change / must-include 等）\n' +
+        '   - baseline 戦略（初期値 / ratchet-down 方針）\n' +
+        '   - allowlist 管理（必要なら）\n' +
+        '   - fix hints（error message に載せる修正誘導）\n' +
+        ' 詳細: references/03-guides/projectization-policy.md §7 +' +
+        ' references/03-guides/architecture-rule-system.md。',
+    },
+  ]
+}
+
 function checkPZ10(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
   if (!m) return []
@@ -322,11 +419,13 @@ function checkPZ12(p: ActiveProject): Violation[] {
 function checkAllStructural(p: ActiveProject): Violation[] {
   return [
     ...checkPZ2(p),
+    ...checkPZ3(p),
     ...checkPZ4(p),
     ...checkPZ5(p),
     ...checkPZ6(p),
     ...checkPZ7(p),
     ...checkPZ8(p),
+    ...checkPZ9(p),
     ...checkPZ10(p),
     ...checkPZ11(p),
     ...checkPZ12(p),

@@ -1,4 +1,4 @@
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import { ForecastToolsWidget } from './ForecastTools'
 import { AlertPanelWidget } from './AlertPanel'
 import {
@@ -15,7 +15,7 @@ import {
 // exec-plan-actual-forecast は ForecastToolsWidget + insight/budget ページに統合済み
 // exec-monthly-calendar (MonthlyCalendar / MonthlyCalendarFC widget) は
 // Budget Simulator (①②③④ + 期間詳細モーダル) に統合済みのため撤去。
-export const WIDGETS_EXEC: readonly WidgetDef[] = [
+export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
   {
     id: 'analysis-alert-panel',
     label: 'アラート',

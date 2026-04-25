@@ -453,20 +453,22 @@ template は `projects/_template/projectization.md`。
 
 ### 検出コード
 
-| code | 検出対象 |
-|---|---|
-| PZ-1 | `config/project.json` に `projectization` metadata がない（kind=collection を除く） |
-| PZ-2 | `projectization.level` が 0〜4 以外 |
-| PZ-3 | Level 0 相当の判定なのに `projects/<id>/` が存在する |
-| PZ-4 | Level 1 なのに Phase 0〜7 full structure を使っている |
-| PZ-5 | Level 1 なのに `inquiry/` が存在する |
-| PZ-6 | Level 2 なのに `sub-project-map.md` が存在する |
-| PZ-7 | `breakingChange=true` なのに `breaking-changes.md` がない（Level 3+） |
-| PZ-8 | `requiresLegacyRetirement=true` なのに `legacy-retirement.md` がない（Level 3+） |
-| PZ-9 | `requiresGuard=true` なのに guard 設計が plan / checklist / inquiry に無い |
-| PZ-10 | `requiresHumanApproval=true` なのに checklist に最終レビュー (人間承認) checkbox が無い |
-| PZ-11 | Level 4 なのに `sub-project-map.md` が無い |
-| PZ-12 | Level 2+ なのに `nonGoals` が未定義または空 |
+`status` 列は guard の実装状況。**全 12 コード実装済み**（2026-04-25 時点）。
+
+| code | 検出対象 | status |
+|---|---|---|
+| PZ-1 | `config/project.json` に `projectization` metadata がない（kind=collection を除く） | implemented (strict, baseline=0) |
+| PZ-2 | `projectization.level` が 0〜4 以外 | implemented (hard fail) |
+| PZ-3 | `projectization.level=0` が宣言されているのに `projects/<id>/` ディレクトリが存在する（過剰 project 化） | implemented (hard fail) |
+| PZ-4 | Level 1 なのに Phase 0〜7 full structure を使っている | implemented (hard fail) |
+| PZ-5 | Level 1 なのに `inquiry/` が存在する | implemented (hard fail) |
+| PZ-6 | Level 2 なのに `sub-project-map.md` が存在する | implemented (hard fail) |
+| PZ-7 | `breakingChange=true` なのに `breaking-changes.md` がない（Level 3+） | implemented (hard fail) |
+| PZ-8 | `requiresLegacyRetirement=true` なのに `legacy-retirement.md` がない（Level 3+） | implemented (hard fail) |
+| PZ-9 | `requiresGuard=true` なのに plan / checklist / projectization / inquiry に guard 設計の言及がない | implemented (regex match: `\bguard\b` / ガード / `baseline=` / `ratchet` / `*Guard.test.ts`) |
+| PZ-10 | `requiresHumanApproval=true` なのに checklist に最終レビュー (人間承認) checkbox が無い | implemented (hard fail) |
+| PZ-11 | Level 4 なのに `sub-project-map.md` が無い | implemented (hard fail) |
+| PZ-12 | Level 2+ なのに `nonGoals` が未定義または空 | implemented (hard fail) |
 
 ### 対象
 

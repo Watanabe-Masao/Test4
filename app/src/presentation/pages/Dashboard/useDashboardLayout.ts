@@ -5,7 +5,7 @@
  * D&D や settings panel などの UI 操作は DashboardPage に残す。
  */
 import { useState, useCallback, useMemo, useEffect } from 'react'
-import type { UnifiedWidgetContext, WidgetDef } from '@/presentation/components/widgets'
+import type { UnifiedWidgetContext, UnifiedWidgetDef } from '@/presentation/components/widgets'
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { resolveAutoInjectCandidates, commitAutoInjectedIds } from './widgets/widgetAutoInject'
@@ -80,7 +80,7 @@ export function useDashboardLayout(params: UseDashboardLayoutParams) {
   const activeWidgets = ctx
     ? effectiveIds
         .map((id) => UNIFIED_WIDGET_MAP.get(id))
-        .filter((w): w is WidgetDef => w != null)
+        .filter((w): w is UnifiedWidgetDef => w != null)
         .filter((w) => (w.isVisible ? w.isVisible(ctx) : true))
     : []
 

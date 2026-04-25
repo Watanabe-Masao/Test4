@@ -1,19 +1,8 @@
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { WidgetId } from './widgetOwnership'
 import type { ReactNode } from 'react'
-import type { QueryExecutor } from '@/application/queries/QueryPort'
-import type { WeatherPersister } from '@/application/queries/weather'
-import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { ComparisonScope } from '@/domain/models/ComparisonScope'
-import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
-import type { DailyWeatherSummary } from '@/domain/models/record'
-import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
-import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
-import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets/types'
+import type { ViewType } from '@/domain/models/storeTypes'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -62,53 +51,31 @@ export function comparisonLabels(
   return { curLabel: curRange, prevLabel: prevRange }
 }
 
-/**
- * Dashboard ウィジェットコンテキスト
- *
- * UnifiedWidgetContext の Dashboard 向け具象化。
- * Dashboard が保証するフィールドを required に昇格する。
- * useUnifiedWidgetContext が全フィールドを設定するため、
- * ランタイムでは常に全フィールドが存在する。
- */
-export interface WidgetContext extends UnifiedWidgetContext {
-  readonly storeKey: string
-  readonly allStoreResults: ReadonlyMap<string, StoreResult>
-  readonly currentDateRange: DateRange
-  readonly prevYearScope: PrevYearScope | undefined
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly dataEndDay: number | null
-  readonly dataMaxDay: number
-  readonly elapsedDays: number | undefined
-  readonly departmentKpi: DepartmentKpiIndex
-  readonly explanations: StoreExplanations
-  readonly onExplain: (metricId: MetricId) => void
-  readonly monthlyHistory: readonly MonthlyDataPoint[]
-  readonly queryExecutor: QueryExecutor
-  readonly duckDataVersion: number
-  readonly loadedMonthCount: number
-  readonly weatherPersist: WeatherPersister | null
-  readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
-  readonly comparisonScope: ComparisonScope | null
-  readonly dowGap: DowGapAnalysis
-  readonly onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
-  readonly fmtCurrency: CurrencyFormatter
-  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
-  readonly weatherDaily?: readonly DailyWeatherSummary[]
-  readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
-  readonly currentCtsQuantity: CurrentCtsQuantity
-}
+// ADR-A-002 PR4 (2026-04-24): WidgetContext alias を削除完了 (LEG-004 sunsetCondition 達成)。
+// 全 consumer は DashboardWidgetContext を直接 import すること。
 
-export interface WidgetDef {
+/**
+ * Dashboard ウィジェット定義
+ *
+ * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
+ * DashboardWidgetDef に rename し、旧 alias を物理削除。LEG-006 sunsetCondition 達成。
+ */
+export interface DashboardWidgetDef {
   readonly id: WidgetId
   readonly label: string
   readonly group: string
   readonly size: WidgetSize
-  readonly render: (ctx: WidgetContext) => ReactNode
+  // ADR-A-002 PR3 (2026-04-24): WidgetContext alias から DashboardWidgetContext
+  // 直接参照に切替（4 registry × 22 widget の render/isVisible が新型へ接続済）。
+  readonly render: (ctx: DashboardWidgetContext) => ReactNode
   /** データ有無による表示判定（未設定時は常に表示） */
-  readonly isVisible?: (ctx: WidgetContext) => boolean
+  readonly isVisible?: (ctx: DashboardWidgetContext) => boolean
   /** 関連ページへのリンク（「もっと詳しく」動線） */
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
+
+// ADR-A-003 PR4 (2026-04-24): WidgetDef alias を削除完了 (LEG-006 sunsetCondition 達成)。
+// 全 consumer は DashboardWidgetDef を直接 import すること。
 
 // re-export: CurrentCtsQuantity は Application 層で定義
 export type { CurrentCtsQuantity }

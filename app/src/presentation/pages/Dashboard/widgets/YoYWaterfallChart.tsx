@@ -11,7 +11,8 @@ import { formatPercent } from '@/domain/formatting'
 import type { DateRange } from '@/domain/models/calendar'
 import { useYoYWaterfallPlan } from '@/application/hooks/plans/useYoYWaterfallPlan'
 import { CategoryFactorBreakdown } from './CategoryFactorBreakdown'
-import type { WidgetContext, ComparisonMode } from './types'
+import type { ComparisonMode } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { wowPrevRange, comparisonLabels } from './types'
 import {
   buildDateRanges,
@@ -40,7 +41,7 @@ import {
 } from './YoYWaterfallChart.subcomponents'
 
 interface YoYWaterfallProps {
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
   /** 親から期間を指定する場合（embedded モード） */
   readonly overrideDateRange?: DateRange
   /** embedded モード: スライダー・比較モード切替・タイトルを非表示 */

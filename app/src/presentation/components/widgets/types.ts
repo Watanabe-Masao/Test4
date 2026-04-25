@@ -7,7 +7,6 @@
  */
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
-import type { WeatherPersister } from '@/application/queries/weather'
 import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/models/analysis'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
@@ -15,12 +14,7 @@ import type { Store } from '@/domain/models/record'
 import type { StoreResult, ViewType, AppSettings } from '@/domain/models/storeTypes'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
-import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
-import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
-import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
-import type { CostDetailData } from '@/presentation/pages/CostDetail/useCostDetailData'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
 import type { FreePeriodAnalysisFrame } from '@/domain/models/AnalysisFrame'
@@ -85,39 +79,34 @@ export interface UnifiedWidgetContext {
   /** 期間選択の全状態（periodSelectionStore から） */
   readonly periodSelection?: PeriodSelection
 
-  // ── Dashboard 固有（他ページではオプション） ──
-  readonly storeKey?: string
+  // ── Dashboard / cross-page 共有 ──
+  // ADR-A-002 PR4 audit (2026-04-24): 20 field を audit した結果、11 field が
+  // 真に Dashboard 専用、9 field が cross-page (Insight / 他) で参照されていることを発見。
+  //
+  // 削除した 11 Dashboard 専用 field (DashboardWidgetContext で required 化済み):
+  //   storeKey, dataEndDay, dataMaxDay, elapsedDays, monthlyHistory,
+  //   loadedMonthCount, weatherPersist, dowGap, onPrevYearDetail,
+  //   prevYearStoreCostPrice, currentCtsQuantity
+  //
+  // 残置した 9 cross-page field (Insight / Category / Reports などから ctx 経由で参照):
+  //   allStoreResults, currentDateRange, prevYearScope, queryExecutor,
+  //   duckDataVersion, prevYearMonthlyKpi, comparisonScope, weatherDaily,
+  //   prevYearWeatherDaily
+  //
+  // unifiedWidgetContextNoDashboardSpecificGuard baseline 20→9 + ratchet-down 継続。
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
   readonly currentDateRange?: DateRange
   readonly prevYearScope?: PrevYearScope
-  readonly dataEndDay?: number | null
-  readonly dataMaxDay?: number
-  readonly elapsedDays?: number | undefined
-  readonly monthlyHistory?: readonly MonthlyDataPoint[]
   /** QueryExecutor — DuckDB クエリの標準経路 A */
   readonly queryExecutor?: QueryExecutor | null
   /** DuckDB データロード済みバージョン（useMemo 依存配列用、0 = 未ロード） */
   readonly duckDataVersion?: number
-  /** ロード済みの月数（当月含む。マルチ月機能の利用可否判定に使用） */
-  readonly loadedMonthCount?: number
-  /** 天気データ永続化コールバック（ETRN フォールバック用） */
-  readonly weatherPersist?: WeatherPersister | null
   readonly prevYearMonthlyKpi?: PrevYearMonthlyKpi
   readonly comparisonScope?: ComparisonScope | null
-  readonly dowGap?: DowGapAnalysis
-  readonly onPrevYearDetail?: (type: 'sameDow' | 'sameDate') => void
-  /** 前年店舗別仕入額（DuckDB UNION query 結果）。率ではなく額で持つ（@guard B3） */
-  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
   /** 天気データ（日別サマリ） */
   readonly weatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
   /** 前年天気データ（日別サマリ） */
   readonly prevYearWeatherDaily?: readonly import('@/domain/models/WeatherData').DailyWeatherSummary[]
-
-  /**
-   * 当年販売点数（CTS）の事前集計値（effectiveDay 以内）。
-   * Presentation が raw CTS レコードに触れないようにするための唯一の取得口。
-   */
-  readonly currentCtsQuantity?: CurrentCtsQuantity
 
   // ── 正本化 readModels（orchestrator 経由） ──
   /** 3正本（purchaseCost / salesFact / discountFact）の統合ビュー */
@@ -207,22 +196,22 @@ export interface UnifiedWidgetContext {
   /** ページレベルで統一された比較期間。DualPeriod 専用フィールド */
   readonly chartPeriodProps?: import('@/presentation/hooks/dualPeriod').ChartPeriodProps
 
-  // ── Insight 固有 ──
-  readonly insightData?: InsightData
-
-  // ── CostDetail 固有 ──
-  readonly costDetailData?: CostDetailData
-
-  // ── Category 固有 ──
-  readonly selectedResults?: readonly StoreResult[]
-  readonly storeNames?: ReadonlyMap<string, string>
-  readonly onCustomCategoryChange?: (supplierCode: string, value: string) => void
+  // ADR-A-001 PR4 (2026-04-24): 5 page-local optional field を剥離。
+  // 各ページは page-specific context 型を使用すること:
+  //   - Insight 固有 (insightData) → InsightWidgetContext
+  //   - CostDetail 固有 (costDetailData) → CostDetailWidgetContext
+  //   - Category 固有 (selectedResults / storeNames / onCustomCategoryChange) → CategoryWidgetContext
+  // LEG-001〜LEG-003 の sunsetCondition 達成。
+  // unifiedWidgetContextNoPageLocalOptionalGuard baseline 5→0 + fixed mode。
 }
 
 /**
  * ウィジェット定義（統一コンテキスト版）
+ *
+ * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
+ * UnifiedWidgetDef に rename し、旧 alias を物理削除。LEG-005 sunsetCondition 達成。
  */
-export interface WidgetDef {
+export interface UnifiedWidgetDef {
   readonly id: string
   readonly label: string
   readonly group: string
@@ -234,6 +223,9 @@ export interface WidgetDef {
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
 
+// ADR-A-003 PR4 (2026-04-24): WidgetDef alias を削除完了 (LEG-005 sunsetCondition 達成)。
+// 全 consumer は UnifiedWidgetDef を直接 import すること。
+
 /**
  * ページ単位のウィジェット設定
  */
@@ -241,7 +233,7 @@ export interface PageWidgetConfig {
   /** ページ識別子（localStorage のキーに使用） */
   readonly pageKey: PageKey
   /** このページで利用可能なウィジェット一覧（統一レジストリ） */
-  readonly registry: readonly WidgetDef[]
+  readonly registry: readonly UnifiedWidgetDef[]
   /** デフォルトで表示するウィジェット ID */
   readonly defaultWidgetIds: readonly string[]
   /** ウィジェット設定パネルのタイトル */

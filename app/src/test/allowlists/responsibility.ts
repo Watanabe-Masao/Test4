@@ -29,6 +29,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 18,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'application/workers/calculationWorker.ts',
@@ -39,6 +40,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 3,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // EChart.tsx — Set<string> ベースに移行。module let 0 個。許可リスト卒業
   {
@@ -50,6 +52,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 2,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'application/lifecycle/swUpdateSignal.ts',
@@ -60,6 +63,7 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     limit: 2,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // ── Candidate bridge allowlist（factory 生成） ──
   // 全 candidate bridge は同一構造: module let 2 個（bridgeMode + lastDualRunResult）
@@ -88,6 +92,12 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
       limit: 3,
       lifecycle: 'active-debt',
       createdAt: '2026-04-10',
+      expiresAt: '2027-04-10',
+      reviewPolicy: {
+        owner: 'architecture',
+        lastReviewedAt: '2026-04-24',
+        reviewCadenceDays: 180,
+      },
     }),
   ),
   // useLoadComparisonData.ts — const object ベースに移行。module let 0 個。許可リスト卒業
@@ -113,6 +123,8 @@ export const domainModelExportLimits: readonly QuantitativeAllowlistEntry[] = [
     removalCondition:
       'CalendarDate ↔ Date 変換群を別ファイル（例: CalendarDateConversions.ts）に分離',
     lifecycle: 'permanent',
+    createdAt: '2026-04-24',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // DaySerial.ts — 未使用関数 2 件を削除。export 9→6。許可リスト卒業
 ] as const

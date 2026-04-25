@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-24T21:47:58.495Z
+> Generated: 2026-04-25T02:56:16.576Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,8 +9,8 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 40 |
-| OK | 39 |
-| WARN | 1 |
+| OK | 40 |
+| WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
 
@@ -51,13 +51,13 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 83 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 91 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 0 | OK |
-| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 6 | OK |
-| guard.rules.fixNow.review | fixNow=review ルール数（観測） | 3 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 0 / 92 | WARN |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
+| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
+| guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 148 / 92 | OK |
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 17 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
@@ -76,16 +76,16 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 9 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 815 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 565 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 813 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 614 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 6 | OK |
 
 ## バンドル性能
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6605 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2394 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6601 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2388 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

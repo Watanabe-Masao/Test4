@@ -9,7 +9,7 @@ import {
   toCommaYen,
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { useCurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Wrapper, Title } from './WaterfallChart.styles'
 
@@ -25,7 +25,7 @@ interface WaterfallItem {
 export const WaterfallChartWidget = memo(function WaterfallChartWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   const { result: r } = ctx
   const theme = useTheme() as AppTheme

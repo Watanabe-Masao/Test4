@@ -4,7 +4,8 @@ import {
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
-import type { WidgetDef, WidgetContext } from './types'
+import type { DashboardWidgetDef } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
@@ -15,7 +16,7 @@ import { WeatherWidget } from './WeatherWidget'
  * 前年は日別仕入原価を持たないため、売上-売変で近似する。
  * 正確な値ではないが傾向比較には有用。
  */
-function buildPrevYearCostMap(ctx: WidgetContext): ReadonlyMap<number, number> | undefined {
+function buildPrevYearCostMap(ctx: DashboardWidgetContext): ReadonlyMap<number, number> | undefined {
   const { prevYear } = ctx
   if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return undefined
   const costMap = new Map<number, number>()
@@ -27,7 +28,7 @@ function buildPrevYearCostMap(ctx: WidgetContext): ReadonlyMap<number, number> |
 }
 
 // ── トレンド分析: 日次 ──
-export const WIDGETS_CHART: readonly WidgetDef[] = [
+export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   {
     id: 'chart-daily-sales',
     label: '日別売上チャート',

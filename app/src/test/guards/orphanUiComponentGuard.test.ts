@@ -34,16 +34,15 @@ const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 // ratchet-down baseline
 // - inquiry/03 §Tier D で 3 件が確定していたが、本 guard の実測で 7 件を検出
 // - 追加 4 件（Condition*.tsx / ExecSummaryBarWidget.tsx）は inquiry/03 の Explore agent が見落とし
-// - 本 PR1 では baseline = 7 で現状凍結（scope 拡張判定は human approval 待ち）
-// - PR2 scope は inquiry/17 §LEG-014 通り 3 件のみ。残 4 件は `17a-*.md` addendum で別途承認後に対応
-const BASELINE = 7
+// - PR1 時点 baseline=7、ADR-C-003 PR2 (2026-04-24) で LEG-014 scope 3 件を削除し baseline=4 に減算
+// - PR3 で残 4 件の処理方針（scope 追加 or 保留）を決定、最終的に baseline=0 固定
+const BASELINE = 4
 
-// 初期 baseline を構成する既知 orphan（inquiry/03 §Tier D + 本 guard 実測の 4 件追加）
+// baseline を構成する既知 orphan。
+// - LEG-014 scope 3 件 (DowGapKpiCard / PlanActualForecast / RangeComparison) は
+//   ADR-C-003 PR2 で削除済み。
+// - 残 4 件は `17a-*.md` addendum 承認待ちで保留中（ADR-C-003 scope 外）。
 const KNOWN_ORPHAN_ALLOWLIST: readonly string[] = [
-  // inquiry/17 §LEG-014 scope（PR2 で削除予定、3 件）
-  'app/src/presentation/pages/Dashboard/widgets/DowGapKpiCard.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/PlanActualForecast.tsx',
-  'app/src/presentation/pages/Dashboard/widgets/RangeComparison.tsx',
   // 本 guard 実測で追加検出（inquiry/03 の agent 見落とし。scope 拡張は `17a-*.md` 承認待ち）
   'app/src/presentation/pages/Dashboard/widgets/ConditionDetailPanels.tsx',
   'app/src/presentation/pages/Dashboard/widgets/ConditionMatrixTable.tsx',

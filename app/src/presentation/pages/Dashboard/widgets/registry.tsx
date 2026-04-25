@@ -1,4 +1,4 @@
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import { WIDGETS_KPI } from './registryKpiWidgets'
 import { WIDGETS_CHART } from './registryChartWidgets'
 import { WIDGETS_EXEC } from './registryExecWidgets'
@@ -18,7 +18,7 @@ import { WIDGETS_DUCKDB } from './registryDuckDBWidgets'
  * chart-sales-purchase-comparison は exec ウィジェット群の中間に位置するため、
  * WIDGETS_CHART / WIDGETS_EXEC をスライスして正確な順序を維持している。
  */
-export const WIDGET_REGISTRY: readonly WidgetDef[] = [
+export const WIDGET_REGISTRY: readonly DashboardWidgetDef[] = [
   ...WIDGETS_KPI,
   ...WIDGETS_CHART.slice(0, 4), // daily-sales, gross-profit, heatmap, store-timeslot
   ...WIDGETS_EXEC.slice(0, 6),

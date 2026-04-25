@@ -13,7 +13,7 @@ import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
-import type { WidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
+import type { UnifiedWidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
 import { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
@@ -40,7 +40,7 @@ import {
  * DuckDB エンジン自体が未初期化の段階ではウィジェット内部の hook が実行できないため、
  * この層で先にガードする。
  */
-function renderWidgetWithGuard(widget: WidgetDef, context: UnifiedWidgetContext): ReactNode {
+function renderWidgetWithGuard(widget: UnifiedWidgetDef, context: UnifiedWidgetContext): ReactNode {
   // KPI ウィジェットは同期計算結果のためガード不要
   if (widget.size === 'kpi') {
     return widget.render(context)
@@ -151,7 +151,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
   // Resolve active widgets
   const activeWidgets = widgetIds
     .map((id) => widgetMap.get(id))
-    .filter((w): w is WidgetDef => w != null)
+    .filter((w): w is UnifiedWidgetDef => w != null)
     .filter((w) => (w.isVisible ? w.isVisible(context) : true))
 
   const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')
@@ -159,7 +159,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
 
   let flatIdx = 0
 
-  const renderDraggable = (widget: WidgetDef, index: number, content: ReactNode) => {
+  const renderDraggable = (widget: UnifiedWidgetDef, index: number, content: ReactNode) => {
     if (!editMode) {
       return (
         <WidgetWrapper key={widget.id} data-widget-id={widget.id}>
@@ -231,7 +231,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
       {chartWidgets.length > 0 &&
         (() => {
           const elements: ReactNode[] = []
-          let halfBuffer: WidgetDef[] = []
+          let halfBuffer: UnifiedWidgetDef[] = []
 
           const flushHalves = () => {
             if (halfBuffer.length === 0) return

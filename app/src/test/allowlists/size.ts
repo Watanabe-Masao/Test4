@@ -13,6 +13,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'domain/constants/metricResolver.ts',
@@ -22,6 +23,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'domain/models/PeriodSelection.ts',
@@ -31,6 +33,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   // rawAggregation.ts — application/query-bridge/ へ移動済みで domain guard 対象外。orphan 削除
   {
@@ -41,6 +44,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'domain/calculations/algorithms/advancedForecast.ts',
@@ -50,6 +54,7 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
   {
     path: 'domain/constants/formulaRegistryBusiness.ts',
@@ -59,5 +64,6 @@ export const domainLargeFiles: readonly AllowlistEntry[] = [
     removalCondition: '分割時',
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
 ] as const

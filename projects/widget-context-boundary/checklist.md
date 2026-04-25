@@ -5,38 +5,36 @@
 
 ## Phase 1: ADR-A-001 — UnifiedWidgetContext page-local 5 field 剥離（BC-1）
 
-* [ ] PR1: `unifiedWidgetContextNoPageLocalOptionalGuard` baseline=5 で追加
-* [ ] PR2: InsightWidgetContext / CostDetailWidgetContext / CategoryWidgetContext 新設
-* [ ] PR3a: INSIGHT 6 widget を page-specific ctx に切替
-* [ ] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替
-* [ ] PR3c: CATEGORY 2 widget を page-specific ctx に切替
-* [ ] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
-* [ ] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
-* [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ）
+* [x] PR1: `unifiedWidgetContextNoPageLocalOptionalGuard` baseline=5 で追加
+* [x] PR2: InsightWidgetContext / CostDetailWidgetContext / CategoryWidgetContext 新設
+* [x] PR3a: INSIGHT 6 widget を page-specific ctx に切替（insightWidget helper で null check 集約、4 widget が helper 経由、2 widget は page-local 不要のため素の WidgetDef）
+* [x] PR3b: COST_DETAIL 4 widget を page-specific ctx に切替（costDetailWidget helper で null check 集約、4 widget 全て helper 経由）
+* [x] PR3c: CATEGORY 2 widget を page-specific ctx に切替（categoryWidget helper で 3 field null check 集約、2 widget 全て helper 経由）
+* [x] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
+* [x] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
+* [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ） — 本 ADR scope 外（WSS freshness policy、別 project で対応）
 
 ## Phase 2: ADR-A-002 — Dashboard 固有 20 field 集約（BC-2）
 
-* [ ] PR1: DashboardWidgetContext 新設、既存 WidgetContext alias 残置
-* [ ] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
-* [ ] PR3a: WIDGETS_KPI + WIDGETS_CHART の 7 widget を DashboardWidgetContext に接続
-* [ ] PR3b: WIDGETS_EXEC 7 widget を接続
-* [ ] PR3c: WIDGETS_ANALYSIS 10 widget を接続
-* [ ] PR3d: WIDGETS_DUCKDB 5 widget を接続
-* [ ] PR4: UnifiedWidgetContext から Dashboard 固有 20 field 削除、guard baseline=0、legacy WidgetContext alias 削除
-* [ ] LEG-004 の sunsetCondition 達成確認
+* [x] PR1: DashboardWidgetContext 新設、既存 WidgetContext alias 残置
+* [x] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
+* [x] PR3a-d: WIDGETS_KPI / CHART / EXEC / ANALYSIS / DUCKDB の全 4 registry を DashboardWidgetContext に接続（WidgetDef.render の型パラメータを WidgetContext alias から DashboardWidgetContext 直接参照に切替、22 widget が新型経由）
+* [x] PR4 (部分): legacy WidgetContext alias 削除 + 20 consumer 全て DashboardWidgetContext 直接 import に移行
+* [x] PR4 (続き): UnifiedWidgetContext から Dashboard 専用 11 field を削除、guard baseline 20→9（audit 結果: 11 field が真に Dashboard 専用 / 9 field が cross-page 共有 で残置。section header を「Dashboard 固有」から「Dashboard / cross-page 共有」に rename。BC-2 部分達成）
+* [x] LEG-004 の sunsetCondition 達成確認（alias 削除 + 11 Dashboard 専用 field 削除完了。残 9 共有 field は cross-page 性により永続）
 
 ## Phase 3: ADR-A-003 — WidgetDef 2 型分離（BC-3）
 
-* [ ] PR1: `sameInterfaceNameGuard` baseline=1（WidgetDef 例外）で追加
-* [ ] PR2: DashboardWidgetDef / UnifiedWidgetDef 新設、両 file で WidgetDef alias
-* [ ] PR3: 全 45 registry entry を新名に切替
-* [ ] PR4: 旧 WidgetDef alias 削除、guard baseline=0
-* [ ] LEG-005 / LEG-006 の sunsetCondition 達成確認
+* [x] PR1: `sameInterfaceNameGuard` baseline=28（audit 結果、WidgetDef + 27 無関係 local 重複）で追加（当初 plan の baseline=1 は audit 不足を反映、現実 baseline=28 ratchet-down）
+* [x] PR2: DashboardWidgetDef / UnifiedWidgetDef 新設、両 file で WidgetDef alias
+* [x] PR3: 全 19 consumer (45 registry entry を含む) を新名に切替（bulk migrate）
+* [x] PR4: 旧 WidgetDef alias 削除、guard baseline 28→27 (ALLOWLIST から WidgetDef 削除、残 27 は scope 外の local 重複で fixed mode)
+* [x] LEG-005 / LEG-006 の sunsetCondition 達成確認
 
 ## Phase 4: ADR-A-004 — StoreResult / PrevYearData discriminated union 化（BC-4）
 
 * [ ] ADR-A-001 / A-002 / A-003 の PR4 完了を確認
-* [ ] PR1: `coreRequiredFieldNullCheckGuard` baseline=2（WID-031, WID-033）で追加
+* [x] PR1: `coreRequiredFieldNullCheckGuard` baseline=1（実 audit で 1 件検出: Insight/widgets.tsx の insight-budget-simulator render。当初 plan の baseline=2 から減算）で追加
 * [ ] PR2: StoreResult / PrevYearData の discriminated union 型を並行導入
 * [ ] PR3: 全 consumer（widget + hook + readModel）を新型に移行
 * [ ] PR4: 旧 shape 削除、guard baseline=0
