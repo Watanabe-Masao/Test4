@@ -34,7 +34,7 @@
 ## Phase 4: ADR-A-004 — StoreResult / PrevYearData discriminated union 化（BC-4）
 
 * [ ] ADR-A-001 / A-002 / A-003 の PR4 完了を確認
-* [ ] PR1: `coreRequiredFieldNullCheckGuard` baseline=2（WID-031, WID-033）で追加
+* [x] PR1: `coreRequiredFieldNullCheckGuard` baseline=1（実 audit で 1 件検出: Insight/widgets.tsx の insight-budget-simulator render。当初 plan の baseline=2 から減算）で追加
 * [ ] PR2: StoreResult / PrevYearData の discriminated union 型を並行導入
 * [ ] PR3: 全 consumer（widget + hook + readModel）を新型に移行
 * [ ] PR4: 旧 shape 削除、guard baseline=0

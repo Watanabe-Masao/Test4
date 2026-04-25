@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T02:46:26.143Z",
+  "timestamp": "2026-04-25T02:56:16.576Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 90,
+      "value": 91,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -287,6 +287,7 @@
         "app/src/test/guards/comparisonProjectionContextImportGuard.test.ts",
         "app/src/test/guards/comparisonResolvedRangeSurfaceGuard.test.ts",
         "app/src/test/guards/comparisonScopeGuard.test.ts",
+        "app/src/test/guards/coreRequiredFieldNullCheckGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
@@ -965,7 +966,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 613,
+      "value": 614,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
