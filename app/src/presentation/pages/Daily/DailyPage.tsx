@@ -8,6 +8,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import { useStoreSelection } from '@/application/hooks/ui'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
+import { prevYearDataValue } from '@/features/comparison'
 import type { Store } from '@/domain/models/Store'
 import { formatPercent } from '@/domain/formatting'
 import type { CostPricePair } from '@/domain/models/record'
@@ -78,7 +79,9 @@ export function DailyPage() {
   const settings = useSettingsStore((s) => s.settings)
   const { ctx, isComputing, explainMetric, setExplainMetric } = useUnifiedWidgetContext()
   const { format: fmtCurrency } = useCurrencyFormat()
-  const prevYear: PrevYearData = ctx?.prevYear ?? noPrevYear
+  // ADR-A-004 PR3: ctx.prevYear は PrevYearDataSlice（discriminated union）。
+  // slice helper で安全に narrow し、empty なら fallback の noPrevYear を使う。
+  const prevYear: PrevYearData = (ctx ? prevYearDataValue(ctx.prevYear) : null) ?? noPrevYear
 
   const handleExplainClose = useCallback(() => setExplainMetric(null), [setExplainMetric])
   const handleExplain = useCallback(

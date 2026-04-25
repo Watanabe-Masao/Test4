@@ -15,6 +15,9 @@ import {
   CurrencyUnitToggle,
   CrossChartSelectionProvider,
 } from '@/presentation/components/charts'
+import { narrowRenderCtx } from '@/presentation/components/widgets'
+import { storeResultData } from '@/domain/models/storeTypes'
+import { prevYearDataValue } from '@/features/comparison'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { PrevYearBudgetDetailPanel } from './widgets/PrevYearBudgetDetailPanel'
 import { useWidgetDragDrop } from './useWidgetDragDrop'
@@ -58,6 +61,13 @@ export function DashboardPage() {
     setPrevYearDetailType,
   } = useUnifiedWidgetContext()
 
+  // ADR-A-004 PR3: dispatch chokepoint — slice を render-time に narrow。
+  // useDashboardLayout の isVisible filter / 後続 KPI render / 直接 access は
+  // すべて renderCtx を経由する。
+  const renderCtx = ctx ? narrowRenderCtx(ctx) : null
+  const renderPrevYear = ctx ? prevYearDataValue(ctx.prevYear) : null
+  const renderResult = ctx ? storeResultData(ctx.result) : null
+
   const {
     widgetIds,
     setWidgetIds,
@@ -68,9 +78,9 @@ export function DashboardPage() {
     handleRemoveWidget,
   } = useDashboardLayout({
     ctx,
-    prevYearHasPrevYear: ctx?.prevYear.hasPrevYear ?? false,
+    prevYearHasPrevYear: renderPrevYear?.hasPrevYear ?? false,
     storeCount: stores.size,
-    hasDiscountData: ctx?.result.hasDiscountData,
+    hasDiscountData: renderResult?.hasDiscountData,
     isDuckDBReady: ctx?.queryExecutor?.isReady === true,
   })
 
@@ -113,7 +123,7 @@ export function DashboardPage() {
     )
   }
 
-  if (!ctx) {
+  if (!ctx || !renderCtx) {
     return (
       <MainContent title="ダッシュボード" storeName={storeName}>
         <Section>
@@ -198,7 +208,7 @@ export function DashboardPage() {
           {/* KPI Widgets */}
           {kpiWidgets.length > 0 && (
             <WidgetGridStyled>
-              {kpiWidgets.map((w, i) => renderDraggable(w, i, w.render(ctx)))}
+              {kpiWidgets.map((w, i) => renderDraggable(w, i, w.render(renderCtx)))}
             </WidgetGridStyled>
           )}
 
@@ -206,7 +216,7 @@ export function DashboardPage() {
           {chartWidgets.length > 0 && (
             <DashboardChartGrid
               chartWidgets={chartWidgets}
-              ctx={ctx}
+              ctx={renderCtx}
               flatIdxStart={kpiWidgets.length}
               renderWidget={renderDraggable}
             />
@@ -241,8 +251,8 @@ export function DashboardPage() {
                 ? ctx.prevYearMonthlyKpi.sameDow
                 : ctx.prevYearMonthlyKpi.sameDate
             }
-            budgetDaily={ctx.result.budgetDaily}
-            budgetTotal={ctx.result.budget}
+            budgetDaily={renderCtx.result.budgetDaily}
+            budgetTotal={renderCtx.result.budget}
             targetYear={ctx.year}
             targetMonth={ctx.month}
             sourceYear={ctx.prevYearMonthlyKpi.sourceYear}

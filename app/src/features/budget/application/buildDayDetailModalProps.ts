@@ -14,7 +14,7 @@
  * @responsibility R:transform
  */
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { DailyRecord } from '@/domain/models/record'
@@ -86,12 +86,14 @@ export function computeCumulativeAtDay(
  * - optional: `queryExecutor` / `duckDataVersion` / `selectedStoreIds` / `comparisonScope`
  *   不足時は null / 空集合で埋める (モーダルはその旨を空状態として扱う)
  *
- * @param ctx widget context (UnifiedWidgetContext)
+ * ADR-A-004 PR3: dispatch chokepoint で narrow 済の context を受け取る前提。
+ *
+ * @param ctx widget context (RenderUnifiedWidgetContext)
  * @param scenario 計算済み scenario (cum 値導出用)
  * @param day 選択日 (1-based)
  */
 export function buildDayDetailModalProps(
-  ctx: UnifiedWidgetContext,
+  ctx: RenderUnifiedWidgetContext,
   scenario: SimulatorScenario,
   day: number,
 ): DayDetailModalBaseProps {

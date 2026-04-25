@@ -15,16 +15,18 @@
  *   runtime 期待の乖離を示すシグナル。ADR-A-004 で discriminated union 化
  *   して null check を不要にする。本 guard は移行中の状態を凍結。
  *
- * Baseline:
- *   PR1 当初 plan は baseline=2 (WID-031, WID-033) だが、実 audit で
- *   1 件 (Insight/widgets.tsx の insight-budget-simulator render) のみ検出。
- *   baseline=1 で現状凍結。
+ * Baseline 推移:
+ *   - PR1 当初: baseline=2 plan、実 audit で 1 件のみ検出 → baseline=1
+ *   - PR3 (2026-04-25): UnifiedWidgetContext を slice 化し、dispatch chokepoint
+ *     で `RenderUnifiedWidgetContext` に narrow する設計に移行。Insight
+ *     widgets.tsx の dead null check を除去 → **baseline=0 達成**。
+ *     LEG-007 / LEG-008 sunsetCondition 達成（型と runtime 期待の乖離解消）。
  *
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-A-004
  *  - projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-4
  *  - projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-007 / §LEG-008
- *  - projects/widget-context-boundary/checklist.md Phase 4
+ *  - projects/widget-context-boundary/HANDOFF.md §2.1 PR3 設計案
  *
  * @responsibility R:guard
  */
@@ -37,11 +39,10 @@ import { collectTsFiles } from '../guardTestHelpers'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 
-const BASELINE_NULL_CHECK_COUNT = 1
+const BASELINE_NULL_CHECK_COUNT = 0
 
 const KNOWN_NULL_CHECK_FILES: readonly string[] = [
-  // ADR-A-004 PR4 で discriminated union に移行後 0 到達予定
-  'app/src/presentation/pages/Insight/widgets.tsx',
+  // ADR-A-004 PR3 で chokepoint narrowing に移行し 0 到達済。
 ]
 
 // `if (!ctx.result)` `if (!ctx.prevYear)` `ctx.result == null` `ctx.prevYear == null`

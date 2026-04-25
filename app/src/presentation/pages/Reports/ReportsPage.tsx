@@ -9,6 +9,7 @@ import { useDataStore } from '@/application/stores/dataStore'
 import { useSettingsStore } from '@/application/stores/settingsStore'
 import type { Store } from '@/domain/models/Store'
 import { useExport } from '@/application/hooks/useExport'
+import { storeResultData } from '@/domain/models/storeTypes'
 import { useUnifiedWidgetContext } from '@/presentation/hooks/useUnifiedWidgetContext'
 import { ReportHeader, ReportDate, EmptyState, ExportBar, ExportButton } from './ReportsPage.styles'
 import { DEFAULT_REPORTS_WIDGET_IDS } from './widgets'
@@ -33,10 +34,13 @@ export function ReportsPage() {
 
   const handleExportDaily = useCallback(() => {
     if (!ctx) return
+    // ADR-A-004 PR3: ctx.result は StoreResultSlice。slice helper で narrow。
+    const result = storeResultData(ctx.result)
+    if (!result) return
     const storeId =
       !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
     const store = storeId ? (stores.get(storeId) ?? null) : null
-    exportDailySalesReport(ctx.result, store, settings.targetYear, settings.targetMonth)
+    exportDailySalesReport(result, store, settings.targetYear, settings.targetMonth)
   }, [
     ctx,
     isAllStores,
@@ -49,10 +53,13 @@ export function ReportsPage() {
 
   const handleExportPL = useCallback(() => {
     if (!ctx) return
+    // ADR-A-004 PR3: ctx.result は StoreResultSlice。slice helper で narrow。
+    const result = storeResultData(ctx.result)
+    if (!result) return
     const storeId =
       !isAllStores && selectedStoreIds.size === 1 ? Array.from(selectedStoreIds)[0] : null
     const store = storeId ? (stores.get(storeId) ?? null) : null
-    exportMonthlyPLReport(ctx.result, store, settings.targetYear, settings.targetMonth)
+    exportMonthlyPLReport(result, store, settings.targetYear, settings.targetMonth)
   }, [
     ctx,
     isAllStores,

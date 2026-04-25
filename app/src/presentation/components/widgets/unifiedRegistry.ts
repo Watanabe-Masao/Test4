@@ -9,7 +9,7 @@
  * useUnifiedWidgetContext が全フィールドを設定するため、ランタイムでは安全。
  * @responsibility R:utility
  */
-import type { UnifiedWidgetDef, UnifiedWidgetContext } from './types'
+import type { UnifiedWidgetDef, RenderUnifiedWidgetContext } from './types'
 import type { DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/DashboardWidgetContext'
 import { WIDGET_REGISTRY as DASHBOARD_REGISTRY } from '@/presentation/pages/Dashboard/widgets/registry'
 import { DAILY_WIDGETS } from '@/presentation/pages/Daily/widgets'
@@ -19,11 +19,13 @@ import { COST_DETAIL_WIDGETS } from '@/presentation/pages/CostDetail/widgets'
 import { REPORTS_WIDGETS } from '@/presentation/pages/Reports/widgets'
 
 /**
- * Dashboard ウィジェットを UnifiedWidgetContext 対応に変換
+ * Dashboard ウィジェットを UnifiedWidgetDef 対応に変換
  *
- * Dashboard の UnifiedWidgetDef は DashboardWidgetContext（required フィールド付き）を期待するが、
- * 統一レジストリは UnifiedWidgetContext（optional フィールド）で呼び出す。
- * useUnifiedWidgetContext が全フィールドを設定するため、型アサーションで安全に変換。
+ * ADR-A-004 PR3: 統一レジストリの `render` / `isVisible` は dispatch chokepoint で
+ * narrow 済の `RenderUnifiedWidgetContext` を受け取る。Dashboard widget は
+ * Dashboard 固有 required field 付きの `DashboardWidgetContext` を期待するため、
+ * 型アサーションで橋渡しする (useUnifiedWidgetContext が runtime で必須 field を
+ * 必ず populate するため安全)。
  */
 function adaptDashboardWidget(dashWidget: (typeof DASHBOARD_REGISTRY)[number]): UnifiedWidgetDef {
   return {
@@ -32,9 +34,9 @@ function adaptDashboardWidget(dashWidget: (typeof DASHBOARD_REGISTRY)[number]): 
     group: dashWidget.group,
     size: dashWidget.size,
     linkTo: dashWidget.linkTo,
-    render: (ctx: UnifiedWidgetContext) => dashWidget.render(ctx as DashboardWidgetContext),
+    render: (ctx: RenderUnifiedWidgetContext) => dashWidget.render(ctx as DashboardWidgetContext),
     isVisible: dashWidget.isVisible
-      ? (ctx: UnifiedWidgetContext) => dashWidget.isVisible!(ctx as DashboardWidgetContext)
+      ? (ctx: RenderUnifiedWidgetContext) => dashWidget.isVisible!(ctx as DashboardWidgetContext)
       : undefined,
   }
 }

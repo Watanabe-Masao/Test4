@@ -14,7 +14,7 @@ import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'
 import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
 
 /**
  * simulator が必要とする取得済みデータの最小集合。
@@ -34,12 +34,14 @@ export interface BudgetSimulatorSource {
 }
 
 /**
- * `UnifiedWidgetContext` から `BudgetSimulatorSource` を抽出する pure selector。
+ * `RenderUnifiedWidgetContext` から `BudgetSimulatorSource` を抽出する pure selector。
  *
  * context への直接依存はこの関数内のみ。将来 context の shape が変わっても
  * simulator 本体は影響を受けない。
+ *
+ * ADR-A-004 PR3: dispatch chokepoint で narrow 済の context を受け取る前提。
  */
-export function buildBudgetSimulatorSource(ctx: UnifiedWidgetContext): BudgetSimulatorSource {
+export function buildBudgetSimulatorSource(ctx: RenderUnifiedWidgetContext): BudgetSimulatorSource {
   return {
     result: ctx.result,
     prevYear: ctx.prevYear,

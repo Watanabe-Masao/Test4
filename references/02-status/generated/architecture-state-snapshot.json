@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-21T10:47:28.514Z",
+  "timestamp": "2026-04-25T12:00:55.524Z",
   "totalAllowlistEntries": 13,
   "categoryBreakdown": {
     "adapter": 1,
@@ -15,7 +15,7 @@
   ],
   "frozenCount": 6,
   "activeLists": 6,
-  "vmFileCount": 27,
+  "vmFileCount": 28,
   "compatReexportCount": 2,
   "activeBridges": [],
   "facadeHooks": [
@@ -90,7 +90,7 @@
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 9,
       "stateCount": 6,
-      "lineCount": 495
+      "lineCount": 525
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
@@ -102,13 +102,13 @@
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
       "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 532
+      "lineCount": 529
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 9,
       "stateCount": 5,
-      "lineCount": 448
+      "lineCount": 449
     },
     {
       "file": "presentation/pages/Weather/WeatherPage.tsx",
@@ -129,16 +129,16 @@
       "lineCount": 282
     },
     {
-      "file": "presentation/hooks/useUnifiedWidgetContext.ts",
-      "memoCount": 8,
-      "stateCount": 3,
-      "lineCount": 347
-    },
-    {
-      "file": "presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
+      "file": "presentation/components/day-detail/DayDetailModal.tsx",
       "memoCount": 7,
       "stateCount": 4,
       "lineCount": 345
+    },
+    {
+      "file": "presentation/hooks/useUnifiedWidgetContext.ts",
+      "memoCount": 8,
+      "stateCount": 3,
+      "lineCount": 349
     },
     {
       "file": "application/hooks/plans/useDayDetailPlan.ts",

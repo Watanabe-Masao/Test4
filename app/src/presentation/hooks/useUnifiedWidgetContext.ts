@@ -16,6 +16,8 @@ import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { MetricId } from '@/domain/models/analysis'
 import type { DateRange } from '@/domain/models/calendar'
+import { readyStoreResult } from '@/domain/models/storeTypes'
+import { readyPrevYearData } from '@/features/comparison'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useExplanations } from '@/application/hooks/ui'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -231,15 +233,15 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
       to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
     }
     return {
-      // コア
-      result: r,
+      // コア — ADR-A-004 PR3: slice (status='ready') で wrap
+      result: readyStoreResult(r),
       daysInMonth: effectiveEndDay,
       targetRate: settings.targetGrossProfitRate,
       warningRate: settings.warningThreshold,
       year: targetYear,
       month: targetMonth,
       settings,
-      prevYear: comparison.daily,
+      prevYear: readyPrevYearData(comparison.daily),
       stores,
       selectedStoreIds,
       explanations,

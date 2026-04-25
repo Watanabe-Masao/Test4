@@ -11,9 +11,18 @@ import type { StoreExplanations, MetricId, ObservationStatus } from '@/domain/mo
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'
 import type { Store } from '@/domain/models/record'
-import type { StoreResult, ViewType, AppSettings } from '@/domain/models/storeTypes'
+import type {
+  StoreResult,
+  StoreResultSlice,
+  ViewType,
+  AppSettings,
+} from '@/domain/models/storeTypes'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
-import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
+import type {
+  PrevYearData,
+  PrevYearDataSlice,
+  PrevYearMonthlyKpi,
+} from '@/application/hooks/analytics'
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { WidgetDataOrchestratorResult } from '@/application/hooks/useWidgetDataOrchestrator'
@@ -49,22 +58,29 @@ export type BuiltinPageKey =
 export type PageKey = BuiltinPageKey | `custom_${string}`
 
 /**
- * 統一ウィジェットコンテキスト
+ * 統一ウィジェットコンテキスト（transport 型）
  *
  * 全ページの全ウィジェットが参照しうるデータの上位集合。
- * ページによっては提供できないフィールドは optional。
- * ウィジェットの isVisible で利用可能性を判定する。
+ * `result` / `prevYear` は status 付き slice 型（discriminated union）であり、
+ * 取得済みかどうかを型レベルで表現する。consumer は dispatch chokepoint で
+ * `narrowRenderCtx()` により `RenderUnifiedWidgetContext` に narrow してから
+ * widget 本体に渡す。widget 本体は narrow 後の `StoreResult` / `PrevYearData`
+ * を直接参照する。
+ *
+ * ADR-A-004 PR3: `result: StoreResult` → `StoreResultSlice`、
+ * `prevYear: PrevYearData` → `PrevYearDataSlice` へ変更。型と runtime 期待の
+ * 乖離を解消し、consumer に narrowing を強制する。
  */
 export interface UnifiedWidgetContext {
   // ── コア（全ページ必須） ──
-  readonly result: StoreResult
+  readonly result: StoreResultSlice
   readonly daysInMonth: number
   readonly targetRate: number
   readonly warningRate: number
   readonly year: number
   readonly month: number
   readonly settings: AppSettings
-  readonly prevYear: PrevYearData
+  readonly prevYear: PrevYearDataSlice
   readonly stores: ReadonlyMap<string, Store>
   readonly selectedStoreIds: ReadonlySet<string>
   readonly explanations: StoreExplanations
@@ -206,19 +222,40 @@ export interface UnifiedWidgetContext {
 }
 
 /**
+ * 描画用 ウィジェットコンテキスト（dispatch chokepoint で narrow 済み）
+ *
+ * ADR-A-004 PR3: `UnifiedWidgetContext` の `result` / `prevYear` slice を
+ * narrow したあとの型。widget 本体（`render` / `isVisible`）はこの型を受け取り、
+ * 旧 shape と同様に `ctx.result.X` / `ctx.prevYear.X` を直接参照できる。
+ *
+ * narrow は dispatch site で `narrowRenderCtx()` により 1 回だけ行う。
+ * widget 本体側に narrowing 文を散在させない（chokepoint パターン）。
+ */
+export interface RenderUnifiedWidgetContext extends Omit<
+  UnifiedWidgetContext,
+  'result' | 'prevYear'
+> {
+  readonly result: StoreResult
+  readonly prevYear: PrevYearData
+}
+
+/**
  * ウィジェット定義（統一コンテキスト版）
  *
  * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
  * UnifiedWidgetDef に rename し、旧 alias を物理削除。LEG-005 sunsetCondition 達成。
+ *
+ * ADR-A-004 PR3: `render` / `isVisible` の signature を `RenderUnifiedWidgetContext`
+ * （narrow 済み）に変更。dispatch site で narrow した値を渡す。
  */
 export interface UnifiedWidgetDef {
   readonly id: string
   readonly label: string
   readonly group: string
   readonly size: WidgetSize
-  readonly render: (ctx: UnifiedWidgetContext) => ReactNode
+  readonly render: (ctx: RenderUnifiedWidgetContext) => ReactNode
   /** データ有無による表示判定（未設定時は常に表示） */
-  readonly isVisible?: (ctx: UnifiedWidgetContext) => boolean
+  readonly isVisible?: (ctx: RenderUnifiedWidgetContext) => boolean
   /** 関連ページへのリンク（「もっと詳しく」動線） */
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }

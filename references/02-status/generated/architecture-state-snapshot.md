@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-21T10:47:28.514Z
+> Generated: 2026-04-25T12:00:55.524Z
 
 ## Allowlist Summary
 
@@ -9,7 +9,7 @@
 | 総エントリ数 | 13 |
 | アクティブリスト数 | 6 |
 | 凍結リスト数 | 6 |
-| .vm.ts ファイル数 | 27 |
+| .vm.ts ファイル数 | 28 |
 | 互換 re-export 残数 | 2 |
 
 ## Category Breakdown
@@ -95,15 +95,15 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 495 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 525 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 532 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 448 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 529 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 449 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 226 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
-| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 347 |
-| presentation/pages/Dashboard/widgets/DayDetailModal.tsx | 7 | 4 | 345 |
+| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 345 |
+| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 349 |
 | application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 196 |
 
 ## Near-Limit Files (≥80%)
