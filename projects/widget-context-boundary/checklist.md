@@ -33,12 +33,12 @@
 
 ## Phase 4: ADR-A-004 — StoreResult / PrevYearData discriminated union 化（BC-4）
 
-* [ ] ADR-A-001 / A-002 / A-003 の PR4 完了を確認
+* [x] ADR-A-001 / A-002 / A-003 の PR4 完了を確認
 * [x] PR1: `coreRequiredFieldNullCheckGuard` baseline=1（実 audit で 1 件検出: Insight/widgets.tsx の insight-budget-simulator render。当初 plan の baseline=2 から減算）で追加
 * [x] PR2: StoreResult / PrevYearData の discriminated union 型を並行導入（`StoreResultSlice` / `PrevYearDataSlice` を新設、ReadModelSlice 互換のヘルパー＋ファクトリ＋EMPTY シングルトン同梱。consumer 変更 0 件）
-* [ ] PR3: 全 consumer（widget + hook + readModel）を新型に移行
-* [ ] PR4: 旧 shape 削除、guard baseline=0
-* [ ] LEG-007 / LEG-008 の sunsetCondition 達成確認
+* [x] PR3: 全 consumer（widget + hook + readModel）を新型に移行（chokepoint narrowing パターンを採用 — `WidgetContext.result/prevYear` を slice 化、`RenderUnifiedWidgetContext` を新設、dispatch site で 1 回 narrow して widget 本体に渡す。widget 本体は不変。`StoreResult` / `PrevYearData` は slice の data として、および post-narrow 型として参照される正本のため削除せず温存）
+* [x] PR4: `coreRequiredFieldNullCheckGuard` baseline 1→0 達成（dead null check 1 件除去 + allowlist 空化）。`StoreResultSlice` / `PrevYearDataSlice` の JSDoc を実態（wrap pattern）に合わせて更新。Insight `insight-budget-simulator` の `if (!ctx.result) return null` 撤去。
+* [x] LEG-007 / LEG-008 の sunsetCondition 達成確認（全 consumer が slice 経由で配布、guard baseline=0、widget 本体は narrow 後の原型を参照）
 
 ## Phase 5: sub-project completion
 

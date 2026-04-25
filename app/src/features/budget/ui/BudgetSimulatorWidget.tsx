@@ -9,7 +9,7 @@
  * @responsibility R:widget
  */
 import { useMemo, useState } from 'react'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
 import { DayDetailModal, PeriodDetailModal } from '@/presentation/components/day-detail'
 import { useBudgetSimulatorWidgetPlan } from '../application/useBudgetSimulatorWidgetPlan'
 import { buildDayDetailModalProps } from '../application/buildDayDetailModalProps'
@@ -18,7 +18,7 @@ import { BudgetSimulatorView } from './BudgetSimulatorView'
 import type { DrillKey } from './BudgetSimulatorWidget.vm'
 
 interface Props {
-  readonly ctx: UnifiedWidgetContext
+  readonly ctx: RenderUnifiedWidgetContext
 }
 
 export function BudgetSimulatorWidget({ ctx }: Props) {

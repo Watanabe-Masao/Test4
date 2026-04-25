@@ -5,15 +5,20 @@
  * ラップする。「型上は required だが runtime では未取得」という乖離を型レベルで
  * 排除し、consumer に narrowing を強制する。
  *
- * projects/widget-context-boundary SP-A ADR-A-004 PR2（並行型導入）。
+ * projects/widget-context-boundary SP-A ADR-A-004。
  *
  * ## 設計意図
  *
  *   既存 `WidgetContext.prevYear: PrevYearData`（required）に対し、widget が
  *   実 runtime では取得前のため null guard を入れる pattern が
- *   存在する余地がある（`coreRequiredFieldNullCheckGuard` 監視対象）。
- *   本 slice 型を導入することで、PR3 以降で status による narrowing に
- *   一元化し、ADR-A-004 PR4 で旧 shape を撤退する。
+ *   存在する余地があった（`coreRequiredFieldNullCheckGuard` 監視対象）。
+ *   本 slice 型を導入することで、PR3 で `WidgetContext.prevYear` 自体を
+ *   slice 型に切替え、dispatch chokepoint で `RenderUnifiedWidgetContext`
+ *   に narrow するパターンに一元化した（chokepoint narrowing パターン）。
+ *   `PrevYearData` 自体は slice の data フィールドおよび post-narrow 型が
+ *   参照する正本であり、削除しない。
+ *   PR4 で `coreRequiredFieldNullCheckGuard` baseline=0 が達成され、
+ *   LEG-008 sunsetCondition も成立した。
  *
  * ## PrevYearData.source との関係
  *

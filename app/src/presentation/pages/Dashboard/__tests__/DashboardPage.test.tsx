@@ -18,13 +18,15 @@ import type { ReactElement, ReactNode } from 'react'
 import { darkTheme } from '@/presentation/theme/theme'
 
 // ── Mutable fixtures ──
+// ADR-A-004 PR3: ctx.result / ctx.prevYear は discriminated union slice。
+// useUnifiedWidgetContext の戻り値は populator が必ず status='ready' で wrap する。
 let storeResultsFixture: Map<string, unknown>
 let storesFixture: Map<string, { name: string }>
 let widgetCtxFixture: {
   ctx: {
-    prevYear?: { hasPrevYear: boolean }
+    prevYear?: { status: 'ready'; data: { hasPrevYear: boolean } } | { status: 'empty' }
     queryExecutor?: unknown
-    result?: { hasDiscountData: boolean }
+    result?: { status: 'ready'; data: { hasDiscountData: boolean } } | { status: 'empty' }
   } | null
   isComputing: boolean
   isCalculated: boolean
@@ -152,9 +154,9 @@ beforeEach(() => {
   storesFixture = new Map([['s1', { name: 'Store 1' }]])
   widgetCtxFixture = {
     ctx: {
-      prevYear: { hasPrevYear: true },
+      prevYear: { status: 'ready', data: { hasPrevYear: true } },
       queryExecutor: { isReady: true },
-      result: { hasDiscountData: true },
+      result: { status: 'ready', data: { hasDiscountData: true } },
     },
     isComputing: false,
     isCalculated: true,

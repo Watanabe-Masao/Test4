@@ -14,7 +14,7 @@
  * @responsibility R:orchestration
  */
 import { useMemo } from 'react'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import { buildSimulatorWidgetVm, type SimulatorWidgetVm } from '../ui/BudgetSimulatorWidget.vm'
@@ -29,7 +29,9 @@ export interface BudgetSimulatorWidgetPlan {
   readonly fmtCurrency: CurrencyFormatter
 }
 
-export function useBudgetSimulatorWidgetPlan(ctx: UnifiedWidgetContext): BudgetSimulatorWidgetPlan {
+export function useBudgetSimulatorWidgetPlan(
+  ctx: RenderUnifiedWidgetContext,
+): BudgetSimulatorWidgetPlan {
   const source = useMemo(() => buildBudgetSimulatorSource(ctx), [ctx])
   const scenario = useMemo(() => buildBudgetSimulatorScenario(source), [source])
   const state = useSimulatorState(source.result.elapsedDays || 1, scenario.daysInMonth)

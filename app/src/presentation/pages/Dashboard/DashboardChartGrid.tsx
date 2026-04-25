@@ -4,14 +4,15 @@
  */
 import { memo, type ReactNode } from 'react'
 import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { LazyWidget } from './LazyWidget'
 import { ChartRow, FullChartRow } from './DashboardPage.styles'
 
 interface Props {
   readonly chartWidgets: readonly UnifiedWidgetDef[]
-  readonly ctx: UnifiedWidgetContext
+  // ADR-A-004 PR3: caller (DashboardPage) で narrowRenderCtx() 済み
+  readonly ctx: RenderUnifiedWidgetContext
   /** KPI ウィジェット数（D&D インデックスのオフセット） */
   readonly flatIdxStart: number
   /** ウィジェット1つ分をラップして返す（edit / normal 切替は親が制御） */

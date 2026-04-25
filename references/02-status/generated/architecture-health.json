@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T10:33:37.764Z",
+  "timestamp": "2026-04-25T12:23:06.948Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -153,8 +153,8 @@
         "app/src/presentation/pages/Weather/WeatherPage.tsx",
         "app/src/presentation/pages/Insight/useInsightData.ts",
         "app/src/application/hooks/useMetricBreakdown.ts",
+        "app/src/presentation/components/day-detail/DayDetailModal.tsx",
         "app/src/presentation/hooks/useUnifiedWidgetContext.ts",
-        "app/src/presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
         "app/src/application/hooks/plans/useDayDetailPlan.ts"
       ],
       "budget": 10
@@ -183,7 +183,7 @@
       "id": "complexity.vm.count",
       "label": "ViewModel ファイル数",
       "category": "complexity",
-      "value": 27,
+      "value": 28,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -475,7 +475,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6601,
+      "value": 6602,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -966,7 +966,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 615,
+      "value": 619,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

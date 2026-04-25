@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-04-21T10:44:58.849Z",
+  "timestamp": "2026-04-25T12:00:56.278Z",
   "summary": {
     "queryHandlers": 47,
     "pairHandlers": 13,
-    "screenPlanHooks": 28,
+    "screenPlanHooks": 29,
     "正規経路_queryWithHandler": 0,
-    "正規経路_comparisonAccessor": 10,
+    "正規経路_comparisonAccessor": 8,
     "正規経路_facadeHook": 6,
     "bundleHookDef": 1,
     "要注意_executorDirect": 0,
@@ -98,6 +98,7 @@
       "application/hooks/useHeatmapPlan.ts",
       "application/hooks/usePerformanceIndexPlan.ts",
       "presentation/components/charts/useIntegratedSalesPlan.ts",
+      "features/budget/application/useBudgetSimulatorWidgetPlan.ts",
       "features/category/application/plans/useCategoryBarChartPlan.ts",
       "features/category/application/plans/useCategoryDiscountChartPlan.ts",
       "features/category/application/plans/useCategoryHierarchyPlan.ts",
@@ -111,12 +112,10 @@
       "features/weather/application/plans/useWeatherAnalysisPlan.ts"
     ],
     "comparisonAccessor": [
+      "presentation/components/day-detail/DayDetailModal.tsx",
+      "presentation/components/day-detail/DayDetailModal.vm.ts",
       "presentation/pages/Daily/DailyPage.tsx",
       "presentation/pages/Dashboard/widgets/AlertPanel.tsx",
-      "presentation/pages/Dashboard/widgets/DayDetailModal.tsx",
-      "presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts",
-      "presentation/pages/Dashboard/widgets/calendarUtils.ts",
-      "presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts",
       "presentation/pages/Forecast/ForecastPage.helpers.ts",
       "features/budget/ui/InsightTabBudget.tsx",
       "features/budget/ui/InsightTabBudget.vm.ts",

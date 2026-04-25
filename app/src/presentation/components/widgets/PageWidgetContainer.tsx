@@ -13,7 +13,13 @@ import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'
 import { useIntersectionObserver } from '@/presentation/hooks/useIntersectionObserver'
-import type { UnifiedWidgetDef, PageWidgetConfig, UnifiedWidgetContext } from './types'
+import type {
+  UnifiedWidgetDef,
+  PageWidgetConfig,
+  UnifiedWidgetContext,
+  RenderUnifiedWidgetContext,
+} from './types'
+import { narrowRenderCtx } from './widgetContextNarrow'
 import { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'
 import { WidgetSettingsPanel } from './WidgetSettingsPanel'
 import {
@@ -39,8 +45,14 @@ import {
  * ウィジェット内部の query hook による個別ローディングは引き続き機能するが、
  * DuckDB エンジン自体が未初期化の段階ではウィジェット内部の hook が実行できないため、
  * この層で先にガードする。
+ *
+ * ADR-A-004 PR3: 引数 `context` は dispatch chokepoint で narrow 済の
+ * `RenderUnifiedWidgetContext`。
  */
-function renderWidgetWithGuard(widget: UnifiedWidgetDef, context: UnifiedWidgetContext): ReactNode {
+function renderWidgetWithGuard(
+  widget: UnifiedWidgetDef,
+  context: RenderUnifiedWidgetContext,
+): ReactNode {
   // KPI ウィジェットは同期計算結果のためガード不要
   if (widget.size === 'kpi') {
     return widget.render(context)
@@ -148,11 +160,16 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
     [pageKey],
   )
 
-  // Resolve active widgets
-  const activeWidgets = widgetIds
-    .map((id) => widgetMap.get(id))
-    .filter((w): w is UnifiedWidgetDef => w != null)
-    .filter((w) => (w.isVisible ? w.isVisible(context) : true))
+  // ADR-A-004 PR3: dispatch chokepoint — slice を render-time に narrow。
+  // narrow に失敗（slice が empty）したら widget 描画は skip。
+  const renderCtx = narrowRenderCtx(context)
+
+  const activeWidgets = renderCtx
+    ? widgetIds
+        .map((id) => widgetMap.get(id))
+        .filter((w): w is UnifiedWidgetDef => w != null)
+        .filter((w) => (w.isVisible ? w.isVisible(renderCtx) : true))
+    : []
 
   const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')
   const chartWidgets = activeWidgets.filter((w) => w.size !== 'kpi')
@@ -222,7 +239,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
         <WidgetGridStyled>
           {kpiWidgets.map((w) => {
             const idx = flatIdx++
-            return renderDraggable(w, idx, w.render(context))
+            return renderDraggable(w, idx, w.render(renderCtx!))
           })}
         </WidgetGridStyled>
       )}
@@ -244,14 +261,14 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     halfBuffer[0],
                     idx1,
                     <ChartErrorBoundary>
-                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], renderCtx!)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                   {renderDraggable(
                     halfBuffer[1],
                     idx2,
                     <ChartErrorBoundary>
-                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[1], context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[1], renderCtx!)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </ChartRow>,
@@ -264,7 +281,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     halfBuffer[0],
                     idx1,
                     <ChartErrorBoundary>
-                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(halfBuffer[0], renderCtx!)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </ChartRow>,
@@ -283,7 +300,7 @@ export function PageWidgetContainer({ config, context, toolbarExtra, headerConte
                     w,
                     idx,
                     <ChartErrorBoundary>
-                      <LazyWidget>{renderWidgetWithGuard(w, context)}</LazyWidget>
+                      <LazyWidget>{renderWidgetWithGuard(w, renderCtx!)}</LazyWidget>
                     </ChartErrorBoundary>,
                   )}
                 </FullChartRow>,

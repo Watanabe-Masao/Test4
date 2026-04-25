@@ -55,18 +55,29 @@ export function comparisonLabels(
 // 全 consumer は DashboardWidgetContext を直接 import すること。
 
 /**
+ * Dashboard ウィジェット render-time コンテキスト alias
+ *
+ * ADR-A-004 PR3 (2026-04-25): chokepoint narrowing パターンの命名統一。
+ * `DashboardWidgetContext` は base を `RenderUnifiedWidgetContext` に変更済で
+ * 既に render-time 型なので、本 alias は対称性のためのみ存在する。
+ * 新規 consumer は `DashboardWidgetContext` をそのまま使ってよい。
+ */
+export type RenderDashboardWidgetContext = DashboardWidgetContext
+
+/**
  * Dashboard ウィジェット定義
  *
  * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
  * DashboardWidgetDef に rename し、旧 alias を物理削除。LEG-006 sunsetCondition 達成。
+ *
+ * ADR-A-004 PR3 (2026-04-25): `DashboardWidgetContext` は render-time 型に
+ * 切替済（base = RenderUnifiedWidgetContext）。signature 変更不要。
  */
 export interface DashboardWidgetDef {
   readonly id: WidgetId
   readonly label: string
   readonly group: string
   readonly size: WidgetSize
-  // ADR-A-002 PR3 (2026-04-24): WidgetContext alias から DashboardWidgetContext
-  // 直接参照に切替（4 registry × 22 widget の render/isVisible が新型へ接続済）。
   readonly render: (ctx: DashboardWidgetContext) => ReactNode
   /** データ有無による表示判定（未設定時は常に表示） */
   readonly isVisible?: (ctx: DashboardWidgetContext) => boolean

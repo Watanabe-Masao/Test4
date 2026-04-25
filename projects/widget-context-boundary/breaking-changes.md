@@ -7,12 +7,12 @@
 
 ## 対象破壊的変更
 
-| ID | 対象 | 破壊内容 | ADR |
-|---|---|---|---|
-| **BC-1** | `UnifiedWidgetContext` | page-local optional 5 field 剥離（`insightData` / `costDetailData` / `selectedResults` / `storeNames` / `onCustomCategoryChange`） | ADR-A-001 PR4 |
-| **BC-2** | `UnifiedWidgetContext` | Dashboard 固有 20 field 削除 + `DashboardWidgetContext` required 集約で置換 | ADR-A-002 PR4 |
-| **BC-3** | `WidgetDef` | 同名 2 型を `DashboardWidgetDef` / `UnifiedWidgetDef` に分離 | ADR-A-003 PR4 |
-| **BC-4** | `StoreResult` / `PrevYearData` | core required field への null check 解消のため discriminated union 化。旧 shape 削除 | ADR-A-004 PR4 |
+| ID | 対象 | 破壊内容 | ADR | 状態 |
+|---|---|---|---|---|
+| **BC-1** | `UnifiedWidgetContext` | page-local optional 5 field 剥離（`insightData` / `costDetailData` / `selectedResults` / `storeNames` / `onCustomCategoryChange`） | ADR-A-001 PR4 | ✅ landed |
+| **BC-2** | `UnifiedWidgetContext` | Dashboard 固有 20 field 削除 + `DashboardWidgetContext` required 集約で置換 | ADR-A-002 PR4 | ✅ landed (11 field 削除 / 9 cross-page 共有を残置) |
+| **BC-3** | `WidgetDef` | 同名 2 型を `DashboardWidgetDef` / `UnifiedWidgetDef` に分離 | ADR-A-003 PR4 | ✅ landed |
+| **BC-4** | `StoreResult` / `PrevYearData` | core required field への null check 解消のため discriminated union 化。`WidgetContext.result/prevYear` を slice 化、`RenderUnifiedWidgetContext` を新設して chokepoint narrowing で widget 本体は不変 | ADR-A-004 PR3-4 | ✅ landed（PR3: chokepoint narrowing / PR4: guard baseline=0 + dead null check 除去 + JSDoc 整備） |
 
 ## 運用規約
 

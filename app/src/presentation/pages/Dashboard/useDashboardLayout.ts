@@ -6,7 +6,7 @@
  */
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { UnifiedWidgetContext, UnifiedWidgetDef } from '@/presentation/components/widgets'
-import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'
+import { UNIFIED_WIDGET_MAP, narrowRenderCtx } from '@/presentation/components/widgets'
 import { loadLayout, saveLayout, autoInjectDataWidgets } from './widgets/widgetLayout'
 import { resolveAutoInjectCandidates, commitAutoInjectedIds } from './widgets/widgetAutoInject'
 
@@ -76,12 +76,14 @@ export function useDashboardLayout(params: UseDashboardLayoutParams) {
     })
   }, [])
 
-  // Resolve active widgets (isVisible でデータ有無をフィルタ)
-  const activeWidgets = ctx
+  // ADR-A-004 PR3: dispatch chokepoint — slice を render-time に narrow して
+  // isVisible に渡す。ctx が null または narrow に失敗したら active widget は空。
+  const renderCtx = ctx ? narrowRenderCtx(ctx) : null
+  const activeWidgets = renderCtx
     ? effectiveIds
         .map((id) => UNIFIED_WIDGET_MAP.get(id))
         .filter((w): w is UnifiedWidgetDef => w != null)
-        .filter((w) => (w.isVisible ? w.isVisible(ctx) : true))
+        .filter((w) => (w.isVisible ? w.isVisible(renderCtx) : true))
     : []
 
   const kpiWidgets = activeWidgets.filter((w) => w.size === 'kpi')

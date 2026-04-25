@@ -18,15 +18,15 @@
  *  - projects/widget-context-boundary/checklist.md Phase 1
  */
 import type { InsightData } from '@/presentation/pages/Insight/useInsightData'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets/types'
+import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets/types'
 
 /**
- * 5 page-local optional field のうち本 context は `insightData` のみを required として公開する。
- * 他の 4 field は Omit で除外（他ページの context に属するため本 context には存在しない）。
+ * Insight ページ widget の render-time context。
+ *
+ * ADR-A-004 PR3 (2026-04-25): base を `RenderUnifiedWidgetContext` に変更。
+ * widget 本体は dispatch chokepoint で narrow 済みの `result: StoreResult` /
+ * `prevYear: PrevYearData` を直接参照する。
  */
-export interface InsightWidgetContext extends Omit<
-  UnifiedWidgetContext,
-  'insightData' | 'costDetailData' | 'selectedResults' | 'storeNames' | 'onCustomCategoryChange'
-> {
+export interface InsightWidgetContext extends RenderUnifiedWidgetContext {
   readonly insightData: InsightData
 }

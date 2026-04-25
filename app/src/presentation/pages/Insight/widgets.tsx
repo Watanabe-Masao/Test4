@@ -66,14 +66,13 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
     label: '予算達成シミュレーター',
     group: 'インサイト',
     size: 'full',
-    // UnifiedWidgetContext の必須フィールド (result / year / month / prevYear /
+    // RenderUnifiedWidgetContext の必須フィールド (result / year / month / prevYear /
     // fmtCurrency / onExplain) のみで動作するため、InsightPage 以外
     // (Dashboard 等) でも利用可能。insightData 不要 → 直接 UnifiedWidgetDef として定義。
-    render: (ctx) => {
-      if (!ctx.result) return null
-      return <BudgetSimulatorWidget ctx={ctx} />
-    },
-    isVisible: (ctx) => ctx.result != null,
+    //
+    // ADR-A-004 PR3 (2026-04-25): dispatch chokepoint で narrow 済のため
+    // `ctx.result` の null check は不要（型レベルで required）。LEG-007 sunset。
+    render: (ctx) => <BudgetSimulatorWidget ctx={ctx} />,
   },
   insightWidget({
     id: 'insight-gross-profit',

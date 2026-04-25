@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-21T10:44:58.849Z
+> Generated: 2026-04-25T12:00:56.278Z
 
 ## Route Summary
 
@@ -8,9 +8,9 @@
 |---|---|---|
 | QueryHandler 定義 | 47 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 28 | 基盤 |
+| Screen Plan hook（plan 化済み） | 29 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
-| comparisonAccessors（正規） | 10 | 正規 |
+| comparisonAccessors（正規） | 8 | 正規 |
 | facade / bundle hook 使用（正規） | 6 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
@@ -104,6 +104,7 @@
 - application/hooks/useHeatmapPlan.ts
 - application/hooks/usePerformanceIndexPlan.ts
 - presentation/components/charts/useIntegratedSalesPlan.ts
+- features/budget/application/useBudgetSimulatorWidgetPlan.ts
 - features/category/application/plans/useCategoryBarChartPlan.ts
 - features/category/application/plans/useCategoryDiscountChartPlan.ts
 - features/category/application/plans/useCategoryHierarchyPlan.ts
@@ -118,12 +119,10 @@
 
 ### comparisonAccessor
 
+- presentation/components/day-detail/DayDetailModal.tsx
+- presentation/components/day-detail/DayDetailModal.vm.ts
 - presentation/pages/Daily/DailyPage.tsx
 - presentation/pages/Dashboard/widgets/AlertPanel.tsx
-- presentation/pages/Dashboard/widgets/DayDetailModal.tsx
-- presentation/pages/Dashboard/widgets/DayDetailModal.vm.ts
-- presentation/pages/Dashboard/widgets/calendarUtils.ts
-- presentation/pages/Dashboard/widgets/useMonthlyCalendarState.ts
 - presentation/pages/Forecast/ForecastPage.helpers.ts
 - features/budget/ui/InsightTabBudget.tsx
 - features/budget/ui/InsightTabBudget.vm.ts
