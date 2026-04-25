@@ -30,8 +30,16 @@ import * as path from 'path'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const UNIFIED_CTX_PATH = path.join(PROJECT_ROOT, 'app/src/presentation/components/widgets/types.ts')
 
-// ratchet-down baseline（ADR-A-002 PR4 で 0 に削減予定）
-const BASELINE = 20
+// ratchet-down baseline
+// PR2 (2026-04-24): 20 で凍結（Dashboard 固有 section 内の field 数）
+// PR4 audit (2026-04-24): 11 field を Dashboard 専用と確定し UnifiedWidgetContext から削除。
+//                         残 9 field は Insight / Category 等の cross-page 参照あり。
+//                         baseline 20→9 に減算。9 field は cross-page 共有のため
+//                         「Dashboard 固有」section から「Dashboard / cross-page 共有」section に
+//                         section header を rename 済み（section 検出は固有のみマッチ → 0）。
+//                         ただし guard は detection エッジの監視のため baseline=9 で保持し
+//                         Dashboard 固有 section コメントが復活した場合に検出する。
+const BASELINE = 9
 
 // Dashboard 固有 section の開始マーカー
 const DASHBOARD_SECTION_START_RE = /^\s*\/\/\s*[-─]+\s*Dashboard\s*固有/

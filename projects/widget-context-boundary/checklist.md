@@ -20,8 +20,8 @@
 * [x] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
 * [x] PR3a-d: WIDGETS_KPI / CHART / EXEC / ANALYSIS / DUCKDB の全 4 registry を DashboardWidgetContext に接続（WidgetDef.render の型パラメータを WidgetContext alias から DashboardWidgetContext 直接参照に切替、22 widget が新型経由）
 * [x] PR4 (部分): legacy WidgetContext alias 削除 + 20 consumer 全て DashboardWidgetContext 直接 import に移行
-* [ ] PR4 (続き): UnifiedWidgetContext から Dashboard 固有 20 field 削除、guard baseline=0 — Insight ページが queryExecutor / currentDateRange を共有していることが PR4 着手中に判明（事前 audit で Dashboard 固有判定が誤りだったケース）。20 field の削減 vs 共有 field 残置の切り分けが必要なため、本 PR では alias 削除のみ完遂、field 削除は umbrella inquiry/16 §BC-2 の人間レビュー後に実施
-* [ ] LEG-004 の sunsetCondition 達成確認 — alias 削除部分は達成、field 削除部分は次 PR 待ち
+* [x] PR4 (続き): UnifiedWidgetContext から Dashboard 専用 11 field を削除、guard baseline 20→9（audit 結果: 11 field が真に Dashboard 専用 / 9 field が cross-page 共有 で残置。section header を「Dashboard 固有」から「Dashboard / cross-page 共有」に rename。BC-2 部分達成）
+* [x] LEG-004 の sunsetCondition 達成確認（alias 削除 + 11 Dashboard 専用 field 削除完了。残 9 共有 field は cross-page 性により永続）
 
 ## Phase 3: ADR-A-003 — WidgetDef 2 型分離（BC-3）
 
