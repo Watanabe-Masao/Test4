@@ -1,0 +1,90 @@
+{
+  "$comment": "AI Single Entry Manifest — 動線・階層・発火設計の統一入口。AI セッションは本 manifest を経由して構造化正本（doc-registry / principles / scope / test-contract / obligations）にアクセスする。Phase 1: 静的集約のみ。Phase 2 以降で hook 統合と activeContext 可変領域を追加予定。",
+  "version": "1.0.0",
+  "schema": "manifest-v1",
+  "owner": "documentation-steward",
+  "rationale": "AI が必要な時に必要なデータを適切に得るために、動線（path）・階層（L1/L2/L3）・発火（trigger）を 1 ファイルから辿れる状態を作る。既存の構造化正本を重複させず、参照集約のみを行う。",
+  "canonicalSources": {
+    "$comment": "全ての構造化正本（JSON）への参照マップ。AI は本セクションを最初に確認する。",
+    "docRegistry": {
+      "path": "docs/contracts/doc-registry.json",
+      "purpose": "全 doc の所在地マップ + label 索引"
+    },
+    "principles": {
+      "path": "docs/contracts/principles.json",
+      "purpose": "設計原則（A-I+Q）+ obsoleteTerms"
+    },
+    "projectMetadata": {
+      "path": "docs/contracts/project-metadata.json",
+      "purpose": "プロジェクトメタデータ（version 等）"
+    },
+    "testContract": {
+      "path": "docs/contracts/test-contract.json",
+      "purpose": "CLAUDE.md が満たすべきテスト契約（必須トークン宣言）"
+    },
+    "scopeDeclarations": {
+      "$comment": "全ロールの編集権限境界宣言。pre-commit hook + scopeJsonGuard が利用",
+      "directory": "roles/",
+      "filenamePattern": "scope.json",
+      "loaders": [
+        "roles/staff/pm-business/scope.json",
+        "roles/staff/review-gate/scope.json",
+        "roles/staff/documentation-steward/scope.json",
+        "roles/line/architecture/scope.json",
+        "roles/line/implementation/scope.json",
+        "roles/line/specialist/invariant-guardian/scope.json",
+        "roles/line/specialist/duckdb-specialist/scope.json",
+        "roles/line/specialist/explanation-steward/scope.json"
+      ]
+    }
+  },
+  "pathTriggers": {
+    "$comment": "編集パス → 必読 docs マップへの参照。実装は obligation-collector の PATH_TO_REQUIRED_READS。動的に拡張するときはここに追加するのではなく obligation-collector を更新する。",
+    "source": "tools/architecture-health/src/collectors/obligation-collector.ts",
+    "exportedSymbol": "PATH_TO_REQUIRED_READS",
+    "semantics": "prefix match → 必読 docs リスト"
+  },
+  "dispatcherPolicy": {
+    "$comment": "タスク種別 → 推奨ハンドラ。Phase 5 で .claude/agents/<role>.md が landing したら subagent への直接 dispatch に進化する。現時点ではガイドラインのみ。",
+    "recommendedHandlers": [
+      {
+        "taskPattern": "計算ロジック変更（domain/calculations/）",
+        "handler": "consult roles/line/specialist/invariant-guardian/ROLE.md（Phase 5 で subagent 化予定）",
+        "rationale": "数学的不変条件の保証"
+      },
+      {
+        "taskPattern": "DuckDB クエリ変更（infrastructure/duckdb/）",
+        "handler": "consult roles/line/specialist/duckdb-specialist/ROLE.md（Phase 5 で subagent 化予定）",
+        "rationale": "スキーマ整合・SQL/JS 責務境界"
+      },
+      {
+        "taskPattern": "層跨ぎリファクタリング（複数 layer）",
+        "handler": "consult roles/line/architecture/ROLE.md（Phase 5 で subagent 化予定）",
+        "rationale": "設計原則一貫性"
+      },
+      {
+        "taskPattern": "1 ファイル内編集（既存パターン）",
+        "handler": "inline + review-gate self-check",
+        "rationale": "コスト最小"
+      }
+    ]
+  },
+  "activeContext": {
+    "$comment": "Phase 3 で AI が task 毎に書き換える可変領域。Phase 1 では placeholder。",
+    "phase": "Phase 1: read-only placeholder",
+    "currentTask": null,
+    "currentRole": null,
+    "loadedRefs": [],
+    "lastUpdated": null
+  },
+  "lifecycle": {
+    "$comment": "manifest 更新 protocol。Phase 1 では documentation-steward が手動更新。Phase 3 で AI による自動更新 protocol を追加予定。",
+    "updatedBy": "documentation-steward",
+    "updateTrigger": [
+      "新しい構造化正本（docs/contracts/*.json）追加時",
+      "新しいロール scope.json 追加時",
+      "obligation-collector の PATH_TO_REQUIRED_READS 拡張時"
+    ],
+    "validation": "app/src/test/guards/manifestGuard.test.ts"
+  }
+}

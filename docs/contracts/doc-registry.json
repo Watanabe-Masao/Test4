@@ -604,6 +604,10 @@
         {
           "path": "roles/line/specialist/explanation-steward/scope.json",
           "label": "explanation-steward スコープ宣言（PR2 で導入）"
+        },
+        {
+          "path": ".claude/manifest.json",
+          "label": "AI Single Entry Manifest（PR4.5 Phase 1 で導入、構造化正本の集約参照）"
         }
       ]
     },
