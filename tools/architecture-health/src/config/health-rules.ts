@@ -126,6 +126,12 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     operator: "eq",
     target: 0,
   },
+  {
+    id: "docs.obligation.requiredReads.brokenLinks",
+    type: "hard_gate",
+    operator: "eq",
+    target: 0,
+  },
 
   // --- Temporal Governance (ratchet-down) ---
   // 増加禁止: baseline を超えたら fail

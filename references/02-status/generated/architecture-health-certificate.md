@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Healthy** |
-| 前回比 | Improved |
+| 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-25T16:09:50.643Z |
+| 最終更新 | 2026-04-25T16:36:38.234Z |
 
 ## Hard Gate
 
@@ -19,6 +19,7 @@
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
 - PASS: Doc 更新義務違反数
+- PASS: Required Reads マップ broken link 数
 - PASS: review overdue ルール数
 - PASS: checklist 完了済みだが archive 未実施の project 数
 
@@ -36,13 +37,7 @@
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 10/20 / in_progress な project 数（open required checkbox あり）: 9/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 19/100 |
 
-## Recent Changes
-
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| Doc 更新義務違反数 | 1 | 0 | -1 + |
-
 ---
 
-*正本: `references/02-status/generated/architecture-health.json` — 42 KPIs*
+*正本: `references/02-status/generated/architecture-health.json` — 44 KPIs*
 *詳細: `references/02-status/generated/architecture-health.md`*

@@ -24,7 +24,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -39,7 +39,7 @@
 | Project Governance | OK | 10/20 / 9/20 / 0/0 / 19/100 |
 
 
-> 生成: 2026-04-25T16:09:50.643Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-25T16:36:38.234Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

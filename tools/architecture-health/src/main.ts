@@ -21,6 +21,7 @@ import { collectFromDocs } from "./collectors/doc-collector.js";
 import { collectFromBundle } from "./collectors/bundle-collector.js";
 import {
   collectObligations,
+  collectRequiredReadsKpis,
   reportObligationDetails,
 } from "./collectors/obligation-collector.js";
 import { collectFromCiTiming } from "./collectors/ci-timing-collector.js";
@@ -105,6 +106,7 @@ const ciTimingKpis = collectFromCiTiming(repoRoot);
 
 console.error("[collect] obligations...");
 const obligationKpis = collectObligations(repoRoot, { base });
+const requiredReadsKpis = collectRequiredReadsKpis(repoRoot);
 
 console.error("[collect] temporal governance...");
 const temporalKpis = collectFromTemporalGovernance(repoRoot);
@@ -123,6 +125,7 @@ const allKpis = [
   ...bundleKpis,
   ...ciTimingKpis,
   ...obligationKpis,
+  ...requiredReadsKpis,
   ...temporalKpis,
   ...projectKpis,
   ...testContractKpis,

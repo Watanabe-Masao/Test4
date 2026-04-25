@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T16:09:50.643Z",
+  "timestamp": "2026-04-25T16:36:38.234Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -565,6 +565,41 @@
       "budget": 0
     },
     {
+      "id": "docs.obligation.requiredReads.declaredCount",
+      "label": "Required Reads マップ宣言数",
+      "category": "docs",
+      "value": 9,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "tools/architecture-health/src/collectors/obligation-collector.ts",
+          "section": "PATH_TO_REQUIRED_READS"
+        }
+      ],
+      "implRefs": []
+    },
+    {
+      "id": "docs.obligation.requiredReads.brokenLinks",
+      "label": "Required Reads マップ broken link 数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "tools/architecture-health/src/collectors/obligation-collector.ts",
+          "section": "PATH_TO_REQUIRED_READS"
+        }
+      ],
+      "implRefs": [],
+      "budget": 0
+    },
+    {
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
@@ -1094,8 +1129,8 @@
     }
   ],
   "summary": {
-    "totalKpis": 42,
-    "ok": 42,
+    "totalKpis": 44,
+    "ok": 44,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

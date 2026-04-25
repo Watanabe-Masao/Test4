@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-25T16:09:50.643Z
+> Generated: 2026-04-25T16:36:38.234Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 42 |
-| OK | 42 |
+| Total KPIs | 44 |
+| OK | 44 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -71,6 +71,8 @@
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 9 | OK |
+| docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 10 / 20 | OK |
 | project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 19 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
@@ -127,6 +129,8 @@
 | perf.bundle.mainJsKb | source | app/dist/assets/ #index-*.js |
 | perf.bundle.vendorEchartsKb | source | app/dist/assets/ #vendor-echarts-*.js |
 | docs.obligation.violations | definition | tools/architecture-health/src/collectors/obligation-collector.ts |
+| docs.obligation.requiredReads.declaredCount | definition | tools/architecture-health/src/collectors/obligation-collector.ts #PATH_TO_REQUIRED_READS |
+| docs.obligation.requiredReads.brokenLinks | definition | tools/architecture-health/src/collectors/obligation-collector.ts #PATH_TO_REQUIRED_READS |
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |
 | efficacy.rules.withProtectedHarm.count | definition | references/01-principles/architecture-rule-feasibility.md |
