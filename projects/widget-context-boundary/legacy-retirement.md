@@ -7,16 +7,16 @@
 
 ## 撤退対象
 
-| LEG ID | 対象 | 撤退内容 | ADR | sunsetCondition |
-|---|---|---|---|---|
-| **LEG-001** | `UnifiedWidgetContext` page-local 5 field | field 削除（BC-1） | ADR-A-001 | page-specific ctx 移行完了 + guard baseline=0 |
-| **LEG-002** | `UnifiedWidgetContext` Dashboard 固有 20 field | field 削除（BC-2） | ADR-A-002 | DashboardWidgetContext 移行完了 + guard baseline=0 |
-| **LEG-003** | legacy `WidgetContext` alias | alias 削除 | ADR-A-002 PR4 | Dashboard registry 5 本が DashboardWidgetContext 直接使用 |
-| **LEG-004** | 旧 `WidgetDef` | 2 型分離後の alias 削除（BC-3） | ADR-A-003 | 45 registry entry が新名に切替完了 |
-| **LEG-005** | `StoreResult` 旧 shape | discriminated union 化後の削除（BC-4 part 1） | ADR-A-004 | 全 consumer が新型に移行完了 |
-| **LEG-006** | `PrevYearData` 旧 shape | discriminated union 化後の削除（BC-4 part 2） | ADR-A-004 | 同上 |
-| **LEG-007** | core required field への null check pattern | WID-031 / WID-033 の null check 除去 | ADR-A-004 PR3 | 2 widget で null check が型レベルで不要化 |
-| **LEG-008** | optional fallback pattern（UnifiedWidgetContext に含まれる 17 field の optional 化）| BC-1 / BC-2 で必要 field を required 化 | ADR-A-001 / A-002 | 17 field が required or page-specific に集約 |
+| LEG ID | 対象 | 撤退内容 | ADR | sunsetCondition | 状態 |
+|---|---|---|---|---|---|
+| **LEG-001** | `UnifiedWidgetContext` page-local 5 field | field 削除（BC-1） | ADR-A-001 | page-specific ctx 移行完了 + guard baseline=0 | ✅ migrated |
+| **LEG-002** | `UnifiedWidgetContext` Dashboard 固有 20 field | field 削除（BC-2） | ADR-A-002 | DashboardWidgetContext 移行完了 + guard baseline=0 | ✅ migrated (11 field 削除 / 9 cross-page 共有を残置) |
+| **LEG-003** | legacy `WidgetContext` alias | alias 削除 | ADR-A-002 PR4 | Dashboard registry 5 本が DashboardWidgetContext 直接使用 | ✅ migrated |
+| **LEG-004** | 旧 `WidgetDef` | 2 型分離後の alias 削除（BC-3） | ADR-A-003 | 45 registry entry が新名に切替完了 | ✅ migrated |
+| **LEG-005** | `StoreResult` 旧 shape | discriminated union 化後の削除（BC-4 part 1） | ADR-A-004 | 全 consumer が新型に移行完了 | ✅ migrated（PR3 で chokepoint narrowing 採用、`StoreResult` 自体は slice の data として温存） |
+| **LEG-006** | `PrevYearData` 旧 shape | discriminated union 化後の削除（BC-4 part 2） | ADR-A-004 | 同上 | ✅ migrated（同上、`PrevYearData` 自体は温存） |
+| **LEG-007** | core required field への null check pattern | Insight `insight-budget-simulator` の null check 除去 | ADR-A-004 PR3 | guard baseline=0 + 該当 widget で null check が型レベルで不要化 | ✅ migrated（baseline 1→0、dead null check 1 件除去） |
+| **LEG-008** | optional fallback pattern（UnifiedWidgetContext に含まれる 17 field の optional 化）| BC-1 / BC-2 で必要 field を required 化 | ADR-A-001 / A-002 | 17 field が required or page-specific に集約 | ✅ migrated |
 
 ## 呼び出し元
 
