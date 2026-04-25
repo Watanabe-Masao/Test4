@@ -8,7 +8,7 @@
  */
 import { useState, useCallback, useRef } from 'react'
 import { Button } from '@/presentation/components/common/layout'
-import type { WidgetDef } from './types'
+import type { UnifiedWidgetDef } from './types'
 import {
   PanelOverlay,
   Panel,
@@ -34,7 +34,7 @@ type PanelMode = 'select' | 'order'
 
 interface Props {
   readonly title: string
-  readonly registry: readonly WidgetDef[]
+  readonly registry: readonly UnifiedWidgetDef[]
   readonly activeIds: readonly string[]
   readonly defaultIds: readonly string[]
   readonly onApply: (ids: string[]) => void
@@ -133,7 +133,7 @@ export function WidgetSettingsPanel({
   }
 
   // Group widgets for select mode
-  const groups = new Map<string, WidgetDef[]>()
+  const groups = new Map<string, UnifiedWidgetDef[]>()
   registry.forEach((w) => {
     const list = groups.get(w.group) ?? []
     list.push(w)
@@ -145,7 +145,7 @@ export function WidgetSettingsPanel({
   const orderedWidgets = orderedIds
     .filter((id) => selected.has(id))
     .map((id) => widgetMap.get(id))
-    .filter((w): w is WidgetDef => w != null)
+    .filter((w): w is UnifiedWidgetDef => w != null)
 
   return (
     <PanelOverlay

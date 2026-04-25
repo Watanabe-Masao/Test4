@@ -3,7 +3,7 @@ export { WidgetSettingsPanel } from './WidgetSettingsPanel'
 export { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'
 export { UNIFIED_WIDGET_REGISTRY, UNIFIED_WIDGET_MAP } from './unifiedRegistry'
 export type {
-  WidgetDef,
+  UnifiedWidgetDef,
   WidgetSize,
   PageKey,
   BuiltinPageKey,

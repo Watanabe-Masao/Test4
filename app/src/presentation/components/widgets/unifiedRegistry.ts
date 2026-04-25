@@ -9,7 +9,7 @@
  * useUnifiedWidgetContext が全フィールドを設定するため、ランタイムでは安全。
  * @responsibility R:utility
  */
-import type { WidgetDef, UnifiedWidgetContext } from './types'
+import type { UnifiedWidgetDef, UnifiedWidgetContext } from './types'
 import type { DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/DashboardWidgetContext'
 import { WIDGET_REGISTRY as DASHBOARD_REGISTRY } from '@/presentation/pages/Dashboard/widgets/registry'
 import { DAILY_WIDGETS } from '@/presentation/pages/Daily/widgets'
@@ -21,11 +21,11 @@ import { REPORTS_WIDGETS } from '@/presentation/pages/Reports/widgets'
 /**
  * Dashboard ウィジェットを UnifiedWidgetContext 対応に変換
  *
- * Dashboard の WidgetDef は DashboardWidgetContext（required フィールド付き）を期待するが、
+ * Dashboard の UnifiedWidgetDef は DashboardWidgetContext（required フィールド付き）を期待するが、
  * 統一レジストリは UnifiedWidgetContext（optional フィールド）で呼び出す。
  * useUnifiedWidgetContext が全フィールドを設定するため、型アサーションで安全に変換。
  */
-function adaptDashboardWidget(dashWidget: (typeof DASHBOARD_REGISTRY)[number]): WidgetDef {
+function adaptDashboardWidget(dashWidget: (typeof DASHBOARD_REGISTRY)[number]): UnifiedWidgetDef {
   return {
     id: dashWidget.id,
     label: dashWidget.label,
@@ -42,7 +42,7 @@ function adaptDashboardWidget(dashWidget: (typeof DASHBOARD_REGISTRY)[number]): 
 /**
  * 全ウィジェット統合レジストリ
  */
-export const UNIFIED_WIDGET_REGISTRY: readonly WidgetDef[] = [
+export const UNIFIED_WIDGET_REGISTRY: readonly UnifiedWidgetDef[] = [
   ...DASHBOARD_REGISTRY.map(adaptDashboardWidget),
   ...DAILY_WIDGETS,
   ...INSIGHT_WIDGETS,
@@ -52,6 +52,6 @@ export const UNIFIED_WIDGET_REGISTRY: readonly WidgetDef[] = [
 ]
 
 /** 統一レジストリのウィジェットマップ */
-export const UNIFIED_WIDGET_MAP: ReadonlyMap<string, WidgetDef> = new Map(
+export const UNIFIED_WIDGET_MAP: ReadonlyMap<string, UnifiedWidgetDef> = new Map(
   UNIFIED_WIDGET_REGISTRY.map((w) => [w.id, w]),
 )

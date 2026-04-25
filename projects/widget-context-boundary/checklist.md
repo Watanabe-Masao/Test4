@@ -25,11 +25,11 @@
 
 ## Phase 3: ADR-A-003 — WidgetDef 2 型分離（BC-3）
 
-* [ ] PR1: `sameInterfaceNameGuard` baseline=1（WidgetDef 例外）で追加
-* [ ] PR2: DashboardWidgetDef / UnifiedWidgetDef 新設、両 file で WidgetDef alias
-* [ ] PR3: 全 45 registry entry を新名に切替
-* [ ] PR4: 旧 WidgetDef alias 削除、guard baseline=0
-* [ ] LEG-005 / LEG-006 の sunsetCondition 達成確認
+* [x] PR1: `sameInterfaceNameGuard` baseline=28（audit 結果、WidgetDef + 27 無関係 local 重複）で追加（当初 plan の baseline=1 は audit 不足を反映、現実 baseline=28 ratchet-down）
+* [x] PR2: DashboardWidgetDef / UnifiedWidgetDef 新設、両 file で WidgetDef alias
+* [x] PR3: 全 19 consumer (45 registry entry を含む) を新名に切替（bulk migrate）
+* [x] PR4: 旧 WidgetDef alias 削除、guard baseline 28→27 (ALLOWLIST から WidgetDef 削除、残 27 は scope 外の local 重複で fixed mode)
+* [x] LEG-005 / LEG-006 の sunsetCondition 達成確認
 
 ## Phase 4: ADR-A-004 — StoreResult / PrevYearData discriminated union 化（BC-4）
 

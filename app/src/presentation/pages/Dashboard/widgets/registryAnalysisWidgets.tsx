@@ -8,14 +8,14 @@ import {
   SeasonalBenchmarkChart,
   FeatureChart,
 } from '@/presentation/components/charts'
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
 import { toStoreCustomerRows } from '@/application/readModels/customerFact'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
 
 // ── 分析・可視化 ──
-export const WIDGETS_ANALYSIS: readonly WidgetDef[] = [
+export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   {
     id: 'analysis-waterfall',
     label: '粗利ウォーターフォール',

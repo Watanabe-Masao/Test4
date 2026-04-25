@@ -3,19 +3,19 @@
  * DashboardPage.tsx から分離した描画専用ロジック。
  */
 import { memo, type ReactNode } from 'react'
-import type { WidgetDef } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { LazyWidget } from './LazyWidget'
 import { ChartRow, FullChartRow } from './DashboardPage.styles'
 
 interface Props {
-  readonly chartWidgets: readonly WidgetDef[]
+  readonly chartWidgets: readonly UnifiedWidgetDef[]
   readonly ctx: UnifiedWidgetContext
   /** KPI ウィジェット数（D&D インデックスのオフセット） */
   readonly flatIdxStart: number
   /** ウィジェット1つ分をラップして返す（edit / normal 切替は親が制御） */
-  readonly renderWidget: (widget: WidgetDef, flatIndex: number, content: ReactNode) => ReactNode
+  readonly renderWidget: (widget: UnifiedWidgetDef, flatIndex: number, content: ReactNode) => ReactNode
 }
 
 export const DashboardChartGrid = memo(function DashboardChartGrid({
@@ -25,7 +25,7 @@ export const DashboardChartGrid = memo(function DashboardChartGrid({
   renderWidget,
 }: Props) {
   const elements: ReactNode[] = []
-  let halfBuffer: WidgetDef[] = []
+  let halfBuffer: UnifiedWidgetDef[] = []
   let idx = flatIdxStart
 
   const flushHalves = () => {

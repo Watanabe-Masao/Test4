@@ -4,11 +4,11 @@
  * 月次レポートページのコンテンツをウィジェット化。
  * UnifiedWidgetContext を使い、全ページから利用可能。
  */
-import type { WidgetDef } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 import { ReportSummaryGrid } from './ReportSummaryGrid'
 import { ReportDeptTable } from './ReportDeptTable'
 
-export const REPORTS_WIDGETS: readonly WidgetDef[] = [
+export const REPORTS_WIDGETS: readonly UnifiedWidgetDef[] = [
   {
     id: 'reports-summary-grid',
     label: 'レポートサマリー',

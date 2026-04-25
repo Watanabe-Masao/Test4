@@ -54,7 +54,13 @@ export function comparisonLabels(
 // ADR-A-002 PR4 (2026-04-24): WidgetContext alias を削除完了 (LEG-004 sunsetCondition 達成)。
 // 全 consumer は DashboardWidgetContext を直接 import すること。
 
-export interface WidgetDef {
+/**
+ * Dashboard ウィジェット定義
+ *
+ * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
+ * DashboardWidgetDef に rename し、旧 alias を物理削除。LEG-006 sunsetCondition 達成。
+ */
+export interface DashboardWidgetDef {
   readonly id: WidgetId
   readonly label: string
   readonly group: string
@@ -67,6 +73,9 @@ export interface WidgetDef {
   /** 関連ページへのリンク（「もっと詳しく」動線） */
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
+
+// ADR-A-003 PR4 (2026-04-24): WidgetDef alias を削除完了 (LEG-006 sunsetCondition 達成)。
+// 全 consumer は DashboardWidgetDef を直接 import すること。
 
 // re-export: CurrentCtsQuantity は Application 層で定義
 export type { CurrentCtsQuantity }

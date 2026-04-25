@@ -207,8 +207,11 @@ export interface UnifiedWidgetContext {
 
 /**
  * ウィジェット定義（統一コンテキスト版）
+ *
+ * ADR-A-003 PR2-PR4 (2026-04-24): WidgetDef の 2 ファイル並存を解消するため
+ * UnifiedWidgetDef に rename し、旧 alias を物理削除。LEG-005 sunsetCondition 達成。
  */
-export interface WidgetDef {
+export interface UnifiedWidgetDef {
   readonly id: string
   readonly label: string
   readonly group: string
@@ -220,6 +223,9 @@ export interface WidgetDef {
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }
 
+// ADR-A-003 PR4 (2026-04-24): WidgetDef alias を削除完了 (LEG-005 sunsetCondition 達成)。
+// 全 consumer は UnifiedWidgetDef を直接 import すること。
+
 /**
  * ページ単位のウィジェット設定
  */
@@ -227,7 +233,7 @@ export interface PageWidgetConfig {
   /** ページ識別子（localStorage のキーに使用） */
   readonly pageKey: PageKey
   /** このページで利用可能なウィジェット一覧（統一レジストリ） */
-  readonly registry: readonly WidgetDef[]
+  readonly registry: readonly UnifiedWidgetDef[]
   /** デフォルトで表示するウィジェット ID */
   readonly defaultWidgetIds: readonly string[]
   /** ウィジェット設定パネルのタイトル */

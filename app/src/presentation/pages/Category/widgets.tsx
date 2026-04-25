@@ -9,7 +9,7 @@
  */
 import type { ReactNode } from 'react'
 import type { StoreResult } from '@/domain/models/storeTypes'
-import type { WidgetDef, WidgetSize } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef, WidgetSize } from '@/presentation/components/widgets'
 import type { ViewType } from '@/domain/models/storeTypes'
 import type { CategoryWidgetContext } from '@/presentation/pages/Category/CategoryWidgetContext'
 import { CategoryTotalView } from './CategoryTotalView'
@@ -29,7 +29,7 @@ function categoryWidget(def: {
   readonly render: (ctx: CategoryWidgetContext) => ReactNode
   readonly isVisible?: (ctx: CategoryWidgetContext) => boolean
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
-}): WidgetDef {
+}): UnifiedWidgetDef {
   const hasPageLocals = (ctx: CategoryWidgetContext): boolean =>
     ctx.selectedResults != null && ctx.storeNames != null && ctx.onCustomCategoryChange != null
   return {
@@ -51,7 +51,7 @@ function categoryWidget(def: {
   }
 }
 
-export const CATEGORY_WIDGETS: readonly WidgetDef[] = [
+export const CATEGORY_WIDGETS: readonly UnifiedWidgetDef[] = [
   categoryWidget({
     id: 'category-total-view',
     label: 'カテゴリ合計分析',

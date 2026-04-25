@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Button } from '@/presentation/components/common/layout'
 import { UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'
-import type { WidgetDef } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 import { DEFAULT_WIDGET_IDS } from './widgets/widgetLayout'
 import {
   getAllPresets,
@@ -116,7 +116,7 @@ export function WidgetSettingsPanel({
   }
 
   // Group widgets
-  const groups = new Map<string, WidgetDef[]>()
+  const groups = new Map<string, UnifiedWidgetDef[]>()
   UNIFIED_WIDGET_REGISTRY.forEach((w) => {
     const list = groups.get(w.group) ?? []
     list.push(w)

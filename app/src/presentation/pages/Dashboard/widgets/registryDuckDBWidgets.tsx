@@ -5,10 +5,10 @@ import {
   CategoryBoxPlotChart,
   CvTimeSeriesChart,
 } from '@/presentation/components/charts'
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 
 // ── 分析ウィジェット（DuckDB データ供給） ──
-export const WIDGETS_DUCKDB: readonly WidgetDef[] = [
+export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
   {
     id: 'duckdb-dow-pattern',
     label: '曜日パターン分析',

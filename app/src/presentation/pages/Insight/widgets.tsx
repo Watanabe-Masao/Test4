@@ -8,7 +8,7 @@
  * 修正すれば widget 定義本体は影響を受けない。
  */
 import type { ReactNode } from 'react'
-import type { WidgetDef, WidgetSize } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef, WidgetSize } from '@/presentation/components/widgets'
 import type { ViewType } from '@/domain/models/storeTypes'
 import { PiCvBubbleChart } from '@/presentation/components/charts'
 import type { InsightWidgetContext } from '@/presentation/pages/Insight/InsightWidgetContext'
@@ -31,7 +31,7 @@ function insightWidget(def: {
   readonly render: (ctx: InsightWidgetContext) => ReactNode
   readonly isVisible?: (ctx: InsightWidgetContext) => boolean
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
-}): WidgetDef {
+}): UnifiedWidgetDef {
   return {
     id: def.id,
     label: def.label,
@@ -51,7 +51,7 @@ function insightWidget(def: {
   }
 }
 
-export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
+export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
   insightWidget({
     id: 'insight-budget',
     label: '予算と実績',
@@ -68,7 +68,7 @@ export const INSIGHT_WIDGETS: readonly WidgetDef[] = [
     size: 'full',
     // UnifiedWidgetContext の必須フィールド (result / year / month / prevYear /
     // fmtCurrency / onExplain) のみで動作するため、InsightPage 以外
-    // (Dashboard 等) でも利用可能。insightData 不要 → 直接 WidgetDef として定義。
+    // (Dashboard 等) でも利用可能。insightData 不要 → 直接 UnifiedWidgetDef として定義。
     render: (ctx) => {
       if (!ctx.result) return null
       return <BudgetSimulatorWidget ctx={ctx} />

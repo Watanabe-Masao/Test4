@@ -1,4 +1,4 @@
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
 
 /**
@@ -13,7 +13,7 @@ import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
  */
 
 // ── KPI Widgets ──
-export const WIDGETS_KPI: readonly WidgetDef[] = [
+export const WIDGETS_KPI: readonly DashboardWidgetDef[] = [
   // ── 予算進捗ハブ（最上位: 予算達成 + 店別ドリルダウン + 予算ヘッダ） ──
   {
     id: 'widget-budget-achievement',

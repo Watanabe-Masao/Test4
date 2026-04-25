@@ -4,7 +4,7 @@ import {
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
 import { fromDateKey } from '@/domain/models/CalendarDate'
-import type { WidgetDef } from './types'
+import type { DashboardWidgetDef } from './types'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
@@ -28,7 +28,7 @@ function buildPrevYearCostMap(ctx: DashboardWidgetContext): ReadonlyMap<number, 
 }
 
 // ── トレンド分析: 日次 ──
-export const WIDGETS_CHART: readonly WidgetDef[] = [
+export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   {
     id: 'chart-daily-sales',
     label: '日別売上チャート',

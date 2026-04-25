@@ -11,7 +11,7 @@ import type { ReactNode } from 'react'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
 import { formatPercent } from '@/domain/formatting'
 import { palette } from '@/presentation/theme/tokens'
-import type { WidgetDef, WidgetSize } from '@/presentation/components/widgets'
+import type { UnifiedWidgetDef, WidgetSize } from '@/presentation/components/widgets'
 import type { ViewType } from '@/domain/models/storeTypes'
 import type { CostDetailWidgetContext } from '@/presentation/pages/CostDetail/CostDetailWidgetContext'
 import { PurchaseTab } from './PurchaseTab'
@@ -32,7 +32,7 @@ function costDetailWidget(def: {
   readonly render: (ctx: CostDetailWidgetContext) => ReactNode
   readonly isVisible?: (ctx: CostDetailWidgetContext) => boolean
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
-}): WidgetDef {
+}): UnifiedWidgetDef {
   return {
     id: def.id,
     label: def.label,
@@ -52,7 +52,7 @@ function costDetailWidget(def: {
   }
 }
 
-export const COST_DETAIL_WIDGETS: readonly WidgetDef[] = [
+export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
   costDetailWidget({
     id: 'costdetail-kpi-summary',
     label: 'サマリーKPI',
