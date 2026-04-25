@@ -3,15 +3,15 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-25T17:26:17.912Z
+> 生成: 2026-04-25T17:34:52.647Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 10 |
-| archived project 数 | 19 |
-| in_progress project 数 | 9 |
+| active project 数（archive 未実施を含む） | 8 |
+| archived project 数 | 21 |
+| in_progress project 数 | 7 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
@@ -39,7 +39,7 @@
 | `day-detail-modal-prev-year-investigation` | DayDetailModal 前年データ空表示バグ調査 — 3/5-factor / 時間帯分析 / ドリルダウンが表示されない原因の特定 | **archived** | — | — | [`projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md`](../../../projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md) |
 | `design-system-v2-1-asset` | Design System v2.1 — 外部 documentation layer 配置 | **archived** | — | — | [`projects/design-system-v2-1-asset/AI_CONTEXT.md`](../../../projects/design-system-v2-1-asset/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
-| `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **in_progress** | `architecture-debt-recovery` | 20/26 (77%) | [`projects/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/duplicate-orphan-retirement/AI_CONTEXT.md) |
+| `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **archived** | `architecture-debt-recovery` | 20/26 (77%) | [`projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/16 (81%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
@@ -50,4 +50,4 @@
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/41 (0%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
 | `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **archived** | — | 57/57 (100%) | [`projects/completed/unify-period-analysis/AI_CONTEXT.md`](../../../projects/completed/unify-period-analysis/AI_CONTEXT.md) |
-| `widget-context-boundary` | widget / ctx 型境界再構築（SP-A） | **in_progress** | `architecture-debt-recovery` | 24/33 (73%) | [`projects/widget-context-boundary/AI_CONTEXT.md`](../../../projects/widget-context-boundary/AI_CONTEXT.md) |
+| `widget-context-boundary` | widget / ctx 型境界再構築（SP-A） | **archived** | `architecture-debt-recovery` | 24/33 (73%) | [`projects/completed/widget-context-boundary/AI_CONTEXT.md`](../../../projects/completed/widget-context-boundary/AI_CONTEXT.md) |

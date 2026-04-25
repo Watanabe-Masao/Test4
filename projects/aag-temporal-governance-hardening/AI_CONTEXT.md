@@ -66,5 +66,5 @@ umbrella `inquiry/17 §再発防止規約 5` に従い:
 ## 関連
 
 - umbrella: `projects/architecture-debt-recovery/`
-- sibling: `projects/duplicate-orphan-retirement/` / `projects/widget-context-boundary/`
+- sibling (archived 2026-04-25): `projects/completed/duplicate-orphan-retirement/` / `projects/completed/widget-context-boundary/`
 - 参照実装: `projects/completed/budget-achievement-simulator/aag/execution-overlay.ts`（reviewPolicy overlay 例）

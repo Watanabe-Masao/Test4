@@ -7,15 +7,15 @@
 
 **Phase 1-5 完了 / Wave 0 切替 landed / Wave 1 3 sub-project spawn 済み（2026-04-23）。status: `active`。`CURRENT_PROJECT.md` = `architecture-debt-recovery`（sub-project 作業開始時に個別切替）。**
 
-### Wave 1 spawn 済み sub-project（本 commit）
+### Wave 1 spawn 済み sub-project（progress 2026-04-25）
 
 | id | lane | status | ADR / 推定 PR |
 |---|---|---|---|
-| `widget-context-boundary` | A | active | A-001〜A-004 / 16 PR |
-| `duplicate-orphan-retirement` | C | active | C-001〜C-004 / 14 PR |
-| `aag-temporal-governance-hardening` | D | active | D-001/002/005/006 先行 12 PR、D-003/004 Wave 2-3 |
+| `widget-context-boundary` | A | ✅ completed (2026-04-25) | A-001〜A-004 / 16 PR landed、4 guard fixed mode、8 LEG sunset、chokepoint narrowing 確立 |
+| `duplicate-orphan-retirement` | C | ✅ completed (2026-04-25) | C-001〜C-004 全 4 ADR 完遂、4 guard fixed mode、6 LEG sunset、BC-5 (17a Option A 拡張 cascade 含む) 完了 |
+| `aag-temporal-governance-hardening` | D | active (Wave 1 完遂、Wave 2-3 起動可能) | D-001/002/005/006 12 PR landed、D-004 (Wave 2) は SP-C completion で起動条件解除、D-003 (Wave 3) は SP-B completed 待ち |
 
-SP-B（widget-registry-simplification）は SP-A completed 後に Wave 2 で spawn。
+SP-B（widget-registry-simplification）は **SP-A completed (2026-04-25) で起動条件解除**、Wave 2 で spawn 可能。
 
 本 project は `budget-achievement-simulator` の reboot で表面化した widget 複雑化問題を起点に、
 **widget / pure 関数 / 型 / コンポーネント / データパイプライン / レガシー撤退** を
@@ -83,34 +83,33 @@ SP-B（widget-registry-simplification）は SP-A completed 後に Wave 2 で spa
 
 ## 2. 次にやること
 
-詳細は `checklist.md` を参照。Phase 5 完了。次は **Wave 1 spawn**（SP-A / SP-C / SP-D-partial の並行 spawn）。
+詳細は `checklist.md` を参照。Phase 5 完了 + Wave 1 SP-A / SP-C completed (2026-04-25)。
+次は **Wave 2 spawn**（SP-B + SP-D-continued ADR-D-004）。
 
-### 高優先（Wave 1 spawn、並行着手可能、inquiry/21 参照）
+### 高優先（Wave 2 spawn、並行着手可能）
 
-Wave 0 完了後、以下 3 sub-project を並行 spawn 可能:
+SP-A completed (2026-04-25) + SP-C completed (2026-04-25) により以下が起動条件解除:
 
-- **SP-A widget-context-boundary** — 4 ADR（A-001〜A-004）+ 8 legacy（LEG-001〜008）+ 4 guard。16 PR 想定
-- **SP-C duplicate-orphan-retirement** — 4 ADR（C-001〜C-004）+ 6 legacy（LEG-010〜015）+ BC-5。14 PR 想定
-- **SP-D-partial aag-temporal-governance-hardening**（4 ADR 先行）:
-  - ADR-D-001 reviewPolicy required + 92 件 bulk
-  - ADR-D-002 allowlist metadata required
-  - ADR-D-005 generated remediation.{md,json}
-  - ADR-D-006 projectDocConsistencyGuard
+- **SP-B widget-registry-simplification** — SP-A completion で起動条件解除。詳細は `projects/completed/widget-context-boundary/next-phase-plan.md` を参照
+- **SP-D-continued ADR-D-004** (`@deprecated metadata required`) — SP-C completion で起動条件解除。`aag-temporal-governance-hardening` の Phase 5 で着手
 
-### 中優先
+### 中優先（Wave 2 着手時の作業規律）
 
 - 各 sub-project の spawn PR は `inquiry/21 §spawn PR テンプレート` の 8 step に従う
 - sub-project spawn 時に `CURRENT_PROJECT.md` を対応 sub-project に切替（`inquiry/20 §sub-project spawn テンプレート`）
 - 並行着手時の作業規律は `inquiry/21 §並行着手時の作業規律` 5 項に従う
 
-### Wave 2（SP-A completed 後）
-
-- SP-B widget-registry-simplification
-- SP-D-continued の ADR-D-004（SP-C completed 後 follow-through）
-
 ### Wave 3（SP-B completed 後）
 
 - SP-D-final の ADR-D-003（G8 P20/P21 baseline 削減）
+
+### Wave 1 完了サマリ
+
+| Lane | sub-project | landed | sunset / fixed mode |
+|---|---|---|---|
+| A | widget-context-boundary | 4 ADR × 16 PR | 4 guard fixed mode、8 LEG sunset |
+| C | duplicate-orphan-retirement | 4 ADR (PR3 含む 17a Option A 拡張) | 4 guard fixed mode、6 LEG sunset、BC-5 完了 |
+| D | aag-temporal-governance-hardening (Wave 1) | 4 ADR × 12 PR (D-001/002/005/006) | reviewPolicyRequiredGuard / allowlistMetadataGuard fixed mode、BC-6/BC-7 完了 |
 
 ## 3. ハマりポイント
 

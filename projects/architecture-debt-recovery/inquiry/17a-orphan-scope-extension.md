@@ -153,7 +153,7 @@ Option A 承認時の PR 計画:
 - 上位 ADR: `inquiry/15 §ADR-C-003`
 - 破壊的変更: `inquiry/16 §BC-5`
 - guard: `app/src/test/guards/orphanUiComponentGuard.test.ts`
-- SP-C local 文書: `projects/duplicate-orphan-retirement/checklist.md` Phase 3
+- SP-C local 文書 (archived 2026-04-25): `projects/completed/duplicate-orphan-retirement/checklist.md` Phase 3
 - 後続 unblock 先:
   - SP-C Phase 5 (sub-project completion)
   - SP-D Phase 5 ADR-D-004 (`@deprecated metadata`、SP-C completed 後に着手)
