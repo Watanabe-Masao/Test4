@@ -177,34 +177,21 @@ ROLE.md と SKILL.md は以下の5層で思想を構造化する:
 | 論理構造 | SKILL.md | 因果関係（XならYが壊れる、なぜならZ） |
 | 方法論 | SKILL.md | 具体的手順 |
 
-### 越境検出
+### 越境検出（mechanism）
 
-作業完了時、以下を自己チェックする:
-- 自分の ROLE.md の Scope に含まれる作業だけを行ったか？
-- Boundary に該当する作業をしていないか？
-- Output の形式に従い、正しい渡し先に渡したか？
+各ロールの編集権限境界は `roles/<role>/scope.json` で宣言される（owns / out_of_scope_warn）。
+pre-commit hook が staged ファイルの role 帰属を informational 表示し、
+`scopeJsonGuard.test.ts` が宣言の整合性を機械検証する。
+**「気をつける」（exhortation）ではなく mechanism として運用する**（G8 適用）。
 
-### フィードバックスパイラル
+### フィードバックスパイラル（mechanism）
 
-品質を継続的に向上させるために、以下のループを回す:
+品質改善ループは AAG の ratchet-down 機構で実装されている。
+- review-gate FAIL → migrationRecipe / fix-now hint で復帰経路が機械生成（`tools/architecture-health/src/aag-response.ts`）
+- 同種バグ 2 回発生 → guard に baseline 追加、ratchet-down で再発防止（`responsibilityTagGuard.test.ts` 等）
+- ロール判断の明確化 → `roles/<role>/ROLE.md` の判断基準セクションを更新
 
-```
-実装 → review-gate → PASS/FAIL
-                        │
-           FAIL: 原因を分析 → 以下のいずれかを更新
-                        │
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-  禁止事項に追加    ガードテスト追加   ROLE/SKILL 改善
-  (CLAUDE.md)     (invariant-guardian) (documentation-steward)
-```
-
-**トリガー:**
-- review-gate が FAIL を出したとき → 原因が構造的なら禁止事項/ガードテストに昇格
-- 同じ種類のバグが2回発生したとき → 機械的検出手段（テスト）を追加
-- ロールの判断に迷いが生じたとき → ROLE.md の判断基準を明確化
-
-**原則:** 「気をつける」で終わらせない。再発を防ぐ構造（テスト、禁止事項、ROLE 改善）に変換する。
+**原則:** 「気をつける」で終わらせない。再発を防ぐ構造（テスト・guard・ratchet-down）に変換する（G8）。
 
 ## プロジェクト構成
 
