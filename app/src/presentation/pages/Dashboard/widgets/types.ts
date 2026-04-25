@@ -1,19 +1,8 @@
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { WidgetId } from './widgetOwnership'
 import type { ReactNode } from 'react'
-import type { QueryExecutor } from '@/application/queries/QueryPort'
-import type { WeatherPersister } from '@/application/queries/weather'
-import type { StoreExplanations, MetricId } from '@/domain/models/analysis'
-import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
-import type { ComparisonScope } from '@/domain/models/ComparisonScope'
-import type { StoreResult, ViewType } from '@/domain/models/storeTypes'
-import type { DailyWeatherSummary } from '@/domain/models/record'
-import type { PrevYearMonthlyKpi } from '@/application/hooks/analytics'
-import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'
-import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
-import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
-import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import type { UnifiedWidgetContext } from '@/presentation/components/widgets/types'
+import type { ViewType } from '@/domain/models/storeTypes'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 export type WidgetSize = 'kpi' | 'half' | 'full'
 
@@ -65,38 +54,16 @@ export function comparisonLabels(
 /**
  * Dashboard ウィジェットコンテキスト
  *
- * UnifiedWidgetContext の Dashboard 向け具象化。
- * Dashboard が保証するフィールドを required に昇格する。
- * useUnifiedWidgetContext が全フィールドを設定するため、
- * ランタイムでは常に全フィールドが存在する。
+ * @deprecated ADR-A-002 PR1 (2026-04-24): `DashboardWidgetContext` への
+ * 後方互換 alias。新規コードは `./DashboardWidgetContext` から直接 import すること。
+ * PR4 で本 alias は削除予定（LEG-004 sunsetCondition）。
+ *
+ * @sunsetCondition ADR-A-002 PR4 で本 alias を削除し、全 consumer が
+ * DashboardWidgetContext を直接 import する状態に到達
+ * @expiresAt 2026-05-31
+ * @reason ADR-A-002: Dashboard 固有 20 field の集約と型レベル保証
  */
-export interface WidgetContext extends UnifiedWidgetContext {
-  readonly storeKey: string
-  readonly allStoreResults: ReadonlyMap<string, StoreResult>
-  readonly currentDateRange: DateRange
-  readonly prevYearScope: PrevYearScope | undefined
-  readonly selectedStoreIds: ReadonlySet<string>
-  readonly dataEndDay: number | null
-  readonly dataMaxDay: number
-  readonly elapsedDays: number | undefined
-  readonly departmentKpi: DepartmentKpiIndex
-  readonly explanations: StoreExplanations
-  readonly onExplain: (metricId: MetricId) => void
-  readonly monthlyHistory: readonly MonthlyDataPoint[]
-  readonly queryExecutor: QueryExecutor
-  readonly duckDataVersion: number
-  readonly loadedMonthCount: number
-  readonly weatherPersist: WeatherPersister | null
-  readonly prevYearMonthlyKpi: PrevYearMonthlyKpi
-  readonly comparisonScope: ComparisonScope | null
-  readonly dowGap: DowGapAnalysis
-  readonly onPrevYearDetail: (type: 'sameDow' | 'sameDate') => void
-  readonly fmtCurrency: CurrencyFormatter
-  readonly prevYearStoreCostPrice?: ReadonlyMap<string, { cost: number; price: number }>
-  readonly weatherDaily?: readonly DailyWeatherSummary[]
-  readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
-  readonly currentCtsQuantity: CurrentCtsQuantity
-}
+export type WidgetContext = DashboardWidgetContext
 
 export interface WidgetDef {
   readonly id: WidgetId

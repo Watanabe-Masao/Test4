@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-24T22:07:42.181Z",
+  "generatedAt": "2026-04-25T00:08:38.448Z",
   "umbrellaProject": "architecture-debt-recovery",
   "itemCount": 18,
   "breakingChangeCount": 7,
@@ -8,9 +8,9 @@
   "subProjects": [
     {
       "id": "widget-context-boundary",
-      "checked": 7,
+      "checked": 9,
       "total": 35,
-      "progressRatio": 0.2
+      "progressRatio": 0.2571428571428571
     },
     {
       "id": "duplicate-orphan-retirement",
@@ -25,7 +25,7 @@
       "progressRatio": 0.5172413793103449
     }
   ],
-  "guardImplementedCount": 37,
+  "guardImplementedCount": 39,
   "baselineRemaining": 0,
   "reviewPending": 0
 }

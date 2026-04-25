@@ -16,8 +16,8 @@
 
 ## Phase 2: ADR-A-002 — Dashboard 固有 20 field 集約（BC-2）
 
-* [ ] PR1: DashboardWidgetContext 新設、既存 WidgetContext alias 残置
-* [ ] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
+* [x] PR1: DashboardWidgetContext 新設、既存 WidgetContext alias 残置
+* [x] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
 * [ ] PR3a: WIDGETS_KPI + WIDGETS_CHART の 7 widget を DashboardWidgetContext に接続
 * [ ] PR3b: WIDGETS_EXEC 7 widget を接続
 * [ ] PR3c: WIDGETS_ANALYSIS 10 widget を接続
