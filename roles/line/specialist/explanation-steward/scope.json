@@ -1,0 +1,14 @@
+{
+  "$comment": "explanation-steward のスコープ宣言。AAG の Scope guard と pre-commit hook が参照する。",
+  "role": "explanation-steward",
+  "category": "line/specialist",
+  "owns": [
+    "app/src/application/usecases/explanation/",
+    "references/03-guides/explanation-architecture.md"
+  ],
+  "out_of_scope_warn": [
+    "app/src/domain/calculations/",
+    "app/src/infrastructure/duckdb/"
+  ],
+  "rationale": "explanation-steward は MetricId 説明責任（L1→L2→L3 の3段階 UX）を担う。計算正本・DB 層への介入は越境（StoreResult の値を再利用するのみ）"
+}

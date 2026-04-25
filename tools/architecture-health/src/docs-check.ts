@@ -17,7 +17,10 @@ import { collectFromSnapshot } from "./collectors/snapshot-collector.js";
 import { collectFromGuards } from "./collectors/guard-collector.js";
 import { collectFromDocs } from "./collectors/doc-collector.js";
 import { collectFromBundle } from "./collectors/bundle-collector.js";
-import { collectObligations } from "./collectors/obligation-collector.js";
+import {
+  collectObligations,
+  collectRequiredReadsKpis,
+} from "./collectors/obligation-collector.js";
 import { collectFromTemporalGovernance } from "./collectors/temporal-governance-collector.js";
 import { collectFromProjectChecklists } from "./collectors/project-checklist-collector.js";
 import { evaluate } from "./evaluator.js";
@@ -45,6 +48,7 @@ const guardKpis = collectFromGuards(repoRoot);
 const docKpis = collectFromDocs(repoRoot);
 const bundleKpis = collectFromBundle(repoRoot);
 const obligationKpis = collectObligations(repoRoot);
+const requiredReadsKpis = collectRequiredReadsKpis(repoRoot);
 const temporalKpis = collectFromTemporalGovernance(repoRoot);
 const projectKpis = collectFromProjectChecklists(repoRoot);
 
@@ -54,6 +58,7 @@ const allKpis = [
   ...docKpis,
   ...bundleKpis,
   ...obligationKpis,
+  ...requiredReadsKpis,
   ...temporalKpis,
   ...projectKpis,
 ];

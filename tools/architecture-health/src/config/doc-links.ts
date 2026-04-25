@@ -140,4 +140,16 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
     ],
     implRefs: [],
   },
+  'docs.obligation.requiredReads.declaredCount': {
+    docRefs: [
+      { kind: 'definition', path: 'tools/architecture-health/src/collectors/obligation-collector.ts', section: 'PATH_TO_REQUIRED_READS' },
+    ],
+    implRefs: [],
+  },
+  'docs.obligation.requiredReads.brokenLinks': {
+    docRefs: [
+      { kind: 'definition', path: 'tools/architecture-health/src/collectors/obligation-collector.ts', section: 'PATH_TO_REQUIRED_READS' },
+    ],
+    implRefs: [],
+  },
 }
