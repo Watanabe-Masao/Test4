@@ -5,28 +5,35 @@
 
 ## 1. 現在地
 
-**Phase 6 Wave 1 で spawn 済み。status: `active` / parent: `architecture-debt-recovery`。PR 0 実施。**
+**Phase 6 Wave 1 完遂 (4 ADR / Phase 1-4 全 [x])。status: `active` / parent: `architecture-debt-recovery`。Wave 2-3 は依存 sub-project 完了待ち。**
 
-本 project は umbrella `architecture-debt-recovery` の **Lane D** sub-project として、governance の時間 / 構造 / 存在 3 軸の強化を一括で行う。Wave 1 で 4 ADR（D-001/002/005/006）先行、Wave 2-3 で残 2 ADR（D-003/004）を依存解消後に実施。
+本 project は umbrella `architecture-debt-recovery` の **Lane D** sub-project として、governance の時間 / 構造 / 存在 3 軸の強化を一括で行う。Wave 1 で 4 ADR（D-001/002/005/006）先行 完了、Wave 2-3 で残 2 ADR（D-003/004）を依存解消後に実施予定。
 
 ### spawn 時 landed
 
 - `config/project.json` / `AI_CONTEXT.md` / `HANDOFF.md`（本 file）/ `plan.md` / `checklist.md` / `aag/execution-overlay.ts`
 
+### Wave 1 landed (Phase 1-4 全 [x]、checklist.md 参照)
+
+- **Phase 1 ADR-D-006**: `projectDocConsistencyGuard` 4 step 完遂（HANDOFF/checklist 整合 / status vs derivedStatus / Phase 着手前 review checkbox / required inquiry 突合）
+- **Phase 2 ADR-D-005**: remediation collector + project-health 連携 + docs:check drift 検出 (3 step)
+- **Phase 3 ADR-D-001**: `reviewPolicyRequiredGuard` baseline 139→0 + BC-6 (RuleOperationalState.reviewPolicy required 昇格) + expired rule hard fail (4 step)
+- **Phase 4 ADR-D-002**: `allowlistMetadataGuard` baseline=existing → BC-7 (ruleId/createdAt/reviewPolicy required 昇格) + expiresAt 超過 fail (4 step)
+
 ### 残タスク
 
-umbrella `inquiry/15 §Lane D` 6 ADR × 平均 3-4 step = **~19 PR**。Wave ごとに区切って実施。
+- **Phase 5 ADR-D-004** (Wave 2): SP-C completed 後着手、4 PR 想定
+- **Phase 6 ADR-D-003** (Wave 3): SP-B completed 後着手、3 step 想定
+- **Phase 7 sub-project completion**: 全 Wave 完了後、umbrella inquiry/20 §completion テンプレ 7 step
 
 ## 2. 次にやること
 
-### Wave 1 推奨開始順（互いに独立、並行可）
+### Wave 1 完遂済（参考）
 
-1. **ADR-D-006 PR1**: `projectDocConsistencyGuard` baseline=0 で追加（即効性高、影響小）
-2. **ADR-D-005 PR1**: remediation collector 実装（generated file 新規追加のみ、影響 0）
-3. **ADR-D-001 PR1**: `reviewPolicyRequiredGuard` baseline=92 で追加
-4. **ADR-D-002 PR1**: `allowlistMetadataGuard` baseline=existing で追加
-
-PR1 全て完了後、PR2（bulk 整備）→ PR3（type required 昇格、BC-6/BC-7）→ PR4（baseline=0 fixed）の順。
+1. ✅ **ADR-D-006 PR1-4**: projectDocConsistencyGuard 完成（即効性高、影響小）
+2. ✅ **ADR-D-005 PR1-3**: remediation collector + drift 検出
+3. ✅ **ADR-D-001 PR1-4**: reviewPolicyRequiredGuard baseline 139→0 + BC-6
+4. ✅ **ADR-D-002 PR1-4**: allowlistMetadataGuard + BC-7
 
 ### Wave 2 着手（SP-C completed 後）
 
