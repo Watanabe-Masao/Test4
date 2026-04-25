@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-25T00:08:38.428Z
+> Generated: 2026-04-25T00:51:12.342Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -76,8 +76,8 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 9 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 814 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 604 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 812 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 606 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 6 | OK |
 
 ## バンドル性能

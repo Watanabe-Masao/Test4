@@ -84,6 +84,12 @@ export interface UnifiedWidgetContext {
   readonly periodSelection?: PeriodSelection
 
   // ── Dashboard 固有（他ページではオプション） ──
+  // 注意: ADR-A-002 PR4 (2026-04-24) で DashboardWidgetContext へ required 移行を
+  // 計画していたが、queryExecutor / currentDateRange / prevYearMonthlyKpi / dowGap
+  // 等が Insight / Dashboard 双方から ctx.foo の形で参照されていることを発見。
+  // 本セッションの PR4 では alias 削除のみを実施し、20 field 削除は未着手。
+  // unifiedWidgetContextNoDashboardSpecificGuard baseline=20 で凍結監視を継続。
+  // 詳細は projects/widget-context-boundary/HANDOFF.md に追記予定。
   readonly storeKey?: string
   readonly allStoreResults?: ReadonlyMap<string, StoreResult>
   readonly currentDateRange?: DateRange

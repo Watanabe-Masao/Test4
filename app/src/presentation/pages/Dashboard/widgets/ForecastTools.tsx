@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   ForecastToolsGrid,
   ToolCard,
@@ -32,7 +32,7 @@ import { getTool1Insight, getTool2Insight } from './simulationInsight'
 export const ForecastToolsWidget = memo(function ForecastToolsWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   const { fmtCurrency } = ctx
   const s = useForecastToolsState(ctx)

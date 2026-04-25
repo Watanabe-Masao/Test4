@@ -51,28 +51,19 @@ export function comparisonLabels(
   return { curLabel: curRange, prevLabel: prevRange }
 }
 
-/**
- * Dashboard ウィジェットコンテキスト
- *
- * @deprecated ADR-A-002 PR1 (2026-04-24): `DashboardWidgetContext` への
- * 後方互換 alias。新規コードは `./DashboardWidgetContext` から直接 import すること。
- * PR4 で本 alias は削除予定（LEG-004 sunsetCondition）。
- *
- * @sunsetCondition ADR-A-002 PR4 で本 alias を削除し、全 consumer が
- * DashboardWidgetContext を直接 import する状態に到達
- * @expiresAt 2026-05-31
- * @reason ADR-A-002: Dashboard 固有 20 field の集約と型レベル保証
- */
-export type WidgetContext = DashboardWidgetContext
+// ADR-A-002 PR4 (2026-04-24): WidgetContext alias を削除完了 (LEG-004 sunsetCondition 達成)。
+// 全 consumer は DashboardWidgetContext を直接 import すること。
 
 export interface WidgetDef {
   readonly id: WidgetId
   readonly label: string
   readonly group: string
   readonly size: WidgetSize
-  readonly render: (ctx: WidgetContext) => ReactNode
+  // ADR-A-002 PR3 (2026-04-24): WidgetContext alias から DashboardWidgetContext
+  // 直接参照に切替（4 registry × 22 widget の render/isVisible が新型へ接続済）。
+  readonly render: (ctx: DashboardWidgetContext) => ReactNode
   /** データ有無による表示判定（未設定時は常に表示） */
-  readonly isVisible?: (ctx: WidgetContext) => boolean
+  readonly isVisible?: (ctx: DashboardWidgetContext) => boolean
   /** 関連ページへのリンク（「もっと詳しく」動線） */
   readonly linkTo?: { readonly view: ViewType; readonly tab?: string }
 }

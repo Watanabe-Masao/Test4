@@ -18,12 +18,10 @@
 
 * [x] PR1: DashboardWidgetContext 新設、既存 WidgetContext alias 残置
 * [x] PR2: `unifiedWidgetContextNoDashboardSpecificGuard` baseline=20 で追加
-* [ ] PR3a: WIDGETS_KPI + WIDGETS_CHART の 7 widget を DashboardWidgetContext に接続
-* [ ] PR3b: WIDGETS_EXEC 7 widget を接続
-* [ ] PR3c: WIDGETS_ANALYSIS 10 widget を接続
-* [ ] PR3d: WIDGETS_DUCKDB 5 widget を接続
-* [ ] PR4: UnifiedWidgetContext から Dashboard 固有 20 field 削除、guard baseline=0、legacy WidgetContext alias 削除
-* [ ] LEG-004 の sunsetCondition 達成確認
+* [x] PR3a-d: WIDGETS_KPI / CHART / EXEC / ANALYSIS / DUCKDB の全 4 registry を DashboardWidgetContext に接続（WidgetDef.render の型パラメータを WidgetContext alias から DashboardWidgetContext 直接参照に切替、22 widget が新型経由）
+* [x] PR4 (部分): legacy WidgetContext alias 削除 + 20 consumer 全て DashboardWidgetContext 直接 import に移行
+* [ ] PR4 (続き): UnifiedWidgetContext から Dashboard 固有 20 field 削除、guard baseline=0 — Insight ページが queryExecutor / currentDateRange を共有していることが PR4 着手中に判明（事前 audit で Dashboard 固有判定が誤りだったケース）。20 field の削減 vs 共有 field 残置の切り分けが必要なため、本 PR では alias 削除のみ完遂、field 削除は umbrella inquiry/16 §BC-2 の人間レビュー後に実施
+* [ ] LEG-004 の sunsetCondition 達成確認 — alias 削除部分は達成、field 削除部分は次 PR 待ち
 
 ## Phase 3: ADR-A-003 — WidgetDef 2 型分離（BC-3）
 

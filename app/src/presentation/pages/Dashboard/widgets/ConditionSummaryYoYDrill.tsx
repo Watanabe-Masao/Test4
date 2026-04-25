@@ -4,7 +4,8 @@
  * 客数前年比・客単価前年比・販売点数前年比・総仕入前年比・残予算必要達成率の
  * 店別詳細パネルを統一的に表示する。
  */
-import type { WidgetContext, CurrentCtsQuantity } from './types'
+import type { CurrentCtsQuantity } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import type { StoreResult, AppSettings } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { formatPercent } from '@/domain/formatting'
@@ -75,7 +76,7 @@ export type YoYDrillType =
 
 interface YoYDrillOverlayProps {
   readonly yoyDrill: YoYDrillType
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly effectiveConfig: ConditionSummaryConfig
   readonly displayMode: DisplayMode
@@ -223,7 +224,7 @@ function RequiredPaceContent({
   elapsedDays,
   daysInMonth,
 }: {
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly elapsedDays: number
   readonly daysInMonth: number

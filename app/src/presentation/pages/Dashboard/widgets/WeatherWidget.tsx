@@ -21,7 +21,7 @@ import { WeatherBadge } from '@/presentation/components/common/WeatherBadge'
 import { ForecastBadge } from '@/presentation/components/common/ForecastBadge'
 import { WeatherCorrelationChart } from '@/presentation/components/charts/WeatherCorrelationChart'
 import { HourlyWeatherModal } from './HourlyWeatherModal'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 const Wrapper = styled.div`
   display: flex;
@@ -86,7 +86,7 @@ const ErrorText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
-export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: WidgetContext }) {
+export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: DashboardWidgetContext }) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
   // 日別天気データは ctx から取得（useUnifiedWidgetContext で一元管理）

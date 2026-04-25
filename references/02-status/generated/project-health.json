@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T00:08:38.435Z",
+  "timestamp": "2026-04-25T00:51:12.349Z",
   "summary": {
     "active": 10,
     "archived": 19,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 814,
-    "checkedCheckboxes": 604
+    "totalCheckboxes": 812,
+    "checkedCheckboxes": 606
   },
   "projects": [
     {
@@ -386,9 +386,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 9,
-      "total": 35,
-      "progress": 0.257,
+      "checked": 11,
+      "total": 33,
+      "progress": 0.333,
       "entrypoint": "projects/widget-context-boundary/AI_CONTEXT.md",
       "checklistPath": "projects/widget-context-boundary/checklist.md",
       "parent": "architecture-debt-recovery"

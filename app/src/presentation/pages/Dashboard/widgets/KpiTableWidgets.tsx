@@ -8,7 +8,7 @@ import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import type { DepartmentKpiRecord } from '@/domain/models/record'
 import type { CurrencyFormatter } from '@/presentation/components/charts/chartTheme'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { STableWrapper, STableTitle, STable, STd, ScrollWrapper } from '../DashboardPage.styles'
 import { KpiGroupTh, KpiSubTh, BudgetTh, BudgetTd } from './KpiTableWidgets.styles'
 import { fmtPct, fmtPtDiff } from './kpiTableUtils'
@@ -43,11 +43,11 @@ function renderKpiRow(rec: DepartmentKpiRecord, fmtCurrency: CurrencyFormatter):
   )
 }
 
-export function renderStoreKpiTable(ctx: WidgetContext): ReactNode {
+export function renderStoreKpiTable(ctx: DashboardWidgetContext): ReactNode {
   return <StoreKpiTableInner ctx={ctx} />
 }
 
-export function renderDepartmentKpiTable(ctx: WidgetContext): ReactNode {
+export function renderDepartmentKpiTable(ctx: DashboardWidgetContext): ReactNode {
   const { departmentKpi, fmtCurrency } = ctx
   if (departmentKpi.records.length === 0) {
     return (

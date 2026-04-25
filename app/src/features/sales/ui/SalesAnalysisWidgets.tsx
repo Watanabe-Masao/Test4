@@ -12,7 +12,7 @@ import { formatPercent } from '@/domain/formatting'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import { getWeekRanges } from '@/application/hooks/calculation'
 import { toComparisonPointMap } from '@/application/comparison/viewModels'
-import type { WidgetContext } from '@/presentation/pages/Dashboard/widgets/types'
+import type { DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/DashboardWidgetContext'
 import {
   STableWrapper,
   STableTitle,
@@ -21,7 +21,7 @@ import {
   STd,
 } from '@/presentation/pages/Dashboard/DashboardPage.styles'
 
-export function renderDowAverage(ctx: WidgetContext): ReactNode {
+export function renderDowAverage(ctx: DashboardWidgetContext): ReactNode {
   const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
   const dailySales = new Map<number, number>()
   const dailyBudget = new Map<number, number>()
@@ -153,7 +153,7 @@ export function renderDowAverage(ctx: WidgetContext): ReactNode {
   )
 }
 
-export function renderWeeklySummary(ctx: WidgetContext): ReactNode {
+export function renderWeeklySummary(ctx: DashboardWidgetContext): ReactNode {
   const { result: r, year, month, prevYear, prevYearMonthlyKpi, fmtCurrency } = ctx
 
   // sameDow.dailyMapping から currentDay ベースの前年値マップを構築

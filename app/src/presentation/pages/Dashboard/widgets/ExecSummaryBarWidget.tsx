@@ -19,7 +19,7 @@ import {
   ExecSummarySub,
 } from '../DashboardPage.styles'
 import { WarningBanner } from './ExecSummaryBarWidget.styles'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
 import {
   selectPrevYearSummaryFromFreePeriod,
@@ -35,7 +35,7 @@ const TABS: { key: SummaryTab; label: string }[] = [
   { key: 'customers', label: '客数・客単価' },
 ]
 
-export function ExecSummaryBarWidget(ctx: WidgetContext) {
+export function ExecSummaryBarWidget(ctx: DashboardWidgetContext) {
   const { result: r, prevYear, onExplain, fmtCurrency } = ctx
   const cf = ctx.readModels?.customerFact
   const curCustomers =

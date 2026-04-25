@@ -76,7 +76,7 @@ interface Props {
   /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
   /** WidgetContext（要因分析 embedded 用 — 親から渡す） */
-  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/types').WidgetContext
+  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
 }
 
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {

@@ -6,7 +6,7 @@
  * 統一カードレジストリで管理。カードの並び替えは CONDITION_CARD_ORDER の変更で即反映。
  */
 import { useState, useMemo, memo, useCallback } from 'react'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   type MetricKey,
   type ConditionCardId,
@@ -70,7 +70,7 @@ const YOY_DRILL_IDS: ReadonlySet<string> = new Set([
 export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
   ctx,
 }: {
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
 }) {
   const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
   const [yoyDrill, setYoYDrill] = useState<YoYDrillType | null>(null)

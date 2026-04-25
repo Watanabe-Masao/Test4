@@ -6,7 +6,7 @@
  * 店別詳細と全店合計を表示する。
  */
 import { useState, useMemo, useCallback, memo } from 'react'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   type MetricKey,
   type EnhancedTotal,
@@ -57,7 +57,7 @@ import {
 } from './ConditionSummaryEnhanced.styles'
 
 interface BudgetDrillProps {
-  readonly ctx: WidgetContext
+  readonly ctx: DashboardWidgetContext
   readonly activeMetric: MetricKey
   readonly onClose: () => void
 }

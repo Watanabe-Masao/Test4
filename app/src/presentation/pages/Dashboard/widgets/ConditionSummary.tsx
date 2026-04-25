@@ -5,7 +5,7 @@ import type { MetricId } from '@/domain/models/analysis'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'
 import { isMetricEnabled } from '@/application/rules/conditionResolver'
 import { useSettingsStore } from '@/application/stores/settingsStore'
-import type { WidgetContext } from './types'
+import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {
   type ConditionItem,
   type DisplayMode,
@@ -42,7 +42,7 @@ import { TxValueDetailTable, SimpleBreakdown } from './conditionPanelSalesDetail
 export const ConditionSummaryWidget = memo(function ConditionSummaryWidget({
   ctx,
 }: {
-  ctx: WidgetContext
+  ctx: DashboardWidgetContext
 }) {
   const r = ctx.result
   const { onExplain, allStoreResults, stores, fmtCurrency } = ctx
