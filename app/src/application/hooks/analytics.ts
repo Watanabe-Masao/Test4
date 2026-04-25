@@ -84,6 +84,12 @@ export type {
   PrevYearMonthlyKpiEntry,
   StoreContribution,
 } from '@/application/comparison/comparisonTypes'
+export type { PrevYearDataSlice } from '@/features/comparison'
+export {
+  prevYearDataValue,
+  readyPrevYearData,
+  EMPTY_PREV_YEAR_DATA_SLICE,
+} from '@/features/comparison'
 export { useLoadComparisonData } from './useLoadComparisonData'
 export type { ComparisonLoadStatus } from './useLoadComparisonData'
 export { useComparisonModule } from './useComparisonModule'

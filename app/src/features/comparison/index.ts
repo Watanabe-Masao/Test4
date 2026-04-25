@@ -14,6 +14,12 @@ export type {
   StoreContribution,
   CompareModeV2,
 } from './application/comparisonTypes'
+export type { PrevYearDataSlice } from './application/PrevYearDataSlice'
+export {
+  prevYearDataValue,
+  readyPrevYearData,
+  EMPTY_PREV_YEAR_DATA_SLICE,
+} from './application/PrevYearDataSlice'
 
 // 公開 API: アクセサ
 export {
