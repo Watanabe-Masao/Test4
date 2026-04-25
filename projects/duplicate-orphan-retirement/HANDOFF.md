@@ -5,42 +5,49 @@
 
 ## 1. 現在地
 
-**Phase 6 Wave 1 で spawn 済み。status: `active` / parent: `architecture-debt-recovery`。PR 0 実施。**
+**Phase 1 / 2 / 4 完遂、Phase 3 は ADR-C-003 PR3 + LEG-014 + BC-5 rollback が `inquiry/17a-orphan-scope-extension.md` 承認待ちでブロック。status: `active` / parent: `architecture-debt-recovery`。**
 
 本 project は umbrella `architecture-debt-recovery` の **Lane C** sub-project として、**複製 / orphan / barrel 残存**を体系的に撤退する。
 
-### spawn 時 landed
+### Phase 別 landed
 
-- `config/project.json`（`status: "active"`、`parent: "architecture-debt-recovery"`）
-- `AI_CONTEXT.md`（why / scope / read order）
-- `HANDOFF.md`（本 file）
-- `plan.md`（本 project 固有の 4 ADR 実行計画）
-- `checklist.md`（completion 条件）
-- `aag/execution-overlay.ts`（空 overlay。initial 状態）
+| Phase | ADR | 状態 | 主な成果 |
+|---|---|---|---|
+| Phase 1 | ADR-C-001 | ✅ PR1-4 + LEG-010/011/012 sunset | `features/*/ui/widgets.tsx` 3 件 byte-identical 解消、`duplicateFileHashGuard` baseline 3→0 fixed mode |
+| Phase 2 | ADR-C-002 | ✅ PR1-4 + LEG-013 sunset | `useCostDetailData` 2 箇所並存解消、`hookCanonicalPathGuard` baseline 1→0 fixed mode |
+| Phase 3 | ADR-C-003 | ⏸️ PR1+PR2 完了、PR3 ブロック | Tier D orphan 3 件削除（BC-5 実施）、`orphanUiComponentGuard` baseline 7→4。残 4 件（Condition*.tsx 3 + ExecSummaryBarWidget.tsx）処理方針が `17a-*.md` 承認待ち |
+| Phase 4 | ADR-C-004 | ✅ PR1-3 + LEG-015 sunset | barrel re-export metadata 必須化、`barrelReexportMetadataGuard` baseline 38→0 fixed mode |
 
-### 残タスク（全 PR、inquiry/21 §W1-C）
+### Phase 3 ブロック内容（`17a-orphan-scope-extension.md`）
 
-umbrella `inquiry/15 §Lane C` 4 ADR × 平均 3.5 step = **~14 PR** 実施予定。
+ADR-C-003 PR1 実装時の audit で inquiry/03 の見落とし 4 件が判明:
+- `ConditionDetailPanels.tsx`（17 行、barrel）
+- `ConditionMatrixTable.tsx`（177 行、cascade あり）
+- `ConditionSummary.tsx`（330 行、後継 `ConditionSummaryEnhanced` あり）
+- `ExecSummaryBarWidget.tsx`（326 行）
+
+人間承認待ち: **scope 拡張（4 件削除）vs 保留（baseline=4 fixed mode）** の方針確定。
 
 ## 2. 次にやること
 
-### 推奨開始順（依存なし、平行 possible）
+### Phase 3 ブロック解除（人間承認後）
 
-1. **ADR-C-001 PR1**: `duplicateFileHashGuard` baseline=3 追加（`features/{category,cost-detail,reports}/ui/widgets.tsx`）
-2. **ADR-C-003 PR1**: `orphanUiComponentGuard` baseline=3 追加（`DowGapKpiCard` / `PlanActualForecast` / `RangeComparison`）
-3. **ADR-C-004 PR1**: `barrelReexportMetadataGuard` baseline=current で追加
+1. `17a-*.md` 承認: scope 拡張 or 保留 の方針確定
+2. **scope 拡張の場合**: ADR-C-003 PR2 拡張で 4 件追加削除 + cascade 検証 + BC-5 rollback 拡張記載
+3. **保留の場合**: PR3 で `orphanUiComponentGuard` baseline=4 fixed mode（ALLOWLIST に 4 件記載）
+4. PR3: `orphanUiComponentGuard` baseline=0 + fixed mode（scope 拡張時）or baseline=4 fixed mode（保留時）
+5. LEG-014 sunsetCondition 確認、BC-5 rollback 手順を PR description に記載
 
-この 3 PR は互いに独立、並行着手可能。ADR-C-002 は hookCanonicalPathGuard を必要とするため `@canonical` JSDoc 規約を先に固めてから着手。
+### Phase 5 sub-project completion
 
-### Wave 完了後
-
-sub-project completion PR（inquiry/20 §sub-project completion テンプレート 7 step）で以下:
+ブロック解除後、sub-project completion PR（umbrella `inquiry/20 §sub-project completion テンプレート` 7 step）:
 - SUMMARY.md 作成
 - 物理移動 `projects/duplicate-orphan-retirement/` → `projects/completed/duplicate-orphan-retirement/`
 - `config/project.json.status: "active" → "completed"`
 - CURRENT_PROJECT.md を umbrella に戻す
 - open-issues.md 更新
 - umbrella HANDOFF.md §1 に completion 記録
+- projectCompletionConsistencyGuard 確認
 
 ## 3. ハマりポイント
 
