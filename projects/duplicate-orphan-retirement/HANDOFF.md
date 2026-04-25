@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 1 / 2 / 4 完遂、Phase 3 は ADR-C-003 PR3 + LEG-014 + BC-5 rollback が `inquiry/17a-orphan-scope-extension.md` 承認待ちでブロック。status: `active` / parent: `architecture-debt-recovery`。**
+**Phase 1 / 2 / 3 / 4 全完遂（17a Option A 承認・実施完了 2026-04-25）。Phase 5 sub-project completion 着手中。status: `active` / parent: `architecture-debt-recovery`。**
 
 本 project は umbrella `architecture-debt-recovery` の **Lane C** sub-project として、**複製 / orphan / barrel 残存**を体系的に撤退する。
 
@@ -15,39 +15,32 @@
 |---|---|---|---|
 | Phase 1 | ADR-C-001 | ✅ PR1-4 + LEG-010/011/012 sunset | `features/*/ui/widgets.tsx` 3 件 byte-identical 解消、`duplicateFileHashGuard` baseline 3→0 fixed mode |
 | Phase 2 | ADR-C-002 | ✅ PR1-4 + LEG-013 sunset | `useCostDetailData` 2 箇所並存解消、`hookCanonicalPathGuard` baseline 1→0 fixed mode |
-| Phase 3 | ADR-C-003 | ⏸️ PR1+PR2 完了、PR3 ブロック | Tier D orphan 3 件削除（BC-5 実施）、`orphanUiComponentGuard` baseline 7→4。残 4 件（Condition*.tsx 3 + ExecSummaryBarWidget.tsx）処理方針が `17a-*.md` 承認待ち |
+| Phase 3 | ADR-C-003 | ✅ PR1-3 + LEG-014 sunset + BC-5 rollback 記載 | Tier D orphan 3 件 + 17a 拡張 4 件 + cascade orphan 削除（PR2/PR3a/PR3b 段階実施）、`orphanUiComponentGuard` baseline 7→4→1→0 + ALLOWLIST 空 + fixed mode |
 | Phase 4 | ADR-C-004 | ✅ PR1-3 + LEG-015 sunset | barrel re-export metadata 必須化、`barrelReexportMetadataGuard` baseline 38→0 fixed mode |
 
-### Phase 3 ブロック内容（`17a-orphan-scope-extension.md`）
+### Phase 3 完遂内容（17a Option A）
 
-ADR-C-003 PR1 実装時の audit で inquiry/03 の見落とし 4 件が判明:
-- `ConditionDetailPanels.tsx`（17 行、barrel）
-- `ConditionMatrixTable.tsx`（177 行、cascade あり）
-- `ConditionSummary.tsx`（330 行、後継 `ConditionSummaryEnhanced` あり）
-- `ExecSummaryBarWidget.tsx`（326 行）
+`inquiry/17a-orphan-scope-extension.md` Option A（4 件全削除）が 2026-04-25 承認され、ADR-C-003 PR3a/PR3b で実施完了:
 
-人間承認待ち: **scope 拡張（4 件削除）vs 保留（baseline=4 fixed mode）** の方針確定。
+- **PR3a (commit b2c9c31)**: F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget + barrel cascade orphan (conditionPanelMarkupCost / conditionPanelProfitability) + F4 唯一対象 guard (`phase6SummarySwapGuard`) を削除。baseline 4→1
+- **PR3b (commit 8d852bd)**: F2 ConditionMatrixTable + 17a 想定 cascade (Plan/Handler/advanced barrel) + 17a 想定外の拡張 cascade (`useConditionMatrix` / `conditionMatrixLogic` / `infrastructure/duckdb/queries/conditionMatrix`) を削除。baseline 1→0 + ALLOWLIST=[] + fixed mode 達成
+
+合計: 削除ファイル 24 件、影響行数 -3700+ 行。dead code 永続化を回避し、`INV-J7-B` の効力完全化。
 
 ## 2. 次にやること
 
-### Phase 3 ブロック解除（人間承認後）
+### Phase 5 sub-project completion (本 commit 着手)
 
-1. `17a-*.md` 承認: scope 拡張 or 保留 の方針確定
-2. **scope 拡張の場合**: ADR-C-003 PR2 拡張で 4 件追加削除 + cascade 検証 + BC-5 rollback 拡張記載
-3. **保留の場合**: PR3 で `orphanUiComponentGuard` baseline=4 fixed mode（ALLOWLIST に 4 件記載）
-4. PR3: `orphanUiComponentGuard` baseline=0 + fixed mode（scope 拡張時）or baseline=4 fixed mode（保留時）
-5. LEG-014 sunsetCondition 確認、BC-5 rollback 手順を PR description に記載
+umbrella `inquiry/20 §sub-project completion テンプレート` 7 step:
+1. SUMMARY.md 作成
+2. 物理移動 `projects/duplicate-orphan-retirement/` → `projects/completed/duplicate-orphan-retirement/`
+3. `config/project.json.status: "active" → "completed"`
+4. CURRENT_PROJECT.md を umbrella に戻す（既に umbrella なので no-op 確認）
+5. open-issues.md 更新（active → archived 欄へ）
+6. umbrella HANDOFF.md §1 に completion 記録
+7. `projectCompletionConsistencyGuard` PASS 確認
 
-### Phase 5 sub-project completion
-
-ブロック解除後、sub-project completion PR（umbrella `inquiry/20 §sub-project completion テンプレート` 7 step）:
-- SUMMARY.md 作成
-- 物理移動 `projects/duplicate-orphan-retirement/` → `projects/completed/duplicate-orphan-retirement/`
-- `config/project.json.status: "active" → "completed"`
-- CURRENT_PROJECT.md を umbrella に戻す
-- open-issues.md 更新
-- umbrella HANDOFF.md §1 に completion 記録
-- projectCompletionConsistencyGuard 確認
+完了後、SP-D Wave 2 ADR-D-004 の起動条件が解除される。
 
 ## 3. ハマりポイント
 

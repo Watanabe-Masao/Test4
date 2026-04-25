@@ -2,7 +2,7 @@
 
 > **役割**: `inquiry/17 §LEG-014` の addendum。`inquiry/03 §Tier D` で確定していた 3 件の orphan に加え、ADR-C-003 PR1 で `orphanUiComponentGuard` を実装した際の audit で**さらに 4 件の orphan が判明**した。本 file はその 4 件の audit と scope 拡張提案を記録する。
 >
-> **status**: **draft（人間承認待ち）**。本 file は immutable な inquiry/17 を書き換えず、addendum として配置する（`inquiry/17 §再発防止規約 5` の運用ルールに準拠）。
+> **status**: **final（Option A 承認 2026-04-25、ADR-C-003 PR3a/PR3b で実施完了）**。本 file は immutable な inquiry/17 を書き換えず、addendum として配置する（`inquiry/17 §再発防止規約 5` の運用ルールに準拠）。承認後 immutable 化。
 >
 > **判断主体**: `architecture` ロール（pm-business + 人間承認）
 
@@ -103,9 +103,27 @@ ADR-C-003 PR3c: LEG-014 sunsetCondition 達成確認 + BC-5 rollback 手順 PR d
 
 **デメリット**: F2 が永続 dead code 化。`baseline=1 fixed` は guard の本来意図と乖離。
 
-## 推奨
+## 推奨 / 最終決定
 
-**Option A（推奨）** — 4 件すべての削除を ADR-C-003 PR3 の scope に追加し、phased で実施。`orphanUiComponentGuard` baseline=0 + ALLOWLIST 空 + fixed mode を完遂し、`INV-J7-B` の効力を完全化する。
+**Option A（承認 2026-04-25）** — 4 件すべての削除を ADR-C-003 PR3 の scope に追加し、phased で実施した。`orphanUiComponentGuard` baseline=0 + ALLOWLIST 空 + fixed mode を完遂し、`INV-J7-B` の効力を完全化した。
+
+### 実施結果（PR3a/PR3b）
+
+PR3a (commit b2c9c31): F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget 削除。
+17a 想定外の cascade orphan として F1 barrel 削除に伴う conditionPanelMarkupCost / conditionPanelProfitability の 2 件も同時削除（barrel re-export の唯一 consumer 経路だったため）。F4 唯一対象だった `phase6SummarySwapGuard.test.ts` も削除。baseline 4→1 に減算。
+
+PR3b (commit 8d852bd): F2 ConditionMatrixTable + 17a 想定 cascade (Plan / Handler / advanced/index.ts) + 17a 想定外の拡張 cascade (`useConditionMatrix.ts` / `conditionMatrixLogic.ts` / `infrastructure/duckdb/queries/conditionMatrix.ts` および各テスト) を削除。Option A 趣旨「dead code 永続化を避ける」に従い、F2 削除で orphan 化する application + infrastructure 層の dead code chain も同 PR で fully cleanup。baseline 1→0 + ALLOWLIST=[] + fixed mode 達成。
+
+合計影響: 削除ファイル 24 件、影響行数 -3700+ 行（presentation/application/infrastructure/test 層）。
+
+### 推奨に対する 17a の評価精度 learning
+
+17a 評価「F1 削除影響: なし」は誤りだった（barrel sibling 経路の見落とし）。17a 評価「F2 cascade は application 層 2-3 file のみ」も保守的過ぎた（duckdb hook + infrastructure query の 5 file 追加 cleanup が必要だった）。後続 inquiry での cascade 評価は
+
+1. barrel re-export の sibling 経路を必ず audit
+2. 削除対象の hook chain（Plan → Handler → legacy hook → query）を最後の dead code まで辿る
+
+の 2 点を加えること。
 
 理由:
 1. **再発防止が完成する** — guard fixed mode が本来意図どおり機能する（baseline=0）
@@ -142,6 +160,6 @@ Option A 承認時の PR 計画:
 
 ## 付記
 
-- 本 file は inquiry/17 の addendum。inquiry/17 immutable 規約に準拠し、本 17a も承認後は immutable
+- 本 file は inquiry/17 の addendum。inquiry/17 immutable 規約に準拠し、本 17a も承認後 immutable 化
 - 追加情報が判明した場合は `17b-*.md` として addend
-- 本 file は draft。**人間承認後に Option A/B/C のいずれかを選択し、本 file の `## 推奨` を最終決定で更新**してから immutable 化する
+- 2026-04-25 Option A 承認 + 実施完了 (PR3a/PR3b) で本 file final 化、immutable

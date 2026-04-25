@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-25T17:22:21.306Z
+> 生成: 2026-04-25T17:26:17.912Z
 
 ## サマリー
 
@@ -15,8 +15,8 @@
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 813 |
-| 全 project の checked checkbox 総数 | 620 |
+| 全 project の required checkbox 総数 | 814 |
+| 全 project の checked checkbox 総数 | 624 |
 
 ## projects
 
@@ -39,7 +39,7 @@
 | `day-detail-modal-prev-year-investigation` | DayDetailModal 前年データ空表示バグ調査 — 3/5-factor / 時間帯分析 / ドリルダウンが表示されない原因の特定 | **archived** | — | — | [`projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md`](../../../projects/day-detail-modal-prev-year-investigation/AI_CONTEXT.md) |
 | `design-system-v2-1-asset` | Design System v2.1 — 外部 documentation layer 配置 | **archived** | — | — | [`projects/design-system-v2-1-asset/AI_CONTEXT.md`](../../../projects/design-system-v2-1-asset/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
-| `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **in_progress** | `architecture-debt-recovery` | 16/25 (64%) | [`projects/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/duplicate-orphan-retirement/AI_CONTEXT.md) |
+| `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **in_progress** | `architecture-debt-recovery` | 20/26 (77%) | [`projects/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/duplicate-orphan-retirement/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/16 (81%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |

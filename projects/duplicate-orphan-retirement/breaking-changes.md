@@ -9,7 +9,9 @@
 
 | ID | 対象 | 破壊内容 | ADR |
 |---|---|---|---|
-| **BC-5** | Tier D orphan 3 件 | `DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + 関連 test / `RangeComparison.tsx` の物理削除 + `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去 | ADR-C-003 PR2 |
+| **BC-5 (PR2)** | Tier D orphan 3 件 | `DowGapKpiCard.tsx` / `PlanActualForecast.tsx` + 関連 test / `RangeComparison.tsx` の物理削除 + `DashboardPage.styles.ts:16` の `export * from './RangeComparison.styles'` 除去 | ADR-C-003 PR2 |
+| **BC-5 (PR3a)** | 17a 拡張 scope F1/F3/F4 + barrel cascade | `ConditionDetailPanels.tsx` + `.vm.ts` (barrel) / `ConditionSummary.tsx` + test / `ExecSummaryBarWidget.tsx` + styles の物理削除 + `conditionPanelMarkupCost.tsx` + `.vm.ts` + test / `conditionPanelProfitability.tsx` + `.vm.ts` + test (barrel cascade) の物理削除 + `phase6SummarySwapGuard.test.ts` (F4 唯一対象 guard) の物理削除 | ADR-C-003 PR3a |
+| **BC-5 (PR3b)** | 17a 拡張 scope F2 + 拡張 cascade | `ConditionMatrixTable.tsx` + helpers + styles + test の物理削除 + `useConditionMatrixPlan.ts` (Plan) / `ConditionMatrixHandler.ts` (Handler) / `useConditionMatrix.ts` (legacy hook) / `conditionMatrixLogic.ts` (pure logic) + test / `infrastructure/duckdb/queries/conditionMatrix.ts` (SQL) + test の物理削除 + 各 barrel (`advanced/index.ts` / `application/hooks/duckdb/index.ts` / `infrastructure/duckdb/index.ts`) の export 除去 | ADR-C-003 PR3b |
 
 ## 運用規約
 
@@ -29,7 +31,14 @@
 
 ## rollback plan
 
-- PR2 を revert → 3 file 復帰 + styles barrel re-export 復元
-- PR3（guard baseline=0 固定化）は別 commit のため rollback 独立
+各 PR を独立して `git revert` で戻せる単位で構成済み。
+
+- **PR2 revert**: Tier D orphan 3 件 + 関連 test + cascade ExecMetric.tsx 復帰 + `DashboardPage.styles.ts` の `RangeComparison.styles` barrel 復元
+- **PR3a revert**: 17a F1/F3/F4 + barrel cascade (conditionPanelMarkupCost / conditionPanelProfitability) + `phase6SummarySwapGuard.test.ts` 復帰 + 関連 allowlist (storeResultAnalysisInputGuard / grossProfitPathGuard / responsibility.ts) のエントリ復元
+- **PR3b revert**: F2 + 17a 拡張 cascade (Plan / Handler / duckdb hook / logic / infrastructure query) 復帰 + 各 barrel の export 復元 + `sameInterfaceNameGuard` ALLOWLIST に PeriodMetrics 復元
+- **PR3c revert**: docs only (checklist / 17a / breaking-changes / legacy-retirement の項目状態のみ巻き戻し)
+
+連鎖 revert する場合は PR3b → PR3a → PR2 の逆順で実施し、各 revert 後に
+`npm run test:guards` + `npm run docs:check` で health 復元を確認。
 
 詳細は umbrella `inquiry/16-breaking-changes.md §BC-5` を参照。

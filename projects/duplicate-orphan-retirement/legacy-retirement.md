@@ -13,7 +13,7 @@
 | **LEG-011** | `features/cost-detail/ui/widgets.tsx` | 同上 | ADR-C-001 | 同上 |
 | **LEG-012** | `features/reports/ui/widgets.tsx` | 同上 | ADR-C-001 | 同上 |
 | **LEG-013** | `useCostDetailData` pages 版 | features 版単一正本化、pages 版削除 | ADR-C-002 | 全 consumer が features 版 import に切替後削除 |
-| **LEG-014** | Tier D orphan 3 件 | 物理削除（BC-5） | ADR-C-003 | 3 file 削除 + guard baseline=0 到達 |
+| **LEG-014** | Tier D orphan 3 件 + 17a 拡張 4 件 + cascade orphan | 物理削除（BC-5、PR2/PR3a/PR3b で段階実施） | ADR-C-003 | ✅ 2026-04-25 全件削除 + guard baseline=0 到達 + ALLOWLIST 空 + fixed mode 移行（17a Option A 完遂） |
 | **LEG-015** | barrel re-export metadata 未設定群 | `@sunsetCondition` + `@expiresAt` + `@reason` JSDoc bulk 追記 | ADR-C-004 | 全 barrel に metadata 付与 + guard baseline=0 |
 
 ## 呼び出し元
