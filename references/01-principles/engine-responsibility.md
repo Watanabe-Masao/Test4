@@ -53,7 +53,6 @@ SQL または JS で実行する（後述「SQL→JS 移行」参照）。
 | 時間帯プロファイル | `features.ts` | **Hybrid**（SQL GROUP BY + JS share/rank） | 自由日付範囲 |
 | 予算累積推移・サマリー | `budgetAnalysis.ts` | SQL | 月跨ぎ（日別累積） |
 | 日次レコード詳細 | `dailyRecords.ts` | SQL | 自由日付範囲 |
-| 条件マトリクス集約 | `conditionMatrix.ts` | SQL | 自由日付範囲 |
 
 ### 両エンジンに存在する概念の区別
 

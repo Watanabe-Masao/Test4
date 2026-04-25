@@ -166,3 +166,16 @@ WeatherCorrelationChart
 | Query | `infrastructure/duckdb/queries/` | SQL 生成 + 実行 |
 | Builder | `features/sales/application/` | 純粋データ変換 |
 | Chart | `presentation/components/charts/` | ECharts option 生成 + 描画 |
+
+## 削除済み Plan の履歴
+
+duplicate-orphan-retirement ADR-C-003 PR3b (2026-04-25) で以下の chain を削除:
+
+- `useConditionMatrixPlan` (Plan) — 唯一 consumer の `ConditionMatrixTable.tsx` widget が
+  17a Option A 拡張 scope で orphan として削除されたため、cascade で削除
+- `conditionMatrixHandler` (Handler) — 同上
+- `useDuckDBConditionMatrix` (legacy hook、Plan 経由前の旧経路) — 同上
+- `queryConditionMatrix` (Query) — 同上
+
+詳細: `projects/duplicate-orphan-retirement/checklist.md` Phase 3 +
+`projects/architecture-debt-recovery/inquiry/17a-orphan-scope-extension.md`

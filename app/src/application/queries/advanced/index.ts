@@ -49,19 +49,3 @@ export {
   type CategoryHierarchyOutput,
   type CategoryHierarchyItem,
 } from './CategoryHierarchyHandler'
-
-export {
-  conditionMatrixHandler,
-  type ConditionMatrixInput,
-  type ConditionMatrixOutput,
-  type ConditionMatrixRow,
-} from './ConditionMatrixHandler'
-
-// conditionMatrixLogic の純粋関数・型を barrel 経由で公開
-export {
-  buildConditionMatrix,
-  type MatrixCell,
-  type MatrixRowData,
-  type TrendDirection,
-  type TrendDirectionRow,
-} from '@/application/hooks/duckdb/conditionMatrixLogic'
