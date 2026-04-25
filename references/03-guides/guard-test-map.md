@@ -71,6 +71,7 @@
 | `app/src/test/guards/discountFactPathGuard.test.ts` | architecture | 5件 | 値引きファクト正本（readDiscountFact 存在・Zod契約・旧クエリimport禁止・orchestrator統合・定義書） |
 | `app/src/test/guards/factorDecompositionPathGuard.test.ts` | architecture | 5件 | 要因分解正本（calculateFactorDecomposition 存在・Zod契約・直接import許可リスト制限・presentation層制限・定義書） |
 | `app/src/test/guards/canonicalizationSystemGuard.test.ts` | architecture | 6件 | 正本化体系統合（全readModelディレクトリ・ファイル構成・全定義書・レジストリ・orchestrator・CLAUDE.md参照） |
+| `app/src/test/guards/testContractGuard.test.ts` | documentation-steward | 7件 | CLAUDE.md テスト契約整合（test-contract.json 宣言と CLAUDE.md 内容の双方向検証 — tokens / dynamicSource / sections / pairs / source 実在 / 既存 guard 要求の宣言整合） |
 | `app/src/application/readModels/grossProfit/calculateGrossProfit.test.ts` | invariant-guardian | 15件 | 粗利4種計算（在庫法×2・推定法×2・Zod契約・フォールバック・StoreResult互換） |
 | `app/src/application/readModels/salesFact/readSalesFact.test.ts` | invariant-guardian | 8件 | 売上ファクト正本（Zod parse・grand合計不変条件・導出ヘルパー4種） |
 | `app/src/application/readModels/discountFact/readDiscountFact.test.ts` | invariant-guardian | 7件 | 値引きファクト正本（Zod parse・grand合計・71-74内訳・導出ヘルパー3種） |

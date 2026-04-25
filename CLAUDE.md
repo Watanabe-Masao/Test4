@@ -5,6 +5,31 @@
 仕入荒利管理システム（shiire-arari）。小売業の仕入・売上・在庫データから粗利計算・
 予算分析・売上要因分解・需要予測を行うSPA。
 
+## CLAUDE.md Test Contract
+
+本ファイルは複数の guard が要求する暗黙のテスト依存を持つ。
+編集前に下表で **何が削除/改変できないか** を確認すること。
+
+- 正本: `docs/contracts/test-contract.json`
+- 検証 guard: `app/src/test/guards/testContractGuard.test.ts`
+- 自動生成: `tools/architecture-health/src/collectors/test-contract-collector.ts`
+
+新しい guard が CLAUDE.md に新たな必須要素を要求する場合は、test-contract.json
+にも宣言を追加する（双方向の整合は testContractGuard が機械検証）。
+
+<!-- GENERATED:START test-contract -->
+| Contract | Source guard | 検証内容 | 状態 |
+|---|---|---|---|
+| `canonicalization-tokens` | `canonicalizationSystemGuard.test.ts` | CLAUDE.md に各トークンが文字列として出現すること | OK |
+| `features-modules` | `projectStructureGuard.test.ts` | app/src/features/ 配下の全モジュール名が CLAUDE.md に出現すること（動的） | OK |
+| `generated-sections` | `tools/architecture-health/src/docs-check.ts` | GENERATED:START/END マーカー対が CLAUDE.md に存在すること | OK |
+| `canonical-table` | `docCodeConsistencyGuard.test.ts` | CANONICAL_PAIRS の実装関数名と定義書名のペアが CLAUDE.md に共起すること | OK |
+| `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
+| `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
+
+> 生成: 2026-04-25T16:09:50.649Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+<!-- GENERATED:END test-contract -->
+
 ## ロール・スキルシステム
 
 本プロジェクトでは開発タスクの品質を構造的に保証するために
@@ -620,7 +645,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/02-status/generated/architecture-health.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**Healthy** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -628,14 +653,14 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 2/3 |
 | 複雑性圧 | OK | 0/5 / 10/10 / 28/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 91/30 / 0/5 |
+| ガード強度 | OK | 92/30 / 0/5 |
 | 性能 | OK | 6602/7000 / 2388/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
 | Project Governance | OK | 10/20 / 9/20 / 0/0 / 19/100 |
 
 
-> 生成: 2026-04-25T13:45:33.134Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-25T16:09:50.643Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

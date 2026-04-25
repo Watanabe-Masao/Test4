@@ -26,6 +26,10 @@ import {
 import { collectFromCiTiming } from "./collectors/ci-timing-collector.js";
 import { collectFromTemporalGovernance } from "./collectors/temporal-governance-collector.js";
 import {
+  collectFromTestContract,
+  renderTestContractSection,
+} from "./collectors/test-contract-collector.js";
+import {
   collectRemediationSnapshot,
   writeRemediationFiles,
 } from "./collectors/architecture-debt-recovery-collector.js";
@@ -109,6 +113,9 @@ console.error("[collect] project checklists...");
 const projectChecklistResults = collectProjectChecklists(repoRoot);
 const projectKpis = collectFromProjectChecklists(repoRoot);
 
+console.error("[collect] test contract...");
+const testContractKpis = collectFromTestContract(repoRoot);
+
 const allKpis = [
   ...snapshotKpis,
   ...guardKpis,
@@ -118,6 +125,7 @@ const allKpis = [
   ...obligationKpis,
   ...temporalKpis,
   ...projectKpis,
+  ...testContractKpis,
 ];
 console.error(`[collect] done — ${allKpis.length} KPIs`);
 
@@ -264,7 +272,22 @@ if (!isCheck) {
     },
   ]);
 
-  for (const r of [...results, ...ruleStatsResults, ...structureResults]) {
+  // CLAUDE.md test contract generated section
+  const testContractContent = renderTestContractSection(repoRoot);
+  const testContractResults = updateGeneratedSections(repoRoot, [
+    {
+      filePath: "CLAUDE.md",
+      sectionId: "test-contract",
+      content: testContractContent,
+    },
+  ]);
+
+  for (const r of [
+    ...results,
+    ...ruleStatsResults,
+    ...structureResults,
+    ...testContractResults,
+  ]) {
     console.error(`[section] ${r.file} #${r.sectionId}: ${r.status}`);
   }
 

@@ -568,6 +568,10 @@
         {
           "path": "docs/contracts/doc-registry.json",
           "label": "ドキュメントレジストリ（本ファイル）"
+        },
+        {
+          "path": "docs/contracts/test-contract.json",
+          "label": "CLAUDE.md テスト契約（PR1 で導入）"
         }
       ]
     },

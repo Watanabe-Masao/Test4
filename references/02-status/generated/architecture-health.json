@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T13:45:33.134Z",
+  "timestamp": "2026-04-25T16:09:50.643Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 91,
+      "value": 92,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -347,6 +347,7 @@
         "app/src/test/guards/subprojectParentGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
+        "app/src/test/guards/testContractGuard.test.ts",
         "app/src/test/guards/testSignalIntegrityGuard.test.ts",
         "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
         "app/src/test/guards/topologyGuard.test.ts",
@@ -1053,11 +1054,48 @@
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/widget-context-boundary/checklist.md"
       ]
+    },
+    {
+      "id": "docs.testContract.declared",
+      "label": "CLAUDE.md テスト契約宣言数",
+      "category": "docs",
+      "value": 6,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "docs/contracts/test-contract.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/test-contract-collector.ts",
+        "app/src/test/guards/testContractGuard.test.ts"
+      ]
+    },
+    {
+      "id": "docs.testContract.violations",
+      "label": "CLAUDE.md テスト契約違反数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "docs/contracts/test-contract.json"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/testContractGuard.test.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 40,
-    "ok": 40,
+    "totalKpis": 42,
+    "ok": 42,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

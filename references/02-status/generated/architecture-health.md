@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-25T13:45:33.134Z
+> Generated: 2026-04-25T16:09:50.643Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 40 |
-| OK | 40 |
+| Total KPIs | 42 |
+| OK | 42 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 91 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 92 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
@@ -79,6 +79,8 @@
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 813 | OK |
 | project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 620 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 6 | OK |
+| docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
+| docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
 
 ## バンドル性能
 
@@ -136,5 +138,7 @@
 | project.checklist.totalCheckboxes | definition | references/03-guides/project-checklist-governance.md |
 | project.checklist.checkedCheckboxes | definition | references/03-guides/project-checklist-governance.md |
 | project.checklist.subprojectCount | definition | references/03-guides/project-checklist-governance.md |
+| docs.testContract.declared | definition | docs/contracts/test-contract.json |
+| docs.testContract.violations | definition | docs/contracts/test-contract.json |
 
 </details>
