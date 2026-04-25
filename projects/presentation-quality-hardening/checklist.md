@@ -40,3 +40,13 @@
 * [x] `app/e2e/` の業務フロー spec を現在の 4 件から 8 件以上に拡充する
 * [x] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
   - Step 3-40 (2026-04-20): main 最新 5 CI run が全 success (runs #2039〜#2047)
+
+## 最終レビュー (人間承認)
+
+> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
+> `in_progress` のまま留まり、archive obligation は発火しない。
+> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2 +
+> `references/03-guides/projectization-policy.md` §8
+
+* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

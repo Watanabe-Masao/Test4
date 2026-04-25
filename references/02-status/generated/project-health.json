@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T00:51:12.349Z",
+  "timestamp": "2026-04-25T01:51:50.395Z",
   "summary": {
     "active": 10,
     "archived": 19,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 812,
+    "totalCheckboxes": 813,
     "checkedCheckboxes": 606
   },
   "projects": [
@@ -283,8 +283,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 13,
-      "total": 15,
-      "progress": 0.867,
+      "total": 16,
+      "progress": 0.813,
       "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/presentation-quality-hardening/checklist.md",
       "parent": null

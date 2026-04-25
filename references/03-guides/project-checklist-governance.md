@@ -19,6 +19,7 @@
 > | コンポーネント | 配置 | レイヤー |
 > |---|---|---|
 > | 規約（本書） | `references/03-guides/project-checklist-governance.md` | 4A System Operations |
+> | 入口判定（AAG-COA） | `references/03-guides/projectization-policy.md` | 4A System Operations |
 > | collector | `tools/architecture-health/src/collectors/project-checklist-collector.ts` | 3 Execution |
 > | format guard | `app/src/test/guards/checklistFormatGuard.test.ts` | 3 Execution |
 > | consistency guard | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | 3 Execution |
@@ -49,6 +50,22 @@
 - 新しい課題をどこに書けばいいかわからなくなる
 
 本ガイドは上記 4 つの問題を構造的に発生させない仕組みを定義する。
+
+### 入口判定との関係（AAG-COA）
+
+本ガイドは project が**立ち上がった後**の completion 管理を扱う。
+project を**立ち上げる前**の「そもそもこの作業は project 化すべきか、どの重さで
+立ち上げるか」は姉妹ガイド `references/03-guides/projectization-policy.md`
+（AAG-COA — Change Operation Assessment）が扱う。
+
+| 概念 | 担当 | 対象タイミング |
+|---|---|---|
+| **AAG-COA**（入口判定） | どの重さの project にすべきか | 立ち上げ**前** |
+| **本書**（completion 管理） | project をどう完了・archive するか | 立ち上げ**後** |
+
+AAG-COA が決めた `projectizationLevel` に応じて、本書が定める checklist の
+重さ（Phase 構造の有無、最終レビュー checkbox の必須化、等）が変わる。
+詳細は `projectization-policy.md` §4 の早見表を参照。
 
 ### この分離が支える運用シナリオ
 

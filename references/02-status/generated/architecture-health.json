@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T00:51:12.342Z",
+  "timestamp": "2026-04-25T01:51:50.390Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 88,
+      "value": 89,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -326,6 +326,7 @@
         "app/src/test/guards/projectDocConsistencyGuard.test.ts",
         "app/src/test/guards/projectDocStructureGuard.test.ts",
         "app/src/test/guards/projectStructureGuard.test.ts",
+        "app/src/test/guards/projectizationPolicyGuard.test.ts",
         "app/src/test/guards/purchaseCostImportGuard.test.ts",
         "app/src/test/guards/purchaseCostPathGuard.test.ts",
         "app/src/test/guards/purityGuard.test.ts",
@@ -917,7 +918,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 812,
+      "value": 813,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
