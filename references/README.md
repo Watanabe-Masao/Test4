@@ -6,10 +6,10 @@
 
 | ディレクトリ | 内容 | ファイル数 |
 |---|---|---|
-| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 38 |
-| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 23 |
-| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 63 |
-| `05-contents/` | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 2 |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG） | 46 |
+| `02-status/` | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理） | 24 |
+| `03-guides/` | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離） | 64 |
+| `05-contents/` | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1 |
 | `99-archive/` | 旧文書の圧縮要約（現行では参照しない） | 4 |
 
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
