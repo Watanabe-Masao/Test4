@@ -3,31 +3,12 @@ import {
   GrossProfitAmountChart,
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
-import { fromDateKey } from '@/domain/models/CalendarDate'
+import { buildPrevYearCostApprox } from '@/domain/calculations/prevYearCostApprox'
 import type { DashboardWidgetDef } from './types'
-import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
 // EtrnTestWidget: Sprint 3 で retirement（ctx 非経由のデバッグ用途。廃止）
-
-/**
- * 前年の日別近似原価マップを構築する。
- * 前年は日別仕入原価を持たないため、売上-売変で近似する。
- * 正確な値ではないが傾向比較には有用。
- */
-function buildPrevYearCostMap(
-  ctx: DashboardWidgetContext,
-): ReadonlyMap<number, number> | undefined {
-  const { prevYear } = ctx
-  if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return undefined
-  const costMap = new Map<number, number>()
-  for (const [dateKey, entry] of prevYear.daily) {
-    const day = fromDateKey(dateKey).day
-    costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
-  }
-  return costMap
-}
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
@@ -77,7 +58,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
         targetRate={ctx.targetRate}
         warningRate={ctx.warningRate}
         prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
-        prevYearCostMap={buildPrevYearCostMap(ctx)}
+        prevYearCostMap={buildPrevYearCostApprox(ctx.prevYear)}
         rangeStart={ctx.chartPeriodProps?.rangeStart}
         rangeEnd={ctx.chartPeriodProps?.rangeEnd}
       />
