@@ -97,7 +97,14 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     group: '構造分析',
     size: 'full',
     isVisible: isTimeSeriesVisible,
-    render: (ctx) => <UnifiedHeatmapWidget ctx={ctx} />,
+    render: (ctx) => (
+      <UnifiedHeatmapWidget
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        prevYearScope={ctx.prevYearScope}
+      />
+    ),
   },
   // 注: 部門別時間帯パターン → IntegratedSalesChart の孫に統合（ドリル時に包含表示）
   {
@@ -106,7 +113,14 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     group: '構造分析',
     size: 'full',
     isVisible: isStoreComparisonVisible,
-    render: (ctx) => <UnifiedStoreHourlyWidget ctx={ctx} />,
+    render: (ctx) => (
+      <UnifiedStoreHourlyWidget
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
+      />
+    ),
   },
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 店舗別 ──

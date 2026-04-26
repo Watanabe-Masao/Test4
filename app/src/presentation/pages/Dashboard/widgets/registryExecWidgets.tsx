@@ -21,7 +21,19 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     label: 'アラート',
     group: 'モニタリング',
     size: 'full',
-    render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <AlertPanelWidget
+        key={ctx.storeKey}
+        result={ctx.result}
+        targetRate={ctx.targetRate}
+        prevYear={ctx.prevYear}
+        year={ctx.year}
+        month={ctx.month}
+        storeKey={ctx.storeKey}
+        onExplain={ctx.onExplain}
+        fmtCurrency={ctx.fmtCurrency}
+      />
+    ),
   },
   // ── パターン分析 ──
   {
