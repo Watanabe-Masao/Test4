@@ -27,7 +27,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-04-26T01:37:26.873Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-04-26T01:50:27.013Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -50,6 +50,8 @@ AI が context から導き出す力を信頼する設計。
 
 AAG は **機械的品質管理を担う OS / フレームワーク**（ガードレール）。
 CLAUDE.md は **AAG では保証できない品質を能動的に管理・提案・批判する** 動的思考の場。
+
+> **「良くすること」は目的ではない。その先の到達点を実現するために、要件を正しく理解した上で改善する（局所対応しない）**。
 
 ### 役割の質的差異
 
@@ -721,13 +723,13 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 複雑性圧 | OK | 0/5 / 10/10 / 28/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 94/30 / 0/5 |
-| 性能 | OK | 6602/7000 / 2388/2500 / 919/1000 |
+| 性能 | OK | 6601/7000 / 2387/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 32/32 / 1/12 / 148/92 / 17/9 / 1/1 |
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
 | Project Governance | OK | 8/20 / 7/20 / 0/0 / 21/100 |
 
 
-> 生成: 2026-04-26T01:37:26.866Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-26T01:50:27.006Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
