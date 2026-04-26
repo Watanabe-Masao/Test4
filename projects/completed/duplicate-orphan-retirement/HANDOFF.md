@@ -5,42 +5,41 @@
 
 ## 1. 現在地
 
-**Phase 1 / 2 / 3 / 4 全完遂（17a Option A 承認・実施完了 2026-04-25）。Phase 5 sub-project completion 着手中。status: `active` / parent: `architecture-debt-recovery`。**
+**Phase 1-5 全完遂（archive 完了 2026-04-25）。status: `completed` / parent: `architecture-debt-recovery`。**
 
-本 project は umbrella `architecture-debt-recovery` の **Lane C** sub-project として、**複製 / orphan / barrel 残存**を体系的に撤退する。
+本 project は umbrella `architecture-debt-recovery` の **Lane C** sub-project として、**複製 / orphan / barrel 残存**を体系的に撤退した。Phase 3 で `inquiry/17a-orphan-scope-extension.md` Option A 承認後、ADR-C-003 PR3a/PR3b で 17a 拡張 cascade を全削除し、Phase 5 sub-project completion で `projects/completed/` に archive 済み。
 
 ### Phase 別 landed
 
-| Phase | ADR | 状態 | 主な成果 |
-|---|---|---|---|
-| Phase 1 | ADR-C-001 | ✅ PR1-4 + LEG-010/011/012 sunset | `features/*/ui/widgets.tsx` 3 件 byte-identical 解消、`duplicateFileHashGuard` baseline 3→0 fixed mode |
-| Phase 2 | ADR-C-002 | ✅ PR1-4 + LEG-013 sunset | `useCostDetailData` 2 箇所並存解消、`hookCanonicalPathGuard` baseline 1→0 fixed mode |
-| Phase 3 | ADR-C-003 | ✅ PR1-3 + LEG-014 sunset + BC-5 rollback 記載 | Tier D orphan 3 件 + 17a 拡張 4 件 + cascade orphan 削除（PR2/PR3a/PR3b 段階実施）、`orphanUiComponentGuard` baseline 7→4→1→0 + ALLOWLIST 空 + fixed mode |
-| Phase 4 | ADR-C-004 | ✅ PR1-3 + LEG-015 sunset | barrel re-export metadata 必須化、`barrelReexportMetadataGuard` baseline 38→0 fixed mode |
+| Phase | ADR | 主な成果 |
+|---|---|---|
+| Phase 1 | ADR-C-001 | `features/*/ui/widgets.tsx` byte-identical 解消、`duplicateFileHashGuard` fixed mode、LEG-010/011/012 sunset |
+| Phase 2 | ADR-C-002 | `useCostDetailData` 単一正本化、`hookCanonicalPathGuard` fixed mode、LEG-013 sunset |
+| Phase 3 | ADR-C-003 | Tier D orphan + 17a 拡張 + cascade orphan を段階削除（PR2/PR3a/PR3b）、`orphanUiComponentGuard` fixed mode、LEG-014 sunset、BC-5 完了 |
+| Phase 4 | ADR-C-004 | barrel re-export metadata 必須化、`barrelReexportMetadataGuard` fixed mode、LEG-015 sunset |
+| Phase 5 | — | sub-project completion (SUMMARY.md + archive)、`projectCompletionConsistencyGuard` PASS |
+
+詳細メトリクス（PR 数、削除行数、guard baseline 推移）は `SUMMARY.md` および `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
 ### Phase 3 完遂内容（17a Option A）
 
-`inquiry/17a-orphan-scope-extension.md` Option A（4 件全削除）が 2026-04-25 承認され、ADR-C-003 PR3a/PR3b で実施完了:
+`inquiry/17a-orphan-scope-extension.md` Option A 承認（2026-04-25）の実施記録:
 
-- **PR3a (commit b2c9c31)**: F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget + barrel cascade orphan (conditionPanelMarkupCost / conditionPanelProfitability) + F4 唯一対象 guard (`phase6SummarySwapGuard`) を削除。baseline 4→1
-- **PR3b (commit 8d852bd)**: F2 ConditionMatrixTable + 17a 想定 cascade (Plan/Handler/advanced barrel) + 17a 想定外の拡張 cascade (`useConditionMatrix` / `conditionMatrixLogic` / `infrastructure/duckdb/queries/conditionMatrix`) を削除。baseline 1→0 + ALLOWLIST=[] + fixed mode 達成
+- **PR3a (commit b2c9c31)**: 17a F1/F3/F4 + barrel cascade orphan + F4 唯一対象 guard (`phase6SummarySwapGuard`) を削除
+- **PR3b (commit 8d852bd)**: F2 + 17a 想定 cascade (Plan/Handler/advanced barrel) + 17a 想定外の拡張 cascade (`useConditionMatrix` / `conditionMatrixLogic` / `infrastructure/duckdb/queries/conditionMatrix`) を削除
+- **PR3c (commit f5c9d15)**: docs only — checklist Phase 3 [x] + 17a final 化 + LEG-014 sunset 記録 + BC-5 rollback 詳細
 
-合計: 削除ファイル 24 件、影響行数 -3700+ 行。dead code 永続化を回避し、`INV-J7-B` の効力完全化。
+詳細削除リストは `breaking-changes.md §BC-5` および `legacy-retirement.md §LEG-014` を参照。
 
 ## 2. 次にやること
 
-### Phase 5 sub-project completion (本 commit 着手)
+本 sub-project は archive 完了済みのため新たな作業は無い。完了情報の参照導線:
 
-umbrella `inquiry/20 §sub-project completion テンプレート` 7 step:
-1. SUMMARY.md 作成
-2. 物理移動 `projects/duplicate-orphan-retirement/` → `projects/completed/duplicate-orphan-retirement/`
-3. `config/project.json.status: "active" → "completed"`
-4. CURRENT_PROJECT.md を umbrella に戻す（既に umbrella なので no-op 確認）
-5. open-issues.md 更新（active → archived 欄へ）
-6. umbrella HANDOFF.md §1 に completion 記録
-7. `projectCompletionConsistencyGuard` PASS 確認
-
-完了後、SP-D Wave 2 ADR-D-004 の起動条件が解除される。
+- 成果サマリ: `SUMMARY.md`
+- 完了判定の入力: `checklist.md`
+- 削除済 legacy 一覧: `legacy-retirement.md`
+- 破壊的変更ロールバック: `breaking-changes.md`
+- archive 後の影響: SP-D Wave 2 ADR-D-004 の起動条件解除（`projects/aag-temporal-governance-hardening/HANDOFF.md` 参照）
 
 ## 3. ハマりポイント
 

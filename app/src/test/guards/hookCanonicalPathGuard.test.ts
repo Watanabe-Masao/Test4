@@ -16,7 +16,7 @@
  *
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-C-002
- *  - projects/duplicate-orphan-retirement/checklist.md Phase 2
+ *  - projects/completed/duplicate-orphan-retirement/checklist.md Phase 2
  *
  * @responsibility R:guard
  */
