@@ -43,10 +43,10 @@
 
 ## Phase 6: ADR-D-003 G8 P20 / P21 追加（Wave 3、SP-B completed 後）
 
-* [ ] SP-B (widget-registry-simplification) の completed 昇格を確認した
-* [ ] PR1: P20 baseline=69 + P21 baseline=current max で追加
-* [ ] PR2-3: SP-B の B-001〜004 完了に応じて baseline 段階削減
-* [ ] PR4: 各上限値（P20=20 / P21=5）到達、fail hard
+* [x] SP-B (widget-registry-simplification) の completed 昇格を確認した（2026-04-26 archive）
+* [x] PR1: P20 baseline=208 (実測 max、plan 値 69 から増加。CategoryPerformanceChart.tsx:127 が最大箇所) で追加。P21 (widget 直接子数) は AST 解析が必要なため別 PR に分離
+* [ ] PR2-3: 大型 useMemo body の pure 計算を domain/calculations / application/usecases に抽出し baseline 段階削減
+* [ ] PR4: P20=20 到達、fail hard（fixed mode 移行）
 
 ## Phase 7: sub-project completion
 
