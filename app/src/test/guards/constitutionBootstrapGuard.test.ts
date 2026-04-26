@@ -1,21 +1,37 @@
 /**
  * Constitution Bootstrap Guard — taxonomy-v2 family の Constitution 5 deliverables
- * の存在 + 相互参照整合を検証する。
+ * の存在 + 相互参照整合 + 内部不変条件を検証する。
  *
  * 親 plan §8 昇華メカニズム #8「Constitution Bootstrap Test」の正本。
  * `taxonomy-constitution.md` 原則 5 + 親 plan §AR-TAXONOMY-* で参照される。
  *
- * 検出する違反:
+ * 検出する違反 (失敗シナリオ — TSIG self-check coverage matrix):
  *
- * - **B1: 必須ファイル欠落** — Phase 1 の 5 deliverables のいずれかが存在しない
- * - **B2: Constitution 必須セクション欠落** — 7 不可侵原則 / OCS 統合 / 制度成立 5 要件
- * - **B3: Interlock マトリクス欠落** — R ⇔ T マトリクス節と AR-TAXONOMY-INTERLOCK
- * - **B4: Origin Journal 形式欠落** — 形式定義節と必須フィールド列挙
- * - **B5: CLAUDE.md §taxonomy-binding 欠落** — AI Vocabulary Binding 節
- * - **B6: 相互参照欠落** — 各文書が canonical source へのリンクを持っていない
+ * | id  | 何を弾くか                                                | 何が壊れている可能性                                       |
+ * |-----|----------------------------------------------------------|-----------------------------------------------------------|
+ * | B1  | 必須ファイル欠落                                          | Phase 1 deliverable の削除 / mv で path 不一致              |
+ * | B2  | Constitution 必須セクション欠落                            | 7 原則のいずれかが消された / OCS 統合節が削除された         |
+ * | B3  | Interlock マトリクス欠落                                  | §2 完全マトリクスや §3 Anchor Slice 節が消された            |
+ * | B4  | Origin Journal 形式欠落                                  | 必須フィールド (Why/When/Who/Sunset/...) が形式から脱落    |
+ * | B5  | CLAUDE.md §taxonomy-binding 欠落                          | AI Vocabulary Binding が CLAUDE.md から削除された           |
+ * | B6  | 相互参照欠落 (canonical source link)                       | 文書間 link が rename / typo で broken                     |
+ * | B7  | 親 plan の Constitution 系 canonical reference 欠落         | 親 plan の §関連実装 が rename で古くなった                  |
+ * | B8  | 7 原則 ↔ AR-TAXONOMY-* rule mapping の網羅性違反            | 原則追加 / rule 追加で対応 mapping が漏れた                  |
+ * | B9  | Interlock §2.1 と §2.2 の双方向整合違反                     | 片方だけ R/T 関係を更新して対称性が崩れた                    |
+ * | B10 | Anchor Slice 三者一致違反                                | plan / Constitution / Origin Journal / Interlock の Anchor 不一致 |
  *
- * 本 guard は Phase 1 Constitution の bootstrap が完了していることを保証する
- * **structural** check。AR-TAXONOMY-* rule の active 化は子 Phase 3（Guard 実装）が担う。
+ * 設計方針 (TSIG H1/H2 防御):
+ * - 「section heading exists」だけの shallow check に留めない
+ * - 文書間の **意味的整合性** (mapping / matrix / Anchor Slice 三者一致) を機械検証
+ * - 片方向の link check ではなく **双方向の網羅性** を要求 (drift 検出)
+ *
+ * 本 guard は Phase 1 + Phase 2 Constitution の bootstrap が完了していることを保証する
+ * **structural + semantic invariant** check。AR-TAXONOMY-* rule の active 化は
+ * 子 Phase 3（Guard 実装）が担う。
+ *
+ * 完全な「変更された source → 影響する spec → 必要な tag → test obligation
+ * → 欠落 guard → CI/health 反映」の chain は plan §OCS.3 taxonomy:impact CLI
+ * (Phase I-equivalent) で実現される。本 guard はその静的部分を担う。
  *
  * @responsibility R:guard
  * @see references/01-principles/taxonomy-constitution.md
@@ -318,6 +334,334 @@ describe('Constitution Bootstrap Guard', () => {
         })
       }
     }
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // B8 / B9 / B10: 文書間の意味的整合性 (semantic invariant)
+  //
+  // section heading の存在 (B2-B5) や個別 link の存在 (B6-B7) を超えて、
+  // 文書 A の内容が文書 B / C と矛盾しないことを機械検証する。
+  // 片方の文書だけ更新して対称性が崩れる drift を検出する。
+  // ─────────────────────────────────────────────────────────────────────
+
+  it('B8: Constitution §3 (7 原則) と §8 (AR-TAXONOMY-*) の mapping 網羅性', () => {
+    if (!fileExists(CONSTITUTION_PATH)) return
+    const content = readFile(CONSTITUTION_PATH)
+    const violations: Violation[] = []
+
+    // Extract §8 table content (between "## 8." and next "## ")
+    const sec8Start = content.indexOf('## 8. AR-TAXONOMY-')
+    const sec8End = sec8Start === -1 ? -1 : content.indexOf('\n## ', sec8Start + 1)
+    const sec8 =
+      sec8Start === -1 ? '' : content.slice(sec8Start, sec8End === -1 ? undefined : sec8End)
+
+    if (!sec8) {
+      violations.push({
+        id: 'B8',
+        file: CONSTITUTION_PATH,
+        message: '§8 AR-TAXONOMY-* セクションが見つからない (B2 で検出されるはずだが念のため)',
+      })
+      expect(violations, formatViolations(violations)).toEqual([])
+      return
+    }
+
+    // Required 7 rules (must all appear in §8 with 原則 mapping)
+    const requiredRules = [
+      'AR-TAXONOMY-NO-UNTAGGED',
+      'AR-TAXONOMY-KNOWN-VOCABULARY',
+      'AR-TAXONOMY-ONE-TAG-ONE-AXIS',
+      'AR-TAXONOMY-INTERLOCK',
+      'AR-TAXONOMY-ORIGIN-REQUIRED',
+      'AR-TAXONOMY-COGNITIVE-LOAD',
+      'AR-TAXONOMY-AI-VOCABULARY-BINDING',
+    ]
+
+    for (const rule of requiredRules) {
+      // Each rule must appear in §8 with 原則 N reference
+      // Pattern: a single line in the table that mentions both rule and 原則
+      const ruleRegex = new RegExp(`\\|\\s*\`${rule}\`[^|]*\\|[^|]*原則`)
+      if (!ruleRegex.test(sec8)) {
+        violations.push({
+          id: 'B8',
+          file: `${CONSTITUTION_PATH} §8`,
+          message: `${rule} の 原則 mapping が §8 table に見つからない`,
+        })
+      }
+    }
+
+    // Each principle 1-7 must be enforced (either via AR-TAXONOMY-* rule in §8 table,
+    // OR via an explicit alternative-path note like §8.1).
+    // 原則 6 (Antibody Pair) is intentionally enforced via taxonomy-pairs.json (registry
+    // structure check), not via AR-TAXONOMY-* rule. The alternative path MUST be
+    // documented in §8.1 to avoid TSIG H1 (False Green) misreading.
+    const principlesViaAR = new Set([1, 2, 3, 4, 5, 7]) // mapped to AR-TAXONOMY-*
+    const principlesViaAlternative = new Map([
+      [6, /§8\.1.*原則 6.*Antibody Pair/s], // must have §8.1 documenting alternative path
+    ])
+
+    for (let i = 1; i <= 7; i++) {
+      if (principlesViaAR.has(i)) {
+        const principleRegex = new RegExp(`原則\\s*${i}\\b`)
+        if (!principleRegex.test(sec8)) {
+          violations.push({
+            id: 'B8',
+            file: `${CONSTITUTION_PATH} §8`,
+            message: `原則 ${i} を §8 AR-TAXONOMY-* table が参照していない (網羅性違反、AR rule mapping 漏れ)`,
+          })
+        }
+      } else {
+        const altPattern = principlesViaAlternative.get(i)
+        if (altPattern && !altPattern.test(sec8)) {
+          violations.push({
+            id: 'B8',
+            file: `${CONSTITUTION_PATH} §8`,
+            message: `原則 ${i} は AR-TAXONOMY-* 非対応のため §8.x で alternative enforcement path を文書化する必要があるが見つからない (TSIG H1 False Green 防御)`,
+          })
+        }
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B9: Interlock §2.1 R:tag マトリクスと §2.2 T:kind マトリクスの双方向整合', () => {
+    if (!fileExists(INTERLOCK_PATH)) return
+    const content = readFile(INTERLOCK_PATH)
+    const violations: Violation[] = []
+
+    // Extract §2 完全マトリクス section
+    const sec2Start = content.indexOf('## 2. 完全マトリクス')
+    const sec2End = sec2Start === -1 ? -1 : content.indexOf('\n## ', sec2Start + 1)
+    const sec2 =
+      sec2Start === -1 ? '' : content.slice(sec2Start, sec2End === -1 ? undefined : sec2End)
+
+    if (!sec2) {
+      violations.push({
+        id: 'B9',
+        file: INTERLOCK_PATH,
+        message: '§2 完全マトリクス セクションが見つからない',
+      })
+      expect(violations, formatViolations(violations)).toEqual([])
+      return
+    }
+
+    // Find §2.1 (R:tag → 必須 T:kind) section
+    const sub21Start = sec2.indexOf('### 2.1.')
+    const sub21End = sub21Start === -1 ? -1 : sec2.indexOf('\n### ', sub21Start + 1)
+    const sub21 =
+      sub21Start === -1 ? '' : sec2.slice(sub21Start, sub21End === -1 ? undefined : sub21End)
+
+    // Find §2.2 (T:kind → 検証対象 R:tag) section
+    const sub22Start = sec2.indexOf('### 2.2.')
+    const sub22End = sub22Start === -1 ? -1 : sec2.indexOf('\n### ', sub22Start + 1)
+    const sub22 =
+      sub22Start === -1 ? '' : sec2.slice(sub22Start, sub22End === -1 ? undefined : sub22End)
+
+    if (!sub21 || !sub22) {
+      violations.push({
+        id: 'B9',
+        file: INTERLOCK_PATH,
+        message: `§2.1 (${sub21 ? 'OK' : 'MISSING'}) または §2.2 (${sub22 ? 'OK' : 'MISSING'}) が見つからない`,
+      })
+      expect(violations, formatViolations(violations)).toEqual([])
+      return
+    }
+
+    // Parse §2.1: rows like "| `R:calculation` | `T:unit-numerical`, `T:boundary` | `T:invariant-math` | ..."
+    // Build map: R:tag -> {required: Set<T:kind>, optional: Set<T:kind>}
+    type RtoT = Map<string, { required: Set<string>; optional: Set<string> }>
+    const rToT: RtoT = new Map()
+
+    const tablRowRegex = /\|\s*`(R:[\w-]+)`\s*\|([^|]*)\|([^|]*)\|/g
+    let m: RegExpExecArray | null
+    while ((m = tablRowRegex.exec(sub21)) !== null) {
+      const rTag = m[1]
+      const requiredCol = m[2]
+      const optionalCol = m[3]
+      const required = new Set(Array.from(requiredCol.matchAll(/`(T:[\w-]+)`/g)).map((mm) => mm[1]))
+      const optional = new Set(Array.from(optionalCol.matchAll(/`(T:[\w-]+)`/g)).map((mm) => mm[1]))
+      rToT.set(rTag, { required, optional })
+    }
+
+    // Parse §2.2: rows like "| `T:unit-numerical` | `R:calculation` | ..."
+    // Build map: T:kind -> Set<R:tag>
+    const tToR: Map<string, Set<string>> = new Map()
+    const tRowRegex = /\|\s*`(T:[\w-]+)`\s*\|([^|]*)\|/g
+    while ((m = tRowRegex.exec(sub22)) !== null) {
+      const tKind = m[1]
+      const targetCol = m[2]
+      const targets = new Set(Array.from(targetCol.matchAll(/`(R:[\w-]+)`/g)).map((mm) => mm[1]))
+      tToR.set(tKind, targets)
+    }
+
+    if (rToT.size === 0 || tToR.size === 0) {
+      violations.push({
+        id: 'B9',
+        file: INTERLOCK_PATH,
+        message: `parse 結果が空: §2.1=${rToT.size} entries / §2.2=${tToR.size} entries (table 形式が想定と違う可能性)`,
+      })
+    }
+
+    // Verify: every (R:X requires T:Y) in §2.1 has T:Y -> R:X in §2.2
+    for (const [rTag, { required }] of rToT.entries()) {
+      for (const tKind of required) {
+        const targets = tToR.get(tKind)
+        if (!targets) {
+          violations.push({
+            id: 'B9',
+            file: INTERLOCK_PATH,
+            message: `§2.1 に ${rTag} 必須=${tKind} があるが §2.2 に ${tKind} の entry がない`,
+          })
+          continue
+        }
+        if (!targets.has(rTag)) {
+          violations.push({
+            id: 'B9',
+            file: INTERLOCK_PATH,
+            message: `§2.1 に ${rTag} 必須=${tKind} があるが §2.2 で ${tKind} → ${rTag} 関係が宣言されていない`,
+          })
+        }
+      }
+    }
+
+    // Verify: every (T:Y -> R:X) in §2.2 has R:X requires-or-optional T:Y in §2.1
+    for (const [tKind, targets] of tToR.entries()) {
+      for (const rTag of targets) {
+        const rEntry = rToT.get(rTag)
+        if (!rEntry) {
+          // R:X may not have an entry if it's a meta-tag like R:unclassified
+          // unclassified pair is handled separately
+          if (rTag === 'R:unclassified' && tKind === 'T:unclassified') continue
+          violations.push({
+            id: 'B9',
+            file: INTERLOCK_PATH,
+            message: `§2.2 に ${tKind} → ${rTag} があるが §2.1 に ${rTag} の entry がない`,
+          })
+          continue
+        }
+        if (!rEntry.required.has(tKind) && !rEntry.optional.has(tKind)) {
+          violations.push({
+            id: 'B9',
+            file: INTERLOCK_PATH,
+            message: `§2.2 に ${tKind} → ${rTag} があるが §2.1 で ${rTag} の必須/任意 T:kind に ${tKind} が含まれない`,
+          })
+        }
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B10: Anchor Slice 5 R:tag + 6 T:kind が plan / Constitution / Origin Journal / Interlock の四者で一致', () => {
+    const violations: Violation[] = []
+
+    // Anchor Slice spec from plan §OCS.7
+    const expectedRTags = new Set([
+      'R:calculation',
+      'R:bridge',
+      'R:read-model',
+      'R:guard',
+      'R:presentation',
+    ])
+    const expectedTKinds = new Set([
+      'T:unit-numerical',
+      'T:boundary',
+      'T:contract-parity',
+      'T:zod-contract',
+      'T:meta-guard',
+      'T:render-shape',
+    ])
+
+    const sources: Array<{ file: string; section: string; content: string }> = []
+
+    // Plan §OCS.7 (Children への absorption 戦略 / Anchor Slice)
+    if (fileExists(PLAN_PATH)) {
+      const planContent = readFile(PLAN_PATH)
+      const ocs7Start = planContent.indexOf('### §OCS.7')
+      const ocs7End = ocs7Start === -1 ? -1 : planContent.indexOf('\n### §', ocs7Start + 1)
+      sources.push({
+        file: PLAN_PATH,
+        section: '§OCS.7',
+        content:
+          ocs7Start === -1
+            ? ''
+            : planContent.slice(ocs7Start, ocs7End === -1 ? undefined : ocs7End),
+      })
+    }
+
+    // Interlock §3 Anchor Slice
+    if (fileExists(INTERLOCK_PATH)) {
+      const ilContent = readFile(INTERLOCK_PATH)
+      const sec3Start = ilContent.indexOf('## 3. Anchor Slice')
+      const sec3End = sec3Start === -1 ? -1 : ilContent.indexOf('\n## ', sec3Start + 1)
+      sources.push({
+        file: INTERLOCK_PATH,
+        section: '§3 Anchor Slice',
+        content:
+          sec3Start === -1 ? '' : ilContent.slice(sec3Start, sec3End === -1 ? undefined : sec3End),
+      })
+    }
+
+    // Origin Journal §2 Anchor Slice (R:* entries) + §3 Anchor Slice (T:* entries)
+    if (fileExists(ORIGIN_JOURNAL_PATH)) {
+      const ojContent = readFile(ORIGIN_JOURNAL_PATH)
+      // §2 covers R:* tags, §3 covers T:* tags
+      const sec2Start = ojContent.indexOf('## 2. 責務軸')
+      const sec3Start = ojContent.indexOf('## 3. テスト軸')
+      const sec4Start = ojContent.indexOf('## 4. 採取 obligation')
+      const sec2to3 =
+        sec2Start === -1 ? '' : ojContent.slice(sec2Start, sec3Start === -1 ? sec4Start : sec3Start)
+      const sec3to4 =
+        sec3Start === -1 ? '' : ojContent.slice(sec3Start, sec4Start === -1 ? undefined : sec4Start)
+      sources.push({
+        file: ORIGIN_JOURNAL_PATH,
+        section: '§2 + §3 Anchor Slice skeleton',
+        content: sec2to3 + sec3to4,
+      })
+    }
+
+    if (sources.length === 0) {
+      violations.push({
+        id: 'B10',
+        file: '(any)',
+        message: 'Anchor Slice 検証に使う source 文書がいずれも存在しない',
+      })
+      expect(violations, formatViolations(violations)).toEqual([])
+      return
+    }
+
+    // Verify each source mentions every expected R:tag and T:kind at least once.
+    // (We accept either backtick-wrapped or plain references for robustness.)
+    for (const { file, section, content } of sources) {
+      if (!content) {
+        violations.push({
+          id: 'B10',
+          file,
+          message: `${section} セクションが見つからない (文書構造が変更された可能性)`,
+        })
+        continue
+      }
+      for (const rTag of expectedRTags) {
+        if (!content.includes(rTag)) {
+          violations.push({
+            id: 'B10',
+            file,
+            message: `${section} に Anchor R:tag ${rTag} が含まれない (4 文書間で不一致)`,
+          })
+        }
+      }
+      for (const tKind of expectedTKinds) {
+        if (!content.includes(tKind)) {
+          violations.push({
+            id: 'B10',
+            file,
+            message: `${section} に Anchor T:kind ${tKind} が含まれない (4 文書間で不一致)`,
+          })
+        }
+      }
+    }
+
     expect(violations, formatViolations(violations)).toEqual([])
   })
 })
