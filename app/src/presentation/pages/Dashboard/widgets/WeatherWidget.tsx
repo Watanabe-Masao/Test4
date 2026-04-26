@@ -108,8 +108,7 @@ export const WeatherWidget = memo(function WeatherWidget({
 
   // 予報・時間帯別はウィジェット固有（ctx に含めるべきデータではないため個別取得）
   const storeId = useMemo(() => {
-    const ids =
-      selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Array.from(stores.keys())
+    const ids = selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Array.from(stores.keys())
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
   }, [selectedStoreIds, stores, storeLocations])
 
