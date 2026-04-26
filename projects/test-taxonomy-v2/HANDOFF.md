@@ -9,7 +9,7 @@
 
 > **Phase 1 で landing したもの（本 branch）:**
 >
-> - `projects/test-taxonomy-v2/derived/schema/test-taxonomy-schema.md` — 子 Phase 1 branch scratchpad 配置（Phase 1 統合 branch で `references/01-principles/test-taxonomy-schema.md` に正本配置予定）
+> - `references/01-principles/test-taxonomy-schema.md` — v2 T:kind schema 正本（Phase 1 統合 branch 2026-04-26 で derived → references/01-principles/ に配置完遂）
 > - `app/src/test/testTaxonomyRegistryV2.ts` — v2 T:kind registry（15 件 = primary 11 + optional 4、Cognitive Load Ceiling 15 cap、TSIG global rule と並行運用）
 >
 > **作業 branch:** `claude/test-taxonomy-v2-phase1-schema`

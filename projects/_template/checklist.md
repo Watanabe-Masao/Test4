@@ -14,14 +14,14 @@
 
 ## Phase 1: &lt;Phase 名&gt;
 
-* [ ] &lt;達成条件 1&gt;
-* [ ] &lt;達成条件 2&gt;
-* [ ] &lt;達成条件 3&gt;
+- [ ] &lt;達成条件 1&gt;
+- [ ] &lt;達成条件 2&gt;
+- [ ] &lt;達成条件 3&gt;
 
 ## Phase 2: &lt;Phase 名&gt;
 
-* [ ] &lt;達成条件 1&gt;
-* [ ] &lt;達成条件 2&gt;
+- [ ] &lt;達成条件 1&gt;
+- [ ] &lt;達成条件 2&gt;
 
 ## 最終レビュー (人間承認)
 
@@ -30,4 +30,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

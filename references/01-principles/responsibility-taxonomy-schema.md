@@ -15,7 +15,7 @@ constitutionGate: "親 Phase 1 完遂 + Phase 0 Inventory 完遂 (1370 entry bas
 >
 > **Cognitive Load Ceiling 適用**: v1 = 20 → v2 = 10（5 スロット余裕）。原則 7 厳守。
 >
-> **Origin**: 各 R:tag の Why / When / Who / Sunset は `taxonomy-origin-journal.md` §3「v2 R:tag Origin」に記録（Phase 1 で landing、Phase 6 Migration Rollout 時に v1 から transition）。
+> **Origin**: 各 R:tag の Why / When / Who / Sunset は `taxonomy-origin-journal.md` §2.2「v2 R:tag Origin」に記録（Phase 1 統合 branch で landing 済、Phase 6 Migration Rollout 時に v1 から transition）。
 
 ## 1. v2 R:tag vocabulary（10 件）
 

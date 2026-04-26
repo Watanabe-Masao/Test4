@@ -9,7 +9,7 @@
 
 > **Phase 1 で landing したもの（本 branch）:**
 >
-> - `projects/responsibility-taxonomy-v2/derived/schema/responsibility-taxonomy-schema.md` — 子 Phase 1 branch scratchpad 配置（Phase 1 統合 branch で `references/01-principles/responsibility-taxonomy-schema.md` に正本配置予定）
+> - `references/01-principles/responsibility-taxonomy-schema.md` — v2 R:tag schema 正本（Phase 1 統合 branch 2026-04-26 で derived → references/01-principles/ に配置完遂）
 > - `app/src/test/responsibilityTaxonomyRegistryV2.ts` — v2 R:tag registry（10 件 / Cognitive Load Ceiling 15 まで 5 スロット余裕、v1 registry と併存）
 >
 > **作業 branch:** `claude/responsibility-taxonomy-v2-phase1-schema`

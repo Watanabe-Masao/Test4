@@ -15,7 +15,7 @@ constitutionGate: "親 Phase 1 完遂 + Phase 0 Inventory 完遂 (728 entry base
 >
 > **Cognitive Load Ceiling 適用**: v2 = 15（cap）/ 余裕 0。primary 11 + optional 4 で tier 分離し、運用上の認知負荷は primary 11 に集中させる。
 >
-> **Origin**: 各 T:kind の Why / When / Who / Sunset は `taxonomy-origin-journal.md` §4「v2 T:kind Origin」に記録（Phase 1 統合 branch で landing 予定）。
+> **Origin**: 各 T:kind の Why / When / Who / Sunset は `taxonomy-origin-journal.md` §3.2「v2 T:kind Origin」に記録（Phase 1 統合 branch で landing 済）。
 
 ## 1. v2 T:kind vocabulary（15 件 — primary 11 + optional 4）
 
