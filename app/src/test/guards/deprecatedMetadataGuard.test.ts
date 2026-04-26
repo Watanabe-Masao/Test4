@@ -42,15 +42,14 @@ import { collectTsFiles } from '../guardTestHelpers'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 
-// ratchet-down baseline
-// - 初期 audit (2026-04-26) で production code (.ts/.tsx, test 除外) に
-//   3 metadata 全て未記載の @deprecated を 7 件検出
-// - 内訳: grossProfitBridge.ts x1 + monthlyDataAdapter.ts x2 + ImportedData.ts x2
-//        + discountImpact.ts x1 + estMethod.ts x1
-// - ADR-D-004 PR2 で全 7 @deprecated に 3 metadata を bulk 追記 → baseline 7→0
-// - PR3 で baseline=0 fixed mode（新規 @deprecated は 3 metadata 必須）
-// - PR4 で @expiresAt 超過 entry を docs:check で fail させる
-const BASELINE_DEPRECATED_WITHOUT_METADATA = 7
+// fixed mode (baseline=0)
+// - 初期 audit (2026-04-26) で production code に 3 metadata 全て未記載の
+//   @deprecated を 7 件検出
+// - ADR-D-004 PR2 (commit 759ef32) で全 7 @deprecated に 3 metadata を bulk 追記
+// - ADR-D-004 PR3 (本 commit) で baseline=0 fixed mode 移行。
+//   新規 @deprecated は 3 metadata (@expiresAt / @sunsetCondition / @reason) 必須
+// - PR4 で @expiresAt 超過 entry を docs:check で fail させる lifecycle 監視追加予定
+const BASELINE_DEPRECATED_WITHOUT_METADATA = 0
 
 const REQUIRED_METADATA = ['@expiresAt', '@sunsetCondition', '@reason'] as const
 
@@ -98,7 +97,7 @@ describe('deprecatedMetadataGuard (SP-D ADR-D-004)', () => {
       breakdown +
       '\n\n' +
       '必須 metadata: @expiresAt / @sunsetCondition / @reason の 3 つ全て' +
-      '\n  ADR-D-004 PR2 で全 @deprecated に bulk 追記 → PR3 で baseline=0 + fixed mode' +
+      '\n  fixed mode (baseline=0) 到達済み。新規 @deprecated には 3 metadata 必須。' +
       '\n  詳細: projects/aag-temporal-governance-hardening/plan.md §ADR-D-004'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_DEPRECATED_WITHOUT_METADATA)
   })
