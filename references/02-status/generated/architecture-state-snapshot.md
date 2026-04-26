@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-25T12:00:55.524Z
+> Generated: 2026-04-26T08:52:03.974Z
 
 ## Allowlist Summary
 
@@ -9,7 +9,7 @@
 | 総エントリ数 | 13 |
 | アクティブリスト数 | 6 |
 | 凍結リスト数 | 6 |
-| .vm.ts ファイル数 | 28 |
+| .vm.ts ファイル数 | 25 |
 | 互換 re-export 残数 | 2 |
 
 ## Category Breakdown
@@ -97,7 +97,7 @@
 |---|---|---|---|
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 525 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 529 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 464 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 449 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 226 |
