@@ -10,6 +10,38 @@ export interface BudgetChartDataPoint {
   readonly prevYearCum: number | null
 }
 
+function buildBudgetChartData(
+  currentResult: StoreResult | null | undefined,
+  daysInMonth: number,
+  prevYear: PrevYearData,
+  year: number,
+  month: number,
+): readonly BudgetChartDataPoint[] {
+  if (!currentResult) return []
+
+  const salesDaily = new Map<number, number>()
+  for (const [d, rec] of currentResult.daily) salesDaily.set(d, rec.sales)
+
+  let cumActual = 0
+  let cumBudget = 0
+  let cumPrevYear = 0
+  const data: BudgetChartDataPoint[] = []
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    cumActual += salesDaily.get(d) ?? 0
+    cumBudget += currentResult.budgetDaily.get(d) ?? 0
+    cumPrevYear += getPrevYearDailySales(prevYear, year, month, d)
+    data.push({
+      day: d,
+      actualCum: cumActual,
+      budgetCum: cumBudget,
+      prevYearCum: prevYear.hasPrevYear ? cumPrevYear : null,
+    })
+  }
+
+  return data
+}
+
 /**
  * 予算 vs 実績の累計チャートデータを構築するフック。
  *
@@ -23,29 +55,8 @@ export function useBudgetChartData(
   year: number,
   month: number,
 ): readonly BudgetChartDataPoint[] {
-  return useMemo(() => {
-    if (!currentResult) return []
-
-    const salesDaily = new Map<number, number>()
-    for (const [d, rec] of currentResult.daily) salesDaily.set(d, rec.sales)
-
-    let cumActual = 0
-    let cumBudget = 0
-    let cumPrevYear = 0
-    const data: BudgetChartDataPoint[] = []
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      cumActual += salesDaily.get(d) ?? 0
-      cumBudget += currentResult.budgetDaily.get(d) ?? 0
-      cumPrevYear += getPrevYearDailySales(prevYear, year, month, d)
-      data.push({
-        day: d,
-        actualCum: cumActual,
-        budgetCum: cumBudget,
-        prevYearCum: prevYear.hasPrevYear ? cumPrevYear : null,
-      })
-    }
-
-    return data
-  }, [currentResult, daysInMonth, prevYear, year, month])
+  return useMemo(
+    () => buildBudgetChartData(currentResult, daysInMonth, prevYear, year, month),
+    [currentResult, daysInMonth, prevYear, year, month],
+  )
 }

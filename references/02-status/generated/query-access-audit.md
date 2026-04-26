@@ -1,6 +1,6 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-26T08:50:04.111Z
+> Generated: 2026-04-26T11:52:58.827Z
 
 ## Route Summary
 
@@ -11,7 +11,7 @@
 | Screen Plan hook（plan 化済み） | 28 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 8 | 正規 |
-| facade / bundle hook 使用（正規） | 6 | 正規 |
+| facade / bundle hook 使用（正規） | 7 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -133,6 +133,7 @@
 - presentation/hooks/slices/useComparisonSlice.ts
 - presentation/hooks/slices/useQuerySlice.ts
 - presentation/hooks/slices/useWeatherSlice.ts
+- presentation/hooks/unifiedWidgetContextBuilder.ts
 - presentation/hooks/useUnifiedWidgetContext.ts
 
 ### bundleHookDef

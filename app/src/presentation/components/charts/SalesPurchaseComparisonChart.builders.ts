@@ -4,8 +4,10 @@
  * useMemo body の pure 計算抽出 (ADR-D-003 PR4)。
  * 店舗別の売上 / 仕入 / 推定在庫を含むチャート用 record 配列を組み立てる。
  *
+ * chartRenderingStructureGuard (G5-CRT) — chart component 内 inline builder を
+ * 禁ずるため別 file に切り出している。
+ *
  * @responsibility R:utility
- * @guard G5-CRT chart component 外配置で inline builder 違反を回避
  */
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import type { StoreResult } from '@/domain/models/storeTypes'

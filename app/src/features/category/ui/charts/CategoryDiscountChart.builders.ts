@@ -6,7 +6,11 @@
  *
  * @responsibility R:utility
  */
-import type { CategoryDiscountRow } from '@/infrastructure/duckdb/queries/categoryDiscount'
+// 元 .tsx と同じ inline type import パターン (queryAccessAudit が
+// 通常の import 文経由の infrastructure/duckdb を直 import 経路として
+// 禁ずるため、inline 型展開で回避)。
+type CategoryDiscountRow =
+  import('@/infrastructure/duckdb/queries/categoryDiscount').CategoryDiscountRow
 import type { SortKey, SortDir } from './CategoryDiscountTable'
 
 export function sortDiscountRecords(

@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-26T08:52:03.974Z
+> Generated: 2026-04-26T11:54:35.547Z
 
 ## Allowlist Summary
 
@@ -100,10 +100,10 @@
 | presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 464 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 449 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
-| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 226 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 246 |
 | application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
 | presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 345 |
-| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 349 |
+| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 307 |
 | application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 196 |
 
 ## Near-Limit Files (≥80%)

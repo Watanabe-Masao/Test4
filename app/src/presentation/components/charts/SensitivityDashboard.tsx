@@ -13,7 +13,7 @@ import {
   useSensitivityAnalysis,
   useElasticity,
 } from '@/application/hooks/useSensitivity'
-import type { SensitivityDeltas } from '@/application/hooks/useSensitivity'
+import type { SensitivityDeltas, SensitivityBase } from '@/application/hooks/useSensitivity'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import {
   Grid,
@@ -79,6 +79,37 @@ interface BaseValues {
   customers: number
   txValue: number
   costRate: number
+}
+
+function computeSimValues(
+  base: SensitivityBase,
+  deltas: SensitivityDeltas,
+  effectiveCustomers: number,
+) {
+  const simCustomers = effectiveCustomers * (1 + deltas.customersDelta)
+  const simTxValue =
+    safeDivide(base.totalSales, effectiveCustomers, 0) * (1 + deltas.transactionValueDelta)
+  const simSales = simCustomers * simTxValue
+  const baseDiscountRate = calculateShare(base.totalDiscount, base.grossSales)
+  const simDiscountRate = baseDiscountRate + deltas.discountRateDelta
+  const simGrossSales = safeDivide(simSales, 1 - simDiscountRate, simSales)
+  const baseCostRate = safeDivide(base.totalCost, base.grossSales, 0)
+  const simCostRate = baseCostRate + deltas.costRateDelta
+  const simCost = simGrossSales * simCostRate
+  const simDiscount = simGrossSales * Math.max(0, simDiscountRate)
+  const costInclusionRate = safeDivide(base.totalCostInclusion, base.totalSales, 0)
+  const simConsumable = simSales * costInclusionRate
+  return {
+    simCustomers,
+    simTxValue,
+    simSales,
+    simGrossSales,
+    simCost,
+    simDiscount,
+    simConsumable,
+    simCostRate,
+    simDiscountRate,
+  }
 }
 
 const SLIDER_CONFIGS: SliderConfig[] = [
@@ -206,32 +237,10 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({
   }
 
   // 計算根拠用の中間値
-  const simValues = useMemo(() => {
-    const simCustomers = effectiveCustomers * (1 + deltas.customersDelta)
-    const simTxValue =
-      safeDivide(base.totalSales, effectiveCustomers, 0) * (1 + deltas.transactionValueDelta)
-    const simSales = simCustomers * simTxValue
-    const baseDiscountRate = calculateShare(base.totalDiscount, base.grossSales)
-    const simDiscountRate = baseDiscountRate + deltas.discountRateDelta
-    const simGrossSales = safeDivide(simSales, 1 - simDiscountRate, simSales)
-    const baseCostRate = safeDivide(base.totalCost, base.grossSales, 0)
-    const simCostRate = baseCostRate + deltas.costRateDelta
-    const simCost = simGrossSales * simCostRate
-    const simDiscount = simGrossSales * Math.max(0, simDiscountRate)
-    const costInclusionRate = safeDivide(base.totalCostInclusion, base.totalSales, 0)
-    const simConsumable = simSales * costInclusionRate
-    return {
-      simCustomers,
-      simTxValue,
-      simSales,
-      simGrossSales,
-      simCost,
-      simDiscount,
-      simConsumable,
-      simCostRate,
-      simDiscountRate,
-    }
-  }, [base, deltas, effectiveCustomers])
+  const simValues = useMemo(
+    () => computeSimValues(base, deltas, effectiveCustomers),
+    [base, deltas, effectiveCustomers],
+  )
 
   return (
     <ChartCard
