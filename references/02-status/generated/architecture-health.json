@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T03:44:44.595Z",
+  "timestamp": "2026-04-26T03:47:22.511Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 96,
+      "value": 97,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -343,6 +343,7 @@
         "app/src/test/guards/sameInterfaceNameGuard.test.ts",
         "app/src/test/guards/scopeAwareMutationGuard.test.ts",
         "app/src/test/guards/scopeJsonGuard.test.ts",
+        "app/src/test/guards/shortcutPatternGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
         "app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts",
         "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
