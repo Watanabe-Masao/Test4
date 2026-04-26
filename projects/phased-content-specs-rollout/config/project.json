@@ -1,8 +1,8 @@
 {
-  "$comment": "Content Spec System (CSS) の段階展開計画を保持する project。「初回スコープ外」を「順番を後にすること」として明記し、SP-B Anchor Slice (Phase A) から始まる Phase A〜J の rollout 順序を canonical 化する。実装は SP-B / 後続 sub-project が担い、本 project は計画と完了条件の正本を持つ。",
+  "$comment": "Content Spec System (CSS) の段階展開計画を保持する SHELL project。2026-04-26 spawn 同日に SHELL モード降格。canonical な Phase A〜J 計画 + SP-B absorption 戦略 + 最終方針 5 つは umbrella inquiry/22-content-state-layer-promotion-plan.md。本 project は Phase C 以降が単一 PR で済まないと判明した時点で ACTIVE 再昇格する placeholder。projectization.md §6 履歴 + HANDOFF.md §1 状態遷移を参照。",
   "projectId": "phased-content-specs-rollout",
-  "title": "Content Spec System 段階展開計画",
-  "status": "active",
+  "title": "Content Spec System 段階展開計画 (SHELL)",
+  "status": "paused",
   "parent": "architecture-debt-recovery",
   "projectRoot": "projects/phased-content-specs-rollout",
   "projectization": {

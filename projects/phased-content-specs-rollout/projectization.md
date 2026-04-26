@@ -76,3 +76,4 @@
 | 日付 | 変更 | 理由 |
 |---|---|---|
 | 2026-04-26 | 初期判定 (Level 2) | spawn 時。「初回スコープ外」を「順番を後にすること」として明記する Phase A〜J 計画 doc canonical 化 project として立ち上げ |
+| 2026-04-26 | **SHELL モード降格** | umbrella plan.md §3 不可侵原則 #16「Phase 4/5 計画を経由せずに sub-project を立ち上げない」遵守 + 軽量起動の原則に従い、canonical 計画 doc を umbrella `inquiry/22-content-state-layer-promotion-plan.md` に移管。本 project は **promotion target shell** として残す（Phase C 以降が単一 PR で済まない / 新 AR active 化 / 破壊的 type 変更 / ratchet-down baseline が必要、いずれかの trigger 発火で ACTIVE 再昇格） |

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T03:47:45.950Z",
+  "timestamp": "2026-04-26T04:04:57.288Z",
   "summary": {
     "active": 9,
     "archived": 21,
@@ -265,9 +265,9 @@
     },
     {
       "projectId": "phased-content-specs-rollout",
-      "title": "Content Spec System 段階展開計画",
+      "title": "Content Spec System 段階展開計画 (SHELL)",
       "kind": "project",
-      "declaredStatus": "active",
+      "declaredStatus": "paused",
       "derivedStatus": "in_progress",
       "checked": 6,
       "total": 66,
