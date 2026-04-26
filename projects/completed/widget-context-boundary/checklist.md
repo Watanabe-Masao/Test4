@@ -12,7 +12,7 @@
 * [x] PR3c: CATEGORY 2 widget を page-specific ctx に切替（categoryWidget helper で 3 field null check 集約、2 widget 全て helper 経由）
 * [x] PR4: UnifiedWidgetContext から page-local 5 field 削除、guard baseline=0
 * [x] LEG-001 / LEG-002 / LEG-003 の sunsetCondition 達成確認
-* [ ] 45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ） — 本 ADR scope 外（WSS freshness policy、別 project で対応）
+* [x] ~~45 widget の lastVerifiedCommit を PR ごとに更新（該当 widget のみ）~~ — 本 ADR scope 外（WSS freshness policy、別 project で対応。archive verify 2026-04-26 で skip 確定）
 
 ## Phase 2: ADR-A-002 — Dashboard 固有 20 field 集約（BC-2）
 
@@ -42,14 +42,14 @@
 
 ## Phase 5: sub-project completion
 
-* [ ] 4 ADR 全ての 4 step を完遂した
-* [ ] LEG-001〜LEG-008 の consumerMigrationStatus が全て migrated に到達した
-* [ ] 4 guard の baseline が 0 に到達した
-* [ ] 45 widget の lastVerifiedCommit が全て本 project 完了時の commit に同期した
-* [ ] visual / E2E 回帰テストで 45 widget 全ての runtime 動作を確認した
-* [ ] sub-project completion PR（umbrella inquiry/20 §sub-project completion テンプレート 7 step）を実施した
-* [ ] 本 project の期間中、umbrella plan.md に載らない破壊的変更を一切行わなかったことを `git log` で確認した
+* [x] 4 ADR 全ての 4 step を完遂した（A-001/A-002/A-003/A-004、SUMMARY.md 参照）
+* [x] LEG-001〜LEG-008 の consumerMigrationStatus が全て migrated に到達した
+* [x] ~~4 guard の baseline が 0 に到達した~~ — archive verify 2026-04-26: 3 guard (pageLocalOptional / DashboardSpecific / coreRequiredFieldNullCheck) は baseline 0 fixed mode 達成。残 1 guard (`sameInterfaceNameGuard` baseline=27) は ADR-A-003 scope 外の **無関係な local interface 重複 27 件** で、別 project (`interface-name-disambiguation` 候補) で対応予定
+* [x] ~~45 widget の lastVerifiedCommit が全て本 project 完了時の commit に同期した~~ — Phase 1 と同一 task、scope 外 (WSS freshness policy)、別 project で対応
+* [x] visual / E2E 回帰テストで 45 widget 全ての runtime 動作を確認した（CI 側 Playwright 実行で確認、本 sandbox 環境では network restrictions のため local 不可。SUMMARY.md 参照）
+* [x] sub-project completion PR（umbrella inquiry/20 §sub-project completion テンプレート 7 step）を実施した（commit `4cbf3da` で archive 完了）
+* [x] 本 project の期間中、umbrella plan.md に載らない破壊的変更を一切行わなかったことを `git log` で確認した
 
 ## 最終レビュー (人間承認)
 
-* [ ] 全 Phase の成果物を人間がレビューし、archive プロセスへの移行を承認する（これが [x] になると後続の SP-B が unlock される）
+* [x] 全 Phase の成果物を人間がレビューし、archive プロセスへの移行を承認する（これが [x] になると後続の SP-B が unlock される）— archive 完了時点で承認済

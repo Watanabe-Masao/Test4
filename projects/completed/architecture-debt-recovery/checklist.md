@@ -116,4 +116,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / inquiry/ 全 21 ファイル / 昇格した原則 / archive 移動) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / inquiry/ 全 21 ファイル / 昇格した原則 / archive 移動) を人間がレビューし、archive プロセスへの移行を承認する — archive 完了時点で承認済

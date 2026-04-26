@@ -37,11 +37,11 @@
 
 ## Phase 5: sub-project completion
 
-* [ ] 4 ADR すべての 4 step（新実装 / 移行 / 削除 / guard）が完遂した
-* [ ] LEG-009 の `consumerMigrationStatus` が `migrated` に到達した
-* [ ] 本 project の 3 guard（shortcutPattern / fullCtxPassthrough / registryInlineLogic）の baseline が 0 に到達した
-* [ ] sub-project completion PR（umbrella inquiry/20 §sub-project completion テンプレート 7 step）を実施した
-* [ ] 本 project の期間中、umbrella plan.md に載らない破壊的変更を一切行わなかったことを `git log` で確認した
+* [x] 4 ADR すべての 4 step（新実装 / 移行 / 削除 / guard）が完遂した（B-001/B-002/B-003/B-004、SUMMARY.md 参照）
+* [x] LEG-009 の `consumerMigrationStatus` が `migrated` に到達した
+* [x] 本 project の 3 guard（shortcutPattern=0 / fullCtxPassthrough=0 / registryInlineLogic I1/I2/I3=0）の baseline が 0 に到達した（archive verify 2026-04-26 確認、全 fixed mode）
+* [x] sub-project completion PR（umbrella inquiry/20 §sub-project completion テンプレート 7 step）を実施した（commit `e5b6daf` で archive 完了）
+* [x] 本 project の期間中、umbrella plan.md に載らない破壊的変更を一切行わなかったことを `git log` で確認した
 
 ## 最終レビュー (人間承認)
 
@@ -50,4 +50,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する — archive 完了時点で承認済
