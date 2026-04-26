@@ -45,7 +45,8 @@
 
 * [x] SP-B (widget-registry-simplification) の completed 昇格を確認した（2026-04-26 archive）
 * [x] PR1: P20 baseline=208 (実測 max、plan 値 69 から増加。CategoryPerformanceChart.tsx:127 が最大箇所) で追加。P21 (widget 直接子数) は AST 解析が必要なため別 PR に分離
-* [ ] PR2-3: 大型 useMemo body の pure 計算を domain/calculations / application/usecases に抽出し baseline 段階削減
+* [x] PR2: CategoryPerformanceChart.tsx の `option` useMemo (209 行) を `CategoryPerformanceChart.builders.ts` の `buildPerformanceChartOption()` に抽出。baseline 208 → 120 (新 max は ConditionSummaryEnhanced.tsx:176)
+* [ ] PR3: 追加 useMemo 抽出で baseline 段階削減 (ConditionSummaryEnhanced.tsx:176 / useUnifiedWidgetContext.ts:228 等)
 * [ ] PR4: P20=20 到達、fail hard（fixed mode 移行）
 
 ## Phase 7: sub-project completion
