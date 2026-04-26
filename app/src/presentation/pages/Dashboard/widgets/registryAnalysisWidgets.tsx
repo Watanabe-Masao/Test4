@@ -11,7 +11,11 @@ import {
 import type { DashboardWidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
-import { toStoreCustomerRows } from '@/application/readModels/customerFact'
+import {
+  selectTotalCustomers,
+  selectCustomerCountOrUndefined,
+  selectStoreCustomerMap,
+} from '@/application/readModels/customerFact/selectors'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
 
 // ── 分析・可視化 ──
@@ -67,19 +71,15 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
-        })()}
+        totalCustomers={selectTotalCustomers(
+          ctx.readModels?.customerFact,
+          ctx.result.totalCustomers,
+        )}
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
         dailyQuantity={ctx.currentCtsQuantity?.byDay}
         ctsQuantityByStore={ctx.currentCtsQuantity?.byStore}
-        storeCustomerMap={
-          ctx.readModels?.customerFact?.status === 'ready'
-            ? toStoreCustomerRows(ctx.readModels.customerFact.data)
-            : undefined
-        }
+        storeCustomerMap={selectStoreCustomerMap(ctx.readModels?.customerFact)}
       />
     ),
   },
@@ -96,10 +96,10 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
         categoryData={null}
         isLoading={false}
         prevYearScope={ctx.prevYearScope}
-        totalCustomers={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
-        })()}
+        totalCustomers={selectTotalCustomers(
+          ctx.readModels?.customerFact,
+          ctx.result.totalCustomers,
+        )}
         level="department"
         onLevelChange={() => {}}
       />
@@ -139,10 +139,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     render: (ctx) => (
       <SensitivityDashboard
         result={ctx.result}
-        customerCount={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : undefined
-        })()}
+        customerCount={selectCustomerCountOrUndefined(ctx.readModels?.customerFact)}
       />
     ),
   },
