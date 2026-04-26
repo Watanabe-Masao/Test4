@@ -14,7 +14,7 @@
 | `widget-context-boundary` | A | ✅ completed (2026-04-25) | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 |
 | `duplicate-orphan-retirement` | C | ✅ completed (2026-04-25) | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / 17a Option A 拡張 cascade 含む BC-5 完了 / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 |
 | `widget-registry-simplification` | B | ✅ completed (2026-04-26) | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 |
-| `aag-temporal-governance-hardening` | D | active (Wave 1 + ADR-D-004 完遂、Wave 3 起動可能) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視。D-003 (Wave 3) は本 SP-B completion で起動条件解除 |
+| `aag-temporal-governance-hardening` | D | active (Wave 1 + Wave 2 + Wave 3 PR1-3 完遂、PR4 残り) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 / G8-P20 useMemo body 行数 ratchet-down (baseline 208→120→75)。残り PR4 で baseline 20 (fixed mode) 到達後 archive |
 
 PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
@@ -84,25 +84,32 @@ PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/arch
 
 ## 2. 次にやること
 
-詳細は `checklist.md` を参照。Phase 5 完了 + Wave 1 SP-A / SP-C completed (2026-04-25)。
-次は **Wave 2 spawn**（SP-B + SP-D-continued ADR-D-004）。
+詳細は `checklist.md` を参照。
+**Wave 1 (SP-A/C) + Wave 2 (SP-B + ADR-D-004) + Wave 3 PR1-3 (ADR-D-003) 完了。残り SP-D ADR-D-003 PR4 のみ。**
 
-### 高優先（Wave 2 spawn、並行着手可能）
+### 高優先（残り 1 task）
 
-SP-A completed (2026-04-25) + SP-C completed (2026-04-25) により以下が起動条件解除:
+**SP-D ADR-D-003 PR4 — P20=20 fixed mode 到達**:
 
-- **SP-B widget-registry-simplification** — SP-A completion で起動条件解除。詳細は `projects/completed/widget-context-boundary/next-phase-plan.md` を参照
-- **SP-D-continued ADR-D-004** (`@deprecated metadata required`) — SP-C completion で起動条件解除。`aag-temporal-governance-hardening` の Phase 5 で着手
+- baseline 75 → 20 まで残り 55 行削減
+- 詳細手順は `projects/aag-temporal-governance-hardening/HANDOFF.md` §1 残タスク + §3.5 抽出パターン を参照
+- 抽出候補: useUnifiedWidgetContext.ts:228 (75) / IntegratedTimeline.tsx:49 (67) / CustomerScatterChart.tsx:58 (58) / useComparisonContextQuery.ts:116 (56) ほか
 
-### 中優先（Wave 2 着手時の作業規律）
+### Wave 1 / 2 / 3 完了サマリ（定性）
 
-- 各 sub-project の spawn PR は `inquiry/21 §spawn PR テンプレート` の 8 step に従う
-- sub-project spawn 時に `CURRENT_PROJECT.md` を対応 sub-project に切替（`inquiry/20 §sub-project spawn テンプレート`）
-- 並行着手時の作業規律は `inquiry/21 §並行着手時の作業規律` 5 項に従う
+| Lane | sub-project | 主な成果（定性） |
+|---|---|---|
+| A | widget-context-boundary | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 (2026-04-25) |
+| C | duplicate-orphan-retirement | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / Tier D orphan + 17a Option A 拡張 cascade 削除 (BC-5) / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 (2026-04-25) |
+| B | widget-registry-simplification | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 (2026-04-26) |
+| D | aag-temporal-governance-hardening | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008) / G8-P20 useMemo body 行数 ratchet-down (208→120→75)。残 PR4 で完遂予定 |
 
-### Wave 3（SP-B completed 後）
+ADR / PR / guard / LEG の現在件数は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
-- SP-D-final の ADR-D-003（G8 P20/P21 baseline 削減）
+### Phase 7（umbrella sub-project completion）
+
+SP-D 完遂後、umbrella の Phase 7 として **全 sub-project completion + umbrella archive** を実行。
+具体手順は `inquiry/20 §sub-project completion テンプレート` 7 step を参照。
 
 ### Wave 1 完了サマリ（定性）
 
