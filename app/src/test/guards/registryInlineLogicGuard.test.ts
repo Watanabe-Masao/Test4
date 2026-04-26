@@ -53,19 +53,19 @@ const PAGE_WIDGETS_FILES = [
 // - LEG-009 sunsetCondition 達成（registry 内 inline pure helper の物理排除）
 const BASELINE_IIFE_COUNT = 0
 
-// I2: inline function declaration — ratchet-down (ADR-B-004)
+// I2: inline function declaration — fixed mode (baseline=0)
 // - 初期 audit で 1 件検出 (registryChartWidgets.tsx の buildPrevYearCostMap, WID-003)
 // - PR2 で domain/calculations/prevYearCostApprox.ts に抽出
-// - PR3 で registry 行を抽出先 call に置換
-// - PR4 で baseline=0 fixed mode
-const BASELINE_INLINE_FUNCTION_COUNT = 1
+// - PR3 (commit c359182) で registry 行を抽出先 call に置換 → 1→0
+// - PR4 (本 commit) で baseline=0 fixed mode 移行
+const BASELINE_INLINE_FUNCTION_COUNT = 0
 
-// I3: palette refs — ratchet-down (ADR-B-004)
+// I3: palette refs — fixed mode (baseline=0)
 // - 初期 audit で 4 件検出 (CostDetail/widgets.tsx WID-040 KpiCard accent 4 色)
-// - PR2 で chart-semantic-colors token 経由 / costdetail-kpi-summary helper 抽出
-// - PR3 で registry 行を helper call に置換
-// - PR4 で baseline=0 fixed mode
-const BASELINE_PALETTE_REF_COUNT = 4
+// - PR2 で CostDetailKpiSummaryWidget component に抽出（ACCENT 定数で semantic 化）
+// - PR3 (commit c359182) で registry 行を 1 行 call に置換 → 4→0
+// - PR4 (本 commit) で baseline=0 fixed mode 移行
+const BASELINE_PALETTE_REF_COUNT = 0
 
 const IIFE_PATTERN = /\(\(\)\s*=>/g
 const INLINE_FUNCTION_PATTERN = /^function\s+[A-Za-z_][A-Za-z0-9_]*\s*\(/gm
@@ -133,7 +133,7 @@ describe('registryInlineLogicGuard (SP-B ADR-B-003 + ADR-B-004)', () => {
       `inline function 宣言数 = ${totalCount} (baseline = ${BASELINE_INLINE_FUNCTION_COUNT}):\n` +
       breakdown +
       '\n\n' +
-      'hint: registry file 内の `function X(ctx)` 宣言は domain/calculations や ' +
+      'hint: fixed mode (baseline=0) 到達済み。新規 inline function は domain/calculations や ' +
       'application/readModels/<source>/ に pure function として抽出する。' +
       '\n  詳細: projects/widget-registry-simplification/plan.md §ADR-B-004'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_INLINE_FUNCTION_COUNT)
@@ -149,8 +149,8 @@ describe('registryInlineLogicGuard (SP-B ADR-B-003 + ADR-B-004)', () => {
       `palette.X 参照数 = ${totalCount} (baseline = ${BASELINE_PALETTE_REF_COUNT}):\n` +
       breakdown +
       '\n\n' +
-      'hint: widget registry に palette token を直書きすると design decision が登録層に漏れる。' +
-      'chart-semantic-colors / accent token を介して helper component に閉じ込める。' +
+      'hint: fixed mode (baseline=0) 到達済み。新規 widget の registry 行に palette token を' +
+      '直書きせず、helper component に閉じ込めて design decision を登録層から分離する。' +
       '\n  詳細: projects/widget-registry-simplification/plan.md §ADR-B-004'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_PALETTE_REF_COUNT)
   })
