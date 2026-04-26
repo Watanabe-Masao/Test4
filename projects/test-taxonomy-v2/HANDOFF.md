@@ -5,7 +5,25 @@
 
 ## 1. 現在地
 
-**Phase 0 Inventory 完遂（2026-04-26）+ Phase 1 Schema 設計完遂（2026-04-26、本 branch）。Phase 2 Migration Path に進める状態。**
+**Phase 0 + Phase 1 完遂（2026-04-26、main 反映済）+ Phase 2 Migration Path 完遂（2026-04-26、本 branch）。Phase 3 Guard 実装に進める状態。**
+
+> **Phase 2 で landing したもの（本 branch）:**
+>
+> - `references/03-guides/test-tsig-to-v2-migration-map.md` — TSIG → v2 移行表正本（Phase 2 統合 branch 2026-04-26 で derived → references/03-guides/ に正本配置完遂）
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase2-migration`
+> **scope:** 子 project derived/migration/ + HANDOFF のみ（`references/` + checklist.md + 親文書 + Origin Journal + generated/ 一切触らず、Phase 2 統合 branch で正本配置 + checklist [x] 反映）
+
+### Phase 2 設計結果
+
+| 指標                          | 値                                                                                              |
+| ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| TSIG → v2 mapping table 件数  | 全 4 TSIG global rule 網羅（N:M paradigm shift 2 / 1:1 統合 1 / scope 分離 1）                  |
+| T:unclassified 退避対象       | 728 entry baseline（全 test、v1 では全件 untagged が原則）                                      |
+| Lifecycle State Machine 対応  | Phase 3-9 の 7 段階（active → deprecated → sunsetting → retired → archived）への per-Phase 対応 |
+| Paradigm shift                | global → per-tag（R:tag → 必須 T:kind interlock 経由）                                          |
+| Cognitive Load Ceiling 状態   | v2 = 15（cap）、新規追加は既存 retirement とセット必須（差し引き 0 維持）                       |
+| AR-G3-SUPPRESS-RATIONALE 扱い | scope 分離（T:kind 軸とは独立、別 layer 恒久維持）                                              |
 
 > **Phase 1 で landing したもの（本 branch）:**
 >
