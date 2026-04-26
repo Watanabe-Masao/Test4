@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T09:56:49.115Z",
+  "timestamp": "2026-04-26T10:32:51.506Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -482,7 +482,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6601,
+      "value": 6602,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -503,7 +503,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2387,
+      "value": 2386,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
