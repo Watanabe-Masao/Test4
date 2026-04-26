@@ -5,7 +5,24 @@
 
 ## 1. 現在地
 
-**Phase 0 Inventory 完遂（2026-04-26）+ Phase 1 Schema 設計完遂（2026-04-26、本 branch）。Phase 2 Migration Path に進める状態。**
+**Phase 0 + Phase 1 完遂（2026-04-26、main 反映済）+ Phase 2 Migration Path 完遂（2026-04-26、本 branch）。Phase 3 Guard 実装に進める状態。**
+
+> **Phase 2 で landing したもの（本 branch）:**
+>
+> - `projects/responsibility-taxonomy-v2/derived/migration/responsibility-v1-to-v2-migration-map.md` — 子 Phase 2 branch scratchpad 配置（Phase 2 統合 branch で `references/03-guides/responsibility-v1-to-v2-migration-map.md` に正本配置予定）
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase2-migration`
+> **scope:** 子 project derived/migration/ + HANDOFF のみ（`references/` + checklist.md + 親文書 + Origin Journal + generated/ 一切触らず、Phase 2 統合 branch で正本配置 + checklist [x] 反映）
+
+### Phase 2 設計結果
+
+| 指標                         | 値                                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| v1 → v2 mapping table 件数   | 全 v1 20 R:tag 網羅（1:1 keep 2 / N:1 統合 13 / context-judged 1 / N:1 退避 2）                 |
+| R:unclassified 退避対象      | 1128 entry baseline（R:utility 48 + R:barrel 5 + untagged 1055 + unknownVocab 20）              |
+| Lifecycle State Machine 対応 | Phase 3-9 の 7 段階（active → deprecated → sunsetting → retired → archived）への per-Phase 対応 |
+| context-judged tag           | R:transform 18 件（per-file review window で Phase 6 直前確定）                                 |
+| 削減率                       | v1 20 → v2 10（**50% 削減**、Cognitive Load Ceiling 余裕 5 スロット）                           |
 
 > **Phase 1 で landing したもの（本 branch）:**
 >
