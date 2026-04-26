@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T14:16:54.276Z",
+  "timestamp": "2026-04-26T14:46:09.383Z",
   "summary": {
-    "active": 6,
+    "active": 7,
     "archived": 24,
-    "inProgress": 5,
+    "inProgress": 6,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 839,
-    "checkedCheckboxes": 701
+    "totalCheckboxes": 919,
+    "checkedCheckboxes": 708
   },
   "projects": [
     {
@@ -262,6 +262,19 @@
       "entrypoint": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
       "checklistPath": "projects/completed/phase-6-optional-comparison-projection/checklist.md",
       "parent": "unify-period-analysis"
+    },
+    {
+      "projectId": "phased-content-specs-rollout",
+      "title": "Content Spec System 段階展開計画",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 7,
+      "total": 80,
+      "progress": 0.088,
+      "entrypoint": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
+      "checklistPath": "projects/phased-content-specs-rollout/checklist.md",
+      "parent": null
     },
     {
       "projectId": "presentation-cts-surface-ratchetdown",

@@ -1,0 +1,41 @@
+{
+  "$comment": "Content Spec System (CSS / WSS) を「実装状態を取得・検証・変更レビュー接続・ライフサイクル管理する運用制御システム」へ段階展開する独立 active project。2026-04-26 改訂版（umbrella architecture-debt-recovery archive 後、旧 inquiry/22 を本 project の plan.md に移管）。canonical 計画 doc は plan.md。Phase A〜J + Operational Control System §1〜§11 を保持する。",
+  "projectId": "phased-content-specs-rollout",
+  "title": "Content Spec System 段階展開計画",
+  "status": "active",
+  "projectRoot": "projects/phased-content-specs-rollout",
+  "projectization": {
+    "$comment": "Level 3 — Phase A で 5 件の新 Architecture Rule active 化 + frontmatter generator 実装 + obligation-collector 拡張。複数 guard + collector + script にまたがる architecture level 改修。Phase B 以降も同類の拡張が続く。",
+    "level": 3,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "projects/phased-content-specs-rollout/",
+      "references/05-contents/",
+      "app/src/test/architectureRules.ts",
+      "app/src/test/guards/",
+      "tools/architecture-health/src/collectors/obligation-collector.ts",
+      "tools/widget-specs/"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "Phase A の対象を Anchor Slice 5 件以外に拡大すること",
+      "「初回スコープ外」表現の復活",
+      "Phase F 以降の全網羅（selection rule 必須）",
+      "依存 Phase 未完での先行着手",
+      "archived umbrella / sub-project の touch（immutable）",
+      "WID-NNN 本文の上書き（spec 本文は landed 済み）",
+      "本体アプリ（粗利管理ツール）の機能変更",
+      "WSS 以外の category への原則変更"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
+    "handoff": "projects/phased-content-specs-rollout/HANDOFF.md",
+    "plan": "projects/phased-content-specs-rollout/plan.md",
+    "checklist": "projects/phased-content-specs-rollout/checklist.md",
+    "projectization": "projects/phased-content-specs-rollout/projectization.md"
+  }
+}
