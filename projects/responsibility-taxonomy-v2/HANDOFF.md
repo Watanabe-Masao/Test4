@@ -11,7 +11,7 @@
 >
 > - `tools/scripts/responsibility-taxonomy-inventory.ts` — Inventory 生成 script
 >   （再現可能、`cd app && npx tsx ../tools/scripts/responsibility-taxonomy-inventory.ts` で再生成）
-> - `projects/responsibility-taxonomy-v2/derived/inventory/responsibility-taxonomy-inventory.yaml`
+> - `references/02-status/responsibility-taxonomy-inventory.yaml`
 >   — 親 plan §Common Inventory Schema (CanonEntry shape) 準拠の Phase 0 baseline 1370 entry
 >
 > **作業 branch:** `claude/responsibility-taxonomy-v2-phase0-inventory`
@@ -78,7 +78,7 @@ Phase 9: Legacy Collection（旧コメント / registry / 文書の掃除）
 
 ### 中優先（親 Phase 4 統合時）
 
-- `projects/responsibility-taxonomy-v2/derived/inventory/responsibility-taxonomy-inventory.yaml`
+- `references/02-status/responsibility-taxonomy-inventory.yaml`
   を `references/02-status/responsibility-taxonomy-inventory.yaml` に正本配置
 - 既存 v1 20 タグの Origin を `references/01-principles/taxonomy-origin-journal.md` §R に転記
   （親 Phase 1 残 2 checkbox の解消 — Origin 採取 + L2 到達）

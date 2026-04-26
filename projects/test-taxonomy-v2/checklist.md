@@ -7,7 +7,7 @@
 
 ## Phase 0: Inventory
 
-* [x] `projects/test-taxonomy-v2/derived/inventory/test-taxonomy-inventory.yaml` が作成されている（親 Phase 4 統合時に `references/02-status/test-taxonomy-inventory.yaml` に正本配置予定）
+* [x] `references/02-status/test-taxonomy-inventory.yaml` が作成されている（親 Phase 0 統合 branch 2026-04-26 で正本配置完遂、CanonEntry 728 entry）
 * [x] 現行 TSIG-\* rule の全件と適用対象数が記録されている（TSIG-TEST-01 + TSIG-TEST-04 を全 728 test に / AR-G3-SUPPRESS-RATIONALE + TSIG-COMP-03 を suppress 利用 test に集計）
 * [x] 既存テストの粗分類（unit / contract / invariant / parity / boundary / render-shape 等）が記録されている（Anchor 6 T:kind 帰属で path + content pattern 機械判定）
 * [x] 未分類テスト件数が baseline として記録されている（untagged 728 = 全 test; T:kind は v2-only なので v1 では全件 untagged）

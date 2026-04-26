@@ -11,7 +11,7 @@
 >
 > - `tools/scripts/test-taxonomy-inventory.ts` — Inventory 生成 script
 >   （再現可能、`cd app && npx tsx ../tools/scripts/test-taxonomy-inventory.ts` で再生成）
-> - `projects/test-taxonomy-v2/derived/inventory/test-taxonomy-inventory.yaml`
+> - `references/02-status/test-taxonomy-inventory.yaml`
 >   — 親 plan §Common Inventory Schema (CanonEntry shape) 準拠の Phase 0 baseline 728 entry
 >
 > **作業 branch:** `claude/test-taxonomy-v2-phase0-inventory`
@@ -77,7 +77,7 @@ Phase 9: Legacy Collection（旧コメント / guard / 文書の掃除）
 
 ### 中優先（親 Phase 4 統合時）
 
-- `projects/test-taxonomy-v2/derived/inventory/test-taxonomy-inventory.yaml`
+- `references/02-status/test-taxonomy-inventory.yaml`
   を `references/02-status/test-taxonomy-inventory.yaml` に正本配置
 - 既存 TSIG-\* rule を `references/01-principles/taxonomy-origin-journal.md` §T に転記
 - docs:generate で taxonomy-health.json に baseline を反映

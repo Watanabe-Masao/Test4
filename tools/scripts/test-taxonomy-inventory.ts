@@ -29,14 +29,11 @@ import { join, relative, resolve } from 'node:path'
 
 const REPO_ROOT = resolve(__dirname, '../..')
 const APP_SRC = resolve(REPO_ROOT, 'app/src')
-// 子 Phase 0 では project-internal な derived/ に出力する（references/02-status/
-// の obligation trigger を避け、parallel branch 間のコンフリクトを最小化）。
-// 親 Phase 4 統合時に references/02-status/test-taxonomy-inventory.yaml に
-// 正本配置される。
-const OUTPUT_PATH = resolve(
-  REPO_ROOT,
-  'projects/test-taxonomy-v2/derived/inventory/test-taxonomy-inventory.yaml',
-)
+// 出力先 = 親 plan §Common Inventory Schema が指定する正本位置。
+// 子 Phase 0 期間は parallel branch コンフリクト回避のため
+// projects/test-taxonomy-v2/derived/inventory/ に scratchpad 出力していたが、
+// 親 Phase 0 統合 branch (claude/taxonomy-v2-phase0-integration) で本パスに正本配置済。
+const OUTPUT_PATH = resolve(REPO_ROOT, 'references/02-status/test-taxonomy-inventory.yaml')
 
 // ---------------------------------------------------------------------------
 // scope: 全 test ファイル (*.test.ts / *.test.tsx)

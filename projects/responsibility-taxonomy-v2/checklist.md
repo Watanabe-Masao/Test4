@@ -7,8 +7,8 @@
 
 ## Phase 0: Inventory
 
-* [x] `projects/responsibility-taxonomy-v2/derived/inventory/responsibility-taxonomy-inventory.yaml` が作成されている（親 Phase 4 統合時に `references/02-status/responsibility-taxonomy-inventory.yaml` に正本配置予定）
-* [ ] 現行 v1 の 20 タグ全てに Origin（採択日・採択者 or legacy-unknown）が記入されている（親 Phase 4 統合時に `references/01-principles/taxonomy-origin-journal.md` §R に転記）
+* [x] `references/02-status/responsibility-taxonomy-inventory.yaml` が作成されている（親 Phase 0 統合 branch 2026-04-26 で正本配置完遂、CanonEntry 1370 entry）
+* [x] 現行 v1 の 20 タグ全てに Origin（採択日・採択者 or legacy-unknown）が記入されている（親 Phase 0 統合 branch 2026-04-26 で `references/01-principles/taxonomy-origin-journal.md` §2 v1 20 タグ Origin 一覧として landing）
 * [x] 35+ 対象ファイルの現 v1 タグが全件記録されている（実測 1370 entry: 5 directories scope = application/ + domain/ + features/ + infrastructure/ + presentation/ + test/guards/）
 * [x] 未分類件数と層別分布が baseline として記録されている（untagged 1055 / 比率 77%）
 * [x] タグ不一致 48 件の分布が記録されている（unknown vocabulary 20 件 = R:guard 16 / R:model 3 / R:selector 1 として記録）
