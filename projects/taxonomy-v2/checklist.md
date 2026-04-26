@@ -9,52 +9,52 @@
 
 ### Constitution 本体
 
-* [ ] `references/01-principles/taxonomy-constitution.md` に 7 不可侵原則が landing している
-* [ ] `references/01-principles/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
+* [x] `references/01-principles/taxonomy-constitution.md` に 7 不可侵原則が landing している
+* [x] `references/01-principles/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
 * [ ] `references/01-principles/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている
-* [ ] `CLAUDE.md` に §taxonomy-binding（AI Vocabulary Binding）が追記されている
-* [ ] `app/src/test/guards/constitutionBootstrapGuard.test.ts` が存在し PASS している
-* [ ] 制度成立 5 要件が Constitution 内に明文化されている
+* [x] `CLAUDE.md` に §taxonomy-binding（AI Vocabulary Binding）が追記されている
+* [x] `app/src/test/guards/constitutionBootstrapGuard.test.ts` が存在し PASS している
+* [x] 制度成立 5 要件が Constitution 内に明文化されている
 
 ### Operational Control System（plan.md §OCS の Constitution 統合）
 
-* [ ] §OCS.1（State / Constitutional / Decision の 3 層分離）が Constitution 冒頭に明記されている
-* [ ] §OCS.2 Evidence Level（generated / tested / guarded / reviewed / asserted / unknown）が Origin Journal の frontmatter spec に統合されている
-* [ ] §OCS.5 Promotion Gate L0〜L2（proposed / Registered / Origin-linked）の定義が Constitution に追記されている
-* [ ] §OCS.10 4-Loop Operational Model（Capture / Verification / Change / Governance）が Constitution の運用節に追記されている
+* [x] §OCS.1（State / Constitutional / Decision の 3 層分離）が Constitution 冒頭に明記されている
+* [x] §OCS.2 Evidence Level（generated / tested / guarded / reviewed / asserted / unknown）が Origin Journal の frontmatter spec に統合されている
+* [x] §OCS.5 Promotion Gate L0〜L2（proposed / Registered / Origin-linked）の定義が Constitution に追記されている
+* [x] §OCS.10 4-Loop Operational Model（Capture / Verification / Change / Governance）が Constitution の運用節に追記されている
 * [ ] 既存 v1 の 20 タグが §OCS.5 Level 2（Origin-linked）到達済
 
 ### AR-TAXONOMY-* rule 仕様確定（active 化は子 Phase 3）
 
-* [ ] `AR-TAXONOMY-NO-UNTAGGED` の rule ID + 受け入れ条件が Constitution と plan.md で相互参照されている
-* [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` の rule ID + 受け入れ条件が確定している
-* [ ] `AR-TAXONOMY-ONE-TAG-ONE-AXIS` の rule ID + 受け入れ条件が確定している
-* [ ] `AR-TAXONOMY-INTERLOCK` の rule ID + 受け入れ条件が確定している
-* [ ] `AR-TAXONOMY-ORIGIN-REQUIRED` の rule ID + 受け入れ条件が確定している
-* [ ] `AR-TAXONOMY-COGNITIVE-LOAD` の rule ID + 受け入れ条件が確定している
-* [ ] `AR-TAXONOMY-AI-VOCABULARY-BINDING` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-NO-UNTAGGED` の rule ID + 受け入れ条件が Constitution と plan.md で相互参照されている
+* [x] `AR-TAXONOMY-KNOWN-VOCABULARY` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-ONE-TAG-ONE-AXIS` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-INTERLOCK` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-ORIGIN-REQUIRED` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-COGNITIVE-LOAD` の rule ID + 受け入れ条件が確定している
+* [x] `AR-TAXONOMY-AI-VOCABULARY-BINDING` の rule ID + 受け入れ条件が確定している
 
 ### taxonomy-health.json schema（collector 実装は子 Phase 3 + 親 Phase 4）
 
-* [ ] plan.md §taxonomy-health.json schema が確定している
-* [ ] 子 plan からの schema 参照が明記されている
-* [ ] threshold / budget の正本が plan.md §OCS.6 にある旨が明記されている
+* [x] plan.md §taxonomy-health.json schema が確定している
+* [x] 子 plan からの schema 参照が明記されている
+* [x] threshold / budget の正本が plan.md §OCS.6 にある旨が明記されている
 
 ## Phase 2: Review Window 仕様
 
 ### Review Window 本体
 
-* [ ] `references/03-guides/taxonomy-review-window.md` に四半期 window の手続きが記述されている
-* [ ] 追加・撤退・却下の判定基準が定義されている
-* [ ] `references/02-status/taxonomy-review-journal.md` に journal skeleton が作成されている
-* [ ] 両軸同期 window ルールが明記されている
+* [x] `references/03-guides/taxonomy-review-window.md` に四半期 window の手続きが記述されている
+* [x] 追加・撤退・却下の判定基準が定義されている
+* [x] `references/02-status/taxonomy-review-journal.md` に journal skeleton が作成されている
+* [x] 両軸同期 window ルールが明記されている
 
 ### Operational Control System（plan.md §OCS との接続）
 
-* [ ] §OCS.4 Lifecycle State Machine（proposed → active → deprecated → sunsetting → retired → archived）が review window 仕様に統合されている
-* [ ] §OCS.8 Exception Policy（TXE-NNN + reason / owner / expiresAt / sunsetCondition）が review window 仕様で TXE 採番ルールを含めて明文化されている
-* [ ] §OCS.9 Human Review Boundary（必須 / 自動承認）が review window 手続きに反映されている
-* [ ] AI が review window 外で新タグ追加を試みた場合の reject 手順が記述されている
+* [x] §OCS.4 Lifecycle State Machine（proposed → active → deprecated → sunsetting → retired → archived）が review window 仕様に統合されている
+* [x] §OCS.8 Exception Policy（TXE-NNN + reason / owner / expiresAt / sunsetCondition）が review window 仕様で TXE 採番ルールを含めて明文化されている
+* [x] §OCS.9 Human Review Boundary（必須 / 自動承認）が review window 手続きに反映されている
+* [x] AI が review window 外で新タグ追加を試みた場合の reject 手順が記述されている
 
 ## Phase 3: 子 project 立ち上げ
 

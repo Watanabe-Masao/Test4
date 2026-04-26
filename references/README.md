@@ -155,6 +155,7 @@
 | Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約） | `01-principles/taxonomy-interlock.md` |
 | Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset） | `01-principles/taxonomy-origin-journal.md` |
 | Taxonomy v2 Review Journal（review window 記録） | `02-status/taxonomy-review-journal.md` |
+| Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準） | `03-guides/taxonomy-review-window.md` |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 

@@ -1,73 +1,152 @@
 # taxonomy-review-journal — review window 記録
 
-> **役割**: `taxonomy-v2` family の **review window**（四半期）の追加 / 撤退 / 却下記録の正本。
-> Constitution 原則 3「語彙生成は高コスト儀式」+ 親 plan §OCS.4 Lifecycle State Machine の運用記録。
+> **役割**: `taxonomy-v2` family の **review window**（四半期）の **提案 / 採択 / 条件付き採択 / 保留 / 却下 / 例外承認** の運用記録。
+> Constitution 原則 3「語彙生成は高コスト儀式」+ 親 plan §OCS.4 Lifecycle / §OCS.8 Exception Policy の運用記録。
 >
-> **位置付け**: Phase 1 Constitution で **placeholder** として landing。
-> 本格的な journal 形式 + 初回 review window 開催手順は **親 Phase 2（Review Window 仕様）**で確定する。
-> 本 placeholder は doc-registry / Constitution / Origin Journal / CLAUDE.md §taxonomy-binding からの link 整合を保つ目的で先行配置。
->
-> **改訂規律**: 本 journal の改訂は **review window** 経由のみ。
+> **改訂規律**: 本 journal の改訂は **review window** 経由のみ（メタ運用は §改訂規律）。
 > AI が単独で entry を追加・改変することは禁止（Constitution 原則 3 + AR-TAXONOMY-AI-VOCABULARY-BINDING）。
+> **唯一例外**: AI が `R:unclassified` / `T:unclassified` 退避後に「提案 entry を起草」する行動。これは `references/03-guides/taxonomy-review-window.md` §7.2 で許可される。
 >
-> **status**: **placeholder（Phase 1 起草中、Phase 2 で本格 landing）**。
+> **status**: **active（Phase 2 完了直後、初回 review window 待ち）**。
 
 ## 1. 本 journal が記録するもの
 
 各 review window で発生した:
 
-- **追加**: 新 R:tag / 新 T:kind / 新 Antibody Pair / Cognitive Load Ceiling 引き上げ
-- **撤退**: タグの `active → deprecated → sunsetting → retired → archived` Lifecycle 遷移
-- **却下**: 提案された追加・撤退・改変が承認されなかった記録
+- **提案中（draft）**: 提案 entry がここに集積、開催前にレビュー対象として確定
+- **採択（accepted）**: 全判定基準を満たし採択されたもの → registry / Constitution / Interlock 反映済
+- **条件付き採択（conditional）**: 一部修正を経て次回 window で確認するもの
+- **保留（postponed）**: 次回 window へ繰り越し
+- **却下（rejected）**: 採択不可、却下理由を記録
+- **例外承認（granted exception）**: TXE-NNN 例外（plan §OCS.8）の承認記録
 
-## 2. 形式（Phase 2 で確定予定）
+形式の詳細は `references/03-guides/taxonomy-review-window.md` §5「記録形式」を参照。
 
-Phase 2 で `references/03-guides/taxonomy-review-window.md` に手続き + 判定基準を確定後、本 journal の entry 形式を fixed する。
+## 2. 次回 window（提案受付中）
 
-暫定 skeleton:
+> **次回開催予定**: 親 Phase 3（子 project 立ち上げ）と同期。具体的日程は別途確定。
+
+### 2.1. 提案中（draft）
+
+> AI / 人間 reviewer の提案 entry を集積する場所。開催前に確定 → §3 各セクションへ移動。
+
+（現状: 提案 entry なし）
+
+### 2.2. 期限超過例外の確認
+
+> 開催時に `taxonomy-health.json` の `taxonomy.exceptions.expired` 件数を確認し、すべての超過例外について撤回 / 期限延長 / sunsetCondition 達成のいずれかを記録する。
+
+（現状: TXE 例外の発行なし。初回 window 開催後に追記）
+
+## 3. 過去の window 記録
+
+> 各 window 開催後、`references/03-guides/taxonomy-review-window.md` §5 の形式に従って entry を追加する。
+
+### 3.0. 開催情報
+
+（初回 window 未開催）
+
+---
+
+> **以降、各 window 開催ごとに次の構造で追加:**
 
 ```markdown
 ## YYYY-Q-N （YYYY-MM-DD 開催）
 
-### 追加
+### 開催情報
 
-- **{R:|T:}{tag-name}**
-  - Why: <なぜ追加するか>
-  - 採択者: <ロール>
-  - Antibody Pair: <対概念タグ>
-  - 必須対応 T:kind / R:tag: <Interlock 上の必須対応>
-  - 推定 promotionLevel: L1 / L2 / ...
-  - 採択日: YYYY-MM-DD
+- 開催日: YYYY-MM-DD
+- 参加者: <ロール一覧>
+- 議事録参照: <link or 概要>
 
-### 撤退（active → deprecated）
+### 採択（accepted）
 
-- **{R:|T:}{tag-name}**
-  - 撤退理由: <なぜ撤退するか>
-  - replacedBy: <置換先タグ>
-  - sunsetCondition: <何が起きたら retired に降格するか>
-  - 撤退期限: YYYY-MM-DD（90 日以上先）
+#### {R:|T:}{tag-name}
 
-### 却下
+| 項目             | 値                            |
+| ---------------- | ----------------------------- |
+| 種別             | 追加 / 撤退 / 改訂 / 例外承認 |
+| 採択日           | YYYY-MM-DD                    |
+| 採択者           | <ロール>                      |
+| 提案者           | <ロール>                      |
+| Why              | <承認された Why>              |
+| Antibody Pair    | <対概念タグ>                  |
+| 必須対応         | <対応 T:kind / R:tag>         |
+| promotionLevel   | L1 / L2 / ...                 |
+| Lifecycle status | active / deprecated / ...     |
+| 備考             | <承認時の注記>                |
 
-- 提案: **{R:|T:}{tag-name}**
-  - 提案者: <ロール>
-  - 却下理由: <なぜ却下されたか>
+### 条件付き採択（conditional）
+
+（同上の形式 + `条件:` 行を追加 + `次回確認 window:` 行）
+
+### 保留（postponed）
+
+（同上 + `次回 window:` 行）
+
+### 却下（rejected）
+
+| 項目     | 値                                               |
+| -------- | ------------------------------------------------ | ------------- |
+| 提案     | {R:                                              | T:}{tag-name} |
+| 種別     | 追加 / 撤退 / ...                                |
+| 提案者   | <ロール>                                         |
+| 却下理由 | <なぜ却下されたか、判定基準のどれに該当しないか> |
+
+### 例外承認（granted exception）
+
+| 項目            | 値                           |
+| --------------- | ---------------------------- |
+| TXE id          | TXE-NNN                      |
+| rule            | AR-TAXONOMY-\*               |
+| target          | <ファイルパス>               |
+| reason          | <なぜ一時除外するか>         |
+| owner           | <ロール>                     |
+| expiresAt       | YYYY-MM-DD                   |
+| sunsetCondition | <何が起きたら除外解除するか> |
 ```
 
-## 3. 過去の window 記録
+## 4. 累積指標（generated 連動予定）
 
-> Phase 2 完了 + 初回 review window 開催後に entry 追加。
+> Phase 親 4（制度成立確認）+ 子 Phase 6（Migration Rollout）で `taxonomy-health.json` collector を実装後、以下の指標を **generated section として本 journal に埋め込む**。
 
-（現状: entry なし。初回 window は親 Phase 2 完了後）
+```yaml
+reviewWindow:
+  totalWindows: 0 # これまで開催された window 件数
+  acceptedAdditions: 0 # 累積採択追加件数
+  acceptedRetirements: 0 # 累積撤退件数
+  rejected: 0 # 累積却下件数
+  pendingProposals: 0 # 提案 entry 件数
+  expiredProposals: 0 # 開催遅延で期限超過した提案件数
+  outOfWindowAdditions: 0 # AR-TAXONOMY-AI-VOCABULARY-BINDING 違反件数
+exceptions:
+  granted: 0 # 累積例外承認件数
+  active: 0 # 現在 active な例外件数
+  expired: 0 # 期限超過例外件数
+```
 
-## 4. 関連文書
+これらは制度成立 5 要件の判定材料（plan §OCS.4 / Constitution §9）。
 
-| 文書 | 役割 |
-|---|---|
-| `references/01-principles/taxonomy-constitution.md` | Constitution（本 journal は原則 3 + 5 + 7 の運用記録） |
-| `references/01-principles/taxonomy-interlock.md` | Interlock マトリクス（追加 / 撤退で同期改訂） |
-| `references/01-principles/taxonomy-origin-journal.md` | Origin Journal（追加で Origin entry 追加） |
-| `references/03-guides/taxonomy-review-window.md`（Phase 2 で landing） | review window 手続き + 判定基準 |
-| `projects/taxonomy-v2/plan.md` | 親 plan §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary |
-| `projects/taxonomy-v2/checklist.md` Phase 2 | 本 journal の本格 landing 完了条件 |
-| `CLAUDE.md` §taxonomy-binding | AI が review window 経路でのみ提案できる制約の正本 |
+## 5. 改訂規律（メタ運用）
+
+本 journal 自身の改訂手順:
+
+| 改訂内容                                 | review window 必須?                                          |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| 過去 window entry の追加（採択結果記録） | 不要（自動。window 開催後 24 時間以内に追加）                |
+| 提案 entry の追加                        | 不要（提案者が直接追加。AI は §taxonomy-window §7.2 に従う） |
+| 過去 window entry の **改変**            | **必須**（履歴改竄防止）                                     |
+| §1 / §2 / §5 の構造変更                  | **必須**（journal 自体の運用変更）                           |
+| §4 累積指標 schema の変更                | **必須**（health collector への影響あり）                    |
+
+## 6. 関連文書
+
+| 文書                                                  | 役割                                                                              |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `references/01-principles/taxonomy-constitution.md`   | Constitution（本 journal は原則 3 + 5 + 7 の運用記録）                            |
+| `references/01-principles/taxonomy-interlock.md`      | Interlock マトリクス（追加 / 撤退で同期改訂）                                     |
+| `references/01-principles/taxonomy-origin-journal.md` | Origin Journal（採択で Origin entry 追加）                                        |
+| `references/03-guides/taxonomy-review-window.md`      | **window 手続き + 判定基準 + 形式の正本**                                         |
+| `projects/taxonomy-v2/plan.md`                        | 親 plan §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary |
+| `projects/taxonomy-v2/checklist.md` Phase 2           | 本 journal の本格 landing 完了条件                                                |
+| `CLAUDE.md` §taxonomy-binding                         | AI が review window 経路でのみ提案できる制約の正本                                |
