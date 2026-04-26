@@ -23,7 +23,7 @@
  */
 
 import { fromDateKey } from '@/domain/models/CalendarDate'
-import type { PrevYearData } from '@/features/comparison/application/comparisonTypes'
+import type { PrevYearData } from '@/features/comparison'
 
 /**
  * 前年データから日別近似原価マップを構築する。

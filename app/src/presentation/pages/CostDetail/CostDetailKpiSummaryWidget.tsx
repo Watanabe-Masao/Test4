@@ -12,7 +12,7 @@
  * - projects/widget-registry-simplification/plan.md §ADR-B-004
  * - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-B-004
  *
- * @responsibility R:presentation
+ * @responsibility R:widget
  */
 
 import { memo } from 'react'
