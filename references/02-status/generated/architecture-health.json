@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T07:46:14.631Z",
+  "timestamp": "2026-04-26T08:58:23.710Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -183,7 +183,7 @@
       "id": "complexity.vm.count",
       "label": "ViewModel ファイル数",
       "category": "complexity",
-      "value": 28,
+      "value": 25,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -966,7 +966,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 836,
+      "value": 837,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1013,7 +1013,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 642,
+      "value": 643,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
