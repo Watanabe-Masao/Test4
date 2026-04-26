@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T02:15:11.813Z",
+  "timestamp": "2026-04-26T03:38:52.629Z",
   "summary": {
-    "active": 8,
+    "active": 9,
     "archived": 21,
-    "inProgress": 7,
+    "inProgress": 8,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 814,
+    "totalCheckboxes": 836,
     "checkedCheckboxes": 624
   },
   "projects": [
@@ -391,6 +391,19 @@
       "progress": 0.727,
       "entrypoint": "projects/completed/widget-context-boundary/AI_CONTEXT.md",
       "checklistPath": "projects/completed/widget-context-boundary/checklist.md",
+      "parent": "architecture-debt-recovery"
+    },
+    {
+      "projectId": "widget-registry-simplification",
+      "title": "widget registry 簡素化（SP-B）",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 22,
+      "progress": 0,
+      "entrypoint": "projects/widget-registry-simplification/AI_CONTEXT.md",
+      "checklistPath": "projects/widget-registry-simplification/checklist.md",
       "parent": "architecture-debt-recovery"
     }
   ]

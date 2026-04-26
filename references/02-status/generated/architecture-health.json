@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T02:15:11.810Z",
+  "timestamp": "2026-04-26T03:38:52.625Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -753,7 +753,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 8,
+      "value": 9,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -792,7 +792,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -857,14 +858,15 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 7,
+      "value": 8,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -903,7 +905,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -950,7 +953,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ],
       "budget": 10
     },
@@ -958,7 +962,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 814,
+      "value": 836,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -997,7 +1001,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ]
     },
     {
@@ -1043,14 +1048,15 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ]
     },
     {
       "id": "project.checklist.subprojectCount",
       "label": "サブ project 数（parent フィールドあり）",
       "category": "docs",
-      "value": 6,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1089,7 +1095,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/widget-registry-simplification/checklist.md"
       ]
     },
     {

@@ -11,7 +11,8 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `architecture-debt-recovery` | umbrella | アーキテクチャ負債回収（widget 起点の大型改修） — Phase 1-5 完了、Phase 6 Wave 1 で 3 sub-project spawn 済 | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
+| `architecture-debt-recovery` | umbrella | アーキテクチャ負債回収（widget 起点の大型改修） — Phase 1-5 完了、Phase 6 Wave 1 (SP-A/SP-C archived) + Wave 2 (SP-B spawn) 進行中 | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
+| `widget-registry-simplification` | sub-project (SP-B) | widget registry 簡素化 — 二重 null check 解消 / full ctx passthrough を明示 props 化 / IIFE を readModel selector 抽出 / inline JSX 解消 | [`projects/widget-registry-simplification/AI_CONTEXT.md`](../../projects/widget-registry-simplification/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | sub-project (SP-D) | AAG / Temporal Governance 強化 — reviewPolicy 必須化 / allowlist metadata / G8 補強 / @deprecated metadata / generated remediation / projectDocConsistencyGuard | [`projects/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../projects/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
