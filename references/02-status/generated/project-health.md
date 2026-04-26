@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-26T15:01:15.444Z
+> 生成: 2026-04-26T16:39:47.967Z
 
 ## サマリー
 
@@ -15,8 +15,8 @@
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 919 |
-| 全 project の checked checkbox 総数 | 708 |
+| 全 project の required checkbox 総数 | 995 |
+| 全 project の checked checkbox 総数 | 735 |
 
 ## projects
 
@@ -46,10 +46,10 @@
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/16 (81%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/113 (74%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 6/7 (86%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
-| `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/43 (0%) | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
-| `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 0/21 (0%) | [`projects/taxonomy-v2/AI_CONTEXT.md`](../../../projects/taxonomy-v2/AI_CONTEXT.md) |
+| `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/64 (0%) | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
+| `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 27/55 (49%) | [`projects/taxonomy-v2/AI_CONTEXT.md`](../../../projects/taxonomy-v2/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
-| `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/41 (0%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
+| `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/62 (0%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
 | `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **archived** | — | 57/57 (100%) | [`projects/completed/unify-period-analysis/AI_CONTEXT.md`](../../../projects/completed/unify-period-analysis/AI_CONTEXT.md) |
 | `widget-context-boundary` | widget / ctx 型境界再構築（SP-A） | **archived** | `architecture-debt-recovery` | 33/33 (100%) | [`projects/completed/widget-context-boundary/AI_CONTEXT.md`](../../../projects/completed/widget-context-boundary/AI_CONTEXT.md) |
 | `widget-registry-simplification` | widget registry 簡素化（SP-B） | **archived** | `architecture-debt-recovery` | 22/22 (100%) | [`projects/completed/widget-registry-simplification/AI_CONTEXT.md`](../../../projects/completed/widget-registry-simplification/AI_CONTEXT.md) |

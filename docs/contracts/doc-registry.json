@@ -178,6 +178,26 @@
         {
           "path": "references/03-guides/test-signal-integrity-advisory.md",
           "label": "Test Signal Integrity Advisory 運用ガイド"
+        },
+        {
+          "path": "references/01-principles/taxonomy-constitution.md",
+          "label": "Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則）"
+        },
+        {
+          "path": "references/01-principles/taxonomy-interlock.md",
+          "label": "Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約）"
+        },
+        {
+          "path": "references/01-principles/taxonomy-origin-journal.md",
+          "label": "Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset）"
+        },
+        {
+          "path": "references/02-status/taxonomy-review-journal.md",
+          "label": "Taxonomy v2 Review Journal（review window 記録）"
+        },
+        {
+          "path": "references/03-guides/taxonomy-review-window.md",
+          "label": "Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）"
         }
       ]
     },
