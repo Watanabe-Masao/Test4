@@ -128,15 +128,297 @@ Phase C 以降（ReadModels / Pipelines / Calculations / Charts / UI / Storybook
 - 破壊的 type 変更（spec frontmatter schema 拡張等）を含む
 - ratchet-down baseline 戦略が必要
 
-## 最終方針（5 つの不可侵）
+## 最終方針（6 つの不可侵）
 
 本計画の運用上、以下を不可侵とする。
 
 1. **対象は SP-B に直結させる** — Phase A の 5 件は SP-B Anchor Slice の改修対象。「網羅」目的で対象を拡大しない
 2. **保証は source / spec / guard / CI まで深く入れる** — 表面だけ整えて drift を放置しない
 3. **「初回スコープ外」は段階移行計画に載せる** — 「やらないこと」ではなく「順番を後にすること」として明記する（Phase B〜J を放棄しない）
-4. **正しさではなく現状一致を保証する** — spec は behavior の現状記録。「あるべき姿」を spec に書かない（CLAUDE.md §C9: 現実把握優先 / 05-contents/README.md §「振る舞いの記述」）
-5. **正しさに近い主張は test / evidence で補強する** — Phase J で `evidenceLevel` を段階導入、high-risk claim だけ evidence 必須
+4. **正しさの種類を分ける** — State / Behavior / Decision の 3 層分離（§1）。Content State Layer は State Correctness のみ保証する
+5. **証拠を持たせる** — `evidenceLevel`（§2）を段階導入。high-risk claim は `asserted` 禁止
+6. **運用に組み込む** — PR Impact Report 必須化（§3）/ SP-B/SP-D checklist 統合（§7）/ Lifecycle State Machine（§4）/ Drift Budget（§6）。「仕組みを作る」で終わらせず、「使われ続ける運用モデル」を設計する
+
+## Operational Control System（運用制御システム化）
+
+Phase A〜J で「実装状態を正確に記録し、drift を防ぐ」状態管理レイヤーを構築するだけ
+では不十分。**継続的に正しく使われる運用モデル**まで設計し、Content State Layer を
+単なる台帳から **実装状態を取得 → 検証 → 変更レビューに接続 → ライフサイクル管理する
+運用制御システム**へ昇華させる。
+
+> **昇華の中心思想**: 「ドキュメントを正しく保つ仕組み」ではなく、
+> **「実装状態を取得し、検証し、変更レビューに接続し、ライフサイクル管理する
+> 運用制御システム」**として 05-contents を扱う。
+
+### §1. 3 種類の「正しさ」を分離する
+
+運用上の混乱と過剰期待を防ぐため、正しさを 3 層に分ける。
+**Content State Layer が直接保証するのは §1 の State Correctness のみ**。
+
+| 正しさの種類 | 保証する仕組み | Content State Layer が触るか |
+|---|---|---|
+| **State Correctness** — 実装状態と spec が一致 | generator / frontmatter sync / co-change guard | **触る（保証主体）** |
+| **Behavior Correctness** — 振る舞いが test / invariant で期待通り動く | unit test / parity test / invariant / E2E / visual | 触らない（evidence link のみ） |
+| **Decision Correctness** — 設計・仕様・業務判断が妥当 | architecture review / business review / ADR | 触らない（reviewer 紐付けのみ） |
+
+**運用ルール**: 各 spec の冒頭と `references/05-contents/README.md` 冒頭にこの 3 層分離
+を明記する。「spec が正しい = behavior が正しい」と誤解する誘惑を構造的に防ぐ。
+
+### §2. Evidence Level を運用の中心に置く
+
+prose の正しさは完全には機械保証できない。各 behavior 記述に `evidenceLevel` を付与する。
+
+```yaml
+behaviorClaims:
+  - id: CLM-001
+    claim: "selectedStoreIds が空の場合は全店扱い"
+    evidenceLevel: tested
+    evidence:
+      tests:
+        - app/src/application/hooks/storeDaily/useStoreDailyBundle.test.ts
+```
+
+| Level | 意味 | 運用 |
+|---|---|---|
+| `generated` | source から機械生成された事実 | **最強**。CI で保証 |
+| `tested` | test で確認済み | behavior 保証に近い |
+| `guarded` | guard で防御済み | 構造違反を検出 |
+| `reviewed` | 人間レビュー済み | 判断の証跡 |
+| `asserted` | 人間が書いただけ | 許すが high-risk では禁止 |
+| `unknown` | 根拠不明 | 原則禁止 |
+
+**昇華ポイント**: 全 claim を最初から厳格化しない。**high-risk claim だけ
+`asserted` 禁止**。
+
+**high-risk claim の判定基準**:
+
+- 計算結果に関わる
+- fallback / empty behavior に関わる
+- query / pipeline 経路に関わる
+- deprecated / retired 判断に関わる
+- SP-B / SP-D の完了条件に関わる
+
+Phase J（Claim Evidence Enforcement）で段階的に導入する。
+
+### §3. PR ごとの Impact Report を必須運用にする
+
+状態管理は **PR レビューで使われて初めて意味がある**。SP-B 以降の PR で次を必須化する。
+
+```bash
+npm run content-specs:impact -- --base main --head HEAD
+```
+
+**出力例**:
+
+```
+Changed sources:
+  app/src/presentation/pages/Insight/widgets.tsx
+Affected specs:
+  WID-033
+  PIPE-001
+  CALC-002
+Required actions:
+  - WID-033 frontmatter sync required
+  - WID-033 behavior review required
+  - PIPE-001 co-change required
+Risk:
+  medium
+Reason:
+  SP-B B-001 null-check removal target
+```
+
+**PR テンプレ追加項目**:
+
+- [ ] `npm run content-specs:impact` を確認した
+- [ ] affected specs を更新した
+- [ ] high-risk behavior claim に evidence がある
+
+Phase I（PR Impact Report）で実装する。
+
+### §4. Lifecycle State Machine を導入する
+
+`active / deprecated / retired` だけでは粗い。**6 状態の遷移**を明示する。
+
+```text
+proposed → active → deprecated → sunsetting → retired → archived
+```
+
+| 状態 | 意味 |
+|---|---|
+| `proposed` | spec 先行。source 未作成または計画中 |
+| `active` | 正本として使用中 |
+| `deprecated` | 新規使用禁止。既存 consumer あり |
+| `sunsetting` | consumer 撤退中。期限あり |
+| `retired` | source 削除済み。ID は欠番保持 |
+| `archived` | 歴史参照のみ |
+
+**guard で守ること**:
+
+- `deprecated` には `replacedBy` 必須
+- `sunsetting` には `sunsetCondition` + `deadline` 必須
+- `retired` には active consumer 0 必須
+- `active` なのに source がない → fail
+- source があるのに `archived` → fail
+
+これにより「後で消す」が曖昧に残ることを防ぐ。Phase D（Domain Calculations）以降で
+`sunsetCondition 100%` の完了条件と接続する。
+
+### §5. Promotion Gate（成熟度レベル）
+
+カテゴリをいきなり全て fixed mode にしない。**6 レベルの成熟度**を持たせる。
+
+| Level | 条件 |
+|---|---|
+| **L0** | Not tracked |
+| **L1** | spec がある（Registered） |
+| **L2** | source tag / sourceRef がある（Source-linked） |
+| **L3** | generated frontmatter sync がある（Generated-sync） |
+| **L4** | co-change / lifecycle / owner guard がある（Guarded） |
+| **L5** | high-risk claims に evidence がある（Evidence-backed） |
+| **L6** | architecture-health KPI に入っている（Health-tracked） |
+
+**Phase 別到達目標**:
+
+- **Phase A（SP-B Anchor Slice）**: L4 到達を初期完了条件
+- **Phase B（SP-B 全体）**: L5 到達を目指す
+- **Phase H（Architecture Health KPI）**: L6 到達を最終形
+
+各 spec の frontmatter に `promotionLevel: L4` を持たせ、Phase ごとの到達基準を
+guard で機械検証する。
+
+### §6. Drift Budget（許容予算）
+
+すべてを常に 0 にできるとは限らない。許容するなら**予算化する**。
+
+```json
+{
+  "contentSpec": {
+    "frontmatterDrift": { "budget": 0 },
+    "missingOwner": { "budget": 0 },
+    "stale": { "budget": 3 },
+    "assertedHighRiskClaims": { "budget": 0 },
+    "deprecatedWithConsumers": { "budget": 5 }
+  }
+}
+```
+
+| 指標 | 推奨 budget | 理由 |
+|---|---|---|
+| `frontmatterDrift` | 0 | 機械生成可能、drift 即修正 |
+| `missingOwner` | 0 | 必須メタデータ、欠落許容しない |
+| `source/spec identity mismatch` | 0 | 存在検証は妥協できない |
+| `retiredWithSource` | 0 | lifecycle 不整合 |
+| `activeWithoutSource` | 0 | lifecycle 不整合 |
+| `stale specs` | 一時 budget 可 | 段階移行中の許容 |
+| `deprecatedWithConsumers` | 一時 budget 可 | 撤退過渡期の許容 |
+| `low-risk asserted claims` | 一時 budget 可 | high-risk のみ厳格化 |
+
+Phase H（Architecture Health KPI）で `content-spec-health.json` の budget フィールドに
+反映する。
+
+### §7. SP-B / SP-D 完了条件への組み込み
+
+Content State Layer を**独立した理想論にしない**ため、SP-B / SP-D の checklist に
+直接組み込む。
+
+#### SP-B (widget-registry-simplification) checklist 追加項目
+
+- [ ] 対象 WID の content spec が更新済み
+- [ ] 対象 WID の `frontmatterDrift = 0`
+- [ ] full ctx passthrough 削除後、`consumedCtxFields` が同期済み
+- [ ] null check 削除後、Empty / Error Behavior が更新済み
+- [ ] inline logic 抽出先 CALC / PROJ / PIPE spec が作成済み
+- [ ] high-risk behavior claim に `tested` / `guarded` evidence がある
+
+#### SP-D (aag-temporal-governance-hardening) checklist 追加項目
+
+- [ ] content spec の `owner` / `reviewCadence` が必須化済み
+- [ ] `deprecated` / `retired` lifecycle guard が有効
+- [ ] freshness guard の baseline が明示されている
+- [ ] allowlist 例外には `expiresAt` / `sunsetCondition` がある
+
+これにより Content State Layer が「別 project」ではなく **SP-B / SP-D の成功条件**
+となる。SP-B spawn 時の checklist absorption（§段階 1）で同時に実施。
+
+### §8. Exception Policy（例外運用）
+
+どんな仕組みでも例外は発生する。**例外を許すなら形式を固定する**。
+
+```yaml
+exceptions:
+  - id: CSE-001
+    rule: contentSpecCoChangeGuard
+    target: WID-033
+    reason: "SP-B PR2 で source 先行、PR3 で spec 同期予定"
+    owner: architecture
+    expiresAt: 2026-05-15
+    sunsetCondition: "WID-033.md frontmatter sync completed"
+```
+
+**例外に必須**:
+
+- `reason`（なぜ許容するか）
+- `owner`（誰の責任か）
+- `expiresAt`（いつまで許容するか）
+- `sunsetCondition`（何が起きたら例外を取り下げるか）
+
+例外数も `architecture-health.json` の `contentSpec.exceptions.{total, expired}` に出す。
+**期限超過例外は hard fail** とする。
+
+### §9. Human Review の粒度を固定する
+
+人間レビューが必要な箇所を絞る。**全部レビューすると重すぎる**。
+
+#### レビュー必須
+
+- new content category 追加（widgets / charts 以外の新サブカテゴリ）
+- new lifecycle status transition の制度設計
+- high-risk asserted claim の登録
+- `deprecated` / `retired` への transition
+- source tag ID 変更（WID-NNN の再割当）
+- content graph relation の手動修正
+- guard baseline 変更
+
+#### レビュー不要（自動承認）
+
+- generated frontmatter の通常同期
+- `lastVerifiedCommit` 更新
+- `sourceRef` line number 更新
+- low-risk prose の軽微な文言修正
+
+これで運用負荷を抑える。`reviewPolicy` の owner 設定に反映。
+
+### §10. 4 ループの Operational Model
+
+最終形は次の **4 ループが同時に回る状態**。
+
+| ループ | 構成 | 担う品質 |
+|---|---|---|
+| **Capture Loop** | source → generator → spec → graph | State Correctness の取得 |
+| **Verification Loop** | guard → test → evidence → CI | State / Behavior の検証 |
+| **Change Loop** | PR impact → co-change → review → merge | 変更時の整合保証 |
+| **Governance Loop** | owner → freshness → lifecycle → health KPI | 長期運用の制御 |
+
+この 4 ループが回ると、Content State Layer は単なる台帳ではなく
+**実装状態の運用制御システム**になる。
+
+### §11. Phase との対応マッピング
+
+§1〜§10 と Phase A〜J の対応を明示する。Phase 着手時にどの operational dimension が
+活性化されるかを管理する。
+
+| Phase | 主に活性化する dimension |
+|---|---|
+| **A: Anchor Slice** | §1（3 層分離）/ §5（L4 到達）/ §10 Capture + Verification |
+| **B: SP-B 全体** | §5（L5 到達）/ §7 SP-B checklist 統合 / §10 Change Loop |
+| **C: ReadModels/Pipelines** | §4 Lifecycle 適用開始 / §10 Capture Loop 拡張 |
+| **D: Domain Calculations** | §4 `sunsetCondition` 必須 / §2 Evidence Level 試行 |
+| **E: Charts** | §10 Verification Loop（visual evidence 接続） |
+| **F: Selected UI** | §9 Human Review 境界の確定 |
+| **G: Storybook 連携** | §2 evidence path 接続（visualTests / states） |
+| **H: Architecture Health KPI** | §6 Drift Budget / §5 L6 到達 / §8 例外 KPI |
+| **I: PR Impact Report** | §3 必須運用化 / §10 Change Loop 完成 |
+| **J: Claim Evidence Enforcement** | §2 高リスク厳格化 / §10 Governance Loop 完成 |
 
 ## 関連
 
@@ -158,3 +440,10 @@ Phase C 以降（ReadModels / Pipelines / Calculations / Charts / UI / Storybook
 
 `inquiry/17 §再発防止規約 5` に従い、本 file 自体は**追記のみ可能**。
 Phase A〜J の構造変更が必要になった場合は **`22a-*.md` addendum** を作成する。
+
+### 改訂履歴
+
+| 日付 | 変更 |
+|---|---|
+| 2026-04-26 | 初版起草（Phase A〜J + SP-B absorption 戦略 + 最終方針 5 つ） |
+| 2026-04-26 | **Operational Control System §1〜§11 を追加**（State/Behavior/Decision 分離 / Evidence Level / PR Impact Report / Lifecycle State Machine / Promotion Gate / Drift Budget / SP-B/SP-D checklist 統合 / Exception Policy / Human Review Boundary / 4-Loop Operational Model）。最終方針を 5 → **6 つ**に拡張（「運用に組み込む」を追加） |
