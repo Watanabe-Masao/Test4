@@ -349,10 +349,21 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
  * `buildUnifiedWidgetContext()` に抽出。新 max は
  * `IntegratedTimeline.tsx:49` (67 行)。
  *
+ * baseline=38: 2026-04-26 PR4-step2。53〜67 行帯の 5 件 useMemo body を
+ * pure builder / extracted async factory に抽出:
+ *   - IntegratedTimeline.tsx:49 (67) → IntegratedTimeline.builders.ts
+ *   - CustomerScatterChart.tsx:58 (58) → CustomerScatterChart.builders.ts
+ *   - useComparisonContextQuery.ts:116 (56) → createComparisonContextQueryFn
+ *   - WaterfallChart.tsx:34 (55) → WaterfallChart.builders.ts
+ *   - useWeatherCorrelation.ts:67 (54) → computeWeatherCorrelation
+ *   - RegressionInsightChart.tsx:54 (53) → RegressionInsightChart.builders.ts
+ * 新 max は 38 行 tier (useShapleyTimeSeries / CategoryDiscountChart /
+ * useCategoryHierarchyData)。
+ *
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-003
  * @see projects/aag-temporal-governance-hardening/plan.md §ADR-D-003
  */
-const BASELINE_USEMEMO_BODY_LINES = 67
+const BASELINE_USEMEMO_BODY_LINES = 38
 
 function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine: number } {
   const allFiles = collectTsFiles(SRC_DIR).filter(

@@ -74,6 +74,88 @@ function buildMonthRange(year: number, month: number): DateRange {
   }
 }
 
+interface ComparisonQueryFnInput {
+  readonly curFromKey: string
+  readonly curToKey: string
+  readonly prevFromKey: string
+  readonly prevToKey: string
+  readonly storeIdArr: readonly string[] | undefined
+  readonly defaultMarkupRate: number
+  readonly targetYear: number
+  readonly targetMonth: number
+  readonly prevYear: number
+  readonly prevMonth: number
+}
+
+function createComparisonContextQueryFn(input: ComparisonQueryFnInput) {
+  const {
+    curFromKey,
+    curToKey,
+    prevFromKey,
+    prevToKey,
+    storeIdArr,
+    defaultMarkupRate,
+    targetYear,
+    targetMonth,
+    prevYear,
+    prevMonth,
+  } = input
+  return async (c: AsyncDuckDBConnection): Promise<ComparisonContextData> => {
+    // SQL: 当年月間 + 前年月間のデータを並列取得
+    const [curRows, prevRows, curInvConfigs] = await Promise.all([
+      queryStoreDaySummary(c, {
+        dateFrom: curFromKey,
+        dateTo: curToKey,
+        storeIds: storeIdArr,
+        isPrevYear: false,
+      }),
+      queryStoreDaySummary(c, {
+        dateFrom: prevFromKey,
+        dateTo: prevToKey,
+        storeIds: storeIdArr,
+        isPrevYear: true,
+      }),
+      queryInventoryConfigs(c, targetYear, targetMonth, storeIdArr),
+    ])
+
+    // JS: ドメイン計算
+    const curMetrics = calculateAllPeriodMetrics(curRows, curInvConfigs, defaultMarkupRate)
+    const prevMetrics = calculateAllPeriodMetrics(prevRows, new Map(), defaultMarkupRate)
+
+    // スナップショット構築
+    const currentSnapshot = toSnapshot(curMetrics, targetYear, targetMonth)
+    const sameDowSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
+    const sameDateSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
+
+    // 曜日ギャップ分析 — 前年の曜日別合計売上を集計して渡す
+    const dailyAvgSales =
+      currentSnapshot.metrics.salesDays > 0
+        ? currentSnapshot.metrics.totalSales / currentSnapshot.metrics.salesDays
+        : 0
+    const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
+    for (const row of prevRows) {
+      const dow = new Date(prevYear, prevMonth - 1, row.day).getDay()
+      prevDowSales[dow] += row.sales
+    }
+    const dowGap = analyzeDowGap(
+      targetYear,
+      targetMonth,
+      prevYear,
+      prevMonth,
+      dailyAvgSales,
+      prevDowSales,
+    )
+
+    return {
+      current: currentSnapshot,
+      sameDow: sameDowSnapshot,
+      sameDate: sameDateSnapshot,
+      dowGap,
+      isReady: true,
+    } satisfies ComparisonContextData
+  }
+}
+
 // ── 内部結果型 ──
 
 /** useComparisonContextQuery の生結果（ComparisonContext と同型） */
@@ -113,76 +195,36 @@ export function useComparisonContextQuery(
   const prevFromKey = dateRangeToKeys(prevRange).fromKey
   const prevToKey = dateRangeToKeys(prevRange).toKey
 
-  const queryFn = useMemo(() => {
-    if (dataVersion === 0) return null
-
-    return async (c: AsyncDuckDBConnection) => {
-      // SQL: 当年月間 + 前年月間のデータを並列取得
-      const [curRows, prevRows, curInvConfigs] = await Promise.all([
-        queryStoreDaySummary(c, {
-          dateFrom: curFromKey,
-          dateTo: curToKey,
-          storeIds: storeIdArr,
-          isPrevYear: false,
-        }),
-        queryStoreDaySummary(c, {
-          dateFrom: prevFromKey,
-          dateTo: prevToKey,
-          storeIds: storeIdArr,
-          isPrevYear: true,
-        }),
-        queryInventoryConfigs(c, targetYear, targetMonth, storeIdArr),
-      ])
-
-      // JS: ドメイン計算
-      const curMetrics = calculateAllPeriodMetrics(curRows, curInvConfigs, defaultMarkupRate)
-      const prevMetrics = calculateAllPeriodMetrics(prevRows, new Map(), defaultMarkupRate)
-
-      // スナップショット構築
-      const currentSnapshot = toSnapshot(curMetrics, targetYear, targetMonth)
-      const sameDowSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
-      const sameDateSnapshot = toSnapshot(prevMetrics, prevYear, prevMonth)
-
-      // 曜日ギャップ分析 — 前年の曜日別合計売上を集計して渡す
-      const dailyAvgSales =
-        currentSnapshot.metrics.salesDays > 0
-          ? currentSnapshot.metrics.totalSales / currentSnapshot.metrics.salesDays
-          : 0
-      const prevDowSales = [0, 0, 0, 0, 0, 0, 0]
-      for (const row of prevRows) {
-        const dow = new Date(prevYear, prevMonth - 1, row.day).getDay()
-        prevDowSales[dow] += row.sales
-      }
-      const dowGap = analyzeDowGap(
-        targetYear,
-        targetMonth,
-        prevYear,
-        prevMonth,
-        dailyAvgSales,
-        prevDowSales,
-      )
-
-      return {
-        current: currentSnapshot,
-        sameDow: sameDowSnapshot,
-        sameDate: sameDateSnapshot,
-        dowGap,
-        isReady: true,
-      } satisfies ComparisonContextData
-    }
-  }, [
-    curFromKey,
-    curToKey,
-    prevFromKey,
-    prevToKey,
-    storeIdArr,
-    defaultMarkupRate,
-    targetYear,
-    targetMonth,
-    prevYear,
-    prevMonth,
-    dataVersion,
-  ])
+  const queryFn = useMemo(
+    () =>
+      dataVersion === 0
+        ? null
+        : createComparisonContextQueryFn({
+            curFromKey,
+            curToKey,
+            prevFromKey,
+            prevToKey,
+            storeIdArr,
+            defaultMarkupRate,
+            targetYear,
+            targetMonth,
+            prevYear,
+            prevMonth,
+          }),
+    [
+      curFromKey,
+      curToKey,
+      prevFromKey,
+      prevToKey,
+      storeIdArr,
+      defaultMarkupRate,
+      targetYear,
+      targetMonth,
+      prevYear,
+      prevMonth,
+      dataVersion,
+    ],
+  )
 
   return useAsyncQuery(conn, dataVersion, queryFn)
 }
