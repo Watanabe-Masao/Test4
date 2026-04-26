@@ -19,11 +19,15 @@
  * | B8  | 7 原則 ↔ AR-TAXONOMY-* rule mapping の網羅性違反            | 原則追加 / rule 追加で対応 mapping が漏れた                  |
  * | B9  | Interlock §2.1 と §2.2 の双方向整合違反                     | 片方だけ R/T 関係を更新して対称性が崩れた                    |
  * | B10 | Anchor Slice 三者一致違反                                | plan / Constitution / Origin Journal / Interlock の Anchor 不一致 |
+ * | B11 | Lifecycle state name 一貫性違反                            | 6 状態 (proposed→active→deprecated→sunsetting→retired→archived) のいずれか 1 文書だけ綴り変更 |
+ * | B12 | Promotion Gate L0-L6 名称一貫性違反                        | plan §OCS.5 と Constitution §6 で L レベル名が drift |
+ * | B13 | Review Window 文書構造の欠落                                | review-window.md の §1-§9 セクションのいずれかが消えた |
  *
  * 設計方針 (TSIG H1/H2 防御):
  * - 「section heading exists」だけの shallow check に留めない
  * - 文書間の **意味的整合性** (mapping / matrix / Anchor Slice 三者一致) を機械検証
  * - 片方向の link check ではなく **双方向の網羅性** を要求 (drift 検出)
+ * - 用語 / 状態 / Level 名の **token-level drift** も検出 (B11/B12)
  *
  * 本 guard は Phase 1 + Phase 2 Constitution の bootstrap が完了していることを保証する
  * **structural + semantic invariant** check。AR-TAXONOMY-* rule の active 化は
@@ -659,6 +663,169 @@ describe('Constitution Bootstrap Guard', () => {
             message: `${section} に Anchor T:kind ${tKind} が含まれない (4 文書間で不一致)`,
           })
         }
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // B11 / B12 / B13: 用語・状態・Level 名の token-level drift 検出
+  //
+  // 「Lifecycle 6 states」「Promotion Gate L0-L6」「Review Window 文書構造」など、
+  // 複数文書にまたがる固定 vocabulary が片方の文書だけ綴り変更で drift する
+  // パターンを検出する。typo / partial rename / 名称統一忘れの早期発見。
+  // ─────────────────────────────────────────────────────────────────────
+
+  it('B11: Lifecycle 6 states (proposed→active→deprecated→sunsetting→retired→archived) が 4 文書で一致', () => {
+    const REVIEW_WINDOW_PATH = 'references/03-guides/taxonomy-review-window.md'
+    const REVIEW_JOURNAL_PATH = 'references/02-status/taxonomy-review-journal.md'
+
+    const lifecycleStates = [
+      'proposed',
+      'active',
+      'deprecated',
+      'sunsetting',
+      'retired',
+      'archived',
+    ]
+
+    // Lifecycle 6 states are defined in plan §OCS.4 and referenced in:
+    // - Origin Journal (Lifecycle status field, R:unclassified entry)
+    // - Review Window (§6.1 OCS.4 Lifecycle)
+    // - Review Journal (§3 transition records)
+    const docs = [
+      { file: PLAN_PATH, section: '§OCS.4 Lifecycle State Machine（定義元）' },
+      { file: ORIGIN_JOURNAL_PATH, section: '§1 形式定義 + active タグ entry' },
+      { file: REVIEW_WINDOW_PATH, section: '§6.1 OCS.4 Lifecycle 接続' },
+      { file: REVIEW_JOURNAL_PATH, section: '§1/§3 Lifecycle transition 記録' },
+    ]
+
+    const violations: Violation[] = []
+    for (const { file, section } of docs) {
+      if (!fileExists(file)) {
+        violations.push({
+          id: 'B11',
+          file,
+          message: `Lifecycle states 検証対象 file が存在しない (B1 で検出されるはずだが念のため)`,
+        })
+        continue
+      }
+      const content = readFile(file)
+      const missing = lifecycleStates.filter((state) => {
+        // word-boundary check: avoid matching "actively" when looking for "active"
+        const wordBoundaryRegex = new RegExp(`\\b${state}\\b`)
+        return !wordBoundaryRegex.test(content)
+      })
+      if (missing.length > 0) {
+        violations.push({
+          id: 'B11',
+          file: `${file} ${section}`,
+          message: `Lifecycle states ${missing.join(' / ')} が文書内に出現しない (token-level drift / 4 文書 vocabulary 不一致)`,
+        })
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B12: Promotion Gate L0-L6 名称が plan §OCS.5 と Constitution §6 で一致', () => {
+    const violations: Violation[] = []
+
+    // Canonical Level names from Constitution §6 + plan §OCS.5
+    // L0 has no canonical name in source; we treat L1-L6 as the verifiable set.
+    const levelNames: Array<{ level: string; canonical: string }> = [
+      { level: 'L1', canonical: 'Registered' },
+      { level: 'L2', canonical: 'Origin-linked' },
+      { level: 'L3', canonical: 'Interlock-bound' },
+      { level: 'L4', canonical: 'Guarded' },
+      { level: 'L5', canonical: 'Coverage' }, // "Coverage 100%" / "Coverage" — substring check
+      { level: 'L6', canonical: 'Health-tracked' },
+    ]
+
+    const docs = [
+      { file: CONSTITUTION_PATH, section: '§6 Promotion Gate' },
+      { file: PLAN_PATH, section: '§OCS.5 Promotion Gate' },
+    ]
+
+    for (const { file, section } of docs) {
+      if (!fileExists(file)) continue
+      const content = readFile(file)
+      // Line-based check: a single line must contain both Lx token and the canonical name.
+      // Markdown table cells span across `|` separators within one line, so line-based
+      // matching is more robust than character-level regex (which gets cut off at `|`).
+      const lines = content.split('\n')
+      for (const { level, canonical } of levelNames) {
+        const found = lines.some((line) => {
+          const levelRegex = new RegExp(`\\b${level}\\b`)
+          return levelRegex.test(line) && line.includes(canonical)
+        })
+        if (!found) {
+          violations.push({
+            id: 'B12',
+            file: `${file} ${section}`,
+            message: `Promotion Gate ${level} の canonical 名 "${canonical}" が ${level} 行に見つからない (level 名 drift / plan ↔ Constitution 不一致)`,
+          })
+        }
+      }
+
+      // Also verify L0 exists with a recognizable description
+      // Constitution: "L0 | proposed only" / plan: "L0 | Not tracked"
+      // Both should at least mention L0 somewhere.
+      if (!/\bL0\b/.test(content)) {
+        violations.push({
+          id: 'B12',
+          file: `${file} ${section}`,
+          message: 'Promotion Gate L0 が文書内に出現しない',
+        })
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B13: Review Window 文書 (§1-§9) の構造完全性', () => {
+    const REVIEW_WINDOW_PATH = 'references/03-guides/taxonomy-review-window.md'
+    if (!fileExists(REVIEW_WINDOW_PATH)) {
+      // file doesn't exist — Phase 2 deliverable not yet landed
+      return
+    }
+    const content = readFile(REVIEW_WINDOW_PATH)
+    const violations: Violation[] = []
+
+    const requiredSections = [
+      { name: '§1 review window とは何か', pattern: /## 1\. review window とは何か/ },
+      { name: '§2 提案手順', pattern: /## 2\. 提案手順/ },
+      { name: '§2.3 AI による提案の制限', pattern: /### 2\.3\. AI による提案の制限/ },
+      { name: '§3 開催手順', pattern: /## 3\. 開催手順/ },
+      { name: '§4 判定基準', pattern: /## 4\. 判定基準/ },
+      { name: '§4.1 追加', pattern: /### 4\.1\. 追加/ },
+      { name: '§4.2 撤退', pattern: /### 4\.2\. 撤退/ },
+      { name: '§4.3 例外承認', pattern: /### 4\.3\. 例外承認/ },
+      { name: '§4.4 改訂', pattern: /### 4\.4\. 改訂/ },
+      { name: '§5 記録形式', pattern: /## 5\. 記録形式/ },
+      { name: '§6 OCS との接続', pattern: /## 6\. OCS との接続/ },
+      { name: '§6.1 OCS.4 Lifecycle', pattern: /### 6\.1\. OCS\.4 Lifecycle/ },
+      { name: '§6.2 OCS.8 Exception Policy', pattern: /### 6\.2\. OCS\.8 Exception Policy/ },
+      {
+        name: '§6.3 OCS.9 Human Review Boundary',
+        pattern: /### 6\.3\. OCS\.9 Human Review Boundary/,
+      },
+      { name: '§7 AI が review window 外で...', pattern: /## 7\. AI が review window 外/ },
+      { name: '§7.1 検出', pattern: /### 7\.1\. 検出/ },
+      { name: '§7.2 CI fail 時の AI 行動', pattern: /### 7\.2\. CI fail 時の AI 行動/ },
+      { name: '§7.3 レビュー時の reviewer 行動', pattern: /### 7\.3\. レビュー時の reviewer 行動/ },
+      { name: '§8 改訂手続き (メタ運用)', pattern: /## 8\. 改訂手続き/ },
+      { name: '§9 関連文書', pattern: /## 9\. 関連文書/ },
+    ]
+
+    for (const r of requiredSections) {
+      if (!r.pattern.test(content)) {
+        violations.push({
+          id: 'B13',
+          file: REVIEW_WINDOW_PATH,
+          message: `Review Window 必須セクション欠落: ${r.name}`,
+        })
       }
     }
 

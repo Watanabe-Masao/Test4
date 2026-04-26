@@ -6,15 +6,15 @@
 
 ## 7 不可侵原則（両軸共通）
 
-| # | 原則 | 短い意味 |
-|---|---|---|
-| 1 | **未分類は分類である** | `R:unclassified` / `T:unclassified` を能動タグとして扱う。タグなしは CI fail |
-| 2 | **1 タグ = 1 軸** | 責務 × 純粋性 × 層を 1 つのタグに押し込めない。軸ごとに別 namespace |
-| 3 | **語彙生成は高コスト儀式** | 新タグ追加は review window のみ。日常作業では `R:unclassified` に退避 |
-| 4 | **Tag ↔ Test は双方向契約** | タグが test obligation を発行し、test が tag contract を検証する |
-| 5 | **Origin は記録する** | 全タグに Why（導入理由）+ When（採択日）+ Who（採択者）+ Sunset 条件を持たせる |
-| 6 | **Antibody Pair を持つ** | 各タグは対概念タグと相互制約を持つ（例: `R:authoritative` ↔ `R:bridge`） |
-| 7 | **Cognitive Load Ceiling** | 1 人が把握できる語彙量を超えない（運用上限 = 15 前後） |
+| #   | 原則                        | 短い意味                                                                       |
+| --- | --------------------------- | ------------------------------------------------------------------------------ |
+| 1   | **未分類は分類である**      | `R:unclassified` / `T:unclassified` を能動タグとして扱う。タグなしは CI fail   |
+| 2   | **1 タグ = 1 軸**           | 責務 × 純粋性 × 層を 1 つのタグに押し込めない。軸ごとに別 namespace            |
+| 3   | **語彙生成は高コスト儀式**  | 新タグ追加は review window のみ。日常作業では `R:unclassified` に退避          |
+| 4   | **Tag ↔ Test は双方向契約** | タグが test obligation を発行し、test が tag contract を検証する               |
+| 5   | **Origin は記録する**       | 全タグに Why（導入理由）+ When（採択日）+ Who（採択者）+ Sunset 条件を持たせる |
+| 6   | **Antibody Pair を持つ**    | 各タグは対概念タグと相互制約を持つ（例: `R:authoritative` ↔ `R:bridge`）       |
+| 7   | **Cognitive Load Ceiling**  | 1 人が把握できる語彙量を超えない（運用上限 = 15 前後）                         |
 
 ### 原則の位相
 
@@ -31,16 +31,16 @@
 責務タグは **test obligation** を発行する。テストタグは **tag contract** を検証する。
 親の Phase 1 で以下のマトリクスを正本化する（値は子 Phase 0 で精査）:
 
-| R:tag | 必須 T:kind | 任意 T:kind | 備考 |
-|---|---|---|---|
-| `R:calculation` | `T:unit-numerical`, `T:boundary` | `T:invariant-math` | 数値的契約を持つため invariant を推奨 |
-| `R:bridge` | `T:contract-parity` | `T:fallback-path` | current ⇔ candidate 境界 |
-| `R:read-model` | `T:zod-contract`, `T:null-path` | — | parse fail fast + 欠損正常系 |
-| `R:guard` | `T:meta-guard` | `T:allowlist-integrity` | guard 自身の契約テスト |
-| `R:presentation` | `T:render-shape` | `T:side-effect-none` | 描画形状のみ検証 |
-| `R:store` | `T:state-transition` | — | state のみ保有するため |
-| `R:hook` | `T:dependency-list`, `T:unmount-path` | — | deps 完全性・unmount safety |
-| `R:unclassified` | なし（**T:unclassified** が対応） | — | review window 待ち |
+| R:tag            | 必須 T:kind                           | 任意 T:kind             | 備考                                  |
+| ---------------- | ------------------------------------- | ----------------------- | ------------------------------------- |
+| `R:calculation`  | `T:unit-numerical`, `T:boundary`      | `T:invariant-math`      | 数値的契約を持つため invariant を推奨 |
+| `R:bridge`       | `T:contract-parity`                   | `T:fallback-path`       | current ⇔ candidate 境界              |
+| `R:read-model`   | `T:zod-contract`, `T:null-path`       | —                       | parse fail fast + 欠損正常系          |
+| `R:guard`        | `T:meta-guard`                        | `T:allowlist-integrity` | guard 自身の契約テスト                |
+| `R:presentation` | `T:render-shape`                      | `T:side-effect-none`    | 描画形状のみ検証                      |
+| `R:store`        | `T:state-transition`                  | —                       | state のみ保有するため                |
+| `R:hook`         | `T:dependency-list`, `T:unmount-path` | —                       | deps 完全性・unmount safety           |
+| `R:unclassified` | なし（**T:unclassified** が対応）     | —                       | review window 待ち                    |
 
 - マトリクス未登録の組み合わせは guard で block
 - R:tag 追加は T:kind 追加と**同じ review window**で裁定する
@@ -50,16 +50,16 @@
 
 ## 8 昇華メカニズム（継続監視）
 
-| # | メカニズム | 正本 | 何を観測 |
-|---|---|---|---|
-| 1 | **Origin Journal** | `references/01-principles/taxonomy-origin-journal.md` | 全タグの Why/When/Who/Sunset |
-| 2 | **Antibody Pairs** | `taxonomy-pairs.json` | 対概念タグの相互制約 |
-| 3 | **Cognitive Load Ceiling** | health KPI | 語彙総数 ≤ 15（軸ごと） |
-| 4 | **Bidirectional Contract** | `taxonomy-interlock.json` | R ⇔ T マトリクス整合 |
-| 5 | **Entropy Monitoring** | health KPI | 未分類件数・未分類比率・タグ使用偏り |
-| 6 | **Review Journal** | `references/02-status/taxonomy-review-journal.md` | 各 review window の追加・撤退・却下記録 |
-| 7 | **AI Vocabulary Binding** | `CLAUDE.md` §taxonomy-binding | AI が新タグを勝手に作らない制約 |
-| 8 | **Constitution Bootstrap Test** | `constitutionBootstrapGuard.test.ts` | 7 原則ファイルの存在・参照整合 |
+| #   | メカニズム                      | 正本                                                  | 何を観測                                |
+| --- | ------------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| 1   | **Origin Journal**              | `references/01-principles/taxonomy-origin-journal.md` | 全タグの Why/When/Who/Sunset            |
+| 2   | **Antibody Pairs**              | `taxonomy-pairs.json`                                 | 対概念タグの相互制約                    |
+| 3   | **Cognitive Load Ceiling**      | health KPI                                            | 語彙総数 ≤ 15（軸ごと）                 |
+| 4   | **Bidirectional Contract**      | `taxonomy-interlock.json`                             | R ⇔ T マトリクス整合                    |
+| 5   | **Entropy Monitoring**          | health KPI                                            | 未分類件数・未分類比率・タグ使用偏り    |
+| 6   | **Review Journal**              | `references/02-status/taxonomy-review-journal.md`     | 各 review window の追加・撤退・却下記録 |
+| 7   | **AI Vocabulary Binding**       | `CLAUDE.md` §taxonomy-binding                         | AI が新タグを勝手に作らない制約         |
+| 8   | **Constitution Bootstrap Test** | `constitutionBootstrapGuard.test.ts`                  | 7 原則ファイルの存在・参照整合          |
 
 ---
 
@@ -70,6 +70,7 @@
 **目的:** 7 不可侵原則と interlock 仕様を固定する。子 project が実装を起動できる状態を必達。
 
 **成果物:**
+
 - `references/01-principles/taxonomy-constitution.md`（7 原則）
 - `references/01-principles/taxonomy-interlock.md`（R ⇔ T マトリクス仕様）
 - `references/01-principles/taxonomy-origin-journal.md`（初期記入: 現行 v1 の 20 タグ）
@@ -83,6 +84,7 @@
 **目的:** 語彙の追加・撤退・却下を扱う四半期 review window の運用を明文化する。
 
 **成果物:**
+
 - `references/03-guides/taxonomy-review-window.md`（手続き + 判定基準 + 記録形式）
 - `references/02-status/taxonomy-review-journal.md`（journal skeleton）
 - 同期 window ルール: 両軸の追加・撤退は同一 window で裁定
@@ -94,6 +96,7 @@
 **目的:** 両子 project の Phase 0 着手を承認し、並行進行を起動する。
 
 **成果物:**
+
 - 子 2 件の Phase 0 キックオフ承認記録
 - 共通 Inventory Schema（両軸が同じ CanonEntry 形を使う合意）
 
@@ -104,6 +107,7 @@
 **目的:** 制度成立 5 要件を満たし、親・子を archive する。
 
 **制度成立 5 要件:**
+
 1. 両子 Phase 9（Legacy Collection）完了
 2. health KPI: 未分類件数 ≤ baseline（両軸）+ 未分類比率 安定
 3. Cognitive Load Ceiling 維持（語彙 ≤ 15 / 軸）
@@ -127,14 +131,14 @@
 
 ## 関連実装
 
-| パス | 役割 |
-|---|---|
-| `app/src/test/responsibilityTagRegistry.ts` | 現行 v1 正本（子で v2 に拡張） |
-| `app/src/test/guards/responsibilityTagGuard.test.ts` | 現行 v1 guard |
-| `app/src/test/guards/testSignalIntegrityGuard.test.ts` | 現行 TSIG（v2 でタグ認識化） |
-| `projects/responsibility-taxonomy-v2/` | 子: 責務軸（Phase 0-9） |
-| `projects/test-taxonomy-v2/` | 子: テスト軸（Phase 0-9） |
-| `projects/pure-calculation-reorg/` | 姉妹 project（同じ制度化フレーム） |
+| パス                                                   | 役割                               |
+| ------------------------------------------------------ | ---------------------------------- |
+| `app/src/test/responsibilityTagRegistry.ts`            | 現行 v1 正本（子で v2 に拡張）     |
+| `app/src/test/guards/responsibilityTagGuard.test.ts`   | 現行 v1 guard                      |
+| `app/src/test/guards/testSignalIntegrityGuard.test.ts` | 現行 TSIG（v2 でタグ認識化）       |
+| `projects/responsibility-taxonomy-v2/`                 | 子: 責務軸（Phase 0-9）            |
+| `projects/test-taxonomy-v2/`                           | 子: テスト軸（Phase 0-9）          |
+| `projects/pure-calculation-reorg/`                     | 姉妹 project（同じ制度化フレーム） |
 
 ---
 
@@ -148,11 +152,11 @@
 
 ### §OCS.1. 3 種類の正しさを分離する
 
-| 正しさの種類 | 保証する仕組み | taxonomy-v2 系が触るか |
-|---|---|---|
-| **State Correctness** — registry と実装ファイルのタグが一致 | registry / inventory / co-change guard | **触る（子の Phase 3 + 6 が保証主体）** |
+| 正しさの種類                                                        | 保証する仕組み                                                  | taxonomy-v2 系が触るか                     |
+| ------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------ |
+| **State Correctness** — registry と実装ファイルのタグが一致         | registry / inventory / co-change guard                          | **触る（子の Phase 3 + 6 が保証主体）**    |
 | **Constitutional Correctness** — タグが 7 原則 + Interlock を満たす | constitutionBootstrapGuard / interlock guard / vocabulary guard | **触る（親 Phase 1 + 子 Phase 3 で確定）** |
-| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当 | review window / Origin Journal / 人間承認 | 触らない（review window 経路で別管理） |
+| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当     | review window / Origin Journal / 人間承認                       | 触らない（review window 経路で別管理）     |
 
 **運用ルール**: 親 Constitution + 子 Schema + 各 R/T tag spec の冒頭にこの 3 層分離を明記する。
 
@@ -172,14 +176,14 @@ evidence:
     - <T:unit-numerical を満たす test>
 ```
 
-| Level | 意味 | 運用 |
-|---|---|---|
-| `generated` | registry から機械生成された事実 | **最強**。CI で保証 |
-| `tested` | T:kind obligation が満たされている | Interlock 保証 |
-| `guarded` | guard で違反が検出される | 構造保証 |
-| `reviewed` | review window で承認済 | Decision の証跡 |
-| `asserted` | Origin Journal にだけ記載 | 許すが high-risk では禁止 |
-| `unknown` | 根拠不明 | 原則 5 違反、禁止 |
+| Level       | 意味                               | 運用                      |
+| ----------- | ---------------------------------- | ------------------------- |
+| `generated` | registry から機械生成された事実    | **最強**。CI で保証       |
+| `tested`    | T:kind obligation が満たされている | Interlock 保証            |
+| `guarded`   | guard で違反が検出される           | 構造保証                  |
+| `reviewed`  | review window で承認済             | Decision の証跡           |
+| `asserted`  | Origin Journal にだけ記載          | 許すが high-risk では禁止 |
+| `unknown`   | 根拠不明                           | 原則 5 違反、禁止         |
 
 **high-risk tag の判定基準**（`asserted` 禁止対象）:
 
@@ -196,15 +200,15 @@ npm run taxonomy:impact -- --base main --head HEAD      # PR レビュー用
 
 `taxonomy:check` の hard fail 条件（仕様正本）:
 
-| 条件 | 対応 AR rule |
-|---|---|
-| 未登録タグの検出 | `AR-TAXONOMY-KNOWN-VOCABULARY` |
-| タグなしの検出（`R:unclassified` / `T:unclassified` は許可） | `AR-TAXONOMY-NO-UNTAGGED` |
-| R:tag に対応する required T:kind の欠落 | `AR-TAXONOMY-INTERLOCK` |
-| Origin metadata 欠落 | `AR-TAXONOMY-ORIGIN-REQUIRED` |
-| review window 外の新タグ追加 | `AR-TAXONOMY-AI-VOCABULARY-BINDING` |
-| 1 タグに複数軸混在 | `AR-TAXONOMY-ONE-TAG-ONE-AXIS` |
-| Cognitive Load Ceiling 超過 | `AR-TAXONOMY-COGNITIVE-LOAD` |
+| 条件                                                         | 対応 AR rule                        |
+| ------------------------------------------------------------ | ----------------------------------- |
+| 未登録タグの検出                                             | `AR-TAXONOMY-KNOWN-VOCABULARY`      |
+| タグなしの検出（`R:unclassified` / `T:unclassified` は許可） | `AR-TAXONOMY-NO-UNTAGGED`           |
+| R:tag に対応する required T:kind の欠落                      | `AR-TAXONOMY-INTERLOCK`             |
+| Origin metadata 欠落                                         | `AR-TAXONOMY-ORIGIN-REQUIRED`       |
+| review window 外の新タグ追加                                 | `AR-TAXONOMY-AI-VOCABULARY-BINDING` |
+| 1 タグに複数軸混在                                           | `AR-TAXONOMY-ONE-TAG-ONE-AXIS`      |
+| Cognitive Load Ceiling 超過                                  | `AR-TAXONOMY-COGNITIVE-LOAD`        |
 
 `taxonomy:impact` 出力例:
 
@@ -238,14 +242,14 @@ Result:
 proposed → active → deprecated → sunsetting → retired → archived
 ```
 
-| 状態 | 意味 | review window で必要な記録 |
-|---|---|---|
-| `proposed` | review window で提案中 | Why / When / Who（提案者） |
-| `active` | 採択済、現役 | 採択日 + 採択 window 番号 |
-| `deprecated` | 新規使用禁止、既存 consumer あり | `replacedBy` 必須 |
-| `sunsetting` | consumer 撤退中、期限あり | `sunsetCondition` + `deadline` 必須 |
-| `retired` | source 削除済、ID は欠番保持 | retired 日 + 撤退 window 番号 |
-| `archived` | 歴史参照のみ | — |
+| 状態         | 意味                             | review window で必要な記録          |
+| ------------ | -------------------------------- | ----------------------------------- |
+| `proposed`   | review window で提案中           | Why / When / Who（提案者）          |
+| `active`     | 採択済、現役                     | 採択日 + 採択 window 番号           |
+| `deprecated` | 新規使用禁止、既存 consumer あり | `replacedBy` 必須                   |
+| `sunsetting` | consumer 撤退中、期限あり        | `sunsetCondition` + `deadline` 必須 |
+| `retired`    | source 削除済、ID は欠番保持     | retired 日 + 撤退 window 番号       |
+| `archived`   | 歴史参照のみ                     | —                                   |
 
 **guard で守ること**（`AR-TAXONOMY-LIFECYCLE`、後続案）:
 
@@ -262,15 +266,17 @@ proposed → active → deprecated → sunsetting → retired → archived
 
 タグの運用成熟度を Level で表現する。新タグは L0 から始まり、review window 経由で昇格する。
 
-| Level | 条件 |
-|---|---|
-| **L0** | proposed only（registry 登録なし） |
-| **L1** | registry 登録済（vocabulary）|
-| **L2** | Origin Journal に Why/When/Who 記録（Origin-linked）|
-| **L3** | Interlock マトリクスに required T:kind 登録（Interlock-bound）|
-| **L4** | guard で違反検出可（Guarded）|
-| **L5** | 全対象ファイルに付与済（Coverage 100%）|
-| **L6** | architecture-health KPI に入っている（Health-tracked）|
+| Level  | 条件                                                             |
+| ------ | ---------------------------------------------------------------- |
+| **L0** | Not tracked（提案 only、registry 登録なし）                      |
+| **L1** | Registered（registry 登録済）                                    |
+| **L2** | Origin-linked（Origin Journal に Why/When/Who 記録済）           |
+| **L3** | Interlock-bound（Interlock マトリクスに required T:kind 登録済） |
+| **L4** | Guarded（guard で違反検出可）                                    |
+| **L5** | Coverage 100%（全対象ファイルに付与済）                          |
+| **L6** | Health-tracked（architecture-health KPI に入っている）           |
+
+> **canonical 名**: 各 Level の英語名 (`Not tracked` / `Registered` / `Origin-linked` / `Interlock-bound` / `Guarded` / `Coverage` / `Health-tracked`) は **Constitution §6 と本節で同一**。drift は `constitutionBootstrapGuard.test.ts` B12 が機械検証する。
 
 **Phase 別到達目標**:
 
@@ -310,15 +316,15 @@ proposed → active → deprecated → sunsetting → retired → archived
 }
 ```
 
-| 指標 | 推奨 budget | 理由 |
-|---|---|---|
-| `untagged`（responsibility / test 両軸） | 0 | 原則 1: 未分類は能動タグ、タグなしは禁止 |
-| `unknownVocabulary` | 0 | 原則 3: 語彙生成は儀式、ad-hoc 追加禁止 |
-| `missingOrigin` | 0 | 原則 5: Origin は記録する |
-| `vocabularyCount.ceiling` | 15 / 軸 | 原則 7: Cognitive Load Ceiling |
-| `interlock.violations` | 0 | 原則 4: 双方向契約 |
-| `reviewWindow.outOfWindowAdditions` | 0 | 原則 3 + 8 昇華メカニズム #7 |
-| `reviewWindow.expiredProposals` | 一時 budget 可 | review window 開催遅延の許容 |
+| 指標                                     | 推奨 budget    | 理由                                     |
+| ---------------------------------------- | -------------- | ---------------------------------------- |
+| `untagged`（responsibility / test 両軸） | 0              | 原則 1: 未分類は能動タグ、タグなしは禁止 |
+| `unknownVocabulary`                      | 0              | 原則 3: 語彙生成は儀式、ad-hoc 追加禁止  |
+| `missingOrigin`                          | 0              | 原則 5: Origin は記録する                |
+| `vocabularyCount.ceiling`                | 15 / 軸        | 原則 7: Cognitive Load Ceiling           |
+| `interlock.violations`                   | 0              | 原則 4: 双方向契約                       |
+| `reviewWindow.outOfWindowAdditions`      | 0              | 原則 3 + 8 昇華メカニズム #7             |
+| `reviewWindow.expiredProposals`          | 一時 budget 可 | review window 開催遅延の許容             |
 
 子 Phase 3 で baseline 計測 → Phase 6 で 0 到達 → 親 Phase 4 で health KPI へ反映。
 
@@ -328,13 +334,13 @@ proposed → active → deprecated → sunsetting → retired → archived
 
 **Anchor Slice 5 R:tag**（責務軸）:
 
-| R:tag | 選定理由 |
-|---|---|
-| `R:calculation` | 数値契約 + invariant、test obligation が明確 |
-| `R:bridge` | current ⇔ candidate 境界、Antibody Pair 顕著 |
-| `R:read-model` | parse fail fast + 欠損正常系、Zod contract 顕著 |
-| `R:guard` | meta-guard 必要、自己契約の archetype |
-| `R:presentation` | 描画形状のみ、side-effect-none 顕著 |
+| R:tag            | 選定理由                                        |
+| ---------------- | ----------------------------------------------- |
+| `R:calculation`  | 数値契約 + invariant、test obligation が明確    |
+| `R:bridge`       | current ⇔ candidate 境界、Antibody Pair 顕著    |
+| `R:read-model`   | parse fail fast + 欠損正常系、Zod contract 顕著 |
+| `R:guard`        | meta-guard 必要、自己契約の archetype           |
+| `R:presentation` | 描画形状のみ、side-effect-none 顕著             |
 
 **対応 T:kind 6 件**（テスト軸、Interlock マトリクス上の required）:
 
@@ -347,11 +353,11 @@ proposed → active → deprecated → sunsetting → retired → archived
 
 **absorption の段階**:
 
-| 段階 | 子 Phase | 何が起きるか |
-|---|---|---|
-| 1: Anchor 着手 | responsibility-Phase 3 + test-Phase 3 | Anchor 5+6 のみで guard active 化、保証経路完成 |
-| 2: 全 vocabulary 拡大 | 両子 Phase 6 | 残全 R:tag / T:kind に対象拡大 |
-| 3: Health KPI 接続 | 親 Phase 4 | taxonomy-health.json + architecture-health 統合 |
+| 段階                  | 子 Phase                              | 何が起きるか                                    |
+| --------------------- | ------------------------------------- | ----------------------------------------------- |
+| 1: Anchor 着手        | responsibility-Phase 3 + test-Phase 3 | Anchor 5+6 のみで guard active 化、保証経路完成 |
+| 2: 全 vocabulary 拡大 | 両子 Phase 6                          | 残全 R:tag / T:kind に対象拡大                  |
+| 3: Health KPI 接続    | 親 Phase 4                            | taxonomy-health.json + architecture-health 統合 |
 
 > **目的**: Anchor Slice の目的は「対象網羅」ではなく **「保証経路完成」**。
 > 5 R:tag + 6 T:kind で Constitution → registry → guard → CI → health KPI の
@@ -384,7 +390,7 @@ exceptions:
 - 既存タグの retirement（active → deprecated）
 - Antibody Pair の組み換え
 - Cognitive Load Ceiling の引き上げ
-- AR-TAXONOMY-* rule baseline の緩和
+- AR-TAXONOMY-\* rule baseline の緩和
 - Lifecycle 状態遷移（active → deprecated 等）
 
 #### review window 不要（自動承認）
@@ -396,12 +402,12 @@ exceptions:
 
 ### §OCS.10. 4 ループの Operational Model
 
-| ループ | 構成 | 担う品質 |
-|---|---|---|
-| **Capture Loop** | source → registry → inventory → graph | State Correctness |
-| **Verification Loop** | guard → test obligation → CI | Constitutional + Interlock |
-| **Change Loop** | taxonomy:impact → review window → merge | Decision の証跡 |
-| **Governance Loop** | Origin Journal → Cognitive Load → health KPI | 長期運用の制御 |
+| ループ                | 構成                                         | 担う品質                   |
+| --------------------- | -------------------------------------------- | -------------------------- |
+| **Capture Loop**      | source → registry → inventory → graph        | State Correctness          |
+| **Verification Loop** | guard → test obligation → CI                 | Constitutional + Interlock |
+| **Change Loop**       | taxonomy:impact → review window → merge      | Decision の証跡            |
+| **Governance Loop**   | Origin Journal → Cognitive Load → health KPI | 長期運用の制御             |
 
 この 4 ループが回ると、taxonomy-v2 は「制度文書」から
 **継続稼働する運用制御システム** に昇華する。
@@ -410,34 +416,34 @@ exceptions:
 
 親 Phase 1〜4 + 子 Phase 0〜9 の各 dimension への対応:
 
-| 親 Phase | 主に活性化する OCS dimension |
-|---|---|
-| **親 Phase 1: Constitution** | §OCS.1（3 層分離）/ §OCS.2 Evidence Level skeleton / §OCS.3 仕様明文化 / §OCS.5 L0-L2 定義 |
-| **親 Phase 2: Review Window** | §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary |
-| **親 Phase 3: 子立ち上げ** | §OCS.7 children absorption（Anchor Slice 確定）/ §OCS.5 baseline 約束 |
-| **親 Phase 4: 制度成立** | §OCS.5 L6 到達 / §OCS.6 Drift Budget / §OCS.10 4 ループ稼働 |
-| **子 responsibility Phase 3 / test Phase 3** | §OCS.5 L3-L4 到達（Anchor Slice）/ §OCS.10 Capture + Verification |
-| **子 両 Phase 5 Operations** | §OCS.3 taxonomy:impact / §OCS.10 Change Loop |
-| **子 両 Phase 6 Migration Rollout** | §OCS.5 L5 到達（Coverage 100%） |
-| **子 両 Phase 7-9 Deprecation/Retirement/Legacy** | §OCS.4 Lifecycle 適用 / §OCS.8 Exception 撤退 |
+| 親 Phase                                          | 主に活性化する OCS dimension                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **親 Phase 1: Constitution**                      | §OCS.1（3 層分離）/ §OCS.2 Evidence Level skeleton / §OCS.3 仕様明文化 / §OCS.5 L0-L2 定義 |
+| **親 Phase 2: Review Window**                     | §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary                  |
+| **親 Phase 3: 子立ち上げ**                        | §OCS.7 children absorption（Anchor Slice 確定）/ §OCS.5 baseline 約束                      |
+| **親 Phase 4: 制度成立**                          | §OCS.5 L6 到達 / §OCS.6 Drift Budget / §OCS.10 4 ループ稼働                                |
+| **子 responsibility Phase 3 / test Phase 3**      | §OCS.5 L3-L4 到達（Anchor Slice）/ §OCS.10 Capture + Verification                          |
+| **子 両 Phase 5 Operations**                      | §OCS.3 taxonomy:impact / §OCS.10 Change Loop                                               |
+| **子 両 Phase 6 Migration Rollout**               | §OCS.5 L5 到達（Coverage 100%）                                                            |
+| **子 両 Phase 7-9 Deprecation/Retirement/Legacy** | §OCS.4 Lifecycle 適用 / §OCS.8 Exception 撤退                                              |
 
 ---
 
-## AR-TAXONOMY-* rule 仕様（仕様正本）
+## AR-TAXONOMY-\* rule 仕様（仕様正本）
 
 > **位置付け**: 本 § は親 plan が **rule 名 + 受け入れ条件**を確定する。registry 登録 + active 化は子 Phase 3（Guard 実装）が担う（実装は子）。
 >
 > 7 件は Constitution + Interlock + Operational Control System のすべての契約を機械検証する。
 
-| AR rule ID | 検証内容 | hard fail 条件 | 関連原則 / OCS |
-|---|---|---|---|
-| `AR-TAXONOMY-NO-UNTAGGED` | タグなしを禁止（`R:unclassified` / `T:unclassified` は許可） | 対象 file が R:* または T:* タグを持たない | 原則 1 |
-| `AR-TAXONOMY-KNOWN-VOCABULARY` | registry 未登録タグを禁止 | 対象 file が registry に存在しない R:* / T:* を使用 | 原則 3 |
-| `AR-TAXONOMY-ONE-TAG-ONE-AXIS` | 責務 × 純粋性 × 層を 1 タグに混在させない | タグが複数 namespace（R:* / P:* / L:* 等）を含む | 原則 2 |
-| `AR-TAXONOMY-INTERLOCK` | R:tag に対応する required T:kind が存在 | 対象 file が R:tag を持つが Interlock 上の required T:kind を持つ test がない | 原則 4 |
-| `AR-TAXONOMY-ORIGIN-REQUIRED` | Why / When / Who / Sunset 条件の欠落を禁止 | registry entry に origin metadata が欠落 | 原則 5 |
-| `AR-TAXONOMY-COGNITIVE-LOAD` | 軸ごとの語彙数が上限を超えたら fail または review required | registry の R:* または T:* が 15 を超過 | 原則 7 |
-| `AR-TAXONOMY-AI-VOCABULARY-BINDING` | review window 外の新タグ追加を block | git diff で新タグ追加が検出され、対応 review window record がない | 原則 3 + 8 昇華メカニズム #7 |
+| AR rule ID                          | 検証内容                                                     | hard fail 条件                                                                | 関連原則 / OCS               |
+| ----------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------- | ---------------------------- |
+| `AR-TAXONOMY-NO-UNTAGGED`           | タグなしを禁止（`R:unclassified` / `T:unclassified` は許可） | 対象 file が R:_ または T:_ タグを持たない                                    | 原則 1                       |
+| `AR-TAXONOMY-KNOWN-VOCABULARY`      | registry 未登録タグを禁止                                    | 対象 file が registry に存在しない R:_ / T:_ を使用                           | 原則 3                       |
+| `AR-TAXONOMY-ONE-TAG-ONE-AXIS`      | 責務 × 純粋性 × 層を 1 タグに混在させない                    | タグが複数 namespace（R:_ / P:_ / L:\* 等）を含む                             | 原則 2                       |
+| `AR-TAXONOMY-INTERLOCK`             | R:tag に対応する required T:kind が存在                      | 対象 file が R:tag を持つが Interlock 上の required T:kind を持つ test がない | 原則 4                       |
+| `AR-TAXONOMY-ORIGIN-REQUIRED`       | Why / When / Who / Sunset 条件の欠落を禁止                   | registry entry に origin metadata が欠落                                      | 原則 5                       |
+| `AR-TAXONOMY-COGNITIVE-LOAD`        | 軸ごとの語彙数が上限を超えたら fail または review required   | registry の R:_ または T:_ が 15 を超過                                       | 原則 7                       |
+| `AR-TAXONOMY-AI-VOCABULARY-BINDING` | review window 外の新タグ追加を block                         | git diff で新タグ追加が検出され、対応 review window record がない             | 原則 3 + 8 昇華メカニズム #7 |
 
 **baseline 戦略**: 子 Phase 3 で baseline=current 値で追加 → Phase 6 / 親 Phase 4 で 0 到達。
 ratchet-down のみ許可、増加方向に戻さない。
@@ -461,7 +467,15 @@ ratchet-down のみ許可、増加方向に戻さない。
       "unknownVocabulary": 0,
       "missingOrigin": 0,
       "vocabularyCount": 0,
-      "promotionLevel": { "L0": 0, "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 0, "L6": 0 }
+      "promotionLevel": {
+        "L0": 0,
+        "L1": 0,
+        "L2": 0,
+        "L3": 0,
+        "L4": 0,
+        "L5": 0,
+        "L6": 0
+      }
     },
     "test": {
       "totalTargets": 0,
@@ -471,7 +485,15 @@ ratchet-down のみ許可、増加方向に戻さない。
       "unknownVocabulary": 0,
       "missingOrigin": 0,
       "vocabularyCount": 0,
-      "promotionLevel": { "L0": 0, "L1": 0, "L2": 0, "L3": 0, "L4": 0, "L5": 0, "L6": 0 }
+      "promotionLevel": {
+        "L0": 0,
+        "L1": 0,
+        "L2": 0,
+        "L3": 0,
+        "L4": 0,
+        "L5": 0,
+        "L6": 0
+      }
     },
     "interlock": {
       "requiredObligations": 0,

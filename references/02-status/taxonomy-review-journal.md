@@ -20,7 +20,24 @@
 - **却下（rejected）**: 採択不可、却下理由を記録
 - **例外承認（granted exception）**: TXE-NNN 例外（plan §OCS.8）の承認記録
 
-形式の詳細は `references/03-guides/taxonomy-review-window.md` §5「記録形式」を参照。
+### Lifecycle 遷移の記録範囲
+
+タグの 6 状態 Lifecycle 遷移（plan §OCS.4 / Constitution）は本 journal が記録する:
+
+```text
+proposed → active → deprecated → sunsetting → retired → archived
+```
+
+| 遷移                                                        | window 記録対象? | 形式                               |
+| ----------------------------------------------------------- | ---------------- | ---------------------------------- |
+| `proposed` 状態の宣言（採択候補として journal §2.1 に登録） | **必須**         | §2.1 提案中 entry                  |
+| `proposed` → `active`（採択）                               | **必須**         | §3 採択 entry（採択日 + 採択者）   |
+| `active` → `deprecated`（撤退提案採択）                     | **必須**         | §3 採択 entry（種別=撤退）         |
+| `deprecated` → `sunsetting`                                 | 不要（自動）     | `sunsetCondition` の期限到達で自動 |
+| `sunsetting` → `retired`                                    | 不要（自動）     | consumer 0 件到達で自動            |
+| `retired` → `archived`                                      | 不要（自動）     | 一定期間後                         |
+
+形式の詳細は `references/03-guides/taxonomy-review-window.md` §5「記録形式」+ §6.1「OCS.4 Lifecycle State Machine」を参照。
 
 ## 2. 次回 window（提案受付中）
 
