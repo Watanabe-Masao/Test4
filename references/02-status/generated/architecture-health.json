@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T07:37:50.664Z",
+  "timestamp": "2026-04-26T07:41:24.168Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -557,9 +557,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -757,7 +757,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 9,
+      "value": 8,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -797,7 +797,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -805,7 +805,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 21,
+      "value": 22,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -863,14 +863,14 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 8,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -910,7 +910,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -958,7 +958,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 10
     },
@@ -1006,7 +1006,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
@@ -1053,7 +1053,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
@@ -1100,7 +1100,7 @@
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
         "projects/completed/widget-context-boundary/checklist.md",
-        "projects/widget-registry-simplification/checklist.md"
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
@@ -1143,9 +1143,9 @@
   ],
   "summary": {
     "totalKpis": 44,
-    "ok": 43,
+    "ok": 44,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }

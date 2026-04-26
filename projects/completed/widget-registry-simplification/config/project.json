@@ -1,10 +1,10 @@
 {
-  "$comment": "architecture-debt-recovery umbrella の Lane B sub-project。widget registry の simplification（二重 null check 解消 / full ctx passthrough を明示 props 化 / IIFE を readModel selector 抽出 / inline JSX 解消）。parent: architecture-debt-recovery。2026-04-26 Wave 2 で spawn（SP-A completed で起動条件解除）。",
+  "$comment": "architecture-debt-recovery umbrella の Lane B sub-project。widget registry の simplification（二重 null check 解消 / full ctx passthrough を明示 props 化 / IIFE を readModel selector 抽出 / inline function & palette refs 解消）。parent: architecture-debt-recovery。2026-04-26 Wave 2 で spawn（SP-A completed で起動条件解除）、同日 Phase 5 sub-project completion で archive（4 ADR × 4 step 完遂、4 guard fixed mode、LEG-009 sunset）。",
   "projectId": "widget-registry-simplification",
   "title": "widget registry 簡素化（SP-B）",
-  "status": "active",
+  "status": "completed",
   "parent": "architecture-debt-recovery",
-  "projectRoot": "projects/widget-registry-simplification",
+  "projectRoot": "projects/completed/widget-registry-simplification",
   "projectization": {
     "$comment": "AAG-COA Level 3。registry 行の改修が複数 widget に及ぶため Medium-Large。breakingChange なし（registry 内部改修、消費者 API 不変）。requiresGuard true（4 ADR 全てが新 guard を伴う ratchet-down 運用）。",
     "level": 3,
@@ -26,10 +26,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/widget-registry-simplification/AI_CONTEXT.md",
-    "handoff": "projects/widget-registry-simplification/HANDOFF.md",
-    "plan": "projects/widget-registry-simplification/plan.md",
-    "checklist": "projects/widget-registry-simplification/checklist.md",
-    "projectization": "projects/widget-registry-simplification/projectization.md"
+    "aiContext": "projects/completed/widget-registry-simplification/AI_CONTEXT.md",
+    "handoff": "projects/completed/widget-registry-simplification/HANDOFF.md",
+    "plan": "projects/completed/widget-registry-simplification/plan.md",
+    "checklist": "projects/completed/widget-registry-simplification/checklist.md",
+    "projectization": "projects/completed/widget-registry-simplification/projectization.md"
   }
 }

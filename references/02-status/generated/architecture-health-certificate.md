@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-04-26T07:37:50.664Z |
+| **総合評価** | **Healthy** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-04-26T07:41:24.168Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 - PASS: Required Reads マップ broken link 数
 - PASS: review overdue ルール数
 - PASS: checklist 完了済みだが archive 未実施の project 数
@@ -35,24 +35,16 @@
 | **性能** | OK | JS バンドル合計サイズ: 6601/7000 / メインバンドルサイズ: 2387/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 148/92 / sunsetCondition 設定済みルール数: 17/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
-| **Project Governance** | OK | active project 数（archive 未実施を含む）: 9/20 / in_progress な project 数（open required checkbox あり）: 8/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 21/100 |
-
-## Top Risks
-
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
+| **Project Governance** | OK | active project 数（archive 未実施を含む）: 8/20 (-1) / in_progress な project 数（open required checkbox あり）: 7/20 (-1) / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 22/100 (+1) |
 
 ## Recent Changes
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| 全 project の checked checkbox 総数 | 637 | 640 | +3 ! |
-
-## Recommended Actions
-
-1. Doc 更新義務違反数 を budget 0 以下に修正する
+| archived project 数（projects/completed/ 配下） | 21 | 22 | +1 ! |
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
+| active project 数（archive 未実施を含む） | 9 | 8 | -1 + |
+| in_progress な project 数（open required checkbox あり） | 8 | 7 | -1 + |
 
 ---
 

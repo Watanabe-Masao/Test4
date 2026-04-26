@@ -3,15 +3,15 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-26T07:37:50.667Z
+> 生成: 2026-04-26T07:41:24.172Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 9 |
-| archived project 数 | 21 |
-| in_progress project 数 | 8 |
+| active project 数（archive 未実施を含む） | 8 |
+| archived project 数 | 22 |
+| in_progress project 数 | 7 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
@@ -51,4 +51,4 @@
 | `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/41 (0%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
 | `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **archived** | — | 57/57 (100%) | [`projects/completed/unify-period-analysis/AI_CONTEXT.md`](../../../projects/completed/unify-period-analysis/AI_CONTEXT.md) |
 | `widget-context-boundary` | widget / ctx 型境界再構築（SP-A） | **archived** | `architecture-debt-recovery` | 24/33 (73%) | [`projects/completed/widget-context-boundary/AI_CONTEXT.md`](../../../projects/completed/widget-context-boundary/AI_CONTEXT.md) |
-| `widget-registry-simplification` | widget registry 簡素化（SP-B） | **in_progress** | `architecture-debt-recovery` | 16/22 (73%) | [`projects/widget-registry-simplification/AI_CONTEXT.md`](../../../projects/widget-registry-simplification/AI_CONTEXT.md) |
+| `widget-registry-simplification` | widget registry 簡素化（SP-B） | **archived** | `architecture-debt-recovery` | 16/22 (73%) | [`projects/completed/widget-registry-simplification/AI_CONTEXT.md`](../../../projects/completed/widget-registry-simplification/AI_CONTEXT.md) |
