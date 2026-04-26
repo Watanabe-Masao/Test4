@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T23:55:17.289Z",
+  "timestamp": "2026-04-26T01:07:48.743Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 93,
+      "value": 94,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -355,6 +355,7 @@
         "app/src/test/guards/unifiedWidgetContextNoDashboardSpecificGuard.test.ts",
         "app/src/test/guards/unifiedWidgetContextNoPageLocalOptionalGuard.test.ts",
         "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
+        "app/src/test/guards/userPromptSubmitHookGuard.test.ts",
         "app/src/test/guards/versionSyncGuard.test.ts",
         "app/src/test/guards/wasmCrateStructureGuard.test.ts",
         "app/src/test/guards/weatherCorrelationProjectionGuard.test.ts"
@@ -477,7 +478,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6601,
+      "value": 6602,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -498,7 +499,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2387,
+      "value": 2388,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",

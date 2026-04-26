@@ -73,6 +73,7 @@
 | `app/src/test/guards/testContractGuard.test.ts` | documentation-steward | 7件 | CLAUDE.md テスト契約整合（test-contract.json 宣言と CLAUDE.md 内容の双方向検証 — tokens / dynamicSource / sections / pairs / source 実在 / 既存 guard 要求の宣言整合） |
 | `app/src/test/guards/scopeJsonGuard.test.ts` | documentation-steward | 6件 | ロールスコープ宣言整合（roles/<role>/scope.json の存在・必須フィールド・role/ディレクトリ名一致・owns/out_of_scope_warn の path 実在・両者の排他性 — 越境検出を exhortation から mechanism に昇格） |
 | `app/src/test/guards/manifestGuard.test.ts` | documentation-steward | 6件 | AI Single Entry Manifest 整合（.claude/manifest.json の必須フィールド・canonicalSources 全実在・scopeDeclarations と roles/ の双方向一致・pathTriggers source/symbol 検証・lifecycle 自己参照） |
+| `app/src/test/guards/userPromptSubmitHookGuard.test.ts` | documentation-steward | 5件 | UserPromptSubmit hook 整合（.claude/hooks/user-prompt-submit.sh の存在・実行可能性・manifest 参照・fail-open 設計・settings.json への登録 — Phase 2: hint-only context 注入の mechanism 化） |
 | `app/src/application/readModels/grossProfit/calculateGrossProfit.test.ts` | invariant-guardian | 15件 | 粗利4種計算（在庫法×2・推定法×2・Zod契約・フォールバック・StoreResult互換） |
 | `app/src/application/readModels/salesFact/readSalesFact.test.ts` | invariant-guardian | 8件 | 売上ファクト正本（Zod parse・grand合計不変条件・導出ヘルパー4種） |
 | `app/src/application/readModels/discountFact/readDiscountFact.test.ts` | invariant-guardian | 7件 | 値引きファクト正本（Zod parse・grand合計・71-74内訳・導出ヘルパー3種） |
