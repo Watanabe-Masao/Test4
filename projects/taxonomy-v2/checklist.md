@@ -24,7 +24,7 @@
 * [x] §OCS.10 4-Loop Operational Model（Capture / Verification / Change / Governance）が Constitution の運用節に追記されている
 * [ ] 既存 v1 の 20 タグが §OCS.5 Level 2（Origin-linked）到達済
 
-### AR-TAXONOMY-* rule 仕様確定（active 化は子 Phase 3）
+### AR-TAXONOMY-\* rule 仕様確定（active 化は子 Phase 3）
 
 * [x] `AR-TAXONOMY-NO-UNTAGGED` の rule ID + 受け入れ条件が Constitution と plan.md で相互参照されている
 * [x] `AR-TAXONOMY-KNOWN-VOCABULARY` の rule ID + 受け入れ条件が確定している
@@ -60,21 +60,21 @@
 
 ### Anchor Slice 確定（OCS.7 absorption）
 
-* [ ] §OCS.7 Anchor Slice 5 R:tag（`R:calculation` / `R:bridge` / `R:read-model` / `R:guard` / `R:presentation`）が両子 Phase 0 の inventory baseline 対象として承認されている
-* [ ] §OCS.7 Anchor Slice 6 T:kind（`T:unit-numerical` / `T:boundary` / `T:contract-parity` / `T:zod-contract` / `T:meta-guard` / `T:render-shape`）が両子 Phase 0 の inventory baseline 対象として承認されている
-* [ ] 両子 Phase 3（Guard 実装）の完了条件として「Anchor Slice §OCS.5 Promotion Gate L4（Guarded）到達」が checklist 化されている
+* [x] §OCS.7 Anchor Slice 5 R:tag（`R:calculation` / `R:bridge` / `R:read-model` / `R:guard` / `R:presentation`）が両子 Phase 0 の inventory baseline 対象として承認されている
+* [x] §OCS.7 Anchor Slice 6 T:kind（`T:unit-numerical` / `T:boundary` / `T:contract-parity` / `T:zod-contract` / `T:meta-guard` / `T:render-shape`）が両子 Phase 0 の inventory baseline 対象として承認されている
+* [x] 両子 Phase 3（Guard 実装）の完了条件として「Anchor Slice §OCS.5 Promotion Gate L4（Guarded）到達」が checklist 化されている
 
 ### 子 project キックオフ
 
-* [ ] `projects/responsibility-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
-* [ ] `projects/test-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
-* [ ] 共通 Inventory Schema（両軸共有の CanonEntry 形）が合意されている
-* [ ] 親 AI_CONTEXT.md / HANDOFF.md に両子の現状リンクが記載されている
+* [x] `projects/responsibility-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
+* [x] `projects/test-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
+* [x] 共通 Inventory Schema（両軸共有の CanonEntry 形）が合意されている
+* [x] 親 AI_CONTEXT.md / HANDOFF.md に両子の現状リンクが記載されている
 
 ### Operational Control System の baseline 約束
 
-* [ ] §OCS.6 Drift Budget の baseline（責務軸 untagged 件数 / テスト軸 untagged 件数 / interlock violations 等）が両子 Phase 0 で計測される旨が両子 plan に記載されている
-* [ ] §OCS.5 Promotion Gate の baseline 計測が両子 Phase 3 完了条件に組み込まれている
+* [x] §OCS.6 Drift Budget の baseline（責務軸 untagged 件数 / テスト軸 untagged 件数 / interlock violations 等）が両子 Phase 0 で計測される旨が両子 plan に記載されている
+* [x] §OCS.5 Promotion Gate の baseline 計測が両子 Phase 3 完了条件に組み込まれている
 
 ## Phase 4: 制度成立確認 + archive
 

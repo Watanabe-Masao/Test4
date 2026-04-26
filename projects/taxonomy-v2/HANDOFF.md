@@ -5,24 +5,25 @@
 
 ## 1. 現在地
 
-**Phase 1 (Constitution 起草) + Phase 2 (Review Window 仕様) 完遂。Phase 3 (子 project 立ち上げ) 着手前。**
+**Phase 1 + Phase 2 + Phase 3（子 project 立ち上げ）完遂。Phase 4 は子 archive 後。**
 
 > **最新セッション履歴 (2026-04-26):**
 >
-> 1. 親 plan に Operational Control System §OCS.1〜§11 + AR-TAXONOMY-\* 7 件 + taxonomy-health.json schema 追加（branch `claude/taxonomy-v2-operational-control` で完了 → main merge 待ち）
+> 1. 親 plan に Operational Control System §OCS.1〜§11 + AR-TAXONOMY-\* 7 件 + taxonomy-health.json schema 追加（main merge 済 / PR #1172）
 > 2. Phase 1 Constitution 5 deliverables landing
 > 3. Phase 2 Review Window 仕様 landing
 > 4. constitutionBootstrapGuard に 13 invariants（B1〜B13）を実装、real drift 2 件を発見・修正
+> 5. **Phase 3 子立ち上げ完遂**: 親 plan に §Common Inventory Schema（CanonEntry shape）追加 / 両子 plan の Phase 0 + Phase 3 を §OCS.6 / §OCS.7 / §OCS.5 と接続 / 両子 HANDOFF を「Phase 0 着手承認済」に更新
 >
-> **作業 branch（origin 同期済）:** `claude/taxonomy-v2-phase1-constitution`
-> **HEAD commit:** `d6d1bfc test(taxonomy-v2): B11/B12/B13 token-level drift 検出を追加`
+> **作業 branch:** `claude/taxonomy-v2-phase3-setup-4TGS2`
+> **本セッション着手前の HEAD:** Phase 1+2 が main マージ済（PR #1172）
 
 ### Phase 進捗（親 checklist）
 
 ```
 ✅ Phase 1: Constitution 起草           — 18/20 [x] (Origin Journal v1 20 タグ採取は子 Phase 0 担当)
 ✅ Phase 2: Review Window 仕様          — 8/8 [x]
-⏳ Phase 3: 子 project 立ち上げ         — 0/13 [ ] (次のセッションで開始)
+✅ Phase 3: 子 project 立ち上げ         — 9/9 [x] (Anchor Slice 確定 + 子 kickoff + Common Inventory Schema 合意)
 □  Phase 4: 制度成立確認 + archive      — 0/14 [ ] (子 archive 後)
 ```
 
@@ -32,7 +33,7 @@
 taxonomy-v2 (親)
   ├─ Phase 1: Constitution 起草          ← ✅ 完遂
   ├─ Phase 2: review window 仕様         ← ✅ 完遂
-  ├─ Phase 3: 子 project 立ち上げ         ← ⏳ 次に着手
+  ├─ Phase 3: 子 project 立ち上げ         ← ✅ 完遂
   └─ Phase 4: 制度成立確認 + archive     ← 子 archive 後
 
 responsibility-taxonomy-v2 (子: 責務軸)
@@ -63,6 +64,17 @@ test-taxonomy-v2 (子: テスト軸)
 
 各 invariant の「何を弾くか / 何が壊れている可能性」は `app/src/test/guards/constitutionBootstrapGuard.test.ts` 冒頭 JSDoc table を参照。
 
+### Phase 3 で landing したもの（本セッションで完遂）
+
+| 領域                        | 成果物                                                                                                                            |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Common Inventory Schema** | 親 `projects/taxonomy-v2/plan.md` §Common Inventory Schema（CanonEntry shape） — 両子 Phase 0 出力の正本 shape                    |
+| **子 plan の Phase 0 接続** | 両子 plan.md Phase 0 を §OCS.6 Drift Budget baseline + §OCS.7 Anchor Slice + §OCS.5 L2 Origin-linked に接続                       |
+| **子 plan の Phase 3 接続** | 両子 plan.md Phase 3 を §AR-TAXONOMY-\* active 化 + Anchor Slice §OCS.5 L4（Guarded） + taxonomy-health.json collector 実装に接続 |
+| **子 kickoff 承認の記録**   | 両子 HANDOFF.md を「Phase 0 着手承認済（kicked off, 2026-04-26）」+ 着手承認の根拠 4 項目に更新                                   |
+| **親文書の links**          | 親 AI_CONTEXT.md に「子 project の現状」表 / 親 HANDOFF.md に Phase 進捗 9/9 [x] と Phase 3 改訂履歴 entry 追加                   |
+| **親 checklist 9 件 [x]**   | Anchor Slice 確定 (3) + 子 kickoff (4) + OCS baseline 約束 (2) — 全件 [x]                                                         |
+
 ### 検出された real drift（2 件、本セッションで修正済）
 
 1. **review-journal.md §1 が 4 lifecycle states (proposed / sunsetting / retired / archived) を欠落** — B11 が発見。§1 に Lifecycle 遷移範囲表を追加して対応
@@ -72,7 +84,7 @@ test-taxonomy-v2 (子: テスト軸)
 
 ### 着手順序（残り）
 
-1. **親 Phase 3**（子 2 件を同時着手） — Anchor Slice 5 R:tag + 6 T:kind を確定承認 + 子の Phase 0 Inventory キックオフ
+1. ~~**親 Phase 3**（子 2 件を同時着手） — Anchor Slice 5 R:tag + 6 T:kind を確定承認 + 子の Phase 0 Inventory キックオフ~~ ✅ 本セッションで完遂
 2. **長期並行運用** — 子 Phase 0-9 は並列で進行（両軸の review window を同期）
 3. **親 Phase 4**（両子 archive 確認 + 親 archive） — 制度成立 5 要件達成
 
@@ -83,60 +95,49 @@ test-taxonomy-v2 (子: テスト軸)
 ```bash
 # branch 確認
 git status -sb
-# → ## claude/taxonomy-v2-phase1-constitution...origin/... (clean, ahead 0/behind 0)
 
-git log --oneline -6
-# → d6d1bfc B11/B12/B13 token-level drift 検出
-#    8bc0585 B8/B9/B10 deeper invariants
-#    0464c76 Phase 2 Review Window 仕様
-#    6063623 chore: docs:generate + principles.json
-#    e90286a Phase 1 Constitution 5 deliverables
-#    ...
+git log --oneline -8
 
 # ヘルスチェック
 cd app && npm run docs:generate
-# → Healthy / 44/44 KPIs OK / Hard Gate PASS
+# → Healthy / Hard Gate PASS
 
 # 親 + 子 plan / checklist の現状把握
-cat projects/taxonomy-v2/HANDOFF.md          # ← 本ファイル
-cat projects/taxonomy-v2/checklist.md        # Phase 進捗
-cat projects/responsibility-taxonomy-v2/checklist.md  # 子: 責務軸 Phase 0
-cat projects/test-taxonomy-v2/checklist.md            # 子: テスト軸 Phase 0
+cat projects/taxonomy-v2/HANDOFF.md                    # ← 本ファイル
+cat projects/taxonomy-v2/checklist.md                  # Phase 進捗
+cat projects/responsibility-taxonomy-v2/checklist.md   # 子: 責務軸 Phase 0
+cat projects/test-taxonomy-v2/checklist.md             # 子: テスト軸 Phase 0
 ```
 
-### 高優先（Phase 3 キックオフ）
+### 高優先（次セッション = 子 Phase 0 Inventory）
 
-**親 Phase 3 「子 project 立ち上げ（承認ゲート）」の checkbox 13 件を完遂する。**
+親 Phase 3 が完了したため、次は両子の Phase 0 Inventory に着手する。
+両子は **並列進行可能**（vocabulary 設計のみ同期 review window が必要）。
 
-#### 3.1. Anchor Slice 確定承認
+#### 子: 責務軸（responsibility-taxonomy-v2）Phase 0
 
-親 plan §OCS.7 で定義済の Anchor Slice を、両子 Phase 0 Inventory の baseline 対象として承認:
+- 35+ 対象ファイルの現 v1 タグを CanonEntry shape で `references/02-status/responsibility-taxonomy-inventory.yaml` に出力
+- 既存 v1 の 20 タグを Origin Journal §R に転記（親 Phase 1 残 2 checkbox の解消）
+- §OCS.6 Drift Budget の責務軸 baseline（`untagged` / `unknownVocabulary` / `missingOrigin`）を計測
+- §OCS.7 Anchor Slice 5 R:tag に対応する file を `anchorSlice.anchorTag` field で識別
+
+#### 子: テスト軸（test-taxonomy-v2）Phase 0
+
+- 既存テスト全件の粗分類を CanonEntry shape で `references/02-status/test-taxonomy-inventory.yaml` に出力
+- 既存 TSIG-\* rule を Origin Journal §T に転記
+- §OCS.6 Drift Budget のテスト軸 baseline を計測
+- §OCS.7 Anchor Slice 6 T:kind に対応する test を `anchorSlice.anchorTag` field で識別
+
+#### Anchor Slice 確定（親 Phase 3 で承認済 — 参照のみ）
+
+両子 Phase 0 が baseline 対象とする Anchor Slice:
 
 - **5 R:tag**: `R:calculation` / `R:bridge` / `R:read-model` / `R:guard` / `R:presentation`
 - **6 T:kind**: `T:unit-numerical` / `T:boundary` / `T:contract-parity` / `T:zod-contract` / `T:meta-guard` / `T:render-shape`
 
 両子 Phase 3（Guard 実装）の完了条件として「Anchor Slice §OCS.5 Promotion Gate L4（Guarded）到達」が checklist 化されていることを確認。
 
-#### 3.2. 子 project キックオフ承認
-
-- `projects/responsibility-taxonomy-v2/checklist.md` Phase 0 着手承認の記録
-- `projects/test-taxonomy-v2/checklist.md` Phase 0 着手承認の記録
-- 親 AI_CONTEXT.md / HANDOFF.md に両子の現状リンクを記載
-
-#### 3.3. 共通 Inventory Schema の合意
-
-両軸が同じ CanonEntry 形（YAML / TypeScript interface）を使うように Schema を確定:
-
-- `references/02-status/responsibility-taxonomy-inventory.yaml` (子 Phase 0 で生成)
-- `references/02-status/test-taxonomy-inventory.yaml` (子 Phase 0 で生成)
-- 両者の共通 schema は親 Phase 3 で確定
-
-#### 3.4. Operational Control System の baseline 約束
-
-- §OCS.6 Drift Budget の baseline（責務軸 untagged / テスト軸 untagged / interlock violations 等）が両子 Phase 0 で計測される旨を両子 plan に明記
-- §OCS.5 Promotion Gate の baseline 計測が両子 Phase 3 完了条件に組み込まれている
-
-### 中優先（Phase 3 完了後 = 子 project 進行中）
+### 中優先（次セッション = 子 project 進行中）
 
 - 子 Phase 0 Inventory 完了 → 子 Phase 1 Schema 設計に進む
 - Origin Journal の v1 20 タグ採取（子 Phase 0 の deliverable、親 Phase 1 残 2 checkbox がここで [x] になる）
@@ -273,7 +274,7 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `AI_CONTEXT.md`       | プロジェクト意味空間の入口（why / scope）                                                                                                                          |
 | **`plan.md`**         | **7 不可侵原則 + Phase 構造 + Interlock 仕様 + 8 昇華メカニズム + Operational Control System §OCS.1〜§11 + AR-TAXONOMY-\* 7 件仕様 + taxonomy-health.json schema** |
-| **`checklist.md`**    | **Phase 1 (18/20 [x]) / Phase 2 (8/8 [x]) / Phase 3 (0/13 [ ]) / Phase 4 (0/14 [ ])**                                                                              |
+| **`checklist.md`**    | **Phase 1 (18/20 [x]) / Phase 2 (8/8 [x]) / Phase 3 (9/9 [x]) / Phase 4 (0/14 [ ])**                                                                               |
 | `config/project.json` | project 設定                                                                                                                                                       |
 
 ### Phase 1 + Phase 2 で landing した正本（App Domain 層）
@@ -298,14 +299,18 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts`         | 現行 TSIG（子 Phase 0 で T:kind 認識化）                                               |
 | `docs/contracts/principles.json`                               | A-I+Q 9 カテゴリ設計原則の正本（taxonomy-v2 は不変、$comment に landing 経緯のみ追記） |
 
-### 子 project（次に着手）
+### 子 project（Phase 0 着手承認済）
 
-| ファイル                                                | 役割                               |
-| ------------------------------------------------------- | ---------------------------------- |
-| **`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`** | **子: 責務軸**（Phase 0 待機中）   |
-| `projects/responsibility-taxonomy-v2/checklist.md`      | 子: 責務軸 Phase 0-9               |
-| **`projects/test-taxonomy-v2/AI_CONTEXT.md`**           | **子: テスト軸**（Phase 0 待機中） |
-| `projects/test-taxonomy-v2/checklist.md`                | 子: テスト軸 Phase 0-9             |
+| ファイル                                                | 役割                                            |
+| ------------------------------------------------------- | ----------------------------------------------- |
+| **`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`** | **子: 責務軸**（Phase 0 着手可能 2026-04-26）   |
+| `projects/responsibility-taxonomy-v2/HANDOFF.md`        | kickoff 承認の根拠を記載                        |
+| `projects/responsibility-taxonomy-v2/plan.md`           | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
+| `projects/responsibility-taxonomy-v2/checklist.md`      | 子: 責務軸 Phase 0-9                            |
+| **`projects/test-taxonomy-v2/AI_CONTEXT.md`**           | **子: テスト軸**（Phase 0 着手可能 2026-04-26） |
+| `projects/test-taxonomy-v2/HANDOFF.md`                  | kickoff 承認の根拠を記載                        |
+| `projects/test-taxonomy-v2/plan.md`                     | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
+| `projects/test-taxonomy-v2/checklist.md`                | 子: テスト軸 Phase 0-9                          |
 
 ### 関連姉妹 project
 
@@ -316,11 +321,12 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 
 ## 5. 改訂履歴
 
-| 日付       | 変更                                                                                       | branch / commit                                                            |
-| ---------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| 2026-04-21 | 親 + 子 2 件の雛形作成（scheduled）                                                        | `claude/...` (archive 済)                                                  |
-| 2026-04-26 | Operational Control System §OCS.1〜§11 + AR-TAXONOMY-\* + taxonomy-health.json schema 追加 | `claude/taxonomy-v2-operational-control` (origin push 済、main merge 待ち) |
-| 2026-04-26 | Phase 1 Constitution 5 deliverables landing                                                | `claude/taxonomy-v2-phase1-constitution` `e90286a`                         |
-| 2026-04-26 | Phase 2 Review Window 仕様 landing                                                         | `claude/taxonomy-v2-phase1-constitution` `0464c76`                         |
-| 2026-04-26 | constitutionBootstrapGuard B8/B9/B10 + 原則 6 alt-path 文書化                              | `claude/taxonomy-v2-phase1-constitution` `8bc0585`                         |
-| 2026-04-26 | constitutionBootstrapGuard B11/B12/B13 + real drift 2 件修正                               | `claude/taxonomy-v2-phase1-constitution` `d6d1bfc`                         |
+| 日付       | 変更                                                                                        | branch / commit                                                            |
+| ---------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| 2026-04-21 | 親 + 子 2 件の雛形作成（scheduled）                                                         | `claude/...` (archive 済)                                                  |
+| 2026-04-26 | Operational Control System §OCS.1〜§11 + AR-TAXONOMY-\* + taxonomy-health.json schema 追加  | `claude/taxonomy-v2-operational-control` (origin push 済、main merge 待ち) |
+| 2026-04-26 | Phase 1 Constitution 5 deliverables landing                                                 | `claude/taxonomy-v2-phase1-constitution` `e90286a`                         |
+| 2026-04-26 | Phase 2 Review Window 仕様 landing                                                          | `claude/taxonomy-v2-phase1-constitution` `0464c76`                         |
+| 2026-04-26 | constitutionBootstrapGuard B8/B9/B10 + 原則 6 alt-path 文書化                               | `claude/taxonomy-v2-phase1-constitution` `8bc0585`                         |
+| 2026-04-26 | constitutionBootstrapGuard B11/B12/B13 + real drift 2 件修正                                | `claude/taxonomy-v2-phase1-constitution` `d6d1bfc`                         |
+| 2026-04-26 | Phase 3 子 project 立ち上げ完遂（Anchor Slice 確定 + Common Inventory Schema + 子 kickoff） | `claude/taxonomy-v2-phase3-setup-4TGS2` (本セッション)                     |

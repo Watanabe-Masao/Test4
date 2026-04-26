@@ -71,14 +71,24 @@
 
 ## 関連文書
 
-| 文書 | 役割 |
-|---|---|
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 5.2 Constitution — 制度化の思想的根拠 |
-| `references/03-guides/responsibility-separation-catalog.md` | 現行 v1 の 24 パターン（移行対象） |
-| `app/src/test/responsibilityTagRegistry.ts` | 現行 v1 の正本（v2 で統合的に拡張） |
-| `app/src/test/guards/responsibilityTagGuard.test.ts` | 現行 v1 guard |
-| `app/src/test/guards/testSignalIntegrityGuard.test.ts` | 現行 TSIG（テスト品質）guard — v2 でタグ認識化 |
-| `projects/pure-calculation-reorg/HANDOFF.md` | 姉妹 project。同じ Phase 体系を踏襲 |
-| `projects/responsibility-taxonomy-v2/AI_CONTEXT.md` | 子: 責務軸 |
-| `projects/test-taxonomy-v2/AI_CONTEXT.md` | 子: テスト軸 |
+| 文書                                                           | 役割                                           |
+| -------------------------------------------------------------- | ---------------------------------------------- |
+| `references/03-guides/project-checklist-governance.md`         | 本 project の運用ルール（AAG Layer 4A）        |
+| `references/01-principles/adaptive-architecture-governance.md` | AAG 5.2 Constitution — 制度化の思想的根拠      |
+| `references/03-guides/responsibility-separation-catalog.md`    | 現行 v1 の 24 パターン（移行対象）             |
+| `app/src/test/responsibilityTagRegistry.ts`                    | 現行 v1 の正本（v2 で統合的に拡張）            |
+| `app/src/test/guards/responsibilityTagGuard.test.ts`           | 現行 v1 guard                                  |
+| `app/src/test/guards/testSignalIntegrityGuard.test.ts`         | 現行 TSIG（テスト品質）guard — v2 でタグ認識化 |
+| `projects/pure-calculation-reorg/HANDOFF.md`                   | 姉妹 project。同じ Phase 体系を踏襲            |
+
+## 子 project の現状
+
+| 子 project                             | 現在地                                                  | 着手承認            | 関連リンク                                                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `responsibility-taxonomy-v2`（責務軸） | **Phase 0 Inventory 着手可能**（2026-04-26 kicked off） | 親 Phase 3 で承認済 | [`AI_CONTEXT`](../responsibility-taxonomy-v2/AI_CONTEXT.md) / [`HANDOFF`](../responsibility-taxonomy-v2/HANDOFF.md) / [`plan`](../responsibility-taxonomy-v2/plan.md) / [`checklist`](../responsibility-taxonomy-v2/checklist.md) |
+| `test-taxonomy-v2`（テスト軸）         | **Phase 0 Inventory 着手可能**（2026-04-26 kicked off） | 親 Phase 3 で承認済 | [`AI_CONTEXT`](../test-taxonomy-v2/AI_CONTEXT.md) / [`HANDOFF`](../test-taxonomy-v2/HANDOFF.md) / [`plan`](../test-taxonomy-v2/plan.md) / [`checklist`](../test-taxonomy-v2/checklist.md)                                         |
+
+両子の Phase 0 出力（`responsibility-taxonomy-inventory.yaml` /
+`test-taxonomy-inventory.yaml`）は親 plan.md §Common Inventory Schema の
+**CanonEntry shape** に適合する。同期 review window は親 Phase 2 仕様
+（`references/03-guides/taxonomy-review-window.md`）に従う。

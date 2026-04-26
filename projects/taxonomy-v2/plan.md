@@ -530,3 +530,101 @@ ratchet-down のみ許可、増加方向に戻さない。
 ```
 
 **threshold / budget は §OCS.6 を正本とする**。collector はその値を読み出して violation を判定する。
+
+---
+
+## Common Inventory Schema（CanonEntry — 仕様正本）
+
+> **位置付け**: 親 Phase 3 で確定する **両軸共通の CanonEntry 形**。
+> 子 Phase 0 Inventory が出力する `references/02-status/responsibility-taxonomy-inventory.yaml`
+> および `references/02-status/test-taxonomy-inventory.yaml` の各 entry が本 schema に
+> 適合する。両軸が同じ shape を使うことで、§OCS.7 Anchor Slice 段階 1（保証経路完成）と
+> §OCS.10 Capture Loop（source → registry → inventory → graph）を機械的に接続できる。
+
+### CanonEntry shape
+
+```yaml
+# 1 entry = 1 (axis, target) ペア
+- axis: responsibility | test
+  target: <relative path to file or test ID>
+  # 責務軸: app/src/domain/calculations/foo.ts のような file path
+  # テスト軸: app/src/test/guards/foo.test.ts#describe-block のような test 識別子
+
+  # === 現状（v1 / TSIG での分類）===
+  currentTag: R:* | T:* | "untagged" | "mismatch"
+  # 責務軸: 現行 responsibilityTagRegistry の R:tag、または "untagged"（タグなし）/ "mismatch"（registry と実装の不一致）
+  # テスト軸: 現行 TSIG-* rule の適用名、または "untagged"
+
+  # === 親 plan §OCS.5 Promotion Gate（初期到達 Level）===
+  promotionLevel: L0 | L1 | L2 | L3 | L4 | L5 | L6
+  # Phase 0 Inventory 完了時点では既存 v1 タグは L1（Registered）または L2（Origin-linked）が初期値
+  # 未分類は L0（proposed）
+
+  # === 親 plan §OCS.4 Lifecycle State Machine ===
+  lifecycle: proposed | active | deprecated | sunsetting | retired | archived
+  # 既存 v1 タグは active が初期値、未分類は proposed
+
+  # === 親 plan §OCS.2 Evidence Level ===
+  evidenceLevel: generated | tested | guarded | reviewed | asserted | unknown
+
+  # === 親 plan §OCS.5 L2 Origin-linked の入力 ===
+  origin:
+    why: <なぜこのタグを付与したか> # legacy で不明なら "legacy, origin unknown"
+    when: <採択日 YYYY-MM-DD or commit/PR 番号> # legacy で不明なら "legacy, origin unknown"
+    who: <提案者 / 承認者 username> # legacy で不明なら "legacy, origin unknown"
+    sunsetCondition: <何が起きたら撤退するか> # 撤退条件が不明なら null
+
+  # === 親 plan §OCS.7 Anchor Slice 帰属 ===
+  anchorSlice:
+    inAnchor: true | false
+    # 責務軸 Anchor 5 R:tag: R:calculation / R:bridge / R:read-model / R:guard / R:presentation
+    # テスト軸 Anchor 6 T:kind: T:unit-numerical / T:boundary / T:contract-parity / T:zod-contract / T:meta-guard / T:render-shape
+    anchorTag: R:* | T:* | null
+
+  # === 親 plan §Interlock 仕様の入口（Phase 0 では空でも許容）===
+  interlock:
+    requiredObligations: [<対応軸のタグ>]
+    # 責務軸 entry → 対応 required T:kind list
+    # テスト軸 entry → 対応 R:tag list
+    foundObligations: [<対応軸のタグ>]
+    # Phase 0 baseline では実態を記録するのみ。違反 0 化は子 Phase 6 / 親 Phase 4 で達成
+
+  # === 親 plan §OCS.6 Drift Budget の baseline 入力 ===
+  driftBudget:
+    untagged: <0 or 1> # currentTag == "untagged" なら 1
+    unknownVocabulary: <0 or 1> # currentTag が registry 未登録なら 1
+    missingOrigin: <0 or 1> # origin.why / when / who のいずれかが null なら 1
+```
+
+### Phase 0 Inventory の必達品
+
+両子 Phase 0 完了時点で以下が成立すること:
+
+| 項目                          | 責務軸                                                                       | テスト軸                                         |
+| ----------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------ |
+| Schema 適合 entry 件数        | 35+ 対象 file 全件                                                           | 既存 test 全件                                   |
+| `anchorSlice.inAnchor: true`  | Anchor 5 R:tag に該当する entry を最低 1 件ずつ                              | Anchor 6 T:kind に該当する entry を最低 1 件ずつ |
+| `driftBudget` baseline        | 軸全体の untagged / unknownVocabulary / missingOrigin の合計が記録されている | 同左                                             |
+| `promotionLevel: L2` の entry | 既存 v1 の 20 タグ（親 Phase 1 残 2 checkbox）                               | 既存 TSIG-\* rule の全件                         |
+
+### consume 経路
+
+```
+[子 Phase 0 Inventory]
+       ↓ 出力
+inventory.yaml（CanonEntry 配列）
+       ↓ 入力
+[子 Phase 1 Schema 設計]   ← currentTag 分布から v2 vocabulary を導出
+[子 Phase 3 Guard 実装]    ← anchorSlice.inAnchor + driftBudget で baseline ratchet-down
+[親 Phase 4 制度成立確認]   ← driftBudget 合計 → taxonomy-health.json → architecture-health.json
+```
+
+### 整合検証の責務分担
+
+| 検証内容                                            | 担い手                                             |
+| --------------------------------------------------- | -------------------------------------------------- |
+| YAML schema 適合（field 名・型）                    | 子 Phase 0 deliverable（手動 or schema validator） |
+| `anchorSlice.anchorTag` が §OCS.7 で定義された値か  | 子 Phase 3 guard（Anchor Slice path guard）        |
+| `promotionLevel` 値が L0-L6 のいずれかか            | 子 Phase 3 guard（taxonomy:check）                 |
+| `evidenceLevel` 値が §OCS.2 の 6 値のいずれかか     | 子 Phase 3 guard（taxonomy:check）                 |
+| `driftBudget` 合計が §OCS.6 budget を超えていないか | 親 Phase 4 collector（taxonomy-health.json）       |
