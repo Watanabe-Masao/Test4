@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 1-5 完了 / Wave 0 切替 landed / Wave 1 sub-project 進行中（spawn 2026-04-23）。status: `active`。`CURRENT_PROJECT.md` = `architecture-debt-recovery`（sub-project 作業開始時に個別切替）。**
+**Phase 1-5 完了 / Wave 0 切替 landed / Wave 1-3 全 sub-project (SP-A/B/C/D) archived。status: `active`、残 Phase 7 umbrella 自身 archive のみ。`CURRENT_PROJECT.md` = `architecture-debt-recovery`。**
 
 ### sub-project の進行状況
 
@@ -14,7 +14,7 @@
 | `widget-context-boundary` | A | ✅ completed (2026-04-25) | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 |
 | `duplicate-orphan-retirement` | C | ✅ completed (2026-04-25) | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / 17a Option A 拡張 cascade 含む BC-5 完了 / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 |
 | `widget-registry-simplification` | B | ✅ completed (2026-04-26) | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 |
-| `aag-temporal-governance-hardening` | D | active (Wave 1 + Wave 2 + Wave 3 PR1-3 完遂、PR4 残り) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 / G8-P20 useMemo body 行数 ratchet-down (baseline 208→120→75)。残り PR4 で baseline 20 (fixed mode) 到達後 archive |
+| `aag-temporal-governance-hardening` | D | ✅ completed (2026-04-26) | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008 sunset) / G8-P20 useMemo body 行数 fixed mode (baseline 208→20、28 件 useMemo 抽出)。5 guard fixed mode 達成 |
 
 PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
@@ -85,15 +85,17 @@ PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/arch
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。
-**Wave 1 (SP-A/C) + Wave 2 (SP-B + ADR-D-004) + Wave 3 PR1-3 (ADR-D-003) 完了。残り SP-D ADR-D-003 PR4 のみ。**
+**Wave 1 (SP-A/C) + Wave 2 (SP-B + ADR-D-004) + Wave 3 (ADR-D-003 PR1-4 / P20 fixed mode) + Phase 7 SP-D archive 完了。残り umbrella 自身の archive のみ。**
 
-### 高優先（残り 1 task）
+### 高優先（残り task）
 
-**SP-D ADR-D-003 PR4 — P20=20 fixed mode 到達**:
+**umbrella `architecture-debt-recovery` 自身の Phase 7 archive**:
 
-- baseline 75 → 20 まで残り 55 行削減
-- 詳細手順は `projects/aag-temporal-governance-hardening/HANDOFF.md` §1 残タスク + §3.5 抽出パターン を参照
-- 抽出候補: useUnifiedWidgetContext.ts:228 (75) / IntegratedTimeline.tsx:49 (67) / CustomerScatterChart.tsx:58 (58) / useComparisonContextQuery.ts:116 (56) ほか
+- 全 4 sub-project (SP-A/B/C/D) が `projects/completed/` 配下に archive 済
+- 残るのは umbrella project 自身の SUMMARY.md 作成 + `projects/completed/` への物理移動 +
+  `config/project.json.status` を `active → completed` + `references/02-status/open-issues.md`
+  での active → archived 表 移動
+- 手順は `inquiry/20 §sub-project completed 時の切替手順` を umbrella 自身に適用
 
 ### Wave 1 / 2 / 3 完了サマリ（定性）
 
@@ -102,14 +104,14 @@ PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/arch
 | A | widget-context-boundary | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 (2026-04-25) |
 | C | duplicate-orphan-retirement | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / Tier D orphan + 17a Option A 拡張 cascade 削除 (BC-5) / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 (2026-04-25) |
 | B | widget-registry-simplification | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 (2026-04-26) |
-| D | aag-temporal-governance-hardening | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008) / G8-P20 useMemo body 行数 ratchet-down (208→120→75)。残 PR4 で完遂予定 |
+| D | aag-temporal-governance-hardening | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008) / G8-P20 useMemo body 行数 fixed mode (208→20)。5 guard fixed mode 達成、archived (2026-04-26) |
 
 ADR / PR / guard / LEG の現在件数は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
 ### Phase 7（umbrella sub-project completion）
 
-SP-D 完遂後、umbrella の Phase 7 として **全 sub-project completion + umbrella archive** を実行。
-具体手順は `inquiry/20 §sub-project completion テンプレート` 7 step を参照。
+全 sub-project (SP-A/B/C/D) archive 完遂。残 umbrella `architecture-debt-recovery` 自身の archive のみ。
+具体手順は `inquiry/20 §sub-project completion テンプレート` 7 step を umbrella 自身に適用。
 
 ### Wave 1 完了サマリ（定性）
 

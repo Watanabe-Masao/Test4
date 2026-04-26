@@ -3,15 +3,15 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-26T11:57:40.304Z
+> 生成: 2026-04-26T12:28:13.384Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 8 |
-| archived project 数 | 22 |
-| in_progress project 数 | 7 |
+| active project 数（archive 未実施を含む） | 7 |
+| archived project 数 | 23 |
+| in_progress project 数 | 6 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
@@ -25,7 +25,7 @@
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
-| `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **in_progress** | `architecture-debt-recovery` | 20/30 (67%) | [`projects/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/aag-temporal-governance-hardening/AI_CONTEXT.md) |
+| `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 20/30 (67%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **in_progress** | — | 52/73 (71%) | [`projects/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/architecture-debt-recovery/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 | `budget-achievement-simulator` | 予算達成シミュレーター | **archived** | — | 43/45 (96%) | [`projects/completed/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/completed/budget-achievement-simulator/AI_CONTEXT.md) |

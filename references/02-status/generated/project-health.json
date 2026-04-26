@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T11:57:40.304Z",
+  "timestamp": "2026-04-26T12:28:13.384Z",
   "summary": {
-    "active": 8,
-    "archived": 22,
-    "inProgress": 7,
+    "active": 7,
+    "archived": 23,
+    "inProgress": 6,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
@@ -55,13 +55,13 @@
       "projectId": "aag-temporal-governance-hardening",
       "title": "AAG / Temporal Governance 強化（SP-D）",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
+      "declaredStatus": "completed",
+      "derivedStatus": "archived",
       "checked": 20,
       "total": 30,
       "progress": 0.667,
-      "entrypoint": "projects/aag-temporal-governance-hardening/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-temporal-governance-hardening/checklist.md",
+      "entrypoint": "projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-temporal-governance-hardening/checklist.md",
       "parent": "architecture-debt-recovery"
     },
     {

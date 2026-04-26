@@ -2,9 +2,9 @@
   "$comment": "architecture-debt-recovery umbrella の Lane D sub-project。AAG / Temporal Governance 強化（reviewPolicy 必須化 / allowlist metadata / G8 補強 / @deprecated metadata / generated remediation / projectDocConsistencyGuard）。parent: architecture-debt-recovery。2026-04-23 Phase 6 Wave 1 で spawn（D-001/002/005/006 先行、D-003/004 は後続 Wave で着手）。",
   "projectId": "aag-temporal-governance-hardening",
   "title": "AAG / Temporal Governance 強化（SP-D）",
-  "status": "active",
+  "status": "completed",
   "parent": "architecture-debt-recovery",
-  "projectRoot": "projects/aag-temporal-governance-hardening",
+  "projectRoot": "projects/completed/aag-temporal-governance-hardening",
   "projectization": {
     "level": 3,
     "changeType": "governance-hardening",
@@ -26,10 +26,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-temporal-governance-hardening/AI_CONTEXT.md",
-    "handoff": "projects/aag-temporal-governance-hardening/HANDOFF.md",
-    "plan": "projects/aag-temporal-governance-hardening/plan.md",
-    "checklist": "projects/aag-temporal-governance-hardening/checklist.md",
-    "projectization": "projects/aag-temporal-governance-hardening/projectization.md"
+    "aiContext": "projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-temporal-governance-hardening/HANDOFF.md",
+    "plan": "projects/completed/aag-temporal-governance-hardening/plan.md",
+    "checklist": "projects/completed/aag-temporal-governance-hardening/checklist.md",
+    "projectization": "projects/completed/aag-temporal-governance-hardening/projectization.md"
   }
 }
