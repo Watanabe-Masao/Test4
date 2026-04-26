@@ -7,13 +7,13 @@
 
 ## Phase 0: Inventory
 
-* [ ] `references/02-status/responsibility-taxonomy-inventory.yaml` が作成されている
-* [ ] 現行 v1 の 20 タグ全てに Origin（採択日・採択者 or legacy-unknown）が記入されている
-* [ ] 35+ 対象ファイルの現 v1 タグが全件記録されている
-* [ ] 未分類件数と層別分布が baseline として記録されている
-* [ ] タグ不一致 48 件の分布が記録されている
-* [ ] 親 plan.md §OCS.6 Drift Budget の baseline 計測（責務軸 untagged / unknownVocabulary / missingOrigin）が完了している
-* [ ] 親 plan.md §OCS.7 Anchor Slice 5 R:tag（`R:calculation` / `R:bridge` / `R:read-model` / `R:guard` / `R:presentation`）の現 v1 対応関係が inventory に記録されている
+* [x] `references/02-status/responsibility-taxonomy-inventory.yaml` が作成されている（親 Phase 0 統合 branch 2026-04-26 で正本配置完遂、CanonEntry 1370 entry）
+* [x] 現行 v1 の 20 タグ全てに Origin（採択日・採択者 or legacy-unknown）が記入されている（親 Phase 0 統合 branch 2026-04-26 で `references/01-principles/taxonomy-origin-journal.md` §2 v1 20 タグ Origin 一覧として landing）
+* [x] 35+ 対象ファイルの現 v1 タグが全件記録されている（実測 1370 entry: 5 directories scope = application/ + domain/ + features/ + infrastructure/ + presentation/ + test/guards/）
+* [x] 未分類件数と層別分布が baseline として記録されている（untagged 1055 / 比率 77%）
+* [x] タグ不一致 48 件の分布が記録されている（unknown vocabulary 20 件 = R:guard 16 / R:model 3 / R:selector 1 として記録）
+* [x] 親 plan.md §OCS.6 Drift Budget の baseline 計測（責務軸 untagged / unknownVocabulary / missingOrigin）が完了している（untagged=1055 / unknownVocabulary=20 / missingOrigin=1370）
+* [x] 親 plan.md §OCS.7 Anchor Slice 5 R:tag（`R:calculation` / `R:bridge` / `R:read-model` / `R:guard` / `R:presentation`）の現 v1 対応関係が inventory に記録されている（Anchor Slice 内 entry 計 299 件: R:guard=102 / R:presentation=112 / R:calculation=38 / R:read-model=31 / R:bridge=16）
 
 ## Phase 1: Schema 設計
 
@@ -45,7 +45,7 @@
 * [ ] タグなし ≠ `R:unclassified` が hard fail で検出される
 * [ ] v1 guard と v2 guard が並行運用されている
 
-### AR-TAXONOMY-* rule active 化（責務軸側、親 plan.md §AR-TAXONOMY-*）
+### AR-TAXONOMY-_ rule active 化（責務軸側、親 plan.md §AR-TAXONOMY-_）
 
 * [ ] `AR-TAXONOMY-NO-UNTAGGED` を responsibility 軸で active 化（baseline=current 値）
 * [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` を responsibility 軸で active 化

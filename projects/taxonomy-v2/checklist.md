@@ -11,7 +11,7 @@
 
 * [x] `references/01-principles/taxonomy-constitution.md` に 7 不可侵原則が landing している
 * [x] `references/01-principles/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
-* [ ] `references/01-principles/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている
+* [x] `references/01-principles/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている（親 Phase 0 統合 branch 2026-04-26 で §2 v1 20 タグ Origin 一覧として landing）
 * [x] `CLAUDE.md` に §taxonomy-binding（AI Vocabulary Binding）が追記されている
 * [x] `app/src/test/guards/constitutionBootstrapGuard.test.ts` が存在し PASS している
 * [x] 制度成立 5 要件が Constitution 内に明文化されている
@@ -22,7 +22,7 @@
 * [x] §OCS.2 Evidence Level（generated / tested / guarded / reviewed / asserted / unknown）が Origin Journal の frontmatter spec に統合されている
 * [x] §OCS.5 Promotion Gate L0〜L2（proposed / Registered / Origin-linked）の定義が Constitution に追記されている
 * [x] §OCS.10 4-Loop Operational Model（Capture / Verification / Change / Governance）が Constitution の運用節に追記されている
-* [ ] 既存 v1 の 20 タグが §OCS.5 Level 2（Origin-linked）到達済
+* [x] 既存 v1 の 20 タグが §OCS.5 Level 2（Origin-linked）到達済（Origin Journal §2 表に promotionLevel L2 として記載）
 
 ### AR-TAXONOMY-\* rule 仕様確定（active 化は子 Phase 3）
 

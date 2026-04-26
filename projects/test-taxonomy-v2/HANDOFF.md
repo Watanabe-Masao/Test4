@@ -5,14 +5,38 @@
 
 ## 1. 現在地
 
-**Phase 0 着手承認済（kicked off, 2026-04-26）。Phase 0 Inventory 作業を開始可能。**
+**Phase 0 Inventory 完遂（2026-04-26）。Phase 1 Schema 設計に進める状態。**
 
-親 `taxonomy-v2` の Phase 1（Constitution 起草）+ Phase 2（Review Window 仕様）が
-完遂し、Phase 3 で本 project の Phase 0 着手が承認された。
-親 plan.md §Common Inventory Schema（CanonEntry shape）+ §OCS.7 Anchor Slice
-6 T:kind が確定したため、Inventory の出力 shape と対象範囲は決定済。
+> **Phase 0 で landing したもの:**
+>
+> - `tools/scripts/test-taxonomy-inventory.ts` — Inventory 生成 script
+>   （再現可能、`cd app && npx tsx ../tools/scripts/test-taxonomy-inventory.ts` で再生成）
+> - `references/02-status/test-taxonomy-inventory.yaml`
+>   — 親 plan §Common Inventory Schema (CanonEntry shape) 準拠の Phase 0 baseline 728 entry
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase0-inventory`
+> **scope:** project-internal のみ（`references/` 一切触らず）
+> 親 Phase 4 統合 branch で derived → references/02-status/ に正本配置 + Origin Journal §T 転記。
 
-### 着手承認の根拠
+### Phase 0 集計結果（baseline）
+
+| 指標                                         | 値                                   |
+| -------------------------------------------- | ------------------------------------ |
+| total entries（全 \*.test.ts / \*.test.tsx） | 728                                  |
+| Anchor Slice 内 entry                        | 206 (28%)                            |
+| ├ T:meta-guard                               | 102                                  |
+| ├ T:render-shape                             | 34                                   |
+| ├ T:unit-numerical                           | 23                                   |
+| ├ T:zod-contract                             | 22                                   |
+| ├ T:contract-parity                          | 20                                   |
+| └ T:boundary                                 | 5                                    |
+| Drift Budget: untagged                       | 728 (T:kind 自体が v2-only)          |
+| Drift Budget: unknownVocabulary              | 0                                    |
+| Drift Budget: missingOrigin                  | 728（TSIG ベースで個別 Origin なし） |
+| TSIG-TEST-01 適用                            | 728（global）                        |
+| TSIG-TEST-04 適用                            | 728（global）                        |
+
+### Phase 0 着手承認の根拠（2026-04-26）
 
 - 親 `projects/taxonomy-v2/checklist.md` Phase 3 §子 project キックオフ で
   本 project の Phase 0 着手が承認された
@@ -42,11 +66,21 @@ Phase 9: Legacy Collection（旧コメント / guard / 文書の掃除）
 
 詳細は `checklist.md` を参照。
 
-### 高優先（Phase 0 キックオフ時）
+### 高優先（次セッション = Phase 1 Schema 設計）
 
-- 親 Phase 1 の Constitution + interlock 仕様の確定を待つ
-- 現行 TSIG-TEST-01 / TSIG-COMP-03 / TSIG-TEST-04 等の global rule を棚卸し
-- 既存テストを「何を検証しているか」で粗分類（unit / contract / invariant / parity / boundary 等）
+- Phase 0 inventory（728 entry, Anchor 206 件）を読みながら v2 T:kind vocabulary 設計
+- Cognitive Load Ceiling ≤ 15 に収まる vocabulary 配分（Antibody Pair: T:parity ↔ T:invariant-math 等）
+- v2 T:kind frontmatter に親 plan §OCS.2 Evidence Level + §OCS.5 Promotion Gate L1 + §OCS.4 Lifecycle status を登録
+- 対応 R:tag は TBD（responsibility-taxonomy-v2 Phase 1 + 親 review window で同期裁定）
+- obligation の種類（must-have / should-have / may-have）定義
+- `app/src/test/testTaxonomyRegistryV2.ts`（TSIG 併存）
+
+### 中優先（親 Phase 4 統合時）
+
+- `references/02-status/test-taxonomy-inventory.yaml`
+  を `references/02-status/test-taxonomy-inventory.yaml` に正本配置
+- 既存 TSIG-\* rule を `references/01-principles/taxonomy-origin-journal.md` §T に転記
+- docs:generate で taxonomy-health.json に baseline を反映
 
 ### 中優先（Phase 1 以降）
 

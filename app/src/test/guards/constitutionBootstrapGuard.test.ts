@@ -22,6 +22,11 @@
  * | B11 | Lifecycle state name 一貫性違反                            | 6 状態 (proposed→active→deprecated→sunsetting→retired→archived) のいずれか 1 文書だけ綴り変更 |
  * | B12 | Promotion Gate L0-L6 名称一貫性違反                        | plan §OCS.5 と Constitution §6 で L レベル名が drift |
  * | B13 | Review Window 文書構造の欠落                                | review-window.md の §1-§9 セクションのいずれかが消えた |
+ * | B14 | Constitution 原則ごとの 3 要素 (何が壊れる/どう守る/判断) 不揃い | 1 要素だけ消されても気付かない silent gap (HANDOFF 穴チェック §1) |
+ * | B15 | CLAUDE.md §taxonomy-binding ↔ review-window §9 OCS.9 boundary 齟齬 | AI 制約 (touch 可 / 不可) の 2 文書間齟齬 (HANDOFF 穴チェック §2) |
+ * | B16 | TXE 例外形式 (review-window §4.3 vs journal §3) 不一致     | 形式齟齬で TXE-NNN 採番ルール混乱 (HANDOFF 穴チェック §3) |
+ * | B17 | AR-TAXONOMY-* baseline 戦略の欠落                          | rule によって戦略 (baseline=current 値 / ratchet-down) 言及が抜ける silent gap (HANDOFF 穴チェック §4) |
+ * | B18 | doc-registry 4 entries ↔ Constitution/plan 双方向 link 欠落 | doc-registry 登録だけして Constitution / plan から参照が孤立 (HANDOFF 穴チェック §5) |
  *
  * 設計方針 (TSIG H1/H2 防御):
  * - 「section heading exists」だけの shallow check に留めない
@@ -825,6 +830,219 @@ describe('Constitution Bootstrap Guard', () => {
           id: 'B13',
           file: REVIEW_WINDOW_PATH,
           message: `Review Window 必須セクション欠落: ${r.name}`,
+        })
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  // ─────────────────────────────────────────────────────────────────────
+  // B14 / B15 / B16 / B17 / B18: Phase 3 HANDOFF 穴チェック表の昇格
+  //
+  // taxonomy-v2 Phase 3 HANDOFF.md §「Phase 3 で穴の可能性がある領域」表に
+  // 列挙された 5 項目を test obligation に変換した検出規則。
+  // 子 Phase 0 統合 branch (claude/taxonomy-v2-phase0-integration) で landing。
+  // ─────────────────────────────────────────────────────────────────────
+
+  it('B14: Constitution 7 原則それぞれが 3 要素 (何が壊れる/どう守る/判断) を持つ', () => {
+    if (!fileExists(CONSTITUTION_PATH)) return // B1 で検出済み
+    const content = readFile(CONSTITUTION_PATH)
+    const violations: Violation[] = []
+
+    // 7 原則の section heading: ### 原則 N: <name>
+    const principleHeadings = [...content.matchAll(/^###\s+原則\s+(\d+):/gm)]
+    if (principleHeadings.length < 7) {
+      violations.push({
+        id: 'B14',
+        file: CONSTITUTION_PATH,
+        message: `7 原則の section heading が ${principleHeadings.length} 件しか見つからない (期待: 7)`,
+      })
+    }
+
+    // 各原則 section 配下に 3 要素を要求 (heading 表記の揺れを許容)
+    // - 「何が壊れる」/「壊れている可能性」 (failure mode)
+    // - 「どう守る」/「守る仕組み」/「機械検証」 (defense mechanism)
+    // - 「判断」/「裁定」/「決定」 (judgment)
+    const elementPatterns: ReadonlyArray<{ name: string; pattern: RegExp }> = [
+      { name: '何が壊れる/壊れる', pattern: /(壊れる|壊れている)/ },
+      { name: '守る/機械検証', pattern: /(どう守る|守る仕組|機械検証|機械化|guard)/i },
+      { name: '判断/裁定', pattern: /(判断|裁定|決定|review window)/i },
+    ]
+
+    for (let i = 0; i < principleHeadings.length; i++) {
+      const start = principleHeadings[i].index ?? 0
+      const end = principleHeadings[i + 1]?.index ?? content.length
+      const section = content.slice(start, end)
+      const principleNum = principleHeadings[i][1]
+      for (const el of elementPatterns) {
+        if (!el.pattern.test(section)) {
+          violations.push({
+            id: 'B14',
+            file: CONSTITUTION_PATH,
+            message: `原則 ${principleNum}: 3 要素のうち「${el.name}」を含む記述が見当たらない`,
+          })
+        }
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B15: CLAUDE.md §taxonomy-binding と review-window §9 OCS.9 が一貫した AI boundary を記述している', () => {
+    if (!fileExists(CLAUDE_MD_PATH)) return
+    if (!fileExists('references/03-guides/taxonomy-review-window.md')) return
+    const claudeMd = readFile(CLAUDE_MD_PATH)
+    const reviewWindow = readFile('references/03-guides/taxonomy-review-window.md')
+    const violations: Violation[] = []
+
+    // 両文書で「AI が触ってよいこと」「AI が触ってはいけないこと」が記述されているか
+    // (粗粒度: section heading + 必須キーフレーズ)
+    const requiredInBoth: ReadonlyArray<{ name: string; pattern: RegExp }> = [
+      { name: 'unclassified への退避が touch 可', pattern: /unclassified/i },
+      {
+        name: '新タグ追加が review window 経路必須',
+        pattern: /(新タグ|新 R:tag|新 T:kind|review window)/,
+      },
+      { name: 'Cognitive Load Ceiling の引き上げ制限', pattern: /Cognitive Load/i },
+      {
+        name: 'AR-TAXONOMY-AI-VOCABULARY-BINDING の参照',
+        pattern: /AR-TAXONOMY-AI-VOCABULARY-BINDING/,
+      },
+    ]
+    for (const r of requiredInBoth) {
+      if (!r.pattern.test(claudeMd)) {
+        violations.push({
+          id: 'B15',
+          file: CLAUDE_MD_PATH,
+          message: `§taxonomy-binding に「${r.name}」記述が欠落 (review-window §9 と齟齬)`,
+        })
+      }
+      if (!r.pattern.test(reviewWindow)) {
+        violations.push({
+          id: 'B15',
+          file: 'references/03-guides/taxonomy-review-window.md',
+          message: `§9 OCS.9 周辺に「${r.name}」記述が欠落 (CLAUDE.md §taxonomy-binding と齟齬)`,
+        })
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B16: TXE 例外形式 (review-window §4.3 vs review-journal §3) が一致した必須フィールドを定義する', () => {
+    if (!fileExists('references/03-guides/taxonomy-review-window.md')) return
+    if (!fileExists('references/02-status/taxonomy-review-journal.md')) return
+    const reviewWindow = readFile('references/03-guides/taxonomy-review-window.md')
+    const reviewJournal = readFile('references/02-status/taxonomy-review-journal.md')
+    const violations: Violation[] = []
+
+    // TXE 例外の必須フィールド (親 plan §OCS.8 と同期)
+    const requiredFields: readonly string[] = [
+      'TXE-',
+      'reason',
+      'owner',
+      'expiresAt',
+      'sunsetCondition',
+    ]
+    for (const f of requiredFields) {
+      if (!reviewWindow.includes(f)) {
+        violations.push({
+          id: 'B16',
+          file: 'references/03-guides/taxonomy-review-window.md',
+          message: `TXE 例外形式の必須要素「${f}」が欠落`,
+        })
+      }
+      if (!reviewJournal.includes(f)) {
+        violations.push({
+          id: 'B16',
+          file: 'references/02-status/taxonomy-review-journal.md',
+          message: `TXE 例外形式の必須要素「${f}」が欠落 (review-window と齟齬)`,
+        })
+      }
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B17: 全 AR-TAXONOMY-* rule が baseline 戦略 (Constitution §8 + plan) に言及されている', () => {
+    if (!fileExists(PLAN_PATH)) return
+    if (!fileExists(CONSTITUTION_PATH)) return
+    const plan = readFile(PLAN_PATH)
+    const constitution = readFile(CONSTITUTION_PATH)
+    const violations: Violation[] = []
+
+    // plan から AR-TAXONOMY-* rule 名を抽出
+    const ruleIds = [...new Set([...plan.matchAll(/`(AR-TAXONOMY-[A-Z-]+)`/g)].map((m) => m[1]))]
+    if (ruleIds.length < 7) {
+      violations.push({
+        id: 'B17',
+        file: PLAN_PATH,
+        message: `AR-TAXONOMY-* rule が ${ruleIds.length} 件しか見つからない (期待: 7 件、親 plan §AR-TAXONOMY-* rule 仕様)`,
+      })
+    }
+
+    // baseline 戦略の言及を検証 (plan §AR-TAXONOMY-* セクション全体に baseline / ratchet-down 等を含むか)
+    const baselineKeywords = /(baseline|ratchet-down|ratchet down|現状値で固定|固定モード)/i
+    if (!baselineKeywords.test(plan)) {
+      violations.push({
+        id: 'B17',
+        file: PLAN_PATH,
+        message:
+          'plan に baseline / ratchet-down 戦略の言及が無い (AR-TAXONOMY-* 全 rule の固定方針)',
+      })
+    }
+
+    // Constitution §8 (or 同等) に AR-TAXONOMY-* と baseline の言及があるか
+    if (!constitution.match(/AR-TAXONOMY-/)) {
+      violations.push({
+        id: 'B17',
+        file: CONSTITUTION_PATH,
+        message:
+          'Constitution に AR-TAXONOMY-* rule への参照が無い (baseline 戦略の整合性確認不可)',
+      })
+    }
+
+    expect(violations, formatViolations(violations)).toEqual([])
+  })
+
+  it('B18: doc-registry の taxonomy-* 4 entries ↔ Constitution/plan が双方向 link を持つ', () => {
+    const docRegistryPath = 'docs/contracts/doc-registry.json'
+    if (!fileExists(docRegistryPath)) return
+    if (!fileExists(CONSTITUTION_PATH)) return
+    if (!fileExists(PLAN_PATH)) return
+    const docRegistry = readFile(docRegistryPath)
+    const constitution = readFile(CONSTITUTION_PATH)
+    const plan = readFile(PLAN_PATH)
+    const violations: Violation[] = []
+
+    // doc-registry に登録される taxonomy-* docs (基底 4 件 + 必要に応じて拡張)
+    const taxonomyDocs: readonly string[] = [
+      'references/01-principles/taxonomy-constitution.md',
+      'references/01-principles/taxonomy-interlock.md',
+      'references/01-principles/taxonomy-origin-journal.md',
+      'references/03-guides/taxonomy-review-window.md',
+      'references/02-status/taxonomy-review-journal.md',
+    ]
+
+    for (const doc of taxonomyDocs) {
+      const inRegistry = docRegistry.includes(doc)
+      const inConstitution = constitution.includes(doc)
+      const inPlan = plan.includes(doc)
+
+      if (!inRegistry) {
+        violations.push({
+          id: 'B18',
+          file: docRegistryPath,
+          message: `taxonomy-* doc 未登録: ${doc}`,
+        })
+      }
+      // 双方向 link: Constitution OR plan のいずれかから参照されている必要あり
+      if (inRegistry && !inConstitution && !inPlan) {
+        violations.push({
+          id: 'B18',
+          file: doc,
+          message: `doc-registry に登録されているが Constitution / plan のいずれからも参照されていない (孤立 doc)`,
         })
       }
     }
