@@ -34,7 +34,7 @@
 * [x] `buildCtsPairInput` の利用箇所 0 化に伴い削除する
 * [x] 関連テスト（旧 fallback helper のテスト）を削除する
 * [x] queryPatternGuard の nonPairableConsumers allowlist に leaf bundle の fallback 用途を登録
-* [ ] 3 consumer 側の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換（surface guard 0 到達は 32 files 影響のため本 project では**未達**、後続 ratchet-down project で実施）
+* [x] ~~3 consumer 側の `CategoryTimeSalesRecord` 直接 import を `CategoryLeafDailyEntry` に置換~~ — surface guard 0 到達は 32 files 影響のため本 project では**未達**、後続 project `presentation-cts-surface-ratchetdown` (2026-04-19 archived) で 23 件 ratchet-down + fixed mode 完了
 
 ## Phase 5: ドキュメント更新
 

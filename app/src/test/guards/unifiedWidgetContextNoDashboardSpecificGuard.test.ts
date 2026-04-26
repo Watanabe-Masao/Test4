@@ -37,9 +37,12 @@ const UNIFIED_CTX_PATH = path.join(PROJECT_ROOT, 'app/src/presentation/component
 //                         baseline 20→9 に減算。9 field は cross-page 共有のため
 //                         「Dashboard 固有」section から「Dashboard / cross-page 共有」section に
 //                         section header を rename 済み（section 検出は固有のみマッチ → 0）。
-//                         ただし guard は detection エッジの監視のため baseline=9 で保持し
-//                         Dashboard 固有 section コメントが復活した場合に検出する。
-const BASELINE = 9
+// archive verify (2026-04-26): widget-context-boundary archive 後の checklist
+//                         検証で「baseline=9 だが実検出=0」の乖離が指摘された。
+//                         実際の検出は 0 のため baseline 9→0 に減算し fixed mode に。
+//                         「Dashboard 固有」section header が誤って復活した場合に
+//                         1 件目から hard fail で防御する（むしろ強化）。
+const BASELINE = 0
 
 // Dashboard 固有 section の開始マーカー
 const DASHBOARD_SECTION_START_RE = /^\s*\/\/\s*[-─]+\s*Dashboard\s*固有/

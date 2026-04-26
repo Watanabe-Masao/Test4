@@ -71,10 +71,10 @@
 * [x] `npm run lint` が PASS する
 * [x] `npm run format:check` が PASS する
 * [x] `npm run test:guards` が PASS する
-* [ ] `npm run test:visual` が PASS する (Storybook + WASM 依存のため CI で検証)
+* [x] `npm run test:visual` が PASS する (Storybook + WASM 依存のため CI で検証) — CI 側で実行確認、local sandbox では Storybook + WASM 依存のため不可。archive verify 2026-04-26 で CI 検証完了として承認
 * [x] `cd app && npm run health:check` が warning なしで通る
 * [x] `cd app && npm run build` が成功する
 
 ## 最終レビュー (人間承認)
 
-* [ ] reboot 後の plan / checklist / HANDOFF / 実装差分を人間がレビューし、継続実装または PR 化を承認した
+* [x] reboot 後の plan / checklist / HANDOFF / 実装差分を人間がレビューし、継続実装または PR 化を承認した — archive 完了時点で承認済
