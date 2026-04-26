@@ -36,13 +36,16 @@ import { describe, expect, it } from 'vitest'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const REGISTRY_DIR = path.join(PROJECT_ROOT, 'app/src/presentation/pages/Dashboard/widgets')
 
-// ratchet-down baseline
+// fixed mode (baseline=0)
 // - 初期 audit で registry*.tsx 配下の IIFE pattern `(() =>` を 3 件検出
-//   （registryAnalysisWidgets.tsx の WID-018 totalCustomers x2、WID-021 customerCount x1）
 // - ADR-B-003 PR2 で selector を application/readModels/customerFact/selectors.ts に新設
-// - PR3 で 3 IIFE を selector call に置換 → baseline 3→0
-// - PR4 で baseline=0 fixed mode + LEG-009 sunsetCondition 達成
-const BASELINE_IIFE_COUNT = 3
+// - ADR-B-003 PR3 (commit 1356ff8) で 4 IIFE call site を selector call に置換
+//   ※ IIFE は 3 種だが call site は 4 (同一 IIFE が 2 widget で重複) → 1 selector に統一
+// - ADR-B-003 PR4 (本 commit) で baseline 3→0 fixed mode 移行。
+//   新規 IIFE は registry に書かず、application/readModels/<source>/selectors.ts に
+//   pure selector として抽出する。
+// - LEG-009 sunsetCondition 達成（registry 内 inline pure helper の物理排除）
+const BASELINE_IIFE_COUNT = 0
 
 const IIFE_PATTERN = /\(\(\)\s*=>/g
 
@@ -87,8 +90,8 @@ describe('registryInlineLogicGuard (SP-B ADR-B-003)', () => {
       `IIFE pattern 数 = ${totalCount} (baseline = ${BASELINE_IIFE_COUNT}):\n` +
       breakdown +
       '\n\n' +
-      'hint: ADR-B-003 PR2 で selector を application/readModels/customerFact/selectors.ts に新設、' +
-      'PR3 で 3 IIFE を selector call に置換、PR4 で baseline=0 fixed mode に到達する。' +
+      'hint: fixed mode (baseline=0) 到達済み。新規 IIFE は registry に書かず、' +
+      'application/readModels/<source>/selectors.ts に pure selector として抽出する。' +
       '\n  詳細: projects/widget-registry-simplification/plan.md §ADR-B-003'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_IIFE_COUNT)
   })

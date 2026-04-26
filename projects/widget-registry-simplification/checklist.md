@@ -23,10 +23,10 @@
 
 ## Phase 3: ADR-B-003 — IIFE pattern を readModel selector 抽出
 
-* [ ] PR1: `registryInlineLogicGuard` を baseline=current で追加した（IIFE count 検出）
-* [ ] PR2: selector 3 本を `application/readModels/customerFact/selectors.ts` に新設した（pure fn）
-* [ ] PR3: 3 IIFE を selector call に置換した（WID-018 / WID-021）
-* [ ] PR4: `registryInlineLogicGuard` baseline=0 + fixed mode 化した
+* [x] PR1: `registryInlineLogicGuard` を baseline=3 で追加した（IIFE count 検出）
+* [x] PR2: selector 3 本を `application/readModels/customerFact/selectors.ts` に新設した（pure fn + 9 tests）
+* [x] PR3: 4 IIFE call site を selector call に置換した（WID-018 + analysis-category-pi + WID-021）
+* [x] PR4: `registryInlineLogicGuard` baseline=0 + fixed mode 化した + LEG-009 sunsetCondition 達成
 
 ## Phase 4: ADR-B-004 — registry inline JSX 解消（B-003 follow-through）
 

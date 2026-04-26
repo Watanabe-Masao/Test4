@@ -9,7 +9,7 @@
 
 | LEG ID | 対象 | 撤退内容 | ADR | sunsetCondition |
 |---|---|---|---|---|
-| **LEG-009** | `buildPrevYearCostMap` helper（`registryChartWidgets.tsx` 内 inline） | registry file 内 inline pure helper を `application/readModels/customerFact/selectors.ts` または `presentation/pages/Dashboard/widgets/` 配下の pure helper に抽出後、inline 削除 | ADR-B-003 / ADR-B-004 | inline pattern が registryInlineLogicGuard baseline=0 に到達 + sunset 確認 |
+| **LEG-009** | `registryAnalysisWidgets.tsx` 内 customerFact IIFE 群（旧: `(() => { const cf = ctx.readModels?.customerFact; return cf?.status === 'ready' ? ... })()`） | inline IIFE を `application/readModels/customerFact/selectors.ts` の pure selector (`selectTotalCustomers` / `selectCustomerCountOrUndefined` / `selectStoreCustomerMap`) に抽出後、call site 4 箇所を selector call に置換 | ADR-B-003 | ✅ 2026-04-26 sunsetCondition 達成（registryInlineLogicGuard baseline=0 fixed mode + ALLOWLIST 空 + 4 call site 全置換完了）|
 
 ## 呼び出し元
 
