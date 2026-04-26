@@ -339,10 +339,15 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
  * `buildPerformanceChartOption()` に抽出。新 max は
  * `ConditionSummaryEnhanced.tsx:176` (120 行)。
  *
+ * baseline=75: 2026-04-26 PR3。ConditionSummaryEnhanced の `allCards`
+ * useMemo body (120 行) を `conditionSummaryCardBuilders.ts` の
+ * `buildAllConditionCards()` に抽出。新 max は
+ * `useUnifiedWidgetContext.ts:228` (75 行)。
+ *
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-003
  * @see projects/aag-temporal-governance-hardening/plan.md §ADR-D-003
  */
-const BASELINE_USEMEMO_BODY_LINES = 120
+const BASELINE_USEMEMO_BODY_LINES = 75
 
 function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine: number } {
   const allFiles = collectTsFiles(SRC_DIR).filter(
