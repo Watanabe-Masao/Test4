@@ -79,6 +79,9 @@ export function calculateDiscountImpactWithStatus(
  * 売変ロス原価を算出する（後方互換）
  *
  * @deprecated calculateDiscountImpactWithStatus を使用してください
+ * @expiresAt 2026-12-31
+ * @sunsetCondition 全 caller が calculateDiscountImpactWithStatus 版に移行し、本関数の参照が 0 になった時
+ * @reason 結果値のみ返す旧 API。WithStatus 版は status/issue 情報を含むため、エラー処理品質が向上する
  */
 export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImpactResult {
   const result = calculateDiscountImpactWithStatus(input)
