@@ -24,7 +24,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**RISK** | 前回比: Regressed | Hard Gate: FAIL
+**Healthy** | 前回比: Improved | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -38,11 +38,8 @@
 | Rule Efficacy | OK | 85 / 0/3 / 0/10 |
 | Project Governance | OK | 7/20 / 6/20 / 0/0 / 24/100 |
 
-**Next:**
-- Doc 更新義務違反数 を budget 0 以下に修正する
-- Doc 更新義務違反数 が悪化（0 → 1）— 原因を調査する
 
-> 生成: 2026-04-26T17:27:11.092Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-26T18:35:32.052Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

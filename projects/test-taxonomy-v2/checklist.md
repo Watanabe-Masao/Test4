@@ -7,12 +7,12 @@
 
 ## Phase 0: Inventory
 
-* [ ] `references/02-status/test-taxonomy-inventory.yaml` が作成されている
-* [ ] 現行 TSIG-\* rule の全件と適用対象数が記録されている
-* [ ] 既存テストの粗分類（unit / contract / invariant / parity / boundary / render-shape 等）が記録されている
-* [ ] 未分類テスト件数が baseline として記録されている
-* [ ] 親 plan.md §OCS.6 Drift Budget の baseline 計測（テスト軸 untagged / unknownVocabulary / missingOrigin）が完了している
-* [ ] 親 plan.md §OCS.7 Anchor Slice 6 T:kind（`T:unit-numerical` / `T:boundary` / `T:contract-parity` / `T:zod-contract` / `T:meta-guard` / `T:render-shape`）の現 TSIG 対応関係が inventory に記録されている
+* [x] `projects/test-taxonomy-v2/derived/inventory/test-taxonomy-inventory.yaml` が作成されている（親 Phase 4 統合時に `references/02-status/test-taxonomy-inventory.yaml` に正本配置予定）
+* [x] 現行 TSIG-\* rule の全件と適用対象数が記録されている（TSIG-TEST-01 + TSIG-TEST-04 を全 728 test に / AR-G3-SUPPRESS-RATIONALE + TSIG-COMP-03 を suppress 利用 test に集計）
+* [x] 既存テストの粗分類（unit / contract / invariant / parity / boundary / render-shape 等）が記録されている（Anchor 6 T:kind 帰属で path + content pattern 機械判定）
+* [x] 未分類テスト件数が baseline として記録されている（untagged 728 = 全 test; T:kind は v2-only なので v1 では全件 untagged）
+* [x] 親 plan.md §OCS.6 Drift Budget の baseline 計測（テスト軸 untagged / unknownVocabulary / missingOrigin）が完了している（untagged=728 / unknownVocabulary=0 / missingOrigin=728）
+* [x] 親 plan.md §OCS.7 Anchor Slice 6 T:kind（`T:unit-numerical` / `T:boundary` / `T:contract-parity` / `T:zod-contract` / `T:meta-guard` / `T:render-shape`）の現 TSIG 対応関係が inventory に記録されている（Anchor Slice 内 entry 計 206 件: T:meta-guard=102 / T:render-shape=34 / T:unit-numerical=23 / T:zod-contract=22 / T:contract-parity=20 / T:boundary=5）
 
 ## Phase 1: Schema 設計
 
@@ -44,7 +44,7 @@
 * [ ] タグなし ≠ `T:unclassified` が hard fail で検出される
 * [ ] TSIG と v2 guard が並行運用されている
 
-### AR-TAXONOMY-* rule active 化（テスト軸側、親 plan.md §AR-TAXONOMY-*）
+### AR-TAXONOMY-_ rule active 化（テスト軸側、親 plan.md §AR-TAXONOMY-_）
 
 * [ ] `AR-TAXONOMY-NO-UNTAGGED` を test 軸で active 化（baseline=current 値）
 * [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` を test 軸で active 化

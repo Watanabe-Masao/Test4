@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-26T17:27:11.095Z
+> 生成: 2026-04-26T18:35:32.055Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 995 |
-| 全 project の checked checkbox 総数 | 744 |
+| 全 project の checked checkbox 総数 | 750 |
 
 ## projects
 
@@ -49,7 +49,7 @@
 | `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/64 (0%) | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
 | `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 36/55 (66%) | [`projects/taxonomy-v2/AI_CONTEXT.md`](../../../projects/taxonomy-v2/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
-| `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 0/62 (0%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
+| `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **in_progress** | `taxonomy-v2` | 6/62 (10%) | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
 | `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **archived** | — | 57/57 (100%) | [`projects/completed/unify-period-analysis/AI_CONTEXT.md`](../../../projects/completed/unify-period-analysis/AI_CONTEXT.md) |
 | `widget-context-boundary` | widget / ctx 型境界再構築（SP-A） | **archived** | `architecture-debt-recovery` | 33/33 (100%) | [`projects/completed/widget-context-boundary/AI_CONTEXT.md`](../../../projects/completed/widget-context-boundary/AI_CONTEXT.md) |
 | `widget-registry-simplification` | widget registry 簡素化（SP-B） | **archived** | `architecture-debt-recovery` | 22/22 (100%) | [`projects/completed/widget-registry-simplification/AI_CONTEXT.md`](../../../projects/completed/widget-registry-simplification/AI_CONTEXT.md) |
