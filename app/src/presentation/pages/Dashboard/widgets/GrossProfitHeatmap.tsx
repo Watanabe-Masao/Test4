@@ -70,6 +70,32 @@ export type GrossProfitHeatmapWidgetProps = Pick<
   'allStoreResults' | 'stores' | 'daysInMonth' | 'targetRate' | 'warningRate' | 'readModels'
 >
 
+function buildStoreHeatRows(
+  allStoreResults: GrossProfitHeatmapWidgetProps['allStoreResults'],
+  stores: GrossProfitHeatmapWidgetProps['stores'],
+  daysInMonth: number,
+  readModels: GrossProfitHeatmapWidgetProps['readModels'],
+): readonly StoreHeatRow[] {
+  if (!allStoreResults) return []
+
+  if (readModels?.salesFact?.status === 'ready' && readModels?.purchaseCost?.status === 'ready') {
+    const gpRows = buildGpRatesFromReadModels(
+      readModels.salesFact.data,
+      readModels.purchaseCost.data,
+      stores,
+      daysInMonth,
+    )
+    const budgetRows = buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
+    const budgetMap = new Map(budgetRows.map((r) => [r.id, r.dailyBudgetDev]))
+    return gpRows.map((r) => ({
+      ...r,
+      dailyBudgetDev: budgetMap.get(r.id) ?? new Map(),
+    }))
+  }
+
+  return buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
+}
+
 export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
   allStoreResults,
   stores,
@@ -81,29 +107,10 @@ export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
   const [mode, setMode] = useState<HeatMode>('gpRate')
 
   // readModels から粗利率を構築（available 時）、StoreResult をフォールバック
-  const storeRows: readonly StoreHeatRow[] = useMemo(() => {
-    if (!allStoreResults) return []
-
-    // readModels が利用可能な場合: 粗利率は readModels 正本経路、予算乖離は StoreResult
-    if (readModels?.salesFact?.status === 'ready' && readModels?.purchaseCost?.status === 'ready') {
-      const gpRows = buildGpRatesFromReadModels(
-        readModels.salesFact.data,
-        readModels.purchaseCost.data,
-        stores,
-        daysInMonth,
-      )
-      // 予算乖離は StoreResult からマージ
-      const budgetRows = buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
-      const budgetMap = new Map(budgetRows.map((r) => [r.id, r.dailyBudgetDev]))
-      return gpRows.map((r) => ({
-        ...r,
-        dailyBudgetDev: budgetMap.get(r.id) ?? new Map(),
-      }))
-    }
-
-    // フォールバック: StoreResult から両方構築
-    return buildHeatmapFromStoreResults(allStoreResults, stores, daysInMonth)
-  }, [allStoreResults, stores, daysInMonth, readModels])
+  const storeRows: readonly StoreHeatRow[] = useMemo(
+    () => buildStoreHeatRows(allStoreResults, stores, daysInMonth, readModels),
+    [allStoreResults, stores, daysInMonth, readModels],
+  )
 
   if (storeRows.length === 0) return null
 

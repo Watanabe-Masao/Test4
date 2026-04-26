@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-26T08:50:04.111Z",
+  "timestamp": "2026-04-26T11:52:58.827Z",
   "summary": {
     "queryHandlers": 46,
     "pairHandlers": 13,
     "screenPlanHooks": 28,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 8,
-    "正規経路_facadeHook": 6,
+    "正規経路_facadeHook": 7,
     "bundleHookDef": 1,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
@@ -125,6 +125,7 @@
       "presentation/hooks/slices/useComparisonSlice.ts",
       "presentation/hooks/slices/useQuerySlice.ts",
       "presentation/hooks/slices/useWeatherSlice.ts",
+      "presentation/hooks/unifiedWidgetContextBuilder.ts",
       "presentation/hooks/useUnifiedWidgetContext.ts"
     ],
     "bundleHookDef": [

@@ -317,37 +317,32 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
 // ─── P20: useMemo body 内行数（SP-D ADR-D-003 ratchet-down） ──────────
 
 /**
- * P20 — useMemo の callback body 内行数を ratchet-down で監視。
+ * P20 — useMemo の callback body 内行数を上限 20 行で固定 fail（fixed mode）。
  *
  * 設計意図:
  *   `useMemo(() => { ... }, deps)` の body が肥大化すると、
  *   - 1 file に複数責務が同居しやすい（C8 1 文説明テスト失敗）
  *   - test しづらい（hook 経由でしか実行できない pure 計算が混入）
  *   - dependency 配列が広範になり memoization の意味が薄れる
- *   ADR-D-003 で baseline を段階的に削減し、最終的に上限 P20=20 行で固定 fail。
  *
  * 検出方法:
  *   regex で `useMemo(() => {` を見つけ、対応する `}` までの行数をカウント。
  *   AST ではなく depth-tracking で簡易検出。コメント / 文字列内の括弧で誤検出する
- *   可能性があるため、絶対値ではなく ratchet-down 用途。
+ *   可能性があるため、絶対値ではなく上限ガード。
  *
- * baseline=208: 2026-04-26 時点での実測 max (CategoryPerformanceChart.tsx:127)。
- * plan 値 69 (inquiry/05 時点) よりも増加していたため、現実値で凍結。
- *
- * baseline=120: 2026-04-26 PR2。CategoryPerformanceChart の `option` useMemo
- * body (209 行) を `CategoryPerformanceChart.builders.ts` の
- * `buildPerformanceChartOption()` に抽出。新 max は
- * `ConditionSummaryEnhanced.tsx:176` (120 行)。
- *
- * baseline=75: 2026-04-26 PR3。ConditionSummaryEnhanced の `allCards`
- * useMemo body (120 行) を `conditionSummaryCardBuilders.ts` の
- * `buildAllConditionCards()` に抽出。新 max は
- * `useUnifiedWidgetContext.ts:228` (75 行)。
+ * 履歴 (ADR-D-003):
+ * - 2026-04-26 PR1 baseline=208 (実測 max、CategoryPerformanceChart.tsx:127)
+ * - 2026-04-26 PR2 baseline=208→120 (CategoryPerformanceChart option 抽出)
+ * - 2026-04-26 PR3 baseline=120→75 (ConditionSummaryEnhanced allCards 抽出)
+ * - 2026-04-26 PR4-step1 baseline=75→67 (useUnifiedWidgetContext ctx 抽出)
+ * - 2026-04-26 PR4-step2 baseline=67→38 (53〜67 行帯 6 件抽出)
+ * - 2026-04-26 PR4-step3 baseline=38→28 (30〜38 行帯 7 件抽出)
+ * - 2026-04-26 PR4-step4 baseline=28→20 fixed (21〜28 行帯 14 件抽出 + fixed mode)
  *
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-003
  * @see projects/aag-temporal-governance-hardening/plan.md §ADR-D-003
  */
-const BASELINE_USEMEMO_BODY_LINES = 75
+const BASELINE_USEMEMO_BODY_LINES = 20
 
 function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine: number } {
   const allFiles = collectTsFiles(SRC_DIR).filter(
@@ -383,15 +378,15 @@ function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine:
   return { maxLines: max, file: maxFile, startLine: maxStart }
 }
 
-describe('G8-P20: useMemo body 行数が baseline 以下（ratchet-down）', () => {
-  it('全 useMemo body の最大行数が baseline を超えない', () => {
+describe('G8-P20: useMemo body 行数が上限以下（fixed mode = 20 行）', () => {
+  it('全 useMemo body の最大行数が 20 行を超えない', () => {
     const { maxLines, file, startLine } = findMaxUseMemoBodyLines()
     const message =
-      `useMemo body 最大行数 = ${maxLines} (baseline = ${BASELINE_USEMEMO_BODY_LINES})\n` +
+      `useMemo body 最大行数 = ${maxLines} (上限 = ${BASELINE_USEMEMO_BODY_LINES} 行 fixed)\n` +
       `  最大箇所: ${file}:${startLine}\n\n` +
-      'hint: useMemo body が肥大化したら pure 計算を domain/calculations や ' +
-      'application/usecases に抽出して useMemo の body を簡素化する。' +
-      '\n  上限目標: P20=20 行 (ADR-D-003 PR4 で fixed mode 移行予定)' +
+      'hint: useMemo body が肥大化したら pure 計算を domain/calculations / ' +
+      'application/usecases / 同 file の module-private 関数 / *.builders.ts に' +
+      '抽出して useMemo の body を簡素化する。' +
       '\n  詳細: projects/aag-temporal-governance-hardening/plan.md §ADR-D-003'
     expect(maxLines, message).toBeLessThanOrEqual(BASELINE_USEMEMO_BODY_LINES)
   })

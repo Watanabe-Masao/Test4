@@ -6,8 +6,8 @@ import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
-import { analyzeTrend } from '@/application/hooks/useStatistics'
 import type { MonthlyDataPoint } from '@/application/hooks/useStatistics'
+import { buildSeasonalBenchmark } from './SeasonalBenchmarkChart.builders'
 import { chartFontSize } from '@/presentation/theme/tokens'
 import { CHART_GUIDES } from './chartGuides'
 import { ChartCard } from './ChartCard'
@@ -42,33 +42,10 @@ export const SeasonalBenchmarkChart = memo(function SeasonalBenchmarkChart({
 }: Props) {
   const theme = useTheme() as AppTheme
 
-  const { chartData, trend, currentSeasonality, peakMonth, troughMonth } = useMemo(() => {
-    if (monthlyData.length === 0)
-      return { chartData: [], trend: null, currentSeasonality: 1, peakMonth: 1, troughMonth: 1 }
-    const trendResult = analyzeTrend(monthlyData)
-    const si = trendResult.seasonalIndex
-
-    const data = MONTH_LABELS.map((label, i) => ({
-      month: label,
-      seasonality: si[i],
-      isCurrent: i + 1 === currentMonth,
-    }))
-
-    let peakIdx = 0,
-      troughIdx = 0
-    for (let i = 0; i < 12; i++) {
-      if (si[i] > si[peakIdx]) peakIdx = i
-      if (si[i] < si[troughIdx]) troughIdx = i
-    }
-
-    return {
-      chartData: data,
-      trend: trendResult,
-      currentSeasonality: si[currentMonth - 1],
-      peakMonth: peakIdx + 1,
-      troughMonth: troughIdx + 1,
-    }
-  }, [monthlyData, currentMonth])
+  const { chartData, trend, currentSeasonality, peakMonth, troughMonth } = useMemo(
+    () => buildSeasonalBenchmark(monthlyData, currentMonth, MONTH_LABELS),
+    [monthlyData, currentMonth],
+  )
 
   const option = useMemo<EChartsOption>(() => {
     const months = chartData.map((d) => d.month)

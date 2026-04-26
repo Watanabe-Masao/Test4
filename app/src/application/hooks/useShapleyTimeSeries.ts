@@ -39,55 +39,69 @@ export interface ShapleyTimeSeriesResult {
   readonly hasPrev: boolean
 }
 
+type ShapleyPrevYearDaily = ReadonlyMap<
+  string,
+  { sales: number; discount: number; customers?: number }
+>
+
+function buildShapleyDailyItems(
+  daily: ReadonlyMap<number, DailyRecord>,
+  daysInMonth: number,
+  prevYearDaily: ShapleyPrevYearDaily | undefined,
+  year: number,
+  month: number,
+): readonly ShapleyDayItem[] {
+  if (!prevYearDaily) return []
+
+  let cumCustEffect = 0
+  let cumTicketEffect = 0
+  let cumSalesDiff = 0
+  const items: ShapleyDayItem[] = []
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const rec = daily.get(d)
+    const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
+    const curSales = rec?.sales ?? 0
+    const prevSales = prevEntry?.sales ?? 0
+    const curCust = rec?.customers ?? 0
+    const prevCust = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
+
+    const result = decompose2(prevSales, curSales, prevCust, curCust)
+    cumCustEffect += result.custEffect
+    cumTicketEffect += result.ticketEffect
+    cumSalesDiff += curSales - prevSales
+
+    const txValue = curCust > 0 ? calculateTransactionValue(curSales, curCust) : null
+    const prevTxValue = prevCust > 0 ? calculateTransactionValue(prevSales, prevCust) : null
+
+    items.push({
+      day: d,
+      custEffect: result.custEffect,
+      ticketEffect: result.ticketEffect,
+      salesDiff: curSales - prevSales,
+      custEffectCum: cumCustEffect,
+      ticketEffectCum: cumTicketEffect,
+      salesDiffCum: cumSalesDiff,
+      customers: curCust,
+      prevCustomers: prevCust,
+      txValue,
+      prevTxValue,
+    })
+  }
+  return items
+}
+
 export function useShapleyTimeSeries(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
-  prevYearDaily:
-    | ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
-    | undefined,
+  prevYearDaily: ShapleyPrevYearDaily | undefined,
   year: number,
   month: number,
 ): ShapleyTimeSeriesResult {
-  const data = useMemo(() => {
-    if (!prevYearDaily) return []
-
-    let cumCustEffect = 0
-    let cumTicketEffect = 0
-    let cumSalesDiff = 0
-    const items: ShapleyDayItem[] = []
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = daily.get(d)
-      const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
-      const curSales = rec?.sales ?? 0
-      const prevSales = prevEntry?.sales ?? 0
-      const curCust = rec?.customers ?? 0
-      const prevCust = prevEntry && 'customers' in prevEntry ? (prevEntry.customers ?? 0) : 0
-
-      const result = decompose2(prevSales, curSales, prevCust, curCust)
-      cumCustEffect += result.custEffect
-      cumTicketEffect += result.ticketEffect
-      cumSalesDiff += curSales - prevSales
-
-      const txValue = curCust > 0 ? calculateTransactionValue(curSales, curCust) : null
-      const prevTxValue = prevCust > 0 ? calculateTransactionValue(prevSales, prevCust) : null
-
-      items.push({
-        day: d,
-        custEffect: result.custEffect,
-        ticketEffect: result.ticketEffect,
-        salesDiff: curSales - prevSales,
-        custEffectCum: cumCustEffect,
-        ticketEffectCum: cumTicketEffect,
-        salesDiffCum: cumSalesDiff,
-        customers: curCust,
-        prevCustomers: prevCust,
-        txValue,
-        prevTxValue,
-      })
-    }
-    return items
-  }, [daily, daysInMonth, prevYearDaily, year, month])
+  const data = useMemo(
+    () => buildShapleyDailyItems(daily, daysInMonth, prevYearDaily, year, month),
+    [daily, daysInMonth, prevYearDaily, year, month],
+  )
 
   return { data, hasPrev: !!prevYearDaily }
 }

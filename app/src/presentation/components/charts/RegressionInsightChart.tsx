@@ -5,16 +5,9 @@
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
-import { toComma, toManYen, toPct } from './chartTheme'
+import { toComma, toManYen } from './chartTheme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { chartFontSize, palette } from '@/presentation/theme/tokens'
-import {
-  linearRegression,
-  calculateWMA,
-  calculateMonthEndProjection,
-  calculateStdDev,
-} from '@/application/hooks/useStatistics'
-import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { CHART_GUIDES } from './chartGuides'
 import { SegmentedControl } from '@/presentation/components/common/layout'
@@ -29,6 +22,7 @@ import {
   ProjectionTable,
   ProjectionCard,
 } from './RegressionInsightChart.styles'
+import { buildRegressionInsight } from './RegressionInsightChart.builders'
 
 type ViewMode = 'regression' | 'residual'
 
@@ -51,61 +45,10 @@ export const RegressionInsightChart = memo(function RegressionInsightChart({
   const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('regression')
 
-  const { chartData, reg, projection, stats } = useMemo(() => {
-    const dailySalesMap = new Map<number, number>()
-    const salesValues: number[] = []
-    for (const [day, rec] of result.daily) {
-      if (rec.sales > 0) {
-        dailySalesMap.set(day, rec.sales)
-        salesValues.push(rec.sales)
-      }
-    }
-    const regResult = linearRegression(dailySalesMap)
-    const wma = calculateWMA(dailySalesMap)
-    const proj = calculateMonthEndProjection(year, month, dailySalesMap)
-
-    const wmaMap = new Map(wma.map((w) => [w.day, w.wma]))
-    const { stdDev } = salesValues.length > 0 ? calculateStdDev(salesValues) : { stdDev: 0 }
-    const z95 = 1.96
-    const se = safeDivide(stdDev, Math.sqrt(salesValues.length), stdDev)
-
-    const data: {
-      day: number
-      sales: number
-      regression: number
-      wma: number | null
-      residual: number
-      ciUpper: number
-      ciLower: number
-    }[] = []
-    for (const [day, rec] of result.daily) {
-      if (rec.sales <= 0) continue
-      const regVal = regResult.slope * day + regResult.intercept
-      data.push({
-        day,
-        sales: rec.sales,
-        regression: regVal,
-        wma: wmaMap.get(day) ?? null,
-        residual: rec.sales - regVal,
-        ciUpper: regVal + z95 * se,
-        ciLower: Math.max(0, regVal - z95 * se),
-      })
-    }
-    data.sort((a, b) => a.day - b.day)
-
-    return {
-      chartData: data,
-      reg: regResult,
-      projection: proj,
-      stats: {
-        rSquaredPct: toPct(regResult.rSquared),
-        dailyTrend: regResult.slope,
-        stdDev,
-        avgSales:
-          salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0,
-      },
-    }
-  }, [result, year, month])
+  const { chartData, reg, projection, stats } = useMemo(
+    () => buildRegressionInsight(result, year, month),
+    [result, year, month],
+  )
 
   const option = useMemo<EChartsOption>(() => {
     const days = chartData.map((d) => String(d.day))

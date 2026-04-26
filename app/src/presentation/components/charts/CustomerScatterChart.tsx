@@ -8,8 +8,6 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma, toPct } from './chartTheme'
 import { CHART_GUIDES } from './chartGuides'
 import type { DailyRecord } from '@/domain/models/record'
-import { calculateTransactionValue } from '@/domain/calculations/utils'
-import { toDateKeyFromParts } from '@/domain/models/CalendarDate'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartEmpty } from './ChartState'
@@ -17,6 +15,7 @@ import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend, valueYAxis } from './builders'
 import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
 import { chartFontSize } from '@/presentation/theme/tokens'
+import { buildAbsoluteScatter, buildYoyScatter } from './CustomerScatterChart.builders'
 
 type AxisMode = 'absolute' | 'yoyChange'
 
@@ -55,105 +54,25 @@ export const CustomerScatterChart = memo(function CustomerScatterChart({
   const [axisMode, setAxisMode] = useState<AxisMode>('absolute')
   const hasPrev = !!prevYearDaily
 
-  const { scatterData, prevScatter, avgCustomers, avgTxValue, quadrantCounts } = useMemo(() => {
-    const points: {
-      day: number
-      customers: number
-      txValue: number
-      sales: number
-      dow: number
-    }[] = []
-    const prevPoints: { day: number; customers: number; txValue: number; sales: number }[] = []
-    let totalC = 0,
-      totalT = 0,
-      count = 0
+  const { scatterData, prevScatter, avgCustomers, avgTxValue, quadrantCounts } = useMemo(
+    () => buildAbsoluteScatter(daily, daysInMonth, year, month, prevYearDaily),
+    [daily, daysInMonth, year, month, prevYearDaily],
+  )
 
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = daily.get(d)
-      const customers = rec?.customers ?? 0
-      if (customers <= 0) continue
-      const sales = rec?.sales ?? 0
-      const txValue = calculateTransactionValue(sales, customers)
-      const dow = new Date(year, month - 1, d).getDay()
-      points.push({ day: d, customers, txValue, sales, dow })
-      totalC += customers
-      totalT += txValue
-      count++
-    }
-
-    if (prevYearDaily) {
-      for (let d = 1; d <= daysInMonth; d++) {
-        const prev = prevYearDaily.get(toDateKeyFromParts(year, month, d))
-        if (!prev?.customers || prev.customers <= 0) continue
-        prevPoints.push({
-          day: d,
-          customers: prev.customers,
-          txValue: calculateTransactionValue(prev.sales, prev.customers),
-          sales: prev.sales,
-        })
-      }
-    }
-
-    const avgC = count > 0 ? totalC / count : 0
-    const avgT = count > 0 ? totalT / count : 0
-    let q1 = 0,
-      q2 = 0,
-      q3 = 0,
-      q4 = 0
-    for (const p of points) {
-      if (p.customers >= avgC && p.txValue >= avgT) q1++
-      else if (p.customers < avgC && p.txValue >= avgT) q2++
-      else if (p.customers < avgC && p.txValue < avgT) q3++
-      else q4++
-    }
-
-    return {
-      scatterData: points,
-      prevScatter: prevPoints,
-      avgCustomers: avgC,
-      avgTxValue: avgT,
-      quadrantCounts: { q1, q2, q3, q4 },
-    }
-  }, [daily, daysInMonth, year, month, prevYearDaily])
-
-  const { yoyData, yoyQuadrants } = useMemo(() => {
-    if (!prevYearDaily) return { yoyData: [], yoyQuadrants: { q1: 0, q2: 0, q3: 0, q4: 0 } }
-    const pts: { day: number; custChange: number; txChange: number; sales: number; dow: number }[] =
-      []
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = daily.get(d)
-      const customers = rec?.customers ?? 0
-      if (customers <= 0) continue
-      const prevEntry = prevYearDaily.get(toDateKeyFromParts(year, month, d))
-      if (!prevEntry?.customers || prevEntry.customers <= 0) continue
-      const txValue = calculateTransactionValue(rec?.sales ?? 0, customers)
-      const prevTxValue = calculateTransactionValue(prevEntry.sales, prevEntry.customers)
-      pts.push({
-        day: d,
-        custChange: (customers - prevEntry.customers) / prevEntry.customers,
-        txChange: prevTxValue > 0 ? (txValue - prevTxValue) / prevTxValue : 0,
-        sales: rec?.sales ?? 0,
-        dow: new Date(year, month - 1, d).getDay(),
-      })
-    }
-    let q1 = 0,
-      q2 = 0,
-      q3 = 0,
-      q4 = 0
-    for (const p of pts) {
-      if (p.custChange >= 0 && p.txChange >= 0) q1++
-      else if (p.custChange < 0 && p.txChange >= 0) q2++
-      else if (p.custChange < 0 && p.txChange < 0) q3++
-      else q4++
-    }
-    return { yoyData: pts, yoyQuadrants: { q1, q2, q3, q4 } }
-  }, [daily, daysInMonth, year, month, prevYearDaily])
+  const { yoyData, yoyQuadrants } = useMemo(
+    () => buildYoyScatter(daily, daysInMonth, year, month, prevYearDaily),
+    [daily, daysInMonth, year, month, prevYearDaily],
+  )
 
   const isYoy = axisMode === 'yoyChange' && yoyData.length > 0
 
   const option = useMemo<EChartsOption>(() => {
-    const dataSource: readonly { day: number; sales: number; dow: number; [k: string]: number }[] =
-      isYoy ? yoyData : scatterData
+    const dataSource = (isYoy ? yoyData : scatterData) as unknown as readonly {
+      day: number
+      sales: number
+      dow: number
+      [k: string]: number
+    }[]
     const xKey = isYoy ? 'custChange' : 'customers'
     const yKey = isYoy ? 'txChange' : 'txValue'
 

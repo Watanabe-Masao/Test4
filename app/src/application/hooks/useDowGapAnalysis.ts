@@ -35,43 +35,68 @@ export function useDowGapAnalysis(
   sameDateMapping?: readonly DayMapping[],
   sameDowMapping?: readonly DayMapping[],
 ): DowGapAnalysis {
-  return useMemo(() => {
-    if (!enabled || previousYear === 0) return ZERO_DOW_GAP_ANALYSIS
-    const base = analyzeDowGap(
+  return useMemo(
+    () =>
+      computeDowGapAnalysis(
+        currentYear,
+        currentMonth,
+        previousYear,
+        previousMonth,
+        dailyAverageSales,
+        enabled,
+        prevDowSales,
+        sameDateMapping,
+        sameDowMapping,
+      ),
+    [
       currentYear,
       currentMonth,
       previousYear,
       previousMonth,
       dailyAverageSales,
+      enabled,
       prevDowSales,
-    )
-    // 実日法: マッピングデータがあれば算出
-    if (
-      sameDateMapping &&
-      sameDowMapping &&
-      sameDateMapping.length > 0 &&
-      sameDowMapping.length > 0
-    ) {
-      const actualDay = analyzeDowGapActualDay(
-        sameDateMapping,
-        sameDowMapping,
-        previousYear,
-        previousMonth,
-        currentYear,
-        currentMonth,
-      )
-      return { ...base, actualDayImpact: actualDay }
-    }
-    return base
-  }, [
+      sameDateMapping,
+      sameDowMapping,
+    ],
+  )
+}
+
+function computeDowGapAnalysis(
+  currentYear: number,
+  currentMonth: number,
+  previousYear: number,
+  previousMonth: number,
+  dailyAverageSales: number,
+  enabled: boolean,
+  prevDowSales: readonly number[] | undefined,
+  sameDateMapping: readonly DayMapping[] | undefined,
+  sameDowMapping: readonly DayMapping[] | undefined,
+): DowGapAnalysis {
+  if (!enabled || previousYear === 0) return ZERO_DOW_GAP_ANALYSIS
+  const base = analyzeDowGap(
     currentYear,
     currentMonth,
     previousYear,
     previousMonth,
     dailyAverageSales,
-    enabled,
     prevDowSales,
-    sameDateMapping,
-    sameDowMapping,
-  ])
+  )
+  if (
+    sameDateMapping &&
+    sameDowMapping &&
+    sameDateMapping.length > 0 &&
+    sameDowMapping.length > 0
+  ) {
+    const actualDay = analyzeDowGapActualDay(
+      sameDateMapping,
+      sameDowMapping,
+      previousYear,
+      previousMonth,
+      currentYear,
+      currentMonth,
+    )
+    return { ...base, actualDayImpact: actualDay }
+  }
+  return base
 }

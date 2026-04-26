@@ -84,6 +84,39 @@ interface Props {
   readonly widgetContext?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
 }
 
+function buildRangeSummary(
+  pendingRange: { start: number; end: number } | null,
+  daily: ReadonlyMap<number, DailyRecord>,
+  prevYearDaily: Props['prevYearDaily'],
+  year: number,
+  month: number,
+) {
+  if (!pendingRange) return null
+  const { start, end } = pendingRange
+  let curSales = 0
+  let prevSales = 0
+  let curCustomers = 0
+  let prevCustomers = 0
+  for (let d = start; d <= end; d++) {
+    const rec = daily.get(d)
+    if (rec) {
+      curSales += rec.sales ?? 0
+      curCustomers += rec.customers ?? 0
+    }
+    if (prevYearDaily) {
+      const key = toDateKeyFromParts(year, month, d)
+      const prev = prevYearDaily.get(key)
+      if (prev) {
+        prevSales += prev.sales ?? 0
+        prevCustomers += prev.customers ?? 0
+      }
+    }
+  }
+  const diff = curSales - prevSales
+  const yoy = prevSales > 0 ? curSales / prevSales : null
+  return { curSales, prevSales, diff, yoy, curCustomers, prevCustomers }
+}
+
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
   const {
     // state
@@ -141,32 +174,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     pendingRange ?? (clickedDay != null ? { start: clickedDay, end: drillEnd ?? clickedDay } : null)
 
   // ── 選択範囲のサマリー（RangeActionBox + 要因分解に使用） ──
-  const rangeSummary = useMemo(() => {
-    if (!pendingRange) return null
-    const { start, end } = pendingRange
-    let curSales = 0
-    let prevSales = 0
-    let curCustomers = 0
-    let prevCustomers = 0
-    for (let d = start; d <= end; d++) {
-      const rec = props.daily.get(d)
-      if (rec) {
-        curSales += rec.sales ?? 0
-        curCustomers += rec.customers ?? 0
-      }
-      if (props.prevYearDaily) {
-        const key = toDateKeyFromParts(props.year, props.month, d)
-        const prev = props.prevYearDaily.get(key)
-        if (prev) {
-          prevSales += prev.sales ?? 0
-          prevCustomers += prev.customers ?? 0
-        }
-      }
-    }
-    const diff = curSales - prevSales
-    const yoy = prevSales > 0 ? curSales / prevSales : null
-    return { curSales, prevSales, diff, yoy, curCustomers, prevCustomers }
-  }, [pendingRange, props.daily, props.prevYearDaily, props.year, props.month])
+  const rangeSummary = useMemo(
+    () =>
+      buildRangeSummary(pendingRange, props.daily, props.prevYearDaily, props.year, props.month),
+    [pendingRange, props.daily, props.prevYearDaily, props.year, props.month],
+  )
 
   return (
     <Wrapper ref={parentRef}>

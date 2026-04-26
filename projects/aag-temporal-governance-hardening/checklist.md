@@ -47,7 +47,7 @@
 * [x] PR1: P20 baseline=208 (実測 max、plan 値 69 から増加。CategoryPerformanceChart.tsx:127 が最大箇所) で追加。P21 (widget 直接子数) は AST 解析が必要なため別 PR に分離
 * [x] PR2: CategoryPerformanceChart.tsx の `option` useMemo (209 行) を `CategoryPerformanceChart.builders.ts` の `buildPerformanceChartOption()` に抽出。baseline 208 → 120 (新 max は ConditionSummaryEnhanced.tsx:176)
 * [x] PR3: ConditionSummaryEnhanced.tsx の `allCards` useMemo (120 行) を `conditionSummaryCardBuilders.ts` の `buildAllConditionCards()` に抽出。baseline 120 → 75 (新 max は useUnifiedWidgetContext.ts:228)
-* [ ] PR4: P20=20 到達、fail hard（fixed mode 移行）— 残り baseline 75 を段階削減して fixed mode に
+* [x] PR4: P20=20 到達、fail hard（fixed mode 移行）— step1 (75→67) + step2 (67→38) + step3 (38→28) + step4 (28→20 fixed) の 4 段階で計 28 件 useMemo を抽出
 
 ## Phase 7: sub-project completion
 

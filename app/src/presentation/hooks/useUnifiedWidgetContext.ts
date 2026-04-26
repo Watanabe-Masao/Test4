@@ -15,9 +15,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'
 import type { MetricId } from '@/domain/models/analysis'
-import type { DateRange } from '@/domain/models/calendar'
-import { readyStoreResult } from '@/domain/models/storeTypes'
-import { readyPrevYearData } from '@/features/comparison'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useExplanations } from '@/application/hooks/ui'
 import { useDataStore } from '@/application/stores/dataStore'
@@ -39,6 +36,7 @@ import { useComparisonSlice } from './slices/useComparisonSlice'
 import { useQuerySlice } from './slices/useQuerySlice'
 import { useWeatherSlice } from './slices/useWeatherSlice'
 import { useChartInteractionSlice } from './slices/useChartInteractionSlice'
+import { buildUnifiedWidgetContext } from './unifiedWidgetContextBuilder'
 
 interface UseUnifiedWidgetContextResult {
   /** 統一コンテキスト（currentResult が null の場合は null） */
@@ -225,114 +223,74 @@ export function useUnifiedWidgetContext(): UseUnifiedWidgetContextResult {
   }, [selectedResults, stores])
 
   // ── ctx 組み立て（bundle の結果を合成） ──
-  const ctx: UnifiedWidgetContext | null = useMemo(() => {
-    if (!currentResult) return null
-    const r = currentResult
-    const currentDateRange: DateRange = {
-      from: { year: targetYear, month: targetMonth, day: 1 },
-      to: { year: targetYear, month: targetMonth, day: effectiveEndDay },
-    }
-    return {
-      // コア — ADR-A-004 PR3: slice (status='ready') で wrap
-      result: readyStoreResult(r),
-      daysInMonth: effectiveEndDay,
-      targetRate: settings.targetGrossProfitRate,
-      warningRate: settings.warningThreshold,
-      year: targetYear,
-      month: targetMonth,
+  // pure data composition は unifiedWidgetContextBuilder に抽出済 (ADR-D-003 PR4)。
+  const ctx: UnifiedWidgetContext | null = useMemo(
+    () =>
+      buildUnifiedWidgetContext({
+        currentResult,
+        effectiveEndDay,
+        targetYear,
+        targetMonth,
+        settings,
+        comparison,
+        stores,
+        selectedStoreIds,
+        explanations,
+        handleExplain,
+        deptKpiIndex,
+        fmtCurrency,
+        periodSelection,
+        storeName,
+        storeResults,
+        dataMaxDay,
+        handlePrevYearDetail,
+        query,
+        weather,
+        chart,
+        selectedResults,
+        storeNames,
+        analysisFrame,
+        freePeriodBundle,
+        timeSlotFrame,
+        timeSlotBundle,
+        storeDailyFrame,
+        storeDailyBundle,
+        categoryDailyFrame,
+        categoryDailyBundle,
+      }),
+    [
+      currentResult,
+      effectiveEndDay,
+      targetYear,
+      targetMonth,
       settings,
-      prevYear: readyPrevYearData(comparison.daily),
+      comparison,
       stores,
       selectedStoreIds,
       explanations,
-      onExplain: handleExplain,
-      observationStatus: r.observationPeriod.status,
-      departmentKpi: deptKpiIndex,
+      handleExplain,
+      deptKpiIndex,
       fmtCurrency,
-
-      // 期間選択
       periodSelection,
-
-      // Dashboard 固有
-      storeKey: storeName,
-      allStoreResults: storeResults,
-      currentDateRange,
-      prevYearScope: comparison.prevYearScope,
-      dataEndDay: settings.dataEndDay,
+      storeName,
+      storeResults,
       dataMaxDay,
-      elapsedDays: r.elapsedDays,
-      onPrevYearDetail: handlePrevYearDetail,
-
-      // 比較 slice
-      prevYearMonthlyKpi: comparison.kpi,
-      comparisonScope: comparison.scope,
-      dowGap: comparison.dowGap,
-
-      // クエリ slice
-      queryExecutor: query.queryExecutor,
-      duckDataVersion: query.duckDataVersion,
-      loadedMonthCount: query.loadedMonthCount,
-      weatherPersist: query.weatherPersist,
-      prevYearStoreCostPrice: query.prevYearStoreCostPrice,
-      readModels: query.readModels,
-
-      // 自由期間分析レーン (unify-period-analysis Phase 1)
-      freePeriodLane: { frame: analysisFrame, bundle: freePeriodBundle },
-
-      // 時間帯比較レーン (unify-period-analysis Phase 6 Step C)
-      timeSlotLane: { frame: timeSlotFrame, bundle: timeSlotBundle },
-
-      // 店舗別日次レーン (unify-period-analysis Phase 6.5 Step B)
-      storeDailyLane: { frame: storeDailyFrame, bundle: storeDailyBundle },
-
-      // 部門×日次レーン (unify-period-analysis Phase 6.5 Step B)
-      categoryDailyLane: { frame: categoryDailyFrame, bundle: categoryDailyBundle },
-
-      // 天気 slice
-      weatherDaily: weather.weatherDaily,
-      prevYearWeatherDaily: weather.prevYearWeatherDaily,
-
-      // チャート操作 slice
-      monthlyHistory: chart.monthlyHistory,
-      currentCtsQuantity: chart.currentCtsQuantity,
-      chartPeriodProps: chart.chartPeriodProps,
-
-      // Category 固有
+      handlePrevYearDetail,
+      query,
+      weather,
+      chart,
       selectedResults,
       storeNames,
-    }
-  }, [
-    currentResult,
-    effectiveEndDay,
-    targetYear,
-    targetMonth,
-    settings,
-    comparison,
-    stores,
-    selectedStoreIds,
-    explanations,
-    handleExplain,
-    deptKpiIndex,
-    fmtCurrency,
-    periodSelection,
-    storeName,
-    storeResults,
-    dataMaxDay,
-    handlePrevYearDetail,
-    query,
-    weather,
-    chart,
-    selectedResults,
-    storeNames,
-    analysisFrame,
-    freePeriodBundle,
-    timeSlotFrame,
-    timeSlotBundle,
-    storeDailyFrame,
-    storeDailyBundle,
-    categoryDailyFrame,
-    categoryDailyBundle,
-  ])
+      analysisFrame,
+      freePeriodBundle,
+      timeSlotFrame,
+      timeSlotBundle,
+      storeDailyFrame,
+      storeDailyBundle,
+      categoryDailyFrame,
+      categoryDailyBundle,
+    ],
+  )
 
   return {
     ctx,
