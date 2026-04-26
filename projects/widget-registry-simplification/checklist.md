@@ -30,7 +30,7 @@
 
 ## Phase 4: ADR-B-004 — registry inline JSX 解消（B-003 follow-through）
 
-* [ ] PR1: `registryInlineLogicGuard` 拡張で inline JSX / default hardcode 検出を追加、baseline=current
+* [x] PR1: `registryInlineLogicGuard` 拡張で I2 (inline function declaration baseline=1) + I3 (palette refs baseline=4) 検出を追加
 * [ ] PR2: helper / default config を純関数 / 定数に抽出した
 * [ ] PR3: registry 行を helper call / config 参照に置換した
 * [ ] PR4: `registryInlineLogicGuard` baseline=0 + LEG-009 sunsetCondition 達成
