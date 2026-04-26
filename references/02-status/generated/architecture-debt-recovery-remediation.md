@@ -1,6 +1,6 @@
 # architecture-debt-recovery Remediation Snapshot
 
-> 生成: 2026-04-26T08:58:23.718Z
+> 生成: 2026-04-26T09:25:58.069Z
 > 正本: `projects/architecture-debt-recovery/inquiry/15-18`
 
 ## 集計値
@@ -11,7 +11,7 @@
 | Breaking Change | 7 |
 | Legacy Retirement | 15 |
 | Sub-Project | 4 |
-| Guard Implemented (PR landed) | 18 |
+| Guard Implemented (PR landed) | 19 |
 | Baseline Remaining (placeholder) | 0 |
 | Review Pending (placeholder) | 0 |
 
@@ -19,7 +19,7 @@
 
 | Sub-Project | Checked | Total | Progress |
 |---|---|---|---|
-| aag-temporal-governance-hardening | 18 | 30 | 60.0% |
+| aag-temporal-governance-hardening | 19 | 30 | 63.3% |
 
 ---
 
