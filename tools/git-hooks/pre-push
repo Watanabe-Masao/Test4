@@ -204,7 +204,9 @@ check_project_metadata() {
 # Check: guard/allowlist/registry 変更 → docs:generate 未実行
 # 学習ソース: guard 追加・allowlist 更新時、architecture-health の再生成漏れ
 # 理由: health KPI / project-health は guard/allowlist を元に算出される。
-#       再生成しないと generated section が stale になる
+#       再生成しないと generated section が stale になる。
+#       check_docs_drift より高速だが path heuristic ベースで漏れがある。
+#       comprehensive 検証は check_docs_drift が担う。
 # severity: warn
 check_docs_generate() {
   GUARD_CHANGED=0
@@ -223,6 +225,51 @@ check_docs_generate() {
   add_warn \
     "guard/allowlist/registry 変更あり → docs:generate 未実行の可能性" \
     "  修正方法: cd app && npm run docs:generate"
+}
+
+# Check: docs:check (KPI drift / generated section drift / hard gate)
+# 学習ソース:
+#   - 2026-04-26 CI で docs:check 失敗:
+#       KPI drift: project.checklist.checkedCheckboxes — committed: 643, live: 644
+#     HANDOFF.md / checklist.md 編集後の docs:generate 忘れによる drift だった。
+#     既存の check_docs_generate は guard/allowlist/registry の path しか
+#     見ていないため、HANDOFF.md / checklist.md / references/01-principles/*.md /
+#     CLAUDE.md など generated section を含む doc 編集による KPI drift を
+#     捕捉できなかった
+# 理由: docs:check は KPI drift / generated section drift / hard gate を一括検証する
+#       canonical truth。CI fast-gate (docs-health) で必ず実行される。pre-push で
+#       同じ check を回せば「pre-push 通過 = CI docs:check 通過」を構造的に保証できる
+#       （path heuristic の漏れに左右されない）
+# 不可侵原則: pre-push の docs:check 通過は CI docs-health 通過を意味する
+# severity: error
+# コスト: ~2-3 秒 (live recalculation + semantic diff)
+check_docs_drift() {
+  echo "  pre-push: docs:check 実行中 (KPI drift / generated section / hard gate)..."
+  DOCS_CHECK_OUTPUT=$(cd app && npm run --silent docs:check 2>&1)
+  DOCS_CHECK_EXIT=$?
+  if [ "$DOCS_CHECK_EXIT" = "0" ]; then
+    return 0
+  fi
+  # FAIL 詳細を抽出 (✗ / FAIL / drift / Hard gate fail のいずれか含む行)
+  DRIFT_DETAILS=$(echo "$DOCS_CHECK_OUTPUT" \
+    | grep -E "✗|FAIL|drift|Hard gate fail" \
+    | head -10)
+  add_error \
+    "docs:check 失敗 (CI fast-gate docs-health で同じ失敗が再現する):" \
+    "  修正方法:" \
+    "    cd app && npm run docs:generate     # 全 generated artifact を再生成" \
+    "    git add CLAUDE.md references/      # 再生成された差分を staging" \
+    "    git commit -m 'chore: docs:generate ...'  # 新規 commit を積んで再 push" \
+    "  失敗詳細:"
+  if [ -n "$DRIFT_DETAILS" ]; then
+    OLD_IFS="$IFS"
+    IFS='
+'
+    for line in $DRIFT_DETAILS; do
+      add_error "    $line"
+    done
+    IFS="$OLD_IFS"
+  fi
 }
 
 # Check: tsc 型チェック (project references を辿る `tsc -b`)
@@ -455,6 +502,7 @@ CHECK_REGISTRY="
   check_principles_json
   check_project_metadata
   check_docs_generate
+  check_docs_drift
   check_tsc
   check_lint
   check_format
