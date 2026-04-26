@@ -48,7 +48,17 @@ export interface ForecastToolsState {
 
 // ─── Hook ───────────────────────────────────────────────
 
-export function useForecastToolsState(ctx: DashboardWidgetContext): ForecastToolsState {
+/**
+ * SP-B ADR-B-002: useForecastToolsState は ctx の subset (result / prevYear /
+ * observationStatus) のみ参照するため Pick で narrow。ForecastToolsWidget も
+ * 同じ subset を受け取るため整合する。
+ */
+export type ForecastToolsCtx = Pick<
+  DashboardWidgetContext,
+  'result' | 'prevYear' | 'observationStatus'
+>
+
+export function useForecastToolsState(ctx: ForecastToolsCtx): ForecastToolsState {
   const { result: r, prevYear } = ctx
   const base = deriveBaseValues(r, prevYear)
 

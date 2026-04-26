@@ -44,17 +44,24 @@ export const UnifiedTimeSlotWidget = memo(function UnifiedTimeSlotWidget({
 
 // ── 2. 時間帯×曜日ヒートマップ ──
 
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化 */
+export type UnifiedHeatmapWidgetProps = Pick<
+  DashboardWidgetContext,
+  'queryExecutor' | 'currentDateRange' | 'selectedStoreIds' | 'prevYearScope'
+>
+
 export const UnifiedHeatmapWidget = memo(function UnifiedHeatmapWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
+  queryExecutor,
+  currentDateRange,
+  selectedStoreIds,
+  prevYearScope,
+}: UnifiedHeatmapWidgetProps) {
   return (
     <HeatmapChart
-      queryExecutor={ctx.queryExecutor}
-      currentDateRange={ctx.currentDateRange}
-      selectedStoreIds={ctx.selectedStoreIds}
-      prevYearScope={ctx.prevYearScope}
+      queryExecutor={queryExecutor}
+      currentDateRange={currentDateRange}
+      selectedStoreIds={selectedStoreIds}
+      prevYearScope={prevYearScope}
     />
   )
 })
@@ -77,17 +84,24 @@ export const UnifiedDeptHourlyWidget = memo(function UnifiedDeptHourlyWidget({
 
 // ── 4. 店舗×時間帯比較 ──
 
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化 */
+export type UnifiedStoreHourlyWidgetProps = Pick<
+  DashboardWidgetContext,
+  'queryExecutor' | 'currentDateRange' | 'selectedStoreIds' | 'stores'
+>
+
 export const UnifiedStoreHourlyWidget = memo(function UnifiedStoreHourlyWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
+  queryExecutor,
+  currentDateRange,
+  selectedStoreIds,
+  stores,
+}: UnifiedStoreHourlyWidgetProps) {
   return (
     <StoreHourlyChart
-      queryExecutor={ctx.queryExecutor}
-      currentDateRange={ctx.currentDateRange}
-      selectedStoreIds={ctx.selectedStoreIds}
-      stores={ctx.stores}
+      queryExecutor={queryExecutor}
+      currentDateRange={currentDateRange}
+      selectedStoreIds={selectedStoreIds}
+      stores={stores}
     />
   )
 })

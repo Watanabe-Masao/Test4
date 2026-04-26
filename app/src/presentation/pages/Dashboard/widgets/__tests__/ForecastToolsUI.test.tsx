@@ -82,19 +82,19 @@ vi.mock('../useForecastToolsState', () => ({
 
 import { ForecastToolsWidget } from '../ForecastTools'
 
-// 最小限の WidgetContext モック
-const mockCtx = {
+// 最小限の WidgetContext モック (SP-B ADR-B-002 で props 化、Pick fields のみ)
+const mockProps = {
   fmtCurrency: (v: number) => `${Math.round(v / 10000).toLocaleString()}万円`,
   targetRate: 0.25,
   result: {
     grossProfitRateBudget: 0.25,
   },
-} as Parameters<typeof ForecastToolsWidget>[0]['ctx']
+} as unknown as Parameters<typeof ForecastToolsWidget>[0]
 
 function renderWidget() {
   return render(
     <ThemeProvider theme={lightTheme}>
-      <ForecastToolsWidget ctx={mockCtx} />
+      <ForecastToolsWidget {...mockProps} />
     </ThemeProvider>,
   )
 }

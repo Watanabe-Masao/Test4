@@ -123,6 +123,9 @@ export function calculateEstMethodWithStatus(
  * 推定法マージン計算
  *
  * @deprecated calculateEstMethodWithStatus を使用してください
+ * @expiresAt 2026-12-31
+ * @sunsetCondition 全 caller が calculateEstMethodWithStatus 版に移行し、本関数の参照が 0 になった時
+ * @reason 結果値のみ返す旧 API。WithStatus 版は status/issue 情報を含むため、エラー処理品質が向上する
  */
 export function calculateEstMethod(input: EstMethodInput): EstMethodResult {
   const result = calculateEstMethodWithStatus(input)

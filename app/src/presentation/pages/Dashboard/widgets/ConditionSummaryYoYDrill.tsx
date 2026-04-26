@@ -74,9 +74,32 @@ export type YoYDrillType =
   | 'qtyCustomerGap'
   | 'amtCustomerGap'
 
+/** SP-B ADR-B-002: ctx を Pick で narrow（ConditionSummaryEnhancedProps 由来） */
+type YoYDrillCtx = Pick<
+  DashboardWidgetContext,
+  | 'fmtCurrency'
+  | 'readModels'
+  | 'stores'
+  | 'prevYear'
+  | 'prevYearMonthlyKpi'
+  | 'result'
+  | 'dataMaxDay'
+  | 'year'
+  | 'month'
+  | 'allStoreResults'
+  | 'prevYearScope'
+  | 'prevYearStoreCostPrice'
+  | 'comparisonScope'
+  | 'onPrevYearDetail'
+  | 'daysInMonth'
+  | 'elapsedDays'
+  | 'currentCtsQuantity'
+  | 'dowGap'
+>
+
 interface YoYDrillOverlayProps {
   readonly yoyDrill: YoYDrillType
-  readonly ctx: DashboardWidgetContext
+  readonly ctx: YoYDrillCtx
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly effectiveConfig: ConditionSummaryConfig
   readonly displayMode: DisplayMode
@@ -224,7 +247,7 @@ function RequiredPaceContent({
   elapsedDays,
   daysInMonth,
 }: {
-  readonly ctx: DashboardWidgetContext
+  readonly ctx: YoYDrillCtx
   readonly sortedStoreEntries: readonly [string, StoreResult][]
   readonly elapsedDays: number
   readonly daysInMonth: number

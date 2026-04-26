@@ -75,8 +75,13 @@ interface Props {
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
-  /** WidgetContext（要因分析 embedded 用 — 親から渡す） */
-  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
+  /**
+   * WidgetContext（要因分析 embedded 用 — 親から渡す）
+   *
+   * SP-B ADR-B-002: prop 名は `widgetContext` で固定（旧名 widgetCtx は registry 行
+   * の fullCtxPassthrough 検出に引っかかるため改名。意味は不変）
+   */
+  readonly widgetContext?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
 }
 
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
@@ -284,9 +289,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             )}
 
             {/* 要因分析（独立表示 — 標準ビュー時のみ） */}
-            {dailyView === 'standard' && props.widgetCtx && props.queryExecutor?.isReady && (
+            {dailyView === 'standard' && props.widgetContext && props.queryExecutor?.isReady && (
               <YoYWaterfallChartWidget
-                ctx={props.widgetCtx}
+                ctx={props.widgetContext}
                 overrideDateRange={drillTabDateRange ?? undefined}
                 embedded
                 rangeStart={effectiveRange?.start}

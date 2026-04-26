@@ -3,31 +3,12 @@ import {
   GrossProfitAmountChart,
   SalesPurchaseComparisonChart,
 } from '@/presentation/components/charts'
-import { fromDateKey } from '@/domain/models/CalendarDate'
+import { buildPrevYearCostApprox } from '@/domain/calculations/prevYearCostApprox'
 import type { DashboardWidgetDef } from './types'
-import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { UnifiedHeatmapWidget, UnifiedStoreHourlyWidget } from './UnifiedAnalyticsWidgets'
 import { isTimeSeriesVisible, isStoreComparisonVisible } from './widgetVisibility'
 import { WeatherWidget } from './WeatherWidget'
 // EtrnTestWidget: Sprint 3 で retirement（ctx 非経由のデバッグ用途。廃止）
-
-/**
- * 前年の日別近似原価マップを構築する。
- * 前年は日別仕入原価を持たないため、売上-売変で近似する。
- * 正確な値ではないが傾向比較には有用。
- */
-function buildPrevYearCostMap(
-  ctx: DashboardWidgetContext,
-): ReadonlyMap<number, number> | undefined {
-  const { prevYear } = ctx
-  if (!prevYear.hasPrevYear || prevYear.totalSales <= 0) return undefined
-  const costMap = new Map<number, number>()
-  for (const [dateKey, entry] of prevYear.daily) {
-    const day = fromDateKey(dateKey).day
-    costMap.set(day, entry.sales > 0 ? entry.sales - entry.discount : 0)
-  }
-  return costMap
-}
 
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
@@ -55,7 +36,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
         weatherPersist={ctx.weatherPersist}
-        widgetCtx={ctx}
+        widgetContext={ctx}
       />
     ),
   },
@@ -77,7 +58,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
         targetRate={ctx.targetRate}
         warningRate={ctx.warningRate}
         prevYearDaily={ctx.prevYear.hasPrevYear ? ctx.prevYear.daily : undefined}
-        prevYearCostMap={buildPrevYearCostMap(ctx)}
+        prevYearCostMap={buildPrevYearCostApprox(ctx.prevYear)}
         rangeStart={ctx.chartPeriodProps?.rangeStart}
         rangeEnd={ctx.chartPeriodProps?.rangeEnd}
       />
@@ -97,7 +78,14 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     group: '構造分析',
     size: 'full',
     isVisible: isTimeSeriesVisible,
-    render: (ctx) => <UnifiedHeatmapWidget ctx={ctx} />,
+    render: (ctx) => (
+      <UnifiedHeatmapWidget
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        prevYearScope={ctx.prevYearScope}
+      />
+    ),
   },
   // 注: 部門別時間帯パターン → IntegratedSalesChart の孫に統合（ドリル時に包含表示）
   {
@@ -106,7 +94,14 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     group: '構造分析',
     size: 'full',
     isVisible: isStoreComparisonVisible,
-    render: (ctx) => <UnifiedStoreHourlyWidget ctx={ctx} />,
+    render: (ctx) => (
+      <UnifiedStoreHourlyWidget
+        queryExecutor={ctx.queryExecutor}
+        currentDateRange={ctx.currentDateRange}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
+      />
+    ),
   },
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 店舗別 ──
@@ -137,7 +132,17 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     label: '天気-売上 相関分析',
     group: '外部データ',
     size: 'full',
-    render: (ctx) => <WeatherWidget ctx={ctx} />,
+    render: (ctx) => (
+      <WeatherWidget
+        weatherDaily={ctx.weatherDaily}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
+        comparisonScope={ctx.comparisonScope}
+        year={ctx.year}
+        month={ctx.month}
+        result={ctx.result}
+      />
+    ),
   },
   // chart-etrn-test: Sprint 3 で retirement（デバッグ用途のため廃止）
 ]

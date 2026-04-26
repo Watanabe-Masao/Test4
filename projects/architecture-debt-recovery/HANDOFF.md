@@ -7,17 +7,16 @@
 
 **Phase 1-5 完了 / Wave 0 切替 landed / Wave 1 sub-project 進行中（spawn 2026-04-23）。status: `active`。`CURRENT_PROJECT.md` = `architecture-debt-recovery`（sub-project 作業開始時に個別切替）。**
 
-### Wave 1 sub-project の進行状況
+### sub-project の進行状況
 
 | id | lane | status | 主な成果（定性） |
 |---|---|---|---|
 | `widget-context-boundary` | A | ✅ completed (2026-04-25) | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 |
 | `duplicate-orphan-retirement` | C | ✅ completed (2026-04-25) | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / 17a Option A 拡張 cascade 含む BC-5 完了 / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 |
-| `aag-temporal-governance-hardening` | D | active (Wave 1 完遂、Wave 2-3 起動可能) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard。D-004 (Wave 2) は SP-C completion で起動条件解除、D-003 (Wave 3) は SP-B completed 待ち |
+| `widget-registry-simplification` | B | ✅ completed (2026-04-26) | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 |
+| `aag-temporal-governance-hardening` | D | active (Wave 1 + ADR-D-004 完遂、Wave 3 起動可能) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視。D-003 (Wave 3) は本 SP-B completion で起動条件解除 |
 
 PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
-
-SP-B（widget-registry-simplification）は **SP-A completed (2026-04-25) で起動条件解除**、Wave 2 で spawn 可能。
 
 本 project は `budget-achievement-simulator` の reboot で表面化した widget 複雑化問題を起点に、
 **widget / pure 関数 / 型 / コンポーネント / データパイプライン / レガシー撤退** を

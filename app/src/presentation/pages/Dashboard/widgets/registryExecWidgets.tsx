@@ -21,7 +21,19 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     label: 'アラート',
     group: 'モニタリング',
     size: 'full',
-    render: (ctx) => <AlertPanelWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <AlertPanelWidget
+        key={ctx.storeKey}
+        result={ctx.result}
+        targetRate={ctx.targetRate}
+        prevYear={ctx.prevYear}
+        year={ctx.year}
+        month={ctx.month}
+        storeKey={ctx.storeKey}
+        onExplain={ctx.onExplain}
+        fmtCurrency={ctx.fmtCurrency}
+      />
+    ),
   },
   // ── パターン分析 ──
   {
@@ -70,6 +82,15 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     group: '予測・シミュレーション',
     size: 'full',
     linkTo: { view: 'insight', tab: 'budget' },
-    render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <ForecastToolsWidget
+        key={ctx.storeKey}
+        fmtCurrency={ctx.fmtCurrency}
+        result={ctx.result}
+        prevYear={ctx.prevYear}
+        targetRate={ctx.targetRate}
+        observationStatus={ctx.observationStatus}
+      />
+    ),
   },
 ]

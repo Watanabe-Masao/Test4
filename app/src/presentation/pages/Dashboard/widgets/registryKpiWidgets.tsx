@@ -21,6 +21,28 @@ export const WIDGETS_KPI: readonly DashboardWidgetDef[] = [
     group: '予算進捗',
     size: 'full',
     isVisible: ({ allStoreResults }) => allStoreResults.size > 0,
-    render: (ctx) => <ConditionSummaryEnhanced ctx={ctx} />,
+    render: (ctx) => (
+      <ConditionSummaryEnhanced
+        elapsedDays={ctx.elapsedDays}
+        year={ctx.year}
+        month={ctx.month}
+        comparisonScope={ctx.comparisonScope}
+        currentCtsQuantity={ctx.currentCtsQuantity}
+        result={ctx.result}
+        prevYearMonthlyKpi={ctx.prevYearMonthlyKpi}
+        dowGap={ctx.dowGap}
+        allStoreResults={ctx.allStoreResults}
+        fmtCurrency={ctx.fmtCurrency}
+        prevYear={ctx.prevYear}
+        prevYearStoreCostPrice={ctx.prevYearStoreCostPrice}
+        readModels={ctx.readModels}
+        stores={ctx.stores}
+        onPrevYearDetail={ctx.onPrevYearDetail}
+        daysInMonth={ctx.daysInMonth}
+        prevYearScope={ctx.prevYearScope}
+        dataMaxDay={ctx.dataMaxDay}
+        queryExecutor={ctx.queryExecutor}
+      />
+    ),
   },
 ]
