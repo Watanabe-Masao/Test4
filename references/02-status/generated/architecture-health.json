@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T13:33:37.570Z",
+  "timestamp": "2026-04-26T14:16:54.272Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 98,
+      "value": 101,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -315,8 +315,11 @@
         "app/src/test/guards/manifestGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
         "app/src/test/guards/monthlyPrevYearSalesGuard.test.ts",
+        "app/src/test/guards/noDayOnlyKeyGuard.test.ts",
         "app/src/test/guards/noNewDebtGuard.test.ts",
+        "app/src/test/guards/noParseIntStoreIdGuard.test.ts",
         "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
+        "app/src/test/guards/noSafeNumberAtImportBoundaryGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
         "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
