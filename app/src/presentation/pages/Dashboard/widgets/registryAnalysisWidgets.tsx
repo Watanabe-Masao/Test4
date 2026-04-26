@@ -166,7 +166,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     label: '売上トレンド分析',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
+    isVisible: (ctx) => ctx.queryExecutor.isReady === true,
     render: (ctx) => (
       <FeatureChart
         queryExecutor={ctx.queryExecutor}
