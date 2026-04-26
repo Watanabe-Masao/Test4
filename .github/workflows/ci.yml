@@ -15,11 +15,21 @@ permissions:
 
 jobs:
   # ── WASM ビルド（1回だけ、artifact で後続に配布） ──────────
+  # pkg/ は Cargo.toml/Cargo.lock/src/** + setup-wasm action のハッシュで cache。
+  # WASM 未変更時は setup-wasm（Rust toolchain install + cargo install + build:wasm）
+  # を丸ごとスキップして、cache restore のみで pkg/ を復元する。
   wasm-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/setup-wasm
+      - id: wasm-pkg-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            wasm/*/pkg
+          key: wasm-pkg-v1-${{ runner.os }}-${{ hashFiles('wasm/*/Cargo.toml', 'wasm/*/Cargo.lock', 'wasm/*/src/**', '.github/actions/setup-wasm/action.yml') }}
+      - if: steps.wasm-pkg-cache.outputs.cache-hit != 'true'
+        uses: ./.github/actions/setup-wasm
       - uses: actions/upload-artifact@v4
         with:
           name: wasm-pkg
