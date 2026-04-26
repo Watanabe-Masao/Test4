@@ -360,10 +360,21 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
  * 新 max は 38 行 tier (useShapleyTimeSeries / CategoryDiscountChart /
  * useCategoryHierarchyData)。
  *
+ * baseline=28: 2026-04-26 PR4-step3。30〜38 行帯の 7 件 useMemo body を
+ * pure builder / module-private 関数に抽出:
+ *   - useShapleyTimeSeries.ts:51 (38) → buildShapleyDailyItems
+ *   - CategoryDiscountChart.tsx (38) → CategoryDiscountChart.builders.ts
+ *   - useCategoryHierarchyData.ts:202 (38) → sortHierarchyItems
+ *   - SalesPurchaseComparisonChart.tsx:235 (35) → buildSalesPurchaseChartData
+ *   - CategoryComparisonCharts.tsx (31+22) → 2 pure builder
+ *   - useDataSummary.ts:68 (30) → buildDataSummary
+ *   - useInsightData.ts (30+22) → 2 pure builder
+ * 新 max は 28 行 tier (useExplanation / useRawDataFetch)。
+ *
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-003
  * @see projects/aag-temporal-governance-hardening/plan.md §ADR-D-003
  */
-const BASELINE_USEMEMO_BODY_LINES = 38
+const BASELINE_USEMEMO_BODY_LINES = 28
 
 function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine: number } {
   const allFiles = collectTsFiles(SRC_DIR).filter(

@@ -14,6 +14,83 @@ import {
 } from '@/presentation/components/charts/echartsOptionBuilders'
 import { ChartWrapper, ChartTitle } from './CategoryPage.styles'
 
+// ── pure builders ──
+
+interface BarSeriesItem {
+  readonly type: 'bar'
+  readonly name: string
+  readonly data: number[]
+  readonly itemStyle: { color: string; opacity: number }
+  readonly barMaxWidth: number
+  readonly itemStyle2: undefined
+}
+
+function buildStoreComparisonBarSeries(
+  selectedResults: StoreResult[],
+  storeNames: Map<string, string>,
+): { categories: string[]; series: BarSeriesItem[] } {
+  const cats = CATEGORY_ORDER.filter((cat) =>
+    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+  )
+  const categories = cats.map((cat) => CATEGORY_LABELS[cat])
+  const series = selectedResults.map((sr, i) => {
+    const name = storeNames.get(sr.storeId) ?? sr.storeId
+    const data = cats.map((cat) => {
+      const pair = sr.categoryTotals.get(cat)
+      return pair ? Math.abs(pair.price) : 0
+    })
+    return {
+      type: 'bar' as const,
+      name,
+      data,
+      itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length], opacity: 0.8 },
+      barMaxWidth: 30,
+      itemStyle2: undefined,
+    }
+  })
+  return { categories, series }
+}
+
+interface RadarSeriesItem {
+  readonly name: string
+  readonly value: number[]
+  readonly lineStyle: { width: number }
+  readonly areaStyle: { opacity: number }
+  readonly itemStyle: { color: string }
+}
+
+function buildCategoryRadarSeries(
+  selectedResults: StoreResult[],
+  storeNames: Map<string, string>,
+): { indicators: { name: string; max: number }[]; series: RadarSeriesItem[] } {
+  const cats = CATEGORY_ORDER.filter((cat) =>
+    selectedResults.some((sr) => sr.categoryTotals.has(cat)),
+  )
+  const markupMatrix = selectedResults.map((sr) =>
+    cats.map((cat) => {
+      const pair = sr.categoryTotals.get(cat)
+      return pair ? calculateMarkupRate(pair.price - pair.cost, pair.price) * 100 : 0
+    }),
+  )
+  const maxMarkup = Math.max(0, ...markupMatrix.flat())
+  const radarMax = Math.ceil(maxMarkup / 10) * 10 || 100
+  const series = selectedResults.map((sr, i) => {
+    const name = storeNames.get(sr.storeId) ?? sr.storeId
+    return {
+      name,
+      value: markupMatrix[i],
+      lineStyle: { width: 2 },
+      areaStyle: { opacity: 0.15 },
+      itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
+    }
+  })
+  const indicators = cats.map((cat) => ({
+    name: CATEGORY_LABELS[cat],
+    max: radarMax,
+  }))
+  return { indicators, series }
+}
+
 /** 店舗間カテゴリ比較バーチャート */
 export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCategoryBarChart({
   selectedResults,
@@ -24,30 +101,10 @@ export const StoreComparisonCategoryBarChart = memo(function StoreComparisonCate
 }) {
   const theme = useTheme() as AppTheme
 
-  const { categories, series } = useMemo(() => {
-    const cats = CATEGORY_ORDER.filter((cat) =>
-      selectedResults.some((sr) => sr.categoryTotals.has(cat)),
-    )
-    const categoryLabels = cats.map((cat) => CATEGORY_LABELS[cat])
-
-    const seriesData = selectedResults.map((sr, i) => {
-      const name = storeNames.get(sr.storeId) ?? sr.storeId
-      const data = cats.map((cat) => {
-        const pair = sr.categoryTotals.get(cat)
-        return pair ? Math.abs(pair.price) : 0
-      })
-      return {
-        type: 'bar' as const,
-        name,
-        data,
-        itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length], opacity: 0.8 },
-        barMaxWidth: 30,
-        itemStyle2: undefined,
-      }
-    })
-
-    return { categories: categoryLabels, series: seriesData }
-  }, [selectedResults, storeNames])
+  const { categories, series } = useMemo(
+    () => buildStoreComparisonBarSeries(selectedResults, storeNames),
+    [selectedResults, storeNames],
+  )
 
   const option = useMemo<EChartsOption>(
     () => ({
@@ -119,39 +176,10 @@ export const StoreComparisonMarkupRadarChart = memo(function StoreComparisonMark
 }) {
   const theme = useTheme() as AppTheme
 
-  const { indicators, series } = useMemo(() => {
-    const cats = CATEGORY_ORDER.filter((cat) =>
-      selectedResults.some((sr) => sr.categoryTotals.has(cat)),
-    )
-
-    // Build markup matrix per store x category
-    const markupMatrix = selectedResults.map((sr) =>
-      cats.map((cat) => {
-        const pair = sr.categoryTotals.get(cat)
-        return pair ? calculateMarkupRate(pair.price - pair.cost, pair.price) * 100 : 0
-      }),
-    )
-
-    const maxMarkup = Math.max(0, ...markupMatrix.flat())
-    const radarMax = Math.ceil(maxMarkup / 10) * 10 || 100
-
-    const seriesData = selectedResults.map((sr, i) => {
-      const name = storeNames.get(sr.storeId) ?? sr.storeId
-      return {
-        name,
-        value: markupMatrix[i],
-        lineStyle: { width: 2 },
-        areaStyle: { opacity: 0.15 },
-        itemStyle: { color: STORE_COLORS[i % STORE_COLORS.length] },
-      }
-    })
-    const indicatorData = cats.map((cat) => ({
-      name: CATEGORY_LABELS[cat],
-      max: radarMax,
-    }))
-
-    return { indicators: indicatorData, series: seriesData }
-  }, [selectedResults, storeNames])
+  const { indicators, series } = useMemo(
+    () => buildCategoryRadarSeries(selectedResults, storeNames),
+    [selectedResults, storeNames],
+  )
 
   const option = useMemo<EChartsOption>(
     () => ({

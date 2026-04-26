@@ -7,12 +7,12 @@ import { EChart, type EChartsOption } from './EChart'
 import { yenYAxis, standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { categoryXAxis, lineDefaults } from './builders'
 
-import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import { calculateGrossProfitRate } from '@/domain/calculations/utils'
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { StoreDailySeries } from '@/application/hooks/storeDaily/StoreDailyBundle.types'
 import { ChartCard } from './ChartCard'
+import { buildSalesPurchaseChartData } from './SalesPurchaseComparisonChart.builders'
 import {
   Controls,
   ControlGroup,
@@ -232,43 +232,17 @@ export const SalesPurchaseComparisonChart = memo(function SalesPurchaseCompariso
     return map
   }, [storeDailySeries])
 
-  const chartData = useMemo(() => {
-    // 推定在庫線は StoreResult.daily を継続利用 (StoreDailySeries には
-    // markup / discount rate / 仕入内訳が含まれないため計算不可)。
-    // これが storeDailyLaneSurfaceGuard baseline=1 の intentional floor。
-    const invByStore = new Map<string, ReturnType<typeof computeEstimatedInventory>>()
-    for (const s of storeEntries) {
-      if (s.hasInventory) {
-        invByStore.set(
-          s.storeId,
-          computeEstimatedInventory(
-            s.result.daily,
-            daysInMonth,
-            s.result.openingInventory!,
-            s.result.closingInventory,
-            s.result.coreMarkupRate,
-            s.result.discountRate,
-          ),
-        )
-      }
-    }
-
-    const data: Record<string, number | null>[] = []
-    for (let d = 1; d <= daysInMonth; d++) {
-      const entry: Record<string, number | null> = { day: d }
-      for (const s of storeEntries) {
-        // Phase 6.5-5: sales / purchase は lane 経由で取得する。
-        // lane series 未ロード時は 0 で埋めて flicker を避ける。
-        const lanePoint = laneDailyByStore.get(s.storeId)?.get(d)
-        entry[`${s.name}_売上`] = lanePoint?.sales ?? 0
-        entry[`${s.name}_仕入`] = lanePoint?.purchaseCost ?? 0
-        const inv = invByStore.get(s.storeId)
-        entry[`${s.name}_推定在庫`] = inv?.[d - 1]?.estimated ?? null
-      }
-      data.push(entry)
-    }
-    return data.filter((d) => (d.day as number) >= rangeStart && (d.day as number) <= rangeEnd)
-  }, [storeEntries, daysInMonth, rangeStart, rangeEnd, laneDailyByStore])
+  const chartData = useMemo(
+    () =>
+      buildSalesPurchaseChartData(
+        storeEntries,
+        daysInMonth,
+        rangeStart,
+        rangeEnd,
+        laneDailyByStore,
+      ),
+    [storeEntries, daysInMonth, rangeStart, rangeEnd, laneDailyByStore],
+  )
 
   if (storeEntries.length < 2) return null
 

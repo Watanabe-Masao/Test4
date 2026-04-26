@@ -89,9 +89,7 @@ export function buildRegressionInsight(
       dailyTrend: reg.slope,
       stdDev,
       avgSales:
-        salesValues.length > 0
-          ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length
-          : 0,
+        salesValues.length > 0 ? salesValues.reduce((s, v) => s + v, 0) / salesValues.length : 0,
     },
   }
 }

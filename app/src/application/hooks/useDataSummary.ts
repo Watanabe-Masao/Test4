@@ -7,6 +7,7 @@
  */
 import { useMemo } from 'react'
 import type { DataType } from '@/domain/models/storeTypes'
+import type { MonthlyData } from '@/domain/models/MonthlyData'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
   computeHasAnyData,
@@ -57,6 +58,31 @@ const defaultSummary: DataSummary = {
   dataOverview: noOverview,
 }
 
+function buildDataSummary(current: MonthlyData | null, prevYear: MonthlyData | null): DataSummary {
+  if (!current) return defaultSummary
+
+  const prevYearCS = prevYear?.classifiedSales
+  const prevYearCTS = prevYear?.categoryTimeSales
+
+  return {
+    hasAnyData: computeHasAnyData(current),
+    loadedTypes: computeLoadedTypes(current),
+    maxDayByType: computeMaxDayByType(current),
+    hasPrevYearData: (prevYearCS?.records?.length ?? 0) > 0,
+    prevYearDays: prevYearCS?.records ? computeRecordDays(prevYearCS) : noDays,
+    categoryTimeSalesStats: current.categoryTimeSales?.records
+      ? computeCtsRecordStats(current.categoryTimeSales)
+      : noStats,
+    prevYearCategoryTimeSalesStats: prevYearCTS?.records
+      ? computeCtsRecordStats(prevYearCTS)
+      : noStats,
+    dataOverview:
+      current.purchase?.records && current.classifiedSales?.records
+        ? buildDataOverview(current, prevYear)
+        : noOverview,
+  }
+}
+
 /**
  * store から currentMonthData / prevYear を読み取りサマリーを算出するフック。
  * 引数不要 — store state が変わった場合のみ再計算する。
@@ -65,36 +91,5 @@ export function useDataSummary(): DataSummary {
   const current = useDataStore((s) => s.currentMonthData)
   const prevYear = useDataStore((s) => s.appData.prevYear)
 
-  return useMemo(() => {
-    if (!current) return defaultSummary
-
-    const hasAnyData = computeHasAnyData(current)
-    const loadedTypes = computeLoadedTypes(current)
-    const maxDayByType = computeMaxDayByType(current)
-    const prevYearCS = prevYear?.classifiedSales
-    const hasPrevYearData = (prevYearCS?.records?.length ?? 0) > 0
-    const prevYearDays = prevYearCS?.records ? computeRecordDays(prevYearCS) : noDays
-    const categoryTimeSalesStats = current.categoryTimeSales?.records
-      ? computeCtsRecordStats(current.categoryTimeSales)
-      : noStats
-    const prevYearCTS = prevYear?.categoryTimeSales
-    const prevYearCategoryTimeSalesStats = prevYearCTS?.records
-      ? computeCtsRecordStats(prevYearCTS)
-      : noStats
-    const dataOverview =
-      current.purchase?.records && current.classifiedSales?.records
-        ? buildDataOverview(current, prevYear)
-        : noOverview
-
-    return {
-      hasAnyData,
-      loadedTypes,
-      maxDayByType,
-      hasPrevYearData,
-      prevYearDays,
-      categoryTimeSalesStats,
-      prevYearCategoryTimeSalesStats,
-      dataOverview,
-    }
-  }, [current, prevYear])
+  return useMemo(() => buildDataSummary(current, prevYear), [current, prevYear])
 }

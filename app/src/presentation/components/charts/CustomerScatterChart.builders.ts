@@ -54,10 +54,7 @@ export interface YoyScatterResult {
   readonly yoyQuadrants: QuadrantCounts
 }
 
-type PrevYearDaily = ReadonlyMap<
-  string,
-  { sales: number; discount: number; customers?: number }
->
+type PrevYearDaily = ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 
 export function buildAbsoluteScatter(
   daily: ReadonlyMap<number, DailyRecord>,
