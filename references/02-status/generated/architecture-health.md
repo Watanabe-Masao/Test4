@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-26T05:32:56.556Z
+> Generated: 2026-04-26T05:35:11.244Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 44 |
-| OK | 43 |
+| OK | 44 |
 | WARN | 0 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
@@ -70,7 +70,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 | docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 9 | OK |
 | docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 9 / 20 | OK |
