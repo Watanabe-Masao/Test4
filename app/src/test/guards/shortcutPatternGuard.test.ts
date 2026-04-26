@@ -100,7 +100,8 @@ describe('shortcutPatternGuard (SP-B ADR-B-001)', () => {
 
   it('SHORTCUT_PATTERN は isVisible 内の optional chaining gate を正しく検出する', () => {
     const sample1 = 'isVisible: (ctx) => ctx.queryExecutor?.isReady === true'
-    const sample2 = 'isVisible: (ctx) => ctx.queryExecutor?.isReady === true && ctx.loadedMonthCount >= 2'
+    const sample2 =
+      'isVisible: (ctx) => ctx.queryExecutor?.isReady === true && ctx.loadedMonthCount >= 2'
     const sampleNoGate = 'isVisible: (ctx) => ctx.allStoreResults.size > 0'
     const sampleNotIsVisible = 'render: (ctx) => ctx.queryExecutor?.isReady === true'
 
