@@ -29,11 +29,20 @@ import { getTool1Insight, getTool2Insight } from './simulationInsight'
 
 // ─── Component ──────────────────────────────────────────
 
-export const ForecastToolsWidget = memo(function ForecastToolsWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
+/**
+ * SP-B ADR-B-002: full ctx passthrough を絞り込み props 化。
+ * useForecastToolsState が内部で ctx.X を参照するため、本 widget では ctx 全体を
+ * 受け取る形を維持しつつ Pick で narrow する。registry 行は specific props を渡す。
+ */
+export type ForecastToolsWidgetProps = Pick<
+  DashboardWidgetContext,
+  'fmtCurrency' | 'result' | 'prevYear' | 'targetRate' | 'observationStatus'
+>
+
+export const ForecastToolsWidget = memo(function ForecastToolsWidget(
+  props: ForecastToolsWidgetProps,
+) {
+  const ctx = props
   const { fmtCurrency } = ctx
   const s = useForecastToolsState(ctx)
   const { base, tool1, tool2 } = s

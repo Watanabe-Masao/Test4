@@ -55,7 +55,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
         discountEntries={ctx.result.discountEntries}
         totalGrossSales={ctx.result.grossSales}
         weatherPersist={ctx.weatherPersist}
-        widgetCtx={ctx}
+        widgetContext={ctx}
       />
     ),
   },
@@ -151,7 +151,17 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
     label: '天気-売上 相関分析',
     group: '外部データ',
     size: 'full',
-    render: (ctx) => <WeatherWidget ctx={ctx} />,
+    render: (ctx) => (
+      <WeatherWidget
+        weatherDaily={ctx.weatherDaily}
+        selectedStoreIds={ctx.selectedStoreIds}
+        stores={ctx.stores}
+        comparisonScope={ctx.comparisonScope}
+        year={ctx.year}
+        month={ctx.month}
+        result={ctx.result}
+      />
+    ),
   },
   // chart-etrn-test: Sprint 3 で retirement（デバッグ用途のため廃止）
 ]

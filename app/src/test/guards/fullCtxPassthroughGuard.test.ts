@@ -37,14 +37,14 @@ import { describe, expect, it } from 'vitest'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const REGISTRY_DIR = path.join(PROJECT_ROOT, 'app/src/presentation/pages/Dashboard/widgets')
 
-// ratchet-down baseline
+// fixed mode (baseline=0)
 // - 初期 audit で registry*.tsx 配下の full ctx passthrough を 9 件検出
-//   （registryExecWidgets 2 + registryAnalysisWidgets 2 + registryChartWidgets 4 + registryKpiWidgets 1）
-// - 当初 plan baseline=12 だったが実測 9 で減算固定
-// - ADR-B-002 PR2 で pure delegation widget の helper signature を絞り込み props に変換
-// - PR3 で重量級 widget (WID-001 / WID-002 / WID-018) の props 整理
-// - PR4 で baseline=0 + fixed mode 達成
-const BASELINE_PASSTHROUGH_COUNT = 9
+// - ADR-B-002 PR2 batch1 (commit 186355e): WaterfallChart + GrossProfitHeatmap (2 件)
+// - ADR-B-002 PR2 batch2 (commit 0c7cb97): AlertPanel + UnifiedHeatmap + UnifiedStoreHourly (3 件)
+// - ADR-B-002 PR3 (本 commit): Weather + ForecastTools + ConditionSummaryEnhanced (3 件)
+//   + IntegratedSalesChart widgetCtx → widgetContext rename (1 件)
+// - ADR-B-002 PR4 (本 commit): baseline=0 fixed mode 移行
+const BASELINE_PASSTHROUGH_COUNT = 0
 
 // `ctx={ctx}` / `widgetCtx={ctx}` の両形式を検出
 const PASSTHROUGH_PATTERN = /(?:^|\s)(?:widget)?[Cc]tx=\{ctx\}/g
@@ -88,8 +88,8 @@ describe('fullCtxPassthroughGuard (SP-B ADR-B-002)', () => {
       `full ctx passthrough 数 = ${totalCount} (baseline = ${BASELINE_PASSTHROUGH_COUNT}):\n` +
       breakdown +
       '\n\n' +
-      'hint: ADR-B-002 PR2 で pure delegation widget の helper signature を絞り込み props に変換、' +
-      'PR3 で重量級 widget (WID-001 / WID-002 / WID-018) の props 整理、PR4 で baseline=0 + fixed mode に到達する。' +
+      'hint: fixed mode (baseline=0) 到達済み。新規 widget の registry 行は ' +
+      '`<X ctx={ctx} />` ではなく `<X prop1={ctx.prop1} ... />` で specific props 渡しを徹底する。' +
       '\n  詳細: projects/widget-registry-simplification/plan.md §ADR-B-002'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_PASSTHROUGH_COUNT)
   })

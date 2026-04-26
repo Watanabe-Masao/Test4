@@ -16,10 +16,10 @@
 
 ## Phase 2: ADR-B-002 — full ctx passthrough を絞り込み props 化
 
-* [ ] PR1: `fullCtxPassthroughGuard` を baseline=current で追加した（`<X ctx={ctx} />` パターン検出）
-* [ ] PR2: pure delegation widget の helper signature を絞り込み props に変換した（先行群 WID-009-013）
-* [ ] PR3: 重量級 widget（WID-001 / WID-002 / WID-018）の props 整理、widgetCtx 重複注入解消した
-* [ ] PR4: passthrough 0 到達、`fullCtxPassthroughGuard` baseline=0 + fixed mode 化した
+* [x] PR1: `fullCtxPassthroughGuard` を baseline=9 で追加した（`<X ctx={ctx} />` / `<X widgetCtx={ctx} />` 検出）
+* [x] PR2 (batch1+2): WaterfallChart / GrossProfitHeatmap / AlertPanel / UnifiedHeatmap / UnifiedStoreHourly (5 件) を Pick<DashboardWidgetContext, ...> に変更
+* [x] PR3: Weather / ForecastTools / ConditionSummaryEnhanced (3 件) を Pick 化 + IntegratedSalesChart widgetCtx → widgetContext rename
+* [x] PR4: passthrough 0 到達、`fullCtxPassthroughGuard` baseline=0 + fixed mode 化した
 
 ## Phase 3: ADR-B-003 — IIFE pattern を readModel selector 抽出
 

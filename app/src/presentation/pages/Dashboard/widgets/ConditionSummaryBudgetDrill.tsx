@@ -56,8 +56,32 @@ import {
   DrillCloseBtn,
 } from './ConditionSummaryEnhanced.styles'
 
+/** SP-B ADR-B-002: ctx を Pick で narrow（ConditionSummaryEnhancedProps と同じ subset） */
+type BudgetDrillCtx = Pick<
+  DashboardWidgetContext,
+  | 'fmtCurrency'
+  | 'prevYearScope'
+  | 'prevYear'
+  | 'month'
+  | 'prevYearMonthlyKpi'
+  | 'year'
+  | 'allStoreResults'
+  | 'result'
+  | 'stores'
+  | 'readModels'
+  | 'dowGap'
+  | 'daysInMonth'
+  | 'elapsedDays'
+  | 'currentCtsQuantity'
+  | 'prevYearStoreCostPrice'
+  | 'comparisonScope'
+  | 'onPrevYearDetail'
+  | 'dataMaxDay'
+  | 'queryExecutor'
+>
+
 interface BudgetDrillProps {
-  readonly ctx: DashboardWidgetContext
+  readonly ctx: BudgetDrillCtx
   readonly activeMetric: MetricKey
   readonly onClose: () => void
 }

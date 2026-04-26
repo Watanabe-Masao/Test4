@@ -67,11 +67,39 @@ const YOY_DRILL_IDS: ReadonlySet<string> = new Set([
 
 // ─── Component ──────────────────────────────────────────
 
-export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced({
-  ctx,
-}: {
-  readonly ctx: DashboardWidgetContext
-}) {
+/**
+ * SP-B ADR-B-002: full ctx passthrough を絞り込み props 化。
+ * 本 widget は ctx の多数の field を deep に使用するため Pick で narrow。
+ * body 内では `const ctx = props` で従来の `ctx.X` access を温存。
+ */
+export type ConditionSummaryEnhancedProps = Pick<
+  DashboardWidgetContext,
+  | 'elapsedDays'
+  | 'year'
+  | 'month'
+  | 'comparisonScope'
+  | 'currentCtsQuantity'
+  | 'result'
+  | 'prevYearMonthlyKpi'
+  | 'dowGap'
+  | 'allStoreResults'
+  | 'fmtCurrency'
+  | 'prevYear'
+  | 'prevYearStoreCostPrice'
+  | 'readModels'
+  | 'stores'
+  | 'onPrevYearDetail'
+  | 'daysInMonth'
+  // sub-component (BudgetDrill / YoYDrill) で参照される追加 field
+  | 'prevYearScope'
+  | 'dataMaxDay'
+  | 'queryExecutor'
+>
+
+export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced(
+  props: ConditionSummaryEnhancedProps,
+) {
+  const ctx = props
   const [activeMetric, setActiveMetric] = useState<MetricKey | null>(null)
   const [yoyDrill, setYoYDrill] = useState<YoYDrillType | null>(null)
   const [showSettings, setShowSettings] = useState(false)

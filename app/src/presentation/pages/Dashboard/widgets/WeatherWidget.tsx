@@ -86,20 +86,32 @@ const ErrorText = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.label};
 `
 
-export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: DashboardWidgetContext }) {
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化 */
+export type WeatherWidgetProps = Pick<
+  DashboardWidgetContext,
+  'weatherDaily' | 'selectedStoreIds' | 'stores' | 'comparisonScope' | 'year' | 'month' | 'result'
+>
+
+export const WeatherWidget = memo(function WeatherWidget({
+  weatherDaily,
+  selectedStoreIds,
+  stores,
+  comparisonScope,
+  year,
+  month,
+  result,
+}: WeatherWidgetProps) {
   const storeLocations = useSettingsStore((s) => s.settings.storeLocations)
 
-  // 日別天気データは ctx から取得（useUnifiedWidgetContext で一元管理）
-  const daily = useMemo(() => ctx.weatherDaily ?? [], [ctx.weatherDaily])
+  // 日別天気データ
+  const daily = useMemo(() => weatherDaily ?? [], [weatherDaily])
 
   // 予報・時間帯別はウィジェット固有（ctx に含めるべきデータではないため個別取得）
   const storeId = useMemo(() => {
     const ids =
-      ctx.selectedStoreIds.size > 0
-        ? Array.from(ctx.selectedStoreIds)
-        : Array.from(ctx.stores.keys())
+      selectedStoreIds.size > 0 ? Array.from(selectedStoreIds) : Array.from(stores.keys())
     return ids.find((id) => storeLocations[id]) ?? ids[0] ?? ''
-  }, [ctx.selectedStoreIds, ctx.stores, storeLocations])
+  }, [selectedStoreIds, stores, storeLocations])
 
   const {
     forecasts,
@@ -107,7 +119,7 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: Dashboa
     error: forecastError,
   } = useWeatherForecast(storeId)
 
-  const weatherPolicy: AlignmentMode = ctx.comparisonScope?.alignmentMode ?? 'sameDate'
+  const weatherPolicy: AlignmentMode = comparisonScope?.alignmentMode ?? 'sameDate'
 
   // 時間別データ取得は Application hook 経由（@guard A3）
   const { hourlyCache, prevHourlyCache, fetchHourly, fetchPrevHourly, resolvePrevDate } =
@@ -121,10 +133,10 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: Dashboa
     (dateKey: string) => {
       setModalDate(dateKey)
       setModalForecast(null)
-      fetchHourly(dateKey, ctx.year, ctx.month)
+      fetchHourly(dateKey, year, month)
       fetchPrevHourly(dateKey)
     },
-    [ctx.year, ctx.month, fetchHourly, fetchPrevHourly],
+    [year, month, fetchHourly, fetchPrevHourly],
   )
 
   /** 予報日クリック */
@@ -151,15 +163,15 @@ export const WeatherWidget = memo(function WeatherWidget({ ctx }: { ctx: Dashboa
 
   const salesDaily = useMemo<readonly DailySalesForCorrelation[]>(() => {
     const entries: DailySalesForCorrelation[] = []
-    for (const [day, rec] of ctx.result.daily) {
+    for (const [day, rec] of result.daily) {
       entries.push({
-        dateKey: toDateKeyFromParts(ctx.year, ctx.month, day),
+        dateKey: toDateKeyFromParts(year, month, day),
         sales: rec.sales,
         customers: rec.customers ?? 0,
       })
     }
     return entries
-  }, [ctx.result.daily, ctx.year, ctx.month])
+  }, [result.daily, year, month])
 
   if (daily.length === 0 && !isForecastLoading && forecasts.length === 0) {
     const hasLocation = !!storeLocations[storeId]

@@ -82,6 +82,15 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     group: '予測・シミュレーション',
     size: 'full',
     linkTo: { view: 'insight', tab: 'budget' },
-    render: (ctx) => <ForecastToolsWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <ForecastToolsWidget
+        key={ctx.storeKey}
+        fmtCurrency={ctx.fmtCurrency}
+        result={ctx.result}
+        prevYear={ctx.prevYear}
+        targetRate={ctx.targetRate}
+        observationStatus={ctx.observationStatus}
+      />
+    ),
   },
 ]
