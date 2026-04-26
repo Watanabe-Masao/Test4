@@ -26,7 +26,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     group: '要因分析',
     size: 'full',
     linkTo: { view: 'insight', tab: 'decomposition' },
-    render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} result={ctx.result} />,
   },
   // 注: analysis-yoy-waterfall → IntegratedSalesChart の「要因分析」タブに統合
   {
@@ -34,7 +34,17 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     label: '粗利率ヒートマップ',
     group: '要因分析',
     size: 'full',
-    render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <GrossProfitHeatmapWidget
+        key={ctx.storeKey}
+        allStoreResults={ctx.allStoreResults}
+        stores={ctx.stores}
+        daysInMonth={ctx.daysInMonth}
+        targetRate={ctx.targetRate}
+        warningRate={ctx.warningRate}
+        readModels={ctx.readModels}
+      />
+    ),
   },
   // ── 多角的分析 ──
   // 注: analysis-yoy-variance（前年比較）→ DailySalesChart「差分」ビューに統合

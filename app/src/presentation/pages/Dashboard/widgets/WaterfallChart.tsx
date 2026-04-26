@@ -22,12 +22,12 @@ interface WaterfallItem {
   isTotal?: boolean
 }
 
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化（result のみ参照） */
+export type WaterfallChartWidgetProps = Pick<DashboardWidgetContext, 'result'>
+
 export const WaterfallChartWidget = memo(function WaterfallChartWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
-  const { result: r } = ctx
+  result: r,
+}: WaterfallChartWidgetProps) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
 

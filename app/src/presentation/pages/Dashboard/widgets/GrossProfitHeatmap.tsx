@@ -64,12 +64,20 @@ export function deviationToColor(dev: number): { bg: string; text: string } {
 
 // ─── Component ──────────────────────────────────────────
 
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化 */
+export type GrossProfitHeatmapWidgetProps = Pick<
+  DashboardWidgetContext,
+  'allStoreResults' | 'stores' | 'daysInMonth' | 'targetRate' | 'warningRate' | 'readModels'
+>
+
 export const GrossProfitHeatmapWidget = memo(function GrossProfitHeatmapWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
-  const { allStoreResults, stores, daysInMonth, targetRate, warningRate, readModels } = ctx
+  allStoreResults,
+  stores,
+  daysInMonth,
+  targetRate,
+  warningRate,
+  readModels,
+}: GrossProfitHeatmapWidgetProps) {
   const [mode, setMode] = useState<HeatMode>('gpRate')
 
   // readModels から粗利率を構築（available 時）、StoreResult をフォールバック
