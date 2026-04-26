@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-26T03:38:52.625Z |
+| 最終更新 | 2026-04-26T03:42:47.420Z |
 
 ## Hard Gate
 
@@ -31,7 +31,7 @@
 | **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 2/3 |
 | **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 28/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
-| **ガード強度** | OK | ガードテストファイル数: 94/30 / レビュー専用タグ数: 0/5 |
+| **ガード強度** | OK | ガードテストファイル数: 95/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6601/7000 / メインバンドルサイズ: 2387/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 32/32 / active-debt 例外数: 1/12 / reviewPolicy 設定済みルール数: 148/92 / sunsetCondition 設定済みルール数: 17/9 / active-debt で createdAt 設定済み: 1/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 85 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |

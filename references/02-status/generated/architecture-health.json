@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T03:38:52.625Z",
+  "timestamp": "2026-04-26T03:42:47.420Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 94,
+      "value": 95,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -333,6 +333,7 @@
         "app/src/test/guards/purityGuard.test.ts",
         "app/src/test/guards/queryPatternGuard.test.ts",
         "app/src/test/guards/readModelSafetyGuard.test.ts",
+        "app/src/test/guards/registryInlineLogicGuard.test.ts",
         "app/src/test/guards/renderSideEffectGuard.test.ts",
         "app/src/test/guards/responsibilitySeparationGuard.test.ts",
         "app/src/test/guards/responsibilityTagGuard.test.ts",
