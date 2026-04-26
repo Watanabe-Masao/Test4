@@ -245,7 +245,7 @@ check_docs_generate() {
 # コスト: ~2-3 秒 (live recalculation + semantic diff)
 check_docs_drift() {
   echo "  pre-push: docs:check 実行中 (KPI drift / generated section / hard gate)..."
-  DOCS_CHECK_OUTPUT=$(cd app && npm run --silent docs:check 2>&1)
+  DOCS_CHECK_OUTPUT=$(cd app && npm run docs:check 2>&1)
   DOCS_CHECK_EXIT=$?
   if [ "$DOCS_CHECK_EXIT" = "0" ]; then
     return 0
