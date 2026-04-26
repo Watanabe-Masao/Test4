@@ -68,6 +68,8 @@ export function selectCustomerCountOrUndefined(slice: CustomerFactSlice): number
  *
  * 用途: WID-018 等で storeCustomerMap prop 注入。
  */
-export function selectStoreCustomerMap(slice: CustomerFactSlice): ReturnType<typeof toStoreCustomerRows> | undefined {
+export function selectStoreCustomerMap(
+  slice: CustomerFactSlice,
+): ReturnType<typeof toStoreCustomerRows> | undefined {
   return slice?.status === 'ready' ? toStoreCustomerRows(slice.data) : undefined
 }
