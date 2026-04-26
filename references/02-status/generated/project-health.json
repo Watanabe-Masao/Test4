@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T12:28:13.384Z",
+  "timestamp": "2026-04-26T13:03:03.179Z",
   "summary": {
-    "active": 7,
-    "archived": 23,
-    "inProgress": 6,
+    "active": 6,
+    "archived": 24,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 837,
-    "checkedCheckboxes": 645
+    "checkedCheckboxes": 665
   },
   "projects": [
     {
@@ -68,13 +68,13 @@
       "projectId": "architecture-debt-recovery",
       "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 52,
+      "declaredStatus": "completed",
+      "derivedStatus": "archived",
+      "checked": 72,
       "total": 73,
-      "progress": 0.712,
-      "entrypoint": "projects/architecture-debt-recovery/AI_CONTEXT.md",
-      "checklistPath": "projects/architecture-debt-recovery/checklist.md",
+      "progress": 0.986,
+      "entrypoint": "projects/completed/architecture-debt-recovery/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/architecture-debt-recovery/checklist.md",
       "parent": null,
       "generatedArtifacts": {
         "remediationJson": "references/02-status/generated/architecture-debt-recovery-remediation.json",

@@ -1,5 +1,5 @@
 # Current Project
 
-active: architecture-debt-recovery
+active: pure-calculation-reorg
 
-entry: `projects/architecture-debt-recovery/AI_CONTEXT.md`
+entry: `projects/pure-calculation-reorg/AI_CONTEXT.md`
