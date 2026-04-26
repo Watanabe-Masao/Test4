@@ -36,15 +36,16 @@ import { describe, expect, it } from 'vitest'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const REGISTRY_DIR = path.join(PROJECT_ROOT, 'app/src/presentation/pages/Dashboard/widgets')
 
-// ratchet-down baseline
+// fixed mode (baseline=0)
 // - 初期 audit で `isVisible:.*ctx\) => ctx\.[name]?\.` pattern を 6 件検出
 //   (registryAnalysisWidgets x1 + registryDuckDBWidgets x5、全て queryExecutor?.isReady)
-// - 当初 plan baseline=10 だったが実測 6 で減算固定
-//   (10 widget は実際の対応 widget 数。registry 行 pattern としては 6 が現状)
-// - ADR-B-001 PR2 で type narrowing で gate 削除可能な widget から順次解消
-// - PR3 で残 widget を discriminated union 化後の型で gate 削除
-// - PR4 で baseline=0 + fixed mode 達成
-const BASELINE_SHORTCUT_COUNT = 6
+// - ADR-B-001 PR2 (commit bf426b5) で registryDuckDBWidgets.tsx 5 件を
+//   `.isReady` に置換（DashboardWidgetContext.queryExecutor が QueryExecutor 型 required の
+//    type narrowing を活用）
+// - ADR-B-001 PR3 (commit 0004352) で registryAnalysisWidgets.tsx 残 1 件を置換
+// - ADR-B-001 PR4 (本 commit) で baseline=0 fixed mode 移行。
+//   新規 isVisible は ctx.X?. ではなく ctx.X.field を直接書く運用に固定
+const BASELINE_SHORTCUT_COUNT = 0
 
 // `isVisible: (ctx) => ctx.X?.` pattern を検出
 // 例:
@@ -92,8 +93,8 @@ describe('shortcutPatternGuard (SP-B ADR-B-001)', () => {
       `(baseline = ${BASELINE_SHORTCUT_COUNT}):\n` +
       breakdown +
       '\n\n' +
-      'hint: ADR-B-001 PR2 で type narrowing で gate 削除可能な widget から順次解消、' +
-      'PR3 で残 widget を discriminated union 化後の型で gate 削除、PR4 で baseline=0 + fixed mode に到達する。' +
+      'hint: fixed mode (baseline=0) 到達済み。新規 isVisible は ctx.X?. ではなく ' +
+      'ctx.X.field を直接書く運用に固定。DashboardWidgetContext で required な field のみを参照する。' +
       '\n  詳細: projects/widget-registry-simplification/plan.md §ADR-B-001'
     expect(totalCount, message).toBeLessThanOrEqual(BASELINE_SHORTCUT_COUNT)
   })

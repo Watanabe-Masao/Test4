@@ -9,10 +9,10 @@
 
 ## Phase 1: ADR-B-001 — 二重 null check 解消
 
-* [ ] PR1: `shortcutPatternGuard` を baseline=current で追加した（registry 行の二重 null check pattern を ratchet-down 検出）
-* [ ] PR2: type narrowing で gate 削除可能な widget から順次解消した（pure delegation 群を先行）
-* [ ] PR3: 残 widget を discriminated union で gate 削除した（重量級含む）
-* [ ] PR4: `shortcutPatternGuard` baseline=0 + fixed mode 化した
+* [x] PR1: `shortcutPatternGuard` を baseline=6 で追加した（registry 行の二重 null check pattern を ratchet-down 検出）
+* [x] PR2: registryDuckDBWidgets.tsx 5 件で type narrowing 適用 (`?.isReady` → `.isReady`)
+* [x] PR3: registryAnalysisWidgets.tsx 1 件で type narrowing 適用 (全 6 件完了)
+* [x] PR4: `shortcutPatternGuard` baseline=0 + fixed mode 化した
 
 ## Phase 2: ADR-B-002 — full ctx passthrough を絞り込み props 化
 
