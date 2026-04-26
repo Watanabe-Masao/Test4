@@ -82,6 +82,9 @@
 | `app/src/application/readModels/salesFact/readSalesFact.test.ts` | invariant-guardian | 8件 | 売上ファクト正本（Zod parse・grand合計不変条件・導出ヘルパー4種） |
 | `app/src/application/readModels/discountFact/readDiscountFact.test.ts` | invariant-guardian | 7件 | 値引きファクト正本（Zod parse・grand合計・71-74内訳・導出ヘルパー3種） |
 | `app/src/application/readModels/factorDecomposition/calculateFactorDecomposition.test.ts` | invariant-guardian | 6件 | 要因分解正本（Shapley不変条件2/3/5要素・Zod parse・meta） |
+| `app/src/test/guards/noDayOnlyKeyGuard.test.ts` | architecture | 3件 | day-only key (`indexByStoreDay` / `aggregateAllStores` / `aggregateForStore`) の caller 数を ratchet-down 管理 (baseline=5)。definition file 除外、month-collision 防止のため新規 caller を禁止し DateKey 経由を強制 |
+| `app/src/test/guards/noSafeNumberAtImportBoundaryGuard.test.ts` | architecture | 3件 | `infrastructure/dataProcessing/*Processor.ts` での `safeNumber()` 利用を ratchet-down 管理 (baseline=9 file / 27 call)。import 境界での silent 0 化を禁止し、専用 parser / parse error への置換を強制 |
+| `app/src/test/guards/noParseIntStoreIdGuard.test.ts` | architecture | 3件 | `infrastructure/dataProcessing/*Processor.ts` での店舗コードに対する `parseInt(...)` 利用を ratchet-down 管理 (baseline=7 file / 10 call)。leading zero 破壊と NaN→"0" 捏造を禁止し、文字列保持の正規化 helper への置換を強制 |
 
 ## ルール → テスト対応
 
