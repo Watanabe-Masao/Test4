@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T02:15:11.813Z",
+  "timestamp": "2026-04-26T03:47:45.950Z",
   "summary": {
-    "active": 8,
+    "active": 9,
     "archived": 21,
-    "inProgress": 7,
+    "inProgress": 8,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 814,
-    "checkedCheckboxes": 624
+    "totalCheckboxes": 880,
+    "checkedCheckboxes": 630
   },
   "projects": [
     {
@@ -262,6 +262,19 @@
       "entrypoint": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
       "checklistPath": "projects/completed/phase-6-optional-comparison-projection/checklist.md",
       "parent": "unify-period-analysis"
+    },
+    {
+      "projectId": "phased-content-specs-rollout",
+      "title": "Content Spec System 段階展開計画",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 6,
+      "total": 66,
+      "progress": 0.091,
+      "entrypoint": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
+      "checklistPath": "projects/phased-content-specs-rollout/checklist.md",
+      "parent": "architecture-debt-recovery"
     },
     {
       "projectId": "presentation-cts-surface-ratchetdown",

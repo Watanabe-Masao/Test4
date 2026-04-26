@@ -1,0 +1,34 @@
+{
+  "$comment": "Content Spec System (CSS) の段階展開計画を保持する project。「初回スコープ外」を「順番を後にすること」として明記し、SP-B Anchor Slice (Phase A) から始まる Phase A〜J の rollout 順序を canonical 化する。実装は SP-B / 後続 sub-project が担い、本 project は計画と完了条件の正本を持つ。",
+  "projectId": "phased-content-specs-rollout",
+  "title": "Content Spec System 段階展開計画",
+  "status": "active",
+  "parent": "architecture-debt-recovery",
+  "projectRoot": "projects/phased-content-specs-rollout",
+  "projectization": {
+    "$comment": "Level 2 — 計画 doc + Phase A の vertical slice 着手を含む。後続 Phase は依存 sub-project completed 後に着手する Wave 構造。",
+    "level": 2,
+    "changeType": "docs-only",
+    "implementationScope": [
+      "projects/phased-content-specs-rollout/",
+      "references/05-contents/"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "本 project 単独で Phase B 以降を実装すること（実装は依存 sub-project の責務）",
+      "新 Architecture Rule の active 化（Phase A の AR-CONTENT-SPEC-* 5 件は umbrella inquiry/01a の Phase 6 で実装）",
+      "本体アプリ（粗利管理ツール）の機能変更",
+      "WSS 以外の category (01-principles / 03-guides 等) への原則変更"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
+    "handoff": "projects/phased-content-specs-rollout/HANDOFF.md",
+    "plan": "projects/phased-content-specs-rollout/plan.md",
+    "checklist": "projects/phased-content-specs-rollout/checklist.md",
+    "projectization": "projects/phased-content-specs-rollout/projectization.md"
+  }
+}
