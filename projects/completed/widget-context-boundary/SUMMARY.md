@@ -1,9 +1,9 @@
 # SUMMARY — widget-context-boundary（SP-A）
 
-> **役割**: completion 記録（draft）。後続 project（SP-B widget-registry-simplification）が
+> **役割**: completion 記録（final）。後続 project（SP-B widget-registry-simplification）が
 > 本 sub-project の経緯・成果物・引き継ぎ先を参照するためのサマリ。
 >
-> **status (本 file)**: **final（2026-04-25 archive 完了）**。本 file は `inquiry/20 §sub-project completion テンプレート` の **step1**。step2-7（physical move / status 切替 / CURRENT_PROJECT 確認 / open-issues 更新 / umbrella HANDOFF 同期 / projectCompletionConsistencyGuard 確認）も同 commit set で実施完了。
+> **status (本 file)**: **final（2026-04-25 archive 完了）**。`inquiry/20 §sub-project completion テンプレート` の **step1-7** すべて実施完了（physical move / status 切替 / open-issues 更新 / umbrella HANDOFF 同期 / projectCompletionConsistencyGuard 確認 を含む）。
 
 ## 完了日
 
@@ -118,17 +118,17 @@ umbrella `architecture-debt-recovery` の **Lane A** sub-project として、wid
 
 SP-B completed 後、SP-D の ADR-D-003 (G8 P20/P21 baseline 削減) を実施。
 
-## archive 手順（人間が後で実施 — 7 step）
+## archive 手順（実施完了）
 
-本 sub-project の archive は umbrella `inquiry/20 §sub-project completion テンプレート` の 7 step:
+本 sub-project の archive は umbrella `inquiry/20 §sub-project completion テンプレート` の 7 step を 2026-04-25 に完遂:
 
-1. ✅ 本 SUMMARY.md を作成（本 file、draft）
-2. ⏳ `projects/widget-context-boundary/` を `projects/completed/widget-context-boundary/` に物理移動
-3. ⏳ `config/project.json.status` を `"active" → "completed"`
-4. ⏳ `CURRENT_PROJECT.md` を umbrella（`architecture-debt-recovery`）に戻す
-5. ⏳ `references/02-status/open-issues.md` の active → archived 欄へ移動
-6. ⏳ umbrella `architecture-debt-recovery/HANDOFF.md` の進捗サマリを更新（SP-A completed、Wave 2 spawn 入口）
-7. ⏳ `projectCompletionConsistencyGuard` PASS（archive prefix 整合）
+1. ✅ 本 SUMMARY.md を作成（本 file、final）
+2. ✅ `projects/widget-context-boundary/` を `projects/completed/widget-context-boundary/` に物理移動
+3. ✅ `config/project.json.status` を `"active" → "completed"`
+4. ✅ `CURRENT_PROJECT.md` の確認（umbrella `architecture-debt-recovery` のままで no-op）
+5. ✅ `references/02-status/open-issues.md` の active → archived 欄へ移動
+6. ✅ umbrella `architecture-debt-recovery/HANDOFF.md` の進捗サマリを更新（SP-A completed、Wave 2 spawn 入口）
+7. ✅ `projectCompletionConsistencyGuard` PASS（archive prefix 整合）
 
 ### archive 前の verification
 

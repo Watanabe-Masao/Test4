@@ -26,7 +26,7 @@
 ## 想定影響範囲
 
 - **runtime 動作**: 影響 **なし**（grep で consumer 0 確認済み）
-- **import path**: `DashboardPage.styles.ts` の 1 行変更のみ
+- **import path**: `DashboardPage.styles.ts` の barrel re-export 行を除去
 - **テスト**: `__tests__/PlanActualForecast.test.tsx` を同時削除
 
 ## rollback plan

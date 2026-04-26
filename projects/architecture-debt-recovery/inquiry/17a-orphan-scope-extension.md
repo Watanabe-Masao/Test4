@@ -110,15 +110,15 @@ ADR-C-003 PR3c: LEG-014 sunsetCondition 達成確認 + BC-5 rollback 手順 PR d
 ### 実施結果（PR3a/PR3b）
 
 PR3a (commit b2c9c31): F1 ConditionDetailPanels + F3 ConditionSummary + F4 ExecSummaryBarWidget 削除。
-17a 想定外の cascade orphan として F1 barrel 削除に伴う conditionPanelMarkupCost / conditionPanelProfitability の 2 件も同時削除（barrel re-export の唯一 consumer 経路だったため）。F4 唯一対象だった `phase6SummarySwapGuard.test.ts` も削除。baseline 4→1 に減算。
+17a 想定外の cascade orphan として F1 barrel 削除に伴う conditionPanelMarkupCost / conditionPanelProfitability も同時削除（barrel re-export の唯一 consumer 経路だったため）。F4 唯一対象だった `phase6SummarySwapGuard.test.ts` も削除。baseline は段階的に減算。
 
-PR3b (commit 8d852bd): F2 ConditionMatrixTable + 17a 想定 cascade (Plan / Handler / advanced/index.ts) + 17a 想定外の拡張 cascade (`useConditionMatrix.ts` / `conditionMatrixLogic.ts` / `infrastructure/duckdb/queries/conditionMatrix.ts` および各テスト) を削除。Option A 趣旨「dead code 永続化を避ける」に従い、F2 削除で orphan 化する application + infrastructure 層の dead code chain も同 PR で fully cleanup。baseline 1→0 + ALLOWLIST=[] + fixed mode 達成。
+PR3b (commit 8d852bd): F2 ConditionMatrixTable + 17a 想定 cascade (Plan / Handler / advanced/index.ts) + 17a 想定外の拡張 cascade (`useConditionMatrix.ts` / `conditionMatrixLogic.ts` / `infrastructure/duckdb/queries/conditionMatrix.ts` および各テスト) を削除。Option A 趣旨「dead code 永続化を避ける」に従い、F2 削除で orphan 化する application + infrastructure 層の dead code chain も同 PR で fully cleanup。baseline=0 + ALLOWLIST=[] + fixed mode 達成。
 
-合計影響: 削除ファイル 24 件、影響行数 -3700+ 行（presentation/application/infrastructure/test 層）。
+具体メトリクス（PR ごとの削除 file 数 / 行数）は `breaking-changes.md §BC-5` および `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照（presentation/application/infrastructure/test 層を横断）。
 
 ### 推奨に対する 17a の評価精度 learning
 
-17a 評価「F1 削除影響: なし」は誤りだった（barrel sibling 経路の見落とし）。17a 評価「F2 cascade は application 層 2-3 file のみ」も保守的過ぎた（duckdb hook + infrastructure query の 5 file 追加 cleanup が必要だった）。後続 inquiry での cascade 評価は
+17a 評価「F1 削除影響: なし」は誤りだった（barrel sibling 経路の見落とし）。17a 評価「F2 cascade は application 層数 file のみ」も保守的過ぎた（duckdb hook + infrastructure query の追加 cleanup が必要だった）。後続 inquiry での cascade 評価は
 
 1. barrel re-export の sibling 経路を必ず audit
 2. 削除対象の hook chain（Plan → Handler → legacy hook → query）を最後の dead code まで辿る
@@ -128,24 +128,24 @@ PR3b (commit 8d852bd): F2 ConditionMatrixTable + 17a 想定 cascade (Plan / Hand
 理由:
 1. **再発防止が完成する** — guard fixed mode が本来意図どおり機能する（baseline=0）
 2. **block チェーンが解ける** — SP-C Phase 3 → Phase 5 (sub-project completion) → Wave 2 SP-D ADR-D-004 着手 が連鎖的に unblock される
-3. **dead code 永続化を避ける** — 850 行の dead code は将来の reader を misled する。後継 (`ConditionSummaryEnhanced` 等) との関係を理解するコストが残る
-4. **cascade も小規模** — F2 cascade は application 層 2-3 file のみで、`advanced/` barrel の整備で完結
+3. **dead code 永続化を避ける** — 残置すると将来の reader を misled する。後継 (`ConditionSummaryEnhanced` 等) との関係を理解するコストが残る
+4. **cascade も小規模** — F2 cascade は application 層数 file のみで、`advanced/` barrel の整備で完結
 
-## 承認すれば実施する作業
+## 実施した作業（履歴）
 
-Option A 承認時の PR 計画:
+Option A 承認後に実施した PR 構成:
 
-| PR | scope | 影響行数 | 影響範囲 |
-|---|---|---|---|
-| PR3a | F1 + F3 + F4 削除 | -673 行 | presentation のみ |
-| PR3b | F2 + cascade (useConditionMatrixPlan / ConditionMatrixHandler / advanced/index.ts 整備) 削除 | -177 (F2) + ~200 (application) = ~-380 行 | presentation + application（軽微） |
-| PR3c | guard baseline=0 + ALLOWLIST 空 + fixed mode + checklist Phase 3 残 box [x] + LEG-014 sunset + BC-5 rollback 記載 | docs only | docs |
+| PR | scope | 影響範囲 |
+|---|---|---|
+| PR3a | F1 + F3 + F4 削除 | presentation のみ |
+| PR3b | F2 + cascade (useConditionMatrixPlan / ConditionMatrixHandler / advanced/index.ts 整備) 削除 | presentation + application（軽微） |
+| PR3c | guard baseline=0 + ALLOWLIST 空 + fixed mode + checklist Phase 3 残 box [x] + LEG-014 sunset + BC-5 rollback 記載 | docs only |
 
-各 PR で全 guard test + docs:check + visual / E2E 検証。
+各 PR で全 guard test + docs:check + visual / E2E 検証を実施。各 PR の commit は §推奨 §実施結果 を参照。具体メトリクス（PR ごとの行数 / file 数）は `breaking-changes.md §BC-5` および `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
-## rollback plan
+## rollback plan（履歴）
 
-各 PR を `git revert` で戻す。F2 cascade の rollback はやや広範になるため、PR3b では削除前後で `npm run test:guards` + `application/queries/advanced/index.ts` の structural integrity test が PASS することを確認する。
+各 PR は `git revert` で独立に戻せる構成で実装した。F2 cascade の rollback はやや広範になるため、PR3b では削除前後で `npm run test:guards` + `application/queries/advanced/index.ts` の structural integrity test が PASS することを確認した。
 
 ## 参照
 

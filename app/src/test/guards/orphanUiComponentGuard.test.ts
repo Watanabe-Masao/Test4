@@ -168,7 +168,7 @@ describe('Orphan UI Component Guard: presentation/pages/*/widgets/ + features/*/
       '\n\n' +
       'hint: ADR-C-003 PR3b 完了 (2026-04-25) で baseline=0 + ALLOWLIST 空 fixed mode 達成。' +
       '\n  新規 orphan 発生時は UI component を削除するか、allowlist に追加して理由を明記する。' +
-      '\n  詳細: projects/duplicate-orphan-retirement/checklist.md Phase 3'
+      '\n  詳細: projects/completed/duplicate-orphan-retirement/checklist.md Phase 3'
     expect(orphans.length, message).toBeLessThanOrEqual(BASELINE)
   })
 
