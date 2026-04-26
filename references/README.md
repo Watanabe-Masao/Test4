@@ -151,6 +151,10 @@
 | AAG 5.0 正本/派生/運用物ポリシー | `01-principles/aag-5-source-of-truth-policy.md` |
 | Test Signal Integrity — 品質シグナル保全の原則 | `01-principles/test-signal-integrity.md` |
 | Test Signal Integrity Advisory 運用ガイド | `03-guides/test-signal-integrity-advisory.md` |
+| Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則） | `01-principles/taxonomy-constitution.md` |
+| Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約） | `01-principles/taxonomy-interlock.md` |
+| Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset） | `01-principles/taxonomy-origin-journal.md` |
+| Taxonomy v2 Review Journal（review window 記録） | `02-status/taxonomy-review-journal.md` |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
