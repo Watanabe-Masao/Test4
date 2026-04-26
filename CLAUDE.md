@@ -27,7 +27,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-04-26T01:28:35.575Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-04-26T01:37:26.873Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -48,14 +48,21 @@ AI が context から導き出す力を信頼する設計。
 
 ## AAG を背景にした思考
 
-### 役割分担（境界）
+AAG は **機械的品質管理を担う OS / フレームワーク**（ガードレール）。
+CLAUDE.md は **AAG では保証できない品質を能動的に管理・提案・批判する** 動的思考の場。
 
-- **AAG**（`tools/architecture-health/` + `app/src/test/guards/`）: ルール違反を機械的に検出（YES/NO）。違反からの脱出手順を提示（migrationRecipe）
-  - **やらないこと**: 合理性の評価 / 保留判断 / より良い実装の提案 / 戦略判断
-- **CLAUDE.md / 運用**: AAG が守れない判断領域の **材料と評価軸** を提供
-  - **やらないこと**: 判断そのもの（判断は対話で発生する揮発物）
+### 役割の質的差異
 
-振り分け原則:「commit / CI で YES/NO 判定できるか？」**YES → AAG / NO → CLAUDE.md**。
+| | AAG | CLAUDE.md / 運用 |
+|---|---|---|
+| 性質 | OS / フレームワーク（機械的ガードレール）| 思考のパートナー（動的な批判と提案）|
+| 動作 | 機械的（YES/NO の判定）| 文脈依存（提案・批判・動的判断）|
+| 質保証の方法 | rule への準拠を強制 | 質を上げる方向に能動的に問いかける |
+| 介入 | 受動的（commit / CI 時の検出）| 能動的（思考のたびに立ち上がる）|
+| 担う | ルール違反検出 + migrationRecipe | 品質管理 / 品質提案 / 批判的思考 / 動的思考 |
+| やらない | 合理性評価 / 戦略判断 / 改善提案 | 機械的検証の重複 / 状況非依存の固定 rule |
+
+振り分け原則:「commit / CI で YES/NO 判定可能か？」**YES → AAG / NO → CLAUDE.md**。
 
 ### AAG が守る範囲（前提として把握）
 
@@ -65,31 +72,42 @@ AAG は次を機械検証する（詳細は `references/01-principles/adaptive-a
 - ガード違反検出 + ratchet-down + migrationRecipe + fixNow 分類
 
 **AAG PASS = ルール準拠。「良い実装」を保証するわけではない**。
+ここから先が CLAUDE.md の領分。
 
-### AAG を通った先で AI が考える問い
+### CLAUDE.md が能動的に行うこと
 
-AAG が PASS したあとも、commit / PR 提出前に自問する:
+AAG が床を保証した上で、AI は次を **能動的に** 思考する:
 
-- **意図は明確か？** — コードから「なぜこう書いたか」が読み取れるか
-- **粒度は適切か？** — C8（1 文説明テスト）に通るか
-- **専門性が要るか？** — 計算 / DuckDB / 説明責任は manifest.discovery.byExpertise を consult
+- **品質提案**: 「AAG は通った。さらに意図が伝わる書き方は？」「もっと簡潔にできないか？」
+- **批判的思考**: 「前提を疑う：本当にこの抽象化は必要か？」「この task そのものを保留すべきか？」
+- **動的思考**: 「文脈 A なら approach X、文脈 B なら approach Y」
+
+これらは checklist ではなく **思考の能動的な姿勢**。AI は context から導出する。
+
+### AAG が PASS した後に立ち上がる問い
+
+批判的思考の **トリガー**（網羅でも強制でもない）:
+
+- **意図は明確か？** — 読み手は「なぜこう書いたか」を理解できるか
+- **粒度は適切か？** — C8（1 文説明テスト）に通る単純さか
+- **専門性が要るか？** — manifest.discovery.byExpertise を consult するか
 - **保留すべきか？** — 不確かさが大きいなら commit より対話を優先
 - **より良い形は？** — 既存パターンの再利用で済むなら新規パターン導入を避ける（C1）
 - **AAG が拾わない壊れ方は？** — エッジケース・再起動・データ欠損
 
-### 判断材料の置き場
+### 動的思考の材料（hint であって rule ではない）
 
-- **業務用語 → 定義書**: `.claude/manifest.json` の `discovery.byTopic`
-- **専門性 → consult 先**: `.claude/manifest.json` の `discovery.byExpertise`
+- **業務用語**: `.claude/manifest.json` の `discovery.byTopic`
+- **専門性**: `.claude/manifest.json` の `discovery.byExpertise`
 - **設計原則の詳細**: `references/01-principles/design-principles.md`
 - **AAG ルール一覧**: `app/src/test/architectureRules.ts` + `references/03-guides/architecture-rule-system.md`
 - **過去の判断履歴**: `references/02-status/recent-changes.md`
 
-### 判断そのものは保存しない
+### 思考の保存方法
 
-「保留する」「pause して相談する」「設計を見直す」のような判断は **対話の中で発生する揮発物**。
-CLAUDE.md / AAG はその materials だけを提供し、判断結果はコミットされない。
-必要なら manifest.activeContext.workingNotes / openQuestions に AI が free-form で残す。
+「保留する」「pause して相談する」「設計を見直す」のような判断は **対話で発生する揮発物**。
+コミットされない。AI が記録したい思考の途中経過は
+manifest.activeContext.workingNotes / openQuestions に free-form で残す（強制ではない）。
 
 ## ロール・スキルシステム
 
@@ -709,7 +727,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Project Governance | OK | 8/20 / 7/20 / 0/0 / 21/100 |
 
 
-> 生成: 2026-04-26T01:28:35.568Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-26T01:37:26.866Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
