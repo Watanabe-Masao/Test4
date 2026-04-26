@@ -2,8 +2,8 @@
   "$comment": "widget を入口とする大型改修 project。棚卸し → 真因分析 → 原則制定 → 計画 → 実装（破壊的変更含む）の流れで過去の負債を回収する。budget-achievement-simulator の findings が起点（informed-by 関係、parent ではない）。2026-04-23 Phase 5 人間承認により draft → active 昇格。Phase 6 で 4 sub-project（SP-A/B/C/D）を順次 spawn。",
   "projectId": "architecture-debt-recovery",
   "title": "アーキテクチャ負債回収（widget 起点の大型改修）",
-  "status": "active",
-  "projectRoot": "projects/architecture-debt-recovery",
+  "status": "completed",
+  "projectRoot": "projects/completed/architecture-debt-recovery",
   "projectization": {
     "level": 4,
     "changeType": "architecture-refactor",
@@ -30,10 +30,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/architecture-debt-recovery/AI_CONTEXT.md",
-    "handoff": "projects/architecture-debt-recovery/HANDOFF.md",
-    "plan": "projects/architecture-debt-recovery/plan.md",
-    "checklist": "projects/architecture-debt-recovery/checklist.md",
-    "projectization": "projects/architecture-debt-recovery/projectization.md"
+    "aiContext": "projects/completed/architecture-debt-recovery/AI_CONTEXT.md",
+    "handoff": "projects/completed/architecture-debt-recovery/HANDOFF.md",
+    "plan": "projects/completed/architecture-debt-recovery/plan.md",
+    "checklist": "projects/completed/architecture-debt-recovery/checklist.md",
+    "projectization": "projects/completed/architecture-debt-recovery/projectization.md"
   }
 }

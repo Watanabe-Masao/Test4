@@ -15,7 +15,7 @@
 
 ### 初期割当表（2026-04-23 時点、45 件）
 
-`projects/architecture-debt-recovery/inquiry/01-widget-registries.md` の registry 登録順に基づく。
+`projects/completed/architecture-debt-recovery/inquiry/01-widget-registries.md` の registry 登録順に基づく。
 
 | ID | registry | widget id | label | context 型 |
 |---|---|---|---|---|
@@ -190,4 +190,4 @@ presentation 層は 4 層依存ルール上、パイプライン本体（applica
 | `AR-CONTENT-SPEC-FRESHNESS` | Phase 3 候補 → Phase 6 active | owner 割当確定後 |
 | `AR-CONTENT-SPEC-OWNER` | Phase 3 候補 → Phase 6 active | 45 spec 揃ってから有効化 |
 
-詳細設計は `projects/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md`（Phase 1 addendum）参照。
+詳細設計は `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md`（Phase 1 addendum）参照。

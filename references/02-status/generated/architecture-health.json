@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T12:28:13.380Z",
+  "timestamp": "2026-04-26T13:03:03.175Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -620,7 +620,7 @@
         }
       ],
       "implRefs": [
-        "projects/architecture-debt-recovery/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -653,7 +653,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/architecture-debt-recovery/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -757,7 +757,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 7,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -772,7 +772,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -805,7 +805,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 23,
+      "value": 24,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -838,7 +838,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -870,7 +870,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 6,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -885,7 +885,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -933,7 +933,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -981,7 +981,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -1013,7 +1013,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 645,
+      "value": 665,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1028,7 +1028,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -1075,7 +1075,7 @@
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",

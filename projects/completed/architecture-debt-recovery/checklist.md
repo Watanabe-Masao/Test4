@@ -85,29 +85,29 @@
 > **注意**: 本 Phase は複数 sub-project が並列で進行する。以下の checkbox は
 > umbrella 側の完了判定。各 sub-project の完了判定は sub-project 側の checklist で行う。
 
-* [ ] Phase 4 の `18-sub-project-map.md` に載る全 sub-project が completed 昇格した
-* [ ] Phase 4 の `16-breaking-changes.md` に載る全破壊的変更が実施された
-* [ ] Phase 4 の `17-legacy-retirement.md` の**全項目が削除済み**（レガシー残存 0）
-* [ ] Phase 3 の不変条件候補が `references/03-guides/invariant-catalog.md` に登録され guard test 実装済
-* [ ] Phase 3 の原則候補が `references/01-principles/` に配置され `docs/contracts/principles.json` に登録済
-* [ ] 各 sub-project で 4 ステップ pattern（新実装 / 移行 / 削除 / guard）が完遂されたことを確認した
-* [ ] 各 sub-project の CI 全通過（test:guards / build / lint / test:visual / docs:check）を確認した
-* [ ] runtime 回帰テスト（visual / E2E）で主要機能の無回帰を確認した
-* [ ] `references/02-status/generated/architecture-health.json` の KPI が改善または不変であることを確認した
-* [ ] 計画外の破壊的変更 / rename が混入していないことを `16-breaking-changes.md` との突合で確認した
+* [x] Phase 4 の `18-sub-project-map.md` に載る全 sub-project が completed 昇格した
+* [x] Phase 4 の `16-breaking-changes.md` に載る全破壊的変更が実施された
+* [x] Phase 4 の `17-legacy-retirement.md` の**全項目が削除済み**（レガシー残存 0）
+* [x] Phase 3 の不変条件候補が `references/03-guides/invariant-catalog.md` に登録され guard test 実装済
+* [x] Phase 3 の原則候補が `references/01-principles/` に配置され `docs/contracts/principles.json` に登録済
+* [x] 各 sub-project で 4 ステップ pattern（新実装 / 移行 / 削除 / guard）が完遂されたことを確認した
+* [x] 各 sub-project の CI 全通過（test:guards / build / lint / test:visual / docs:check）を確認した
+* [x] runtime 回帰テスト（visual / E2E）で主要機能の無回帰を確認した
+* [x] `references/02-status/generated/architecture-health.json` の KPI が改善または不変であることを確認した
+* [x] 計画外の破壊的変更 / rename が混入していないことを `16-breaking-changes.md` との突合で確認した
 
 ## Phase 7: 完了 + handoff
 
-* [ ] `projects/architecture-debt-recovery/SUMMARY.md` を作成した（後続 project 参照用。Phase 7 末尾の archive 移動で `projects/completed/architecture-debt-recovery/SUMMARY.md` に移る） 
-* [ ] `references/02-status/open-issues.md` の active/completed projects 表を更新した
-* [ ] `CLAUDE.md` の generated section を最新化した（`docs:generate` + `docs:check` PASS）
-* [ ] `npm run test:guards` PASS
-* [ ] `npm run build` PASS
-* [ ] `npm run lint` PASS
-* [ ] `npm run format:check` PASS
-* [ ] 後続の未完タスクがあれば別 project として identify した（scope 外持ち越しなし）
-* [ ] `projects/architecture-debt-recovery/` を `projects/completed/architecture-debt-recovery/` に移動した
-* [ ] `config/project.json` の `status: "active"` → `"completed"` に更新した
+* [x] `projects/architecture-debt-recovery/SUMMARY.md` を作成した（後続 project 参照用。Phase 7 末尾の archive 移動で `projects/completed/architecture-debt-recovery/SUMMARY.md` に移る）
+* [x] `references/02-status/open-issues.md` の active/completed projects 表を更新した
+* [x] `CLAUDE.md` の generated section を最新化した（`docs:generate` + `docs:check` PASS）
+* [x] `npm run test:guards` PASS
+* [x] `npm run build` PASS
+* [x] `npm run lint` PASS
+* [x] `npm run format:check` PASS
+* [x] 後続の未完タスクがあれば別 project として identify した（scope 外持ち越しなし — 残 P21 widget 直接子数は AST ベース実装で別 PR、quick-fix 候補）
+* [x] `projects/architecture-debt-recovery/` を `projects/completed/architecture-debt-recovery/` に移動した
+* [x] `config/project.json` の `status: "active"` → `"completed"` に更新した
 
 ## 最終レビュー (人間承認)
 
