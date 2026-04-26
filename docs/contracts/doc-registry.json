@@ -608,6 +608,10 @@
         {
           "path": ".claude/manifest.json",
           "label": "AI Single Entry Manifest（PR4.5 Phase 1 で導入、構造化正本の集約参照）"
+        },
+        {
+          "path": ".claude/hooks/user-prompt-submit.sh",
+          "label": "UserPromptSubmit hook — manifest 駆動 context 注入（PR4.5 Phase 2）"
         }
       ]
     },

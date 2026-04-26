@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-25T23:55:17.289Z",
+  "timestamp": "2026-04-26T01:50:27.006Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 93,
+      "value": 94,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -355,6 +355,7 @@
         "app/src/test/guards/unifiedWidgetContextNoDashboardSpecificGuard.test.ts",
         "app/src/test/guards/unifiedWidgetContextNoPageLocalOptionalGuard.test.ts",
         "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
+        "app/src/test/guards/userPromptSubmitHookGuard.test.ts",
         "app/src/test/guards/versionSyncGuard.test.ts",
         "app/src/test/guards/wasmCrateStructureGuard.test.ts",
         "app/src/test/guards/weatherCorrelationProjectionGuard.test.ts"
