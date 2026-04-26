@@ -11,7 +11,11 @@ import {
 import type { DashboardWidgetDef } from './types'
 import { WaterfallChartWidget } from './WaterfallChart'
 import { GrossProfitHeatmapWidget } from './GrossProfitHeatmap'
-import { toStoreCustomerRows } from '@/application/readModels/customerFact'
+import {
+  selectTotalCustomers,
+  selectCustomerCountOrUndefined,
+  selectStoreCustomerMap,
+} from '@/application/readModels/customerFact/selectors'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
 
 // ── 分析・可視化 ──
@@ -22,7 +26,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     group: '要因分析',
     size: 'full',
     linkTo: { view: 'insight', tab: 'decomposition' },
-    render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => <WaterfallChartWidget key={ctx.storeKey} result={ctx.result} />,
   },
   // 注: analysis-yoy-waterfall → IntegratedSalesChart の「要因分析」タブに統合
   {
@@ -30,7 +34,17 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     label: '粗利率ヒートマップ',
     group: '要因分析',
     size: 'full',
-    render: (ctx) => <GrossProfitHeatmapWidget key={ctx.storeKey} ctx={ctx} />,
+    render: (ctx) => (
+      <GrossProfitHeatmapWidget
+        key={ctx.storeKey}
+        allStoreResults={ctx.allStoreResults}
+        stores={ctx.stores}
+        daysInMonth={ctx.daysInMonth}
+        targetRate={ctx.targetRate}
+        warningRate={ctx.warningRate}
+        readModels={ctx.readModels}
+      />
+    ),
   },
   // ── 多角的分析 ──
   // 注: analysis-yoy-variance（前年比較）→ DailySalesChart「差分」ビューに統合
@@ -67,19 +81,15 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
         currentDateRange={ctx.currentDateRange}
         prevYearScope={ctx.prevYearScope}
         selectedStoreIds={ctx.selectedStoreIds}
-        totalCustomers={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
-        })()}
+        totalCustomers={selectTotalCustomers(
+          ctx.readModels?.customerFact,
+          ctx.result.totalCustomers,
+        )}
         allStoreResults={ctx.allStoreResults}
         stores={ctx.stores}
         dailyQuantity={ctx.currentCtsQuantity?.byDay}
         ctsQuantityByStore={ctx.currentCtsQuantity?.byStore}
-        storeCustomerMap={
-          ctx.readModels?.customerFact?.status === 'ready'
-            ? toStoreCustomerRows(ctx.readModels.customerFact.data)
-            : undefined
-        }
+        storeCustomerMap={selectStoreCustomerMap(ctx.readModels?.customerFact)}
       />
     ),
   },
@@ -96,10 +106,10 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
         categoryData={null}
         isLoading={false}
         prevYearScope={ctx.prevYearScope}
-        totalCustomers={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : ctx.result.totalCustomers
-        })()}
+        totalCustomers={selectTotalCustomers(
+          ctx.readModels?.customerFact,
+          ctx.result.totalCustomers,
+        )}
         level="department"
         onLevelChange={() => {}}
       />
@@ -139,10 +149,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     render: (ctx) => (
       <SensitivityDashboard
         result={ctx.result}
-        customerCount={(() => {
-          const cf = ctx.readModels?.customerFact
-          return cf?.status === 'ready' ? cf.data.grandTotalCustomers : undefined
-        })()}
+        customerCount={selectCustomerCountOrUndefined(ctx.readModels?.customerFact)}
       />
     ),
   },
@@ -169,7 +176,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     label: '売上トレンド分析',
     group: 'トレンド分析',
     size: 'full',
-    isVisible: (ctx) => ctx.queryExecutor?.isReady === true,
+    isVisible: (ctx) => ctx.queryExecutor.isReady === true,
     render: (ctx) => (
       <FeatureChart
         queryExecutor={ctx.queryExecutor}

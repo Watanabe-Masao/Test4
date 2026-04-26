@@ -201,8 +201,8 @@ describe('意味分類ガード（Phase 2）', () => {
     // ratchet: 意味分類の内訳が変わったら意図的に更新する
     // business: 13 current + 6 candidate (BIZ-008〜013) = 19
     expect(business).toBe(19)
-    // analytic: 11 current (ANA-001 + ANA-010 budgetSimulator + budgetSimulatorAggregations + 8 algorithms) + 5 candidate (ANA-003, ANA-004, ANA-005, ANA-007, ANA-009) = 16
-    expect(analytic).toBe(16)
+    // analytic: 11 current (ANA-001 + ANA-010 budgetSimulator + budgetSimulatorAggregations + 8 algorithms) + 5 candidate (ANA-003, ANA-004, ANA-005, ANA-007, ANA-009) + 1 ANA-005-related (ANA-005 prevYearCostApprox SP-B ADR-B-004 PR2) = 17
+    expect(analytic).toBe(17)
     expect(utility).toBe(13)
   })
 

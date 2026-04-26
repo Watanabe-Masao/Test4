@@ -13,6 +13,9 @@ import type { ClassifiedSalesData } from './ClassifiedSales'
 /**
  * @deprecated MonthlyData を使用してください。
  * ImportedData は infrastructure 内部（processDroppedFiles, storage）でのみ使用。
+ * @expiresAt 2099-12-31
+ * @sunsetCondition 全 infrastructure 内部 caller (processDroppedFiles / storage 等) が MonthlyData 直接 emit に切り替わった時
+ * @reason legacy 中間表現。境界 adapter (toMonthlyData) で吸収するが、新規コードでは MonthlyData を直接使う
  */
 export interface ImportedData {
   readonly stores: ReadonlyMap<string, Store>
@@ -41,7 +44,12 @@ export interface ImportedData {
   readonly budget: ReadonlyMap<string, BudgetData>
 }
 
-/** @deprecated createEmptyMonthlyData を使用してください。 */
+/**
+ * @deprecated createEmptyMonthlyData を使用してください。
+ * @expiresAt 2099-12-31
+ * @sunsetCondition ImportedData interface の物理削除と同時（同 file 上の interface @sunsetCondition と連動）
+ * @reason ImportedData の empty factory。interface 自体が legacy のため新規 caller は createEmptyMonthlyData を使う
+ */
 export function createEmptyImportedData(): ImportedData {
   return {
     stores: new Map(),

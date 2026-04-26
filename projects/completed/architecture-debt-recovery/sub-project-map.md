@@ -12,7 +12,7 @@
 | **A** | `widget-context-boundary` | active (spawned 2026-04-23) | architecture-refactor | widget / ctx 型境界再構築（BC-1〜BC-4 / LEG-001〜008） |
 | **B** | SP-B Budget (TBD) | pending | TBD | Phase 6 Wave 2 以降で spawn 予定。budget 周りの負債回収 |
 | **C** | `duplicate-orphan-retirement` | active (spawned 2026-04-23) | legacy-retirement | 複製 / orphan / barrel metadata 撤退（BC-5 / LEG-010〜015） |
-| **D** | `aag-temporal-governance-hardening` | active (spawned 2026-04-23) | governance-hardening | AAG 基盤強化（BC-6〜BC-7） |
+| **D** | `aag-temporal-governance-hardening` | ✅ completed (archived 2026-04-26) | governance-hardening | AAG 基盤強化（BC-6〜BC-7） |
 
 ## 依存関係
 

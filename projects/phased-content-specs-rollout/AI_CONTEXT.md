@@ -5,84 +5,91 @@
 
 ## Project
 
-Content Spec System 段階展開計画（phased-content-specs-rollout）— **SHELL MODE**
+Content Spec System 段階展開計画（phased-content-specs-rollout）— **active**
 
 ## Status
 
-**SHELL（promotion 待ち）** — 2026-04-26 降格。canonical な Phase A〜J 計画 +
-SP-B absorption 戦略 + 最終方針 5 つは umbrella
-`projects/architecture-debt-recovery/inquiry/22-content-state-layer-promotion-plan.md`
-を参照する。本 project は Phase C 以降が単一 PR で済まないと判明した段階で
-ACTIVE 昇格する placeholder。
+**active（2026-04-26 改訂、ACTIVE 昇格）** — canonical 計画 doc は本 project の `plan.md`。
 
 ## Purpose
 
 `references/05-contents/` 配下に立ち上がった Content Spec System (CSS / WSS) を、
-SP-B Anchor Slice（Phase A）を起点に Phase A〜J で段階展開する計画を保持する
-**SHELL project**。
+**状態管理レイヤーから運用制御システムへ昇華**させる独立 active project。
 
-**初版方針（2026-04-26 spawn）**: 独立 sub-project として Phase A〜J を governance
-する Level 2 docs-only project。
+archived umbrella `architecture-debt-recovery` の inquiry/01a Phase 1 addendum で WSS
+が bootstrap され、Phase 6 で 45 WID spec 本文が landed した。しかし、source ↔ spec の
+**機械接続**（JSDoc 注入 / frontmatter generator / `AR-CONTENT-SPEC-*` rule active 化 /
+co-change guard）は未着手。本 project はその機械接続を Phase A〜J で段階展開し、
+さらに Operational Control System §1〜§11（Lifecycle / Promotion Gate / Drift Budget /
+Evidence Level / PR Impact Report 等）を導入する。
 
-**course correction（同日）**: umbrella `plan.md` §3 不可侵原則 #16「Phase 4/5 計画を
-経由せずに sub-project を立ち上げない」遵守 + 軽量起動の原則に従い、SHELL モードに
-降格。canonical な計画 doc は umbrella inquiry/22 に移管。
+## Why this project exists
 
-## Why this project exists in SHELL mode
+**umbrella + 4 sub-project (SP-A/B/C/D) 全 archive 完遂 + 45 WID spec 本文 landed した
+時点で、archived umbrella に新規 inquiry を追加できないため**、独立 active project
+として spawn された。
 
-**Phase B 以降を放棄しないこと**を構造的に保証するため。
+旧版（2026-04-26 初版）は umbrella inquiry/22 として「SP-B Anchor Slice 起点 + SP-B/D
+absorption 戦略」で起草されていた。しかし同日中に SP-B（2026-04-26）と SP-D（2026-04-26）
+が archive され、umbrella も Phase 7 archive に進んだため、archived 配下の inquiry に
+依存する設計が成立しなくなった。
 
-`inquiry/01a-widget-specs-bootstrap.md` で WSS bootstrap が完了した後、
-初期版の rollout 計画は「45 widget の完成」をゴールに置いていた。しかし:
-
-- **全 UI component 登録 / 全 readModel 網羅 / 全 pipeline 網羅** などを「初回スコープ外」と
-  断ずると、最終構想から消えてしまう
-- 一方で初回 vertical slice に詰め込むと、Anchor Slice の保証経路が完成する前に
-  対象拡大で重量化する
-- **「やらないこと」ではなく「順番を後にすること」**として明記する仕組みが必要
-
-inquiry/22 がこの順序を canonical 化し、SP-B が absorb する。本 project は
-inquiry/22 が `inquiry/18a-content-state-layer-promotion.md` にエスカレートされた
-ときの **promotion target shell**。
+本 project は inquiry/22 の content（Phase A〜J + Operational Control System §1〜§11）
+を **post-archive 文脈に適合させて移管**し、archived sub-project SUMMARY との連携
+（§5.7）として absorption 戦略を再定義した。
 
 CLAUDE.md 不変原則「**「良くすること」は目的ではない。その先の到達点を実現するために、
 要件を正しく理解した上で改善する（局所対応しない）**」を WSS rollout に適用する装置。
 
-## Scope（SHELL mode）
+## Scope
 
 含む:
 
-- 本 project の SHELL 状態維持（HANDOFF / AI_CONTEXT / projectization の整合）
-- promotion trigger 発火時の ACTIVE 昇格手続き準備
+- Phase A〜J + Operational Control System §1〜§11 の canonical 化（`plan.md`）
+- Phase A（Anchor Slice 5 件: WID-002 / 006 / 018 / 033 / 040）の機械接続作業:
+  - `tools/widget-specs/generate.mjs` の frontmatter generator 実装
+  - source への `@widget-id WID-NNN` JSDoc 注入
+  - 5 件 `AR-CONTENT-SPEC-*` rule の `architectureRules.ts` 登録 + active 化
+  - `obligation-collector.ts` の `OBLIGATION_MAP` 拡張
+  - co-change / freshness / owner guard の実装
+  - `npm run content-specs:check` script + CI 接続
+- Phase 別 checklist の登録（`checklist.md`）
+- Phase B〜J の段階着手（依存 Phase 完遂後）
 
 含まない:
 
-- **Phase A〜J の canonical 計画**（→ umbrella inquiry/22）
-- **Phase A/B の実装**（→ SP-B widget-registry-simplification の plan/checklist で absorb）
-- **Phase C 以降の実装判断**（→ inquiry/22 §「段階 2」の軽量パス / 重量パス判定）
+- WID-NNN 本文の上書き（spec 本文は landed 済み、本 project は frontmatter 同期のみ）
+- archived umbrella / archived sub-project の touch（immutable）
 - 本体アプリ（粗利管理ツール）の機能変更
 - WSS 以外の category（01-principles / 03-guides 等）への原則変更
+- Phase A の対象拡大（Anchor Slice 5 件以外）
+- Phase F 以降の全網羅（selection rule 必須）
 
 ## Read Order
 
-1. 本ファイル（status / SHELL の根拠）
-2. `HANDOFF.md`（現在地 / promotion trigger）
-3. **`projects/architecture-debt-recovery/inquiry/22-content-state-layer-promotion-plan.md`**（canonical 計画 doc）
-4. `plan.md` / `checklist.md`（promotion 時の参考骨格、canonical ではない）
-5. `projects/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md`（WSS bootstrap 決定）
+1. 本ファイル（status / why this project exists）
+2. `HANDOFF.md`（現在地 / 次にやること / ハマりポイント）
+3. **`plan.md`**（canonical 計画 doc — Phase A〜J + Operational Control System §1〜§11）
+4. `checklist.md`（completion 判定の入力 — Phase 別 required checkbox 集合）
+5. `projectization.md`（AAG-COA 判定 Level 3 / governance-hardening）
 6. `references/05-contents/README.md`（CSS カテゴリ正本）
 7. `references/05-contents/widgets/README.md`（widget catalog 正本 + 45 件 型番割当）
+8. `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md`（WSS bootstrap 決定 D1〜D8、archived）
+9. archived sub-project SUMMARY（必要時参照）:
+   - `projects/completed/widget-context-boundary/SUMMARY.md`（SP-A）
+   - `projects/completed/widget-registry-simplification/SUMMARY.md`（SP-B）
+   - `projects/completed/aag-temporal-governance-hardening/SUMMARY.md`（SP-D）
 
 ## 関連文書
 
 | 文書 | 役割 |
 |---|---|
-| **`projects/architecture-debt-recovery/inquiry/22-content-state-layer-promotion-plan.md`** | **canonical 計画 doc（Phase A〜J + SP-B absorption + 最終方針）** |
 | `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
-| `projects/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md` | WSS bootstrap 決定（D1〜D8） |
-| `projects/architecture-debt-recovery/inquiry/18-sub-project-map.md` | SP-A〜D 依存関係（Phase A は SP-B Anchor Slice） |
-| umbrella `HANDOFF.md` | Wave 2 spawn 高優先（SP-B 起動条件解除済み）|
-| `projects/completed/widget-context-boundary/SUMMARY.md` | SP-A archive 完了（2026-04-25） |
+| `projects/completed/architecture-debt-recovery/HANDOFF.md` | archived umbrella 完遂サマリ |
+| `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md` | WSS bootstrap 決定（D1〜D8） |
+| `projects/completed/widget-registry-simplification/SUMMARY.md` | SP-B archive サマリ（registry 改修の主要設計決定） |
+| `projects/completed/aag-temporal-governance-hardening/SUMMARY.md` | SP-D archive サマリ（AAG governance 強化） |
 | `references/05-contents/README.md` | CSS カテゴリ正本（3 軸 drift 防御） |
-| `references/05-contents/widgets/README.md` | WID-001〜045 型番割当 |
-| umbrella: `projects/architecture-debt-recovery/` | SP-B 等の親 |
+| `references/05-contents/widgets/README.md` | WID-001〜045 型番割当 + 全 45 spec 本文 |
+| `app/src/test/architectureRules.ts` | Phase A で `AR-CONTENT-SPEC-*` 5 件を active 化 |
+| `tools/architecture-health/src/collectors/obligation-collector.ts` | Phase A で `OBLIGATION_MAP` に entry 追加 |

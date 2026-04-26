@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-26T04:11:04.814Z
+> Generated: 2026-04-26T14:38:45.345Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -38,7 +38,7 @@
 |---|---|---|---|
 | complexity.hotspot.count | 複雑性ホットスポット数 | 10 / 10 | OK |
 | complexity.nearLimit.count | 上限間近ファイル数 | 0 / 5 | OK |
-| complexity.vm.count | ViewModel ファイル数 | 28 / 30 | OK |
+| complexity.vm.count | ViewModel ファイル数 | 25 / 30 | OK |
 
 ## 層境界
 
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 94 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 98 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
@@ -73,13 +73,13 @@
 | docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 | docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 9 | OK |
 | docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
-| project.checklist.activeCount | active project 数（archive 未実施を含む） | 9 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 21 / 100 | OK |
+| project.checklist.activeCount | active project 数（archive 未実施を含む） | 7 / 20 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 24 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
-| project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 8 / 20 | OK |
+| project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 880 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 630 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 919 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 708 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
@@ -88,8 +88,8 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6601 / 7000 | OK |
-| perf.bundle.mainJsKb | メインバンドルサイズ | 2387 / 2500 | OK |
+| perf.bundle.totalJsKb | JS バンドル合計サイズ | 6602 / 7000 | OK |
+| perf.bundle.mainJsKb | メインバンドルサイズ | 2386 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
 

@@ -8,12 +8,10 @@
  * 修正すれば widget 定義本体は影響を受けない。
  */
 import type { ReactNode } from 'react'
-import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'
-import { formatPercent } from '@/domain/formatting'
-import { palette } from '@/presentation/theme/tokens'
 import type { UnifiedWidgetDef, WidgetSize } from '@/presentation/components/widgets'
 import type { ViewType } from '@/domain/models/storeTypes'
 import type { CostDetailWidgetContext } from '@/presentation/pages/CostDetail/CostDetailWidgetContext'
+import { CostDetailKpiSummaryWidget } from './CostDetailKpiSummaryWidget'
 import { PurchaseTab } from './PurchaseTab'
 import { TransferTab } from './TransferTab'
 import { CostInclusionTab } from './CostInclusionTab'
@@ -58,40 +56,13 @@ export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
     label: 'サマリーKPI',
     group: '原価明細',
     size: 'full',
-    render: (ctx) => {
-      const d = ctx.costDetailData
-      const { fmtCurrency } = ctx
-      if (!d.typeIn || !d.typeOut) return null
-      return (
-        <KpiGrid>
-          <KpiCard
-            label={`${d.typeLabel}入`}
-            value={fmtCurrency(d.typeIn.cost)}
-            subText={`売価: ${fmtCurrency(d.typeIn.price)}`}
-            accent={palette.blueDark}
-          />
-          <KpiCard
-            label={`${d.typeLabel}出`}
-            value={fmtCurrency(d.typeOut.cost)}
-            subText={`売価: ${fmtCurrency(d.typeOut.price)}`}
-            accent={palette.dangerDark}
-          />
-          <KpiCard
-            label="原価算入費合計"
-            value={fmtCurrency(d.totalCostInclusionAmount)}
-            accent={palette.orange}
-            onClick={() => ctx.onExplain('totalCostInclusion')}
-          />
-          <KpiCard
-            label="原価算入率"
-            value={formatPercent(d.costInclusionRate)}
-            subText={`売上高: ${fmtCurrency(d.totalSales)}`}
-            accent={palette.orangeDark}
-            onClick={() => ctx.onExplain('totalCostInclusion')}
-          />
-        </KpiGrid>
-      )
-    },
+    render: (ctx) => (
+      <CostDetailKpiSummaryWidget
+        costDetailData={ctx.costDetailData}
+        fmtCurrency={ctx.fmtCurrency}
+        onExplain={ctx.onExplain}
+      />
+    ),
   }),
   costDetailWidget({
     id: 'costdetail-purchase',

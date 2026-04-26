@@ -313,3 +313,81 @@ describe('G8-P18: fallback 定数の密度が上限以下', () => {
     expect(violations, formatViolationMessage(ruleP18, violations)).toEqual([])
   })
 })
+
+// ─── P20: useMemo body 内行数（SP-D ADR-D-003 ratchet-down） ──────────
+
+/**
+ * P20 — useMemo の callback body 内行数を上限 20 行で固定 fail（fixed mode）。
+ *
+ * 設計意図:
+ *   `useMemo(() => { ... }, deps)` の body が肥大化すると、
+ *   - 1 file に複数責務が同居しやすい（C8 1 文説明テスト失敗）
+ *   - test しづらい（hook 経由でしか実行できない pure 計算が混入）
+ *   - dependency 配列が広範になり memoization の意味が薄れる
+ *
+ * 検出方法:
+ *   regex で `useMemo(() => {` を見つけ、対応する `}` までの行数をカウント。
+ *   AST ではなく depth-tracking で簡易検出。コメント / 文字列内の括弧で誤検出する
+ *   可能性があるため、絶対値ではなく上限ガード。
+ *
+ * 履歴 (ADR-D-003):
+ * - 2026-04-26 PR1 baseline=208 (実測 max、CategoryPerformanceChart.tsx:127)
+ * - 2026-04-26 PR2 baseline=208→120 (CategoryPerformanceChart option 抽出)
+ * - 2026-04-26 PR3 baseline=120→75 (ConditionSummaryEnhanced allCards 抽出)
+ * - 2026-04-26 PR4-step1 baseline=75→67 (useUnifiedWidgetContext ctx 抽出)
+ * - 2026-04-26 PR4-step2 baseline=67→38 (53〜67 行帯 6 件抽出)
+ * - 2026-04-26 PR4-step3 baseline=38→28 (30〜38 行帯 7 件抽出)
+ * - 2026-04-26 PR4-step4 baseline=28→20 fixed (21〜28 行帯 14 件抽出 + fixed mode)
+ *
+ * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-003
+ * @see projects/aag-temporal-governance-hardening/plan.md §ADR-D-003
+ */
+const BASELINE_USEMEMO_BODY_LINES = 20
+
+function findMaxUseMemoBodyLines(): { maxLines: number; file: string; startLine: number } {
+  const allFiles = collectTsFiles(SRC_DIR).filter(
+    (f) => !f.includes('.test.') && !f.includes('.stories.'),
+  )
+  let max = 0
+  let maxFile = ''
+  let maxStart = 0
+  for (const file of allFiles) {
+    const content = fs.readFileSync(file, 'utf-8')
+    const lines = content.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+      if (!lines[i].match(/useMemo\s*\(\s*\(\s*\)\s*=>\s*\{/)) continue
+      let depth = 1
+      for (let j = i + 1; j < lines.length; j++) {
+        for (const c of lines[j]) {
+          if (c === '{') depth++
+          else if (c === '}') depth--
+          if (depth === 0) {
+            const bodyLines = j - i - 1
+            if (bodyLines > max) {
+              max = bodyLines
+              maxFile = rel(file)
+              maxStart = i + 1
+            }
+            break
+          }
+        }
+        if (depth === 0) break
+      }
+    }
+  }
+  return { maxLines: max, file: maxFile, startLine: maxStart }
+}
+
+describe('G8-P20: useMemo body 行数が上限以下（fixed mode = 20 行）', () => {
+  it('全 useMemo body の最大行数が 20 行を超えない', () => {
+    const { maxLines, file, startLine } = findMaxUseMemoBodyLines()
+    const message =
+      `useMemo body 最大行数 = ${maxLines} (上限 = ${BASELINE_USEMEMO_BODY_LINES} 行 fixed)\n` +
+      `  最大箇所: ${file}:${startLine}\n\n` +
+      'hint: useMemo body が肥大化したら pure 計算を domain/calculations / ' +
+      'application/usecases / 同 file の module-private 関数 / *.builders.ts に' +
+      '抽出して useMemo の body を簡素化する。' +
+      '\n  詳細: projects/aag-temporal-governance-hardening/plan.md §ADR-D-003'
+    expect(maxLines, message).toBeLessThanOrEqual(BASELINE_USEMEMO_BODY_LINES)
+  })
+})

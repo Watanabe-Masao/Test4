@@ -32,7 +32,7 @@ app/src/
 - time-slot
 - weather
 
-> 13 モジュール — 生成: 2026-04-26T04:11:04.819Z
+> 13 モジュール — 生成: 2026-04-26T14:38:45.352Z
 <!-- GENERATED:END features-list -->
 
 ### test/ 構成
@@ -90,6 +90,7 @@ test/
 - `customerGapPathGuard.test.ts`
 - `dataIntegrityGuard.test.ts`
 - `defaultOverlayCompletenessGuard.test.ts`
+- `deprecatedMetadataGuard.test.ts`
 - `discountFactPathGuard.test.ts`
 - `docCodeConsistencyGuard.test.ts`
 - `docRegistryGuard.test.ts`
@@ -103,6 +104,7 @@ test/
 - `freePeriodDeptKPIPathGuard.test.ts`
 - `freePeriodHandlerOnlyGuard.test.ts`
 - `freePeriodPathGuard.test.ts`
+- `fullCtxPassthroughGuard.test.ts`
 - `grossProfitConsistencyGuard.test.ts`
 - `grossProfitPathGuard.test.ts`
 - `guardTestMapConsistencyGuard.test.ts`
@@ -131,6 +133,7 @@ test/
 - `purityGuard.test.ts`
 - `queryPatternGuard.test.ts`
 - `readModelSafetyGuard.test.ts`
+- `registryInlineLogicGuard.test.ts`
 - `renderSideEffectGuard.test.ts`
 - `responsibilitySeparationGuard.test.ts`
 - `responsibilityTagGuard.test.ts`
@@ -139,6 +142,7 @@ test/
 - `sameInterfaceNameGuard.test.ts`
 - `scopeAwareMutationGuard.test.ts`
 - `scopeJsonGuard.test.ts`
+- `shortcutPatternGuard.test.ts`
 - `sizeGuard.test.ts`
 - `storeDailyLaneSurfaceGuard.test.ts`
 - `storeResultAnalysisInputGuard.test.ts`
@@ -158,7 +162,7 @@ test/
 - `wasmCrateStructureGuard.test.ts`
 - `weatherCorrelationProjectionGuard.test.ts`
 
-> 94 ファイル — 生成: 2026-04-26T04:11:04.819Z
+> 98 ファイル — 生成: 2026-04-26T14:38:45.352Z
 <!-- GENERATED:END guard-files-list -->
 
 ## レイヤー間の依存ルール

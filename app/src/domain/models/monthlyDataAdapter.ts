@@ -40,6 +40,9 @@ const EMPTY_SLICES: LegacyComparisonSlices = {
 /**
  * @deprecated infrastructure 境界の変換専用。新規コードでは MonthlyData を直接使用。
  * ImportedData → MonthlyData に変換する。prevYear* フィールドは捨てる。
+ * @expiresAt 2099-12-31
+ * @sunsetCondition ImportedData 型自体が物理削除され infrastructure 境界が MonthlyData 直接 emit に切り替わった時
+ * @reason ImportedData は infrastructure 内部でのみ使う legacy 中間表現。境界の adapter として残置するが、新規 caller は MonthlyData を直接使う
  */
 export function toMonthlyData(imported: ImportedData, origin: DataOrigin): MonthlyData {
   return {
@@ -82,6 +85,9 @@ export function toAppData(
  * AppData + LegacyComparisonSlices → ImportedData に変換する。
  *
  * @throws appData.current が null の場合
+ * @expiresAt 2099-12-31
+ * @sunsetCondition ImportedData 型自体が物理削除され、AppData → MonthlyData 直接変換経路に統一された時
+ * @reason ImportedData は legacy slice 構造の保持目的で残るが、新規コードでは AppData → MonthlyData を直接呼ぶ
  */
 export function toLegacyImportedData(
   appData: AppData,

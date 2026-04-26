@@ -666,3 +666,167 @@ export function buildUnifiedCards(
   }
   return ordered
 }
+
+// ─── All Cards Orchestrator (ADR-D-003 PR3) ─────────────
+
+import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
+
+/**
+ * StoreCostPrice の最小契約（前年仕入合計の算出に必要な field のみ）。
+ */
+export interface StoreCostPriceMinForBuilder {
+  readonly cost: number
+}
+
+/**
+ * `buildAllConditionCards()` の入力。`ConditionSummaryEnhanced.tsx` の
+ * `allCards` useMemo body を builder 側に閉じ込めるため、UI hook 側で揃えた
+ * 値を一括で受け取る。
+ */
+export interface BuildAllConditionCardsInput {
+  readonly result: StoreResult
+  readonly elapsedDays: number | undefined
+  readonly calendarDaysInMonth: number
+  readonly fmtCurrency: (n: number) => string
+  readonly prevYear: PrevYearData
+  readonly prevYearStoreCostPrice: ReadonlyMap<string, StoreCostPriceMinForBuilder> | undefined
+  readonly effectiveConfig: ConditionSummaryConfig
+  readonly currentCtsQuantity: CurrentCtsQuantity
+  readonly hasMultipleStores: boolean
+  /**
+   * customerFact daily から effectiveDay までの累積客数を返す関数。
+   * customerFact が ready でない場合のフォールバック値（StoreResult 由来）の
+   * 解決は呼び出し側で行い、結果値だけを builder に渡す。
+   */
+  readonly resolveCurTotalCustomers: (effectiveDay: number) => number
+  readonly prevTotalCustomers: number
+}
+
+/**
+ * `ConditionSummaryEnhanced.tsx` の `allCards` useMemo body 全体を一関数に
+ * 閉じ込めた orchestrator。budgetCards / yoyCards / trends の組み立てを
+ * builder 側で完結させ、useMemo body は本関数呼び出し 1 行に簡素化する
+ * （ADR-D-003 PR3: useMemo body 行数 ratchet-down）。
+ */
+export function buildAllConditionCards(
+  input: BuildAllConditionCardsInput,
+): readonly UnifiedCardData[] {
+  const {
+    result,
+    elapsedDays,
+    calendarDaysInMonth,
+    fmtCurrency,
+    prevYear,
+    prevYearStoreCostPrice,
+    effectiveConfig,
+    currentCtsQuantity,
+    hasMultipleStores,
+    resolveCurTotalCustomers,
+    prevTotalCustomers,
+  } = input
+
+  const budgetCards = buildCardSummaries(result, elapsedDays, calendarDaysInMonth, fmtCurrency)
+  // CTS 販売点数: 当年は経過日数分の事前集計、前年も経過日数キャップ済みの daily から取得
+  // （prevYearKpiEntry.ctsQuantity は月全体の値なので使わない — スコープ不一致防止）
+  const effectiveDay = elapsedDays ?? calendarDaysInMonth
+  const scopedCurQty = currentCtsQuantity.total
+  const scopedPrevQty = prevYear.totalCtsQuantity
+  // 前年総仕入: prevYearStoreCostPrice の cost 合計
+  const prevYearTotalCost =
+    prevYearStoreCostPrice != null && prevYearStoreCostPrice.size > 0
+      ? [...prevYearStoreCostPrice.values()].reduce((s, v) => s + v.cost, 0)
+      : undefined
+  const yoyCards = buildYoYCards({
+    result,
+    prevYear,
+    config: effectiveConfig,
+    ctsCurrentQty: scopedCurQty,
+    ctsPrevQty: scopedPrevQty,
+    fmtCurrency,
+    prevYearTotalCost,
+    elapsedDays: effectiveDay,
+    daysInMonth: calendarDaysInMonth,
+    curTotalCustomers: resolveCurTotalCustomers(effectiveDay),
+    prevTotalCustomers,
+  })
+  // Trend computation (last 7 days vs previous 7 days)
+  const trends = new Map<string, { direction: TrendDirection; ratio: string }>()
+  const salesTrend = computeTrend(result.daily, effectiveDay, (r) => r.sales)
+  if (salesTrend) trends.set('sales', salesTrend)
+  const custTrend = computeTrend(result.daily, effectiveDay, (r) => r.customers ?? 0)
+  if (custTrend) trends.set('customerYoY', custTrend)
+  const costTrend = computeTrend(result.daily, effectiveDay, (r) => r.totalCost)
+  if (costTrend) trends.set('totalCost', costTrend)
+  // 販売点数: 事前集計済み日別データからトレンド計算
+  const itemsTrend = computeTrend(currentCtsQuantity.byDay, effectiveDay, (q: number) => q)
+  if (itemsTrend) trends.set('itemsYoY', itemsTrend)
+  // 売変率: 加重平均 (discount / grossSales)
+  const discountTrend = computeRateTrend(
+    result.daily,
+    effectiveDay,
+    (r) => r.discountAbsolute,
+    (r) => r.grossSales,
+  )
+  if (discountTrend) trends.set('discountRate', discountTrend)
+  // 客単価: 直近7日 vs 前7日の客単価（sales/customers）比
+  if (effectiveDay >= 14) {
+    let rSales = 0,
+      rCust = 0,
+      pSales = 0,
+      pCust = 0
+    for (let d = effectiveDay - 6; d <= effectiveDay; d++) {
+      const rec = result.daily.get(d)
+      if (rec) {
+        rSales += rec.sales
+        rCust += rec.customers ?? 0
+      }
+    }
+    for (let d = effectiveDay - 13; d <= effectiveDay - 7; d++) {
+      const rec = result.daily.get(d)
+      if (rec) {
+        pSales += rec.sales
+        pCust += rec.customers ?? 0
+      }
+    }
+    if (rCust > 0 && pCust > 0) {
+      const ratio = rSales / rCust / (pSales / pCust)
+      const dir: TrendDirection = ratio >= 1.02 ? 'up' : ratio <= 0.98 ? 'down' : 'flat'
+      trends.set('txValue', { direction: dir, ratio: formatPercent(ratio, 2) })
+    }
+  }
+  // 値入率: (allPrice - allCost) / allPrice の加重平均
+  const markupTrend = computeRateTrend(
+    result.daily,
+    effectiveDay,
+    (r) => {
+      const allPrice =
+        r.purchase.price +
+        r.flowers.price +
+        r.directProduce.price +
+        r.interStoreIn.price +
+        r.interStoreOut.price +
+        r.interDepartmentIn.price +
+        r.interDepartmentOut.price
+      const allCost =
+        r.purchase.cost +
+        r.flowers.cost +
+        r.directProduce.cost +
+        r.interStoreIn.cost +
+        r.interStoreOut.cost +
+        r.interDepartmentIn.cost +
+        r.interDepartmentOut.cost
+      return allPrice - allCost // markup amount (numerator)
+    },
+    (r) =>
+      r.purchase.price +
+      r.flowers.price +
+      r.directProduce.price +
+      r.interStoreIn.price +
+      r.interStoreOut.price +
+      r.interDepartmentIn.price +
+      r.interDepartmentOut.price, // allPrice (denominator)
+  )
+  if (markupTrend) trends.set('markupRate', markupTrend)
+
+  return buildUnifiedCards(budgetCards, yoyCards, hasMultipleStores, trends)
+}

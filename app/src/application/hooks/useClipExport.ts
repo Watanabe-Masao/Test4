@@ -34,6 +34,36 @@ interface ClipExportState {
   readonly exportClip: () => void
 }
 
+function buildClipExportDateRanges(
+  year: number,
+  month: number,
+  daysInMonth: number,
+  comparisonScope: { readonly dowOffset: number } | null,
+): { curDateRange: DateRange; prevDateRange: DateRange } {
+  const curDateRange: DateRange = {
+    from: { year, month, day: 1 },
+    to: { year, month, day: daysInMonth },
+  }
+  const startDate = new Date(year, month - 1, 1)
+  const endDate = new Date(year, month - 1, daysInMonth)
+  const offsetMs = (comparisonScope?.dowOffset ?? 0) * 86400000
+  const prevStartDate = new Date(startDate.getTime() + offsetMs)
+  const prevEndDate = new Date(endDate.getTime() + offsetMs)
+  const prevDateRange: DateRange = {
+    from: {
+      year: prevStartDate.getFullYear(),
+      month: prevStartDate.getMonth() + 1,
+      day: prevStartDate.getDate(),
+    },
+    to: {
+      year: prevEndDate.getFullYear(),
+      month: prevEndDate.getMonth() + 1,
+      day: prevEndDate.getDate(),
+    },
+  }
+  return { curDateRange, prevDateRange }
+}
+
 export function useClipExport(params: ClipExportParams): ClipExportState {
   const [isExporting, setIsExporting] = useState(false)
   const {
@@ -50,30 +80,10 @@ export function useClipExport(params: ClipExportParams): ClipExportState {
   } = params
 
   // 日付範囲を hook レベルで計算
-  const { curDateRange, prevDateRange } = useMemo(() => {
-    const curRange: DateRange = {
-      from: { year, month, day: 1 },
-      to: { year, month, day: daysInMonth },
-    }
-    const startDate = new Date(year, month - 1, 1)
-    const endDate = new Date(year, month - 1, daysInMonth)
-    const offsetMs = (comparisonScope?.dowOffset ?? 0) * 86400000
-    const prevStartDate = new Date(startDate.getTime() + offsetMs)
-    const prevEndDate = new Date(endDate.getTime() + offsetMs)
-    const prevRange: DateRange = {
-      from: {
-        year: prevStartDate.getFullYear(),
-        month: prevStartDate.getMonth() + 1,
-        day: prevStartDate.getDate(),
-      },
-      to: {
-        year: prevEndDate.getFullYear(),
-        month: prevEndDate.getMonth() + 1,
-        day: prevEndDate.getDate(),
-      },
-    }
-    return { curDateRange: curRange, prevDateRange: prevRange }
-  }, [year, month, daysInMonth, comparisonScope])
+  const { curDateRange, prevDateRange } = useMemo(
+    () => buildClipExportDateRanges(year, month, daysInMonth, comparisonScope),
+    [year, month, daysInMonth, comparisonScope],
+  )
 
   // CTS データを plan 経由で事前取得
   const { currentCtsRecords, prevCtsRecords } = useClipExportPlan(queryExecutor, {

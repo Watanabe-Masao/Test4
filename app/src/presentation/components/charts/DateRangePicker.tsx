@@ -47,6 +47,21 @@ function monthsAgo(year: number, month: number, count: number): CalendarDate {
   return { year: y, month: m, day: 1 }
 }
 
+function buildDatePresets(
+  year: number,
+  month: number,
+  daysInMonth: number,
+  loadedMonthCount: number,
+): { month: DateRange; '3m': DateRange; '6m': DateRange; all: DateRange } {
+  const monthEnd: CalendarDate = { year, month, day: daysInMonth }
+  return {
+    month: { from: { year, month, day: 1 }, to: monthEnd },
+    '3m': { from: monthsAgo(year, month, 3), to: monthEnd },
+    '6m': { from: monthsAgo(year, month, 6), to: monthEnd },
+    all: { from: monthsAgo(year, month, loadedMonthCount), to: monthEnd },
+  }
+}
+
 export function DateRangePicker({
   value,
   onChange,
@@ -60,35 +75,10 @@ export function DateRangePicker({
   const days = dateRangeDays(value)
 
   // プリセット範囲の算出
-  const presets = useMemo(() => {
-    const monthEnd = { year, month, day: daysInMonth }
-
-    const monthRange: DateRange = {
-      from: { year, month, day: 1 },
-      to: monthEnd,
-    }
-
-    const threeMonthStart = monthsAgo(year, month, 3)
-    const threeMonthRange: DateRange = {
-      from: threeMonthStart,
-      to: monthEnd,
-    }
-
-    const sixMonthStart = monthsAgo(year, month, 6)
-    const sixMonthRange: DateRange = {
-      from: sixMonthStart,
-      to: monthEnd,
-    }
-
-    // 全期間 = ロード済み月数に基づく推定
-    const allStart = monthsAgo(year, month, loadedMonthCount)
-    const allRange: DateRange = {
-      from: allStart,
-      to: monthEnd,
-    }
-
-    return { month: monthRange, '3m': threeMonthRange, '6m': sixMonthRange, all: allRange }
-  }, [year, month, daysInMonth, loadedMonthCount])
+  const presets = useMemo(
+    () => buildDatePresets(year, month, daysInMonth, loadedMonthCount),
+    [year, month, daysInMonth, loadedMonthCount],
+  )
 
   // アクティブなプリセットを判定
   const activePreset = useMemo((): PresetKey | null => {

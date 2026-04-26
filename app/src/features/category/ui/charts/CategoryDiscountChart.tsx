@@ -38,6 +38,7 @@ import {
   type SortDir,
   type DrillState,
 } from '@/features/category/ui/charts/CategoryDiscountTable'
+import { sortDiscountRecords } from './CategoryDiscountChart.builders'
 
 type Level = 'department' | 'line' | 'klass'
 
@@ -140,46 +141,10 @@ export const CategoryDiscountChart = memo(function CategoryDiscountChart({
     return map
   }, [prevOutput])
 
-  const records = useMemo(() => {
-    const raw = output?.records ?? []
-    const totalDiscount = raw.reduce((s, x) => s + x.discountTotal, 0)
-    const sorted = [...raw].sort((a, b) => {
-      const getValue = (
-        r: import('@/infrastructure/duckdb/queries/categoryDiscount').CategoryDiscountRow,
-      ) => {
-        switch (sortKey) {
-          case 'discountTotal':
-            return Math.abs(r.discountTotal)
-          case 'discountRate':
-            return r.salesAmount > 0 ? Math.abs(r.discountTotal / r.salesAmount) : 0
-          case 'share':
-            return totalDiscount !== 0 ? Math.abs(r.discountTotal / totalDiscount) : 0
-          case 'prevYoyRate': {
-            const prev = prevByCode.get(r.code)
-            if (!prev || prev.discountTotal === 0) return -Infinity
-            return (r.discountTotal - prev.discountTotal) / Math.abs(prev.discountTotal)
-          }
-          case 'prevDiscountRate': {
-            const prev = prevByCode.get(r.code)
-            if (!prev || prev.salesAmount === 0) return -Infinity
-            return Math.abs(prev.discountTotal / prev.salesAmount)
-          }
-          case 'discount71':
-            return Math.abs(r.discount71)
-          case 'discount72':
-            return Math.abs(r.discount72)
-          case 'discount73':
-            return Math.abs(r.discount73)
-          case 'discount74':
-            return Math.abs(r.discount74)
-        }
-      }
-      const va = getValue(a)
-      const vb = getValue(b)
-      return sortDir === 'desc' ? vb - va : va - vb
-    })
-    return sorted
-  }, [output, sortKey, sortDir, prevByCode])
+  const records = useMemo(
+    () => sortDiscountRecords(output?.records ?? [], sortKey, sortDir, prevByCode),
+    [output, sortKey, sortDir, prevByCode],
+  )
 
   // ダブルクリックでドリルダウン
   const handleDblClick = useCallback(

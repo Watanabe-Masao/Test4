@@ -36,30 +36,42 @@ import {
 
 // ─── Component ──────────────────────────────────────────
 
-export function AlertPanelWidget({ ctx }: { ctx: DashboardWidgetContext }) {
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化 */
+export type AlertPanelWidgetProps = Pick<
+  DashboardWidgetContext,
+  'result' | 'targetRate' | 'prevYear' | 'year' | 'month' | 'storeKey' | 'onExplain' | 'fmtCurrency'
+>
+
+export function AlertPanelWidget({
+  result: r,
+  targetRate: targetGpRate,
+  prevYear,
+  year,
+  month,
+  storeKey,
+  onExplain,
+  fmtCurrency,
+}: AlertPanelWidgetProps) {
   const theme = useTheme()
-  const { fmtCurrency } = ctx
-  const r = ctx.result
-  const targetGpRate = ctx.targetRate
 
   const alerts = useMemo(() => {
     // PrevYearData.daily は DateKey キー。evaluateAlerts は day number キーを期待
     let prevYearDailySales: ReadonlyMap<number, number> | undefined
-    if (ctx.prevYear.hasPrevYear && ctx.prevYear.daily.size > 0) {
+    if (prevYear.hasPrevYear && prevYear.daily.size > 0) {
       const salesMap = new Map<number, number>()
-      const daysInMonth = new Date(ctx.year, ctx.month, 0).getDate()
+      const daysInMonth = new Date(year, month, 0).getDate()
       for (let d = 1; d <= daysInMonth; d++) {
-        const entry = getPrevYearDailyValue(ctx.prevYear, ctx.year, ctx.month, d)
+        const entry = getPrevYearDailyValue(prevYear, year, month, d)
         if (entry) salesMap.set(d, entry.sales)
       }
       prevYearDailySales = salesMap
     }
 
-    return evaluateAlerts(ctx.storeKey, ctx.storeKey, r, DEFAULT_ALERT_RULES, {
+    return evaluateAlerts(storeKey, storeKey, r, DEFAULT_ALERT_RULES, {
       targetGrossProfitRate: targetGpRate,
       prevYearDailySales,
     })
-  }, [r, ctx.storeKey, targetGpRate, ctx.prevYear, ctx.year, ctx.month])
+  }, [r, storeKey, targetGpRate, prevYear, year, month])
 
   const criticalCount = alerts.filter((a) => a.severity === 'critical').length
   const warningCount = alerts.filter((a) => a.severity === 'warning').length
@@ -71,10 +83,10 @@ export function AlertPanelWidget({ ctx }: { ctx: DashboardWidgetContext }) {
     (ruleId: string) => {
       const metricId = ALERT_METRIC_MAP[ruleId]
       if (metricId) {
-        ctx.onExplain(metricId)
+        onExplain(metricId)
       }
     },
-    [ctx],
+    [onExplain],
   )
 
   const handleAlertKeyDown = useCallback(

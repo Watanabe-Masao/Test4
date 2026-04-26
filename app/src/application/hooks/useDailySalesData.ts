@@ -120,6 +120,47 @@ export interface DailyQuantityData {
   readonly prev: ReadonlyMap<number, number>
 }
 
+type PrevYearDailyMap = ReadonlyMap<
+  string,
+  { sales: number; discount: number; customers?: number; ctsQuantity?: number }
+>
+
+function buildDailySalesData(
+  daily: ReadonlyMap<number, DailyRecord>,
+  daysInMonth: number,
+  prevYearDaily: PrevYearDailyMap | undefined,
+  isWf: boolean,
+  budgetDaily: ReadonlyMap<number, number> | undefined,
+  year: number | undefined,
+  month: number | undefined,
+  diffTarget: DiffTarget | undefined,
+  dailyQuantity: DailyQuantityData | undefined,
+) {
+  const result = buildBaseDayItems(
+    daily,
+    daysInMonth,
+    prevYearDaily,
+    budgetDaily,
+    year ?? 2000,
+    month ?? 1,
+  )
+  // DuckDB 由来の日別点数をマージ — 当年は常に上書きし、前年は値があるときだけ
+  // 上書きする。prev を無条件に上書きすると、buildBaseDayItems が既に
+  // prevYearDaily.ctsQuantity（JS 集計）から設定した値を消してしまい、
+  // DuckDB 側の is_prev_year 行が空のときに「比較期点数」が消える。
+  if (dailyQuantity) {
+    for (const item of result.baseData) {
+      item.quantity = dailyQuantity.current.get(item.day) ?? 0
+      const prevQty = dailyQuantity.prev.get(item.day)
+      if (prevQty != null && prevQty > 0) {
+        item.prevQuantity = prevQty
+      }
+    }
+  }
+  const wfData = isWf ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy') : null
+  return { baseData: result.baseData, wfData }
+}
+
 export function useDailySalesData(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,
@@ -139,31 +180,21 @@ export function useDailySalesData(
   diffTarget?: DiffTarget,
   dailyQuantity?: DailyQuantityData,
 ): DailySalesDataResult {
-  const { baseData, wfData } = useMemo(() => {
-    const result = buildBaseDayItems(
-      daily,
-      daysInMonth,
-      prevYearDaily,
-      budgetDaily,
-      year ?? 2000,
-      month ?? 1,
-    )
-    // DuckDB 由来の日別点数をマージ — 当年は常に上書きし、前年は値があるときだけ
-    // 上書きする。prev を無条件に上書きすると、buildBaseDayItems が既に
-    // prevYearDaily.ctsQuantity（JS 集計）から設定した値を消してしまい、
-    // DuckDB 側の is_prev_year 行が空のときに「比較期点数」が消える。
-    if (dailyQuantity) {
-      for (const item of result.baseData) {
-        item.quantity = dailyQuantity.current.get(item.day) ?? 0
-        const prevQty = dailyQuantity.prev.get(item.day)
-        if (prevQty != null && prevQty > 0) {
-          item.prevQuantity = prevQty
-        }
-      }
-    }
-    const wf = isWf ? buildWaterfallData(result.baseData, diffTarget ?? 'yoy') : null
-    return { baseData: result.baseData, wfData: wf }
-  }, [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget, dailyQuantity])
+  const { baseData, wfData } = useMemo(
+    () =>
+      buildDailySalesData(
+        daily,
+        daysInMonth,
+        prevYearDaily,
+        isWf,
+        budgetDaily,
+        year,
+        month,
+        diffTarget,
+        dailyQuantity,
+      ),
+    [daily, daysInMonth, prevYearDaily, isWf, budgetDaily, year, month, diffTarget, dailyQuantity],
+  )
 
   /** 曜日フィルタ: 指定曜日に該当する日のみ通す */
   const dowFilter = useMemo(() => {

@@ -175,34 +175,46 @@ export function useRawCategoryTimeRecords(
 
   // CategoryTimeSalesRecord は dateKey フィールドを持たないが
   // year/month/day フィールドを持つ。バリデーションは recordCount で判定。
-  return useMemo(() => {
-    if (!conn) return { status: 'idle' as const, data: null, error: null, validation: null }
-    if (isLoading) return { status: 'loading' as const, data: null, error: null, validation: null }
-    if (error) return { status: 'error' as const, data: null, error, validation: null }
-    if (!data || data.length === 0) {
-      return {
-        status: 'empty' as const,
-        data: null,
-        error: null,
-        message: '指定期間にカテゴリ時間帯データがありません',
-        validation: {
-          isValid: false,
-          reason: 'データがありません',
-          recordCount: 0,
-          actualDateRange: null,
-        },
-      }
-    }
+  return useMemo(
+    () => buildCategoryTimeFetchResult(conn, isLoading, error, data),
+    [data, isLoading, error, conn],
+  )
+}
+
+function buildCategoryTimeFetchResult(
+  conn: AsyncDuckDBConnection | null,
+  isLoading: boolean,
+  error: Error | null,
+  data: readonly CategoryTimeSalesRecord[] | null | undefined,
+): ValidatedFetchResult<readonly CategoryTimeSalesRecord[]> & {
+  readonly validation: DataValidation | null
+} {
+  if (!conn) return { status: 'idle', data: null, error: null, validation: null }
+  if (isLoading) return { status: 'loading', data: null, error: null, validation: null }
+  if (error) return { status: 'error', data: null, error, validation: null }
+  if (!data || data.length === 0) {
     return {
-      status: 'valid' as const,
-      data,
+      status: 'empty' as const,
+      data: null,
       error: null,
+      message: '指定期間にカテゴリ時間帯データがありません',
       validation: {
-        isValid: true,
-        reason: null,
-        recordCount: data.length,
+        isValid: false,
+        reason: 'データがありません',
+        recordCount: 0,
         actualDateRange: null,
       },
     }
-  }, [data, isLoading, error, conn])
+  }
+  return {
+    status: 'valid' as const,
+    data,
+    error: null,
+    validation: {
+      isValid: true,
+      reason: null,
+      recordCount: data.length,
+      actualDateRange: null,
+    },
+  }
 }

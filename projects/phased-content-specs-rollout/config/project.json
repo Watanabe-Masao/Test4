@@ -1,27 +1,34 @@
 {
-  "$comment": "Content Spec System (CSS) の段階展開計画を保持する SHELL project。2026-04-26 spawn 同日に SHELL モード降格。canonical な Phase A〜J 計画 + SP-B absorption 戦略 + 最終方針 5 つは umbrella inquiry/22-content-state-layer-promotion-plan.md。本 project は Phase C 以降が単一 PR で済まないと判明した時点で ACTIVE 再昇格する placeholder。projectization.md §6 履歴 + HANDOFF.md §1 状態遷移を参照。",
+  "$comment": "Content Spec System (CSS / WSS) を「実装状態を取得・検証・変更レビュー接続・ライフサイクル管理する運用制御システム」へ段階展開する独立 active project。2026-04-26 改訂版（umbrella architecture-debt-recovery archive 後、旧 inquiry/22 を本 project の plan.md に移管）。canonical 計画 doc は plan.md。Phase A〜J + Operational Control System §1〜§11 を保持する。",
   "projectId": "phased-content-specs-rollout",
-  "title": "Content Spec System 段階展開計画 (SHELL)",
-  "status": "paused",
-  "parent": "architecture-debt-recovery",
+  "title": "Content Spec System 段階展開計画",
+  "status": "active",
   "projectRoot": "projects/phased-content-specs-rollout",
   "projectization": {
-    "$comment": "Level 2 — 計画 doc + Phase A の vertical slice 着手を含む。後続 Phase は依存 sub-project completed 後に着手する Wave 構造。",
-    "level": 2,
-    "changeType": "docs-only",
+    "$comment": "Level 3 — Phase A で 5 件の新 Architecture Rule active 化 + frontmatter generator 実装 + obligation-collector 拡張。複数 guard + collector + script にまたがる architecture level 改修。Phase B 以降も同類の拡張が続く。",
+    "level": 3,
+    "changeType": "governance-hardening",
     "implementationScope": [
       "projects/phased-content-specs-rollout/",
-      "references/05-contents/"
+      "references/05-contents/",
+      "app/src/test/architectureRules.ts",
+      "app/src/test/guards/",
+      "tools/architecture-health/src/collectors/obligation-collector.ts",
+      "tools/widget-specs/"
     ],
     "breakingChange": false,
     "requiresLegacyRetirement": false,
-    "requiresGuard": false,
+    "requiresGuard": true,
     "requiresHumanApproval": true,
     "nonGoals": [
-      "本 project 単独で Phase B 以降を実装すること（実装は依存 sub-project の責務）",
-      "新 Architecture Rule の active 化（Phase A の AR-CONTENT-SPEC-* 5 件は umbrella inquiry/01a の Phase 6 で実装）",
+      "Phase A の対象を Anchor Slice 5 件以外に拡大すること",
+      "「初回スコープ外」表現の復活",
+      "Phase F 以降の全網羅（selection rule 必須）",
+      "依存 Phase 未完での先行着手",
+      "archived umbrella / sub-project の touch（immutable）",
+      "WID-NNN 本文の上書き（spec 本文は landed 済み）",
       "本体アプリ（粗利管理ツール）の機能変更",
-      "WSS 以外の category (01-principles / 03-guides 等) への原則変更"
+      "WSS 以外の category への原則変更"
     ]
   },
   "entrypoints": {

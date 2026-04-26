@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-04-25T12:00:56.278Z",
+  "timestamp": "2026-04-26T11:52:58.827Z",
   "summary": {
-    "queryHandlers": 47,
+    "queryHandlers": 46,
     "pairHandlers": 13,
-    "screenPlanHooks": 29,
+    "screenPlanHooks": 28,
     "正規経路_queryWithHandler": 0,
     "正規経路_comparisonAccessor": 8,
-    "正規経路_facadeHook": 6,
+    "正規経路_facadeHook": 7,
     "bundleHookDef": 1,
     "要注意_executorDirect": 0,
     "互換経路_asyncQueryDirect": 0,
@@ -22,7 +22,6 @@
       "application/queries/advanced/CategoryHierarchyHandler.ts",
       "application/queries/advanced/CategoryMixWeeklyHandler.ts",
       "application/queries/advanced/CategoryMixWeeklyPairHandler.ts",
-      "application/queries/advanced/ConditionMatrixHandler.ts",
       "application/queries/comparison/YoyDailyHandler.ts",
       "application/queries/createPairedHandler.ts",
       "application/queries/cts/CategoryDailyTrendHandler.ts",
@@ -82,7 +81,6 @@
     ],
     "screenPlanHooks": [
       "application/hooks/plans/useConditionBudgetDrillPlan.ts",
-      "application/hooks/plans/useConditionMatrixPlan.ts",
       "application/hooks/plans/useCumulativeChartPlan.ts",
       "application/hooks/plans/useDayDetailPlan.ts",
       "application/hooks/plans/useDeptHourlyChartPlan.ts",
@@ -127,6 +125,7 @@
       "presentation/hooks/slices/useComparisonSlice.ts",
       "presentation/hooks/slices/useQuerySlice.ts",
       "presentation/hooks/slices/useWeatherSlice.ts",
+      "presentation/hooks/unifiedWidgetContextBuilder.ts",
       "presentation/hooks/useUnifiedWidgetContext.ts"
     ],
     "bundleHookDef": [

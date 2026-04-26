@@ -1,4 +1,3 @@
-import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * カテゴリPI値・偏差値分析
  *
@@ -11,16 +10,14 @@ import { useState, useMemo, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'
 import type { AppTheme } from '@/presentation/theme/theme'
 import { EChart, type EChartsOption } from '@/presentation/components/charts/EChart'
-import {
-  standardGrid,
-  standardTooltip,
-  standardLegend,
-} from '@/presentation/components/charts/echartsOptionBuilders'
-import { toComma } from '@/presentation/components/charts/chartTheme'
 import type { PrevYearScope } from '@/domain/models/calendar'
 import type { PairedQueryOutput } from '@/application/queries/PairedQueryContract'
 import type { LevelAggregationOutput } from '@/application/queries/cts/LevelAggregationHandler'
-import { buildCategoryRows } from './CategoryPerformanceChart.builders'
+import {
+  buildCategoryRows,
+  buildPerformanceChartOption,
+  type ViewType,
+} from './CategoryPerformanceChart.builders'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'
 import { ChartCard } from '@/presentation/components/charts/ChartCard'
 import {
@@ -31,7 +28,6 @@ import {
   EmptyMsg,
 } from '@/features/category/ui/charts/CategoryPerformanceChart.styles'
 
-type ViewType = 'piRank' | 'deviation' | 'piQtyRank'
 export type LevelType = 'department' | 'line' | 'klass'
 
 const VIEW_LABELS: Record<ViewType, string> = {
@@ -64,15 +60,6 @@ interface Props {
   onDrillDown?: (info: CategoryDrillDownInfo) => void
   /** ドリルダウンのパンくず（表示用） */
   breadcrumbs?: readonly { readonly label: string; readonly onClick: () => void }[]
-}
-
-const ALL_LABELS: Record<string, string> = {
-  piAmount: '金額PI値',
-  prevPiAmount: '前年金額PI値',
-  piQty: '点数PI値',
-  prevPiQty: '前年点数PI値',
-  deviation: '金額PI偏差値',
-  qtyDeviation: '点数PI偏差値',
 }
 
 export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
@@ -124,216 +111,10 @@ export const CategoryPerformanceChart = memo(function CategoryPerformanceChart({
     deviation: `カテゴリ偏差値分析（${LEVEL_LABELS[level]}別 / 基準=50）`,
   }
 
-  const option = useMemo(() => {
-    const baseGrid = { ...standardGrid(), left: 80, bottom: 30, containLabel: false }
-    const baseYAxis = {
-      type: 'category' as const,
-      data: names,
-      inverse: true,
-      axisLabel: {
-        color: theme.colors.text3,
-        fontSize: chartFontSize.axis - 2,
-        fontFamily: theme.typography.fontFamily.primary,
-        width: 70,
-        overflow: 'truncate' as const,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
-    }
-
-    if (view === 'deviation') {
-      const barData = (categoryRows as unknown as Record<string, unknown>[]).map((entry) => {
-        const d = (entry.deviation as number | null) ?? 50
-        const color =
-          d >= 60
-            ? theme.colors.palette.success
-            : d >= 50
-              ? theme.colors.palette.primary
-              : d >= 40
-                ? theme.colors.palette.warning
-                : theme.colors.palette.danger
-        return { value: entry.deviation, itemStyle: { color, opacity: 0.7 } }
-      })
-
-      const lineData = (categoryRows as unknown as Record<string, unknown>[]).map(
-        (entry) => entry.qtyDeviation as number | null,
-      )
-
-      return {
-        grid: baseGrid,
-        tooltip: {
-          ...standardTooltip(theme),
-          trigger: 'axis' as const,
-          formatter: (params: unknown) => {
-            const items = params as { seriesName: string; value: number | null; marker: string }[]
-            if (!Array.isArray(items) || items.length === 0) return ''
-            const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
-            const lines = items.map((item) => {
-              const label = ALL_LABELS[item.seriesName] ?? item.seriesName
-              const val = item.value != null ? (item.value as number).toFixed(1) : '-'
-              return `${item.marker} ${label}: ${val}`
-            })
-            return `<strong>${categoryName}</strong><br/>${lines.join('<br/>')}`
-          },
-        },
-        legend: {
-          ...standardLegend(theme),
-          data: [
-            { name: 'deviation', icon: 'roundRect' },
-            { name: 'qtyDeviation', icon: 'circle' },
-          ],
-          formatter: (name: string) => ALL_LABELS[name] ?? name,
-        },
-        xAxis: {
-          type: 'value' as const,
-          min: 20,
-          max: 80,
-          axisLabel: {
-            color: theme.colors.text3,
-            fontSize: chartFontSize.axis - 1,
-            fontFamily: theme.typography.fontFamily.mono,
-          },
-          axisLine: { lineStyle: { color: theme.colors.border } },
-          axisTick: { show: false },
-          splitLine: {
-            lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
-          },
-        },
-        yAxis: baseYAxis,
-        series: [
-          {
-            name: 'deviation',
-            type: 'bar' as const,
-            data: barData,
-            barWidth: 10,
-            itemStyle: { borderRadius: [0, 3, 3, 0] },
-            markLine: {
-              silent: true,
-              symbol: 'none',
-              lineStyle: { type: 'solid' as const },
-              data: [
-                {
-                  xAxis: 50,
-                  lineStyle: {
-                    color: theme.colors.border,
-                    width: 1.5,
-                    opacity: 0.7,
-                    type: 'solid' as const,
-                  },
-                },
-                {
-                  xAxis: 60,
-                  lineStyle: {
-                    color: theme.colors.palette.success,
-                    width: 1,
-                    opacity: 0.3,
-                    type: 'dashed' as const,
-                  },
-                },
-                {
-                  xAxis: 40,
-                  lineStyle: {
-                    color: theme.colors.palette.danger,
-                    width: 1,
-                    opacity: 0.3,
-                    type: 'dashed' as const,
-                  },
-                },
-              ],
-            },
-          },
-          {
-            name: 'qtyDeviation',
-            type: 'line' as const,
-            data: lineData,
-            smooth: true,
-            lineStyle: { color: theme.colors.palette.purple, width: 2 },
-            itemStyle: { color: theme.colors.palette.purple },
-            symbol: 'circle',
-            symbolSize: 6,
-          },
-        ],
-      }
-    }
-
-    // piRank / piQtyRank views
-    const isPiAmount = view === 'piRank'
-    const mainKey = isPiAmount ? 'piAmount' : 'piQty'
-    const prevKey = isPiAmount ? 'prevPiAmount' : 'prevPiQty'
-    const mainColor = isPiAmount ? theme.colors.palette.primary : theme.colors.palette.info
-
-    const mainData = (categoryRows as unknown as Record<string, unknown>[]).map((entry) => {
-      const val = entry[mainKey] as number
-      const prev = entry[prevKey] as number | null
-      const color = prev != null && val >= prev ? mainColor : theme.colors.palette.orange
-      return { value: val, itemStyle: { color } }
-    })
-
-    const prevData = (categoryRows as unknown as Record<string, unknown>[]).map(
-      (entry) => entry[prevKey] as number | null,
-    )
-
-    return {
-      grid: baseGrid,
-      tooltip: {
-        ...standardTooltip(theme),
-        trigger: 'axis' as const,
-        formatter: (params: unknown) => {
-          const items = params as { seriesName: string; value: number | null; marker: string }[]
-          if (!Array.isArray(items) || items.length === 0) return ''
-          const categoryName = (items[0] as unknown as Record<string, unknown>).name as string
-          const lines = items.map((item) => {
-            const label = ALL_LABELS[item.seriesName] ?? item.seriesName
-            const val = item.value != null ? toComma(Math.round(item.value as number)) : '-'
-            return `${item.marker} ${label}: ${val}`
-          })
-          return `<strong>${categoryName}</strong><br/>${lines.join('<br/>')}`
-        },
-      },
-      legend: {
-        ...standardLegend(theme),
-        data: [
-          { name: mainKey, icon: 'roundRect' },
-          { name: prevKey, icon: 'roundRect' },
-        ],
-        formatter: (name: string) => ALL_LABELS[name] ?? name,
-      },
-      xAxis: {
-        type: 'value' as const,
-        axisLabel: {
-          color: theme.colors.text3,
-          fontSize: chartFontSize.axis - 1,
-          fontFamily: theme.typography.fontFamily.mono,
-        },
-        axisLine: { lineStyle: { color: theme.colors.border } },
-        axisTick: { show: false },
-        splitLine: {
-          lineStyle: { color: theme.colors.border, opacity: 0.3, type: 'dashed' as const },
-        },
-      },
-      yAxis: baseYAxis,
-      series: [
-        {
-          name: mainKey,
-          type: 'bar' as const,
-          data: mainData,
-          barWidth: 10,
-          itemStyle: { borderRadius: [0, 3, 3, 0] },
-        },
-        {
-          name: prevKey,
-          type: 'bar' as const,
-          data: prevData,
-          barWidth: 6,
-          itemStyle: {
-            color: theme.colors.palette.slate,
-            opacity: 0.35,
-            borderRadius: [0, 2, 2, 0],
-          },
-        },
-      ],
-    }
-  }, [categoryRows, names, view, theme])
+  const option = useMemo(
+    () => buildPerformanceChartOption(categoryRows, names, view, theme),
+    [categoryRows, names, view, theme],
+  )
 
   // Loading state
   if (isLoading) {

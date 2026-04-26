@@ -8,12 +8,6 @@ import type { AppTheme } from '@/presentation/theme/theme'
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'
 import { toComma } from './chartTheme'
-import {
-  normalizeMinMax,
-  pearsonCorrelation,
-  detectDivergence,
-  movingAverage,
-} from '@/application/hooks/useStatistics'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
@@ -22,6 +16,7 @@ import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
 import { categoryXAxis, valueYAxis, lineDefaults } from './builders'
 import { CorrelationRow, CorrBadge } from './IntegratedTimeline.styles'
+import { buildIntegratedTimelineSeries } from './IntegratedTimeline.builders'
 
 type ViewMode = 'normalized' | 'raw'
 
@@ -46,75 +41,10 @@ export const IntegratedTimeline = memo(function IntegratedTimeline({ result, day
   const theme = useTheme() as AppTheme
   const [viewMode, setViewMode] = useState<ViewMode>('normalized')
 
-  const { chartData, correlations, divergentRanges } = useMemo(() => {
-    const salesArr: number[] = []
-    const costArr: number[] = []
-    const gpArr: number[] = []
-    const discountArr: number[] = []
-    const days: number[] = []
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const rec = result.daily.get(d)
-      days.push(d)
-      const sales = rec?.sales ?? 0
-      const cost = rec ? rec.purchase.cost + rec.deliverySales.cost : 0
-      const discount = rec?.discountAmount ?? 0
-      salesArr.push(sales)
-      costArr.push(cost)
-      gpArr.push(sales - cost)
-      discountArr.push(discount)
-    }
-
-    const normSales = normalizeMinMax(salesArr)
-    const normCost = normalizeMinMax(costArr)
-    const normGP = normalizeMinMax(gpArr)
-    const normDiscount = normalizeMinMax(discountArr)
-    const maSales = movingAverage(salesArr, 7)
-    const maCost = movingAverage(costArr, 7)
-
-    const data = days.map((d, i) => ({
-      day: d,
-      sales: salesArr[i],
-      cost: costArr[i],
-      grossProfit: gpArr[i],
-      discount: discountArr[i],
-      normSales: normSales.values[i],
-      normCost: normCost.values[i],
-      normGrossProfit: normGP.values[i],
-      normDiscount: normDiscount.values[i],
-      maSales: maSales[i],
-      maCost: maCost[i],
-    }))
-
-    const series = [
-      { name: '売上', values: salesArr },
-      { name: '仕入', values: costArr },
-      { name: '粗利', values: gpArr },
-      { name: '売変', values: discountArr },
-    ]
-    const corrs: { pair: string; r: number }[] = []
-    for (let i = 0; i < series.length; i++) {
-      for (let j = i + 1; j < series.length; j++) {
-        const { r } = pearsonCorrelation(series[i].values, series[j].values)
-        corrs.push({ pair: `${series[i].name}×${series[j].name}`, r })
-      }
-    }
-
-    const divPts = detectDivergence(salesArr, costArr, 30)
-    const ranges: { start: number; end: number }[] = []
-    let rangeStart: number | null = null
-    for (const pt of divPts) {
-      if (pt.isSignificant) {
-        if (rangeStart == null) rangeStart = pt.index + 1
-      } else if (rangeStart != null) {
-        ranges.push({ start: rangeStart, end: pt.index })
-        rangeStart = null
-      }
-    }
-    if (rangeStart != null) ranges.push({ start: rangeStart, end: divPts.length })
-
-    return { chartData: data, correlations: corrs, divergentRanges: ranges }
-  }, [result, daysInMonth])
+  const { chartData, correlations, divergentRanges } = useMemo(
+    () => buildIntegratedTimelineSeries(result, daysInMonth),
+    [result, daysInMonth],
+  )
 
   const isNorm = viewMode === 'normalized'
 

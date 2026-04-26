@@ -5,88 +5,66 @@
 
 ## 1. 現在地
 
-**本 project は 2026-04-26 に SHELL モードへ降格。canonical な Phase A〜J 計画は
-`projects/architecture-debt-recovery/inquiry/22-content-state-layer-promotion-plan.md`
-に移管された。**
+**spawn 済 / Phase 0（計画 doc landing）完遂直後 / Phase A 着手前。
+status: `active` / parent: なし（archived umbrella の sub-project ではない）。**
 
-### 状態遷移の経緯
+### spawn → ACTIVE への経緯
 
 | 日付 | 事象 |
 |---|---|
-| 2026-04-26 | 独立 sub-project として spawn（Level 2 / docs-only） |
-| 2026-04-26 | umbrella plan.md §3 不可侵原則 #16「Phase 4/5 計画を経由せずに sub-project を立ち上げない」遵守 + 軽量起動の原則に従い、canonical 計画 doc を **`inquiry/22-content-state-layer-promotion-plan.md`** に移管。本 project は **SHELL（promotion 待ち）** に降格 |
+| 2026-04-26 | 本 project を独立 sub-project (Level 2 / docs-only) として spawn（旧版 `inquiry/22` で SP-B Anchor Slice + SP-B/D absorption 戦略） |
+| 2026-04-26 | umbrella `architecture-debt-recovery` の不可侵原則 #16 + 軽量起動の原則に従い、canonical 計画 doc を `inquiry/22` に移管 + 本 project を **SHELL モード**降格 |
+| 2026-04-26 | Operational Control System §1〜§11 を inquiry/22 に追加 |
+| **2026-04-26** | umbrella + 4 sub-project (SP-A/B/C/D) **全 archive 完遂**（main merge）。45 WID spec 本文 landed。archived umbrella 配下の inquiry が無効化されたため、**本 project を ACTIVE 昇格 + plan.md を canonical 化**（旧 inquiry/22 を `plan.md` に移管・post-archive 文脈に適合） |
 
 ### 現状の役割
 
-- **canonical な Phase A〜J 計画 + SP-B absorption 戦略**: umbrella `inquiry/22-content-state-layer-promotion-plan.md`
-- **本 project**: Phase C 以降が **umbrella 直接実装で重量化したと判明した時点で activate される promotion target shell**。trigger は inquiry/22 が `18a-content-state-layer-promotion.md` にエスカレートされたとき
-- **本 project の `plan.md` / `checklist.md`**: 将来 promotion 時の参考骨格。**正本は inquiry/22**。差分が出た場合は inquiry/22 を canonical として扱う
+- **canonical 計画 doc**: 本 project の `plan.md`（Phase A〜J + Operational Control System §1〜§11）
+- **状態**: `status: active` / parent なし / Level 3 / governance-hardening
+- **次の作業**: Phase A の Anchor Slice 5 件に対する **source ↔ spec 機械接続**
 
-### 主な前提（2026-04-26 時点）
+### 主な前提（2026-04-26 時点、main merge 後）
 
-- **SP-A widget-context-boundary**: 2026-04-25 archive 完了（`projects/completed/widget-context-boundary/SUMMARY.md`）
-- **SP-C duplicate-orphan-retirement**: 2026-04-25 archive 完了
-- **SP-B widget-registry-simplification**: 起動条件解除済み（umbrella `HANDOFF.md` §「Wave 2 spawn 高優先」）
-- **PR #1148**: merged（merge commit `26fc5f4`）、head `bc103ea` CI success
-
-### spawn 時 landed (本 commit)
-
-- `config/project.json`（Level 2 / docs-only / parent: architecture-debt-recovery）
-- `AI_CONTEXT.md`（why / scope / read order）
-- `HANDOFF.md`（本ファイル）
-- `plan.md`（Phase A〜J 構造 + 不可侵原則 + 依存グラフ）
-- `checklist.md`（Phase 0〜J + 最終レビュー）
-- `projectization.md`（AAG-COA 判定）
-- `aag/execution-overlay.ts`（initial 空）
-
-### 着手前提（Phase A 以降）
-
-| 前提 | 状態 |
-|---|---|
-| umbrella inquiry/01a Phase 6 frontmatter generator landed | 未着手（umbrella 側 Phase 6 量産時） |
-| `AR-CONTENT-SPEC-*` 5 件の active 化 | 未着手（umbrella 側 Phase 6） |
-| `obligation-collector.ts` への OBLIGATION_MAP entry 追加 | 未着手（umbrella 側 Phase 6） |
-| SP-B (widget-registry-simplification) status | planned（spawn 待ち） |
+- archived: SP-A widget-context-boundary / SP-B widget-registry-simplification / SP-C duplicate-orphan-retirement / SP-D aag-temporal-governance-hardening / umbrella architecture-debt-recovery
+- landed: 全 45 WID-NNN.md spec 本文（`references/05-contents/widgets/`）
+- WSS bootstrap: D1〜D8 確定済み（archived umbrella `inquiry/01a`）
+- 未着手: source `@widget-id` JSDoc / frontmatter generator / `AR-CONTENT-SPEC-*` rule active 化 / co-change guard / OBLIGATION_MAP 拡張
 
 ## 2. 次にやること
 
-本 project は SHELL モード。**作業は inquiry/22 + SP-B 側で進む**。詳細は
-`checklist.md` を参照（最終レビュー以外は inquiry/22 と SP-B が canonical）。
+詳細は `plan.md` §4 / `checklist.md` を参照。
 
-### 高優先（本 project 外で進む作業）
+### 高優先（Phase A Anchor Slice — 保証経路完成）
 
-- **inquiry/22 を canonical 計画 doc として人間 review** — Phase A〜J 順序・対象・
-  完了条件が SP-B / SP-C / SP-D の実態と整合しているか検証する
-- **SP-B spawn 時の Phase A/B absorption** — SP-B (widget-registry-simplification)
-  bootstrap で Phase A/B を SP-B 内 plan/checklist に取り込む（inquiry/22 §「SP-B への
-  absorption 戦略」段階 1）
+**Phase A は 5 件 (WID-002 / 006 / 018 / 033 / 040) に限定**（不可侵原則 3）。
 
-### 中優先（promotion 判断 trigger）
+1. **frontmatter generator 実装** — `tools/widget-specs/generate.mjs`（source AST → frontmatter 上書き生成）
+2. **source への JSDoc 注入** — Anchor Slice 5 widget の registry entry に `@widget-id WID-NNN`
+3. **5 件の `AR-CONTENT-SPEC-*` rule** を `architectureRules.ts` に登録 + active 化:
+   - `AR-CONTENT-SPEC-EXISTS` / `FRONTMATTER-SYNC` / `CO-CHANGE` / `FRESHNESS` / `OWNER`
+4. **`obligation-collector.ts` の `OBLIGATION_MAP`** に entry 追加（registry 変更 → spec 更新義務）
+5. **co-change / freshness / owner guard** の実装
+6. **`npm run content-specs:check` script** + CI 接続
 
-本 project が SHELL から ACTIVE に昇格する trigger:
+### 中優先（Phase B 着手）
 
-- Phase C 以降が単一 PR で済まないと判明
-- 新 Architecture Rule の active 化を含む Phase が必要
-- 破壊的 type 変更（spec frontmatter schema 拡張等）を含む Phase が必要
-- ratchet-down baseline 戦略が必要
+Phase A 完遂 + Promotion Gate L4 到達後、45 WID 全体に拡張（同じ仕組みの対象拡大）。
 
-trigger 発火時は umbrella `inquiry/18a-content-state-layer-promotion.md` を作成して
-正式 sub-project bootstrap に進む（inquiry/22 §「段階 3: 必要に応じた sub-project 化」）。
+### 低優先（Phase C 以降の準備）
 
-### 低優先
-
-- 本 project の `plan.md` / `checklist.md` を inquiry/22 と差分検出する仕組みは導入しない
-  （drift コストの方が高い）。promotion 時に inquiry/22 から再生成する
+- `RM-NNN` / `PIPE-NNN` / `QH-NNN` / `PROJ-NNN` の ID 体系の事前 review
+- `references/05-contents/{read-models,pipelines,query-handlers,projections}/` 新サブカテゴリの事前設計
+- archived sub-project SUMMARY との連携 (§5.7) の運用テンプレ作成
 
 ## 3. ハマりポイント
 
 ### 3.1. 「初回スコープ外」の表現を本 plan に持ち込まない
 
-不可侵原則 1 違反。本 project の存在意義は「Phase B 以降を放棄しないこと」を
-明文化することにある。`plan.md` / `checklist.md` / `AI_CONTEXT.md` に「out of scope」
+不可侵原則 1 違反。本 project の存在意義は「Phase B 以降を放棄しないこと」を構造的に
+保証することにある。`plan.md` / `checklist.md` / `AI_CONTEXT.md` に「out of scope」
 「非対象」「初回除外」のような表現が混入したら不可侵原則違反として差し戻す。
 
-正しい表現: 「Phase X で着手する」「依存 Phase 完了後に Wave 化する」。
+**正しい表現**: 「Phase X で着手する」「依存 Phase 完了後に Wave 化する」。
 
 ### 3.2. Phase A の対象を 5 件から拡大しない
 
@@ -96,45 +74,57 @@ WID-033 / WID-040 / WID-018 / WID-006 / WID-002 の 5 件で source / spec / gua
 段階導入できる。Phase A で 6 件目以降に手を広げると、保証経路が完成する前に
 重量化して目的を失う（plan.md 不可侵原則 3）。
 
-### 3.3. 本 project は SHELL モード — 計画の正本は inquiry/22
+### 3.3. WID-NNN 本文の上書き禁止
 
-2026-04-26 降格以降、本 project の `plan.md` / `checklist.md` は **promotion 待ちの
-参考骨格**であり canonical ではない。Phase A〜J の実態管理は次の経路で行う:
+全 45 WID spec 本文は SP-B archive 期間に landed 済み（umbrella Phase 6 量産）。
+本 project の Phase A の作業は **frontmatter 同期と source 接続のみ**。
+本文（Section 1-9）を上書きする変更は scope 外（`plan.md` §7 やってはいけないこと）。
 
-- **canonical 計画 doc**: umbrella `inquiry/22-content-state-layer-promotion-plan.md`
-- **Phase A/B 実装**: SP-B (widget-registry-simplification) spawn 時に absorption
-- **Phase C 以降の実装判断**: inquiry/22 §「段階 2: SP-B 完了後」 の軽量パス / 重量パス判定
-- **正式 sub-project 化**: 重量パス trigger 発火時に `inquiry/18a-content-state-layer-promotion.md`
-  作成 + 本 project を ACTIVE に昇格
+### 3.4. archived umbrella / archived sub-project の touch 禁止
 
-### 3.4. Phase F 以降は selection rule 必須
+archived は immutable（`projects/completed/architecture-debt-recovery/` 等）。
+本 project は umbrella の sub-project ではない（不可侵原則 8）。
+`config/project.json.parent` は設定しない。
+
+archived sub-project SUMMARY との連携 (§5.7) は **読むだけ**。書き換えない。
+
+### 3.5. Phase F 以降は selection rule 必須
 
 UI Components / Charts / Storybook 連携 等を全網羅すると drift コストで運用が崩壊する。
-Phase F の 6 条件 / Phase E の 4 条件は「selection 必須」を明示するための
-sentinel。条件追加で網羅範囲が広がるのは OK、条件削除で全網羅に近づくのは NG
-（plan.md 不可侵原則 + C9 現実把握優先）。
+plan.md §3.2 の優先順位 + 各 Phase の selection rule で「広げない」ことを明示。
+条件追加で網羅範囲が広がるのは OK、条件削除で全網羅に近づくのは NG（C9 現実把握優先）。
 
-### 3.5. content-spec-health.json は Phase H で初出
+### 3.6. content-spec-health.json は Phase H で初出
 
 Phase H 完了前に `references/02-status/generated/content-spec-health.json` を
 参照する CLAUDE.md 記述・docs:check 経路を追加してはならない。Phase H で collector
 を実装してから初めて生成される。先行参照すると `docRegistryGuard` で fail する。
 
+### 3.7. 大きな単一 Write は stream idle timeout に抵触する
+
+archived umbrella `HANDOFF.md §3.6` の経験則を継承。**plan.md / 大きな inquiry ファイルは
+skeleton → Edit の chunked 方式**で埋める（1 chunk あたり 100-150 行が目安）。
+本 project の plan.md も skeleton → Edit chunked で構築されている。
+
+### 3.8. State / Behavior / Decision の混同
+
+`plan.md §5.1` の 3 層分離を破ると過剰期待が起こる。spec が green でも behavior が
+正しいとは限らない。spec frontmatter の sync は **State Correctness** のみ保証する。
+Behavior は test、Decision は ADR で別途守る。
+
 ## 4. 関連文書
 
 | ファイル | 役割 |
 |---|---|
-| **`projects/architecture-debt-recovery/inquiry/22-content-state-layer-promotion-plan.md`** | **canonical 計画 doc（Phase A〜J + SP-B absorption 戦略 + 最終方針 5 つ）** |
-| `AI_CONTEXT.md` | why / scope / parent / read order |
-| `plan.md` | Phase A〜J 構造（**inquiry/22 が canonical / 本ファイルは shell の参考骨格**） |
-| `checklist.md` | Phase 0〜J completion 条件（同上） |
-| `projectization.md` | AAG-COA 判定 (Level 2 / docs-only / shell) |
-| `config/project.json` | project manifest |
+| `AI_CONTEXT.md` | why / scope / read order |
+| **`plan.md`** | **canonical 計画 doc — Phase A〜J + Operational Control System §1〜§11** |
+| `checklist.md` | Phase 0〜J completion 条件 |
+| `projectization.md` | AAG-COA 判定 (Level 3 / governance-hardening) |
+| `config/project.json` | project manifest（`status: "active"` / parent なし） |
 | `aag/execution-overlay.ts` | rule overlay（initial 空） |
-| `projects/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md` | WSS bootstrap 決定（D1〜D8） |
-| `projects/architecture-debt-recovery/inquiry/18-sub-project-map.md` | SP-A〜D 依存関係 |
-| umbrella `HANDOFF.md` | Wave 2 spawn 高優先（SP-B 起動条件解除済み） |
-| `projects/completed/widget-context-boundary/SUMMARY.md` | SP-A archive 完了（2026-04-25） |
+| `projects/completed/architecture-debt-recovery/HANDOFF.md` | archived umbrella の完遂サマリ |
+| `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md` | WSS bootstrap 決定（D1〜D8） |
+| `projects/completed/widget-registry-simplification/SUMMARY.md` | SP-B archive サマリ（Anchor Slice 選定の文脈） |
 | `references/05-contents/README.md` | CSS カテゴリ正本（3 軸 drift 防御） |
-| `references/05-contents/widgets/README.md` | WID-001〜045 型番割当 |
+| `references/05-contents/widgets/README.md` | WID-001〜045 型番割当 + 全 45 spec 本文 |
 | `references/03-guides/project-checklist-governance.md` | AAG Layer 4A 運用ルール |

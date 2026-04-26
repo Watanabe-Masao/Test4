@@ -5,19 +5,18 @@
 
 ## 1. 現在地
 
-**Phase 1-5 完了 / Wave 0 切替 landed / Wave 1 sub-project 進行中（spawn 2026-04-23）。status: `active`。`CURRENT_PROJECT.md` = `architecture-debt-recovery`（sub-project 作業開始時に個別切替）。**
+**Phase 1-5 完了 / Wave 0 切替 landed / Wave 1-3 全 sub-project (SP-A/B/C/D) archived。status: `active`、残 Phase 7 umbrella 自身 archive のみ。`CURRENT_PROJECT.md` = `architecture-debt-recovery`。**
 
-### Wave 1 sub-project の進行状況
+### sub-project の進行状況
 
 | id | lane | status | 主な成果（定性） |
 |---|---|---|---|
 | `widget-context-boundary` | A | ✅ completed (2026-04-25) | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 |
 | `duplicate-orphan-retirement` | C | ✅ completed (2026-04-25) | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / 17a Option A 拡張 cascade 含む BC-5 完了 / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 |
-| `aag-temporal-governance-hardening` | D | active (Wave 1 完遂、Wave 2-3 起動可能) | reviewPolicy required / allowlist metadata required / generated remediation / projectDocConsistencyGuard。D-004 (Wave 2) は SP-C completion で起動条件解除、D-003 (Wave 3) は SP-B completed 待ち |
+| `widget-registry-simplification` | B | ✅ completed (2026-04-26) | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 |
+| `aag-temporal-governance-hardening` | D | ✅ completed (2026-04-26) | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008 sunset) / G8-P20 useMemo body 行数 fixed mode (baseline 208→20、28 件 useMemo 抽出)。5 guard fixed mode 達成 |
 
 PR 数 / guard 数 / LEG 数の現在値は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
-
-SP-B（widget-registry-simplification）は **SP-A completed (2026-04-25) で起動条件解除**、Wave 2 で spawn 可能。
 
 本 project は `budget-achievement-simulator` の reboot で表面化した widget 複雑化問題を起点に、
 **widget / pure 関数 / 型 / コンポーネント / データパイプライン / レガシー撤退** を
@@ -85,25 +84,34 @@ SP-B（widget-registry-simplification）は **SP-A completed (2026-04-25) で起
 
 ## 2. 次にやること
 
-詳細は `checklist.md` を参照。Phase 5 完了 + Wave 1 SP-A / SP-C completed (2026-04-25)。
-次は **Wave 2 spawn**（SP-B + SP-D-continued ADR-D-004）。
+詳細は `checklist.md` を参照。
+**Wave 1 (SP-A/C) + Wave 2 (SP-B + ADR-D-004) + Wave 3 (ADR-D-003 PR1-4 / P20 fixed mode) + Phase 7 SP-D archive 完了。残り umbrella 自身の archive のみ。**
 
-### 高優先（Wave 2 spawn、並行着手可能）
+### 高優先（残り task）
 
-SP-A completed (2026-04-25) + SP-C completed (2026-04-25) により以下が起動条件解除:
+**umbrella `architecture-debt-recovery` 自身の Phase 7 archive**:
 
-- **SP-B widget-registry-simplification** — SP-A completion で起動条件解除。詳細は `projects/completed/widget-context-boundary/next-phase-plan.md` を参照
-- **SP-D-continued ADR-D-004** (`@deprecated metadata required`) — SP-C completion で起動条件解除。`aag-temporal-governance-hardening` の Phase 5 で着手
+- 全 4 sub-project (SP-A/B/C/D) が `projects/completed/` 配下に archive 済
+- 残るのは umbrella project 自身の SUMMARY.md 作成 + `projects/completed/` への物理移動 +
+  `config/project.json.status` を `active → completed` + `references/02-status/open-issues.md`
+  での active → archived 表 移動
+- 手順は `inquiry/20 §sub-project completed 時の切替手順` を umbrella 自身に適用
 
-### 中優先（Wave 2 着手時の作業規律）
+### Wave 1 / 2 / 3 完了サマリ（定性）
 
-- 各 sub-project の spawn PR は `inquiry/21 §spawn PR テンプレート` の 8 step に従う
-- sub-project spawn 時に `CURRENT_PROJECT.md` を対応 sub-project に切替（`inquiry/20 §sub-project spawn テンプレート`）
-- 並行着手時の作業規律は `inquiry/21 §並行着手時の作業規律` 5 項に従う
+| Lane | sub-project | 主な成果（定性） |
+|---|---|---|
+| A | widget-context-boundary | UnifiedWidgetContext page-local 剥離 / DashboardWidgetContext 集約 / WidgetDef 2 型分離 / chokepoint narrowing 確立。guard fixed mode + LEG sunset 完了 (2026-04-25) |
+| C | duplicate-orphan-retirement | features/widgets.tsx 解消 / useCostDetailData 単一正本化 / Tier D orphan + 17a Option A 拡張 cascade 削除 (BC-5) / barrel metadata 必須化。guard fixed mode + LEG sunset 完了 (2026-04-25) |
+| B | widget-registry-simplification | registry 行の冗長 pattern 解消 (二重 null check / full ctx passthrough / IIFE / inline function / palette refs)。4 guard fixed mode + LEG-009 sunset 完了 (2026-04-26) |
+| D | aag-temporal-governance-hardening | reviewPolicy required (BC-6) / allowlist metadata required (BC-7) / generated remediation / projectDocConsistencyGuard / @deprecated metadata + lifecycle 監視 (LEG-008) / G8-P20 useMemo body 行数 fixed mode (208→20)。5 guard fixed mode 達成、archived (2026-04-26) |
 
-### Wave 3（SP-B completed 後）
+ADR / PR / guard / LEG の現在件数は `references/02-status/generated/architecture-debt-recovery-remediation.json` を参照。
 
-- SP-D-final の ADR-D-003（G8 P20/P21 baseline 削減）
+### Phase 7（umbrella sub-project completion）
+
+全 sub-project (SP-A/B/C/D) archive 完遂。残 umbrella `architecture-debt-recovery` 自身の archive のみ。
+具体手順は `inquiry/20 §sub-project completion テンプレート` 7 step を umbrella 自身に適用。
 
 ### Wave 1 完了サマリ（定性）
 

@@ -48,10 +48,10 @@ interface BaselineEntry {
  */
 const STORE_DAILY_RAW_ACCESS_BASELINES: readonly BaselineEntry[] = [
   {
-    path: 'presentation/components/charts/SalesPurchaseComparisonChart.tsx',
+    path: 'presentation/components/charts/SalesPurchaseComparisonChart.builders.ts',
     maxOccurrences: 1,
     reason:
-      'Phase 6.5-5: sales/purchase 抽出は lane 経由に移行済み。残る 1 は computeEstimatedInventory への s.result.daily 引数で、StoreDailySeries に含まれない markup/discount 計算のための intentional な permanent floor',
+      'Phase 6.5-5: sales/purchase 抽出は lane 経由に移行済み。残る 1 は computeEstimatedInventory への s.result.daily 引数で、StoreDailySeries に含まれない markup/discount 計算のための intentional な permanent floor。ADR-D-003 PR4-step3 で chart .tsx から builders.ts に抽出 (G5-CRT 適合)',
   },
 ]
 

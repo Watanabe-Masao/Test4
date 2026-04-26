@@ -1,17 +1,17 @@
 # Query Access Audit Report
 
-> Generated: 2026-04-25T12:00:56.278Z
+> Generated: 2026-04-26T11:52:58.827Z
 
 ## Route Summary
 
 | 経路種別 | 件数 | 状態 |
 |---|---|---|
-| QueryHandler 定義 | 47 | 基盤 |
+| QueryHandler 定義 | 46 | 基盤 |
 | PairedQueryHandler（pair 化済み） | 13 | 基盤 |
-| Screen Plan hook（plan 化済み） | 29 | 基盤 |
+| Screen Plan hook（plan 化済み） | 28 | 基盤 |
 | useQueryWithHandler（正規） | 0 | 正規 |
 | comparisonAccessors（正規） | 8 | 正規 |
-| facade / bundle hook 使用（正規） | 6 | 正規 |
+| facade / bundle hook 使用（正規） | 7 | 正規 |
 | bundle hook 定義 | 1 | 基盤 |
 | executor.execute 直呼び（要注意） | 0 | 要注意 |
 | useAsyncQuery 直 import（互換） | 0 | 互換 |
@@ -26,7 +26,6 @@
 - application/queries/advanced/CategoryHierarchyHandler.ts
 - application/queries/advanced/CategoryMixWeeklyHandler.ts
 - application/queries/advanced/CategoryMixWeeklyPairHandler.ts
-- application/queries/advanced/ConditionMatrixHandler.ts
 - application/queries/comparison/YoyDailyHandler.ts
 - application/queries/createPairedHandler.ts
 - application/queries/cts/CategoryDailyTrendHandler.ts
@@ -88,7 +87,6 @@
 ### screenPlanHooks
 
 - application/hooks/plans/useConditionBudgetDrillPlan.ts
-- application/hooks/plans/useConditionMatrixPlan.ts
 - application/hooks/plans/useCumulativeChartPlan.ts
 - application/hooks/plans/useDayDetailPlan.ts
 - application/hooks/plans/useDeptHourlyChartPlan.ts
@@ -135,6 +133,7 @@
 - presentation/hooks/slices/useComparisonSlice.ts
 - presentation/hooks/slices/useQuerySlice.ts
 - presentation/hooks/slices/useWeatherSlice.ts
+- presentation/hooks/unifiedWidgetContextBuilder.ts
 - presentation/hooks/useUnifiedWidgetContext.ts
 
 ### bundleHookDef

@@ -199,46 +199,10 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
   }, [curLevelData, curHourlyData, prevLevelData, prevHourlyData, totalCustomers])
 
   // ── ソート ──
-  const sortedItems = useMemo(() => {
-    const arr = [...items]
-    arr.sort((a, b) => {
-      let d = 0
-      switch (sortKey) {
-        case 'amount':
-          d = a.amount - b.amount
-          break
-        case 'quantity':
-          d = a.quantity - b.quantity
-          break
-        case 'pct':
-          d = a.pct - b.pct
-          break
-        case 'peakHour':
-          d = a.peakHour - b.peakHour
-          break
-        case 'coreTimeStart':
-          d = a.coreTimeStart - b.coreTimeStart
-          break
-        case 'turnaroundHour':
-          d = a.turnaroundHour - b.turnaroundHour
-          break
-        case 'name':
-          d = a.name.localeCompare(b.name, 'ja')
-          break
-        case 'yoyRatio':
-          d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0)
-          break
-        case 'yoyDiff':
-          d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0)
-          break
-        case 'piValue':
-          d = (a.piValue ?? 0) - (b.piValue ?? 0)
-          break
-      }
-      return sortDir === 'desc' ? -d : d
-    })
-    return arr
-  }, [items, sortKey, sortDir])
+  const sortedItems = useMemo(
+    () => sortHierarchyItems(items, sortKey, sortDir),
+    [items, sortKey, sortDir],
+  )
 
   return {
     items,
@@ -246,6 +210,53 @@ export function useCategoryHierarchyData(params: UseCategoryHierarchyDataParams)
     hasPrevYear,
     isLoading: levelPair.isLoading,
   }
+}
+
+// ── HierarchyItem sorter（pure） ──
+
+function sortHierarchyItems(
+  items: readonly HierarchyItem[],
+  sortKey: SortKey,
+  sortDir: SortDir,
+): readonly HierarchyItem[] {
+  const arr = [...items]
+  arr.sort((a, b) => {
+    let d = 0
+    switch (sortKey) {
+      case 'amount':
+        d = a.amount - b.amount
+        break
+      case 'quantity':
+        d = a.quantity - b.quantity
+        break
+      case 'pct':
+        d = a.pct - b.pct
+        break
+      case 'peakHour':
+        d = a.peakHour - b.peakHour
+        break
+      case 'coreTimeStart':
+        d = a.coreTimeStart - b.coreTimeStart
+        break
+      case 'turnaroundHour':
+        d = a.turnaroundHour - b.turnaroundHour
+        break
+      case 'name':
+        d = a.name.localeCompare(b.name, 'ja')
+        break
+      case 'yoyRatio':
+        d = (a.yoyRatio ?? 0) - (b.yoyRatio ?? 0)
+        break
+      case 'yoyDiff':
+        d = (a.yoyDiff ?? 0) - (b.yoyDiff ?? 0)
+        break
+      case 'piValue':
+        d = (a.piValue ?? 0) - (b.piValue ?? 0)
+        break
+    }
+    return sortDir === 'desc' ? -d : d
+  })
+  return arr
 }
 
 // ── Pure input builders（テスト対象） ──

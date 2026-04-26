@@ -53,6 +53,66 @@ export interface WeatherCorrelationResult {
   readonly dataPoints: number
 }
 
+function computeWeatherCorrelation(
+  weatherDaily: readonly DailyWeatherSummary[],
+  salesDaily: readonly DailySalesForCorrelation[],
+): WeatherCorrelationResult | null {
+  if (weatherDaily.length === 0 || salesDaily.length === 0) return null
+
+  // dateKey で突合（両方にデータがある日のみ）
+  const weatherMap = new Map(weatherDaily.map((w) => [w.dateKey, w]))
+  const paired: {
+    sales: number
+    customers: number
+    temperature: number
+    precipitation: number
+    humidity: number
+  }[] = []
+
+  for (const s of salesDaily) {
+    const w = weatherMap.get(s.dateKey)
+    if (w) {
+      paired.push({
+        sales: s.sales,
+        customers: s.customers,
+        temperature: w.temperatureAvg,
+        precipitation: w.precipitationTotal,
+        humidity: w.humidityAvg,
+      })
+    }
+  }
+
+  if (paired.length < 2) return null
+
+  const salesArr = paired.map((p) => p.sales)
+  const custArr = paired.map((p) => p.customers)
+  const tempArr = paired.map((p) => p.temperature)
+  const precipArr = paired.map((p) => p.precipitation)
+  const humidityArr = paired.map((p) => p.humidity)
+
+  return {
+    salesVsTemperature: pearsonCorrelation(salesArr, tempArr),
+    salesVsPrecipitation: pearsonCorrelation(salesArr, precipArr),
+    customersVsTemperature: pearsonCorrelation(custArr, tempArr),
+    customersVsPrecipitation: pearsonCorrelation(custArr, precipArr),
+    matrix: correlationMatrix([
+      { name: '売上', values: salesArr },
+      { name: '客数', values: custArr },
+      { name: '気温', values: tempArr },
+      { name: '降水量', values: precipArr },
+      { name: '湿度', values: humidityArr },
+    ]),
+    salesTempDivergence: detectDivergence(salesArr, tempArr),
+    normalized: {
+      sales: normalizeMinMax(salesArr),
+      temperature: normalizeMinMax(tempArr),
+      precipitation: normalizeMinMax(precipArr),
+      customers: normalizeMinMax(custArr),
+    },
+    dataPoints: paired.length,
+  }
+}
+
 /**
  * 天気データと売上データの相関を分析する。
  *
@@ -64,60 +124,8 @@ export function useWeatherCorrelation(
   weatherDaily: readonly DailyWeatherSummary[],
   salesDaily: readonly DailySalesForCorrelation[],
 ): WeatherCorrelationResult | null {
-  return useMemo(() => {
-    if (weatherDaily.length === 0 || salesDaily.length === 0) return null
-
-    // dateKey で突合（両方にデータがある日のみ）
-    const weatherMap = new Map(weatherDaily.map((w) => [w.dateKey, w]))
-    const paired: {
-      sales: number
-      customers: number
-      temperature: number
-      precipitation: number
-      humidity: number
-    }[] = []
-
-    for (const s of salesDaily) {
-      const w = weatherMap.get(s.dateKey)
-      if (w) {
-        paired.push({
-          sales: s.sales,
-          customers: s.customers,
-          temperature: w.temperatureAvg,
-          precipitation: w.precipitationTotal,
-          humidity: w.humidityAvg,
-        })
-      }
-    }
-
-    if (paired.length < 2) return null
-
-    const salesArr = paired.map((p) => p.sales)
-    const custArr = paired.map((p) => p.customers)
-    const tempArr = paired.map((p) => p.temperature)
-    const precipArr = paired.map((p) => p.precipitation)
-    const humidityArr = paired.map((p) => p.humidity)
-
-    return {
-      salesVsTemperature: pearsonCorrelation(salesArr, tempArr),
-      salesVsPrecipitation: pearsonCorrelation(salesArr, precipArr),
-      customersVsTemperature: pearsonCorrelation(custArr, tempArr),
-      customersVsPrecipitation: pearsonCorrelation(custArr, precipArr),
-      matrix: correlationMatrix([
-        { name: '売上', values: salesArr },
-        { name: '客数', values: custArr },
-        { name: '気温', values: tempArr },
-        { name: '降水量', values: precipArr },
-        { name: '湿度', values: humidityArr },
-      ]),
-      salesTempDivergence: detectDivergence(salesArr, tempArr),
-      normalized: {
-        sales: normalizeMinMax(salesArr),
-        temperature: normalizeMinMax(tempArr),
-        precipitation: normalizeMinMax(precipArr),
-        customers: normalizeMinMax(custArr),
-      },
-      dataPoints: paired.length,
-    }
-  }, [weatherDaily, salesDaily])
+  return useMemo(
+    () => computeWeatherCorrelation(weatherDaily, salesDaily),
+    [weatherDaily, salesDaily],
+  )
 }

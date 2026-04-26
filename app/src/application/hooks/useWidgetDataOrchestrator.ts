@@ -188,46 +188,80 @@ export function useWidgetDataOrchestrator(
     error: cfError,
   } = useQueryWithHandler(executor, customerFactHandler, customerFactInput)
 
-  return useMemo(() => {
-    const pc = toSlice(purchaseCostData, pcLoading, pcError, isIdle)
-    const sf = toSlice(salesFactData, sfLoading, sfError, isIdle)
-    const df = toSlice(discountFactData, dfLoading, dfError, isIdle)
-    const cf = toSlice(customerFactData, cfLoading, cfError, isIdle)
+  return useMemo(
+    () =>
+      buildOrchestratorResult(
+        purchaseCostData,
+        pcLoading,
+        pcError,
+        salesFactData,
+        sfLoading,
+        sfError,
+        discountFactData,
+        dfLoading,
+        dfError,
+        customerFactData,
+        cfLoading,
+        cfError,
+        isIdle,
+      ),
+    [
+      purchaseCostData,
+      salesFactData,
+      discountFactData,
+      customerFactData,
+      pcLoading,
+      sfLoading,
+      dfLoading,
+      cfLoading,
+      pcError,
+      sfError,
+      dfError,
+      cfError,
+      isIdle,
+    ],
+  )
+}
 
-    return {
-      purchaseCost: pc,
-      salesFact: sf,
-      discountFact: df,
-      customerFact: cf,
-      allReady:
-        pc.status === 'ready' &&
-        sf.status === 'ready' &&
-        df.status === 'ready' &&
-        cf.status === 'ready',
-      anyLoading:
-        pc.status === 'loading' ||
-        sf.status === 'loading' ||
-        df.status === 'loading' ||
-        cf.status === 'loading',
-      anyError:
-        pc.status === 'error' ||
-        sf.status === 'error' ||
-        df.status === 'error' ||
-        cf.status === 'error',
-    }
-  }, [
-    purchaseCostData,
-    salesFactData,
-    discountFactData,
-    customerFactData,
-    pcLoading,
-    sfLoading,
-    dfLoading,
-    cfLoading,
-    pcError,
-    sfError,
-    dfError,
-    cfError,
-    isIdle,
-  ])
+function buildOrchestratorResult(
+  purchaseCostData: { model: PurchaseCostReadModel } | null,
+  pcLoading: boolean,
+  pcError: Error | null,
+  salesFactData: { model: SalesFactReadModel } | null,
+  sfLoading: boolean,
+  sfError: Error | null,
+  discountFactData: { model: DiscountFactReadModel } | null,
+  dfLoading: boolean,
+  dfError: Error | null,
+  customerFactData: { model: CustomerFactReadModel } | null,
+  cfLoading: boolean,
+  cfError: Error | null,
+  isIdle: boolean,
+) {
+  const pc = toSlice(purchaseCostData, pcLoading, pcError, isIdle)
+  const sf = toSlice(salesFactData, sfLoading, sfError, isIdle)
+  const df = toSlice(discountFactData, dfLoading, dfError, isIdle)
+  const cf = toSlice(customerFactData, cfLoading, cfError, isIdle)
+
+  return {
+    purchaseCost: pc,
+    salesFact: sf,
+    discountFact: df,
+    customerFact: cf,
+    allReady:
+      pc.status === 'ready' &&
+      sf.status === 'ready' &&
+      df.status === 'ready' &&
+      cf.status === 'ready',
+    anyLoading:
+      pc.status === 'loading' ||
+      sf.status === 'loading' ||
+      df.status === 'loading' ||
+      cf.status === 'loading',
+    anyError:
+      pc.status === 'error' ||
+      sf.status === 'error' ||
+      df.status === 'error' ||
+      cf.status === 'error',
+  }
 }

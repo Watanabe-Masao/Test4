@@ -51,6 +51,41 @@ const RAW_DATA_LABELS: Record<RawDataType, string> = {
   categoryTimeSales: '時間帯売上（CTS）',
 }
 
+interface RawDataStore {
+  readonly id: string
+  readonly code: string
+}
+
+function buildRawDataTableRows(
+  stores: readonly RawDataStore[],
+  getSource: () => StoreDayIndex<unknown>,
+  extractValue: (storeId: string, day: number) => number,
+) {
+  let maxDay = 0
+  const sources = getSource()
+
+  for (const storeId of Object.keys(sources)) {
+    const storeDays = sources[storeId]
+    if (!storeDays) continue
+    for (const dayStr of Object.keys(storeDays)) {
+      const d = Number(dayStr)
+      if (d > maxDay) maxDay = d
+    }
+  }
+
+  const days = Array.from({ length: maxDay }, (_, i) => i + 1)
+
+  const tableRows = days.map((day) => {
+    const cells: { storeId: string; value: number }[] = stores.map((store) => ({
+      storeId: store.id,
+      value: extractValue(store.id, day),
+    }))
+    return { day, cells }
+  })
+
+  return { days, tableRows }
+}
+
 export function RawDataTab() {
   const { format: fmtCurrency } = useCurrencyFormat()
   const current = useDataStore((s) => s.currentMonthData)
@@ -157,31 +192,10 @@ export function RawDataTab() {
   )
 
   // 対象データの日付範囲を計算
-  const { days, tableRows } = useMemo(() => {
-    let maxDay = 0
-    const sources = getSource()
-
-    for (const storeId of Object.keys(sources)) {
-      const storeDays = sources[storeId]
-      if (!storeDays) continue
-      for (const dayStr of Object.keys(storeDays)) {
-        const d = Number(dayStr)
-        if (d > maxDay) maxDay = d
-      }
-    }
-
-    const dayList = Array.from({ length: maxDay }, (_, i) => i + 1)
-
-    const rows = dayList.map((day) => {
-      const cells: { storeId: string; value: number }[] = stores.map((store) => ({
-        storeId: store.id,
-        value: extractValue(store.id, day),
-      }))
-      return { day, cells }
-    })
-
-    return { days: dayList, tableRows: rows }
-  }, [stores, getSource, extractValue])
+  const { days, tableRows } = useMemo(
+    () => buildRawDataTableRows(stores, getSource, extractValue),
+    [stores, getSource, extractValue],
+  )
 
   // 店舗別合計
   const storeTotals = useMemo(() => {

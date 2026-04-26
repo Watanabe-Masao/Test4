@@ -75,8 +75,46 @@ interface Props {
   readonly prevYearWeatherDaily?: readonly DailyWeatherSummary[]
   /** 天気データ永続化コールバック（TimeSlotChart ETRN フォールバック用） */
   readonly weatherPersist?: WeatherPersister | null
-  /** WidgetContext（要因分析 embedded 用 — 親から渡す） */
-  readonly widgetCtx?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
+  /**
+   * WidgetContext（要因分析 embedded 用 — 親から渡す）
+   *
+   * SP-B ADR-B-002: prop 名は `widgetContext` で固定（旧名 widgetCtx は registry 行
+   * の fullCtxPassthrough 検出に引っかかるため改名。意味は不変）
+   */
+  readonly widgetContext?: import('@/presentation/pages/Dashboard/widgets/DashboardWidgetContext').DashboardWidgetContext
+}
+
+function buildRangeSummary(
+  pendingRange: { start: number; end: number } | null,
+  daily: ReadonlyMap<number, DailyRecord>,
+  prevYearDaily: Props['prevYearDaily'],
+  year: number,
+  month: number,
+) {
+  if (!pendingRange) return null
+  const { start, end } = pendingRange
+  let curSales = 0
+  let prevSales = 0
+  let curCustomers = 0
+  let prevCustomers = 0
+  for (let d = start; d <= end; d++) {
+    const rec = daily.get(d)
+    if (rec) {
+      curSales += rec.sales ?? 0
+      curCustomers += rec.customers ?? 0
+    }
+    if (prevYearDaily) {
+      const key = toDateKeyFromParts(year, month, d)
+      const prev = prevYearDaily.get(key)
+      if (prev) {
+        prevSales += prev.sales ?? 0
+        prevCustomers += prev.customers ?? 0
+      }
+    }
+  }
+  const diff = curSales - prevSales
+  const yoy = prevSales > 0 ? curSales / prevSales : null
+  return { curSales, prevSales, diff, yoy, curCustomers, prevCustomers }
 }
 
 export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Props) {
@@ -136,32 +174,11 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
     pendingRange ?? (clickedDay != null ? { start: clickedDay, end: drillEnd ?? clickedDay } : null)
 
   // ── 選択範囲のサマリー（RangeActionBox + 要因分解に使用） ──
-  const rangeSummary = useMemo(() => {
-    if (!pendingRange) return null
-    const { start, end } = pendingRange
-    let curSales = 0
-    let prevSales = 0
-    let curCustomers = 0
-    let prevCustomers = 0
-    for (let d = start; d <= end; d++) {
-      const rec = props.daily.get(d)
-      if (rec) {
-        curSales += rec.sales ?? 0
-        curCustomers += rec.customers ?? 0
-      }
-      if (props.prevYearDaily) {
-        const key = toDateKeyFromParts(props.year, props.month, d)
-        const prev = props.prevYearDaily.get(key)
-        if (prev) {
-          prevSales += prev.sales ?? 0
-          prevCustomers += prev.customers ?? 0
-        }
-      }
-    }
-    const diff = curSales - prevSales
-    const yoy = prevSales > 0 ? curSales / prevSales : null
-    return { curSales, prevSales, diff, yoy, curCustomers, prevCustomers }
-  }, [pendingRange, props.daily, props.prevYearDaily, props.year, props.month])
+  const rangeSummary = useMemo(
+    () =>
+      buildRangeSummary(pendingRange, props.daily, props.prevYearDaily, props.year, props.month),
+    [pendingRange, props.daily, props.prevYearDaily, props.year, props.month],
+  )
 
   return (
     <Wrapper ref={parentRef}>
@@ -284,9 +301,9 @@ export const IntegratedSalesChart = memo(function IntegratedSalesChart(props: Pr
             )}
 
             {/* 要因分析（独立表示 — 標準ビュー時のみ） */}
-            {dailyView === 'standard' && props.widgetCtx && props.queryExecutor?.isReady && (
+            {dailyView === 'standard' && props.widgetContext && props.queryExecutor?.isReady && (
               <YoYWaterfallChartWidget
-                ctx={props.widgetCtx}
+                ctx={props.widgetContext}
                 overrideDateRange={drillTabDateRange ?? undefined}
                 embedded
                 rangeStart={effectiveRange?.start}

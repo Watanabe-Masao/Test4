@@ -185,8 +185,11 @@ describe('ウィジェットレジストリの DuckDB エントリ', () => {
   }
 
   it('DuckDB 専用ウィジェットに isVisible ガードがある', () => {
-    // queryExecutor?.isReady === true の条件が DuckDB 専用ウィジェットに含まれていること
-    const duckVisibilityCount = (registryContent.match(/queryExecutor\?\.isReady === true/g) ?? [])
+    // queryExecutor(.|?.)isReady === true の条件が DuckDB 専用ウィジェットに
+    // 含まれていること。SP-B ADR-B-001 PR2 (commit bf426b5) で
+    // `Pick<DashboardWidgetContext, ...>` による type narrowing に伴い
+    // optional chaining `?.` を取り除いたため、両形式を許容する。
+    const duckVisibilityCount = (registryContent.match(/queryExecutor\??\.isReady === true/g) ?? [])
       .length
     // 6 DuckDB専用エントリのうち少なくとも 3 個は直接ガード（残りは isVisible 関数経由）
     expect(duckVisibilityCount).toBeGreaterThanOrEqual(3)

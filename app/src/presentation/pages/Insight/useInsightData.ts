@@ -17,6 +17,8 @@ import {
   getEffectiveGrossProfit,
 } from '@/application/readModels/grossProfit'
 import { calculateForecast } from '@/application/hooks/calculation'
+import type { StoreResult } from '@/domain/models/storeTypes'
+import type { PrevYearData } from '@/application/hooks/analytics'
 import {
   DOW_LABELS,
   DEFAULT_DOW_COLORS,
@@ -31,6 +33,71 @@ import {
   buildDowDecomposition,
   buildWeeklyDecomposition,
 } from '@/presentation/pages/Forecast/ForecastPage.helpers'
+
+function buildInsightForecastData(
+  currentResult: StoreResult | null,
+  targetYear: number,
+  targetMonth: number,
+) {
+  if (!currentResult) return null
+  const year = targetYear
+  const month = targetMonth
+  const forecastInput = buildForecastInput(currentResult, year, month)
+  const forecast = calculateForecast(forecastInput)
+  const stackedData = computeStackedWeekData(
+    forecast.weeklySummaries,
+    forecastInput.dailySales,
+    year,
+    month,
+  )
+  const activeWeeks = forecast.weeklySummaries.filter((w) => w.totalSales > 0)
+  const bestWeek =
+    activeWeeks.length > 0
+      ? activeWeeks.reduce((a, b) => (a.totalSales > b.totalSales ? a : b))
+      : null
+  const worstWeek =
+    activeWeeks.length > 0
+      ? activeWeeks.reduce((a, b) => (a.totalSales < b.totalSales ? a : b))
+      : null
+  return { forecast, stackedData, bestWeek, worstWeek, year, month }
+}
+
+function buildInsightCustomerData(
+  currentResult: StoreResult | null,
+  prevYear: PrevYearData,
+  forecastData: ReturnType<typeof buildInsightForecastData>,
+) {
+  if (!currentResult || !forecastData) return null
+  const { year, month } = forecastData
+  const customerEntries = buildDailyCustomerData(currentResult.daily, prevYear, year, month)
+  const hasCustomerData = customerEntries.some((e) => e.customers > 0)
+  const dowCustomerAvg = buildDowCustomerAverages(customerEntries, year, month)
+  const movingAvgData = buildMovingAverages(customerEntries, 5)
+  const relationshipData = buildRelationshipData(customerEntries)
+  const prevRelationshipData = buildRelationshipDataFromPrev(customerEntries)
+  const hasPrevCustomers = customerEntries.some((e) => e.prevCustomers > 0)
+
+  const dailyDecomp = buildDailyDecomposition(customerEntries)
+  const hasDecompData = dailyDecomp.length > 0
+  const dowDecomp = hasDecompData ? buildDowDecomposition(dailyDecomp, year, month) : []
+  const weeklyDecomp = hasDecompData
+    ? buildWeeklyDecomposition(dailyDecomp, forecastData.forecast.weeklySummaries)
+    : []
+
+  return {
+    customerEntries,
+    hasCustomerData,
+    dowCustomerAvg,
+    movingAvgData,
+    relationshipData,
+    prevRelationshipData,
+    hasPrevCustomers,
+    dailyDecomp,
+    hasDecompData,
+    dowDecomp,
+    weeklyDecomp,
+  }
+}
 
 export type InsightTab = 'budget' | 'grossProfit' | 'forecast' | 'decomposition'
 export type ChartMode = 'budget-vs-actual' | 'prev-year' | 'all-three'
@@ -82,63 +149,16 @@ export function useInsightData(opts?: {
   )
 
   // ─── 予測データ ─────────────────────────────────────────
-  const forecastData = useMemo(() => {
-    if (!currentResult) return null
-    const year = targetYear
-    const month = targetMonth
-    const forecastInput = buildForecastInput(currentResult, year, month)
-    const forecast = calculateForecast(forecastInput)
-    const stackedData = computeStackedWeekData(
-      forecast.weeklySummaries,
-      forecastInput.dailySales,
-      year,
-      month,
-    )
-    const activeWeeks = forecast.weeklySummaries.filter((w) => w.totalSales > 0)
-    const bestWeek =
-      activeWeeks.length > 0
-        ? activeWeeks.reduce((a, b) => (a.totalSales > b.totalSales ? a : b))
-        : null
-    const worstWeek =
-      activeWeeks.length > 0
-        ? activeWeeks.reduce((a, b) => (a.totalSales < b.totalSales ? a : b))
-        : null
-    return { forecast, stackedData, bestWeek, worstWeek, year, month }
-  }, [currentResult, targetYear, targetMonth])
+  const forecastData = useMemo(
+    () => buildInsightForecastData(currentResult, targetYear, targetMonth),
+    [currentResult, targetYear, targetMonth],
+  )
 
   // ─── 客数・要因分解データ ───────────────────────────────
-  const customerData = useMemo(() => {
-    if (!currentResult || !forecastData) return null
-    const { year, month } = forecastData
-    const customerEntries = buildDailyCustomerData(currentResult.daily, prevYear, year, month)
-    const hasCustomerData = customerEntries.some((e) => e.customers > 0)
-    const dowCustomerAvg = buildDowCustomerAverages(customerEntries, year, month)
-    const movingAvgData = buildMovingAverages(customerEntries, 5)
-    const relationshipData = buildRelationshipData(customerEntries)
-    const prevRelationshipData = buildRelationshipDataFromPrev(customerEntries)
-    const hasPrevCustomers = customerEntries.some((e) => e.prevCustomers > 0)
-
-    const dailyDecomp = buildDailyDecomposition(customerEntries)
-    const hasDecompData = dailyDecomp.length > 0
-    const dowDecomp = hasDecompData ? buildDowDecomposition(dailyDecomp, year, month) : []
-    const weeklyDecomp = hasDecompData
-      ? buildWeeklyDecomposition(dailyDecomp, forecastData.forecast.weeklySummaries)
-      : []
-
-    return {
-      customerEntries,
-      hasCustomerData,
-      dowCustomerAvg,
-      movingAvgData,
-      relationshipData,
-      prevRelationshipData,
-      hasPrevCustomers,
-      dailyDecomp,
-      hasDecompData,
-      dowDecomp,
-      weeklyDecomp,
-    }
-  }, [currentResult, prevYear, forecastData])
+  const customerData = useMemo(
+    () => buildInsightCustomerData(currentResult, prevYear, forecastData),
+    [currentResult, prevYear, forecastData],
+  )
 
   const storeForecasts = useMemo(() => {
     if (!compareMode || !forecastData) return []

@@ -12,82 +12,18 @@ import { useCurrencyFormatter } from '@/presentation/components/charts/chartThem
 import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import { sc } from '@/presentation/theme/semanticColors'
 import { Wrapper, Title } from './WaterfallChart.styles'
+import { buildWaterfallItems } from './WaterfallChart.builders'
 
-interface WaterfallItem {
-  name: string
-  value: number
-  // For waterfall: invisible base + visible bar
-  base: number
-  bar: number
-  isTotal?: boolean
-}
+/** SP-B ADR-B-002: full ctx passthrough を絞り込み props 化（result のみ参照） */
+export type WaterfallChartWidgetProps = Pick<DashboardWidgetContext, 'result'>
 
 export const WaterfallChartWidget = memo(function WaterfallChartWidget({
-  ctx,
-}: {
-  ctx: DashboardWidgetContext
-}) {
-  const { result: r } = ctx
+  result: r,
+}: WaterfallChartWidgetProps) {
   const theme = useTheme() as AppTheme
   const fmt = useCurrencyFormatter()
 
-  const data = useMemo(() => {
-    const totalSales = r.totalSales
-    const totalCost = r.totalCost
-    const discountLoss = -r.totalDiscount
-    const costInclusion = -r.totalCostInclusion
-
-    // Waterfall items: Start from sales, subtract factors
-    const items: WaterfallItem[] = []
-
-    // 1. Total Sales (starting point)
-    items.push({
-      name: '売上高',
-      value: totalSales,
-      base: 0,
-      bar: totalSales,
-      isTotal: true,
-    })
-
-    // 2. Cost of goods (negative impact from sales)
-    items.push({
-      name: '仕入原価',
-      value: -totalCost,
-      base: totalSales - totalCost,
-      bar: totalCost,
-    })
-
-    // Running total after cost = markup amount (= grossSales - totalCost)
-    // 3. Discount loss (negative impact)
-    const afterCost = totalSales - totalCost
-    items.push({
-      name: '売変ロス',
-      value: discountLoss,
-      base: afterCost + discountLoss,
-      bar: Math.abs(discountLoss),
-    })
-
-    // 4. Consumables (negative impact)
-    const afterDiscount = afterCost + discountLoss
-    items.push({
-      name: '原価算入費',
-      value: costInclusion,
-      base: afterDiscount + costInclusion,
-      bar: Math.abs(costInclusion),
-    })
-
-    // 5. Gross Profit (result)
-    const finalGP = afterDiscount + costInclusion
-    items.push({
-      name: '粗利益',
-      value: finalGP,
-      base: 0,
-      bar: finalGP,
-      isTotal: true,
-    })
-
-    return items
-  }, [r])
+  const data = useMemo(() => buildWaterfallItems(r), [r])
 
   const option = useMemo((): EChartsOption => {
     const names = data.map((d) => d.name)

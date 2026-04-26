@@ -5,105 +5,118 @@
 >
 > 規約: `references/03-guides/project-checklist-governance.md` §3。
 > 形式: `* [ ]` または `* [x]` の半角スペース。ネスト不可。
-> 各 checkbox は単一の機械的に検証可能な達成条件を表す。
 
 ## Phase 0: 計画 doc landing
 
 * [x] `projects/phased-content-specs-rollout/` を `_template` から bootstrap した
-* [x] `config/project.json` に projectization (Level 2 / docs-only) を記録した
-* [x] `plan.md` に Phase A〜J の対象・実施内容・完了条件・依存を記録した
+* [x] `config/project.json` に projectization (Level 3 / governance-hardening / status active) を記録した
+* [x] `plan.md` に Phase A〜J + Operational Control System §1〜§11 + 不可侵原則を記録した
 * [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order を記録した
-* [x] `HANDOFF.md` に現在地と次にやることを記録した
-* [x] `projectization.md` に AAG-COA 判定と nonGoals を記録した
+* [x] `HANDOFF.md` に現在地（spawn → SHELL → ACTIVE の経緯）と次にやることを記録した
+* [x] `projectization.md` に AAG-COA 判定 (Level 3) と nonGoals を記録した
+* [x] umbrella + 4 sub-project archive 完遂を反映（main merge）
 
-## Phase A: SP-B Anchor Slice 完成
+## Phase A: Anchor Slice — 保証経路完成
 
-* [ ] umbrella inquiry/01a Phase 6 の frontmatter generator が landed した
-* [ ] 5 件の `AR-CONTENT-SPEC-*` rule が active 化された (`architectureRules.ts`)
-* [ ] WID-033 / WID-040 / WID-018 / WID-006 / WID-002 の source に `@widget-id` JSDoc が注入された
-* [ ] WID-033 / WID-040 / WID-018 / WID-006 / WID-002 の `WID-NNN.md` 本文が landed した
-* [ ] 対象 5 slice で `missingSpec = 0` を達成した
-* [ ] 対象 5 slice で `frontmatterDrift = 0` を達成した
-* [ ] 対象 5 slice で `coChangeViolation = 0` を達成した
-* [ ] `npm run docs:check` が drift を hard fail させることを CI で確認した
+* [ ] `tools/widget-specs/generate.mjs` の frontmatter generator を実装した
+* [ ] Anchor Slice 5 widget (WID-002 / 006 / 018 / 033 / 040) の source に `@widget-id` JSDoc を注入した
+* [ ] `AR-CONTENT-SPEC-EXISTS` rule を `architectureRules.ts` に登録 + active 化した
+* [ ] `AR-CONTENT-SPEC-FRONTMATTER-SYNC` rule を登録 + active 化した
+* [ ] `AR-CONTENT-SPEC-CO-CHANGE` rule を登録 + active 化した
+* [ ] `AR-CONTENT-SPEC-FRESHNESS` rule を登録 + active 化した
+* [ ] `AR-CONTENT-SPEC-OWNER` rule を登録 + active 化した
+* [ ] `obligation-collector.ts` の `OBLIGATION_MAP` に registry 変更 → spec 更新義務を追加した
+* [ ] behavior section guard（spec が usage ではなく behavior を記述している検証）を実装した
+* [ ] content graph の初版 collector を実装した
+* [ ] `npm run content-specs:check` script を package.json に追加した
+* [ ] CI workflow に content-specs:check を組み込んだ
+* [ ] Anchor Slice 5 件で `missingSpec / frontmatterDrift / coChangeViolation = 0` を達成した
+* [ ] Anchor Slice 5 件で Promotion Gate L4 到達を確認した
+* [ ] source 変更 → spec 未更新で `npm run docs:check` が hard fail することを CI で確認した
 
-## Phase B: SP-B 対象全体へ拡張
+## Phase B: WID 全体への拡張
 
-* [ ] SP-B (widget-registry-simplification) ADR-B-001〜004 の対象 WID 一覧を確定した
-* [ ] 対象 WID の spec を全件同期した
-* [ ] 必要な RM / PIPE / CALC / PROJ / CHART を追加した
-* [ ] content graph が SP-B 範囲で生成された
-* [ ] SP-B 対象 WID の `missingSpec = 0`
-* [ ] SP-B 対象 WID の `frontmatterDrift = 0`
-* [ ] SP-B 対象 WID の `coChangeViolation = 0`
+* [ ] 全 45 WID の source に `@widget-id` JSDoc を注入した
+* [ ] frontmatter generator を全 45 件に適用し drift = 0 を達成した
+* [ ] co-change guard を 45 件全体で active 化した
+* [ ] freshness / owner guard が 45 件全体で動作することを確認した
+* [ ] 全 45 WID の content graph が生成された
+* [ ] 全 45 WID で Promotion Gate L4 到達を確認した
 
 ## Phase C: ReadModels / Pipelines の網羅
 
-* [ ] `RM-NNN` / `PIPE-NNN` / `QH-NNN` / `PROJ-NNN` ID 体系が確定した
-* [ ] 主要 readModel に source tag が導入された
-* [ ] 主要 readModel `missingSpec = 0`
-* [ ] 主要 pipeline `missingSpec = 0`
-* [ ] queryHandler / projection の `sourceRef drift = 0`
+* [ ] `RM-NNN` / `PIPE-NNN` / `QH-NNN` / `PROJ-NNN` の ID 体系を確定した
+* [ ] `references/05-contents/{read-models,pipelines,query-handlers,projections}/` 新サブカテゴリを追加した
+* [ ] 主要 readModel の spec body authoring + source tag を実施した
+* [ ] frontmatter generator を新サブカテゴリに拡張した
+* [ ] 主要 readModel `missingSpec = 0` を達成した
+* [ ] 主要 pipeline `missingSpec = 0` を達成した
+* [ ] queryHandler / projection の `sourceRef drift = 0` を達成した
 * [ ] pipeline lineage が graph で追跡可能になった
+* [ ] Promotion Gate L5 到達を確認した
 
 ## Phase D: Domain Calculations の網羅
 
-* [ ] `CALC-NNN` ID が対象関数に割当された
-* [ ] 対象 CALC に source tag が導入された
-* [ ] 対象 CALC の invariant section が記録された
-* [ ] 対象 CALC `missingSpec = 0`
-* [ ] 対象 CALC tests 参照 = 100%
-* [ ] invariant 付き CALC の test 参照 = 100%
-* [ ] deprecated CALC の `sunsetCondition = 100%`
+* [ ] selection rule に従い対象 CALC を確定した（public export / 複数 consumer / invariant あり / 業務意味あり）
+* [ ] `CALC-NNN` ID を割当した
+* [ ] 対象 CALC に source tag を導入した
+* [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した
+* [ ] tests / guards との evidence 紐付けを完了した
+* [ ] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した
+* [ ] 対象 CALC `missingSpec = 0` を達成した
+* [ ] 対象 CALC tests 参照 = 100% を達成した
+* [ ] invariant 付き CALC の test 参照 = 100% を達成した
+* [ ] deprecated CALC の `sunsetCondition` = 100% を達成した
 
 ## Phase E: Charts へ拡張
 
-* [ ] `CHART-NNN` ID が対象 chart に割当された
-* [ ] input builder / render model / option builder が記録された
-* [ ] visual test / story / fixture と紐付けされた
-* [ ] empty / loading / ready / error state が記録された
-* [ ] 主要 chart `missingSpec = 0`
-* [ ] chart input builder 参照 = 100%
+* [ ] `CHART-NNN` ID を対象 chart に割当した
+* [ ] input builder / render model / option builder を spec に記録した
+* [ ] visual test / story / fixture と紐付けした
+* [ ] empty / loading / ready / error state を frontmatter に記録した
+* [ ] 主要 chart `missingSpec = 0` を達成した
+* [ ] chart input builder 参照 = 100% を達成した
 * [ ] visual / e2e evidence required の chart で evidence 設定済み
 
-## Phase F: UI Components へ拡張
+## Phase F: Selected UI Components
 
-* [ ] selection rule に基づく対象 UIC 一覧が確定した
-* [ ] `UIC-NNN` ID が割当された
-* [ ] props contract / children / hooks / side effects が記録された
-* [ ] 対象 UIC `missingSpec = 0`
-* [ ] props `sourceRef drift = 0`
+* [ ] selection rule に基づく対象 UIC 一覧を確定した
+* [ ] `UIC-NNN` ID を割当した
+* [ ] props contract / children / hooks / side effects を記録した
+* [ ] 対象 UIC `missingSpec = 0` を達成した
+* [ ] props `sourceRef drift = 0` を達成した
 * [ ] story or visual evidence required 対象の設定完了
 
 ## Phase G: Storybook / Visual Evidence 連携
 
-* [ ] spec frontmatter に `stories` / `visualTests` / `states` フィールドが追加された
-* [ ] UI spec の story / visual evidence guard が active 化された
-* [ ] Chart spec の visual evidence guard が active 化された
-* [ ] 対象 UI / Chart の evidence coverage が基準値以上
-* [ ] empty / error state の story coverage が基準値以上
+* [ ] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した
+* [ ] UI spec の story / visual evidence guard を active 化した
+* [ ] Chart spec の visual evidence guard を active 化した
+* [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した
+* [ ] empty / error state の story coverage が基準値以上に到達した
 
 ## Phase H: Architecture Health 詳細 KPI 連携
 
-* [ ] `references/02-status/generated/content-spec-health.json` collector が実装された
-* [ ] `contentSpec.total` / `byKind` / `missingSpec` / `frontmatterDrift` / `coChangeViolation` / `stale` / `missingOwner` / `lifecycleViolation` / `evidenceCoverage` の 9 KPI が出力された
-* [ ] `architecture-health.json` summary に content spec KPI が反映された
-* [ ] threshold / budget が設定された
+* [ ] `references/02-status/generated/content-spec-health.json` collector を実装した
+* [ ] `contentSpec.{total, byKind, missingSpec, frontmatterDrift, coChangeViolation, stale, missingOwner, lifecycleViolation, evidenceCoverage, exceptions.total, exceptions.expired, promotionLevel.distribution}` を出力した
+* [ ] `architecture-health.json` summary に Content Spec カテゴリを反映した
+* [ ] Drift Budget の threshold を設定した
+* [ ] Promotion Gate L6 到達を確認した
 
 ## Phase I: PR Impact Report / Bot 連携
 
-* [ ] `npm run content-specs:impact -- --base main --head HEAD` CLI が実装された
-* [ ] CLI 出力に Changed sources / Affected specs / Required spec updates / Risk level が含まれる
-* [ ] CI artifact として保存される
-* [ ] 必要に応じ PR comment bot 化された
+* [ ] `npm run content-specs:impact -- --base main --head HEAD` CLI を実装した
+* [ ] CLI 出力に Changed sources / Affected specs / Required spec updates / Risk level を含めた
+* [ ] CI artifact として保存される設定を完了した
+* [ ] 必要に応じ PR comment bot 化した
 
 ## Phase J: Claim Evidence Enforcement
 
-* [ ] J1: `evidenceLevel` が任意項目として導入された
-* [ ] J2: `tested / guarded / reviewed / asserted` の 4 分類が定義された
-* [ ] J3: high-risk claim の `evidenceLevel = asserted` が 0
-* [ ] J4: `tested` claim の test 参照欠落 = 0
-* [ ] J5: `guarded` claim の guard 参照欠落 = 0
+* [ ] J1: `evidenceLevel` を任意項目として導入した
+* [ ] J2: `tested / guarded / reviewed / asserted` の 4 分類を定義した
+* [ ] J3: high-risk claim の `evidenceLevel = asserted` が 0 になった
+* [ ] J4: `tested` claim の test 参照欠落 = 0 になった
+* [ ] J5: `guarded` claim の guard 参照欠落 = 0 になった
 
 ## 最終レビュー (人間承認)
 

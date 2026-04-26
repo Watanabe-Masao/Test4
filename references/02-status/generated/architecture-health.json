@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-26T04:11:04.814Z",
+  "timestamp": "2026-04-26T14:38:45.345Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -183,7 +183,7 @@
       "id": "complexity.vm.count",
       "label": "ViewModel ファイル数",
       "category": "complexity",
-      "value": 28,
+      "value": 25,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 94,
+      "value": 98,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -292,6 +292,7 @@
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/defaultOverlayCompletenessGuard.test.ts",
+        "app/src/test/guards/deprecatedMetadataGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
         "app/src/test/guards/docCodeConsistencyGuard.test.ts",
         "app/src/test/guards/docRegistryGuard.test.ts",
@@ -305,6 +306,7 @@
         "app/src/test/guards/freePeriodDeptKPIPathGuard.test.ts",
         "app/src/test/guards/freePeriodHandlerOnlyGuard.test.ts",
         "app/src/test/guards/freePeriodPathGuard.test.ts",
+        "app/src/test/guards/fullCtxPassthroughGuard.test.ts",
         "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
         "app/src/test/guards/grossProfitPathGuard.test.ts",
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
@@ -333,6 +335,7 @@
         "app/src/test/guards/purityGuard.test.ts",
         "app/src/test/guards/queryPatternGuard.test.ts",
         "app/src/test/guards/readModelSafetyGuard.test.ts",
+        "app/src/test/guards/registryInlineLogicGuard.test.ts",
         "app/src/test/guards/renderSideEffectGuard.test.ts",
         "app/src/test/guards/responsibilitySeparationGuard.test.ts",
         "app/src/test/guards/responsibilityTagGuard.test.ts",
@@ -341,6 +344,7 @@
         "app/src/test/guards/sameInterfaceNameGuard.test.ts",
         "app/src/test/guards/scopeAwareMutationGuard.test.ts",
         "app/src/test/guards/scopeJsonGuard.test.ts",
+        "app/src/test/guards/shortcutPatternGuard.test.ts",
         "app/src/test/guards/sizeGuard.test.ts",
         "app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts",
         "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
@@ -478,7 +482,7 @@
       "id": "perf.bundle.totalJsKb",
       "label": "JS バンドル合計サイズ",
       "category": "bundle_perf",
-      "value": 6601,
+      "value": 6602,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -499,7 +503,7 @@
       "id": "perf.bundle.mainJsKb",
       "label": "メインバンドルサイズ",
       "category": "bundle_perf",
-      "value": 2387,
+      "value": 2386,
       "unit": "kb",
       "status": "ok",
       "owner": "architecture",
@@ -616,7 +620,7 @@
         }
       ],
       "implRefs": [
-        "projects/architecture-debt-recovery/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -649,7 +653,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/architecture-debt-recovery/aag/execution-overlay.ts"
+        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -753,7 +757,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 9,
+      "value": 7,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -767,8 +771,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -793,7 +797,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -801,7 +806,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 21,
+      "value": 24,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -833,8 +838,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -859,14 +864,15 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 8,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -880,8 +886,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -906,7 +912,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 20
     },
@@ -928,8 +935,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -954,7 +961,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ],
       "budget": 10
     },
@@ -962,7 +970,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 880,
+      "value": 919,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -976,8 +984,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -1002,14 +1010,15 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 630,
+      "value": 708,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1023,8 +1032,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -1049,7 +1058,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
@@ -1070,8 +1080,8 @@
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-temporal-governance-hardening/checklist.md",
-        "projects/architecture-debt-recovery/checklist.md",
+        "projects/completed/aag-temporal-governance-hardening/checklist.md",
+        "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
         "projects/completed/budget-achievement-simulator/checklist.md",
         "projects/completed/calendar-modal-bundle-migration/checklist.md",
@@ -1096,7 +1106,8 @@
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
-        "projects/completed/widget-context-boundary/checklist.md"
+        "projects/completed/widget-context-boundary/checklist.md",
+        "projects/completed/widget-registry-simplification/checklist.md"
       ]
     },
     {
