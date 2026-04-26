@@ -148,7 +148,8 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
   },
   'prevYearCostApprox.ts': {
     tag: 'required',
-    reason: '前年データから日別近似原価マップ構築（売上 - 売変）。SP-B ADR-B-004 PR2 で registryChartWidgets.tsx 内 inline helper から本ファイルに抽出',
+    reason:
+      '前年データから日別近似原価マップ構築（売上 - 売変）。SP-B ADR-B-004 PR2 で registryChartWidgets.tsx 内 inline helper から本ファイルに抽出',
     zodAdded: false,
     semanticClass: 'analytic',
     authorityKind: 'analytic-authoritative',
@@ -156,7 +157,7 @@ export const CALCULATION_CANON_REGISTRY: Readonly<Record<string, CanonEntry>> = 
     runtimeStatus: 'current',
     ownerKind: 'maintenance',
     contractId: 'ANA-005',
-    bridgeKind: 'analytic',
+    bridgeKind: 'analytics',
     rateOwnership: 'engine',
     fallbackPolicy: 'current',
   },
