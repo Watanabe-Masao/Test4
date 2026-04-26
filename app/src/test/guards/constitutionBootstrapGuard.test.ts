@@ -188,7 +188,10 @@ describe('Constitution Bootstrap Guard', () => {
       { name: 'AI が触ってよいこと', pattern: /AI が触ってよいこと/ },
       { name: 'AI が触ってはいけないこと', pattern: /AI が触ってはいけないこと/ },
       { name: 'review window 経路', pattern: /review window/ },
-      { name: 'AR-TAXONOMY-AI-VOCABULARY-BINDING 参照', pattern: /AR-TAXONOMY-AI-VOCABULARY-BINDING/ },
+      {
+        name: 'AR-TAXONOMY-AI-VOCABULARY-BINDING 参照',
+        pattern: /AR-TAXONOMY-AI-VOCABULARY-BINDING/,
+      },
     ]
 
     for (const r of required) {
