@@ -210,7 +210,11 @@ template (`projects/_template/checklist.md`) は本構造を持つ。新規 proj
 template から複製して開始するため、自動的に最終レビュー section を持つ。
 既存 project は次の archive 機会で本構造に揃える。
 
-- checkbox の先頭は `* [x]` または `* [ ]`（半角スペース）
+- checkbox の先頭は `- [x]` または `- [ ]`（半角スペース）。Prettier 標準形式に従う
+- bullet style (`*` / `-`) は **Prettier に委譲**（責務分離 — guard は構造、Prettier は表面）
+  - guard は `[*-]` 両方を accept（`checklistFormatGuard` F2 / `projectizationPolicyGuard` PZ-10）
+  - Prettier は `-` に正規化（ecosystem 標準）
+  - 既存 `* [x]` は merge 時 / Prettier 実行時に自動的に `- [x]` に変換される
 - ネスト不可（フラットなフラグメントで機械検出を単純に保つ）
 - 各 checkbox は 1 文 1 達成条件
 - Phase 跨ぎでも全 checkbox は完了対象に算入される

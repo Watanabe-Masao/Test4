@@ -154,6 +154,8 @@
 | Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則） | `01-principles/taxonomy-constitution.md` |
 | Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約） | `01-principles/taxonomy-interlock.md` |
 | Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset） | `01-principles/taxonomy-origin-journal.md` |
+| Responsibility Taxonomy Schema v2（v2 R:tag vocabulary 仕様正本、子 Phase 1 deliverable） | `01-principles/responsibility-taxonomy-schema.md` |
+| Test Taxonomy Schema v2（v2 T:kind vocabulary 仕様正本、子 Phase 1 deliverable） | `01-principles/test-taxonomy-schema.md` |
 | Taxonomy v2 Review Journal（review window 記録） | `02-status/taxonomy-review-journal.md` |
 | Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準） | `03-guides/taxonomy-review-window.md` |
 

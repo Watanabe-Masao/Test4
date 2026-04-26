@@ -5,7 +5,29 @@
 
 ## 1. 現在地
 
-**Phase 0 Inventory 完遂（2026-04-26）。Phase 1 Schema 設計に進める状態。**
+**Phase 0 Inventory 完遂（2026-04-26）+ Phase 1 Schema 設計完遂（2026-04-26、本 branch）。Phase 2 Migration Path に進める状態。**
+
+> **Phase 1 で landing したもの（本 branch）:**
+>
+> - `references/01-principles/test-taxonomy-schema.md` — v2 T:kind schema 正本（Phase 1 統合 branch 2026-04-26 で derived → references/01-principles/ に配置完遂）
+> - `app/src/test/testTaxonomyRegistryV2.ts` — v2 T:kind registry（15 件 = primary 11 + optional 4、Cognitive Load Ceiling 15 cap、TSIG global rule と並行運用）
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase1-schema`
+> **scope:** 子 project derived/ + app/src/test/testTaxonomyRegistryV2.ts のみ（`references/` + checklist.md 一切触らず、Phase 1 統合 branch で正本配置 + Origin Journal §4 同期更新 + checklist [x] 反映）
+
+### Phase 1 設計結果
+
+| 指標                                  | 値                                                                                                    |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| v2 T:kind 件数                        | **15** (primary 11 + optional 4) = Cognitive Load Ceiling 15 cap                                      |
+| Anchor Slice 6 T:kind 含有            | ✅ T:unit-numerical / T:boundary / T:contract-parity / T:zod-contract / T:meta-guard / T:render-shape |
+| Antibody Pairs                        | 6 ペア (原則 6 準拠、3 件は null = sentinel/lifecycle bookend)                                        |
+| Frontmatter (§OCS.2 Evidence Level)   | 全 15 件 (guarded 14 / reviewed 1)                                                                    |
+| Frontmatter (§OCS.5 Promotion Gate)   | 全 15 件 L1 Registered                                                                                |
+| Frontmatter (§OCS.4 Lifecycle)        | 全 15 件 `active`                                                                                     |
+| Tier 構造                             | primary 11（必須 10 + sentinel 1）/ optional 4                                                        |
+| Obligation 強度 (must / should / may) | must-have 10 / should-have 4 / may-have 1（sentinel）                                                 |
+| TSIG global → v2 T:kind 移行          | 4 global rule → 11 primary T:kind (per-tag obligation) + 4 optional                                   |
 
 > **Phase 0 で landing したもの:**
 >

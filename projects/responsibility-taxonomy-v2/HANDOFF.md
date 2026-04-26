@@ -5,7 +5,28 @@
 
 ## 1. 現在地
 
-**Phase 0 Inventory 完遂（2026-04-26）。Phase 1 Schema 設計に進める状態。**
+**Phase 0 Inventory 完遂（2026-04-26）+ Phase 1 Schema 設計完遂（2026-04-26、本 branch）。Phase 2 Migration Path に進める状態。**
+
+> **Phase 1 で landing したもの（本 branch）:**
+>
+> - `references/01-principles/responsibility-taxonomy-schema.md` — v2 R:tag schema 正本（Phase 1 統合 branch 2026-04-26 で derived → references/01-principles/ に配置完遂）
+> - `app/src/test/responsibilityTaxonomyRegistryV2.ts` — v2 R:tag registry（10 件 / Cognitive Load Ceiling 15 まで 5 スロット余裕、v1 registry と併存）
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase1-schema`
+> **scope:** 子 project derived/ + app/src/test/responsibilityTaxonomyRegistryV2.ts のみ（`references/` 一切触らず、Phase 1 統合 branch で正本配置）
+
+### Phase 1 設計結果
+
+| 指標                                | 値                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------- |
+| v2 R:tag 件数                       | **10** (Cognitive Load Ceiling 15 まで余裕 5)                          |
+| Anchor Slice 5 R:tag 含有           | ✅ R:calculation / R:bridge / R:read-model / R:guard / R:presentation  |
+| Antibody Pairs                      | 6 ペア (原則 6 準拠)                                                   |
+| Frontmatter (§OCS.2 Evidence Level) | 全 10 件 (guarded 7 / asserted 2 / reviewed 1)                         |
+| Frontmatter (§OCS.5 Promotion Gate) | 全 10 件 L1 Registered                                                 |
+| Frontmatter (§OCS.4 Lifecycle)      | 全 10 件 `active`                                                      |
+| v1 → v2 削減率                      | 50% (v1 20 → v2 10)                                                    |
+| R:utility 廃止                      | ✅ R:unclassified に統合（捨て場禁止、原則 1 + Phase 1 禁止事項 適用） |
 
 > **Phase 0 で landing したもの:**
 >

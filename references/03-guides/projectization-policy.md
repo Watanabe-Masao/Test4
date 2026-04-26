@@ -332,7 +332,7 @@ true の場合、`checklist.md` の最終レビュー (人間承認) section に
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を
       人間がレビューし、archive プロセスへの移行を承認する
 ```
 
