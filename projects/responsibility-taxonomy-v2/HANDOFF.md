@@ -5,14 +5,41 @@
 
 ## 1. 現在地
 
-**Phase 0 着手承認済（kicked off, 2026-04-26）。Phase 0 Inventory 作業を開始可能。**
+**Phase 0 Inventory 完遂（2026-04-26）。Phase 1 Schema 設計に進める状態。**
 
-親 `taxonomy-v2` の Phase 1（Constitution 起草）+ Phase 2（Review Window 仕様）が
-完遂し、Phase 3 で本 project の Phase 0 着手が承認された。
-親 plan.md §Common Inventory Schema（CanonEntry shape）+ §OCS.7 Anchor Slice
-5 R:tag が確定したため、Inventory の出力 shape と対象範囲は決定済。
+> **Phase 0 で landing したもの:**
+>
+> - `tools/scripts/responsibility-taxonomy-inventory.ts` — Inventory 生成 script
+>   （再現可能、`cd app && npx tsx ../tools/scripts/responsibility-taxonomy-inventory.ts` で再生成）
+> - `projects/responsibility-taxonomy-v2/derived/inventory/responsibility-taxonomy-inventory.yaml`
+>   — 親 plan §Common Inventory Schema (CanonEntry shape) 準拠の Phase 0 baseline 1370 entry
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase0-inventory`
+> **scope:** project-internal のみ（`references/` 一切触らず）
+> 親 Phase 4 統合 branch で derived → references/02-status/ に正本配置 + Origin Journal §R 転記。
 
-### 着手承認の根拠
+### Phase 0 集計結果（baseline）
+
+| 指標                                 | 値                                         |
+| ------------------------------------ | ------------------------------------------ |
+| total entries（5 directories scope） | 1370                                       |
+| Anchor Slice 内 entry                | 299 (22%)                                  |
+| ├ R:guard                            | 102                                        |
+| ├ R:presentation                     | 112                                        |
+| ├ R:calculation                      | 38                                         |
+| ├ R:read-model                       | 31                                         |
+| └ R:bridge                           | 16                                         |
+| Drift Budget: untagged               | 1055 (77%)                                 |
+| Drift Budget: unknownVocabulary      | 20 (R:guard 16 / R:model 3 / R:selector 1) |
+| Drift Budget: missingOrigin          | 1370（v1 全タグ Origin unknown）           |
+
+> **scope 注記:** 旧 v1 guard `responsibilityTagGuard` の TARGET_DIRS 5 件
+> （application/hooks / presentation/\* / features/）は subset。本 inventory は
+> v2 vocabulary 設計に必要な全 anchor 候補をカバーするため scope を拡大している。
+> 旧 baseline 401 untagged は新 scope では 1055 untagged に変わる（同じ untagged ファイルが
+> 多くカウントされる）。Phase 1 Schema で v2 vocabulary 設計時に scope 縮退も検討。
+
+### Phase 0 着手承認の根拠（2026-04-26）
 
 - 親 `projects/taxonomy-v2/checklist.md` Phase 3 §子 project キックオフ で
   本 project の Phase 0 着手が承認された
@@ -41,11 +68,21 @@ Phase 9: Legacy Collection（旧コメント / registry / 文書の掃除）
 
 詳細は `checklist.md` を参照。
 
-### 高優先（Phase 0 キックオフ時）
+### 高優先（次セッション = Phase 1 Schema 設計）
 
-- 親 Phase 1 の Constitution + interlock 仕様の確定を待つ
-- 現行 v1 の 20 タグ + 未分類 400 件 + タグ不一致 48 件を Inventory 化
-- `references/02-status/responsibility-taxonomy-inventory.yaml` に記録
+- Phase 0 inventory（1370 entry, Anchor 299 件）を読みながら v2 R:tag vocabulary 設計
+- Cognitive Load Ceiling ≤ 15 に収まる vocabulary 配分（軸分離 + Antibody Pair）
+- v2 R:tag frontmatter に親 plan §OCS.2 Evidence Level + §OCS.5 Promotion Gate L1 + §OCS.4 Lifecycle status を登録
+- 対応 T:kind は TBD（test-taxonomy-v2 Phase 1 + 親 review window で同期裁定）
+- `app/src/test/responsibilityTaxonomyRegistryV2.ts`（v1 併存）
+
+### 中優先（親 Phase 4 統合時）
+
+- `projects/responsibility-taxonomy-v2/derived/inventory/responsibility-taxonomy-inventory.yaml`
+  を `references/02-status/responsibility-taxonomy-inventory.yaml` に正本配置
+- 既存 v1 20 タグの Origin を `references/01-principles/taxonomy-origin-journal.md` §R に転記
+  （親 Phase 1 残 2 checkbox の解消 — Origin 採取 + L2 到達）
+- docs:generate で taxonomy-health.json に baseline を反映
 
 ### 中優先（Phase 1 以降）
 
