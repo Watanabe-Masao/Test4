@@ -28,11 +28,11 @@
 
 ## Phase 2: Migration Path
 
-- [ ] `references/03-guides/test-tsig-to-v2-migration-map.md` が作成されている
-- [ ] `T:unclassified` が v2 registry に active tag として登録されている
-- [ ] タグなしテスト → `T:unclassified` の変換方針が明文化されている
-- [ ] 1:1 マッピング不能な TSIG rule が `T:unclassified` への退避対象として列挙されている
-- [ ] 親 plan.md §OCS.4 Lifecycle State Machine の `deprecated` / `sunsetting` / `retired` が migration の各段階に対応付けられている
+- [x] `references/03-guides/test-tsig-to-v2-migration-map.md` が作成されている（Phase 2 統合 branch 2026-04-26 で derived → references/03-guides/ に正本配置）
+- [x] `T:unclassified` が v2 registry に active tag として登録されている（Phase 1 で `testTaxonomyRegistryV2.ts` に `lifecycle: 'active'` + tier `primary` で landing 済、本 Phase 2 で migration map §2.1 にも明文化）
+- [x] タグなしテスト → `T:unclassified` の変換方針が明文化されている（migration map §2.1 退避対象 728 entry / §2.2 段階的能動付与）
+- [x] 1:1 マッピング不能な TSIG rule が `T:unclassified` への退避対象として列挙されている（migration map §1 N:M paradigm shift 2 件 + §2.3 per-test context-judged 728 件）
+- [x] 親 plan.md §OCS.4 Lifecycle State Machine の `deprecated` / `sunsetting` / `retired` が migration の各段階に対応付けられている（migration map §3 Phase 3-9 per-Phase 対応 + §3.4 AR-G3-SUPPRESS-RATIONALE scope 分離）
 
 ## Phase 3: Guard 実装
 

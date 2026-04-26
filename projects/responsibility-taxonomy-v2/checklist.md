@@ -29,11 +29,11 @@
 
 ## Phase 2: Migration Path
 
-- [ ] `references/03-guides/responsibility-v1-to-v2-migration-map.md` が作成されている
-- [ ] `R:unclassified` が v2 registry に active tag として登録されている
-- [ ] v1 タグなし → v2 `R:unclassified` の変換方針が明文化されている
-- [ ] 1:1 マッピング不能なタグが `R:unclassified` への退避対象として列挙されている
-- [ ] 親 plan.md §OCS.4 Lifecycle State Machine の `deprecated` / `sunsetting` / `retired` が migration の各段階に対応付けられている
+- [x] `references/03-guides/responsibility-v1-to-v2-migration-map.md` が作成されている（Phase 2 統合 branch 2026-04-26 で derived → references/03-guides/ に正本配置）
+- [x] `R:unclassified` が v2 registry に active tag として登録されている（Phase 1 で `responsibilityTaxonomyRegistryV2.ts` に `lifecycle: 'active'` で landing 済、本 Phase 2 で migration map §1 / §2.1 にも明文化）
+- [x] v1 タグなし → v2 `R:unclassified` の変換方針が明文化されている（migration map §2.1 退避対象 / §2.2 段階的能動付与）
+- [x] 1:1 マッピング不能なタグが `R:unclassified` への退避対象として列挙されている（migration map §1 N:1 退避: R:utility 48 / R:barrel 5、§2.3 context-judged: R:transform 18）
+- [x] 親 plan.md §OCS.4 Lifecycle State Machine の `deprecated` / `sunsetting` / `retired` が migration の各段階に対応付けられている（migration map §3 Phase 3-9 per-Phase 対応）
 
 ## Phase 3: Guard 実装
 

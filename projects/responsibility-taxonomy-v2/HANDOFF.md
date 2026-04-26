@@ -9,7 +9,7 @@
 
 > **Phase 2 で landing したもの（本 branch）:**
 >
-> - `projects/responsibility-taxonomy-v2/derived/migration/responsibility-v1-to-v2-migration-map.md` — 子 Phase 2 branch scratchpad 配置（Phase 2 統合 branch で `references/03-guides/responsibility-v1-to-v2-migration-map.md` に正本配置予定）
+> - `references/03-guides/responsibility-v1-to-v2-migration-map.md` — v1 → v2 移行表正本（Phase 2 統合 branch 2026-04-26 で derived → references/03-guides/ に正本配置完遂）
 >
 > **作業 branch:** `claude/responsibility-taxonomy-v2-phase2-migration`
 > **scope:** 子 project derived/migration/ + HANDOFF のみ（`references/` + checklist.md + 親文書 + Origin Journal + generated/ 一切触らず、Phase 2 統合 branch で正本配置 + checklist [x] 反映）
