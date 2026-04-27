@@ -5,7 +5,30 @@
 
 ## 1. 現在地
 
-**Phase 0 + Phase 1 完遂（2026-04-26、main 反映済）+ Phase 2 Migration Path 完遂（2026-04-26、本 branch）。Phase 3 Guard 実装に進める状態。**
+**Phase 0+1+2 完遂（2026-04-26、main 反映済）+ Phase 3 Guard 実装の v2 guard 部分完遂（2026-04-26、本 branch）。残: 統合 branch で interlock guard + AR-TAXONOMY-\* + collector + taxonomy:check 実装。**
+
+> **Phase 3 で landing したもの（本 branch、V2-T-0〜V2-T-5）:**
+>
+> - `app/src/test/guards/testTaxonomyGuardV2.test.ts` — v2 guard 新設（6 tests PASS、TSIG global rule と並行運用）
+>   - V2-T-0: smoke test (test scope > 500 file)
+>   - V2-T-1: untagged baseline ratchet-down (baseline=750、Phase 0 inventory 728 + 余裕)
+>   - V2-T-2: unknown vocabulary baseline=0 hard fail (registry 強制、新 T:kind 追加は review window 経由のみ)
+>   - V2-T-3: タグなし vs T:unclassified (Phase 6 完了後に hard rule 昇格、Phase 3 では smoke)
+>   - V2-T-4: Cognitive Load Ceiling 15 cap (原則 7)
+>   - V2-T-5: tier 構造検証 (primary 11 + optional 4 = 15)
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase3-guard`
+> **scope:** v2 guard 新設のみ（interlock guard / AR-TAXONOMY-\* / collector / taxonomy:check は統合 branch で共通 infra 実装）
+
+### Phase 3 設計結果
+
+| 指標                        | 値                                                                                 |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| v2 guard test 件数          | 6 (PASS、TSIG global rule と並行運用)                                              |
+| Untagged baseline           | 750 (Phase 0 inventory 728 + 余裕、Phase 6 で 0 到達目標)                          |
+| Unknown vocabulary baseline | 0 (Phase 3 時点で v2 T:kind 使用 0、registry 強制)                                 |
+| Tier 構造検証               | primary 11 / optional 4 / 合計 15 (Cognitive Load cap)                             |
+| §OCS.5 Promotion Gate 進捗  | L4 (Guarded) 部分到達 — 残 interlock guard + AR-TAXONOMY-\* active 化は統合 branch |
 
 > **Phase 2 で landing したもの（本 branch）:**
 >

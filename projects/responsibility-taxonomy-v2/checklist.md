@@ -39,13 +39,15 @@
 
 ### 既存項目
 
-- [ ] `app/src/test/guards/responsibilityTagGuardV2.test.ts` が PASS している
-- [ ] interlock 検証 guard が R:tag → 必須 T:kind の存在を検証している
-- [ ] 未分類 baseline が ratchet-down で管理されている
-- [ ] タグなし ≠ `R:unclassified` が hard fail で検出される
-- [ ] v1 guard と v2 guard が並行運用されている
+- [x] `app/src/test/guards/responsibilityTagGuardV2.test.ts` が PASS している（Phase 3 子 branch 2026-04-26、5 tests PASS）
+- [x] interlock 検証 guard が R:tag → 必須 T:kind の存在を検証している（Phase 3 統合 branch で `taxonomyInterlockGuard.test.ts` 9 tests PASS、INTERLOCK-1a/1b で双方向検証 + INTERLOCK-4a で Antibody Pair 双方向対称性検出 → schema fix）
+- [x] 未分類 baseline が ratchet-down で管理されている（V2-R-1: untagged baseline=1055、V2-R-2: unknown vocabulary baseline=270）
+- [ ] タグなし ≠ `R:unclassified` が hard fail で検出される（V2-R-3 で smoke 配置済、Phase 6 Migration Rollout 完了後に hard rule 昇格予定）
+- [x] v1 guard と v2 guard が並行運用されている（responsibilityTagGuard.test.ts と responsibilityTagGuardV2.test.ts が同時 PASS、scope/vocabulary 異なる）
 
 ### AR-TAXONOMY-_ rule active 化（責務軸側、親 plan.md §AR-TAXONOMY-_）
+
+> **Phase 3.5 / Phase 4 deliverable** — AR rule の base-rules.ts 登録 + collector 実装は Phase 3 統合 branch の scope 外（規模大）。本 Phase 3 では interlock guard / 個別 guard で機能的に検出可能な状態に到達。AR rule 登録は別 PR で実施。
 
 - [ ] `AR-TAXONOMY-NO-UNTAGGED` を responsibility 軸で active 化（baseline=current 値）
 - [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` を responsibility 軸で active 化
@@ -57,9 +59,9 @@
 
 ### Anchor Slice 保証経路完成（親 §OCS.7 段階 1）
 
-- [ ] Anchor Slice 5 R:tag が §OCS.5 Promotion Gate L4（Guarded）に到達している
-- [ ] taxonomy-health.json collector の責務軸側 fields が出力されている
-- [ ] `npm run taxonomy:check` の責務軸側が PASS する
+- [x] Anchor Slice 5 R:tag が §OCS.5 Promotion Gate L4（Guarded）に到達している（INTERLOCK-2a で Anchor Slice 5 R:tag が registry V2 に Anchor として登録されていることを検証 + V2-R-1/V2-R-2 で対象 file の guard 監視が active）
+- [ ] taxonomy-health.json collector の責務軸側 fields が出力されている（**Phase 3.5 / Phase 4 deliverable**、collector 実装は別 PR で実施）
+- [ ] `npm run taxonomy:check` の責務軸側が PASS する（**Phase 3.5 / Phase 4 deliverable**、CLI script は別 PR で実施）
 
 ## Phase 4: Pilot
 
