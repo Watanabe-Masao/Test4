@@ -73,8 +73,8 @@
 - [x] 新 T:kind 提案テンプレートが定義されている（test-taxonomy-operations.md §2.2、テスト軸固有の事前情報シート + 「過剰命名」リスク事前否認 + TSIG 移行期間特有の考慮）
 - [x] T:kind 撤退テンプレートが定義されている（test-taxonomy-operations.md §3.2、replacedBy / sunsetCondition / obligation 欠落補完 / 対 R:tag 孤立確認）
 - [x] responsibility-taxonomy-v2 との同期 review window 連絡手順が明記されている（test-taxonomy-operations.md §4、同期 trigger 5 イベント + 同 window 同時裁定必須ケース 4 件）
-- [ ] `npm run taxonomy:impact` のテスト軸出力（required tests / found / missing）が動作確認済み（出力 contract は §5 で正本化、CLI 実装 + 動作確認は Phase 5 統合 branch）
-- [ ] PR template に親 plan.md §OCS.3 の確認項目（taxonomy:check / taxonomy:impact）が追加されている（Phase 5 統合 branch で `.github/PULL_REQUEST_TEMPLATE.md` 改変）
+- [x] `npm run taxonomy:impact` のテスト軸出力（required tests / found / missing）が動作確認済み（Phase 5 統合 branch 2026-04-27 で `tools/scripts/taxonomy-impact.ts` 新設 + `app/package.json` に `taxonomy:impact` script 追加。`--axis test` で T 軸単独実行可能、出力 contract = operations.md §5.2 の 8 フィールド `path / detectedTKinds / linkedRTags / expectedTKinds / presentTKinds / missingTKinds / unverifiedTKinds / result`）
+- [x] PR template に親 plan.md §OCS.3 の確認項目（taxonomy:check / taxonomy:impact）が追加されている（Phase 5 統合 branch 2026-04-27 で `.github/PULL_REQUEST_TEMPLATE.md` に「Taxonomy v2 チェック」セクション 4 項目追加: taxonomy:check / taxonomy:impact / high-risk タグ review window 確認 / 新規 file タグ付与）
 
 ## Phase 6: Migration Rollout
 

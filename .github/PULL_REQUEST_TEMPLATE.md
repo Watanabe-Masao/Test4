@@ -27,6 +27,15 @@
 - [ ] `npx vitest run --coverage` — lines 55% 以上
 - [ ] `npm run test:e2e` — 全シナリオ通過
 
+## Taxonomy v2 チェック（責務軸 R:\* + テスト軸 T:\*）
+
+> 詳細: 親 plan §OCS.3 / `references/03-guides/responsibility-taxonomy-operations.md` §6 / `references/03-guides/test-taxonomy-operations.md` §6
+
+- [ ] `npm run taxonomy:check` — PASS（registry / interlock / cognitive load / origin / known vocabulary 全 hard fail 条件クリア）
+- [ ] `npm run taxonomy:impact -- --base main --head HEAD` — affected R:tag / T:kind を確認（fail file が無い）
+- [ ] high-risk タグ（新 R:tag / T:kind 追加 / 撤退 / Antibody Pair 変更 / Interlock 改訂）は review window で承認済（`references/02-status/taxonomy-review-journal.md` に対応 entry あり）
+- [ ] 新規 file には `@responsibility R:*` + 対応 test に `@taxonomyKind T:*` が付与済（タグなし禁止）
+
 ## KPI 追加の場合（該当時のみ）
 
 > 詳細: [references/extension-playbook.md](../references/03-guides/extension-playbook.md) セクション A
