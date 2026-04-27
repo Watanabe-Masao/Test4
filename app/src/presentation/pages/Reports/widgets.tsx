@@ -3,6 +3,8 @@
  *
  * 月次レポートページのコンテンツをウィジェット化。
  * UnifiedWidgetContext を使い、全ページから利用可能。
+ *
+ * @responsibility R:unclassified
  */
 import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 import { ReportSummaryGrid } from './ReportSummaryGrid'

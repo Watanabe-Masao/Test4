@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import type { StorageDataType } from '@/domain/models/storeTypes'

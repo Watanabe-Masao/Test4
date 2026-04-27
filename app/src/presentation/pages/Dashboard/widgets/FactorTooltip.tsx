@@ -1,5 +1,7 @@
 /**
  * カテゴリ別要因分解チャートのツールチップ
+ *
+ * @responsibility R:unclassified
  */
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { TipBox, TipTitle, TipRow, TipHint, valColor } from './CategoryFactorBreakdown.styles'

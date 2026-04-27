@@ -5,6 +5,8 @@
  * - SalesSummaryRow: 売上サマリー行（前期/当期/差額/比率）
  * - PISummaryRow: PI値・点単価サマリー行
  * - WaterfallBarChart: ウォーターフォールバーチャート描画
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'

@@ -5,6 +5,8 @@
  * No React or styled-components dependencies.
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 import type { MonthEntry } from './StorageDataViewers.types'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { calculateTransactionValue } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'

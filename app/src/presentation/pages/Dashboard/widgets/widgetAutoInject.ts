@@ -1,6 +1,8 @@
 /**
  * widgetAutoInject — データ駆動ウィジェットの自動注入ロジック。
  * widgetLayout.ts から分離。localStorage ベースの冪等性を保証する。
+ *
+ * @responsibility R:unclassified
  */
 import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'

@@ -3,6 +3,8 @@
  *
  * 純粋関数のみ。ECharts の dataZoom パーセントから
  * 表示中心がどの月にあるかを判定する。
+ *
+ * @responsibility R:unclassified
  */
 
 import type { MonthBoundaries } from '@/application/hooks/useWeatherTriple'

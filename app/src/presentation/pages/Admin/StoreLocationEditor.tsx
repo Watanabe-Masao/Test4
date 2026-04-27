@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback, useMemo } from 'react'
 import type { StoreLocation } from '@/domain/models/record'
 import { useEtrnStationSearch } from '@/application/hooks/useEtrnStationSearch'

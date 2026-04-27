@@ -2,6 +2,8 @@
  * データテーブルウィジェット（日別×店舗売上、日別推定在庫）
  *
  * TableWidgets.tsx から分割。
+ *
+ * @responsibility R:unclassified
  */
 import React, { type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'

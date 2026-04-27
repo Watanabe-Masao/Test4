@@ -3,6 +3,8 @@
  *
  * 既存の forecastToolsLogic の派生値に対して閾値判定のみ行う。
  * 新しい計算はしない。
+ *
+ * @responsibility R:unclassified
  */
 import { formatPercent, formatPointDiff } from '@/domain/formatting'
 

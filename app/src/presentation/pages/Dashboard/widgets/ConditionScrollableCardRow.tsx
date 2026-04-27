@@ -2,6 +2,8 @@
  * 横スクロール可能なカード行
  *
  * カードが画面幅を超える場合、左右の矢印ボタンでスムーズスクロールする。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type { ConditionCardId, UnifiedCardData } from './ConditionSummaryEnhanced.vm'

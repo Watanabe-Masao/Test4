@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { palette } from '@/presentation/theme/tokens'
 import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
 import { grossProfitFromStoreResult } from '@/application/readModels/grossProfit/calculateGrossProfit'

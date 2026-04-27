@@ -5,6 +5,8 @@
  * レンダリングのみに専念する。
  *
  * 店舗行をクリック → 日別モーダル（conditionPanelYoYDailyModal.tsx）を表示。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { formatPercent } from '@/domain/formatting'

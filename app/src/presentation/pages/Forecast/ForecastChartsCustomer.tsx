@@ -1,5 +1,7 @@
 /**
  * 客数・客単価分析チャート群 (ECharts)
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

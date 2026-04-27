@@ -2,6 +2,8 @@
  * カテゴリ別要因分解ユーティリティ
  *
  * CategoryFactorBreakdown.tsx から分離した純粋関数群。
+ *
+ * @responsibility R:unclassified
  */
 import {
   decomposePriceMix as decomposePriceMixDomain,

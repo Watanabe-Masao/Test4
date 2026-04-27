@@ -1,6 +1,8 @@
 /**
  * 売上分析タブ — DayDetailModal の売上分析タブコンテンツ。
  * 比較モード切替・ウォーターフォール・カテゴリドリルダウン・累計情報を表示。
+ *
+ * @responsibility R:unclassified
  */
 import { sc } from '@/presentation/theme/semanticColors'
 import { formatPercent } from '@/domain/formatting'

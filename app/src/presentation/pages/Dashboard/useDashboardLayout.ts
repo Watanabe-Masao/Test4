@@ -3,6 +3,8 @@
  *
  * widgetIds の初期化・永続化・自動注入・active widget 解決を担う。
  * D&D や settings panel などの UI 操作は DashboardPage に残す。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import type { UnifiedWidgetContext, UnifiedWidgetDef } from '@/presentation/components/widgets'

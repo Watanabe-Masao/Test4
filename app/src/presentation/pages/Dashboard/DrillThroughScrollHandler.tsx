@@ -1,6 +1,8 @@
 /**
  * DrillThroughScrollHandler — CrossChartSelection のドリルスルーリクエストに応じて
  * 対象ウィジェットへスクロールし、ハイライトアニメーションを付与するコンポーネント。
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect } from 'react'
 import { useCrossChartSelection } from '@/presentation/components/charts'

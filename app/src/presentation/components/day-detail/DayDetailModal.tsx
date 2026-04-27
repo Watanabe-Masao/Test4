@@ -2,6 +2,8 @@
  * 日別詳細モーダル — カレンダー/テーブルから日を選択した際に表示。
  * 売上分析・時間帯分析・仕入内訳の3タブ構成。
  * 各タブの描画は専用コンポーネントに委譲し、本ファイルはモーダル外殻+タブルーティングに専念する。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'

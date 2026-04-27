@@ -3,6 +3,8 @@
  *
  * 共通の軸ラベルスタイル・splitLine 設定をトークン経由で提供。
  * 16箇所以上の軸ラベル重複と29箇所以上の splitLine 重複を解消する。
+ *
+ * @responsibility R:unclassified
  */
 import type { XAXisComponentOption, YAXisComponentOption } from 'echarts'
 import type { AppTheme } from '@/presentation/theme/theme'

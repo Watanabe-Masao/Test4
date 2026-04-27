@@ -4,6 +4,8 @@
  * PAGE_REGISTRY から Route を生成する。コンポーネント解決は PAGE_COMPONENT_MAP で行う。
  * ページメタデータの正本は application/navigation/pageRegistry.ts。
  * lazy import と PAGE_COMPONENT_MAP は `pageComponentMap.ts` に分離（HMR 対応）。
+ *
+ * @responsibility R:unclassified
  */
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { PAGE_REGISTRY, REDIRECT_REGISTRY } from '@/application/navigation/pageRegistry'

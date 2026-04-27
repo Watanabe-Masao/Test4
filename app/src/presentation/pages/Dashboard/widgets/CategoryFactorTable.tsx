@@ -3,6 +3,8 @@
  *
  * 要因分解の結果をテーブル形式で表示する。
  * ドリルダウン対応のカテゴリ名セルと合計行を含む。
+ *
+ * @responsibility R:unclassified
  */
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'
 import { Table, DrillIcon, NameCell, ValCell, valColor } from './CategoryFactorBreakdown.styles'

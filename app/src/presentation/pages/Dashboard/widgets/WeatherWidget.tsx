@@ -6,6 +6,8 @@
  *
  * UI/UX原則#1: 実績（緑系）と推定（オレンジ系）は別世界として視覚的に分離。
  * @guard A3 Presentation は描画専用 — 外部APIを直接呼ばない。hook経由で取得。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import styled from 'styled-components'

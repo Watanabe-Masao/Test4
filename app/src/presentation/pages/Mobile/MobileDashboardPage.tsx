@@ -3,6 +3,8 @@
  *
  * /mobile ルートでレンダリングされるスマートフォン向け画面。
  * AppShell を使わず、モバイルファーストの独自レイアウトを持つ。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'

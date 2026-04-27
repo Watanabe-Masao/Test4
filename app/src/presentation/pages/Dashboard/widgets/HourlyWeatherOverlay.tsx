@@ -3,6 +3,8 @@
  *
  * HourlyChart の上に気温ライン・天気アイコン・降水量を重ねて表示する。
  * 売上バーチャートとの対比で天気と売上の関係を視覚化する。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'

@@ -3,6 +3,8 @@
  *
  * DayDetailModal のカテゴリドリルダウン機能で使用する
  * 集計ロジック・型定義・定数を集約する。
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { palette } from '@/presentation/theme/tokens'

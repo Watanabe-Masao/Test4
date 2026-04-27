@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { PageWidgetContainer } from './PageWidgetContainer'
 export { WidgetSettingsPanel } from './WidgetSettingsPanel'
 export { loadPageLayout, savePageLayout, buildWidgetMap } from './widgetLayout'

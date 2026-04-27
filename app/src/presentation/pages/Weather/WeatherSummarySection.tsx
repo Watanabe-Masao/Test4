@@ -3,6 +3,8 @@
  *
  * カードの auto-fill グリッドだとウィンドウ幅で崩れるため、
  * 固定列のテーブル風レイアウトで当年+前年を上下配置。
+ *
+ * @responsibility R:unclassified
  */
 import styled from 'styled-components'
 import { sc } from '@/presentation/theme/semanticColors'

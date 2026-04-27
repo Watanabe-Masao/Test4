@@ -3,6 +3,8 @@
  *
  * ユーザーの役割に応じた最適なウィジェット配置を提供する。
  * カスタムプリセットの保存・呼び出し機能を含む。
+ *
+ * @responsibility R:unclassified
  */
 
 export interface LayoutPreset {

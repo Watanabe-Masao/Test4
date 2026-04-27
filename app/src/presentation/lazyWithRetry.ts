@@ -4,6 +4,8 @@
  * デプロイ後にブラウザが古いチャンクハッシュを参照して 404 になる問題に対処する。
  * 失敗時に1回だけページをリロードして新しい index.html を取得する。
  * sessionStorage フラグで無限リロードループを防止する。
+ *
+ * @responsibility R:unclassified
  */
 import { lazy, type ComponentType } from 'react'
 

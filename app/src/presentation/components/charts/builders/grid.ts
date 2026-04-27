@@ -3,6 +3,8 @@
  *
  * チャートの描画領域（margin）を用途別に定義。
  * カスタムが必要な場合はスプレッドで上書き: { ...gridPresets.standard, top: 50 }
+ *
+ * @responsibility R:unclassified
  */
 import type { GridComponentOption } from 'echarts'
 

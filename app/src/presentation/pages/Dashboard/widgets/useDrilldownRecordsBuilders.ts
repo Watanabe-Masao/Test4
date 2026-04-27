@@ -3,6 +3,8 @@
  *
  * React hooks (useMemo) を使わない純粋関数。
  * useDrilldownRecords.ts から呼ばれ、フィルタリングとアイテム構築を担う。
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import {

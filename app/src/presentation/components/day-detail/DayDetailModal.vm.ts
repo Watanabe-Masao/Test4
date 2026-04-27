@@ -5,6 +5,8 @@
  * DayDetailModal.tsx はこのモジュールから関数・型をインポートして描画のみを行う。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import { formatCurrency, formatPercent } from '@/domain/formatting'
 import {

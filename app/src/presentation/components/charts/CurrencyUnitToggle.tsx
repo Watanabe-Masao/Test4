@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useUiStore, type CurrencyUnit } from '@/application/stores/uiStore'
 import { ToggleGroup, ToggleBtn } from './CurrencyUnitToggle.styles'
 

@@ -5,6 +5,8 @@
  * ドラッグ中のインデックス追跡とドロップ時の配列並び替えを担当する。
  *
  * @guard C1 1ファイル = 1変更理由（D&D UX の変更時にのみ変わる）
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useRef, useCallback } from 'react'
 import { saveLayout } from './widgets/widgetLayout'

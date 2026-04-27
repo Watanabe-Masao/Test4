@@ -1,6 +1,8 @@
 /**
  * widgetMigration — 旧ウィジェット ID → 統合ウィジェット ID のマイグレーション。
  * widgetLayout.ts から分離した純粋変換ロジック。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

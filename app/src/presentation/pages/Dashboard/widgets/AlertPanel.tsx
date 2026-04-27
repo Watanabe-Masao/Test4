@@ -3,6 +3,8 @@
  *
  * 既存の alertSystem.ts を UI に接続し、
  * 閾値超過を自動通知するウィジェット。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useMemo } from 'react'
 import { useTheme } from 'styled-components'

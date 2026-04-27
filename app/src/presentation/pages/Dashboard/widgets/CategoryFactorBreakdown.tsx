@@ -4,6 +4,8 @@
  * 部門→ライン→クラスの各階層で要因分解を横棒グラフ+テーブルで表示。
  * クリックで下位階層にドリルダウン可能。
  * 2要素(客数・客単価) / 3要素(客数・点数・単価) / 5要素(+価格・構成比変化) を切替可能。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback, Fragment, memo } from 'react'
 import { useTheme } from 'styled-components'

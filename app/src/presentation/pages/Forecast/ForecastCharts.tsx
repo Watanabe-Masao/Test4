@@ -2,6 +2,8 @@
  * ForecastCharts — バレルエクスポート
  *
  * 責務別に分割されたチャートモジュールを再エクスポートする。
+ *
+ * @responsibility R:unclassified
  */
 
 // 基本チャート: 週別・曜日・店舗比較

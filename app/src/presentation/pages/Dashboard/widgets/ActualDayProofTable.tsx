@@ -3,6 +3,8 @@
  *
  * 同日マッピングと同曜日マッピングの境界シフト（加わった日・失われた日）を
  * テーブル形式で明示的に表示する。
+ *
+ * @responsibility R:unclassified
  */
 import { useTheme } from 'styled-components'
 import type { ActualDayImpact } from '@/domain/models/ComparisonContext'

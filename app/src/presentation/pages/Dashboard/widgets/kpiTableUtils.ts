@@ -3,6 +3,8 @@
  *
  * KpiTableWidgets.tsx から分割。
  * パーセント基本フォーマットは domain/formatting に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import { formatPercent } from '@/domain/formatting'
 

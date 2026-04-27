@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DashboardWidgetContext } from './DashboardWidgetContext'
 
 /** 時系列ウィジェットの表示判定: DuckDB にデータがあれば表示 */

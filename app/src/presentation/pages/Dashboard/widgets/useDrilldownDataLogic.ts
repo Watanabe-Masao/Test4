@@ -2,6 +2,8 @@
  * useDrilldownData — 純粋計算ロジック
  *
  * useMemo の純粋関数部分を抽出（C1: 1ファイル = 1変更理由）。
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyHooks'

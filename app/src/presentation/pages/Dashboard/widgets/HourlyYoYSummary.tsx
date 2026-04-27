@@ -3,6 +3,8 @@
  *
  * HourlyChart の下に表示。当年/前年の気温・降水量比較と、
  * 前年比が最も好調/不調な時間帯をハイライト表示する。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import type { HourlyWeatherRecord, WeatherCategory } from '@/domain/models/record'

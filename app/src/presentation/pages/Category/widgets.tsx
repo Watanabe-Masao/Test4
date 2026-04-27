@@ -6,6 +6,8 @@
  * onCustomCategoryChange が required）を受け取り、null check は
  * `categoryWidget` helper に集約。PR4 で UnifiedWidgetContext から 3 field を
  * 物理削除した後も widget 定義本体は変更不要。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import type { StoreResult } from '@/domain/models/storeTypes'

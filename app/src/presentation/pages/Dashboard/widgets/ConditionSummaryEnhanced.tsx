@@ -4,6 +4,8 @@
  * 予算達成メトリクス（売上・粗利額・粗利率・値入率・売変率）と
  * 前年比メトリクス（客数・販売点数・客単価・必要ベース比）を
  * 統一カードレジストリで管理。カードの並び替えは CONDITION_CARD_ORDER の変更で即反映。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo, useCallback } from 'react'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'

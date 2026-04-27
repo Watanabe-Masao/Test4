@@ -1,5 +1,7 @@
 /**
  * 基本チャート群 — 週別・曜日・店舗比較 (ECharts)
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

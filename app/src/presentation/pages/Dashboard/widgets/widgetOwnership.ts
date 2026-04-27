@@ -12,6 +12,8 @@
  *
  * @see features/README.md — ownership ルール
  * @see structuralConventionGuard.test.ts — 未登録 widget 検出 guard
+ *
+ * @responsibility R:unclassified
  */
 
 export type WidgetOwner =

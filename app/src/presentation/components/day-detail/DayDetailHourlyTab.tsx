@@ -1,6 +1,8 @@
 /**
  * 時間帯分析タブ — DayDetailModal の時間帯分析タブコンテンツ。
  * 天気店舗セレクタ + HourlyChart を表示。
+ *
+ * @responsibility R:unclassified
  */
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

@@ -3,6 +3,8 @@
  *
  * 複数のビルダーファイルから参照される非公開ヘルパー関数群。
  * このファイルの関数はバレル経由で外部公開しない。
+ *
+ * @responsibility R:unclassified
  */
 
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'

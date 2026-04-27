@@ -3,6 +3,8 @@
  *
  * VM (conditionPanelSalesDetail.vm.ts) で計算済みデータを受け取り、
  * レンダリングのみに専念する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'

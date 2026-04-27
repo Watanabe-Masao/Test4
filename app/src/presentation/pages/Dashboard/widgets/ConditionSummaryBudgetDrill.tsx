@@ -4,6 +4,8 @@
  * ConditionSummaryEnhanced から抽出。
  * 予算達成メトリクス（売上・粗利額・粗利率・値入率・売変率）の
  * 店別詳細と全店合計を表示する。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback, memo } from 'react'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'

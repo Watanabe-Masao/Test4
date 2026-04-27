@@ -3,6 +3,8 @@
  *
  * CategoryDrilldown から抽出した renderBarSection を独立コンポーネント化。
  * 予算・実績・前年・前週の積み上げバーと凡例を描画する。
+ *
+ * @responsibility R:unclassified
  */
 import type { BarSectionData, DrillItem } from './useDrilldownData'
 import type { DrilldownData } from './useDrilldownData'

@@ -1,5 +1,7 @@
 /**
  * 日別詳細のグラフビュー + 曜日ラベルヘルパー
+ *
+ * @responsibility R:unclassified
  */
 import type {
   DailyDetailRow,

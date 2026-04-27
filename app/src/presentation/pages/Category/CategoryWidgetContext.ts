@@ -17,6 +17,8 @@
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-A-001
  *  - projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-003
  *  - projects/widget-context-boundary/checklist.md Phase 1
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets/types'

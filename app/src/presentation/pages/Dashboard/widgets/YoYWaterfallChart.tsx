@@ -5,6 +5,8 @@
  * 分類別時間帯データがある場合は部門別の増減も表示する。
  * 期間スライダーで分析対象期間を動的に変更可能。
  * 前週比モード: 選択期間の7日前と比較。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { formatPercent } from '@/domain/formatting'

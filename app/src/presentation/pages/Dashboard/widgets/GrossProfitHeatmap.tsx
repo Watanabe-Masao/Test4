@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { memo, useState, useMemo } from 'react'
 import { formatPercent } from '@/domain/formatting'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'

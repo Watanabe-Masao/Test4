@@ -2,6 +2,8 @@
  * WeatherDetailRow — 日別詳細テーブル行（前年比較付き）
  *
  * WeatherPage の行数制限（R12: 600行）対応のため分離。
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'

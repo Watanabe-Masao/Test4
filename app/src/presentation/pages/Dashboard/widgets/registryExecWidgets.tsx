@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DashboardWidgetDef } from './types'
 import { ForecastToolsWidget } from './ForecastTools'
 import { AlertPanelWidget } from './AlertPanel'

@@ -3,6 +3,8 @@
  *
  * 客数前年比・客単価前年比・販売点数前年比・総仕入前年比・残予算必要達成率の
  * 店別詳細パネルを統一的に表示する。
+ *
+ * @responsibility R:unclassified
  */
 import type { CurrentCtsQuantity } from './types'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'

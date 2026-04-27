@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState } from 'react'
 import { getDaysInMonth } from '@/domain/constants/defaults'
 import type { Store, InventoryConfig } from '@/domain/models/record'

@@ -4,6 +4,8 @@
  * 日別トレンドページの各セクションをウィジェットとして定義。
  * KPIカードと日別売上チャートは Dashboard 側に統合済み。
  * Daily 固有のチャート（粗利率トレンド・シャープリー時系列）のみ定義。
+ *
+ * @responsibility R:unclassified
  */
 import { GrossProfitRateChart, ShapleyTimeSeriesChart } from '@/presentation/components/charts'
 import type { UnifiedWidgetDef } from '@/presentation/components/widgets'

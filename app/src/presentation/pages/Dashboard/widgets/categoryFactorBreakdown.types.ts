@@ -1,5 +1,7 @@
 /**
  * CategoryFactorBreakdown 共有型定義
+ *
+ * @responsibility R:unclassified
  */
 
 export type DecompLevel = 2 | 3 | 5

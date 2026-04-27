@@ -2,6 +2,8 @@
  * 店舗別KPI一覧テーブル内部コンポーネント
  *
  * KpiTableWidgets.tsx から分離（react-refresh/only-export-components 対応）。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, type ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'

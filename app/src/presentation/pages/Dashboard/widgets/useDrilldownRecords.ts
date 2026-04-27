@@ -4,6 +4,8 @@
  * useDrilldownData から filtering + item building を分離。
  * 計算は pure builder に委譲し、useMemo は 3 個に集約。
  * @guard G5 useMemo 上限分離
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

@@ -6,6 +6,8 @@
  * `insightData` の null check は `insightWidget` helper に集約。
  * PR4 で `UnifiedWidgetContext.insightData?` が物理削除される際、helper のみ
  * 修正すれば widget 定義本体は影響を受けない。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import type { UnifiedWidgetDef, WidgetSize } from '@/presentation/components/widgets'
