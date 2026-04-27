@@ -6003,6 +6003,49 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-LIFECYCLE-FIELDS",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/calculations/README.md",
+    what: "全 spec の lifecycleStatus が enum 値であり、状態に応じた必須 field (replacedBy / sunsetCondition / deadline) が揃っている",
+    why: "Lifecycle State Machine (proposed → active → deprecated → sunsetting → retired → archived) を機械的に強制することで、deprecated だが replacedBy 未設定 / sunsetting だが deadline 未設定 のような中途半端な状態を構造的に排除する。期限超過は temporal governance で hard fail させ、移行が居残らないようにする",
+    correctPattern: {
+      description:
+        "lifecycleStatus は 6 enum 値、deprecated/sunsetting/retired は replacedBy 必須、sunsetting は sunsetCondition + deadline (YYYY-MM-DD) 必須、deadline 未来。",
+    },
+    outdatedPattern: {
+      description:
+        "lifecycleStatus が enum 外 / deprecated だが replacedBy 欠落 / sunsetting だが deadline 欠落 / 過去 deadline で deprecated|sunsetting のまま居残る",
+    },
+    decisionCriteria: {
+      when: "spec の lifecycle 状態を変更するとき、Promote Ceremony を起動するとき",
+      exceptions: "なし",
+      escalation: "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. lifecycleStatus を proposed/active/deprecated/sunsetting/retired/archived のいずれかに",
+        "2. deprecated/sunsetting/retired なら replacedBy: <CALC-NNN> を必須記入",
+        "3. sunsetting なら sunsetCondition + deadline (YYYY-MM-DD 未来) を必須記入",
+        "4. 期限超過したら retired に transition + consumer 切替を完了する",
+      ],
+    },
+    sunsetCondition:
+      "なし（Lifecycle State Machine の構造強制は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "deprecated だが後継不明な spec が居残る（移行先が読めない）",
+        "sunsetting だが期限なしの永続移行（temporal governance を骨抜きにする）",
+        "deadline 過ぎても retired に transition しない（消費者が古い実装を使い続ける）",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-OWNER",
     principleRefs: ["G1"],
     ruleClass: "invariant",

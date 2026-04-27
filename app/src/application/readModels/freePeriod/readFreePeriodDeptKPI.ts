@@ -72,6 +72,7 @@ export function weightedAverageRate(
  *   - salesAchievement: salesActual / salesBudget
  *   - gpRateBudget / gpRateActual / markupRate / discountRate: 加重和 / salesActual
  */
+/** @rm-id RM-009 */
 export function buildFreePeriodDeptKPIReadModel(
   rawRows: readonly RawDeptKPIInput[],
   monthCount: number,

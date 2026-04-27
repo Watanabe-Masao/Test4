@@ -45,11 +45,11 @@
 
 ## Phase C: ReadModels / Pipelines の網羅
 
-- [ ] `RM-NNN` / `PIPE-NNN` / `QH-NNN` / `PROJ-NNN` の ID 体系を確定した
-- [ ] `references/05-contents/{read-models,pipelines,query-handlers,projections}/` 新サブカテゴリを追加した
-- [ ] 主要 readModel の spec body authoring + source tag を実施した
-- [ ] frontmatter generator を新サブカテゴリに拡張した
-- [ ] 主要 readModel `missingSpec = 0` を達成した
+- [x] `RM-NNN` の ID 体系を確定した（PIPE / QH / PROJ は Phase C-2 batch で確定予定）
+- [x] `references/05-contents/read-models/` 新サブカテゴリを追加した（pipelines / query-handlers / projections は次 batch）
+- [x] 主要 readModel の spec body authoring + source tag を実施した（RM-001 〜 RM-010、10 件 = canonicalizationSystemGuard 監視 readModel 全件）
+- [x] frontmatter generator を新サブカテゴリに拡張した（kind=read-model dispatch、`@rm-id` JSDoc 自動注入）
+- [x] 主要 readModel `missingSpec = 0` を達成した（10 件、AR-CONTENT-SPEC-EXISTS guard で検証）
 - [ ] 主要 pipeline `missingSpec = 0` を達成した
 - [ ] queryHandler / projection の `sourceRef drift = 0` を達成した
 - [ ] pipeline lineage が graph で追跡可能になった
@@ -57,13 +57,13 @@
 
 ## Phase D: Domain Calculations の網羅
 
-- [ ] selection rule に従い対象 CALC を確定した（public export / 複数 consumer / invariant あり / 業務意味あり）
-- [ ] `CALC-NNN` ID を割当した
-- [ ] 対象 CALC に source tag を導入した
-- [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した
+- [x] selection rule に従い対象 CALC を確定した（calculationCanonRegistry の business-authoritative + current + maintenance 起点、Step1 で CALC-001 customerGap）
+- [x] `CALC-NNN` ID を割当した（CALC-001 = customerGap、Step1）
+- [x] 対象 CALC に source tag を導入した（@calc-id JSDoc 自動注入）
+- [x] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した（AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard で deprecated/sunsetting/retired に replacedBy 必須、sunsetting に sunsetCondition+deadline 必須、過去 deadline hard fail）
+- [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（Step1: CALC-001 §4 で記録、後続 batch で残 calc 拡大）
 - [ ] tests / guards との evidence 紐付けを完了した
-- [ ] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した
-- [ ] 対象 CALC `missingSpec = 0` を達成した
+- [ ] 対象 CALC `missingSpec = 0` を達成した（Step1: 1 件 cover、Step2 で 6 件まで拡大予定）
 - [ ] 対象 CALC tests 参照 = 100% を達成した
 - [ ] invariant 付き CALC の test 参照 = 100% を達成した
 - [ ] deprecated CALC の `sunsetCondition` = 100% を達成した

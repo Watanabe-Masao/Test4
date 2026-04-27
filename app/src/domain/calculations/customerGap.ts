@@ -74,6 +74,7 @@ export const CustomerGapResultSchema = z.object({
  * 前期の客数・点数・金額のいずれかが 0 の場合は null を返す
  * （0除算防止 + 意味のない GAP 値を表示しない）。
  */
+/** @calc-id CALC-001 */
 export function calculateCustomerGap(input: CustomerGapInput): CustomerGapResult | null {
   const { curCustomers, prevCustomers, curQuantity, prevQuantity, curSales, prevSales } = input
 

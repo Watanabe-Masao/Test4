@@ -29,7 +29,29 @@ import { createRequire } from 'node:module'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..', '..')
-const SPECS_DIR = resolve(REPO_ROOT, 'references/05-contents/widgets')
+const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+const SPECS_DIR = resolve(SPECS_BASE, 'widgets') // widget スペックの正本ディレクトリ（後方互換）
+
+// kind → サブディレクトリ
+const KIND_DIRS = {
+  widget: 'widgets',
+  'read-model': 'read-models',
+  calculation: 'calculations',
+}
+
+// id prefix → kind 推定
+function inferKindFromId(id) {
+  if (/^WID-\d{3}$/.test(id)) return 'widget'
+  if (/^RM-\d{3}$/.test(id)) return 'read-model'
+  if (/^CALC-\d{3}$/.test(id)) return 'calculation'
+  return null
+}
+
+function specPathFor(id) {
+  const kind = inferKindFromId(id)
+  if (!kind) throw new Error(`Unknown id format: ${id}`)
+  return resolve(SPECS_BASE, KIND_DIRS[kind], `${id}.md`)
+}
 
 // `typescript` は app/node_modules にインストールされている。
 // ESM の resolver はこの .mjs の場所から探索するため、
@@ -214,8 +236,8 @@ function formatScalar(v) {
   return s
 }
 
-// canonical frontmatter field order (output)
-const FIELD_ORDER = [
+// canonical frontmatter field order (output) — kind 別
+const FIELD_ORDER_WIDGET = [
   'id',
   'kind',
   'widgetDefId',
@@ -237,6 +259,62 @@ const FIELD_ORDER = [
   'lastReviewedAt',
   'specVersion',
 ]
+
+const FIELD_ORDER_READ_MODEL = [
+  'id',
+  'kind',
+  'exportName',
+  'sourceRef',
+  'sourceLine',
+  'definitionDoc',
+  // lifecycle (optional, Phase D で active 化)
+  'lifecycleStatus',
+  'canonicalRegistration',
+  'replacedBy',
+  'supersedes',
+  'sunsetCondition',
+  'deadline',
+  'lastVerifiedCommit',
+  'owner',
+  'reviewCadenceDays',
+  'lastReviewedAt',
+  'specVersion',
+]
+
+const FIELD_ORDER_CALCULATION = [
+  'id',
+  'kind',
+  'exportName',
+  'sourceRef',
+  'sourceLine',
+  'definitionDoc',
+  // calculation 固有: registry との双方向同期軸
+  'contractId',
+  'semanticClass',
+  'authorityKind',
+  'methodFamily',
+  'canonicalRegistration', // calculationCanonRegistry.runtimeStatus と同期 (current/candidate/non-target)
+  // lifecycle
+  'lifecycleStatus',
+  'replacedBy',
+  'supersedes',
+  'sunsetCondition',
+  'deadline',
+  'lastVerifiedCommit',
+  'owner',
+  'reviewCadenceDays',
+  'lastReviewedAt',
+  'specVersion',
+]
+
+function fieldOrderFor(kind) {
+  if (kind === 'read-model') return FIELD_ORDER_READ_MODEL
+  if (kind === 'calculation') return FIELD_ORDER_CALCULATION
+  return FIELD_ORDER_WIDGET
+}
+
+// 後方互換用 (旧コードが直接参照していた場合に向けた alias)
+const FIELD_ORDER = FIELD_ORDER_WIDGET
 
 // fields the generator overwrites from source
 const MACHINE_FIELDS = new Set([
@@ -534,61 +612,196 @@ function inferContextType(sf, registryName) {
 }
 
 // ---------------------------------------------------------------------------
+// Read-Model extractor (kind=read-model)
+// ---------------------------------------------------------------------------
+
+/**
+ * source TS ファイルを parse し、指定 exportName の宣言開始行を抽出する。
+ * 対応する宣言:
+ *   - `export function <name>(...)` / `export async function <name>(...)`
+ *   - `export const <name> = ...`
+ *   - `export class <name> {}`
+ *
+ * 戻り値: { found: boolean, fields?: { exportName, sourceLine }, diagnostics }
+ */
+function extractReadModelFields(sourcePath, exportName) {
+  const fullPath = resolve(REPO_ROOT, sourcePath)
+  const src = readFileSync(fullPath, 'utf-8')
+  const sf = ts.createSourceFile(sourcePath, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const diagnostics = []
+  let sourceLine = null
+
+  ts.forEachChild(sf, (node) => {
+    if (!node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) return
+    let matched = false
+    if (ts.isFunctionDeclaration(node) && node.name?.text === exportName) {
+      matched = true
+    } else if (ts.isVariableStatement(node)) {
+      for (const decl of node.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name) && decl.name.text === exportName) {
+          matched = true
+          break
+        }
+      }
+    } else if (ts.isClassDeclaration(node) && node.name?.text === exportName) {
+      matched = true
+    }
+    if (matched) {
+      const pos = node.getStart(sf)
+      const { line } = sf.getLineAndCharacterOfPosition(pos)
+      sourceLine = line + 1
+    }
+  })
+
+  if (sourceLine == null) {
+    diagnostics.push(`export '${exportName}' not found in ${sourcePath}`)
+    return { found: false, diagnostics }
+  }
+  return { found: true, fields: { exportName, sourceLine }, diagnostics }
+}
+
+// ---------------------------------------------------------------------------
 // Spec discovery + processing
 // ---------------------------------------------------------------------------
 
+/**
+ * 全 kind の spec ファイルを列挙する。
+ * 戻り値: { id, kind, dir, fileName, fullPath }[]
+ */
 function listSpecs(filterWid, scope) {
-  const files = readdirSync(SPECS_DIR)
-    .filter((f) => /^WID-\d{3}\.md$/.test(f))
-    .sort()
+  const out = []
+  for (const [kind, dir] of Object.entries(KIND_DIRS)) {
+    const fullDir = resolve(SPECS_BASE, dir)
+    if (!existsSync(fullDir)) continue
+    const re =
+      kind === 'widget'
+        ? /^WID-\d{3}\.md$/
+        : kind === 'read-model'
+          ? /^RM-\d{3}\.md$/
+          : kind === 'calculation'
+            ? /^CALC-\d{3}\.md$/
+            : null
+    if (!re) continue
+    const files = readdirSync(fullDir).filter((f) => re.test(f))
+    for (const f of files) {
+      out.push({
+        id: f.replace(/\.md$/, ''),
+        kind,
+        dir,
+        fileName: f,
+        fullPath: resolve(fullDir, f),
+      })
+    }
+  }
+  out.sort((a, b) => a.id.localeCompare(b.id))
   if (filterWid) {
-    return files.filter((f) => f === `${filterWid}.md`)
+    return out.filter((s) => s.id === filterWid)
   }
   if (scope === 'anchor') {
-    const anchorFiles = new Set(PHASE_A_ANCHOR_WIDS.map((w) => `${w}.md`))
-    return files.filter((f) => anchorFiles.has(f))
+    const anchor = new Set(PHASE_A_ANCHOR_WIDS)
+    return out.filter((s) => anchor.has(s.id))
   }
-  return files
+  return out
 }
 
 /**
- * 1 つの WID-NNN.md について sync 処理。
+ * 1 つの spec (WID-NNN.md / RM-NNN.md) について sync 処理。
  * 戻り値: { changed: boolean, drifted: string[], errors: string[] }
  */
-function processSpec(specFile, opts) {
-  const specPath = resolve(SPECS_DIR, specFile)
-  const wid = specFile.replace(/\.md$/, '')
+function processSpec(spec, opts) {
+  const specPath = spec.fullPath
+  const id = spec.id
   const { frontmatter, body, raw } = readSpec(specPath)
   const errors = []
   const drifted = []
 
-  if (frontmatter.id !== wid) {
-    errors.push(`${wid}: frontmatter id "${frontmatter.id}" mismatches filename`)
+  if (frontmatter.id !== id) {
+    errors.push(`${id}: frontmatter id "${frontmatter.id}" mismatches filename`)
   }
-  const widgetDefId = frontmatter.widgetDefId
-  const sourcePath = frontmatter.registrySource
-  if (!widgetDefId || !sourcePath) {
-    errors.push(`${wid}: missing widgetDefId or registrySource`)
+  const kind = spec.kind
+  if (kind === 'widget') {
+    return processWidgetSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
+  }
+  if (kind === 'read-model') {
+    return processReadModelSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
+  }
+  if (kind === 'calculation') {
+    return processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
+  }
+  errors.push(`${id}: unknown kind "${kind}"`)
+  return { changed: false, drifted, errors }
+}
+
+function processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
+  const exportName = frontmatter.exportName
+  const sourcePath = frontmatter.sourceRef
+  if (!exportName || !sourcePath) {
+    errors.push(`${id}: missing exportName or sourceRef`)
     return { changed: false, drifted, errors }
   }
   if (!existsSync(resolve(REPO_ROOT, sourcePath))) {
-    errors.push(`${wid}: registrySource not found: ${sourcePath}`)
+    errors.push(`${id}: sourceRef not found: ${sourcePath}`)
     return { changed: false, drifted, errors }
   }
-
-  const ext = extractWidgetFields(sourcePath, widgetDefId)
+  const ext = extractReadModelFields(sourcePath, exportName)
   if (!ext.found) {
-    errors.push(`${wid}: ${ext.diagnostics.join('; ')}`)
+    errors.push(`${id}: ${ext.diagnostics.join('; ')}`)
     return { changed: false, drifted, errors }
   }
   const ext0 = ext.fields
 
-  // build merged frontmatter
   const merged = { ...frontmatter }
-  // defaults for required machine fields
-  merged.id = wid
-  merged.kind = frontmatter.kind ?? 'widget'
+  merged.id = id
+  merged.kind = 'calculation'
+  const machineUpdates = {
+    exportName: ext0.exportName,
+    sourceRef: sourcePath,
+    sourceLine: ext0.sourceLine,
+  }
+  for (const [k, v] of Object.entries(machineUpdates)) {
+    if (!fieldEqual(merged[k], v)) {
+      drifted.push(`${k}: ${formatVal(merged[k])} → ${formatVal(v)}`)
+      merged[k] = v
+    }
+  }
+  if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
+  if (merged.owner === undefined) merged.owner = 'architecture'
+  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
+  if (merged.specVersion === undefined) merged.specVersion = 1
 
+  return finalizeSpecWrite({
+    specPath,
+    merged,
+    body,
+    raw,
+    fieldOrder: FIELD_ORDER_CALCULATION,
+    drifted,
+    errors,
+    opts,
+  })
+}
+
+function processWidgetSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
+  const widgetDefId = frontmatter.widgetDefId
+  const sourcePath = frontmatter.registrySource
+  if (!widgetDefId || !sourcePath) {
+    errors.push(`${id}: missing widgetDefId or registrySource`)
+    return { changed: false, drifted, errors }
+  }
+  if (!existsSync(resolve(REPO_ROOT, sourcePath))) {
+    errors.push(`${id}: registrySource not found: ${sourcePath}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext = extractWidgetFields(sourcePath, widgetDefId)
+  if (!ext.found) {
+    errors.push(`${id}: ${ext.diagnostics.join('; ')}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext0 = ext.fields
+
+  const merged = { ...frontmatter }
+  merged.id = id
+  merged.kind = frontmatter.kind ?? 'widget'
   const machineUpdates = {
     widgetDefId: ext0.widgetDefId,
     contextType: ext0.contextType,
@@ -609,19 +822,75 @@ function processSpec(specFile, opts) {
       merged[k] = v
     }
   }
-
-  // preserved manual fields default if missing
   if (merged.acquisitionPath === undefined) merged.acquisitionPath = 'ctx-direct'
   if (merged.owner === undefined) merged.owner = 'implementation'
   if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
-  // serialize
-  const serialized = serializeFrontmatter(merged, FIELD_ORDER)
-  const newRaw = `---\n${serialized}\n---\n${body.startsWith('\n') ? body : '\n' + body}`
-  // normalize trailing newlines on body to match input style
-  const finalRaw = newRaw.replace(/\n{3,}$/g, '\n\n').replace(/\n+$/, '\n')
+  return finalizeSpecWrite({
+    specPath,
+    merged,
+    body,
+    raw,
+    fieldOrder: FIELD_ORDER_WIDGET,
+    drifted,
+    errors,
+    opts,
+  })
+}
 
+function processReadModelSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
+  const exportName = frontmatter.exportName
+  const sourcePath = frontmatter.sourceRef
+  if (!exportName || !sourcePath) {
+    errors.push(`${id}: missing exportName or sourceRef`)
+    return { changed: false, drifted, errors }
+  }
+  if (!existsSync(resolve(REPO_ROOT, sourcePath))) {
+    errors.push(`${id}: sourceRef not found: ${sourcePath}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext = extractReadModelFields(sourcePath, exportName)
+  if (!ext.found) {
+    errors.push(`${id}: ${ext.diagnostics.join('; ')}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext0 = ext.fields
+
+  const merged = { ...frontmatter }
+  merged.id = id
+  merged.kind = 'read-model'
+  const machineUpdates = {
+    exportName: ext0.exportName,
+    sourceRef: sourcePath,
+    sourceLine: ext0.sourceLine,
+  }
+  for (const [k, v] of Object.entries(machineUpdates)) {
+    if (!fieldEqual(merged[k], v)) {
+      drifted.push(`${k}: ${formatVal(merged[k])} → ${formatVal(v)}`)
+      merged[k] = v
+    }
+  }
+  if (merged.owner === undefined) merged.owner = 'implementation'
+  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
+  if (merged.specVersion === undefined) merged.specVersion = 1
+
+  return finalizeSpecWrite({
+    specPath,
+    merged,
+    body,
+    raw,
+    fieldOrder: FIELD_ORDER_READ_MODEL,
+    drifted,
+    errors,
+    opts,
+  })
+}
+
+function finalizeSpecWrite({ specPath, merged, body, raw, fieldOrder, drifted, errors, opts }) {
+  const serialized = serializeFrontmatter(merged, fieldOrder)
+  const newRaw = `---\n${serialized}\n---\n${body.startsWith('\n') ? body : '\n' + body}`
+  const finalRaw = newRaw.replace(/\n{3,}$/g, '\n\n').replace(/\n+$/, '\n')
   const changed = finalRaw !== raw
   if (changed && !opts.check) {
     writeFileSync(specPath, finalRaw)
@@ -653,22 +922,39 @@ function formatVal(v) {
 }
 
 // ---------------------------------------------------------------------------
-// JSDoc 注入: source の `id: '<defId>'` 直前に `/** @widget-id WID-NNN */` を
-// 付与する（idempotent: 既に同 WID の JSDoc があれば skip）。
-// 同一 source に複数 WID がある場合は 1 ファイル 1 回読み書きで一括処理する。
+// JSDoc 注入:
+//   widget: source の `id: '<defId>'` 直前に `/** @widget-id WID-NNN */`
+//   read-model: source の export 行直前に `/** @rm-id RM-NNN */`
+// idempotent (既に同 id の JSDoc があれば skip)。
+// 同一 source 内に複数 entry がある場合は 1 ファイル 1 回読み書きで一括処理。
 // ---------------------------------------------------------------------------
 
-function injectJsdocAll(specFiles) {
+function injectJsdocAll(specs) {
   const editsBySource = new Map()
-  for (const file of specFiles) {
-    const wid = file.replace(/\.md$/, '')
-    const { frontmatter } = readSpec(resolve(SPECS_DIR, file))
-    const widgetDefId = frontmatter.widgetDefId
-    const sourcePath = frontmatter.registrySource
-    if (!widgetDefId || !sourcePath) continue
-    const list = editsBySource.get(sourcePath) ?? []
-    list.push({ wid, widgetDefId })
-    editsBySource.set(sourcePath, list)
+  for (const spec of specs) {
+    const { frontmatter } = readSpec(spec.fullPath)
+    if (spec.kind === 'widget') {
+      const widgetDefId = frontmatter.widgetDefId
+      const sourcePath = frontmatter.registrySource
+      if (!widgetDefId || !sourcePath) continue
+      const list = editsBySource.get(sourcePath) ?? []
+      list.push({ id: spec.id, kind: 'widget', match: { widgetDefId } })
+      editsBySource.set(sourcePath, list)
+    } else if (spec.kind === 'read-model') {
+      const exportName = frontmatter.exportName
+      const sourcePath = frontmatter.sourceRef
+      if (!exportName || !sourcePath) continue
+      const list = editsBySource.get(sourcePath) ?? []
+      list.push({ id: spec.id, kind: 'read-model', match: { exportName } })
+      editsBySource.set(sourcePath, list)
+    } else if (spec.kind === 'calculation') {
+      const exportName = frontmatter.exportName
+      const sourcePath = frontmatter.sourceRef
+      if (!exportName || !sourcePath) continue
+      const list = editsBySource.get(sourcePath) ?? []
+      list.push({ id: spec.id, kind: 'calculation', match: { exportName } })
+      editsBySource.set(sourcePath, list)
+    }
   }
 
   let injected = 0
@@ -681,49 +967,64 @@ function injectJsdocAll(specFiles) {
     }
     const original = readFileSync(fullPath, 'utf-8')
     const lines = original.split('\n')
-    // collect (lineIndex, indent, wid) for each edit; reverse-order inject to keep indices stable
     const insertions = []
-    for (const { wid, widgetDefId } of edits) {
-      const re = new RegExp(`^(\\s*)id:\\s*['"\`]${escapeRegex(widgetDefId)}['"\`]`)
+    for (const edit of edits) {
+      const matchRe = buildInjectMatcher(edit)
       let foundAt = -1
       for (let i = 0; i < lines.length; i++) {
-        const m = lines[i].match(re)
+        const m = lines[i].match(matchRe)
         if (!m) continue
         foundAt = i
         const indent = m[1]
-        const widTag = `@widget-id ${wid}`
+        const tag = jsdocTagFor(edit)
         let alreadyHas = false
         for (let j = Math.max(0, i - 4); j < i; j++) {
-          if (lines[j]?.includes(widTag)) {
+          if (lines[j]?.includes(tag)) {
             alreadyHas = true
             break
           }
         }
-        if (alreadyHas) {
-          skipped++
-        } else {
-          insertions.push({ at: i, indent, wid })
-        }
+        if (alreadyHas) skipped++
+        else insertions.push({ at: i, indent, tag })
         break
       }
       if (foundAt < 0) {
-        console.error(`  ERROR ${wid}: id literal not found in ${sourcePath}`)
+        console.error(`  ERROR ${edit.id}: anchor not found in ${sourcePath}`)
       }
     }
     if (insertions.length === 0) continue
-    // reverse order so earlier insertions don't shift later indices
     insertions.sort((a, b) => b.at - a.at)
     for (const ins of insertions) {
-      lines.splice(ins.at, 0, `${ins.indent}/** @widget-id ${ins.wid} */`)
+      lines.splice(ins.at, 0, `${ins.indent}/** ${ins.tag} */`)
       injected++
     }
     writeFileSync(fullPath, lines.join('\n'))
-    console.log(
-      `INJECT ${sourcePath} (+${insertions.length})`,
-    )
+    console.log(`INJECT ${sourcePath} (+${insertions.length})`)
   }
   console.log(`\n${injected} injection(s), ${skipped} already present`)
   return { injected, skipped }
+}
+
+function buildInjectMatcher(edit) {
+  if (edit.kind === 'widget') {
+    return new RegExp(`^(\\s*)id:\\s*['"\`]${escapeRegex(edit.match.widgetDefId)}['"\`]`)
+  }
+  if (edit.kind === 'read-model' || edit.kind === 'calculation') {
+    const n = escapeRegex(edit.match.exportName)
+    // matches: `export function NAME`, `export async function NAME`, `export const NAME`,
+    //          `export class NAME`, `export interface NAME`, `export type NAME`
+    return new RegExp(
+      `^(\\s*)export\\s+(?:async\\s+)?(?:function|const|let|var|class|interface|type)\\s+${n}\\b`,
+    )
+  }
+  throw new Error(`Unknown edit kind: ${edit.kind}`)
+}
+
+function jsdocTagFor(edit) {
+  if (edit.kind === 'widget') return `@widget-id ${edit.id}`
+  if (edit.kind === 'read-model') return `@rm-id ${edit.id}`
+  if (edit.kind === 'calculation') return `@calc-id ${edit.id}`
+  throw new Error(`Unknown edit kind: ${edit.kind}`)
 }
 
 function escapeRegex(s) {
@@ -748,8 +1049,8 @@ function main() {
   }
   let totalChanged = 0
   let totalErrors = 0
-  for (const file of specs) {
-    const r = processSpec(file, { check: args.check })
+  for (const spec of specs) {
+    const r = processSpec(spec, { check: args.check })
     if (r.errors.length > 0) {
       totalErrors += r.errors.length
       for (const e of r.errors) console.error(`  ERROR ${e}`)
@@ -757,12 +1058,12 @@ function main() {
     }
     if (r.changed) {
       totalChanged++
-      console.log(`${args.check ? 'DRIFT' : 'WROTE'} ${file}`)
+      console.log(`${args.check ? 'DRIFT' : 'WROTE'} ${spec.fileName}`)
       if (args.verbose || args.check) {
         for (const d of r.drifted) console.log(`    ${d}`)
       }
     } else if (args.verbose) {
-      console.log(`OK    ${file}`)
+      console.log(`OK    ${spec.fileName}`)
     }
   }
   if (args.check) {

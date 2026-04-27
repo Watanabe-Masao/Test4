@@ -40,6 +40,7 @@ export interface CustomerFactOutput {
  *
  * raw query 結果を受け取り、集約 + Zod parse して ReadModel を返す。
  */
+/** @rm-id RM-005 */
 export function buildCustomerFactReadModel(
   rows: readonly CustomerDailyRow[],
   dataVersion: number,

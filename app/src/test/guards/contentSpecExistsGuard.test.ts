@@ -1,52 +1,72 @@
 /**
  * Content Spec Existence Guard — AR-CONTENT-SPEC-EXISTS
  *
- * Phase B scope (2026-04-27): 全 45 WID について双方向の存在性を検証する。
+ * Phase D scope (2026-04-27): 全 spec (widget + read-model + calculation) について
+ * 双方向の存在性を検証する。
  *
- * - 順方向: spec frontmatter の registrySource / widgetDefId が示す source
- *   ファイルに、当該 widget def が実在する。
- * - 逆方向: source の `id: '<widgetDefId>'` 行の直前に
- *   `@widget-id WID-NNN` JSDoc が付与されている。
+ * - 順方向: spec frontmatter の sourceRef / widgetDefId|exportName が示す source
+ *   ファイルに、当該 entry が実在する。
+ * - 逆方向: source の anchor 行（widget=`id:` literal / read-model|calculation=`export <name>`）
+ *   の直前 3 行以内に対応する JSDoc tag (@widget-id / @rm-id / @calc-id) が付与されている。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B,
- * references/05-contents/widgets/README.md §「存在軸」。
+ * lifecycleStatus='proposed' は source 不在を許容（candidate 計画段階）。
+ *
+ * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A〜D,
+ * references/05-contents/{widgets,read-models,calculations}/README.md §「存在軸」。
  *
  * @taxonomyKind T:meta-guard
  *
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAllSpecs, readSourceContent, findIdLine } from './contentSpecHelpers'
+import { loadAllSpecs, readSourceContent, findIdLine, findExportLine } from './contentSpecHelpers'
+
+function jsdocTagFor(spec: { kind: string; id: string }): string {
+  if (spec.kind === 'widget') return `@widget-id ${spec.id}`
+  if (spec.kind === 'read-model') return `@rm-id ${spec.id}`
+  if (spec.kind === 'calculation') return `@calc-id ${spec.id}`
+  return `@id ${spec.id}`
+}
 
 describe('Content Spec Existence Guard (AR-CONTENT-SPEC-EXISTS)', () => {
-  it('全 WID-NNN.md spec が source の widget def と双方向存在する', () => {
+  it('全 spec (widget + read-model + calculation) が source entry と双方向存在する', () => {
     const violations: string[] = []
     for (const spec of loadAllSpecs()) {
+      // proposed は source 不在を許容（candidate 計画段階）
+      if (spec.lifecycleStatus === 'proposed') continue
       const source = readSourceContent(spec)
       if (source == null) {
-        violations.push(`${spec.id}: registrySource not found: ${spec.registrySource}`)
+        const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
+        violations.push(`${spec.id}: source not found: ${path}`)
         continue
       }
-      const idLine = findIdLine(source, spec.widgetDefId)
-      if (idLine === 0) {
-        violations.push(
-          `${spec.id}: widgetDefId='${spec.widgetDefId}' が ${spec.registrySource} に存在しない`,
-        )
+      let anchorLine: number
+      let anchorDesc: string
+      const tag = jsdocTagFor(spec)
+      if (spec.kind === 'widget') {
+        anchorLine = findIdLine(source, spec.widgetDefId)
+        anchorDesc = `widgetDefId='${spec.widgetDefId}'`
+      } else {
+        anchorLine = findExportLine(source, spec.exportName)
+        anchorDesc = `export '${spec.exportName}'`
+      }
+      if (anchorLine === 0) {
+        const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
+        violations.push(`${spec.id}: ${anchorDesc} が ${path} に存在しない`)
         continue
       }
-      // verify @widget-id JSDoc is present near the id line (within 3 lines above)
       const sourceLines = source.split('\n')
-      const widTag = `@widget-id ${spec.id}`
       let found = false
-      for (let i = Math.max(0, idLine - 4); i < idLine; i++) {
-        if (sourceLines[i]?.includes(widTag)) {
+      for (let i = Math.max(0, anchorLine - 4); i < anchorLine; i++) {
+        if (sourceLines[i]?.includes(tag)) {
           found = true
           break
         }
       }
       if (!found) {
+        const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
         violations.push(
-          `${spec.id}: ${spec.registrySource}:${idLine} の id 直前 3 行以内に \`/** ${widTag} */\` JSDoc が見当たらない`,
+          `${spec.id}: ${path}:${anchorLine} の anchor 直前 3 行以内に \`/** ${tag} */\` JSDoc が見当たらない`,
         )
       }
     }

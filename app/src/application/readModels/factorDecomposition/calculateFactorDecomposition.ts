@@ -37,6 +37,7 @@ export interface DecomposeInput {
  *
  * Shapley 不変条件（Σ effects = Δ sales）を runtime で検証。
  */
+/** @rm-id RM-006 */
 export function calculateFactorDecomposition(
   input: DecomposeInput,
 ): FactorDecompositionReadModelType {

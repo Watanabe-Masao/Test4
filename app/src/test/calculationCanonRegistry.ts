@@ -21,6 +21,14 @@
  * → 具体タグ (R:calculation 等) への promotion は review window 経由。
  * 詳細: projects/completed/responsibility-taxonomy-v2/HANDOFF.md Phase 6a-2 Migration Rollout
  *
+ * 2026-04-27 phased-content-specs-rollout Phase D 着手: customerGap.ts に
+ * @calc-id CALC-001 JSDoc を注入（registry の semantic 分類は不変）。後続 batch で
+ * piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate /
+ * dowGapAnalysis 等に CALC-NNN spec + @calc-id JSDoc を順次付与。Promote Ceremony
+ * (current ↔ candidate 昇格) は references/03-guides/promote-ceremony-pr-template.md
+ * で 1 PR 5 同期化を強制（runtimeStatus / 旧 spec lifecycleStatus / 新 spec lifecycleStatus /
+ * sunsetCondition / ADR）。AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard が deadline 超過を hard fail。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

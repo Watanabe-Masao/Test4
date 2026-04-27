@@ -239,6 +239,7 @@ export function toCategoryDailyRows(canonical: {
  * 3つの独立正本を並列取得し、PurchaseCostReadModel を構築・runtime 検証する。
  * QueryHandler に依存しないため、テストや直接呼び出しでも使用可能。
  */
+/** @rm-id RM-001 */
 export async function readPurchaseCost(
   conn: AsyncDuckDBConnection,
   input: PurchaseCostInput,

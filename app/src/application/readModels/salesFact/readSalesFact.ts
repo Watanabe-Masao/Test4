@@ -34,6 +34,7 @@ export interface SalesFactOutput {
  *
  * raw query 結果を受け取り、集約 + Zod parse して ReadModel を返す。
  */
+/** @rm-id RM-003 */
 export function buildSalesFactReadModel(
   daily: readonly SalesFactDailyRowType[],
   hourly: readonly SalesFactHourlyRowType[],

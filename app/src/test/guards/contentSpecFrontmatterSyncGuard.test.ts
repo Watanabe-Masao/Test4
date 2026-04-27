@@ -1,10 +1,10 @@
 /**
  * Content Spec Frontmatter Sync Guard — AR-CONTENT-SPEC-FRONTMATTER-SYNC
  *
- * Phase B scope (2026-04-27): 全 45 WID-NNN.md について、
+ * Phase C scope (2026-04-27): 全 spec (widget + read-model) について、
  * `tools/widget-specs/generate.mjs --check` を 1 回 spawn し、source AST から
  * 再生成した frontmatter が on-disk と差分なし（exit 0）であることを検証する。
- * 45 件を 1 spawn にまとめることで実行時間 ~600ms に抑える（per-WID 45 spawn は
+ * 全件を 1 spawn にまとめることで実行時間 ~1.3s に抑える（per-spec spawn は
  * 30 秒級になるため避ける）。
  *
  * 検出するもの:
@@ -29,7 +29,7 @@ import { resolve } from 'node:path'
 import { REPO_ROOT } from './contentSpecHelpers'
 
 describe('Content Spec Frontmatter Sync Guard (AR-CONTENT-SPEC-FRONTMATTER-SYNC)', () => {
-  it('全 45 WID-NNN.md について generator --check が drift 0 を報告する', () => {
+  it('全 spec (widget + read-model) について generator --check が drift 0 を報告する', () => {
     const generatorPath = resolve(REPO_ROOT, 'tools/widget-specs/generate.mjs')
     const result = spawnSync(process.execPath, [generatorPath, '--check', '--verbose'], {
       cwd: REPO_ROOT,

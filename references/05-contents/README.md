@@ -70,11 +70,14 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 | パス | 内容 | 対象 |
 |---|---|---|
 | `widgets/` | widget 仕様書（`WID-NNN.md`） | registry 登録された全 widget（45 件） |
+| `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 10 件（仕入原価 / 粗利 / 売上 / 値引き / 客数 / 要因分解 / 自由期間 3 種 / 月次前年売上）|
+| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D 着手段階で 1 件（客数 GAP）。Lifecycle State Machine + Promote Ceremony を institutionalize |
 
 将来の追加候補（decisions 不要、必要になったら増やす）:
 - `charts/` — chart component 仕様書
-- `read-models/` — 正本 readModel 仕様書
 - `query-handlers/` — QueryHandler 仕様書
+- `pipelines/` — pipeline 仕様書
+- `projections/` — projection 仕様書
 
 新サブカテゴリを追加する場合: 本 README + `doc-registry.json` categories + `references/README.md` 目次の 3 点同期。
 
