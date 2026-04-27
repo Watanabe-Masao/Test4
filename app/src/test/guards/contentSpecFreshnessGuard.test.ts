@@ -1,11 +1,11 @@
 /**
  * Content Spec Freshness Guard — AR-CONTENT-SPEC-FRESHNESS
  *
- * Phase A scope: Anchor Slice 5 widget の WID-NNN.md frontmatter について
+ * Phase B scope (2026-04-27): 全 45 WID-NNN.md frontmatter について
  * `(today - lastReviewedAt) > reviewCadenceDays` で fail、`> reviewCadenceDays * 0.8`
  * で warn（warn は console 出力のみ）。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A,
+ * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B,
  * references/05-contents/widgets/README.md §「3 軸 drift 防御 / 時間軸」。
  *
  * @taxonomyKind T:meta-guard
@@ -13,7 +13,7 @@
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAnchorSpecs } from './contentSpecHelpers'
+import { loadAllSpecs } from './contentSpecHelpers'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
@@ -26,10 +26,10 @@ function ageInDays(lastReviewedAt: string, today: Date): number {
 describe('Content Spec Freshness Guard (AR-CONTENT-SPEC-FRESHNESS)', () => {
   const today = new Date()
 
-  it('Anchor Slice 5 件の lastReviewedAt が reviewCadenceDays を超過していない', () => {
+  it('全 WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない', () => {
     const violations: string[] = []
     const warnings: string[] = []
-    for (const spec of loadAnchorSpecs()) {
+    for (const spec of loadAllSpecs()) {
       if (!spec.lastReviewedAt || spec.reviewCadenceDays == null) {
         violations.push(`${spec.id}: lastReviewedAt または reviewCadenceDays が未設定。`)
         continue

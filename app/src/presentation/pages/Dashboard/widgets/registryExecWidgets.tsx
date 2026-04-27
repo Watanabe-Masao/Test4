@@ -21,6 +21,7 @@ import {
 // Budget Simulator (①②③④ + 期間詳細モーダル) に統合済みのため撤去。
 export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
   {
+    /** @widget-id WID-008 */
     id: 'analysis-alert-panel',
     label: 'アラート',
     group: 'モニタリング',
@@ -41,6 +42,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
   },
   // ── パターン分析 ──
   {
+    /** @widget-id WID-009 */
     id: 'exec-dow-average',
     label: '曜日平均',
     group: 'トレンド分析',
@@ -48,6 +50,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     render: (ctx) => renderDowAverage(ctx),
   },
   {
+    /** @widget-id WID-010 */
     id: 'exec-weekly-summary',
     label: '週別サマリー',
     group: 'トレンド分析',
@@ -55,6 +58,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     render: (ctx) => renderWeeklySummary(ctx),
   },
   {
+    /** @widget-id WID-011 */
     id: 'exec-daily-store-sales',
     label: '売上・売変・客数（日別×店舗）',
     group: 'トレンド分析',
@@ -63,6 +67,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
     render: (ctx) => renderDailyStoreSalesTable(ctx),
   },
   {
+    /** @widget-id WID-012 */
     id: 'exec-daily-inventory',
     label: '日別推定在庫',
     group: 'トレンド分析',
@@ -71,6 +76,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
   },
   // ── 店舗別 ──
   {
+    /** @widget-id WID-013 */
     id: 'exec-store-kpi',
     label: '店舗別KPI一覧',
     group: '構造分析',
@@ -81,6 +87,7 @@ export const WIDGETS_EXEC: readonly DashboardWidgetDef[] = [
   // 注: exec-department-kpi → 部門別データ未対応のため削除
   // ── シミュレーション ──
   {
+    /** @widget-id WID-014 */
     id: 'exec-forecast-tools',
     label: '着地予測・ゴールシーク',
     group: '予測・シミュレーション',

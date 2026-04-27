@@ -36,10 +36,10 @@
 
 ## Phase B: WID 全体への拡張
 
-- [ ] 全 45 WID の source に `@widget-id` JSDoc を注入した
-- [ ] frontmatter generator を全 45 件に適用し drift = 0 を達成した
-- [ ] co-change guard を 45 件全体で active 化した
-- [ ] freshness / owner guard が 45 件全体で動作することを確認した
+- [x] 全 45 WID の source に `@widget-id` JSDoc を注入した
+- [x] frontmatter generator を全 45 件に適用し drift = 0 を達成した
+- [x] co-change guard を 45 件全体で active 化した
+- [x] freshness / owner guard が 45 件全体で動作することを確認した
 - [ ] 全 45 WID の content graph が生成された
 - [ ] 全 45 WID で Promotion Gate L4 到達を確認した
 

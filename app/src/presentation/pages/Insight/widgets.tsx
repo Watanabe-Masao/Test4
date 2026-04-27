@@ -55,6 +55,7 @@ function insightWidget(def: {
 
 export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
   insightWidget({
+    /** @widget-id WID-032 */
     id: 'insight-budget',
     label: '予算と実績',
     group: 'インサイト',
@@ -78,6 +79,7 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
     render: (ctx) => <BudgetSimulatorWidget ctx={ctx} />,
   },
   insightWidget({
+    /** @widget-id WID-034 */
     id: 'insight-gross-profit',
     label: '損益構造',
     group: 'インサイト',
@@ -87,6 +89,7 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   }),
   insightWidget({
+    /** @widget-id WID-035 */
     id: 'insight-forecast',
     label: '予測・パターン',
     group: 'インサイト',
@@ -97,6 +100,7 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
     isVisible: (ctx) => ctx.insightData.forecastData != null,
   }),
   insightWidget({
+    /** @widget-id WID-036 */
     id: 'insight-decomposition',
     label: '売上要因分解',
     group: 'インサイト',
@@ -106,6 +110,7 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
       ctx.insightData.customerData != null && ctx.insightData.forecastData != null,
   }),
   {
+    /** @widget-id WID-037 */
     id: 'insight-pi-cv-map',
     label: 'カテゴリベンチマーク',
     group: '構造分析',

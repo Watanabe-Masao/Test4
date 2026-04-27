@@ -10,16 +10,16 @@
  *
  * @responsibility R:unclassified
  */
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 export const REPO_ROOT = resolve(__dirname, '../../../..')
 export const SPECS_DIR = resolve(REPO_ROOT, 'references/05-contents/widgets')
 
 /**
- * Phase A Anchor Slice — Phase B でこの定数を「全 WID-NNN.md ファイルを
- * 自動列挙」するヘルパー呼び出しに置き換える（projects/phased-content-specs-rollout
- * §4 Phase B「全 45 WID への拡張」）。
+ * Phase A Anchor Slice — Phase B 完了後 (2026-04-27) は guard scope を全 45 WID に
+ * 拡大したため、本定数は遺贄（archived umbrella 参照や documentation 用）として
+ * 保持する。実 scope は `listAllWids()` が disk から discover する。
  */
 export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-002',
@@ -28,6 +28,17 @@ export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-033',
   'WID-040',
 ]
+
+/**
+ * `references/05-contents/widgets/WID-NNN.md` を全列挙する（Phase B scope）。
+ * Phase A は PHASE_A_ANCHOR_WIDS の 5 件、Phase B 以降は disk discovery で全 45 件。
+ */
+export function listAllWids(): readonly string[] {
+  return readdirSync(SPECS_DIR)
+    .filter((f) => /^WID-\d{3}\.md$/.test(f))
+    .map((f) => f.replace(/\.md$/, ''))
+    .sort()
+}
 
 export interface SpecFrontmatter {
   readonly id: string
@@ -132,6 +143,13 @@ export function specPath(wid: string): string {
 
 export function loadAnchorSpecs(): SpecFrontmatter[] {
   return PHASE_A_ANCHOR_WIDS.map((wid) => parseSpecFrontmatter(specPath(wid)))
+}
+
+/**
+ * 全 WID-NNN.md spec を frontmatter parse して返す（Phase B scope）。
+ */
+export function loadAllSpecs(): SpecFrontmatter[] {
+  return listAllWids().map((wid) => parseSpecFrontmatter(specPath(wid)))
 }
 
 /**

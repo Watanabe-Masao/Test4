@@ -20,6 +20,7 @@ import { ConditionSummaryEnhanced } from './ConditionSummaryEnhanced'
 export const WIDGETS_KPI: readonly DashboardWidgetDef[] = [
   // ── 予算進捗ハブ（最上位: 予算達成 + 店別ドリルダウン + 予算ヘッダ） ──
   {
+    /** @widget-id WID-001 */
     id: 'widget-budget-achievement',
     label: '店別予算達成状況',
     group: '予算進捗',

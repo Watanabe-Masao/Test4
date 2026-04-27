@@ -25,6 +25,7 @@ import { extractPrevYearCustomerCount } from '@/features/comparison'
 // ── 分析・可視化 ──
 export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   {
+    /** @widget-id WID-015 */
     id: 'analysis-waterfall',
     label: '粗利ウォーターフォール',
     group: '要因分析',
@@ -34,6 +35,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   },
   // 注: analysis-yoy-waterfall → IntegratedSalesChart の「要因分析」タブに統合
   {
+    /** @widget-id WID-016 */
     id: 'analysis-gp-heatmap',
     label: '粗利率ヒートマップ',
     group: '要因分析',
@@ -55,6 +57,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   // 注: analysis-integrated-timeline（統合タイムライン）→ 削除（PerformanceIndexChart で代替）
   // 注: analysis-duckdb-cumulative（売上進捗）→ DailySalesChart「累計」ビューに統合
   {
+    /** @widget-id WID-017 */
     id: 'analysis-customer-scatter',
     label: '客数×客単価 効率分析',
     group: 'トレンド分析',
@@ -100,6 +103,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   },
   // 注: analysis-category-pi → PerformanceIndexChart の子チャートに統合
   {
+    /** @widget-id WID-019 */
     id: 'analysis-category-pi',
     label: 'カテゴリPI値・偏差値',
     group: 'トレンド分析',
@@ -122,6 +126,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
   },
   // ── Phase 4: 統合ビュー + 研究者向け分析 ──
   {
+    /** @widget-id WID-020 */
     id: 'analysis-causal-chain',
     label: '因果チェーン分析',
     group: '要因分析',
@@ -147,6 +152,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-021 */
     id: 'analysis-sensitivity',
     label: '感度分析ダッシュボード',
     group: '予測・シミュレーション',
@@ -159,6 +165,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-022 */
     id: 'analysis-regression-insight',
     label: '回帰分析インサイト',
     group: 'トレンド分析',
@@ -168,6 +175,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-023 */
     id: 'analysis-seasonal-benchmark',
     label: '季節性ベンチマーク',
     group: 'トレンド分析',
@@ -177,6 +185,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-024 */
     id: 'analysis-duckdb-features',
     label: '売上トレンド分析',
     group: 'トレンド分析',

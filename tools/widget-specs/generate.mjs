@@ -43,11 +43,18 @@ const ts = (await import(pathToFileURL(tsModulePath).href)).default
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const args = { check: false, wid: null, verbose: false, scope: null }
+  const args = {
+    check: false,
+    wid: null,
+    verbose: false,
+    scope: null,
+    injectJsdoc: false,
+  }
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i]
     if (a === '--check') args.check = true
     else if (a === '--verbose' || a === '-v') args.verbose = true
+    else if (a === '--inject-jsdoc') args.injectJsdoc = true
     else if (a === '--wid') {
       args.wid = argv[++i]
     } else if (a.startsWith('--wid=')) {
@@ -646,6 +653,84 @@ function formatVal(v) {
 }
 
 // ---------------------------------------------------------------------------
+// JSDoc 注入: source の `id: '<defId>'` 直前に `/** @widget-id WID-NNN */` を
+// 付与する（idempotent: 既に同 WID の JSDoc があれば skip）。
+// 同一 source に複数 WID がある場合は 1 ファイル 1 回読み書きで一括処理する。
+// ---------------------------------------------------------------------------
+
+function injectJsdocAll(specFiles) {
+  const editsBySource = new Map()
+  for (const file of specFiles) {
+    const wid = file.replace(/\.md$/, '')
+    const { frontmatter } = readSpec(resolve(SPECS_DIR, file))
+    const widgetDefId = frontmatter.widgetDefId
+    const sourcePath = frontmatter.registrySource
+    if (!widgetDefId || !sourcePath) continue
+    const list = editsBySource.get(sourcePath) ?? []
+    list.push({ wid, widgetDefId })
+    editsBySource.set(sourcePath, list)
+  }
+
+  let injected = 0
+  let skipped = 0
+  for (const [sourcePath, edits] of editsBySource) {
+    const fullPath = resolve(REPO_ROOT, sourcePath)
+    if (!existsSync(fullPath)) {
+      console.error(`  ERROR source not found: ${sourcePath}`)
+      continue
+    }
+    const original = readFileSync(fullPath, 'utf-8')
+    const lines = original.split('\n')
+    // collect (lineIndex, indent, wid) for each edit; reverse-order inject to keep indices stable
+    const insertions = []
+    for (const { wid, widgetDefId } of edits) {
+      const re = new RegExp(`^(\\s*)id:\\s*['"\`]${escapeRegex(widgetDefId)}['"\`]`)
+      let foundAt = -1
+      for (let i = 0; i < lines.length; i++) {
+        const m = lines[i].match(re)
+        if (!m) continue
+        foundAt = i
+        const indent = m[1]
+        const widTag = `@widget-id ${wid}`
+        let alreadyHas = false
+        for (let j = Math.max(0, i - 4); j < i; j++) {
+          if (lines[j]?.includes(widTag)) {
+            alreadyHas = true
+            break
+          }
+        }
+        if (alreadyHas) {
+          skipped++
+        } else {
+          insertions.push({ at: i, indent, wid })
+        }
+        break
+      }
+      if (foundAt < 0) {
+        console.error(`  ERROR ${wid}: id literal not found in ${sourcePath}`)
+      }
+    }
+    if (insertions.length === 0) continue
+    // reverse order so earlier insertions don't shift later indices
+    insertions.sort((a, b) => b.at - a.at)
+    for (const ins of insertions) {
+      lines.splice(ins.at, 0, `${ins.indent}/** @widget-id ${ins.wid} */`)
+      injected++
+    }
+    writeFileSync(fullPath, lines.join('\n'))
+    console.log(
+      `INJECT ${sourcePath} (+${insertions.length})`,
+    )
+  }
+  console.log(`\n${injected} injection(s), ${skipped} already present`)
+  return { injected, skipped }
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 
@@ -656,6 +741,10 @@ function main() {
     const where = args.wid ?? (args.scope ? `scope=${args.scope}` : 'all')
     console.error(`No spec files found (${where})`)
     process.exit(2)
+  }
+  if (args.injectJsdoc) {
+    const r = injectJsdocAll(specs)
+    process.exit(0)
   }
   let totalChanged = 0
   let totalErrors = 0
