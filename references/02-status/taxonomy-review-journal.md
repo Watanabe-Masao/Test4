@@ -98,6 +98,19 @@ proposed → active → deprecated → sunsetting → retired → archived
 - v1 registry / guard 物理削除（Phase 8）+ TSIG-\* rule 物理削除（Phase 8 / Phase 9）
 - `deprecatedMetadataGuard` DM2（@expiresAt 超過検出）が本同日中に発火 → Phase 8 retirement で対象 file 物理削除により解消
 
+#### Context 前提と再評価 trigger（post-review 2026-04-27 追加、user judgment）
+
+> 本 cooling 撤廃判断は **現時点の governance context** に依存する。一般則として cooling 不要 ではなく、以下の context が変化した場合は **cooling を再活性化** する判断 trigger とする。
+
+| context 軸                | 現状値                                       | 再評価 trigger                                                              |
+| ------------------------- | -------------------------------------------- | --------------------------------------------------------------------------- |
+| Maintainer 体制           | solo (user)                                  | **team 化 (≥ 2 active maintainer)** 時に cooling 復活を検討                  |
+| Consumer scope            | internal-only (本 SPA 自身が唯一 consumer)   | **external-facing API / library 化 / 公開 SDK 化** 時に cooling 必須化      |
+| Migration verifiability   | machine-verifiable (grep + guard で全件特定可能) | **dynamic / runtime-only な consumer** 出現時に cooling 必須化              |
+| Review window cadence     | ad-hoc (本 §3.1 が初回)                      | **四半期 cadence 確立後** は cooling 復活を再検討（cadence integrity の補完）|
+
+> §3.2 改訂提案で `taxonomyContext` field を `projects/*/config/project.json` に導入することを提案中（context flag の機械化）。本提案が確定するまでは本 §3.1 の trigger 表が canonical reference。
+
 ### 3.2. 2026-Q2-2 Constitution context 改訂提案（提案中）
 
 > **位置付け**: §3.1 の cooling 撤廃を踏まえ、Constitution 原則 3「語彙生成は高コスト儀式」が **internal-only codebase での儀式的時間制約**を持つことが事後判明した問題を体系的に解消する提案。次回 review window で確定予定。
@@ -108,7 +121,8 @@ proposed → active → deprecated → sunsetting → retired → archived
 
 | 項目                | 値                                                                                                                                 |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| 提案者              | claude (AI)                                                                                                                        |
+| 提案者              | user (human reviewer / authority)                                                                                                  |
+| AI 起草補助         | claude — post-review 2026-04-27 で本 entry の文案を起草、user が提案者として採択し journal に landing                                  |
 | 提案日              | 2026-04-27                                                                                                                         |
 | 種別                | 改訂（Constitution 原則 3 + 関連 review-window §4.2 採択条件）                                                                       |
 | Why                 | 原則 3 の「高コスト儀式」が 90 日 cooling という時間制約として書かれていたが、internal-only codebase（外部 consumer 不在）では儀式的要素のみで実質的保護を持たない。§3.1 で具体的に override 経験を踏まえ、context-aware に再定義する必要がある。 |
@@ -132,6 +146,32 @@ proposed → active → deprecated → sunsetting → retired → archived
 - "internal-only" → "external-facing" 移行時の cooling 再活性化を忘れる → 移行検出 guard も併設
 
 > **次回開催予定**: 親 Phase 4 制度成立確認直後に開催予定。本改訂が確定するまでは §3.1 ad-hoc review を **暫定運用 precedent** として参照する。
+
+### 3.3. 2026-Q2-3 Promotion Gate L6 取り扱い決定（提案中、user judgment 待ち）
+
+> **位置付け**: post-review 2026-04-27 で「L6 (Health-tracked) を roadmap なしで残すのは制度負債」と指摘された問題への正式提案。実行せず human judgment のみを待つ。
+
+#### 提案中（draft）
+
+##### Promotion Gate L6 の二者択一
+
+| 項目                | 値                                                                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 提案者              | user (human reviewer / authority)                                                                                                  |
+| AI 起草補助         | claude — post-review 2026-04-27 で本 entry 文案を起草、user が提案者として journal に landing                                          |
+| 提案日              | 2026-04-27                                                                                                                         |
+| 種別                | 改訂（Constitution §6 / plan §OCS.5 Promotion Gate level 構造）                                                                     |
+| Why                 | 現在 L5 (Coverage 100% Guarded) で実運用が成立しており、L6 (Health-tracked) は **未実装 + roadmap なし** の状態。aspiration として残すと「達成していない失敗」なのか「そもそも不要だった目標」なのか曖昧化する制度負債。誠実な選択肢は (1) 最小 schema + success criteria を確定する / (2) Constitution / plan から降格・削除する のどちらか |
+| 二者択一の選択肢    | **(1) L6 最小実装**: registry V2 に `promotionFields: { healthTracked: bool }` 追加、taxonomy-collector で per-tag KPI を architecture-health.json に feed (e.g., `taxonomy.responsibility.tag.R:calculation.healthTracked: true`)。実装規模 ~50 行 / **(2) L6 削除**: Constitution §6 + plan §OCS.5 から L6 を削除、Promotion Gate を L0-L5 の 6 段階に再編。constitutionBootstrapGuard B12 + 関連文書を更新 |
+| user lean           | (2) **L6 削除** に傾倒（post-review 2026-04-27 user 言: 「今の材料だと、L6 は aspiration であって plan ではない」）|
+| 必須対応            | (1) 採択時: registry V2 schema 拡張 + collector 改修 + per-tag KPI 4 件追加 / (2) 採択時: Constitution §6 + plan §OCS.5 + B12 invariant 更新 + 関連 references の L0-L5 表記統一 |
+| Antibody Pair       | —（vocabulary 構造の改訂、新タグ追加なし）                                                                                            |
+| 推定 promotionLevel | —（Promotion Gate 自身の構造改訂）                                                                                                   |
+| Sunset 条件         | (1) 採択時: per-tag KPI が 6 ヶ月運用で実用価値 0 と判定された場合に L6 削除 / (2) 採択時: 将来 per-tag tracking が必要になった場合に新規 level として再導入（Constitution 改訂経由） |
+| 既存 entry への影響 | 親 Phase 4 OCS 稼働確認 checklist 「§OCS.5 Promotion Gate L6（Health-tracked）に全タグが到達している」を採択選択肢に応じて更新 ((1) 達成可能化 / (2) 削除) |
+| 関連 forward commit  | 親 Phase 4 残 4 forward-looking 中の 1 件「Promotion Gate L6 全タグ到達」が本提案で解消                                              |
+
+> **次回開催予定**: 親 Phase 4 制度成立確認直後に §3.2 と同 window で裁定。
 
 ---
 

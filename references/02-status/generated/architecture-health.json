@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T16:43:11.593Z",
+  "timestamp": "2026-04-27T17:12:10.201Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1180,7 +1180,7 @@
       "id": "taxonomy.test.unknownVocabulary",
       "label": "taxonomy テスト軸: unknown vocabulary 使用 test 数",
       "category": "guard",
-      "value": 0,
+      "value": 1,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
