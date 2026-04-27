@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:invariant-math
+ */
+
 import { describe, it, expect } from 'vitest'
 import { decompose2, decompose3, decompose5, decomposePriceMix } from '../factorDecomposition'
 import type { CategoryQtyAmt } from '../factorDecomposition'

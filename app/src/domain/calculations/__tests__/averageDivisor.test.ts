@@ -1,5 +1,7 @@
 /**
  * averageDivisor テスト — データ駆動型除数計算
+ *
+ * @taxonomyKind T:boundary
  */
 import { describe, it, expect } from 'vitest'
 import {

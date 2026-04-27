@@ -2,6 +2,8 @@
  * pinIntervalsWasm — normalizePinIntervalsInput / normalizePins tests
  *
  * adapter 関数の正規化動作を固定する（WASM 呼び出しは対象外）。
+ *
+ * @taxonomyKind T:fallback-path
  */
 import { describe, it, expect } from 'vitest'
 import { normalizePinIntervalsInput, normalizePins } from '../pinIntervalsWasm'

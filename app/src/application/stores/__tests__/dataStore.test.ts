@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:state-transition
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useDataStore } from '../dataStore'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'

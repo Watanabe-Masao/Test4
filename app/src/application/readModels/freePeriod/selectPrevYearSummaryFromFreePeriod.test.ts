@@ -12,6 +12,8 @@
  *
  * 本テストは 2 つの shape の構造変換が一致することを保証するもので、ランタイムの
  * データ source が一致することは保証しない (それは acceptance suite の役割)。
+ *
+ * @taxonomyKind T:null-path
  */
 import { describe, it, expect } from 'vitest'
 import {

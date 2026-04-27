@@ -3,6 +3,8 @@
  *
  * 3層マージ（レジストリ → グローバル → 店舗オーバーライド）と
  * シグナル評価（higher_better / lower_better）を検証する。
+ *
+ * @taxonomyKind T:boundary
  */
 import { describe, it, expect } from 'vitest'
 import {

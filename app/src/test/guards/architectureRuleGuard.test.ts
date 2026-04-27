@@ -7,6 +7,7 @@
  * @guard G1 テストに書く
  *
  * @responsibility R:guard
+ * @taxonomyKind T:meta-guard
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

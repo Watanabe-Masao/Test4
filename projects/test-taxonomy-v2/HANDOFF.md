@@ -5,7 +5,41 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2 完遂（2026-04-26、main 反映済）+ Phase 3 Guard 実装の v2 guard 部分完遂（2026-04-26、本 branch）。残: 統合 branch で interlock guard + AR-TAXONOMY-\* + collector + taxonomy:check 実装。**
+**Phase 0+1+2+3+3.5 完遂（main 反映済）+ Phase 4 Pilot 完遂（2026-04-27、本 branch）。Phase 5 Operations に進める状態。**
+
+> **Phase 4 で landing したもの（本 branch、Pilot 22 test）:**
+>
+> - 22 test に v2 T:kind (Anchor 6 + optional 4 + state-transition / dependency-list / unmount-path 計 12 種) を試験付与
+>   - T:unit-numerical: 2 (safeDivide / calculationRules)
+>   - T:boundary: 2 (averageDivisor / conditionResolver)
+>   - T:invariant-math (optional): 1 (factorDecomposition)
+>   - T:contract-parity: 2 (movingAverageBridge / compareUtils)
+>   - T:fallback-path (optional): 1 (pinIntervalsWasm)
+>   - T:zod-contract: 2 (readFreePeriodFact / readFreePeriodBudgetFact)
+>   - T:null-path: 1 (selectPrevYearSummaryFromFreePeriod)
+>   - T:meta-guard: 2 (architectureRuleGuard / checklistFormatGuard)
+>   - T:allowlist-integrity (optional): 1 (allowlistMetadataGuard)
+>   - T:render-shape: 1 (lazyWithRetry)
+>   - T:state-transition: 3 (dataStore / settingsStore / widgetPeriodStore)
+>   - T:dependency-list: 2 (useImport / useSettings)
+>   - T:unmount-path: 2 (usePwaInstall / useIntersectionObserver)
+> - V2-T-1 untagged baseline: 728 → 709（-19、ratchet-down）
+> - V2-T-2 unknown vocabulary: 0 (cap 維持)
+> - v2 guard 20/20 + taxonomy:check PASS
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase4-pilot`
+> **scope:** 22 test の @taxonomyKind 付与 + testTaxonomyGuardV2 baseline 更新 + HANDOFF のみ（references/ + checklist.md + 親文書 + Origin Journal + generated/ 触らず）
+
+### Phase 4 Pilot 結果
+
+| 指標                         | 値                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| Pilot test 件数              | 22 (≤ 30 cap、Anchor 6 T:kind + optional 4 + state/hook 系 3 = 12 種網羅)                        |
+| 全件 新規 v2 T:kind 付与     | 22 件 (T:kind は v2-only vocabulary、既存 test は全件 untagged から開始)                         |
+| V2-T-1 untagged ratchet-down | 728 → 709 (-19)                                                                                  |
+| V2-T-2 unknown vocab         | 0 cap 維持 (registry 未登録 T:kind の使用なし)                                                   |
+| v2 guard 状態                | 20/20 PASS (V2-R 5 + V2-T 6 + INTERLOCK 9)                                                       |
+| Schema 問題                  | 検出なし（Pilot で発見された Schema 問題は無し、registry V2 + interlock マトリクスで全件 cover） |
 
 > **Phase 3 で landing したもの（本 branch、V2-T-0〜V2-T-5）:**
 >
