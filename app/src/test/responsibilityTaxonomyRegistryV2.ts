@@ -112,7 +112,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:calculation': {
     tag: 'R:calculation',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'domain/calculations/ archetype: 純粋計算 + 数値契約 + 不変条件保持',
@@ -131,7 +131,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:bridge': {
     tag: 'R:bridge',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'current ⇔ candidate 境界（移行中の両側 keep）。Antibody Pair の archetype',
@@ -151,7 +151,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:read-model': {
     tag: 'R:read-model',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'application/readModels/ archetype: Zod parse fail fast + 欠損正常系の anchor',
@@ -169,7 +169,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:guard': {
     tag: 'R:guard',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'test/guards/ archetype: 構造制約の機械検証（meta-guard が必要な archetype）',
@@ -187,7 +187,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:presentation': {
     tag: 'R:presentation',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: '描画形状のみ・副作用なし（chart-view + widget + page + layout + form + navigation 統合）',
@@ -205,7 +205,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:store': {
     tag: 'R:store',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'state container 系の統合（Zustand / React Context / reducer / persistence の統合）',
@@ -223,7 +223,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:hook': {
     tag: 'R:hook',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'application/hooks orchestration（data-fetch + state-machine + query-plan + orchestration の統合）',
@@ -241,7 +241,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:adapter': {
     tag: 'R:adapter',
     evidenceLevel: 'asserted',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'infrastructure 境界 adapter（DuckDB / 外部 API / 永続化）',
@@ -261,7 +261,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:registry': {
     tag: 'R:registry',
     evidenceLevel: 'asserted',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'vocabulary / catalog / metadata 定義 file の archetype（responsibility-tag-registry 自身もここに属する）',
@@ -281,7 +281,7 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
   'R:unclassified': {
     tag: 'R:unclassified',
     evidenceLevel: 'reviewed',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'sentinel — review window 待ちの能動タグ（原則 1: 未分類は分類である）',

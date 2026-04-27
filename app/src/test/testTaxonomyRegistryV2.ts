@@ -123,7 +123,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:unit-numerical',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:calculation の数値契約 anchor（Anchor 6 T:kind の archetype）',
@@ -139,7 +139,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:boundary',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:calculation の境界値 anchor（Anchor 6 T:kind の archetype）',
@@ -155,7 +155,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:contract-parity',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:bridge の current⇔candidate 同一性 anchor（Anchor 6 T:kind の archetype）',
@@ -171,7 +171,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:zod-contract',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:read-model の Zod parse anchor（Anchor 6 T:kind の archetype）',
@@ -187,7 +187,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:null-path',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:read-model の欠損正常系 anchor（IO 境界の null/undefined 許容）',
@@ -204,7 +204,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:meta-guard',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:guard 自身の契約検証 anchor（Anchor 6 T:kind の archetype）',
@@ -220,7 +220,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:render-shape',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:presentation の描画形状 anchor（Anchor 6 T:kind の archetype）',
@@ -236,7 +236,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:state-transition',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:store の state 遷移網羅性 anchor',
@@ -252,7 +252,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:dependency-list',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:hook の useEffect deps 完全性 anchor',
@@ -269,7 +269,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:unmount-path',
     tier: 'primary',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:hook の unmount cleanup 完全性 anchor',
@@ -286,7 +286,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:unclassified',
     tier: 'primary',
     evidenceLevel: 'reviewed',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'sentinel — review window 待ちの能動タグ（原則 1: 未分類は分類である）',
@@ -304,7 +304,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:invariant-math',
     tier: 'optional',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:calculation の数学的不変条件検証（シャープリー恒等式・合計値整合等）',
@@ -321,7 +321,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:fallback-path',
     tier: 'optional',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:bridge の fallback 分岐到達性検証',
@@ -337,7 +337,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:allowlist-integrity',
     tier: 'optional',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:guard の allowlist データ整合性検証',
@@ -353,7 +353,7 @@ export const TEST_TAXONOMY_REGISTRY_V2: Readonly<Record<TestTaxonomyKindV2, Test
     kind: 'T:side-effect-none',
     tier: 'optional',
     evidenceLevel: 'guarded',
-    promotionLevel: 'L1',
+    promotionLevel: 'L5',
     lifecycle: 'active',
     origin: {
       why: 'R:presentation の純粋性検証（描画は副作用を持たないこと）',

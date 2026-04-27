@@ -1,5 +1,9 @@
 # 新規ページ追加チェックリスト
 
+> **2026-04-27 acknowledgement**: taxonomy-v2 子 Phase 6a-2 Migration Rollout で
+> `app/src/application/navigation/pageRegistry.ts` に `@responsibility R:unclassified`
+> を能動退避（原則 1「未分類は能動タグ」）。本チェックリストの手順 / 構造は不変。
+
 ## 手順
 
 ### 1. ViewType に追加（必須）
