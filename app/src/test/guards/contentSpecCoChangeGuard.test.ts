@@ -1,49 +1,64 @@
 /**
  * Content Spec Co-Change Guard — AR-CONTENT-SPEC-CO-CHANGE
  *
- * Phase B scope (2026-04-27, static): 全 45 WID について、frontmatter の
- * `registryLine` が source 上の実際の `id: '<widgetDefId>'` 行と一致する。
- * 一致していない = registry が変更されたのに spec の `lastVerifiedCommit` /
- * `registryLine` が更新されていない、と解釈する。
+ * Phase C scope (2026-04-27, static): 全 spec (widget + read-model) について、
+ * frontmatter の line field (widget=`registryLine` / read-model=`sourceLine`) が
+ * source 上の実 anchor 行と一致する。一致していない = source が変更されたのに
+ * spec の line / lastVerifiedCommit が更新されていない、と解釈する。
  *
- * Phase A/B は静的検証のみ（git diff を持たない）。Phase I (PR Impact Report)
+ * Phase A/B/C は静的検証のみ（git diff を持たない）。Phase I (PR Impact Report)
  * で base..HEAD diff ベースの真の co-change 検証に置き換える。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B,
- * references/05-contents/widgets/README.md §「構造軸」。
+ * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B / §Phase C,
+ * references/05-contents/{widgets,read-models}/README.md §「構造軸」。
  *
  * @taxonomyKind T:meta-guard
  *
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAllSpecs, readSourceContent, findIdLine } from './contentSpecHelpers'
+import { loadAllSpecs, readSourceContent, findIdLine, findExportLine } from './contentSpecHelpers'
 
 describe('Content Spec Co-Change Guard (AR-CONTENT-SPEC-CO-CHANGE)', () => {
-  it('全 WID-NNN.md の registryLine が source の実 id 行と一致する', () => {
+  it('全 spec の anchor 行 (registryLine / sourceLine) が source の実 anchor 行と一致する', () => {
     const violations: string[] = []
     for (const spec of loadAllSpecs()) {
       const source = readSourceContent(spec)
       if (source == null) {
-        violations.push(`${spec.id}: registrySource not found: ${spec.registrySource}`)
+        const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
+        violations.push(`${spec.id}: source not found: ${path}`)
         continue
       }
-      const actualLine = findIdLine(source, spec.widgetDefId)
+      let actualLine: number
+      let declaredLine: number
+      let anchorDesc: string
+      let path: string
+      if (spec.kind === 'widget') {
+        actualLine = findIdLine(source, spec.widgetDefId)
+        declaredLine = spec.registryLine
+        anchorDesc = `widgetDefId='${spec.widgetDefId}'`
+        path = spec.registrySource
+      } else {
+        actualLine = findExportLine(source, spec.exportName)
+        declaredLine = spec.sourceLine
+        anchorDesc = `export '${spec.exportName}'`
+        path = spec.sourceRef
+      }
       if (actualLine === 0) {
-        violations.push(`${spec.id}: widgetDefId='${spec.widgetDefId}' が source に存在しない`)
+        violations.push(`${spec.id}: ${anchorDesc} が source に存在しない (${path})`)
         continue
       }
-      if (actualLine !== spec.registryLine) {
+      if (actualLine !== declaredLine) {
         violations.push(
-          `${spec.id}: registryLine drift — frontmatter=${spec.registryLine}, actual=${actualLine}` +
-            ` (${spec.registrySource}). \`node tools/widget-specs/generate.mjs --wid ${spec.id}\` を実行して同期すること。`,
+          `${spec.id}: line drift — frontmatter=${declaredLine}, actual=${actualLine} (${path}).` +
+            ` \`node tools/widget-specs/generate.mjs\` を実行して同期すること。`,
         )
       }
     }
     expect(violations, violations.join('\n')).toEqual([])
   })
 
-  it('全 WID-NNN.md の lastVerifiedCommit が空でない', () => {
+  it('全 spec の lastVerifiedCommit が空でない', () => {
     const violations: string[] = []
     for (const spec of loadAllSpecs()) {
       if (!spec.lastVerifiedCommit || spec.lastVerifiedCommit.trim() === '') {

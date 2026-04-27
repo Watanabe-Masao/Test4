@@ -1,8 +1,9 @@
 /**
  * Content Spec Guards 共有 helper
  *
- * Phase A scope: Anchor Slice 5 件 (WID-002 / 006 / 018 / 033 / 040) のみを
- * 対象にする。Phase B で対象を 45 件に拡大する。
+ * Phase A: Anchor Slice 5 widget scope。
+ * Phase B (2026-04-27): 全 45 WID に拡大、disk discovery 化。
+ * Phase C (2026-04-27): kind=read-model を追加 (RM-NNN.md)、kind 別 dispatch 化。
  *
  * 各 guard で重複していた frontmatter 読み取り / source 検出ロジックを集約する。
  *
@@ -14,13 +15,11 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 export const REPO_ROOT = resolve(__dirname, '../../../..')
-export const SPECS_DIR = resolve(REPO_ROOT, 'references/05-contents/widgets')
+export const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+export const SPECS_WIDGETS_DIR = resolve(SPECS_BASE, 'widgets')
+export const SPECS_READ_MODELS_DIR = resolve(SPECS_BASE, 'read-models')
 
-/**
- * Phase A Anchor Slice — Phase B 完了後 (2026-04-27) は guard scope を全 45 WID に
- * 拡大したため、本定数は遺贄（archived umbrella 参照や documentation 用）として
- * 保持する。実 scope は `listAllWids()` が disk から discover する。
- */
+/** Phase A 起源の Anchor Slice 5 widget — documentation / archived umbrella 参照向けに保持。 */
 export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-002',
   'WID-006',
@@ -29,23 +28,55 @@ export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-040',
 ]
 
-/**
- * `references/05-contents/widgets/WID-NNN.md` を全列挙する（Phase B scope）。
- * Phase A は PHASE_A_ANCHOR_WIDS の 5 件、Phase B 以降は disk discovery で全 45 件。
- */
+export type SpecKind = 'widget' | 'read-model'
+
+/** id prefix から kind を推定する。未知の prefix は null。 */
+export function inferKindFromId(id: string): SpecKind | null {
+  if (/^WID-\d{3}$/.test(id)) return 'widget'
+  if (/^RM-\d{3}$/.test(id)) return 'read-model'
+  return null
+}
+
+export function specPathFor(id: string): string {
+  const kind = inferKindFromId(id)
+  if (kind === 'widget') return resolve(SPECS_WIDGETS_DIR, `${id}.md`)
+  if (kind === 'read-model') return resolve(SPECS_READ_MODELS_DIR, `${id}.md`)
+  throw new Error(`Unknown id format: ${id}`)
+}
+
 export function listAllWids(): readonly string[] {
-  return readdirSync(SPECS_DIR)
+  return readdirSync(SPECS_WIDGETS_DIR)
     .filter((f) => /^WID-\d{3}\.md$/.test(f))
     .map((f) => f.replace(/\.md$/, ''))
     .sort()
 }
 
+export function listAllReadModels(): readonly string[] {
+  if (!existsSync(SPECS_READ_MODELS_DIR)) return []
+  return readdirSync(SPECS_READ_MODELS_DIR)
+    .filter((f) => /^RM-\d{3}\.md$/.test(f))
+    .map((f) => f.replace(/\.md$/, ''))
+    .sort()
+}
+
+/** 全 kind の spec id を列挙（widget + read-model）。 */
+export function listAllSpecIds(): readonly string[] {
+  return [...listAllWids(), ...listAllReadModels()].sort()
+}
+
 export interface SpecFrontmatter {
   readonly id: string
+  readonly kind: SpecKind
+  // widget 系 field (kind=widget でのみ意味を持つ)
   readonly widgetDefId: string
   readonly registry: string
   readonly registrySource: string
   readonly registryLine: number
+  // read-model 系 field (kind=read-model でのみ意味を持つ)
+  readonly exportName: string
+  readonly sourceRef: string
+  readonly sourceLine: number
+  // 共通 field
   readonly owner: string | null
   readonly reviewCadenceDays: number | null
   readonly lastReviewedAt: string | null
@@ -53,15 +84,11 @@ export interface SpecFrontmatter {
   readonly raw: Record<string, unknown>
 }
 
-/**
- * widget spec frontmatter 専用の最小 YAML パーサ。
- * tools/widget-specs/generate.mjs と同等の subset をサポートする。
- */
-export function parseSpecFrontmatter(specPath: string): SpecFrontmatter {
-  const content = readFileSync(specPath, 'utf-8')
+export function parseSpecFrontmatter(path: string): SpecFrontmatter {
+  const content = readFileSync(path, 'utf-8')
   const m = content.match(/^---\n([\s\S]*?)\n---/)
   if (!m) {
-    throw new Error(`Invalid frontmatter in ${specPath}`)
+    throw new Error(`Invalid frontmatter in ${path}`)
   }
   const raw: Record<string, unknown> = {}
   const lines = m[1].split('\n')
@@ -110,12 +137,18 @@ export function parseSpecFrontmatter(specPath: string): SpecFrontmatter {
       i++
     }
   }
+  const idStr = String(raw.id ?? '')
+  const kind = inferKindFromId(idStr) ?? 'widget'
   return {
-    id: String(raw.id ?? ''),
+    id: idStr,
+    kind,
     widgetDefId: String(raw.widgetDefId ?? ''),
     registry: String(raw.registry ?? ''),
     registrySource: String(raw.registrySource ?? ''),
     registryLine: typeof raw.registryLine === 'number' ? raw.registryLine : 0,
+    exportName: String(raw.exportName ?? ''),
+    sourceRef: String(raw.sourceRef ?? ''),
+    sourceLine: typeof raw.sourceLine === 'number' ? raw.sourceLine : 0,
     owner: typeof raw.owner === 'string' ? raw.owner : null,
     reviewCadenceDays: typeof raw.reviewCadenceDays === 'number' ? raw.reviewCadenceDays : null,
     lastReviewedAt: typeof raw.lastReviewedAt === 'string' ? raw.lastReviewedAt : null,
@@ -137,28 +170,38 @@ function parseScalar(s: string): unknown {
   return s
 }
 
-export function specPath(wid: string): string {
-  return resolve(SPECS_DIR, `${wid}.md`)
+/** 後方互換 alias — Phase B までは widgets-only だった頃の名前。 */
+export const SPECS_DIR = SPECS_WIDGETS_DIR
+export function specPath(id: string): string {
+  return specPathFor(id)
 }
 
 export function loadAnchorSpecs(): SpecFrontmatter[] {
-  return PHASE_A_ANCHOR_WIDS.map((wid) => parseSpecFrontmatter(specPath(wid)))
+  return PHASE_A_ANCHOR_WIDS.map((id) => parseSpecFrontmatter(specPathFor(id)))
 }
 
-/**
- * 全 WID-NNN.md spec を frontmatter parse して返す（Phase B scope）。
- */
+/** 全 spec (widget + read-model) を frontmatter parse して返す。 */
 export function loadAllSpecs(): SpecFrontmatter[] {
-  return listAllWids().map((wid) => parseSpecFrontmatter(specPath(wid)))
+  return listAllSpecIds().map((id) => parseSpecFrontmatter(specPathFor(id)))
 }
 
-/**
- * source TSX 内で `id: '<widgetDefId>'` の行番号を返す（1-indexed）。
- * 見つからなければ 0。
- */
+/** source TSX/TS 内で widget id literal の行番号を返す（1-indexed）。見つからなければ 0。 */
 export function findIdLine(sourceContent: string, widgetDefId: string): number {
   const lines = sourceContent.split('\n')
   const re = new RegExp(`^\\s*id:\\s*['"\`]${escapeRegex(widgetDefId)}['"\`]`)
+  for (let i = 0; i < lines.length; i++) {
+    if (re.test(lines[i])) return i + 1
+  }
+  return 0
+}
+
+/** source TS 内で `export <kind> <name>` の行番号を返す（1-indexed）。見つからなければ 0。 */
+export function findExportLine(sourceContent: string, exportName: string): number {
+  const lines = sourceContent.split('\n')
+  const n = escapeRegex(exportName)
+  const re = new RegExp(
+    `^\\s*export\\s+(?:async\\s+)?(?:function|const|let|var|class|interface|type)\\s+${n}\\b`,
+  )
   for (let i = 0; i < lines.length; i++) {
     if (re.test(lines[i])) return i + 1
   }
@@ -169,8 +212,11 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/** spec の source ファイル (kind=widget→registrySource / kind=read-model→sourceRef) を読む。 */
 export function readSourceContent(spec: SpecFrontmatter): string | null {
-  const full = resolve(REPO_ROOT, spec.registrySource)
+  const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
+  if (!path) return null
+  const full = resolve(REPO_ROOT, path)
   if (!existsSync(full)) return null
   return readFileSync(full, 'utf-8')
 }

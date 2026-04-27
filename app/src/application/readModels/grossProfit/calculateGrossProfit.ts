@@ -23,6 +23,7 @@ import {
  * method と inclusionMode に応じて適切な計算を行い、
  * Zod parse で runtime 検証する（fail fast）。
  */
+/** @rm-id RM-002 */
 export function calculateGrossProfit(input: GrossProfitInput): GrossProfitReadModelType {
   const { method, inclusionMode } = input
 
