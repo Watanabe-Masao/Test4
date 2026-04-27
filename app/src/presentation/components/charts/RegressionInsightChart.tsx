@@ -1,6 +1,6 @@
 /**
  * 回帰分析インサイトチャート (ECharts)
- * @responsibility R:chart-view
+ * @responsibility R:presentation
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'

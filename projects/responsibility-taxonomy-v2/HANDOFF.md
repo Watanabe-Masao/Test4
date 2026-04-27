@@ -5,7 +5,34 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4 完遂（main 反映済）+ Phase 5 Operations 軸別正本起草完遂（2026-04-27、本 branch）。残 impact CLI 動作確認 + PR template 改変は統合 branch 担当。**
+**Phase 0+1+2+3+3.5+4+5 完遂（main 反映済）+ Phase 6a-1 v1 guard relaxation 完遂（2026-04-27、本 branch）。Phase 6a-2 mass tagging に進める状態。**
+
+> **Phase 6a-1 で landing したもの（本 branch、v1/v2 並行運用 unblock）:**
+>
+> - `app/src/test/responsibilityTagRegistry.ts` — `VALID_TAGS` に v2 vocabulary 10 件を追加（v1 guard が v2 タグを「不正タグ」誤検出しないように）
+> - Phase 4 Pilot で revert した 4 file を v2 タグ付きで再 add:
+>   - `app/src/application/hooks/useDailyPageData.ts` — untagged → `R:hook`
+>   - `app/src/application/hooks/usePersistence.ts` — untagged → `R:hook`
+>   - `app/src/presentation/components/charts/DowPatternChart.tsx` — `R:chart-view` → `R:presentation`
+>   - `app/src/presentation/components/charts/RegressionInsightChart.tsx` — `R:chart-view` → `R:presentation`
+> - V2-R-1 untagged baseline: 1043 → 1041（-2、ratchet-down）
+> - V2-R-2 unknown vocab baseline: 270 → 268（-2、ratchet-down）
+> - v1 guard 4/4 + v2 guard 5/5 + interlock 9/9 + 全 833 test PASS（v1/v2 並行運用が機械検証された）
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase6a-prep`
+> **scope:** v1 registry の VALID_TAGS 拡張 + Phase 4 revert 4 file の re-add + v2 baseline ratchet-down + 本 HANDOFF（mass tagging は Phase 6a-2 別 PR）
+
+### Phase 6a-1 設計結果
+
+| 指標                                | 値                                                                  |
+| ----------------------------------- | ------------------------------------------------------------------- |
+| v1 VALID_TAGS 拡張                  | v1 vocab 20 → v1 + v2 vocab 28（R:calculation / R:adapter は co-existence、Phase 7 で v1 側撤去）|
+| Phase 4 revert 4 file re-add        | 全件 v2 タグ付与成功（v1 guard が「不正タグ」検出せず PASS）        |
+| V2-R-1 ratchet-down                 | 1043 → 1041（-2: useDailyPageData / usePersistence の R:hook 付与）|
+| V2-R-2 ratchet-down                 | 270 → 268（-2: 2 chart の R:chart-view → R:presentation 置換）     |
+| v1/v2 並行運用検証                  | v1 guard 4/4 PASS + v2 guard 5/5 PASS + interlock 9/9 PASS          |
+| 全 test:guards                      | 833/833 PASS                                                        |
+| Phase 6a-2 影響範囲                 | 残 untagged R: file 1041 件 → 全件 R:unclassified 一括退避が可能化  |
 
 > **Phase 5 で landing したもの（本 branch、責務軸 operations 起草）:**
 >

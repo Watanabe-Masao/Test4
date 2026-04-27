@@ -151,7 +151,7 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
  * v1 → v2 一斉移行を v1 guard retirement と同時に実施）。Pilot で減算したのは
  * v1 TARGET_DIRS 外の 12 file (1055 → 1043 = -12)。
  */
-const UNTAGGED_BASELINE_V2 = 1043
+const UNTAGGED_BASELINE_V2 = 1041
 
 /**
  * v2 unknown vocabulary baseline (Phase 3 実測値: 270 → Phase 4 Pilot 一時 268 → conflict revert で 270 維持)
@@ -165,7 +165,7 @@ const UNTAGGED_BASELINE_V2 = 1043
  * 減少方向のみ許可（ratchet-down）。Phase 6 で v1 → v2 一括変換し baseline = 0 到達 →
  * Phase 8 で v1 guard retirement。
  */
-const UNKNOWN_VOCABULARY_BASELINE_V2 = 270
+const UNKNOWN_VOCABULARY_BASELINE_V2 = 268
 
 // ─── tests ─────────────────────────────────────────
 

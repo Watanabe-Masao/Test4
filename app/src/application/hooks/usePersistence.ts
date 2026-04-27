@@ -2,6 +2,8 @@
  * データ永続化フック — state/command 分離。
  * usePersistenceState(): readonly / usePersistence(): 既存互換 façade。
  * 復元状態の正本は PersistenceContext（PersistenceProvider が管理）。
+ *
+ * @responsibility R:hook
  */
 import { useCallback, useContext, useState } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
