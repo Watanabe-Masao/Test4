@@ -30,7 +30,7 @@
     "health:pr-comment": "npx tsx ../tools/architecture-health/src/main.ts --pr-comment",
     "docs:generate": "npx tsx ../tools/architecture-health/src/main.ts",
     "docs:check": "npx tsx ../tools/architecture-health/src/docs-check.ts",
-    "taxonomy:check": "vitest run src/test/guards/responsibilityTagGuardV2.test.ts src/test/guards/testTaxonomyGuardV2.test.ts src/test/guards/taxonomyInterlockGuard.test.ts",
+    "taxonomy:check": "vitest run src/test/guards/responsibilityTagGuardV2.test.ts src/test/guards/testTaxonomyGuardV2.test.ts src/test/guards/taxonomyInterlockGuard.test.ts src/test/guards/taxonomyV1V2GapGuard.test.ts",
     "taxonomy:impact": "npx tsx ../tools/scripts/taxonomy-impact.ts",
     "verify:project": "node scripts/verify-project-switch.mjs"
   },

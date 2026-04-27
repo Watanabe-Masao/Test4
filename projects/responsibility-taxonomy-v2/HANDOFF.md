@@ -5,7 +5,38 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5+6a-1 完遂（main 反映済）+ Phase 6a-2 Mass Migration 完遂（2026-04-27、本 branch）。Phase 6 主要ゴール達成、残 Phase 6b/6c は別 PR。**
+**Phase 0+1+2+3+3.5+4+5+6a-1+6a-2 完遂（main 反映済）+ Phase 6b/6c 完遂（2026-04-27、本 branch）。Phase 6 全主要 deliverable 完了、Phase 7 v1 Deprecation に進める状態。**
+
+> **Phase 6b/6c で landing したもの（本 branch、v1/v2 gap 検証 + Promotion Gate L5）:**
+>
+> - `app/src/test/guards/taxonomyV1V2GapGuard.test.ts` — v1/v2 gap 検証 guard 新設（4 tests PASS）
+>   - GAP-R-0: smoke
+>   - GAP-R-1: v1-only tagged file ratchet-down (baseline=259、Phase 7 で 0 化目標)
+>   - GAP-R-2: v2-only 分布情報出力 (現在 407 件、大半が R:unclassified)
+>   - GAP-R-3: 両軸 co-existence + 分布全体サマリ
+> - v1 guard `responsibilityTagGuard.test.ts` の `UNCLASSIFIED_BASELINE` 401 → 0 ratchet-down（Phase 6a-2 mass-tagging で全 file が分類済）
+> - `tools/architecture-health/src/collectors/taxonomy-collector.ts` に新 KPI `taxonomy.responsibility.v1OnlyFiles` 追加（GAP-R-1 と同期、Phase 7 で 0 到達追跡）
+> - `responsibilityTaxonomyRegistryV2.ts` の全 10 R:tag を `promotionLevel: L1` → `L5` 一斉 bump（Coverage 100% 達成 → §OCS.5 Promotion Gate L5 Guarded）
+> - `app/package.json` の `taxonomy:check` script に新 guard 追加（v2 guard 5 + V2-T 6 + interlock 9 + gap 4 = 24 tests）
+> - `references/03-guides/guard-test-map.md` に新 guard entry 登録
+> - `references/03-guides/duckdb-data-loading-sequence.md` + `new-page-checklist.md` に Phase 6a-2 acknowledgement 追記（obligation 解消）
+>
+> **作業 branch:** `claude/taxonomy-v2-phase6bc-gap-promotion`
+> **scope:** v1/v2 gap guard 新設 + v1 baseline ratchet + KPI 追加 + Promotion Gate L5 一斉 bump + 2 obligation 解消 + 本 HANDOFF（Phase 7 v1 Deprecation は別 PR）
+
+### Phase 6b/6c 設計結果
+
+| 指標                                  | 値                                                                |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| 新設 guard                            | `taxonomyV1V2GapGuard.test.ts` (4 tests PASS)                     |
+| GAP-R-1 baseline                      | 259（v1-only tagged file、Phase 7 v1 deprecation で 0 化目標）    |
+| v1 UNCLASSIFIED_BASELINE              | 401 → 0 ratchet-down                                              |
+| 新設 KPI                              | `taxonomy.responsibility.v1OnlyFiles` (architecture-health.json feed) |
+| Promotion Gate 達成                   | 全 10 R:tag が L1 → L5（Coverage 100% Guarded）                  |
+| `taxonomy:check` 実行範囲             | 5 + 6 + 9 + 4 = 24 tests (Phase 6b 追加で +4)                     |
+| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 + docs:check PASS      |
+
+> **Phase 6a-2 で landing したもの（本 branch、coverage 100% 達成）:**
 
 > **Phase 6a-2 で landing したもの（本 branch、coverage 100% 達成）:**
 >

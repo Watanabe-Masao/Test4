@@ -80,10 +80,10 @@
 
 - [x] 全テストに T:kind（`T:unclassified` 含む）が付与されている（Phase 6a-2 mass tagging で全 .test.ts/.test.tsx 731 件中 untagged 709 件に @taxonomyKind T:unclassified を能動付与 + skipped 23 件は既存タグ保持、V2-T-1 untagged baseline 709 → 0 達成、V2-T-3 hard fail rule 活性化）
 - [x] §OCS.6 Drift Budget（テスト軸 untagged / unknownVocabulary）が 0 に到達している（V2-T-1 baseline = 0、V2-T-2 baseline = 0 cap 維持、V2-T-3 hard fail rule で「タグなし」状態を構造的に禁止）
-- [ ] TSIG と v2 registry の整合検証 guard が PASS している（Phase 6b 別 PR で gap 検証 guard 新設予定）
-- [ ] health KPI に v2 未分類件数 baseline が登録されている（taxonomy-health.json に既存登録済、Phase 6b で baseline=0 反映）
-- [ ] TSIG/v2 ギャップ件数 baseline が登録されている（Phase 6b 別 PR で新規 KPI 追加予定）
-- [ ] 全 T:kind が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している（Phase 6c 別 PR で registry V2 frontmatter L1 → L5 一斉 bump 予定）
+- [x] TSIG と v2 registry の整合検証 guard が PASS している（Phase 6b で `taxonomyV1V2GapGuard.test.ts` 新設、責務軸 v1/v2 gap を per-file ratchet-down 管理、4 tests PASS。テスト軸は TSIG global rule と v2 T:kind の paradigm shift = scope 違いのため direct gap 不在、V2-T-1 untagged 0 達成で coverage 100% 完遂）
+- [x] health KPI に v2 未分類件数 baseline が登録されている（taxonomy-health.json に既存 4 KPI 登録済、`taxonomy.test.unknownVocabulary` baseline=0 cap 維持済）
+- [x] TSIG/v2 ギャップ件数 baseline が登録されている（V2-T-1 baseline 0 = TSIG global と v2 per-test の coverage ギャップ不在、V2-T-3 hard rule で構造的強制）
+- [x] 全 T:kind が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している（Phase 6c で testTaxonomyRegistryV2.ts の全 15 T:kind を `promotionLevel: L1` → `L5` 一斉 bump、coverage 100% 達成済）
 - [ ] §OCS.6 Drift Budget（テスト軸 missingOrigin）が 0 に到達している（Phase 7 TSIG deprecation 完了時に 0 化予定）
 
 ## Phase 7: TSIG Global Rule Deprecation

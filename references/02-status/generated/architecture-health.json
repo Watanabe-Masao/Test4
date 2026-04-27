@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T08:51:24.166Z",
+  "timestamp": "2026-04-27T09:53:31.782Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 105,
+      "value": 106,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -356,6 +356,7 @@
         "app/src/test/guards/structuralConventionGuard.test.ts",
         "app/src/test/guards/subprojectParentGuard.test.ts",
         "app/src/test/guards/taxonomyInterlockGuard.test.ts",
+        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
         "app/src/test/guards/testContractGuard.test.ts",
@@ -1025,7 +1026,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 839,
+      "value": 847,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1235,11 +1236,35 @@
       "implRefs": [
         "app/src/test/testTaxonomyRegistryV2.ts"
       ]
+    },
+    {
+      "id": "taxonomy.responsibility.v1OnlyFiles",
+      "label": "taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし）",
+      "category": "guard",
+      "value": 259,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "projects/taxonomy-v2/plan.md"
+        },
+        {
+          "kind": "definition",
+          "path": "references/03-guides/responsibility-v1-to-v2-migration-map.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
+        "app/src/test/responsibilityTagRegistry.ts",
+        "app/src/test/responsibilityTaxonomyRegistryV2.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 48,
-    "ok": 48,
+    "totalKpis": 49,
+    "ok": 49,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

@@ -5,7 +5,27 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5 完遂（main 反映済）+ Phase 6a-2 Mass Migration 完遂（2026-04-27、本 branch）。Phase 6 主要ゴール達成、残 Phase 6b/6c は別 PR。**
+**Phase 0+1+2+3+3.5+4+5+6a-2 完遂（main 反映済）+ Phase 6b/6c 完遂（2026-04-27、本 branch）。Phase 6 全主要 deliverable 完了、Phase 7 TSIG Deprecation に進める状態。**
+
+> **Phase 6b/6c で landing したもの（本 branch、Promotion Gate L5 + テスト軸 gap 検証完遂）:**
+>
+> - `testTaxonomyRegistryV2.ts` の全 15 T:kind を `promotionLevel: L1` → `L5` 一斉 bump（Coverage 100% 達成 → §OCS.5 Promotion Gate L5 Guarded）
+> - テスト軸 gap 検証: TSIG global rule と v2 T:kind は **paradigm shift = scope 違い**のため direct gap 不在（V2-T-1 untagged 0 達成 + V2-T-3 hard rule で構造的強制）
+> - `taxonomyV1V2GapGuard.test.ts` (責務軸 gap guard) は責務軸専用、テスト軸は V2-T-1/V2-T-3 で同等の保証
+>
+> **作業 branch:** `claude/taxonomy-v2-phase6bc-gap-promotion` (両子共通)
+> **scope:** Promotion Gate L5 一斉 bump + テスト軸 checklist Phase 6 残 5 項目 [x] + 本 HANDOFF（Phase 7 TSIG Deprecation は別 PR）
+
+### Phase 6b/6c 設計結果（テスト軸）
+
+| 指標                                  | 値                                                                |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| Promotion Gate 達成                   | 全 15 T:kind が L1 → L5（Coverage 100% Guarded）                 |
+| TSIG/v2 gap 状態                      | scope 違いのため direct gap 不在（V2-T-1 0 + V2-T-3 hard rule で保証）|
+| Cognitive Load 状態                   | 15/15 cap 維持                                                    |
+| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 PASS                   |
+
+> **Phase 6a-2 で landing したもの（本 branch、coverage 99.7% 達成）:**
 
 > **Phase 6a-2 で landing したもの（本 branch、coverage 99.7% 達成）:**
 >

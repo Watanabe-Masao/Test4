@@ -60,7 +60,9 @@ describe('G8-R: 責務タグカバレッジ', () => {
   // ── ratchet-down ベースライン ──
   // 実測値がこれより減ったら、この数字を下げてコミットする。
   // 増えたら CI 失敗。放置しても悪化しない。
-  const UNCLASSIFIED_BASELINE = 401
+  // taxonomy-v2 子 Phase 6a-2 mass-tagging で全 file に @responsibility R:* (R:unclassified
+  // 含む) が付与され、v1 UNCLASSIFIED 401 → 0 達成。Phase 8 で v1 guard retirement 予定。
+  const UNCLASSIFIED_BASELINE = 0
   // 48 → 50: budget-achievement-simulator の DrilldownPanel (457行) と
   // RemainingInputPanel (357行) を追加。Phase 3.6 で分割予定。
   const TAG_MISMATCH_BASELINE = 50

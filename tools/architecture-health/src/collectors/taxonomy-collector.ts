@@ -23,9 +23,59 @@
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts
  * @see app/src/test/testTaxonomyRegistryV2.ts
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import type { HealthKpi } from "../types.js";
+
+/**
+ * v1/v2 ギャップ集計（Phase 6b 追加）。v1 TARGET_DIRS scope 内で v1-only 分類の
+ * file 数を返す。Phase 7 v1 deprecation までに 0 化目標。
+ */
+function countV1OnlyFiles(repoRoot: string): { v1Only: number; v2Only: number; both: number; total: number } {
+  const SRC = resolve(repoRoot, "app/src");
+  const V1_DIRS = [
+    "application/hooks",
+    "presentation/components",
+    "presentation/pages",
+    "presentation/hooks",
+    "features",
+  ];
+  const V1_ONLY_VOCAB = new Set([
+    "R:query-plan", "R:query-exec", "R:data-fetch", "R:state-machine", "R:transform",
+    "R:orchestration", "R:chart-view", "R:chart-option", "R:page", "R:widget", "R:form",
+    "R:navigation", "R:persistence", "R:context", "R:layout", "R:utility", "R:reducer", "R:barrel",
+  ]);
+  const V2_VOCAB = new Set([
+    "R:calculation", "R:bridge", "R:read-model", "R:guard", "R:presentation",
+    "R:store", "R:hook", "R:adapter", "R:registry", "R:unclassified",
+  ]);
+  let v1Only = 0, v2Only = 0, both = 0, total = 0;
+  function walk(dir: string): void {
+    let es: string[];
+    try { es = readdirSync(dir); } catch { return; }
+    for (const e of es) {
+      const p = join(dir, e);
+      let st;
+      try { st = statSync(p); } catch { continue; }
+      if (st.isDirectory()) { walk(p); continue; }
+      if (!p.endsWith(".ts") && !p.endsWith(".tsx")) continue;
+      if (p.includes(".test.") || p.includes(".stories.") || p.includes(".styles.") || p.includes("__tests__")) continue;
+      if (p.endsWith("/index.ts") || p.endsWith("/index.tsx")) continue;
+      total++;
+      const c = readFileSync(p, "utf-8");
+      const m = c.match(/@responsibility\s+(.+)/);
+      if (!m) continue;
+      const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
+      const hasV1 = tags.some((t) => V1_ONLY_VOCAB.has(t));
+      const hasV2 = tags.some((t) => V2_VOCAB.has(t));
+      if (hasV1 && !hasV2) v1Only++;
+      else if (!hasV1 && hasV2) v2Only++;
+      else if (hasV1 && hasV2) both++;
+    }
+  }
+  for (const d of V1_DIRS) walk(resolve(SRC, d));
+  return { v1Only, v2Only, both, total };
+}
 
 interface TaxonomySummary {
   readonly schemaVersion: string;
@@ -312,6 +362,28 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
       owner: "documentation-steward",
       docRefs: [{ kind: "definition", path: "projects/taxonomy-v2/plan.md" }],
       implRefs: ["app/src/test/testTaxonomyRegistryV2.ts"],
+    },
+    // Phase 6b 追加: v1/v2 ギャップ KPI（Phase 7 v1 deprecation までに 0 化目標）
+    {
+      id: "taxonomy.responsibility.v1OnlyFiles",
+      label: "taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし）",
+      category: "guard",
+      value: countV1OnlyFiles(repoRoot).v1Only,
+      unit: "count",
+      status: "ok", // observation only、Phase 7 で 0 到達目標
+      owner: "documentation-steward",
+      docRefs: [
+        { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
+        {
+          kind: "definition",
+          path: "references/03-guides/responsibility-v1-to-v2-migration-map.md",
+        },
+      ],
+      implRefs: [
+        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
+        "app/src/test/responsibilityTagRegistry.ts",
+        "app/src/test/responsibilityTaxonomyRegistryV2.ts",
+      ],
     },
   ];
 }
