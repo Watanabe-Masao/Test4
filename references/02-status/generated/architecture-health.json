@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T00:06:13.415Z",
+  "timestamp": "2026-04-27T01:09:52.424Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -397,7 +397,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 148,
+      "value": 155,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -415,7 +415,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 73,
+      "value": 78,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -426,7 +426,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 54,
+      "value": 56,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -616,7 +616,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 148,
+      "value": 155,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -635,7 +635,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 17,
+      "value": 24,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -668,7 +668,7 @@
       "id": "temporal.rules.heuristicGate.count",
       "label": "heuristic + gate ルール数",
       "category": "guard",
-      "value": 32,
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -718,7 +718,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 85,
+      "value": 92,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -1025,7 +1025,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 797,
+      "value": 815,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1153,11 +1153,89 @@
       "implRefs": [
         "app/src/test/guards/testContractGuard.test.ts"
       ]
+    },
+    {
+      "id": "taxonomy.responsibility.unknownVocabulary",
+      "label": "taxonomy 責務軸: unknown vocabulary 使用 file 数",
+      "value": 20,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "projects/taxonomy-v2/plan.md"
+        },
+        {
+          "kind": "spec",
+          "path": "references/01-principles/responsibility-taxonomy-schema.md"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/taxonomy-collector.ts",
+        "app/src/test/guards/responsibilityTagGuardV2.test.ts"
+      ]
+    },
+    {
+      "id": "taxonomy.test.unknownVocabulary",
+      "label": "taxonomy テスト軸: unknown vocabulary 使用 test 数",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "projects/taxonomy-v2/plan.md"
+        },
+        {
+          "kind": "spec",
+          "path": "references/01-principles/test-taxonomy-schema.md"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/taxonomy-collector.ts",
+        "app/src/test/guards/testTaxonomyGuardV2.test.ts"
+      ]
+    },
+    {
+      "id": "taxonomy.vocabulary.responsibilityCount",
+      "label": "taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap)",
+      "value": 10,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "projects/taxonomy-v2/plan.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/responsibilityTaxonomyRegistryV2.ts"
+      ]
+    },
+    {
+      "id": "taxonomy.vocabulary.testCount",
+      "label": "taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap)",
+      "value": 15,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "projects/taxonomy-v2/plan.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/testTaxonomyRegistryV2.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 44,
-    "ok": 44,
+    "totalKpis": 48,
+    "ok": 48,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

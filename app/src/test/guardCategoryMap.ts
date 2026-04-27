@@ -573,4 +573,41 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'execution',
     note: 'core-rule: is_prev_year 列を持つテーブルへの DELETE/UPDATE でスコープ条件を必須化',
   },
+
+  // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
+  'AR-TAXONOMY-NO-UNTAGGED': {
+    category: 'registry-integrity',
+    layer: 'constitution',
+    note: 'core-rule: 原則 1（未分類は分類である）の機械的強制 — タグなし禁止、R:unclassified / T:unclassified は能動タグとして許可',
+  },
+  'AR-TAXONOMY-KNOWN-VOCABULARY': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: 原則 3（語彙生成は高コスト儀式）の機械的強制 — registry V2 未登録 vocabulary の使用禁止',
+  },
+  'AR-TAXONOMY-ONE-TAG-ONE-AXIS': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: 原則 2（1 タグ = 1 軸）の機械的強制 — 責務 × 純粋性 × 層を 1 タグに混在させない',
+  },
+  'AR-TAXONOMY-INTERLOCK': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: 原則 4（Tag ↔ Test は双方向契約）の機械的強制 — R:tag が指定する requiredTKinds を持つ test の存在を強制',
+  },
+  'AR-TAXONOMY-ORIGIN-REQUIRED': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: 原則 5（Origin は記録する）の機械的強制 — 全 R:tag / T:kind に why/when/who/sunsetCondition の Origin metadata を必須化',
+  },
+  'AR-TAXONOMY-COGNITIVE-LOAD': {
+    category: 'registry-integrity',
+    layer: 'constitution',
+    note: 'core-rule: 原則 7（Cognitive Load Ceiling）の機械的強制 — 軸ごとの vocabulary 数 ≤ 15',
+  },
+  'AR-TAXONOMY-AI-VOCABULARY-BINDING': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: 原則 3 + 8 昇華メカニズム #7 — AI による review window 外の新 vocabulary 追加を block',
+  },
 } as const

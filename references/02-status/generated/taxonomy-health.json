@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0",
+  "schemaSource": "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
+  "generatedAt": "2026-04-27T01:09:52.423Z",
+  "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
+  "taxonomy": {
+    "responsibility": {
+      "totalTargets": 1370,
+      "tagged": 315,
+      "untagged": 1055,
+      "inAnchorSlice": 299,
+      "anchorBreakdown": {
+        "R:bridge": 16,
+        "R:calculation": 38,
+        "R:guard": 102,
+        "R:presentation": 112,
+        "R:read-model": 31
+      },
+      "unknownVocabulary": 20,
+      "missingOrigin": 1370,
+      "tagDistribution": {
+        "untagged": 1055,
+        "R:chart-view": 59,
+        "R:utility": 48,
+        "R:widget": 26,
+        "R:calculation": 25,
+        "R:transform": 18,
+        "R:query-exec": 17,
+        "R:query-plan": 17,
+        "unknown:R:guard": 16,
+        "R:orchestration": 13,
+        "R:form": 12,
+        "R:context": 12,
+        "R:chart-option": 12,
+        "R:state-machine": 10,
+        "R:layout": 6,
+        "R:barrel": 5,
+        "R:adapter": 4,
+        "unknown:R:model": 3,
+        "R:persistence": 2,
+        "R:reducer": 2,
+        "R:widget+R:state-machine": 2,
+        "unknown:R:selector": 1,
+        "R:state-machine+R:persistence": 1,
+        "R:widget+R:transform": 1,
+        "R:page+R:data-fetch+R:state-machine": 1,
+        "R:chart-view+R:state-machine": 1,
+        "タグによるファイル分類の強制": 1
+      }
+    },
+    "test": {
+      "totalTargets": 728,
+      "tagged": 0,
+      "untagged": 728,
+      "inAnchorSlice": 206,
+      "anchorBreakdown": {
+        "T:boundary": 5,
+        "T:contract-parity": 20,
+        "T:meta-guard": 102,
+        "T:render-shape": 34,
+        "T:unit-numerical": 23,
+        "T:zod-contract": 22
+      },
+      "unknownVocabulary": 0,
+      "missingOrigin": 728
+    },
+    "vocabulary": {
+      "responsibilityCount": 10,
+      "testCount": 15,
+      "cognitiveLoadCeiling": 15,
+      "responsibilityOverCeiling": false,
+      "testOverCeiling": false
+    }
+  }
+}

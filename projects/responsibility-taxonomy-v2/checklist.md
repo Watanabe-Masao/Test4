@@ -47,21 +47,19 @@
 
 ### AR-TAXONOMY-_ rule active 化（責務軸側、親 plan.md §AR-TAXONOMY-_）
 
-> **Phase 3.5 / Phase 4 deliverable** — AR rule の base-rules.ts 登録 + collector 実装は Phase 3 統合 branch の scope 外（規模大）。本 Phase 3 では interlock guard / 個別 guard で機能的に検出可能な状態に到達。AR rule 登録は別 PR で実施。
-
-- [ ] `AR-TAXONOMY-NO-UNTAGGED` を responsibility 軸で active 化（baseline=current 値）
-- [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` を responsibility 軸で active 化
-- [ ] `AR-TAXONOMY-ONE-TAG-ONE-AXIS` を responsibility 軸で active 化
-- [ ] `AR-TAXONOMY-INTERLOCK` の責務軸側（R:tag → required T:kind 検証）を active 化
-- [ ] `AR-TAXONOMY-ORIGIN-REQUIRED` を responsibility 軸で active 化
-- [ ] `AR-TAXONOMY-COGNITIVE-LOAD` を responsibility 軸で active 化（ceiling=15）
-- [ ] `AR-TAXONOMY-AI-VOCABULARY-BINDING` を responsibility 軸で active 化
+- [x] `AR-TAXONOMY-NO-UNTAGGED` を responsibility 軸で active 化（baseline=current 値）（Phase 3.5 統合 branch 2026-04-27 で base-rules.ts に登録、guardCategoryMap + executionOverlay + reviewPolicy 追加、検出は responsibilityTagGuardV2 V2-R-1 が担う、baseline=1055）
+- [x] `AR-TAXONOMY-KNOWN-VOCABULARY` を responsibility 軸で active 化（Phase 3.5 統合 branch 2026-04-27、検出は V2-R-2 が担う、baseline=270）
+- [x] `AR-TAXONOMY-ONE-TAG-ONE-AXIS` を responsibility 軸で active 化（Phase 3.5 統合 branch 2026-04-27、軸 namespace 分離は registry V2 + guardCategoryMap で構造的強制）
+- [x] `AR-TAXONOMY-INTERLOCK` の責務軸側（R:tag → required T:kind 検証）を active 化（Phase 3.5 統合 branch 2026-04-27、検出は taxonomyInterlockGuard INTERLOCK-1a が担う）
+- [x] `AR-TAXONOMY-ORIGIN-REQUIRED` を responsibility 軸で active 化（Phase 3.5 統合 branch 2026-04-27、registry V2 の TypeScript 型システムで Origin field を required 強制）
+- [x] `AR-TAXONOMY-COGNITIVE-LOAD` を responsibility 軸で active 化（ceiling=15）（Phase 3.5 統合 branch 2026-04-27、検出は V2-R-4 + INTERLOCK-3 が担う、現状 10/15）
+- [x] `AR-TAXONOMY-AI-VOCABULARY-BINDING` を responsibility 軸で active 化（Phase 3.5 統合 branch 2026-04-27、CLAUDE.md §taxonomy-binding + review-window §9 で AI 制約明文化）
 
 ### Anchor Slice 保証経路完成（親 §OCS.7 段階 1）
 
 - [x] Anchor Slice 5 R:tag が §OCS.5 Promotion Gate L4（Guarded）に到達している（INTERLOCK-2a で Anchor Slice 5 R:tag が registry V2 に Anchor として登録されていることを検証 + V2-R-1/V2-R-2 で対象 file の guard 監視が active）
-- [ ] taxonomy-health.json collector の責務軸側 fields が出力されている（**Phase 3.5 / Phase 4 deliverable**、collector 実装は別 PR で実施）
-- [ ] `npm run taxonomy:check` の責務軸側が PASS する（**Phase 3.5 / Phase 4 deliverable**、CLI script は別 PR で実施）
+- [x] taxonomy-health.json collector の責務軸側 fields が出力されている（Phase 3.5 統合 branch 2026-04-27 で `tools/architecture-health/src/collectors/taxonomy-collector.ts` 新設、`references/02-status/generated/taxonomy-health.json` に taxonomy.responsibility.\* fields 出力、KPI 4 件 architecture-health に feed）
+- [x] `npm run taxonomy:check` の責務軸側が PASS する（Phase 3.5 統合 branch 2026-04-27、責務軸 5 tests + interlock 9 tests = 14 件 PASS）
 
 ## Phase 4: Pilot
 

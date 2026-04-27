@@ -678,4 +678,33 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'small', priority: 1 },
   },
+  // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
+  'AR-TAXONOMY-NO-UNTAGGED': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'medium', priority: 3 },
+  },
+  'AR-TAXONOMY-KNOWN-VOCABULARY': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+  },
+  'AR-TAXONOMY-ONE-TAG-ONE-AXIS': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
+  'AR-TAXONOMY-INTERLOCK': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'medium', priority: 2 },
+  },
+  'AR-TAXONOMY-ORIGIN-REQUIRED': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
+  'AR-TAXONOMY-COGNITIVE-LOAD': {
+    fixNow: 'now',
+    executionPlan: { effort: 'medium', priority: 2 },
+  },
+  'AR-TAXONOMY-AI-VOCABULARY-BINDING': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
 }
