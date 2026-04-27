@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-27T00:06:13.415Z
+> Generated: 2026-04-27T01:09:52.424Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 44 |
-| OK | 44 |
+| Total KPIs | 48 |
+| OK | 48 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -53,15 +53,15 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 105 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 148 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 73 | OK |
-| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 54 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 155 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 78 | OK |
+| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 56 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 148 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 17 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 155 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 24 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
-| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 32 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 85 | OK |
+| temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 0 / 32 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 92 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 
 ## ドキュメント整合
@@ -79,7 +79,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 995 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 797 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 815 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
@@ -92,6 +92,15 @@
 | perf.bundle.mainJsKb | メインバンドルサイズ | 2386 / 2500 | OK |
 | perf.bundle.vendorEchartsKb | ECharts バンドルサイズ | 919 / 1000 | OK |
 | perf.bundle.cssKb | CSS 合計サイズ | 0 | OK |
+
+## undefined
+
+| ID | 指標 | 値 | 状態 |
+|---|---|---|---|
+| taxonomy.responsibility.unknownVocabulary | taxonomy 責務軸: unknown vocabulary 使用 file 数 | 20 | OK |
+| taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 0 | OK |
+| taxonomy.vocabulary.responsibilityCount | taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 10 | OK |
+| taxonomy.vocabulary.testCount | taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 15 | OK |
 
 ## Doc Links
 
@@ -144,5 +153,11 @@
 | project.checklist.subprojectCount | definition | references/03-guides/project-checklist-governance.md |
 | docs.testContract.declared | definition | docs/contracts/test-contract.json |
 | docs.testContract.violations | definition | docs/contracts/test-contract.json |
+| taxonomy.responsibility.unknownVocabulary | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.responsibility.unknownVocabulary | spec | references/01-principles/responsibility-taxonomy-schema.md |
+| taxonomy.test.unknownVocabulary | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.test.unknownVocabulary | spec | references/01-principles/test-taxonomy-schema.md |
+| taxonomy.vocabulary.responsibilityCount | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.vocabulary.testCount | definition | projects/taxonomy-v2/plan.md |
 
 </details>

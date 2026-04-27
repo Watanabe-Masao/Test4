@@ -1431,4 +1431,75 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
+  // 上位原則: references/01-principles/taxonomy-constitution.md
+  // 7 rule の reviewPolicy 設定（90 日 cadence、solo-maintainer owner）。
+  // 実検出は v2 guard test 群（responsibilityTagGuardV2 / testTaxonomyGuardV2 /
+  // taxonomyInterlockGuard）が担う。本 entry は Pure Calc Reorg overlay に同梱
+  // するが、AR-TAXONOMY-* は taxonomy-v2 project の deliverable として project 横断
+  // で運用される（reviewPolicy は currently-active overlay = pure-calculation-reorg
+  // に集約、taxonomy-v2 project の Phase 4 archive 後に整理）。
+  "AR-TAXONOMY-NO-UNTAGGED": {
+    fixNow: "debt",
+    executionPlan: { effort: "medium", priority: 3 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-KNOWN-VOCABULARY": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-ONE-TAG-ONE-AXIS": {
+    fixNow: "now",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-INTERLOCK": {
+    fixNow: "debt",
+    executionPlan: { effort: "medium", priority: 2 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-ORIGIN-REQUIRED": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-COGNITIVE-LOAD": {
+    fixNow: "now",
+    executionPlan: { effort: "medium", priority: 2 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-TAXONOMY-AI-VOCABULARY-BINDING": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "solo-maintainer",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
 };

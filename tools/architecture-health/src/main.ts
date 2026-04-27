@@ -31,6 +31,10 @@ import {
   renderTestContractSection,
 } from "./collectors/test-contract-collector.js";
 import {
+  collectFromTaxonomy,
+  writeTaxonomyHealth,
+} from "./collectors/taxonomy-collector.js";
+import {
   collectRemediationSnapshot,
   writeRemediationFiles,
 } from "./collectors/architecture-debt-recovery-collector.js";
@@ -118,6 +122,10 @@ const projectKpis = collectFromProjectChecklists(repoRoot);
 console.error("[collect] test contract...");
 const testContractKpis = collectFromTestContract(repoRoot);
 
+console.error("[collect] taxonomy...");
+const taxonomyKpis = collectFromTaxonomy(repoRoot);
+writeTaxonomyHealth(repoRoot);
+
 const allKpis = [
   ...snapshotKpis,
   ...guardKpis,
@@ -129,6 +137,7 @@ const allKpis = [
   ...temporalKpis,
   ...projectKpis,
   ...testContractKpis,
+  ...taxonomyKpis,
 ];
 console.error(`[collect] done — ${allKpis.length} KPIs`);
 

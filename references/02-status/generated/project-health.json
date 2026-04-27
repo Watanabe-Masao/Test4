@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T00:06:13.419Z",
+  "timestamp": "2026-04-27T01:09:52.430Z",
   "summary": {
     "active": 7,
     "archived": 24,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 995,
-    "checkedCheckboxes": 797
+    "checkedCheckboxes": 815
   },
   "projects": [
     {
@@ -334,9 +334,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 26,
+      "checked": 35,
       "total": 64,
-      "progress": 0.406,
+      "progress": 0.547,
       "entrypoint": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/responsibility-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"
@@ -373,9 +373,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 25,
+      "checked": 34,
       "total": 62,
-      "progress": 0.403,
+      "progress": 0.548,
       "entrypoint": "projects/test-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/test-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"
