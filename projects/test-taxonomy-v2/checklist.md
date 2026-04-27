@@ -38,13 +38,15 @@
 
 ### 既存項目
 
-- [ ] `app/src/test/guards/testTaxonomyGuard.test.ts` が PASS している
-- [ ] interlock 検証 guard が T:kind ↔ R:tag の存在を検証している
-- [ ] 未分類 baseline が ratchet-down で管理されている
-- [ ] タグなし ≠ `T:unclassified` が hard fail で検出される
-- [ ] TSIG と v2 guard が並行運用されている
+- [x] `app/src/test/guards/testTaxonomyGuard.test.ts` が PASS している（Phase 3 子 branch 2026-04-26 で `testTaxonomyGuardV2.test.ts` として新設、6 tests PASS。なお元 checklist の `testTaxonomyGuard` 名称は legacy 仮名で実体は V2 命名規約に合わせて V2 サフィックス付き）
+- [x] interlock 検証 guard が T:kind ↔ R:tag の存在を検証している（Phase 3 統合 branch で `taxonomyInterlockGuard.test.ts` 9 tests PASS、INTERLOCK-1b で T → R 検証）
+- [x] 未分類 baseline が ratchet-down で管理されている（V2-T-1: untagged baseline=750、V2-T-2: unknown vocabulary baseline=0）
+- [ ] タグなし ≠ `T:unclassified` が hard fail で検出される（V2-T-3 で smoke 配置済、Phase 6 Migration Rollout 完了後に hard rule 昇格予定）
+- [x] TSIG と v2 guard が並行運用されている（testSignalIntegrityGuard.test.ts と testTaxonomyGuardV2.test.ts が同時 PASS、粒度 global / per-test 異なる）
 
 ### AR-TAXONOMY-_ rule active 化（テスト軸側、親 plan.md §AR-TAXONOMY-_）
+
+> **Phase 3.5 / Phase 4 deliverable** — AR rule の base-rules.ts 登録 + collector 実装は Phase 3 統合 branch の scope 外（規模大）。本 Phase 3 では interlock guard / 個別 guard で機能的に検出可能な状態に到達。AR rule 登録は別 PR で実施。
 
 - [ ] `AR-TAXONOMY-NO-UNTAGGED` を test 軸で active 化（baseline=current 値）
 - [ ] `AR-TAXONOMY-KNOWN-VOCABULARY` を test 軸で active 化
@@ -56,9 +58,9 @@
 
 ### Anchor Slice 保証経路完成（親 §OCS.7 段階 1）
 
-- [ ] Anchor Slice 6 T:kind が §OCS.5 Promotion Gate L4（Guarded）に到達している
-- [ ] taxonomy-health.json collector のテスト軸側 fields が出力されている
-- [ ] `npm run taxonomy:check` のテスト軸側が PASS する
+- [x] Anchor Slice 6 T:kind が §OCS.5 Promotion Gate L4（Guarded）に到達している（INTERLOCK-2b で Anchor Slice 6 T:kind が registry V2 に Anchor として登録されていることを検証 + V2-T-1/V2-T-2 で対象 test の guard 監視が active）
+- [ ] taxonomy-health.json collector のテスト軸側 fields が出力されている（**Phase 3.5 / Phase 4 deliverable**、collector 実装は別 PR で実施）
+- [ ] `npm run taxonomy:check` のテスト軸側が PASS する（**Phase 3.5 / Phase 4 deliverable**、CLI script は別 PR で実施）
 
 ## Phase 4: Pilot
 

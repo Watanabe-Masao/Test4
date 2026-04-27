@@ -43,18 +43,30 @@ constitutionGate: "親 Phase 1 完遂 + Phase 0 Inventory 完遂 (1370 entry bas
 
 ## 2. Antibody Pairs（原則 6: 対概念タグの相互制約）
 
-各 R:tag は対概念タグと **意味的に排他または相補** な関係を持つ。1 file が両方を持つと Constitutional Correctness 破綻 → review window で裁定。
+各 R:tag は対概念タグと **双方向対称** に **意味的に排他** な関係を持つ（A ↔ B なら B ↔ A）。1 file が両方を持つと Constitutional Correctness 破綻 → review window で裁定。
 
-| Antibody Pair                    | 排他理由                                                                                       |
-| -------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `R:calculation` ↔ `R:read-model` | 純粋計算 vs Zod parse（前者は副作用なし、後者は IO 境界の最初の anchor）                       |
-| `R:bridge` ↔ `R:hook`            | 境界 vs orchestration（前者は両側 keep、後者は 1 経路 select）                                 |
-| `R:guard` ↔ `R:presentation`     | 検証 vs 描画（前者は static analyzer、後者は runtime DOM）                                     |
-| `R:store` ↔ `R:hook`             | state 保有 vs effect 駆動（store は read/write のみ、hook は side effect）                     |
-| `R:adapter` ↔ `R:bridge`         | external 境界 vs internal 境界（前者は infrastructure layer、後者は domain↔application layer） |
-| `R:registry` ↔ `R:calculation`   | 静的 metadata vs 動的計算（registry は宣言的、calculation は手続き的）                         |
+> **Phase 3 統合 branch (2026-04-26) で `taxonomyInterlockGuard` INTERLOCK-4a が双方向非対称を検出し、対称化した**。当初設計の R:bridge ↔ R:hook / R:adapter ↔ R:bridge / R:registry ↔ R:calculation は片方向定義で双方向破綻していたため、対概念がない archetype は `null` として明示する設計に統一（responsibilityTaxonomyRegistryV2.ts に反映）。
 
-> **原則**: Pair の片方を新規追加するときは、もう片方の境界が崩れないかを review window で同時審議する（Constitution 原則 6）。
+### 2.1. 双方向対称 Antibody Pair（3 ペア）
+
+| Antibody Pair                    | 排他理由                                                                   |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| `R:calculation` ↔ `R:read-model` | 純粋計算 vs Zod parse（前者は副作用なし、後者は IO 境界の最初の anchor）   |
+| `R:guard` ↔ `R:presentation`     | 検証 vs 描画（前者は static analyzer、後者は runtime DOM）                 |
+| `R:store` ↔ `R:hook`             | state 保有 vs effect 駆動（store は read/write のみ、hook は side effect） |
+
+### 2.2. Antibody Pair なし（4 archetype）
+
+以下は **対概念が明確な vocabulary を持たない archetype** のため `antibodyPair: null` として登録。原則 6 は「対概念タグと相互制約」を要請するが、自然に対概念が成立しない archetype は強制 pair 化しない。
+
+| R:tag            | null である理由                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------- |
+| `R:bridge`       | bridge 自身が両側 keep の archetype。対概念は migration 完了後の単一実装そのもの（vocabulary 化されない） |
+| `R:adapter`      | infrastructure 境界 archetype。対概念は明確な vocabulary を持たない                                       |
+| `R:registry`     | 宣言的 metadata の archetype。対概念は明確な vocabulary を持たない                                        |
+| `R:unclassified` | sentinel（review window 待ち）。対概念は概念上存在しない                                                  |
+
+> **原則**: Pair の片方を新規追加するときは、もう片方の境界が崩れないかを review window で同時審議する（Constitution 原則 6）。null の archetype に対概念候補が登場した場合は同 window で同時裁定。
 
 ## 3. v1 → v2 migration map（参考、Phase 2 で正式 landing）
 

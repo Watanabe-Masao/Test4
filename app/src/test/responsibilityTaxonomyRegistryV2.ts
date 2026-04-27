@@ -143,7 +143,8 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
       requiredTKinds: ['T:contract-parity'],
       optionalTKinds: ['T:fallback-path'],
     },
-    antibodyPair: 'R:hook',
+    // Antibody Pair なし: bridge 自身が両側 keep の archetype であり、対概念は migration 完了後の単一実装そのもの（vocabulary 化されない）。Phase 3 統合 branch INTERLOCK-4a 検出による双方向対称化（原則 6）
+    antibodyPair: null,
     description: 'current ⇔ candidate 境界。両側 keep が責務。\\*Bridge.ts archetype。',
   },
 
@@ -252,7 +253,8 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
       requiredTKinds: [],
       optionalTKinds: [],
     },
-    antibodyPair: 'R:bridge',
+    // Antibody Pair なし: adapter は infrastructure 境界 archetype であり、対概念は明確な vocabulary を持たない。Phase 3 統合 branch INTERLOCK-4a 検出による双方向対称化（原則 6）
+    antibodyPair: null,
     description: 'infrastructure 境界 adapter。DuckDB / 外部 API / 永続化。',
   },
 
@@ -271,7 +273,8 @@ export const RESPONSIBILITY_TAG_REGISTRY_V2: Readonly<
       requiredTKinds: [],
       optionalTKinds: [],
     },
-    antibodyPair: 'R:calculation',
+    // Antibody Pair なし: registry は宣言的 metadata の archetype であり、対概念は明確な vocabulary を持たない。Phase 3 統合 branch INTERLOCK-4a 検出による双方向対称化（原則 6）
+    antibodyPair: null,
     description: 'vocabulary / catalog / metadata 定義 file。宣言的、計算しない。',
   },
 
