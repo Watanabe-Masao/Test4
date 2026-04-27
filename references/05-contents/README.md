@@ -70,7 +70,7 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 | パス | 内容 | 対象 |
 |---|---|---|
 | `widgets/` | widget 仕様書（`WID-NNN.md`） | registry 登録された全 widget（45 件） |
-| `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 5 件（仕入原価 / 粗利 / 売上 / 値引き / 客数）|
+| `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 10 件（仕入原価 / 粗利 / 売上 / 値引き / 客数 / 要因分解 / 自由期間 3 種 / 月次前年売上）|
 
 将来の追加候補（decisions 不要、必要になったら増やす）:
 - `charts/` — chart component 仕様書

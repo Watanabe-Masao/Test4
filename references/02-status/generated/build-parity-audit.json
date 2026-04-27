@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-26T17:25:04.568Z",
+  "timestamp": "2026-04-27T21:33:02.124Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -43,6 +43,12 @@
     "health:pr-comment",
     "docs:generate",
     "docs:check",
+    "taxonomy:check",
+    "taxonomy:impact",
+    "content-specs:check",
+    "content-specs:check:anchor",
+    "content-specs:generate",
+    "content-specs:generate:anchor",
     "verify:project"
   ],
   "ci": {

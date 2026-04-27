@@ -77,6 +77,7 @@ export interface RawBudgetInput {
  *
  * raw query 結果を受け取り、日割り按分 + Zod parse して ReadModel を返す。
  */
+/** @rm-id RM-008 */
 export function buildFreePeriodBudgetReadModel(
   rawRows: readonly RawBudgetInput[],
   input: FreePeriodBudgetQueryInputType,

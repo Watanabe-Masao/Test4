@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は Phase 1 bootstrap 時点では `widgets/` サブカテゴリのみ。今後 `charts/` / `read-models/` / `query-handlers/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜C で `widgets/`（45 件）+ `read-models/`（Phase C 着手段階で 5 件）の 2 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -68,6 +68,23 @@
 | `WID-045.md` | 部門別KPI                       | Unified core required only、45 件最終 entry                               |
 
 **45 widget 全件 landed**。完全割当表は `05-contents/widgets/README.md` §「初期割当表」参照。
+
+### 05-contents/read-models/ 個別 spec（Phase C 着手）
+
+| 型番         | export                          | 配置                                                                       | 業務意味                                  |
+| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| `RM-001.md` | `readPurchaseCost`              | `application/readModels/purchaseCost/readPurchaseCost.ts`                 | 仕入原価（typeIn / typeOut / costInclusion 統合）|
+| `RM-002.md` | `calculateGrossProfit`          | `application/readModels/grossProfit/calculateGrossProfit.ts`              | 粗利（4 種: 在庫法×2 / 推定法×2）              |
+| `RM-003.md` | `buildSalesFactReadModel`       | `application/readModels/salesFact/readSalesFact.ts`                       | 売上ファクト（grand + dept / store / daily / hourly 5 view）|
+| `RM-004.md` | `buildDiscountFactReadModel`    | `application/readModels/discountFact/readDiscountFact.ts`                 | 値引き（typeCode 71-74 内訳 + grand 整合不変）|
+| `RM-005.md` | `buildCustomerFactReadModel`    | `application/readModels/customerFact/readCustomerFact.ts`                 | 客数（StoreResult.totalCustomers 上書き先）|
+| `RM-006.md` | `calculateFactorDecomposition`  | `application/readModels/factorDecomposition/calculateFactorDecomposition.ts` | 要因分解（Shapley 5 要素恒等式）|
+| `RM-007.md` | `buildFreePeriodReadModel`      | `application/readModels/freePeriod/readFreePeriodFact.ts`                 | 自由期間分析（任意 dateRange、月境界非依存）|
+| `RM-008.md` | `buildFreePeriodBudgetReadModel`| `application/readModels/freePeriod/readFreePeriodBudgetFact.ts`           | 自由期間予算（按分）|
+| `RM-009.md` | `buildFreePeriodDeptKPIReadModel`| `application/readModels/freePeriod/readFreePeriodDeptKPI.ts`             | 自由期間部門 KPI（加重平均率）|
+| `RM-010.md` | `selectMonthlyPrevYearSales`    | `application/readModels/prevYear/selectMonthlyPrevYearSales.ts`           | 月次前年売上（sameDate / sameDow 2 mode）|
+
+完全割当表は `05-contents/read-models/README.md` §「初期割当表」参照。
 
 ## 正本一覧
 

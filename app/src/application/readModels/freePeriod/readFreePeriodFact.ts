@@ -131,6 +131,7 @@ export function prorateBudget(
  * raw query 結果を受け取り、サマリー計算 + Zod parse して ReadModel を返す。
  * infra query への依存はない（handler 側で取得済みのデータを渡す）。
  */
+/** @rm-id RM-007 */
 export function buildFreePeriodReadModel(
   currentRows: readonly FreePeriodDailyRowType[],
   comparisonRows: readonly FreePeriodDailyRowType[],

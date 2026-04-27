@@ -47,9 +47,9 @@
 
 - [x] `RM-NNN` の ID 体系を確定した（PIPE / QH / PROJ は Phase C-2 batch で確定予定）
 - [x] `references/05-contents/read-models/` 新サブカテゴリを追加した（pipelines / query-handlers / projections は次 batch）
-- [x] 主要 readModel の spec body authoring + source tag を実施した（RM-001 〜 RM-005、5 件）
+- [x] 主要 readModel の spec body authoring + source tag を実施した（RM-001 〜 RM-010、10 件 = canonicalizationSystemGuard 監視 readModel 全件）
 - [x] frontmatter generator を新サブカテゴリに拡張した（kind=read-model dispatch、`@rm-id` JSDoc 自動注入）
-- [x] 主要 readModel `missingSpec = 0` を達成した（5 件、AR-CONTENT-SPEC-EXISTS guard で検証）
+- [x] 主要 readModel `missingSpec = 0` を達成した（10 件、AR-CONTENT-SPEC-EXISTS guard で検証）
 - [ ] 主要 pipeline `missingSpec = 0` を達成した
 - [ ] queryHandler / projection の `sourceRef drift = 0` を達成した
 - [ ] pipeline lineage が graph で追跡可能になった

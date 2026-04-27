@@ -88,6 +88,7 @@ const noneProjection = (mode: MonthlyPrevYearSalesMode): MonthlyPrevYearSalesPro
  * // prev.monthlySales = 月全体の前年売上（elapsed cap なし）
  * ```
  */
+/** @rm-id RM-010 */
 export function selectMonthlyPrevYearSales(
   kpi: PrevYearMonthlyKpi | null | undefined,
   mode: MonthlyPrevYearSalesMode = 'sameDate',

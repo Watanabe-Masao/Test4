@@ -1,22 +1,22 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-26T17:24:36.728Z
+> Generated: 2026-04-27T21:32:35.172Z
 
 ## Allowlist Summary
 
 | 指標 | 値 |
 |---|---|
-| 総エントリ数 | 13 |
+| 総エントリ数 | 14 |
 | アクティブリスト数 | 6 |
 | 凍結リスト数 | 6 |
 | .vm.ts ファイル数 | 25 |
-| 互換 re-export 残数 | 2 |
+| 互換 re-export 残数 | 0 |
 
 ## Category Breakdown
 
 | カテゴリ | 件数 |
 |---|---|
-| structural | 12 |
+| structural | 13 |
 | adapter | 1 |
 
 
@@ -95,14 +95,14 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 525 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 527 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 464 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 449 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 466 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 451 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
-| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 246 |
-| application/hooks/useMetricBreakdown.ts | 7 | 5 | 282 |
-| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 345 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 250 |
+| application/hooks/useMetricBreakdown.ts | 7 | 5 | 284 |
+| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 347 |
 | presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 307 |
 | application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 196 |
 
@@ -110,6 +110,7 @@
 
 | ファイル | 指標 | 実測 | 上限 | % |
 |---|---|---|---|---|
+| application/hooks/usePeriodAwareKpi.ts | lines | 302 | 305 | 99% |
 
 ## Frozen Lists
 
@@ -126,9 +127,9 @@
 |---|---|---|
 | domainLargeFiles | 6 | structural:6 |
 | useStateLimits | 3 | structural:3 |
+| hookLineLimits | 2 | structural:2 |
 | applicationToInfrastructure | 1 | adapter:1 |
 | useMemoLimits | 1 | structural:1 |
-| hookLineLimits | 1 | structural:1 |
 | ctxHook | 1 | structural:1 |
 | presentationDuckdbHook | 0 | - |
 | presentationMemoLimits | 0 | - |

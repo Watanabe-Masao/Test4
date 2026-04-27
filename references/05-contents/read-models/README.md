@@ -13,7 +13,7 @@
 - source 側は `@rm-id RM-NNN` JSDoc で宣言（Phase C で導入、generator が機械検証）
 - spec doc ファイル名 = 型番 `.md`（例: `RM-001.md`）
 
-### 初期割当表（2026-04-27 時点、Phase C 着手段階で 5 件）
+### 初期割当表（2026-04-27 時点、Phase C 着手段階で 10 件）
 
 `canonicalizationSystemGuard.test.ts` が監視する正本 readModel 群を起点に、
 複数 widget 参照 / fallback / readiness / 業務意味 (CLAUDE.md「正本化体系」表)
@@ -26,8 +26,13 @@
 | RM-003 | `buildSalesFactReadModel` | `app/src/application/readModels/salesFact/readSalesFact.ts` | 売上・販売点数（grand 合計 + dept / store / daily / hourly 5 view） | `references/01-principles/sales-definition.md` |
 | RM-004 | `buildDiscountFactReadModel` | `app/src/application/readModels/discountFact/readDiscountFact.ts` | 値引き（71-74 typeCode 内訳 + grand 整合不変） | `references/01-principles/discount-definition.md` |
 | RM-005 | `buildCustomerFactReadModel` | `app/src/application/readModels/customerFact/readCustomerFact.ts` | 客数（StoreResult.totalCustomers の正本上書き先） | `references/01-principles/customer-definition.md` |
+| RM-006 | `calculateFactorDecomposition` | `app/src/application/readModels/factorDecomposition/calculateFactorDecomposition.ts` | 要因分解（Shapley 5 要素恒等式） | `references/01-principles/authoritative-calculation-definition.md` |
+| RM-007 | `buildFreePeriodReadModel` | `app/src/application/readModels/freePeriod/readFreePeriodFact.ts` | 自由期間分析（任意 dateRange、月境界非依存） | `references/01-principles/free-period-analysis-definition.md` |
+| RM-008 | `buildFreePeriodBudgetReadModel` | `app/src/application/readModels/freePeriod/readFreePeriodBudgetFact.ts` | 自由期間予算（月予算の期間按分） | `references/01-principles/free-period-budget-kpi-contract.md` |
+| RM-009 | `buildFreePeriodDeptKPIReadModel` | `app/src/application/readModels/freePeriod/readFreePeriodDeptKPI.ts` | 自由期間部門 KPI（加重平均率） | `references/01-principles/free-period-budget-kpi-contract.md` |
+| RM-010 | `selectMonthlyPrevYearSales` | `app/src/application/readModels/prevYear/selectMonthlyPrevYearSales.ts` | 月次前年売上（sameDate / sameDow 2 mode） | `references/01-principles/sales-definition.md` |
 
-> Phase C Step 2 以降で RM-006 〜 RM-010（factorDecomposition / freePeriod 系 3 件 / prevYear monthly）を追加予定。
+> Phase C 後続 batch で QH-NNN（QueryHandler）/ PIPE-NNN（Pipeline）/ PROJ-NNN（Projection）の追加を予定。
 
 ## spec doc フォーマット
 

@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-04-26T17:24:36.728Z",
-  "totalAllowlistEntries": 13,
+  "timestamp": "2026-04-27T21:32:35.172Z",
+  "totalAllowlistEntries": 14,
   "categoryBreakdown": {
     "adapter": 1,
-    "structural": 12
+    "structural": 13
   },
   "frozenLists": [
     "presentationDuckdbHook",
@@ -16,7 +16,7 @@
   "frozenCount": 6,
   "activeLists": 6,
   "vmFileCount": 25,
-  "compatReexportCount": 2,
+  "compatReexportCount": 0,
   "activeBridges": [],
   "facadeHooks": [
     "application/hooks/categoryDaily/useCategoryDailyBundle.ts",
@@ -90,7 +90,7 @@
       "file": "presentation/pages/Dashboard/widgets/HourlyChart.tsx",
       "memoCount": 9,
       "stateCount": 6,
-      "lineCount": 525
+      "lineCount": 527
     },
     {
       "file": "presentation/components/charts/TimeSlotChart.tsx",
@@ -102,13 +102,13 @@
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
       "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 464
+      "lineCount": 466
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",
       "memoCount": 9,
       "stateCount": 5,
-      "lineCount": 449
+      "lineCount": 451
     },
     {
       "file": "presentation/pages/Weather/WeatherPage.tsx",
@@ -120,19 +120,19 @@
       "file": "presentation/pages/Insight/useInsightData.ts",
       "memoCount": 5,
       "stateCount": 7,
-      "lineCount": 246
+      "lineCount": 250
     },
     {
       "file": "application/hooks/useMetricBreakdown.ts",
       "memoCount": 7,
       "stateCount": 5,
-      "lineCount": 282
+      "lineCount": 284
     },
     {
       "file": "presentation/components/day-detail/DayDetailModal.tsx",
       "memoCount": 7,
       "stateCount": 4,
-      "lineCount": 345
+      "lineCount": 347
     },
     {
       "file": "presentation/hooks/useUnifiedWidgetContext.ts",
@@ -147,7 +147,15 @@
       "lineCount": 196
     }
   ],
-  "nearLimitFiles": [],
+  "nearLimitFiles": [
+    {
+      "file": "application/hooks/usePeriodAwareKpi.ts",
+      "metric": "lines",
+      "actual": 302,
+      "limit": 305,
+      "pct": 99
+    }
+  ],
   "listSummary": {
     "applicationToInfrastructure": {
       "count": 1,
@@ -172,9 +180,9 @@
       }
     },
     "hookLineLimits": {
-      "count": 1,
+      "count": 2,
       "categories": {
-        "structural": 1
+        "structural": 2
       }
     },
     "presentationMemoLimits": {

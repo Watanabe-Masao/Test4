@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-04-27T21:26:12.105Z |
+| 最終更新 | 2026-04-27T21:41:55.477Z |
 
 ## Hard Gate
 
@@ -27,9 +27,9 @@
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
-| **例外圧** | OK | 許可リスト総エントリ数: 13/20 / Frozen リスト非ゼロ: 0/0 / Active リスト数: 6/10 |
-| **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 2/3 |
-| **複雑性圧** | OK | 上限間近ファイル数: 0/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 25/30 |
+| **例外圧** | OK | 許可リスト総エントリ数: 14/20 / Frozen リスト非ゼロ: 0/0 / Active リスト数: 6/10 |
+| **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 0/3 |
+| **複雑性圧** | OK | 上限間近ファイル数: 1/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 25/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
 | **ガード強度** | OK | ガードテストファイル数: 109/30 / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6602/7000 / メインバンドルサイズ: 2386/2500 / ECharts バンドルサイズ: 919/1000 |
@@ -37,11 +37,9 @@
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 94 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 5/20 / in_progress な project 数（open required checkbox あり）: 4/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 26/100 |
 
-## Recent Changes
+## Recommended Actions
 
-| 指標 | 前回 | 今回 | 変化 |
-|---|---|---|---|
-| 全 project の checked checkbox 総数 | 774 | 779 | +5 ! |
+1. 上限間近ファイル 1 件を分割検討する
 
 ---
 

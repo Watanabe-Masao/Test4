@@ -28,9 +28,9 @@
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
-| 例外圧 | OK | 13/20 / 0/0 / 6/10 |
-| 後方互換負債 | OK | 0/3 / 2/3 |
-| 複雑性圧 | OK | 0/5 / 10/10 / 25/30 |
+| 例外圧 | OK | 14/20 / 0/0 / 6/10 |
+| 後方互換負債 | OK | 0/3 / 0/3 |
+| 複雑性圧 | OK | 1/5 / 10/10 / 25/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
 | ガード強度 | OK | 109/30 / 0/5 |
 | 性能 | OK | 6602/7000 / 2386/2500 / 919/1000 |
@@ -38,8 +38,10 @@
 | Rule Efficacy | OK | 94 / 0/3 / 0/10 |
 | Project Governance | OK | 5/20 / 4/20 / 0/0 / 26/100 |
 
+**Next:**
+- 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-04-27T21:26:12.105Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-27T21:41:55.477Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
