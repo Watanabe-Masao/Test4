@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-04-27T11:22:26.244Z",
+  "generatedAt": "2026-04-27T11:46:13.794Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {
-      "totalTargets": 1370,
-      "tagged": 315,
-      "untagged": 1055,
+      "totalTargets": 1372,
+      "tagged": 1372,
+      "untagged": 0,
       "inAnchorSlice": 299,
       "anchorBreakdown": {
         "R:bridge": 16,
@@ -16,8 +16,8 @@
         "R:presentation": 112,
         "R:read-model": 31
       },
-      "unknownVocabulary": 20,
-      "missingOrigin": 1370,
+      "unknownVocabulary": 0,
+      "missingOrigin": 0,
       "tagDistribution": {
         "untagged": 1055,
         "R:chart-view": 59,
@@ -49,9 +49,9 @@
       }
     },
     "test": {
-      "totalTargets": 728,
-      "tagged": 0,
-      "untagged": 728,
+      "totalTargets": 730,
+      "tagged": 730,
+      "untagged": 0,
       "inAnchorSlice": 206,
       "anchorBreakdown": {
         "T:boundary": 5,
@@ -62,7 +62,8 @@
         "T:zod-contract": 22
       },
       "unknownVocabulary": 0,
-      "missingOrigin": 728
+      "missingOrigin": 0,
+      "tagDistribution": {}
     },
     "vocabulary": {
       "responsibilityCount": 10,

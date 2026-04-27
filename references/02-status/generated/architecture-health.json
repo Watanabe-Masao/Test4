@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T11:22:26.245Z",
+  "timestamp": "2026-04-27T11:46:13.795Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -355,7 +355,7 @@
         "app/src/test/guards/structuralConventionGuard.test.ts",
         "app/src/test/guards/subprojectParentGuard.test.ts",
         "app/src/test/guards/taxonomyInterlockGuard.test.ts",
-        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
+        "app/src/test/guards/taxonomyLifecycleTransitionGuard.test.ts",
         "app/src/test/guards/temporalRollingGuard.test.ts",
         "app/src/test/guards/temporalScopeGuard.test.ts",
         "app/src/test/guards/testContractGuard.test.ts",
@@ -396,7 +396,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 155,
+      "value": 152,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -414,7 +414,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 78,
+      "value": 75,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -615,7 +615,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 155,
+      "value": 152,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -634,7 +634,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 24,
+      "value": 21,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -717,7 +717,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 92,
+      "value": 89,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -1157,7 +1157,7 @@
       "id": "taxonomy.responsibility.unknownVocabulary",
       "label": "taxonomy 責務軸: unknown vocabulary 使用 file 数",
       "category": "guard",
-      "value": 20,
+      "value": 0,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1234,35 +1234,11 @@
       "implRefs": [
         "app/src/test/testTaxonomyRegistryV2.ts"
       ]
-    },
-    {
-      "id": "taxonomy.responsibility.v1OnlyFiles",
-      "label": "taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし）",
-      "category": "guard",
-      "value": 0,
-      "unit": "count",
-      "status": "ok",
-      "owner": "documentation-steward",
-      "docRefs": [
-        {
-          "kind": "definition",
-          "path": "projects/taxonomy-v2/plan.md"
-        },
-        {
-          "kind": "definition",
-          "path": "references/03-guides/responsibility-v1-to-v2-migration-map.md"
-        }
-      ],
-      "implRefs": [
-        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
-        "app/src/test/responsibilityTagRegistry.ts",
-        "app/src/test/responsibilityTaxonomyRegistryV2.ts"
-      ]
     }
   ],
   "summary": {
-    "totalKpis": 49,
-    "ok": 49,
+    "totalKpis": 48,
+    "ok": 48,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-27T11:22:26.245Z
+> Generated: 2026-04-27T11:46:13.795Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 49 |
-| OK | 49 |
+| Total KPIs | 48 |
+| OK | 48 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -53,21 +53,20 @@
 |---|---|---|---|
 | guard.files.count | ガードテストファイル数 | 104 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 155 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 78 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 152 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 75 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 56 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 155 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 24 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 152 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 21 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 0 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 92 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 89 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
-| taxonomy.responsibility.unknownVocabulary | taxonomy 責務軸: unknown vocabulary 使用 file 数 | 20 | OK |
+| taxonomy.responsibility.unknownVocabulary | taxonomy 責務軸: unknown vocabulary 使用 file 数 | 0 | OK |
 | taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 0 | OK |
 | taxonomy.vocabulary.responsibilityCount | taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 10 | OK |
 | taxonomy.vocabulary.testCount | taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 15 | OK |
-| taxonomy.responsibility.v1OnlyFiles | taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし） | 0 | OK |
 
 ## ドキュメント整合
 
@@ -155,7 +154,5 @@
 | taxonomy.test.unknownVocabulary | definition | references/01-principles/test-taxonomy-schema.md |
 | taxonomy.vocabulary.responsibilityCount | definition | projects/taxonomy-v2/plan.md |
 | taxonomy.vocabulary.testCount | definition | projects/taxonomy-v2/plan.md |
-| taxonomy.responsibility.v1OnlyFiles | definition | projects/taxonomy-v2/plan.md |
-| taxonomy.responsibility.v1OnlyFiles | definition | references/03-guides/responsibility-v1-to-v2-migration-map.md |
 
 </details>

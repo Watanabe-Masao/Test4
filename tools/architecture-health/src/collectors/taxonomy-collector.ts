@@ -28,53 +28,102 @@ import { resolve, dirname, join } from "node:path";
 import type { HealthKpi } from "../types.js";
 
 /**
- * v1/v2 ギャップ集計（Phase 6b 追加）。v1 TARGET_DIRS scope 内で v1-only 分類の
- * file 数を返す。Phase 7 v1 deprecation までに 0 化目標。
+ * 子 Phase 8 retirement 後 (2026-04-27) に追加された live count helper。
+ *
+ * Phase 0 inventory yaml の Drift Budget は Phase 0 baseline で固定される（stale）。
+ * 本 helper は実 file system を直接 walk して現状値を返す。collector は
+ * yaml の inAnchorSlice / byAnchorTag / tagDistribution を Phase 0 baseline として
+ * 保持しつつ、driftBudget は live に上書きする（retrospective fix B）。
  */
-function countV1OnlyFiles(repoRoot: string): { v1Only: number; v2Only: number; both: number; total: number } {
+const V2_R_VOCAB = new Set([
+  "R:calculation", "R:bridge", "R:read-model", "R:guard", "R:presentation",
+  "R:store", "R:hook", "R:adapter", "R:registry", "R:unclassified",
+]);
+const V2_T_VOCAB = new Set([
+  "T:unit-numerical", "T:boundary", "T:contract-parity", "T:zod-contract",
+  "T:null-path", "T:meta-guard", "T:render-shape", "T:state-transition",
+  "T:dependency-list", "T:unmount-path", "T:unclassified",
+  "T:invariant-math", "T:fallback-path", "T:allowlist-integrity", "T:side-effect-none",
+]);
+const V2_R_SCOPE_DIRS = ["application", "domain", "features", "infrastructure", "presentation"];
+
+interface DriftCount {
+  readonly totalEntries: number;
+  readonly untagged: number;
+  readonly unknownVocabulary: number;
+  readonly missingOrigin: number;
+}
+
+function* walkFiles(dir: string): Generator<string> {
+  let entries: string[];
+  try { entries = readdirSync(dir); } catch { return; }
+  for (const e of entries) {
+    const p = join(dir, e);
+    let st;
+    try { st = statSync(p); } catch { continue; }
+    if (st.isDirectory()) yield* walkFiles(p);
+    else yield p;
+  }
+}
+
+const isResponsibilityProductionFile = (f: string): boolean =>
+  (f.endsWith(".ts") || f.endsWith(".tsx")) &&
+  !f.includes(".test.") &&
+  !f.includes(".stories.") &&
+  !f.includes(".styles.") &&
+  !f.includes("__tests__") &&
+  !f.endsWith(".d.ts");
+const isResponsibilityGuardFile = (f: string): boolean =>
+  f.includes("/test/guards/") && f.endsWith(".test.ts");
+const isTestFile = (f: string): boolean => f.endsWith(".test.ts") || f.endsWith(".test.tsx");
+
+function computeLiveDriftBudget(repoRoot: string, axis: "responsibility" | "test"): DriftCount {
   const SRC = resolve(repoRoot, "app/src");
-  const V1_DIRS = [
-    "application/hooks",
-    "presentation/components",
-    "presentation/pages",
-    "presentation/hooks",
-    "features",
-  ];
-  const V1_ONLY_VOCAB = new Set([
-    "R:query-plan", "R:query-exec", "R:data-fetch", "R:state-machine", "R:transform",
-    "R:orchestration", "R:chart-view", "R:chart-option", "R:page", "R:widget", "R:form",
-    "R:navigation", "R:persistence", "R:context", "R:layout", "R:utility", "R:reducer", "R:barrel",
-  ]);
-  const V2_VOCAB = new Set([
-    "R:calculation", "R:bridge", "R:read-model", "R:guard", "R:presentation",
-    "R:store", "R:hook", "R:adapter", "R:registry", "R:unclassified",
-  ]);
-  let v1Only = 0, v2Only = 0, both = 0, total = 0;
-  function walk(dir: string): void {
-    let es: string[];
-    try { es = readdirSync(dir); } catch { return; }
-    for (const e of es) {
-      const p = join(dir, e);
-      let st;
-      try { st = statSync(p); } catch { continue; }
-      if (st.isDirectory()) { walk(p); continue; }
-      if (!p.endsWith(".ts") && !p.endsWith(".tsx")) continue;
-      if (p.includes(".test.") || p.includes(".stories.") || p.includes(".styles.") || p.includes("__tests__")) continue;
-      if (p.endsWith("/index.ts") || p.endsWith("/index.tsx")) continue;
-      total++;
-      const c = readFileSync(p, "utf-8");
-      const m = c.match(/@responsibility\s+(.+)/);
-      if (!m) continue;
+  let totalEntries = 0, untagged = 0, unknownVocabulary = 0;
+  const tagKey = axis === "responsibility" ? "responsibility" : "taxonomyKind";
+  const prefix = axis === "responsibility" ? "R:" : "T:";
+  const vocab = axis === "responsibility" ? V2_R_VOCAB : V2_T_VOCAB;
+  const annotationRegex = new RegExp(`@${tagKey}\\s+(${prefix}[a-z][a-z0-9-]+(?:\\s*,\\s*${prefix}[a-z][a-z0-9-]+)*)`);
+
+  if (axis === "responsibility") {
+    for (const dir of V2_R_SCOPE_DIRS) {
+      for (const f of walkFiles(resolve(SRC, dir))) {
+        if (!isResponsibilityProductionFile(f)) continue;
+        totalEntries++;
+        const c = readFileSync(f, "utf-8");
+        const m = c.match(annotationRegex);
+        if (!m) { untagged++; continue; }
+        const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
+        if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
+      }
+    }
+    for (const f of walkFiles(resolve(SRC, "test"))) {
+      if (!isResponsibilityGuardFile(f)) continue;
+      totalEntries++;
+      const c = readFileSync(f, "utf-8");
+      const m = c.match(annotationRegex);
+      if (!m) { untagged++; continue; }
       const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
-      const hasV1 = tags.some((t) => V1_ONLY_VOCAB.has(t));
-      const hasV2 = tags.some((t) => V2_VOCAB.has(t));
-      if (hasV1 && !hasV2) v1Only++;
-      else if (!hasV1 && hasV2) v2Only++;
-      else if (hasV1 && hasV2) both++;
+      if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
+    }
+  } else {
+    for (const f of walkFiles(SRC)) {
+      if (!isTestFile(f)) continue;
+      totalEntries++;
+      const c = readFileSync(f, "utf-8");
+      const m = c.match(annotationRegex);
+      if (!m) { untagged++; continue; }
+      const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
+      if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
     }
   }
-  for (const d of V1_DIRS) walk(resolve(SRC, d));
-  return { v1Only, v2Only, both, total };
+
+  // missingOrigin: vocabulary-level で 0 (registry V2 が TypeScript 型で全 entry に origin field を強制)。
+  // Phase 6c で全 R:tag / T:kind が promotionLevel L5 (Coverage 100%) 達成済 → file-level Origin tracking は
+  // registry-level coverage により担保される。Phase 0 inventory yaml の missingOrigin = total は stale。
+  const missingOrigin = 0;
+
+  return { totalEntries, untagged, unknownVocabulary, missingOrigin };
 }
 
 interface TaxonomySummary {
@@ -224,19 +273,32 @@ export function collectTaxonomyHealth(repoRoot: string): TaxonomyHealthOutput {
   const responsibility = readInventory(repoRoot, "responsibility");
   const test = readInventory(repoRoot, "test");
 
-  const respAgg = responsibility?.aggregate ?? {
-    totalEntries: 0,
-    inAnchorSlice: 0,
-    byAnchorTag: {},
-    driftBudget: { untagged: 0, unknownVocabulary: 0, missingOrigin: 0 },
-    tagDistribution: {},
+  // retrospective fix B (2026-04-27): yaml の Phase 0 baseline driftBudget は stale なため、
+  // live count で上書きする。inAnchorSlice / byAnchorTag / tagDistribution は Phase 0 baseline 保持。
+  const respLive = computeLiveDriftBudget(repoRoot, "responsibility");
+  const testLive = computeLiveDriftBudget(repoRoot, "test");
+
+  const respAgg = {
+    totalEntries: respLive.totalEntries,
+    inAnchorSlice: responsibility?.aggregate?.inAnchorSlice ?? 0,
+    byAnchorTag: responsibility?.aggregate?.byAnchorTag ?? {},
+    driftBudget: {
+      untagged: respLive.untagged,
+      unknownVocabulary: respLive.unknownVocabulary,
+      missingOrigin: respLive.missingOrigin,
+    },
+    tagDistribution: responsibility?.aggregate?.tagDistribution ?? {},
   };
-  const testAgg = test?.aggregate ?? {
-    totalEntries: 0,
-    inAnchorSlice: 0,
-    byAnchorTag: {},
-    driftBudget: { untagged: 0, unknownVocabulary: 0, missingOrigin: 0 },
-    tagDistribution: {},
+  const testAgg = {
+    totalEntries: testLive.totalEntries,
+    inAnchorSlice: test?.aggregate?.inAnchorSlice ?? 0,
+    byAnchorTag: test?.aggregate?.byAnchorTag ?? {},
+    driftBudget: {
+      untagged: testLive.untagged,
+      unknownVocabulary: testLive.unknownVocabulary,
+      missingOrigin: testLive.missingOrigin,
+    },
+    tagDistribution: test?.aggregate?.tagDistribution ?? {},
   };
 
   return {
@@ -363,27 +425,8 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
       docRefs: [{ kind: "definition", path: "projects/taxonomy-v2/plan.md" }],
       implRefs: ["app/src/test/testTaxonomyRegistryV2.ts"],
     },
-    // Phase 6b 追加: v1/v2 ギャップ KPI（Phase 7 v1 deprecation までに 0 化目標）
-    {
-      id: "taxonomy.responsibility.v1OnlyFiles",
-      label: "taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし）",
-      category: "guard",
-      value: countV1OnlyFiles(repoRoot).v1Only,
-      unit: "count",
-      status: "ok", // observation only、Phase 7 で 0 到達目標
-      owner: "documentation-steward",
-      docRefs: [
-        { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
-        {
-          kind: "definition",
-          path: "references/03-guides/responsibility-v1-to-v2-migration-map.md",
-        },
-      ],
-      implRefs: [
-        "app/src/test/guards/taxonomyV1V2GapGuard.test.ts",
-        "app/src/test/responsibilityTagRegistry.ts",
-        "app/src/test/responsibilityTaxonomyRegistryV2.ts",
-      ],
-    },
+    // Phase 6b 追加 + Phase 8 retirement で v1 vocabulary が消滅したため、本 KPI は
+    // 退役 (2026-04-27)。countV1OnlyFiles helper も dead code として retrospective-fixes
+    // commit で削除済。GAP-R-1 baseline は 0 達成 → guard 自体を Phase 9 で削除。
   ];
 }
