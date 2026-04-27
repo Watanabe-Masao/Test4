@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T01:09:52.424Z",
+  "timestamp": "2026-04-27T02:36:13.296Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1025,7 +1025,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 815,
+      "value": 823,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1157,6 +1157,7 @@
     {
       "id": "taxonomy.responsibility.unknownVocabulary",
       "label": "taxonomy 責務軸: unknown vocabulary 使用 file 数",
+      "category": "guard",
       "value": 20,
       "unit": "count",
       "status": "ok",
@@ -1167,7 +1168,7 @@
           "path": "projects/taxonomy-v2/plan.md"
         },
         {
-          "kind": "spec",
+          "kind": "definition",
           "path": "references/01-principles/responsibility-taxonomy-schema.md"
         }
       ],
@@ -1179,6 +1180,7 @@
     {
       "id": "taxonomy.test.unknownVocabulary",
       "label": "taxonomy テスト軸: unknown vocabulary 使用 test 数",
+      "category": "guard",
       "value": 0,
       "unit": "count",
       "status": "ok",
@@ -1189,7 +1191,7 @@
           "path": "projects/taxonomy-v2/plan.md"
         },
         {
-          "kind": "spec",
+          "kind": "definition",
           "path": "references/01-principles/test-taxonomy-schema.md"
         }
       ],
@@ -1201,6 +1203,7 @@
     {
       "id": "taxonomy.vocabulary.responsibilityCount",
       "label": "taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap)",
+      "category": "guard",
       "value": 10,
       "unit": "count",
       "status": "ok",
@@ -1218,6 +1221,7 @@
     {
       "id": "taxonomy.vocabulary.testCount",
       "label": "taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap)",
+      "category": "guard",
       "value": 15,
       "unit": "count",
       "status": "ok",

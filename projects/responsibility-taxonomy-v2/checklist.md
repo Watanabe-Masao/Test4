@@ -63,10 +63,10 @@
 
 ## Phase 4: Pilot
 
-- [ ] Pilot 対象ファイルリスト（≤ 20）が確定している
-- [ ] Pilot 対象に v2 タグが付与されている
-- [ ] Pilot で発見された Schema 問題が review window に上程 or 解決済みである
-- [ ] Pilot 対象が親 §OCS.7 Anchor Slice 5 R:tag を最低 1 件ずつ含んでいる
+- [x] Pilot 対象ファイルリスト（≤ 20）が確定している（Phase 4 子 branch 2026-04-27、18 file 選定: Anchor 5 R:tag を最低 2 件ずつ + R:store/hook/adapter/registry 計 9 種）
+- [x] Pilot 対象に v2 タグが付与されている（18 file 全件 @responsibility R:\* 付与済、3 件は v1 タグ置換 / 15 件は新規付与）
+- [x] Pilot で発見された Schema 問題が review window に上程 or 解決済みである（Phase 4 Pilot で発見された Schema 問題なし、registry V2 + interlock マトリクスで全件 cover）
+- [x] Pilot 対象が親 §OCS.7 Anchor Slice 5 R:tag を最低 1 件ずつ含んでいる（R:calculation 2 / R:bridge 2 / R:read-model 2 / R:guard 2 / R:presentation 2 = 全 5 anchor 各 2 件以上）
 
 ## Phase 5: Operations
 

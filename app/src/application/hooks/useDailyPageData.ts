@@ -5,8 +5,6 @@
  * - 取引先別内訳キーの収集
  * - 移動明細ルートタプルの構築
  * - 累計粗利率・売変率の計算
- *
- * @responsibility R:hook
  */
 import { useMemo } from 'react'
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models/record'
