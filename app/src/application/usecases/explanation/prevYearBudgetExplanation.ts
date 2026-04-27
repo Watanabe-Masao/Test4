@@ -4,6 +4,8 @@
  * ExplanationService 本体は StoreResult ベースだが、前年予算比較は
  * usePrevYearMonthlyKpi フックのデータを必要とするため、別関数として提供する。
  * useExplanations でマージして統合される。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   MetricId,

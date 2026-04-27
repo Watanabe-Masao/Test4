@@ -5,6 +5,8 @@
  * MonthlyDataPoint[] を構築し、季節性分析・トレンド分析に使用する。
  *
  * 純粋な変換ロジックは monthlyHistoryLogic.ts に分離。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useMemo, useRef } from 'react'
 import type { MonthlyDataPoint } from '@/application/services/forecastBridge'

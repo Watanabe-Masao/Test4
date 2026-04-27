@@ -7,6 +7,8 @@
  *
  * @layer Application — orchestrator hook
  * @guard H1 Screen Plan 経由のみ
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

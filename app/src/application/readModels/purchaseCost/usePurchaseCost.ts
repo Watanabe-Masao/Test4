@@ -15,6 +15,8 @@
  * @see readPurchaseCost — 唯一の read 関数（純関数）
  * @see purchaseCostHandler — useQueryWithHandler 用ラッパー
  * @see references/01-principles/purchase-cost-definition.md — 正本定義
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'

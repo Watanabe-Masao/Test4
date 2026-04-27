@@ -6,6 +6,8 @@
  *
  * @see references/01-principles/canonical-input-sets.md
  * @see references/01-principles/customer-gap-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import {
   calculateCustomerGap,

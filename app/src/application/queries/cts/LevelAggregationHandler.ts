@@ -2,6 +2,8 @@
  * LevelAggregationHandler — 階層レベル別集約クエリ
  *
  * CategoryPerformanceChart, HeatmapChart, CategoryHierarchyExplorer 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

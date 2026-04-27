@@ -5,6 +5,8 @@
  * UI はこの契約が供給する状態を描画するだけで、状態の生成・判断を行わない。
  *
  * @see references/01-principles/app-lifecycle-principles.md
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── ライフサイクルフェーズ ─────────────────────────────────

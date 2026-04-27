@@ -3,6 +3,8 @@
  *
  * MetricId から FORMULA_REGISTRY を参照し、FormulaDetail を解決する。
  * METRIC_DEFS の formulaRef フィールドをキーにレジストリを引く。
+ *
+ * @responsibility R:unclassified
  */
 import type { MetricId, FormulaDetail } from '@/domain/models/analysis'
 import { METRIC_DEFS } from '@/domain/constants/metricDefs'

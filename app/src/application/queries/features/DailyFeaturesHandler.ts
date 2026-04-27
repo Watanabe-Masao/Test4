@@ -8,6 +8,8 @@
  * 計算後に trimFromKey 以降の行のみを返す。
  *
  * @migration P5: single-source composite handler（DuckDB取得 + JS計算）
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'

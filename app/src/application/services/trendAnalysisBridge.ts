@@ -5,6 +5,8 @@
  * @bridgeKind analytics
  * @contractId ANA-004
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import { analyzeTrend as analyzeTrendTS } from '@/domain/calculations/algorithms/trendAnalysis'
 import type {

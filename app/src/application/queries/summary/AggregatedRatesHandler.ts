@@ -2,6 +2,8 @@
  * AggregatedRatesHandler — 期間集約レートクエリ
  *
  * 指定期間の売上合計・粗利率等の集約値を取得する。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

@@ -3,6 +3,8 @@
  *
  * DeptTrendChart で使用。
  * 入力は BaseQueryInput ベースではなく、yearMonths + deptCode の独自形式。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from '../QueryContract'
 import {

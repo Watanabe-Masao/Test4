@@ -3,6 +3,8 @@
  *
  * store_day_summary の row から各 metric の値を解決する。
  * metric の増減が handler 修正ではなく resolver 追加で済むようにする。
+ *
+ * @responsibility R:unclassified
  */
 
 /** store_day_summary row の temporal adapter 用最小型 */

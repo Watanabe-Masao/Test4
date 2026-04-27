@@ -9,6 +9,8 @@
  *      - ETRN 府県マップから観測所を解決
  *      - AMeDAS・予報区域に依存しない
  *   2. ETRN 日別 HTML テーブルをフェッチ・パース → DailyWeatherSummary
+ *
+ * @responsibility R:unclassified
  */
 import type {
   StoreLocation,

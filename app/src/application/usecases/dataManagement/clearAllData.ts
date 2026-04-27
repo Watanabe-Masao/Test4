@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DataRepository } from '@/domain/repositories/DataRepository'
 
 /** clearAllData が必要とする副作用（DI で注入） */

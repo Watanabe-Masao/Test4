@@ -3,6 +3,8 @@
  *
  * infrastructure/storage/storagePersistence.ts と storagePolicy.ts を
  * Application 層にブリッジし、UI からストレージ状態の確認・永続化要求を可能にする。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useCallback } from 'react'
 import { useStoragePersistenceAdapter } from '@/application/context/useAdapters'

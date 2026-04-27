@@ -28,6 +28,8 @@
  * @see references/03-guides/widget-coordination-architecture.md
  * @see references/01-principles/purchase-cost-definition.md
  * @see references/01-principles/gross-profit-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

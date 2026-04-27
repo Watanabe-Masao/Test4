@@ -3,6 +3,8 @@
  *
  * WeatherWidget のモーダル用。日付クリック時に ETRN から時間別天気を取得する。
  * Presentation 層が外部 API を直接呼ばないための Application 層フック。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import type { AlignmentMode } from '@/domain/models/calendar'

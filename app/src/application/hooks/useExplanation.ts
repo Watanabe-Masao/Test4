@@ -5,6 +5,8 @@
  * useMemo で計算結果に連動してキャッシュし、再レンダリングを最小化する。
  *
  * 計算パイプラインは変更せず、結果の「解釈」のみを担う。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

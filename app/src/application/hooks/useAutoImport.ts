@@ -10,6 +10,8 @@
  *  - rescanAll は processed をクリアして全件再取込する可逆操作。フォルダ設定は保持。
  *
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useEffect, useRef, useReducer } from 'react'
 import { useFileSystemAdapter } from '@/application/context/useAdapters'

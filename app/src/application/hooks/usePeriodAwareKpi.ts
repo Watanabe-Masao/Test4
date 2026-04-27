@@ -17,6 +17,8 @@
  *
  * period1 と period2 は独立したクエリで取得し、独立した PeriodMetrics を返す。
  * 同一パイプライン（DuckDB → JS計算）を通るため、計算ロジックの一貫性が保証される。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

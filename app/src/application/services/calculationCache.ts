@@ -8,6 +8,8 @@
  * - LRU 的な制限: 最大エントリ数を超えると古いものから削除
  * - Worker 対応: computeFingerprint / computeGlobalFingerprint は
  *   Worker 内でも呼び出し可能（副作用なし）
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { CalculationFrame } from '@/domain/models/CalculationFrame'

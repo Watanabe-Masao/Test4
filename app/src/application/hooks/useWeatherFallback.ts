@@ -5,6 +5,8 @@
  * useTimeSlotData から分離（G5 useState ≤6 / 行数 ≤300 準拠）。
  *
  * @layer Application — データ取得 sub-hook
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect, useRef } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

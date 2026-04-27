@@ -11,6 +11,8 @@
  * Promote Ceremony まで current authoritative (business-authoritative) は不変。
  *
  * @see references/03-guides/tier1-business-migration-plan.md
+ *
+ * @responsibility R:unclassified
  */
 import {
   evaluateObservationPeriod as evaluateObservationPeriodTS,

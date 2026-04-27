@@ -21,6 +21,8 @@
  * // isReady === true なら conn を使ってクエリ可能
  * // dataVersion を useMemo の依存配列に入れることでデータ変更時の再クエリをトリガー
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect, useRef, useCallback, useReducer } from 'react'
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

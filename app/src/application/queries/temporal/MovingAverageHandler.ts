@@ -11,6 +11,8 @@
  * 6. anchorRange に切り戻し
  *
  * row adapter / metric 解釈は services/temporal/ に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler } from '@/application/queries/QueryContract'

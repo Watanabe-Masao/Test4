@@ -8,6 +8,8 @@
  * handler 内部では CURRENT_SCOPE / COMPARISON_SCOPE を使い、
  * 型定義では PrevYearFlag を使うことで、guard の isPrevYear 検出を回避しつつ
  * コードの意味を明確にする。
+ *
+ * @responsibility R:unclassified
  */
 
 /** isPrevYear フラグの型エイリアス — infrastructure 互換の boolean */

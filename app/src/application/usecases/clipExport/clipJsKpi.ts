@@ -2,6 +2,8 @@
  * クリップ JS — KPI セクション
  *
  * clipJs.ts から分離。サマリー KPI グリッドの描画。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_KPI = `

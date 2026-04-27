@@ -3,6 +3,8 @@
  *
  * 単月処理は singleMonthImport.ts、複数月処理は multiMonthImport.ts に委譲。
  * processDroppedFiles の結果を MonthlyImportBatch に変換してから内部に渡す。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

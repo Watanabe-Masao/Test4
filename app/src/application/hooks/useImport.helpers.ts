@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // バレル re-export — monthlyDataMerge.ts
 export {
   DEFAULT_MERGE_ACTION,

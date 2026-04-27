@@ -17,6 +17,8 @@
  *
  * @see references/03-guides/tier1-business-migration-plan.md — 8ステップ移行プロセス
  * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ *
+ * @responsibility R:unclassified
  */
 import {
   calculateQuantityPI as calculateQuantityPITS,

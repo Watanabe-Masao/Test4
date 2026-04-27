@@ -5,6 +5,8 @@
  * application/comparison の resolveComparisonRows で日単位比較先を解決する。
  *
  * @migration P5: comparison-coupled composite handler
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from '../QueryContract'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'

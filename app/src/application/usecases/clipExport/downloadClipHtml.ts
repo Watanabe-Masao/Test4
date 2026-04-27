@@ -1,5 +1,7 @@
 /**
  * クリップ HTML のダウンロード
+ *
+ * @responsibility R:unclassified
  */
 import type { ClipBundle } from './types'
 import { renderClipHtml } from './renderClipHtml'

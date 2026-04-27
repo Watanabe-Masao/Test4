@@ -3,6 +3,8 @@
  *
  * store は state 反映のみ（C3）。永続化副作用は adapter 層で subscribe する。
  * このモジュールを import するだけで副作用が有効になる。
+ *
+ * @responsibility R:unclassified
  */
 import { usePageStore, type CustomPage } from '@/application/stores/pageStore'
 import { removeKey, STORAGE_KEYS } from './uiPersistenceAdapter'

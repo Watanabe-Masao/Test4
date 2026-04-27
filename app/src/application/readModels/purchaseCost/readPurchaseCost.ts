@@ -11,6 +11,8 @@
  *   仕入分析: grandTotalCost（3つ全部）
  *
  * @see references/01-principles/purchase-cost-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'

@@ -4,6 +4,8 @@
  * ETRN フォールバックで取得した天気データを DuckDB に書き戻す。
  * infrastructure の insertWeatherHourly をラップし、
  * application/hooks が infrastructure を直接参照しないようにする。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection, AsyncDuckDB } from '@duckdb/duckdb-wasm'
 import type { HourlyWeatherRecord } from '@/domain/models/record'

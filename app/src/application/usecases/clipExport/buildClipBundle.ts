@@ -3,6 +3,8 @@
  *
  * 1ヶ月分のデータを ClipBundle に変換し、自己完結型 HTML 用のデータを作成する。
  * DuckDB クエリは呼び出し元（presentation 層）が実行し、結果を渡す。
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'

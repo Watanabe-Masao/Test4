@@ -2,6 +2,8 @@
  * クリップ HTML 用 CSS テンプレート
  *
  * renderClipHtml から分離。自己完結型 HTML レポートのスタイル定義。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CSS_CONTENT = `

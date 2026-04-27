@@ -6,6 +6,8 @@
  *
  * このコンポーネントは RepositoryProvider の後に配置する必要がある
  * （usePersistenceState が useRepository に依存するため）。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import { usePersistenceState } from '@/application/hooks/usePersistence'

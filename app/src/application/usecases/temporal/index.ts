@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Phase 1: Frame / Fetch Plan 最小導入
 export { buildMonthlyFrame } from './buildMonthlyFrame'
 export { buildAnalysisFrame } from './buildAnalysisFrame'

@@ -11,6 +11,8 @@
  *   - windowSize / direction は型レベルで存在しない
  *
  * granularity は受け取るが、Phase 1 では buildTemporalFetchPlan が day の rolling 系だけを扱う。
+ *
+ * @responsibility R:unclassified
  */
 import type { AnalysisRequest } from '@/domain/models/temporal'
 import type {

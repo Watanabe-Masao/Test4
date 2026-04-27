@@ -11,6 +11,8 @@
  *   estimated × after_cost_inclusion  = 推定法（before と同値、追加控除不要）
  *
  * @see references/01-principles/gross-profit-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

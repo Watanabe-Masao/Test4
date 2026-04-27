@@ -4,6 +4,8 @@
  * processDroppedFiles() の結果（MonthlyData + MonthPartitions）を
  * 月別 MonthlyData の Map に変換する。
  * execution.artifacts[].attributions から月別 ImportSummary を構築する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ImportExecution } from '@/domain/models/ImportProvenance'

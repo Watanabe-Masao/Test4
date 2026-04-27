@@ -9,6 +9,8 @@
  * @contractId BIZ-012
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type { PIValueInput, PIValueResult } from '@/domain/calculations/piValue'
 import { getPiValueWasmExports } from './wasmEngine'

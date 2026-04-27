@@ -4,6 +4,8 @@
  * MonthlyData / ImportedData から表示用のサマリー情報を算出する。
  * Presentation 層が .records を直接走査することを防ぐため、
  * ここで全てのレコード走査を集約する。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   Store,

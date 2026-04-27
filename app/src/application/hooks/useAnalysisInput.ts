@@ -5,6 +5,8 @@
  * 将来の AnalysisFrame 拡張時の差し替え口を提供する。
  *
  * @layer Application — facade hook
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

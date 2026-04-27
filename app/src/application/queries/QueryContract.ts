@@ -5,6 +5,8 @@
  * Input/Output 型を明示化し、テスト可能にする。
  *
  * Phase 2: CQRS 核心 — Command（JS計算）と Query（DuckDB探索）の明示的分離
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 

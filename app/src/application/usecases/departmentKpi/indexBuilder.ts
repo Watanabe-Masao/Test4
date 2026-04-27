@@ -8,6 +8,8 @@
  * CLAUDE.md「既知の課題と移行方針」に準拠:
  * - 生データ (DepartmentKpiData) を直接UIに渡さない
  * - フィルタ・集約ロジックをアプリケーション層に集約
+ *
+ * @responsibility R:unclassified
  */
 import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models/record'
 import {

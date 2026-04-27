@@ -3,6 +3,8 @@
  *
  * 日別の2要素分解（客数効果・客単価効果）を計算し、
  * 累計と単日の両方のデータを提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'

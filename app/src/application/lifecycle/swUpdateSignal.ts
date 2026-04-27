@@ -5,6 +5,8 @@
  * SW 更新通知を伝達する軽量シグナル。
  *
  * useSyncExternalStore パターンで購読する。
+ *
+ * @responsibility R:unclassified
  */
 
 let swUpdateApplying = false

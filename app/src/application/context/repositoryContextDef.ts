@@ -6,6 +6,8 @@
  * Provider (.tsx) とフック (useRepository.ts) の両方がここからインポートする。
  *
  * デフォルト値は null。RepositoryProvider が必ずラップすることを前提とする。
+ *
+ * @responsibility R:unclassified
  */
 import { createContext } from 'react'
 import type { DataRepository } from '@/domain/repositories'

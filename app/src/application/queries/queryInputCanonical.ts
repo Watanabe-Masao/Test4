@@ -6,6 +6,8 @@
  *
  * @invariant INV-RUN-01 Semantic Determinism
  * @see references/01-principles/safe-performance-principles.md
+ *
+ * @responsibility R:unclassified
  */
 
 /**

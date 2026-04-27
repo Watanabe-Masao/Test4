@@ -5,6 +5,8 @@
  * from 月と to 月の両方を取得して結合する。
  *
  * useUnifiedWidgetContext から分離した天気サブシステム。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

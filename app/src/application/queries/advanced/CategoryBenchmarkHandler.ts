@@ -2,6 +2,8 @@
  * CategoryBenchmarkHandler — カテゴリベンチマーク（指数加重ランキング）クエリ
  *
  * CategoryBenchmarkChart.vm, PiCvBubbleChart, CvTimeSeriesChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

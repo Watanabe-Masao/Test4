@@ -2,6 +2,8 @@
  * 因果チェーンの各ステップビルダー（純粋関数）
  *
  * causalChain.ts から抽出。各ステップの CausalStep 構築を担う。
+ *
+ * @responsibility R:unclassified
  */
 import type { TwoFactorResult } from '@/domain/calculations/factorDecomposition'
 import type { DiscountEntry } from '@/domain/models/record'

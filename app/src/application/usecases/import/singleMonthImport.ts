@@ -2,6 +2,8 @@
  * 単月インポートオーケストレーション（MonthlyData ベース）
  *
  * ImportOrchestrator から抽出。単月のインポート実行と差分解決を担う。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { AppSettings } from '@/domain/models/storeTypes'

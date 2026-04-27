@@ -5,6 +5,8 @@
  * ロジック判断・比較・モード判断・フォールバックは一切含めない（bridge の責務）。
  *
  * Rust 実装 (wasm/budget-analysis/) の wasm-bindgen export を呼び出す。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   BudgetAnalysisInput,

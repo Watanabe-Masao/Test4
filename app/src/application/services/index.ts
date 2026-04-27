@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Re-export from usecases for backward compatibility
 export {
   calculateStoreResult,

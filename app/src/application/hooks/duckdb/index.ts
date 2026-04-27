@@ -4,6 +4,8 @@
  * 責務別に分割されたフックモジュールを再エクスポートする。
  * 外部からは `@/application/hooks/duckdb` でインポートする。
  * 旧バレル `useDuckDBQuery.ts` は削除済み。
+ *
+ * @responsibility R:unclassified
  */
 
 // 汎用非同期クエリフック + ヘルパー

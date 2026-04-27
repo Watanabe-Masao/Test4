@@ -3,6 +3,8 @@
  * @contractId ANA-005
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type {
   CorrelationResult,

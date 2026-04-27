@@ -3,6 +3,8 @@
  *
  * Infrastructure 層の DuckDB 接続を Application 層で型安全に使うためのポート。
  * テスト時はモック接続を注入可能。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler } from './QueryContract'

@@ -3,6 +3,8 @@
  *
  * 静的リスト（etrnStations.json）から都道府県→観測所の2段選択を提供する。
  * HTML スクレイピング不要。ネットワークリクエスト不要で即座に結果を返す。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { EtrnStation, EtrnStationEntry } from '@/domain/ports/WeatherPort'

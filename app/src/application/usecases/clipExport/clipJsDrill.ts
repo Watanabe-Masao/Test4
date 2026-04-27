@@ -2,6 +2,8 @@
  * クリップ JS — ドリルダウンセクション
  *
  * clipJs.ts から分離。カテゴリドリルダウンビューの描画。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_DRILL = `

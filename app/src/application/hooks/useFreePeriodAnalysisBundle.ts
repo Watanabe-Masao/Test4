@@ -10,6 +10,8 @@
  * - deptKPI: 部門KPI（売上加重平均）
  *
  * @layer Application — orchestration hook
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

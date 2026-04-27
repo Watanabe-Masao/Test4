@@ -6,6 +6,8 @@
  *
  * 予報データはキャッシュせず毎回最新を取得する。
  * 解決した予報区域コードは settingsStore に保存してキャッシュする。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { DailyForecast, ForecastAreaResolution } from '@/domain/models/record'

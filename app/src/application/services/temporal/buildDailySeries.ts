@@ -5,6 +5,8 @@
  * 同一 dateKey の row が複数存在する場合は後勝ち（Map 化時の挙動）。
  *
  * Phase 2: 連続日次系列の構成のみ。計算（moving average 等）はしない。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import { toDateKey } from '@/domain/models/CalendarDate'

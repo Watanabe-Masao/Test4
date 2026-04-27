@@ -3,6 +3,8 @@
  *
  * DataRepository インスタンスを React ツリーに提供する。
  * 具体的な実装（IndexedDBRepository 等）は外部から注入する。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import type { DataRepository } from '@/domain/repositories'

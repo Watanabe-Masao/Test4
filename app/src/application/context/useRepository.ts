@@ -3,6 +3,8 @@
  *
  * react-refresh/only-export-components 対応のため、
  * コンポーネント（Provider）とフックを別ファイルに分離。
+ *
+ * @responsibility R:unclassified
  */
 import { useContext } from 'react'
 import { RepositoryContext } from './repositoryContextDef'

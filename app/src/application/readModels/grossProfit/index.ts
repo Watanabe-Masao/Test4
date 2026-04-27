@@ -1,5 +1,7 @@
 /**
  * 粗利計算正本 — バレルエクスポート
+ *
+ * @responsibility R:unclassified
  */
 export { GrossProfitReadModel, GrossProfitInput, GrossProfitMeta } from './GrossProfitTypes'
 export type {

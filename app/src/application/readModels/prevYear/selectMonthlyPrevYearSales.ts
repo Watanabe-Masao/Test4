@@ -48,6 +48,8 @@
  *
  * @see references/01-principles/temporal-scope-semantics.md
  * @see features/comparison/application/comparisonTypes.ts `PrevYearMonthlyTotal`
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import type { PrevYearMonthlyKpi } from '@/application/comparison/comparisonTypes'

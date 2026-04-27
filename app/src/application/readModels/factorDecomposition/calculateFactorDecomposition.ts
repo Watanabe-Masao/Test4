@@ -5,6 +5,8 @@
  * Zod 契約 + Shapley 不変条件検証を追加する。
  *
  * @see references/01-principles/authoritative-calculation-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'
 import type { CategoryQtyAmt } from '@/domain/calculations/factorDecomposition'

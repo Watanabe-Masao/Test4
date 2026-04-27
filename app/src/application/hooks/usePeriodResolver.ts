@@ -2,6 +2,8 @@
  * 期間選択フック — periodSelectionStore のセレクタ
  *
  * Admin UI や期間選択 UI で使用する。
+ *
+ * @responsibility R:unclassified
  */
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 

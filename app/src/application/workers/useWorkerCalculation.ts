@@ -5,6 +5,8 @@
  * ブロッキングを防止する。Worker 非対応環境では同期フォールバック。
  *
  * dataVersion ベースの軽量キャッシュキーでキャッシュヒット判定を行う。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'

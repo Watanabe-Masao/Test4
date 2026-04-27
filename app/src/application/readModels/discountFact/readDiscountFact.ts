@@ -5,6 +5,8 @@
  * 時間帯データは持たない（仕様）。
  *
  * @see references/01-principles/discount-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import type { BaseQueryInput } from '@/application/queries/QueryContract'
 import {

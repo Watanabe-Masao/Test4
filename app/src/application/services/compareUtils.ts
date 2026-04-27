@@ -6,6 +6,8 @@
  *
  * 方針: 過剰抽象化しない。各 bridge は引き続き独自の invariant checker、
  * null 処理、semantic mismatch 判定を持つ。ここでは純粋な計算のみ。
+ *
+ * @responsibility R:unclassified
  */
 import type { WasmState, ExecutionMode } from './wasmEngine'
 

@@ -2,6 +2,8 @@
  * HourlyAggregationHandler — 時間帯別集約クエリ
  *
  * TimeSlotChart で使用。当月/比較月の時間帯別売上・点数を集約する。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryHourlyAggregation } from '@/infrastructure/duckdb/queries/ctsHourlyQueries'

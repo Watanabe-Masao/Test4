@@ -3,6 +3,8 @@
  *
  * importValidation.ts から分離。
  * 分類別売上と分類別時間帯売上の照合、重複検出、階層整合性を担当する。
+ *
+ * @responsibility R:unclassified
  */
 import type { ValidationMessage } from '@/domain/models/record'
 import type { DataSummaryInput } from '@/application/services/dataSummary'

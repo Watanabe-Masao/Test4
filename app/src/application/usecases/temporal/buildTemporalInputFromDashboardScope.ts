@@ -9,6 +9,8 @@
  *
  * Phase 5: 最初の consumer は「日別売上・売変推移」チャートの売上7日移動平均 overlay。
  * 将来は Free analysis selector が正規の生成元となり、本 resolver は暫定統合。
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { AnalysisMetric } from '@/domain/models/temporal'

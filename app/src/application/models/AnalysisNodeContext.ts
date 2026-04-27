@@ -10,6 +10,8 @@
  * - deriveChildContext() が文脈派生の唯一の入口
  * - deriveNodeContext() はノード化・フォーカス付与のみ（base を不変参照で受け継ぐ）
  * - 文脈変更が必要な場合は deriveChildContext() を先に通してから deriveNodeContext() を作る
+ *
+ * @responsibility R:unclassified
  */
 import type { SalesAnalysisContext } from './SalesAnalysisContext'
 import type { CategoryFocus } from './AnalysisViewEvents'

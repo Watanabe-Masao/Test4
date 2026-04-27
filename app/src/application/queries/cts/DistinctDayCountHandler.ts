@@ -3,6 +3,8 @@
  *
  * TimeSlotChart の日次平均モードで使用。
  * total_amount > 0 の日のみカウントする（非営業日除外）。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryDistinctDayCount } from '@/infrastructure/duckdb/queries/categoryTimeSales'

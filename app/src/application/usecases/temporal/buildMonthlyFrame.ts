@@ -4,6 +4,8 @@
  * ヘッダ月次指定から MonthlyFrame を生成する。
  * 月末日算出は PeriodSelection.lastDayOfMonth と同一規則（new Date(year, month, 0).getDate()）。
  * DateRange は inclusive（from/to 両端含む）。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyContext } from '@/domain/models/temporal'
 import type { MonthlyFrame } from './TemporalFrameTypes'

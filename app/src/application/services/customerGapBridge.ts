@@ -11,6 +11,8 @@
  * Promote Ceremony まで current authoritative (business-authoritative) は不変。
  *
  * @see references/03-guides/tier1-business-migration-plan.md
+ *
+ * @responsibility R:unclassified
  */
 import { calculateCustomerGap as calculateCustomerGapTS } from '@/domain/calculations/customerGap'
 import type { CustomerGapInput, CustomerGapResult } from '@/domain/calculations/customerGap'

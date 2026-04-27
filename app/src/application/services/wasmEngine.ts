@@ -25,6 +25,8 @@
  * 3. モード切替が render 順に影響しない（bridge は同期関数）
  * 4. 初期化は UI イベントループをブロックしない（非同期）
  * 5. 再初期化は不要（一度 'ready' or 'error' に到達したら state は変わらない）
+ *
+ * @responsibility R:unclassified
  */
 
 export type WasmState = 'idle' | 'loading' | 'ready' | 'error'

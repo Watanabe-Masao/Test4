@@ -11,6 +11,8 @@
  *
  * 既存 caller (useComparisonSlice / usePageComparisonModule) は本 wrapper 経由で
  * 動作継続する。Phase O6 で useComparisonSlice を core 直接呼び出しに移行予定。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'

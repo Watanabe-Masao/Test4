@@ -2,6 +2,8 @@
  * クリップ JS — 日別詳細セクション
  *
  * clipJs.ts から分離。日別詳細オーバーレイの描画。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_DETAIL = `

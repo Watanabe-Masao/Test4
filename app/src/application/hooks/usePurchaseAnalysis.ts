@@ -5,6 +5,8 @@
  * presentation 層が useDuckDB を直接 import しなくて済むようにする。
  *
  * @layer Application — facade hook
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DataRepository } from '@/domain/repositories'

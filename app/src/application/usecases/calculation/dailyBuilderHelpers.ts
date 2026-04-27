@@ -3,6 +3,8 @@
  *
  * buildDailyRecords() から抽出した純粋な集約・構成ロジック。
  * application 層内の分解であり、domain/ への移管は行わない。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   CostPricePair,

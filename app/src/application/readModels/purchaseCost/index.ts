@@ -1,5 +1,7 @@
 /**
  * 仕入原価複合正本 — バレルエクスポート
+ *
+ * @responsibility R:unclassified
  */
 export { PurchaseCostReadModel, PurchaseCostQueryInput } from './PurchaseCostTypes'
 export type {

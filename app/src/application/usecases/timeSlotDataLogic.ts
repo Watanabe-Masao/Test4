@@ -5,6 +5,8 @@
  *
  * @layer Application — pure computation helpers
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { HourlyAggregationRow } from '@/domain/models/CtsQueryContracts'

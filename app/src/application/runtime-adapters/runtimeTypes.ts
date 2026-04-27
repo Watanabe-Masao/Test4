@@ -8,6 +8,8 @@
  *                                  → recovering → ready
  *                                  → degraded
  *                  → failed
+ *
+ * @responsibility R:unclassified
  */
 
 /** Runtime の全体状態フェーズ */

@@ -6,6 +6,8 @@
  *
  * 現時点ではローカル単一ユーザーのため、常に匿名ユーザーとして動作する。
  * クラウド連携時に OAuth / JWT 等の実装を差し込む。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo, type ReactNode } from 'react'
 import { AuthContext } from './authContextDef'

@@ -1,4 +1,8 @@
-/** 期間メトリクス計算: store_day_summary の生データから domain/calculations/ の純粋関数で指標を算出 */
+/**
+ * 期間メトリクス計算: store_day_summary の生データから domain/calculations/ の純粋関数で指標を算出
+ *
+ * @responsibility R:unclassified
+ */
 import {
   calculateEstMethodWithStatus,
   calculateDiscountRate,

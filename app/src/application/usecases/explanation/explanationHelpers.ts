@@ -3,6 +3,8 @@
  *
  * generateExplanations で使用するヘルパー関数群。
  * 日別エビデンス・日別内訳・構成内訳など、Explanation 構築に共通の処理を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   Explanation,

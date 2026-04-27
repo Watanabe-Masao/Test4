@@ -4,6 +4,8 @@
  * ImportedData に依存しない import 内部の型を定義する。
  * processDroppedFiles() の結果を月別 MonthlyData に変換した後、
  * これらの型で import ロジックを駆動する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { DiffResult } from '@/domain/models/analysis'

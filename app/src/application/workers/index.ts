@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { useWorkerCalculation } from './useWorkerCalculation'
 export type { WorkerCalculateResult } from './useWorkerCalculation'
 export type {

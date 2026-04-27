@@ -3,6 +3,8 @@
  *
  * aggregateResults から抽出。日別・カテゴリ・取引先・予算・移動の集約と
  * 値入率・在庫法・推定法・予算分析の計算を担う。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   CostPricePair,

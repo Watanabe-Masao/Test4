@@ -3,6 +3,8 @@
  *
  * @invariant INV-RUN-02 Comparison Integrity
  * @see references/01-principles/safe-performance-principles.md
+ *
+ * @responsibility R:unclassified
  */
 import { categoryHourlyHandler } from './CategoryHourlyHandler'
 import { createPairedHandler } from '../createPairedHandler'

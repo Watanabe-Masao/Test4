@@ -19,6 +19,8 @@
  * - 変換は DuckDB→JS 境界で1回だけ行う
  * - 以降の JS 処理は DaySerial のみ使用（dateKey/day は参照しない）
  * - period1/period2 は独立した SerialDayRecord[] として扱う
+ *
+ * @responsibility R:unclassified
  */
 import type { DaySerial } from '@/domain/models/DaySerial'
 import { dateKeyToSerial } from '@/domain/models/DaySerial'

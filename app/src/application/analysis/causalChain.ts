@@ -3,6 +3,8 @@
  *
  * 型定義・フォーマッタは causalChainFormatters.ts、
  * ステップビルダーは causalChainSteps.ts に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { calculateFactorDecomposition } from '@/application/readModels/factorDecomposition'

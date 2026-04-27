@@ -2,6 +2,8 @@
  * クリップ JS — ウォーターフォールセクション
  *
  * clipJs.ts から分離。要因分解ウォーターフォールの描画 + SVG 生成。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_WATERFALL = `

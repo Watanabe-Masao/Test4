@@ -5,6 +5,8 @@
  * React の状態管理に一元化する。テストでは Provider ごとに自然にリセットされる。
  *
  * RepositoryProvider の後に配置すること（useRepository に依存）。
+ *
+ * @responsibility R:unclassified
  */
 import { type ReactNode, useReducer, useState, useEffect, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

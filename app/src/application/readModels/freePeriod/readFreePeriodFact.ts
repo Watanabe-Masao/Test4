@@ -5,6 +5,8 @@
  * JS で期間サマリーを導出して FreePeriodReadModel を返す。
  *
  * @see references/01-principles/free-period-analysis-definition.md (予定)
+ *
+ * @responsibility R:unclassified
  */
 import {
   FreePeriodReadModel,

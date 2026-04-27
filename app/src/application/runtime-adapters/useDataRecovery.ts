@@ -3,6 +3,8 @@
  *
  * 原本ファイル（rawFileStore）の一覧管理と、
  * DuckDB の再構築・キャッシュ削除を UI に提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useCallback } from 'react'
 import { useContext } from 'react'

@@ -42,6 +42,8 @@
  * legacy fallback の判断に使える。
  *
  * @see projects/completed/unify-period-analysis/inventory/05-phase6-widget-consumers.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import type { FreePeriodReadModel } from './FreePeriodTypes'

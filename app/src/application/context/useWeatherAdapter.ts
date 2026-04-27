@@ -1,5 +1,7 @@
 /**
  * WeatherPort を AdapterContext から取得する hook
+ *
+ * @responsibility R:unclassified
  */
 import { useContext } from 'react'
 import type { WeatherPort } from '@/domain/ports/WeatherPort'

@@ -9,6 +9,8 @@
  * - 入力: ComparisonScope（periodSelection 由来）を単一の起点とする
  * - エラー: catch {} で握り潰さず ComparisonLoadStatus で返す
  * - 読込範囲: queryRanges で明示指定（月跨ぎ・sameDow 拡張に対応）
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect, useReducer, useRef } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

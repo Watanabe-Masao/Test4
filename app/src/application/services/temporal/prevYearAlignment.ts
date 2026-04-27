@@ -6,6 +6,8 @@
  *
  * 方式: 前年系列の先頭日からの経過日数を算出し、当年系列の先頭日に加算する。
  * 同曜日寄せ（dowOffset）は前年の dateRange 構築時に反映済みの前提。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 

@@ -2,6 +2,8 @@
  * 複数店舗の StoreResult を合算するファサード
  *
  * スカラー合算は scalarAccumulator.ts、コレクション集約は collectionAggregator.ts に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { getEffectiveGrossProfit } from '@/domain/calculations/utils'

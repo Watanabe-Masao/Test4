@@ -6,6 +6,8 @@
  *
  * Chrome はブラウザ同期で localStorage/IndexedDB を同期しないため、
  * アプリレベルで設定転送の仕組みを提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import { z } from 'zod'

@@ -3,6 +3,8 @@
  *
  * MovingAverageHandler（および将来の rolling sum / trend handler）から
  * row 変換責務を分離する。handler は orchestration のみに専念できる。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { DailySeriesSourceRow } from './DailySeriesTypes'

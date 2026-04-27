@@ -5,6 +5,8 @@
  * 時間帯データは持たない（仕様として固定）。
  *
  * @see references/01-principles/discount-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 
