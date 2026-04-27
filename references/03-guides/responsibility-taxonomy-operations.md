@@ -111,7 +111,7 @@ v1 `R:utility`（33 件）の再来を防ぐため、提案前に以下を **事
 
 ### 4.1. 同期が必要なイベント（責務軸 → テスト軸 通知）
 
-以下のイベント発生時、`projects/test-taxonomy-v2/HANDOFF.md` に同期通知を記載 + 兄弟ガイド `test-taxonomy-operations.md` §4 の対応 trigger を参照する:
+以下のイベント発生時、`projects/completed/test-taxonomy-v2/HANDOFF.md` に同期通知を記載 + 兄弟ガイド `test-taxonomy-operations.md` §4 の対応 trigger を参照する:
 
 | イベント                          | テスト軸への影響                                        |
 | --------------------------------- | ------------------------------------------------------- |
@@ -218,7 +218,78 @@ Result:
 - `responsibilityTagGuardV2` baseline の **ratchet-down**（減少のみ、増加禁止）
 - low-risk tag の prose 説明の文言修正
 
-## 7. 関連文書
+## 7. R:unclassified の意味負債 (semantic debt) 認識
+
+> **post-review 2026-04-27 追加 (user judgment)**: Phase 7.5 mass migration で v1-only 259 file を **R:unclassified に一律退避**した結果、現在の registry 集計は **R:unclassified が 90%+ を占める**。この状態は「タグが付いている率 100%」だが「意味的に分類されている率」ではないため、**semantic debt として明示的に認識**する。
+
+### 7.1. semantic debt の所在
+
+| 項目                  | 値                                                                                                |
+| --------------------- | ------------------------------------------------------------------------------------------------- |
+| 影響 file 数          | 259（Phase 7.5 mass migration 対象、v1-only → R:unclassified 一律置換）                           |
+| 喪失した意味情報      | v1 の `R:state-machine` / `R:transform` / `R:chart-view` / `R:utility` 等の **粗いが意味あった分類** |
+| migration map §1 mapping | per-tag remap (R:state-machine → R:store / R:transform → context-judged 等) は **適用されなかった**（一律 R:unclassified） |
+| 復元可能性            | git history 経由で参照可能（Phase 7.5 commit hash 範囲を `git log -p` で読む）                     |
+| 通常 reviewer 判読性  | **低**（registry V2 だけ見ても `R:unclassified` としか分からない）                                 |
+
+### 7.2. v1 provenance の参照経路
+
+R:unclassified file の元 v1 タグを参照したい場合:
+
+```bash
+# Phase 7.5 mass migration の commit hash を特定
+git log --oneline --grep="Phase 7.5"
+
+# 特定 file の v1 タグ (置換前) を確認
+git log -p --follow <file-path> | grep "@responsibility R:" | head
+
+# 一括 inventory 参照 (Phase 0 baseline 残存)
+cat references/02-status/responsibility-taxonomy-inventory.yaml | grep -B 1 -A 1 <file-path>
+```
+
+### 7.3. semantic debt の解消経路（forward-looking）
+
+R:unclassified 退避は **暫定避難先** であり、本番運用上は具体タグへの promotion が望ましい。解消手順:
+
+1. **review window 経由の per-file promotion**（review-window.md §4）
+   - 候補 R:tag を Interlock matrix から選定
+   - 必須 T:kind を満たすか確認
+   - review-journal に提案 entry → 採択
+   - registry V2 で当該 file の `@responsibility R:unclassified` → 具体タグに置換
+   - V2-R-1 baseline は変動なし (R:unclassified も v2 vocabulary なので unchanged)
+
+2. **bulk promotion（複数 file の同 R:tag への一括 migration）**
+   - PR per 50 file 程度を上限とする（review 可能性確保）
+   - 例: presentation/components/charts/ 配下の `R:unclassified` → `R:presentation` 一括
+   - migration map §1 の v1 → v2 mapping を adoption の根拠とする
+
+### 7.4. semantic debt baseline の追跡
+
+- 現状 R:unclassified 件数: `taxonomy-health.json` の `taxonomy.responsibility.tagDistribution["R:unclassified"]`
+- 解消目標: **設定なし**（原則 1「未分類は能動タグ」により R:unclassified は恒久 sentinel として留まる file が存在する）
+- ratchet 戦略: 「R:unclassified 件数を ratchet-down」は強制せず、review window で個別判断
+
+> **重要**: 本 §7 の存在は「semantic loss は既知の負債である」という運用 acknowledgement であり、解消は incremental に行う。Coverage 100% (V2-R-1 baseline=0) は **「タグの存在保証」** であって **「意味分類の完成」** ではないことを reviewer に明示する。
+
+## 8. mass migration script の retry / rollback 方針 (gap 5 deferred memo)
+
+> **post-review 2026-04-27 追加 (gap 5 deferred)**: `tools/scripts/phase6a2-mass-tagging.ts` / `phase7.5-v1-migration.ts` の partial failure 時の手順。次回 mass migration 時に再発防止メモとして参照。
+
+### 8.1. 部分失敗時の対処
+
+mass-tagging script が途中エラーで一部 file のみ更新した場合:
+
+1. **rollback**: `git checkout -- <affected-files>` で uncommitted 変更を破棄。commit 済の場合は `git revert <commit-sha>`
+2. **retry**: idempotent 設計（既に `@responsibility` ある file は skip）のため、同 script を再実行で残り file を処理
+3. **分析**: error log から失敗 file 群を特定し、edge case (single-line JSDoc / shebang / 'use client' / 多重 annotation) を script に反映
+
+### 8.2. 次回 migration 時の事前確認
+
+- `--dry-run` で影響範囲事前確認
+- 大規模 migration (>100 file) は layer 別 commit に分離（Phase 6a-2 の前例: domain → application → ... の 6 commit 分割）
+- script は **一回限り使用** が原則。再利用が必要な場合は `tools/scripts/_lib/inject-annotation.ts` への共通 helper 抽出を検討
+
+## 9. 関連文書
 
 | 文書                                                               | 役割                                                |
 | ------------------------------------------------------------------ | --------------------------------------------------- |
@@ -231,7 +302,7 @@ Result:
 | `references/02-status/taxonomy-review-journal.md`                  | review window 提案 / 採択 / 却下 journal           |
 | `app/src/test/responsibilityTaxonomyRegistryV2.ts`                 | v2 R:tag registry 実装                              |
 | `app/src/test/guards/responsibilityTagGuardV2.test.ts`             | v2 R:tag guard（V2-R-* baseline）                   |
-| `projects/responsibility-taxonomy-v2/plan.md`                      | 子 project plan（10 Phase + Phase 別禁止事項）      |
-| `projects/responsibility-taxonomy-v2/checklist.md`                 | 子 project completion 入力                          |
+| `projects/completed/responsibility-taxonomy-v2/plan.md`                      | 子 project plan（10 Phase + Phase 別禁止事項）      |
+| `projects/completed/responsibility-taxonomy-v2/checklist.md`                 | 子 project completion 入力                          |
 | `projects/taxonomy-v2/plan.md` §OCS.3                              | `taxonomy:check` / `taxonomy:impact` 仕様正本       |
 | `CLAUDE.md` §taxonomy-binding                                      | AI Vocabulary Binding（本ガイド §5.4 退避の根拠）  |

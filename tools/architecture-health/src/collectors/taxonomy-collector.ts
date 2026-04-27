@@ -47,11 +47,22 @@ const V2_T_VOCAB = new Set([
 ]);
 const V2_R_SCOPE_DIRS = ["application", "domain", "features", "infrastructure", "presentation"];
 
-interface DriftCount {
+const ANCHOR_R_SLICE = new Set([
+  "R:calculation", "R:bridge", "R:read-model", "R:guard", "R:presentation",
+]);
+const ANCHOR_T_SLICE = new Set([
+  "T:unit-numerical", "T:boundary", "T:contract-parity",
+  "T:zod-contract", "T:meta-guard", "T:render-shape",
+]);
+
+interface LiveAxisStats {
   readonly totalEntries: number;
   readonly untagged: number;
   readonly unknownVocabulary: number;
   readonly missingOrigin: number;
+  readonly inAnchorSlice: number;
+  readonly byAnchorTag: Record<string, number>;
+  readonly tagDistribution: Record<string, number>;
 }
 
 function* walkFiles(dir: string): Generator<string> {
@@ -77,70 +88,108 @@ const isResponsibilityGuardFile = (f: string): boolean =>
   f.includes("/test/guards/") && f.endsWith(".test.ts");
 const isTestFile = (f: string): boolean => f.endsWith(".test.ts") || f.endsWith(".test.tsx");
 
-function computeLiveDriftBudget(repoRoot: string, axis: "responsibility" | "test"): DriftCount {
+/**
+ * Live axis scanner — retrospective fix B (live drift) + post-review fix #1/#2 (2026-04-27)
+ *
+ * 修正内容:
+ * - **#1 current/baseline 混在解消**: tagDistribution / inAnchorSlice / byAnchorTag も live scan で計測。
+ *   yaml の Phase 0 baseline は完全に放棄し、collector 出力は 100% current 値のみとする。
+ * - **#2 parser 統一**: guard と同じ loose regex `(.+)` で annotation を取得し、その後 per-tag で
+ *   既知/未知/anchor 分類する。strict regex で annotation 自体を見落として untagged 計上する false negative を解消。
+ *
+ * 統一 parser 仕様 (responsibilityTagGuardV2 / testTaxonomyGuardV2 と同じ動作):
+ * 1. file 内最初の `@responsibility\s+(.+)` または `@taxonomyKind\s+(.+)` を取得
+ * 2. comma で split → trim → 空文字除去
+ * 3. 各 tag を { prefix 一致 + vocab 登録済 / prefix 一致 + vocab 未登録 / prefix 不一致 } で分類
+ *
+ * file 単位の分類 (counted-once-per-file):
+ * - untagged: annotation なし
+ * - unknownVocabulary: annotation あり、vocab 未登録 tag を 1 件以上含む
+ * - tagDistribution: annotation あり file の tag 出現件数（同 file 内重複は 1 回計上）
+ */
+function computeLiveAxisStats(repoRoot: string, axis: "responsibility" | "test"): LiveAxisStats {
   const SRC = resolve(repoRoot, "app/src");
-  let totalEntries = 0, untagged = 0, unknownVocabulary = 0;
   const tagKey = axis === "responsibility" ? "responsibility" : "taxonomyKind";
   const prefix = axis === "responsibility" ? "R:" : "T:";
   const vocab = axis === "responsibility" ? V2_R_VOCAB : V2_T_VOCAB;
-  const annotationRegex = new RegExp(`@${tagKey}\\s+(${prefix}[a-z][a-z0-9-]+(?:\\s*,\\s*${prefix}[a-z][a-z0-9-]+)*)`);
+  const anchorSlice = axis === "responsibility" ? ANCHOR_R_SLICE : ANCHOR_T_SLICE;
+  const looseRegex = new RegExp(`@${tagKey}\\s+(.+)`);
 
+  let totalEntries = 0;
+  let untagged = 0;
+  let unknownVocabulary = 0;
+  let inAnchorSlice = 0;
+  const byAnchorTag: Record<string, number> = {};
+  const tagDistribution: Record<string, number> = {};
+
+  const targetFiles: string[] = [];
   if (axis === "responsibility") {
     for (const dir of V2_R_SCOPE_DIRS) {
       for (const f of walkFiles(resolve(SRC, dir))) {
-        if (!isResponsibilityProductionFile(f)) continue;
-        totalEntries++;
-        const c = readFileSync(f, "utf-8");
-        const m = c.match(annotationRegex);
-        if (!m) { untagged++; continue; }
-        const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
-        if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
+        if (isResponsibilityProductionFile(f)) targetFiles.push(f);
       }
     }
     for (const f of walkFiles(resolve(SRC, "test"))) {
-      if (!isResponsibilityGuardFile(f)) continue;
-      totalEntries++;
-      const c = readFileSync(f, "utf-8");
-      const m = c.match(annotationRegex);
-      if (!m) { untagged++; continue; }
-      const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
-      if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
+      if (isResponsibilityGuardFile(f)) targetFiles.push(f);
     }
   } else {
     for (const f of walkFiles(SRC)) {
-      if (!isTestFile(f)) continue;
-      totalEntries++;
-      const c = readFileSync(f, "utf-8");
-      const m = c.match(annotationRegex);
-      if (!m) { untagged++; continue; }
-      const tags = m[1]!.split(",").map((s) => s.trim()).filter(Boolean);
-      if (tags.some((t) => t.startsWith(prefix) && !vocab.has(t))) unknownVocabulary++;
+      if (isTestFile(f)) targetFiles.push(f);
     }
+  }
+
+  for (const f of targetFiles) {
+    totalEntries++;
+    const content = readFileSync(f, "utf-8");
+    const match = content.match(looseRegex);
+    if (!match) {
+      untagged++;
+      tagDistribution.untagged = (tagDistribution.untagged ?? 0) + 1;
+      continue;
+    }
+    // loose 取得 → comma split → 各 tag classify (guard と同じ動作)
+    const tags = match[1]!
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    const dedupedTags = [...new Set(tags)];
+
+    let hasUnknownInThisFile = false;
+    let hasAnchorInThisFile = false;
+    for (const t of dedupedTags) {
+      // 同 file 内重複は 1 回計上 (Set で dedup 済)
+      tagDistribution[t] = (tagDistribution[t] ?? 0) + 1;
+      if (t.startsWith(prefix) && !vocab.has(t)) {
+        hasUnknownInThisFile = true;
+        // unknown:* prefix で distribution に集計 (Phase 0 yaml と互換)
+        const unknownKey = `unknown:${t}`;
+        tagDistribution[unknownKey] = (tagDistribution[unknownKey] ?? 0) + 1;
+      }
+      if (anchorSlice.has(t)) {
+        hasAnchorInThisFile = true;
+        byAnchorTag[t] = (byAnchorTag[t] ?? 0) + 1;
+      }
+    }
+    if (hasUnknownInThisFile) unknownVocabulary++;
+    if (hasAnchorInThisFile) inAnchorSlice++;
   }
 
   // missingOrigin: vocabulary-level で 0 (registry V2 が TypeScript 型で全 entry に origin field を強制)。
   // Phase 6c で全 R:tag / T:kind が promotionLevel L5 (Coverage 100%) 達成済 → file-level Origin tracking は
-  // registry-level coverage により担保される。Phase 0 inventory yaml の missingOrigin = total は stale。
+  // registry-level coverage により担保される。
   const missingOrigin = 0;
 
-  return { totalEntries, untagged, unknownVocabulary, missingOrigin };
-}
-
-interface TaxonomySummary {
-  readonly schemaVersion: string;
-  readonly axis: "responsibility" | "test";
-  readonly aggregate: {
-    readonly totalEntries: number;
-    readonly inAnchorSlice: number;
-    readonly byAnchorTag: Readonly<Record<string, number>>;
-    readonly driftBudget: {
-      readonly untagged: number;
-      readonly unknownVocabulary: number;
-      readonly missingOrigin: number;
-    };
-    readonly tagDistribution: Readonly<Record<string, number>>;
+  return {
+    totalEntries,
+    untagged,
+    unknownVocabulary,
+    missingOrigin,
+    inAnchorSlice,
+    byAnchorTag,
+    tagDistribution,
   };
 }
+
 
 interface TaxonomyHealthOutput {
   readonly schemaVersion: string;
@@ -178,86 +227,6 @@ interface TaxonomyHealthOutput {
   };
 }
 
-/**
- * inventory YAML の summary section（ファイル先頭の `summary:` ブロック）を
- * 簡易 parse する。entries 部分は本 collector では読まない（aggregate のみ使用）。
- *
- * inventory generator の出力 format に依存（@see tools/scripts/<axis>-taxonomy-inventory.ts）。
- *
- * key に colon を含む場合（`'R:bridge': 16` 等）は quoted key として処理する。
- */
-function parseLine(trimmed: string): { key: string; value: string } | null {
-  // 1. quoted key: `'R:bridge': 16` or `"R:tag": value`
-  const quotedMatch = trimmed.match(/^(['"])(.+?)\1\s*:\s*(.*)$/);
-  if (quotedMatch) {
-    return { key: quotedMatch[2], value: quotedMatch[3].trim() };
-  }
-  // 2. unquoted: key の最初の colon-space で分割
-  const colonSpaceIdx = trimmed.indexOf(": ");
-  if (colonSpaceIdx !== -1) {
-    return {
-      key: trimmed.slice(0, colonSpaceIdx).trim(),
-      value: trimmed.slice(colonSpaceIdx + 2).trim(),
-    };
-  }
-  // 3. 末尾 colon (nested object header): `aggregate:`
-  if (trimmed.endsWith(":")) {
-    return { key: trimmed.slice(0, -1).trim(), value: "" };
-  }
-  return null;
-}
-
-function parseInventorySummary(yamlContent: string): TaxonomySummary | null {
-  const lines = yamlContent.split("\n");
-  let inSummary = false;
-  const out: Record<string, unknown> = {};
-  const stack: { indent: number; obj: Record<string, unknown> }[] = [
-    { indent: -1, obj: out },
-  ];
-  for (const line of lines) {
-    if (line.startsWith("summary:")) {
-      inSummary = true;
-      continue;
-    }
-    if (!inSummary) continue;
-    if (line.startsWith("entries:")) break;
-    if (line.trim() === "" || line.trim().startsWith("#")) continue;
-    const indent = line.length - line.trimStart().length;
-    const trimmed = line.trim();
-    while (stack[stack.length - 1].indent >= indent) stack.pop();
-    const parent = stack[stack.length - 1].obj;
-    const parsed = parseLine(trimmed);
-    if (!parsed) continue;
-    const { key, value: valueRaw } = parsed;
-    if (valueRaw === "") {
-      const child: Record<string, unknown> = {};
-      parent[key] = child;
-      stack.push({ indent, obj: child });
-    } else {
-      const cleaned = valueRaw.replace(/^['"]|['"]$/g, "");
-      parent[key] = /^[-+]?\d+(\.\d+)?$/.test(cleaned)
-        ? Number(cleaned)
-        : cleaned;
-    }
-  }
-  if (!("schemaVersion" in out) || !("axis" in out) || !("aggregate" in out))
-    return null;
-  return out as unknown as TaxonomySummary;
-}
-
-function readInventory(
-  repoRoot: string,
-  axis: "responsibility" | "test",
-): TaxonomySummary | null {
-  const path = resolve(
-    repoRoot,
-    `references/02-status/${axis}-taxonomy-inventory.yaml`,
-  );
-  if (!existsSync(path)) return null;
-  const content = readFileSync(path, "utf-8");
-  return parseInventorySummary(content);
-}
-
 const COGNITIVE_LOAD_CEILING = 15;
 
 /**
@@ -270,35 +239,35 @@ const V2_VOCABULARY_COUNT = {
 } as const;
 
 export function collectTaxonomyHealth(repoRoot: string): TaxonomyHealthOutput {
-  const responsibility = readInventory(repoRoot, "responsibility");
-  const test = readInventory(repoRoot, "test");
-
-  // retrospective fix B (2026-04-27): yaml の Phase 0 baseline driftBudget は stale なため、
-  // live count で上書きする。inAnchorSlice / byAnchorTag / tagDistribution は Phase 0 baseline 保持。
-  const respLive = computeLiveDriftBudget(repoRoot, "responsibility");
-  const testLive = computeLiveDriftBudget(repoRoot, "test");
+  // post-review fix #1 + #2 (2026-04-27): collector は **完全 live scan** に統一。
+  // Phase 0 inventory yaml は historical baseline として読み込みを維持するが、本 collector の
+  // 出力 (driftBudget / inAnchorSlice / byAnchorTag / tagDistribution) は **全て live 値**を使う。
+  // これにより同一 object 内の current / baseline 混在 (post-review 指摘 #1) が解消される。
+  // tag parser は guard と同じ loose regex に統一 (#2) され、表記揺れの false negative も解消される。
+  const respLive = computeLiveAxisStats(repoRoot, "responsibility");
+  const testLive = computeLiveAxisStats(repoRoot, "test");
 
   const respAgg = {
     totalEntries: respLive.totalEntries,
-    inAnchorSlice: responsibility?.aggregate?.inAnchorSlice ?? 0,
-    byAnchorTag: responsibility?.aggregate?.byAnchorTag ?? {},
+    inAnchorSlice: respLive.inAnchorSlice,
+    byAnchorTag: respLive.byAnchorTag,
     driftBudget: {
       untagged: respLive.untagged,
       unknownVocabulary: respLive.unknownVocabulary,
       missingOrigin: respLive.missingOrigin,
     },
-    tagDistribution: responsibility?.aggregate?.tagDistribution ?? {},
+    tagDistribution: respLive.tagDistribution,
   };
   const testAgg = {
     totalEntries: testLive.totalEntries,
-    inAnchorSlice: test?.aggregate?.inAnchorSlice ?? 0,
-    byAnchorTag: test?.aggregate?.byAnchorTag ?? {},
+    inAnchorSlice: testLive.inAnchorSlice,
+    byAnchorTag: testLive.byAnchorTag,
     driftBudget: {
       untagged: testLive.untagged,
       unknownVocabulary: testLive.unknownVocabulary,
       missingOrigin: testLive.missingOrigin,
     },
-    tagDistribution: test?.aggregate?.tagDistribution ?? {},
+    tagDistribution: testLive.tagDistribution,
   };
 
   return {

@@ -13,13 +13,13 @@
  * 2026-04-27 taxonomy-v2 子 Phase 4 Pilot: aggregation.ts / averageDivisor.ts に
  * @responsibility R:calculation を試験付与（registry の semantic 分類は不変、
  * Pilot は v2 R:tag 付与の試験運用）。
- * 詳細: projects/responsibility-taxonomy-v2/HANDOFF.md Phase 4 Pilot 結果
+ * 詳細: projects/completed/responsibility-taxonomy-v2/HANDOFF.md Phase 4 Pilot 結果
  *
  * 2026-04-27 taxonomy-v2 子 Phase 6a-2 Migration Rollout: domain/calculations/ 配下の
  * untagged file 全件に @responsibility R:unclassified を能動退避（registry の
  * semantic 分類は不変、原則 1「未分類は能動タグ」適用）。後続 Phase 6 で R:unclassified
  * → 具体タグ (R:calculation 等) への promotion は review window 経由。
- * 詳細: projects/responsibility-taxonomy-v2/HANDOFF.md Phase 6a-2 Migration Rollout
+ * 詳細: projects/completed/responsibility-taxonomy-v2/HANDOFF.md Phase 6a-2 Migration Rollout
  *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。

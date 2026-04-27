@@ -1,6 +1,6 @@
 ---
 schemaVersion: "1.0"
-schemaSource: "projects/test-taxonomy-v2/plan.md Phase 1"
+schemaSource: "projects/completed/test-taxonomy-v2/plan.md Phase 1"
 canonicalSource: "app/src/test/testTaxonomyRegistryV2.ts"
 status: draft
 landingPhase: "test-taxonomy-v2 Phase 1 (Schema 設計)"

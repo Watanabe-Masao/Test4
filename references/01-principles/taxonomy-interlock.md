@@ -174,6 +174,6 @@ R:tag に required T:kind を追加・削除する場合も review window 必須
 | `references/01-principles/taxonomy-constitution.md` | 7 不可侵原則（本マトリクスは原則 4 の詳細） |
 | `references/01-principles/taxonomy-origin-journal.md` | 各タグの Origin（採択経緯） |
 | `projects/taxonomy-v2/plan.md` | §AR-TAXONOMY-* 仕様正本 / §OCS.7 Anchor Slice |
-| `projects/responsibility-taxonomy-v2/plan.md` | 子: 責務軸 Phase 0-9（Phase 3 で Interlock guard 実装） |
-| `projects/test-taxonomy-v2/plan.md` | 子: テスト軸 Phase 0-9（Phase 3 で Interlock guard 実装） |
+| `projects/completed/responsibility-taxonomy-v2/plan.md` | 子: 責務軸 Phase 0-9（Phase 3 で Interlock guard 実装） |
+| `projects/completed/test-taxonomy-v2/plan.md` | 子: テスト軸 Phase 0-9（Phase 3 で Interlock guard 実装） |
 | `app/src/test/guards/constitutionBootstrapGuard.test.ts` | 本マトリクスの存在 + Constitution 相互参照検証 |

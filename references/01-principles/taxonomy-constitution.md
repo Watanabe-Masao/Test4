@@ -249,8 +249,8 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 `taxonomy-v2` family（親 + 子 2 件）が archive 可能と判定される条件。**5 要件全てを満たした上で人間レビュー承認**で初めて archive に進む。
 
 1. **両子 Phase 9（Legacy Collection）完了**
-   - `projects/responsibility-taxonomy-v2/` archive 済（Phase 0-9 全 [x]）
-   - `projects/test-taxonomy-v2/` archive 済（Phase 0-9 全 [x]）
+   - `projects/completed/responsibility-taxonomy-v2/` archive 済（Phase 0-9 全 [x]）
+   - `projects/completed/test-taxonomy-v2/` archive 済（Phase 0-9 全 [x]）
 
 2. **未分類件数 baseline 安定（両軸）**
    - `taxonomy-health.json` の `responsibility.untagged` / `test.untagged` が baseline 以下で **連続 2 四半期** 安定
@@ -286,8 +286,8 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 | `references/01-principles/taxonomy-interlock.md`               | R ⇔ T マトリクス（本 Constitution §4 の詳細）                    |
 | `references/01-principles/taxonomy-origin-journal.md`          | 全タグの Why/When/Who/Sunset（本 Constitution §3 原則 5 の正本） |
 | `projects/taxonomy-v2/plan.md`                                 | 親 plan（本 Constitution を canonical source として参照）        |
-| `projects/responsibility-taxonomy-v2/plan.md`                  | 子: 責務軸の Phase 0-9                                           |
-| `projects/test-taxonomy-v2/plan.md`                            | 子: テスト軸の Phase 0-9                                         |
+| `projects/completed/responsibility-taxonomy-v2/plan.md`                  | 子: 責務軸の Phase 0-9                                           |
+| `projects/completed/test-taxonomy-v2/plan.md`                            | 子: テスト軸の Phase 0-9                                         |
 | `app/src/test/guards/constitutionBootstrapGuard.test.ts`       | 本 Constitution + 関連 4 ファイルの存在検証                      |
 | `references/02-status/taxonomy-review-journal.md`              | review window 記録（Phase 2 で skeleton landing）                |
 | `references/02-status/generated/taxonomy-health.json`          | health KPI（Phase 3 + Phase 4 で landing）                       |

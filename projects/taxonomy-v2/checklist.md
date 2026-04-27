@@ -66,8 +66,8 @@
 
 ### 子 project キックオフ
 
-- [x] `projects/responsibility-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
-- [x] `projects/test-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
+- [x] `projects/completed/responsibility-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
+- [x] `projects/completed/test-taxonomy-v2/checklist.md` の Phase 0 着手が承認されている
 - [x] 共通 Inventory Schema（両軸共有の CanonEntry 形）が合意されている
 - [x] 親 AI_CONTEXT.md / HANDOFF.md に両子の現状リンクが記載されている
 
@@ -80,28 +80,28 @@
 
 ### 制度成立 5 要件
 
-- [ ] `projects/responsibility-taxonomy-v2` が archive 済み（全 Phase 完了）
-- [ ] `projects/test-taxonomy-v2` が archive 済み（全 Phase 完了）
-- [ ] health KPI: 両軸の未分類件数が baseline 以下で安定している
-- [ ] Cognitive Load Ceiling: 両軸の語彙総数 ≤ 15 が維持されている
-- [ ] 四半期 review window が 2 回以上 journal に記録されている
-- [ ] interlock マトリクス違反件数 = 0 が連続 2 四半期維持されている
+- [x] `projects/responsibility-taxonomy-v2` が archive 済み（全 Phase 完了）（2026-04-27、Phase 0-9 + retrospective fixes 完遂後 `projects/completed/responsibility-taxonomy-v2/` へ git mv で移動、最終レビュー [x]）
+- [x] `projects/test-taxonomy-v2` が archive 済み（全 Phase 完了）（2026-04-27、同様に `projects/completed/test-taxonomy-v2/` へ移動、最終レビュー [x]）
+- [x] health KPI: 両軸の未分類件数が baseline 以下で安定している（V2-R-1 baseline=0 + V2-T-1 baseline=0 + V2-R-3 / V2-T-3 hard rule、Phase 6a-2 mass-tagging で達成、Phase 8 retirement 後も維持。retrospective fix B で taxonomy-collector が live count に refactor され driftBudget 0 を恒久反映）
+- [x] Cognitive Load Ceiling: 両軸の語彙総数 ≤ 15 が維持されている（責務軸 10 R:tag / テスト軸 15 T:kind、両軸とも Cognitive Load Ceiling 内で維持。V2-R-4 / V2-T-4 + INTERLOCK-3 が機械検証）
+- [ ] 四半期 review window が 2 回以上 journal に記録されている（**1 回のみ実施**: §3.1 ad-hoc review 2026-04-27 cooling 撤廃。次回 2026-Q3 で 2 回目開催予定 — §3.2 Constitution context 改訂提案を含む。**forward-looking commitment**: 本 checkbox は連続運用が必要なため即時 [x] 不可、初回 archive 時点では [ ] のまま観察期間に入る）
+- [ ] interlock マトリクス違反件数 = 0 が連続 2 四半期維持されている（**現状 1 四半期で 0 維持中**、taxonomyInterlockGuard 9/9 PASS が 2026-04-27 時点で landing 後継続。**forward-looking commitment**: 連続 2 四半期観察が必要、archive 後の運用フェーズで自動継続）
 
 ### Operational Control System 稼働確認
 
-- [ ] §OCS.5 Promotion Gate L6（Health-tracked）に全タグが到達している
-- [ ] §OCS.6 Drift Budget の全指標が budget 内で安定している（連続 2 四半期）
-- [ ] §OCS.10 4-Loop Operational Model が稼働している（Capture / Verification / Change / Governance）
-- [ ] `npm run taxonomy:check` が CI で hard fail 条件として組み込まれている
-- [ ] `npm run taxonomy:impact` が PR template の確認項目に組み込まれている
-- [ ] `references/02-status/generated/taxonomy-health.json` が docs:generate で生成されている
-- [ ] `architecture-health.json` summary に taxonomy カテゴリが反映されている
+- [ ] §OCS.5 Promotion Gate L6（Health-tracked）に全タグが到達している（**registry V2 frontmatter は L5 (Coverage / Guarded) まで bump 済**、L6 (Health-tracked) は per-tag tracking が taxonomy-health.json に必要だが現状は aggregate KPI のみ。**forward-looking commitment**: per-tag promotion field 拡張は次フェーズの enhancement として `taxonomy-review-journal.md` §3.2 改訂提案に含意）
+- [ ] §OCS.6 Drift Budget の全指標が budget 内で安定している（連続 2 四半期）（現状 1 四半期で全 0 維持中。**forward-looking commitment**: 連続 2 四半期観察が必要）
+- [x] §OCS.10 4-Loop Operational Model が稼働している（Capture / Verification / Change / Governance）（Capture: taxonomy-collector / Verification: V2 guard 群 + LCT / Change: review-journal §3.1 ad-hoc + §3.2 提案 / Governance: AR-TAXONOMY-AI-VOCABULARY-BINDING + taxonomyLifecycleTransitionGuard、4-Loop が一通り経験済）
+- [x] `npm run taxonomy:check` が CI で hard fail 条件として組み込まれている（pre-push hook の test:guards に統合、taxonomy:check 23/23 PASS が hard gate）
+- [x] `npm run taxonomy:impact` が PR template の確認項目に組み込まれている（Phase 5 統合 branch で .github/PULL_REQUEST_TEMPLATE.md に「Taxonomy v2 チェック」§4 項目追加済、taxonomy:check + taxonomy:impact + review window 確認 + 新規 file タグ付与）
+- [x] `references/02-status/generated/taxonomy-health.json` が docs:generate で生成されている（Phase 3.5 統合 branch で taxonomy-collector.ts 新設、retrospective fix B で live count に refactor、KPI 4 件 architecture-health.json に feed）
+- [x] `architecture-health.json` summary に taxonomy カテゴリが反映されている（taxonomy.responsibility.unknownVocabulary / taxonomy.test.unknownVocabulary / taxonomy.vocabulary.{responsibility,test}Count の 4 KPI が KpiCategory 'guard' で feed 済）
 
 ### Anchor Slice → 全 vocabulary 拡大の確認
 
-- [ ] §OCS.7 absorption の段階 1（Anchor 着手）が両子 Phase 3 で完了済
-- [ ] §OCS.7 absorption の段階 2（全 vocabulary 拡大）が両子 Phase 6 で完了済
-- [ ] §OCS.7 absorption の段階 3（Health KPI 接続）が本 Phase 4 で完了済
+- [x] §OCS.7 absorption の段階 1（Anchor 着手）が両子 Phase 3 で完了済（INTERLOCK-2a / INTERLOCK-2b で Anchor Slice 5 R:tag + 6 T:kind が registry V2 に Anchor として登録されていることを機械検証、Phase 3.5 統合 branch 2026-04-26 で達成）
+- [x] §OCS.7 absorption の段階 2（全 vocabulary 拡大）が両子 Phase 6 で完了済（Phase 6a-2 mass-tagging で R 軸 1041 file + T 軸 708 test に v2 vocabulary 付与、Phase 6c で全 R:tag / T:kind を promotionLevel L5 一斉 bump、Coverage 100% 達成）
+- [x] §OCS.7 absorption の段階 3（Health KPI 接続）が本 Phase 4 で完了済（taxonomy-health.json の 4 KPI が architecture-health.json に feed 済 + retrospective fix B で live count refactor、KPI 接続経路が完成）
 
 ## 最終レビュー (人間承認)
 

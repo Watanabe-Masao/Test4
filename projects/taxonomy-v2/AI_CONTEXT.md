@@ -26,8 +26,8 @@
 3. `plan.md`（7 不可侵原則 + 親 Phase 構造 + interlock 仕様）
 4. `checklist.md`（親 Phase 完了条件）
 5. 子 project の `AI_CONTEXT.md`:
-   - `projects/responsibility-taxonomy-v2/AI_CONTEXT.md`
-   - `projects/test-taxonomy-v2/AI_CONTEXT.md`
+   - `projects/completed/responsibility-taxonomy-v2/AI_CONTEXT.md`
+   - `projects/completed/test-taxonomy-v2/AI_CONTEXT.md`
 
 ## Why this project exists
 
