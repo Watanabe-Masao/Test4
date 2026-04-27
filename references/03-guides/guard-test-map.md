@@ -89,6 +89,11 @@
 | `app/src/test/guards/noDayOnlyKeyGuard.test.ts` | architecture | 3件 | day-only key (`indexByStoreDay` / `aggregateAllStores` / `aggregateForStore`) の caller 数を ratchet-down 管理 (baseline=5)。definition file 除外、month-collision 防止のため新規 caller を禁止し DateKey 経由を強制 |
 | `app/src/test/guards/noSafeNumberAtImportBoundaryGuard.test.ts` | architecture | 3件 | `infrastructure/dataProcessing/*Processor.ts` での `safeNumber()` 利用を ratchet-down 管理 (baseline=9 file / 27 call)。import 境界での silent 0 化を禁止し、専用 parser / parse error への置換を強制 |
 | `app/src/test/guards/noParseIntStoreIdGuard.test.ts` | architecture | 3件 | `infrastructure/dataProcessing/*Processor.ts` での店舗コードに対する `parseInt(...)` 利用を ratchet-down 管理 (baseline=7 file / 10 call)。leading zero 破壊と NaN→"0" 捏造を禁止し、文字列保持の正規化 helper への置換を強制 |
+| `app/src/test/guards/contentSpecExistsGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-EXISTS: Phase A Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に存在し、source 側 id literal の直前 3 行以内に `@widget-id WID-NNN` JSDoc が付与されていることを検証 |
+| `app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-FRONTMATTER-SYNC: Phase A Anchor Slice 5 widget について `tools/widget-specs/generate.mjs --check` が drift 0 を報告することを検証（registryLine / consumedCtxFields / children / linkTo / contextType / consumedReadModels / consumedQueryHandlers の機械フィールド完全一致） |
+| `app/src/test/guards/contentSpecCoChangeGuard.test.ts` | documentation-steward | 2件 | AR-CONTENT-SPEC-CO-CHANGE: Phase A Anchor Slice 5 widget の registryLine が source の実 id 行と一致 / lastVerifiedCommit が空でない（Phase A 静的検証、Phase I で git diff ベースに置換予定） |
+| `app/src/test/guards/contentSpecFreshnessGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-FRESHNESS: Phase A Anchor Slice 5 widget の `(today - lastReviewedAt) > reviewCadenceDays` で fail、`> reviewCadenceDays * 0.8` で warn |
+| `app/src/test/guards/contentSpecOwnerGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-OWNER: Phase A Anchor Slice 5 widget の WID-NNN.md frontmatter に owner field が必須 |
 
 ## ルール → テスト対応
 

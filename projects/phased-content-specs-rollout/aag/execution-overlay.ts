@@ -47,5 +47,57 @@ export type ExecutionOverlay = {
  *   export const EXECUTION_OVERLAY: ExecutionOverlay = {
  *     'AR-001': { fixNow: 'debt' }, // priority / effort は defaults を使う
  *   }
+ *
+ * Phase A で AR-CONTENT-SPEC-* 5 件を本 project が canonical owner として
+ * reviewPolicy 込みで宣言する（active project 切替時はこの overlay が読まれる）。
+ * 現状 active な pure-calculation-reorg/aag/execution-overlay.ts にも同等
+ * entry が暫定配置されており、CURRENT_PROJECT.md の active 切替後は
+ * pure-calculation-reorg 側を削除する。
  */
-export const EXECUTION_OVERLAY: ExecutionOverlay = {}
+export const EXECUTION_OVERLAY: ExecutionOverlay = {
+  'AR-CONTENT-SPEC-EXISTS': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+    reviewPolicy: {
+      owner: 'documentation-steward',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
+  'AR-CONTENT-SPEC-FRONTMATTER-SYNC': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+    reviewPolicy: {
+      owner: 'documentation-steward',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
+  'AR-CONTENT-SPEC-CO-CHANGE': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+    reviewPolicy: {
+      owner: 'documentation-steward',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
+  'AR-CONTENT-SPEC-FRESHNESS': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+    reviewPolicy: {
+      owner: 'documentation-steward',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
+  'AR-CONTENT-SPEC-OWNER': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+    reviewPolicy: {
+      owner: 'documentation-steward',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
+}

@@ -5837,4 +5837,202 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  // ── AR-CONTENT-SPEC-* (phased-content-specs-rollout Phase A: Anchor Slice 5 件) ──
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-EXISTS",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に存在する",
+    why: "spec が source と分離した存在では runtime の振る舞いを記述する台帳としての機能を失い、改修者が「どの spec を更新すべきか」を判断できなくなる。registry 登録 entry には @widget-id JSDoc を必須化することで spec ID を source 側から逆引きできる",
+    correctPattern: {
+      description:
+        "spec frontmatter の registrySource / widgetDefId が source の実在 widget def を指し、source 側 id literal の直前 3 行以内に `@widget-id WID-NNN` JSDoc が付与されている",
+    },
+    outdatedPattern: {
+      description:
+        "spec が孤立している（source に対応 entry が無い）／ source に WID JSDoc が無く spec 側からしか紐付けが見えない",
+    },
+    decisionCriteria: {
+      when: "registry source または WID-NNN.md を変更するとき",
+      exceptions: "なし（Anchor Slice scope 内では例外なし）",
+      escalation:
+        "spec 単独で landed させる場合は projects/phased-content-specs-rollout/plan.md §Phase A の Anchor Slice scope 拡大手続きを経由",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. source の `id: '<def-id>'` 行直前に `/** @widget-id WID-NNN */` JSDoc を追加",
+        "2. spec frontmatter の registrySource が当該 source を指していることを確認",
+        "3. `node tools/widget-specs/generate.mjs --wid WID-NNN` を実行して frontmatter を再生成",
+      ],
+    },
+    sunsetCondition:
+      "なし（spec カタログを台帳として維持する限り存在検証は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "spec カタログと実装の乖離（孤立 spec）",
+        "WID 識別子の source 側不在による改修時の追跡不能",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-FRONTMATTER-SYNC",
+    principleRefs: ["G1", "C9"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "WID-NNN.md frontmatter の機械フィールドが source AST から再生成した値と完全一致する",
+    why: "frontmatter は registry source を機械的に再現する canonical view であり、両者の drift は spec の信頼性を毀損する。source 変更時には generator 再実行を必須化することで「読み手は frontmatter を信用してよい」という不変条件を保つ",
+    correctPattern: {
+      description:
+        "`node tools/widget-specs/generate.mjs --check` が exit 0 を返す（registryLine / consumedCtxFields / children / linkTo / contextType / consumedReadModels / consumedQueryHandlers すべて一致）",
+    },
+    outdatedPattern: {
+      description:
+        "registry source を変更したのに対応 spec の frontmatter を再生成していない",
+    },
+    decisionCriteria: {
+      when: "registry source の widget def 周辺を変更するとき",
+      exceptions: "なし",
+      escalation:
+        "generator が抽出に失敗する場合は generator のバグとして tools/widget-specs/generate.mjs を修正（spec 側の手書き上書きで回避しない）",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `node tools/widget-specs/generate.mjs --wid WID-NNN`（または引数なしで全件）を実行",
+        "2. 差分を確認して commit",
+      ],
+    },
+    sunsetCondition:
+      "なし（generator 出力と spec frontmatter の同期は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "frontmatter 機械フィールドの黙々とした drift（registryLine / 依存 ctx field / children）",
+        "spec を読んでから改修した結果が古い情報に基づく事故",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-CO-CHANGE",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "registry source の id 行と spec frontmatter の registryLine が一致し lastVerifiedCommit が記録されている",
+    why: "registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、Phase I で git diff ベースの真の co-change 検査に拡張",
+    correctPattern: {
+      description:
+        "spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastVerifiedCommit が非空",
+    },
+    outdatedPattern: {
+      description: "registry source を変更したが spec.registryLine が古い",
+    },
+    decisionCriteria: {
+      when: "registry source の widget def 行が移動するとき",
+      exceptions: "なし",
+      escalation: "generator 再実行で同期",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `node tools/widget-specs/generate.mjs --wid WID-NNN` で frontmatter 再生成",
+        "2. lastVerifiedCommit を必要に応じて更新",
+      ],
+    },
+    sunsetCondition: "Phase I で git diff ベースの強い co-change 検査に置換後に sunset",
+    protectedHarm: {
+      prevents: [
+        "registry source 変更に伴う spec 更新漏れ",
+        "lastVerifiedCommit が長期間更新されない結果としての真贋判定不能",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-FRESHNESS",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない",
+    why: "spec は時間とともに陳腐化する。レビュー周期を機械的に強制することで「いつか読まれない台帳」化を防ぐ。reviewPolicy 由来の cadence enforcement と同じ思想",
+    correctPattern: {
+      description:
+        "(today - lastReviewedAt) <= reviewCadenceDays（× 0.8 超過で warn、超過で fail）",
+    },
+    outdatedPattern: {
+      description: "lastReviewedAt が長期間更新されておらず cadence を超過",
+    },
+    decisionCriteria: {
+      when: "spec 内容を読み直し / 更新するとき",
+      exceptions: "なし",
+      escalation: "review 後に lastReviewedAt を当日に更新",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. spec 内容を読み直す",
+        "2. frontmatter の lastReviewedAt を当日 (YYYY-MM-DD) に更新",
+        "3. 必要なら reviewCadenceDays を見直す",
+      ],
+    },
+    sunsetCondition:
+      "なし（freshness 強制は spec の信頼性維持の恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "spec が読まれない台帳化（古い記述のまま流通）",
+        "owner が変わったのに記録されない責任所在の喪失",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-OWNER",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "WID-NNN.md frontmatter に owner field が設定されている",
+    why: "owner 不在の spec は責任所在不明であり review / 更新の義務者が決まらない。最小限の governance metadata として owner は必須",
+    correctPattern: {
+      description: "frontmatter.owner が非空文字列（role-id を期待）",
+    },
+    outdatedPattern: {
+      description: "owner field が存在しない / 空 / null",
+    },
+    decisionCriteria: {
+      when: "新 spec を起こすとき",
+      exceptions: "なし",
+      escalation: "spec を起こす責務ロールを 1 件選定して owner に記録",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. frontmatter に owner: <role-id>（例: implementation, architecture）を追加",
+      ],
+    },
+    sunsetCondition: "なし（最小限 governance metadata の必須化は恒久）",
+    protectedHarm: {
+      prevents: [
+        "責任所在不明 spec（誰がレビューすべきか不明）",
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[];

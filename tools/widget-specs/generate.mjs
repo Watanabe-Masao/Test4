@@ -43,7 +43,7 @@ const ts = (await import(pathToFileURL(tsModulePath).href)).default
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const args = { check: false, wid: null, verbose: false }
+  const args = { check: false, wid: null, verbose: false, scope: null }
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i]
     if (a === '--check') args.check = true
@@ -52,10 +52,17 @@ function parseArgs(argv) {
       args.wid = argv[++i]
     } else if (a.startsWith('--wid=')) {
       args.wid = a.slice('--wid='.length)
+    } else if (a === '--scope') {
+      args.scope = argv[++i]
+    } else if (a.startsWith('--scope=')) {
+      args.scope = a.slice('--scope='.length)
     }
   }
   return args
 }
+
+// Phase A Anchor Slice — projects/phased-content-specs-rollout/plan.md §3.3
+const PHASE_A_ANCHOR_WIDS = ['WID-002', 'WID-006', 'WID-018', 'WID-033', 'WID-040']
 
 // ---------------------------------------------------------------------------
 // Frontmatter parser / serializer (widget spec 専用、最小)
@@ -523,12 +530,16 @@ function inferContextType(sf, registryName) {
 // Spec discovery + processing
 // ---------------------------------------------------------------------------
 
-function listSpecs(filterWid) {
+function listSpecs(filterWid, scope) {
   const files = readdirSync(SPECS_DIR)
     .filter((f) => /^WID-\d{3}\.md$/.test(f))
     .sort()
   if (filterWid) {
     return files.filter((f) => f === `${filterWid}.md`)
+  }
+  if (scope === 'anchor') {
+    const anchorFiles = new Set(PHASE_A_ANCHOR_WIDS.map((w) => `${w}.md`))
+    return files.filter((f) => anchorFiles.has(f))
   }
   return files
 }
@@ -640,9 +651,10 @@ function formatVal(v) {
 
 function main() {
   const args = parseArgs(process.argv)
-  const specs = listSpecs(args.wid)
+  const specs = listSpecs(args.wid, args.scope)
   if (specs.length === 0) {
-    console.error(args.wid ? `No spec found for ${args.wid}` : 'No spec files found')
+    const where = args.wid ?? (args.scope ? `scope=${args.scope}` : 'all')
+    console.error(`No spec files found (${where})`)
     process.exit(2)
   }
   let totalChanged = 0
