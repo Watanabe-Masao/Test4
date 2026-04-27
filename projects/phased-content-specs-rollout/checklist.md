@@ -18,21 +18,21 @@
 
 ## Phase A: Anchor Slice — 保証経路完成
 
-- [ ] `tools/widget-specs/generate.mjs` の frontmatter generator を実装した
-- [ ] Anchor Slice 5 widget (WID-002 / 006 / 018 / 033 / 040) の source に `@widget-id` JSDoc を注入した
-- [ ] `AR-CONTENT-SPEC-EXISTS` rule を `architectureRules.ts` に登録 + active 化した
-- [ ] `AR-CONTENT-SPEC-FRONTMATTER-SYNC` rule を登録 + active 化した
-- [ ] `AR-CONTENT-SPEC-CO-CHANGE` rule を登録 + active 化した
-- [ ] `AR-CONTENT-SPEC-FRESHNESS` rule を登録 + active 化した
-- [ ] `AR-CONTENT-SPEC-OWNER` rule を登録 + active 化した
-- [ ] `obligation-collector.ts` の `OBLIGATION_MAP` に registry 変更 → spec 更新義務を追加した
+- [x] `tools/widget-specs/generate.mjs` の frontmatter generator を実装した
+- [x] Anchor Slice 5 widget (WID-002 / 006 / 018 / 033 / 040) の source に `@widget-id` JSDoc を注入した
+- [x] `AR-CONTENT-SPEC-EXISTS` rule を `architectureRules.ts` に登録 + active 化した
+- [x] `AR-CONTENT-SPEC-FRONTMATTER-SYNC` rule を登録 + active 化した
+- [x] `AR-CONTENT-SPEC-CO-CHANGE` rule を登録 + active 化した
+- [x] `AR-CONTENT-SPEC-FRESHNESS` rule を登録 + active 化した
+- [x] `AR-CONTENT-SPEC-OWNER` rule を登録 + active 化した
+- [x] `obligation-collector.ts` の `OBLIGATION_MAP` に registry 変更 → spec 更新義務を追加した
 - [ ] behavior section guard（spec が usage ではなく behavior を記述している検証）を実装した
 - [ ] content graph の初版 collector を実装した
-- [ ] `npm run content-specs:check` script を package.json に追加した
-- [ ] CI workflow に content-specs:check を組み込んだ
-- [ ] Anchor Slice 5 件で `missingSpec / frontmatterDrift / coChangeViolation = 0` を達成した
+- [x] `npm run content-specs:check` script を package.json に追加した
+- [x] CI workflow に content-specs:check を組み込んだ（`test:guards` 経由で fast-gate に組み込み — `contentSpecFrontmatterSyncGuard` が generator --check を spawn する）
+- [x] Anchor Slice 5 件で `missingSpec / frontmatterDrift / coChangeViolation = 0` を達成した
 - [ ] Anchor Slice 5 件で Promotion Gate L4 到達を確認した
-- [ ] source 変更 → spec 未更新で `npm run docs:check` が hard fail することを CI で確認した
+- [x] source 変更 → spec 未更新で `npm run docs:check` が hard fail することを CI で確認した（synthetic drift 注入で contentSpecCoChangeGuard / FrontmatterSync が hard fail することを確認）
 
 ## Phase B: WID 全体への拡張
 
