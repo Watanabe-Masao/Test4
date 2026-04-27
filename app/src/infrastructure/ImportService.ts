@@ -4,6 +4,8 @@
  * バッチインポートの全体フローを管理する。
  * 個々のファイル処理は ImportDataProcessor に委譲する。
  * 型定義・パーティション操作は importTypes.ts に分割済み。
+ *
+ * @responsibility R:adapter
  */
 import type { DataType, AppSettings } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

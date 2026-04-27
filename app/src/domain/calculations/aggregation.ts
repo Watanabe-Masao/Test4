@@ -6,6 +6,8 @@ import type { StoreResult } from '../models'
  *
  * 金額項目: 単純合計
  * 率項目: 売上高加重平均
+ *
+ * @responsibility R:calculation
  */
 
 /**

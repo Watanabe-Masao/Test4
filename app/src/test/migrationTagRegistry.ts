@@ -19,7 +19,7 @@
  * - 外して終わりにしない。外した後の確認も checklist に含める
  * - 最後まで残さない。全タグに expiresAt を設定する
  *
- * @responsibility R:utility
+ * @responsibility R:registry
  * @guard I3
  */
 
