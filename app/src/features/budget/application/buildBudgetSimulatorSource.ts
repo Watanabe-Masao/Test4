@@ -8,7 +8,7 @@
  * この source が scenario builder の入力契約。widget / view は context を
  * 知らなくなり、tests は source を直接注入できる。
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { PrevYearData } from '@/application/comparison/comparisonTypes'

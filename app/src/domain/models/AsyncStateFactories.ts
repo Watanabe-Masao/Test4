@@ -3,7 +3,7 @@
  *
  * AsyncState.ts から分離。状態生成関数とレガシー変換を担う。
  *
- * @responsibility R:model
+ * @responsibility R:unclassified
  */
 import type { AsyncState } from './AsyncState'
 import { isUsable } from './AsyncState'

@@ -9,7 +9,7 @@
  * (5) 曜日別集計テーブル
  * (6) 週別集計テーブル
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { useMemo, useState } from 'react'
 import {

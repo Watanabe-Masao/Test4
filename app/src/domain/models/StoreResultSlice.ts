@@ -27,7 +27,7 @@
  *   `StoreResultSlice` は同期計算結果の有無のみを表現する 2 状態 slice で
  *   あり、別概念。helper 命名は `readModelData` に合わせる。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 import type { StoreResult } from './StoreResult'

@@ -55,7 +55,7 @@
  *
  * @see references/03-guides/chart-rendering-three-stage-pattern.md §残り3件の移行完了条件
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 /**

@@ -3,7 +3,7 @@
  * 元は InsightTabBudget.tsx に同居していた GrossProfitTabContent を
  * 責務分離のため独立ファイルに切り出し (Phase 2-B / 2026-04-13)。
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { Card, CardTitle } from '@/presentation/components/common/layout'

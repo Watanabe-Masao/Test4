@@ -9,7 +9,7 @@
  *
  * 方針: 描画 component は pure 関数を組み合わせるだけ（C1 / F7 準拠）。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DateRange as AppDateRange } from '@/domain/models/calendar'
 import { toDateKey, toJsDate, fromJsDate } from '@/domain/models/calendar'

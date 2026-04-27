@@ -4,7 +4,7 @@
  * WeatherPage.tsx から抽出。selectedDays/selectedDows の状態管理と
  * 日選択・月ナビゲーションのハンドラを集約。
  *
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

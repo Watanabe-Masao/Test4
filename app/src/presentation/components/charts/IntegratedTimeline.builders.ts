@@ -5,7 +5,7 @@
  * 売上 / 仕入 / 粗利 / 売変の連動分析に必要な系列・正規化・相関・乖離ゾーンを
  * 一括で算出する。React hooks や I/O を含まない pure 関数。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import {
   normalizeMinMax,

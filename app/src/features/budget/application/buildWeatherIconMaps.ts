@@ -9,7 +9,7 @@
  *   (sameDate alignment 前提)。sameDow の厳密対応は将来拡張 — 当面は day 位置で
  *   簡略マッチする
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { DailyWeatherSummary } from '@/domain/models/WeatherData'
 import { toWeatherDisplay } from '@/domain/weather/weatherAggregation'

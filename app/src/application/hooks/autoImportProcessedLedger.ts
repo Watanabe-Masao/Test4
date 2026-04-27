@@ -4,7 +4,7 @@
  * ファイル名 + サイズ + 最終更新日時 を連結した指紋を localStorage に永続化する。
  * useAutoImport から scan orchestration を切り離すために抽出した純粋モジュール。
  *
- * @responsibility R:persistence
+ * @responsibility R:unclassified
  */
 import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import type { ImportSummary } from '@/domain/models/ImportResult'

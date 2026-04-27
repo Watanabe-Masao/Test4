@@ -3,7 +3,7 @@
  *
  * 階層レベル別集約・カテゴリ日次トレンド・カテゴリ時間帯・CTS レコード取得。
  * useCtsQueries.ts から分割。
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

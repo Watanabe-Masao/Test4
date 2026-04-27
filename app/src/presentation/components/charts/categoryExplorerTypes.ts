@@ -2,7 +2,7 @@
  * カテゴリエクスプローラー 共通型定義
  *
  * CategoryHierarchyExplorer と CategoryExplorerTable が使用する型。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 export type SortKey =

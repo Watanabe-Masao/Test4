@@ -31,7 +31,7 @@
  * @see projects/category-leaf-daily-series/HANDOFF.md
  * @see projects/completed/calendar-modal-bundle-migration/HANDOFF.md §1.2
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

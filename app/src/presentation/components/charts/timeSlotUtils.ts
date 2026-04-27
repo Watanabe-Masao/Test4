@@ -6,7 +6,7 @@
  * 本ファイルは presentation 固有のフォーマット関数 + re-export のバレル。
  *
  * @see F1: バレルで後方互換
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 // Domain 計算関数の re-export（後方互換）

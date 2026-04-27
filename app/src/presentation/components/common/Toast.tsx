@@ -28,7 +28,7 @@ interface ToastItem {
   dismissed: boolean
 }
 
-/** レベルごとの自動消去時間 (ms)。null = 手動消去のみ  * @responsibility R:widget
+/** レベルごとの自動消去時間 (ms)。null = 手動消去のみ  * @responsibility R:unclassified
  */
 const DURATION: Record<ToastLevel, number | null> = {
   success: 3000,

@@ -3,7 +3,7 @@
  *
  * ページごとに独立した localStorage キーでレイアウトを永続化する。
  * 永続化は uiPersistenceAdapter 経由。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { PageKey, UnifiedWidgetDef } from './types'
 import { loadJson, saveJson, STORAGE_KEYS } from '@/application/adapters/uiPersistenceAdapter'

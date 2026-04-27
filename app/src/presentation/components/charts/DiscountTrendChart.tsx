@@ -5,7 +5,7 @@
  *   (`buildDiscountData`) を `DiscountTrendChartLogic.ts` に抽出し、
  *   `ChartRenderModel<DiscountPoint>` 共通契約に揃えた。chart は
  *   `model.points` を描画にだけ使う。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

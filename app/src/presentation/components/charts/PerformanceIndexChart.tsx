@@ -1,7 +1,7 @@
 /**
  * PerformanceIndexChart — PI値/偏差値/Zスコア分析チャート
  *
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useCallback, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
@@ -48,7 +48,7 @@ interface Props {
     string,
     { sales: number; discount: number; customers?: number; ctsQuantity?: number }
   >
-  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション）  * @responsibility R:chart-view
+  /** 日クリック時コールバック（異常値バーのクリックでナビゲーション）  * @responsibility R:unclassified
    */
   onDayClick?: (day: number) => void
   /** DuckDB 接続（カテゴリPI値ランキング子チャート用） */

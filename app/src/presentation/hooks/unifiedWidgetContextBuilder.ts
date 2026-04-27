@@ -6,7 +6,7 @@
  * body 行数を削減する。本関数は完全 pure data composition であり、
  * React hooks や I/O を含まない。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { MetricId, StoreExplanations } from '@/domain/models/analysis'
 import type { DateRange } from '@/domain/models/calendar'

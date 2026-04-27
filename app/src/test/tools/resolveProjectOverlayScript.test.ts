@@ -7,7 +7,7 @@
  * 注意: スクリプトは app ディレクトリからの相対位置を repo root とみなす。
  * テストでは fixture を作り、fixture 内の app/ ディレクトリを appDir として渡す。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  *
  * @taxonomyKind T:unclassified
  */

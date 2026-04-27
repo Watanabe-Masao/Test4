@@ -6,7 +6,7 @@
  * chartRenderingStructureGuard (G5-CRT) — chart component 内 inline builder を
  * 禁ずるため別 file に切り出している。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import { analyzeTrend } from '@/application/hooks/useStatistics'
 import type { MonthlyDataPoint, TrendAnalysisResult } from '@/application/hooks/useStatistics'

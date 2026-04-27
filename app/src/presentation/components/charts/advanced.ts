@@ -1,6 +1,6 @@
 /**
  * 高度分析チャートコンポーネント
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { IntegratedTimeline } from './IntegratedTimeline'
 export { CausalChainExplorer } from './CausalChainExplorer'

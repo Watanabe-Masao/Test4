@@ -4,7 +4,7 @@
  * React 非依存。useTimeSlotPlan から query input 組み立てロジックを分離して
  * 単体テスト可能にする。
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/CalendarDate'

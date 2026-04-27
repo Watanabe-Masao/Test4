@@ -42,7 +42,7 @@
  * @see periodFilterUtils.ts — 純粋関数群
  * @see divisorRules.test.ts — アーキテクチャガードテスト
  * @see PeriodFilter.test.ts — 技術ルール準拠テスト
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import type { AggregateMode } from './periodFilterUtils'

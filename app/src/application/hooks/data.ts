@@ -1,6 +1,6 @@
 /**
  * データ管理系フック — インポート・永続化・バックアップ・復旧
- * @responsibility R:barrel
+ * @responsibility R:unclassified
  */
 export { useImport } from './useImport'
 export type { PendingDiffCheck } from './useImport'

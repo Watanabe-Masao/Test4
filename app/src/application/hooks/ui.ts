@@ -1,6 +1,6 @@
 /**
  * UI系フック — 設定・ナビゲーション・選択・キーボード・説明
- * @responsibility R:barrel
+ * @responsibility R:unclassified
  */
 export { useSettings, loadSettingsFromStorage } from './useSettings'
 export { useKeyboardShortcuts } from './useKeyboardShortcuts'

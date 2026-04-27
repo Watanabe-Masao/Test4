@@ -10,7 +10,7 @@
  * @guard G5 hook ≤300行
  * @guard H1 Screen Plan 経由のみ — useCategoryHierarchyPlan
  * @guard H2 比較は pair/bundle 契約 — plan hook 内部で pair handler を使用
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

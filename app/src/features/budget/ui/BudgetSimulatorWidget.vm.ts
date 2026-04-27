@@ -5,7 +5,7 @@
  * 既存 `InsightTabBudget.vm.ts` と同方針: React 非依存、domain/ のみ依存。
  *
  * @guard F7 View は ViewModel のみ受け取る
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import {
   computeDailyProjection,

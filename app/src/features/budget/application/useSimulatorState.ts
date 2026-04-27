@@ -13,7 +13,7 @@
  * currentDay と weekStart のみ localStorage に永続化する (プロトタイプ準拠)。
  * simulation 部分は session 内メモリのみ — 月替わりで自然に reset される。
  *
- * @responsibility R:state-machine, R:persistence
+ * @responsibility R:unclassified
  */
 import { useCallback, useEffect, useState } from 'react'
 import type { DowBase, DowFactors, SimulatorMode } from '@/domain/calculations/budgetSimulator'

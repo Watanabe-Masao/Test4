@@ -3,7 +3,7 @@
  *
  * 既存 WeatherCorrelationChart をサブパネルとして配置。
  * 売上・客数データは DuckDB store_day_summary から取得。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 /**
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）

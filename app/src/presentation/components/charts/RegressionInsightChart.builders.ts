@@ -4,7 +4,7 @@
  * useMemo body の pure 計算抽出 (ADR-D-003 PR4)。
  * 日別売上から回帰直線・WMA・残差・信頼区間・統計指標・期末予測を一括算出する。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import {
   linearRegression,

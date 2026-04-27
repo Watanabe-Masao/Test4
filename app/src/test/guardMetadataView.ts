@@ -12,7 +12,7 @@
  * 層: Execution（派生物）
  * 導出元: architectureRules.ts（Schema 正本）+ guardCategoryMap.ts（Schema 正本）
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see app/src/test/aagSchemas.ts — AagGuardMetadata 型定義
  */
 

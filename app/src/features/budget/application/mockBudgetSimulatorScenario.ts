@@ -10,7 +10,7 @@
  *
  * **UI 開発 / Storybook / テスト用。production 経路では使わない。**
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import {
   SimulatorScenarioSchema,

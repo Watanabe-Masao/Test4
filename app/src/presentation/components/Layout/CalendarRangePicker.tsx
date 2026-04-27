@@ -9,7 +9,7 @@
  * - 期間-1: 2026/03/01 〜 2026/03/07
  * - 期間-2: 2025/03/02 〜 2025/03/08
  * を自由に指定し、全チャート・計算がその範囲でトリミングされる。
- * @responsibility R:layout
+ * @responsibility R:unclassified
  */
 import { useCallback, useMemo } from 'react'
 import { DayPicker } from 'react-day-picker'

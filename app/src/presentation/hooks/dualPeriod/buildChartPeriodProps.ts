@@ -3,7 +3,7 @@
  *
  * useDualPeriodRange() の結果と periodSelectionStore の preset から、
  * チャートに配布する統一入力を生成する。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DualPeriodRangeResult } from '@/presentation/components/charts/useDualPeriodRange'
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'

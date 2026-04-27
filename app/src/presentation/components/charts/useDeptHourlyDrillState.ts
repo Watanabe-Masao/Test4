@@ -4,7 +4,7 @@
  * useDeptHourlyChartData から分離。
  * topN / activeDepts / drill / viewMode / rightMode の state + handlers。
  *
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import React, { useState, useCallback } from 'react'
 import type { RightOverlayMode } from './DeptHourlyChart'

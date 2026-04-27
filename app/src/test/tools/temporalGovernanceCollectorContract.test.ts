@@ -11,7 +11,7 @@
  * - `heuristicGate.count` が ruleClass + severity 組み合わせから正しく算出
  * - active-debt 系 KPI が allowlist を正しく読む
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see references/03-guides/governance-final-placement-plan.md
  *
  * @taxonomyKind T:unclassified

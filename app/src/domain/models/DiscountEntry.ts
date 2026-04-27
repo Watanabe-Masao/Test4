@@ -4,7 +4,7 @@
  * ClassifiedSales.ts から分離。売変種別の定義と配列操作を担う。
  * 種別追加時は DISCOUNT_TYPES のみ変更すればパイプライン全体に伝播する。
  *
- * @responsibility R:model
+ * @responsibility R:unclassified
  */
 
 // ─── 売変種別定義（単一の真実の源） ────────────────────────

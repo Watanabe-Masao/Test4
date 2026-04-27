@@ -4,7 +4,7 @@ import { useUiStore } from '@/application/stores'
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { loadJson } from '@/application/adapters/uiPersistenceAdapter'
 
-/** 設定管理フック (Zustand ストア版)  * @responsibility R:persistence
+/** 設定管理フック (Zustand ストア版)  * @responsibility R:unclassified
  */
 export function useSettings() {
   const settings = useSettingsStore((s) => s.settings)

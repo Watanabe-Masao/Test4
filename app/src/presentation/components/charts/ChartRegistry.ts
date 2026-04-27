@@ -10,7 +10,7 @@
  *   3. dataRequirements を宣言 → Architecture Guard が検証
  *   4. metricIds を宣言 → Explanation との連携自動化
  *   5. domain を宣言 → 縦スライス移行時に自動分類
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { WidgetSize } from '@/presentation/components/widgets/types'
 import type { ViewType } from '@/domain/models/storeTypes'

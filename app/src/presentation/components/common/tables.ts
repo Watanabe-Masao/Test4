@@ -1,6 +1,6 @@
 /**
  * データ表示コンポーネント
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { KpiCard, KpiGrid } from './KpiCard'
 export { MetricBreakdownPanel } from './MetricBreakdownPanel'

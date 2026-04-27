@@ -3,7 +3,7 @@
  *
  * 期間メトリクス: SQL で生データ取得 → JS で計算（二重実装の解消）
  * 予算分析: budgetAnalysis.ts のクエリを useAsyncQuery ベースのフックとして提供
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

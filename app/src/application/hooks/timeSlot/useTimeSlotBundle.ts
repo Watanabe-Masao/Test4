@@ -46,7 +46,7 @@
  * @see projectTimeSlotSeries.ts
  * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

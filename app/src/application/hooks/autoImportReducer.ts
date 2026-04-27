@@ -4,7 +4,7 @@
  * useState を useReducer に集約する。processed 指紋の件数・スキップ件数を
  * state として可視化し、UI 側での診断表示に使う。
  *
- * @responsibility R:reducer
+ * @responsibility R:unclassified
  */
 
 export interface AutoImportReducerState {

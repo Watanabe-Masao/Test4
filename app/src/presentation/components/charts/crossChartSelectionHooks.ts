@@ -3,7 +3,7 @@
  *
  * react-refresh/only-export-components 対応のため、
  * コンポーネント（Provider）とフックを別ファイルに分離。
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 import { useContext, useCallback } from 'react'
 import { CrossChartSelectionContext } from './crossChartSelectionContextDef'

@@ -32,7 +32,7 @@
  * `useComparisonModule` の periodSelection 依存が全て除去された時点で、
  * 本 wrapper の役割も見直される (scope 直接受領型に移行可能か評価する)。
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'

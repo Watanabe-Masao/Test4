@@ -8,7 +8,7 @@
  * グラフ: 天気アイコン統合、クリックで時間帯モーダル起動
  * 日別グリッド不要（チャートに統合済み）
  *
- * @responsibility R:page, R:data-fetch, R:state-machine
+ * @responsibility R:unclassified
  */
 import { memo, useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

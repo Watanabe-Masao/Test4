@@ -5,7 +5,7 @@
  *   QueryHandler → DeptTrendChartLogic.ts → ECharts option → EChart
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDeptKpiTrend 直接 import）
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'

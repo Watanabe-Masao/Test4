@@ -11,7 +11,7 @@
  *
  * 本テストは collector の内部 regex ではなく、KPI 出力結果を契約として固定する。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see references/03-guides/governance-final-placement-plan.md
  *
  * @taxonomyKind T:unclassified

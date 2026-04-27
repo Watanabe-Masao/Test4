@@ -3,7 +3,7 @@
  *
  * 実体は application/hooks/useDailySalesData.ts に移動。
  * データ集計ロジックは Application 層の責務。
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 export {
   useDailySalesData,

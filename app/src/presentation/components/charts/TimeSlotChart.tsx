@@ -9,7 +9,7 @@
  *
  * context 渡し（親コンテナ経由）と従来 props 渡し（暫定互換）の両方に対応。
  * 新規利用箇所では context を使用すること。従来 props は縮退予定。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'

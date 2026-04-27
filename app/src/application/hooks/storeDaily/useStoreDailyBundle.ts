@@ -45,7 +45,7 @@
  * @see app/src/application/hooks/timeSlot/useTimeSlotBundle.ts (参照実装)
  * @see app/src/application/queries/summary/StoreDaySummaryPairHandler.ts
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

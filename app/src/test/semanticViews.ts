@@ -6,7 +6,7 @@
  *
  * business / analytic / candidate を同じ view に載せない（I3 原則）。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @guard I4
  */
 

@@ -8,7 +8,7 @@
  * - 進捗バー（達成率）
  * - 実績累計 / 予算 / 着地見込み
  * - 一言判断文（自動生成）
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import {

@@ -2,7 +2,7 @@ import type { DateRange } from '@/domain/models/CalendarDate'
 
 /**
  * Minimal contract for comparison KPI projection.
- * @responsibility R:context
+ * @responsibility R:unclassified
  *
  * Replaces direct `PeriodSelection` dependency in `buildKpiProjection`.
  * Only the fields actually consumed by projection logic are included.

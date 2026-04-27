@@ -26,7 +26,7 @@
  *
  * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

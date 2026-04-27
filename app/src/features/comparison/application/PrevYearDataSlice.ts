@@ -32,7 +32,7 @@
  *   - `{ status: 'ready'; data: { source: 'disabled' } }`: 配布可能、ただし比較 OFF
  *   - `{ status: 'ready'; data: { source: 'loaded' } }`: 配布可能、正常データあり
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 import type { PrevYearData } from './comparisonTypes'

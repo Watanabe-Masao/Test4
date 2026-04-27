@@ -3,7 +3,7 @@
  *
  * 日別累積売上は SQL 集約版 (useJsAggregationQueries) に委譲。
  * 集約は DuckDB SQL、意味づけは TS 側が担当。
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

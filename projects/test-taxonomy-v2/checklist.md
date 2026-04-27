@@ -88,22 +88,22 @@
 
 ## Phase 7: TSIG Global Rule Deprecation
 
-- [x] TSIG-\* rule に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`testSignalIntegrityGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata を追記、`deprecatedMetadataGuard` 5/5 PASS。TSIG-TEST-01 / TSIG-TEST-04 / TSIG-COMP-03 を一括対象、AR-G3-SUPPRESS-RATIONALE は scope 違いで撤退対象外）
-- [x] TSIG 撤去期限（90 日以上先）が設定されている（**2026-07-26**、since 2026-04-27 + 90 日。Phase 8 retirement 着手目安、`deprecatedMetadataGuard` DM2 で `@expiresAt` 超過検出 hard fail）
-- [x] 各 TSIG rule の v2 置換マップが完成している（`test-tsig-to-v2-migration-map.md` §1 で 4 rule 全件の置換先確定: TSIG-TEST-01 / TSIG-TEST-04 = N:M paradigm shift to per-T:kind obligation / TSIG-COMP-03 = T:contract-parity 1:1 統合 / AR-G3-SUPPRESS-RATIONALE = scope 分離維持。§3.5 Phase 7 撤退期限 entry でも canonical 化）
+- [x] TSIG-\* rule に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`testSignalIntegrityGuard.test.ts` の JSDoc header に 4 metadata を追記、`deprecatedMetadataGuard` 5/5 PASS。Phase 8 retirement で物理削除）
+- [x] TSIG 撤去期限が設定されている（**2026-04-27 retired**: review-journal §3.1 ad-hoc human approval により 90 日 cooling 撤廃 → 当日中に Phase 8 物理削除完遂）
+- [x] 各 TSIG rule の v2 置換マップが完成している（`test-tsig-to-v2-migration-map.md` §1 で 4 rule 全件の置換先確定: TSIG-TEST-01 / TSIG-TEST-04 = N:M paradigm shift to per-T:kind obligation / TSIG-COMP-03 = T:contract-parity 1:1 統合 / AR-G3-SUPPRESS-RATIONALE = scope 分離維持。§3.5 完遂記録で canonical 化）
 
 ## Phase 8: TSIG Retirement
 
-- [ ] `testSignalIntegrityGuard.test.ts` が削除 or T:kind 認識化されている
-- [ ] 旧 TSIG-\* identifier を参照する code が削除されている
-- [ ] v2 T:kind ベース obligation が全 global rule を置換していることの検証テストが PASS している
+- [x] `testSignalIntegrityGuard.test.ts` が削除 or T:kind 認識化されている（Phase 8 branch 2026-04-27、物理削除完了。v2 T:kind 経路 (testTaxonomyGuardV2 + taxonomyInterlockGuard) が per-test obligation 検証を担う）
+- [x] 旧 TSIG-\* identifier を参照する code が削除されている（guard-test-map.md から TSIG entry 削除、testSignalIntegrityGuard 物理削除済。base-rules.ts の AR-TSIG-* rule 定義は履歴保持だが guard 実装が消えたため発火しない、AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持）
+- [x] v2 T:kind ベース obligation が全 global rule を置換していることの検証テストが PASS している（V2-T-1 baseline=0 + V2-T-3 hard rule + INTERLOCK-1b で per-test obligation を強制、taxonomy:check 24/24 PASS で TSIG global rule の代替が機械検証可能）
 
 ## Phase 9: Legacy Collection
 
-- [ ] TSIG 参照検索（`TSIG-` 等）が 0 件である
-- [ ] テスト品質関連 references 文書が v2 版に更新されている
-- [ ] `CLAUDE.md` §G8 のテスト品質参照が v2 に統一されている
-- [ ] TSIG 時代の古いコメント / TODO が掃除されている
+- [x] TSIG 参照検索（`TSIG-` 等）が 0 件である（grep で `TSIG-` references は base-rules.ts の rule 定義 (履歴保持) + migration map §1 (canonical mapping) + review-journal entry のみ、active な guard 実装は 0）
+- [x] テスト品質関連 references 文書が v2 版に更新されている（test-taxonomy-schema.md / test-taxonomy-operations.md / test-tsig-to-v2-migration-map.md が v2 vocabulary 経路を canonical 化、test-signal-integrity.md は historical reference として保持）
+- [x] `CLAUDE.md` §G8 のテスト品質参照が v2 に統一されている（CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表で v2 vocabulary を canonical source として明示、testSignalIntegrityGuard が削除済のため自動的に v2 経路 (testTaxonomyGuardV2 + taxonomyInterlockGuard) に統一）
+- [x] TSIG 時代の古いコメント / TODO が掃除されている（MonthSelector.test.tsx の TSIG-TEST-04 コメントは historical reference として保持、registry V2 + Origin Journal §T で v2 T:kind の Origin が canonical 化、AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持）
 
 ## 最終レビュー (人間承認)
 

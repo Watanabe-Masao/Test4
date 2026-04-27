@@ -162,7 +162,7 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
  *
  * 減少方向のみ許可（ratchet-down）。減ったら本定数を更新する。
  */
-const V1_ONLY_BASELINE = 259
+const V1_ONLY_BASELINE = 0
 
 // ─── tests ─────────────────────────────────────────
 

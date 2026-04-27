@@ -1,7 +1,7 @@
 /**
  * 仕入比較クエリフック — 複合正本（purchaseCostHandler）を唯一の仕入原価ソースとする
  * @see readPurchaseCost.ts, purchase-cost-definition.md
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

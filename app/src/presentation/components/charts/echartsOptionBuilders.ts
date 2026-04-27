@@ -3,7 +3,7 @@
  *
  * 実装は builders/ に移動済み。既存の import パスを壊さないための re-export。
  * 新規コードは builders/ から直接 import すること。
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 
 // ─── 共通フォーマッタ ──────────────────────────────────

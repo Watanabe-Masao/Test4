@@ -9,7 +9,7 @@
  *   <EChart option={option} height={300} />
  *
  * Logic.ts → option 生成 → EChart で描画、の統一パイプライン。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useRef, useEffect, useCallback, memo } from 'react'
 import * as echarts from 'echarts/core'

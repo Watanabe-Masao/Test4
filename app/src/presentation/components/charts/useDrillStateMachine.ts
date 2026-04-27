@@ -6,7 +6,7 @@
  * ドリルレベル遷移・範囲選択・サブタブ切替を単一の状態遷移で管理する。
  *
  * @guard G5 presentationStateLimits 許可リスト削除条件: "ドリル状態を reducer に統合する時"
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import { useReducer, useCallback, useRef, useEffect } from 'react'
 import type { SubTabKey } from './IntegratedSalesSubTabs'

@@ -5,7 +5,7 @@
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は builders で一度だけ
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import { safeDivide } from '@/domain/calculations/utils'
 import type { StoreResult } from '@/domain/models/StoreResult'
@@ -34,7 +34,7 @@ export interface HeatmapData {
  * @param ctsQuantityByStore CTS 由来の店舗別販売点数（useCtsQuantity.byStore）
  * @param storeCustomerMap CustomerFact 由来の店舗別客数（toStoreCustomerRows 経由）
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildStorePIData(
   allStoreResults: ReadonlyMap<string, StoreResult>,
@@ -64,7 +64,7 @@ export function buildStorePIData(
  * StoreCategoryPIOutput からヒートマップ用データを構築。
  * カテゴリ Top10 抽出 + [catIdx, storeIdx, value] 整形。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildHeatmapData(
   catOutput: StoreCategoryPIOutput,

@@ -54,7 +54,7 @@ interface Props {
   rangeEnd?: number
 }
 
-/** ECharts sub-component for chart rendering  * @responsibility R:chart-view
+/** ECharts sub-component for chart rendering  * @responsibility R:unclassified
  */
 function SalesCompChart({
   chartData,

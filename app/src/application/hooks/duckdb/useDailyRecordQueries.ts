@@ -3,7 +3,7 @@
  *
  * dailyRecords.ts のクエリを useAsyncQuery ベースのフックとして提供する。
  * DailyRecord (JS) の代替。DailySalesChart, GrossProfitAmountChart 等で使用。
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

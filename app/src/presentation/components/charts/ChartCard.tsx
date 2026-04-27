@@ -7,7 +7,7 @@
  * variant:
  *   'card'    — スタンドアロンのチャートカード（デフォルト）
  *   'section' — 親カード内に埋め込まれるサブセクション
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { type ReactNode, useState, useCallback } from 'react'
 import type { ChartGuide } from './chartGuides'

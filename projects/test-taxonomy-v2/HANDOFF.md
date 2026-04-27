@@ -5,27 +5,30 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5+6a-2+6b+6c 完遂（main 反映済）+ Phase 7 TSIG Deprecation 完遂（2026-04-27、本 branch）。Phase 8 TSIG Retirement に進める状態（2026-07-26 expiresAt 到達後）。**
+**Phase 0+1+2+3+3.5+4+5+6+7 完遂（main 反映済）+ Phase 7.5+8+9 完遂（2026-04-27、本 branch）。子 project は全 Phase 完了、最終レビュー human approval 待ち。**
 
-> **Phase 7 で landing したもの（本 branch、TSIG deprecation metadata + 撤退期限確定）:**
+> **Phase 7.5+8+9 で landing したもの（本 branch、cooling 撤廃 + TSIG retirement + legacy collection）:**
 >
-> - `testSignalIntegrityGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt: 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata 追記（TSIG-TEST-01 / TSIG-TEST-04 / TSIG-COMP-03 を一括対象、AR-G3-SUPPRESS-RATIONALE は scope 違いで撤退対象外）
-> - `references/03-guides/test-tsig-to-v2-migration-map.md` §3.5 に Phase 7 撤退期限 entry を新設（撤退対象 / 撤退方法 / 残存 scope / Phase 8 着手条件 / 検証 guard を明示）
-> - `CLAUDE.md` §taxonomy-binding §「v1 / TSIG 撤去期限」表に test 軸 entry を含めた両軸表として canonical 化
+> - `references/02-status/taxonomy-review-journal.md` §3.1 — ad-hoc human review entry 追加（90 日 cooling 撤廃の human approval 記録、Constitution 原則 3 + AR-TAXONOMY-AI-VOCABULARY-BINDING への compliance）
+> - **Phase 8 T-axis retirement**: `testSignalIntegrityGuard.test.ts` 物理削除、`guard-test-map.md` から TSIG entry 削除、base-rules.ts の AR-TSIG-TEST-01 / TSIG-COMP-03 / TSIG-TEST-04 rule 定義は履歴保持（guard 実装が消えたので発火しない）、AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持
+> - **Phase 9 legacy collection**: CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表を retired 状態に更新、`test-tsig-to-v2-migration-map.md` §3.5 を「完遂記録」に更新（90 日 cooling 撤廃を明記）
 >
-> **作業 branch:** `claude/taxonomy-v2-phase7-deprecation` (両子共通の統合 branch)
-> **scope:** TSIG 4 metadata 追記 + migration map §3.5 + CLAUDE.md §taxonomy-binding 表（責務軸と共通）+ 子 checklist 3/3 [x] + 本 HANDOFF（Phase 8 retirement / T:kind 認識化は別 PR、2026-07-26 以降）
+> **作業 branch:** `claude/taxonomy-v2-phase7.5-8-9-retirement` (両子共通)
+> **scope:** review-journal entry + TSIG 物理削除 + CLAUDE.md / migration map §3.5 更新 + 子 checklist 全 [x] + 本 HANDOFF + 親最終レビュー entry 候補
 
-### Phase 7 設計結果（テスト軸）
+### Phase 7.5+8+9 設計結果（テスト軸）
 
 | 指標                                  | 値                                                                          |
 | ------------------------------------- | --------------------------------------------------------------------------- |
-| `@deprecated since`                   | 2026-04-27                                                                  |
-| `@expiresAt`                          | **2026-07-26**（90 日 cooling）                                             |
-| 4 metadata 追記対象                   | 1 file: `testSignalIntegrityGuard.test.ts`（TSIG-TEST-01 / TEST-04 / COMP-03 一括）|
+| ad-hoc review entry                   | `taxonomy-review-journal.md` §3.1（user 採択、claude 提案）                  |
+| Phase 8 削除 file                     | 1 件: `testSignalIntegrityGuard.test.ts`                                    |
+| 残存 base-rules entry                 | AR-TSIG-TEST-01 / TSIG-COMP-03 / TSIG-TEST-04 は履歴保持（guard 削除済のため発火不能）|
 | 残存 scope                            | AR-G3-SUPPRESS-RATIONALE は §3.4 scope 分離で恒久維持（撤退対象外）        |
-| v2 置換マップ完成度                   | 4/4 rule（§1 mapping table、Phase 2 で確定済 + Phase 7 で §3.5 canonical 化）|
-| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 + deprecatedMetadataGuard 5/5    |
+| v2 T:kind 状態                        | 全 731 test に @taxonomyKind 付与（V2-T-1 baseline=0 + V2-T-3 hard rule で per-test 検証完備）|
+| `taxonomy:check` 24/24                | PASS                                                                        |
+| test:guards 全体                      | 837 → 810 PASS（TSIG 23 件 + v1 4 件 = 27 件減少、削除分のみ）              |
+| 機械検証                              | lint 0err + format + build + docs:check PASS                                |
+| 観察期間                              | なし（review-journal §3.1 で internal-only codebase での儀式的 cooling 不要と判定） |
 
 > **Phase 6b/6c で landing したもの（本 branch、Promotion Gate L5 + テスト軸 gap 検証完遂）:**
 

@@ -3,7 +3,7 @@
  *
  * HourlyWeatherModal から option 構築を分離。純粋関数のみ。React 依存なし。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import {

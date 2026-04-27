@@ -10,7 +10,7 @@
  *   useQuerySlice            — query 実行・readModel アクセス
  *   useWeatherSlice          — 天気データ
  *   useChartInteractionSlice — 月次履歴 / CTS / チャート期間
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { UnifiedWidgetContext } from '@/presentation/components/widgets'

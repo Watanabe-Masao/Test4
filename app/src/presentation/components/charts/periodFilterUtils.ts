@@ -7,7 +7,7 @@
  * @see @/domain/calculations/divisor.ts — 正規の定義元
  * @see divisorRules.test.ts — アーキテクチャガードテスト
  * @see PeriodFilter.test.ts — 不変条件テスト
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 // ── 正規ロケーションからの re-export ──────────────────────

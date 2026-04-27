@@ -44,7 +44,7 @@ import { ComparisonPresetToggle } from './ComparisonPresetToggle'
  *
  * ユーザーが「分析期間を選ぶ」UI ではなく、
  * 計算に必要な全データを揃えるための年月切替機構。
- * @responsibility R:layout
+ * @responsibility R:unclassified
  */
 function InlineMonthPicker() {
   const settings = useSettingsStore((s) => s.settings)

@@ -3,7 +3,7 @@
  *
  * モバイル画面サイズで画面下部にナビゲーションバーを表示する。
  * デスクトップでは非表示。ページ定義は PAGE_REGISTRY から導出。
- * @responsibility R:layout
+ * @responsibility R:unclassified
  */
 import type { ViewType } from '@/domain/models/storeTypes'
 import { getMobileNavPages } from '@/application/navigation/pageRegistry'

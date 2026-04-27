@@ -9,7 +9,7 @@ import styled from 'styled-components'
  * WAI-ARIA tabs パターン:
  * - TabBar: role="tablist"
  * - Tab: role="tab", aria-selected, 左右矢印キーでフォーカス移動
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 export const TabBar = styled.div.attrs({

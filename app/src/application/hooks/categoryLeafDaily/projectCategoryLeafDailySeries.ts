@@ -22,7 +22,7 @@
  *   - comparison / fallback の解決（bundle hook の責務）
  *   - consumer 側の手動変換 (**必ず本関数を経由すること**)
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type {

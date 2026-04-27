@@ -6,7 +6,7 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { CategoryTrendPoint, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'
 
@@ -84,7 +84,7 @@ export function detectTrendStatus(points: readonly CategoryTrendPoint[]): TrendS
 }
 
 /** CV値 → ヒートマップ色 (緑=低CV=安定、赤=高CV=不安定)  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 export function cvToColor(cv: number, maxCv: number): { bg: string; text: string } {
   const ratio = Math.min(cv / Math.max(maxCv, 0.01), 1)

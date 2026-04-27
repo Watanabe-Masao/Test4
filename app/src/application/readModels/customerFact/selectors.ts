@@ -32,7 +32,7 @@
  * - projects/widget-registry-simplification/legacy-retirement.md §LEG-009
  * - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-B-003
  *
- * @responsibility R:selector
+ * @responsibility R:unclassified
  */
 
 import type { ReadModelSlice } from '@/application/hooks/useWidgetDataOrchestrator'

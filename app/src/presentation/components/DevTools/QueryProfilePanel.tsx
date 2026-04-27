@@ -3,7 +3,7 @@
  *
  * DEV モードでのみ表示される DuckDB クエリログビューア。
  * 直近のクエリ実行ログ、実行時間、成功/失敗を一覧表示する。
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { queryProfiler, type QueryProfileEntry } from '@/application/services/queryProfileService'

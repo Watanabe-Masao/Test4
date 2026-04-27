@@ -127,21 +127,21 @@ Phase 1 で **全 v2 R:tag が `active` で landing 済**（registry V2 frontmat
 
 R:unclassified は **恒久 sentinel** として `active`。撤退条件なし（原則 1: 未分類は分類である）。
 
-### 3.4. Phase 7 v1 Deprecation 撤退期限（2026-04-27 確定）
+### 3.4. Phase 7→8 v1 Retirement 完遂記録（2026-04-27）
 
 | 項目                | 値                                                                                            |
 | ------------------- | --------------------------------------------------------------------------------------------- |
-| `@deprecated since` | **2026-04-27**（taxonomy-v2 Phase 7 着手日）                                                  |
-| `@expiresAt`        | **2026-07-26**（90 日 cooling、Phase 8 retirement 着手目安）                                  |
-| 撤退対象            | `app/src/test/responsibilityTagRegistry.ts` + `app/src/test/guards/responsibilityTagGuard.test.ts` |
+| `@deprecated since` | 2026-04-27                                                                                    |
+| 物理削除日          | **2026-04-27 retired**（review-journal §3.1 ad-hoc human approval により 90 日 cooling 撤廃）|
+| 撤退対象            | `app/src/test/responsibilityTagRegistry.ts` + `app/src/test/guards/responsibilityTagGuard.test.ts`（両 file 物理削除済）|
 | 撤退方法            | 物理削除（v2 vocabulary が responsibilityTaxonomyRegistryV2.ts に完備、v2 guard 群が責務軸検証を担う）|
-| Phase 8 着手条件    | `taxonomyV1V2GapGuard` GAP-R-1 baseline = 0 到達（v1-only file 全件移行完了）+ 90 日 cooling 完了 |
-| Phase 8 検証 guard  | `deprecatedMetadataGuard` DM2（@expiresAt 超過 hard fail）+ `dualRunExitCriteriaGuard`（並行運用終了条件）|
+| 達成条件 (満たした) | `taxonomyV1V2GapGuard` GAP-R-1 baseline 259 → 0（Phase 7.5 で v1-only 259 file を R:unclassified に migration） + V2-R-2 unknown vocabulary baseline 268 → 0（v1 タグ参照ゼロ達成） |
 | 残存 vocabulary     | v2 R:tag 10 件（Phase 6c で全件 promotionLevel L5 達成済）                                    |
+| 観察期間            | なし（cooling 撤廃: review-journal §3.1 で internal-only codebase での儀式的 cooling 不要と判定） |
 
-> **撤退期限は CLAUDE.md §taxonomy-binding で参照されている**（移行期限の単一参照源）。
+> **撤退状況は CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表で canonical 参照可能**。
 
-> v1 → v2 置換マップは §1（v1 20 R:tag × 移行先 v2 R:tag）を canonical source とする。Phase 7 開始時点で全 v1 R:tag の置換先が確定済み。
+> v1 → v2 置換マップは §1（v1 20 R:tag × 移行先 v2 R:tag）を canonical source とする。Phase 7→8 完遂時点で v1 vocabulary は codebase から完全消滅。
 
 ## 4. Migration の per-Phase 実装計画（参考）
 

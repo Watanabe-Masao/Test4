@@ -1,6 +1,6 @@
 /**
  * チャートインフラ — テーマ・ツールチップ・ヘッダー・コントロール
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { DayRangeSlider } from './DayRangeSlider'
 export { useDayRange } from './useDayRange'

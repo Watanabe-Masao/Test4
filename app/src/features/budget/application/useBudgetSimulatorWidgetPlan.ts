@@ -11,7 +11,7 @@
  *
  * drill (UI 開閉) state は view ローカルの責務なので widget 側に保持する。
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'

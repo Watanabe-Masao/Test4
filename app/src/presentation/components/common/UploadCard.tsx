@@ -27,7 +27,7 @@ export function UploadCard({
   dataType: DataType
   label: string
   loaded: boolean
-  /** 取込データの最終日（存在する場合に表示）  * @responsibility R:widget
+  /** 取込データの最終日（存在する場合に表示）  * @responsibility R:unclassified
    */
   maxDay?: number
   filename?: string

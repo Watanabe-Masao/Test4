@@ -301,7 +301,7 @@ export const SensitivityDashboard = memo(function SensitivityDashboard({
             })}
           />
 
-          {/* カード A: 粗利インパクト（粗利額 + 粗利率を統合）  * @responsibility R:chart-view
+          {/* カード A: 粗利インパクト（粗利額 + 粗利率を統合）  * @responsibility R:unclassified
            */}
           <ResultCard $color={sc.positive}>
             <ResultLabel>粗利インパクト</ResultLabel>

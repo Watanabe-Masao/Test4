@@ -6,7 +6,7 @@
  * - purchaseComparisonCategory.ts: 取引先・カテゴリ別データ構築
  * - purchaseComparisonDaily.ts: 日別データ・ピボット構築
  *
- * @responsibility R:barrel
+ * @responsibility R:unclassified
  */
 export {
   toDateKey,

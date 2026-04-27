@@ -501,6 +501,8 @@ describe('@guard tag consistency', () => {
       'I2', // 意味責任で棚を分ける — Phase 2 でガード化予定
       'I3', // current と candidate を混ぜない — Phase 4 でガード化予定
       'I4', // 正本は calculationCanonRegistry の1つだけ — Phase 2 でガード化予定
+      'C8', // 1 文説明テスト — taxonomy-v2 子 Phase 8 で v1 guard 削除に伴いレビュー検証へ移行（複数タグ = AND の検出は v2 guard 群で代替）
+      'C9', // 現実把握優先（未分類は能動タグ）— taxonomy-v2 子 Phase 8 で v1 guard 削除に伴いレビュー検証へ移行（V2-R-1/V2-R-3 hard rule で機械検証は v2 側継承）
       // C5 (最小セレクタ) — codePatternGuard で機械検証に昇格
       // G2 (エラーは伝播) — codePatternGuard で機械検証に昇格
     ])

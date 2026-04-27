@@ -3,7 +3,7 @@
  *
  * 当月・前年の天気データを統合して返す。
  * useUnifiedWidgetContext の context slice として天気関連の依存を局所化する。
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

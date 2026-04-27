@@ -4,7 +4,7 @@
  * バックアップ先 / 自動取込元 の管理 UI を分離。
  * 解除 / スキャン / 全再スキャン をここに集約する。
  *
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import styled from 'styled-components'
 import type { AutoBackupState, AutoBackupActions } from '@/application/hooks/data'

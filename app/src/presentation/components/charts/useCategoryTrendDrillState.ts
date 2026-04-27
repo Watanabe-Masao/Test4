@@ -4,7 +4,7 @@
  * useCategoryTrendChartData から分離。
  * level / topN / drill / metric / showYoY / selectedDows の state + handlers。
  *
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import type { TrendMetric } from '@/features/category'

@@ -15,7 +15,7 @@ export { Skeleton } from './Skeleton.styles'
 /**
  * KpiCard のローディング状態を模倣するスケルトン。
  * ラベル行 + 値行 + オプションのサブテキスト行。
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 export function KpiCardSkeleton() {
   return (

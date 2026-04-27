@@ -7,7 +7,7 @@
  * - 予算バー: グレー、全日重ね
  * - 7日移動平均ライン: 当期 / 予算 / 前年 の 3 本
  *
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'

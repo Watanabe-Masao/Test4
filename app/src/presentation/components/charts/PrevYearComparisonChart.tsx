@@ -5,7 +5,7 @@
  *   (`buildCumulativeData`) を `PrevYearComparisonChartLogic.ts` に抽出し、
  *   `ChartRenderModel<ComparisonPoint>` 共通契約 + `extras.prevTotal` 拡張に
  *   揃えた。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

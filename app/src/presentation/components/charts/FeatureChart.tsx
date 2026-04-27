@@ -5,7 +5,7 @@
  *   QueryHandler → FeatureChartLogic.ts → ECharts option → EChart
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDailyFeatures 直接 import）
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

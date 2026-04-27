@@ -14,7 +14,7 @@
  *
  * 完全性は defaultOverlayCompletenessGuard が保証する。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 

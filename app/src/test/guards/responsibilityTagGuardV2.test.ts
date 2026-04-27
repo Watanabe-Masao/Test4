@@ -17,7 +17,7 @@
  *   - 増加方向は hard fail、減少は baseline 更新
  *
  * - **V2-R-2: unknown vocabulary 違反**（ratchet-down baseline）
- *   - file が `@responsibility R:foo` を持つが `R:foo` が v2 vocabulary に存在しない
+ *   - file が `@responsibility` で v2 vocabulary に存在しない tag を持つ
  *   - baseline = Phase 0 inventory 計測値（unknownVocabulary 20）
  *   - v1 vocabulary は **v2 では unknown** として検出（Phase 6 Migration Rollout で v2 に置換）
  *
@@ -167,7 +167,7 @@ const UNTAGGED_BASELINE_V2 = 0
  * 減少方向のみ許可（ratchet-down）。Phase 6 で v1 → v2 一括変換し baseline = 0 到達 →
  * Phase 8 で v1 guard retirement。
  */
-const UNKNOWN_VOCABULARY_BASELINE_V2 = 268
+const UNKNOWN_VOCABULARY_BASELINE_V2 = 0
 
 // ─── tests ─────────────────────────────────────────
 

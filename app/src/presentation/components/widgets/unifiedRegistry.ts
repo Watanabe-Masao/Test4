@@ -7,7 +7,7 @@
  * Dashboard ウィジェットは DashboardWidgetContext（UnifiedWidgetContext の required 具象化）を
  * 期待するため、型アサーションで橋渡しする。
  * useUnifiedWidgetContext が全フィールドを設定するため、ランタイムでは安全。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { UnifiedWidgetDef, RenderUnifiedWidgetContext } from './types'
 import type { DashboardWidgetContext } from '@/presentation/pages/Dashboard/widgets/DashboardWidgetContext'

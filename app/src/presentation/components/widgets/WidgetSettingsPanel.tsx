@@ -4,7 +4,7 @@
  * 全ページ共通の「ウィジェット設定」UIを提供する。
  * 各ウィジェットの有効/無効をチェックボックスで切り替え、
  * ドラッグ&ドロップで並び替えが可能。
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useRef } from 'react'
 import { Button } from '@/presentation/components/common/layout'

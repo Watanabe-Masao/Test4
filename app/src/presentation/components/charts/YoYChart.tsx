@@ -22,7 +22,7 @@
  *   分離。chart component は data builder (YoYChartLogic.ts) と option
  *   builder (YoYChartOptionBuilder.ts) を orchestration するのみ。
  *   見本実装: TimeSlotChart (.vm.ts + OptionBuilder.ts + View.tsx) に次ぐ 2 例目。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

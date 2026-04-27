@@ -11,7 +11,7 @@
  * cumPrevCustomers) は scenario から直接導出できるため、ここで計算する。
  * Dashboard 固有の `calendarUtils.buildCumulativeMaps` に依存しない。
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'

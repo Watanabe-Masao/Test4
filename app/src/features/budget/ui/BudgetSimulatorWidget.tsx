@@ -6,7 +6,7 @@
  *   結果を `BudgetSimulatorView` に渡すだけの薄い connector に徹する。
  *   drill (UI 開閉) state / day detail modal state だけは widget 側で保持する。
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { useMemo, useState } from 'react'
 import type { RenderUnifiedWidgetContext } from '@/presentation/components/widgets'
