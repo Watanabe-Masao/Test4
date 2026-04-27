@@ -5,6 +5,9 @@
  * ルール ID の一意性、タグ参照の妥当性、必須フィールドの検証。
  *
  * @guard G1 テストに書く
+ *
+ * @responsibility R:guard
+ * @taxonomyKind T:meta-guard
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

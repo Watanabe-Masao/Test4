@@ -140,24 +140,30 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
 // ─── ratchet-down baseline (Phase 0 inventory 計測値) ──
 
 /**
- * v2 untagged baseline (Phase 0 inventory: untagged 1055)
+ * v2 untagged baseline (Phase 0 inventory: untagged 1055 → Phase 4 Pilot で 1043 に ratchet-down)
  *
  * 減少方向のみ許可（ratchet-down）。減ったら本定数を更新する。
  * Phase 6 Migration Rollout で全 file に v2 R:tag (R:unclassified 含む) が付与され、
  * Phase 6 完了時に baseline = 0 到達 → Phase 6 完了後に固定モード化（V2-R-3 activate）。
+ *
+ * Phase 4 Pilot 注: v1 guard の TARGET_DIRS 内（application/hooks / presentation/components）の
+ * file は v2 単独タグだと v1 guard が拒否するため Pilot 対象外（Phase 6 Migration Rollout で
+ * v1 → v2 一斉移行を v1 guard retirement と同時に実施）。Pilot で減算したのは
+ * v1 TARGET_DIRS 外の 12 file (1055 → 1043 = -12)。
  */
-const UNTAGGED_BASELINE_V2 = 1055
+const UNTAGGED_BASELINE_V2 = 1043
 
 /**
- * v2 unknown vocabulary baseline (Phase 3 実測値: 270)
+ * v2 unknown vocabulary baseline (Phase 3 実測値: 270 → Phase 4 Pilot 一時 268 → conflict revert で 270 維持)
  *
  * v1 vocabulary（R:chart-view / R:widget / R:utility / R:transform 等の 18 件）は
- * v2 vocabulary にないため **unknown として検出**される。Phase 0 inventory が報告した
- * 20 件は「v1 にも v2 にもない vocabulary」（R:model / R:selector 等）であり、
- * 本 V2-R-2 はそれを含む全 unknown を計測する（実測 270 = v1-only タグ使用 file 数 + v1 にも v2 にもない vocabulary 使用 file 数）。
+ * v2 vocabulary にないため **unknown として検出**される。Phase 4 Pilot で v1 → v2 置換 3 件は
+ * v1 guard との conflict （v1 TARGET_DIRS 内 file）で revert したため、本 baseline は維持。
+ * 純粋な v2 置換は migrationTagRegistry 1 件のみで baseline 269 (-1) も可能だが、
+ * conservative に 270 を維持し Phase 6 Migration Rollout 一括変換時に下げる。
  *
- * 減少方向のみ許可（ratchet-down）。Phase 6 Migration Rollout で v1 → v2 一括変換し
- * baseline = 0 到達 → Phase 8 で v1 guard retirement。
+ * 減少方向のみ許可（ratchet-down）。Phase 6 で v1 → v2 一括変換し baseline = 0 到達 →
+ * Phase 8 で v1 guard retirement。
  */
 const UNKNOWN_VOCABULARY_BASELINE_V2 = 270
 

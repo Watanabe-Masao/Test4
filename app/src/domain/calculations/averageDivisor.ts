@@ -3,6 +3,8 @@
  *
  * 全ての平均計算はこのモジュールの AverageMode と
  * computeAverageDivisor / computeActiveDowDivisorMap を使用する。
+ *
+ * @responsibility R:calculation
  */
 
 /**

@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:dependency-list
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import { loadSettingsFromStorage } from './useSettings'
 

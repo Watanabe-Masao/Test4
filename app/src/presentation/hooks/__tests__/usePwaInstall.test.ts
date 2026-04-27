@@ -1,5 +1,7 @@
 /**
  * Phase 7.1: PWA インストールフック テスト
+ *
+ * @taxonomyKind T:unmount-path
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

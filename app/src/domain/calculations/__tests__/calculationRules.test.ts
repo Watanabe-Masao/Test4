@@ -5,6 +5,8 @@
  *
  * @guard B1 Authoritative 計算は domain/calculations のみ
  * @guard C2 pure function は1仕様軸に閉じる
+ *
+ * @taxonomyKind T:unit-numerical
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

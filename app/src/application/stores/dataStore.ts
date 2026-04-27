@@ -1,4 +1,7 @@
-/** @guard C3 store は state 反映のみ */
+/** @guard C3 store は state 反映のみ
+ *
+ * @responsibility R:store
+ */
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import type { StoreExplanations } from '@/domain/models/analysis'

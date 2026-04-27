@@ -2,6 +2,8 @@
  * Store ID 正規化
  *
  * レコード系データの storeId を最終的な店舗マスタに基づいて正規化する。
+ *
+ * @responsibility R:adapter
  */
 /**
  * レコード系データ（classifiedSales / categoryTimeSales）の storeId を正規化する。

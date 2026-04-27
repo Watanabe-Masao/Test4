@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:zod-contract
+ */
+
 import { describe, it, expect } from 'vitest'
 import { prorateBudgetForPeriod } from './readFreePeriodBudgetFact'
 

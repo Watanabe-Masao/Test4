@@ -3,6 +3,8 @@
  *
  * Phase 5 前提: Rust/WASM 移行時に TS と Rust の safeDivide が完全一致することを保証する。
  * このテストは TS 現行実装の動作を仕様として固定する。
+ *
+ * @taxonomyKind T:unit-numerical
  */
 import { describe, it, expect } from 'vitest'
 import { safeDivide } from '../utils'

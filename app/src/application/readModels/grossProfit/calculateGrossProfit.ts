@@ -5,6 +5,8 @@
  * 既存の invMethod.ts / estMethod.ts を内部利用する wrapper。
  *
  * @see references/01-principles/gross-profit-definition.md
+ *
+ * @responsibility R:read-model
  */
 import { calculateInvMethod } from '@/domain/calculations/invMethod'
 import { calculateEstMethodWithStatus } from '@/domain/calculations/estMethod'

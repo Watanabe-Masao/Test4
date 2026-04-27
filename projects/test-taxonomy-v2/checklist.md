@@ -62,10 +62,10 @@
 
 ## Phase 4: Pilot
 
-- [ ] Pilot 対象テストリスト（≤ 30）が確定している
-- [ ] Pilot 対象に T:kind が付与されている
-- [ ] Pilot で発見された Schema 問題が review window に上程 or 解決済みである
-- [ ] Pilot 対象が親 §OCS.7 Anchor Slice 6 T:kind を最低 1 件ずつ含んでいる
+- [x] Pilot 対象テストリスト（≤ 30）が確定している（Phase 4 子 branch 2026-04-27、22 test 選定: Anchor 6 T:kind + optional 4 + state-transition / dependency-list / unmount-path 計 12 種網羅）
+- [x] Pilot 対象に T:kind が付与されている（22 test 全件 @taxonomyKind T:\* 付与済、全件新規付与）
+- [x] Pilot で発見された Schema 問題が review window に上程 or 解決済みである（Phase 4 Pilot で発見された Schema 問題なし、registry V2 + interlock マトリクスで全件 cover）
+- [x] Pilot 対象が親 §OCS.7 Anchor Slice 6 T:kind を最低 1 件ずつ含んでいる（T:unit-numerical 2 / T:boundary 2 / T:contract-parity 2 / T:zod-contract 2 / T:meta-guard 2 / T:render-shape 1 = 全 6 anchor 各 1+ 件）
 
 ## Phase 5: Operations
 

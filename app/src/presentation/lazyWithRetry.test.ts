@@ -20,6 +20,8 @@ Object.defineProperty(window, 'location', {
  * React.lazy の内部構造を使って import を発火させるヘルパー。
  * _init(_payload) を呼ぶと React.lazy が import を開始する。
  * chunk error 時は never-resolving Promise を返すため await しない。
+ *
+ * @taxonomyKind T:render-shape
  */
 function triggerLazyLoad(LazyComponent: unknown): void {
   const comp = LazyComponent as { _init: (payload: unknown) => void; _payload: unknown }
