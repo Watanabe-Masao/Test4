@@ -36,12 +36,14 @@ const SPECS_DIR = resolve(SPECS_BASE, 'widgets') // widget スペックの正本
 const KIND_DIRS = {
   widget: 'widgets',
   'read-model': 'read-models',
+  calculation: 'calculations',
 }
 
 // id prefix → kind 推定
 function inferKindFromId(id) {
   if (/^WID-\d{3}$/.test(id)) return 'widget'
   if (/^RM-\d{3}$/.test(id)) return 'read-model'
+  if (/^CALC-\d{3}$/.test(id)) return 'calculation'
   return null
 }
 
@@ -265,6 +267,39 @@ const FIELD_ORDER_READ_MODEL = [
   'sourceRef',
   'sourceLine',
   'definitionDoc',
+  // lifecycle (optional, Phase D で active 化)
+  'lifecycleStatus',
+  'canonicalRegistration',
+  'replacedBy',
+  'supersedes',
+  'sunsetCondition',
+  'deadline',
+  'lastVerifiedCommit',
+  'owner',
+  'reviewCadenceDays',
+  'lastReviewedAt',
+  'specVersion',
+]
+
+const FIELD_ORDER_CALCULATION = [
+  'id',
+  'kind',
+  'exportName',
+  'sourceRef',
+  'sourceLine',
+  'definitionDoc',
+  // calculation 固有: registry との双方向同期軸
+  'contractId',
+  'semanticClass',
+  'authorityKind',
+  'methodFamily',
+  'canonicalRegistration', // calculationCanonRegistry.runtimeStatus と同期 (current/candidate/non-target)
+  // lifecycle
+  'lifecycleStatus',
+  'replacedBy',
+  'supersedes',
+  'sunsetCondition',
+  'deadline',
   'lastVerifiedCommit',
   'owner',
   'reviewCadenceDays',
@@ -274,6 +309,7 @@ const FIELD_ORDER_READ_MODEL = [
 
 function fieldOrderFor(kind) {
   if (kind === 'read-model') return FIELD_ORDER_READ_MODEL
+  if (kind === 'calculation') return FIELD_ORDER_CALCULATION
   return FIELD_ORDER_WIDGET
 }
 
@@ -638,7 +674,13 @@ function listSpecs(filterWid, scope) {
     const fullDir = resolve(SPECS_BASE, dir)
     if (!existsSync(fullDir)) continue
     const re =
-      kind === 'widget' ? /^WID-\d{3}\.md$/ : kind === 'read-model' ? /^RM-\d{3}\.md$/ : null
+      kind === 'widget'
+        ? /^WID-\d{3}\.md$/
+        : kind === 'read-model'
+          ? /^RM-\d{3}\.md$/
+          : kind === 'calculation'
+            ? /^CALC-\d{3}\.md$/
+            : null
     if (!re) continue
     const files = readdirSync(fullDir).filter((f) => re.test(f))
     for (const f of files) {
@@ -683,8 +725,60 @@ function processSpec(spec, opts) {
   if (kind === 'read-model') {
     return processReadModelSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
   }
+  if (kind === 'calculation') {
+    return processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
+  }
   errors.push(`${id}: unknown kind "${kind}"`)
   return { changed: false, drifted, errors }
+}
+
+function processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
+  const exportName = frontmatter.exportName
+  const sourcePath = frontmatter.sourceRef
+  if (!exportName || !sourcePath) {
+    errors.push(`${id}: missing exportName or sourceRef`)
+    return { changed: false, drifted, errors }
+  }
+  if (!existsSync(resolve(REPO_ROOT, sourcePath))) {
+    errors.push(`${id}: sourceRef not found: ${sourcePath}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext = extractReadModelFields(sourcePath, exportName)
+  if (!ext.found) {
+    errors.push(`${id}: ${ext.diagnostics.join('; ')}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext0 = ext.fields
+
+  const merged = { ...frontmatter }
+  merged.id = id
+  merged.kind = 'calculation'
+  const machineUpdates = {
+    exportName: ext0.exportName,
+    sourceRef: sourcePath,
+    sourceLine: ext0.sourceLine,
+  }
+  for (const [k, v] of Object.entries(machineUpdates)) {
+    if (!fieldEqual(merged[k], v)) {
+      drifted.push(`${k}: ${formatVal(merged[k])} → ${formatVal(v)}`)
+      merged[k] = v
+    }
+  }
+  if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
+  if (merged.owner === undefined) merged.owner = 'architecture'
+  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
+  if (merged.specVersion === undefined) merged.specVersion = 1
+
+  return finalizeSpecWrite({
+    specPath,
+    merged,
+    body,
+    raw,
+    fieldOrder: FIELD_ORDER_CALCULATION,
+    drifted,
+    errors,
+    opts,
+  })
 }
 
 function processWidgetSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
@@ -853,6 +947,13 @@ function injectJsdocAll(specs) {
       const list = editsBySource.get(sourcePath) ?? []
       list.push({ id: spec.id, kind: 'read-model', match: { exportName } })
       editsBySource.set(sourcePath, list)
+    } else if (spec.kind === 'calculation') {
+      const exportName = frontmatter.exportName
+      const sourcePath = frontmatter.sourceRef
+      if (!exportName || !sourcePath) continue
+      const list = editsBySource.get(sourcePath) ?? []
+      list.push({ id: spec.id, kind: 'calculation', match: { exportName } })
+      editsBySource.set(sourcePath, list)
     }
   }
 
@@ -908,7 +1009,7 @@ function buildInjectMatcher(edit) {
   if (edit.kind === 'widget') {
     return new RegExp(`^(\\s*)id:\\s*['"\`]${escapeRegex(edit.match.widgetDefId)}['"\`]`)
   }
-  if (edit.kind === 'read-model') {
+  if (edit.kind === 'read-model' || edit.kind === 'calculation') {
     const n = escapeRegex(edit.match.exportName)
     // matches: `export function NAME`, `export async function NAME`, `export const NAME`,
     //          `export class NAME`, `export interface NAME`, `export type NAME`
@@ -922,6 +1023,7 @@ function buildInjectMatcher(edit) {
 function jsdocTagFor(edit) {
   if (edit.kind === 'widget') return `@widget-id ${edit.id}`
   if (edit.kind === 'read-model') return `@rm-id ${edit.id}`
+  if (edit.kind === 'calculation') return `@calc-id ${edit.id}`
   throw new Error(`Unknown edit kind: ${edit.kind}`)
 }
 

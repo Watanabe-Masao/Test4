@@ -100,4 +100,13 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  'AR-CONTENT-SPEC-LIFECYCLE-FIELDS': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: {
+      owner: 'architecture',
+      lastReviewedAt: '2026-04-27',
+      reviewCadenceDays: 90,
+    },
+  },
 }

@@ -720,4 +720,8 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
+  'AR-CONTENT-SPEC-LIFECYCLE-FIELDS': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+  },
 }

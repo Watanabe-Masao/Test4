@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は phased-content-specs-rollout Phase A〜C で `widgets/`（45 件）+ `read-models/`（Phase C 着手段階で 5 件）の 2 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜D で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（Phase D 着手段階で 1 件、Lifecycle State Machine institutionalize）の 3 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -85,6 +85,14 @@
 | `RM-010.md` | `selectMonthlyPrevYearSales`    | `application/readModels/prevYear/selectMonthlyPrevYearSales.ts`           | 月次前年売上（sameDate / sameDow 2 mode）|
 
 完全割当表は `05-contents/read-models/README.md` §「初期割当表」参照。
+
+### 05-contents/calculations/ 個別 spec（Phase D 着手）
+
+| 型番         | export                          | 配置                                                       | lifecycle / canonicalRegistration |
+| ------------ | ------------------------------- | ---------------------------------------------------------- | --------------------------------- |
+| `CALC-001.md` | `calculateCustomerGap`         | `domain/calculations/customerGap.ts`                       | active / current（WASM 候補 BIZ-013 を migration plan に記録）|
+
+完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 
 ## 正本一覧
 

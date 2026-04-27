@@ -71,6 +71,7 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 |---|---|---|
 | `widgets/` | widget 仕様書（`WID-NNN.md`） | registry 登録された全 widget（45 件） |
 | `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 10 件（仕入原価 / 粗利 / 売上 / 値引き / 客数 / 要因分解 / 自由期間 3 種 / 月次前年売上）|
+| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D 着手段階で 1 件（客数 GAP）。Lifecycle State Machine + Promote Ceremony を institutionalize |
 
 将来の追加候補（decisions 不要、必要になったら増やす）:
 - `charts/` — chart component 仕様書

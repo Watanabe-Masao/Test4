@@ -94,6 +94,7 @@
 | `app/src/test/guards/contentSpecCoChangeGuard.test.ts` | documentation-steward | 2件 | AR-CONTENT-SPEC-CO-CHANGE: Phase C scope (50 spec) の anchor 行 (kind=widget→registryLine / kind=read-model→sourceLine) と source 実 anchor 行の一致 / lastVerifiedCommit が空でない（Phase A/B/C 静的検証、Phase I で git diff ベースに置換予定） |
 | `app/src/test/guards/contentSpecFreshnessGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-FRESHNESS: Phase C scope (50 spec) について `(today - lastReviewedAt) > reviewCadenceDays` で fail、`> reviewCadenceDays * 0.8` で warn (kind 横断) |
 | `app/src/test/guards/contentSpecOwnerGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-OWNER: Phase C scope (50 spec = 45 WID + 5 RM) の frontmatter に owner field が必須 |
+| `app/src/test/guards/contentSpecLifecycleGuard.test.ts` | architecture | 4件 | AR-CONTENT-SPEC-LIFECYCLE-FIELDS: Phase D 着手 (2026-04-27) Lifecycle State Machine の institutional 強制。lifecycleStatus enum 値 / deprecated/sunsetting/retired には replacedBy 必須 / sunsetting には sunsetCondition + deadline 必須 / deadline 形式 + 過去 deadline (sunsetting/deprecated) hard fail。Promote Ceremony PR template (`references/03-guides/promote-ceremony-pr-template.md`) と連動 |
 
 ## ルール → テスト対応
 

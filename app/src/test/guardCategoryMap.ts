@@ -625,4 +625,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: WID-NNN.md frontmatter の owner field 必須化（責任所在）',
   },
+  'AR-CONTENT-SPEC-LIFECYCLE-FIELDS': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: Lifecycle State Machine (proposed→active→deprecated→sunsetting→retired→archived) の必須 field + deadline 超過 hard fail',
+  },
 } as const

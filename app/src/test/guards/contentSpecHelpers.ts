@@ -28,19 +28,23 @@ export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-040',
 ]
 
-export type SpecKind = 'widget' | 'read-model'
+export type SpecKind = 'widget' | 'read-model' | 'calculation'
 
 /** id prefix から kind を推定する。未知の prefix は null。 */
 export function inferKindFromId(id: string): SpecKind | null {
   if (/^WID-\d{3}$/.test(id)) return 'widget'
   if (/^RM-\d{3}$/.test(id)) return 'read-model'
+  if (/^CALC-\d{3}$/.test(id)) return 'calculation'
   return null
 }
+
+export const SPECS_CALCULATIONS_DIR = resolve(SPECS_BASE, 'calculations')
 
 export function specPathFor(id: string): string {
   const kind = inferKindFromId(id)
   if (kind === 'widget') return resolve(SPECS_WIDGETS_DIR, `${id}.md`)
   if (kind === 'read-model') return resolve(SPECS_READ_MODELS_DIR, `${id}.md`)
+  if (kind === 'calculation') return resolve(SPECS_CALCULATIONS_DIR, `${id}.md`)
   throw new Error(`Unknown id format: ${id}`)
 }
 
@@ -59,10 +63,26 @@ export function listAllReadModels(): readonly string[] {
     .sort()
 }
 
-/** 全 kind の spec id を列挙（widget + read-model）。 */
-export function listAllSpecIds(): readonly string[] {
-  return [...listAllWids(), ...listAllReadModels()].sort()
+export function listAllCalculations(): readonly string[] {
+  if (!existsSync(SPECS_CALCULATIONS_DIR)) return []
+  return readdirSync(SPECS_CALCULATIONS_DIR)
+    .filter((f) => /^CALC-\d{3}\.md$/.test(f))
+    .map((f) => f.replace(/\.md$/, ''))
+    .sort()
 }
+
+/** 全 kind の spec id を列挙（widget + read-model + calculation）。 */
+export function listAllSpecIds(): readonly string[] {
+  return [...listAllWids(), ...listAllReadModels(), ...listAllCalculations()].sort()
+}
+
+export type LifecycleStatus =
+  | 'proposed'
+  | 'active'
+  | 'deprecated'
+  | 'sunsetting'
+  | 'retired'
+  | 'archived'
 
 export interface SpecFrontmatter {
   readonly id: string
@@ -72,10 +92,19 @@ export interface SpecFrontmatter {
   readonly registry: string
   readonly registrySource: string
   readonly registryLine: number
-  // read-model 系 field (kind=read-model でのみ意味を持つ)
+  // read-model / calculation 系 field
   readonly exportName: string
   readonly sourceRef: string
   readonly sourceLine: number
+  // calculation 固有 (registry sync)
+  readonly contractId: string | null
+  readonly canonicalRegistration: string | null // 'current' | 'candidate' | 'non-target'
+  // lifecycle 共通 (Phase D で active 化、kind 横断)
+  readonly lifecycleStatus: LifecycleStatus
+  readonly replacedBy: string | null
+  readonly supersedes: string | null
+  readonly sunsetCondition: string | null
+  readonly deadline: string | null
   // 共通 field
   readonly owner: string | null
   readonly reviewCadenceDays: number | null
@@ -139,6 +168,9 @@ export function parseSpecFrontmatter(path: string): SpecFrontmatter {
   }
   const idStr = String(raw.id ?? '')
   const kind = inferKindFromId(idStr) ?? 'widget'
+  const lifecycleStatus = (
+    typeof raw.lifecycleStatus === 'string' ? raw.lifecycleStatus : 'active'
+  ) as LifecycleStatus
   return {
     id: idStr,
     kind,
@@ -149,6 +181,14 @@ export function parseSpecFrontmatter(path: string): SpecFrontmatter {
     exportName: String(raw.exportName ?? ''),
     sourceRef: String(raw.sourceRef ?? ''),
     sourceLine: typeof raw.sourceLine === 'number' ? raw.sourceLine : 0,
+    contractId: typeof raw.contractId === 'string' ? raw.contractId : null,
+    canonicalRegistration:
+      typeof raw.canonicalRegistration === 'string' ? raw.canonicalRegistration : null,
+    lifecycleStatus,
+    replacedBy: typeof raw.replacedBy === 'string' ? raw.replacedBy : null,
+    supersedes: typeof raw.supersedes === 'string' ? raw.supersedes : null,
+    sunsetCondition: typeof raw.sunsetCondition === 'string' ? raw.sunsetCondition : null,
+    deadline: typeof raw.deadline === 'string' ? raw.deadline : null,
     owner: typeof raw.owner === 'string' ? raw.owner : null,
     reviewCadenceDays: typeof raw.reviewCadenceDays === 'number' ? raw.reviewCadenceDays : null,
     lastReviewedAt: typeof raw.lastReviewedAt === 'string' ? raw.lastReviewedAt : null,
@@ -212,7 +252,7 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-/** spec の source ファイル (kind=widget→registrySource / kind=read-model→sourceRef) を読む。 */
+/** spec の source ファイル (kind=widget→registrySource / kind=read-model|calculation→sourceRef) を読む。 */
 export function readSourceContent(spec: SpecFrontmatter): string | null {
   const path = spec.kind === 'widget' ? spec.registrySource : spec.sourceRef
   if (!path) return null

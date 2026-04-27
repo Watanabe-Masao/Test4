@@ -57,13 +57,13 @@
 
 ## Phase D: Domain Calculations の網羅
 
-- [ ] selection rule に従い対象 CALC を確定した（public export / 複数 consumer / invariant あり / 業務意味あり）
-- [ ] `CALC-NNN` ID を割当した
-- [ ] 対象 CALC に source tag を導入した
-- [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した
+- [x] selection rule に従い対象 CALC を確定した（calculationCanonRegistry の business-authoritative + current + maintenance 起点、Step1 で CALC-001 customerGap）
+- [x] `CALC-NNN` ID を割当した（CALC-001 = customerGap、Step1）
+- [x] 対象 CALC に source tag を導入した（@calc-id JSDoc 自動注入）
+- [x] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した（AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard で deprecated/sunsetting/retired に replacedBy 必須、sunsetting に sunsetCondition+deadline 必須、過去 deadline hard fail）
+- [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（Step1: CALC-001 §4 で記録、後続 batch で残 calc 拡大）
 - [ ] tests / guards との evidence 紐付けを完了した
-- [ ] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した
-- [ ] 対象 CALC `missingSpec = 0` を達成した
+- [ ] 対象 CALC `missingSpec = 0` を達成した（Step1: 1 件 cover、Step2 で 6 件まで拡大予定）
 - [ ] 対象 CALC tests 参照 = 100% を達成した
 - [ ] invariant 付き CALC の test 参照 = 100% を達成した
 - [ ] deprecated CALC の `sunsetCondition` = 100% を達成した
