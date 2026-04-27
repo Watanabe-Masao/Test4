@@ -5,7 +5,27 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5 完遂（main 反映済）+ Phase 4 Pilot 完遂（2026-04-27、本 branch）。Phase 5 Operations に進める状態。**
+**Phase 0+1+2+3+3.5+4 完遂（main 反映済）+ Phase 5 Operations 軸別正本起草完遂（2026-04-27、本 branch）。残 impact CLI 動作確認 + PR template 改変は統合 branch 担当。**
+
+> **Phase 5 で landing したもの（本 branch、責務軸 operations 起草）:**
+>
+> - `references/03-guides/responsibility-taxonomy-operations.md` — 責務軸別運用ガイド正本（§1 範囲分担 / §2 提案テンプレ + 「捨て場」化リスク事前否認 / §3 撤退テンプレ + Lifecycle 対応 / §4 test-taxonomy-v2 同期手順 / §5 `taxonomy:impact` R 軸出力 contract / §6 PR レビュー観点）
+> - `projects/responsibility-taxonomy-v2/checklist.md` Phase 5 — 軸別正本に関する 4 項目を [x]、impact CLI / PR template の 2 項目は統合 branch 担当として明記
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase5-operations`
+> **scope:** `references/03-guides/responsibility-taxonomy-operations.md` 新設 + 子 checklist Phase 5 の 4 項目 [x] + 本 HANDOFF（impact CLI 実装 / PR template 改変 / docs:generate / 兄弟 cross-link は統合 branch）
+
+### Phase 5 設計結果
+
+| 指標                               | 値                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| operations.md 章立て               | 7 章（§1 範囲分担 / §2 提案テンプレ / §3 撤退テンプレ / §4 同期手順 / §5 impact CLI / §6 PR レビュー / §7 関連文書）|
+| 提案テンプレ事前情報項目           | 11 項目（提案者 / 日 / Why / Antibody / 必須 T:kind / 任意 T:kind / 対象 file 数 / Evidence / promotionLevel / Sunset / 影響）|
+| 撤退テンプレ事前情報項目           | 9 項目（replacedBy / 影響 file 数 / 撤退期限 / sunsetCondition / 対 T:kind 影響 / 移行戦略 等）|
+| 同期 trigger イベント              | 4 件（新 R:tag / 撤退 / Antibody Pair / Cognitive Load Ceiling）                          |
+| impact CLI R 軸出力フィールド      | 7 件（path / detectedResponsibility / requiredTKinds / optionalTKinds / foundTKinds / missingTKinds / result）|
+| PR レビュー観点                    | fast 4 + deep 4 + auto-approve 4 計 12 観点                                              |
+| review window 重複排除             | 共通手続きは review-window.md 参照、軸固有 (§2-§6) に特化                                |
 
 > **Phase 4 で landing したもの（本 branch、Pilot 18 file）:**
 >

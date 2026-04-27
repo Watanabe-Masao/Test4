@@ -214,6 +214,14 @@
         {
           "path": "references/03-guides/taxonomy-review-window.md",
           "label": "Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）"
+        },
+        {
+          "path": "references/03-guides/responsibility-taxonomy-operations.md",
+          "label": "responsibility-taxonomy-v2 子 Phase 5: 責務軸 (R:*) 別運用ガイド（提案 / 撤退テンプレ + 同期手順 + impact CLI R 軸出力 + PR レビュー観点）"
+        },
+        {
+          "path": "references/03-guides/test-taxonomy-operations.md",
+          "label": "test-taxonomy-v2 子 Phase 5: テスト軸 (T:*) 別運用ガイド（提案 / 撤退テンプレ + 同期手順 + impact CLI T 軸出力 + PR レビュー観点）"
         }
       ]
     },

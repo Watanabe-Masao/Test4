@@ -5,7 +5,28 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5 完遂（main 反映済）+ Phase 4 Pilot 完遂（2026-04-27、本 branch）。Phase 5 Operations に進める状態。**
+**Phase 0+1+2+3+3.5+4 完遂（main 反映済）+ Phase 5 Operations 軸別正本起草完遂（2026-04-27、本 branch）。残 impact CLI 動作確認 + PR template 改変は統合 branch 担当。**
+
+> **Phase 5 で landing したもの（本 branch、テスト軸 operations 起草）:**
+>
+> - `references/03-guides/test-taxonomy-operations.md` — テスト軸別運用ガイド正本（§1 範囲分担 / §2 提案テンプレ + 「過剰命名」リスク事前否認 + TSIG 移行期間考慮 / §3 撤退テンプレ + obligation 欠落補完 / §4 responsibility-taxonomy-v2 同期手順 / §5 `taxonomy:impact` T 軸出力 contract / §6 PR レビュー観点）
+> - `projects/test-taxonomy-v2/checklist.md` Phase 5 — 軸別正本に関する 4 項目を [x]、impact CLI / PR template の 2 項目は統合 branch 担当として明記
+>
+> **作業 branch:** `claude/test-taxonomy-v2-phase5-operations`
+> **scope:** `references/03-guides/test-taxonomy-operations.md` 新設 + 子 checklist Phase 5 の 4 項目 [x] + 本 HANDOFF（impact CLI 実装 / PR template 改変 / docs:generate / 兄弟 cross-link は統合 branch）
+
+### Phase 5 設計結果
+
+| 指標                               | 値                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| operations.md 章立て               | 7 章（§1 範囲分担 / §2 提案テンプレ / §3 撤退テンプレ / §4 同期手順 / §5 impact CLI / §6 PR レビュー / §7 関連文書）|
+| 提案テンプレ事前情報項目           | 13 項目（提案者 / 日 / Why / Antibody / 対 R:tag / obligation tier / 対象 test 数 / Evidence / promotionLevel / Sunset / 影響 / Cognitive Load 対策 / TSIG 関係）|
+| 撤退テンプレ事前情報項目           | 11 項目（replacedBy / obligation tier / 影響 test 数 / 撤退期限 / sunsetCondition / 対 R:tag 影響 / 移行戦略 / obligation 欠落補完 等）|
+| 同期 trigger イベント              | 5 件（新 T:kind / 撤退 / obligation tier 変更 / Antibody Pair / Cognitive Load Ceiling）|
+| impact CLI T 軸出力フィールド      | 8 件（path / detectedTKinds / linkedRTags / expectedTKinds / presentTKinds / missingTKinds / unverifiedTKinds / result）|
+| PR レビュー観点                    | fast 4 + deep 5 + auto-approve 4 計 13 観点                                              |
+| Cognitive Load 15/15 cap 対応      | 新規追加は撤退とのペア提案を §2.3 で明記                                                |
+| review window 重複排除             | 共通手続きは review-window.md 参照、軸固有 (§2-§6) に特化                                |
 
 > **Phase 4 で landing したもの（本 branch、Pilot 22 test）:**
 >
