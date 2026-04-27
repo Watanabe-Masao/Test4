@@ -5,6 +5,8 @@
  * - computeFingerprint: data=null でも文字列返す + storedMonthsKey が含まれる
  * - computeFingerprint: records 数 + stores/budget/settings サイズ反映
  * - computeMonthFingerprint: 単月の全 field 反映
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computeFingerprint, computeMonthFingerprint } from '../duckdbFingerprint'

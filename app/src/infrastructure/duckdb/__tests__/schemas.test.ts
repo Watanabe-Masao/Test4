@@ -2,6 +2,8 @@
  * DuckDB スキーマ定義の構造テスト
  *
  * DDL 文字列が有効な構造を持ち、テーブル定義が欠落していないことを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

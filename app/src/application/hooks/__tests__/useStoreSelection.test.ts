@@ -2,6 +2,8 @@
  * useStoreSelection フックのテスト
  *
  * 店舗選択・集計・店舗名ラベル生成ロジックを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

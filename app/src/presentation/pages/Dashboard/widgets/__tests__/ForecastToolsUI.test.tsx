@@ -3,6 +3,8 @@
  *
  * InsightBanner と SummaryCard による判断UIが正しく構成されることを検証。
  * useForecastToolsState をモックしてレイアウト意味だけ確認する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'

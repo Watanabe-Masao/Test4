@@ -1,5 +1,7 @@
 /**
  * widgets/types.ts — wowPrevRange / comparisonLabels tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { wowPrevRange, comparisonLabels } from '../types'

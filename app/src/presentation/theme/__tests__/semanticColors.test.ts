@@ -1,5 +1,7 @@
 /**
  * semanticColors — sc.cond / sc.cond3 / sc.achievement / sc.gpRate tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { sc } from '../semanticColors'

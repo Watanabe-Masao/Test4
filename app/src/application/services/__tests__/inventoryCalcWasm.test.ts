@@ -2,6 +2,8 @@
  * inventoryCalcWasm — normalizeInventoryCalcInput tests
  *
  * ReadonlyMap<DailyRecord> → 6 Float64Array への正規化を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { normalizeInventoryCalcInput } from '../inventoryCalcWasm'

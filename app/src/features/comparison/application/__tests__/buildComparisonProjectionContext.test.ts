@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildComparisonProjectionContext } from '../buildComparisonProjectionContext'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'

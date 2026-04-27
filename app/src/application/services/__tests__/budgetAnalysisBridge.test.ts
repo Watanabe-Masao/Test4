@@ -1,5 +1,7 @@
 /**
  * budgetAnalysisBridge — calculateBudgetAnalysis / calculateGrossProfitBudget tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { calculateBudgetAnalysis, calculateGrossProfitBudget } from '../budgetAnalysisBridge'

@@ -3,6 +3,8 @@
  *
  * reboot plan Phase B: widget が実データなしで描画できることを保証するため、
  * 各プリセット mock が `SimulatorScenarioSchema.parse()` を通ることを固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { SimulatorScenarioSchema } from '@/domain/calculations/budgetSimulator'

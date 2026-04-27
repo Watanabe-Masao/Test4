@@ -22,6 +22,8 @@
  *  - projects/architecture-debt-recovery/inquiry/03-ui-component-orphans.md §特殊 1
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { createHash } from 'node:crypto'

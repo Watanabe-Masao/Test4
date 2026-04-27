@@ -25,6 +25,8 @@
  * @see projects/architecture-debt-recovery/inquiry/03-ui-component-orphans.md
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

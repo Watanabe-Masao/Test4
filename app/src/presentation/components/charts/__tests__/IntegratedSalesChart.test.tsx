@@ -8,6 +8,8 @@
  *
  * 設計: useIntegratedSalesState の hook + 子 component を vi.mock で stub し、
  * IntegratedSalesChart 自身の branch + 派生計算ロジック (rangeSummary) を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

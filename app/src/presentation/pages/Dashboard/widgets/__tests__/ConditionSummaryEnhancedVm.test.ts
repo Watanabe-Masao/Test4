@@ -4,6 +4,8 @@
  * 禁止事項 #10（率はパイプラインで持ち回さない）の不変条件を検証する。
  * 全ての率計算が domain/calculations 経由で行われていることを、
  * 入出力の整合性テストで保証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

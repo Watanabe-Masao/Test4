@@ -4,6 +4,8 @@
  * 主に invariant 中心。既存関数の invariant は既存テストが保証するため
  * ここでは新規ロジック（3 モード + 日別配分 + 曜日カウント）と
  * 既存関数との一貫性を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

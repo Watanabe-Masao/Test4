@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import { usePeriodSelectionStore } from '../periodSelectionStore'
 import type { DateRange } from '@/domain/models/CalendarDate'

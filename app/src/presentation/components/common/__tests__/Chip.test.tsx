@@ -7,6 +7,8 @@
  * - ChipGroup: 複数 Chip を wrapper として包む
  * - onClick が呼ばれる
  * - disabled 時は onClick が呼ばれない
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

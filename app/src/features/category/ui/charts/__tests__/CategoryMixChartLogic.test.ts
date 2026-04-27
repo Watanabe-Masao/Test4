@@ -2,6 +2,8 @@
  * buildMixChartData のユニットテスト
  *
  * カテゴリ構成比推移データの構築・ランキング・上昇/下落判定を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildMixChartData } from '@/features/category/ui/charts/CategoryMixChartLogic'

@@ -33,6 +33,8 @@
  *
  * @see projects/completed/unify-period-analysis/checklist.md Phase 1 完了範囲の明示
  * @see app/src/presentation/hooks/slices/useComparisonSlice.ts JSDoc
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildFreePeriodFrame } from '@/domain/models/buildFreePeriodFrame'

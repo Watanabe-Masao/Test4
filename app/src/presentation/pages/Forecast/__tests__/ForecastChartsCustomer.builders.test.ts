@@ -9,6 +9,8 @@
  * - buildRelationshipOption: viewMode='current'/'prev'/'compare' 分岐
  * - buildCustomerSalesOption: 3 series (売上 bar + 客数 line + 客単価 line)
  * - buildSameDowOption: 4 series (今年 bar/line + 前年 bar/line)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

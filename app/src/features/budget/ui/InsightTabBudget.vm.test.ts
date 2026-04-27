@@ -9,6 +9,8 @@
  * - missing data (Map に key 不在) は 0 にフォールバックして NaN を返さない
  * - 0 除算は safeDivide で 0 にフォールバック (achievement / pyDayRatio /
  *   pyCumRatio)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildBudgetTableRows } from './InsightTabBudget.vm'

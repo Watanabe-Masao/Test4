@@ -15,6 +15,8 @@
  *   - muniCd 無 → null
  *   - 不明な prefCode → null
  *   - fetch 失敗 → null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { searchLocation, reverseGeocode, PREFECTURE_NAMES } from '../geocodingClient'

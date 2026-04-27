@@ -3,6 +3,8 @@
  *
  * アダプタが EtrnStation → 低レベル引数（precNo, blockNo, stationType）に
  * 正しく展開して infrastructure 関数を呼び出すことを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { EtrnStation } from '@/domain/ports/WeatherPort'

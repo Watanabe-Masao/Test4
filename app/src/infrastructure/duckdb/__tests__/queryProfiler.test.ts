@@ -2,6 +2,8 @@
  * queryProfiler のユニットテスト
  *
  * QueryProfiler のリングバッファ、統計計算、リスナー通知をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 

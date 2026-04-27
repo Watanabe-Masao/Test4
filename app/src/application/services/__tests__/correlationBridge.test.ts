@@ -1,5 +1,7 @@
 /**
  * correlationBridge — mode switch + pearsonCorrelation + passthrough tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

@@ -2,6 +2,8 @@
  * dowGapActualDay — analyzeDowGapActualDay tests
  *
  * 同日マッピングと同曜日マッピングの差集合から境界シフトを検出するロジック。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { analyzeDowGapActualDay } from '../dowGapActualDay'

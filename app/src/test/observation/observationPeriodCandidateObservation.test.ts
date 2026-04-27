@@ -3,6 +3,8 @@
  * @contractId BIZ-010
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { evaluateObservationPeriod as evaluateTS } from '@/domain/calculations/observationPeriod'

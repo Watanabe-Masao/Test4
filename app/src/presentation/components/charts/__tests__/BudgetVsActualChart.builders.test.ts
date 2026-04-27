@@ -8,6 +8,8 @@
  * - view='area' (面 chart)
  * - view='prevYearDiff' (budgetDiff bar + prevYearDiff line 条件分岐)
  * - allLabels / formatter null 値処理
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildOption, allLabels } from '../BudgetVsActualChart.builders'

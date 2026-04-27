@@ -2,6 +2,8 @@
  * useDeviceSync テスト
  *
  * decodeSettingsCode / encodeSettingsCode の実挙動を直接検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { decodeSettingsCode, encodeSettingsCode } from '../useDeviceSync'

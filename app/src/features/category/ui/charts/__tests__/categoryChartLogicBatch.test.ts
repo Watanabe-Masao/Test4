@@ -4,6 +4,8 @@
  * 対象:
  * - CategoryMixChartLogic: buildMixChartData
  * - CategoryTrendChartLogic: buildCategoryTrendData, buildPrevYearTrendData
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildMixChartData } from '../CategoryMixChartLogic'

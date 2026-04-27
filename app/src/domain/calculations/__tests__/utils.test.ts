@@ -3,6 +3,8 @@
  *
  * 全計算モジュールが依存する基盤関数群。
  * 境界値・ゼロ除算・null 処理を重点的に検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

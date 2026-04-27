@@ -3,6 +3,8 @@
  *
  * File System Access API 非対応環境での初期状態と
  * selectFolder / clearFolder / backupNow の基本動作を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

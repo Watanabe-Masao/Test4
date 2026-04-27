@@ -28,6 +28,8 @@
  *  - projects/widget-registry-simplification/plan.md §ADR-B-002
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { readFileSync, readdirSync } from 'node:fs'

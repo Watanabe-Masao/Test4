@@ -1,5 +1,7 @@
 /**
  * runtimeTypes — isBlockingPhase / INITIAL_RUNTIME_STATE tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { isBlockingPhase, INITIAL_RUNTIME_STATE } from '../runtimeTypes'

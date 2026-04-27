@@ -15,6 +15,8 @@
  *   - `projects/completed/unify-period-analysis/acceptance-suite.md`
  *   - `projects/completed/unify-period-analysis/test-plan.md` §L2 受け入れテスト
  *   - `projects/completed/unify-period-analysis/checklist.md` Phase 0.5
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

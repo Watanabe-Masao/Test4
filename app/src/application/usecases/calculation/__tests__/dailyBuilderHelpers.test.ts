@@ -2,6 +2,8 @@
  * dailyBuilderHelpers のユニットテスト
  *
  * buildTransferBreakdown / aggregateSupplierDay / accumulateDay を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

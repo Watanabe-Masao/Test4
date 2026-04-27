@@ -3,6 +3,8 @@
  *
  * Arrow テーブル変換（queryToObjects/queryScalar）は DuckDB-WASM 実環境が必要なため、
  * storeIdFilter のみテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { storeIdFilter } from '../queryRunner'

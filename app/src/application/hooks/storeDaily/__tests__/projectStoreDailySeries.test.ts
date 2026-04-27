@@ -7,6 +7,8 @@
  * - 出力は storeId 昇順、各 entry 内は dateKey 昇順
  * - 欠損日は padding しない
  * - totals / grandTotals の整合
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { projectStoreDailySeries, EMPTY_STORE_DAILY_SERIES } from '../projectStoreDailySeries'

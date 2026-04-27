@@ -6,6 +6,8 @@
  * - ChartSkeleton: height prop 反映 + header SkeletonLine
  * - TableSkeleton: columns / rows prop 反映
  * - PageSkeleton: kpiCount 分の KpiCardSkeleton + Chart + Table
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

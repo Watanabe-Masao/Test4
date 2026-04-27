@@ -3,6 +3,8 @@
  *
  * The presentation file is a re-export; the implementation lives in
  * features/category/application. We test via the public presentation path.
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -2,6 +2,8 @@
  * calculateGrossProfit — 計算正本テスト
  *
  * 4種の粗利 × フォールバック × Zod 検証を検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

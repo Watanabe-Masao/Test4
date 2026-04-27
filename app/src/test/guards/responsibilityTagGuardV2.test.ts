@@ -36,6 +36,8 @@
  * @see references/02-status/responsibility-taxonomy-inventory.yaml (Phase 0 baseline)
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts (v2 registry)
  * @see app/src/test/guards/responsibilityTagGuard.test.ts (v1 guard, 並行運用)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { createDefaultSettings, getDaysInMonth, COST_RATE_MIN, COST_RATE_MAX } from './defaults'
 

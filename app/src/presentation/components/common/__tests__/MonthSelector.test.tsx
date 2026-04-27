@@ -14,6 +14,8 @@
  * - picker overlay click で picker 閉じる
  *
  * Phase 3 Step 3-9: Hook 依存の component を vi.mock でテスト。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

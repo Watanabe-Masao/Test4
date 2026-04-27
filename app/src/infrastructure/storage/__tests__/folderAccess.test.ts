@@ -2,6 +2,8 @@
  * folderAccess.ts のユニットテスト
  *
  * File System Access API はブラウザ専用のためモック環境でテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

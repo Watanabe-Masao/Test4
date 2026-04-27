@@ -6,6 +6,8 @@
  * - aggregateForStore / aggregateAllStores: storeId × day 集約
  * - classifiedSalesMaxDay: 最大日取得
  * - mergeClassifiedSalesData: マージ（同一キー上書き）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

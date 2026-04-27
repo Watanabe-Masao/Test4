@@ -2,6 +2,8 @@
  * buildDepartmentKpiIndex のユニットテスト
  *
  * 集約計算（加重平均粗利率、売上合計）・ランキング・空入力の動作を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

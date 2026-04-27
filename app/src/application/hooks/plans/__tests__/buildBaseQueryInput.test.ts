@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 // buildBaseQueryInput pure builder — unit test
 //
 // unify-period-analysis Phase 5 横展開: chart 配下の dateRangeToKeys

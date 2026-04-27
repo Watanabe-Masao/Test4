@@ -6,6 +6,8 @@
  *
  * @guard F2 文字列はカタログ（色・サイズも定数カタログ化）
  * @guard G1 ルールはテストに書く
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

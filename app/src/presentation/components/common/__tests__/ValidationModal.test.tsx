@@ -13,6 +13,8 @@
  * - footer に「閉じる」Button + click で onClose
  *
  * Phase 3 Step 3-11: larger component を狙う。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

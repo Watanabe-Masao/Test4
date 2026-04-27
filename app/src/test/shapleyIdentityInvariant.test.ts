@@ -10,6 +10,8 @@
  *
  * @guard D1 要因分解の合計は売上差に完全一致
  * @guard D3 不変条件はテストで守る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { decompose2, decompose3, decompose5 } from '@/domain/calculations/factorDecomposition'

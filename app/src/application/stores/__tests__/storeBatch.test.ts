@@ -5,6 +5,8 @@
  * - filterStore: setDayRange, setAggregateMode, toggleDow, selectAllDows,
  *   setHierarchyDept/Line/Klass, setCategoryFilter/DepartmentFilter, resetDayRange, resetAll
  * - pageStore: addPage, removePage, renamePage, updatePageDefaults
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useFilterStore } from '../filterStore'

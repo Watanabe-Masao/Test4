@@ -9,6 +9,8 @@
  * 2. TABLE_COLUMNS（dataLoader.ts）が schemas.ts の DDL と一致しているか
  * 3. FILE_TYPE_REGISTRY の構造検証パラメータが正しいか
  * 4. スキーマバージョンとマイグレーションの整合性
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { TABLE_NAMES, ALL_TABLE_DDLS, SCHEMA_VERSION } from '../schemas'

@@ -7,6 +7,8 @@
  *   - markup = price - cost
  *   - sales は curSalesDaily / prevSalesDaily から day 一致で解決
  *   - 日数一致が無い場合は sales=0
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDailyData } from '../purchaseComparisonDaily'

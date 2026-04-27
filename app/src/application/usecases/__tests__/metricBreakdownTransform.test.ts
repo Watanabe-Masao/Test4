@@ -11,6 +11,8 @@
  * - buildBreadcrumb: history → BreadcrumbItem
  * - buildScopeLabel: '{year}年{month}月 / {storeName}'
  * - formatMetricValue: yen / rate / count 各 unit
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

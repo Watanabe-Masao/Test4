@@ -15,6 +15,8 @@
  *   - 他キー: 何もしない
  *
  * Phase 3 Step 3-8: coverage 0% component を batch で攻める。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

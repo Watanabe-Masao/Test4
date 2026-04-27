@@ -5,6 +5,8 @@
  * scopeBoundaryInvariant と同じ思想で、temporal foundation の安全性を保証する。
  *
  * @guard D3 不変条件はテストで守る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildTemporalFetchPlan } from '@/application/usecases/temporal'

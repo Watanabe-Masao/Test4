@@ -1,5 +1,7 @@
 /**
  * readCustomerFact の pure builder + helper テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

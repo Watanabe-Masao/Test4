@@ -7,6 +7,8 @@
  *   2. scan の再入ロック
  *   3. rescanAll で processed をクリア + フォルダ設定を維持
  *   4. clearFolder / selectFolder で processed が同期される
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

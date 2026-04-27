@@ -4,6 +4,8 @@
  * SP-B ADR-B-004 PR2 で新設。
  *
  * @responsibility R:test
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { describe, it, expect } from 'vitest'

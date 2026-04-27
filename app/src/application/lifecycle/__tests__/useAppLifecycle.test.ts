@@ -2,6 +2,8 @@
  * useAppLifecycle 状態遷移テスト
  *
  * 各入力の組み合わせに対して正しい AppLifecyclePhase が導出されることを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

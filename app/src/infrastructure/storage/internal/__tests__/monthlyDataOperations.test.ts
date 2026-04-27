@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StorageDataType } from '@/domain/models/storeTypes'
 // createEmptyMonthlyData is available via mock setup

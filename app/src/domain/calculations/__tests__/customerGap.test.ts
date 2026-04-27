@@ -2,6 +2,8 @@
  * 前年比客数GAP テスト
  *
  * @see references/01-principles/customer-gap-definition.md
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { calculateCustomerGap, CustomerGapResultSchema } from '../customerGap'

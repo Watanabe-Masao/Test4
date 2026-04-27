@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // 自由期間 SQL 内 rate 計算禁止ガード

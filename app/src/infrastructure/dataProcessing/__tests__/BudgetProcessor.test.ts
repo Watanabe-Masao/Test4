@@ -11,6 +11,8 @@
  *   - budget <= 0 → スキップ
  *   - 年月パーティション ({year}-{month} キー)
  *   - 複数日の合計を total に
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { processBudget } from '../BudgetProcessor'

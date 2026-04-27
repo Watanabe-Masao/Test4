@@ -1,5 +1,7 @@
 /**
  * monthlyHistoryLogic.ts — 純粋変換関数の単体テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

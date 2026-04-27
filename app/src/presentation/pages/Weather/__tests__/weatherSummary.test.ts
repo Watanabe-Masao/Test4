@@ -5,6 +5,8 @@
  * - computeMonthSummary: 空 → null / 平均値 / 最大最小 / 天気カテゴリ集計
  * - computeDaySummary: 単日の各フィールド / カテゴリ判定
  * - filterPrevYearForComparison: sameDate / sameDow の両モード
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

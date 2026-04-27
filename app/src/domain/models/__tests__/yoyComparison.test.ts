@@ -3,6 +3,8 @@
  *
  * PeriodComparison の計算ロジック（ratio, difference, growthRate）と
  * ゼロ除算ハンドリングを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { comparePeriods, hasReferenceData } from '@/domain/models/yoyComparison'

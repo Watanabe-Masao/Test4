@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, vi } from 'vitest'
 import { clearAllData, type ClearAllDataEffects } from '../clearAllData'
 

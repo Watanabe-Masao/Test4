@@ -1,5 +1,7 @@
 /**
  * Phase 7.3: i18n テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

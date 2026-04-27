@@ -4,6 +4,8 @@
  * 対象 (Phase 2-A で新規追加):
  * - buildHourlySummaryStats(paddedData) — JSX 描画用集約系派生値
  * - formatSelectedHoursLabel(selectedHours) — 選択時間帯ラベル整形
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildHourlySummaryStats, formatSelectedHoursLabel } from './HourlyChart.builders'

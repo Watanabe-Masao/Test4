@@ -11,6 +11,8 @@
  *
  * @see references/01-principles/canonical-value-ownership.md
  * @see references/01-principles/customer-definition.md
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

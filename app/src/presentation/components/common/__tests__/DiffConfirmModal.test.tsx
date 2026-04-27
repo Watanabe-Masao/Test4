@@ -16,6 +16,8 @@
  * - Modal header ✕ で onConfirm({action:'cancel'})
  *
  * Phase 3 Step 3-15: larger component 戦略継続 (224 行).
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

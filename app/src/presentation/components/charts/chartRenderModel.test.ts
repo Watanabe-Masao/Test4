@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 // ChartRenderModel — 共通契約 + テストヘルパ unit test
 import { describe, it, expect } from 'vitest'
 import {

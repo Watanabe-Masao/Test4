@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildMonthlyFrame } from '../buildMonthlyFrame'
 import type { MonthlyContext } from '@/domain/models/temporal'

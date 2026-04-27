@@ -7,6 +7,8 @@
  * - buildUnifiedCategoryData: 標準 + カスタム統合 + 全体再計算
  * - buildParetoData: 降順ソート + cumPct 累計
  * - CATEGORY_COLORS / CUSTOM_CATEGORY_COLORS 定数
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

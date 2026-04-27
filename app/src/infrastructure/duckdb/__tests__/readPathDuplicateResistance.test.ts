@@ -37,6 +37,8 @@
  *
  * @see references/03-guides/read-path-duplicate-audit.md
  * @see references/03-guides/data-load-idempotency-plan.md §8 Done 定義
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -7,6 +7,8 @@
  * - monthKey: {year}-{month} 形式
  * - cleanDateValue: ISO 形式 (YYYY-MM-DD) に正規化
  * - detectYearMonth: rows から最初の有効日付を見つけて year/month 返す
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -4,6 +4,8 @@
  * 本 helper は read-path 重複耐性 spot audit の FRAGILE 6 件回帰テストの
  * 共有基盤になるため、helper 自身の振る舞いを最初に固定する。FRAGILE クエリ
  * への適用は別 PR で行う（plan §8 Done 定義 step 1）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

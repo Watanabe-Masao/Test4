@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { aggregateYoYVarianceData } from '../YoYVarianceChart.vm'
 import type { DailyRecord } from '@/domain/models/record'

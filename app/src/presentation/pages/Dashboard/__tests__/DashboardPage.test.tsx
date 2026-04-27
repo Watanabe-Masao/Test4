@@ -10,6 +10,8 @@
  * 設計: useDataStore / useStoreSelection / useUnifiedWidgetContext /
  * useDashboardLayout / useWidgetDragDrop / useNavigate を vi.mock で stub。
  * 子 component (DashboardChartGrid / Provider 群) は最小化。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

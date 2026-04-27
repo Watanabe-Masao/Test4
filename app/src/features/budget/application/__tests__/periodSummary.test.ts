@@ -4,6 +4,8 @@
  * - 含まれる日の予算・前年・実績の合算
  * - currentDay を越える日は actualSum に加算しない
  * - 0 除算時は比率が null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computePeriodSummary } from '../periodSummary'

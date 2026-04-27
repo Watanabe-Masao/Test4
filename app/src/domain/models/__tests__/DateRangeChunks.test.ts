@@ -2,6 +2,8 @@
  * splitDateRangeByMonth のユニットテスト
  *
  * 同月・月跨ぎ・年跨ぎ・単日・長期間のケースを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { splitDateRangeByMonth } from '@/domain/models/DateRangeChunks'

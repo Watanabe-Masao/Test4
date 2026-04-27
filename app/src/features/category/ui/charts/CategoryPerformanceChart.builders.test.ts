@@ -4,6 +4,8 @@
  * buildCategoryRows の不変条件を検証する。
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は builders で一度だけ
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryRows } from './CategoryPerformanceChart.builders'

@@ -1,5 +1,7 @@
 /**
  * comparisonIndex — buildComparisonIndex の純粋テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildComparisonIndex } from '../comparisonIndex'

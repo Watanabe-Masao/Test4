@@ -7,6 +7,8 @@
  * - isRateAlert: ルール ID 判定
  * - formatAlertValue / formatAlertThreshold: rate と金額で整形を切替
  * - formatAlertDelta: sign 付き差分表示 + % → pt 置換
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

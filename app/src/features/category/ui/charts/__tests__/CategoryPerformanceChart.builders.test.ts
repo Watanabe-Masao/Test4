@@ -8,6 +8,8 @@
  * - 偏差値計算 (stdDev>0 時のみ)
  * - piAmount 降順ソート + topN 切り出し
  * - entry.name 空なら code fallback
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryRows } from '../CategoryPerformanceChart.builders'

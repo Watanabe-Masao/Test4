@@ -4,6 +4,8 @@
  * 検証対象:
  * - formatDuration: ms を視認性重視の複数スケール文字列に整形
  * - truncateSql: 複数行 SQL を 1 行に潰し、長すぎれば '...' で打ち切る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { formatDuration, truncateSql } from '../QueryProfilePanel'

@@ -4,6 +4,8 @@
  * 検証対象:
  * - resolveCategoryLabel: preset id → PRESET_CATEGORY_LABELS / user: prefix → userCategoryLabels
  * - resolveCategoryColor: preset id → CATEGORY_COLORS / user: prefix → 固定色
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { resolveCategoryLabel, resolveCategoryColor } from '../AdminPage'

@@ -3,6 +3,8 @@
  *
  * RollingAnalysisFrame から requiredRange / requiredMonths を導出する。
  * 月跨ぎ・閏年・エッジケースを網羅する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildTemporalFetchPlan } from '@/application/usecases/temporal'

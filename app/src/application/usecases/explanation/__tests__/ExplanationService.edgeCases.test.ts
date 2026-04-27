@@ -4,6 +4,8 @@
  * 各種コスト要素・売上要素の非ゼロ分岐、取引先内訳、
  * 予算達成率、formulaRef 解決、テキスト要約など、
  * メインテストでカバーしきれないエッジケースを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

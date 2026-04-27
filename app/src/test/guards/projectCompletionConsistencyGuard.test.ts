@@ -34,6 +34,8 @@
  * @see references/03-guides/project-checklist-governance.md §6 §10 §4
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -4,6 +4,8 @@
  * 検証対象:
  * - children をそのまま描画
  * - ToolbarGroup / ToolbarLabel の re-export が機能
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

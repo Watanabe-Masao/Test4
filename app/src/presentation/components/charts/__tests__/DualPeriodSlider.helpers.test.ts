@@ -5,6 +5,8 @@
  * - pxToDay: pixel 位置 → day 値（連続値）
  * - dayToPct: day 値 → % 位置
  * - clamp: 値を [lo, hi] に押し込む
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { pxToDay, dayToPct, clamp } from '../DualPeriodSlider'

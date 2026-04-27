@@ -10,6 +10,8 @@
  * @guard I2 @guard I3 @guard I4
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as path from 'path'

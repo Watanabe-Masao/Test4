@@ -14,6 +14,8 @@
  *   - 空 → 空配列
  *   - dailyRates 計算 (cumulative)
  *   - dailyBudgetDev 計算 (budget>0 && sales>0 のみ)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildGpRatesFromReadModels, buildHeatmapFromStoreResults } from '../GrossProfitHeatmap.vm'

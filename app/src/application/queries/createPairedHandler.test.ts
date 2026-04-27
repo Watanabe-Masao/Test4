@@ -2,6 +2,8 @@
  * createPairedHandler — 単体テスト
  *
  * @invariant INV-RUN-02 Comparison Integrity
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { createPairedHandler } from './createPairedHandler'

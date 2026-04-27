@@ -5,6 +5,8 @@
  * - ACCEPT_EXTENSIONS: 許容拡張子リスト
  * - isAcceptedFile: ファイル名の拡張子判定（大文字小文字非依存）
  * - filterAcceptedFiles: FileList から許容拡張子のみ抽出
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ACCEPT_EXTENSIONS, isAcceptedFile, filterAcceptedFiles } from '../FileDropZone'

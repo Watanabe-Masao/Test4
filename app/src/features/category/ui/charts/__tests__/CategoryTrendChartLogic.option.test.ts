@@ -3,6 +3,8 @@
  *
  * Note: buildCategoryTrendData / buildPrevYearTrendData are covered by
  * categoryChartLogicBatch.test.ts. This file targets the ECharts option builder.
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

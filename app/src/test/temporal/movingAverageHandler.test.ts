@@ -3,6 +3,8 @@
  *
  * handler の public contract を固定する。
  * conn をモック、queryStoreDaySummary を stub。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { movingAverageHandler } from '@/application/queries/temporal/MovingAverageHandler'

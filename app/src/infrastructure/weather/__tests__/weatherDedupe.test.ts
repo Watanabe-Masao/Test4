@@ -2,6 +2,8 @@
  * Weather inflight dedupe テスト
  *
  * 同一 station/year/month の並列リクエストが 1 HTTP fetch に集約されることを検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 

@@ -31,6 +31,8 @@
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-006
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

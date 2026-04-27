@@ -25,6 +25,8 @@
  *
  * @see docs (TBD): `references/01-principles/import-boundary-policy.md`
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import * as fs from 'fs'

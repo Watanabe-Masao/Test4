@@ -9,6 +9,8 @@
  * @authorityKind candidate-authoritative
  *
  * @see references/03-guides/tier1-business-migration-plan.md — Step 6, 7
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {

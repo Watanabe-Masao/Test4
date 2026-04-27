@@ -2,6 +2,8 @@
  * buildWeatherMap の境界値テスト
  *
  * 同曜日比較（dowOffset > 0）で月跨ぎが発生するケースを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { DailyWeatherSummary } from '@/domain/models/record'

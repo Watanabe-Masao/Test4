@@ -2,6 +2,8 @@
  * Query Input Canonicalization — 単体テスト
  *
  * @invariant INV-RUN-01 Semantic Determinism
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

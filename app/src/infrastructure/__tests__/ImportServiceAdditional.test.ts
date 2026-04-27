@@ -8,6 +8,8 @@
  * - processDroppedFiles (lines 579-676)
  * - readAndDetect
  * - buildStoreCostRateMap (間接)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 

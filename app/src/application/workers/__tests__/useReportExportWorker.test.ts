@@ -3,6 +3,8 @@
  *
  * Worker 非対応環境でのフォールバック CSV 生成を検証する。
  * Worker 生成の成功/失敗パターンとダウンロード処理をモックでテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

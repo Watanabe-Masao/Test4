@@ -5,6 +5,8 @@
  * 月跨ぎ・同曜日オフセット・閏年の境界で正しいスコープを算出するか検証する。
  *
  * @guard D3 不変条件はテストで守る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildComparisonScope } from '@/domain/models/ComparisonScope'

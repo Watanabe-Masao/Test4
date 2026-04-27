@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { ImportError } from '../errors'
 import type { ImportErrorType } from '../errors'

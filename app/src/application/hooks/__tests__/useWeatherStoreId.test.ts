@@ -4,6 +4,8 @@
  * 主要な契約:
  * - 選択中の店舗のうち storeLocations に登録された最初の店舗を返す
  * - 該当が無ければ空文字列を返す（useWeatherData の早期 return 契約と整合）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'

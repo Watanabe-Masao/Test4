@@ -2,6 +2,8 @@
  * dbHelpers.ts のユニットテスト
  *
  * IndexedDB は JSDOM 環境では提供されないため fake-indexeddb を使う。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'

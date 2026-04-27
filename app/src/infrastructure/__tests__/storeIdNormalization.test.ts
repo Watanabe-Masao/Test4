@@ -8,6 +8,8 @@
  *   - categoryTimeSales も同様
  *   - 変更なしなら同じオブジェクト参照を返す
  *   - storeName prop が設定される (fallback で storeId 旧値)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { normalizeRecordStoreIds } from '../storeIdNormalization'

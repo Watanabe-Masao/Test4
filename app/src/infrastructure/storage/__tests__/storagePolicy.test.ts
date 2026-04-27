@@ -2,6 +2,8 @@
  * storagePolicy のユニットテスト
  *
  * formatBytes、ストレージ状態判定、クリーンアップアクション生成をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 

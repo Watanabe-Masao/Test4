@@ -15,6 +15,8 @@
  * - storePIData の件数とソート順
  *
  * @guard H4 component に acquisition logic 禁止
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCategoryRows } from '@/features/category/ui/charts/CategoryPerformanceChart.builders'

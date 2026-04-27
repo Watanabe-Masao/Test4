@@ -12,6 +12,8 @@
  * - 異常系: project.json 欠損で fail
  *
  * @responsibility R:utility
+ *
+ * @taxonomyKind T:unclassified
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import * as fs from 'node:fs'

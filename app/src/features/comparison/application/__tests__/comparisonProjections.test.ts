@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildDowGapProjection } from '../comparisonProjections'
 import { ZERO_DOW_GAP_ANALYSIS } from '@/domain/calculations/dowGapAnalysis'

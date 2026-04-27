@@ -2,6 +2,8 @@
  * useSimulatorState テスト
  *
  * state 初期値・setter 動作・localStorage 永続化・currentDay clamp を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { act, renderHook } from '@testing-library/react'

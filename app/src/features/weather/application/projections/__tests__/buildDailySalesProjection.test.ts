@@ -5,6 +5,8 @@
  * - 同一 dateKey の複数店舗 row を合算
  * - dateKey 昇順で安定ソート
  * - 空入力は空配列
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDailySalesProjection } from '../buildDailySalesProjection'

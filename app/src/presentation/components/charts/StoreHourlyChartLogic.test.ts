@@ -7,6 +7,8 @@
  *
  * `buildStoreHourlyData` は TimeSlotSeries / stores map 等の複合依存が多いため
  * ここでは対象外（component smoke test 経由で間接カバー）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

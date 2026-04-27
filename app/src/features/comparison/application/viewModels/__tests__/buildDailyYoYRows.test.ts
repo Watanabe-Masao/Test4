@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildDailyYoYRows } from '../buildDailyYoYRows'
 import type { ComparisonPoint } from '../ComparisonViewTypes'

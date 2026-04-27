@@ -10,6 +10,8 @@
  *   1. 同一テストベクトルに対する JS 関数の出力を検証
  *   2. 各計算式の数学的等価性をテスト
  *   3. getDailyTotalCost のソース構造を検証（構成要素の漏れ防止）
+ *
+ * @taxonomyKind T:unclassified
  */
 import fs from 'fs'
 import path from 'path'

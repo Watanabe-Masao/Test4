@@ -1,5 +1,7 @@
 /**
  * Tests for deletePolicy.ts — constants + delete query generation with mocked connection
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

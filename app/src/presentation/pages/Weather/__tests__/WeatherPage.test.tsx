@@ -9,6 +9,8 @@
  * 設計: useWeatherTriple / useWeatherForecast / useWeatherHourlyOnDemand /
  * useWeatherDaySelection / useDataStore / useSettingsStore / useComparisonScope
  * を vi.mock で stub。子 component (チャート/モーダル) も最小化。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

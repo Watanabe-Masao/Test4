@@ -6,6 +6,8 @@
  * 移行中に、旧パターンの新規使用を防ぐ。
  *
  * @guard E3 sourceDate を落とさない
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

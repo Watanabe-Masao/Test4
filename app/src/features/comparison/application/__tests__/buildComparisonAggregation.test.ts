@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { aggregateDailyByAlignment, aggregateKpiByAlignment } from '../buildComparisonAggregation'
 import { buildSourceDataIndex, type SourceMonthContext } from '../sourceDataIndex'

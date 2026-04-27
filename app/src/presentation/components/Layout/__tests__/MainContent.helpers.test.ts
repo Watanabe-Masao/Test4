@@ -4,6 +4,8 @@
  * 検証対象:
  * - 同一月内: 'YYYY/M/D〜D'
  * - 月またぎ: 'YYYY/M/D〜YYYY/M/D'
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { formatDateRange } from '../MainContent'

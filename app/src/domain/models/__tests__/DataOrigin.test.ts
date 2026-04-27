@@ -1,5 +1,7 @@
 /**
  * DataOrigin — isEnvelope type guard tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { isEnvelope, type DataEnvelope, type DataOrigin } from '../DataOrigin'

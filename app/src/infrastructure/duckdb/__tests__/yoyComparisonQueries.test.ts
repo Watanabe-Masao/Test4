@@ -2,6 +2,8 @@
  * yoyComparison クエリモジュールのテスト
  *
  * DuckDB 接続をモックして SQL 生成の内容を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

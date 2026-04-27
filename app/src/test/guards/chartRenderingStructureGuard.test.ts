@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // Chart Rendering Three-Stage Pattern Guard

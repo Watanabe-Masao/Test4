@@ -2,6 +2,8 @@
  * buildAnalysisFrame テスト
  *
  * AnalysisRequest → AnalysisFrame（rolling/non-rolling union）の変換を検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildAnalysisFrame } from '@/application/usecases/temporal'

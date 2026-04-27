@@ -15,6 +15,8 @@
  *   6. Phase 4 (2026-04-20): `CategoryLeafDailyEntry` は独立 interface に昇格済み。
  *      nested field (`department.code` 等) は entry 構造から除外される。
  *      consumer は flat field のみで完結し、raw record とは構造的に分離される。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

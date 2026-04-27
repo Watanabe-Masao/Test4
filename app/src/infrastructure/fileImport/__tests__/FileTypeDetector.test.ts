@@ -11,6 +11,8 @@
  *   - 何もマッチしない → type=null, confidence='none'
  * - getDataTypeName: type → name 解決
  * - getStructuralRules: 全 DataType の minRows/minCols/label
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

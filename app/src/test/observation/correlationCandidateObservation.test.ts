@@ -3,6 +3,8 @@
  * @contractId ANA-005
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { pearsonCorrelation as pearsonTS } from '@/domain/calculations/algorithms/correlation'

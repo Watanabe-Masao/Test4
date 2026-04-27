@@ -6,6 +6,8 @@
  * - extractDiscountEntries: ClassifiedSalesRecord 4 フィールドから配列生成（abs 正規化）
  * - sumDiscountEntries: 唯一の合算ポイント
  * - addDiscountEntries: 同 type 同士の加算
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

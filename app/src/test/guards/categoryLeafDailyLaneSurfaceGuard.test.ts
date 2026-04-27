@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // categoryLeafDailyLaneSurfaceGuard — カテゴリ leaf-grain 日次比較レーンの

@@ -19,6 +19,8 @@
  *  - projects/completed/duplicate-orphan-retirement/checklist.md Phase 2
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { existsSync, readFileSync } from 'node:fs'

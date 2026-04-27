@@ -2,6 +2,8 @@
  * analysisFrameFingerprint — computeAnalysisFrameKey tests
  *
  * cache key の安定性が要件。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computeAnalysisFrameKey } from '../analysisFrameFingerprint'

@@ -3,6 +3,8 @@
  *
  * Worker をモックし、基本的な API テストを行う。
  * リクエスト/レスポンスサイクルを含む全パブリックメソッドをテスト。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { DuckDBWorkerResponse } from '../worker/types'

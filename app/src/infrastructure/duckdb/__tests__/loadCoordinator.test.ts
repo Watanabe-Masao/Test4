@@ -2,6 +2,8 @@
  * loadCoordinator — acquireMutex / resetLoadMutex tests
  *
  * グローバルミューテックスの直列化を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { acquireMutex, resetLoadMutex } from '../loadCoordinator'

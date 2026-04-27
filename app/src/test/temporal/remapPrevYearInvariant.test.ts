@@ -9,6 +9,8 @@
  * という不変条件を MovingAverageHandler の出力レベルで確認する。
  *
  * @guard D3 不変条件はテストで守る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { DailySeriesPoint } from '@/application/services/temporal/DailySeriesTypes'

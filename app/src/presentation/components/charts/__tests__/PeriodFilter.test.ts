@@ -14,6 +14,8 @@
  *   7. スライダー動的変更に対する除数の追従検証
  *   8. 全チャートの除数算出が一元管理関数を経由していることの構造検証
  *   9. 【TR-FIL-001】filterByStore の正確性テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'

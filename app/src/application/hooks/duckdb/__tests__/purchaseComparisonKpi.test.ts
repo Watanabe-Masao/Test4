@@ -9,6 +9,8 @@
  * - buildKpi: 各 diff / rate の計算
  * - buildStoreData: 両期間の store id 和集合 + markup + 降順ソート
  * - groupCategoryRows: categoryKey ごとの cost/price 集約
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // monthlyPrevYearSalesGuard — 「月間」ラベルで期間スコープ値の混入を機械検出する

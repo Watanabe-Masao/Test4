@@ -1,5 +1,7 @@
 /**
  * dataSummary 純粋関数のユニットテスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { createEmptyMonthlyData } from '@/domain/models/MonthlyData'

@@ -10,6 +10,8 @@
  * - onLongPress 未指定時は title 属性なし / handler が no-op
  *
  * Phase 3 Step 3-16: self-contained component.
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

@@ -2,6 +2,8 @@
  * useDeptHourlyChartData は React hook なので直接テストしない。
  * このファイルから再エクスポートされる純粋な定数 TOP_N_OPTIONS のみ検証する。
  * 同ディレクトリの純粋ロジック DeptHourlyChartLogic.ts の helper も併せて検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { TOP_N_OPTIONS } from '../useDeptHourlyChartData'

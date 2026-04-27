@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import type { SalesAnalysisContext } from '../SalesAnalysisContext'
 import { buildSalesAnalysisContext, deriveChildContext } from '../SalesAnalysisContext'

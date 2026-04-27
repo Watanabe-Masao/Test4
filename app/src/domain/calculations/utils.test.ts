@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { formatCurrency, formatManYen, formatPercent, formatPointDiff } from '@/domain/formatting'
 import { maxDayOfRecord, detectDataMaxDay } from '@/application/services/dataDetection'

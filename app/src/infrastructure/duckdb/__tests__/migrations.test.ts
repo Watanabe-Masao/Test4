@@ -2,6 +2,8 @@
  * マイグレーション実行エンジンのユニットテスト
  *
  * getCurrentVersion / runMigrations のロジックをモック DB でテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { getCurrentVersion, runMigrations } from '../migrations/runner'

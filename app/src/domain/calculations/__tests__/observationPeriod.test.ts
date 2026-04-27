@@ -2,6 +2,8 @@
  * observationPeriod.ts — 観測期間評価の単体テスト
  *
  * 品質判定（ok/partial/invalid/undefined）と警告生成を検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { evaluateObservationPeriod, worseObservationStatus } from '../observationPeriod'

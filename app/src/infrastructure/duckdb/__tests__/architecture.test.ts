@@ -5,6 +5,8 @@
  * - パイプラインチャートが生データ（records[]）を直接参照していないこと
  * - クエリモジュールのエクスポートが duckdb/index.ts と整合していること
  * - ウィジェットレジストリに全 DuckDB ウィジェットが登録されていること
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

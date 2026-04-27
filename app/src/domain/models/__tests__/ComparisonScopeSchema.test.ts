@@ -1,5 +1,7 @@
 /**
  * ComparisonScopeSchema — runtime 契約 tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ComparisonScopeSchema } from '../ComparisonScopeSchema'

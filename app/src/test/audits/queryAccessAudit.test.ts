@@ -9,6 +9,8 @@
  * この監査は「今どの access route が何本生きているか」を観測する。
  *
  * @audit Query Access Route Inventory
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -6,6 +6,8 @@
  *
  * 個々の Stage テストは metricResolver.test.ts にある。
  * ここでは「実際の registry 定義を使った端到端の振る舞い」を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { resolveMetric, deriveDisplayMode } from './metricResolver'

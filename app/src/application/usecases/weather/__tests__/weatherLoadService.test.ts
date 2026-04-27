@@ -3,6 +3,8 @@
  *
  * ポート抽象（EtrnStation 単位の操作）を通じて
  * weatherAdapter が正しく呼び出されることを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreLocation } from '@/domain/models/record'

@@ -3,6 +3,8 @@
  *
  * ポート抽象を通じて weatherAdapter が正しく呼び出され、
  * officeCode 解決 → 週間予報取得のオーケストレーションを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreLocation } from '@/domain/models/record'

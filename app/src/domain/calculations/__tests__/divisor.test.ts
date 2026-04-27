@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { computeDivisor, countDistinctDays, filterByStore } from '../divisor'
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'

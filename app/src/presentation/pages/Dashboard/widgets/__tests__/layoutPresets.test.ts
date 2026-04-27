@@ -1,5 +1,7 @@
 /**
  * Phase 3.3: レイアウトプリセット テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { LAYOUT_PRESETS, loadActivePreset, saveActivePreset } from '../layoutPresets'

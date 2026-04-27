@@ -5,6 +5,8 @@
  *   1. ゼロ値パターン: createEmpty* の全フィールドに null チェックなしでアクセス可能
  *   2. toSnapshot: 空 → hasData: false、データあり → hasData: true
  *   3. aggregateMetrics: 合算後の不変条件（推定マージン + 推定原価 = コア売上）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

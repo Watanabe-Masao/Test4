@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // categoryDailyLaneSurfaceGuard — 部門×日次レーンの raw CTS row 露出を ratchet-down で管理

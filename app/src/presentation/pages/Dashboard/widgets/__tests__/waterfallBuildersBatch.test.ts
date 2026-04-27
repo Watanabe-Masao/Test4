@@ -1,5 +1,7 @@
 /**
  * DrilldownWaterfall.builders.ts + YoYWaterfallChart.builders.ts test
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildRecordAggregates } from '../DrilldownWaterfall.builders'

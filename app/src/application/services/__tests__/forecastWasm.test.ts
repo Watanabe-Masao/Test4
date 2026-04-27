@@ -3,6 +3,8 @@
  *
  * WASM 未初期化環境では wasm export access が失敗するため、
  * 早期 return する fast-path のみ検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

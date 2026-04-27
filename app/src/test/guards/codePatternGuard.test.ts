@@ -12,6 +12,8 @@
  * @guard E1 境界で検証 — クエリの日付パラメータは validateDateKey 経由
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

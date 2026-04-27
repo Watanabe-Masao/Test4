@@ -5,6 +5,8 @@
  * 混入しないことを import パターンで機械的に検証する。
  *
  * Phase 0 で先に「柵」を立て、後続 Phase の実装で boundary を守る。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

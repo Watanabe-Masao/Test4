@@ -4,6 +4,8 @@
  * TimeSlotChart の query 入力が drill 文脈で正しく組み立てられることを検証する。
  * 特に: 日別売上チャートから単日ドリル (4月10日) 時に前年 hourly / day count が
  * 正しい query input を生成することを確認する (#前年値非表示 bug の再現テスト)。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildTimeSlotPlanInputs } from '../useTimeSlotPlan'

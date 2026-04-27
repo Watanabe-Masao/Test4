@@ -2,6 +2,8 @@
  * defaults.ts の純粋関数ユニットテスト
  *
  * createDefaultSettings / getDaysInMonth の動作と定数を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

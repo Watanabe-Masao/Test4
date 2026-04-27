@@ -5,6 +5,8 @@
  * - Card: children を描画
  * - $accent prop で描画エラーなく通る
  * - CardTitle: children を h3 として描画
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

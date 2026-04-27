@@ -10,6 +10,8 @@
  * metricSignal / SIGNAL_COLORS / ConditionSummaryConfig に依存する Detail VM
  * ビルダー（buildSalesYoYDetailVm 等）は conditionPanelSalesDetail.vm.test の
  * 方針（= ここではテストしない）に倣って除外する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

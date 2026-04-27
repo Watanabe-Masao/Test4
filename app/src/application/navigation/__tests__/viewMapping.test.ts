@@ -3,6 +3,8 @@
  *
  * preloadAdjacentPages は requestIdleCallback / import() 副作用を持つため対象外。
  * ここでは pageRegistry 由来のマッピング定数の整合性のみ検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { VIEW_TO_PATH, PATH_TO_VIEW } from '../viewMapping'

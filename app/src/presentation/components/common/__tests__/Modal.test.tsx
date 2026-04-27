@@ -11,6 +11,8 @@
  * - unmount 時に previouslyFocused に focus 復帰
  *
  * Phase 3 Step 3-6: coverage 0% / 8.69% の component 継続。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

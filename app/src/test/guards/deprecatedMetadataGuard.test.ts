@@ -39,6 +39,8 @@
  *  - references/03-guides/architecture-rule-system.md（temporal governance）
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { readFileSync } from 'node:fs'

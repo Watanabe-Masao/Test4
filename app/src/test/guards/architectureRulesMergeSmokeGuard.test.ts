@@ -12,6 +12,8 @@
  * @see references/03-guides/governance-final-placement-plan.md
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, expect, it } from 'vitest'
 // 正本の 3 経路を個別に import する

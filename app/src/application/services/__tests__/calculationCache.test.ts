@@ -1,5 +1,7 @@
 /**
  * Phase 2.2: CalculationCache テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { CalculationCache, computeFingerprint, computeGlobalFingerprint } from '../calculationCache'

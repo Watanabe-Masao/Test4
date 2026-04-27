@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // timeSlotLaneSurfaceGuard — 時間帯比較レーンの raw row 露出を ratchet-down で管理

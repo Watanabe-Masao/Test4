@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { METRIC_DEFS } from '../metricDefs'
 import type { MetricId } from '@/domain/models/Explanation'

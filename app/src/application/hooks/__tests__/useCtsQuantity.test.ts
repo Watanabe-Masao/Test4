@@ -8,6 +8,8 @@
  * - selectedStoreIds フィルタ (isAllStores=false 時)
  * - isAllStores=true → 全店舗
  * - total / byStore / byDay / byStoreDay の集約
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { aggregateCurrentCts } from '../useCtsQuantity'

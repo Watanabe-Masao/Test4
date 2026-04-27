@@ -3,6 +3,8 @@
  *
  * hydrateMonthlyData は JSON.parse 結果（plain object）を
  * MonthlyData に復元する純粋関数。Map フィールド復元の検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { hydrateMonthlyData, isCompressionSupported } from './backupFormat'

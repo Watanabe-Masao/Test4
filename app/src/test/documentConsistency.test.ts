@@ -4,6 +4,8 @@
  * CLAUDE.md・roles/・references/ とコードベースの整合性を機械的に検証する。
  *
  * @guard G1 ルールはテストに書く
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

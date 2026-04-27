@@ -13,6 +13,8 @@
  * - number input: 範囲外 / NaN を reject
  *
  * Phase 3 Step 3-5: coverage 0% component の継続テスト追加。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

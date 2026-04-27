@@ -3,6 +3,8 @@
  *
  * DuckDBEngineImpl のライフサイクル管理をモックして検証する。
  * 実際の WASM バンドルは不要 - duckdb モジュール全体をモックする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 

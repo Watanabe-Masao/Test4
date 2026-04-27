@@ -3,6 +3,8 @@
  *
  * 既存テストでカバーされていない downloadCsv / exportToCsv をテストする。
  * これらはブラウザ API (Blob, URL, document) に依存するため、vi.stubGlobal を使用する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { downloadCsv, exportToCsv, toCsvString } from '../csvExporter'

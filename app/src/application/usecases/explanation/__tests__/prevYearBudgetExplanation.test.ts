@@ -7,6 +7,8 @@
  *   3. evidenceRefs に budget 参照が含まれる
  *   4. explanation.value === sales / budget（計算の再現性）
  *   5. hasPrevYear=false または budget≤0 → 空 Map
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { generatePrevYearBudgetExplanations } from '../prevYearBudgetExplanation'

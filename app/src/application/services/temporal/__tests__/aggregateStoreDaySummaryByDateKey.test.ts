@@ -6,6 +6,8 @@
  * - 出力は dateKey 昇順
  * - 入力並び順に非依存
  * - 単店舗は恒等
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { aggregateStoreDaySummaryByDateKey } from '../aggregateStoreDaySummaryByDateKey'

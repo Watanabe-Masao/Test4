@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { toComparisonPoints, toComparisonPointMap } from '../buildComparisonPoints'
 import type { DayMappingRow } from '@/features/comparison/application/comparisonTypes'

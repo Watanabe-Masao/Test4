@@ -12,6 +12,8 @@
  * 3. CategoryTimeHeatmap — heatmapMetric: amount/quantity
  *
  * @guard D2 引数を無視して再計算しない — モード名とデータソースの対応を検証
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

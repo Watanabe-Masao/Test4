@@ -3,6 +3,8 @@
  * @contractId ANA-007
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { analyzeDowGap as analyzeTS } from '@/domain/calculations/dowGapAnalysis'

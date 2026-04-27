@@ -9,6 +9,8 @@
  * @guard E1 境界で検証 — バリデーション結果を無視しない
  *
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

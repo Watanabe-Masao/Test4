@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { WIDGET_REGISTRY } from '../registry'
 import { makeWidgetContext } from './widgetTestHelpers'

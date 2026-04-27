@@ -4,6 +4,8 @@
  * assembleStoreResult 関数の正常系・エッジケースを検証する。
  * CalculationOrchestrator のテストでは間接的にテストされているが、
  * ここでは MonthlyAccumulator を直接構築して境界条件をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { assembleStoreResult } from '../storeAssembler'

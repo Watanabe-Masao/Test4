@@ -3,6 +3,8 @@
  *
  * SQL 生データ（StoreDaySummaryRow[]）から JS 計算で
  * PeriodMetrics を生成する一連の処理を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

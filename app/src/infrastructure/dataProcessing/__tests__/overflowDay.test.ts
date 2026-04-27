@@ -13,6 +13,8 @@
  *   - 翌月 + overflowDays 内 → daysInTargetMonth + date.getDate()
  *   - 翌月 + overflowDays=0 → null
  *   - 前月 → null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { detectDaysInTargetMonth, resolveDay } from '../overflowDay'

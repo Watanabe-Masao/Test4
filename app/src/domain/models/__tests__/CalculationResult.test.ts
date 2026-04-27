@@ -1,5 +1,7 @@
 /**
  * CalculationResult — factory tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { okResult, invalidResult, undefinedResult } from '../CalculationResult'

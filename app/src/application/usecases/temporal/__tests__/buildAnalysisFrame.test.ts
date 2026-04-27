@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildAnalysisFrame } from '../buildAnalysisFrame'
 import type { AnalysisRequest } from '@/domain/models/temporal'

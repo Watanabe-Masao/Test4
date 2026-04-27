@@ -2,6 +2,8 @@
  * autoImportReducer のユニットテスト
  *
  * 全アクションの純粋な状態遷移を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -5,6 +5,8 @@
  * - findCoreTime: 3連続時間ウィンドウの最大合計
  * - findTurnaroundHour: 累積 50% 到達時刻
  * - buildHourlyMap: 配列 → Map 集約
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

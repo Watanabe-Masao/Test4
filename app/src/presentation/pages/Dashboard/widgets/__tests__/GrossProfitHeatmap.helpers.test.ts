@@ -4,6 +4,8 @@
  * 検証対象:
  * - rateToColor(rate, target, warning): 3 層色判定（緑 / 黄 / 赤）
  * - deviationToColor(dev): 正負で青/赤分岐
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { rateToColor, deviationToColor } from '../GrossProfitHeatmap'

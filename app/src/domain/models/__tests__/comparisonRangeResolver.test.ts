@@ -4,6 +4,8 @@
  * unify-period-analysis Phase 2: presentation 層から比較先日付計算を剥がす
  * ための domain resolver の挙動を固定する。月跨ぎ・閏年・provenance を
  * locked。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

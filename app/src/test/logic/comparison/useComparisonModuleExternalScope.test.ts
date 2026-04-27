@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 // useComparisonModule externalScope parameter — behavioral contract test
 //
 // unify-period-analysis Phase 6a: useComparisonModule が externalScope を

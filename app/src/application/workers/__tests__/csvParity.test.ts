@@ -5,6 +5,8 @@
  *
  * 以前は reportExportWorker.ts と csvExporter.ts に同一ロジックが重複しており
  * パリティテストで同期を検証していた。現在は domain/utilities/csv.ts に一元化済み。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { toCsvString } from '@/domain/utilities/csv'

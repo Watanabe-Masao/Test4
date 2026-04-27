@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildDepartmentKpiIndex, EMPTY_DEPT_KPI_INDEX } from './indexBuilder'
 import type { DepartmentKpiRecord, DepartmentKpiData } from '@/domain/models/record'

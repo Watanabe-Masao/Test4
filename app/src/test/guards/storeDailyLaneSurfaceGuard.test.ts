@@ -1,5 +1,7 @@
 /**
  * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 
 // storeDailyLaneSurfaceGuard — 店舗別日次レーンの raw daily 露出を ratchet-down で管理

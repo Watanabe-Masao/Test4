@@ -6,6 +6,8 @@
  * Date 依存関数は TS 直接委譲（WASM 対象外）。
  *
  * @see references/02-status/engine-promotion-matrix.md — authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {

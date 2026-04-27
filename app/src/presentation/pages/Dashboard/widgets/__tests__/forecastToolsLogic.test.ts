@@ -8,6 +8,8 @@
  * - computeTool2: goal seek の各派生値
  * - getObsWarning: observation status 分岐
  * - stepPercent: clamp + 0.1 刻み丸め
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

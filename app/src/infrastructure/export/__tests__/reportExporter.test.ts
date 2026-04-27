@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'

@@ -2,6 +2,8 @@
  * appLifecycleContract — isBlockingPhase tests
  *
  * UI をブロックするフェーズの判定を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { isBlockingPhase, type AppLifecyclePhase } from '../appLifecycleContract'

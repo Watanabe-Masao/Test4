@@ -13,6 +13,8 @@
  * - aria-live / role 属性
  *
  * Phase 3 Step 3-7: coverage 31.48% → 上 を狙う。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'
