@@ -3,7 +3,7 @@
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { EChartsOption } from './EChart'

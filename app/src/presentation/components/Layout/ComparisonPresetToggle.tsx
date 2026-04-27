@@ -3,7 +3,7 @@
  *
  * ヘッダーに配置し、前年比較のON/OFFとプリセット（同月・同曜日・前月）を切り替える。
  * periodSelectionStore の setPreset / setComparisonEnabled を操作する。
- * @responsibility R:layout
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'

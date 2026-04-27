@@ -36,7 +36,7 @@ export interface HeatmapData {
 export const HOUR_MIN = 6
 export const HOUR_MAX = 22
 
-/** 曜日ラベル (JS Date.getDay(): 0=日, 1=月, ..., 6=土)  * @responsibility R:utility
+/** 曜日ラベル (JS Date.getDay(): 0=日, 1=月, ..., 6=土)  * @responsibility R:unclassified
  */
 export const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 

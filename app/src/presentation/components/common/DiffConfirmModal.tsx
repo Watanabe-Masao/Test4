@@ -3,7 +3,7 @@
  *
  * 既存データとインポートデータの差分を表示し、
  * ユーザーに「上書き」「既存を維持」の選択を求める。
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import { useState } from 'react'
 import { Modal } from './Modal'

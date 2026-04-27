@@ -39,7 +39,7 @@
  * 見本実装: `YoYChart.tsx` + `buildYoyDailyInput.ts`（comparison 付き）、
  *           `WeatherAnalysisPanel.tsx` 等 + `buildBaseQueryInput.ts`（本 builder）
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'

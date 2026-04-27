@@ -1,6 +1,6 @@
 /**
  * 分析系フック — 統計・比較・DuckDB・ドリル・解析
- * @responsibility R:barrel
+ * @responsibility R:unclassified
  */
 export { useDuckDB } from '@/application/runtime-adapters/useDuckDB'
 export type { DuckDBHookResult } from '@/application/runtime-adapters/useDuckDB'

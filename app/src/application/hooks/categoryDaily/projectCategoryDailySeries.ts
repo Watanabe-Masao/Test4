@@ -45,7 +45,7 @@
  * @see app/src/application/hooks/timeSlot/projectTimeSlotSeries.ts (Step C 参照実装)
  * @see projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models/DataTypes'
 import type {

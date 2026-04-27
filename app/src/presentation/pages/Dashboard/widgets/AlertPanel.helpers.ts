@@ -5,7 +5,7 @@
  * 値の解釈（rate vs 金額）と severity → アイコン変換は純粋関数なので
  * 単独テスト可能。
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import { formatPercent } from '@/domain/formatting'
 import type { Alert, AlertSeverity } from '@/application/hooks/analytics'

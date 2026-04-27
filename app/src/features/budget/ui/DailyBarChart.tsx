@@ -5,7 +5,7 @@
  * - 当期 bar (primary color) + 前年 bar (gray)
  * - 当期 7日MA (solid line) + 前年 7日MA (dashed line)
  *
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import { useTheme } from 'styled-components'

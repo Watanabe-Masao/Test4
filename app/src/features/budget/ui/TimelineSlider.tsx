@@ -4,7 +4,7 @@
  * プロトタイプ c-head の SliderWithMarkers 相当。Card ラッパーを持たず、
  * 親の SimulatorHeader 内に inline で並ぶ想定。
  *
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import { SliderRow, SliderLabel, SliderInput } from './BudgetSimulatorWidget.styles'
 

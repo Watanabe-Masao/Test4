@@ -30,7 +30,7 @@
  * data builder (YoYChartLogic.ts) と option builder (本ファイル) を分離する
  * ことで、chart component は「状態 + orchestration」のみに薄化される。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { EChartsOption } from './EChart'
 import type { AppTheme } from '@/presentation/theme/theme'

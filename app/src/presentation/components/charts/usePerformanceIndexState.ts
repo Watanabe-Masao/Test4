@@ -4,7 +4,7 @@
  * PerformanceIndexChart.tsx から分離。
  * view / selectedRange / categoryLevel / storePILevel / drillState の state + handlers。
  *
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { ViewType } from './PerformanceIndexChart.builders'

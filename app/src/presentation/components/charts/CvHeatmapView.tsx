@@ -1,6 +1,6 @@
 /**
  * CVヒートマップビュー — CvTimeSeriesChart のサブコンポーネント
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import type { useChartTheme } from './chartTheme'
 import { formatDateKey } from './ChartParts'

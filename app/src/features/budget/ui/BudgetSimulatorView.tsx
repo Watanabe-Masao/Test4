@@ -13,7 +13,7 @@
  *
  * これにより Storybook / 単体テストで mock scenario を注入して描画確認できる。
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { formatPercent } from '@/domain/formatting'

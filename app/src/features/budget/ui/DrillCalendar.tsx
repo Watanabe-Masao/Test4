@@ -9,7 +9,7 @@
  * - 曜日平均行: 曜日ごとの平均 + 前年比
  * - 全体平均 (合計+日平均): 右下セル
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { Fragment, memo, useMemo } from 'react'
 import { dowOf, type SimulatorScenario } from '@/domain/calculations/budgetSimulator'

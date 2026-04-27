@@ -5,7 +5,7 @@
  * 客数×客単価の絶対値マップ / 前年比変化率マップ をそれぞれ算出する。
  * React hooks や I/O を含まない pure 関数。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DailyRecord } from '@/domain/models/record'
 import { calculateTransactionValue } from '@/domain/calculations/utils'

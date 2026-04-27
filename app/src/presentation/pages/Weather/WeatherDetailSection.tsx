@@ -3,7 +3,7 @@
  *
  * WeatherPage の行数制限（R12: 600行）対応のため分離。
  *
- * @responsibility R:widget, R:state-machine
+ * @responsibility R:unclassified
  */
 import { memo, useState } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

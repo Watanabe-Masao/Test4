@@ -11,7 +11,7 @@
  * @guard H2 比較は pair/bundle 契約 — dailyQuantityPairHandler で cur/prev 一括取得
  * @guard H4 component に acquisition logic 禁止
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
@@ -61,7 +61,7 @@ export interface IntegratedSalesPlanResult {
 /**
  * 日別点数クエリの入力を構築（純粋関数）。
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 export function buildQtyPairInput(
   currentDateRange: DateRange,
@@ -78,7 +78,7 @@ export function buildQtyPairInput(
 }
 
 /** rightAxisMode → AnalysisMetric マッピング（純粋関数）  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 const RIGHT_AXIS_MA_METRIC: Partial<Record<RightAxisMode, AnalysisMetric>> = {
   quantity: 'quantity',

@@ -3,7 +3,7 @@
  *
  * 全ページで全ウィジェットを利用可能にするための統一型。
  * UnifiedWidgetContext は全ウィジェットが必要とするデータの上位集合。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

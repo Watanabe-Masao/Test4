@@ -5,7 +5,7 @@
  * - メッセージ: formatViolationMessage, checkRatchetDown
  * - AAG レスポンス: buildAagResponse, renderAagResponse, buildObligationResponse
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 import type { ArchitectureRule, AagSlice, DetectionType } from './types'

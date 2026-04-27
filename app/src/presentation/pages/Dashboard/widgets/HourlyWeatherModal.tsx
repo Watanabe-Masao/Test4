@@ -4,7 +4,7 @@
  * 実測日: 当年の時間別データ + 前年の破線重ね合わせ
  * 予報日: 前年の時間別データをメイングラフ + 当日の予報サマリをカード表示
  *
- * @responsibility R:widget, R:state-machine
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'

@@ -10,7 +10,7 @@
  *
  * セル描画は DayCellSlot に分離 (行数圧縮のため)。
  *
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DowBase, DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'

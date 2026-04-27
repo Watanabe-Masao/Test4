@@ -1,6 +1,6 @@
 /**
  * 季節性ベンチマークチャート (ECharts)
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

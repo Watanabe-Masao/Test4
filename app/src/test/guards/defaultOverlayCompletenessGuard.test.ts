@@ -20,7 +20,7 @@
  *
  * したがって、project overlay が空でも rule の漏れは発生しない。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @taxonomyKind T:unclassified

@@ -3,7 +3,7 @@
  *
  * Phase 3 移行済み: 日別前年比較は JS 計算版に委譲。
  * DuckDB は生データ取得のみ。FULL OUTER JOIN 相当は JS で実行。
- * @responsibility R:query-exec
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

@@ -1,6 +1,6 @@
 /**
  * 予算トレンドチャート (ECharts)
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

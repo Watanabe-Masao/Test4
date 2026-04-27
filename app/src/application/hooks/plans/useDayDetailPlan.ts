@@ -9,7 +9,7 @@
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { PlanComparisonProvenance } from '@/domain/models/ComparisonWindow'

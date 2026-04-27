@@ -5,7 +5,7 @@
  * クエリ・データ変換を担い、UI は DeptHourlyChart に残す。
  * drill 状態管理は useDeptHourlyDrillState に分離。
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'

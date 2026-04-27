@@ -5,7 +5,7 @@
  * `scope?.effectivePeriod1` / `effectivePeriod2` / `alignmentMode` を直接
  * 読んでいた箇所を本 builder に移し、presentation 層を chart 薄化する。
  *
- * @responsibility R:query-plan
+ * @responsibility R:unclassified
  *
  * ## 設計方針
  *

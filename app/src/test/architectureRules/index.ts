@@ -4,7 +4,7 @@
  * 全 consumer がこのファイル経由でアクセスする。
  * types.ts / rules.ts / helpers.ts に分割された内容を 1 箇所から re-export する。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 // 型定義 + Core 型 re-export

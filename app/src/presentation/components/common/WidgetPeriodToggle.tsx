@@ -3,7 +3,7 @@
  *
  * チェックボックスでグローバル期間連動のON/OFFを切り替える。
  * OFF時はミニ期間ピッカーを表示し、比較期間を独自に設定可能。
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { memo, useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'

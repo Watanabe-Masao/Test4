@@ -5,7 +5,7 @@
  * ECharts は個別インスタンスの overhead が大きいため、テーブルに多数並ぶ
  * この用途では SVG で軽量描画する (プロトタイプと同じ方針)。
  *
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { useTheme } from 'styled-components'

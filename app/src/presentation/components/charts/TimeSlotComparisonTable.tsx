@@ -5,7 +5,7 @@
  * gridLeft / gridRight でチャートのプロットエリアと列位置を揃える。
  *
  * 天気情報はグラフ直下に TimeSlotWeatherTable として独立配置。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { toPct, useCurrencyFormat } from './chartTheme'

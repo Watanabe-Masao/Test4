@@ -8,7 +8,7 @@
  * prefers-reduced-motion 時は即時切替にフォールバック。
  *
  * アクセシビリティ: role="radiogroup" + 矢印キーナビゲーション
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'

@@ -6,7 +6,7 @@
  *
  * データ取得・状態管理は useDeptHourlyChartData に分離。
  * 本コンポーネントは描画のみ。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import React from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

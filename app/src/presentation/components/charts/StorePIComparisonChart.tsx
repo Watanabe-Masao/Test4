@@ -6,7 +6,7 @@
  *
  * @guard H4 component に acquisition logic 禁止
  * @guard H6 ChartCard は通知のみ — onVisibilityChange で親に伝達
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState } from 'react'
 import { useTheme } from 'styled-components'

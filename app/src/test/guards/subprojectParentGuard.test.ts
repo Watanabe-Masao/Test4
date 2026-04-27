@@ -18,7 +18,7 @@
  * P1 では `parent` の宣言は optional。フィールド未定義の project は通常 project
  * として従来通り扱われる（全既存 project は無変更で PASS する）。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see projects/completed/aag-format-redesign/subproject-design.md
  *
  * @taxonomyKind T:unclassified

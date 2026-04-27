@@ -38,7 +38,7 @@ type NavLabelKey =
   | 'reports'
   | 'admin'
 
-/** PageMeta.id → i18n nav message key  * @responsibility R:layout
+/** PageMeta.id → i18n nav message key  * @responsibility R:unclassified
  */
 const NAV_LABEL_KEY: Record<string, NavLabelKey> = {
   dashboard: 'dashboard',

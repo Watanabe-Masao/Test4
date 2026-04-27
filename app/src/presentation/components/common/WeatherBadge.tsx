@@ -1,6 +1,6 @@
 /**
  * 天気バッジ — WMO コードに対応するアイコンとラベルを表示
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import styled from 'styled-components'

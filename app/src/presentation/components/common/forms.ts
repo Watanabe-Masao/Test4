@@ -1,6 +1,6 @@
 /**
  * フォーム・入力・アップロードコンポーネント
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { Chip, ChipGroup } from './Chip'
 export { FileDropZone } from './FileDropZone'

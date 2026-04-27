@@ -10,7 +10,7 @@
  * 単日 modal との再利用は敢えてしない (単日向け tab = sales/hourly/breakdown は
  * 期間集計には意味が薄いため)。
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { formatPercent } from '@/domain/formatting'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'

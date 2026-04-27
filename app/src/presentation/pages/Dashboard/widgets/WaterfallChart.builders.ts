@@ -4,7 +4,7 @@
  * useMemo body の pure 計算抽出 (ADR-D-003 PR4)。
  * StoreResult 集計値からウォーターフォール表示用 items 配列を組み立てる。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
 

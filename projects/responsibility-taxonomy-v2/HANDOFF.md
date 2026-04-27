@@ -5,28 +5,34 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5+6a-1+6a-2+6b+6c 完遂（main 反映済）+ Phase 7 v1 Deprecation 完遂（2026-04-27、本 branch）。Phase 8 v1 Retirement に進める状態（2026-07-26 expiresAt 到達後）。**
+**Phase 0+1+2+3+3.5+4+5+6+7 完遂（main 反映済）+ Phase 7.5+8+9 完遂（2026-04-27、本 branch）。子 project は全 Phase 完了、最終レビュー human approval 待ち。**
 
-> **Phase 7 で landing したもの（本 branch、v1 deprecation metadata + 撤退期限確定）:**
+> **Phase 7.5+8+9 で landing したもの（本 branch、cooling 撤廃 + v1 retirement + legacy collection）:**
 >
-> - `responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt: 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata 追記（`deprecatedMetadataGuard` 必須 3 metadata + since 含めて 4 件）
-> - `references/03-guides/responsibility-v1-to-v2-migration-map.md` §3.4 に Phase 7 撤退期限 entry を新設（撤退対象 / 撤退方法 / Phase 8 着手条件 / 検証 guard を明示）
-> - `CLAUDE.md` §taxonomy-binding §「v1 / TSIG 撤去期限」表を新設（責務軸 + テスト軸 両軸の expiresAt 2026-07-26 を canonical source として参照可能化）
+> - `references/02-status/taxonomy-review-journal.md` §3.1 — ad-hoc human review entry 追加（90 日 cooling 撤廃の human approval 記録、Constitution 原則 3 + AR-TAXONOMY-AI-VOCABULARY-BINDING への compliance）
+> - **Phase 7.5 mass migration**: v1-only 259 file → R:unclassified 退避（layer 別: presentation/components 多数 + application/hooks + features 等）+ test/ 配下 21 file の v1 R:utility 残存も R:unclassified 化（合計 280 file 程度の per-line replacement）
+> - **Phase 8 R-axis retirement**: `responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` 物理削除、V2-R-2 unknown vocabulary baseline 268 → 0、`taxonomyV1V2GapGuard` GAP-R-1 baseline 259 → 0、v1 documentConsistency C8/C9 タグを REVIEW_ONLY_TAGS に移行（v1 guard 削除に伴う検証移行）
+> - **Phase 8 T-axis retirement**: `testSignalIntegrityGuard.test.ts` 物理削除、`guard-test-map.md` から TSIG entry 削除（base-rules.ts の AR-TSIG-TEST-01 / TSIG-COMP-03 / TSIG-TEST-04 rule 定義は履歴保持、guard 実装が消えたので発火しない、AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持）
+> - **Phase 9 legacy collection**: CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表を retired 状態に更新、両 migration map §3.4 / §3.5 を「完遂記録」に更新（90 日 cooling 撤廃を明記）
 >
-> **作業 branch:** `claude/taxonomy-v2-phase7-deprecation` (両子共通の統合 branch)
-> **scope:** v1 4 metadata 追記 + migration map §3.4 + CLAUDE.md §taxonomy-binding 表 + 子 checklist 3/3 [x] + 本 HANDOFF（Phase 8 物理削除は別 PR、2026-07-26 以降）
+> **作業 branch:** `claude/taxonomy-v2-phase7.5-8-9-retirement` (両子共通)
+> **scope:** review-journal entry + Phase 7.5 mass migration + v1/TSIG 物理削除 + baseline 0 化 + CLAUDE.md / migration map 更新 + 子 checklist 全 [x] + 本 HANDOFF + 親最終レビュー entry 候補
 
-### Phase 7 設計結果
+### Phase 7.5+8+9 設計結果
 
 | 指標                                  | 値                                                                          |
 | ------------------------------------- | --------------------------------------------------------------------------- |
-| `@deprecated since`                   | 2026-04-27                                                                  |
-| `@expiresAt`                          | **2026-07-26**（90 日 cooling）                                             |
-| 4 metadata 追記対象                   | 2 file: `responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts`    |
-| `deprecatedMetadataGuard`             | 5/5 PASS（DM1 baseline 0 fixed mode 維持、DM2 expiresAt 超過検出は将来時刻のため未発火）|
-| migration map §3.4                    | 撤退対象 / 撤退方法 / Phase 8 着手条件 / 検証 guard を表形式で確定          |
-| CLAUDE.md 参照                        | §taxonomy-binding に両軸 expiresAt 表（responsibility + test の単一参照源）   |
-| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 + deprecatedMetadataGuard 5/5    |
+| ad-hoc review entry                   | `taxonomy-review-journal.md` §3.1（user 採択、claude 提案）                  |
+| Phase 7.5 mass migration              | v1-only 259 file → R:unclassified（v1 TARGET_DIRS）+ 21 file（test/ 等 outside scope）|
+| Phase 8 R-axis 削除 file              | 2 件: `responsibilityTagRegistry.ts` / `responsibilityTagGuard.test.ts`     |
+| Phase 8 T-axis 削除 file              | 1 件: `testSignalIntegrityGuard.test.ts`                                    |
+| V2-R-2 baseline                       | 268 → 0（unknown vocabulary 0 達成）                                        |
+| GAP-R-1 baseline                      | 259 → 0（v1-only file 0 達成）                                              |
+| v1 UNCLASSIFIED_BASELINE              | 0（Phase 6a-2 で達成、Phase 8 で guard file 削除）                          |
+| `taxonomy:check` 24/24                | PASS（V2-R 5 + V2-T 6 + INTERLOCK 9 + GAP 4）                               |
+| test:guards 全体                      | 837 → 810 PASS（v1 4 + TSIG 23 = 27 件減少、削除分のみ）                    |
+| 機械検証                              | lint 0err + format + build + docs:check PASS                                |
+| 観察期間                              | なし（review-journal §3.1 で internal-only codebase での儀式的 cooling 不要と判定） |
 
 > **Phase 6b/6c で landing したもの（本 branch、v1/v2 gap 検証 + Promotion Gate L5）:**
 

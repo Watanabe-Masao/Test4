@@ -4,7 +4,7 @@
  * サイドバーのインポートボタンから開く。
  * FileDropZone + UploadCard + ImportProgress をモーダル内に配置。
  * フォルダ同期サブセクションは ImportModalFolderSync に分離。
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import { useCallback, useState, useMemo } from 'react'
 import { Modal } from './Modal'

@@ -1,6 +1,6 @@
 /**
  * コアチャートコンポーネント
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { DailySalesChart } from './DailySalesChart'
 export { IntegratedSalesChart } from './IntegratedSalesChart'

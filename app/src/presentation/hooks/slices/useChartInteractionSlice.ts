@@ -3,7 +3,7 @@
  *
  * monthlyHistory、currentCtsQuantity、chartPeriodProps を統合して返す。
  * useUnifiedWidgetContext の context slice としてチャート操作関連の依存を局所化する。
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import {

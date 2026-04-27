@@ -32,7 +32,7 @@
  * @see CategoryLeafDailyBundle.types.ts
  * @see projects/category-leaf-daily-series/HANDOFF.md
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

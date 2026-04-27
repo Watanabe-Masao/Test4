@@ -7,7 +7,7 @@
  *
  * option 構築は WeatherTemperatureChart.builders.ts に分離。
  *
- * @responsibility R:chart-view, R:state-machine
+ * @responsibility R:unclassified
  * @epoch 1
  */
 import { memo, useMemo, useCallback, useState, useRef } from 'react'

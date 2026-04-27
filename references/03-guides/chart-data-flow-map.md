@@ -1,9 +1,10 @@
 # チャート → クエリ データフローマップ
 
-> **2026-04-27 acknowledgement**: taxonomy-v2 子 Phase 6a-2 Migration Rollout で
-> `app/src/application/hooks/plans/` 配下の Screen Plan に `@responsibility R:unclassified`
-> を能動退避（原則 1「未分類は能動タグ」）。本マップの章立て / 経路定義は不変。
-> R:unclassified → 具体タグへの promotion は後続 Phase 6 review window 経由で実施予定。
+> **2026-04-27 acknowledgement**: taxonomy-v2 子 Phase 7.5 mass migration で
+> `app/src/application/hooks/plans/` 配下の Screen Plan の v1 R: tag を v2
+> `R:unclassified` に置換（review-journal §3.1 ad-hoc human approval により 90 日
+> cooling 撤廃 → Phase 8 retirement で v1 vocabulary を物理削除）。本マップの章立て /
+> 経路定義は不変。R:unclassified → 具体タグへの promotion は後続 review window 経由。
 
 ## 目的
 

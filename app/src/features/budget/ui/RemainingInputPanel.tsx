@@ -5,7 +5,7 @@
  * - yoy/ach: 数値入力 + range (50-150) + 4 プリセットボタン
  * - dow: 基準トグル + プリセット + 7 曜日 grid + DayCalendar (親が追加)
  *
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import { useMemo, useState } from 'react'
 import type {

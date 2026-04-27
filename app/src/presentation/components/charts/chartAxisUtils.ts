@@ -6,7 +6,7 @@
  *
  * 複数チャートで同じロジックが重複していたので集約（presentation 層内）。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 
 /**

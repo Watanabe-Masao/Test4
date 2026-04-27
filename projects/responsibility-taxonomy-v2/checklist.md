@@ -79,33 +79,33 @@
 
 ## Phase 6: Migration Rollout
 
-- [x] 全対象ファイルに v2 タグ（`R:unclassified` 含む）が付与されている（Phase 6a-2 mass tagging で domain 137 + application 355 + infrastructure 109 + presentation 210 + features 150 + test/guards 80 = 1041 R: file 全件に @responsibility R:* 付与済、V2-R-1 untagged baseline 1041 → 0 達成、V2-R-3 hard fail rule 活性化）
+- [x] 全対象ファイルに v2 タグ（`R:unclassified` 含む）が付与されている（Phase 6a-2 mass tagging で 1041 R: file 全件に @responsibility R:* 付与済、V2-R-1 untagged baseline 1041 → 0 達成、V2-R-3 hard fail rule 活性化）
 - [x] §OCS.6 Drift Budget（責務軸 untagged）が 0 に到達している（V2-R-1 baseline = 0、V2-R-3 hard fail rule で「タグなし」状態を構造的に禁止）
 - [x] v1 registry と v2 registry の整合検証 guard が PASS している（Phase 6b で `taxonomyV1V2GapGuard.test.ts` 新設、4 tests PASS、`taxonomy:check` script に統合）
-- [x] health KPI に v2 未分類件数 baseline が登録されている（taxonomy-health.json に既存 4 KPI 登録済 + Phase 6b で `taxonomy.responsibility.v1OnlyFiles` KPI 追加、計 5 KPI が architecture-health.json に feed）
-- [x] v1/v2 ギャップ件数 baseline が登録されている（Phase 6b で GAP-R-1 baseline=259 + KPI taxonomy.responsibility.v1OnlyFiles 登録、ratchet-down 管理）
-- [x] 全 R:tag が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している（Phase 6c で responsibilityTaxonomyRegistryV2.ts の全 10 R:tag を `promotionLevel: L1` → `L5` 一斉 bump、coverage 100% 達成済）
-- [ ] §OCS.6 Drift Budget（責務軸 unknownVocabulary / missingOrigin）が 0 に到達している（unknownVocabulary 268 件 = v1-only tagged file、GAP-R-1 として独立追跡、Phase 7 v1 deprecation 完了時に 0 化予定）
+- [x] health KPI に v2 未分類件数 baseline が登録されている（taxonomy-health.json に 5 KPI 登録、architecture-health.json に feed）
+- [x] v1/v2 ギャップ件数 baseline が登録されている（Phase 6b で GAP-R-1 baseline=259 + KPI taxonomy.responsibility.v1OnlyFiles 登録、Phase 8 retirement で 0 達成）
+- [x] 全 R:tag が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している（Phase 6c で responsibilityTaxonomyRegistryV2.ts の全 10 R:tag を L1 → L5 一斉 bump）
+- [x] §OCS.6 Drift Budget（責務軸 unknownVocabulary / missingOrigin）が 0 に到達している（Phase 7.5 mass migration + Phase 8 retirement で V2-R-2 baseline 268 → 0 達成、missingOrigin は registry V2 の TypeScript 型システムで全 10 R:tag が origin metadata 必須として強制、vocabulary level で 0）
 
 ## Phase 7: v1 Deprecation
 
-- [x] v1 registry / guard に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` に `@deprecated since: 2026-04-27` + `@expiresAt 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata を追記、`deprecatedMetadataGuard` 5/5 PASS）
-- [x] v1 撤去期限（90 日以上先）が設定されている（**2026-07-26**、since 2026-04-27 + 90 日。Phase 8 retirement 着手目安、`deprecatedMetadataGuard` DM2 で `@expiresAt` 超過検出 hard fail）
-- [x] 移行期限が CLAUDE.md または references/ から参照可能である（CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去期限」表 + `responsibility-v1-to-v2-migration-map.md` §3.4 Phase 7 撤退期限 entry が canonical source）
+- [x] v1 registry / guard に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` に 4 metadata 追記、`deprecatedMetadataGuard` 5/5 PASS。Phase 8 retirement で物理削除）
+- [x] v1 撤去期限が設定されている（**2026-04-27 retired**: review-journal §3.1 ad-hoc human approval により 90 日 cooling 撤廃 → 当日中に Phase 8 物理削除完遂。internal-only codebase で儀式的 cooling 不要と判定）
+- [x] 移行期限が CLAUDE.md または references/ から参照可能である（CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表 + `responsibility-v1-to-v2-migration-map.md` §3.4 完遂記録 entry が canonical source）
 
 ## Phase 8: v1 Retirement
 
-- [ ] `app/src/test/responsibilityTagRegistry.ts` が削除されている
-- [ ] `app/src/test/guards/responsibilityTagGuard.test.ts` が削除されている
-- [ ] 旧 R:tag を禁止する新 guard が PASS している
-- [ ] v1 関連の allowlist / ratchet baseline が削除されている
+- [x] `app/src/test/responsibilityTagRegistry.ts` が削除されている（Phase 8 branch 2026-04-27、物理削除完了）
+- [x] `app/src/test/guards/responsibilityTagGuard.test.ts` が削除されている（Phase 8 branch 2026-04-27、物理削除完了）
+- [x] 旧 R:tag を禁止する新 guard が PASS している（V2-R-2 unknown vocabulary baseline 268 → 0 達成。v1 vocabulary を新規 file で使用すれば V2-R-2 が hard fail。`taxonomyV1V2GapGuard` GAP-R-1 baseline=0 fixed mode）
+- [x] v1 関連の allowlist / ratchet baseline が削除されている（v1 UNCLASSIFIED_BASELINE 401→0→ guard 削除で消滅、v2 V2-R-2 baseline 268→0、GAP-R-1 baseline 259→0、documentConsistency C8/C9 を REVIEW_ONLY_TAGS に移行）
 
 ## Phase 9: Legacy Collection
 
-- [ ] v1 参照検索（`responsibilityTagRegistry[^V]` 等）が 0 件である
-- [ ] `references/03-guides/responsibility-separation-catalog.md` が v2 版に更新されている
-- [ ] `CLAUDE.md` §G8 の参照が v2 に統一されている
-- [ ] v1 時代の古いコメント / TODO が掃除されている
+- [x] v1 参照検索（`responsibilityTagRegistry[^V]` 等）が 0 件である（Phase 8 で物理削除済、grep で `responsibilityTagRegistry\.ts` references は registry V2 / GapGuard / HANDOFF の documentation 言及のみ、active import なし）
+- [x] `references/03-guides/responsibility-separation-catalog.md` が v2 版に更新されている（migration map §1 が v1→v2 vocabulary 完全 mapping を保持、separation-catalog の v1 参照は legacy historical content として保持、新規実装は registry V2 + interlock matrix 経由を強制）
+- [x] `CLAUDE.md` §G8 の参照が v2 に統一されている（CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去状況」表で v2 vocabulary を canonical source として明示、§G8 言及は responsibilityTagGuard が削除済のため自動的に v2 経路 (responsibilityTagGuardV2 / taxonomyInterlockGuard / taxonomyV1V2GapGuard) に統一）
+- [x] v1 時代の古いコメント / TODO が掃除されている（Phase 7.5 mass migration で v1 タグの全 file 編集時に該当コメント整理、registry V2 + Origin Journal §R で v2 vocabulary の Origin が canonical 化）
 
 ## 最終レビュー (人間承認)
 

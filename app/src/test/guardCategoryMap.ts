@@ -13,7 +13,7 @@
  * 層: Schema（宣言的仕様）
  * 正本性: 正本（カテゴリ分類の唯一の定義元）
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see references/01-principles/aag-5-constitution.md — 4層構造
  * @see app/src/test/aagSchemas.ts — AagGuardMetadata / GuardCategory / AagLayer 型定義
  */

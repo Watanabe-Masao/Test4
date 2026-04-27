@@ -1,6 +1,6 @@
 /**
  * 客数×客単価 効率分析チャート (ECharts)
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo, useState, memo } from 'react'
 import { useTheme } from 'styled-components'

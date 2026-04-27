@@ -12,7 +12,7 @@
  *
  * テストはこの pure function に対して書き、hook はこれを useMemo で wrap するだけ。
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import { getPrevYearDailySales } from '@/application/comparison/comparisonAccessors'

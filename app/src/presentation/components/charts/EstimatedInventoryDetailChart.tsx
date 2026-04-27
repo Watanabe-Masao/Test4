@@ -34,7 +34,7 @@ import {
 import type { ViewMode } from './EstimatedInventoryDetailChart.helpers'
 import { chartFontSize } from '@/presentation/theme/tokens'
 
-/* ------------------------------------------------------------------  * @responsibility R:chart-view
+/* ------------------------------------------------------------------  * @responsibility R:unclassified
  */
 /*  props                                                              */
 /* ------------------------------------------------------------------ */

@@ -8,7 +8,7 @@
  * features/comparison/ 内部は PeriodSelection を知らない (import guard で保証)。
  * 旧 signature の wrapper は app/src/application/hooks/useComparisonModule.ts に配置。
  *
- * @responsibility R:orchestration
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

@@ -10,7 +10,7 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

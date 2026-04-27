@@ -15,7 +15,7 @@
  * 渡らない。これにより features/comparison/ 内部は PeriodSelection を
  * 完全に知らない状態が維持される。
  *
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 import type { PrevYearData, PrevYearMonthlyKpi } from '@/application/hooks/analytics'
 import { useComparisonModuleCore, buildComparisonProjectionContext } from '@/features/comparison'

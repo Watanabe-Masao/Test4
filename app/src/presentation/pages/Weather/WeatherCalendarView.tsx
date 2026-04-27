@@ -4,7 +4,7 @@
  * 日別詳細テーブルの代替表示。7列のカレンダーグリッドで天気アイコン + 気温を表示。
  * 前年比較付き。クリックで選択連動。
  *
- * @responsibility R:widget, R:transform
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import styled from 'styled-components'

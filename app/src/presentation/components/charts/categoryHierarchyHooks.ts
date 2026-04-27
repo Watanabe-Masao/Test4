@@ -3,7 +3,7 @@
  *
  * react-refresh/only-export-components 対応のため、
  * コンポーネント（Provider）とフック・ユーティリティを別ファイルに分離。
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 import { useContext } from 'react'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

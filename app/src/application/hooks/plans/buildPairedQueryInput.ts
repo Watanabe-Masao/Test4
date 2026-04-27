@@ -44,7 +44,7 @@
 // 配下での dateRangeToKeys 直接呼び出しを禁止しているため、PairedInput を
 // 作る chart/hook は本 builder を経由する必要がある。
 //
-// @responsibility R:query-plan
+// @responsibility R:unclassified
 import type { DateRange } from '@/domain/models/calendar'
 import { dateRangeToKeys } from '@/domain/models/calendar'
 import type { PairedQueryInput } from '@/application/queries/PairedQueryContract'

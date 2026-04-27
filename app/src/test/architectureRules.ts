@@ -15,7 +15,7 @@
  * ファイル（.ts）が優先される。このファイルが全 export を re-export することで
  * consumer 変更 0 件を保証する。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 // 全 export を architectureRules/index.ts から re-export

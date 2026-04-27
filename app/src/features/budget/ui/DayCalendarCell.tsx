@@ -9,7 +9,7 @@
  *
  * 実績¥ と 比率% は連動する (どちらを編集しても `dayOverrides[day]` = 基準系列に対する%)。
  *
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 import type { DowBase, DowFactors, SimulatorScenario } from '@/domain/calculations/budgetSimulator'
 import { pctForDay } from '@/domain/calculations/budgetSimulator'

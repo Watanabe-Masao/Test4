@@ -35,7 +35,7 @@
  * @see app/src/application/hooks/storeDaily/StoreDailyBundle.types.ts (sibling)
  * @see app/src/application/hooks/timeSlot/TimeSlotBundle.types.ts (参照実装)
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

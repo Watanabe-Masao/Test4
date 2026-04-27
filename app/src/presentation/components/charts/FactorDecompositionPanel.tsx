@@ -6,7 +6,7 @@
  * 積み上げ棒グラフ（ダイバージング・スタック）で表示する。
  *
  * データソース: DuckDB store_day_summary（当期 + 前年）。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 /**
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBStoreDaySummary 直接 import）

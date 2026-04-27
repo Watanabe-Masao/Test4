@@ -3,7 +3,7 @@
  *
  * 統一パイプライン（ADR-003）による分析チャート群。
  * Data Provider → Comparison/Alignment → JS Analysis → Chart VM のパイプラインで処理。
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { FeatureChart } from './FeatureChart'
 export { CumulativeChart } from './CumulativeChart'

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-27T10:50:55.590Z
+> Generated: 2026-04-27T11:22:26.245Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 106 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 104 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 155 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 78 | OK |
@@ -67,7 +67,7 @@
 | taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 0 | OK |
 | taxonomy.vocabulary.responsibilityCount | taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 10 | OK |
 | taxonomy.vocabulary.testCount | taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 15 | OK |
-| taxonomy.responsibility.v1OnlyFiles | taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし） | 259 | OK |
+| taxonomy.responsibility.v1OnlyFiles | taxonomy 責務軸: v1-only tagged file 数（v1 vocabulary のみ、v2 タグなし） | 0 | OK |
 
 ## ドキュメント整合
 
@@ -84,7 +84,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 997 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 855 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 871 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |

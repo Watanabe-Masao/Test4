@@ -6,7 +6,7 @@
  * 本体に渡す。widget 本体は narrowing 文を持たず、`ctx.result.X` /
  * `ctx.prevYear.X` を直接参照する（chokepoint パターン）。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import type { RenderUnifiedWidgetContext, UnifiedWidgetContext } from './types'
 

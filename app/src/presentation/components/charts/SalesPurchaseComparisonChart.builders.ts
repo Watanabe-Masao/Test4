@@ -7,7 +7,7 @@
  * chartRenderingStructureGuard (G5-CRT) — chart component 内 inline builder を
  * 禁ずるため別 file に切り出している。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 import { computeEstimatedInventory } from '@/application/hooks/calculation'
 import type { StoreResult } from '@/domain/models/storeTypes'

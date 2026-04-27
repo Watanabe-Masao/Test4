@@ -1,6 +1,6 @@
 /**
  * フィードバック・モーダル・エラーコンポーネント
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 export { ToastProvider } from './Toast'
 export { useToast } from './useToast'

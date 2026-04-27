@@ -3,7 +3,7 @@
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { EChartsOption } from 'echarts'
 import type { AppTheme } from '@/presentation/theme/theme'
@@ -45,14 +45,14 @@ export const allLabels: Record<string, string> = {
 }
 
 /** NaN → null  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function maToNull(values: number[]): (number | null)[] {
   return values.map((v) => (isNaN(v) ? null : v))
 }
 
 /** ECharts tooltip formatter for all views  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildTooltipFormatter(view: ViewType): (params: unknown) => string {
   return (params: unknown) => {
@@ -88,7 +88,7 @@ export function buildTooltipFormatter(view: ViewType): (params: unknown) => stri
 }
 
 /** Build ECharts option for salesGap view  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildSalesGapOption(
   data: Record<string, unknown>[],
@@ -167,7 +167,7 @@ export function buildSalesGapOption(
 }
 
 /** Build ECharts option for multiGap view  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildMultiGapOption(
   data: Record<string, unknown>[],
@@ -257,7 +257,7 @@ export function buildMultiGapOption(
 }
 
 /** Build ECharts option for growthRate view  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 export function buildGrowthRateOption(
   data: Record<string, unknown>[],

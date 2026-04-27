@@ -3,7 +3,7 @@
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
  *
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend } from './echartsOptionBuilders'
@@ -35,11 +35,11 @@ export interface PerformanceRow {
   pi: number | null
   prevPi: number | null
   /** 点数PI値（CTS 由来の点数を使用）  *
-   * @responsibility R:chart-option
+   * @responsibility R:unclassified
    */
   qtyPi: number | null
   /** 前年点数PI値  *
-   * @responsibility R:chart-option
+   * @responsibility R:unclassified
    */
   prevQtyPi: number | null
   salesZ: number | null

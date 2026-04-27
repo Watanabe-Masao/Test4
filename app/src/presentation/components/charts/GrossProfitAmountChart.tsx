@@ -4,7 +4,7 @@
  * @migration unify-period-analysis Phase 5 三段構造: data builder
  *   (`buildGpData`) を `GrossProfitAmountChartLogic.ts` に抽出し、
  *   `ChartRenderModel<GpPoint>` 共通契約に揃えた。
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

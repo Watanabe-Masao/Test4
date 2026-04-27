@@ -11,7 +11,7 @@
  * - 異常系: CURRENT_PROJECT.md parse fail
  * - 異常系: project.json 欠損で fail
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  *
  * @taxonomyKind T:unclassified
  */

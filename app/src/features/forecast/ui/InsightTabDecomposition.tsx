@@ -3,7 +3,7 @@
  * 元は InsightTabForecast.tsx に同居していた DecompositionTabContent を
  * 責務分離のため独立ファイルに切り出し (Phase 2-C / 2026-04-13)。
  *
- * @responsibility R:widget
+ * @responsibility R:unclassified
  */
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { computeDecompPct, computeDecompTotals } from './InsightTabForecast.vm'

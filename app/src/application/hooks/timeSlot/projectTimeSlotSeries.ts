@@ -36,7 +36,7 @@
  * @see TimeSlotBundle.types.ts
  * @see projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md
  *
- * @responsibility R:transform
+ * @responsibility R:unclassified
  */
 import type { StoreAggregationRow } from '@/application/hooks/duckdb'
 import type { TimeSlotSeries, TimeSlotStoreEntry } from './TimeSlotBundle.types'

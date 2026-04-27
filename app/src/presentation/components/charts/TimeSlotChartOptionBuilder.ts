@@ -4,7 +4,7 @@
  * Controller（TimeSlotChart.tsx）から chartOption の useMemo 本体を抽出。
  * theme と lineMode と天気データを受けて EChartsOption を返す。
  * React に依存しない純粋関数。
- * @responsibility R:chart-option
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toComma, toPct } from './chartTheme'

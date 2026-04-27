@@ -4,7 +4,7 @@
  * App Domain の型（PrincipleId, RuleBinding, ArchitectureRule）と
  * Core 型の re-export（後方互換）をまとめる。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 
 // ─── Core 型の import + re-export（後方互換） ──────────────

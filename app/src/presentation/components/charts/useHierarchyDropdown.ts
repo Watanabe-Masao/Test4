@@ -3,7 +3,7 @@
  *
  * periodFilterHooks.ts から分離。階層プルダウンの state + 集計ロジック。
  *
- * @responsibility R:state-machine
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

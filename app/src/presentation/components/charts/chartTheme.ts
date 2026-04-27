@@ -8,7 +8,7 @@ import { formatPercent, formatCurrency } from '@/domain/formatting'
 
 /**
  * チャート用のテーマカラーを取得するフック
- * @responsibility R:context
+ * @responsibility R:unclassified
  */
 export function useChartTheme() {
   const theme = useTheme() as AppTheme

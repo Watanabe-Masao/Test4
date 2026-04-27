@@ -12,7 +12,7 @@
  * - architectureRules/merged.ts（正本合成点）
  * - guards/executionOverlayGuard.test.ts（BaseRule vs overlay 整合検証）
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  * @see references/03-guides/governance-final-placement-plan.md
  * @see app-domain/gross-profit/rule-catalog/base-rules.ts — 物理正本
  */

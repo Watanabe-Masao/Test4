@@ -7,7 +7,7 @@
  *
  * DayCalendarInput 本体からサイズ制約 (G5 ≤300 行) を外すために分離。
  *
- * @responsibility R:chart-view
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { SimulatorScenario } from '@/domain/calculations/budgetSimulator'

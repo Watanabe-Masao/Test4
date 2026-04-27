@@ -4,7 +4,7 @@
  * useMemo body の pure 計算抽出 (ADR-D-003 PR4)。
  * 値引きカテゴリレコードを sortKey / sortDir / 前年マップに従って並べ替える。
  *
- * @responsibility R:utility
+ * @responsibility R:unclassified
  */
 // 元 .tsx と同じ inline type import パターン (queryAccessAudit が
 // 通常の import 文経由の infrastructure/duckdb を直 import 経路として

@@ -3,7 +3,7 @@
  *
  * CalendarDate.ts から分離。月跨ぎの日付範囲を月ごとのチャンクに分割する。
  *
- * @responsibility R:model
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from './CalendarDate'
 

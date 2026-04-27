@@ -3,7 +3,7 @@
  *
  * domain 純粋関数の re-export は hooks 個別ファイルではなくここに集約。
  * presentation 層はこのバレル経由でアクセスする（architectureGuard 準拠）。
- * @responsibility R:barrel
+ * @responsibility R:unclassified
  */
 export { useCalculation } from './useCalculation'
 export {

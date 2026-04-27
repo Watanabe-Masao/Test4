@@ -4,7 +4,7 @@ import { InventoryInput } from '@/presentation/components/DataManagementSidebar.
 /**
  * blur 時にのみ値を確定する数値入力コンポーネント。
  * onChange の度に再計算が走る問題を防ぐ。
- * @responsibility R:form
+ * @responsibility R:unclassified
  */
 export function BlurCommitInput({
   value,
