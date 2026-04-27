@@ -3,6 +3,8 @@
  * @contractId BIZ-008
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { calculateRemainingBudgetRate as calculateDirect } from '@/domain/calculations/remainingBudgetRate'

@@ -7,6 +7,8 @@
  *
  * Builder 関数 (buildTxValueDetailVm / buildDailySalesDetailVm) は
  * metricSignal / SIGNAL_COLORS / ConditionSummaryConfig に依存するためここではテストしない。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { formatTxValue, buildDailyYoYRenderRows } from '../conditionPanelSalesDetail.vm'

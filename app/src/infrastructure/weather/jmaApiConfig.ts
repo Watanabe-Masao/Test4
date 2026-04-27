@@ -10,6 +10,8 @@
  *
  * Weather 有効/無効の判定は adapter 層（weatherAdapter.ts）で行う。
  * この関数は URL 解決のみを担当する。
+ *
+ * @responsibility R:unclassified
  */
 
 /** JMA API のベース URL を返す (www.jma.go.jp — 予報・AMeDAS 用) */

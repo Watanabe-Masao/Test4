@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { useMemo } from 'react'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'

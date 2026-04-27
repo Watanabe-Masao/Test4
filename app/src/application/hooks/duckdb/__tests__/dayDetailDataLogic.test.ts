@@ -5,6 +5,8 @@
  * - resolveDayDetailRanges: currentDate / prevDate / cumRange / wowRange (day<8 で unavailable)
  * - buildCtsInput / buildSummaryInput / buildWeatherInput: null range → null / storeIds 変換
  * - aggregateSummary: 複数 row → sum
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

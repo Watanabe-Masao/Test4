@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DashboardWidgetDef } from './types'
 import { WIDGETS_KPI } from './registryKpiWidgets'
 import { WIDGETS_CHART } from './registryChartWidgets'

@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/sensitivity を直接呼ぶことを避け、
  * application 層で感度分析結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import {

@@ -16,6 +16,8 @@
  * - データが存在しない期間 → status: 'empty' + メッセージ
  * - 取得エラー → status: 'error' + エラー内容
  * - 取得成功 → status: 'valid' + data + 実データの日付範囲情報
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

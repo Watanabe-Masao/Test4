@@ -3,6 +3,8 @@
  *
  * canCalculate フラグ、自動計算のスキップ条件、
  * 同期フォールバックの動作を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

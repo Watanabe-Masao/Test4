@@ -1,5 +1,7 @@
 /**
  * 粗利計算エクスポート — 在庫法・推定法・予算・売変
+ *
+ * @responsibility R:unclassified
  */
 // ユーティリティ
 export {

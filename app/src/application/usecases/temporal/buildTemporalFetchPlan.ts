@@ -12,6 +12,8 @@
  *
  * requiredMonths は requiredRange.from → requiredRange.to を月単位でジャンプし、
  * 'YYYY-MM' を昇順・重複なしで返す。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { RollingAnalysisFrame, TemporalFetchPlan, YearMonthKey } from './TemporalFrameTypes'

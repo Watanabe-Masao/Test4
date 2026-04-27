@@ -3,6 +3,8 @@
  *
  * 予算系・粗利予算系の指標 Explanation を Map に登録する。
  * ExplanationService から分離し、ファイルサイズを抑える。
+ *
+ * @responsibility R:unclassified
  */
 import type { MetricId, Explanation } from '@/domain/models/analysis'
 import type { StoreResult } from '@/domain/models/storeTypes'

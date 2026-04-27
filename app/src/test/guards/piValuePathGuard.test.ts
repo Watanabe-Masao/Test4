@@ -6,6 +6,10 @@
  *
  * @see references/01-principles/pi-value-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-PI-VALUE)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

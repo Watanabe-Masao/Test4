@@ -7,6 +7,8 @@
  * @contractId ANA-007
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type {
   DowDayCount,

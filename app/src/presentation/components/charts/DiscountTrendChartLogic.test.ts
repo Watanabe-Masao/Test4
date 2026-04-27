@@ -6,6 +6,8 @@
  * - 売変種別（71/72/73/74）ごとの累計積み上げ
  * - 前年 daily を渡したときの prevCumRate / prevByType 処理
  * - 売上 0 の日の hasSales / 初期区間の prevCumRate=null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDiscountData } from './DiscountTrendChartLogic'

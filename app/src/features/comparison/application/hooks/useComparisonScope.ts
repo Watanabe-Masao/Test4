@@ -10,6 +10,8 @@
  *
  * 日付解決ロジックは domain/models/ComparisonScope.ts の
  * buildComparisonScope() に完全に委譲する（独自計算しない）。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AlignmentMode } from '@/domain/models/ComparisonScope'

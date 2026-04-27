@@ -9,6 +9,8 @@
  * - formatLegendLabel (fallback)
  * - getBarFill / getPrevDataKey / getYAxisTickFormatter (metric 分岐)
  * - format{ManYen, ManYenShort, Yen, Quantity, PeakHour, YoYBadgeText, DiffManYen, DiffQuantity, CompRatio, YoYDiffYen, MaxChangeHour, YoYTableDiff, YoYTableRatio}
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -2,6 +2,8 @@
  * CategoryBenchmarkTrendHandler — カテゴリベンチマーク日別トレンドクエリ
  *
  * CategoryBenchmarkChart.vm, CvTimeSeriesChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

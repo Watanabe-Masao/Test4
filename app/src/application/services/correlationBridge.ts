@@ -7,6 +7,8 @@
  * @authorityKind candidate-authoritative
  *
  * correlationMatrix は string 入出力のため candidate 対象外（TS 固定）。
+ *
+ * @responsibility R:unclassified
  */
 import {
   pearsonCorrelation as pearsonTS,

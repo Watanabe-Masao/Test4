@@ -9,6 +9,8 @@
  * Current reference: TS (domain/calculations/inventoryCalc.ts)
  * Candidate: WASM (wasm/inventory-calc/)
  * Promote Ceremony まで current authoritative (business-authoritative) は不変。
+ *
+ * @responsibility R:unclassified
  */
 import { computeEstimatedInventoryDetails as computeTS } from '@/domain/calculations/inventoryCalc'
 import type { InventoryDetailRow } from '@/domain/calculations/inventoryCalc'

@@ -2,6 +2,8 @@
  * ECharts マークラインプリセット
  *
  * ゼロ基線、予算線、閾値線など頻出パターンを共通化。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { chartFontSize } from '@/presentation/theme/tokens'

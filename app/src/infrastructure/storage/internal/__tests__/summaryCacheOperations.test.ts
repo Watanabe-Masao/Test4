@@ -1,5 +1,7 @@
 /**
  * summaryCacheOperations.ts のユニットテスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { StoreDaySummaryCache } from '@/domain/models/record'

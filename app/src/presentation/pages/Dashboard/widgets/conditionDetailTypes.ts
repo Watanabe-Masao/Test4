@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { ConditionSummaryConfig } from '@/domain/models/ConditionConfig'

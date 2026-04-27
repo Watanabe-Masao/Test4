@@ -4,6 +4,8 @@
  * queryRunner のユーティリティ関数と、各クエリモジュールの
  * フィルタ条件生成を組み合わせた統合テスト。
  * DuckDB 接続不要。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -2,6 +2,8 @@
  * クリップ JS — コア（ユーティリティ、Map構築、state、render関数）
  *
  * clipJs.ts から分離。vanilla JS テンプレートの共通基盤部分。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_CORE = `

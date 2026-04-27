@@ -10,6 +10,8 @@
  *   - 最新週の構成比シフト（上昇/下落）判定
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryMixWeeklyRow } from '@/application/hooks/duckdb'
 

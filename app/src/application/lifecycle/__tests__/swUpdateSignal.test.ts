@@ -1,5 +1,7 @@
 /**
  * swUpdateSignal のテスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {

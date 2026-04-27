@@ -3,6 +3,8 @@
  *
  * ForecastTools / SensitivityDashboard の結果表示を
  * 「判断できるUI」に変換するための共通カード部品。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, memo } from 'react'
 import styled from 'styled-components'

@@ -6,6 +6,8 @@
  *
  * WeatherBadge 等の既存 UI コンポーネントと共用するために
  * WMO 互換コードへ変換する。
+ *
+ * @responsibility R:unclassified
  */
 import type { WeatherCategory } from '@/domain/models/record'
 

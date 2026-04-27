@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, expect, it } from 'vitest'
 import { generateTextSummary, generateMetricSummary } from '../summaryGenerator'
 import type { StoreResult } from '@/domain/models/storeTypes'

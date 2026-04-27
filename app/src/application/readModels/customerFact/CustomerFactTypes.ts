@@ -9,6 +9,8 @@
  *
  * @see references/01-principles/customer-definition.md
  * @see references/01-principles/canonical-input-sets.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

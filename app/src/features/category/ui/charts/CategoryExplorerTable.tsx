@@ -3,6 +3,8 @@
  *
  * カテゴリ階層データのテーブル・ツリーマップ表示のみを担う。
  * データ集約・ソート・フィルタは CategoryHierarchyExplorer が担当。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { toComma, toPct } from '@/presentation/components/charts/chartTheme'

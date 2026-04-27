@@ -26,6 +26,10 @@
  *      domain から import する
  *   2. それでも domain に置けない正当理由があれば本 guard の ALLOWLIST に
  *      reason を添えて追加する（最終手段）
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

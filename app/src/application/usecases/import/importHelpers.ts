@@ -3,6 +3,8 @@
  *
  * ImportOrchestrator から抽出。サマリーキャッシュ保存とインポート履歴保存を担う。
  * 両関数は async で await 可能。呼び出し元が失敗を検知できる。
+ *
+ * @responsibility R:unclassified
  */
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DailyRecord, TransferBreakdownEntry } from '@/domain/models/record'
 import type { Store } from '@/domain/models/Store'
 import type { StoreResult } from '@/domain/models/storeTypes'

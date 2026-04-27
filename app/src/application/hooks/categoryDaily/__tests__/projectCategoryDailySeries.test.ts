@@ -7,6 +7,8 @@
  * - entries は deptCode 昇順、daily は dateKey 昇順
  * - customers は常に 0（現状 CTS に無い）
  * - dateKey は YYYY-MM-DD 形式
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

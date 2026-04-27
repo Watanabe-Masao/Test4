@@ -4,6 +4,8 @@
  * 検証対象:
  * - gapColor: 非負 → 緑 / 負 → 赤
  * - fmtGap: sign 付き % 表示（小数第1位）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { gapColor, fmtGap } from '../conditionPanelCustomerGap'

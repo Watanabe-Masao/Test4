@@ -2,6 +2,8 @@
  * クリップ JS — 時間帯分析セクション
  *
  * clipJs.ts から分離。時間帯別売上分析ビューの描画。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_HOURLY = `

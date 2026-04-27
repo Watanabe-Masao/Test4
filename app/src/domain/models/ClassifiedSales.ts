@@ -6,6 +6,8 @@
  * と4種の売変内訳を持つ。
  *
  * 売変種別の定義・操作は DiscountEntry.ts に分離。
+ *
+ * @responsibility R:unclassified
  */
 import type { DiscountEntry } from './DiscountEntry'
 import {

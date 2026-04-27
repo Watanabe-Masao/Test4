@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { useDataStore } from './dataStore'
 export type { DataStore } from './dataStore'
 export { useUiStore } from './uiStore'

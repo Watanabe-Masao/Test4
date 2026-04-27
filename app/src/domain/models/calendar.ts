@@ -1,5 +1,7 @@
 /**
  * カレンダー・日付・比較型エクスポート
+ *
+ * @responsibility R:unclassified
  */
 export type { CalendarDate, DateRange, DateKey } from './CalendarDate'
 export {

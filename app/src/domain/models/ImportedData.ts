@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { Store } from './Store'
 import type { InventoryConfig, BudgetData } from './BudgetData'
 import type {

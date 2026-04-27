@@ -3,6 +3,8 @@
  *
  * インフラ層 (IndexedDB) の実装詳細に依存しない、
  * アプリケーション全体で共有する永続化の抽象型。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 保存済みデータのメタ情報 */

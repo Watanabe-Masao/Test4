@@ -7,6 +7,10 @@
  *
  * @see references/01-principles/authoritative-calculation-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-FACTOR-DECOMPOSITION)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

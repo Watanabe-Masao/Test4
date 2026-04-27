@@ -3,6 +3,8 @@
  *
  * category_time_sales + time_slots を JOIN し CategoryTimeSalesRecord[] を返す。
  * YoYWaterfallChart 等で使用（当期/前年/fallback の 3 系統）。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryCategoryTimeRecords } from '@/infrastructure/duckdb/queries/ctsHierarchyQueries'

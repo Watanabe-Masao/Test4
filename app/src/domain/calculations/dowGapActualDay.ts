@@ -8,6 +8,8 @@
  *
  * estimatedImpact = Σ(shiftedIn の prevSales) - Σ(shiftedOut の prevSales)
  * customerImpact = Σ(shiftedIn の prevCustomers) - Σ(shiftedOut の prevCustomers)
+ *
+ * @responsibility R:unclassified
  */
 
 import type { ActualDayImpact, ShiftedDay } from '@/domain/models/ComparisonContext'

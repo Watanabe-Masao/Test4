@@ -2,6 +2,8 @@
  * KPIテーブルウィジェット（店舗別KPI・部門別KPI）
  *
  * render 関数のみをエクスポート。コンポーネントは StoreKpiTableInner.tsx に分離。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'

@@ -5,6 +5,8 @@
  * DailyYoYRow[] を構築する。
  *
  * conditionPanelYoY.vm.ts / SalesAnalysis 等で共通利用。
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyYoYRow, ComparisonPoint } from './ComparisonViewTypes'
 

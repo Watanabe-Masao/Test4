@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { safeDivide } from './utils'
 import type { CalculationResult } from '@/domain/models/CalculationResult'
 import { okResult, invalidResult } from '@/domain/models/CalculationResult'

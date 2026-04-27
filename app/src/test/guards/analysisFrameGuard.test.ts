@@ -4,6 +4,10 @@
  * AnalysisFrame / CalculationFrame が分析入力の唯一入口。
  * cache key の一意性と fingerprint の安定性を保証する。
  * ルール定義: architectureRules.ts (AR-STRUCT-ANALYSIS-FRAME)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

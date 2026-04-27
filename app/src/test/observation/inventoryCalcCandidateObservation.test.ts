@@ -3,6 +3,8 @@
  * @contractId BIZ-009
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { computeEstimatedInventoryDetails as computeTS } from '@/domain/calculations/inventoryCalc'

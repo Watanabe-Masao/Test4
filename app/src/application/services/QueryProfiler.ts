@@ -16,6 +16,8 @@
  * profile.fail(error)     // エラー時
  * queryProfiler.getEntries() // readonly QueryProfileEntry[]
  * ```
+ *
+ * @responsibility R:unclassified
  */
 
 export interface QueryProfileEntry {

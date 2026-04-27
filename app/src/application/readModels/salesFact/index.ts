@@ -1,5 +1,7 @@
 /**
  * 売上・販売点数 分析用正本ファクト — バレルエクスポート
+ *
+ * @responsibility R:unclassified
  */
 export { SalesFactReadModel, SalesFactQueryInput } from './SalesFactTypes'
 export type {

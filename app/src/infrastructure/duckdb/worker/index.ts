@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export type {
   DuckDBWorkerRequest,
   DuckDBWorkerResponse,

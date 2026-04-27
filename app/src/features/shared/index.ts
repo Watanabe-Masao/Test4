@@ -8,6 +8,8 @@
  *   - shared/ は features/* から参照される（逆方向は禁止）
  *   - 既存の domain/, application/, infrastructure/, presentation/ から
  *     段階的に移行する
+ *
+ * @responsibility R:unclassified
  */
 
 // 段階的に移行。現時点では空。

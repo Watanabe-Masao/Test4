@@ -3,6 +3,8 @@
  *
  * 日別天気サマリと日別売上データのペアワイズ相関を計算する。
  * 既存の correlation.ts の純粋関数を再利用。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

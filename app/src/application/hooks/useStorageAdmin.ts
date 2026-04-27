@@ -3,6 +3,8 @@
  *
  * DataRepository 経由でのデータ閲覧・管理機能を提供する。
  * presentation 層が infrastructure 層に直接依存しないためのファサード。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback } from 'react'
 import type { StorageDataType } from '@/domain/models/storeTypes'

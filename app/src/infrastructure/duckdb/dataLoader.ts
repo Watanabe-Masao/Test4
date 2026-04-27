@@ -9,6 +9,8 @@
  *
  * 削除ポリシー（resetTables, deleteMonth, deletePrevYearMonth, deletePrevYearRowsAt）は
  * deletePolicy.ts に分離されている。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

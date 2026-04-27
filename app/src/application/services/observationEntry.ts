@@ -8,6 +8,8 @@
  *   E2E spec → page.evaluate('__runObservation("grossProfit", {...})') →
  *   bridge 関数実行 → dualRunObserver に統計蓄積 →
  *   E2E spec → page.evaluate('__dualRunStats()') で回収
+ *
+ * @responsibility R:unclassified
  */
 import {
   calculateInvMethod,

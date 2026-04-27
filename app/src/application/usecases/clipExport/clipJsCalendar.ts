@@ -2,6 +2,8 @@
  * クリップ JS — カレンダーセクション
  *
  * clipJs.ts から分離。月間カレンダービューの描画。
+ *
+ * @responsibility R:unclassified
  */
 
 export const CLIP_JS_CALENDAR = `

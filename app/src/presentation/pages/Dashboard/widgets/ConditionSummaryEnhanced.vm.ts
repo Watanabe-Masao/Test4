@@ -6,6 +6,8 @@
  *
  * @guard F7 View は ViewModel のみ受け取る
  * @guard F1 バレルで後方互換
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── Types + Metric Definitions ─────────────────────────

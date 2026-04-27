@@ -3,6 +3,8 @@
  *
  * DuckDB-WASM が返す Arrow StructRow を plain JS object に変換する。
  * queryRunner.ts と worker/workerHandlers.ts の両方から使用される。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // weatherCorrelationProjectionGuard — 天気相関用の日次売上 projection を
 // presentation に戻さないための凍結 guard
 //

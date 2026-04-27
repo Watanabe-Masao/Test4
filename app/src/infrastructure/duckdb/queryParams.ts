@@ -7,6 +7,8 @@
  * - ValidatedDateKey: YYYY-MM-DD 形式が保証された文字列
  * - validateStoreId: SQL メタ文字を含まないことが保証された文字列
  * - validateYearMonth: 妥当な年月の数値
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── Branded Types ───────────────────────────────────────

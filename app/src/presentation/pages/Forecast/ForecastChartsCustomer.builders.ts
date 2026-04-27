@@ -2,6 +2,8 @@
  * ForecastChartsCustomer — ECharts オプションビルダー
  *
  * 純粋関数のみ。コンポーネント本体から分離（C1: 1ファイル = 1変更理由）。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import { toAxisYen, toComma } from '@/presentation/components/charts/chartTheme'

@@ -8,6 +8,8 @@
  *   - daily + rightMetric (precipitation/sunshine/humidity) 分岐
  *   - prevYearMap null / あり の legend 差分
  *   - xAxis category data / yAxis 2 本
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

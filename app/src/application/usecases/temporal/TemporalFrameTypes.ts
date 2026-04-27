@@ -3,6 +3,8 @@
  *
  * Phase 1: AnalysisRequest を実行可能な最小 frame に変換し、
  * requiredRange / requiredMonths を導出するための型。
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { AnalysisMetric } from '@/domain/models/temporal'

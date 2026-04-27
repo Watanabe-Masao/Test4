@@ -2,6 +2,8 @@
  * CategoryMixWeeklyHandler — カテゴリ構成比週次推移クエリ
  *
  * CategoryMixChart で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

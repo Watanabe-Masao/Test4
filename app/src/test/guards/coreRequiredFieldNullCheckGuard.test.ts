@@ -29,6 +29,8 @@
  *  - projects/widget-context-boundary/HANDOFF.md §2.1 PR3 設計案
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { readFileSync } from 'node:fs'

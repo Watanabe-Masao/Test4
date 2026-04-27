@@ -12,6 +12,8 @@
  * - compact=true: 「%」のみ / compact=false: "降水 N%"
  *
  * Phase 3 Step 3-13: WeatherBadge と同系統。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

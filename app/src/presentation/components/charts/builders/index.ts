@@ -3,6 +3,8 @@
  *
  * 使い方:
  *   import { gridPresets, valueYAxis, tooltipBase, zeroBaseline, barDefaults } from './builders'
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── グリッド ──────────────────────────────────────────

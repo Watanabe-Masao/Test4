@@ -9,6 +9,8 @@
  * 各ストアの責務は変えず、消費側が必要な形式をここで導出する。
  * これにより filterStore が Single Source of Truth であることと、
  * 既存のストア構造の安定性を両立する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/CalendarDate'

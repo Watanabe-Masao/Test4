@@ -1,5 +1,7 @@
 /**
  * YoYWaterfallChart の型定義・定数データ・データ変換関数
+ *
+ * @responsibility R:unclassified
  */
 import { decompose2, decompose3, decompose5 } from '@/application/hooks/calculation'
 import { calculateShare } from '@/domain/calculations/utils'

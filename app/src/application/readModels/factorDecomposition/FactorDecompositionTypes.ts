@@ -8,6 +8,8 @@
  * この契約は「正しい計算結果を正しい意味で使う」ことを保証する。
  *
  * @see references/01-principles/authoritative-calculation-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

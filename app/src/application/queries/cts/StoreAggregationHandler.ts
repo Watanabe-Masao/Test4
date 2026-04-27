@@ -2,6 +2,8 @@
  * StoreAggregationHandler — 店舗別×時間帯集約クエリ
  *
  * StoreHourlyChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

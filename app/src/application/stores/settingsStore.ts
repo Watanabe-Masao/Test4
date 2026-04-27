@@ -1,4 +1,8 @@
-/** @guard C3 store は state 反映のみ */
+/**
+ * @guard C3 store は state 反映のみ
+ *
+ * @responsibility R:unclassified
+ */
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import type { AppSettings, CustomCategory } from '@/domain/models/storeTypes'

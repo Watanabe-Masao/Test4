@@ -7,6 +7,8 @@
  *
  * 描画 component 本体（TimeSlotComparisonTable / TimeSlotWeatherTable）は
  * styled-components + render tree 依存なのでここでは対象外。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCols, weatherByHour, type WeatherHourlyDisplay } from '../TimeSlotComparisonTable'

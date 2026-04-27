@@ -7,6 +7,8 @@
  * YoyDailyRowVm は YoyDailyRow と同一フィールド + matchStatus。
  * infrastructure 層への依存を避けるため、YoyDailyRow を直接 import せず、
  * 同一 shape を application 層内で独立定義する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MatchStatus, ResolvedComparisonRow } from './comparisonTypes'
 

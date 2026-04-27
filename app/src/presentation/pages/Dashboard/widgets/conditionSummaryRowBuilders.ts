@@ -2,6 +2,8 @@
  * コンディションサマリー強化版 — 月次行/合計ビルダー
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 import { calculateDiscountRate } from '@/domain/calculations/estMethod'

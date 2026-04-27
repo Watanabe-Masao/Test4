@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import styled, { css } from 'styled-components'
 
 type ButtonVariant = 'primary' | 'success' | 'outline' | 'ghost'

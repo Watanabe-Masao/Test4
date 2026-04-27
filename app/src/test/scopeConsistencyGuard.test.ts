@@ -7,6 +7,8 @@
  *
  * @guard E3 sourceDate を落とさない
  * @guard D2 引数を無視して再計算しない
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

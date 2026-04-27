@@ -16,6 +16,8 @@
  *
  * // YoY 用エイリアス（既存コードとの互換）:
  * const yoy = compareYoY(curSales, prevSales)
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide } from '@/domain/calculations/utils'
 

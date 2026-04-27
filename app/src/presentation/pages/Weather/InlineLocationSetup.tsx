@@ -2,6 +2,8 @@
  * InlineLocationSetup — 天気ページ内の観測所設定コンポーネント
  *
  * 都道府県 → 観測所の2段選択で ETRN 観測所を選択し、StoreLocation として保存する。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useState, useMemo, useCallback } from 'react'
 import { useEtrnStationSearch } from '@/application/hooks/useEtrnStationSearch'

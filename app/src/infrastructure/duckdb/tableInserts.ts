@@ -5,6 +5,8 @@
  * dataLoader.ts のオーケストレーション関数から呼び出される。
  *
  * 共通のバルクINSERT基盤は dataConversions.ts に定義されている。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type {

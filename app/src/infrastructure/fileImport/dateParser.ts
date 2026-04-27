@@ -11,6 +11,8 @@
  * - MM/DD形式: 2/15 (年はコンテキストから推定)
  * - ドット形式: 2026.02.15 / 2026.2.15
  * - Date オブジェクト (そのまま返す)
+ *
+ * @responsibility R:unclassified
  */
 
 const JAPANESE_DATE_RE = /(\d{4})年(\d{1,2})月(\d{1,2})日/

@@ -24,6 +24,8 @@
  *  - projects/widget-context-boundary/checklist.md Phase 3
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { readFileSync } from 'node:fs'

@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, expect, it } from 'vitest'
 import { validateImportData, hasValidationErrors } from '../importValidation'
 import type { DataSummaryInput } from '@/application/services/dataSummary'

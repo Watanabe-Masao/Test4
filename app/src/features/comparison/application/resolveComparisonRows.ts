@@ -17,6 +17,8 @@
  * - 欠損は欠損のまま（auto-fallback しない）
  * - 重複は ambiguous として表面化（silent sum しない）
  * - alignmentKey は requestedCompareDateKey ベース（missing でもキーが安定）
+ *
+ * @responsibility R:unclassified
  */
 import type { CompareModeV2, MatchableRow, ResolvedComparisonRow } from './comparisonTypes'
 import { resolveRequestedCompareDateKey } from './comparisonRules'

@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/causalChain を直接呼ぶことを避け、
  * application 層で因果連鎖結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { buildCausalSteps, storeResultToCausalPrev } from '@/application/analysis/causalChain'

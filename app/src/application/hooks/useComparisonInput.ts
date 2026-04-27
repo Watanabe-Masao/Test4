@@ -5,6 +5,8 @@
  * presentation 層が appData.prevYear を直接読むのを防ぐ。
  *
  * @layer Application — facade hook
+ *
+ * @responsibility R:unclassified
  */
 import { useDataStore } from '@/application/stores/dataStore'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

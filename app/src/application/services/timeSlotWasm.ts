@@ -6,6 +6,8 @@
  * compare 対象:
  *   - findCoreTime
  *   - findTurnaroundHour
+ *
+ * @responsibility R:unclassified
  */
 import { getTimeSlotWasmExports } from './wasmEngine'
 

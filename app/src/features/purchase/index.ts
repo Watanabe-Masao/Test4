@@ -1,5 +1,7 @@
 /**
  * features/purchase — 仕入分析スライス
+ *
+ * @responsibility R:unclassified
  */
 export {
   PurchaseDailyPivotTable,

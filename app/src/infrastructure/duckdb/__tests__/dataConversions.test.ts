@@ -1,5 +1,7 @@
 /**
  * Tests for dataConversions.ts — TABLE_COLUMNS schema and bulkInsert behavior
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { TABLE_COLUMNS, bulkInsert } from '../dataConversions'

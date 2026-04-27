@@ -2,6 +2,8 @@
  * piValueBridge — mode switch + calculate tests
  *
  * PI値 = (数量 / 客数) × 1000
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

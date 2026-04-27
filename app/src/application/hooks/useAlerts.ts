@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/alertSystem を直接呼ぶことを避け、
  * application 層でアラート評価結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { evaluateAlerts, DEFAULT_ALERT_RULES } from '@/application/rules/alertSystem'

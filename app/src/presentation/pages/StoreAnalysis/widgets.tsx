@@ -3,6 +3,8 @@
  *
  * L1 店別分析ページ: ダッシュボードの「詳しく→」から遷移。
  * 店舗を選択して売上・粗利・構造指標を多角的に検証する。
+ *
+ * @responsibility R:unclassified
  */
 
 export const DEFAULT_STORE_ANALYSIS_WIDGET_IDS = [

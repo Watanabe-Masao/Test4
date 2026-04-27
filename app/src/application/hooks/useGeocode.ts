@@ -3,6 +3,8 @@
  *
  * infrastructure/weather/geocodingClient を application 層経由で公開する。
  * presentation 層から infrastructure への直接依存を回避するためのブリッジ。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import type { GeocodingResult } from '@/domain/models/record'

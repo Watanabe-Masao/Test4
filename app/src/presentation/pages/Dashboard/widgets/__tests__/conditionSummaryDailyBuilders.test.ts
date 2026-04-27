@@ -7,6 +7,8 @@
  *   - buildDailyDiscountRows:          売変種別内訳
  *   - buildDailyDiscountRateYoYRows:   売変率前年比
  *   - buildDailyMarkupRateYoYRows:     値入率前年比
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

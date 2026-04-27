@@ -13,6 +13,8 @@
  * - 詳細明細（supplierBreakdown, transferBreakdown）は含めない
  *   → 必要時にソースデータから取得する
  * - 売変内訳（discountEntries）は配列だが要素数固定（4種）のため含める
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DiscountEntry } from './DiscountEntry'

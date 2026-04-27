@@ -18,6 +18,8 @@
  * - 期間-1 のスライダーを動かしても期間-2 は連動しない（自由選択）
  * - プリセット適用時のみ期間-2 も連動して更新される
  * - 比較の初期値は ON
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange, CalendarDate } from './CalendarDate'
 import type { PrevYearScope } from './ComparisonScope'

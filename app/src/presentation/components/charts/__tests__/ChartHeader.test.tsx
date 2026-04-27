@@ -7,6 +7,8 @@
  * - keyPoints が存在する場合のみ「注目ポイント」セクションを描画
  * - relatedMetrics + metricSummaries で関連指標セクションを描画
  * - relatedMetrics があっても metricSummaries が無ければ非表示
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

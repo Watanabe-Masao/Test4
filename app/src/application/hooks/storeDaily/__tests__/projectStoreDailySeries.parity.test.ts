@@ -28,6 +28,8 @@
  *   - app/src/application/hooks/storeDaily/projectStoreDailySeries.ts
  *   - app/src/application/hooks/storeDaily/StoreDailyBundle.types.ts
  *   - projects/completed/unify-period-analysis/phase-6-5-step-b-design.md
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { projectStoreDailySeries, EMPTY_STORE_DAILY_SERIES } from '../projectStoreDailySeries'

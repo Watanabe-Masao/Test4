@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // monthlyPrevYearSalesGuard — 「月間」ラベルで期間スコープ値の混入を機械検出する
 //
 // `ConditionSummaryEnhanced` ヘッダー「月間前年売上」や予算達成シミュレーター

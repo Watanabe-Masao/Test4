@@ -3,6 +3,8 @@
  *
  * 小売業の指標表示に特化した整形ロジック。
  * 純粋関数のみ（副作用なし、外部依存なし）。
+ *
+ * @responsibility R:unclassified
  */
 import { MANYEN_DIVISOR } from '@/domain/constants'
 

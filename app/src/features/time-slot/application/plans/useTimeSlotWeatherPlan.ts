@@ -5,6 +5,8 @@
  * DuckDB 天気クエリ + ETRN fallback retry を管理する。
  *
  * @guard H1 Screen Plan 経由のみ
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

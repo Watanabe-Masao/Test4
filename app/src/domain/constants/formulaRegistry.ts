@@ -21,6 +21,8 @@
  *     - 'CTS.fieldName' — CategoryTimeSalesRecord 集約値
  *     - 'DailyRecord.fieldName' — 日次レコード
  *     - '(引数)' — 呼び出し側が動的に決定（汎用公式）
+ *
+ * @responsibility R:unclassified
  */
 import type { FormulaId, FormulaMeta } from '../models/Formula'
 import { FORMULA_REGISTRY_CORE } from './formulaRegistryCore'

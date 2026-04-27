@@ -1,5 +1,7 @@
 /**
  * 月別データ管理セクション — データ一覧 + 展開 + 削除ダイアログ
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthEntry, LoadSliceFn } from './StorageDataViewers.types'
 import { RawDataViewer, CTSViewer } from './StorageDataViewers'

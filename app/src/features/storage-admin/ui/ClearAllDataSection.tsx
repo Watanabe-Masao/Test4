@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback } from 'react'
 import { useRepository } from '@/application/context/useRepository'
 import { useDataStore } from '@/application/stores/dataStore'

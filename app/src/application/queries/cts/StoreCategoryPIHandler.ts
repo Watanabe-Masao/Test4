@@ -2,6 +2,8 @@
  * StoreCategoryPIHandler — 店舗×カテゴリPI値の QueryHandler
  *
  * 店舗別カテゴリ売上と客数を取得し、PI値を算出して返す。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler, BaseQueryInput } from '@/application/queries/QueryContract'

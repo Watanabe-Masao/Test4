@@ -13,6 +13,8 @@
  * buildAlignmentMap が各日の DOW 解決を行う。
  *
  * このテストで設計の境界と責務を明文化し、不整合の検出を機械化する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildComparisonScope } from '../ComparisonScope'

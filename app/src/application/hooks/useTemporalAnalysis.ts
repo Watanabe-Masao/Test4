@@ -9,6 +9,8 @@
  * hook 名は API 安定性のため変更しない。
  *
  * @see references/03-guides/temporal-analysis-policy.md
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncQueryResult } from '@/application/queries/QueryContract'

@@ -7,6 +7,10 @@
  * @guard A3 Presentation は描画専用
  * @guard B2 JS/SQL 二重実装禁止
  * ルール定義: architectureRules.ts (AR-STRUCT-PRES-ISOLATION)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

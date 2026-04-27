@@ -26,6 +26,8 @@
  *   - auth_* : authoritative 採用不可
  * - 1 code = 1 事象
  * - UI 文言を code に埋め込まない
+ *
+ * @responsibility R:unclassified
  */
 
 // ── Warning Category ──

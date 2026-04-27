@@ -2,6 +2,8 @@
  * SensitivityDashboard — UI構造テスト
  *
  * 3カード構成、InsightBanner、シナリオ保存/読込の既存動線を確認。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'

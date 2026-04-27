@@ -8,6 +8,8 @@
  * - buildMultiGapOption: customer/discount 系列を含む
  * - buildGrowthRateOption: sub-mode 分岐 (daily/cumulative/ma7)
  * - VIEW_LABELS / GROWTH_SUB_LABELS / allLabels 定数
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

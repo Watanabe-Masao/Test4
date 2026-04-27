@@ -2,6 +2,8 @@
  * AsyncState の isUsable 型ガードテスト
  *
  * success / stale / partial でデータが利用可能、他は利用不可と判定されることを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { isUsable, type AsyncState } from '@/domain/models/AsyncState'

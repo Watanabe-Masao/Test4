@@ -7,6 +7,8 @@
  * 原則:
  *   - 他の features/* への直接依存は禁止（shared/ 経由のみ）
  *   - 実体ファイルは段階的に移行（既存パスからの re-export で後方互換維持）
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── Application（hooks / usecases） ──────────────────

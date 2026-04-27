@@ -39,6 +39,8 @@
  * @see references/01-principles/test-taxonomy-schema.md
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts
  * @see app/src/test/testTaxonomyRegistryV2.ts
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

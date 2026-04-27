@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { useDataStore } from '@/application/stores/dataStore'

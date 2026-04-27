@@ -21,6 +21,8 @@
  *  - references/03-guides/architecture-rule-system.md §Temporal Governance
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { describe, expect, it } from 'vitest'

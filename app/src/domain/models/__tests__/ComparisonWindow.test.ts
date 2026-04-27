@@ -4,6 +4,8 @@
  * 検証対象:
  * - currentOnly / yoyWindow / wowWindow の 3 ファクトリ
  * - discriminated union の kind が正しい
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { currentOnly, yoyWindow, wowWindow } from '../ComparisonWindow'

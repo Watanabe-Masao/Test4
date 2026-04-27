@@ -4,6 +4,8 @@
  * infra query で raw データを取得し、pure builder で ReadModel を構築する。
  *
  * @layer Application — Query Handler
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from './QueryContract'
 import { queryDiscountFact } from '@/infrastructure/duckdb/queries/discountFactQueries'

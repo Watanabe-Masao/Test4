@@ -2,6 +2,8 @@
  * categoryTimeSales — ctsWhereClause / tsWhereClause tests
  *
  * SQL WHERE 句構築の純粋関数。DuckDB 接続は不要。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ctsWhereClause, tsWhereClause } from '../categoryTimeSales'

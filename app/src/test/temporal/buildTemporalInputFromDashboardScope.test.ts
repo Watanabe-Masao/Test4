@@ -2,6 +2,8 @@
  * buildTemporalInputFromDashboardScope テスト
  *
  * Dashboard の header 文脈から MovingAverageInput を正しく組み立てることを検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -5,6 +5,8 @@
  * CategoryFactorBreakdown から分離。
  *
  * @guard G5 hook ≤300行 — コンポーネント分割
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import type { AppTheme } from '@/presentation/theme/theme'

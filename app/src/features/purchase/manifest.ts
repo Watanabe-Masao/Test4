@@ -2,6 +2,8 @@
  * features/purchase — Ownership Manifest
  *
  * 仕入分析スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const PURCHASE_MANIFEST = {
   name: 'purchase',

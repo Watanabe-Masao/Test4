@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildBudgetTableRows } from '../InsightTabBudget.vm'
 import type { DailyRecord } from '@/domain/models/record'

@@ -1,5 +1,7 @@
 /**
  * grid.ts — grid preset builder tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { gridPresets, standardGrid } from '../grid'

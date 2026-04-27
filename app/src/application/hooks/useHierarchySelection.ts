@@ -5,6 +5,8 @@
  * useDuckDBTimeSlotData から G5 違反解消のため分離。
  *
  * @guard G5 state ≤6, memo ≤7
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 

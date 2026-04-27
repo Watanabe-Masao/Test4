@@ -8,6 +8,8 @@
  * のみを export する状態に保つことで、HMR（react-refresh）が壊れないようにする。
  * 非コンポーネント export（このマップ）と component export を同じファイルに
  * 混在させると fast-refresh が無効になる。
+ *
+ * @responsibility R:unclassified
  */
 import type { ComponentType } from 'react'
 import { lazyWithRetry } from '@/presentation/lazyWithRetry'

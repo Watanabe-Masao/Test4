@@ -6,6 +6,8 @@
  * 必要をなくす。
  *
  * @layer Application — orchestrator hook
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

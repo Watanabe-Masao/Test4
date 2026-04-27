@@ -5,6 +5,8 @@
  * React / styled-components に依存しない純粋関数群。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import {
   DOW_LABELS,

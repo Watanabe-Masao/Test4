@@ -10,6 +10,8 @@
  *   6. 正しい値が表示されること（変換ヘルパーが値を変えない）
  *
  * @see references/01-principles/purchase-cost-definition.md
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

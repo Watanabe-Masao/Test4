@@ -2,6 +2,8 @@
  * categoryHierarchyHooks — filterByHierarchy / getHierarchyLevel tests
  *
  * 純粋関数のみ対象（useCategoryHierarchy は React Context hook）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { filterByHierarchy, getHierarchyLevel } from '../categoryHierarchyHooks'

@@ -4,6 +4,8 @@
  * 日付オフセットアラインメント・マッピングプレビューの計算ロジック。React 非依存。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import { getDaysInMonth } from '@/domain/constants/defaults'
 

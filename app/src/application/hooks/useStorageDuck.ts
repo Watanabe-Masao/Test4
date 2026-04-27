@@ -5,6 +5,8 @@
  * presentation 層が useDuckDB を直接 import しなくて済むようにする。
  *
  * @layer Application — facade hook
+ *
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import { useDuckDB } from '@/application/runtime-adapters/useDuckDB'

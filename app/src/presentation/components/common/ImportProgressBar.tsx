@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { ImportProgress } from '@/application/hooks/useImport'
 import { Container, ProgressTrack, ProgressFill, ProgressText } from './ImportProgressBar.styles'
 

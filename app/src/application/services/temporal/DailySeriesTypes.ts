@@ -3,6 +3,8 @@
  *
  * Phase 2: requiredRange を連続日次系列に変換するための型。
  * 値の解釈（平均・累計・比較）はまだ行わない。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { YearMonthKey } from '@/application/usecases/temporal/TemporalFrameTypes'

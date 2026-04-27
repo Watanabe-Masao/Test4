@@ -3,6 +3,8 @@
  *
  * ClipBundle を自己完結型 HTML 文字列に変換する。
  * CSS / JS テンプレートは clipCss.ts / clipJs.ts に分離。
+ *
+ * @responsibility R:unclassified
  */
 import type { ClipBundle } from './types'
 import { CSS_CONTENT } from './clipCss'

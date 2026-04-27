@@ -1,5 +1,7 @@
 /**
  * DuckDB キャッシュ管理セクション — 再構築 + 原本ファイル表示
+ *
+ * @responsibility R:unclassified
  */
 import type { RawFileGroup } from '@/application/hooks/data'
 import {

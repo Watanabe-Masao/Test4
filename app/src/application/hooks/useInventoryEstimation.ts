@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/inventoryCalc を直接呼ぶことを避け、
  * application 層で在庫推定結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import {

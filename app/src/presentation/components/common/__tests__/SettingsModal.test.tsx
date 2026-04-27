@@ -15,6 +15,8 @@
  *   - isBacking / isScanning 中: disabled
  *   - autoSyncEnabled toggle
  *   - lastBackupAt / lastScanAt / error 表示
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

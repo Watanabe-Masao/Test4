@@ -3,6 +3,8 @@
  *
  * IndexedDB からの月次データ集約ロジック（aggregateSummaryRates 経由）を
  * DataRepository モックを使って検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'

@@ -2,6 +2,8 @@
  * ETRN HTTP クライアントユーティリティ
  *
  * HTML 取得・リトライ・文字コード変換を担当する。
+ *
+ * @responsibility R:unclassified
  */
 
 /** JMA サーバーへの配慮 — リクエスト間隔 (ms) */

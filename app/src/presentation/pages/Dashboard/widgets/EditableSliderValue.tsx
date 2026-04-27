@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useRef, useCallback } from 'react'
 import { SliderValueInput } from '@/presentation/pages/Dashboard/widgets/ForecastTools.styles'
 import type { EditableValueProps } from '@/presentation/pages/Dashboard/widgets/ForecastTools.styles'

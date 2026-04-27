@@ -3,6 +3,8 @@
  *
  * application/ → infrastructure/ の正当な依存を runtime-adapters/ に集約する。
  * これにより application/hooks/ の一般フックは infrastructure/ に依存しなくなる。
+ *
+ * @responsibility R:unclassified
  */
 export { useDuckDB } from './useDuckDB'
 export type { DuckDBHookResult } from './useDuckDB'

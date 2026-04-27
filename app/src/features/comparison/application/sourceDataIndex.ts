@@ -9,6 +9,8 @@
  * allAgg の内部構造（リナンバリング日番号）が集計関数に漏洩していたため、
  * sourceMonthCtx の省略・誤りで月跨ぎ時に間違ったデータを引くバグが発生した。
  * この抽象で変換責務を1箇所に閉じ込め、型レベルで誤用を防ぐ。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'

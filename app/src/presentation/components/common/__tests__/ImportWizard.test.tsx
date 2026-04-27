@@ -17,6 +17,8 @@
  * - onDismiss button click
  *
  * Phase 3 Step 3-14: larger component を狙う (199 行).
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

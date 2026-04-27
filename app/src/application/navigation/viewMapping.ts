@@ -3,6 +3,8 @@
  *
  * 正本は pageRegistry.ts の PAGE_REGISTRY。
  * 既存の export 名を維持し、内部実装を pageRegistry に委譲する。
+ *
+ * @responsibility R:unclassified
  */
 import type { ViewType } from '@/domain/models/storeTypes'
 import {

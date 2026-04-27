@@ -3,6 +3,8 @@
  *
  * 比較結果の表示用 shape を共通化し、
  * Panel / Chart / Table ごとに個別実装しない。
+ *
+ * @responsibility R:unclassified
  */
 export type { ComparisonPoint, DailyYoYRow, StoreYoYRow } from './ComparisonViewTypes'
 export { toComparisonPoints, toComparisonPointMap } from './buildComparisonPoints'

@@ -14,6 +14,8 @@
  * compare 対象外（Date 依存）:
  *   - getWeekRanges, calculateDayOfWeekAverages, calculateWeeklySummaries
  *   - projectDowAdjusted, calculateMonthEndProjection, calculateForecast
+ *
+ * @responsibility R:unclassified
  */
 import type { AnomalyDetectionResult } from '@/domain/calculations/forecast'
 import type {

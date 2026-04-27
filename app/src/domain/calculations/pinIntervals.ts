@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { z } from 'zod'
 import type { DailyRecord } from '@/domain/models/record'
 import { getDailyTotalCost } from '@/domain/models/record'

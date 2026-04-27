@@ -3,6 +3,8 @@
  *
  * importDataMerge.ts の MonthlyData 版。prevYear* フィールドが存在しないため、
  * マージ対象は当月データのみ。Import 内部で使用する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type {

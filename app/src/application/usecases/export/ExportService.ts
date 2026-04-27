@@ -4,6 +4,8 @@
  * Infrastructure 層の export モジュールをラップし、
  * Application 層のファサードとして公開する。
  * Presentation 層はこのサービスを経由してエクスポート機能を利用する。
+ *
+ * @responsibility R:unclassified
  */
 import {
   exportDailySalesReport as infraExportDailySales,

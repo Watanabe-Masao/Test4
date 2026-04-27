@@ -3,6 +3,8 @@
  *
  * データ保存のたびにユーザー指定フォルダへバックアップ JSON を自動書き出しする。
  * File System Access API (Chromium 86+) 前提。非対応ブラウザでは無効。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFileSystemAdapter, useBackupAdapter } from '@/application/context/useAdapters'

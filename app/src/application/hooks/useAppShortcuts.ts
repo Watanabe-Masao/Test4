@@ -3,6 +3,8 @@
  *
  * ショートカット + undo/redo + calculate + settings を一箇所で結線する。
  * AppContent から呼び出され、各ハンドラをまとめてキーボードショートカットに渡す。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo } from 'react'
 import { useKeyboardShortcuts, useUndoRedo, useCalculation } from '@/application/hooks'

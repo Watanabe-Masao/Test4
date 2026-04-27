@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/pinIntervals を直接呼ぶことを避け、
  * application 層でピン区間結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { calculatePinIntervals } from '@/domain/calculations/pinIntervals'

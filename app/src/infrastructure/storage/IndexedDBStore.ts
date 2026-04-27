@@ -3,6 +3,8 @@
  *
  * 実装は internal/ 配下に分割されている。
  * このファイルは既存の import パスを維持するための re-export のみを行う。
+ *
+ * @responsibility R:unclassified
  */
 export {
   saveMonthlyDataInternal,

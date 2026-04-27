@@ -17,6 +17,8 @@
  * // OPFS DB ファイルを削除（次回起動時にインメモリで再構築）
  * await deleteDatabaseFile()
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { DataRepository } from '@/domain/repositories'

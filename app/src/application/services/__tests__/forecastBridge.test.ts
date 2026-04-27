@@ -2,6 +2,8 @@
  * forecastBridge — 各 public API の smoke + passthrough tests
  *
  * 5 WASM 関数（TS fallback path）と 5 Date 依存関数（TS 直接委譲）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

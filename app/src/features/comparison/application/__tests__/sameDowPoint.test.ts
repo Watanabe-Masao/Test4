@@ -8,6 +8,8 @@
  *
  * - currentDay → number に劣化させ、sourceDate を失う再発
  * - 月跨ぎ時に sourceDate.month が currentDay の月と異なるケースを見落とす
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { DayMappingRow } from '@/features/comparison/application/comparisonTypes'

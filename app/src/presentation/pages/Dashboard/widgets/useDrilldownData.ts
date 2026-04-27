@@ -5,6 +5,8 @@
  * 導出値の計算ロジックを抽出し、UI は描画のみに専念させる。
  *
  * フィルタ済みレコードとドリルアイテムの構築は useDrilldownRecords に分離。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

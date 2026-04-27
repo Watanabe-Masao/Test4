@@ -2,6 +2,8 @@
  * aggregateDailyQuantity のユニットテスト
  *
  * 日別点数データの集約・前年アラインメント・欠損入力の動作を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { aggregateDailyQuantity } from '@/application/hooks/plans/integratedSalesAggregation'

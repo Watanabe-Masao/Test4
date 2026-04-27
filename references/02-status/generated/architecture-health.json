@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T05:09:13.992Z",
+  "timestamp": "2026-04-27T08:51:24.166Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -682,7 +682,7 @@
       "id": "temporal.allowlist.activeDebt.count",
       "label": "active-debt 例外数",
       "category": "allowlist",
-      "value": 1,
+      "value": 2,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -700,7 +700,7 @@
       "id": "temporal.allowlist.activeDebt.withCreatedAt",
       "label": "active-debt で createdAt 設定済み",
       "category": "allowlist",
-      "value": 1,
+      "value": 2,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -977,7 +977,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 995,
+      "value": 997,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1025,7 +1025,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 835,
+      "value": 839,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

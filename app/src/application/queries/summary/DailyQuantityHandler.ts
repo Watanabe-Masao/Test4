@@ -3,6 +3,8 @@
  *
  * DailySalesChart の「点数」右軸で使用。
  * store_day_summary.total_quantity を date_key で集約し、全店合計の日別点数を返す。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

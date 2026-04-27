@@ -2,6 +2,8 @@
  * SalesAnalysisContext — buildSalesAnalysisContext / deriveChildContext tests
  *
  * 売上推移分析ユニットの文脈構築純粋関数。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildSalesAnalysisContext, deriveChildContext } from '../SalesAnalysisContext'

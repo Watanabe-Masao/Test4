@@ -3,6 +3,8 @@
  *
  * メタフィールド（_id, _dataType, _importLogId, _naturalKey）を除外し、
  * キーをソートした JSON.stringify で deep comparison する。
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DatedRecord } from '../models/DataTypes'

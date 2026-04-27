@@ -4,6 +4,8 @@
  * 予測テーブルの週次集計・分解計算ロジック。React 非依存。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyRecord } from '@/domain/models/record'
 import { calculateTransactionValue } from '@/domain/calculations/utils'

@@ -1,5 +1,7 @@
 /**
  * unifiedRegistry — UNIFIED_WIDGET_REGISTRY / UNIFIED_WIDGET_MAP 整合性 tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { UNIFIED_WIDGET_REGISTRY, UNIFIED_WIDGET_MAP } from '../unifiedRegistry'

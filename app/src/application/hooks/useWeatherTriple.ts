@@ -6,6 +6,8 @@
  *
  * 月跨ぎ計算（month±1, year±1）は application 層に閉じる。
  * comparisonScopeGuard 対応 — presentation で year-1 を直接計算しない。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

@@ -13,6 +13,8 @@
  * parse 方針:
  *   正本 read model 生成時は DEV/PROD とも .parse() — fail fast
  *   周辺 I/O は .safeParse() + ログ可
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

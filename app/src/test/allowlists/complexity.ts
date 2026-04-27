@@ -121,7 +121,21 @@ export const hookLineLimits: readonly QuantitativeAllowlistEntry[] = [
     createdAt: '2026-04-08',
     reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
-  // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）。許可リスト卒業
+  // usePeriodAwareKpi.ts — 300行（デフォルト上限以下）→ taxonomy-v2 Phase 6a-2 mass-tagging で +2 行 (302 行) で再 allowlist 化
+  {
+    path: 'application/hooks/usePeriodAwareKpi.ts',
+    ruleId: 'AR-G5-HOOK-LINES',
+    reason:
+      'taxonomy-v2 Phase 6a-2 mass-tagging で @responsibility R:unclassified 注入により +2 行（300 → 302）',
+    category: 'structural',
+    removalCondition:
+      'taxonomy-v2 Phase 6 で R:unclassified → 具体タグへの promotion 時に責務分離 + 行数縮減',
+    limit: 305,
+    lifecycle: 'active-debt',
+    createdAt: '2026-04-27',
+    expiresAt: '2026-10-27',
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-27', reviewCadenceDays: 180 },
+  },
   // useTimeSlotData.ts — useTimeSlotPlan に query orchestration を分離。133 行に削減
   // useTimeSlotPlan.ts: hierarchy + weather sub-plan 分離で 206 行。デフォルト上限 300 行以下。許可リスト卒業
   // purchaseComparisonCategory.ts — groupCategoryRows を purchaseComparisonKpi.ts に分離。303→286 行。許可リスト卒業

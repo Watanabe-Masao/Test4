@@ -11,6 +11,8 @@
  * - buildCsvRow: 各セル変換
  * - buildCsvContent: BOM + CSV エスケープ
  * - buildCsvBlob / buildCsvFilename: Blob 生成とファイル名生成
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

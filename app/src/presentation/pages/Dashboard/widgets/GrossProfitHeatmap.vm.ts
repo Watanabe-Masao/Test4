@@ -8,6 +8,8 @@
  *   2. StoreResult（allStoreResults）→ 粗利率 + 予算乖離のフォールバック
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/storeTypes'
 import type { Store } from '@/domain/models/record'

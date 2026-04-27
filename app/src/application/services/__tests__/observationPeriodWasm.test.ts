@@ -2,6 +2,8 @@
  * observationPeriodWasm — normalizeObservationPeriodInput tests
  *
  * Adapter function：ReadonlyMap → Float64Array 正規化の動作を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { normalizeObservationPeriodInput } from '../observationPeriodWasm'

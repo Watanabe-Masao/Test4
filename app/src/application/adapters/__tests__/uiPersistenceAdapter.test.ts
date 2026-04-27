@@ -2,6 +2,8 @@
  * uiPersistenceAdapter テスト
  *
  * STORAGE_KEYS カタログの整合性と基本操作の検証。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {

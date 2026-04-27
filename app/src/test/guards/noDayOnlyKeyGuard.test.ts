@@ -25,6 +25,8 @@
  *
  * @see CLAUDE.md §設計原則 — D1/D2 数学的不変条件
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import * as fs from 'fs'

@@ -6,6 +6,8 @@
  * - percent 計算（四捨五入）
  * - 0% / 100% の境界
  * - ProgressFill の aria-valuenow 相当（$percent prop）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

@@ -5,6 +5,8 @@
  * application 層フック。前年の年を内部で導出する。
  *
  * comparisonScopeGuard 対応 — presentation での prevYear 独自計算を回避
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { useWeatherData, type UseWeatherResult } from './useWeather'

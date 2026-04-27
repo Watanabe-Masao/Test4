@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export {
   storeAggregationHandler,
   type StoreAggregationInput,

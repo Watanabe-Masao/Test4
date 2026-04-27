@@ -3,6 +3,8 @@
  *
  * 5 つの複合チャート単位 + 補助コンポーネントを公開。
  * 外部からは @/features/category 経由でアクセスする。
+ *
+ * @responsibility R:unclassified
  */
 
 // ── 複合チャート ──

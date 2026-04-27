@@ -4,6 +4,8 @@
  * 同曜日アライメント対応で前後月のレコードを拡張day番号でマージする。
  * hooks/ からの re-export ではなく、comparison/ に配置して
  * useLoadComparisonData から参照する。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

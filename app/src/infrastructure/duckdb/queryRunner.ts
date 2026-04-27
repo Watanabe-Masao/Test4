@@ -2,6 +2,8 @@
  * DuckDB クエリ実行・結果変換ユーティリティ
  *
  * Arrow Table → JS Object[] 変換と snake_case → camelCase 変換を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { ZodType } from 'zod'

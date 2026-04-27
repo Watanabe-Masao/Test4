@@ -6,6 +6,10 @@
  *
  * @invariant INV-CANON-17 Fallback Transparency
  * ルール定義: architectureRules.ts (AR-STRUCT-FALLBACK-METADATA)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

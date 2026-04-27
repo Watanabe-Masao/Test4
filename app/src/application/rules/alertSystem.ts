@@ -3,6 +3,8 @@
  *
  * カスタマイズ可能なアラートルールを定義し、
  * StoreResult から閾値超過を自動検出する。
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide, getEffectiveGrossProfitRate } from '@/domain/calculations/utils'
 import { formatPercent, formatCurrency, formatPointDiff } from '@/domain/formatting'

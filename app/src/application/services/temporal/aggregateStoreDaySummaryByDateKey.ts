@@ -9,6 +9,8 @@
  * year/month/day/dateKey は同一グループの先頭行から取得。
  *
  * これは Domain の数学的計算ではなく、Application のデータ解釈責務。
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreDaySummaryRowForTemporal } from './storeDaySummaryTemporalAdapter'
 

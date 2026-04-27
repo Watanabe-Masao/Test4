@@ -8,6 +8,8 @@
  * - 既選択の曜日を解除
  * - 全曜日選ばれたら全選択（空配列）に戻る
  * - 「全」ボタンで全選択にリセット
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

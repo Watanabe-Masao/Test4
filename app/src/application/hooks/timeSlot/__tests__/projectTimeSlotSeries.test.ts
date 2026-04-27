@@ -8,6 +8,8 @@
  * - byHour と byHourQuantity の null 位置が一致
  * - hour 範囲外の row は無視
  * - total / grandTotal の整合
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { projectTimeSlotSeries, EMPTY_TIME_SLOT_SERIES } from '../projectTimeSlotSeries'

@@ -1,5 +1,7 @@
 /**
  * features/forecast — 需要予測スライス
+ *
+ * @responsibility R:unclassified
  */
 export { ForecastTabContent, DecompositionTabContent } from './ui'
 export {

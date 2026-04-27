@@ -1,4 +1,8 @@
-/** 消耗品明細 */
+/**
+ * 消耗品明細
+ *
+ * @responsibility R:unclassified
+ */
 export interface CostInclusionItem {
   readonly accountCode: string
   readonly itemCode: string

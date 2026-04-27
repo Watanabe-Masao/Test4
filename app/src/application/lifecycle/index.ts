@@ -2,6 +2,8 @@
  * App Lifecycle モジュール
  *
  * アプリ全体のライフサイクル状態を管理する。
+ *
+ * @responsibility R:unclassified
  */
 export type { AppLifecyclePhase, AppLifecycleStatus, AppReadiness } from './appLifecycleContract'
 export { isBlockingPhase } from './appLifecycleContract'

@@ -8,6 +8,8 @@
  * - WASM ready → WASM 実装が使われる
  * - WASM error → TS にフォールバック
  * - 結果の数学的正確性（Shapley 恒等式）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import * as wasmEngine from '@/application/services/wasmEngine'

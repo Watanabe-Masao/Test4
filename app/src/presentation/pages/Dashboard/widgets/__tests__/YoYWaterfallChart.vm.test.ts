@@ -2,6 +2,8 @@
  * Phase 6.5-5b: `aggregateTotalQuantity` は `CategoryTimeSalesRecord[]` から
  * `CategoryDailySeries | null` 入力に切替。projection 側 (Phase 6.5-2) が
  * `grandTotals.salesQty` を事前計算しているため、本関数は pass-through になる。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { aggregateTotalQuantity } from '../YoYWaterfallChart.vm'

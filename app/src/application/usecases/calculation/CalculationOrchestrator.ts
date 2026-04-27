@@ -5,6 +5,8 @@
  * - dailyBuilder: 日次レコード構築
  * - storeAssembler: StoreResult組み立て
  * - aggregateResults: 全店集約
+ *
+ * @responsibility R:unclassified
  */
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

@@ -27,6 +27,10 @@
  * @see references/03-guides/project-checklist-governance.md §3 §8
  * @see tools/architecture-health/src/collectors/project-checklist-collector.ts
  * @see app/src/test/guards/checklistFormatGuard.test.ts (F3/F4/F5)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

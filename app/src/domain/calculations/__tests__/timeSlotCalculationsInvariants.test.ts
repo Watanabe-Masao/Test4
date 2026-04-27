@@ -12,6 +12,8 @@
  * INV-TS-04: findTurnaroundHour の直前時間帯までの累積 < 50%（最早性）
  * INV-TS-05: buildHourlyMap の値合計 = 入力 amount 合計（保存則）
  * INV-TS-06: 空入力 → null / 空 Map（境界安全性）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { findCoreTime, findTurnaroundHour, buildHourlyMap } from '../timeSlotCalculations'

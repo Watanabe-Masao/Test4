@@ -6,6 +6,8 @@
  *
  * @see references/01-principles/customer-definition.md
  * @see references/01-principles/canonical-input-sets.md
+ *
+ * @responsibility R:unclassified
  */
 import type { BaseQueryInput } from '@/application/queries/QueryContract'
 import type { QueryHandler } from '@/application/queries/QueryContract'

@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { calculateInvMethod } from './invMethod'
 import { calculateEstMethod, calculateCoreSales, calculateDiscountRate } from './estMethod'

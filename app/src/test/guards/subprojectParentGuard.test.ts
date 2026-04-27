@@ -20,6 +20,8 @@
  *
  * @responsibility R:utility
  * @see projects/completed/aag-format-redesign/subproject-design.md
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { describe, it, expect } from 'vitest'

@@ -10,6 +10,8 @@
  * - domain 層のためフレームワーク非依存（純粋な型＋値のみ）
  * - readonly で不変性を保証
  * - 整合性はこの型を介して保証される
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from './CalendarDate'
 

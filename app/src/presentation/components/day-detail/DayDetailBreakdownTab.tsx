@@ -1,6 +1,8 @@
 /**
  * 仕入内訳タブ — DayDetailModal の仕入・コスト内訳タブコンテンツ。
  * 仕入カテゴリ別の原価・売価・構成比を表示。
+ *
+ * @responsibility R:unclassified
  */
 import { sc } from '@/presentation/theme/semanticColors'
 import { palette } from '@/presentation/theme/tokens'

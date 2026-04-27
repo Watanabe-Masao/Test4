@@ -6,6 +6,8 @@
  * - 前年データなし日の prevYearCum = null 処理
  * - 最新データ日（latestDay）特定と summary の算出
  * - flags.hasComparison / extras.prevTotal の境界条件
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCumulativeData } from './PrevYearComparisonChartLogic'

@@ -1,5 +1,7 @@
 /**
  * inventoryCalcBridge — mode switch + compute tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

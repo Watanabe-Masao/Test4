@@ -3,6 +3,8 @@
  *
  * StoreDaySummary から日別の累積売上・累積粗利等を取得する。
  * CumulativeChart, DailySalesChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

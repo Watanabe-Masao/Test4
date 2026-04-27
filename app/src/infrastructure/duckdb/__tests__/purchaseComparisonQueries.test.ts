@@ -5,6 +5,8 @@
  * queryTransfersDaily）は readPurchaseCost 経由で使用される。
  * 廃止済み: queryPurchaseTotal, queryPurchaseBySupplier,
  * querySpecialSalesTotal, queryTransfersTotal
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

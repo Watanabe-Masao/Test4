@@ -2,6 +2,8 @@
  * コンディションサマリー強化版 — 型定義 + メトリクス定義
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DiscountEntry } from '@/domain/models/record'

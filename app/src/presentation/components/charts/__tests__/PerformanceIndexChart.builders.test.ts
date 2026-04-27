@@ -9,6 +9,8 @@
  * - salesDev / custDev 等 toDevScore 変換
  * - piMa7 partial MA: ウィンドウ不足時の段階的平均
  * - chartData.length === daysInMonth 契約
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildPerformanceData } from '../PerformanceIndexChart.builders'

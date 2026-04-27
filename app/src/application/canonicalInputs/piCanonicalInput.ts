@@ -6,6 +6,8 @@
  *
  * @see references/01-principles/canonical-input-sets.md
  * @see references/01-principles/pi-value-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { calculateQuantityPI, calculateAmountPI } from '@/domain/calculations/piValue'
 import type { SalesFactReadModel } from '@/application/readModels/salesFact'

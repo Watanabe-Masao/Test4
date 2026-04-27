@@ -1,6 +1,8 @@
 /**
  * DashboardChartGrid — チャートウィジェットを half/full レイアウトに配置するコンポーネント。
  * DashboardPage.tsx から分離した描画専用ロジック。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, type ReactNode } from 'react'
 import type { UnifiedWidgetDef } from '@/presentation/components/widgets'

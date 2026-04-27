@@ -5,6 +5,8 @@
  * - 曜日パターン調整済み月末予測
  * - 信頼区間付き予測
  * - 線形回帰による傾向推定
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from '../utils'

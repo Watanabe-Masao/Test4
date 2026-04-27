@@ -1,5 +1,7 @@
 /**
  * 分析・説明・永続化・メトリクス型エクスポート
+ *
+ * @responsibility R:unclassified
  */
 export type {
   MetricId,

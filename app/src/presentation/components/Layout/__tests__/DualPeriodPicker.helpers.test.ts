@@ -5,6 +5,8 @@
  * - toJsDate / fromJsDate: CalendarDate ↔ JS Date の双方向変換（月の 0/1-index 補正）
  * - buildP1Presets: 月全日 / 上旬 / 中旬 / 下旬 プリセット生成
  * - findActivePresetKey: 現在の period1 範囲に一致する preset key を返す
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

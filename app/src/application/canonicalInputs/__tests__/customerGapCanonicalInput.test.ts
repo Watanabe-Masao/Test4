@@ -5,6 +5,8 @@
  * - buildAndCalculateCustomerGap: curSalesFact + prevSalesFact + customer fact
  *   から input を組み立てて calculateCustomerGap を呼ぶ
  * - buildCustomerGapCanonicalInput: 6 個の primitive から CustomerGapInput を構築
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

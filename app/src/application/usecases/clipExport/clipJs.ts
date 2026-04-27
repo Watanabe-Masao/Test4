@@ -12,6 +12,8 @@
  *   clipJsHourly.ts    — 時間帯別売上分析
  *   clipJsDrill.ts     — カテゴリドリルダウン
  *   clipJsDetail.ts    — 日別詳細オーバーレイ
+ *
+ * @responsibility R:unclassified
  */
 
 import { CLIP_JS_CORE } from './clipJsCore'

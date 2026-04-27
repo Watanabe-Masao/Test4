@@ -3,6 +3,8 @@
  *
  * 取引先別・カテゴリ別の当年 vs 前年仕入データを保持する。
  * infrastructure/duckdb クエリ結果を domain 型に変換して使う。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 取引先別仕入比較 */

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { Fragment } from 'react'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { Card, CardTitle } from '@/presentation/components/common/layout'

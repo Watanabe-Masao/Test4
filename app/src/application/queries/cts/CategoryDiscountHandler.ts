@@ -2,6 +2,8 @@
  * CategoryDiscountHandler — カテゴリ別売変分析の QueryHandler
  *
  * classified_sales から部門/ライン/クラス別の売変内訳を集計。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import type { QueryHandler } from '@/application/queries/QueryContract'

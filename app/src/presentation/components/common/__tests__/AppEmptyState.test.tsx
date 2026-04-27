@@ -4,6 +4,8 @@
  * 検証対象 branch:
  * - variant='import': emptyImport + emptyImportAction 表示
  * - variant='result': emptyResult のみ表示 (subMessage なし)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

@@ -10,6 +10,8 @@
  * - DateKey ('YYYY-MM-DD' 文字列) はインデックスキーとして O(1) アクセスを提供する
  * - DateRange は inclusive（from/to 両端含む）
  * - 曜日計算は必要時に算出する（保存しない）
+ *
+ * @responsibility R:unclassified
  */
 
 /** カレンダー日付（年月日） */

@@ -9,6 +9,8 @@
  * - SourceDataIndex が allAgg のリナンバリングを封じ込め、CalendarDate で参照
  * - 月跨ぎは alignmentMap + SourceDataIndex が吸収（消費者は意識しない）
  * - 出力は PrevYearData / PrevYearMonthlyKpi と型互換
+ *
+ * @responsibility R:unclassified
  */
 import type { AlignmentEntry } from '@/domain/models/ComparisonScope'
 import type { DiscountEntry } from '@/domain/models/record'

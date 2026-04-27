@@ -11,6 +11,8 @@
  * 販売点数は StoreResult にないため、DuckDB 分析正本として統一する。
  *
  * @see references/01-principles/sales-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

@@ -26,6 +26,8 @@
  *  - projects/architecture-debt-recovery/inquiry/14-rule-retirement-candidates.md §R-7
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { readFileSync } from 'node:fs'

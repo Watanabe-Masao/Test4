@@ -1,5 +1,7 @@
 /**
  * comparisonAccessors.test — alignment-aware prev-year data accessors
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

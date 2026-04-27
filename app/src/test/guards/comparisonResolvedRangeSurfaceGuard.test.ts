@@ -50,6 +50,10 @@
  *
  * @see references/01-principles/temporal-scope-semantics.md
  * @see app/src/domain/models/comparisonRangeResolver.ts ComparisonResolvedRange
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

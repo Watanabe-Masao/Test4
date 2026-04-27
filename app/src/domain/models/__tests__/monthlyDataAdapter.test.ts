@@ -7,6 +7,8 @@
  * - toLegacyImportedData: AppData + slices → ImportedData
  *   - current=null で throw
  *   - slices 無しで空 slices を使用
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

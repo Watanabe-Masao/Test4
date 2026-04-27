@@ -10,6 +10,8 @@
  *   - 永続化キーの一覧管理（STORAGE_KEYS）
  *
  * @guard C3 store は state 反映のみ（永続化ロジックをストアから分離）
+ *
+ * @responsibility R:unclassified
  */
 
 /**

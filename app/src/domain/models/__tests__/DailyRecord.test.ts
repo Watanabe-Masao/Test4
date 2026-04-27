@@ -3,6 +3,8 @@
  *
  * 日別総仕入原価 = 仕入 + 店間入 + 店間出 + 部門間入 + 部門間出 + 売上納品原価
  * 全てのコスト合算を単一関数に集約する契約を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getDailyTotalCost } from '../DailyRecord'

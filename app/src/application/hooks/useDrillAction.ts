@@ -7,6 +7,8 @@
  * Type A (filter): 同一ページ内でフィルタを追加
  * Type B (detail): 詳細ページへパラメータ付き遷移
  * Type C (compare): 比較・要因分解セクションへ遷移
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'

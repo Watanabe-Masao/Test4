@@ -3,6 +3,8 @@
  *
  * conditionPanelYoY.tsx から分離。
  * 全店点数の当年/前年比較 + 店舗別内訳 + 日別推移。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { formatPercent } from '@/domain/formatting'

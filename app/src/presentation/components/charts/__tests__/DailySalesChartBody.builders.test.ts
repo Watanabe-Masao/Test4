@@ -2,6 +2,8 @@
  * DailySalesChartBody.builders.ts — ビルダー関数の単体テスト
  *
  * 純粋関数のみをテスト（React コンポーネント本体は対象外）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

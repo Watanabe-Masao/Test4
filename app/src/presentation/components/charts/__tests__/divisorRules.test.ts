@@ -7,6 +7,8 @@
  * @guard B1 Authoritative 計算は domain/calculations のみ
  * @guard C2 pure function は1仕様軸に閉じる
  * @see PeriodFilter.tsx — RULE-1〜6 の定義元
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

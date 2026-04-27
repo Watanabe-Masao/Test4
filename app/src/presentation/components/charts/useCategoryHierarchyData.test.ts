@@ -3,6 +3,8 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildHierarchyPairInput, buildHierarchyHourlyPairInput } from './useCategoryHierarchyData'

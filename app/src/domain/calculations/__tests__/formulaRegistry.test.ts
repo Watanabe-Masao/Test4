@@ -12,6 +12,8 @@
  *   REG-6: accounting/decomposition 公式の inputs.source が具体的であること
  *   REG-8: source 参照が有効なデータソースパターンに従うこと
  *   REG-9: StoreResult.* 参照が実在フィールドであること
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

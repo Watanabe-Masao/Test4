@@ -7,6 +7,8 @@
  *
  * loadProcessedFingerprints / saveProcessedFingerprints は localStorage 副作用が
  * あるため対象外（uiPersistenceAdapter の test で間接カバー）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { fileFingerprint, collectSuccessFilenames } from '../autoImportProcessedLedger'

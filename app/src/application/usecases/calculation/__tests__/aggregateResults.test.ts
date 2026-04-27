@@ -2,6 +2,8 @@
  * aggregateStoreResults のユニットテスト
  *
  * 複数 StoreResult を合算する関数の正常系・エッジケースを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { aggregateStoreResults } from '@/application/usecases/calculation/aggregateResults'

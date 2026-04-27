@@ -5,6 +5,8 @@
  * Exit KPI は原則単調減少。増加には PR に明示理由が必要。
  *
  * @guard G1 テストに書く
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

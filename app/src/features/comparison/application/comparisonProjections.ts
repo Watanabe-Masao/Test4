@@ -3,6 +3,8 @@
  *
  * useComparisonModule.ts から分離した純粋関数。
  * React に依存せず、単体テスト可能。
+ *
+ * @responsibility R:unclassified
  */
 import { applyPreset } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

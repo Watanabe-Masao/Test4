@@ -2,6 +2,8 @@
  * CategoryHourlyHandler — カテゴリ×時間帯集約クエリ
  *
  * CategoryHourlyChart, DeptHourlyChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

@@ -7,6 +7,8 @@
  * - current / comparison は並列実行（Promise.all）
  * - comparison 実行時は dateFrom/To を comparisonDateFrom/To に差し替える
  * - isPrevYear フラグが正しくセットされる
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { createPairedHandler } from '../createPairedHandler'

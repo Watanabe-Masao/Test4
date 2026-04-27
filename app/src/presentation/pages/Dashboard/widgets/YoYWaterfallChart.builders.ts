@@ -15,6 +15,8 @@
  * `decomposePriceMix(periodCTS, periodPrevCTS)` は `dept|line|klass` leaf-grain
  * key を必要とする Shapley 5-factor のための **intentional permanent floor**
  * として残す (`CategoryDailySeries` は dept 単位のため leaf-grain を持たない)。
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/calendar'
 import type { DailyRecord } from '@/domain/models/record'

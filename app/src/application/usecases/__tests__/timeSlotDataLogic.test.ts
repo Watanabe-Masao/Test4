@@ -18,6 +18,8 @@
  *   - peak shift 検出 (>=2 時間)
  *   - coreTime 変化検出
  *   - turnaround shift 検出
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

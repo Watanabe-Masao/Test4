@@ -14,6 +14,8 @@
  *
  * PrevYearData                ← 日別比較データ（経過日数キャップ付き）
  *   └── daily: Map<DateKey, PrevYearDailyEntry>
+ *
+ * @responsibility R:unclassified
  */
 import type { DiscountEntry } from '@/domain/models/record'
 import type { DataComparisonProvenance } from '../domain/comparisonProvenance'

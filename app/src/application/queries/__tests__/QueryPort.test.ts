@@ -1,5 +1,7 @@
 /**
  * QueryPort — createQueryExecutor tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { createQueryExecutor } from '../QueryPort'

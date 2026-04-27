@@ -7,6 +7,8 @@
  * メッセージプロトコル:
  * - リクエスト: ReportExportRequest (type, rows, options)
  * - レスポンス: ReportExportResponse (type, csvContent | error)
+ *
+ * @responsibility R:unclassified
  */
 
 // ── Message Protocol ──

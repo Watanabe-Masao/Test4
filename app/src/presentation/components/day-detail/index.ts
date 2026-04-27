@@ -6,6 +6,8 @@
  *
  * Dashboard 側の `widgets/DayDetailModal*` は compat shim として残存しており、
  * 将来 Dashboard MonthlyCalendar からのモーダル呼出を撤去した段階で削除予定。
+ *
+ * @responsibility R:unclassified
  */
 export { DayDetailModal } from './DayDetailModal'
 export type { CompMode } from './DayDetailSalesTab'

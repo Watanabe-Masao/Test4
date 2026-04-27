@@ -25,6 +25,8 @@
  *  - projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-2
  *  - projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-004
  *  - projects/widget-context-boundary/HANDOFF.md §2.1 PR3 設計案
+ *
+ * @responsibility R:unclassified
  */
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

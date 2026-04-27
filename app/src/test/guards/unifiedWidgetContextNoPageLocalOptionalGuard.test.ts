@@ -30,6 +30,10 @@
  * @see projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-1
  * @see projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-001 / §LEG-002 / §LEG-003
  * @see projects/architecture-debt-recovery/inquiry/04-type-asymmetry.md §B
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

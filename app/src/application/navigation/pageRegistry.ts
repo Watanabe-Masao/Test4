@@ -6,6 +6,8 @@
  *
  * PAGE_REGISTRY が唯一の正本。ViewType（domain/models/PageMeta.ts）との一致は
  * pageMetaGuard で機械検証する。
+ *
+ * @responsibility R:unclassified
  */
 import type { PageMeta, RedirectMeta, ViewType } from '@/domain/models/PageMeta'
 

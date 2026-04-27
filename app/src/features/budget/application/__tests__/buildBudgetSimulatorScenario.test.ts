@@ -2,6 +2,8 @@
  * buildBudgetSimulatorScenario — pure builder のテスト
  *
  * Phase E: source → SimulatorScenario の変換仕様を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

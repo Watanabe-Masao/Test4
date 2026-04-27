@@ -22,6 +22,8 @@
  *   - app/src/features/weather/application/projections/buildDailySalesProjection.ts
  *   - app/src/application/hooks/useWeatherCorrelation.ts (DailySalesForCorrelation)
  *   - app/src/presentation/components/charts/WeatherAnalysisPanel.tsx (caller)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDailySalesProjection } from '../buildDailySalesProjection'

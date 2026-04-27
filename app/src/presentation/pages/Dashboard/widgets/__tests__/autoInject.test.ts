@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { autoInjectDataWidgets, getWidgetMap } from '../widgetLayout'
 import { setStorageBackend, resetStorageBackend } from '@/application/adapters/uiPersistenceAdapter'

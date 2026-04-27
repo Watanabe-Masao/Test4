@@ -3,6 +3,8 @@
  *
  * unify-period-analysis Phase 5: YoYChart.tsx から scope 内部フィールド
  * アクセスを剥がした pure builder の挙動を locked。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildYoyDailyInput } from '@/application/hooks/plans/buildYoyDailyInput'

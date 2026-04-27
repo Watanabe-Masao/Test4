@@ -5,6 +5,8 @@
  * - getJmaBaseUrl: DEV / proxy / fallback
  * - getJmaDataBaseUrl: DEV / proxy / fallback
  * - proxy URL の末尾スラッシュ除去
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { getJmaBaseUrl, getJmaDataBaseUrl } from '../jmaApiConfig'

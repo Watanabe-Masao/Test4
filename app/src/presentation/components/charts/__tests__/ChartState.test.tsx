@@ -5,6 +5,8 @@
  * - ChartError: message を表示
  * - ChartEmpty: message（指定）/ デフォルト ('データがありません') 表示
  * - ChartLoading: ChartSkeleton の描画（height prop を受け取る）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

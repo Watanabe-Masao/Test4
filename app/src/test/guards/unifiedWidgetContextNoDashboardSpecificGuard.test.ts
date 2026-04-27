@@ -22,6 +22,8 @@
  *  - projects/widget-context-boundary/checklist.md Phase 2
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { decompose2 } from '@/application/hooks/calculation'
 import type { ForecastInput, WeeklySummary } from '@/application/hooks/calculation'
 import { calculateTransactionValue, safeDivide, calculateShare } from '@/domain/calculations'

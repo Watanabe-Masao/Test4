@@ -3,6 +3,8 @@
  *
  * WASM 未 ready の環境では TS fallback path のみをテストする。
  * 恒等性（Shapley の sum 不変性）と 0 除算ガードを確認する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { decompose2, decompose3, decompose5, decomposePriceMix } from '../factorDecompositionBridge'

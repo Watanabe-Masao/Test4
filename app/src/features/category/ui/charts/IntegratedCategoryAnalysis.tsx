@@ -11,6 +11,8 @@
  *
  * 正本ユニット: 単なる新規コンポーネントではなく、カテゴリ分析の正本。
  * CategoryTrendChart / CategoryHierarchyExplorer の独立利用は縮退対象。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

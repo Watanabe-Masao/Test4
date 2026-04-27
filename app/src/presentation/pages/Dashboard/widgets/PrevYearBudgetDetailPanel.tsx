@@ -9,6 +9,8 @@
  *   - 週間小計行（月曜〜日曜区切り）
  *   - 曜日ギャップ分析（手法切替: 平均/中央値/調整平均、両モード表示）
  *   - 実日法の証明テーブル（加わった日・失われた日を明示）
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { useTheme } from 'styled-components'

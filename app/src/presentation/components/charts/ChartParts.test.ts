@@ -4,6 +4,8 @@
  * 検証対象（pure のみ）:
  * - HIERARCHY_LABELS / CATEGORY_COLORS の定義正当性
  * - formatDateKey: YYYYMMDD → MM/DD 変換と不一致形式のパススルー
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { formatDateKey, HIERARCHY_LABELS, CATEGORY_COLORS } from './ChartParts'

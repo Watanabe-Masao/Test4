@@ -8,6 +8,8 @@
  * - 月跨ぎは各月独立に按分し合算
  *
  * @see references/01-principles/free-period-budget-kpi-contract.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

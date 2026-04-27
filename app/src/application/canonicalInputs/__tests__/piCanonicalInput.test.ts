@@ -6,6 +6,8 @@
  * - buildGrandTotalPI: 正常値 → calculateQuantityPI / calculateAmountPI
  * - buildStorePIResults: salesFact.daily を storeId で集約
  * - buildStorePIResults: customers=0 の店舗は piQty / piAmount=null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildGrandTotalPI, buildStorePIResults } from '../piCanonicalInput'

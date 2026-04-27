@@ -4,6 +4,8 @@
  * DataRepository から保存済み月一覧を取得し、変化を検知して
  * 親の useReducer にディスパッチする。
  * useDuckDB の composition root から呼び出される内部フック。
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect } from 'react'
 import type { Dispatch } from 'react'

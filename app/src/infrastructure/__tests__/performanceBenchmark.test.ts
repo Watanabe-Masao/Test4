@@ -4,6 +4,8 @@
  * 品質監査レポート推奨項目⑥:
  * 10万行想定のデータでインポート→計算パイプラインの処理時間を計測し、
  * 回帰を防止する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'

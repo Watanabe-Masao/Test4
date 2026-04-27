@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { memo, useState, useMemo, useCallback } from 'react'
 import { DailyChart, DailyRateChart } from './ConditionSummaryDailyChart'
 import { dayLabel } from './conditionSummaryFormatters'

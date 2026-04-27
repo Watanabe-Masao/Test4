@@ -10,6 +10,8 @@
  *   - totalStoreCount>0 で販売 0 店舗を 0 埋め
  *   - index*stability で降順ソート
  *   - dominance / stability 計算
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { classifyProductType, buildCategoryBenchmarkScores } from '../categoryBenchmarkLogic'

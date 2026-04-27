@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { darkTheme, lightTheme } from './theme'
 export type {
   AppTheme,

@@ -1,5 +1,7 @@
 /**
  * importTypes — createEmptyMonthPartitions / mergeRecordPartitions / mergeMapPartitions
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

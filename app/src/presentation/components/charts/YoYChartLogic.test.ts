@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildYoYChartData, buildYoYWaterfallData, computeYoYSummary } from './YoYChartLogic'
 import type { YoyDailyRow } from '@/application/hooks/duckdb'

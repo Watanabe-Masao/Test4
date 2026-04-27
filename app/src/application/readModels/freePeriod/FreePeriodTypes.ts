@@ -11,6 +11,8 @@
  * - 取得正本: DuckDB から日別×店舗の raw rows を取得
  * - 計算正本: JS で粗利・達成率・累積を導出
  * - StoreResult（単月確定値）とは別系統
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

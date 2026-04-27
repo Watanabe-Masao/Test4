@@ -3,6 +3,8 @@
  *
  * WASM の Float64Array 戻り値を既存の型に変換する薄い adapter。
  * ロジック判断・比較・モード判断・フォールバックは一切含めない（bridge の責務）。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   TwoFactorResult,

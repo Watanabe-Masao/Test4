@@ -45,6 +45,8 @@
  * @responsibility R:guard
  * @see references/01-principles/taxonomy-constitution.md
  * @see projects/taxonomy-v2/plan.md §Operational Control System
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

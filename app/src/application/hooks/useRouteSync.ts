@@ -9,6 +9,8 @@
  * 2. dynamic match — getPageByPath() で dynamic ページにマッチ
  * 3. legacy redirect — REDIRECT_REGISTRY に存在
  * 4. true unknown — dashboard fallback
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'

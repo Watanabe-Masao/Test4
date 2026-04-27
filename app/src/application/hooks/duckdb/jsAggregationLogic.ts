@@ -5,6 +5,8 @@
  * このファイルは後方互換 re-export + YoY 比較（Application 調整）を担当する。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreDaySummaryRow } from '@/infrastructure/duckdb/queries/storeDaySummary'
 import type { YoyDailyRow } from '@/infrastructure/duckdb/queries/yoyComparison'

@@ -8,6 +8,8 @@
  * 参照:
  * - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-C-002
  * - app/src/test/guards/hookCanonicalPathGuard.test.ts
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import { useCalculation } from '@/application/hooks/calculation'

@@ -9,6 +9,8 @@
  *   salesPrev   — 前年売上7日MA
  *   metricCur   — 当年右軸指標7日MA（quantity/customers/discount）
  *   metricPrev  — 前年右軸指標7日MA
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { QueryExecutor } from '@/application/queries/QueryPort'

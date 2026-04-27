@@ -4,6 +4,8 @@
  * 対象:
  * - FeatureChartLogic: buildFeatureChartData (anomaly 検出)
  * - DowPatternChartLogic: buildDowPatternData (曜日集計 + CV)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildFeatureChartData, Z_SCORE_THRESHOLD } from '../FeatureChartLogic'

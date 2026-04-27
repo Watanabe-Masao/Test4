@@ -6,6 +6,8 @@
  * 永続化は Zustand persist middleware 経由（C3: store は state 反映のみ）。
  *
  * @guard C3 store は state 反映のみ
+ *
+ * @responsibility R:unclassified
  */
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'

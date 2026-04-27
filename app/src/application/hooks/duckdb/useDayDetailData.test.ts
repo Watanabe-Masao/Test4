@@ -2,6 +2,8 @@
  * resolveDayDetailRanges の境界値テスト
  *
  * 前年同曜日モードで累計前年範囲が当年と同じ日数分になることを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

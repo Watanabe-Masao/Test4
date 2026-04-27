@@ -4,6 +4,8 @@
  * levelAggregation + categoryHourly の 2 pair handler を一元管理。
  *
  * @guard H1 Screen Plan 経由のみ
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryExecutor } from '@/application/queries/QueryPort'
 import { useQueryWithHandler } from '@/application/hooks/useQueryWithHandler'

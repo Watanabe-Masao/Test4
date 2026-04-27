@@ -9,6 +9,8 @@
  * - weatherText override が tooltip に反映 (compact 時)
  *
  * Phase 3 Step 3-10: 自己完結 component (domain util 依存のみ) を選択。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { ThemeProvider } from 'styled-components'

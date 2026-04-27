@@ -4,6 +4,8 @@
  * StoreContribution[] から店舗別・日別の集約を行う共通ユーティリティ。
  * conditionSummary / conditionPanelYoY / conditionPanelCustomerGap で
  * 繰り返されていたフィルタ + reduce パターンを統一する。
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreContribution } from '@/features/comparison/application/comparisonTypes'
 

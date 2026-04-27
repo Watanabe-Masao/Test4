@@ -6,6 +6,10 @@
  * @guard G5 サイズ上限（hook ≤300行、useMemo ≤7、useState ≤6）
  * @guard G6 コンポーネントサイズ上限（.tsx ≤600行）
  * @guard C6 facade は orchestration のみ
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

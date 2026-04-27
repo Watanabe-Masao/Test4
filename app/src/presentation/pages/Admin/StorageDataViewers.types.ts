@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { StorageDataType } from '@/domain/models/storeTypes'
 
 export interface MonthEntry {

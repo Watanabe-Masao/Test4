@@ -3,6 +3,8 @@
  *
  * switchMonth / goToPrevMonth / goToNextMonth の月切替ロジックを検証する。
  * useRepository を mock してテストを独立させる。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

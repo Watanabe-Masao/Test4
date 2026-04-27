@@ -2,6 +2,8 @@
  * dailyRecords クエリモジュールのユニットテスト
  *
  * dailyRecordTotalCost 純粋関数をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { dailyRecordTotalCost, type DailyRecordRow } from '../queries/dailyRecords'

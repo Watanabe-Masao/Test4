@@ -4,6 +4,8 @@
  * infrastructure/storage/backupAdapter.ts を Application 層にブリッジし、
  * バックアップの export / import / preview を UI に提供する。
  * v2: AppSettings を含むバックアップ + gzip 圧縮対応。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import { useBackupAdapter } from '@/application/context/useAdapters'

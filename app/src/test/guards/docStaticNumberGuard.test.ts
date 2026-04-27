@@ -12,6 +12,10 @@
  *
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-DOC-STATIC-NUMBER)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

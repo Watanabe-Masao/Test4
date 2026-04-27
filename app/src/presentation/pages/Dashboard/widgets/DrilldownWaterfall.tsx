@@ -3,6 +3,8 @@
  *
  * DayDetailModal 内で日別の前年比較要因分解を表示する。
  * 客数効果 / 客単価効果 / 部門別増減の2ビューを提供。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import { useTheme } from 'styled-components'

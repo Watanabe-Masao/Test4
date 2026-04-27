@@ -3,6 +3,8 @@
  *
  * domain/calculations/dowGapAnalysis を presentation 層から直接呼ばないようにするための
  * application 層フック。平均法と実日法の両方を算出する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import {

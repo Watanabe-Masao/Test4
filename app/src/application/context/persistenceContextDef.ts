@@ -3,6 +3,8 @@
  *
  * 復元状態を Context で共有する。モジュールスコープ変数を排除し、
  * テストごとに自然にリセットされるようにする。
+ *
+ * @responsibility R:unclassified
  */
 import { createContext } from 'react'
 

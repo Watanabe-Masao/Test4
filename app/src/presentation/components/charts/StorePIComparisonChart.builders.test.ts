@@ -2,6 +2,8 @@
  * StorePIComparisonChart.builders — 純粋関数テスト
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は builders で一度だけ
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildStorePIData, buildHeatmapData } from './StorePIComparisonChart.builders'

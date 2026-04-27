@@ -5,6 +5,8 @@
  * 最初の店舗を天気データの取得対象として返す。
  *
  * useUnifiedWidgetContext から分離した天気サブシステム。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'

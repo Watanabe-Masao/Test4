@@ -1,6 +1,8 @@
 /**
  * LazyWidget — チャートウィジェットをビューポートに入るまでプレースホルダーで表示する。
  * IntersectionObserver で一度表示されたらフリーズし、再マウントを防ぐ。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'

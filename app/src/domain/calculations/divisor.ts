@@ -10,6 +10,8 @@
  * - TR-DIV-002: countDistinctDays は実データの distinct day 数を使う（カレンダー日数ではない）
  * - TR-DIV-003: computeDowDivisorMap は曜日別に distinct day 数を返す
  * - 返り値は常に >= 1（0除算防止保証）
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryTimeSalesRecord } from '@/domain/models/record'
 import type { AggregateMode } from '@/domain/models/UnifiedFilter'

@@ -4,6 +4,8 @@
  * DayDetailModal の「時間帯分析」タブで表示する
  * 棒グラフ・累積線・時間帯別詳細パネルを提供する。
  * 複数時間帯を選択して分類別内訳を表示可能。
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import type { HourlyWeatherRecord } from '@/domain/models/record'

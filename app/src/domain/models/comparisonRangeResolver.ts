@@ -27,6 +27,8 @@
  *
  * @see references/01-principles/temporal-scope-semantics.md
  * @see app/src/domain/models/ComparisonScope.ts buildComparisonScope
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

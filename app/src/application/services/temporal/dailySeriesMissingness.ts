@@ -3,6 +3,8 @@
  *
  * buildDailySeries から呼び出され、各日付の値と欠損状態を判定する。
  * 欠損の扱いを独立責務にすることで、Phase 3 以降の policy 拡張に備える。
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate } from '@/domain/models/CalendarDate'
 import type {

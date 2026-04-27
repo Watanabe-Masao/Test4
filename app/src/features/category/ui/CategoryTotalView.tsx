@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState } from 'react'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import type { MetricId } from '@/domain/models/analysis'

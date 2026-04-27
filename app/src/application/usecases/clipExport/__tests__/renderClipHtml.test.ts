@@ -4,6 +4,8 @@
  * 検証対象:
  * - escapeHtml: 4 種の HTML 特殊文字エスケープ
  * - renderClipHtml: HTML 文字列の最低限の整合性（lang / title / DATA 埋め込み）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { escapeHtml, renderClipHtml } from '../renderClipHtml'

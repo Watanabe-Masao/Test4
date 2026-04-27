@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 // buildPairedQueryInput pure builder — unit test
 //
 // unify-period-analysis Phase 5 横展開 第 2 バッチ: PairedQueryInput 系の

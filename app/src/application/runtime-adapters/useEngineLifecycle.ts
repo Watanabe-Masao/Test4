@@ -4,6 +4,8 @@
  * getDuckDBEngine() のシングルトンを購読し、エンジン状態の変化を
  * 親の useReducer にディスパッチする。
  * useDuckDB の composition root から呼び出される内部フック。
+ *
+ * @responsibility R:unclassified
  */
 import { useEffect, useRef } from 'react'
 import type { Dispatch } from 'react'

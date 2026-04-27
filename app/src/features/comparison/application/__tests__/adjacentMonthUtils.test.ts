@@ -1,5 +1,7 @@
 /**
  * adjacentMonthUtils.test — 隣接月ユーティリティの pure 関数テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { OVERFLOW_DAYS, adjacentMonth, mergeAdjacentMonthRecords } from '../adjacentMonthUtils'

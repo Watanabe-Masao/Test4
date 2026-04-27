@@ -3,6 +3,8 @@
  *
  * DailySalesChart のデータ変換・フィルタロジックを分離。
  * ウォーターフォールデータの算出を担う。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'

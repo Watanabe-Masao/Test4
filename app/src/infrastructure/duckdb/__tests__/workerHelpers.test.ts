@@ -2,6 +2,8 @@
  * DuckDB Worker ヘルパー関数のユニットテスト
  *
  * snakeToCamel と structRowToObject は rowConversion.ts に定義された共有関数。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { snakeToCamel, structRowToObject } from '../rowConversion'

@@ -9,6 +9,8 @@
  * @guard A1 4層依存ルール
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

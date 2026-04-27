@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useEffect, useCallback } from 'react'
 import type { ViewType } from '@/domain/models/storeTypes'
 import { getShortcutMap } from '@/application/navigation/pageRegistry'

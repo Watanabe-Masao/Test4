@@ -1,5 +1,7 @@
 /**
  * DuckDB-WASM インフラ層 Barrel Export
+ *
+ * @responsibility R:unclassified
  */
 
 // エンジン

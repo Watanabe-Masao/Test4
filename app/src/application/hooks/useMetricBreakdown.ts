@@ -6,6 +6,8 @@
  *
  * @see MetricBreakdownPanel.tsx — 描画コンポーネント
  * @see MetricBreakdownPanel.styles.ts — スタイル定義
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo } from 'react'
 import type { Explanation, MetricId } from '@/domain/models/analysis'

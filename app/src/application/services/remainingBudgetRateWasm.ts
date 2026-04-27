@@ -3,6 +3,8 @@
  * @contractId BIZ-008
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type { RemainingBudgetRateInput } from '@/domain/calculations/remainingBudgetRate'
 import { getRemainingBudgetRateWasmExports } from './wasmEngine'

@@ -3,6 +3,8 @@
  *
  * StoreResult から各指標の Explanation を生成する機能を検証する。
  * 計算を再実行せず、StoreResult の値をそのまま使うことを確認。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

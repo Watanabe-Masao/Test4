@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState } from 'react'
 import type { DashboardWidgetContext } from './DashboardWidgetContext'
 import {

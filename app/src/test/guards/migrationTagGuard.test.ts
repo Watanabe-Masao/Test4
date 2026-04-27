@@ -8,6 +8,10 @@
  *
  * @see app/src/test/migrationTagRegistry.ts
  * @guard I3
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { MIGRATION_TAG_REGISTRY } from '../migrationTagRegistry'

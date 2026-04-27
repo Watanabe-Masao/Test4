@@ -7,6 +7,10 @@
  * @guard A3 Presentation 描画専用
  * @guard H4 component に acquisition logic 禁止
  * ルール定義: architectureRules.ts (AR-STRUCT-RENDER-SIDE-EFFECT)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

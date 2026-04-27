@@ -3,6 +3,8 @@
  *
  * 従来は当年・前年を 2 回の useQueryWithHandler で sequential に取得していた。
  * このハンドラーは Promise.all で並列取得し、レスポンスタイムを半減させる。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

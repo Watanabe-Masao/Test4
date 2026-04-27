@@ -3,6 +3,8 @@
  *
  * シャープリー分解（decomposition）、線形回帰・月末予測（regression）、
  * 在庫法/推定法/売変影響（accounting）、汎用比率・加重平均（ratio）の公式定義。
+ *
+ * @responsibility R:unclassified
  */
 import type { FormulaId, FormulaMeta } from '../models/Formula'
 

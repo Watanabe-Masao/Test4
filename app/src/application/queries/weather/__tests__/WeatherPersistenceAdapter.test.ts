@@ -2,6 +2,8 @@
  * WeatherPersistenceAdapter — createWeatherPersister tests
  *
  * DuckDB 依存部分は mock で置換し、factory の条件分岐のみテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { createWeatherPersister } from '../WeatherPersistenceAdapter'

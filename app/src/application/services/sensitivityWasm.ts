@@ -3,6 +3,8 @@
  * @contractId ANA-003
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type {
   SensitivityBase,

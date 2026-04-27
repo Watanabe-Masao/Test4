@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { AppSettings } from '../models'
 import { DEFAULT_CONDITION_CONFIG } from './conditionMetrics'
 

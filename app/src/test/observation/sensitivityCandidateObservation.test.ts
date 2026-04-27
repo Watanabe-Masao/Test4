@@ -3,6 +3,8 @@
  * @contractId ANA-003
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { calculateSensitivity as calculateTS } from '@/domain/calculations/algorithms/sensitivity'

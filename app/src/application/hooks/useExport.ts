@@ -3,6 +3,8 @@
  *
  * AdapterContext 経由で ExportPort を取得する。
  * Presentation 層はこのフックを経由してエクスポート機能にアクセスする。
+ *
+ * @responsibility R:unclassified
  */
 import { useContext } from 'react'
 import { AdapterContext } from '@/application/context/adapterContextDef'

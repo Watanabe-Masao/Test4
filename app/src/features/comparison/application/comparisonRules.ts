@@ -12,6 +12,8 @@
  * 当期各日に対し、前年同日を基準日として前後7日以内から
  * 同曜日の最も近い日を比較先として一意に選ぶ。
  * 同距離の場合は未来側を優先する。
+ *
+ * @responsibility R:unclassified
  */
 import type { CompareModeV2, MatchableRow } from './comparisonTypes'
 

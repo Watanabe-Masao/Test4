@@ -1,5 +1,7 @@
 /**
  * バックアップセクション — export/import/preview
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useRef } from 'react'
 import type { BackupMeta } from '@/application/hooks/useBackup'

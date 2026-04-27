@@ -17,6 +17,8 @@
  * 「額で持ち回し、率は使用直前に domain 側で算出」原則に違反していた。
  * Phase 4 で SQL から除算を剥がし、本 builder が `weightedAverageRate()`
  * pure helper で率へ変換する。
+ *
+ * @responsibility R:unclassified
  */
 import {
   FreePeriodDeptKPIReadModel,

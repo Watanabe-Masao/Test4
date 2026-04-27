@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { ReactNode } from 'react'
 import { SidebarWrapper, SidebarTitle } from './Sidebar.styles'
 

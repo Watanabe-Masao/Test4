@@ -2,6 +2,8 @@
  * 編集可能な数値セルコンポーネント
  *
  * KpiTableWidgets.tsx から分割。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useRef, useEffect, type ReactNode } from 'react'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'

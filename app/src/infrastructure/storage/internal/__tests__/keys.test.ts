@@ -1,5 +1,7 @@
 /**
  * keys.ts — storage キー生成関数の純粋テスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { monthKey, summaryKey, importHistoryKey, STORE_DAY_FIELDS, DATA_TYPE_LABELS } from '../keys'

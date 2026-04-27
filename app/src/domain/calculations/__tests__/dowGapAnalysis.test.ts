@@ -13,6 +13,8 @@
  *   7. methodResults: 手法別結果の不変条件（salesImpact = Σ(diff × dowAvg)）
  *   8. 客数ギャップ: prevDowDailyAvgCustomers の曜日別計算
  *   9. ShiftedDay: prevMonth/prevYear/prevCustomers の拡張フィールド
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

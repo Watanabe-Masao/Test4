@@ -3,6 +3,8 @@
  *
  * wrapEnvelope, unwrapEnvelope, mapToObj, budgetToSerializable の
  * 未カバー部分をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

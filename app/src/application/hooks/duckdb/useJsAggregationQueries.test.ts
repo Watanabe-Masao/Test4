@@ -5,6 +5,8 @@
  * ここではフック内部で使う計算ロジック（compute* 関数）をテストする。
  *
  * rawAggregation.ts の関数経由のパイプラインテストも含む。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

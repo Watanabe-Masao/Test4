@@ -1,5 +1,7 @@
 /**
  * 予測・トレンド分析エクスポート
+ *
+ * @responsibility R:unclassified
  */
 export {
   calculateForecast,

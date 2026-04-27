@@ -7,6 +7,8 @@
  * - storeIds をそのまま格納
  * - comparisonEnabled=false → comparison=null
  * - comparisonEnabled=true → buildComparisonScope を呼ぶ
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildFreePeriodFrame } from '../buildFreePeriodFrame'

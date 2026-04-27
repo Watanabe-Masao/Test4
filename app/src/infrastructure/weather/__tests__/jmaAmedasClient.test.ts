@@ -1,5 +1,7 @@
 /**
  * Tests for jmaAmedasClient.ts — AMEDAS station table + nearest station + JmaAccessError
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {

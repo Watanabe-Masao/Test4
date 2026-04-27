@@ -28,6 +28,10 @@
  *
  * @see app/src/test/versionSyncRegistry.ts
  * @see references/03-guides/project-checklist-governance.md §12
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

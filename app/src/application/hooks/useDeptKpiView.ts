@@ -4,6 +4,8 @@
  * Zustand ストアの生 DepartmentKpiData を DepartmentKpiIndex に変換し、
  * Presentation 層に表示用データを提供する。
  * Presentation 層が生 .records を直接参照することを防ぐ。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

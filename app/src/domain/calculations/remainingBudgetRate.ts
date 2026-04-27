@@ -7,6 +7,8 @@
  *
  * - 残期間予算 = Σ budgetDaily[elapsedDays+1 .. daysInMonth]
  * - 100% = 計画通りのペース、100%超 = 巻き返しが必要
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from './utils'

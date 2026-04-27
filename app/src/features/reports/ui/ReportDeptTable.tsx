@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { DepartmentKpiIndex } from '@/domain/models/DepartmentKpiIndex'
 import type { MetricId } from '@/domain/models/analysis'
 import { KpiCard, KpiGrid } from '@/presentation/components/common/tables'

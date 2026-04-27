@@ -4,6 +4,8 @@
  * budget/initialSettings インポート時にも stores が生成されることを検証する。
  * purchase/classifiedSales なしで予算や初期設定のみインポートした場合の
  * 店舗数0件バグの再発防止。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { processFileData } from '../ImportService'

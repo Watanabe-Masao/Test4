@@ -1,4 +1,8 @@
-/** バリデーション結果 */
+/**
+ * バリデーション結果
+ *
+ * @responsibility R:unclassified
+ */
 export interface ValidationMessage {
   readonly level: 'error' | 'warning' | 'info'
   readonly message: string

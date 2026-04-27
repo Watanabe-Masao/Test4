@@ -6,6 +6,8 @@
  *
  * 構造検証ルール（minRows/minCols/label）は FileTypeDetector.ts の
  * FILE_TYPE_REGISTRY に一元管理されている。
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import type { DataType } from '@/domain/models/storeTypes'

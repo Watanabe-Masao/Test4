@@ -3,6 +3,8 @@
  * @contractId ANA-009
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { computeMovingAverage as computeTS } from '@/domain/calculations/temporal/computeMovingAverage'

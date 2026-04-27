@@ -7,6 +7,8 @@
  * @contractId BIZ-011
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyRecord } from '@/domain/models/record'
 import { getDailyTotalCost } from '@/domain/models/record'

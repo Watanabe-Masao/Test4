@@ -3,6 +3,8 @@
  *
  * DuckDB 接続をモックして SQL 生成の内容を検証する。
  * groupRowsToRecords の変換ロジックは queryCategoryTimeRecords を経由してテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

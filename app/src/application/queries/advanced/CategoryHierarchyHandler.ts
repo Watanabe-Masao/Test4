@@ -3,6 +3,8 @@
  *
  * 部門/ライン/クラスの distinct 一覧を取得（階層フィルタ用ドロップダウン）。
  * CategoryBenchmarkChart.vm, CategoryBoxPlotChart.vm 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

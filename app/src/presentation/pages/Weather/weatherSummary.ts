@@ -3,6 +3,8 @@
  *
  * 月間サマリ（グラフ未選択時）と日別サマリ（グラフ日クリック時）を提供。
  * 前年比較データも同じ型で返す。
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 import { categorizeWeatherCode } from '@/domain/weather/weatherAggregation'

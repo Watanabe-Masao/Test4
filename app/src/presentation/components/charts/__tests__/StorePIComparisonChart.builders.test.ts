@@ -12,6 +12,8 @@
  *   - heatData の [catIdx, storeIdx, value] 構造
  *   - maxVal 計算
  *   - 店舗重複排除
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildStorePIData, buildHeatmapData } from '../StorePIComparisonChart.builders'

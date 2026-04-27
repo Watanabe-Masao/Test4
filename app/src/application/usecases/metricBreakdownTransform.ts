@@ -2,6 +2,8 @@
  * MetricBreakdown ViewModel 変換 — useMetricBreakdown から抽出した純粋変換ロジック
  *
  * 7つの useMemo の derivation ロジックを純粋関数化し、テスト可能にした。
+ *
+ * @responsibility R:unclassified
  */
 import type { Explanation, MetricId, MetricUnit } from '@/domain/models/analysis'
 import type { Store } from '@/domain/models/record'

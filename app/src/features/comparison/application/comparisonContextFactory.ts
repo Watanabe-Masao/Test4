@@ -3,6 +3,8 @@
  *
  * データが無い場合でもコンシューマーが null チェック不要で使えるよう、
  * ゼロ値の PeriodSnapshot / ComparisonContext を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import type { PeriodMetrics } from '@/application/usecases/calculation/periodMetricsCalculator'
 import type { PeriodSnapshot, ComparisonContext } from './ComparisonContext'

@@ -3,6 +3,8 @@
  *
  * 閾値判定が正しいことを検証する。
  * UIテストではなく純粋関数テスト。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getTool1Insight, getTool2Insight, getSensitivityInsight } from '../simulationInsight'

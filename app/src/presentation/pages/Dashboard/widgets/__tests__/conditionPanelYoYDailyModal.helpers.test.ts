@@ -3,6 +3,8 @@
  *
  * 検証対象:
  * - getCurrent / getPrev 関数で値を引き、日別累計を構築するジェネリック
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCumulativeYoYData } from '../conditionPanelYoYDailyModal'

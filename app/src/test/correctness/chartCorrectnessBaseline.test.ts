@@ -7,6 +7,8 @@
  * Phase 2 以降の plan 化・VM 分離で取得漏れ・描画漏れが起きないことを保証する。
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は ViewModel 層で一度だけ
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildPerformanceData } from '@/presentation/components/charts/PerformanceIndexChart.builders'

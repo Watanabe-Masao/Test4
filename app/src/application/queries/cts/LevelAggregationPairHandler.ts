@@ -6,6 +6,8 @@
  *
  * @invariant INV-RUN-02 Comparison Integrity
  * @see references/01-principles/safe-performance-principles.md
+ *
+ * @responsibility R:unclassified
  */
 import { levelAggregationHandler } from './LevelAggregationHandler'
 import { createPairedHandler } from '../createPairedHandler'

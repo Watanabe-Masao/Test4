@@ -28,6 +28,8 @@
  * 既存の useComparisonModuleExternalScope.test.ts と同じアプローチ。
  *
  * @see app/src/test/logic/comparison/useComparisonModuleExternalScope.test.ts
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'

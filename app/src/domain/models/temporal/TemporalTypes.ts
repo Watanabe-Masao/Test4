@@ -9,6 +9,8 @@
  *
  * これらは互いに混同できないようにするための型境界。
  * Frame / FetchPlan / DailySeries は Phase 1-2 で導入する。
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 

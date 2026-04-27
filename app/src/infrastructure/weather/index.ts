@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { getJmaBaseUrl, getJmaDataBaseUrl } from './jmaApiConfig'
 export { searchLocation, reverseGeocode, PREFECTURE_NAMES } from './geocodingClient'
 export type { ReverseGeocodeResult } from './geocodingClient'

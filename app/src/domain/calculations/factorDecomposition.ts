@@ -21,6 +21,8 @@
  *
  * 性質: φ_C + φ_Q + φ_price + φ_mix = ΔS（実売上差に完全一致）
  * 利点: totalSales と categoryTimeSales の合計が異なっても正しく動作
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide } from './utils'
 

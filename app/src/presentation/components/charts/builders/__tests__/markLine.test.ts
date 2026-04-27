@@ -1,5 +1,7 @@
 /**
  * markLine.ts — markLine builder tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { zeroBaseline, budgetLine, thresholdLine } from '../markLine'

@@ -6,6 +6,8 @@
  * コア仕入（仕入 + 移動、売上納品除く）からコア値入率を計算する。
  *
  * 値入率 = (売価 - 原価) / 売価
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from './utils'

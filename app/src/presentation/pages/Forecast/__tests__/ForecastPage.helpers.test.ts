@@ -8,6 +8,8 @@
  * - buildDailyDecomposition のシャープリー恒等式（salesDiff == custEffect + ticketEffect）
  * - 累計値の漸進
  * - buildRelationshipData の正規化（avg=1.0）
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

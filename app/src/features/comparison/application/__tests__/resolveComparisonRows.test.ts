@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { resolveComparisonRows } from '../resolveComparisonRows'
 import type { MatchableRow } from '../comparisonTypes'

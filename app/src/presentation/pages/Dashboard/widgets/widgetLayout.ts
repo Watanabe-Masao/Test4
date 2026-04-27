@@ -3,6 +3,8 @@
  *
  * ダッシュボードのレイアウト永続化・デフォルト構成。
  * マイグレーションは widgetMigration.ts、自動注入は widgetAutoInject.ts に分離。
+ *
+ * @responsibility R:unclassified
  */
 import { loadJson, saveJson } from '@/application/adapters/uiPersistenceAdapter'
 import { WIDGET_REGISTRY } from './registry'

@@ -12,6 +12,8 @@
  * - handleDrop: items に directory 含まれない場合 → files 経路
  * - handleDrop: 空 dataTransfer → no-op
  * - isAcceptedFile: .xlsx/.xls/.csv 受諾、他 reject
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

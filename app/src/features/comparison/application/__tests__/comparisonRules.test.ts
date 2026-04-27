@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { resolveRequestedCompareDateKey, resolveSameDayOfWeekDateKey } from '../comparisonRules'
 import type { MatchableRow } from '../comparisonTypes'

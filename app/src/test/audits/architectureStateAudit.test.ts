@@ -8,6 +8,8 @@
  * 文書ではなくこの監査出力を構造状態の正本とする。
  *
  * @audit Architecture State Snapshot
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

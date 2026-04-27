@@ -2,6 +2,8 @@
  * SimulationSummaryCard — 折りたたみ挙動テスト
  *
  * 主KPI・従属KPIが表示され、詳細は初期非表示、展開操作で表示される。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'

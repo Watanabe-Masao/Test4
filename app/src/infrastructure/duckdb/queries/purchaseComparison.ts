@@ -1,9 +1,7 @@
 /**
- * 仕入比較クエリモジュール
- *
- * purchase テーブルから日付範囲ベースで取引先別仕入データを集約し、
- * 前年比較用の構造化データを返す。
- * date_key BETWEEN で同曜日・月跨ぎクエリに対応する。
+ * 仕入比較クエリモジュール — purchase テーブルから日付範囲ベースで取引先別仕入データを
+ * 集約し、前年比較用の構造化データを返す。date_key BETWEEN で同曜日・月跨ぎクエリに対応。
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

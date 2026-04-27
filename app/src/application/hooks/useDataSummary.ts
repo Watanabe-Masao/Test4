@@ -4,6 +4,8 @@
  * MonthlyData / ImportedData から各 Presentation コンポーネントが必要とする
  * サマリー情報を算出する。Presentation 層が .records を直接走査
  * することを防ぎ、全てのレコード走査をこのフック経由に集約する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DataType } from '@/domain/models/storeTypes'

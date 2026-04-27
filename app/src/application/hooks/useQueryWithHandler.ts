@@ -37,6 +37,8 @@
  *
  * @see QueryHandler  — application/queries/QueryContract.ts
  * @see QueryExecutor — application/queries/QueryPort.ts
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useRef, useMemo } from 'react'
 import type { QueryHandler, AsyncQueryResult } from '@/application/queries/QueryContract'

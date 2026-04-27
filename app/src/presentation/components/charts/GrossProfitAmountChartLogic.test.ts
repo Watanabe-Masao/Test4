@@ -6,6 +6,8 @@
  * - 前年 daily + 前年原価 map を両方渡した場合の prevRate 算出
  * - 前年データが片方でも欠けると prevRate=null / hasComparison=false
  * - 前年売上=0 の初期区間で prevRate=null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildGpData } from './GrossProfitAmountChartLogic'

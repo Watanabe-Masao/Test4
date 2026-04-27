@@ -9,6 +9,8 @@
  *
  * データ計算・状態管理は useDrilldownData フックに委譲し、
  * 本コンポーネントは描画のみを担う。
+ *
+ * @responsibility R:unclassified
  */
 import { Fragment } from 'react'
 import { createPortal } from 'react-dom'

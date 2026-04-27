@@ -12,6 +12,8 @@
  * - keyboard: Enter / Space で onClick が発火
  *
  * Phase 3 Step 3-4: coverage 0% の display component を狙う戦略の一環。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

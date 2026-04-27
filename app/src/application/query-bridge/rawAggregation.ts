@@ -10,6 +10,8 @@
  * - domain 層のためフレームワーク非依存
  * - 二重実装禁止: これらの関数が正規の計算ロジック。SQL 側の集約は段階的に廃止
  * - 0除算防止: safeDivide を使用
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide } from '@/domain/calculations/utils'
 

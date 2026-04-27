@@ -8,6 +8,8 @@
  * lane からの取得に一本化する。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryDailySeries } from '@/application/hooks/categoryDaily/CategoryDailyBundle.types'
 

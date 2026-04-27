@@ -5,6 +5,8 @@
  * store_day_summary VIEW と category_time_sales テーブルを使用。
  *
  * 自由日付範囲: 当年・前年それぞれ独立した date_key 範囲で指定。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

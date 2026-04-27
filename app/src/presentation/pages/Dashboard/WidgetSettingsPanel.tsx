@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback } from 'react'
 import { Button } from '@/presentation/components/common/layout'
 import { UNIFIED_WIDGET_REGISTRY } from '@/presentation/components/widgets'

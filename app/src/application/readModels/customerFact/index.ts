@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export type { CustomerFactReadModel, CustomerFactDailyRow } from './CustomerFactTypes'
 export {
   customerFactHandler,

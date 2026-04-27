@@ -22,6 +22,8 @@
  * - 新しいクエリ開始時、前回の有効結果を `stale` として保持
  * - クエリ完了後に `fresh` に昇格
  * - dataVersion 変更時のみキャッシュ無効化
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

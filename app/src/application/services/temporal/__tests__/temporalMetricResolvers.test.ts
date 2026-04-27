@@ -5,6 +5,8 @@
  * - 6 メトリクス（sales / customers / transactionValue / grossProfitRate / quantity / discount）
  * - 0 除算ガード（customers=0 / coreSales=0）
  * - resolveAllMetrics: 全 metric を一括 Record 化
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

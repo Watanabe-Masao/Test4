@@ -14,6 +14,8 @@
  * - 整数演算のみ（率なし — @guard B3 率は domain/calculations で算出）
  * - 仕様軸は「観測品質」の1つのみ（層内設計: pure function の原則）
  * - lastRecordedSalesDay は daily Map から導出（フィールドとして保持しない）
+ *
+ * @responsibility R:unclassified
  */
 
 import { z } from 'zod'

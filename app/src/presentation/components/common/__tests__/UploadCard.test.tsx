@@ -14,6 +14,8 @@
  * - multiple=false + 複数 File → 先頭のみで onFile
  * - empty file list → no-op
  * - onChange 後 e.target.value = '' で reset
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

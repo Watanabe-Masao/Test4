@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useUiStore } from '@/application/stores/uiStore'
 
 /**

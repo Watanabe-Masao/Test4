@@ -2,6 +2,8 @@
  * timeSlotBridge — findCoreTime / findTurnaroundHour smoke tests
  *
  * WASM 未 ready 環境での TS fallback path を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { findCoreTime, findTurnaroundHour, buildHourlyMap } from '../timeSlotBridge'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useMemo } from 'react'
 import { useCalculation, useBudgetChartData } from '@/application/hooks/calculation'
 import { useStoreSelection } from '@/application/hooks/ui'

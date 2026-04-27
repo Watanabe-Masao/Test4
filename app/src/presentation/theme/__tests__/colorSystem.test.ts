@@ -1,5 +1,7 @@
 /**
  * colorSystem — statusAlpha tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { statusAlpha } from '../colorSystem'

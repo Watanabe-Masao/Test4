@@ -2,6 +2,8 @@
  * features/forecast — Ownership Manifest
  *
  * 需要予測スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const FORECAST_MANIFEST = {
   name: 'forecast',

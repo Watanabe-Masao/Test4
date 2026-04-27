@@ -2,6 +2,8 @@
  * dailySeriesMissingness テスト
  *
  * resolveDailyPoint の欠損判定を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { resolveDailyPoint } from '@/application/services/temporal'

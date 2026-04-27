@@ -1,5 +1,7 @@
 /**
  * importSchemas.ts — boundary validation schema tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { validateRawRows, ImportSchemaError, STRUCTURAL_RULES } from '../importSchemas'

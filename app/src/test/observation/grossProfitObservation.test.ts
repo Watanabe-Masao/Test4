@@ -6,6 +6,8 @@
  * 4 フィクスチャで不変条件を検証する。
  *
  * @see references/02-status/engine-promotion-matrix.md — authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {

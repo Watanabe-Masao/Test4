@@ -6,6 +6,8 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H2 比較は pair/bundle 契約
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/CalendarDate'

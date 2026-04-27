@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useMemo, useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'
 import { PageSkeleton } from '@/presentation/components/common/feedback'

@@ -5,6 +5,8 @@
  * @bridgeKind analytics
  * @contractId ANA-003
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import {
   calculateSensitivity as calculateSensitivityTS,

@@ -3,6 +3,8 @@
  *
  * 点数客数GAP / 金額客数GAP の店別内訳を表示する。
  * calculateCustomerGap 正本関数を店舗単位で呼び出し、GAP を算出する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { formatPercent } from '@/domain/formatting'

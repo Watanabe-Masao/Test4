@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export {
   calculateStoreResult,
   calculateAllStores,

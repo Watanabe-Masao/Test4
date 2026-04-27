@@ -3,6 +3,8 @@
  *
  * causalChain.ts から抽出した純粋関数群。
  * パーセント/通貨の基本フォーマットは domain/formatting に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import { formatPercent, formatCurrency } from '@/domain/formatting'
 

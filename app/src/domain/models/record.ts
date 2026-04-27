@@ -1,5 +1,7 @@
 /**
  * レコード・データ型エクスポート
+ *
+ * @responsibility R:unclassified
  */
 export type { CostPricePair } from './CostPricePair'
 export { ZERO_COST_PRICE_PAIR, addCostPricePairs } from './CostPricePair'

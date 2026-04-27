@@ -3,6 +3,8 @@
  *
  * MonthlyData 形式で保存する。
  * public API は DataRepository (MonthlyData) → IndexedDBRepository 経由。
+ *
+ * @responsibility R:unclassified
  */
 import type { PersistedMeta } from '@/domain/models/analysis'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

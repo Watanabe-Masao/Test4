@@ -10,6 +10,8 @@
  *   import { sc } from '@/presentation/theme/semanticColors'
  *   <div style={{ color: sc.positive }}>+100</div>
  *   <div style={{ color: sc.cond(value >= 0) }}>...</div>
+ *
+ * @responsibility R:unclassified
  */
 import { palette } from './tokens'
 

@@ -2,6 +2,8 @@
  * buildClipBundle テスト
  *
  * StoreResult + PrevYearData + CTS レコードから ClipBundle を構築する処理を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildClipBundle } from '../buildClipBundle'

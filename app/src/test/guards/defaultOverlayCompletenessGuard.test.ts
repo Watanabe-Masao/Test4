@@ -22,6 +22,8 @@
  *
  * @responsibility R:utility
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { describe, it, expect } from 'vitest'

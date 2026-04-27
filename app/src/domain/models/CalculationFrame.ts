@@ -6,6 +6,8 @@
  *
  * 生成は buildCalculationFrame() factory のみ。
  * caller が effectiveDays を独自計算することを防ぐ。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppSettings } from '@/domain/models/storeTypes'
 import { getDaysInMonth } from '@/domain/constants/defaults'

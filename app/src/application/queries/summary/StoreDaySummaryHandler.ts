@@ -2,6 +2,8 @@
  * StoreDaySummaryHandler — 店舗×日サマリークエリ
  *
  * FactorDecompositionPanel, WeatherAnalysisPanel 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

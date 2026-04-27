@@ -3,6 +3,8 @@
  *
  * store_day_summary から日別の詳細レコードを取得する。
  * DailySalesChart, GrossProfitAmountChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from '../QueryContract'
 import type { DateRange } from '@/domain/models/calendar'

@@ -5,6 +5,8 @@
  * カバーするための補足テスト。
  * structRowToObject / snakeToCamel は export されていないため、
  * queryToObjects / queryScalar をモック接続経由で検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { storeIdFilter, storeIdFilterWithAlias, queryToObjects, queryScalar } from '../queryRunner'

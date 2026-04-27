@@ -3,6 +3,8 @@
  *
  * 階層レベル別集約・カテゴリ別日次トレンド・CategoryTimeSalesRecord 互換データ取得を提供する。
  * category_time_sales テーブルを主に使用するクエリ群。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

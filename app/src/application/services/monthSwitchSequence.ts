@@ -3,6 +3,8 @@
  *
  * 5段階: save → reset → settings → period → load
  * 各段階を個別関数化し、hook は thin wrapper として利用する。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import { useDataStore } from '@/application/stores/dataStore'

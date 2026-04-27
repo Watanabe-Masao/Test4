@@ -3,6 +3,8 @@
  *
  * PeriodSelection.lastDayOfMonth と同一規則（new Date(year, month, 0).getDate()）で
  * inclusive DateRange を生成することを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildMonthlyFrame } from '@/application/usecases/temporal'

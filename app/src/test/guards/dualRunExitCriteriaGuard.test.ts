@@ -8,6 +8,10 @@
  * @see references/02-status/frozen-list.md §3.1
  * @see references/02-status/engine-promotion-matrix.md
  * ルール定義: architectureRules.ts (AR-STRUCT-DUAL-RUN-EXIT)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

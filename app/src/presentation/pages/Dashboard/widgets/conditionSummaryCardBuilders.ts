@@ -2,6 +2,8 @@
  * コンディションサマリー強化版 — カード/ヘッダー/バッジビルダー
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 import { safeDivide, calculateYoYRatio } from '@/domain/calculations/utils'

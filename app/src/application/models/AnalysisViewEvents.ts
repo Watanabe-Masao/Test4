@@ -7,6 +7,8 @@
  * 親コンテナ（IntegratedSalesChart 等）は AnalysisViewEvents の
  * コールバックを子ビューに渡し、子ビューはユーザー操作時にこれを呼ぶ。
  * 親はイベントを受けて CrossChartSelectionContext や自身の状態を更新する。
+ *
+ * @responsibility R:unclassified
  */
 
 // ── カテゴリフォーカス ───────────────────────────────────

@@ -12,6 +12,8 @@
  * - 下の層は上の層のロジックに依存しない
  * - リクエスト時に if 不要
  * - 比較年月は periodSelection.period2 から導出（settings は参照しない）
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

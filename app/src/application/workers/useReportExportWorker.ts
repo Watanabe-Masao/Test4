@@ -3,6 +3,8 @@
  *
  * CSV レポートの生成を Worker で非同期実行し、完了後にダウンロードをトリガーする。
  * Worker 非対応環境ではメインスレッドにフォールバックする。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useRef } from 'react'
 import type { ReportWorkerRequest, ReportWorkerResponse } from './reportExportWorker'

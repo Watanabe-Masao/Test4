@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback, useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'

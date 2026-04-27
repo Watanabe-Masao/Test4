@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // 自由期間 SQL 内 rate 計算禁止ガード
 //
 // unify-period-analysis Phase 4: 自由期間系の infra query が額のみを返す

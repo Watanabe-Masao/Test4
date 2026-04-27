@@ -2,6 +2,8 @@
  * features/sales — Ownership Manifest
  *
  * 売上分析スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const SALES_MANIFEST = {
   name: 'sales',

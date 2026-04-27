@@ -1,5 +1,7 @@
 /**
  * カテゴリ別日別ピボットテーブル（タブ切り替え・小計付き）
+ *
+ * @responsibility R:unclassified
  */
 import { Fragment, useState, useMemo, memo } from 'react'
 import { formatPercent } from '@/domain/formatting'

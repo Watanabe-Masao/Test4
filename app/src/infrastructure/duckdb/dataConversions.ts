@@ -3,6 +3,8 @@
  *
  * テーブルごとのカラム型定義とバルクINSERTの共通基盤。
  * テーブル別の INSERT 関数は tableInserts.ts に分離されている。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 

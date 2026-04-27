@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Infrastructure - 永続化
 export {
   saveMonthlyDataInternal,

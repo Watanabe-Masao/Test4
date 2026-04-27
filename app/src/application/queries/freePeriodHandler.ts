@@ -5,6 +5,8 @@
  * readModel は infra を知らない（pure builder パターン）。
  *
  * @layer Application — Query Handler
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from './QueryContract'
 import { queryFreePeriodDaily } from '@/infrastructure/duckdb/queries/freePeriodFactQueries'

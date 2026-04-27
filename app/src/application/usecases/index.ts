@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // ─── Calculation use case ────────────────────────────────
 export { calculateStoreResult, calculateAllStores, aggregateStoreResults } from './calculation'
 

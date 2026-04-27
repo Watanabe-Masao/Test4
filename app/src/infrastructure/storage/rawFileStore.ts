@@ -18,6 +18,8 @@
  * // 一覧
  * const files = await rawFileStore.listFiles(2025, 6)
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import { openDB, STORE_META } from './internal/dbHelpers'
 

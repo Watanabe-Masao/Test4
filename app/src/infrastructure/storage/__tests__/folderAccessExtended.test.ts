@@ -8,6 +8,8 @@
  * vi.resetModules() を使わずに、IDB の振る舞いをモックで制御する。
  * 各 describe ブロックを独立した isolate 設定にするか、
  * 代わりにモジュールレベルモックで回避する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'

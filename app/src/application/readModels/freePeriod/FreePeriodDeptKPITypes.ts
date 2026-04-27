@@ -5,6 +5,8 @@
  * 月次データを対象期間で絞り込み、複数月分を合算。
  *
  * @see references/01-principles/free-period-budget-kpi-contract.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

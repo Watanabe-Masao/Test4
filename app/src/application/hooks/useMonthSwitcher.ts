@@ -4,6 +4,8 @@
  * 現在のデータを IndexedDB に保存し、指定年月のデータをロードする。
  * targetYear / targetMonth の変更は計算結果・前年比較・予算分析など
  * アプリ全体に影響するため、切替処理を一箇所に集約する。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useState } from 'react'
 import { useRepository } from '../context/useRepository'

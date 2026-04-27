@@ -3,6 +3,8 @@
  *
  * 粗売上・推定原価・推定マージン・推定期末在庫の計算を検証。
  * 金銭計算のため境界値を重点的にテスト。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

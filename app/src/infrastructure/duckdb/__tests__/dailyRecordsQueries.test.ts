@@ -4,6 +4,8 @@
  * queryDailyRecords / queryPrevYearDailyRecords / queryAggregatedDailyRecords の
  * SQL 生成内容を DuckDB モックで検証する。
  * dailyRecordTotalCost は既存の dailyRecords.test.ts でカバー済み。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

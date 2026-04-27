@@ -3,6 +3,8 @@
  * 月内の任意の基準日から経過/残期間/着地見込を試算する orchestration 層。
  * scenario は 0-indexed 配列ベース、率は % 整数 (100=100%)。
  * @see projects/budget-achievement-simulator/plan.md
+ *
+ * @responsibility R:unclassified
  */
 
 import { z } from 'zod'

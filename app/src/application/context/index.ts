@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { RepositoryProvider } from './RepositoryContext'
 export { PersistenceProvider } from './PersistenceProvider'
 export { AdapterProvider } from './AdapterProvider'

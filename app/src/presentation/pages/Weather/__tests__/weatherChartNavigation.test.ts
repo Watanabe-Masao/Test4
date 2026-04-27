@@ -1,5 +1,7 @@
 /**
  * weatherChartNavigation — 月区切り検出と連続スクロールロジックのテスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

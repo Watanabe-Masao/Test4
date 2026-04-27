@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildFeatureChartData, Z_SCORE_THRESHOLD } from './FeatureChartLogic'
 import type { DailyFeatureRow } from '@/application/hooks/duckdb'

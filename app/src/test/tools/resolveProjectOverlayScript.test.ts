@@ -8,6 +8,8 @@
  * テストでは fixture を作り、fixture 内の app/ ディレクトリを appDir として渡す。
  *
  * @responsibility R:utility
+ *
+ * @taxonomyKind T:unclassified
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import * as fs from 'node:fs'

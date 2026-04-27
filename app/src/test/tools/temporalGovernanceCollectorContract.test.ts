@@ -13,6 +13,8 @@
  *
  * @responsibility R:utility
  * @see references/03-guides/governance-final-placement-plan.md
+ *
+ * @taxonomyKind T:unclassified
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { collectFromTemporalGovernance } from '@tools/architecture-health/collectors/temporal-governance-collector'

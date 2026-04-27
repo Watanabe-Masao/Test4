@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { parseDate } from './dateParser'
 export { detectFileType, getDataTypeName } from './FileTypeDetector'
 export type { DetectionResult } from './FileTypeDetector'

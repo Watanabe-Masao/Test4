@@ -7,6 +7,10 @@
  * @see references/01-principles/customer-definition.md
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-PATH-CUSTOMER)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

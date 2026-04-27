@@ -3,6 +3,8 @@
  *
  * テーブルデータを CSV 形式でダウンロード可能にする汎用ユーティリティ。
  * BOM 付き UTF-8 で出力し、Excel での文字化けを防止する。
+ *
+ * @responsibility R:unclassified
  */
 
 /** CSV エクスポートのオプション */

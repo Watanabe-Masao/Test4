@@ -3,6 +3,8 @@
  *
  * OPFS 永続化戦略判定のユニットテスト。
  * DuckDBWorkerClient をモックし、determineReloadStrategy の3戦略分岐を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {

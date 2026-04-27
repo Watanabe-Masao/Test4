@@ -24,6 +24,8 @@
  * 8. 単一店舗 + 空ターゲット (ゼロ値返却)
  *
  * @see projects/completed/phase-6-optional-comparison-projection/plan.md §Phase O3
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildKpiProjection, buildDowGapProjection } from '../comparisonProjections'

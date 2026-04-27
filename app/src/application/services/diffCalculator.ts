@@ -5,6 +5,8 @@
  * 1. 新規挿入: 既存に値がなく、新規に値がある → 自動承認
  * 2. 値変更:   既存に値があり、新規に異なる値がある → ユーザー確認
  * 3. 値削除:   既存に値があり、新規に値がない → ユーザー確認
+ *
+ * @responsibility R:unclassified
  */
 import type { FieldChange, DataTypeDiff, DiffResult } from '@/domain/models/analysis'
 import type {

@@ -5,6 +5,8 @@
  * @bridgeKind analytics
  * @contractId ANA-009
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import { computeMovingAverage as computeTS } from '@/domain/calculations/temporal/computeMovingAverage'
 import type {

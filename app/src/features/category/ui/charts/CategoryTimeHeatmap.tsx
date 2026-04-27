@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * CategoryTimeHeatmap — カテゴリ×時間帯ヒートマップ

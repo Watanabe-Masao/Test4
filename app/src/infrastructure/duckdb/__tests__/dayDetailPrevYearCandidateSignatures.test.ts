@@ -25,6 +25,8 @@
  * | A | `category_time_sales.is_prev_year=TRUE` 行が 0 件 | entries.length === 0 |
  * | B | CTS 行あり / `time_slots.is_prev_year=TRUE` 行が 0 件 → LEFT JOIN → hour=null | entries.length > 0 / entries[0].timeSlots.length === 0 / totalQuantity > 0 |
  * | C | CTS 行の total_quantity=0 (ingest 集計の異常) | entries[0].totalQuantity === 0 |
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { queryCategoryTimeRecords } from '@/infrastructure/duckdb/queries/ctsHierarchyQueries'

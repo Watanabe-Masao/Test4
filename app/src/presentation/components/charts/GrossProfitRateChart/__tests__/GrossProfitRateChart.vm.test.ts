@@ -1,5 +1,7 @@
 /**
  * GrossProfitRateChart.vm.ts — pure ViewModel tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildGrossProfitRateViewModel, getBarColor } from '../GrossProfitRateChart.vm'

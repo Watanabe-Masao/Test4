@@ -2,6 +2,8 @@
  * CalculationFrame — buildCalculationFrame factory tests
  *
  * effectiveDays の解釈を単一化する factory のふるまいを固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildCalculationFrame } from '../CalculationFrame'

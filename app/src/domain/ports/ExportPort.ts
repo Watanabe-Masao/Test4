@@ -3,6 +3,8 @@
  *
  * Presentation 層が Infrastructure 層の export モジュールに直接依存しないよう、
  * エクスポート操作を抽象化する。
+ *
+ * @responsibility R:unclassified
  */
 import type { Explanation } from '@/domain/models/analysis'
 import type { Store } from '@/domain/models/record'

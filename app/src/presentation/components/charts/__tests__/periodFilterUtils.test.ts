@@ -3,6 +3,8 @@
  *
  * Other exports are re-exports from domain/calculations/divisor and are
  * tested in their canonical location.
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { countDowInRange } from '../periodFilterUtils'

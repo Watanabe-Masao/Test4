@@ -17,6 +17,8 @@
  * @responsibility R:utility
  * @see references/03-guides/governance-final-placement-plan.md
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import { describe, it, expect } from 'vitest'

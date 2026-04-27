@@ -1,5 +1,7 @@
 /**
  * jsAggregationLogic — computeYoyDaily / computeYoyDailyV2 tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computeYoyDaily, computeYoyDailyV2 } from '../jsAggregationLogic'

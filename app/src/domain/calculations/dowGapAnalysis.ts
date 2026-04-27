@@ -13,6 +13,8 @@
  * ## 計算式
  *
  * estimatedImpact = Σ(前年の曜日i日平均 × 曜日iの日数差)
+ *
+ * @responsibility R:unclassified
  */
 
 import type {

@@ -2,6 +2,8 @@
  * 複数月インポートオーケストレーション（MonthlyData ベース）
  *
  * ImportOrchestrator から抽出。複数月にまたがるインポート実行と差分解決を担う。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataTypeDiff } from '@/domain/models/analysis'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

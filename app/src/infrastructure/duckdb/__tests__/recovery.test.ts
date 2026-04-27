@@ -2,6 +2,8 @@
  * recovery モジュールのユニットテスト
  *
  * DuckDB 接続をモックし、整合性チェック・再構築ロジックをテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { checkDatabaseIntegrity, rebuildFromIndexedDB, deleteDatabaseFile } from '../recovery'

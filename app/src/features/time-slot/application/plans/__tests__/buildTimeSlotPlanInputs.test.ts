@@ -7,6 +7,8 @@
  * - compMode='yoy': prevYearScope + isPrevYear=true
  * - compMode='wow': 7日前の同範囲 + isPrevYear=false
  * - hierarchy は展開して付与
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildTimeSlotPlanInputs } from '../buildTimeSlotPlanInputs'

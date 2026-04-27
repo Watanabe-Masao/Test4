@@ -4,6 +4,8 @@
  * 当期 vs 比較期の仕入データを取引先別・カテゴリ別に比較し、
  * 仕入動向を把握するためのダッシュボード。
  * period1/period2（日付範囲）ベースで同曜日比較にも対応。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { MainContent } from '@/presentation/components/Layout'

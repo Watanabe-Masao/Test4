@@ -5,6 +5,8 @@
  * infrastructure 層に閉じ込める。
  *
  * @see references/01-principles/sales-definition.md
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'

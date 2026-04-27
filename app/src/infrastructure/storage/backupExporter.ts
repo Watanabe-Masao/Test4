@@ -3,7 +3,6 @@
  *
  * アプリケーションデータをJSON形式のバックアップファイルとしてエクスポート・インポートする。
  * 月次データ + メタデータ + 設定をバンドルして保存する。
- *
  * 注意: rawManifest は元ファイルのメタデータ（ファイル名・ハッシュ・サイズ）のみ。
  * 元ファイルの Blob 本体はバックアップに含まれない。
  *
@@ -23,6 +22,7 @@
  * // インポート
  * const result = await backupExporter.importBackup(file, repo)
  * ```
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportHistoryEntry, RawDataManifest } from '@/domain/models/analysis'

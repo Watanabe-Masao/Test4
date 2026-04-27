@@ -10,6 +10,8 @@
  *
  * ドメイン層のモデルとして定義するが、ロジックは含まない。
  * Explanation の生成はアプリケーション層（ExplanationService）が担う。
+ *
+ * @responsibility R:unclassified
  */
 
 import type { FormulaId } from './Formula'

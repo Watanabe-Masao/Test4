@@ -8,6 +8,8 @@
  *
  * METRIC_DEFS の各指標は formulaRef で FORMULA_REGISTRY を参照し、
  * CI テストが「未登録の計算ロジック」を検出・排除する。
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── FormulaCategory ────────────────────────────────────

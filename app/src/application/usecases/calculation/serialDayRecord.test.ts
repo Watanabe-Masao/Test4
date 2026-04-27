@@ -2,6 +2,8 @@
  * SerialDayRecord 変換・集約のテスト
  *
  * 月跨ぎデータがシリアル値で正しく処理されることを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { toSerialRecords, aggregateBySerial, toContinuousArray } from './serialDayRecord'

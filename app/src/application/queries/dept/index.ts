@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export {
   deptKpiTrendHandler,
   type DeptKpiTrendInput,

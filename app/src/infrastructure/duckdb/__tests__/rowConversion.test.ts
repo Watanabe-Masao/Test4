@@ -1,5 +1,7 @@
 /**
  * rowConversion.ts — Arrow StructRow 変換ユーティリティのテスト
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { snakeToCamel, structRowToObject, normalizeNumeric } from '../rowConversion'

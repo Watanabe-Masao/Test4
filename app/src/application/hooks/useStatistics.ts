@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/ の統計モジュールを直接参照することを避け、
  * application 層経由で提供する。
+ *
+ * @responsibility R:unclassified
  */
 // ── 相関・統計 ──────────────────────────────────────────
 export {

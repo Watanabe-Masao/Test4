@@ -6,6 +6,8 @@
  * - checkHasSubCategories: class は false / 他は子キー 2 個以上で true
  * - computeWaterfallItems: activeLevel 2/3/5 + hasCust の分岐で steps 生成
  * - computeTotals: items の各 effect を合算
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -4,6 +4,8 @@
  * Shapley 5-factor (buildFactorData) は leaf-grain 必須の intentional
  * permanent floor として CTS 入力を継続利用する。本テストは前者 dept-only
  * ウォーターフォールの変換意味を固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

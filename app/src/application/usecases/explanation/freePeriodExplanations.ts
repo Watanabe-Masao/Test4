@@ -9,6 +9,8 @@
  *
  * @see references/01-principles/free-period-analysis-definition.md
  * @see references/01-principles/free-period-budget-kpi-contract.md
+ *
+ * @responsibility R:unclassified
  */
 import type { Explanation, MetricId } from '@/domain/models/analysis'
 import type { FreePeriodSummary } from '@/application/readModels/freePeriod'

@@ -11,6 +11,8 @@
  *
  * @see references/01-principles/pi-value-definition.md
  * @see references/01-principles/calculation-canonicalization-map.md
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from './utils'

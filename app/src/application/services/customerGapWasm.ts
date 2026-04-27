@@ -3,6 +3,8 @@
  * @contractId BIZ-013
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type { CustomerGapInput, CustomerGapResult } from '@/domain/calculations/customerGap'
 import { getCustomerGapWasmExports } from './wasmEngine'

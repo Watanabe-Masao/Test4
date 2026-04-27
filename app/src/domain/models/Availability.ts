@@ -4,6 +4,8 @@
  * 運用状態を5語彙 + ready で統一する。
  * Weather / WASM / SW / chunk load が同じ型を使うことで、
  * Diagnostics UI やテストが統一的に扱える。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 運用状態の5語彙 — 全 runtime contract で共通 */

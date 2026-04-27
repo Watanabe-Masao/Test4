@@ -6,6 +6,8 @@
  * - storeIds 空 → undefined / size>0 → [...set]
  * - prevYearScope 有無で matrixInput に comparison key を付与
  * - deptCode / lineCode / klassCode が各 LevelAggregationInput に反映
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildHeatmapPlanInputs } from '../useHeatmapPlan'

@@ -2,6 +2,8 @@
  * カスタムページ
  *
  * ユーザーが作成したページ。全ウィジェットから自由に構成可能。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'

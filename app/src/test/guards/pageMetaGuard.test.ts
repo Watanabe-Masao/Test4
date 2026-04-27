@@ -6,6 +6,10 @@
  *
  * @guard F10 ページ正本の整合性
  * ルール定義: architectureRules.ts (AR-STRUCT-PAGE-META)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'

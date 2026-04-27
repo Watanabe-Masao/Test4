@@ -3,6 +3,8 @@
  *
  * React hooks を使わない純粋関数。
  * 全 index 構築を一括実行し、useMemo の数を削減する。
+ *
+ * @responsibility R:unclassified
  */
 import { aggregateAllStores, indexByStoreDay, type StoreDayIndex } from '@/domain/models/record'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

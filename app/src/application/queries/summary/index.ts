@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { dailyCumulativeHandler } from './DailyCumulativeHandler'
 export type {
   DailyCumulativeInput,

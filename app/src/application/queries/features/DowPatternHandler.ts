@@ -5,6 +5,8 @@
  * domain 層の computeDowPattern で曜日別集約を計算する。
  *
  * @migration P5: single-source composite handler（DuckDB取得 + JS計算）
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import { queryStoreDaySummary } from '@/infrastructure/duckdb/queries/storeDaySummary'

@@ -3,6 +3,8 @@
  *
  * summaryBuilder.test.ts がカバーする基本ケースを除き、
  * エッジケース・複合条件・キャッシュ境界をテストする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

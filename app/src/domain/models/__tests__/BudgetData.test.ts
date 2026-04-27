@@ -3,6 +3,8 @@
  *
  * 既存 InventoryConfig に部分更新を適用する pure merge。
  * 商品在庫 + 消耗品在庫 = 期末在庫 の自動計算ルールを固定する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { mergeInventoryConfig } from '../BudgetData'

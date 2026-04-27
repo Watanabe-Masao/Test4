@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-27T05:09:13.992Z
+> Generated: 2026-04-27T08:51:24.166Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -21,8 +21,8 @@
 | allowlist.total | 許可リスト総エントリ数 | 13 / 20 | OK |
 | allowlist.frozen.nonZero | Frozen リスト非ゼロ | 0 / 0 | OK |
 | allowlist.active.count | Active リスト数 | 6 / 10 | OK |
-| temporal.allowlist.activeDebt.count | active-debt 例外数 | 1 / 12 | OK |
-| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 1 / 1 | OK |
+| temporal.allowlist.activeDebt.count | active-debt 例外数 | 2 / 12 | OK |
+| temporal.allowlist.activeDebt.withCreatedAt | active-debt で createdAt 設定済み | 2 / 1 | OK |
 | efficacy.allowlist.renewalTotal | renewalCount 合計 | 0 / 10 | OK |
 
 ## 後方互換負債
@@ -82,8 +82,8 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 995 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 835 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 997 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 839 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |

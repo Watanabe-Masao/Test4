@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { palette } from '@/presentation/theme/tokens'
 import { useStorageAdmin } from '@/application/hooks/data'

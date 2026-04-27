@@ -3,6 +3,8 @@
  *
  * 型付きモック（Promise.resolve する init）により
  * wasmEngine の初期化が成功し state='ready' に到達することを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 

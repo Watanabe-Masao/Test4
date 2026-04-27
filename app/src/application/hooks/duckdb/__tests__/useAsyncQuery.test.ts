@@ -4,6 +4,8 @@
  * useCtsHierarchyQueries.ts は React hook のみで純粋関数を持たないため、
  * 同ディレクトリの useAsyncQuery.ts に含まれる純粋ヘルパー
  * (toDateKeys / storeIdsToArray) を代替として検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { toDateKeys, storeIdsToArray } from '../useAsyncQuery'

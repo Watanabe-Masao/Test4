@@ -10,6 +10,8 @@
  * | aggregateHourDow                     | queryHourDowMatrix          |
  * | countDistinctDays (PeriodFilter)     | queryDistinctDayCount       |
  * | computeDowDivisorMap (PeriodFilter)  | queryDowDivisorMap          |
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

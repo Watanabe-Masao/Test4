@@ -3,6 +3,8 @@
  *
  * IndexedDB は fake-indexeddb でシミュレートする。
  * crypto.subtle.digest は vitest グローバル環境で利用可能。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'

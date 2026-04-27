@@ -3,6 +3,8 @@
  *
  * ExplanationService から抽出。registerBudgetExplanations と同じ
  * register パターンで map に Explanation を登録する。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   MetricId,

@@ -10,6 +10,8 @@
  * Phase 6.5-5b: 未使用だった `_periodCTS` / `_periodPrevCTS` dummy 引数を
  * 削除し、CTS raw 型 import を廃止 (売上の正本は daily /
  * prevDaily であり CTS は使用していなかった)。
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyRecord } from '@/domain/models/record'
 import type { ComparisonMode } from './types'

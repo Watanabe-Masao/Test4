@@ -3,6 +3,8 @@
  *
  * weather_hourly テーブルから時間別天気データを取得する QueryHandler。
  * 単日取得と日付範囲平均の 2 ハンドラーを提供。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from '../QueryContract'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { calculateFactorDecomposition } from './calculateFactorDecomposition'
 import { FactorDecompositionReadModel } from './FactorDecompositionTypes'

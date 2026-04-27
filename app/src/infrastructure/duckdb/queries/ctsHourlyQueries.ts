@@ -3,6 +3,8 @@
  *
  * 時間帯別集約・時間帯×曜日マトリクス・カテゴリ×時間帯集約を提供する。
  * time_slots テーブルを主に使用するクエリ群。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

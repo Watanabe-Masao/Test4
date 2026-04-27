@@ -3,6 +3,8 @@
  * @contractId BIZ-011
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { calculatePinIntervals as calculateTS } from '@/domain/calculations/pinIntervals'

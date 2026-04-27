@@ -10,6 +10,8 @@
  * - MonthAttribution: その artifact がどの月にどれだけ寄与したか
  *
  * 既存の ImportSummary / ImportHistoryEntry は projection として生存する。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataType } from './Settings'
 

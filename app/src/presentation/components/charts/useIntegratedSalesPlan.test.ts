@@ -2,6 +2,8 @@
  * useIntegratedSalesPlan — buildQtyPairInput の純粋関数テスト
  *
  * @guard H1 Screen Plan 経由のみ
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildQtyPairInput } from './useIntegratedSalesPlan'

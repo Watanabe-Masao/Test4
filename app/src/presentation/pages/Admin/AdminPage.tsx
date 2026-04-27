@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback } from 'react'
 import { usePwaInstall } from '@/presentation/hooks/usePwaInstall'
 import { useDataStore } from '@/application/stores/dataStore'

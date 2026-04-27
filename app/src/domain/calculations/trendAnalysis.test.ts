@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { analyzeTrend } from './algorithms/trendAnalysis'
 import type { MonthlyDataPoint } from './algorithms/trendAnalysis'

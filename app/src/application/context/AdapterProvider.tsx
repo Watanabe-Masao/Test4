@@ -4,6 +4,8 @@
  * domain/ports/* に対応する adapter 実装を集約し、
  * 消費者は useXxxAdapter() hook で取得する。
  * テストでは mock adapter を注入可能。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import { AdapterContext, type AdapterSet } from './adapterContextDef'

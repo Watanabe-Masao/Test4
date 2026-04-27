@@ -3,6 +3,8 @@
  *
  * hook 呼び出しとセクション配置のみ。各セクションは独立コンポーネント。
  * section 実体は features/storage-admin に移動済み。
+ *
+ * @responsibility R:unclassified
  */
 import { useStorageAdmin } from '@/application/hooks/data'
 import { useStoragePersistence } from '@/application/hooks/useStoragePersistence'

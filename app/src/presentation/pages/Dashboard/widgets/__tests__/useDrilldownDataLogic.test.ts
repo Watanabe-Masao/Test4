@@ -7,6 +7,8 @@
  *
  * `buildLevelColorMap` は aggregateForDrill + CategoryLeafDailyEntry 依存のため
  * ここでは対象外（drilldownUtils 側で aggregateForDrill のテストが担う）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildBreadcrumb, sortDrillItems } from '../useDrilldownDataLogic'

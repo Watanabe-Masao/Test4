@@ -2,6 +2,8 @@
  * useMonthlyDataPoints フックのテスト
  *
  * 過去月データ + 当月データの結合ロジックを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { useMonthlyDataPoints } from '../useMonthlyHistory'

@@ -3,6 +3,8 @@
  *
  * DuckDB 接続をモックして SQL 生成の内容を検証する。
  * materializeSummary は DDL 実行のため、SQL 文字列の送信回数のみ確認する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import {

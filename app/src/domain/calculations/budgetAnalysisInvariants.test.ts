@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { calculateBudgetAnalysis, calculateGrossProfitBudget } from './budgetAnalysis'
 import type { BudgetAnalysisInput, GrossProfitBudgetInput } from './budgetAnalysis'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Phase 2: Daily Series Foundation
 export { buildDailySeries } from './buildDailySeries'
 export { resolveDailyPoint } from './dailySeriesMissingness'

@@ -3,6 +3,8 @@
  *
  * 店舗行クリック → 日別詳細をテーブル or チャートで表示する。
  * conditionPanelYoY.tsx から分離（G6: 600行上限）。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import { formatPercent } from '@/domain/formatting'

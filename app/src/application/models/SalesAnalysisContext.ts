@@ -13,6 +13,8 @@
  *   ビジネスモデルの一部ではない
  * - 取得対象データの契約（@guard A4）は Domain に置くが、
  *   分析 UI の操作文脈は Application に閉じる
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'
 

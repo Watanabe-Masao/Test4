@@ -3,6 +3,8 @@
  *
  * StoreResult から定型レポート形式のデータを構築し、
  * CSV エクスポート可能な2次元配列として返す。
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { Store } from '@/domain/models/Store'

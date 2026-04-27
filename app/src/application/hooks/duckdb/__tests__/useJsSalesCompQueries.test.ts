@@ -2,6 +2,8 @@
  * useJsSalesCompQueries は React hook のみで純粋関数を持たないため、
  * 同じ機能スライス内で代替として jsAggregationLogic.ts の
  * computeYoyDailyV2 を検証する（useJsSalesCompQueries が利用する純粋関数）。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computeYoyDailyV2 } from '../jsAggregationLogic'

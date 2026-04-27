@@ -3,6 +3,8 @@
  *
  * CSV 生成ロジックのユニットテスト。
  * Worker 環境をシミュレートし、toCsvStringInWorker の変換精度を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { ReportExportRequest, ReportWorkerResponse } from '../reportExportWorker'

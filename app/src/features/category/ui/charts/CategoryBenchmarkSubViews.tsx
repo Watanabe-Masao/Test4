@@ -3,6 +3,8 @@
  *
  * ChartView / TableView / MapView / TrendView
  * 各ビューは1コンポーネント = 1チャートでシンプルにつなぎ合わせ。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useTheme } from 'styled-components'

@@ -2,6 +2,8 @@
  * ECharts ツールチップビルダー
  *
  * 12箇所以上のカスタム HTML フォーマッタを型安全なファクトリに集約。
+ *
+ * @responsibility R:unclassified
  */
 import type { TooltipComponentOption } from 'echarts'
 import type { AppTheme } from '@/presentation/theme/theme'

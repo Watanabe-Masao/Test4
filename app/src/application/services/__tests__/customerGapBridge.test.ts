@@ -1,5 +1,7 @@
 /**
  * customerGapBridge — mode switch + calculation tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

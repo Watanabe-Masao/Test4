@@ -4,6 +4,8 @@
  * 検証対象:
  * - 空入力で null
  * - 最高気温 / 最低気温 / 降水量合計 / 湿度平均の算出
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildSummary } from '../HourlyWeatherModal'

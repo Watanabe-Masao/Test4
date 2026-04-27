@@ -3,6 +3,8 @@
  *
  * 保存・差分確認・差分判定・ダイアログ制御ロジックを検証する。
  * PersistenceProvider でラップして Context 経由の復元状態を提供する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'

@@ -13,6 +13,8 @@
  * ヘッダーテキストからカラム位置を動的に検出する。
  *
  * @see etrnTableParser.ts — 日別データパーサー（姉妹モジュール）
+ *
+ * @responsibility R:unclassified
  */
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 

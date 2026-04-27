@@ -5,6 +5,8 @@
  * storeIds の順序差で別物扱いにならないよう、sort して hash する。
  *
  * 将来の free-period cache はこの fingerprint をキーにする。
+ *
+ * @responsibility R:unclassified
  */
 import type { FreePeriodAnalysisFrame } from './AnalysisFrame'
 import type { CalendarDate } from './CalendarDate'

@@ -7,6 +7,8 @@
  * @contractId BIZ-010
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:unclassified
  */
 import type { ObservationPeriod, ObservationStatus } from '@/domain/models/ObservationPeriod'
 import type { ObservationThresholds } from '@/domain/calculations/observationPeriod'

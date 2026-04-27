@@ -5,6 +5,8 @@
  * day 別 Map に集約して返す。
  *
  * 率の算出は domain/calculations に委譲する（@guard B3）。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler } from '../QueryContract'
 import { queryStoreDailyMarkupRate } from '@/infrastructure/duckdb/queries/purchaseComparison'

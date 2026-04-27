@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { DiscountFactReadModel, DiscountFactQueryInput } from './DiscountFactTypes'
 export type {
   DiscountFactReadModel as DiscountFactReadModelType,

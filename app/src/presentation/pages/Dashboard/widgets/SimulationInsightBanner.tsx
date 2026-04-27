@@ -3,6 +3,8 @@
  *
  * 各ツールの結果欄の最上部に配置し、即座に判断を伝える。
  * 判定ロジックは simulationInsight.ts に分離。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import styled from 'styled-components'

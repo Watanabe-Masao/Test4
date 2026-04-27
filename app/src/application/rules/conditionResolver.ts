@@ -2,6 +2,8 @@
  * コンディション閾値の解決
  *
  * 3層マージ: registry default → global config → store override
+ *
+ * @responsibility R:unclassified
  */
 import type {
   ConditionMetricId,

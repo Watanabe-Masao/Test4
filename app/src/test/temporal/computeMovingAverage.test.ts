@@ -5,6 +5,8 @@
  * テスト名は仕様を表現し、rolling sum 実装時の振る舞い比較基準になる。
  *
  * @guard D3 不変条件はテストで守る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { computeMovingAverage } from '@/domain/calculations/temporal'

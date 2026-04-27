@@ -1,5 +1,7 @@
 /**
  * Tests for jmaForecastClient.ts — resolveForecastOfficeByLocation + fetchWeeklyForecast
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 

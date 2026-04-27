@@ -1,5 +1,7 @@
 /**
  * axis.ts — axis builder tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { valueYAxis, categoryXAxis, percentYAxis, yenYAxis } from '../axis'

@@ -2,6 +2,8 @@
  * コンディションサマリー強化版 — フォーマッター + シグナルカラー
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── Signal Colors ──────────────────────────────────────

@@ -7,6 +7,8 @@
  * - onClick が disabled 時は呼ばれない
  * - type prop が DOM に伝わる
  * - $variant / $fullWidth variants が render エラーなく通る
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from 'styled-components'

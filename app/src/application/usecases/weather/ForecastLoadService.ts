@@ -3,6 +3,8 @@
  *
  * lat/lon → 逆ジオコーディング → officeCode → forecast API
  * の流れで週間天気予報を取得する。AMeDAS に非依存。
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreLocation, DailyForecast, ForecastAreaResolution } from '@/domain/models/record'
 import type { WeatherPort } from '@/domain/ports/WeatherPort'

@@ -4,6 +4,8 @@
  * 検証対象:
  * - fmt(n): 小数第1位まで固定
  * - diffStr(cur, prev): 当期 − 前期の差分を + sign 付きで整形
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { fmt, diffStr } from '../WeatherSummarySection'

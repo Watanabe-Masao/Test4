@@ -3,6 +3,8 @@
  *
  * jsAggregationLogic.ts から抽出した pure 関数群。
  * infrastructure 型に依存しない generic signature で定義。
+ *
+ * @responsibility R:unclassified
  */
 import { movingAverage } from './dailyAggregation'
 import {

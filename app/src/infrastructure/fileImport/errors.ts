@@ -1,4 +1,8 @@
-/** インポートエラーの種類 */
+/**
+ * インポートエラーの種類
+ *
+ * @responsibility R:unclassified
+ */
 export type ImportErrorType =
   | 'PARSE_ERROR'
   | 'INVALID_FORMAT'

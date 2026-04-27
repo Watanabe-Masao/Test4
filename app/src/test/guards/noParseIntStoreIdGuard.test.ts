@@ -31,6 +31,8 @@
  *
  * @see CLAUDE.md §設計原則 — E1 境界で検証
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:unclassified
  */
 
 import * as fs from 'fs'

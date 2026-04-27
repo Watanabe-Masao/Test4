@@ -4,6 +4,8 @@
  * useComparisonModule 内で daily / kpi 集計の両方に必要な
  * SourceDataIndex, targetIds の準備を共通化する。
  * React 依存なし。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { ClassifiedSalesDaySummary } from '@/domain/models/ClassifiedSales'

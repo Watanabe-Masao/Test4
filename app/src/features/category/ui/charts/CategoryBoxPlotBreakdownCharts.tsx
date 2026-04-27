@@ -3,6 +3,8 @@
  *
  * StoreBreakdownChart: 店舗別内訳の横棒グラフ
  * DateBreakdownChart: 日別内訳の横棒グラフ
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import type { StoreBreakdownItem, DateBreakdownItem } from '@/application/hooks/duckdb'

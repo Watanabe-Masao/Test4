@@ -5,6 +5,8 @@
  *
  * データフロー:
  *   ETRN → DailyWeatherSummary（月単位で1リクエスト）
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import type { DailyWeatherSummary } from '@/domain/models/record'

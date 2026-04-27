@@ -7,6 +7,10 @@
  *
  * @see references/01-principles/temporal-scope-semantics.md
  * ルール定義: architectureRules.ts (AR-STRUCT-TEMPORAL-SCOPE)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

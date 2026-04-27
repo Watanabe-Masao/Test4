@@ -3,6 +3,8 @@
  *
  * periodMetricsCalculator の入力・出力型を分離する。
  * 消費者（hooks, テスト）が計算関数なしに型だけ参照できる。
+ *
+ * @responsibility R:unclassified
  */
 
 // ── 入力型 ──

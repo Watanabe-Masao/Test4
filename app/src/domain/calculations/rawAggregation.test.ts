@@ -2,6 +2,8 @@
  * rawAggregation — DuckDB SQL 計算の JS 置き換え関数テスト
  *
  * SQL のウィンドウ関数・集約関数と同じ結果を返すことを検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

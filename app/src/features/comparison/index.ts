@@ -3,6 +3,8 @@
  *
  * 前年比較・曜日ギャップ・同曜日マッピング・KPI 投影を含む。
  * 外部からの参照はこの barrel 経由のみ許可。
+ *
+ * @responsibility R:unclassified
  */
 
 // 公開 API: 型

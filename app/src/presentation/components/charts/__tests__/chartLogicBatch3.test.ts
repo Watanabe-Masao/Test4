@@ -4,6 +4,8 @@
  * 対象:
  * - DeptTrendChartLogic: buildDeptTrendData (クロス集計 + sorted keys)
  * - StoreHourlyChartLogic: cosineSimilarity, findCoreTimeByThreshold, buildStoreHourlyData
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDeptTrendData } from '../DeptTrendChartLogic'

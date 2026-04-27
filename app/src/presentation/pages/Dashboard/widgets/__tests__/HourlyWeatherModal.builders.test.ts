@@ -7,6 +7,8 @@
  * - hasPrev=true: 前年気温 + 前年右軸を含む
  * - isForecastMode=true: 線種 solid、"前年実績" label
  * - chartData からの hours 抽出 / series.length 派生
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildHourlyWeatherOption } from '../HourlyWeatherModal.builders'

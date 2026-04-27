@@ -2,6 +2,8 @@
  * datasetRegistry.ts のユニットテスト
  *
  * IndexedDB は fake-indexeddb でシミュレートする。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { IDBFactory } from 'fake-indexeddb'

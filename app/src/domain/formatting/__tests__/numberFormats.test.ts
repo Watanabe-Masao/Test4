@@ -1,5 +1,7 @@
 /**
  * domain/formatting — formatCurrency / formatManYen / formatPercent / formatPointDiff / formatCustomers / formatTransactionValue tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

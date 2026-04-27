@@ -9,6 +9,8 @@
  *
  * @guard A3 Presentation は描画専用
  * @guard F7 View に raw 値を渡さない
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useDataStore } from '@/application/stores/dataStore'

@@ -2,6 +2,8 @@
  * features/clip-export/application — クリップエクスポートアプリケーション層
  *
  * hook・usecase を re-export する。
+ *
+ * @responsibility R:unclassified
  */
 export { useClipExport } from '@/application/hooks/useClipExport'
 export { buildClipBundle } from '@/application/usecases/clipExport/buildClipBundle'

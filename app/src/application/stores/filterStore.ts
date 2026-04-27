@@ -21,6 +21,8 @@
  *             lineCode 変更時に klassCode をリセット
  *
  * @guard C3 store は state 反映のみ
+ *
+ * @responsibility R:unclassified
  */
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'

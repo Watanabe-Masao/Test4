@@ -1,5 +1,7 @@
 /**
  * dowGapStatistics テスト — 曜日ギャップ分析の統計ヘルパー
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

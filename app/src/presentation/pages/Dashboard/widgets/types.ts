@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CurrentCtsQuantity } from '@/application/hooks/useCtsQuantity'
 import type { WidgetId } from './widgetOwnership'
 import type { ReactNode } from 'react'

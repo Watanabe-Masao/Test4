@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useCallback, useMemo, memo } from 'react'
 import type { Store } from '@/domain/models/record'
 import type { ConditionMetricId } from '@/domain/models/analysis'

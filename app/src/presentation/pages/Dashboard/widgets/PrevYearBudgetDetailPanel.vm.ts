@@ -4,6 +4,8 @@
  * 週次集計・曜日ギャップ影響額の計算ロジック。React 非依存。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import type { DowGapAnalysis, DowGapMethod } from '@/domain/models/ComparisonContext'
 import type { ComparisonPoint } from '@/application/comparison/viewModels'

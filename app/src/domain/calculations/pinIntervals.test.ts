@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { calculatePinIntervals } from './pinIntervals'
 import type { DailyRecord } from '@/domain/models/record'

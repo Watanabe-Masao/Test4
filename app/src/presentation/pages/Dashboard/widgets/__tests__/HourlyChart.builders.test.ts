@@ -7,6 +7,8 @@
  * - buildWeatherHourlyMap: 空 → null / hour→record Map
  * - buildHourlySummaryStats: maxAmt / totalQty / peakHour 算出
  * - formatSelectedHoursLabel: 1〜3 件 ・区切り / 4 件以上 範囲表記
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

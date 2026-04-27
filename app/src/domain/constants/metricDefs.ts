@@ -3,6 +3,8 @@
  *
  * MetricId レジストリ（references/metric-id-registry.md）のコード実装。
  * 各指標に label / unit / tokens / storeResultField を定義する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MetricId, MetricMeta } from '../models/Explanation'
 // formulaRef は FORMULA_REGISTRY の FormulaId を参照する（型は MetricMeta 経由で解決）

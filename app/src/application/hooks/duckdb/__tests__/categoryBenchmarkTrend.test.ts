@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildCategoryTrendData } from '../categoryBenchmarkTrend'
 import type { CategoryBenchmarkTrendRow } from '@/infrastructure/duckdb/queries/advancedAnalytics'

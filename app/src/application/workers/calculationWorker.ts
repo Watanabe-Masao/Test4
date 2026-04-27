@@ -7,6 +7,8 @@
  *
  * Vite が Worker をモジュールとしてバンドルするため、
  * 通常のインポートパス (@/) が利用可能。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppSettings, StoreResult } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

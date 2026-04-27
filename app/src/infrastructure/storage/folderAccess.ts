@@ -6,6 +6,8 @@
  *
  * Chromium 系ブラウザ限定 (Chrome 86+, Edge 86+)。
  * Firefox / Safari は非対応 → isSupported() で判定して UI を切り替える。
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── IndexedDB ストア（ハンドル専用） ────────────────────

@@ -10,6 +10,8 @@
  * 3. プリセットによる period2 と旧 ComparisonFrame.previous のずれ
  * 4. 比較 ON/OFF による PrevYearScope の生成有無
  * 5. DOW オフセットの二重計算
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

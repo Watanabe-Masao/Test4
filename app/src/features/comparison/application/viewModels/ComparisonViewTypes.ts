@@ -3,6 +3,8 @@
  *
  * 比較結果の表示用 shape を統一する。
  * Panel / Chart / Table がバラけずに済む。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

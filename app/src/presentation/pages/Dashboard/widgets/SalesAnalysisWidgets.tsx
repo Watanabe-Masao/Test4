@@ -3,5 +3,7 @@
  *
  * 正本は features/sales/ui/SalesAnalysisWidgets.tsx に移動。
  * 後方互換のための re-export。
+ *
+ * @responsibility R:unclassified
  */
 export { renderDowAverage, renderWeeklySummary } from '@/features/sales'

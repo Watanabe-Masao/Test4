@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { loadLayout, saveLayout, DEFAULT_WIDGET_IDS, getWidgetMap } from '../widgetLayout'
 import { UNIFIED_WIDGET_MAP } from '@/presentation/components/widgets'

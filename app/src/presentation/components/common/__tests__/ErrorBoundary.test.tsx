@@ -14,6 +14,8 @@
  * - PageErrorBoundary: 同じ pattern の PageFallback
  *
  * Phase 3 Step 3-12: class component + error boundary の特殊テスト。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

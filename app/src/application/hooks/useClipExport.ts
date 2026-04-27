@@ -6,6 +6,8 @@
  *
  * CTS データの取得は useClipExportPlan に委譲し、
  * queryExecutor.execute() の直接呼び出しを廃止した。
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback, useMemo, useState } from 'react'
 import type { StoreResult } from '@/domain/models/storeTypes'

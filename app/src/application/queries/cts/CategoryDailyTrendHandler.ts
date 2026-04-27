@@ -2,6 +2,8 @@
  * CategoryDailyTrendHandler — カテゴリ別日次売上トレンドクエリ
  *
  * CategoryTrendChart 等で使用。
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryHandler, BaseQueryInput } from '../QueryContract'
 import {

@@ -5,6 +5,8 @@
  * 店舗ごとの売上・粗利・構造指標を多角的に検証する。
  *
  * 階層: L0(ダッシュボード) → L1(本ページ) → L2(日別分析)
+ *
+ * @responsibility R:unclassified
  */
 import { useCallback } from 'react'
 import { MainContent } from '@/presentation/components/Layout'

@@ -3,6 +3,8 @@
  *
  * SVG による箱ひげ図描画とホバー/選択のインタラクションを担当する。
  * CategoryBoxPlotChart から分離された純粋な描画コンポーネント。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo } from 'react'
 import type { CategoryBenchmarkRow, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'

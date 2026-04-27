@@ -5,6 +5,8 @@
  * スプレッドで個別設定と組み合わせる:
  *
  *   { name: '売上', type: 'bar', data, ...barDefaults({ color: theme.chart.barPositive }) }
+ *
+ * @responsibility R:unclassified
  */
 import { chartStyles } from '@/presentation/theme/tokens'
 import type { LinearGradientObject } from 'echarts'

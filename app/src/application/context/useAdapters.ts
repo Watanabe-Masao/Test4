@@ -3,6 +3,8 @@
  *
  * 消費者は直接 adapter ファイルを import せず、これらの hook で取得する。
  * AdapterProvider が必ずラップされていることを前提とする。
+ *
+ * @responsibility R:unclassified
  */
 import { useContext } from 'react'
 import { AdapterContext } from './adapterContextDef'

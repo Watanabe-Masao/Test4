@@ -3,6 +3,8 @@
  *
  * メインスレッド ↔ Worker 間の通信プロトコル。
  * 既存の calculationWorker.ts の requestId パターンを踏襲する。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 

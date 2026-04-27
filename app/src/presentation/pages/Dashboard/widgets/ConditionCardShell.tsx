@@ -3,6 +3,8 @@
  *
  * 各メトリクスカードの描画を担う再利用可能なコンポーネント。
  * データとクリックハンドラを外部から受け取り、純粋に描画のみ行う。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import {

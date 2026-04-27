@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // Chart Input Builder Pattern Guard
 //
 // unify-period-analysis Phase 5: chart / widget から「query input を

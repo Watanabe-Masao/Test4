@@ -6,6 +6,8 @@
  * - parseXlsxBuffer (ArrayBuffer → 2次元配列)
  * - readTabularFile (File → 2次元配列)
  * - parseCsvString の未カバーブランチ (lines 116-123: クォートフィールド末尾 EOF)
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { parseCsvBuffer, parseXlsxBuffer, parseCsvString } from '../tabularReader'

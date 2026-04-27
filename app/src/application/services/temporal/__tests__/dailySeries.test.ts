@@ -5,6 +5,8 @@
  * - toYearMonthKey: CalendarDate → "YYYY-MM"
  * - resolveDailyPoint: row + metric → DailySeriesPoint（status=ok/missing）
  * - buildDailySeries: requiredRange の全日を連続列に変換
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { toYearMonthKey } from '../DailySeriesTypes'

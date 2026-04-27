@@ -1,5 +1,7 @@
 /**
  * chartAxisUtils — niceAxisMax tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { niceAxisMax } from '../chartAxisUtils'

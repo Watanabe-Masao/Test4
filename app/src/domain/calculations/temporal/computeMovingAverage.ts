@@ -5,6 +5,8 @@
  * DailySeriesPoint と同形の入力を受け取り、trailing window の移動平均を返す。
  *
  * @guard A2 Domain は純粋（副作用なし）
+ *
+ * @responsibility R:unclassified
  */
 
 import { z } from 'zod'

@@ -2,6 +2,8 @@
  * features/cost-detail — Ownership Manifest
  *
  * 原価明細スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const COST_DETAIL_MANIFEST = {
   name: 'cost-detail',

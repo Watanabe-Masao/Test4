@@ -5,6 +5,8 @@
  *
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

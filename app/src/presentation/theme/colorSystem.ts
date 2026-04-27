@@ -15,6 +15,8 @@
  *   // ECharts 等の theme 外 → colorSystem ユーティリティ
  *   import { statusAlpha } from '@/presentation/theme/colorSystem'
  *   itemStyle: { color: statusAlpha('positive', 0.3) }
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── 動的 Alpha ユーティリティ ──────────────────────────

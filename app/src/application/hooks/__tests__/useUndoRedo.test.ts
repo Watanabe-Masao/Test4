@@ -3,6 +3,8 @@
  *
  * 設定変更・在庫設定変更のスナップショット保存と
  * undo/redo 操作を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'

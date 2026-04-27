@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildDowPatternData, DOW_LABELS } from './DowPatternChartLogic'
 import type { DowPatternRow } from '@/application/hooks/duckdb'

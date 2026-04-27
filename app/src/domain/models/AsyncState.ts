@@ -17,6 +17,8 @@
  * - stale の判定: hook（入力変更を検知した時点で旧データを stale に遷移）
  * - partial の判定: hook（データソース欠損を検知）。表示継続の可否は呼び出し側
  * - retryable vs fatal の判定: hook（エラー種別による分類）
+ *
+ * @responsibility R:unclassified
  */
 
 // ── 型定義 ──

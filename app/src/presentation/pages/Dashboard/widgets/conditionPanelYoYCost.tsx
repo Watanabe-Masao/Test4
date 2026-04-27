@@ -2,6 +2,8 @@
  * 総仕入前年比の詳細パネル
  *
  * conditionPanelYoY.tsx から分離（G6: 600行上限）。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { useCurrencyFormat } from '@/presentation/components/charts/chartTheme'

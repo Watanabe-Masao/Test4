@@ -5,6 +5,8 @@
  * 整合性チェック、重複検出、日付範囲検証など。
  *
  * 照合・整合性チェックは importDataIntegrity.ts に委譲。
+ *
+ * @responsibility R:unclassified
  */
 import type { ValidationMessage } from '@/domain/models/record'
 import type { DataSummaryInput } from '@/application/services/dataSummary'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { memo } from 'react'
 import { DISCOUNT_TYPES } from '@/domain/models/record'
 import type { EnhancedRow, MetricKey } from './ConditionSummaryEnhanced.vm'

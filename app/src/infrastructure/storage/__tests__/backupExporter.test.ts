@@ -3,6 +3,8 @@
  *
  * Map シリアライズの往復テストを含む。
  * JSON.stringify で Map が {} に化けるバグの再発防止。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { backupExporter } from '../backupExporter'

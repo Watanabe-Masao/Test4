@@ -9,6 +9,8 @@
  * 2. OPFS の DuckDB DB ファイル（原本+レシピから再構築可能）
  * 3. 古い月の IndexedDB monthlyData
  * 4. **原本（rawFiles）は最後まで守る**
+ *
+ * @responsibility R:unclassified
  */
 import { getStorageEstimate, type StorageEstimate } from './storagePersistence'
 

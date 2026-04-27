@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // Chart Rendering Three-Stage Pattern Guard
 //
 // unify-period-analysis Phase 5 三段構造: chart component から data builder と

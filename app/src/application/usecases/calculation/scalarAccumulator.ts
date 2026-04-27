@@ -2,6 +2,8 @@
  * スカラー値の累積集約（純粋関数）
  *
  * aggregateResults から抽出。複数 StoreResult のスカラーフィールドを合算する。
+ *
+ * @responsibility R:unclassified
  */
 import type { CostPricePair, CategoryType, DailyRecord } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'

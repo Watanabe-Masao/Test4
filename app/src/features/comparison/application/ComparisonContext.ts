@@ -9,6 +9,8 @@
  * - 上の層がデータをリクエストする際に `if` チェック不要
  * - データが無い場合はゼロ値 + hasData: false（null/undefined を返さない）
  * - ヘッダ期間（期中の 3/1〜3/5 等）に関係なく月間全体の比較を提供
+ *
+ * @responsibility R:unclassified
  */
 import type { PeriodMetrics } from '@/application/usecases/calculation/periodMetricsCalculator'
 import type { DowGapAnalysis } from '@/domain/models/ComparisonContext'

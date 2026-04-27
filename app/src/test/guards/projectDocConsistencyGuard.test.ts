@@ -29,6 +29,10 @@
  *
  * @see references/03-guides/project-checklist-governance.md §3 §6
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-006
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

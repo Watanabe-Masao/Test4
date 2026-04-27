@@ -7,6 +7,8 @@
  * - buildStoreBreakdown: 指定カテゴリの店舗別値 + 降順ソート
  * - buildBoxPlotDataByDate: 日別の統計
  * - buildDateBreakdown: 日別合計 + 日付順ソート
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import {

@@ -7,6 +7,10 @@
  *
  * @guard G2 エラー伝播 — エラーは握り潰さず伝播させる
  * @guard G3 警告黙殺禁止 — 状態を無視してデータだけ取らない
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

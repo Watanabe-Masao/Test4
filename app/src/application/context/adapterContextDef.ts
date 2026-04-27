@@ -3,6 +3,8 @@
  *
  * 4つのポートアダプターを Context 経由で DI する。
  * 消費者は直接 adapter を import せず、useXxxAdapter() hook で取得する。
+ *
+ * @responsibility R:unclassified
  */
 import { createContext } from 'react'
 import type { WeatherPort } from '@/domain/ports/WeatherPort'

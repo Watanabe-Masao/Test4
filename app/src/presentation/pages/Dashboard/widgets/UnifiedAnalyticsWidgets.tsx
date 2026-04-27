@@ -10,6 +10,8 @@
  * 3. 部門別時間帯パターン  : DeptHourlyChart
  * 4. 店舗×時間帯比較    : StoreHourlyChart
  * 5. 前年比較         : YoYChart
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo } from 'react'
 import { buildSalesAnalysisContext } from '@/application/models/SalesAnalysisContext'

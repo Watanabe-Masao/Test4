@@ -9,6 +9,8 @@
  * - elapsedDays = lastRecordedSalesDay（仕様準拠）
  * - 全フィールドは整数（率なし — @guard B3）
  * - 月内で閉じる（temporal-scope-semantics 準拠）
+ *
+ * @responsibility R:unclassified
  */
 
 /** 観測品質ステータス（observation-period-spec.md Section 6 準拠） */

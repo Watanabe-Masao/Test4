@@ -9,6 +9,8 @@
  * - Domain 層に依存しない（型のみ参照）
  * - 計算を再実行しない（StoreResult の値をそのまま使う）
  * - 式の文字列は人間可読な日本語表記
+ *
+ * @responsibility R:unclassified
  */
 import type {
   MetricId,

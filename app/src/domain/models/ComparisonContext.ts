@@ -4,6 +4,8 @@
  * DowDayCount と DowGapAnalysis は純粋なドメイン概念。
  * PeriodSnapshot / ComparisonContext は PeriodMetrics に依存するため
  * application 層に配置する。
+ *
+ * @responsibility R:unclassified
  */
 
 // ── 曜日ギャップ分析 ──

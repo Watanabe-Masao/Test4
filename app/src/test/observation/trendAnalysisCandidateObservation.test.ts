@@ -3,6 +3,8 @@
  * @contractId ANA-004
  * @semanticClass analytic
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { analyzeTrend as analyzeTS } from '@/domain/calculations/algorithms/trendAnalysis'

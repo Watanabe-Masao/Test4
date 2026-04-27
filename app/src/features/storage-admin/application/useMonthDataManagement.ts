@@ -2,6 +2,8 @@
  * useMonthDataManagement — StorageManagementTab のデータ管理状態
  *
  * useState 5 個 + 関連 useCallback を集約（G5: useState ≤ 8 準拠）。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useEffect } from 'react'
 import { useStorageAdmin } from '@/application/hooks/data'

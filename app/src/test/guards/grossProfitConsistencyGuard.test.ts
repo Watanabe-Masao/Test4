@@ -10,6 +10,10 @@
  *
  * これらが同一の StoreResult に対して同じ値を返すことを保証する。
  * ルール定義: architectureRules.ts (AR-PATH-GROSS-PROFIT-CONSISTENCY)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 // Architecture Rule: AR-PATH-GROSS-PROFIT-CONSISTENCY

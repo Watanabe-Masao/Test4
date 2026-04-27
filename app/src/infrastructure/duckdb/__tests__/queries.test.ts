@@ -3,6 +3,8 @@
  *
  * 実際の DuckDB 接続は不要。CtsFilterParams → WHERE 句の生成と
  * 型インターフェースの整合性を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildTypedWhere } from '../queryRunner'

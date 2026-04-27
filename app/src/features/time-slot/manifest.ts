@@ -2,6 +2,8 @@
  * features/time-slot — Ownership Manifest
  *
  * 時間帯分析サブシステムの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const TIME_SLOT_MANIFEST = {
   name: 'time-slot',

@@ -8,6 +8,8 @@
  * SQL パラメータへの変換は本モジュール内部で行う。
  *
  * @see budgetAnalysis.ts — このクエリが置き換える JS 計算
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

@@ -4,6 +4,8 @@
  * 元ファイル（CSV/XLSX）のメタデータと Blob を管理する。
  * Domain 層で定義することで、application/ と infrastructure/ の両方が
  * この契約に依存できる（A4: 取得対象の契約は Domain で定義）。
+ *
+ * @responsibility R:unclassified
  */
 import type { RawFileRecord, RawDataManifest } from '@/domain/models/analysis'
 import type { DataType } from '@/domain/models/storeTypes'

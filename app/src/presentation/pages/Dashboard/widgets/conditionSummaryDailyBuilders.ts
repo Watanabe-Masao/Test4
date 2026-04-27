@@ -2,6 +2,8 @@
  * コンディションサマリー強化版 — 日別詳細ビルダー
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 
 import { calculateAchievementRate, calculateYoYRatio } from '@/domain/calculations/utils'

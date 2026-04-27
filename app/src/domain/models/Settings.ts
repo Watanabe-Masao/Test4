@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // CustomCategory は customCategories.ts に移行。互換性のため re-export
 import type { AlignmentMode } from './ComparisonScope'
 import type { ConditionSummaryConfig } from './ConditionConfig'

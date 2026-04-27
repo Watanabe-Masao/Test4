@@ -1,5 +1,7 @@
 /**
  * remainingBudgetRate テスト — 残予算必要達成率
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { calculateRemainingBudgetRate, type RemainingBudgetRateInput } from '../remainingBudgetRate'

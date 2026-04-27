@@ -1,5 +1,7 @@
 /**
  * Tests for etrnHttpClient.ts — EtrnNotFoundError, delay, fetchHtmlWithRetry
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { EtrnNotFoundError, delay, fetchHtmlWithRetry, REQUEST_DELAY_MS } from '../etrnHttpClient'

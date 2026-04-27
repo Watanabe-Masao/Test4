@@ -11,6 +11,8 @@
  *   同一 (year, month) に当年+前年データが共存しうる
  * - purchase / special_sales / transfers: is_prev_year 列なし。
  *   前年データは (year-1, month) で INSERT されるため、行全体で削除する
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { ALL_TABLE_DDLS, STORE_DAY_SUMMARY_VIEW_DDL, TABLE_NAMES } from './schemas'

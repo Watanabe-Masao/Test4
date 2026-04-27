@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { summarizeImportPlan } from '../../models/ScopeResolution'
 import type { ImportPlan, ImportScope } from '../../models/ScopeResolution'

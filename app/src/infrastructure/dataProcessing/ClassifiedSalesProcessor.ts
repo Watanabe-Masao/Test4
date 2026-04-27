@@ -6,6 +6,8 @@
  *   販売金額, 71売変, 72売変, 73売変, 74売変
  *
  * 列位置はヘッダー名で自動検出する。
+ *
+ * @responsibility R:unclassified
  */
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'

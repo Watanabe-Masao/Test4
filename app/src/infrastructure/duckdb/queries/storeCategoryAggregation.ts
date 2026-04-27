@@ -3,6 +3,8 @@
  *
  * category_time_sales から店舗×部門/ライン/クラスの売上・点数を集約。
  * store_day_summary から店舗別客数を取得し、店舗別カテゴリPI値の算出に使う。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

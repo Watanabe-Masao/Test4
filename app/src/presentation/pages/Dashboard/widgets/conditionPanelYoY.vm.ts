@@ -2,6 +2,8 @@
  * 前年比（売上・客数）の ViewModel
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import type { Store } from '@/domain/models/record'
 import type { StoreResult } from '@/domain/models/storeTypes'

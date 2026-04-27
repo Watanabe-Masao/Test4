@@ -1,5 +1,7 @@
 /**
  * BudgetSimulatorWidget.vm テスト — pure function VM の検証
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildSimulatorWidgetVm } from '../BudgetSimulatorWidget.vm'

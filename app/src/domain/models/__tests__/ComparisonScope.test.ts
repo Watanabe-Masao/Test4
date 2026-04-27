@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:unclassified
+ */
+
 import { describe, it, expect } from 'vitest'
 import { buildComparisonScope } from '../ComparisonScope'
 import type { PeriodSelection } from '../PeriodSelection'

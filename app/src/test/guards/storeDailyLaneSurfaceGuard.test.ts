@@ -1,3 +1,9 @@
+/**
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
+ */
+
 // storeDailyLaneSurfaceGuard — 店舗別日次レーンの raw daily 露出を ratchet-down で管理
 //
 // unify-period-analysis Phase 6.5 Step B pre-work (Phase 6.5-1):

@@ -3,6 +3,8 @@
  *
  * safeDivide, safeNumber（算術基本）と
  * 標準偏差, 相関, Z スコア, 移動平均など（統計数学）の公式定義。
+ *
+ * @responsibility R:unclassified
  */
 import type { FormulaId, FormulaMeta } from '../models/Formula'
 

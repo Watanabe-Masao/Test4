@@ -11,6 +11,8 @@
  * 4. initializing_engine（DuckDB WASM 初期化中）
  * 5. booting（復元もエンジン初期化もまだ完了していない初期状態）
  * 6. ready
+ *
+ * @responsibility R:unclassified
  */
 import { useSyncExternalStore } from 'react'
 import type {

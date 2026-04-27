@@ -3,6 +3,8 @@
  *
  * application/readModels からの SQL / queryRunner 依存を
  * infrastructure 層に閉じ込める。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects, buildTypedWhere } from '../queryRunner'

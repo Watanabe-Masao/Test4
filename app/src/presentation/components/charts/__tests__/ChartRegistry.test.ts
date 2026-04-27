@@ -1,5 +1,7 @@
 /**
  * ChartRegistry.ts — registry structure tests
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { CHART_REGISTRY, CHART_REGISTRY_MAP } from '../ChartRegistry'

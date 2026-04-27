@@ -11,6 +11,8 @@
  * - blocking=true + loading_data: loadingData メッセージ
  * - blocking=true + applying_update: applyingUpdate + applyingUpdateDetail
  * - phase='ready' + blocking=false: null
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ThemeProvider } from 'styled-components'

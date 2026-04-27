@@ -3,6 +3,8 @@
  * @contractId BIZ-013
  * @semanticClass business
  * @authorityKind candidate-authoritative
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { calculateCustomerGap as calculateCustomerGapDirect } from '@/domain/calculations/customerGap'

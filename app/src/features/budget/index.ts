@@ -1,5 +1,7 @@
 /**
  * features/budget — 予算分析スライス
+ *
+ * @responsibility R:unclassified
  */
 export {
   BudgetTabContent,

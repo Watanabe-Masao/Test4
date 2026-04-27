@@ -5,6 +5,8 @@
  * UI で粗利のラベルを表示する際はこの定数を使用すること。
  *
  * @see references/01-principles/gross-profit-definition.md §8
+ *
+ * @responsibility R:unclassified
  */
 export const GROSS_PROFIT_LABELS = {
   /** フォールバック後の統一名（在庫法優先） */

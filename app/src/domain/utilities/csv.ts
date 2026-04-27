@@ -6,6 +6,8 @@
  *
  * domain 層に配置し、infrastructure（csvExporter）と
  * application（reportExportWorker）の両方から参照する。
+ *
+ * @responsibility R:unclassified
  */
 export function toCsvString(
   rows: readonly (readonly (string | number | null | undefined)[])[],

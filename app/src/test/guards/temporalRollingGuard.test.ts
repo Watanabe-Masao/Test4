@@ -4,6 +4,10 @@
  * rolling 実装経路を強制し、UI / hook / comparison への逆流を防ぐ。
  * 既存 layerBoundaryGuard / presentationIsolationGuard と同じスタイル。
  * ルール定義: architectureRules.ts (AR-STRUCT-TEMPORAL-ROLLING)
+ *
+ * @responsibility R:unclassified
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'

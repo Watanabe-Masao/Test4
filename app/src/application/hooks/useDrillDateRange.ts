@@ -6,6 +6,8 @@
  *
  * prevYearSameDow プリセット時は dowOffset を適用して前年日付を算出する。
  * Date 演算で月跨ぎを正しく処理する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

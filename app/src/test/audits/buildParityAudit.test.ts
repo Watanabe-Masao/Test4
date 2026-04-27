@@ -9,6 +9,8 @@
  * 普通の React リポジトリより起きやすい。
  *
  * @audit Build Parity
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

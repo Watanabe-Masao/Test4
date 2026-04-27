@@ -10,6 +10,8 @@
  * - 出力は StoreDaySummaryIndex（storeId → day → StoreDaySummary）
  * - フィンガープリントでキャッシュ無効化を判定
  * - 詳細明細（supplierBreakdown, transferBreakdown）は含めない
+ *
+ * @responsibility R:unclassified
  */
 
 import type {

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import {
   CustomerScatterChart,
   PerformanceIndexChart,

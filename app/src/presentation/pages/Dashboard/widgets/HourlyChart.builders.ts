@@ -3,6 +3,8 @@
  *
  * React hooks を使わない純粋関数。
  * 依存関係が類似する複数の useMemo を 1 関数にまとめる。
+ *
+ * @responsibility R:unclassified
  */
 import type { HourlyWeatherRecord } from '@/domain/models/record'
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'

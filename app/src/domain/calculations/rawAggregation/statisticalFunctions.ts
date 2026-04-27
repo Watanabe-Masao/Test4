@@ -2,6 +2,8 @@
  * 統計量計算関数群（純粋関数）
  *
  * rawAggregation から抽出。標準偏差、Z-score、変動係数を担う。
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide } from '../utils'
 

@@ -3,6 +3,8 @@
  *
  * requiredRange から連続日次系列を構築する。
  * 月跨ぎ・閏年・欠損・余剰行を検証する。
+ *
+ * @taxonomyKind T:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { buildDailySeries } from '@/application/services/temporal'

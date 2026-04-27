@@ -3,6 +3,8 @@
  *
  * React hooks を使わない純粋関数。
  * 依存関係が類似する useMemo を統合する。
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryLeafDailyEntry } from '@/application/hooks/categoryLeafDaily/CategoryLeafDailyBundle.types'
 import { decomposePriceMix } from './categoryFactorUtils'

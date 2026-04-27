@@ -31,6 +31,8 @@
  * - DepartmentAggregationRow → DepartmentKpiIndex への変換
  * - ランキング構築（gpRateRanking, salesAchievementRanking）
  * - warning / status 判定
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'
