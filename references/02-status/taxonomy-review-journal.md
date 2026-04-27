@@ -98,6 +98,41 @@ proposed → active → deprecated → sunsetting → retired → archived
 - v1 registry / guard 物理削除（Phase 8）+ TSIG-\* rule 物理削除（Phase 8 / Phase 9）
 - `deprecatedMetadataGuard` DM2（@expiresAt 超過検出）が本同日中に発火 → Phase 8 retirement で対象 file 物理削除により解消
 
+### 3.2. 2026-Q2-2 Constitution context 改訂提案（提案中）
+
+> **位置付け**: §3.1 の cooling 撤廃を踏まえ、Constitution 原則 3「語彙生成は高コスト儀式」が **internal-only codebase での儀式的時間制約**を持つことが事後判明した問題を体系的に解消する提案。次回 review window で確定予定。
+
+#### 提案中（draft）
+
+##### Constitution 原則 3 改訂（context-aware "高コスト儀式"）
+
+| 項目                | 値                                                                                                                                 |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 提案者              | claude (AI)                                                                                                                        |
+| 提案日              | 2026-04-27                                                                                                                         |
+| 種別                | 改訂（Constitution 原則 3 + 関連 review-window §4.2 採択条件）                                                                       |
+| Why                 | 原則 3 の「高コスト儀式」が 90 日 cooling という時間制約として書かれていたが、internal-only codebase（外部 consumer 不在）では儀式的要素のみで実質的保護を持たない。§3.1 で具体的に override 経験を踏まえ、context-aware に再定義する必要がある。 |
+| 改訂案              | 原則 3 を **「人間判断ゲート」を中核**として再定義。cooling 期間は **二次属性**（context dependent: external-facing なら必須、internal-only なら省略可）。具体的には: ① review-journal entry を必須とする「採択イベント」が中核、② cooling 期間は context flag (`projects.context.facing` = "internal" \| "external" \| "hybrid") によって自動算出、③ AR-TAXONOMY-AI-VOCABULARY-BINDING を retirement / lifecycle 改変にも拡張（`taxonomyLifecycleTransitionGuard` で機械検証） |
+| 必須対応            | (a) `taxonomy-constitution.md` 原則 3 の rewrite、(b) `taxonomy-review-window.md` §4.2 採択条件から「90 日以上」を context-dependent に、(c) `projects/*/config/project.json` schema に `taxonomyContext` field 追加（推奨値: `internal-only` / `external-facing` / `hybrid`） |
+| Antibody Pair       | —（原則の改訂、新タグ追加なし）                                                                                                      |
+| 推定 promotionLevel | —（原則そのものは vocabulary なし、Constitution の bootstrap invariant として `constitutionBootstrapGuard` B11-B13 が機械検証）       |
+| Sunset 条件         | 本改訂が更に context drift する場合（例: project が internal-only から external-facing に移行）の再改訂手続きを Constitution に明記 |
+| 既存 entry への影響 | §3.1 ad-hoc review が **新 review-window cadence の正式 entry**として遡及承認される（context = internal-only の自動 cooling=0 に該当） |
+| 影響範囲（実装側）  | `taxonomy-constitution.md` rewrite + `taxonomy-review-window.md` §4.2 改訂 + `_template/config/project.json` 拡張 + `constitutionBootstrapGuard` B11-B13 invariant 更新（context-aware）                                                                  |
+
+#### 期待される結果
+
+- 同種ケース（internal-only codebase で cooling 不要な retirement）が ad-hoc review なしで処理可能に
+- AI が context flag を読んで自動的に cooling 値を算出 → 儀式的 review window の負荷削減
+- Constitution が context drift に対する明示的な改訂手続きを持つ → メタ運用の安定性向上
+
+#### 却下リスク（事前認識）
+
+- context flag を AI が単独設定すれば AR-TAXONOMY-AI-VOCABULARY-BINDING 違反 → flag 設定も human approval 必須として明記
+- "internal-only" → "external-facing" 移行時の cooling 再活性化を忘れる → 移行検出 guard も併設
+
+> **次回開催予定**: 親 Phase 4 制度成立確認直後に開催予定。本改訂が確定するまでは §3.1 ad-hoc review を **暫定運用 precedent** として参照する。
+
 ---
 
 > **以降、各 window 開催ごとに次の構造で追加:**

@@ -548,25 +548,14 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     note: 'merge-candidate: AR-AAG-DERIVED-ONLY-IMPORT の具体化（Project Overlay 直参照禁止）',
   },
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
-  'AR-TSIG-TEST-01': {
-    category: 'ratchet-legacy-control',
-    layer: 'execution',
-    note: 'core-rule: Signal Integrity の existence-only assertion 禁止 (False Green / Review Misleading 防止)',
-  },
+  // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で
+  // testSignalIntegrityGuard.test.ts を物理削除した際、本 categoryMap からも削除済 (2026-04-27)。
+  // 置換は v2 T:kind per-test obligation (taxonomyInterlockGuard + testTaxonomyGuardV2)。
+  // AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持。
   'AR-G3-SUPPRESS-RATIONALE': {
     category: 'ratchet-legacy-control',
     layer: 'execution',
     note: 'merge-candidate: AR-G3-SUPPRESS の rationale enforcement 拡張 (TSIG-COMP-01/02 を統合実現)',
-  },
-  'AR-TSIG-COMP-03': {
-    category: 'ratchet-legacy-control',
-    layer: 'execution',
-    note: 'core-rule: Signal Integrity の unused suppress escape (multi-underscore) 禁止',
-  },
-  'AR-TSIG-TEST-04': {
-    category: 'ratchet-legacy-control',
-    layer: 'execution',
-    note: 'core-rule: Signal Integrity の tautology assertion (常に true となる比較) 禁止 (Wave 1〜7 観測期間で 9+ 件発見、AR-TSIG-TEST-01 の補完)',
   },
   'AR-SCOPE-AWARE-MUTATION': {
     category: 'registry-integrity',

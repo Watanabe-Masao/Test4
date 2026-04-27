@@ -658,19 +658,11 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
-  'AR-TSIG-TEST-01': {
-    fixNow: 'now',
-    executionPlan: { effort: 'small', priority: 1 },
-  },
+  // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で
+  // testSignalIntegrityGuard.test.ts を物理削除した際、本 overlay からも削除済 (2026-04-27)。
+  // 置換は v2 T:kind per-test obligation (taxonomyInterlockGuard + testTaxonomyGuardV2)。
+  // AR-G3-SUPPRESS-RATIONALE は scope 違いで恒久維持。
   'AR-G3-SUPPRESS-RATIONALE': {
-    fixNow: 'now',
-    executionPlan: { effort: 'small', priority: 1 },
-  },
-  'AR-TSIG-COMP-03': {
-    fixNow: 'now',
-    executionPlan: { effort: 'small', priority: 2 },
-  },
-  'AR-TSIG-TEST-04': {
     fixNow: 'now',
     executionPlan: { effort: 'small', priority: 1 },
   },
