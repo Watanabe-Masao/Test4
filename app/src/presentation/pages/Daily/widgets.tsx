@@ -12,6 +12,7 @@ import type { UnifiedWidgetDef } from '@/presentation/components/widgets'
 
 export const DAILY_WIDGETS: readonly UnifiedWidgetDef[] = [
   {
+    /** @widget-id WID-030 */
     id: 'daily-chart-gp-rate',
     label: '粗利率トレンド',
     group: '日別トレンド',
@@ -28,6 +29,7 @@ export const DAILY_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-031 */
     id: 'daily-chart-shapley',
     label: 'シャープリー時系列',
     group: '日別トレンド',

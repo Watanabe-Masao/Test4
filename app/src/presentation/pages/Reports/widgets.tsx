@@ -12,6 +12,7 @@ import { ReportDeptTable } from './ReportDeptTable'
 
 export const REPORTS_WIDGETS: readonly UnifiedWidgetDef[] = [
   {
+    /** @widget-id WID-044 */
     id: 'reports-summary-grid',
     label: 'レポートサマリー',
     group: 'レポート',
@@ -26,6 +27,7 @@ export const REPORTS_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-045 */
     id: 'reports-dept-table',
     label: '部門別KPI',
     group: 'レポート',

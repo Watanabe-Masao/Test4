@@ -699,4 +699,25 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
+  // ── AR-CONTENT-SPEC-* (phased-content-specs-rollout Phase A) ──
+  'AR-CONTENT-SPEC-EXISTS': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
+  'AR-CONTENT-SPEC-FRONTMATTER-SYNC': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
+  'AR-CONTENT-SPEC-CO-CHANGE': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
+  'AR-CONTENT-SPEC-FRESHNESS': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'trivial', priority: 2 },
+  },
+  'AR-CONTENT-SPEC-OWNER': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
 }

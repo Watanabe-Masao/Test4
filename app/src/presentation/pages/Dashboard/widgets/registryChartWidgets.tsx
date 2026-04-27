@@ -17,6 +17,7 @@ import { WeatherWidget } from './WeatherWidget'
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   {
+    /** @widget-id WID-002 */
     id: 'chart-daily-sales',
     label: '日別売上チャート',
     group: 'トレンド分析',
@@ -47,6 +48,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   // 注: 予算vs実績チャート → DailySalesChart「累計推移」ビューに統合
   // 注: カテゴリ偏り → CategoryHierarchyExplorer に統合
   {
+    /** @widget-id WID-003 */
     id: 'chart-gross-profit-amount',
     label: '粗利推移チャート',
     group: '収益概況',
@@ -77,6 +79,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   // 注: 部門・クラス別売上 → CategoryHierarchyExplorer に統合
   // 注: 時間帯KPIサマリー → TimeSlotSalesChart「KPI」タブに統合
   {
+    /** @widget-id WID-004 */
     id: 'chart-timeslot-heatmap',
     label: '時間帯×曜日ヒートマップ',
     group: '構造分析',
@@ -93,6 +96,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   },
   // 注: 部門別時間帯パターン → IntegratedSalesChart の孫に統合（ドリル時に包含表示）
   {
+    /** @widget-id WID-005 */
     id: 'chart-store-timeslot-comparison',
     label: '店舗別時間帯比較',
     group: '構造分析',
@@ -110,6 +114,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 店舗別 ──
   {
+    /** @widget-id WID-006 */
     id: 'chart-sales-purchase-comparison',
     label: '売上・仕入 店舗比較',
     group: '構造分析',
@@ -132,6 +137,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   },
   // ── 天気 ──
   {
+    /** @widget-id WID-007 */
     id: 'chart-weather-correlation',
     label: '天気-売上 相関分析',
     group: '外部データ',

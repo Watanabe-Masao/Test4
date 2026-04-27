@@ -599,4 +599,30 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: 原則 3 + 8 昇華メカニズム #7 — AI による review window 外の新 vocabulary 追加を block',
   },
+  // ── AR-CONTENT-SPEC-* (phased-content-specs-rollout Phase A) ──
+  'AR-CONTENT-SPEC-EXISTS': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: spec ↔ source の双方向存在性（@widget-id JSDoc 必須）',
+  },
+  'AR-CONTENT-SPEC-FRONTMATTER-SYNC': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: WID-NNN.md frontmatter が tools/widget-specs/generate.mjs 出力と完全一致',
+  },
+  'AR-CONTENT-SPEC-CO-CHANGE': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: registry source の id 行と spec.registryLine の同期 (Phase A 静的、Phase I で git diff ベースに置換)',
+  },
+  'AR-CONTENT-SPEC-FRESHNESS': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: lastReviewedAt + reviewCadenceDays による spec の陳腐化防止',
+  },
+  'AR-CONTENT-SPEC-OWNER': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: WID-NNN.md frontmatter の owner field 必須化（責任所在）',
+  },
 } as const

@@ -1479,4 +1479,55 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  // ── AR-CONTENT-SPEC-* (phased-content-specs-rollout Phase A) ──
+  // 当該 project は本来 phased-content-specs-rollout 配下だが、
+  // CURRENT_PROJECT.md / tsconfig / vite alias は pure-calculation-reorg を
+  // active 指定しているため、merged.ts が要求する reviewPolicy を本 overlay にも
+  // 設定する。phased-content-specs-rollout が active になった時点では
+  // 同 project の overlay 側の entry が canonical となる。
+  "AR-CONTENT-SPEC-EXISTS": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "documentation-steward",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-CONTENT-SPEC-FRONTMATTER-SYNC": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "documentation-steward",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-CONTENT-SPEC-CO-CHANGE": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "documentation-steward",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-CONTENT-SPEC-FRESHNESS": {
+    fixNow: "debt",
+    executionPlan: { effort: "trivial", priority: 2 },
+    reviewPolicy: {
+      owner: "documentation-steward",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
+  "AR-CONTENT-SPEC-OWNER": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "documentation-steward",
+      lastReviewedAt: "2026-04-27",
+      reviewCadenceDays: 90,
+    },
+  },
 };

@@ -154,6 +154,19 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     label: 'features/ モジュール追加時は docs:generate でプロジェクト構成を更新',
     check: { type: 'health_regenerated' },
   },
+  // --- widget registry source 変更 → 対応 WID-NNN.md frontmatter sync ---
+  // Phase A scope: Anchor Slice 5 件（WID-002 / 006 / 018 / 033 / 040）。
+  // 強い co-change 検証は AR-CONTENT-SPEC-FRONTMATTER-SYNC guard 側で行うため、
+  // 本 entry は generated_section_fresh 互換の placeholder で「変更検知 → CI が
+  // guard を回す」までの導線を貼るのみ。Phase B で 45 件全体に拡大、Phase I で
+  // PR base..HEAD diff ベースの強い co-change 検証に置換する。
+  {
+    pathPattern: 'app/src/presentation/pages/',
+    obligationId: 'obligation.widget-spec.frontmatter-sync',
+    label:
+      'Widget registry 変更時は対応 WID-NNN.md frontmatter の sync が必要 (`npm run content-specs:check`)',
+    check: { type: 'health_regenerated' },
+  },
 ] as const
 
 // ---------------------------------------------------------------------------

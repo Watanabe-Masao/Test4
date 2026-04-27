@@ -14,6 +14,7 @@ import type { DashboardWidgetDef } from './types'
 // ── 分析ウィジェット（DuckDB データ供給） ──
 export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
   {
+    /** @widget-id WID-025 */
     id: 'duckdb-dow-pattern',
     label: '曜日パターン分析',
     group: 'トレンド分析',
@@ -30,6 +31,7 @@ export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
   // 注: duckdb-category-trend → IntegratedCategoryAnalysis「売上推移」タブに統合
   // 注: duckdb-category-hourly（カテゴリ×時間帯）→ TimeSlotChart 部門別モードに統合
   {
+    /** @widget-id WID-026 */
     id: 'duckdb-category-mix',
     label: 'カテゴリ構成比推移',
     group: 'トレンド分析',
@@ -44,6 +46,7 @@ export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-027 */
     id: 'duckdb-category-benchmark',
     label: 'カテゴリベンチマーク',
     group: 'トレンド分析',
@@ -58,6 +61,7 @@ export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-028 */
     id: 'duckdb-category-boxplot',
     label: 'カテゴリ箱ひげ図',
     group: 'トレンド分析',
@@ -73,6 +77,7 @@ export const WIDGETS_DUCKDB: readonly DashboardWidgetDef[] = [
   },
   // PI-CVマップ → Insight ページに移動（L3 分析向け）
   {
+    /** @widget-id WID-029 */
     id: 'duckdb-cv-timeseries',
     label: 'CV時系列分析',
     group: '構造分析',

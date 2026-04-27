@@ -54,6 +54,7 @@ function costDetailWidget(def: {
 
 export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
   costDetailWidget({
+    /** @widget-id WID-040 */
     id: 'costdetail-kpi-summary',
     label: 'サマリーKPI',
     group: '原価明細',
@@ -67,6 +68,7 @@ export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   }),
   costDetailWidget({
+    /** @widget-id WID-041 */
     id: 'costdetail-purchase',
     label: '仕入明細',
     group: '原価明細',
@@ -74,6 +76,7 @@ export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
     render: (ctx) => <PurchaseTab d={ctx.costDetailData} />,
   }),
   costDetailWidget({
+    /** @widget-id WID-042 */
     id: 'costdetail-transfer',
     label: '移動明細',
     group: '原価明細',
@@ -81,6 +84,7 @@ export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
     render: (ctx) => <TransferTab d={ctx.costDetailData} />,
   }),
   costDetailWidget({
+    /** @widget-id WID-043 */
     id: 'costdetail-cost-inclusion',
     label: '消耗品明細',
     group: '原価明細',

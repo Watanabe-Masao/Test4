@@ -55,6 +55,7 @@ function categoryWidget(def: {
 
 export const CATEGORY_WIDGETS: readonly UnifiedWidgetDef[] = [
   categoryWidget({
+    /** @widget-id WID-038 */
     id: 'category-total-view',
     label: 'カテゴリ合計分析',
     group: 'カテゴリ分析',
@@ -71,6 +72,7 @@ export const CATEGORY_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   }),
   categoryWidget({
+    /** @widget-id WID-039 */
     id: 'category-comparison-view',
     label: '店舗間比較',
     group: 'カテゴリ分析',
