@@ -4,6 +4,8 @@
  * bridge は current-only / candidate-only / dual-run-compare / fallback-to-current
  * の 4 モードで computeMovingAverage の経路を切り替える。
  * WASM candidate が ready でない環境では current path のみをテストする。
+ *
+ * @taxonomyKind T:contract-parity
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import {

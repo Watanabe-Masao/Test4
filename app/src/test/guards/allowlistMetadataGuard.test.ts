@@ -25,6 +25,8 @@
  *  - projects/aag-temporal-governance-hardening/checklist.md Phase 4
  *
  * @responsibility R:guard
+ *
+ * @taxonomyKind T:allowlist-integrity
  */
 
 import { describe, expect, it } from 'vitest'

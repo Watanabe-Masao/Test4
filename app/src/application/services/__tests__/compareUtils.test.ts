@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:contract-parity
+ */
+
 import { describe, expect, it } from 'vitest'
 import {
   computeNumericDiffs,

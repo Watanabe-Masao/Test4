@@ -1,3 +1,7 @@
+/**
+ * @taxonomyKind T:state-transition
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useSettingsStore } from '../settingsStore'
 

@@ -116,15 +116,14 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
 // ─── ratchet-down baseline (Phase 0 inventory 計測値) ──
 
 /**
- * v2 untagged baseline (Phase 0 inventory: 全 728 test が untagged)
+ * v2 untagged baseline (Phase 0 inventory: 全 728 test が untagged → Phase 4 Pilot で 709 に ratchet-down)
  *
  * v2 T:kind は v2-only vocabulary。Phase 1 で landing したばかりで、Phase 3 時点では
- * 全 test が untagged。Phase 6 Migration Rollout で全 test に T:kind (T:unclassified
- * 含む) を付与し、Phase 6 完了時に baseline = 0 到達 → Phase 6 完了後に固定モード化。
- *
- * 実測値は test 実行時に確定（V2-T-1 が現在地を計測する）。本 baseline は実測 + 余裕を持たせる。
+ * 全 test が untagged。Phase 4 Pilot で 22 件 (Anchor 6 T:kind + optional 4) を試験付与し
+ * 19 件減少 (一部 v2 R:tag 既付与 file との重複)。Phase 6 Migration Rollout で全 test に
+ * T:kind (T:unclassified 含む) を付与し、baseline = 0 到達 → Phase 6 完了後に固定モード化。
  */
-const UNTAGGED_BASELINE_V2 = 750
+const UNTAGGED_BASELINE_V2 = 709
 
 /**
  * v2 unknown vocabulary baseline (0)

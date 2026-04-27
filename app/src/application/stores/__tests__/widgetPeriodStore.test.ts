@@ -7,6 +7,8 @@
  * - setCustomPeriod2: linked=false + customPeriod2 を設定
  * - resetOverride: 特定 widgetId のオーバーライド削除
  * - resetAll: 全オーバーライドクリア
+ *
+ * @taxonomyKind T:state-transition
  */
 import { describe, it, expect, beforeEach } from 'vitest'
 import { resolveWidgetPeriod2, useWidgetPeriodStore } from '../widgetPeriodStore'
