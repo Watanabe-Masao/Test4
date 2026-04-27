@@ -7,6 +7,8 @@
  * @guard G2 エラー伝播 — エラーは握り潰さず伝播させる
  * @guard G3 警告黙殺禁止 — 状態を無視してデータだけ取らない
  * @guard E1 境界で検証 — バリデーション結果を無視しない
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

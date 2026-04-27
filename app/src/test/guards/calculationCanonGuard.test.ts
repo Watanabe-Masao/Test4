@@ -8,6 +8,8 @@
  * @see references/01-principles/semantic-classification-policy.md
  * ルール定義: architectureRules.ts (AR-STRUCT-CALC-CANON)
  * @guard I2 @guard I3 @guard I4
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as path from 'path'

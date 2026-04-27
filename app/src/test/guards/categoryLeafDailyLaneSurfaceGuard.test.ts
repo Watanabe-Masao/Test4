@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // categoryLeafDailyLaneSurfaceGuard — カテゴリ leaf-grain 日次比較レーンの
 // raw record 露出を ratchet-down で管理
 //

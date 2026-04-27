@@ -7,6 +7,8 @@
  * @see references/01-principles/free-period-analysis-definition.md
  * @see temporal-scope-semantics.md
  * ルール定義: architectureRules.ts (AR-STRUCT-COMPARISON-SCOPE)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -10,6 +10,8 @@
  * @guard F1 バレルで後方互換
  * @guard C6 facade は orchestration のみ
  * @see references/03-guides/governance-final-placement-plan.md
+ *
+ * @responsibility R:unclassified
  */
 import { describe, expect, it } from 'vitest'
 // 正本の 3 経路を個別に import する

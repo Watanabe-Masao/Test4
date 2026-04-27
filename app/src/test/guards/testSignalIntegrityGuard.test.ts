@@ -20,6 +20,8 @@
  * - 機械的判定が困難なため、初期は allowlist で個別管理する
  *
  * @see app/src/test/allowlists/signalIntegrity.ts
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

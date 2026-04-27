@@ -10,6 +10,8 @@
  * @guard G3 コンパイラ警告を黙らせない（noUnusedLocals + eslint-disable 検出）
  * @guard B2 VIEW の LEFT JOIN は集約サブクエリ経由（行倍増防止）
  * @guard E1 境界で検証 — クエリの日付パラメータは validateDateKey 経由
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

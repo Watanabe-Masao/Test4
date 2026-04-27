@@ -6,6 +6,8 @@
  *
  * @guard F4 配置はパスで決まる
  * ルール定義: architectureRules.ts (AR-STRUCT-TOPOLOGY)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

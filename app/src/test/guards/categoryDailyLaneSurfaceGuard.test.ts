@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // categoryDailyLaneSurfaceGuard — 部門×日次レーンの raw CTS row 露出を ratchet-down で管理
 //
 // unify-period-analysis Phase 6.5 Step B pre-work (Phase 6.5-1):

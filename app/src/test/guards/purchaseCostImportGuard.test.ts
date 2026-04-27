@@ -9,6 +9,8 @@
  *
  * @see references/01-principles/purchase-cost-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-PURCHASE-COST)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

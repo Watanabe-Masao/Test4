@@ -8,6 +8,8 @@
  * @guard H4 component に acquisition logic 禁止 — presentation direct query 数を追跡
  * @guard H5 visible-only query は plan でのみ宣言 — collapsible hidden fetch 防止
  * ルール定義: architectureRules.ts (AR-STRUCT-QUERY-PATTERN)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'

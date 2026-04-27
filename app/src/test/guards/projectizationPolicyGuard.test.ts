@@ -44,6 +44,8 @@
  * 新規に metadata を書く project は完全形を求められる。
  *
  * @see references/03-guides/projectization-policy.md §12
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

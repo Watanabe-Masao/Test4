@@ -23,6 +23,8 @@
  * @see projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-5
  * @see projects/architecture-debt-recovery/inquiry/17-legacy-retirement.md §LEG-014
  * @see projects/architecture-debt-recovery/inquiry/03-ui-component-orphans.md
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

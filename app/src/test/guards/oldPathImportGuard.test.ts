@@ -7,6 +7,8 @@
  * @guard F4 配置はパスで決まる
  * @guard F1 バレルで後方互換
  * ルール定義: architectureRules.ts (AR-MIG-OLD-PATH)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

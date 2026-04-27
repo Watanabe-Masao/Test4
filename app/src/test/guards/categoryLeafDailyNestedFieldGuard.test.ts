@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // categoryLeafDailyNestedFieldGuard — CategoryLeafDailyEntry の nested field
 // 参照 (.department.code / .line.name / .klass.code 等) を presentation 層で
 // 「追加禁止」固定モード化した guard (2 層防御の field surface 軸)。

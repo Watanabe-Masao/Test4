@@ -13,6 +13,8 @@
  * 3. PeriodSelection と同名の大きい塊を持たない (型コピーの防止)
  *
  * @see projects/completed/phase-6-optional-comparison-projection/plan.md §不可侵原則 4
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

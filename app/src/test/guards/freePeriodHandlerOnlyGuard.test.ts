@@ -30,6 +30,8 @@
  *
  * @see references/01-principles/free-period-analysis-definition.md §唯一経路ルール
  * @see references/03-guides/runtime-data-path.md §自由期間ファクト
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

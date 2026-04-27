@@ -11,6 +11,8 @@
  *   AR-CONVENTION-BARREL (F1/F9)
  *   AR-CONVENTION-FEATURE-BOUNDARY (F4)
  *   AR-CONVENTION-CONTEXT-SINGLE-SOURCE (F2/F3/F6)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'

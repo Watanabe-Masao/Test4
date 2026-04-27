@@ -7,6 +7,8 @@
  *
  * @guard G1 テストに書く
  * @guard D3 不変条件はテストで守る
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

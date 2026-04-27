@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // useComparisonModule legacy caller ratchet-down guard
 //
 // unify-period-analysis Phase 6a → Phase 6b 移行保証:

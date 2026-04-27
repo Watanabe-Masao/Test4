@@ -13,6 +13,8 @@
  *   AR-RESP-EXPORT-DENSITY (P12)
  *   AR-RESP-NORMALIZATION (P17)
  *   AR-RESP-FALLBACK-SPREAD (P18)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import { getRuleById, formatViolationMessage } from '../architectureRules'

@@ -6,6 +6,8 @@
  *
  * @guard B1
  * @layer wasm/
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

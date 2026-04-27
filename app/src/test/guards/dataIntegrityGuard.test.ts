@@ -12,6 +12,8 @@
  *
  * @guard G1 テストに書く — 機械的検出手段で再発防止
  * ルール定義: architectureRules.ts (AR-STRUCT-DATA-INTEGRITY)
+ *
+ * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
