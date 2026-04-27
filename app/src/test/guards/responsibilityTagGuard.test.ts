@@ -11,6 +11,16 @@
  * @guard C9 現実把握優先（未分類は正直に残す）
  *
  * @taxonomyKind T:unclassified
+ *
+ * @deprecated since: 2026-04-27 — taxonomy-v2 子 Phase 7 v1 Deprecation
+ * @expiresAt 2026-07-26
+ * @sunsetCondition Phase 8 v1 Retirement で taxonomyV1V2GapGuard GAP-R-1 baseline = 0
+ *   到達 + 90 日 cooling 完了 → 本 guard を物理削除し v2 guard
+ *   (responsibilityTagGuardV2.test.ts) のみで責務軸検証を行う。
+ * @reason taxonomy-v2 が Phase 6 で coverage 100% 達成。v2 guard
+ *   (responsibilityTagGuardV2.test.ts + taxonomyInterlockGuard.test.ts +
+ *   taxonomyV1V2GapGuard.test.ts) が 18 invariant で v1 guard 4 test を上位置換済。
+ *   本 guard の存在意義は v1 vocabulary 残存 file の thresholds 検証のみで、Phase 8 で 0 化予定。
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

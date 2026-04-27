@@ -5,7 +5,29 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5+6a-2 完遂（main 反映済）+ Phase 6b/6c 完遂（2026-04-27、本 branch）。Phase 6 全主要 deliverable 完了、Phase 7 TSIG Deprecation に進める状態。**
+**Phase 0+1+2+3+3.5+4+5+6a-2+6b+6c 完遂（main 反映済）+ Phase 7 TSIG Deprecation 完遂（2026-04-27、本 branch）。Phase 8 TSIG Retirement に進める状態（2026-07-26 expiresAt 到達後）。**
+
+> **Phase 7 で landing したもの（本 branch、TSIG deprecation metadata + 撤退期限確定）:**
+>
+> - `testSignalIntegrityGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt: 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata 追記（TSIG-TEST-01 / TSIG-TEST-04 / TSIG-COMP-03 を一括対象、AR-G3-SUPPRESS-RATIONALE は scope 違いで撤退対象外）
+> - `references/03-guides/test-tsig-to-v2-migration-map.md` §3.5 に Phase 7 撤退期限 entry を新設（撤退対象 / 撤退方法 / 残存 scope / Phase 8 着手条件 / 検証 guard を明示）
+> - `CLAUDE.md` §taxonomy-binding §「v1 / TSIG 撤去期限」表に test 軸 entry を含めた両軸表として canonical 化
+>
+> **作業 branch:** `claude/taxonomy-v2-phase7-deprecation` (両子共通の統合 branch)
+> **scope:** TSIG 4 metadata 追記 + migration map §3.5 + CLAUDE.md §taxonomy-binding 表（責務軸と共通）+ 子 checklist 3/3 [x] + 本 HANDOFF（Phase 8 retirement / T:kind 認識化は別 PR、2026-07-26 以降）
+
+### Phase 7 設計結果（テスト軸）
+
+| 指標                                  | 値                                                                          |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| `@deprecated since`                   | 2026-04-27                                                                  |
+| `@expiresAt`                          | **2026-07-26**（90 日 cooling）                                             |
+| 4 metadata 追記対象                   | 1 file: `testSignalIntegrityGuard.test.ts`（TSIG-TEST-01 / TEST-04 / COMP-03 一括）|
+| 残存 scope                            | AR-G3-SUPPRESS-RATIONALE は §3.4 scope 分離で恒久維持（撤退対象外）        |
+| v2 置換マップ完成度                   | 4/4 rule（§1 mapping table、Phase 2 で確定済 + Phase 7 で §3.5 canonical 化）|
+| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 + deprecatedMetadataGuard 5/5    |
+
+> **Phase 6b/6c で landing したもの（本 branch、Promotion Gate L5 + テスト軸 gap 検証完遂）:**
 
 > **Phase 6b/6c で landing したもの（本 branch、Promotion Gate L5 + テスト軸 gap 検証完遂）:**
 >

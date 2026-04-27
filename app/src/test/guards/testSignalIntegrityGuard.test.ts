@@ -20,10 +20,23 @@
  * - 機械的判定が困難なため、初期は allowlist で個別管理する
  *
  * @see app/src/test/allowlists/signalIntegrity.ts
+ * @see references/03-guides/test-tsig-to-v2-migration-map.md (TSIG → v2 T:kind 置換マップ)
  *
  * @responsibility R:unclassified
  *
  * @taxonomyKind T:unclassified
+ *
+ * @deprecated since: 2026-04-27 — taxonomy-v2 子 Phase 7 TSIG Deprecation
+ * @expiresAt 2026-07-26
+ * @sunsetCondition Phase 8 TSIG Retirement で v2 T:kind が全 731 test に付与済
+ *   (Phase 6a-2 で達成済) + per-tag obligation が global rule を完全置換 + 90 日 cooling
+ *   完了 → 本 guard を T:kind 認識化 (TSIG-* global rule を T:meta-guard / T:* ベース
+ *   per-tag obligation に置換、または物理削除)。
+ * @reason taxonomy-v2 が Phase 6 で coverage 100% 達成 (V2-T-1 baseline 0、
+ *   V2-T-3 hard fail rule、Promotion Gate L5 Guarded)。TSIG global rule
+ *   (TSIG-TEST-01 / TSIG-TEST-04 全 728 test 一律 + TSIG-COMP-03 + AR-G3-SUPPRESS-RATIONALE)
+ *   の paradigm shift = global → per-tag interlock (R:tag → 必須 T:kind) 完遂。
+ *   AR-G3-SUPPRESS-RATIONALE は scope 違いのため独立 layer として恒久維持。
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
