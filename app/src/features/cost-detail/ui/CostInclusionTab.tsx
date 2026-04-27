@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { Fragment } from 'react'
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import { Chip, ChipGroup } from '@/presentation/components/common/forms'

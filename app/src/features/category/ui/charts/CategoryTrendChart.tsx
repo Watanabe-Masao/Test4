@@ -3,6 +3,8 @@
  *
  * データ取得・状態管理は useCategoryTrendChartData に分離。
  * 本コンポーネントは描画のみ。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import type { DateRange, PrevYearScope } from '@/domain/models/calendar'

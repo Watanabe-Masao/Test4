@@ -11,6 +11,8 @@
  *   - 色スケーリング用の最大値算出
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryHourlyRow } from '@/application/hooks/duckdb'
 import { findPeak } from '@/application/query-bridge/rawAggregation'

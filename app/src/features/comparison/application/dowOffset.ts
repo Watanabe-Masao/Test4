@@ -3,6 +3,8 @@
  *
  * 月初の曜日差分から DOW オフセットを算出する純粋関数。
  * resolveComparisonFrame.ts から分離。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

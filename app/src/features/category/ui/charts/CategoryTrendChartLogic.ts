@@ -12,6 +12,8 @@
  *   - 金額/点数の切り替え対応
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { CategoryDailyTrendRow } from '@/application/hooks/duckdb'
 import type { AppTheme } from '@/presentation/theme/theme'

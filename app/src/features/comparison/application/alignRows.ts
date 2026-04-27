@@ -27,6 +27,8 @@
  *
  * これにより alignmentKey が「確定済み日付ペア + 比較モード」になり、
  * 月跨ぎ・2月末・leap year を自然に吸収する。
+ *
+ * @responsibility R:unclassified
  */
 
 // ── 型定義 ──

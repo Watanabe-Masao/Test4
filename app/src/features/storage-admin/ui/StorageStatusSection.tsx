@@ -1,5 +1,7 @@
 /**
  * ストレージ状態セクション — 使用量・永続化・OPFS 表示
+ *
+ * @responsibility R:unclassified
  */
 import type { StorageStatusInfo } from '@/application/hooks/useStoragePersistence'
 import {

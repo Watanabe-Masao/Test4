@@ -6,6 +6,8 @@
  * - 配列を返す（重複検知のため、silent sum しない）
  * - 同一キーに複数行がある場合は ambiguous_previous として表面化する
  * - データ契約違反を隠さない
+ *
+ * @responsibility R:unclassified
  */
 import type { MatchableRow } from './comparisonTypes'
 

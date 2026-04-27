@@ -5,6 +5,8 @@
  *
  * 前年同曜日データは sameDow.dailyMapping を唯一の参照源とする。
  * prevYear.daily を直接引かず、dailyMapping の currentDay ベースで再配置済みの値を使う。
+ *
+ * @responsibility R:unclassified
  */
 import type { ReactNode } from 'react'
 import { sc } from '@/presentation/theme/semanticColors'

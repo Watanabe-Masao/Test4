@@ -2,6 +2,8 @@
  * features/budget — Ownership Manifest
  *
  * 予算分析スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const BUDGET_MANIFEST = {
   name: 'budget',

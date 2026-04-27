@@ -3,6 +3,8 @@
  *
  * presentation 層が domain/calculations/forecast を直接呼ぶことを避け、
  * application 層で予測結果を提供する。
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo } from 'react'
 import { calculateForecast, getWeekRanges } from '@/application/services/forecastBridge'

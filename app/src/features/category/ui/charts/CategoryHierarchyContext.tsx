@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useState, useMemo, type ReactNode } from 'react'
 import { HierarchyContext } from '@/presentation/components/charts/categoryHierarchyContextDef'
 import type { HierarchyFilter } from '@/presentation/components/charts/categoryHierarchyContextDef'

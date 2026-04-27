@@ -5,6 +5,8 @@
  * データは親の Screen Plan hook (usePerformanceIndexPlan) から props で受け取る。
  *
  * @guard H4 component に acquisition logic 禁止
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'

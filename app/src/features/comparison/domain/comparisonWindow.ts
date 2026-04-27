@@ -4,6 +4,8 @@
  * isPrevYear ベースの boolean 契約から、意味を持つ Window 型に移行する。
  * 各 Window 型は比較の種類（YoY/WoW/同曜日/カスタム）を明示的に表現し、
  * 日付範囲の起点・対応関係を型として保持する。
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 

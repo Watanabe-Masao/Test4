@@ -2,6 +2,8 @@
  * features/reports — Ownership Manifest
  *
  * レポートスライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const REPORTS_MANIFEST = {
   name: 'reports',

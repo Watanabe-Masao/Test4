@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { chartFontSize } from '@/presentation/theme/tokens'
 /**
  * CategoryBarChart — カテゴリ別売上棒グラフ

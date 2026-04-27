@@ -3,6 +3,8 @@
  *
  * 比較データがどのように生成されたかを透明に記録する。
  * silent fallback を防ぎ、UI がデータの信頼性を判断できるようにする。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 日付マッピングの種類 */

@@ -1,5 +1,7 @@
 /**
  * features/storage-admin/ui — データ管理の Presentation 層
+ *
+ * @responsibility R:unclassified
  */
 export { StorageStatusSection } from './StorageStatusSection'
 export { BackupSection } from './BackupSection'

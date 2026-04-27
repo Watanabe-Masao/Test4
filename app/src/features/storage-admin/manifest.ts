@@ -2,6 +2,8 @@
  * features/storage-admin — Ownership Manifest
  *
  * データ管理スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const STORAGE_ADMIN_MANIFEST = {
   name: 'storage-admin',

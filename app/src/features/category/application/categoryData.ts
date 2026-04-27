@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { StoreResult, CustomCategory } from '@/domain/models/storeTypes'
 import { CUSTOM_CATEGORIES } from '@/domain/models/storeTypes'
 import type { PresetCategoryId } from '@/domain/constants/customCategories'

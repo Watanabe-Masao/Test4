@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export { ForecastTabContent } from './InsightTabForecast'
 export { DecompositionTabContent } from './InsightTabDecomposition'
 export {

@@ -2,6 +2,8 @@
  * features/clip-export — Ownership Manifest
  *
  * クリップボード HTML エクスポート機能の所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const CLIP_EXPORT_MANIFEST = {
   name: 'clip-export',

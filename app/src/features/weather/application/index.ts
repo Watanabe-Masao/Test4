@@ -2,6 +2,8 @@
  * features/weather/application — 天気アプリケーション層
  *
  * hook・adapter・service を re-export する。
+ *
+ * @responsibility R:unclassified
  */
 export { useWeatherData } from '@/application/hooks/useWeather'
 export { usePrevYearWeather } from '@/application/hooks/usePrevYearWeather'

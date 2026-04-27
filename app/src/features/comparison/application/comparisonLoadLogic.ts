@@ -5,6 +5,8 @@
  * React に依存せず、単体テスト可能。
  *
  * @guard G5 hook ≤300行 — 純粋関数を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { QueryMonth } from '@/domain/models/ComparisonScope'
 

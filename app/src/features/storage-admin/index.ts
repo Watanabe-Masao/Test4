@@ -3,6 +3,8 @@
  *
  * IndexedDB のデータ管理・バックアップ・デバイス同期・DuckDB キャッシュなど、
  * Admin ページのストレージ管理機能を縦スライスとして集約する。
+ *
+ * @responsibility R:unclassified
  */
 
 // ─── Application（hooks） ──────────────────────────────

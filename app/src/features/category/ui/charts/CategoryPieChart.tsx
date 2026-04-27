@@ -1,5 +1,7 @@
 /**
  * カテゴリ構成比チャート (ECharts)
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

@@ -4,6 +4,8 @@
  * カテゴリ集計データの合計・構成比の計算ロジック。React 非依存。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import { calculateMarkupRate, calculateShare } from '@/domain/calculations/utils'
 

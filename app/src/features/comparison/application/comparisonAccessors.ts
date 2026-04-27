@@ -10,6 +10,8 @@
  *
  * @guard Q4 alignment-aware access は handler/resolver に閉じる
  * @see buildComparisonAggregation.ts — Map 構築時に alignment を適用
+ *
+ * @responsibility R:unclassified
  */
 import type { PrevYearData, PrevYearDailyEntry } from './comparisonTypes'
 import { toDateKeyFromParts } from '@/domain/models/CalendarDate'

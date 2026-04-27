@@ -3,5 +3,7 @@
  *
  * 時間帯計算の authoritative 関数を re-export する。
  * 実体は domain/calculations/timeSlotCalculations.ts に残留（B1 原則）。
+ *
+ * @responsibility R:unclassified
  */
 export { findCoreTime, findTurnaroundHour } from '@/domain/calculations/timeSlotCalculations'

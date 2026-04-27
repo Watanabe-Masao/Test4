@@ -4,6 +4,8 @@
  * 部門→ライン→クラス の階層ドリルダウンを提供する。
  * データ取得・HierarchyItem 組み立ては useCategoryHierarchyData に分離。
  * テーブル描画は CategoryExplorerTable に委譲。
+ *
+ * @responsibility R:unclassified
  */
 /**
  * @migration P5: query hook 経由に移行済み（旧: useDuckDBLevelAggregation + useDuckDBCategoryHourly 直接 import）

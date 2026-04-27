@@ -15,6 +15,8 @@
  * - トレンド: 上位カテゴリの推移
  *
  * 箱ひげ図は CategoryBoxPlotChart に分離。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'

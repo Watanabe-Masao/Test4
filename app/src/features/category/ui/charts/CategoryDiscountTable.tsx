@@ -3,6 +3,8 @@
  *
  * CategoryDiscountChart から分離。ヘッダークリックでソート切り替え、
  * ダブルクリックで下位レベルにドリルダウン。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppTheme } from '@/presentation/theme/theme'
 import type { CategoryDiscountOutput } from '@/application/queries/cts/CategoryDiscountHandler'

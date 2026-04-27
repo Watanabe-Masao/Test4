@@ -5,6 +5,8 @@
  * 既存 domain/calculations/ の売上関連計算を段階的にここに集約する。
  *
  * @guard A2 Domain は純粋
+ *
+ * @responsibility R:unclassified
  */
 import {
   safeDivide,

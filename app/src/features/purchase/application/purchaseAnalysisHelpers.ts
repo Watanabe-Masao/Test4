@@ -1,5 +1,7 @@
 /**
  * 仕入分析ページの共通ヘルパー
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback } from 'react'
 import type {

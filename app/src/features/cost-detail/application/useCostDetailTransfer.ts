@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { useMemo } from 'react'
 import type { DailyRecord } from '@/domain/models/record'
 import {

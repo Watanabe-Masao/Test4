@@ -1,5 +1,7 @@
 /**
  * デバイス間同期セクション — 設定コード転送 + Web Share API
+ *
+ * @responsibility R:unclassified
  */
 import { useState } from 'react'
 import { useSettingsStore } from '@/application/stores/settingsStore'

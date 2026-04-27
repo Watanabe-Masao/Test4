@@ -5,6 +5,8 @@
  * Presentation VM は domain/ のみに依存する（application/ への依存なし）。
  *
  * @guard F7 View は ViewModel のみ受け取る
+ *
+ * @responsibility R:unclassified
  */
 import { safeDivide } from '@/domain/calculations/utils'
 import type { DailyRecord } from '@/domain/models/record'

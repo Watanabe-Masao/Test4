@@ -1,5 +1,7 @@
 /**
  * 売上 vs 仕入原価 日別チャート
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'

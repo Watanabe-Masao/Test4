@@ -9,6 +9,8 @@
  *
  * @guard H5 visible-only query — collapsible 時、非表示で取得を抑制
  * @guard H6 ChartCard は通知のみ — onVisibilityChange で visible 状態を受け取る
+ *
+ * @responsibility R:unclassified
  */
 import { memo, useMemo, useState, useCallback } from 'react'
 import { useTheme } from 'styled-components'

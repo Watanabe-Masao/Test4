@@ -2,6 +2,8 @@
  * CategoryBenchmarkChartLogic — カテゴリベンチマークの型・定数・純粋関数
  *
  * CategoryBenchmarkChart.vm.ts から分離。描画ロジックに依存しない。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   CategoryBenchmarkScore,

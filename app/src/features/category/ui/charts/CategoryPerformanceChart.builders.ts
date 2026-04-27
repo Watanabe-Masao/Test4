@@ -8,6 +8,8 @@
  *    抱えさせず、builders 側で完結させる）
  *
  * @guard H4 component に acquisition logic 禁止 — 導出は builders で一度だけ
+ *
+ * @responsibility R:unclassified
  */
 import { calculateAmountPI, calculateQuantityPI } from '@/domain/calculations/piValue'
 import { calculateStdDev } from '@/application/hooks/useStatistics'

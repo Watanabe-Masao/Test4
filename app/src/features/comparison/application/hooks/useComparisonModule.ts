@@ -7,6 +7,8 @@
  *
  * 旧 signature (`periodSelection, elapsedDays, ...`) の wrapper は
  * app/src/application/hooks/useComparisonModule.ts に配置されている。
+ *
+ * @responsibility R:unclassified
  */
 import type { ComparisonScope, PrevYearScope } from '@/domain/models/ComparisonScope'
 import type { ComparisonLoadStatus } from '@/application/hooks/useLoadComparisonData'

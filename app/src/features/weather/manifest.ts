@@ -2,6 +2,8 @@
  * features/weather — Ownership Manifest
  *
  * 天気データ取得・永続化・フォールバック・相関分析の所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const WEATHER_MANIFEST = {
   name: 'weather',

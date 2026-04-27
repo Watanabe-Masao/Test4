@@ -5,6 +5,8 @@
  *   QueryHandler → CategoryMixChartLogic.ts → ECharts option → EChart
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBCategoryMixWeekly 直接 import）
+ *
+ * @responsibility R:unclassified
  */
 import { useMemo, useState, useCallback, memo } from 'react'
 import { useTheme } from 'styled-components'

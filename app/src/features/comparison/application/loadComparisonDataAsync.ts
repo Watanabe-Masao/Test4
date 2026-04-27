@@ -3,6 +3,8 @@
  *
  * React hook の useEffect 内にあった ~130 行の async IIFE を独立させ、
  * テスト可能かつ責務を明確にした。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import { getDaysInMonth } from '@/domain/constants/defaults'

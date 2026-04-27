@@ -2,6 +2,8 @@
  * features/weather/domain — 天気ドメイン層
  *
  * 天気データモデル・集計・予報マッピングを re-export する。
+ *
+ * @responsibility R:unclassified
  */
 export type {
   WeatherCategory,

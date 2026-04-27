@@ -7,6 +7,8 @@
  * @guard F7 View は ViewModel のみ受け取る
  * @guard H1 Screen Plan 経由のみ
  * @guard H4 component に acquisition logic 禁止
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useMemo, useCallback } from 'react'
 import type { DateRange } from '@/domain/models/calendar'

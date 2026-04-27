@@ -4,6 +4,8 @@
  * カテゴリベンチマークから分離された箱ひげ図ビュー。
  * 店舗別 / 期間別の分布を箱ひげ図で表示し、
  * ドリルダウンで店舗別・日別の内訳を確認できる。
+ *
+ * @responsibility R:unclassified
  */
 import { memo } from 'react'
 import { ChartSkeleton } from '@/presentation/components/common/feedback'

@@ -5,6 +5,8 @@
  * buildSameDowPoints を内部で使い、sorted array を返す。
  *
  * 複数の widget で同じ変換パターンが繰り返されていたのを共通化。
+ *
+ * @responsibility R:unclassified
  */
 import type { DayMappingRow } from '@/features/comparison/application/comparisonTypes'
 import { buildSameDowPoints } from '@/features/comparison/application/comparisonTypes'

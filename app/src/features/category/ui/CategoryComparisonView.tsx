@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { ChartErrorBoundary } from '@/presentation/components/common/feedback'
 import type { StoreResult } from '@/domain/models/storeTypes'
 import { ChartGrid } from './CategoryPage.styles'

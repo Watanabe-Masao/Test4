@@ -1,5 +1,7 @@
 /**
  * カテゴリ明細テーブル・店舗別比較テーブル
+ *
+ * @responsibility R:unclassified
  */
 import { Fragment, useState, useCallback } from 'react'
 import { formatPercent, formatPointDiff } from '@/domain/formatting'

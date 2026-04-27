@@ -2,6 +2,8 @@
  * features/comparison — Ownership Manifest
  *
  * 比較サブシステムの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const COMPARISON_MANIFEST = {
   name: 'comparison',

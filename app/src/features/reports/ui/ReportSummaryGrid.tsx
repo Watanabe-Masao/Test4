@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { StoreResult } from '@/domain/models/StoreResult'
 import type { AppSettings } from '@/domain/models/Settings'
 import type { MetricId } from '@/domain/models/analysis'

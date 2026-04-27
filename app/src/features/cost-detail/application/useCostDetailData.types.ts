@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export type ActiveTab = 'transfer' | 'costInclusion' | 'purchase'
 export type TransferType = 'interStore' | 'interDepartment'
 export type CostInclusionViewMode = 'item' | 'account' | 'daily'

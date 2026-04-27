@@ -2,6 +2,8 @@
  * features/category — Ownership Manifest
  *
  * カテゴリ分析スライスの所有権と依存関係を宣言する。
+ *
+ * @responsibility R:unclassified
  */
 export const CATEGORY_MANIFEST = {
   name: 'category',
