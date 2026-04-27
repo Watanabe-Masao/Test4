@@ -136,8 +136,8 @@
 | `app/src/test/responsibilityTagRegistry.ts`            | 現行 v1 正本（子で v2 に拡張）     |
 | `app/src/test/guards/responsibilityTagGuard.test.ts`   | 現行 v1 guard                      |
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | 現行 TSIG（v2 でタグ認識化）       |
-| `projects/responsibility-taxonomy-v2/`                 | 子: 責務軸（Phase 0-9）            |
-| `projects/test-taxonomy-v2/`                           | 子: テスト軸（Phase 0-9）          |
+| `projects/completed/responsibility-taxonomy-v2/`                 | 子: 責務軸（Phase 0-9）            |
+| `projects/completed/test-taxonomy-v2/`                           | 子: テスト軸（Phase 0-9）          |
 | `projects/pure-calculation-reorg/`                     | 姉妹 project（同じ制度化フレーム） |
 
 ---

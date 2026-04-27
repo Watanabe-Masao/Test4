@@ -5,7 +5,31 @@
 
 ## 1. 現在地
 
-**Phase 1 + Phase 2 + Phase 3（子 project 立ち上げ）完遂。Phase 4 は子 archive 後。**
+**Phase 1 + Phase 2 + Phase 3 + Phase 4（実装完遂、観察期間中）。両子 archive 済、親は active 維持で連続 2 四半期観察フェーズへ移行（2026-04-27〜）。**
+
+> **2026-04-27 親 Phase 4 部分完遂 (本 branch):**
+>
+> - 両子 archive 完遂: `projects/{responsibility,test}-taxonomy-v2/` → `projects/completed/{responsibility,test}-taxonomy-v2/` (両子 checklist 全 [x] + 最終レビュー [x])
+> - 親 Phase 4 制度成立 5 要件: **4/6 [x]**（残 2 = 「四半期 review window 2 回以上」+ 「interlock マトリクス違反 0 連続 2 四半期」、forward-looking commitment）
+> - 親 Phase 4 OCS 稼働確認: **5/7 [x]**（残 2 = 「Promotion Gate L6 全タグ到達」+ 「Drift Budget 連続 2 四半期」、いずれも観察フェーズ依存）
+> - 親 Phase 4 Anchor Slice 拡大: **3/3 [x]**（段階 1 / 2 / 3 全完遂）
+> - 親 最終レビュー (人間承認): **[ ] 観察期間後に [x]**（次回 review window 2026-Q3 で 2 件目 entry 確定 + interlock 違反 0 連続 2 四半期到達後）
+
+### 観察期間中の到達条件 (2026-Q3 review window 想定)
+
+1. `taxonomy-review-journal.md` に 2 件目の review window entry が landing (§3.2 Constitution context 改訂提案の確定 + 新規提案いずれかで)
+2. `taxonomyInterlockGuard` 9/9 PASS が 2026-Q2 〜 2026-Q3 の連続 2 四半期維持
+3. `taxonomy-health.json` の Drift Budget が連続 2 四半期 0 維持
+4. 残検討: registry V2 frontmatter に per-tag promotion field 拡張（L6 Health-tracked 到達）— §3.2 改訂提案の implementation 候補
+
+> **2026-04-27 子 project 全 Phase 完遂 (子 retrospective fixes 含む):**
+>
+> - 責務軸: Phase 0-9 + retrospective fixes 完遂、`projects/completed/responsibility-taxonomy-v2/` へ archive
+> - テスト軸: Phase 0-9 + retrospective fixes 完遂、`projects/completed/test-taxonomy-v2/` へ archive
+> - retrospective fixes A+D+B+I+G で dead code purge + collector live count + lifecycle transition guard + Constitution context 改訂提案 を landing
+> - 関連 PR: #1172 〜 #1187（16 PR）
+
+
 
 > **最新セッション履歴 (2026-04-26):**
 >
@@ -105,8 +129,8 @@ cd app && npm run docs:generate
 # 親 + 子 plan / checklist の現状把握
 cat projects/taxonomy-v2/HANDOFF.md                    # ← 本ファイル
 cat projects/taxonomy-v2/checklist.md                  # Phase 進捗
-cat projects/responsibility-taxonomy-v2/checklist.md   # 子: 責務軸 Phase 0
-cat projects/test-taxonomy-v2/checklist.md             # 子: テスト軸 Phase 0
+cat projects/completed/responsibility-taxonomy-v2/checklist.md   # 子: 責務軸 Phase 0
+cat projects/completed/test-taxonomy-v2/checklist.md             # 子: テスト軸 Phase 0
 ```
 
 ### 高優先（次セッション = 子 Phase 0 Inventory）
@@ -303,14 +327,14 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 
 | ファイル                                                | 役割                                            |
 | ------------------------------------------------------- | ----------------------------------------------- |
-| **`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`** | **子: 責務軸**（Phase 0 着手可能 2026-04-26）   |
-| `projects/responsibility-taxonomy-v2/HANDOFF.md`        | kickoff 承認の根拠を記載                        |
-| `projects/responsibility-taxonomy-v2/plan.md`           | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
-| `projects/responsibility-taxonomy-v2/checklist.md`      | 子: 責務軸 Phase 0-9                            |
-| **`projects/test-taxonomy-v2/AI_CONTEXT.md`**           | **子: テスト軸**（Phase 0 着手可能 2026-04-26） |
-| `projects/test-taxonomy-v2/HANDOFF.md`                  | kickoff 承認の根拠を記載                        |
-| `projects/test-taxonomy-v2/plan.md`                     | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
-| `projects/test-taxonomy-v2/checklist.md`                | 子: テスト軸 Phase 0-9                          |
+| **`projects/completed/responsibility-taxonomy-v2/AI_CONTEXT.md`** | **子: 責務軸**（Phase 0 着手可能 2026-04-26）   |
+| `projects/completed/responsibility-taxonomy-v2/HANDOFF.md`        | kickoff 承認の根拠を記載                        |
+| `projects/completed/responsibility-taxonomy-v2/plan.md`           | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
+| `projects/completed/responsibility-taxonomy-v2/checklist.md`      | 子: 責務軸 Phase 0-9                            |
+| **`projects/completed/test-taxonomy-v2/AI_CONTEXT.md`**           | **子: テスト軸**（Phase 0 着手可能 2026-04-26） |
+| `projects/completed/test-taxonomy-v2/HANDOFF.md`                  | kickoff 承認の根拠を記載                        |
+| `projects/completed/test-taxonomy-v2/plan.md`                     | Phase 0 / Phase 3 を §OCS.6 / §OCS.7 接続済     |
+| `projects/completed/test-taxonomy-v2/checklist.md`                | 子: テスト軸 Phase 0-9                          |
 
 ### 関連姉妹 project
 

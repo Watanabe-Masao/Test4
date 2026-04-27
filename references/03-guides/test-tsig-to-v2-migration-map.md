@@ -206,4 +206,4 @@ AR-G3-SUPPRESS-RATIONALE は T:kind 軸とは別 layer（suppression comment 検
 | `app/src/test/testTaxonomyRegistryV2.ts`               | v2 registry 実装 (Phase 1 deliverable)         |
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts` | v1 TSIG global rule（Phase 8 で retirement）   |
 | `projects/taxonomy-v2/plan.md` §OCS.4                  | Lifecycle State Machine 仕様正本               |
-| `projects/test-taxonomy-v2/checklist.md`               | 子 Phase 2-9 完了条件                          |
+| `projects/completed/test-taxonomy-v2/checklist.md`               | 子 Phase 2-9 完了条件                          |

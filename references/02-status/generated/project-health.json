@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T11:46:13.798Z",
+  "timestamp": "2026-04-27T16:43:11.596Z",
   "summary": {
-    "active": 7,
-    "archived": 24,
-    "inProgress": 6,
+    "active": 5,
+    "archived": 26,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 997,
-    "checkedCheckboxes": 871
+    "totalCheckboxes": 869,
+    "checkedCheckboxes": 758
   },
   "projects": [
     {
@@ -333,10 +333,10 @@
       "title": "責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退）",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 64,
-      "total": 65,
-      "progress": 0.985,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/responsibility-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"
@@ -347,9 +347,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 38,
+      "checked": 50,
       "total": 55,
-      "progress": 0.691,
+      "progress": 0.909,
       "entrypoint": "projects/taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/taxonomy-v2/checklist.md",
       "parent": null
@@ -372,10 +372,10 @@
       "title": "テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退）",
       "kind": "project",
       "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 61,
-      "total": 63,
-      "progress": 0.968,
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/test-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/test-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"

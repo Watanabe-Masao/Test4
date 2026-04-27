@@ -1,6 +1,6 @@
 ---
 schemaVersion: "1.0"
-schemaSource: "projects/responsibility-taxonomy-v2/plan.md Phase 1"
+schemaSource: "projects/completed/responsibility-taxonomy-v2/plan.md Phase 1"
 canonicalSource: "app/src/test/responsibilityTaxonomyRegistryV2.ts"
 status: draft
 landingPhase: "responsibility-taxonomy-v2 Phase 1 (Schema 設計)"

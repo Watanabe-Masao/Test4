@@ -111,7 +111,7 @@ v1 `R:utility`（33 件）の再来を防ぐため、提案前に以下を **事
 
 ### 4.1. 同期が必要なイベント（責務軸 → テスト軸 通知）
 
-以下のイベント発生時、`projects/test-taxonomy-v2/HANDOFF.md` に同期通知を記載 + 兄弟ガイド `test-taxonomy-operations.md` §4 の対応 trigger を参照する:
+以下のイベント発生時、`projects/completed/test-taxonomy-v2/HANDOFF.md` に同期通知を記載 + 兄弟ガイド `test-taxonomy-operations.md` §4 の対応 trigger を参照する:
 
 | イベント                          | テスト軸への影響                                        |
 | --------------------------------- | ------------------------------------------------------- |
@@ -231,7 +231,7 @@ Result:
 | `references/02-status/taxonomy-review-journal.md`                  | review window 提案 / 採択 / 却下 journal           |
 | `app/src/test/responsibilityTaxonomyRegistryV2.ts`                 | v2 R:tag registry 実装                              |
 | `app/src/test/guards/responsibilityTagGuardV2.test.ts`             | v2 R:tag guard（V2-R-* baseline）                   |
-| `projects/responsibility-taxonomy-v2/plan.md`                      | 子 project plan（10 Phase + Phase 別禁止事項）      |
-| `projects/responsibility-taxonomy-v2/checklist.md`                 | 子 project completion 入力                          |
+| `projects/completed/responsibility-taxonomy-v2/plan.md`                      | 子 project plan（10 Phase + Phase 別禁止事項）      |
+| `projects/completed/responsibility-taxonomy-v2/checklist.md`                 | 子 project completion 入力                          |
 | `projects/taxonomy-v2/plan.md` §OCS.3                              | `taxonomy:check` / `taxonomy:impact` 仕様正本       |
 | `CLAUDE.md` §taxonomy-binding                                      | AI Vocabulary Binding（本ガイド §5.4 退避の根拠）  |
