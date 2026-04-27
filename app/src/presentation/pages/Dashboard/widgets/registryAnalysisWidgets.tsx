@@ -70,6 +70,7 @@ export const WIDGETS_ANALYSIS: readonly DashboardWidgetDef[] = [
     ),
   },
   {
+    /** @widget-id WID-018 */
     id: 'analysis-performance-index',
     label: 'PI値・偏差値・Zスコア',
     group: 'トレンド分析',

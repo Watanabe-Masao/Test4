@@ -54,6 +54,7 @@ function costDetailWidget(def: {
 
 export const COST_DETAIL_WIDGETS: readonly UnifiedWidgetDef[] = [
   costDetailWidget({
+    /** @widget-id WID-040 */
     id: 'costdetail-kpi-summary',
     label: 'サマリーKPI',
     group: '原価明細',

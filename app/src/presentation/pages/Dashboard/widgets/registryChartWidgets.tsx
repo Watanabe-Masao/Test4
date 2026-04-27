@@ -17,6 +17,7 @@ import { WeatherWidget } from './WeatherWidget'
 // ── トレンド分析: 日次 ──
 export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   {
+    /** @widget-id WID-002 */
     id: 'chart-daily-sales',
     label: '日別売上チャート',
     group: 'トレンド分析',
@@ -110,6 +111,7 @@ export const WIDGETS_CHART: readonly DashboardWidgetDef[] = [
   // 注: 時間帯別前年同曜日比較 → TimeSlotSalesChart「前年比較」タブに統合
   // ── 店舗別 ──
   {
+    /** @widget-id WID-006 */
     id: 'chart-sales-purchase-comparison',
     label: '売上・仕入 店舗比較',
     group: '構造分析',

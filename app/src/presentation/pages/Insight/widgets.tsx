@@ -64,6 +64,7 @@ export const INSIGHT_WIDGETS: readonly UnifiedWidgetDef[] = [
     ),
   }),
   {
+    /** @widget-id WID-033 */
     id: 'insight-budget-simulator',
     label: '予算達成シミュレーター',
     group: 'インサイト',
