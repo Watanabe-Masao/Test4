@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T03:50:30.097Z",
+  "timestamp": "2026-04-27T04:17:45.804Z",
   "summary": {
     "active": 7,
     "archived": 24,
@@ -334,9 +334,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 43,
+      "checked": 39,
       "total": 64,
-      "progress": 0.672,
+      "progress": 0.609,
       "entrypoint": "projects/responsibility-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/responsibility-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"
@@ -373,9 +373,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 38,
+      "checked": 42,
       "total": 62,
-      "progress": 0.613,
+      "progress": 0.677,
       "entrypoint": "projects/test-taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/test-taxonomy-v2/checklist.md",
       "parent": "taxonomy-v2"

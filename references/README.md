@@ -8,7 +8,7 @@
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 46         |
 | `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
-| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 67         |
+| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 68         |
 | `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
 | `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 4          |
 
@@ -161,6 +161,7 @@
 | Taxonomy v2 Review Journal（review window 記録）                                           | `02-status/taxonomy-review-journal.md`                          |
 | Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）                    | `03-guides/taxonomy-review-window.md`                           |
 | Responsibility Taxonomy Operations（責務軸 R:\* 運用ガイド、子 Phase 5 deliverable）        | `03-guides/responsibility-taxonomy-operations.md`               |
+| Test Taxonomy Operations（テスト軸 T:\* 運用ガイド、子 Phase 5 deliverable）                | `03-guides/test-taxonomy-operations.md`                         |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 

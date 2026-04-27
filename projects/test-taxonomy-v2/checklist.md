@@ -69,12 +69,12 @@
 
 ## Phase 5: Operations
 
-- [ ] `references/03-guides/test-taxonomy-operations.md` が作成されている
-- [ ] 新 T:kind 提案テンプレートが定義されている
-- [ ] T:kind 撤退テンプレートが定義されている
-- [ ] responsibility-taxonomy-v2 との同期 review window 連絡手順が明記されている
-- [ ] `npm run taxonomy:impact` のテスト軸出力（required tests / found / missing）が動作確認済み
-- [ ] PR template に親 plan.md §OCS.3 の確認項目（taxonomy:check / taxonomy:impact）が追加されている
+- [x] `references/03-guides/test-taxonomy-operations.md` が作成されている（Phase 5 子 branch 2026-04-27、軸別正本として §1 範囲分担 / §2 提案テンプレ / §3 撤退テンプレ / §4 同期手順 / §5 impact CLI T 軸出力 / §6 PR レビュー観点 で構成）
+- [x] 新 T:kind 提案テンプレートが定義されている（test-taxonomy-operations.md §2.2、テスト軸固有の事前情報シート + 「過剰命名」リスク事前否認 + TSIG 移行期間特有の考慮）
+- [x] T:kind 撤退テンプレートが定義されている（test-taxonomy-operations.md §3.2、replacedBy / sunsetCondition / obligation 欠落補完 / 対 R:tag 孤立確認）
+- [x] responsibility-taxonomy-v2 との同期 review window 連絡手順が明記されている（test-taxonomy-operations.md §4、同期 trigger 5 イベント + 同 window 同時裁定必須ケース 4 件）
+- [ ] `npm run taxonomy:impact` のテスト軸出力（required tests / found / missing）が動作確認済み（出力 contract は §5 で正本化、CLI 実装 + 動作確認は Phase 5 統合 branch）
+- [ ] PR template に親 plan.md §OCS.3 の確認項目（taxonomy:check / taxonomy:impact）が追加されている（Phase 5 統合 branch で `.github/PULL_REQUEST_TEMPLATE.md` 改変）
 
 ## Phase 6: Migration Rollout
 
