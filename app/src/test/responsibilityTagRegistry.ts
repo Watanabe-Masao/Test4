@@ -21,6 +21,16 @@
  * v2 タグの thresholds 検証は v1 architectureRules に rule mapping が無いため
  * 自動 skip される (`getRuleByResponsibilityTag` が undefined を返す)。
  * 全実装契約は v2 側 (responsibilityTagGuardV2 + taxonomyInterlockGuard) で担う。
+ *
+ * @deprecated since: 2026-04-27 — taxonomy-v2 子 Phase 7 v1 Deprecation
+ * @expiresAt 2026-07-26
+ * @sunsetCondition Phase 8 v1 Retirement で taxonomyV1V2GapGuard GAP-R-1 baseline = 0
+ *   到達 + 90 日 cooling 完了 → v1 vocabulary を物理削除（型 + VALID_TAGS + helper）。
+ *   置換先は responsibilityTaxonomyRegistryV2.ts (v2 R: tag、Phase 6c で全 10 件
+ *   promotionLevel L5 達成済)。
+ * @reason taxonomy-v2 が Phase 6 で coverage 100% 達成（V2-R-1 baseline 0、V2-R-3
+ *   hard fail rule 活性化、Promotion Gate L5 Guarded）。v1 vocabulary 並行運用は
+ *   Phase 7 deprecation 期間中のみ。新規 file は v2 vocabulary のみ使用すること。
  */
 import * as fs from 'fs'
 

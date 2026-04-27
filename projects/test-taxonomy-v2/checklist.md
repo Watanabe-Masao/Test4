@@ -41,7 +41,7 @@
 - [x] `app/src/test/guards/testTaxonomyGuard.test.ts` が PASS している（Phase 3 子 branch 2026-04-26 で `testTaxonomyGuardV2.test.ts` として新設、6 tests PASS。なお元 checklist の `testTaxonomyGuard` 名称は legacy 仮名で実体は V2 命名規約に合わせて V2 サフィックス付き）
 - [x] interlock 検証 guard が T:kind ↔ R:tag の存在を検証している（Phase 3 統合 branch で `taxonomyInterlockGuard.test.ts` 9 tests PASS、INTERLOCK-1b で T → R 検証）
 - [x] 未分類 baseline が ratchet-down で管理されている（V2-T-1: untagged baseline=750、V2-T-2: unknown vocabulary baseline=0）
-- [ ] タグなし ≠ `T:unclassified` が hard fail で検出される（V2-T-3 で smoke 配置済、Phase 6 Migration Rollout 完了後に hard rule 昇格予定）
+- [x] タグなし ≠ `T:unclassified` が hard fail で検出される（Phase 6a-2 mass-tagging で V2-T-1 baseline 0 達成 → V2-T-3 を smoke から hard rule に昇格、現在は全 .test.ts/.test.tsx で @taxonomyKind のない file が 1 件でも検出されると hard fail。`testTaxonomyGuardV2.test.ts:177-192` 参照）
 - [x] TSIG と v2 guard が並行運用されている（testSignalIntegrityGuard.test.ts と testTaxonomyGuardV2.test.ts が同時 PASS、粒度 global / per-test 異なる）
 
 ### AR-TAXONOMY-_ rule active 化（テスト軸側、親 plan.md §AR-TAXONOMY-_）
@@ -88,9 +88,9 @@
 
 ## Phase 7: TSIG Global Rule Deprecation
 
-- [ ] TSIG-\* rule に `@deprecated since:` コメントが追記されている
-- [ ] TSIG 撤去期限（90 日以上先）が設定されている
-- [ ] 各 TSIG rule の v2 置換マップが完成している
+- [x] TSIG-\* rule に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`testSignalIntegrityGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata を追記、`deprecatedMetadataGuard` 5/5 PASS。TSIG-TEST-01 / TSIG-TEST-04 / TSIG-COMP-03 を一括対象、AR-G3-SUPPRESS-RATIONALE は scope 違いで撤退対象外）
+- [x] TSIG 撤去期限（90 日以上先）が設定されている（**2026-07-26**、since 2026-04-27 + 90 日。Phase 8 retirement 着手目安、`deprecatedMetadataGuard` DM2 で `@expiresAt` 超過検出 hard fail）
+- [x] 各 TSIG rule の v2 置換マップが完成している（`test-tsig-to-v2-migration-map.md` §1 で 4 rule 全件の置換先確定: TSIG-TEST-01 / TSIG-TEST-04 = N:M paradigm shift to per-T:kind obligation / TSIG-COMP-03 = T:contract-parity 1:1 統合 / AR-G3-SUPPRESS-RATIONALE = scope 分離維持。§3.5 Phase 7 撤退期限 entry でも canonical 化）
 
 ## Phase 8: TSIG Retirement
 

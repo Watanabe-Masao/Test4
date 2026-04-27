@@ -5,7 +5,30 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5+6a-1+6a-2 完遂（main 反映済）+ Phase 6b/6c 完遂（2026-04-27、本 branch）。Phase 6 全主要 deliverable 完了、Phase 7 v1 Deprecation に進める状態。**
+**Phase 0+1+2+3+3.5+4+5+6a-1+6a-2+6b+6c 完遂（main 反映済）+ Phase 7 v1 Deprecation 完遂（2026-04-27、本 branch）。Phase 8 v1 Retirement に進める状態（2026-07-26 expiresAt 到達後）。**
+
+> **Phase 7 で landing したもの（本 branch、v1 deprecation metadata + 撤退期限確定）:**
+>
+> - `responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` の JSDoc header に `@deprecated since: 2026-04-27` + `@expiresAt: 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata 追記（`deprecatedMetadataGuard` 必須 3 metadata + since 含めて 4 件）
+> - `references/03-guides/responsibility-v1-to-v2-migration-map.md` §3.4 に Phase 7 撤退期限 entry を新設（撤退対象 / 撤退方法 / Phase 8 着手条件 / 検証 guard を明示）
+> - `CLAUDE.md` §taxonomy-binding §「v1 / TSIG 撤去期限」表を新設（責務軸 + テスト軸 両軸の expiresAt 2026-07-26 を canonical source として参照可能化）
+>
+> **作業 branch:** `claude/taxonomy-v2-phase7-deprecation` (両子共通の統合 branch)
+> **scope:** v1 4 metadata 追記 + migration map §3.4 + CLAUDE.md §taxonomy-binding 表 + 子 checklist 3/3 [x] + 本 HANDOFF（Phase 8 物理削除は別 PR、2026-07-26 以降）
+
+### Phase 7 設計結果
+
+| 指標                                  | 値                                                                          |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| `@deprecated since`                   | 2026-04-27                                                                  |
+| `@expiresAt`                          | **2026-07-26**（90 日 cooling）                                             |
+| 4 metadata 追記対象                   | 2 file: `responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts`    |
+| `deprecatedMetadataGuard`             | 5/5 PASS（DM1 baseline 0 fixed mode 維持、DM2 expiresAt 超過検出は将来時刻のため未発火）|
+| migration map §3.4                    | 撤退対象 / 撤退方法 / Phase 8 着手条件 / 検証 guard を表形式で確定          |
+| CLAUDE.md 参照                        | §taxonomy-binding に両軸 expiresAt 表（responsibility + test の単一参照源）   |
+| 機械検証                              | taxonomy:check 24/24 + test:guards 837/837 + deprecatedMetadataGuard 5/5    |
+
+> **Phase 6b/6c で landing したもの（本 branch、v1/v2 gap 検証 + Promotion Gate L5）:**
 
 > **Phase 6b/6c で landing したもの（本 branch、v1/v2 gap 検証 + Promotion Gate L5）:**
 >

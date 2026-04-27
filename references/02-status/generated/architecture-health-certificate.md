@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Healthy** |
-| 前回比 | Flat |
+| 前回比 | Improved |
 | リリース影響 | No |
-| 最終更新 | 2026-04-27T09:53:31.782Z |
+| 最終更新 | 2026-04-27T10:50:55.590Z |
 
 ## Hard Gate
 
@@ -36,6 +36,12 @@
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 0/32 / active-debt 例外数: 2/12 / reviewPolicy 設定済みルール数: 155/92 / sunsetCondition 設定済みルール数: 24/9 / active-debt で createdAt 設定済み: 2/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 92 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 7/20 / in_progress な project 数（open required checkbox あり）: 6/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 24/100 |
+
+## Recent Changes
+
+| 指標 | 前回 | 今回 | 変化 |
+|---|---|---|---|
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ---
 

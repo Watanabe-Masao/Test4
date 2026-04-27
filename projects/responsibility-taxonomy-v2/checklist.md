@@ -42,7 +42,7 @@
 - [x] `app/src/test/guards/responsibilityTagGuardV2.test.ts` が PASS している（Phase 3 子 branch 2026-04-26、5 tests PASS）
 - [x] interlock 検証 guard が R:tag → 必須 T:kind の存在を検証している（Phase 3 統合 branch で `taxonomyInterlockGuard.test.ts` 9 tests PASS、INTERLOCK-1a/1b で双方向検証 + INTERLOCK-4a で Antibody Pair 双方向対称性検出 → schema fix）
 - [x] 未分類 baseline が ratchet-down で管理されている（V2-R-1: untagged baseline=1055、V2-R-2: unknown vocabulary baseline=270）
-- [ ] タグなし ≠ `R:unclassified` が hard fail で検出される（V2-R-3 で smoke 配置済、Phase 6 Migration Rollout 完了後に hard rule 昇格予定）
+- [x] タグなし ≠ `R:unclassified` が hard fail で検出される（Phase 6a-2 mass-tagging で V2-R-1 baseline 0 達成 → V2-R-3 を smoke から hard rule に昇格、現在は scope 内に @responsibility のない file が 1 件でも検出されると hard fail。`responsibilityTagGuardV2.test.ts:178-191` 参照）
 - [x] v1 guard と v2 guard が並行運用されている（responsibilityTagGuard.test.ts と responsibilityTagGuardV2.test.ts が同時 PASS、scope/vocabulary 異なる）
 
 ### AR-TAXONOMY-_ rule active 化（責務軸側、親 plan.md §AR-TAXONOMY-_）
@@ -89,9 +89,9 @@
 
 ## Phase 7: v1 Deprecation
 
-- [ ] v1 registry / guard に `@deprecated since:` コメントが追記されている
-- [ ] v1 撤去期限（90 日以上先）が設定されている
-- [ ] 移行期限が CLAUDE.md または references/ から参照可能である
+- [x] v1 registry / guard に `@deprecated since:` コメントが追記されている（Phase 7 branch 2026-04-27、`responsibilityTagRegistry.ts` + `responsibilityTagGuard.test.ts` に `@deprecated since: 2026-04-27` + `@expiresAt 2026-07-26` + `@sunsetCondition` + `@reason` の 4 metadata を追記、`deprecatedMetadataGuard` 5/5 PASS）
+- [x] v1 撤去期限（90 日以上先）が設定されている（**2026-07-26**、since 2026-04-27 + 90 日。Phase 8 retirement 着手目安、`deprecatedMetadataGuard` DM2 で `@expiresAt` 超過検出 hard fail）
+- [x] 移行期限が CLAUDE.md または references/ から参照可能である（CLAUDE.md §taxonomy-binding §「v1 / TSIG 撤去期限」表 + `responsibility-v1-to-v2-migration-map.md` §3.4 Phase 7 撤退期限 entry が canonical source）
 
 ## Phase 8: v1 Retirement
 
