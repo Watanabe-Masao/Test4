@@ -1,5 +1,7 @@
 /**
  * 安全な数値変換（null/undefined/NaN/±Infinity → 0）
+ *
+ * @responsibility R:unclassified
  */
 export function safeNumber(n: unknown): number {
   if (n == null) return 0

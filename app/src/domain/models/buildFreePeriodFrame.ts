@@ -3,6 +3,8 @@
  *
  * PeriodSelection（UI の期間選択状態）を分析入力契約に変換する。
  * ComparisonScope の構築は buildComparisonScope に委譲する。
+ *
+ * @responsibility R:unclassified
  */
 import type { PeriodSelection } from '@/domain/models/PeriodSelection'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { safeDivide } from '../calculations/utils'
 
 /** 原価・売価ペア */

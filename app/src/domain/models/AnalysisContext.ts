@@ -2,6 +2,8 @@
  * AnalysisContext — ドリルダウン型定義
  *
  * 設計原則3「ドリルは3種類に固定」の型定義。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

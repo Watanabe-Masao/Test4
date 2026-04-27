@@ -5,6 +5,8 @@
  * safeDivide(..., 0) による意味潰しを防ぎ、UI が warning を拾えるようにする。
  *
  * 参照: references/01-principles/observation-period-spec.md (status 定義)
+ *
+ * @responsibility R:unclassified
  */
 
 /** 計算結果のステータス */

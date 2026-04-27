@@ -3,6 +3,8 @@
  *
  * 気象庁の実測値をドメイン型として定義する。
  * date_key (YYYY-MM-DD) を主キーとし、月跨ぎでも連続的に保持する。
+ *
+ * @responsibility R:unclassified
  */
 
 /** WMO Weather Code を天気カテゴリに分類 */

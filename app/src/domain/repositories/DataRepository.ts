@@ -4,6 +4,8 @@
  * IndexedDB / REST API / GraphQL などバックエンドを差し替え可能にする。
  * 現在は IndexedDB 実装のみ。将来クラウド連携時にこのインターフェースに
  * REST/GraphQL 実装を追加することで、アプリケーション層の変更なしに移行できる。
+ *
+ * @responsibility R:unclassified
  */
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import type { StoreDaySummaryCache } from '@/domain/models/record'

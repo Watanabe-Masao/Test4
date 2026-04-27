@@ -19,6 +19,8 @@
  *   1. PeriodNeed に新種別追加（本ファイル）
  *   2. usePeriodResolver に解決ロジック追加
  *   3. usePeriodQueries にクエリ追加
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type {

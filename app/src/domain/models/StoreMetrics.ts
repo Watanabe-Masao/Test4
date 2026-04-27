@@ -12,6 +12,8 @@
  * - 予算・予測の派生指標はフック側で算出
  *
  * 任意の DateRange に対して計算可能（月跨ぎ・年跨ぎ対応）。
+ *
+ * @responsibility R:unclassified
  */
 export interface StoreMetrics {
   readonly storeId: string

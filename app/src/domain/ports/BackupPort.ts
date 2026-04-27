@@ -3,6 +3,8 @@
  *
  * 消費者（useBackup, useAutoBackup）が使いたいバックアップ操作を定義する。
  * domain 型のみに依存し、infrastructure への依存は持たない。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import type { AppSettings } from '@/domain/models/storeTypes'

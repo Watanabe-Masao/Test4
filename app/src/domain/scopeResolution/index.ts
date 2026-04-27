@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Scope Resolution — 判断層の純粋関数群
 export { naturalKey } from './naturalKey'
 export { recordsEqual, stableStringify } from './recordsEqual'

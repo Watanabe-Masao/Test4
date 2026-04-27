@@ -3,6 +3,8 @@
  *
  * 消費者（useStoragePersistence）が使いたいストレージ操作を定義する。
  * domain 型のみに依存し、infrastructure への依存は持たない。
+ *
+ * @responsibility R:unclassified
  */
 
 export type StoragePressureLevel = 'normal' | 'warning' | 'critical'

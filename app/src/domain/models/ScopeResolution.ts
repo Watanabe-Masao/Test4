@@ -7,6 +7,8 @@
  * 3層パイプライン:
  *   Parse（解析）→ Scope Resolution（判断）→ Record Store（保存）
  *   ここでは中間層「Scope Resolution」の入出力型を定義する。
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DatedRecord } from './DataTypes'

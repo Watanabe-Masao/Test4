@@ -3,6 +3,8 @@
  *
  * 統合タイムラインや店舗クラスタリングで使用する
  * 統計的な分析の純粋関数群。
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from '../utils'

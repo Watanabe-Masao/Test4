@@ -7,6 +7,8 @@
  *   3. 店舗別オーバーライド（ユーザーが店舗ごとに変更）
  *
  * 解決順序: store override > global config > registry default
+ *
+ * @responsibility R:unclassified
  */
 
 /** 閾値セット（青・黄・赤の3段階） */

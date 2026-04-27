@@ -4,6 +4,8 @@
  * presentation 層の DailySalesChartBody / DailySalesChartBodyLogic から抽出。
  * plan hook（application 層）が参照できるよう domain 層に配置。
  * 純粋な型定義のみ。依存なし。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 日別チャートの表示切替（標準 / 累計 / 差分 / 前年比率） */

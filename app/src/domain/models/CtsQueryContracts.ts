@@ -5,6 +5,8 @@
  *
  * infrastructure/duckdb がこれらの型に合致するデータを返す。
  * application/presentation はこの型を通じてデータを受け取る。
+ *
+ * @responsibility R:unclassified
  */
 
 /** 時間帯別集約行 */

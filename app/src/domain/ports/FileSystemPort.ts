@@ -3,6 +3,8 @@
  *
  * infrastructure/storage/folderAccess を隠蔽する。
  * 自動バックアップ・自動インポートで使用。
+ *
+ * @responsibility R:unclassified
  */
 
 export interface FileEntry {

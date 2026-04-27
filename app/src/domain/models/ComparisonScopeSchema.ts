@@ -3,6 +3,8 @@
  *
  * buildComparisonScope() の出力を runtime 検証する。
  * 比較解決の正本性を保証する唯一の契約。
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

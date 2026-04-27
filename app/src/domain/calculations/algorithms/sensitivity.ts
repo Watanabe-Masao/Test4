@@ -5,6 +5,8 @@
  * 粗利・売上にどの程度影響するかをシミュレーションする純粋関数群。
  *
  * 弾性値（Elasticity）: パラメータ1pt変動あたりの粗利変動額
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 import { safeDivide } from '../utils'

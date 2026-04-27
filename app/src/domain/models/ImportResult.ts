@@ -3,6 +3,8 @@
  *
  * presentation 層が application/usecases/ の実装に依存せず、
  * domain/ の型として参照できるようにする（@guard A4）。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataType } from './Settings'
 

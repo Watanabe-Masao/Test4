@@ -6,6 +6,8 @@
  *
  * @see references/01-principles/calculation-canonicalization-map.md — 必須分類
  * @see references/01-principles/purchase-cost-definition.md — 移動原価の性質
+ *
+ * @responsibility R:unclassified
  */
 import { z } from 'zod'
 

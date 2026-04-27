@@ -6,6 +6,8 @@
  * アダプタ内に閉じ込め、ポートは EtrnStation 単位の操作を提供する。
  *
  * domain 型のみに依存し、infrastructure への依存は持たない。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   GeocodingResult,

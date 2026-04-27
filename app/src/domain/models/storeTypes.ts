@@ -1,5 +1,7 @@
 /**
  * ストア計算結果・設定型エクスポート
+ *
+ * @responsibility R:unclassified
  */
 export type {
   StoreConfigData,

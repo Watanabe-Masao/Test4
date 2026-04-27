@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CostPricePair } from './CostPricePair'
 import type { CostInclusionDailyRecord } from './CostInclusionItem'
 import type { DiscountEntry } from './DiscountEntry'

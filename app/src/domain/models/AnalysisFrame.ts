@@ -17,6 +17,8 @@
  *
  * - temporal: 移動平均・ローリング合計・累積・トレンド
  * - free-period: 任意日付範囲の分析（比較付き）
+ *
+ * @responsibility R:unclassified
  */
 import type { DateRange } from '@/domain/models/CalendarDate'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

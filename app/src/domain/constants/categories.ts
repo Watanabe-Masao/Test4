@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CategoryType } from '../models'
 
 /** カテゴリ表示名 */

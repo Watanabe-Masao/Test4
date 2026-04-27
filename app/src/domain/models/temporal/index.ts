@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 // Phase 0: temporal foundation — 入力型定義
 export type {
   MonthlyContext,

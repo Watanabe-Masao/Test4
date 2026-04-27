@@ -5,6 +5,8 @@
  * type 定義のみ。変換関数・validation・runtime helper は含めない。
  *
  * レスポンス型は factorDecomposition.ts の既存型を再利用する。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   CategoryQtyAmt,

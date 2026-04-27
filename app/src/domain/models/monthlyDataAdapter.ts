@@ -6,6 +6,8 @@
  * ImportedData が必要な箇所はこの adapter 経由でのみ変換する。
  *
  * @see references/01-principles/monthly-data-architecture.md
+ *
+ * @responsibility R:unclassified
  */
 import type { ImportedData } from './ImportedData'
 import type { MonthlyData, AppData } from './MonthlyData'

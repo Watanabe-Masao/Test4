@@ -1,5 +1,7 @@
 /**
  * 要因分解・分析エクスポート
+ *
+ * @responsibility R:unclassified
  */
 // 要因分解（シャープリー値ベース）
 // 関数は domain pure 参照実装から直接 export

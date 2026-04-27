@@ -17,6 +17,8 @@
  * const s2 = dateKeyToSerial('2026-03-07')  // → 9562
  * s2 - s1  // → 6（6日間の差）
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate, DateKey } from './CalendarDate'
 

@@ -10,6 +10,8 @@
  * - 依存するフィールドが明示化される
  * - 変更時の影響範囲が型で制限される
  * - テスト時のモックが軽量になる
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreResult } from './StoreResult'
 

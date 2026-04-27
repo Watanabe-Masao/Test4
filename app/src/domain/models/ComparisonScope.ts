@@ -11,6 +11,8 @@
  * - day番号操作（origDay - offset）を廃止し、sourceDate → targetDate の明示的対応
  * - 月跨ぎ・2月末・leap year をすべて Date 演算で吸収
  * - queryRanges で読込範囲と表示範囲を分離
+ *
+ * @responsibility R:unclassified
  */
 import type { CalendarDate, DateRange } from './CalendarDate'
 import { toDateKey } from './CalendarDate'

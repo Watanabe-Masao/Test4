@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CostPricePair } from './CostPricePair'
 import type { CategoryType } from './CategoryType'
 import type { SupplierTotal } from './Supplier'

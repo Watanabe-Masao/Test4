@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CostPricePair } from './CostPricePair'
 
 /** 店間/部門間移動の詳細 */

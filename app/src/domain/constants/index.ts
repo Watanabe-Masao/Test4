@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 export {
   createDefaultSettings,
   COST_RATE_MIN,

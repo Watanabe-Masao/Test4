@@ -3,6 +3,8 @@
  *
  * Application 層が Infrastructure 層の DuckDB 実装に直接依存しないよう、
  * エンジンの状態とコネクションをインターフェースとして抽象化する。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 

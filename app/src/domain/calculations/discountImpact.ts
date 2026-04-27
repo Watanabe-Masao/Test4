@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { z } from 'zod'
 import { safeDivide } from './utils'
 import type { CalculationResult } from '@/domain/models/CalculationResult'

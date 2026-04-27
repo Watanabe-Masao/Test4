@@ -10,6 +10,8 @@
  *   4. useComparisonContextQuery に新クエリ追加
  *
  * Presentation 層は ComparisonEntry[] を受け取り、モード名を知らずに描画する。
+ *
+ * @responsibility R:unclassified
  */
 import type { AlignmentMode, DowGapAnalysis } from '@/domain/models/calendar'
 import type { ComparisonScope } from '@/domain/models/ComparisonScope'

@@ -3,6 +3,8 @@
  *
  * 全メトリクスのデフォルト閾値を一元管理する。
  * ユーザー設定はこのデフォルトを部分的にオーバーライドする。
+ *
+ * @responsibility R:unclassified
  */
 import type { ConditionMetricDef, ConditionMetricId } from '../models/ConditionConfig'
 

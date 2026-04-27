@@ -7,6 +7,8 @@
  *
  * ImportedData からの移行は完了（2026-04-01）。
  * ImportedData は infrastructure adapter 用に残存。
+ *
+ * @responsibility R:unclassified
  */
 import type { Store } from './Store'
 import type { InventoryConfig, BudgetData } from './BudgetData'

@@ -1,4 +1,8 @@
-/** 予算データ */
+/**
+ * 予算データ
+ *
+ * @responsibility R:unclassified
+ */
 export interface BudgetData {
   readonly storeId: string
   readonly daily: ReadonlyMap<number, number> // day → 予算金額

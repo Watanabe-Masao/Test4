@@ -6,6 +6,8 @@
  *
  * 実体（Blob）は infrastructure/storage/rawFileStore に保存される。
  * domain 層では型定義のみを持ち、インフラ依存を持たない。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataType } from './Settings'
 

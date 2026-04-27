@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CostInclusionDailyRecord } from './CostInclusionItem'
 
 // ─── 共通の日付ヘッダー ──────────────────────────────────

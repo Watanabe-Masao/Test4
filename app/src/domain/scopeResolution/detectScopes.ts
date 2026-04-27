@@ -5,6 +5,8 @@
  *
  * 入力: dataType と records のペア配列
  * 出力: ImportScope 配列（dataType × year × month ごとに1つ）
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DatedRecord } from '../models/DataTypes'

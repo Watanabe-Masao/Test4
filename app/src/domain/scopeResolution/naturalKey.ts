@@ -6,6 +6,8 @@
  *
  * 既存の classifiedSalesRecordKey / categoryTimeSalesRecordKey とは別関数として定義する。
  * 理由: 既存関数は prefix なし。ここでは全種別を一意にするため prefix を付与する。
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DatedRecord, CategoryTimeSalesRecord } from '../models/DataTypes'

@@ -4,6 +4,8 @@
  * 全てのデータオブジェクトは、自分が「何年何月のデータか」を
  * 自身の中に持つ。外部の状態（settings.targetYear 等）に
  * 依存して年月を解決しない。
+ *
+ * @responsibility R:unclassified
  */
 
 /** データの出自情報 */

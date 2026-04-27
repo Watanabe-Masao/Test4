@@ -6,6 +6,8 @@
  * - calcMedian: 中央値（外れ値に強い）
  * - calcAdjustedMean: MADベースで外れ値を除外した調整平均
  * - computeDowStatistics: 曜日別の統計情報（mean/median/adjustedMean/CV）
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DowGapMethod, DowStatistics } from '@/domain/models/ComparisonContext'

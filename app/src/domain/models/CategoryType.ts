@@ -1,4 +1,8 @@
-/** 帳合カテゴリ */
+/**
+ * 帳合カテゴリ
+ *
+ * @responsibility R:unclassified
+ */
 export type CategoryType =
   | 'market' // 市場
   | 'lfc' // LFC

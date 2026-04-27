@@ -3,6 +3,8 @@
  *
  * インポート時の原本ファイルを IndexedDB に保存する機能。
  * application 層は Port のみに依存し、infra 実装は AdapterProvider から注入。
+ *
+ * @responsibility R:unclassified
  */
 import type { DataType } from '@/domain/models/storeTypes'
 

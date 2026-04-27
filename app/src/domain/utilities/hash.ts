@@ -6,6 +6,8 @@
  * 信頼性の高いキャッシュ無効化を実現する。
  *
  * 参照: https://en.wikipedia.org/wiki/MurmurHash
+ *
+ * @responsibility R:unclassified
  */
 
 /**

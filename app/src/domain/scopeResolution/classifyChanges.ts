@@ -7,6 +7,8 @@
  * INV-RS-05: add + update + skip + delete はスコープ内を網羅
  * INV-RS-08: 純粋関数（副作用なし、同じ入力に同じ出力）
  * INV-RS-13: deletePolicy 'upsert-only' のとき deletes は常に空
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DatedRecord } from '../models/DataTypes'

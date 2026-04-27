@@ -12,6 +12,8 @@
  * 管理外:
  * - custom page の実体（ユーザーが作成した個別ページ）は pageStore で管理
  * - アプリ内遷移ロジック（ボタン押下時の画面切替等）
+ *
+ * @responsibility R:unclassified
  */
 
 // ── ViewType（standard ページ識別子） ──

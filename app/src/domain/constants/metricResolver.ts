@@ -28,6 +28,8 @@
  * - storeAssembler: 計算結果の最終採用判定
  * - ExplanationService: 警告の表示判定
  * - UI: 指標の信頼性表示
+ *
+ * @responsibility R:unclassified
  */
 import type {
   MetricId,

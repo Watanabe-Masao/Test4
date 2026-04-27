@@ -10,6 +10,8 @@
  * @semanticClass analytic
  * @authorityKind analytic-authoritative
  * @methodFamily time_pattern
+ *
+ * @responsibility R:unclassified
  */
 
 import { z } from 'zod'

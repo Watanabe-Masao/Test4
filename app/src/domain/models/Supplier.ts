@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import type { CategoryType } from './CategoryType'
 
 /** 取引先 */

@@ -3,6 +3,8 @@
  *
  * 時間別天気レコードを日別サマリに集約する。
  * domain 層のため副作用なし・外部依存なし。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   HourlyWeatherRecord,

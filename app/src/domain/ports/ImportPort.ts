@@ -6,6 +6,8 @@
  *
  * 現時点では FileImportService が infrastructure のパーサーを使用しているが、
  * 将来的にはこの Port を通じて DI 可能にする。
+ *
+ * @responsibility R:unclassified
  */
 import type { AppSettings, DataType } from '@/domain/models/storeTypes'
 import type { MonthlyData } from '@/domain/models/MonthlyData'
