@@ -153,7 +153,7 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
  * v1 → v2 一斉移行を v1 guard retirement と同時に実施）。Pilot で減算したのは
  * v1 TARGET_DIRS 外の 12 file (1055 → 1043 = -12)。
  */
-const UNTAGGED_BASELINE_V2 = 1041
+const UNTAGGED_BASELINE_V2 = 0
 
 /**
  * v2 unknown vocabulary baseline (Phase 3 実測値: 270 → Phase 4 Pilot 一時 268 → conflict revert で 270 維持)
@@ -209,12 +209,21 @@ describe('Responsibility Tag Guard V2 (taxonomy-v2 Phase 3)', () => {
     expect(unknownVocab.length, message).toBeLessThanOrEqual(UNKNOWN_VOCABULARY_BASELINE_V2)
   })
 
-  it('V2-R-3: タグなし vs R:unclassified の区別を hard fail にする (Phase 6 完了後に activate、Phase 3 では skip)', () => {
-    // Phase 3 時点では V2-R-1 の ratchet-down で漸減を促す段階。
-    // Phase 6 Migration Rollout 完了 (baseline = 0 到達) 後に本 it を hard rule に昇格する。
-    // 本 test は Phase 3 では smoke 的 placeholder として PASS する。
-    expect(RESPONSIBILITY_TAGS_V2).toContain('R:unclassified')
-    expect(isResponsibilityTagV2('R:unclassified')).toBe(true)
+  it('V2-R-3: タグなし vs R:unclassified の区別を hard fail にする (Phase 6a-2 完了で activate)', () => {
+    // Phase 6a-2 (mass tagging) で全 file に v2 R:tag (R:unclassified 含む) が付与され、
+    // V2-R-1 baseline = 0 到達。本 V2-R-3 は hard rule として活性化:
+    //   - 全 scope file は @responsibility R:* を必ず持つ（タグなし禁止）
+    //   - R:unclassified は能動タグ（Constitution 原則 1: 未分類は能動タグ）
+    // 違反 = file がタグなし状態 → hard fail。
+    const untagged: string[] = []
+    for (const file of scopeFiles) {
+      const info = readTags(file)
+      if (info.tags === null) untagged.push(rel(file))
+    }
+    expect(
+      untagged,
+      `タグなし file が検出されました（hard fail）。Phase 6a-2 以降は @responsibility 必須:\n${untagged.slice(0, 10).join('\n')}`,
+    ).toEqual([])
   })
 
   it('V2-R-4: v2 vocabulary が Cognitive Load Ceiling 15 以下 (原則 7)', () => {

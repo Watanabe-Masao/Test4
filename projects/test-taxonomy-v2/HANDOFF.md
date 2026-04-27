@@ -5,7 +5,30 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4 完遂（main 反映済）+ Phase 5 Operations 軸別正本起草完遂（2026-04-27、本 branch）。残 impact CLI 動作確認 + PR template 改変は統合 branch 担当。**
+**Phase 0+1+2+3+3.5+4+5 完遂（main 反映済）+ Phase 6a-2 Mass Migration 完遂（2026-04-27、本 branch）。Phase 6 主要ゴール達成、残 Phase 6b/6c は別 PR。**
+
+> **Phase 6a-2 で landing したもの（本 branch、coverage 99.7% 達成）:**
+>
+> - 全 .test.ts/.test.tsx 731 件中 untagged 708 件に `@taxonomyKind T:unclassified` を能動退避（原則 1「未分類は能動タグ」適用）
+> - V2-T-1 untagged baseline: 709 → 0 達成（テスト軸 §OCS.6 Drift Budget untagged = 0）
+> - V2-T-3 を smoke から hard fail rule に昇格（タグなし状態を構造的に禁止）
+> - testTaxonomyGuardV2.test.ts の自身に `@taxonomyKind T:meta-guard` を付与（meta-guard archetype）
+>
+> **作業 branch:** `claude/taxonomy-v2-phase6a2-mass-tagging` (両子共通の統合 branch)
+> **scope:** T: 軸 708 test の一括 unclassified 付与 + V2-T-1 baseline 0 化 + V2-T-3 hard fail 昇格 + 本 HANDOFF（TSIG retirement / Phase 6b/6c は別 PR）
+
+### Phase 6a-2 設計結果（テスト軸）
+
+| 指標                              | 値                                                                |
+| --------------------------------- | ----------------------------------------------------------------- |
+| T: 軸 mass tagging                | 708 test（全 731 中、skipped 23 既存タグ保持: T:meta-guard / T:render-shape / T:state-transition 等）|
+| V2-T-1 baseline                   | 709 → 0（**テスト軸 §OCS.6 Drift Budget untagged 達成**）         |
+| V2-T-3 hard fail 昇格             | smoke → hard rule（タグなし状態を構造的に禁止、原則 1 機械強制）  |
+| Cognitive Load 状態               | 15/15 cap 維持（新規追加なし、unclassified 既登録済）             |
+| 機械検証                          | taxonomy:check 20/20 + test:guards 833/833 PASS                   |
+| coverage 達成率                   | 99.7% (708 unclassified + 23 具体タグ = 731 / 731)                |
+
+> **Phase 5 で landing したもの（本 branch、テスト軸 operations 起草）:**
 
 > **Phase 5 で landing したもの（本 branch、テスト軸 operations 起草）:**
 >

@@ -1,6 +1,5 @@
 /**
  * 高度分析クエリ — カテゴリ構成比の週次推移・カテゴリベンチマーク（指数加重ランキング）
- *
  * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

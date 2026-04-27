@@ -35,6 +35,8 @@
  * @see references/02-status/test-taxonomy-inventory.yaml (Phase 0 baseline)
  * @see app/src/test/testTaxonomyRegistryV2.ts (v2 registry)
  * @see app/src/test/guards/testSignalIntegrityGuard.test.ts (v1 TSIG, 並行運用)
+ *
+ * @taxonomyKind T:meta-guard
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -123,7 +125,7 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
  * 19 件減少 (一部 v2 R:tag 既付与 file との重複)。Phase 6 Migration Rollout で全 test に
  * T:kind (T:unclassified 含む) を付与し、baseline = 0 到達 → Phase 6 完了後に固定モード化。
  */
-const UNTAGGED_BASELINE_V2 = 709
+const UNTAGGED_BASELINE_V2 = 0
 
 /**
  * v2 unknown vocabulary baseline (0)
@@ -172,9 +174,21 @@ describe('Test Taxonomy Guard V2 (taxonomy-v2 Phase 3)', () => {
     expect(unknownVocab.length, message).toBeLessThanOrEqual(UNKNOWN_VOCABULARY_BASELINE_V2)
   })
 
-  it('V2-T-3: タグなし vs T:unclassified の区別を hard fail にする (Phase 6 完了後に activate、Phase 3 では skip)', () => {
-    expect(TEST_TAXONOMY_KINDS_V2).toContain('T:unclassified')
-    expect(isTestTaxonomyKindV2('T:unclassified')).toBe(true)
+  it('V2-T-3: タグなし vs T:unclassified の区別を hard fail にする (Phase 6a-2 完了で activate)', () => {
+    // Phase 6a-2 (mass tagging) で全 test に v2 T:kind (T:unclassified 含む) が付与され、
+    // V2-T-1 baseline = 0 到達。本 V2-T-3 は hard rule として活性化:
+    //   - 全 .test.ts/.test.tsx file は @taxonomyKind T:* を必ず持つ（タグなし禁止）
+    //   - T:unclassified は能動タグ（Constitution 原則 1: 未分類は能動タグ）
+    // 違反 = test がタグなし状態 → hard fail。
+    const untagged: string[] = []
+    for (const file of testFiles) {
+      const info = readKinds(file)
+      if (info.kinds === null) untagged.push(rel(file))
+    }
+    expect(
+      untagged,
+      `タグなし test file が検出されました（hard fail）。Phase 6a-2 以降は @taxonomyKind 必須:\n${untagged.slice(0, 10).join('\n')}`,
+    ).toEqual([])
   })
 
   it('V2-T-4: v2 vocabulary が Cognitive Load Ceiling 15 cap (原則 7)', () => {

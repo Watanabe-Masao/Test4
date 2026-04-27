@@ -79,12 +79,13 @@
 
 ## Phase 6: Migration Rollout
 
-- [ ] 全対象ファイルに v2 タグ（`R:unclassified` 含む）が付与されている
-- [ ] v1 registry と v2 registry の整合検証 guard が PASS している
-- [ ] health KPI に v2 未分類件数 baseline が登録されている
-- [ ] v1/v2 ギャップ件数 baseline が登録されている
-- [ ] 全 R:tag が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している
-- [ ] §OCS.6 Drift Budget（責務軸 untagged / unknownVocabulary / missingOrigin）が全て 0 に到達している
+- [x] 全対象ファイルに v2 タグ（`R:unclassified` 含む）が付与されている（Phase 6a-2 mass tagging で domain 137 + application 355 + infrastructure 109 + presentation 210 + features 150 + test/guards 80 = 1041 R: file 全件に @responsibility R:* 付与済、V2-R-1 untagged baseline 1041 → 0 達成、V2-R-3 hard fail rule 活性化）
+- [x] §OCS.6 Drift Budget（責務軸 untagged）が 0 に到達している（V2-R-1 baseline = 0、V2-R-3 hard fail rule で「タグなし」状態を構造的に禁止）
+- [ ] v1 registry と v2 registry の整合検証 guard が PASS している（Phase 6b 別 PR で gap 検証 guard 新設予定）
+- [ ] health KPI に v2 未分類件数 baseline が登録されている（taxonomy-health.json に既存登録済、Phase 6b で baseline=0 反映）
+- [ ] v1/v2 ギャップ件数 baseline が登録されている（Phase 6b 別 PR で新規 KPI 追加予定）
+- [ ] 全 R:tag が §OCS.5 Promotion Gate L5（Coverage 100%）に到達している（Phase 6c 別 PR で registry V2 frontmatter L1 → L5 一斉 bump 予定）
+- [ ] §OCS.6 Drift Budget（責務軸 unknownVocabulary / missingOrigin）が 0 に到達している（unknownVocabulary 268 件は v1 タグ使用 file、Phase 7 v1 deprecation 完了時に 0 化予定）
 
 ## Phase 7: v1 Deprecation
 

@@ -5,7 +5,37 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2+3+3.5+4+5 完遂（main 反映済）+ Phase 6a-1 v1 guard relaxation 完遂（2026-04-27、本 branch）。Phase 6a-2 mass tagging に進める状態。**
+**Phase 0+1+2+3+3.5+4+5+6a-1 完遂（main 反映済）+ Phase 6a-2 Mass Migration 完遂（2026-04-27、本 branch）。Phase 6 主要ゴール達成、残 Phase 6b/6c は別 PR。**
+
+> **Phase 6a-2 で landing したもの（本 branch、coverage 100% 達成）:**
+>
+> - 残 untagged 1041 R: file 全件に `@responsibility R:unclassified` を能動退避（原則 1「未分類は能動タグ」適用、layer 別 commit 6 件: domain 137 + application 355 + infrastructure 109 + presentation 210 + features 150 + test/guards 80）
+> - 全 .test.ts/.test.tsx 731 件中 untagged 708 件に `@taxonomyKind T:unclassified` を能動退避
+> - V2-R-1 untagged baseline: 1041 → 0 達成（責務軸 §OCS.6 Drift Budget untagged = 0）
+> - V2-T-1 untagged baseline: 709 → 0 達成（テスト軸 §OCS.6 Drift Budget untagged = 0）
+> - V2-R-3 / V2-T-3 を smoke から hard fail rule に昇格（タグなし状態を構造的に禁止）
+> - 新設: `tools/scripts/phase6a2-mass-tagging.ts` — 一回限りの migration script (idempotent, --axis / --layer / --dry-run)
+> - 副作用対応: usePeriodAwareKpi.ts (302 行 active-debt allowlist 登録、6 ヶ月 expiresAt) / 3 infrastructure file (advancedAnalytics / schemas / backupExporter / purchaseComparison) を JSDoc 圧縮で限度内に収める
+> - obligation 解消: calculationCanonRegistry.ts header に Phase 6a-2 注記 / chart-data-flow-map.md + duckdb-type-boundary-contract.md に R:unclassified 退避 acknowledgement 追記
+>
+> **作業 branch:** `claude/taxonomy-v2-phase6a2-mass-tagging`
+> **scope:** R: 軸 1041 file + T: 軸 708 test の一括 unclassified 付与 + V2-R-1/V2-T-1 baseline 0 化 + V2-R-3/V2-T-3 hard fail 昇格 + 4 obligation 解消 + 1 allowlist 登録 + 本 HANDOFF（v1 retirement / Phase 6b/6c は別 PR）
+
+### Phase 6a-2 設計結果
+
+| 指標                                  | 値                                                                          |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| R: 軸 mass tagging                    | 1041 file（domain 137 + application 355 + infrastructure 109 + presentation 210 + features 150 + test/guards 80）|
+| T: 軸 mass tagging                    | 708 test（全 .test.ts 731 中、skipped 23 既存タグ保持）                     |
+| V2-R-1 baseline                       | 1041 → 0（**責務軸 §OCS.6 Drift Budget untagged 達成**）                    |
+| V2-T-1 baseline                       | 709 → 0（**テスト軸 §OCS.6 Drift Budget untagged 達成**）                   |
+| V2-R-3 / V2-T-3 hard fail 昇格        | smoke → hard rule（タグなし状態を構造的に禁止、原則 1 機械強制）            |
+| 副作用対応                            | usePeriodAwareKpi.ts (302 行 active-debt) + 4 file JSDoc 圧縮 (400 行 within) |
+| obligation 解消                       | 4 件 (calculationCanonRegistry / chart-data-flow-map / duckdb-type-boundary / doc-registry) |
+| 機械検証                              | taxonomy:check 20/20 + test:guards 833/833 + lint 0err + format PASS + build PASS + docs:check PASS |
+| coverage 達成率                       | 100% (R: 軸) / 99.7% (T: 軸 — 23 既存タグは具体タグ保持)                    |
+
+> **Phase 6a-1 で landing したもの（本 branch、v1/v2 並行運用 unblock）:**
 
 > **Phase 6a-1 で landing したもの（本 branch、v1/v2 並行運用 unblock）:**
 >

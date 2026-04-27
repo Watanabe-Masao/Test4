@@ -1,5 +1,10 @@
 # DuckDB 型境界契約
 
+> **2026-04-27 acknowledgement**: taxonomy-v2 子 Phase 6a-2 Migration Rollout で
+> `infrastructure/duckdb/schemas.ts` に `@responsibility R:unclassified` を能動退避
+> （原則 1「未分類は能動タグ」）。型変換契約 / スキーマ定義は不変。
+> R:unclassified → 具体タグへの promotion は後続 Phase 6 review window 経由で実施予定。
+
 ## 目的
 
 DuckDB WASM → JavaScript → ReadModel の型変換で発生しうる

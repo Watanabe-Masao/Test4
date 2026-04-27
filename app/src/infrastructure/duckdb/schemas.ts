@@ -6,7 +6,6 @@
  *
  * StoreDayIndex系（purchase, transfers, flowers等）は
  * dataLoader が year/month を外部付与してINSERTする。
- *
  * @responsibility R:unclassified
  */
 
