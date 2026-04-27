@@ -140,16 +140,16 @@ const rel = (absPath: string): string => path.relative(PROJECT_ROOT, absPath).re
 // ─── ratchet-down baseline (Phase 0 inventory 計測値) ──
 
 /**
- * v2 untagged baseline (Phase 0 inventory: untagged 1055)
+ * v2 untagged baseline (Phase 0 inventory: untagged 1055 → Phase 4 Pilot で 1041 に ratchet-down)
  *
  * 減少方向のみ許可（ratchet-down）。減ったら本定数を更新する。
  * Phase 6 Migration Rollout で全 file に v2 R:tag (R:unclassified 含む) が付与され、
  * Phase 6 完了時に baseline = 0 到達 → Phase 6 完了後に固定モード化（V2-R-3 activate）。
  */
-const UNTAGGED_BASELINE_V2 = 1055
+const UNTAGGED_BASELINE_V2 = 1041
 
 /**
- * v2 unknown vocabulary baseline (Phase 3 実測値: 270)
+ * v2 unknown vocabulary baseline (Phase 3 実測値: 270 → Phase 4 Pilot で 268 に ratchet-down)
  *
  * v1 vocabulary（R:chart-view / R:widget / R:utility / R:transform 等の 18 件）は
  * v2 vocabulary にないため **unknown として検出**される。Phase 0 inventory が報告した
@@ -159,7 +159,7 @@ const UNTAGGED_BASELINE_V2 = 1055
  * 減少方向のみ許可（ratchet-down）。Phase 6 Migration Rollout で v1 → v2 一括変換し
  * baseline = 0 到達 → Phase 8 で v1 guard retirement。
  */
-const UNKNOWN_VOCABULARY_BASELINE_V2 = 270
+const UNKNOWN_VOCABULARY_BASELINE_V2 = 268
 
 // ─── tests ─────────────────────────────────────────
 

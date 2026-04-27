@@ -5,7 +5,38 @@
 
 ## 1. 現在地
 
-**Phase 0+1+2 完遂（2026-04-26、main 反映済）+ Phase 3 Guard 実装の v2 guard 部分完遂（2026-04-26、本 branch）。残: 統合 branch で interlock guard + AR-TAXONOMY-\* + collector + taxonomy:check 実装。**
+**Phase 0+1+2+3+3.5 完遂（main 反映済）+ Phase 4 Pilot 完遂（2026-04-27、本 branch）。Phase 5 Operations に進める状態。**
+
+> **Phase 4 で landing したもの（本 branch、Pilot 18 file）:**
+>
+> - 18 production file に v2 R:tag (Anchor 5 + R:store/hook/adapter/registry 計 9 種) を試験付与
+>   - R:calculation: 2 (domain/calculations/aggregation.ts / averageDivisor.ts)
+>   - R:bridge: 2 (application/services/timeSlotBridge.ts / dowGapBridge.ts)
+>   - R:read-model: 2 (readModels/salesFact / grossProfit)
+>   - R:guard: 2 (test/guards/layerBoundaryGuard / architectureRuleGuard)
+>   - R:presentation: 2 (charts/DowPatternChart 既 R:chart-view → 置換 / RegressionInsightChart)
+>   - R:store: 2 (stores/periodSelectionStore / dataStore)
+>   - R:hook: 2 (hooks/usePersistence / useDailyPageData)
+>   - R:adapter: 2 (infrastructure/ImportService / storeIdNormalization)
+>   - R:registry: 2 (test/guardTagRegistry / migrationTagRegistry 既 R:utility → 置換)
+> - V2-R-1 untagged baseline: 1055 → 1041（-14、ratchet-down）
+> - V2-R-2 unknown vocabulary baseline: 270 → 268（-2、ratchet-down）
+> - v2 guard 20/20 + taxonomy:check PASS
+>
+> **作業 branch:** `claude/responsibility-taxonomy-v2-phase4-pilot`
+> **scope:** 18 file の @responsibility 編集 + responsibilityTagGuardV2 baseline 更新 + HANDOFF のみ（references/ + checklist.md + 親文書 + Origin Journal + generated/ 触らず）
+
+### Phase 4 Pilot 結果
+
+| 指標                              | 値                                                                                               |
+| --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Pilot file 件数                   | 18 (≤ 20 cap、Anchor 5 R:tag を最低 2 件ずつ含む + R:store/hook/adapter/registry 計 9 種網羅)    |
+| 既存 v1 タグ置換                  | 3 件（R:chart-view → R:presentation / R:utility → R:registry / R:utility → R:registry）          |
+| 新規 v2 タグ付与                  | 15 件（untagged file への能動付与）                                                              |
+| V2-R-1 untagged ratchet-down      | 1055 → 1041 (-14)                                                                                |
+| V2-R-2 unknown vocab ratchet-down | 270 → 268 (-2)                                                                                   |
+| v2 guard 状態                     | 20/20 PASS (V2-R 5 + V2-T 6 + INTERLOCK 9)                                                       |
+| Schema 問題                       | 検出なし（Pilot で発見された Schema 問題は無し、registry V2 + interlock マトリクスで全件 cover） |
 
 > **Phase 3 で landing したもの（本 branch、V2-R-1〜V2-R-4）:**
 >

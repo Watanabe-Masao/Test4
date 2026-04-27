@@ -7,6 +7,8 @@
  * infra query への依存はない（handler 側で取得済みのデータを渡す）。
  *
  * @see references/01-principles/sales-definition.md
+ *
+ * @responsibility R:read-model
  */
 import type { BaseQueryInput } from '@/application/queries/QueryContract'
 import {

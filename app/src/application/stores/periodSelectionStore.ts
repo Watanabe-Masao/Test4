@@ -20,6 +20,8 @@
  * - プリセット使用時のみ連動
  *
  * @guard C3 store は state 反映のみ
+ *
+ * @responsibility R:store
  */
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'

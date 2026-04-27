@@ -5,6 +5,8 @@
  * @bridgeKind analytics
  * @contractId ANA-007
  * @authorityKind candidate-authoritative
+ *
+ * @responsibility R:bridge
  */
 import { analyzeDowGap as analyzeDowGapTS } from '@/domain/calculations/dowGapAnalysis'
 import type { DowGapDailyData } from '@/domain/calculations/dowGapAnalysis'

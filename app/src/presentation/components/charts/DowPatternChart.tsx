@@ -5,7 +5,7 @@
  *   QueryHandler → DowPatternChartLogic.ts → ECharts option → EChart
  *
  * @migration P5: plan hook 経由に移行済み（旧: useDuckDBDowPattern 直接 import）
- * @responsibility R:chart-view
+ * @responsibility R:presentation
  */
 import { useMemo, memo } from 'react'
 import { useTheme } from 'styled-components'
