@@ -3,6 +3,8 @@
  *
  * 全 VITE_* 環境変数を一元的にバリデーションし、
  * Feature flag を導出する。
+ *
+ * @responsibility R:unclassified
  */
 
 import { z } from 'zod'

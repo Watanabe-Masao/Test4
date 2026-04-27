@@ -13,6 +13,8 @@
  * await client.initialize()
  * const rows = await client.query<MyRow>('SELECT * FROM table')
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import type {
   DuckDBWorkerRequest,

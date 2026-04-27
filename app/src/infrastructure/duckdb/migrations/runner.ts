@@ -9,6 +9,8 @@
  * const result = await runMigrations(conn)
  * // result.migrationsApplied === 0 なら変更なし
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { SCHEMA_VERSION, SCHEMA_META_DDL } from '../schemas'

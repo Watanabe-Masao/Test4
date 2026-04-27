@@ -3,6 +3,8 @@
  *
  * react-refresh/only-export-components 対応のため、
  * createContext と型定義を .ts ファイルに分離。
+ *
+ * @responsibility R:unclassified
  */
 import { createContext } from 'react'
 import type { Locale, MessageCatalog } from './messages'

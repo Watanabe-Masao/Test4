@@ -9,6 +9,8 @@
  * Firefox/Safari では Worker 非対応フォールバック（メインスレッド直接実行）を使用する。
  *
  * メッセージプロトコル: types.ts の DuckDBWorkerRequest / DuckDBWorkerResponse を参照。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDB, AsyncDuckDBConnection, DuckDBBundles } from '@duckdb/duckdb-wasm'
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'

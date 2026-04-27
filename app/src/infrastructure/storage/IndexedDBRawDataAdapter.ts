@@ -3,6 +3,8 @@
  *
  * rawFileStore（インフラ層の具体実装）を RawDataPort（アプリケーション層のポート）に
  * 適合させるアダプター。DI はコンポジションルート（App.tsx）で行う。
+ *
+ * @responsibility R:unclassified
  */
 import type { RawDataPort } from '@/domain/ports'
 import type { RawFileRecord, RawDataManifest } from '@/domain/models/analysis'

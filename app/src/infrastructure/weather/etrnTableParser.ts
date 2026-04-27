@@ -11,6 +11,8 @@
  *
  * ヘッダーのカラム配置は観測所によって異なるため、
  * ヘッダーテキストからカラム位置を動的に検出する。
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyWeatherSummary } from '@/domain/models/record'
 

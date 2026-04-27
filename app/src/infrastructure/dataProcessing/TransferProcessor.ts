@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'
 import type { TransferRecord, TransferData, TransferDayEntry } from '@/domain/models/record'

@@ -26,6 +26,8 @@
  * - StoreAggregationRow → StoreResult への合成
  * - weightedAverageBySales 等の最終採用ルール適用
  * - warning / status 判定
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

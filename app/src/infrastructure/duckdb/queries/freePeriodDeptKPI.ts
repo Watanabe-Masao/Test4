@@ -18,6 +18,8 @@
  *
  * ガード: `noRateInFreePeriodSqlGuard.test.ts` が本ファイルを含む
  * `freePeriod*` SQL ファイルに対する rate 計算パターンを禁止する。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { queryToObjects } from '../queryRunner'

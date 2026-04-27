@@ -5,6 +5,8 @@
  * store×day の結合済みサマリーデータを取得する。
  *
  * 自由日付範囲: date_key BETWEEN で月跨ぎに対応。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

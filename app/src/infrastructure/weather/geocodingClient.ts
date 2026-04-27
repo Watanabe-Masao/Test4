@@ -5,6 +5,8 @@
  * API キー不要。日本国内の住所・地名に特化。
  *
  * @see https://msearch.gsi.go.jp/address-search/AddressSearch
+ *
+ * @responsibility R:unclassified
  */
 import type { GeocodingResult } from '@/domain/models/record'
 

@@ -2,6 +2,8 @@
  * インポート関連の型定義とパーティションユーティリティ
  *
  * ImportService.ts から分割。型定義・パーティション操作・年月検出を担当。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   PurchaseData,

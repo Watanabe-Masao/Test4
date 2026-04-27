@@ -9,6 +9,8 @@
  * 2. schemaValid && monthCount > 0 → OPFS DB を信頼（再ロード不要）
  * 3. schemaValid && monthCount === 0 && hasParquetCache → Parquet からインポート
  * 4. それ以外 → IndexedDB から通常ロード → 完了後 Parquet エクスポート
+ *
+ * @responsibility R:unclassified
  */
 
 import type { DuckDBWorkerClient } from './worker/duckdbWorkerClient'

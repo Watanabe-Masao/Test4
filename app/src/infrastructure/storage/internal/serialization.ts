@@ -1,5 +1,7 @@
 /**
  * IndexedDB シリアライズ / デシリアライズ / バリデーション
+ *
+ * @responsibility R:unclassified
  */
 import type { DataOrigin, DataEnvelope } from '@/domain/models/storeTypes'
 import type { BudgetData } from '@/domain/models/record'

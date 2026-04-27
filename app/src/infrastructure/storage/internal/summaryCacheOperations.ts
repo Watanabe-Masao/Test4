@@ -1,5 +1,7 @@
 /**
  * IndexedDB StoreDaySummaryCache 操作
+ *
+ * @responsibility R:unclassified
  */
 import type { StoreDaySummaryCache } from '@/domain/models/record'
 import { dbGet, dbBatchPut, STORE_MONTHLY } from './dbHelpers'

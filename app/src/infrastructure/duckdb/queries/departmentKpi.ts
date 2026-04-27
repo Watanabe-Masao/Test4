@@ -3,6 +3,8 @@
  *
  * ウィンドウ関数で加重平均とランキングを一括算出する。
  * 複数月のトレンド比較にも対応。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

@@ -3,6 +3,8 @@
  *
  * SHA-256 チェックサム計算、gzip 圧縮/展開、JSON → Map 復元など、
  * バックアップファイルのフォーマット処理を担当する純粋ユーティリティ。
+ *
+ * @responsibility R:unclassified
  */
 import type { BudgetData } from '@/domain/models/record'
 import type { MonthlyData } from '@/domain/models/MonthlyData'

@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import { safeNumber } from '@/domain/calculations/utils'
 import type { InventoryConfig } from '@/domain/models/record'
 

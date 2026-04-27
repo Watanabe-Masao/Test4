@@ -7,6 +7,8 @@
  * Chrome/Edge: ユーザー操作なしで許可される場合が多い（エンゲージメント基準）
  * Firefox: ユーザーにポップアップで許可を求める
  * Safari 15.2+: 対応
+ *
+ * @responsibility R:unclassified
  */
 
 export interface StorageEstimate {

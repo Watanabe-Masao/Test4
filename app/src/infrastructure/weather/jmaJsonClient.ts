@@ -2,6 +2,8 @@
  * 気象庁 JSON API ユーティリティ
  *
  * JSON レスポンスの取得・リトライを担当する。
+ *
+ * @responsibility R:unclassified
  */
 
 /** リトライ設定 */

@@ -23,6 +23,8 @@
  * // インポート
  * const result = await backupExporter.importBackup(file, repo)
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import type { DataRepository } from '@/domain/repositories'
 import type { ImportHistoryEntry, RawDataManifest } from '@/domain/models/analysis'

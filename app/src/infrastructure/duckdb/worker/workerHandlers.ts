@@ -4,6 +4,8 @@
  * Worker メッセージに対する各コマンドの実行ロジック。
  * duckdbWorker.ts から呼び出され、結果を返すかエラーを throw する。
  * 副作用（sendResult/sendError/setState）は呼び出し側で処理する。
+ *
+ * @responsibility R:unclassified
  */
 import * as duckdb from '@duckdb/duckdb-wasm'
 import type {

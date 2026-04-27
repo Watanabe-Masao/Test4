@@ -1,5 +1,7 @@
 /**
  * IndexedDB インポート履歴操作
+ *
+ * @responsibility R:unclassified
  */
 import type { ImportHistoryEntry } from '@/domain/models/analysis'
 import { dbGet, dbBatchPutWithReadModify, STORE_MONTHLY } from './dbHelpers'

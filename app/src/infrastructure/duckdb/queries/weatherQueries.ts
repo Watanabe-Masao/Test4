@@ -4,6 +4,8 @@
  * weather_hourly テーブルから天気データを取得する。
  * API から取得したデータは DuckDB にキャッシュされるため、
  * 2回目以降のアクセスは DuckDB から直接読み出す。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

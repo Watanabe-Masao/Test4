@@ -5,6 +5,8 @@
  * の流れで週間天気予報を取得する。AMeDAS/week_area.json に非依存。
  *
  * @see https://www.jma.go.jp/bosai/forecast/
+ *
+ * @responsibility R:unclassified
  */
 import type { DailyForecast } from '@/domain/models/record'
 import { getJmaBaseUrl } from './jmaApiConfig'

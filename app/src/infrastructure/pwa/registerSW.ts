@@ -4,6 +4,8 @@
  * - updateViaCache: 'none' で SW ファイル自体のブラウザキャッシュをバイパス
  * - 定期的な更新チェック（60分間隔）
  * - 新バージョン検出時の通知 → 遅延リロード
+ *
+ * @responsibility R:unclassified
  */
 
 /** 更新チェック間隔 (ms) */

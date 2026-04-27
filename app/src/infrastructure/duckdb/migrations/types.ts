@@ -1,5 +1,7 @@
 /**
  * DuckDB スキーママイグレーション型定義
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 

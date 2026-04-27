@@ -7,6 +7,8 @@
  *
  * Vite の ?url サフィックスで静的アセットURLを取得し、
  * selectBundle() で EH 対応ブラウザを自動判定する。
+ *
+ * @responsibility R:unclassified
  */
 import * as duckdb from '@duckdb/duckdb-wasm'
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url'

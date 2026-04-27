@@ -3,6 +3,8 @@
  *
  * DataRepository インターフェースを IndexedDB で実装する。
  * 既存の IndexedDBStore モジュールの公開 API をそのまま委譲する。
+ *
+ * @responsibility R:unclassified
  */
 import type {
   DataRepository,

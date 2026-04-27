@@ -1,3 +1,7 @@
+/**
+ * @responsibility R:unclassified
+ */
+
 import * as XLSX from 'xlsx'
 
 /**

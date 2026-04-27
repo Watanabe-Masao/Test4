@@ -3,6 +3,8 @@
  *
  * classified_sales テーブルから部門/ライン/クラス別の売変内訳を集計。
  * 日別 or 期間合計のどちらにも対応。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

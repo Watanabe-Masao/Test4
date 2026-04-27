@@ -4,6 +4,8 @@
  * アプリケーション内の全テキストリソースを一元管理する。
  *
  * @guard F2 文字列はカタログに一元管理
+ *
+ * @responsibility R:unclassified
  */
 
 export type Locale = 'ja' | 'en'

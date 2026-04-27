@@ -6,6 +6,8 @@
  *
  * 取得フィールド: 売上、原価、売変、移動、消耗品、客数（store_day_summary の全列）。
  * 予算データは budget テーブルから LEFT JOIN で取得。
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

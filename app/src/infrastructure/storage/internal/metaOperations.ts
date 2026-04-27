@@ -2,6 +2,8 @@
  * IndexedDB メタデータ操作
  *
  * セッション情報・保存済み月一覧の管理。
+ *
+ * @responsibility R:unclassified
  */
 import type { PersistedMeta } from '@/domain/models/analysis'
 import type { ReadModifyWriteOp } from './dbHelpers'

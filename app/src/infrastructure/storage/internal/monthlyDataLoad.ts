@@ -3,6 +3,8 @@
  *
  * MonthlyData 形式で読み込む。
  * public API は DataRepository (MonthlyData) → IndexedDBRepository 経由。
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { StorageDataType } from '@/domain/models/storeTypes'

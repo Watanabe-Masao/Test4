@@ -5,6 +5,8 @@
  * resetTables/loadMonth のインターリーブを防ぐグローバルミューテックスを提供する。
  *
  * React 非依存・ドメイン非依存の並行制御プリミティブ。
+ *
+ * @responsibility R:unclassified
  */
 
 /**

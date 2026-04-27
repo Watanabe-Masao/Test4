@@ -6,6 +6,8 @@
  *
  * 注: AMEDAS 天気データ（bosai/amedas/data/point）の取得は廃止済み。
  *     天気実測データは ETRN から取得する。
+ *
+ * @responsibility R:unclassified
  */
 import { getJmaBaseUrl } from './jmaApiConfig'
 

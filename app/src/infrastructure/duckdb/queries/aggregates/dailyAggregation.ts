@@ -23,6 +23,8 @@
  * SQL 結果を受け取り、以下の意味づけのみ担当:
  * - null/空結果の解釈（データ未ロード vs 売上ゼロ）
  * - DailyCumulativeRow → チャート ViewModel への変換
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'

@@ -14,6 +14,8 @@
  * // 重複チェック
  * const isDuplicate = await datasetRegistry.isDuplicate(2025, 6, 'purchase', hash)
  * ```
+ *
+ * @responsibility R:unclassified
  */
 import { openDB, STORE_META } from './internal/dbHelpers'
 import { SCHEMA_VERSION } from '@/infrastructure/duckdb/schemas'

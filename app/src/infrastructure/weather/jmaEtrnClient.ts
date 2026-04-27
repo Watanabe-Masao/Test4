@@ -1,4 +1,8 @@
-/** 気象庁 ETRN（過去の気象データ検索）クライアント */
+/**
+ * 気象庁 ETRN（過去の気象データ検索）クライアント
+ *
+ * @responsibility R:unclassified
+ */
 import type { DailyWeatherSummary, HourlyWeatherRecord } from '@/domain/models/record'
 import { getJmaDataBaseUrl } from './jmaApiConfig'
 import { parseDailyTable } from './etrnTableParser'

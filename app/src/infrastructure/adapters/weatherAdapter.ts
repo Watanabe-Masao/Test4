@@ -10,6 +10,8 @@
  *
  * @guard A1 application/adapters/ 経由で infrastructure にアクセス
  * @see guards/layerBoundaryGuard.test.ts
+ *
+ * @responsibility R:unclassified
  */
 import {
   searchLocation,

@@ -1,5 +1,7 @@
 /**
  * IndexedDB ストレージキー生成とフィールドマッピング
+ *
+ * @responsibility R:unclassified
  */
 import type { MonthlyData } from '@/domain/models/MonthlyData'
 import type { StorageDataType } from '@/domain/models/storeTypes'

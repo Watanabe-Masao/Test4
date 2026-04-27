@@ -3,6 +3,8 @@
  *
  * アプリケーション全体でロケールとメッセージカタログを提供する。
  * 将来的に react-intl や i18next に置き換え可能な薄いラッパー。
+ *
+ * @responsibility R:unclassified
  */
 import { useState, useCallback, useMemo, type ReactNode } from 'react'
 import type { Locale } from './messages'

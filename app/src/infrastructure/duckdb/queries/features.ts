@@ -11,6 +11,8 @@
  * - 時間帯別構成比・ピーク検出
  * - 曜日パターン（季節性）
  * - 部門別トレンド
+ *
+ * @responsibility R:unclassified
  */
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'
 import { z } from 'zod'
