@@ -26,7 +26,8 @@
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAllSpecs, type SpecFrontmatter } from './contentSpecHelpers'
+import { loadAllSpecs } from './contentSpecHelpers'
+import type { SpecFrontmatter } from '@app-domain/integrity'
 
 const VISUAL_EVIDENCE_TARGET_KINDS = new Set<SpecFrontmatter['kind']>(['chart', 'ui-component'])
 

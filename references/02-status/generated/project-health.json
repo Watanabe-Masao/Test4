@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T22:33:08.716Z",
+  "timestamp": "2026-04-28T22:58:23.612Z",
   "summary": {
     "active": 6,
     "archived": 26,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 922,
-    "checkedCheckboxes": 833
+    "checkedCheckboxes": 838
   },
   "projects": [
     {
@@ -139,9 +139,9 @@
       "kind": "project",
       "declaredStatus": "draft",
       "derivedStatus": "in_progress",
-      "checked": 27,
+      "checked": 32,
       "total": 53,
-      "progress": 0.509,
+      "progress": 0.604,
       "entrypoint": "projects/canonicalization-domain-consolidation/AI_CONTEXT.md",
       "checklistPath": "projects/canonicalization-domain-consolidation/checklist.md",
       "parent": null

@@ -19,7 +19,8 @@
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAllSpecs, readSourceContent, findIdLine, findExportLine } from './contentSpecHelpers'
+import { loadAllSpecs, readSourceContent } from './contentSpecHelpers'
+import { findIdLine, findExportLine } from '@app-domain/integrity'
 
 function jsdocTagFor(spec: { kind: string; id: string }): string {
   if (spec.kind === 'widget') return `@widget-id ${spec.id}`

@@ -17,7 +17,8 @@
  * @responsibility R:unclassified
  */
 import { describe, it, expect } from 'vitest'
-import { loadAllSpecs, readSourceContent, findIdLine, findExportLine } from './contentSpecHelpers'
+import { loadAllSpecs, readSourceContent } from './contentSpecHelpers'
+import { findIdLine, findExportLine } from '@app-domain/integrity'
 
 describe('Content Spec Co-Change Guard (AR-CONTENT-SPEC-CO-CHANGE)', () => {
   it('全 spec の anchor 行 (registryLine / sourceLine) が source の実 anchor 行と一致する', () => {

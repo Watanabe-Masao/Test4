@@ -1,26 +1,30 @@
 /**
- * Content Spec Guards 共有 helper
+ * Content Spec Guards 共有 helper — I/O wrapper for `app-domain/integrity/`
  *
- * **Phase B Step B-6/B-7 (2026-04-28)**:
- * 本 file は `app-domain/integrity/` への domain delegation 層に移行した。
- * 純粋関数 (parseSpecFrontmatter / findIdLine / findExportLine / SpecFrontmatter 等)
- * は domain primitive を re-export し、I/O を含む関数 (loadAllSpecs /
- * readSourceContent / list*) のみ本 file に残置する。
+ * **Phase E (Legacy Retirement、2026-04-28)**:
+ * 純粋関数 (parseSpecFrontmatter / inferKindFromId / findIdLine / findExportLine /
+ * SpecFrontmatter 等) は `app-domain/integrity/` で正本化済。本 file からは re-export
+ * 層を撤去し、deprecation marker も解除した。本 file の役割は filesystem I/O を
+ * domain pure 関数に橋渡しする adapter として stable に確定した。
  *
- * @deprecated 新規 guard は `@app-domain/integrity` から直接 import すること。
- * @expiresAt 2026-10-31
- * @reason Phase B B-6/B-7 で純粋関数を domain crystallize 完了。本 file は暫定 I/O wrapper。
- * @sunsetCondition 11 contentSpec*Guard が domain 直接 import + I/O 関数も domain 化完了。
+ * 役割 (確定):
+ *  - filesystem 定数 (REPO_ROOT / SPECS_*)
+ *  - listAll* / specPathFor (filesystem 走査 + path 構築)
+ *  - parseSpecFrontmatter (file path → readFileSync → domain `parseSpecFrontmatter`)
+ *  - readSourceContent (spec → source file content、I/O)
+ *  - loadAllSpecs / loadAnchorSpecs (orchestration: list → parse all)
  *
- * 詳細: canonicalization-domain-consolidation Phase B (B-6/B-7)。
- * 本 file の re-export 層は後方互換のため当面残置するが、Phase E (Legacy Retirement)
- * で I/O 関数も含めて整理予定。
+ * 純粋関数 / 型は **必ず `@app-domain/integrity` から import** する。
+ * 本 file には pure re-export を新たに追加してはならない (G8 mechanism)。
  *
- * Phase A: Anchor Slice 5 widget scope。
- * Phase B (2026-04-27): 全 45 WID に拡大、disk discovery 化。
- * Phase C (2026-04-27): kind=read-model を追加 (RM-NNN.md)、kind 別 dispatch 化。
- * Phase B/canonicalization (2026-04-28): pure helper 群を `app-domain/integrity/` に
- * crystallize、本 file は I/O + adapter のみに痩身。
+ * Phase 履歴:
+ *  - Phase A: Anchor Slice 5 widget scope
+ *  - Phase B (2026-04-27): 全 45 WID に拡大、disk discovery 化
+ *  - Phase C (2026-04-27): kind=read-model を追加 (RM-NNN.md)、kind 別 dispatch 化
+ *  - canonicalization Phase B/B-6/B-7 (2026-04-28): pure helper 群を `app-domain/integrity/`
+ *    に crystallize、本 file は I/O wrapper + 後方互換 re-export に痩身
+ *  - canonicalization Phase E (2026-04-28): 11 contentSpec*Guard が
+ *    `@app-domain/integrity` 直接 import に切替完了、本 file から re-export 層を撤去
  *
  * @taxonomyKind T:meta-guard
  *
@@ -31,30 +35,8 @@ import { resolve } from 'node:path'
 import {
   parseSpecFrontmatter as parseSpecFrontmatterPure,
   inferKindFromId,
-  findIdLine,
-  findExportLine,
   type SpecFrontmatter,
-  type SpecKind,
-  type LifecycleStatus,
-  type EvidenceLevel,
-  type RiskLevel,
-  type BehaviorClaim,
 } from '@app-domain/integrity'
-
-// ── domain re-exports (後方互換) ──
-// 既存 guard test は `import { ... } from './contentSpecHelpers'` で利用するため
-// 同一名で re-export する。
-export {
-  inferKindFromId,
-  findIdLine,
-  findExportLine,
-  type SpecFrontmatter,
-  type SpecKind,
-  type LifecycleStatus,
-  type EvidenceLevel,
-  type RiskLevel,
-  type BehaviorClaim,
-}
 
 // ── filesystem 定数 (本 file に残置: I/O 依存) ──
 

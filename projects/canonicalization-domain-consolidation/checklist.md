@@ -59,11 +59,17 @@
 
 ## Phase E: Legacy Retirement
 
-- [ ] Phase C/D で `@deprecated` 化された旧 guard / 旧 parser を物理削除した
-- [ ] 重複していた drift detection logic を削除した
-- [ ] ratchet-down baseline を旧経路から domain 側に統合移行した
-- [ ] `legacy-retirement.md` に各 sunset の actual date を記録した
-- [ ] 旧経路 caller = 0 を grep で確認した
+- [x] Phase C/D で `@deprecated` 化された旧 guard / 旧 parser を物理削除した (contentSpecHelpers.ts 純関数 re-export 層を撤去、deprecation marker 解除)
+- [x] 重複していた drift detection logic を削除した (Phase C 以降の in-place migration で step 5 (singular) 直接到達 — contentSpec\*Guard 11 / docRegistryGuard / 12 D-Wave guard 全件)
+- [x] ratchet-down baseline を旧経路から domain 側に統合移行した (allowlist M1-M4 / calc canon Zod / UNREGISTERED_BASELINE 等は migration 時に domain `checkRatchet` 経由化済)
+- [x] `legacy-retirement.md` に各 sunset の actual date を記録した (Phase B / C / D-W1 / D-W2 / D-W3 / E §7)
+- [x] 旧経路 caller = 0 を grep で確認した (11 contentSpec\*Guard が `@app-domain/integrity` 直接 import に切替、re-export 経由 caller=0)
+
+> **Phase E 戦略の補注**: Phase C 以降の判例 (in-place migration → step 5 (singular) 直接到達)
+> により、撤退規律 5 step の物理削除対象は **`contentSpecHelpers.ts` の純関数 re-export 層** のみ。
+> 旧 inline ロジックは migration commit で同 file 内置換済 (step 5 直接到達)、別 file 並行運用は不要。
+> `architectureRuleGuard.test.ts` (823 行) と `obligation-collector` は Phase D で touch せず、
+> 本 file の stable な責務として継続運用 (Phase E scope 外、Phase H 横展開で再評価)。
 
 ## Phase F: Domain Invariant Test
 
