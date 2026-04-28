@@ -241,9 +241,9 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     //   - cover 済 spec (claims 1 件以上、Step 1: CALC-001/002/007 +
     //     Step 2〜5: CALC-003〜024 (calculation 全 24 件) +
     //     Step 6: RM-001〜010 (read-model 全 10 件) +
-    //     Step 7: CHART-001〜005 + UIC-001〜005 (chart + ui-component 全 10 件)
-    //     = 計 44 件)
-    //   - 未 cover spec = 89 - 44 = 45 件
+    //     Step 7: CHART-001〜005 + UIC-001〜005 (chart + ui-component 全 10 件) +
+    //     Step 8: WID-001〜015 (widget batch 1) = 計 59 件)
+    //   - 未 cover spec = 89 - 59 = 30 件
     //
     // 段階計画:
     //   Step 1 (J1〜J5): 3 件（pilot）
@@ -252,12 +252,13 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     //   Step 4: tier3 第一波 calc 5 件、baseline=73
     //   Step 5: tier3 第二波 + completed 8 件、baseline=65
     //   Step 6: read-model 全 10 件、baseline=55
-    //   Step 7 (本 commit): chart 5 + ui-component 5 (registered specs 全件 cover)、
-    //                       baseline=45。残り = widget 全 45 件
-    //   Step 8+: widget に拡大
+    //   Step 7: chart 5 + ui-component 5、baseline=45
+    //   Step 8 (本 commit): widget batch 1 (WID-001〜015)、baseline=30
+    //   Step 9: widget batch 2 (WID-016〜030)、baseline=15 想定
+    //   Step 10: widget batch 3 (WID-031〜045)、baseline=0 = Phase J 完遂
     //
     // 「全 spec カバー」は Phase J 完遂条件（baseline=0）。
-    const COVERAGE_BASELINE = 45
+    const COVERAGE_BASELINE = 30
     const uncovered: string[] = []
     for (const sc of allClaims) {
       if (sc.claims.length === 0) uncovered.push(sc.specId)
