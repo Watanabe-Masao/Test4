@@ -5,10 +5,6 @@
 import { describe, it, expect } from 'vitest'
 import { parseCsvString } from '../tabularReader'
 
-// Note: parseCsvString adds a trailing empty-field row [''] at the end of input
-// due to the `i === normalized.length` terminal case in the parser loop.
-// Tests are written to match this actual behavior.
-
 describe('parseCsvString', () => {
   it('returns empty array for empty string', () => {
     expect(parseCsvString('')).toEqual([])
@@ -18,13 +14,25 @@ describe('parseCsvString', () => {
     expect(parseCsvString('   ')).toEqual([])
   })
 
-  it('parses a simple CSV and includes trailing row', () => {
-    const csv = 'a,b,c\n1,2,3'
-    const result = parseCsvString(csv)
-    // Parser adds trailing [''] row
-    expect(result.length).toBeGreaterThanOrEqual(2)
-    expect(result[0]).toEqual(['a', 'b', 'c'])
-    expect(result[1]).toEqual([1, 2, 3])
+  it('parses a simple CSV without trailing empty row', () => {
+    expect(parseCsvString('a,b,c\n1,2,3')).toEqual([
+      ['a', 'b', 'c'],
+      [1, 2, 3],
+    ])
+  })
+
+  it('does not add a trailing empty row when input has no trailing delimiter', () => {
+    // 過去のバグ回帰テスト: 末尾改行なし非クォートフィールドで [''] が混入していた
+    expect(parseCsvString('a,b')).toEqual([['a', 'b']])
+    expect(parseCsvString('a,b\nc,d')).toEqual([
+      ['a', 'b'],
+      ['c', 'd'],
+    ])
+  })
+
+  it('preserves trailing empty field when input ends with a comma', () => {
+    // 末尾カンマは「空フィールドあり」が意図、これは保持する
+    expect(parseCsvString('a,b,')).toEqual([['a', 'b', '']])
   })
 
   it('parses numeric values', () => {

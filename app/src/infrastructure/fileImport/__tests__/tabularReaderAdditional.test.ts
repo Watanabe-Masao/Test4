@@ -172,10 +172,12 @@ describe('parseCsvString (additional branch coverage)', () => {
   })
 
   it('複数行でクォートフィールドが中間行に来るパターン', () => {
+    // 修正後: 末尾空行 [''] を含まないため length も検証
     const result = parseCsvString('a,b\n"c,d",e\nf,g')
-    expect(result[0]).toEqual(['a', 'b'])
-    expect(result[1][0]).toBe('c,d')
-    expect(result[1][1]).toBe('e')
-    expect(result[2][0]).toBe('f')
+    expect(result).toEqual([
+      ['a', 'b'],
+      ['c,d', 'e'],
+      ['f', 'g'],
+    ])
   })
 })
