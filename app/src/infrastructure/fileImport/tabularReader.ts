@@ -1,5 +1,5 @@
 /**
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 
 import * as XLSX from 'xlsx'

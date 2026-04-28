@@ -1,5 +1,5 @@
 /**
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 
 import { safeNumber } from '@/domain/calculations/utils'

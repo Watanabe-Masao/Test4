@@ -1,7 +1,7 @@
 /**
  * インポートエラーの種類
  *
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 export type ImportErrorType =
   | 'PARSE_ERROR'
