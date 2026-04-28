@@ -56,15 +56,15 @@ app-domain/integrity/
 
 ## 現在の実装状態 (B-1 landing 時点)
 
-| Phase B Step | 内容                                                         | 状態                    |
-| ------------ | ------------------------------------------------------------ | ----------------------- |
-| **B-1**      | `types.ts` + `index.ts` (空 barrel) + APP_DOMAIN_INDEX.md    | **本 commit で landed** |
-| B-2          | `reporting/formatViolation.ts`                               | 未着手                  |
-| B-3          | `parsing/yamlFrontmatter.ts`                                 | 未着手                  |
-| B-4          | `detection/existence.ts` + `detection/pathExistence.ts`      | 未着手                  |
-| B-5          | `detection/ratchet.ts` + `detection/temporal.ts`             | 未着手                  |
-| B-6          | spec-state 系 11 contentSpec\*Guard を adapter 経由に切替    | 未着手                  |
-| B-7          | `contentSpecHelpers.ts` を `@deprecated (re-export only)` 化 | 未着手                  |
+| Phase B Step | 内容                                                                                    | 状態      |
+| ------------ | --------------------------------------------------------------------------------------- | --------- |
+| **B-1**      | `types.ts` + `index.ts` + APP_DOMAIN_INDEX.md                                           | ✅ landed |
+| **B-2**      | `reporting/formatViolation.ts` + tests (6)                                              | ✅ landed |
+| **B-3**      | `parsing/yamlFrontmatter.ts` + `parsing/sourceLineLookup.ts` + tests (7+7)              | ✅ landed |
+| **B-4**      | `detection/existence.ts` + `detection/pathExistence.ts` + tests (9)                     | ✅ landed |
+| **B-5**      | `detection/ratchet.ts` + `detection/temporal.ts` + tests (4+8)                          | ✅ landed |
+| **B-6**      | `contentSpecHelpers.ts` を domain delegation に + 11 contentSpec\*Guard 動作同一性 PASS | ✅ landed |
+| **B-7**      | `contentSpecHelpers.ts` `@deprecated` (3 metadata 完備、@expiresAt: 2026-10-31)         | ✅ landed |
 
 **1 PR = 1 step 原則** (撤退規律 5 step 観察期間確保)。
 

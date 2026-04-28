@@ -1,9 +1,7 @@
 /**
  * app-domain/integrity/index.ts — public API barrel
  *
- * canonicalization-domain-consolidation Phase B Step B-1 landing 時点では
- * 抽象型 4 種のみを公開する。具体 primitive (parsing / detection / reporting) は
- * Step B-2 以降で順次追加。
+ * Phase B Step B-2〜B-5 完遂時点での export 一式。
  *
  * 設計詳細: `references/03-guides/integrity-domain-architecture.md`
  *
@@ -16,3 +14,36 @@ export type {
   EnforcementSeverity,
   SyncDirection,
 } from "./types";
+
+export {
+  parseSpecFrontmatter,
+  inferKindFromId,
+  findIdLine,
+  findExportLine,
+  type SpecKind,
+  type SpecFrontmatter,
+  type LifecycleStatus,
+  type EvidenceLevel,
+  type RiskLevel,
+  type BehaviorClaim,
+} from "./parsing";
+
+export {
+  checkBidirectionalExistence,
+  checkPathExistence,
+  checkRatchet,
+  checkExpired,
+  checkFreshness,
+  type ExistenceCheckOptions,
+  type ExistsCheck,
+  type PathExistenceOptions,
+  type RegisteredPath,
+  type RatchetOptions,
+  type RatchetResult,
+  type ExpirationOptions,
+  type ExpiringItem,
+  type FreshnessOptions,
+  type FreshnessTarget,
+} from "./detection";
+
+export { formatViolations, formatStringViolations } from "./reporting";

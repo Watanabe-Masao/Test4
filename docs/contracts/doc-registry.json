@@ -93,7 +93,7 @@
         },
         {
           "path": "references/03-guides/integrity-domain-architecture.md",
-          "label": "整合性 Domain Skeleton 設計 (canonicalization-domain-consolidation Phase B 設計 doc、status: design-locked / implementation-pending)。app-domain/integrity/ 物理 module 構成 (types/parsing/detection/reporting 計 20 file) + Phase B 実装順 B-1〜B-7 + adapter pattern + domain 純粋性 4 不変条件"
+          "label": "整合性 Domain Skeleton 設計 (canonicalization-domain-consolidation Phase B 設計 doc、status: implementation-complete / B-1〜B-7 全 landed)。app-domain/integrity/ 物理 module 構成 (types/parsing/detection/reporting) + adapter pattern + domain 純粋性 4 不変条件"
         },
         {
           "path": "references/03-guides/allowlist-management.md",

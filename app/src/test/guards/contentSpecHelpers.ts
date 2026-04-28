@@ -1,11 +1,26 @@
 /**
  * Content Spec Guards 共有 helper
  *
+ * **Phase B Step B-6/B-7 (2026-04-28)**:
+ * 本 file は `app-domain/integrity/` への domain delegation 層に移行した。
+ * 純粋関数 (parseSpecFrontmatter / findIdLine / findExportLine / SpecFrontmatter 等)
+ * は domain primitive を re-export し、I/O を含む関数 (loadAllSpecs /
+ * readSourceContent / list*) のみ本 file に残置する。
+ *
+ * @deprecated 新規 guard は `@app-domain/integrity` から直接 import すること。
+ * @expiresAt 2026-10-31
+ * @reason Phase B B-6/B-7 で純粋関数を domain crystallize 完了。本 file は暫定 I/O wrapper。
+ * @sunsetCondition 11 contentSpec*Guard が domain 直接 import + I/O 関数も domain 化完了。
+ *
+ * 詳細: canonicalization-domain-consolidation Phase B (B-6/B-7)。
+ * 本 file の re-export 層は後方互換のため当面残置するが、Phase E (Legacy Retirement)
+ * で I/O 関数も含めて整理予定。
+ *
  * Phase A: Anchor Slice 5 widget scope。
  * Phase B (2026-04-27): 全 45 WID に拡大、disk discovery 化。
  * Phase C (2026-04-27): kind=read-model を追加 (RM-NNN.md)、kind 別 dispatch 化。
- *
- * 各 guard で重複していた frontmatter 読み取り / source 検出ロジックを集約する。
+ * Phase B/canonicalization (2026-04-28): pure helper 群を `app-domain/integrity/` に
+ * crystallize、本 file は I/O + adapter のみに痩身。
  *
  * @taxonomyKind T:meta-guard
  *
@@ -13,11 +28,43 @@
  */
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import {
+  parseSpecFrontmatter as parseSpecFrontmatterPure,
+  inferKindFromId,
+  findIdLine,
+  findExportLine,
+  type SpecFrontmatter,
+  type SpecKind,
+  type LifecycleStatus,
+  type EvidenceLevel,
+  type RiskLevel,
+  type BehaviorClaim,
+} from '@app-domain/integrity'
+
+// ── domain re-exports (後方互換) ──
+// 既存 guard test は `import { ... } from './contentSpecHelpers'` で利用するため
+// 同一名で re-export する。
+export {
+  inferKindFromId,
+  findIdLine,
+  findExportLine,
+  type SpecFrontmatter,
+  type SpecKind,
+  type LifecycleStatus,
+  type EvidenceLevel,
+  type RiskLevel,
+  type BehaviorClaim,
+}
+
+// ── filesystem 定数 (本 file に残置: I/O 依存) ──
 
 export const REPO_ROOT = resolve(__dirname, '../../../..')
 export const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
 export const SPECS_WIDGETS_DIR = resolve(SPECS_BASE, 'widgets')
 export const SPECS_READ_MODELS_DIR = resolve(SPECS_BASE, 'read-models')
+export const SPECS_CALCULATIONS_DIR = resolve(SPECS_BASE, 'calculations')
+export const SPECS_CHARTS_DIR = resolve(SPECS_BASE, 'charts')
+export const SPECS_UI_COMPONENTS_DIR = resolve(SPECS_BASE, 'ui-components')
 
 /** Phase A 起源の Anchor Slice 5 widget — documentation / archived umbrella 参照向けに保持。 */
 export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
@@ -27,22 +74,6 @@ export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-033',
   'WID-040',
 ]
-
-export type SpecKind = 'widget' | 'read-model' | 'calculation' | 'chart' | 'ui-component'
-
-/** id prefix から kind を推定する。未知の prefix は null。 */
-export function inferKindFromId(id: string): SpecKind | null {
-  if (/^WID-\d{3}$/.test(id)) return 'widget'
-  if (/^RM-\d{3}$/.test(id)) return 'read-model'
-  if (/^CALC-\d{3}$/.test(id)) return 'calculation'
-  if (/^CHART-\d{3}$/.test(id)) return 'chart'
-  if (/^UIC-\d{3}$/.test(id)) return 'ui-component'
-  return null
-}
-
-export const SPECS_CALCULATIONS_DIR = resolve(SPECS_BASE, 'calculations')
-export const SPECS_CHARTS_DIR = resolve(SPECS_BASE, 'charts')
-export const SPECS_UI_COMPONENTS_DIR = resolve(SPECS_BASE, 'ui-components')
 
 export function specPathFor(id: string): string {
   const kind = inferKindFromId(id)
@@ -104,160 +135,15 @@ export function listAllSpecIds(): readonly string[] {
   ].sort()
 }
 
-export type LifecycleStatus =
-  | 'proposed'
-  | 'active'
-  | 'deprecated'
-  | 'sunsetting'
-  | 'retired'
-  | 'archived'
-
-export type EvidenceLevel =
-  | 'generated' // source から機械生成された事実 (最強、CI で保証)
-  | 'tested' // test で確認済み (behavior 保証)
-  | 'guarded' // guard で防御済み (構造違反検出)
-  | 'reviewed' // 人間レビュー済み (判断の証跡)
-  | 'asserted' // 人間が書いただけ (許すが high-risk では禁止)
-  | 'unknown' // 根拠不明 (原則禁止)
-
-export type RiskLevel = 'high' | 'medium' | 'low'
-
-export interface BehaviorClaim {
-  readonly id: string
-  readonly claim: string
-  readonly evidenceLevel: EvidenceLevel
-  readonly riskLevel: RiskLevel
-  readonly evidence: {
-    readonly tests: readonly string[]
-    readonly guards: readonly string[]
-    readonly reviewedBy?: string | null
-  }
-}
-
-export interface SpecFrontmatter {
-  readonly id: string
-  readonly kind: SpecKind
-  // widget 系 field (kind=widget でのみ意味を持つ)
-  readonly widgetDefId: string
-  readonly registry: string
-  readonly registrySource: string
-  readonly registryLine: number
-  // read-model / calculation 系 field
-  readonly exportName: string
-  readonly sourceRef: string
-  readonly sourceLine: number
-  // calculation 固有 (registry sync)
-  readonly contractId: string | null
-  readonly canonicalRegistration: string | null // 'current' | 'candidate' | 'non-target'
-  // lifecycle 共通 (Phase D で active 化、kind 横断)
-  readonly lifecycleStatus: LifecycleStatus
-  readonly replacedBy: string | null
-  readonly supersedes: string | null
-  readonly sunsetCondition: string | null
-  readonly deadline: string | null
-  // 共通 field
-  readonly owner: string | null
-  readonly reviewCadenceDays: number | null
-  readonly lastReviewedAt: string | null
-  readonly lastVerifiedCommit: string | null
-  readonly raw: Record<string, unknown>
-}
-
+/**
+ * I/O wrapper around domain `parseSpecFrontmatter`.
+ *
+ * Reads the file then delegates parsing to the pure domain primitive.
+ * Existing call sites use `parseSpecFrontmatter(path)` so signature is preserved.
+ */
 export function parseSpecFrontmatter(path: string): SpecFrontmatter {
   const content = readFileSync(path, 'utf-8')
-  const m = content.match(/^---\n([\s\S]*?)\n---/)
-  if (!m) {
-    throw new Error(`Invalid frontmatter in ${path}`)
-  }
-  const raw: Record<string, unknown> = {}
-  const lines = m[1].split('\n')
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]
-    if (line.trim() === '' || line.trim().startsWith('#')) {
-      i++
-      continue
-    }
-    const km = line.match(/^([A-Za-z0-9_]+):\s*(.*)$/)
-    if (!km) {
-      i++
-      continue
-    }
-    const key = km[1]
-    const valueRaw = km[2].trim()
-    if (valueRaw === '') {
-      const block: string[] = []
-      let j = i + 1
-      while (j < lines.length) {
-        const next = lines[j]
-        if (next.trim() === '' || next.trim().startsWith('#')) {
-          j++
-          continue
-        }
-        if (!next.startsWith('  ')) break
-        block.push(next)
-        j++
-      }
-      if (block.length > 0 && block.every((l) => l.trim().startsWith('- '))) {
-        raw[key] = block.map((l) => parseScalar(l.trim().slice(2).trim()))
-      } else if (block.length > 0) {
-        const obj: Record<string, unknown> = {}
-        for (const l of block) {
-          const om = l.trim().match(/^([A-Za-z0-9_]+):\s*(.*)$/)
-          if (om) obj[om[1]] = parseScalar(om[2].trim())
-        }
-        raw[key] = obj
-      } else {
-        raw[key] = []
-      }
-      i = j
-    } else {
-      raw[key] = parseScalar(valueRaw)
-      i++
-    }
-  }
-  const idStr = String(raw.id ?? '')
-  const kind = inferKindFromId(idStr) ?? 'widget'
-  const lifecycleStatus = (
-    typeof raw.lifecycleStatus === 'string' ? raw.lifecycleStatus : 'active'
-  ) as LifecycleStatus
-  return {
-    id: idStr,
-    kind,
-    widgetDefId: String(raw.widgetDefId ?? ''),
-    registry: String(raw.registry ?? ''),
-    registrySource: String(raw.registrySource ?? ''),
-    registryLine: typeof raw.registryLine === 'number' ? raw.registryLine : 0,
-    exportName: String(raw.exportName ?? ''),
-    sourceRef: String(raw.sourceRef ?? ''),
-    sourceLine: typeof raw.sourceLine === 'number' ? raw.sourceLine : 0,
-    contractId: typeof raw.contractId === 'string' ? raw.contractId : null,
-    canonicalRegistration:
-      typeof raw.canonicalRegistration === 'string' ? raw.canonicalRegistration : null,
-    lifecycleStatus,
-    replacedBy: typeof raw.replacedBy === 'string' ? raw.replacedBy : null,
-    supersedes: typeof raw.supersedes === 'string' ? raw.supersedes : null,
-    sunsetCondition: typeof raw.sunsetCondition === 'string' ? raw.sunsetCondition : null,
-    deadline: typeof raw.deadline === 'string' ? raw.deadline : null,
-    owner: typeof raw.owner === 'string' ? raw.owner : null,
-    reviewCadenceDays: typeof raw.reviewCadenceDays === 'number' ? raw.reviewCadenceDays : null,
-    lastReviewedAt: typeof raw.lastReviewedAt === 'string' ? raw.lastReviewedAt : null,
-    lastVerifiedCommit: typeof raw.lastVerifiedCommit === 'string' ? raw.lastVerifiedCommit : null,
-    raw,
-  }
-}
-
-function parseScalar(s: string): unknown {
-  if (s === 'null' || s === '~' || s === '') return null
-  if (s === 'true') return true
-  if (s === 'false') return false
-  if (s === '[]') return []
-  if (s === '{}') return {}
-  if (/^-?\d+$/.test(s)) return Number(s)
-  if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
-    return s.slice(1, -1)
-  }
-  return s
+  return parseSpecFrontmatterPure(content, path)
 }
 
 /** 後方互換 alias — Phase B までは widgets-only だった頃の名前。 */
@@ -273,33 +159,6 @@ export function loadAnchorSpecs(): SpecFrontmatter[] {
 /** 全 spec (widget + read-model) を frontmatter parse して返す。 */
 export function loadAllSpecs(): SpecFrontmatter[] {
   return listAllSpecIds().map((id) => parseSpecFrontmatter(specPathFor(id)))
-}
-
-/** source TSX/TS 内で widget id literal の行番号を返す（1-indexed）。見つからなければ 0。 */
-export function findIdLine(sourceContent: string, widgetDefId: string): number {
-  const lines = sourceContent.split('\n')
-  const re = new RegExp(`^\\s*id:\\s*['"\`]${escapeRegex(widgetDefId)}['"\`]`)
-  for (let i = 0; i < lines.length; i++) {
-    if (re.test(lines[i])) return i + 1
-  }
-  return 0
-}
-
-/** source TS 内で `export <kind> <name>` の行番号を返す（1-indexed）。見つからなければ 0。 */
-export function findExportLine(sourceContent: string, exportName: string): number {
-  const lines = sourceContent.split('\n')
-  const n = escapeRegex(exportName)
-  const re = new RegExp(
-    `^\\s*export\\s+(?:async\\s+)?(?:function|const|let|var|class|interface|type)\\s+${n}\\b`,
-  )
-  for (let i = 0; i < lines.length; i++) {
-    if (re.test(lines[i])) return i + 1
-  }
-  return 0
-}
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
 /** spec の source ファイル (kind=widget→registrySource / kind=read-model|calculation→sourceRef) を読む。 */

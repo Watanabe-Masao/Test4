@@ -4,8 +4,11 @@
 > Phase A inventory (`integrity-pair-inventory.md` §3) で抽出した primitive 集合を
 > `app-domain/integrity/` の物理 module 構成として確定する。
 >
-> **status: design-locked, implementation-pending** — 本 doc は Phase B 着手前の
-> 設計固定。実コード（`.ts`）は別 PR で landing する（documentation-first 原則）。
+> **status (2026-04-28 更新): implementation-complete (B-1〜B-7 全 landed)** —
+> Phase B Step B-1〜B-7 全件 landed。`app-domain/integrity/` に 11 primitive +
+> public API barrel 実装、contentSpecHelpers.ts は domain delegation 層に再構成、
+> `@deprecated` (3 metadata 完備、@expiresAt: 2026-10-31) で marking 済。
+> 11 contentSpec\*Guard / 51 integrity unit test / 計 125 file / 844 test PASS。
 
 ## 0. 設計目標 (Phase A North Star の継承)
 

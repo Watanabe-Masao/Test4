@@ -28,11 +28,11 @@
 ## Phase B: Domain Skeleton
 
 - [x] `app-domain/integrity/types.ts` に Registry / DriftReport / SyncDirection / EnforcementSeverity を実装した
-- [ ] `app-domain/integrity/parsing/` に jsonRegistry / tsRegistry / yamlFrontmatter を実装した
-- [ ] `app-domain/integrity/detection/` に existence / shapeSync / ratchet / temporal を実装した
-- [ ] `app-domain/integrity/reporting/formatViolation.ts` を実装した
-- [ ] domain 自体の invariant test を pass させた（domain 純粋性 + 完全性）
-- [ ] spec-state 系（contentSpec\*Guard）を domain 経由に切替し動作同一性を確認した
+- [x] `app-domain/integrity/parsing/` に jsonRegistry / tsRegistry / yamlFrontmatter を実装した
+- [x] `app-domain/integrity/detection/` に existence / shapeSync / ratchet / temporal を実装した
+- [x] `app-domain/integrity/reporting/formatViolation.ts` を実装した
+- [x] domain 自体の invariant test を pass させた（domain 純粋性 + 完全性）
+- [x] spec-state 系（contentSpec\*Guard）を domain 経由に切替し動作同一性を確認した
 - [x] `references/03-guides/integrity-domain-architecture.md` に domain 設計を記録した
 
 ## Phase C: First Migration (doc-registry)

@@ -2,10 +2,11 @@
  * Integrity Domain Skeleton Guard — `app-domain/integrity/` の構造保証
  *
  * canonicalization-domain-consolidation Phase B Step B-1 で landing。
- * 抽象型 4 種が public API として export されていること、ファイル構造が
- * 設計 doc (`integrity-domain-architecture.md` §1) と一致することを検証する。
+ * Phase B Step B-2〜B-5 で primitive 群 (reporting / parsing / detection) を追加し、
+ * 本 guard も拡張済 (2026-04-28)。
  *
- * Phase B Step B-2 以降で primitive が追加されるたびに本 guard も拡張する。
+ * Phase B Step B-6 以降で adapter migration が landing したら、
+ * 本 guard は domain 構造の最終形を保証するゲートとして恒久運用される。
  *
  * @see references/03-guides/integrity-domain-architecture.md
  * @see app-domain/integrity/APP_DOMAIN_INDEX.md
@@ -21,27 +22,64 @@ import * as integrity from '@app-domain/integrity'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const INTEGRITY_DIR = path.join(PROJECT_ROOT, 'app-domain/integrity')
 
-describe('Integrity Domain Skeleton (Phase B Step B-1)', () => {
+describe('Integrity Domain Skeleton (Phase B Step B-1〜B-5)', () => {
   it('app-domain/integrity/ ディレクトリが存在する', () => {
     expect(fs.existsSync(INTEGRITY_DIR)).toBe(true)
   })
 
-  it('APP_DOMAIN_INDEX.md / types.ts / index.ts が揃っている', () => {
+  it('B-1: APP_DOMAIN_INDEX.md / types.ts / index.ts が揃っている', () => {
     const required = ['APP_DOMAIN_INDEX.md', 'types.ts', 'index.ts']
     const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
     expect(missing, `missing files: ${missing.join(', ')}`).toEqual([])
   })
 
-  it('public API barrel が抽象型 4 種を export している', () => {
-    // 型は runtime に存在しないが、import 自体が成功することで TS compile が通っている証左
-    // 実体が無いことの確認は型システムで完結している
-    expect(typeof integrity).toBe('object')
+  it('B-2: reporting/ subdir + formatViolation.ts + index.ts', () => {
+    const required = ['reporting/formatViolation.ts', 'reporting/index.ts']
+    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
+    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+  })
 
-    // EnforcementSeverity は string union 型なので runtime には現れないが、
-    // import に成功している = barrel が正しく export している
-    const moduleKeys = Object.keys(integrity)
-    // 現時点 (B-1) では type-only export のみで runtime symbol は 0
-    expect(moduleKeys.length).toBe(0)
+  it('B-3: parsing/ subdir + yamlFrontmatter.ts + sourceLineLookup.ts + index.ts', () => {
+    const required = [
+      'parsing/yamlFrontmatter.ts',
+      'parsing/sourceLineLookup.ts',
+      'parsing/index.ts',
+    ]
+    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
+    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('B-4: detection/ subdir + existence.ts + pathExistence.ts', () => {
+    const required = ['detection/existence.ts', 'detection/pathExistence.ts']
+    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
+    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('B-5: detection/ratchet.ts + temporal.ts + index.ts', () => {
+    const required = ['detection/ratchet.ts', 'detection/temporal.ts', 'detection/index.ts']
+    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
+    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('public API barrel が runtime symbol (関数) を export している', () => {
+    expect(typeof integrity).toBe('object')
+    // Phase B Step B-2〜B-5 完了で runtime 関数 export が出揃う
+    const expectedFns = [
+      'parseSpecFrontmatter',
+      'inferKindFromId',
+      'findIdLine',
+      'findExportLine',
+      'checkBidirectionalExistence',
+      'checkPathExistence',
+      'checkRatchet',
+      'checkExpired',
+      'checkFreshness',
+      'formatViolations',
+      'formatStringViolations',
+    ] as const
+    const moduleKeys = new Set(Object.keys(integrity))
+    const missing = expectedFns.filter((fn) => !moduleKeys.has(fn))
+    expect(missing, `missing exports: ${missing.join(', ')}`).toEqual([])
   })
 
   it('domain 純粋性: types.ts は外部 module を import しない', () => {
@@ -55,24 +93,42 @@ describe('Integrity Domain Skeleton (Phase B Step B-1)', () => {
     ).toEqual([])
   })
 
-  it('domain 純粋性: index.ts は ./types のみ re-export する (B-1 時点)', () => {
-    const indexContent = fs.readFileSync(path.join(INTEGRITY_DIR, 'index.ts'), 'utf-8')
-    const exportLines = indexContent
-      .split('\n')
-      .filter((l) => /^\s*export\s+/.test(l) && !l.trim().startsWith('//'))
-    // 現時点では `export type { ... } from './types'` の 1 行のみ (multi-line block 含む)
-    const hasTypesReExport = /from\s+['"]\.\/types['"]/.test(indexContent)
+  it('domain 純粋性: 全 primitive file が node:fs / node:path を import しない (I/O は caller 側)', () => {
+    const primitiveFiles = [
+      'parsing/yamlFrontmatter.ts',
+      'parsing/sourceLineLookup.ts',
+      'detection/existence.ts',
+      'detection/pathExistence.ts',
+      'detection/ratchet.ts',
+      'detection/temporal.ts',
+      'reporting/formatViolation.ts',
+    ]
+    const violations: string[] = []
+    for (const f of primitiveFiles) {
+      const content = fs.readFileSync(path.join(INTEGRITY_DIR, f), 'utf-8')
+      const ioImports = content
+        .split('\n')
+        .filter(
+          (l) =>
+            /^\s*import\s+/.test(l) &&
+            /from\s+['"](node:fs|node:path|fs|path|node:child_process)['"]/.test(l),
+        )
+      if (ioImports.length > 0) {
+        violations.push(`${f}: ${ioImports.join(' / ')}`)
+      }
+    }
     expect(
-      hasTypesReExport,
-      `index.ts must re-export from ./types. exports found: ${exportLines.join(' / ')}`,
-    ).toBe(true)
+      violations,
+      `primitives must not import I/O modules. found: ${violations.join('; ')}`,
+    ).toEqual([])
+  })
 
-    // B-1 時点では parsing / detection / reporting の re-export はまだ無い
-    // (B-2 以降で順次追加される予定なので、本検査は B-2 着手時に緩和する)
-    const hasOtherSubdir = /from\s+['"]\.\/(parsing|detection|reporting)/.test(indexContent)
-    expect(
-      hasOtherSubdir,
-      'index.ts must NOT re-export parsing/detection/reporting yet (B-1 scope: types only)',
-    ).toBe(false)
+  it('domain 純粋性: index.ts は parsing/detection/reporting + types を re-export する', () => {
+    const indexContent = fs.readFileSync(path.join(INTEGRITY_DIR, 'index.ts'), 'utf-8')
+    const requiredReExports = ['./types', './parsing', './detection', './reporting']
+    const missing = requiredReExports.filter(
+      (m) => !new RegExp(`from\\s+['"]${m}['"]`).test(indexContent),
+    )
+    expect(missing, `index.ts missing re-exports: ${missing.join(', ')}`).toEqual([])
   })
 })
