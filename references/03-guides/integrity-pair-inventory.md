@@ -397,8 +397,8 @@ Phase A が「完遂」とみなせるのは次の全てが成立した時点:
 - [x] §2 selection rule + §2.2 候補判定 (本 commit)
 - [x] §3 共通 primitive 候補 (parsing 6 / detection 7 / reporting 1 / types 4) (本 commit)
 - [x] §4 採用候補リスト (本 §) (本 commit)
-- [ ] `references/01-principles/canonicalization-principles.md` の selection rule 拡張版 landing (後続 commit)
-- [ ] `projects/canonicalization-domain-consolidation/derived/` machine-readable 版 landing (後続 commit)
-- [ ] doc-registry.json への本 doc 追加 (後続 commit)
+- [x] `references/01-principles/canonicalization-principles.md` の selection rule 拡張版 landing (P8 として追加、本 commit)
+- [x] `projects/canonicalization-domain-consolidation/derived/` machine-readable 版 landing (`adoption-candidates.json` + README.md、本 commit)
+- [x] doc-registry.json への本 doc 追加 (label を populated 状態に更新済、前 commit)
 
-→ 残 3 項目は HANDOFF.md「次にやること」#2 / #3 と同期して別 PR で landing する (本 commit は §1〜§4 prose の Phase A primary deliverable に集中)。
+→ 全項目完遂。**Phase A primary deliverable 完遂**を HANDOFF.md に反映。Phase B 着手準備完了。
