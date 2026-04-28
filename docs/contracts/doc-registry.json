@@ -89,7 +89,7 @@
         },
         {
           "path": "references/03-guides/integrity-pair-inventory.md",
-          "label": "整合性ペア inventory (canonicalization-domain-consolidation Phase A 成果物、13 ペア + 横展開候補 + 共通 primitive 候補) — skeleton landed、§1.1〜§1.13 詳細は後続 commit"
+          "label": "整合性ペア inventory (canonicalization-domain-consolidation Phase A 成果物、13 ペア詳細 + 横展開候補 selection rule + 共通 primitive 候補 + 採用候補リスト)"
         },
         {
           "path": "references/03-guides/allowlist-management.md",
