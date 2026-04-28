@@ -253,12 +253,12 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     //   Step 5: tier3 第二波 + completed 8 件、baseline=65
     //   Step 6: read-model 全 10 件、baseline=55
     //   Step 7: chart 5 + ui-component 5、baseline=45
-    //   Step 8 (本 commit): widget batch 1 (WID-001〜015)、baseline=30
-    //   Step 9: widget batch 2 (WID-016〜030)、baseline=15 想定
+    //   Step 8: widget batch 1 (WID-001〜015)、baseline=30
+    //   Step 9 (本 commit): widget batch 2 (WID-016〜030)、baseline=15
     //   Step 10: widget batch 3 (WID-031〜045)、baseline=0 = Phase J 完遂
     //
     // 「全 spec カバー」は Phase J 完遂条件（baseline=0）。
-    const COVERAGE_BASELINE = 30
+    const COVERAGE_BASELINE = 15
     const uncovered: string[] = []
     for (const sc of allClaims) {
       if (sc.claims.length === 0) uncovered.push(sc.specId)
