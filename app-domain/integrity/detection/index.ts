@@ -32,3 +32,13 @@ export {
   type InclusionOptions,
   type InclusionPredicateOptions,
 } from "./setRelation";
+export {
+  checkUniqueness,
+  checkUpperBound,
+  checkNonEmpty,
+  checkSizeEquality,
+  type UniquenessOptions,
+  type UpperBoundOptions,
+  type NonEmptyOptions,
+  type SizeEqualityOptions,
+} from "./cardinality";

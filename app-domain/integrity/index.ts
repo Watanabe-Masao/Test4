@@ -39,6 +39,10 @@ export {
   checkDisjoint,
   checkInclusion,
   checkInclusionByPredicate,
+  checkUniqueness,
+  checkUpperBound,
+  checkNonEmpty,
+  checkSizeEquality,
   type ExistenceCheckOptions,
   type ExistsCheck,
   type PathExistenceOptions,
@@ -52,6 +56,10 @@ export {
   type DisjointOptions,
   type InclusionOptions,
   type InclusionPredicateOptions,
+  type UniquenessOptions,
+  type UpperBoundOptions,
+  type NonEmptyOptions,
+  type SizeEqualityOptions,
 } from "./detection";
 
 export { formatViolations, formatStringViolations } from "./reporting";

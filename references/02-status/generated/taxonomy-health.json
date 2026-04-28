@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-04-28T15:31:06.736Z",
+  "generatedAt": "2026-04-28T21:30:12.107Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {
@@ -31,17 +31,17 @@
       }
     },
     "test": {
-      "totalTargets": 750,
-      "tagged": 750,
+      "totalTargets": 751,
+      "tagged": 751,
       "untagged": 0,
-      "inAnchorSlice": 32,
+      "inAnchorSlice": 33,
       "anchorBreakdown": {
         "T:zod-contract": 2,
         "T:contract-parity": 2,
         "T:boundary": 2,
         "T:unit-numerical": 2,
         "T:render-shape": 1,
-        "T:meta-guard": 23
+        "T:meta-guard": 24
       },
       "unknownVocabulary": 1,
       "missingOrigin": 0,
@@ -59,7 +59,7 @@
         "T:unmount-path": 2,
         "T:render-shape": 1,
         "T:allowlist-integrity": 1,
-        "T:meta-guard": 23,
+        "T:meta-guard": 24,
         "T:*` を持たない": 1,
         "unknown:T:*` を持たない": 1
       }

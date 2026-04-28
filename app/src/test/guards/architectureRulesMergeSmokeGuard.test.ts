@@ -7,6 +7,12 @@
  * 既存の architectureRuleGuard / executionOverlayGuard は整合性検証だが、
  * 本テストは配線（merged.ts と facade が consumer に正しく届くか）に特化する。
  *
+ * **Phase D Wave 2 (2026-04-28)**: canonicalization-domain-consolidation Phase D で
+ * `app-domain/integrity/` 経由の adapter 化。checkInclusion (5 経路 id 集合一致) +
+ * checkUniqueness (id 重複) + checkNonEmpty (配線死亡) + checkSizeEquality
+ * (overlay 欠損) + checkInclusionByPredicate (各 rule の必須 field) 経由に切替。
+ * 動作同一性は 9 既存 test で検証済。
+ *
  * @guard F1 バレルで後方互換
  * @guard C6 facade は orchestration のみ
  * @see references/03-guides/governance-final-placement-plan.md
@@ -23,51 +29,115 @@ import { ARCHITECTURE_RULES as FROM_MERGED } from '../architectureRules/merged'
 import { ARCHITECTURE_RULES as FROM_BASE_RE_EXPORT } from '../architectureRules/rules'
 // 互換 facade（架橋ファイル）
 import { ARCHITECTURE_RULES as FROM_COMPAT_FACADE } from '../architectureRules.ts'
+import {
+  checkInclusion,
+  checkUniqueness,
+  checkNonEmpty,
+  checkSizeEquality,
+  checkInclusionByPredicate,
+} from '@app-domain/integrity'
+
+const RULE_ID = 'architectureRulesMergeSmokeGuard'
 
 describe('Architecture Rules Merge / Facade Smoke', () => {
   it('facade, index, merged, rules re-export, 互換 facade はすべて同一参照 or 同一配列', () => {
-    // 厳密な同一参照でなくてもよいが、件数と id 集合は一致すること
-    const asIds = (arr: readonly { id: string }[]) => arr.map((r) => r.id).sort()
-    const barrelIds = asIds(FROM_BARREL)
-    const indexIds = asIds(FROM_INDEX)
-    const mergedIds = asIds(FROM_MERGED)
-    const reExportIds = asIds(FROM_BASE_RE_EXPORT)
-    const compatIds = asIds(FROM_COMPAT_FACADE)
-
-    expect(indexIds).toEqual(barrelIds)
-    expect(mergedIds).toEqual(barrelIds)
-    expect(reExportIds).toEqual(barrelIds)
-    expect(compatIds).toEqual(barrelIds)
+    const asIdSet = (arr: readonly { id: string }[]) => new Set(arr.map((r) => r.id))
+    const barrelIds = asIdSet(FROM_BARREL)
+    const checks: Array<{ name: string; ids: ReadonlySet<string> }> = [
+      { name: 'index', ids: asIdSet(FROM_INDEX) },
+      { name: 'merged', ids: asIdSet(FROM_MERGED) },
+      { name: 'reExport', ids: asIdSet(FROM_BASE_RE_EXPORT) },
+      { name: 'compatFacade', ids: asIdSet(FROM_COMPAT_FACADE) },
+    ]
+    const violations: string[] = []
+    for (const c of checks) {
+      const reportsForward = checkInclusion(barrelIds, c.ids, {
+        ruleId: RULE_ID,
+        subsetLabel: 'barrel',
+        supersetLabel: c.name,
+      })
+      const reportsBackward = checkInclusion(c.ids, barrelIds, {
+        ruleId: RULE_ID,
+        subsetLabel: c.name,
+        supersetLabel: 'barrel',
+      })
+      for (const r of [...reportsForward, ...reportsBackward]) {
+        violations.push(`${r.location} — ${r.actual}`)
+      }
+    }
+    expect(violations).toEqual([])
   })
 
   it('全 rule が fixNow を持つ（merge 後の完全性）', () => {
-    const missing = FROM_BARREL.filter((r) => !r.fixNow).map((r) => r.id)
-    expect(missing).toEqual([])
+    const ruleIds = new Set(FROM_BARREL.map((r) => r.id))
+    const violations = checkInclusionByPredicate(
+      ruleIds,
+      (id) => Boolean(FROM_BARREL.find((r) => r.id === id)?.fixNow),
+      {
+        ruleId: RULE_ID,
+        subsetLabel: 'rules with fixNow',
+        supersetLabel: 'fixNow 充足',
+      },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('全 rule が executionPlan を持つ（merge 後の完全性）', () => {
-    const missing = FROM_BARREL.filter(
-      (r) => !r.executionPlan || !r.executionPlan.effort || r.executionPlan.priority == null,
-    ).map((r) => r.id)
-    expect(missing).toEqual([])
+    const ruleIds = new Set(FROM_BARREL.map((r) => r.id))
+    const violations = checkInclusionByPredicate(
+      ruleIds,
+      (id) => {
+        const rule = FROM_BARREL.find((r) => r.id === id)
+        return Boolean(
+          rule?.executionPlan && rule.executionPlan.effort && rule.executionPlan.priority != null,
+        )
+      },
+      {
+        ruleId: RULE_ID,
+        subsetLabel: 'rules with executionPlan',
+        supersetLabel: 'executionPlan 充足',
+      },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('全 rule が migrationRecipe を持つ（BaseRule 由来の完全性）', () => {
-    const missing = FROM_BARREL.filter(
-      (r) => !r.migrationRecipe || r.migrationRecipe.steps.length === 0,
-    ).map((r) => r.id)
-    expect(missing).toEqual([])
+    const ruleIds = new Set(FROM_BARREL.map((r) => r.id))
+    const violations = checkInclusionByPredicate(
+      ruleIds,
+      (id) => {
+        const rule = FROM_BARREL.find((r) => r.id === id)
+        return Boolean(rule?.migrationRecipe && rule.migrationRecipe.steps.length > 0)
+      },
+      {
+        ruleId: RULE_ID,
+        subsetLabel: 'rules with migrationRecipe',
+        supersetLabel: 'migrationRecipe 充足',
+      },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('全 rule が decisionCriteria を持つ（BaseRule 由来の完全性）', () => {
-    const missing = FROM_BARREL.filter((r) => !r.decisionCriteria).map((r) => r.id)
-    expect(missing).toEqual([])
+    const ruleIds = new Set(FROM_BARREL.map((r) => r.id))
+    const violations = checkInclusionByPredicate(
+      ruleIds,
+      (id) => Boolean(FROM_BARREL.find((r) => r.id === id)?.decisionCriteria),
+      {
+        ruleId: RULE_ID,
+        subsetLabel: 'rules with decisionCriteria',
+        supersetLabel: 'decisionCriteria 充足',
+      },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('rule id の重複がない', () => {
-    const ids = FROM_BARREL.map((r) => r.id)
-    const dup = ids.filter((id, i) => ids.indexOf(id) !== i)
-    expect(dup).toEqual([])
+    const violations = checkUniqueness(
+      FROM_BARREL.map((r) => r.id),
+      { ruleId: RULE_ID, registryLabel: 'ARCHITECTURE_RULES' },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('helpers（getRuleById / formatViolationMessage）が facade から取得できる', async () => {
@@ -80,11 +150,19 @@ describe('Architecture Rules Merge / Facade Smoke', () => {
   })
 
   it('ARCHITECTURE_RULES は空配列ではない（配線が死んでいないこと）', () => {
-    expect(FROM_BARREL.length).toBeGreaterThan(0)
+    const violations = checkNonEmpty(FROM_BARREL, {
+      ruleId: RULE_ID,
+      registryLabel: 'ARCHITECTURE_RULES',
+    })
+    expect(violations).toEqual([])
   })
 
   it('merge 経路と base re-export が同じ件数（overlay 欠損が起きていないこと）', () => {
-    // merged.ts が例外を投げずに配列を返せている = overlay 欠損がない
-    expect(FROM_MERGED.length).toBe(FROM_BASE_RE_EXPORT.length)
+    const violations = checkSizeEquality(FROM_MERGED.length, FROM_BASE_RE_EXPORT.length, {
+      ruleId: RULE_ID,
+      leftLabel: 'merged',
+      rightLabel: 'base re-export',
+    })
+    expect(violations).toEqual([])
   })
 })
