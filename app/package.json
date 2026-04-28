@@ -36,6 +36,7 @@
     "content-specs:check:anchor": "node ../tools/widget-specs/generate.mjs --check --scope=anchor",
     "content-specs:generate": "node ../tools/widget-specs/generate.mjs",
     "content-specs:generate:anchor": "node ../tools/widget-specs/generate.mjs --scope=anchor",
+    "content-specs:impact": "node ../tools/widget-specs/impact.mjs",
     "verify:project": "node scripts/verify-project-switch.mjs"
   },
   "dependencies": {
