@@ -51,7 +51,7 @@
 
 ## Phase D: Bulk Migration (waves)
 
-- [ ] Wave 1: calc canon / canonicalization-system / test-contract / scope.json (4 ペア) の dual-emit 化 (1/4 完了: calc canon — 15 test PASS、tsRegistry primitive 新設)
+- [x] Wave 1: calc canon / canonicalization-system / test-contract / scope.json (4 ペア) の dual-emit 化 (4/4 完了、tsRegistry + setRelation primitive 新設、全 34 既存 test PASS)
 - [ ] Wave 2: taxonomy v2 / principles / architecture-rules merge (3 ペア) の dual-emit 化
 - [ ] Wave 3: allowlists / checklist / obligation-collector / invariant-catalog (4 ペア) の dual-emit 化
 - [ ] 全 13 ペアが domain 経由で active

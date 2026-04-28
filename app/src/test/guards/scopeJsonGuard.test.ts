@@ -5,13 +5,18 @@
  * 宣言する。ROLE.md の prose（exhortation）から昇格した形。
  *
  * 検証内容:
- * 1. 全 7 ロール（pm-business / review-gate / documentation-steward /
+ * 1. 全 8 ロール（pm-business / review-gate / documentation-steward /
  *    architecture / implementation / invariant-guardian /
  *    duckdb-specialist / explanation-steward）に scope.json が存在
  * 2. 各 scope.json が必須フィールドを持つ（role / category / owns / rationale）
  * 3. role 名がディレクトリ名と一致
  * 4. owns / out_of_scope_warn の各 path prefix が実在する（broken path 検出）
  * 5. owns と out_of_scope_warn が排他的（同じ path が両方に出ない）
+ *
+ * **Phase D Wave 1 (2026-04-28)**: canonicalization-domain-consolidation Phase D で
+ * `app-domain/integrity/` 経由の adapter 化。jsonRegistry (scope.json per-role 読込) +
+ * checkPathExistence (scope.json + owns + out_of_scope_warn 各 path 実在) +
+ * checkDisjoint (owns ⊥ out_of_scope_warn) に切替。動作同一性は 6 既存 test で検証済。
  *
  * @guard G1 テストに書く / governance-ops
  * ルール定義: architectureRules.ts (AR-DOC-STATIC-NUMBER — 文書品質ガバナンス)
@@ -24,6 +29,12 @@ import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
+import {
+  jsonRegistry,
+  checkPathExistence,
+  checkDisjoint,
+  type RegisteredPath,
+} from '@app-domain/integrity'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const ROLES_DIR = path.join(PROJECT_ROOT, 'roles')
@@ -56,18 +67,26 @@ const EXPECTED_ROLES: readonly RoleEntry[] = [
 function loadScope(roleRelPath: string): ScopeJson | null {
   const scopePath = path.join(ROLES_DIR, roleRelPath, 'scope.json')
   if (!fs.existsSync(scopePath)) return null
-  return JSON.parse(fs.readFileSync(scopePath, 'utf-8'))
+  return (
+    jsonRegistry<ScopeJson>(
+      fs.readFileSync(scopePath, 'utf-8'),
+      (parsed) => [['scope', parsed as ScopeJson]],
+      `roles/${roleRelPath}/scope.json`,
+    ).entries.get('scope') ?? null
+  )
 }
 
 describe('Scope JSON Guard: ロールスコープ宣言の整合性', () => {
   it('全 8 ロールに scope.json が存在する', () => {
-    const missing: string[] = []
-    for (const entry of EXPECTED_ROLES) {
-      const scopePath = path.join(ROLES_DIR, entry.relPath, 'scope.json')
-      if (!fs.existsSync(scopePath)) {
-        missing.push(`roles/${entry.relPath}/scope.json`)
-      }
-    }
+    const paths: RegisteredPath[] = EXPECTED_ROLES.map((entry) => ({
+      absPath: path.join(ROLES_DIR, entry.relPath, 'scope.json'),
+      displayPath: `roles/${entry.relPath}/scope.json`,
+    }))
+    const violations = checkPathExistence(paths, fs.existsSync, {
+      ruleId: rule.id,
+      registryLabel: 'EXPECTED_ROLES',
+    })
+    const missing = violations.map((v) => v.actual.replace(/ \(broken link\)$/, ''))
     expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
@@ -107,51 +126,64 @@ describe('Scope JSON Guard: ロールスコープ宣言の整合性', () => {
   })
 
   it('owns の各 path prefix が実在する', () => {
-    const violations: string[] = []
+    const allViolations: string[] = []
     for (const entry of EXPECTED_ROLES) {
       const scope = loadScope(entry.relPath)
       if (!scope || !Array.isArray(scope.owns)) continue
-      for (const ownedPath of scope.owns) {
-        const fullPath = path.join(PROJECT_ROOT, ownedPath)
-        if (!fs.existsSync(fullPath)) {
-          violations.push(`${entry.relPath}: owns の '${ownedPath}' が実在しない（broken path）`)
-        }
+      const paths: RegisteredPath[] = scope.owns.map((ownedPath) => ({
+        absPath: path.join(PROJECT_ROOT, ownedPath),
+        displayPath: ownedPath,
+      }))
+      const violations = checkPathExistence(paths, fs.existsSync, {
+        ruleId: rule.id,
+        registryLabel: `${entry.relPath}/scope.owns`,
+      })
+      for (const v of violations) {
+        const ownedPath = v.location.replace(/^.*\/scope\.owns: /, '')
+        allViolations.push(`${entry.relPath}: owns の '${ownedPath}' が実在しない（broken path）`)
       }
     }
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(allViolations, formatViolationMessage(rule, allViolations)).toEqual([])
   })
 
   it('out_of_scope_warn の各 path prefix が実在する', () => {
-    const violations: string[] = []
+    const allViolations: string[] = []
     for (const entry of EXPECTED_ROLES) {
       const scope = loadScope(entry.relPath)
       if (!scope || !Array.isArray(scope.out_of_scope_warn)) continue
-      for (const warnPath of scope.out_of_scope_warn) {
-        const fullPath = path.join(PROJECT_ROOT, warnPath)
-        if (!fs.existsSync(fullPath)) {
-          violations.push(`${entry.relPath}: out_of_scope_warn の '${warnPath}' が実在しない`)
-        }
+      const paths: RegisteredPath[] = scope.out_of_scope_warn.map((warnPath) => ({
+        absPath: path.join(PROJECT_ROOT, warnPath),
+        displayPath: warnPath,
+      }))
+      const violations = checkPathExistence(paths, fs.existsSync, {
+        ruleId: rule.id,
+        registryLabel: `${entry.relPath}/scope.out_of_scope_warn`,
+      })
+      for (const v of violations) {
+        const warnPath = v.location.replace(/^.*out_of_scope_warn: /, '')
+        allViolations.push(`${entry.relPath}: out_of_scope_warn の '${warnPath}' が実在しない`)
       }
     }
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(allViolations, formatViolationMessage(rule, allViolations)).toEqual([])
   })
 
   it('owns と out_of_scope_warn が排他的（同じ path が両方に出ない）', () => {
-    const violations: string[] = []
+    const allViolations: string[] = []
     for (const entry of EXPECTED_ROLES) {
       const scope = loadScope(entry.relPath)
       if (!scope || !Array.isArray(scope.owns) || !Array.isArray(scope.out_of_scope_warn)) {
         continue
       }
-      const ownsSet = new Set(scope.owns)
-      for (const warnPath of scope.out_of_scope_warn) {
-        if (ownsSet.has(warnPath)) {
-          violations.push(
-            `${entry.relPath}: '${warnPath}' が owns と out_of_scope_warn の両方に存在`,
-          )
-        }
+      const violations = checkDisjoint(new Set(scope.owns), new Set(scope.out_of_scope_warn), {
+        ruleId: rule.id,
+        leftLabel: `${entry.relPath} owns`,
+        rightLabel: 'out_of_scope_warn',
+      })
+      for (const v of violations) {
+        const item = v.actual.match(/'([^']+)'/)?.[1] ?? ''
+        allViolations.push(`${entry.relPath}: '${item}' が owns と out_of_scope_warn の両方に存在`)
       }
     }
-    expect(violations, formatViolationMessage(rule, violations)).toEqual([])
+    expect(allViolations, formatViolationMessage(rule, allViolations)).toEqual([])
   })
 })

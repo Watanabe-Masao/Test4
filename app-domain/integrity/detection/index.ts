@@ -24,3 +24,11 @@ export {
   type FreshnessOptions,
   type FreshnessTarget,
 } from "./temporal";
+export {
+  checkDisjoint,
+  checkInclusion,
+  checkInclusionByPredicate,
+  type DisjointOptions,
+  type InclusionOptions,
+  type InclusionPredicateOptions,
+} from "./setRelation";

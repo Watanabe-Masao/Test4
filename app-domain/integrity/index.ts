@@ -36,6 +36,9 @@ export {
   checkRatchet,
   checkExpired,
   checkFreshness,
+  checkDisjoint,
+  checkInclusion,
+  checkInclusionByPredicate,
   type ExistenceCheckOptions,
   type ExistsCheck,
   type PathExistenceOptions,
@@ -46,6 +49,9 @@ export {
   type ExpiringItem,
   type FreshnessOptions,
   type FreshnessTarget,
+  type DisjointOptions,
+  type InclusionOptions,
+  type InclusionPredicateOptions,
 } from "./detection";
 
 export { formatViolations, formatStringViolations } from "./reporting";
