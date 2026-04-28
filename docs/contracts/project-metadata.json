@@ -28,6 +28,7 @@
     "wasm-build",
     "fast-gate",
     "docs-health",
+    "content-specs-impact",
     "test-coverage",
     "e2e"
   ],
