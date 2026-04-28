@@ -89,11 +89,11 @@
 
 ## Phase G: Storybook / Visual Evidence 連携
 
-- [ ] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した
-- [ ] UI spec の story / visual evidence guard を active 化した
-- [ ] Chart spec の visual evidence guard を active 化した
-- [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した
-- [ ] empty / error state の story coverage が基準値以上に到達した
+- [x] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した（Phase E/F で既に schema に乗せ済、Phase G 着手で UIC-002 KpiCard に path 記入）
+- [x] UI spec の story / visual evidence guard を active 化した（AR-CONTENT-SPEC-VISUAL-EVIDENCE、kind=ui-component を含む）
+- [x] Chart spec の visual evidence guard を active 化した（同 rule で kind=chart も対象）
+- [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した（baseline=9 / 対象 10 件、現状 cover 1 件、Phase G 後続 batch で減算）
+- [ ] empty / error state の story coverage が基準値以上に到達した（state ごとの story 別管理は Phase G 後続 batch、現状は spec.states 列挙のみ）
 
 ## Phase H: Architecture Health 詳細 KPI 連携
 

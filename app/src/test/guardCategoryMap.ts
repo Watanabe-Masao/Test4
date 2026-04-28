@@ -640,4 +640,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'schema',
     note: 'core-rule: replacedBy / supersedes 双方向対称 + 自己参照禁止 (片方向リンク = 半移行状態を構造的に排除)',
   },
+  'AR-CONTENT-SPEC-VISUAL-EVIDENCE': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: kind=chart / kind=ui-component の Storybook story or visual regression test 整備件数を ratchet-down (見た目 silent drift 抑制)',
+  },
 } as const

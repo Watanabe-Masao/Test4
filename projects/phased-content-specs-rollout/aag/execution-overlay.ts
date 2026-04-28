@@ -127,4 +127,13 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  'AR-CONTENT-SPEC-VISUAL-EVIDENCE': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'medium', priority: 2 },
+    reviewPolicy: {
+      owner: 'implementation',
+      lastReviewedAt: '2026-04-28',
+      reviewCadenceDays: 90,
+    },
+  },
 }
