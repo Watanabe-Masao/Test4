@@ -71,73 +71,73 @@
 
 ### 05-contents/read-models/ 個別 spec（Phase C 着手）
 
-| 型番         | export                          | 配置                                                                       | 業務意味                                  |
-| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
-| `RM-001.md` | `readPurchaseCost`              | `application/readModels/purchaseCost/readPurchaseCost.ts`                 | 仕入原価（typeIn / typeOut / costInclusion 統合）|
-| `RM-002.md` | `calculateGrossProfit`          | `application/readModels/grossProfit/calculateGrossProfit.ts`              | 粗利（4 種: 在庫法×2 / 推定法×2）              |
-| `RM-003.md` | `buildSalesFactReadModel`       | `application/readModels/salesFact/readSalesFact.ts`                       | 売上ファクト（grand + dept / store / daily / hourly 5 view）|
-| `RM-004.md` | `buildDiscountFactReadModel`    | `application/readModels/discountFact/readDiscountFact.ts`                 | 値引き（typeCode 71-74 内訳 + grand 整合不変）|
-| `RM-005.md` | `buildCustomerFactReadModel`    | `application/readModels/customerFact/readCustomerFact.ts`                 | 客数（StoreResult.totalCustomers 上書き先）|
-| `RM-006.md` | `calculateFactorDecomposition`  | `application/readModels/factorDecomposition/calculateFactorDecomposition.ts` | 要因分解（Shapley 5 要素恒等式）|
-| `RM-007.md` | `buildFreePeriodReadModel`      | `application/readModels/freePeriod/readFreePeriodFact.ts`                 | 自由期間分析（任意 dateRange、月境界非依存）|
-| `RM-008.md` | `buildFreePeriodBudgetReadModel`| `application/readModels/freePeriod/readFreePeriodBudgetFact.ts`           | 自由期間予算（按分）|
-| `RM-009.md` | `buildFreePeriodDeptKPIReadModel`| `application/readModels/freePeriod/readFreePeriodDeptKPI.ts`             | 自由期間部門 KPI（加重平均率）|
-| `RM-010.md` | `selectMonthlyPrevYearSales`    | `application/readModels/prevYear/selectMonthlyPrevYearSales.ts`           | 月次前年売上（sameDate / sameDow 2 mode）|
+| 型番        | export                            | 配置                                                                         | 業務意味                                                     |
+| ----------- | --------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `RM-001.md` | `readPurchaseCost`                | `application/readModels/purchaseCost/readPurchaseCost.ts`                    | 仕入原価（typeIn / typeOut / costInclusion 統合）            |
+| `RM-002.md` | `calculateGrossProfit`            | `application/readModels/grossProfit/calculateGrossProfit.ts`                 | 粗利（4 種: 在庫法×2 / 推定法×2）                            |
+| `RM-003.md` | `buildSalesFactReadModel`         | `application/readModels/salesFact/readSalesFact.ts`                          | 売上ファクト（grand + dept / store / daily / hourly 5 view） |
+| `RM-004.md` | `buildDiscountFactReadModel`      | `application/readModels/discountFact/readDiscountFact.ts`                    | 値引き（typeCode 71-74 内訳 + grand 整合不変）               |
+| `RM-005.md` | `buildCustomerFactReadModel`      | `application/readModels/customerFact/readCustomerFact.ts`                    | 客数（StoreResult.totalCustomers 上書き先）                  |
+| `RM-006.md` | `calculateFactorDecomposition`    | `application/readModels/factorDecomposition/calculateFactorDecomposition.ts` | 要因分解（Shapley 5 要素恒等式）                             |
+| `RM-007.md` | `buildFreePeriodReadModel`        | `application/readModels/freePeriod/readFreePeriodFact.ts`                    | 自由期間分析（任意 dateRange、月境界非依存）                 |
+| `RM-008.md` | `buildFreePeriodBudgetReadModel`  | `application/readModels/freePeriod/readFreePeriodBudgetFact.ts`              | 自由期間予算（按分）                                         |
+| `RM-009.md` | `buildFreePeriodDeptKPIReadModel` | `application/readModels/freePeriod/readFreePeriodDeptKPI.ts`                 | 自由期間部門 KPI（加重平均率）                               |
+| `RM-010.md` | `selectMonthlyPrevYearSales`      | `application/readModels/prevYear/selectMonthlyPrevYearSales.ts`              | 月次前年売上（sameDate / sameDow 2 mode）                    |
 
 完全割当表は `05-contents/read-models/README.md` §「初期割当表」参照。
 
 ### 05-contents/calculations/ 個別 spec（Phase D 着手）
 
-| 型番         | export                          | 配置                                                       | lifecycle / canonicalRegistration |
-| ------------ | ------------------------------- | ---------------------------------------------------------- | --------------------------------- |
-| `CALC-001.md` | `calculateCustomerGap`         | `domain/calculations/customerGap.ts`                       | active / current（WASM 候補 BIZ-013 を migration plan に記録）|
-| `CALC-002.md` | `calculatePIValues`            | `domain/calculations/piValue.ts`                           | active / current（WASM 候補 BIZ-012 を migration plan に記録）|
-| `CALC-003.md` | `computeEstimatedInventory`    | `domain/calculations/inventoryCalc.ts`                     | active / current（WASM 候補 BIZ-009、推定法粗利の入力）|
-| `CALC-004.md` | `calculatePinIntervals`        | `domain/calculations/pinIntervals.ts`                      | active / current（WASM 候補 BIZ-011、rateOwnership: engine）|
-| `CALC-005.md` | `evaluateObservationPeriod`    | `domain/calculations/observationPeriod.ts`                 | active / current（WASM 候補 BIZ-010、データ品質 bitmask）|
-| `CALC-006.md` | `calculateRemainingBudgetRate` | `domain/calculations/remainingBudgetRate.ts`               | active / current（WASM 候補 BIZ-008、rateOwnership: engine）|
-| `CALC-007.md` | `decompose5`                   | `domain/calculations/factorDecomposition.ts`               | active / current（domain math、INV-SHAPLEY、BIZ-004、RM-006 が wrap）|
-| `CALC-008.md` | `calculateForecast`            | `domain/calculations/forecast.ts`                          | active / current（analytic-authoritative、ANA-006、forecastBridge）|
-| `CALC-009.md` | `calculateInvMethod`           | `domain/calculations/invMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-001、RM-002 が wrap）|
-| `CALC-010.md` | `calculateEstMethod`           | `domain/calculations/estMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-002、RM-002 が wrap）|
-| `CALC-011.md` | `calculateBudgetAnalysis`      | `domain/calculations/budgetAnalysis.ts`                    | active / current（予算進捗 + 着地予測、BIZ-003、StoreResult 統合）|
-| `CALC-012.md` | `analyzeDowGap`                | `domain/calculations/dowGapAnalysis.ts`                    | active / current（analytic-authoritative、ANA-007、calendar_effect）|
-| `CALC-013.md` | `calculateDiscountImpact`      | `domain/calculations/discountImpact.ts`                    | active / current（売変ロス原価、BIZ-005、CALC-010 と協調）|
-| `CALC-014.md` | `buildPrevYearCostApprox`      | `domain/calculations/prevYearCostApprox.ts`                | active / current（前年近似原価、ANA-005、SP-B 抽出）|
-| `CALC-015.md` | `calculateTransferTotals`      | `domain/calculations/costAggregation.ts`                   | active / current（移動 + 在庫仕入、BIZ-006）|
-| `CALC-016.md` | `calculateMarkupRates`         | `domain/calculations/markupRate.ts`                        | active / current（値入率、BIZ-007、CALC-010 供給元）|
-| `CALC-017.md` | `findCoreTime`                 | `domain/calculations/timeSlotCalculations.ts`              | active / current（time_pattern、ANA-001、補助 findTurnaroundHour/buildHourlyMap）|
-| `CALC-018.md` | `computeKpis`                  | `domain/calculations/budgetSimulator.ts`                   | active / current（budget_simulation、ANA-010、budgetAnalysis 部品 orchestration）|
-| `CALC-019.md` | `aggregateDowAverages`         | `domain/calculations/budgetSimulatorAggregations.ts`       | active / current（CALC-018 と協調、ANA-010、曜日別/週別 drill-down）|
-| `CALC-020.md` | `calculateMonthEndProjection`  | `domain/calculations/algorithms/advancedForecast.ts`       | active / current（forecasting、ANA-002、複数手法+95%信頼区間）|
-| `CALC-021.md` | `pearsonCorrelation`           | `domain/calculations/algorithms/correlation.ts`            | active / current（statistical、ANA-005、相関マトリクス/正規化/divergence）|
-| `CALC-022.md` | `calculateSensitivity`         | `domain/calculations/algorithms/sensitivity.ts`            | active / current（what_if、ANA-003、4 種 delta 粗利インパクト）|
-| `CALC-023.md` | `analyzeTrend`                 | `domain/calculations/algorithms/trendAnalysis.ts`          | active / current（temporal_pattern、ANA-004、MoM/YoY/MA/季節性）|
-| `CALC-024.md` | `computeMovingAverage`         | `domain/calculations/temporal/computeMovingAverage.ts`     | active / current（time_series、ANA-009、strict/partial missingness）|
+| 型番          | export                         | 配置                                                   | lifecycle / canonicalRegistration                                                 |
+| ------------- | ------------------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| `CALC-001.md` | `calculateCustomerGap`         | `domain/calculations/customerGap.ts`                   | active / current（WASM 候補 BIZ-013 を migration plan に記録）                    |
+| `CALC-002.md` | `calculatePIValues`            | `domain/calculations/piValue.ts`                       | active / current（WASM 候補 BIZ-012 を migration plan に記録）                    |
+| `CALC-003.md` | `computeEstimatedInventory`    | `domain/calculations/inventoryCalc.ts`                 | active / current（WASM 候補 BIZ-009、推定法粗利の入力）                           |
+| `CALC-004.md` | `calculatePinIntervals`        | `domain/calculations/pinIntervals.ts`                  | active / current（WASM 候補 BIZ-011、rateOwnership: engine）                      |
+| `CALC-005.md` | `evaluateObservationPeriod`    | `domain/calculations/observationPeriod.ts`             | active / current（WASM 候補 BIZ-010、データ品質 bitmask）                         |
+| `CALC-006.md` | `calculateRemainingBudgetRate` | `domain/calculations/remainingBudgetRate.ts`           | active / current（WASM 候補 BIZ-008、rateOwnership: engine）                      |
+| `CALC-007.md` | `decompose5`                   | `domain/calculations/factorDecomposition.ts`           | active / current（domain math、INV-SHAPLEY、BIZ-004、RM-006 が wrap）             |
+| `CALC-008.md` | `calculateForecast`            | `domain/calculations/forecast.ts`                      | active / current（analytic-authoritative、ANA-006、forecastBridge）               |
+| `CALC-009.md` | `calculateInvMethod`           | `domain/calculations/invMethod.ts`                     | active / current（domain math、4 種粗利のうち 2 種、BIZ-001、RM-002 が wrap）     |
+| `CALC-010.md` | `calculateEstMethod`           | `domain/calculations/estMethod.ts`                     | active / current（domain math、4 種粗利のうち 2 種、BIZ-002、RM-002 が wrap）     |
+| `CALC-011.md` | `calculateBudgetAnalysis`      | `domain/calculations/budgetAnalysis.ts`                | active / current（予算進捗 + 着地予測、BIZ-003、StoreResult 統合）                |
+| `CALC-012.md` | `analyzeDowGap`                | `domain/calculations/dowGapAnalysis.ts`                | active / current（analytic-authoritative、ANA-007、calendar_effect）              |
+| `CALC-013.md` | `calculateDiscountImpact`      | `domain/calculations/discountImpact.ts`                | active / current（売変ロス原価、BIZ-005、CALC-010 と協調）                        |
+| `CALC-014.md` | `buildPrevYearCostApprox`      | `domain/calculations/prevYearCostApprox.ts`            | active / current（前年近似原価、ANA-005、SP-B 抽出）                              |
+| `CALC-015.md` | `calculateTransferTotals`      | `domain/calculations/costAggregation.ts`               | active / current（移動 + 在庫仕入、BIZ-006）                                      |
+| `CALC-016.md` | `calculateMarkupRates`         | `domain/calculations/markupRate.ts`                    | active / current（値入率、BIZ-007、CALC-010 供給元）                              |
+| `CALC-017.md` | `findCoreTime`                 | `domain/calculations/timeSlotCalculations.ts`          | active / current（time_pattern、ANA-001、補助 findTurnaroundHour/buildHourlyMap） |
+| `CALC-018.md` | `computeKpis`                  | `domain/calculations/budgetSimulator.ts`               | active / current（budget_simulation、ANA-010、budgetAnalysis 部品 orchestration） |
+| `CALC-019.md` | `aggregateDowAverages`         | `domain/calculations/budgetSimulatorAggregations.ts`   | active / current（CALC-018 と協調、ANA-010、曜日別/週別 drill-down）              |
+| `CALC-020.md` | `calculateMonthEndProjection`  | `domain/calculations/algorithms/advancedForecast.ts`   | active / current（forecasting、ANA-002、複数手法+95%信頼区間）                    |
+| `CALC-021.md` | `pearsonCorrelation`           | `domain/calculations/algorithms/correlation.ts`        | active / current（statistical、ANA-005、相関マトリクス/正規化/divergence）        |
+| `CALC-022.md` | `calculateSensitivity`         | `domain/calculations/algorithms/sensitivity.ts`        | active / current（what_if、ANA-003、4 種 delta 粗利インパクト）                   |
+| `CALC-023.md` | `analyzeTrend`                 | `domain/calculations/algorithms/trendAnalysis.ts`      | active / current（temporal_pattern、ANA-004、MoM/YoY/MA/季節性）                  |
+| `CALC-024.md` | `computeMovingAverage`         | `domain/calculations/temporal/computeMovingAverage.ts` | active / current（time_series、ANA-009、strict/partial missingness）              |
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 
 ### 05-contents/charts/ 個別 spec（Phase E 着手）
 
-| 型番         | export                          | 配置                                                                       | builders / logic / vm                            |
-| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
-| `CHART-001.md` | `SalesPurchaseComparisonChart` | `presentation/components/charts/SalesPurchaseComparisonChart.tsx`         | builders 有 / 他 -（WID-006 子）|
-| `CHART-002.md` | `PerformanceIndexChart`        | `presentation/components/charts/PerformanceIndexChart.tsx`                | builders 有 / 他 -（WID-018 子、PI 値）|
-| `CHART-003.md` | `BudgetVsActualChart`          | `presentation/components/charts/BudgetVsActualChart.tsx`                  | builders + vm（reference 実装）|
-| `CHART-004.md` | `CustomerScatterChart`         | `presentation/components/charts/CustomerScatterChart.tsx`                 | builders 有 / 他 -（WID-017 子）|
-| `CHART-005.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`               | logic 有（chartRenderingStructureGuard reference）|
+| 型番           | export                         | 配置                                                              | builders / logic / vm                              |
+| -------------- | ------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------- |
+| `CHART-001.md` | `SalesPurchaseComparisonChart` | `presentation/components/charts/SalesPurchaseComparisonChart.tsx` | builders 有 / 他 -（WID-006 子）                   |
+| `CHART-002.md` | `PerformanceIndexChart`        | `presentation/components/charts/PerformanceIndexChart.tsx`        | builders 有 / 他 -（WID-018 子、PI 値）            |
+| `CHART-003.md` | `BudgetVsActualChart`          | `presentation/components/charts/BudgetVsActualChart.tsx`          | builders + vm（reference 実装）                    |
+| `CHART-004.md` | `CustomerScatterChart`         | `presentation/components/charts/CustomerScatterChart.tsx`         | builders 有 / 他 -（WID-017 子）                   |
+| `CHART-005.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`       | logic 有（chartRenderingStructureGuard reference） |
 
 完全割当表は `05-contents/charts/README.md` §「初期割当表」参照。
 
 ### 05-contents/ui-components/ 個別 spec（Phase F 着手）
 
-| 型番         | export                          | 配置                                                                       | category / 該当 selection rule |
-| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ------------------------------- |
-| `UIC-001.md` | `ConditionSummaryEnhanced`     | `presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx`       | dashboard-summary（4 widget 参照、Pick<> 重 props、ADR-A-001 PR3 関連）|
-| `UIC-002.md` | `KpiCard`                       | `presentation/components/common/KpiCard.tsx`                              | kpi-display（5+ pages、KpiWarningInfo / KpiDisplayMode、Storybook 整備）|
-| `UIC-003.md` | `KpiGrid`                       | `presentation/components/common/KpiCard.styles.ts`                        | kpi-layout（KpiCard と pair で多用）|
-| `UIC-004.md` | `ChartCard`                     | `presentation/components/charts/ChartCard.tsx`                            | chart-shell（全 chart 共通 wrapper、4 state overlay）|
-| `UIC-005.md` | `ChartLoading`                  | `presentation/components/charts/ChartState.tsx`                           | chart-state（ChartError / ChartEmpty と pair）|
+| 型番         | export                     | 配置                                                                | category / 該当 selection rule                                           |
+| ------------ | -------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `UIC-001.md` | `ConditionSummaryEnhanced` | `presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx` | dashboard-summary（4 widget 参照、Pick<> 重 props、ADR-A-001 PR3 関連）  |
+| `UIC-002.md` | `KpiCard`                  | `presentation/components/common/KpiCard.tsx`                        | kpi-display（5+ pages、KpiWarningInfo / KpiDisplayMode、Storybook 整備） |
+| `UIC-003.md` | `KpiGrid`                  | `presentation/components/common/KpiCard.styles.ts`                  | kpi-layout（KpiCard と pair で多用）                                     |
+| `UIC-004.md` | `ChartCard`                | `presentation/components/charts/ChartCard.tsx`                      | chart-shell（全 chart 共通 wrapper、4 state overlay）                    |
+| `UIC-005.md` | `ChartLoading`             | `presentation/components/charts/ChartState.tsx`                     | chart-state（ChartError / ChartEmpty と pair）                           |
 
 完全割当表は `05-contents/ui-components/README.md` §「初期割当表」参照。selection rule (複数 widget/page 参照 / props 重い / responsibility hotspot) 通過のみ対象。
 
@@ -232,8 +232,8 @@
 | Test Taxonomy Schema v2（v2 T:kind vocabulary 仕様正本、子 Phase 1 deliverable）           | `01-principles/test-taxonomy-schema.md`                         |
 | Taxonomy v2 Review Journal（review window 記録）                                           | `02-status/taxonomy-review-journal.md`                          |
 | Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）                    | `03-guides/taxonomy-review-window.md`                           |
-| Responsibility Taxonomy Operations（責務軸 R:\* 運用ガイド、子 Phase 5 deliverable）        | `03-guides/responsibility-taxonomy-operations.md`               |
-| Test Taxonomy Operations（テスト軸 T:\* 運用ガイド、子 Phase 5 deliverable）                | `03-guides/test-taxonomy-operations.md`                         |
+| Responsibility Taxonomy Operations（責務軸 R:\* 運用ガイド、子 Phase 5 deliverable）       | `03-guides/responsibility-taxonomy-operations.md`               |
+| Test Taxonomy Operations（テスト軸 T:\* 運用ガイド、子 Phase 5 deliverable）               | `03-guides/test-taxonomy-operations.md`                         |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
@@ -242,40 +242,41 @@
 
 ### AAG（Adaptive Architecture Governance）
 
-| ファイル                                             | 内容                                                                               |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `01-principles/adaptive-architecture-governance.md`  | **AAG 正本** — 構成要素、設計原則、バージョン履歴                                  |
-| `01-principles/adaptive-governance-evolution.md`     | 進化の設計 — 3 層サイクル（発見→蓄積→評価）                                        |
-| `01-principles/design-principles.md`                 | 設計原則 9 カテゴリ A-I + Q（48 タグ）                                             |
-| `01-principles/safe-performance-principles.md`       | H カテゴリ（Screen Runtime）の詳細                                                 |
-| `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                   |
-| `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                       |
-| `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、skeleton landed)                  |
-| `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                               |
-| `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                          |
-| `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                           |
-| `03-guides/migration-tag-policy.md`                  | 移行タグ運用ポリシー                                                               |
-| `03-guides/contract-definition-policy.md`            | 契約定義ポリシー（Phase 3: BIZ/ANA 契約テンプレート + bridge 境界）                |
-| `03-guides/current-maintenance-policy.md`            | Current群保守ポリシー（Phase 4: 意味再分類 + 状態制限 + 保守観点）                 |
-| `03-guides/tier1-business-migration-plan.md`         | Tier 1 Business 移行計画（Phase 5: 候補一覧 + 8ステップ + 判定基準）               |
-| `03-guides/analytic-kernel-migration-plan.md`        | Analytic Kernel 移行計画（Phase 6: 候補一覧 + 9ステップ + 不変条件）               |
-| `03-guides/guard-consolidation-and-js-retirement.md` | Guard 統合整理 + JS 正本縮退方針（Phase 7: 全マップ + 4段階縮退 + 違反レスポンス） |
-| `03-guides/promote-ceremony-template.md`             | Promote Ceremony テンプレート（Phase 8: 昇格提案書 + 実施手順 + 巻き戻し）         |
-| `03-guides/guard-test-map.md`                        | ガードテスト対応表                                                                 |
-| `03-guides/active-debt-refactoring-plan.md`          | Active-Debt リファクタリング計画                                                   |
-| `03-guides/aag-phase4-6-plan.md`                     | AAG Phase 4-6 実装計画                                                             |
-| `03-guides/aag-rule-inventory.md`                    | AAG ルール棚卸し                                                                   |
-| `03-guides/aag-physical-move-impact-matrix.md`       | AAG 物理移動影響マトリクス                                                         |
-| `03-guides/governance-final-placement-plan.md`       | Governance 最終配置方針                                                            |
-| `01-principles/architecture-rule-feasibility.md`     | ルール導入の実現可能性評価                                                         |
-| `01-principles/aag-four-layer-architecture.md`       | AAG 4 層（Principles/Judgment/Detection/Response）                                 |
-| `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                 |
-| `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                               |
-| `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                  |
-| `01-principles/aag-5-layer-map.md`                   | AAG 5.0 — 既存ファイルの層マッピング棚卸し                                         |
-| `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                 |
-| `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)     |
-| `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)   |
+| ファイル                                             | 内容                                                                                                            |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `01-principles/adaptive-architecture-governance.md`  | **AAG 正本** — 構成要素、設計原則、バージョン履歴                                                               |
+| `01-principles/adaptive-governance-evolution.md`     | 進化の設計 — 3 層サイクル（発見→蓄積→評価）                                                                     |
+| `01-principles/design-principles.md`                 | 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                                          |
+| `01-principles/safe-performance-principles.md`       | H カテゴリ（Screen Runtime）の詳細                                                                              |
+| `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                                                |
+| `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                                                    |
+| `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、13 ペア詳細 + selection rule + primitive 候補 + 採用候補リスト) |
+| `03-guides/integrity-domain-architecture.md`         | 整合性 Domain Skeleton 設計 (canonicalization Phase B、design-locked / implementation-pending)                  |
+| `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                                                            |
+| `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                                                       |
+| `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                                                        |
+| `03-guides/migration-tag-policy.md`                  | 移行タグ運用ポリシー                                                                                            |
+| `03-guides/contract-definition-policy.md`            | 契約定義ポリシー（Phase 3: BIZ/ANA 契約テンプレート + bridge 境界）                                             |
+| `03-guides/current-maintenance-policy.md`            | Current群保守ポリシー（Phase 4: 意味再分類 + 状態制限 + 保守観点）                                              |
+| `03-guides/tier1-business-migration-plan.md`         | Tier 1 Business 移行計画（Phase 5: 候補一覧 + 8ステップ + 判定基準）                                            |
+| `03-guides/analytic-kernel-migration-plan.md`        | Analytic Kernel 移行計画（Phase 6: 候補一覧 + 9ステップ + 不変条件）                                            |
+| `03-guides/guard-consolidation-and-js-retirement.md` | Guard 統合整理 + JS 正本縮退方針（Phase 7: 全マップ + 4段階縮退 + 違反レスポンス）                              |
+| `03-guides/promote-ceremony-template.md`             | Promote Ceremony テンプレート（Phase 8: 昇格提案書 + 実施手順 + 巻き戻し）                                      |
+| `03-guides/guard-test-map.md`                        | ガードテスト対応表                                                                                              |
+| `03-guides/active-debt-refactoring-plan.md`          | Active-Debt リファクタリング計画                                                                                |
+| `03-guides/aag-phase4-6-plan.md`                     | AAG Phase 4-6 実装計画                                                                                          |
+| `03-guides/aag-rule-inventory.md`                    | AAG ルール棚卸し                                                                                                |
+| `03-guides/aag-physical-move-impact-matrix.md`       | AAG 物理移動影響マトリクス                                                                                      |
+| `03-guides/governance-final-placement-plan.md`       | Governance 最終配置方針                                                                                         |
+| `01-principles/architecture-rule-feasibility.md`     | ルール導入の実現可能性評価                                                                                      |
+| `01-principles/aag-four-layer-architecture.md`       | AAG 4 層（Principles/Judgment/Detection/Response）                                                              |
+| `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                                              |
+| `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                                                            |
+| `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                                               |
+| `01-principles/aag-5-layer-map.md`                   | AAG 5.0 — 既存ファイルの層マッピング棚卸し                                                                      |
+| `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                              |
+| `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                  |
+| `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                |
 
 ### 正本化（Canonicalization）
 

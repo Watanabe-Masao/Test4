@@ -92,6 +92,10 @@
           "label": "整合性ペア inventory (canonicalization-domain-consolidation Phase A 成果物、13 ペア詳細 + 横展開候補 selection rule + 共通 primitive 候補 + 採用候補リスト)。selection rule は canonicalization-principles.md §P8 に派生原則として institutionalize"
         },
         {
+          "path": "references/03-guides/integrity-domain-architecture.md",
+          "label": "整合性 Domain Skeleton 設計 (canonicalization-domain-consolidation Phase B 設計 doc、status: design-locked / implementation-pending)。app-domain/integrity/ 物理 module 構成 (types/parsing/detection/reporting 計 20 file) + Phase B 実装順 B-1〜B-7 + adapter pattern + domain 純粋性 4 不変条件"
+        },
+        {
           "path": "references/03-guides/allowlist-management.md",
           "label": "Allowlist 管理ガイド"
         },
