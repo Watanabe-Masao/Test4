@@ -112,11 +112,11 @@
 
 ## Phase J: Claim Evidence Enforcement
 
-- [ ] J1: `evidenceLevel` を任意項目として導入した
-- [ ] J2: `tested / guarded / reviewed / asserted` の 4 分類を定義した
-- [ ] J3: high-risk claim の `evidenceLevel = asserted` が 0 になった
-- [ ] J4: `tested` claim の test 参照欠落 = 0 になった
-- [ ] J5: `guarded` claim の guard 参照欠落 = 0 になった
+- [x] J1: `evidenceLevel` を任意項目として導入した（spec body の Behavior Claims markdown table、CALC-001 / CALC-002 / CALC-007 で reference 実装）
+- [x] J2: `generated / tested / guarded / reviewed / asserted / unknown` の 6 分類を定義した（contentSpecHelpers の EvidenceLevel + RiskLevel type）
+- [x] J3: high-risk claim の `evidenceLevel = asserted` が 0 になった（contentSpecEvidenceLevelGuard で hard fail、初期実装 11 claim が all tested/guarded）
+- [x] J4: `tested` claim の test 参照欠落 = 0 になった（同 guard、tests cell 空で hard fail）
+- [x] J5: `guarded` claim の guard 参照欠落 = 0 になった（同 guard、guards cell 空で hard fail）
 
 ## 最終レビュー (人間承認)
 

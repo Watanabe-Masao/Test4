@@ -112,6 +112,28 @@ export type LifecycleStatus =
   | 'retired'
   | 'archived'
 
+export type EvidenceLevel =
+  | 'generated' // source から機械生成された事実 (最強、CI で保証)
+  | 'tested' // test で確認済み (behavior 保証)
+  | 'guarded' // guard で防御済み (構造違反検出)
+  | 'reviewed' // 人間レビュー済み (判断の証跡)
+  | 'asserted' // 人間が書いただけ (許すが high-risk では禁止)
+  | 'unknown' // 根拠不明 (原則禁止)
+
+export type RiskLevel = 'high' | 'medium' | 'low'
+
+export interface BehaviorClaim {
+  readonly id: string
+  readonly claim: string
+  readonly evidenceLevel: EvidenceLevel
+  readonly riskLevel: RiskLevel
+  readonly evidence: {
+    readonly tests: readonly string[]
+    readonly guards: readonly string[]
+    readonly reviewedBy?: string | null
+  }
+}
+
 export interface SpecFrontmatter {
   readonly id: string
   readonly kind: SpecKind

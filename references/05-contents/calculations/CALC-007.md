@@ -55,6 +55,15 @@ specVersion: 1
 
 詳細: `invariant-catalog.md` §SHAPLEY、`authoritative-calculation-definition.md`
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | 5 要素 Shapley 恒等式: sum(factors) === total が常に成立 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - |
+| CLM-002 | 2/3 要素 Shapley 恒等式（decompose2 / decompose3）も同じ恒等式 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - |
+| CLM-003 | 取得経路の唯一性（要因分解は本 calc + RM-006 wrapper のみが正本）| guarded | high | - | app/src/test/guards/factorDecompositionPathGuard.test.ts |
+| CLM-004 | calculationCanonRegistry での `factorDecomposition.ts` 分類整合 | guarded | medium | - | app/src/test/guards/calculationCanonGuard.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-004`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

@@ -736,4 +736,8 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'debt',
     executionPlan: { effort: 'medium', priority: 2 },
   },
+  'AR-CONTENT-SPEC-EVIDENCE-LEVEL': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+  },
 }
