@@ -52,7 +52,7 @@
 ## Phase D: Bulk Migration (waves)
 
 - [x] Wave 1: calc canon / canonicalization-system / test-contract / scope.json (4 ペア) の dual-emit 化 (4/4 完了、tsRegistry + setRelation primitive 新設、全 34 既存 test PASS)
-- [ ] Wave 2: taxonomy v2 / principles / architecture-rules merge (3 ペア) の dual-emit 化 (1/3 完了: architectureRulesMergeSmokeGuard — 9 test PASS、cardinality primitive 新設)
+- [x] Wave 2: taxonomy v2 / principles / architecture-rules merge (3 ペア) の dual-emit 化 (3/3 完了、cardinality + bidirectionalReference primitive 新設、全 52 既存 test PASS)
 - [ ] Wave 3: allowlists / checklist / obligation-collector / invariant-catalog (4 ペア) の dual-emit 化
 - [ ] 全 13 ペアが domain 経由で active
 - [ ] 全 旧 guard が `@deprecated` 状態に到達した

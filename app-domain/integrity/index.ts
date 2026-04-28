@@ -43,6 +43,7 @@ export {
   checkUpperBound,
   checkNonEmpty,
   checkSizeEquality,
+  checkBidirectionalReference,
   type ExistenceCheckOptions,
   type ExistsCheck,
   type PathExistenceOptions,
@@ -60,6 +61,7 @@ export {
   type UpperBoundOptions,
   type NonEmptyOptions,
   type SizeEqualityOptions,
+  type BidirectionalReferenceOptions,
 } from "./detection";
 
 export { formatViolations, formatStringViolations } from "./reporting";

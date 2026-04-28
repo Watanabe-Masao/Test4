@@ -42,3 +42,7 @@ export {
   type NonEmptyOptions,
   type SizeEqualityOptions,
 } from "./cardinality";
+export {
+  checkBidirectionalReference,
+  type BidirectionalReferenceOptions,
+} from "./bidirectionalReference";

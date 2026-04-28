@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-28T21:30:12.125Z
+> 生成: 2026-04-28T21:44:13.261Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 922 |
-| 全 project の checked checkbox 総数 | 831 |
+| 全 project の checked checkbox 総数 | 832 |
 
 ## projects
 
@@ -31,7 +31,7 @@
 | `budget-achievement-simulator` | 予算達成シミュレーター | **archived** | — | 45/45 (100%) | [`projects/completed/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/completed/budget-achievement-simulator/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
-| `canonicalization-domain-consolidation` | 整合性 / 正本化ドメイン統合計画 | **in_progress** | — | 25/53 (47%) | [`projects/canonicalization-domain-consolidation/AI_CONTEXT.md`](../../../projects/canonicalization-domain-consolidation/AI_CONTEXT.md) |
+| `canonicalization-domain-consolidation` | 整合性 / 正本化ドメイン統合計画 | **in_progress** | — | 26/53 (49%) | [`projects/canonicalization-domain-consolidation/AI_CONTEXT.md`](../../../projects/canonicalization-domain-consolidation/AI_CONTEXT.md) |
 | `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **archived** | — | — | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `category-leaf-daily-series` | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | **archived** | — | 22/22 (100%) | [`projects/completed/category-leaf-daily-series/AI_CONTEXT.md`](../../../projects/completed/category-leaf-daily-series/AI_CONTEXT.md) |
 | `chart-color-alignment` | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize | **archived** | — | — | [`projects/chart-color-alignment/AI_CONTEXT.md`](../../../projects/chart-color-alignment/AI_CONTEXT.md) |

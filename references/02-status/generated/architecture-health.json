@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T21:30:12.121Z",
+  "timestamp": "2026-04-28T21:44:13.258Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1040,7 +1040,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 831,
+      "value": 832,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
