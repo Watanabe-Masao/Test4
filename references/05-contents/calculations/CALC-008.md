@@ -58,6 +58,15 @@ specVersion: 1
 
 詳細: `duckdb-data-loading-sequence.md` §「予測層」、`forecastInvariants.test.ts`
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `calculateForecast` は `weeklySummaries` / `dayOfWeekAverages` / `anomalies` の 3 系列を一括返却（部分計算 silent skip 禁止）| tested | high | app/src/domain/calculations/forecast.test.ts | - |
+| CLM-002 | anomaly 検出は z-score 閾値ベース `abs(zScore) > threshold`（数学的判定で magic number 排除）| tested | high | app/src/domain/calculations/forecastInvariants.test.ts | - |
+| CLM-003 | `stdDev = 0` で `safeDivide` が 0 を返し z-score 0 化（ゼロ除算回避、anomaly 全不検出）| tested | high | app/src/domain/calculations/forecast.test.ts | - |
+| CLM-004 | forecastBridge WASM 経路との数値同等性（dual-run observation guard 監視下）| guarded | high | - | app/src/test/observation/forecastObservation.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `ANA-006`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

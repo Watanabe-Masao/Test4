@@ -31,6 +31,7 @@ export const TurnaroundHourResultSchema = z.number().nullable()
 export type TurnaroundHourResult = z.infer<typeof TurnaroundHourResultSchema>
 
 /** 3連続時間帯の累計合計が最大となるウィンドウを検出する */
+/** @calc-id CALC-017 */
 export function findCoreTime(hourlyMap: Map<number, number>): CoreTimeResult {
   if (hourlyMap.size === 0) return null
 

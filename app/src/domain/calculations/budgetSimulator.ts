@@ -143,10 +143,10 @@ export function pctForDay(
 
 /**
  * KPI 基盤計算。既存 domain 関数の orchestration。
- *
  * @param scenario シナリオ（日別予算・前年実績・当年実績）
  * @param currentDay 基準日（1-based）
  * @returns SimulatorKpis
+ * @calc-id CALC-018
  */
 export function computeKpis(scenario: SimulatorScenario, currentDay: number): SimulatorKpis {
   const { monthlyBudget, lyMonthly, dailyBudget, lyDaily, actualDaily, daysInMonth } = scenario

@@ -61,6 +61,15 @@ specVersion: 1
 - 現状: visual test 未連携（Phase G で landing 予定）
 - Storybook story 未整備
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | RM-001 / CALC-011 出力を mapping して累計予算 vs 累計実績を描画（chart 内 raw 計算禁止、C9）| reviewed | high | - | - |
+| CLM-002 | budget = 0 のとき達成率 0% 表示（CALC-011 が 0 を返す、null 化禁止で chart 軸破壊回避）| reviewed | medium | - | - |
+| CLM-003 | StoreResult 統合経路で予算分析を取得（domain calc B3 経由、SQL 内率算出禁止、CALC-011 wrap）| tested | high | app/src/domain/calculations/budgetAnalysisInvariants.test.ts | - |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+
 ## 6. Consumers
 
 - DailySalesChart「累計推移」ビュー（統合済み）

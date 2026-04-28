@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T03:39:06.564Z",
+  "timestamp": "2026-04-28T09:03:15.278Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1256,7 +1256,7 @@
       "id": "contentSpec.total",
       "label": "Content Spec 総数 (全 kind)",
       "category": "docs",
-      "value": 81,
+      "value": 89,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

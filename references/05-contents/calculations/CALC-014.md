@@ -45,6 +45,15 @@ specVersion: 1
 - INV-PYC-02: pure 計算、I/O / random なし
 - INV-PYC-03: SP-B で抽出された inline helper の I3 残留 reference (registry 行で `buildPrevYearCostApprox(ctx.prevYear)` 呼び出し)
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `prevYear.hasPrevYear === false ∨ prevYear.totalSales <= 0` → `undefined` 返却（呼出側で chart 系列 skip、INV-PYC-01）| tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
+| CLM-002 | 近似公式 `approxCost(day) = max(0, sales(day) - discount(day))`（前年に日別仕入原価 field 不在のため売上 - 売変で代用、INV-PYC-02 pure 純粋）| tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
+| CLM-003 | `entry.sales === 0` のとき該当 day を 0 で map に登録（粗利推移 chart 上の skip ではなく明示 0）| tested | medium | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
+| CLM-004 | analytic-authoritative であり「正確値ではない」性質を spec / source JSDoc 双方に明記（傾向比較用途のみ、INV-PYC-03 の registry 行参照経路で呼出）| reviewed | medium | - | - |
+
 ## 5. Migration Plan
 
 - registry: `ANA-005`、`runtimeStatus: 'current'`、`tag: 'required'`、`zodAdded: false`（後続で Zod schema 追加検討）

@@ -176,6 +176,7 @@ export function projectDowAdjusted(
 
 /**
  * 複数手法による月末予測と信頼区間を一括計算する。
+ * @calc-id CALC-020
  */
 export function calculateMonthEndProjection(
   year: number,

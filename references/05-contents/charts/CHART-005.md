@@ -67,6 +67,15 @@ specVersion: 1
 - Storybook story 未整備
 - Logic.ts は test 化されており（`GrossProfitAmountChartLogic.test.ts` 想定）数値テストは存在
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | CALC-014 `buildPrevYearCostApprox` 出力を chart 入力として mapping（前年近似原価を傾向比較系列に使用、registry 行で wrap）| reviewed | high | - | - |
+| CLM-002 | RM-002 calculateGrossProfit 出力を chart 入力として mapping（4 種粗利を ChartInputBuilder で統合、chart 内 raw 計算禁止）| guarded | high | - | app/src/test/guards/grossProfitPathGuard.test.ts |
+| CLM-003 | logic.ts (純 pure layer) で計算、tsx (presentation) は描画のみ（A3 / C4 描画純粋、Logic test で数値検証）| reviewed | high | - | - |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+
 ## 6. Consumers
 
 - **WID-003** `chart-gross-profit-amount` — 唯一の registry consumer

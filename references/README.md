@@ -106,6 +106,14 @@
 | `CALC-014.md` | `buildPrevYearCostApprox`      | `domain/calculations/prevYearCostApprox.ts`                | active / current（前年近似原価、ANA-005、SP-B 抽出）|
 | `CALC-015.md` | `calculateTransferTotals`      | `domain/calculations/costAggregation.ts`                   | active / current（移動 + 在庫仕入、BIZ-006）|
 | `CALC-016.md` | `calculateMarkupRates`         | `domain/calculations/markupRate.ts`                        | active / current（値入率、BIZ-007、CALC-010 供給元）|
+| `CALC-017.md` | `findCoreTime`                 | `domain/calculations/timeSlotCalculations.ts`              | active / current（time_pattern、ANA-001、補助 findTurnaroundHour/buildHourlyMap）|
+| `CALC-018.md` | `computeKpis`                  | `domain/calculations/budgetSimulator.ts`                   | active / current（budget_simulation、ANA-010、budgetAnalysis 部品 orchestration）|
+| `CALC-019.md` | `aggregateDowAverages`         | `domain/calculations/budgetSimulatorAggregations.ts`       | active / current（CALC-018 と協調、ANA-010、曜日別/週別 drill-down）|
+| `CALC-020.md` | `calculateMonthEndProjection`  | `domain/calculations/algorithms/advancedForecast.ts`       | active / current（forecasting、ANA-002、複数手法+95%信頼区間）|
+| `CALC-021.md` | `pearsonCorrelation`           | `domain/calculations/algorithms/correlation.ts`            | active / current（statistical、ANA-005、相関マトリクス/正規化/divergence）|
+| `CALC-022.md` | `calculateSensitivity`         | `domain/calculations/algorithms/sensitivity.ts`            | active / current（what_if、ANA-003、4 種 delta 粗利インパクト）|
+| `CALC-023.md` | `analyzeTrend`                 | `domain/calculations/algorithms/trendAnalysis.ts`          | active / current（temporal_pattern、ANA-004、MoM/YoY/MA/季節性）|
+| `CALC-024.md` | `computeMovingAverage`         | `domain/calculations/temporal/computeMovingAverage.ts`     | active / current（time_series、ANA-009、strict/partial missingness）|
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 

@@ -231,4 +231,43 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     }
     expect(violations, violations.join('\n')).toEqual([])
   })
+
+  it('Behavior Claims が無い spec の数が baseline を超えない (J6 coverage ratchet-down)', () => {
+    // Phase J Step 2 (2026-04-28): Behavior Claims を全 spec に段階展開する。
+    // baseline は「claims 0 件 spec 数」。本値は ratchet-down のみ許可（増加禁止）。
+    //
+    // baseline 算定 (Phase J 完遂、2026-04-28):
+    //   - 全 spec 数 (89 件) = widget 45 + read-model 10 + calculation 24 +
+    //     chart 5 + ui-component 5
+    //   - cover 済 spec (89 件、全件) = Step 1〜10 累積
+    //   - 未 cover spec = 0 件
+    //
+    // 段階計画 (全 step landed):
+    //   Step 1 (J1〜J5): 3 件（pilot CALC）
+    //   Step 2: tier1 残 4 件、baseline=82 (ratchet-down 起点)
+    //   Step 3: tier2 calc 4 件、baseline=78
+    //   Step 4: tier3 第一波 calc 5 件、baseline=73
+    //   Step 5: tier3 第二波 + completed 8 件、baseline=65
+    //   Step 6: read-model 全 10 件、baseline=55
+    //   Step 7: chart 5 + ui-component 5、baseline=45
+    //   Step 8: widget batch 1 (WID-001〜015)、baseline=30
+    //   Step 9: widget batch 2 (WID-016〜030)、baseline=15
+    //   Step 10 (本 commit): widget batch 3 (WID-031〜045)、baseline=0
+    //                        ※ **Phase J 完遂** — 全 spec カバー達成
+    //
+    // baseline=0 維持の意味: 新規 spec を claims なしで commit すると即 hard fail、
+    // 既存 cover 済 spec から claims を削除すると即 hard fail。Behavior Claims
+    // Evidence Level enforcement が永続的な structural protection として確立。
+    const COVERAGE_BASELINE = 0
+    const uncovered: string[] = []
+    for (const sc of allClaims) {
+      if (sc.claims.length === 0) uncovered.push(sc.specId)
+    }
+    expect(
+      uncovered.length,
+      `claims 未記載 spec ${uncovered.length} / baseline ${COVERAGE_BASELINE}\n` +
+        `  uncovered (数多いため head 10): ${uncovered.slice(0, 10).join(', ')}${uncovered.length > 10 ? ` ... (他 ${uncovered.length - 10} 件)` : ''}\n` +
+        `  ratchet-down: baseline 以上に増やしてはいけない（新規 spec 追加時は claim 同梱）`,
+    ).toBeLessThanOrEqual(COVERAGE_BASELINE)
+  })
 })

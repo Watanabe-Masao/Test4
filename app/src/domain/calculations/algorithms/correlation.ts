@@ -52,6 +52,7 @@ export type CorrelationMatrixCell = z.infer<typeof CorrelationMatrixCellSchema>
  * @param xs 系列A
  * @param ys 系列B（xsと同じ長さ）
  * @returns 相関係数r（-1 ～ 1）。データ不足時はr=0
+ * @calc-id CALC-021
  */
 export function pearsonCorrelation(
   xs: readonly number[],

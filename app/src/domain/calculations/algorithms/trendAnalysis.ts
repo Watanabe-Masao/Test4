@@ -52,6 +52,7 @@ export type TrendAnalysisResult = z.infer<typeof TrendAnalysisResultSchema>
 
 /**
  * 月次データポイント列からトレンド分析を実行する。
+ * @calc-id CALC-023
  */
 export function analyzeTrend(dataPoints: readonly MonthlyDataPoint[]): TrendAnalysisResult {
   if (dataPoints.length === 0) {

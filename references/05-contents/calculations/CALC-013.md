@@ -50,6 +50,15 @@ specVersion: 1
 - INV-DI-02: Zod parse 双方向 fail-fast
 - INV-DI-03: `markupRate` の意味は CALC-010 推定法と一貫
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `discountRate >= 1 ∨ discountRate < 0` → `invalidResult` 返却（`calculateDiscountImpactWithStatus`、domain 外入力 fail-fast）| tested | high | app/src/domain/calculations/__tests__/discountImpact.test.ts | - |
+| CLM-002 | 売変ロス原価公式 `(1 - markupRate) × coreSales × discountRate / (1 - discountRate)`（売変前売価逆算後の原価換算）| tested | high | app/src/domain/calculations/discountImpact.test.ts | - |
+| CLM-003 | Zod `DiscountImpactInputSchema` / `DiscountImpactResultSchema` で input/output 双方 fail-fast（INV-DI-02）| tested | medium | app/src/domain/calculations/__tests__/discountImpact.test.ts | - |
+| CLM-004 | `markupRate` 入力意味が CALC-010 estMethod と一貫（CALC-016 markupRate 出力 → estMethod ↔ discountImpact 共有、INV-DI-03）| reviewed | high | - | - |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-005`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

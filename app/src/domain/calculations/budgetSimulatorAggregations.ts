@@ -40,6 +40,7 @@ const DOW_LABELS_JP = ['日', '月', '火', '水', '木', '金', '土'] as const
  *
  * @param rangeStart 集計開始日 (1-based, inclusive)。省略時は 1
  * @param rangeEnd 集計終了日 (1-based, inclusive)。省略時は daysInMonth
+ * @calc-id CALC-019
  */
 export function aggregateDowAverages(
   scenario: SimulatorScenario,

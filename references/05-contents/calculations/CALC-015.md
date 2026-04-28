@@ -47,6 +47,15 @@ specVersion: 1
 - INV-CAG-02: `calculateInventoryCost(totalCost, deliverySalesCost) = totalCost - deliverySalesCost`
 - INV-CAG-03: pure 安全動作（入力 0 で結果 0）
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `transferPrice` / `transferCost` は store-in / store-out / dept-in / dept-out の 4 方向を **全て加算**（in/out 符号反転禁止）| tested | high | app/src/domain/calculations/__tests__/costAggregation.test.ts | - |
+| CLM-002 | `calculateInventoryCost(totalCost, deliverySalesCost) = totalCost − deliverySalesCost`（売上納品原価を仕入原価から除外、INV-CAG-02、purchase-cost-definition 準拠）| tested | high | app/src/domain/calculations/__tests__/costAggregation.test.ts | - |
+| CLM-003 | Zod `TransferTotalsInputSchema` / `TransferTotalsResultSchema` で input/output 双方 fail-fast（汚染データ流入禁止）| tested | medium | app/src/domain/calculations/__tests__/costAggregation.test.ts | - |
+| CLM-004 | RM-001 `readPurchaseCost` 経路と協調して仕入原価の正本性を保つ（purchaseCost path guard 監視下、4 種仕入原価の集計）| guarded | high | - | app/src/test/guards/purchaseCostPathGuard.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-006`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`
