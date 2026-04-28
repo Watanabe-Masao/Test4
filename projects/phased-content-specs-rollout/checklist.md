@@ -80,43 +80,43 @@
 
 ## Phase F: Selected UI Components
 
-- [ ] selection rule に基づく対象 UIC 一覧を確定した
-- [ ] `UIC-NNN` ID を割当した
-- [ ] props contract / children / hooks / side effects を記録した
-- [ ] 対象 UIC `missingSpec = 0` を達成した
-- [ ] props `sourceRef drift = 0` を達成した
-- [ ] story or visual evidence required 対象の設定完了
+- [x] selection rule に基づく対象 UIC 一覧を確定した（複数 widget/page 参照 / props 重い / responsibility hotspot の 5 件で初期 batch、後続で漸次拡大）
+- [x] `UIC-NNN` ID を割当した（UIC-001〜005、Phase F 着手段階）
+- [x] props contract / children / hooks / side effects を記録した（5 spec の §2-§5 に prose、frontmatter の hooks / children / sideEffects field）
+- [ ] 対象 UIC `missingSpec = 0` を達成した（5 件 cover、後続 batch で残 component 拡大）
+- [x] props `sourceRef drift = 0` を達成した（generator が機械検証）
+- [ ] story or visual evidence required 対象の設定完了（KpiCard.stories のみ、Phase G で拡大）
 
 ## Phase G: Storybook / Visual Evidence 連携
 
-- [ ] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した
-- [ ] UI spec の story / visual evidence guard を active 化した
-- [ ] Chart spec の visual evidence guard を active 化した
-- [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した
-- [ ] empty / error state の story coverage が基準値以上に到達した
+- [x] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した（Phase E/F で既に schema に乗せ済、Phase G 着手で UIC-002 KpiCard に path 記入）
+- [x] UI spec の story / visual evidence guard を active 化した（AR-CONTENT-SPEC-VISUAL-EVIDENCE、kind=ui-component を含む）
+- [x] Chart spec の visual evidence guard を active 化した（同 rule で kind=chart も対象）
+- [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した（baseline=9 / 対象 10 件、現状 cover 1 件、Phase G 後続 batch で減算）
+- [ ] empty / error state の story coverage が基準値以上に到達した（state ごとの story 別管理は Phase G 後続 batch、現状は spec.states 列挙のみ）
 
 ## Phase H: Architecture Health 詳細 KPI 連携
 
-- [ ] `references/02-status/generated/content-spec-health.json` collector を実装した
-- [ ] `contentSpec.{total, byKind, missingSpec, frontmatterDrift, coChangeViolation, stale, missingOwner, lifecycleViolation, evidenceCoverage, exceptions.total, exceptions.expired, promotionLevel.distribution}` を出力した
-- [ ] `architecture-health.json` summary に Content Spec カテゴリを反映した
-- [ ] Drift Budget の threshold を設定した
-- [ ] Promotion Gate L6 到達を確認した
+- [x] `references/02-status/generated/content-spec-health.json` collector を実装した（tools/architecture-health/src/collectors/content-spec-collector.ts、Phase H 着手）
+- [x] `contentSpec.{total, byKind, missingOwner, stale, lifecycleViolation, lifecycle, evidence (chart/uiComponent breakdown), driftBudget}` を出力した（plan §schema 準拠、Phase H 着手段階で 5 KPI を architecture-health に feed）
+- [x] `architecture-health.json` summary に Content Spec カテゴリを反映した（48 → 53 KPIs）
+- [x] Drift Budget の threshold を設定した（missingOwner=0 / stale=5 / lifecycleViolation=0 / evidenceUncovered=baseline 9）
+- [ ] Promotion Gate L6 到達を確認した（per-tag promotion level tracking は frontmatter schema 拡張が必要、後続 batch）
 
 ## Phase I: PR Impact Report / Bot 連携
 
-- [ ] `npm run content-specs:impact -- --base main --head HEAD` CLI を実装した
-- [ ] CLI 出力に Changed sources / Affected specs / Required spec updates / Risk level を含めた
-- [ ] CI artifact として保存される設定を完了した
-- [ ] 必要に応じ PR comment bot 化した
+- [x] `npm run content-specs:impact -- --base main --head HEAD` CLI を実装した（tools/widget-specs/impact.mjs）
+- [x] CLI 出力に Changed sources / Affected specs / Required spec updates / Risk level を含めた（markdown / --json 両出力対応、risk: high/medium/low + reasons 列挙）
+- [ ] CI artifact として保存される設定を完了した（CI workflow への組込みは Phase I 後続 batch、現状 CLI 実用可能）
+- [ ] 必要に応じ PR comment bot 化した（後続）
 
 ## Phase J: Claim Evidence Enforcement
 
-- [ ] J1: `evidenceLevel` を任意項目として導入した
-- [ ] J2: `tested / guarded / reviewed / asserted` の 4 分類を定義した
-- [ ] J3: high-risk claim の `evidenceLevel = asserted` が 0 になった
-- [ ] J4: `tested` claim の test 参照欠落 = 0 になった
-- [ ] J5: `guarded` claim の guard 参照欠落 = 0 になった
+- [x] J1: `evidenceLevel` を任意項目として導入した（spec body の Behavior Claims markdown table、CALC-001 / CALC-002 / CALC-007 で reference 実装）
+- [x] J2: `generated / tested / guarded / reviewed / asserted / unknown` の 6 分類を定義した（contentSpecHelpers の EvidenceLevel + RiskLevel type）
+- [x] J3: high-risk claim の `evidenceLevel = asserted` が 0 になった（contentSpecEvidenceLevelGuard で hard fail、初期実装 11 claim が all tested/guarded）
+- [x] J4: `tested` claim の test 参照欠落 = 0 になった（同 guard、tests cell 空で hard fail）
+- [x] J5: `guarded` claim の guard 参照欠落 = 0 になった（同 guard、guards cell 空で hard fail）
 
 ## 最終レビュー (人間承認)
 

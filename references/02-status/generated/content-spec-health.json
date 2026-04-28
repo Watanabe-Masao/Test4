@@ -1,0 +1,59 @@
+{
+  "$schema": "content-spec-health-v1",
+  "generatedAt": "2026-04-28T03:39:06.564Z",
+  "contentSpec": {
+    "total": 81,
+    "byKind": {
+      "calculation": 16,
+      "chart": 5,
+      "read-model": 10,
+      "ui-component": 5,
+      "widget": 45
+    },
+    "missingOwner": 0,
+    "stale": 0,
+    "lifecycleViolation": 0,
+    "lifecycle": {
+      "active": 81,
+      "proposed": 0,
+      "deprecated": 0,
+      "sunsetting": 0,
+      "retired": 0,
+      "archived": 0
+    },
+    "evidence": {
+      "targetTotal": 10,
+      "covered": 1,
+      "uncovered": 9,
+      "baseline": 9,
+      "byKind": {
+        "chart": {
+          "total": 5,
+          "covered": 0
+        },
+        "uiComponent": {
+          "total": 5,
+          "covered": 1
+        }
+      }
+    },
+    "driftBudget": {
+      "missingOwner": {
+        "value": 0,
+        "budget": 0
+      },
+      "stale": {
+        "value": 0,
+        "budget": 5
+      },
+      "lifecycleViolation": {
+        "value": 0,
+        "budget": 0
+      },
+      "evidenceUncovered": {
+        "value": 9,
+        "budget": 9
+      }
+    }
+  }
+}

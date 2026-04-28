@@ -110,6 +110,55 @@ jobs:
       - name: Docs check (generated freshness + health gate)
         run: npm run docs:check
 
+  # ── Gate 1.6: Content Spec PR Impact Report（PR のみ、fast-gate 後に並列） ──
+  # base..head の source 変更から影響 spec を機械列挙し、risk level 付きで artifact 保存。
+  # 実装: tools/widget-specs/impact.mjs / npm run content-specs:impact
+  # plan: projects/phased-content-specs-rollout/plan.md §Phase I
+  content-specs-impact:
+    if: github.event_name == 'pull_request'
+    needs: [fast-gate]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # base ref との diff に必要
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - name: Generate impact report (markdown)
+        run: |
+          BASE_REF=origin/${{ github.base_ref }}
+          npm run content-specs:impact -- --base "$BASE_REF" --head HEAD > /tmp/impact.md || EXIT=$?
+          echo "Exit code: ${EXIT:-0}"
+          # exit code 0=no impact / 1=impact detected (artifact 保存対象) / 2=error
+          if [ "${EXIT:-0}" = "2" ]; then exit 2; fi
+
+      - name: Generate impact report (JSON)
+        run: |
+          BASE_REF=origin/${{ github.base_ref }}
+          npm run content-specs:impact -- --base "$BASE_REF" --head HEAD --json > /tmp/impact.json || true
+
+      - name: Upload impact report artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-specs-impact
+          path: |
+            /tmp/impact.md
+            /tmp/impact.json
+          retention-days: 14
+
+      - name: Show impact summary in job log
+        run: cat /tmp/impact.md
+
   # ── Gate 2: テスト + カバレッジ + Storybook（fast-gate 後に並列） ──
   test-coverage:
     needs: [wasm-build, fast-gate]

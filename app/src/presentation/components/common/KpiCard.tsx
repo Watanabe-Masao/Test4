@@ -30,6 +30,7 @@ export interface KpiWarningInfo {
 /** UI 表示モード（authoritative-display-rules.md 準拠） */
 export type KpiDisplayMode = 'authoritative' | 'reference' | 'hidden'
 
+/** @uic-id UIC-002 */
 export function KpiCard({
   label,
   value,

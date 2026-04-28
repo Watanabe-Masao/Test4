@@ -6131,6 +6131,93 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-VISUAL-EVIDENCE",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/charts/README.md",
+    what: "kind=chart / kind=ui-component の spec に Storybook story または visual regression test が記録されている件数を ratchet-down で管理する",
+    why: "chart / UIC は見た目の変更が業務影響を持つ（粗利率の色 / 警告 severity の赤色 / KPI 配置の段差等）。visual evidence なしで silent に変わる drift を構造的に許容しないため、coverage 比率を機械的に管理し増加方向に戻さない",
+    correctPattern: {
+      description:
+        "spec.stories.length > 0 || spec.visualTests.length > 0、増加方向の baseline 緩和なし",
+    },
+    outdatedPattern: {
+      description:
+        "新規 chart / UIC で stories / visualTests が空 / baseline 増加（既知未 cover の上に新規未 cover を積む）",
+    },
+    decisionCriteria: {
+      when: "新 chart / UIC を spec 化するとき、既存 spec の visual coverage 改善 PR",
+      exceptions:
+        "primitive な styled-components 単独 wrapper （UIC-003 KpiGrid 等）は親 spec の visual evidence で実質 cover される場合に限り例外。ただし baseline 増加は禁止",
+      escalation:
+        "Storybook story を `app/src/stories/<Component>.stories.tsx` に作成、visual-regression.spec.ts の STORIES 配列に story id を追加",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. cover したい spec を選定し Storybook story を作成",
+        "2. visual-regression.spec.ts の STORIES 配列に story id を追加",
+        "3. spec frontmatter の stories / visualTests に path を記入",
+        "4. baseline を新値に減算（増加方向は禁止）",
+      ],
+    },
+    sunsetCondition: "なし（visual evidence 強度の維持は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "chart / UIC の見た目 silent drift（粗利率の色 / 警告 severity の赤色 / KPI 配置）",
+        "新規 chart / UIC が evidence なしで増殖（後追いの整備コスト累積）",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-EVIDENCE-LEVEL",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "projects/phased-content-specs-rollout/plan.md",
+    what: "spec body の Behavior Claims セクションの evidenceLevel / riskLevel 整合性を機械検証する (Phase J Evidence Level Enforcement)",
+    why: "spec の prose claim が test / guard で実証されているかを構造保証することで、prose 層の C 層 drift (主張だけで実装と乖離) を Phase J 段階展開で 0 化する。high-risk claim の asserted 禁止 / tested の test path 必須 / guarded の guard path 必須 を強制",
+    correctPattern: {
+      description:
+        "Behavior Claims table の各行 (CLM-NNN) で evidenceLevel ∈ enum / riskLevel ∈ enum / high-risk claim != asserted / tested → tests 非空 / guarded → guards 非空",
+    },
+    outdatedPattern: {
+      description:
+        "evidenceLevel / riskLevel が enum 外 / high-risk claim の asserted 滞留 / tested で tests cell 空 / guarded で guards cell 空 / CLM-NNN 形式違反",
+    },
+    decisionCriteria: {
+      when: "spec に Behavior Claims セクションを追加するとき、test / guard を新設して claim の evidence を昇格させるとき",
+      exceptions: "なし",
+      escalation:
+        "high-risk claim を asserted で commit したい場合は riskLevel=medium / low に再分類して PR review で議論",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. spec body に Behavior Claims table (markdown) を追加",
+        "2. 各 claim に CLM-NNN id / evidenceLevel / riskLevel / tests / guards を記入",
+        "3. high-risk claim は tested / guarded / reviewed のいずれかに整理",
+        "4. tested は test path、guarded は guard path を必須記入",
+      ],
+    },
+    sunsetCondition:
+      "なし（Evidence Level の構造強制は spec 主張 = 実装 の C 層保証として恒久的）",
+    protectedHarm: {
+      prevents: [
+        "spec prose に書いた振る舞い主張が test / guard なしで silent 化（C 層 drift）",
+        "high-risk claim が「人間が書いただけ」状態で commit される (asserted bypass)",
+        "tested / guarded を名乗りながら参照 path 不在で実証されない",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-OWNER",
     principleRefs: ["G1"],
     ruleClass: "invariant",

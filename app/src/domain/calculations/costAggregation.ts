@@ -51,6 +51,7 @@ export const TransferTotalsResultSchema = z.object({
  * transferPrice = interStoreIn.price + interStoreOut.price + interDeptIn.price + interDeptOut.price
  * transferCost  = interStoreIn.cost  + interStoreOut.cost  + interDeptIn.cost  + interDeptOut.cost
  */
+/** @calc-id CALC-015 */
 export function calculateTransferTotals(input: TransferTotalsInput): TransferTotalsResult {
   const transferPrice =
     input.interStoreInPrice +

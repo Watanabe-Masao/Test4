@@ -55,6 +55,15 @@ specVersion: 1
 
 詳細: `pi-value-definition.md`、`invariant-catalog.md` §PI
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `customers === 0` で除算回避（quantityPI / amountPI 双方が 0）| tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - |
+| CLM-002 | Zod schema が入力 / 出力双方で fail-fast（汚染数値の流入防止）| tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - |
+| CLM-003 | 正本客数経路 (RM-005 ready / fallback) が `selectTotalCustomers` 経由 | guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts |
+| CLM-004 | 取得経路の唯一性（PI 値計算は本 calc のみが正本）| guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-012`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

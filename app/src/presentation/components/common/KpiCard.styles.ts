@@ -164,6 +164,7 @@ export const ReferenceBadge = styled.span`
   border: 1px solid ${({ theme }) => `${theme.colors.text4}20`};
 `
 
+/** @uic-id UIC-003 */
 export const KpiGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));

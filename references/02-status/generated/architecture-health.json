@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T01:05:14.951Z",
+  "timestamp": "2026-04-28T03:39:06.564Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 112,
+      "value": 114,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -290,12 +290,14 @@
         "app/src/test/guards/constitutionBootstrapGuard.test.ts",
         "app/src/test/guards/contentSpecCanonicalRegistrationSyncGuard.test.ts",
         "app/src/test/guards/contentSpecCoChangeGuard.test.ts",
+        "app/src/test/guards/contentSpecEvidenceLevelGuard.test.ts",
         "app/src/test/guards/contentSpecExistsGuard.test.ts",
         "app/src/test/guards/contentSpecFreshnessGuard.test.ts",
         "app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleLinkSymmetryGuard.test.ts",
         "app/src/test/guards/contentSpecOwnerGuard.test.ts",
+        "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts",
         "app/src/test/guards/coreRequiredFieldNullCheckGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
@@ -404,7 +406,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 160,
+      "value": 162,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -422,7 +424,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 82,
+      "value": 83,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -433,7 +435,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 57,
+      "value": 58,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -623,7 +625,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 160,
+      "value": 162,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -642,7 +644,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 29,
+      "value": 31,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -725,7 +727,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 97,
+      "value": 99,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -1037,7 +1039,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 794,
+      "value": 812,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1249,11 +1251,110 @@
       "implRefs": [
         "app/src/test/testTaxonomyRegistryV2.ts"
       ]
+    },
+    {
+      "id": "contentSpec.total",
+      "label": "Content Spec 総数 (全 kind)",
+      "category": "docs",
+      "value": 81,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/05-contents/README.md"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-spec-collector.ts",
+        "references/02-status/generated/content-spec-health.json"
+      ]
+    },
+    {
+      "id": "contentSpec.missingOwner",
+      "label": "Content Spec: owner 未設定数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-OWNER"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecOwnerGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.stale",
+      "label": "Content Spec: lastReviewedAt cadence 超過数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-FRESHNESS"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecFreshnessGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.lifecycleViolation",
+      "label": "Content Spec: lifecycle 必須 field 違反数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-LIFECYCLE-FIELDS"
+        },
+        {
+          "kind": "definition",
+          "path": "references/03-guides/promote-ceremony-pr-template.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecLifecycleGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.evidenceUncovered",
+      "label": "Content Spec: chart/UIC visual evidence 未整備数",
+      "category": "docs",
+      "value": 9,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-VISUAL-EVIDENCE"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 48,
-    "ok": 48,
+    "totalKpis": 53,
+    "ok": 53,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

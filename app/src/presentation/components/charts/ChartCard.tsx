@@ -33,6 +33,7 @@ interface ChartCardProps {
   readonly children: ReactNode
 }
 
+/** @uic-id UIC-004 */
 export function ChartCard({
   title,
   subtitle,

@@ -54,6 +54,14 @@ specVersion: 1
 
 詳細: `customer-gap-definition.md` §「客数 GAP の意味」、`invariant-catalog.md` §CGAP
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `prev = 0` で `null` を返し除算回避 | tested | high | app/src/domain/calculations/__tests__/customerGap.test.ts | - |
+| CLM-002 | Zod input/output 双方で fail-fast（汚染データを domain 層に流入させない）| tested | high | app/src/domain/calculations/__tests__/customerGap.test.ts | - |
+| CLM-003 | 取得経路の唯一性（客数 GAP は本 calc のみが正本）| guarded | high | - | app/src/test/guards/customerGapPathGuard.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-013`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

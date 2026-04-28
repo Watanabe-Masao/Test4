@@ -27,6 +27,7 @@ const StateText = styled.div<{ $variant: 'error' | 'empty' }>`
   line-height: 1.6;
 `
 
+/** @uic-id UIC-005 */
 export function ChartLoading({ height }: { height?: number }) {
   return <ChartSkeleton height={`${height ?? DEFAULT_STATE_HEIGHT}px`} />
 }

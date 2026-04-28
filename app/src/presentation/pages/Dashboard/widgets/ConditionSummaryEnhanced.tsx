@@ -94,6 +94,7 @@ export type ConditionSummaryEnhancedProps = Pick<
   | 'queryExecutor'
 >
 
+/** @uic-id UIC-001 */
 export const ConditionSummaryEnhanced = memo(function ConditionSummaryEnhanced(
   props: ConditionSummaryEnhancedProps,
 ) {
