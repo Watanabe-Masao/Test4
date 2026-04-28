@@ -63,6 +63,15 @@
  * lifecycleStatus: proposed の先行 spec 化 → 数値同等性検証 → current 昇格 1 PR 5 同期で
  * 段階的に 0 化）。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 7: candidate slot の二状態モデル
+ * (planning-only / active candidate) を AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC guard
+ * に institutionalize。physical .ts file 不在の planning-only slot を coverage 要件から
+ * exempt し baseline を **11 → 0** に到達。candidate file の physical landing が起きた
+ * 瞬間 active candidate 化し guard が「+1 over baseline」で hard fail させることで
+ * Promote Ceremony 着手 PR が spec 同梱を機械強制（1 PR 5 同期）。registry の candidate
+ * slot 数 (planning-only 11 件) は別 informational counter で drift 検出。
+ * 詳細: references/05-contents/calculations/README.md §「Candidate Slot の二状態モデル」
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

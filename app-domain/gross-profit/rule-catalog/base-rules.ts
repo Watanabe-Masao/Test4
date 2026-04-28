@@ -6056,15 +6056,16 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     why: "user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec が「candidate」になっていたら、改修者がどちらを信じればよいか判断できない。Promote Ceremony で 1 PR 同期更新を機械的に強制することで構造的に乖離を排除する",
     correctPattern: {
       description:
-        "spec.canonicalRegistration === registry[sourceRefKey].runtimeStatus、双方向一致。registry の current/candidate entry に対応 CALC spec がある (ratchet-down で 0 を目指す)",
+        "spec.canonicalRegistration === registry[sourceRefKey].runtimeStatus、双方向一致。registry の current entry および physical .ts file が存在する candidate entry (active candidate) に対応 CALC spec がある (baseline=0、+1 で hard fail)。physical 不在の candidate slot (planning-only) は coverage 要件から exempt",
     },
     outdatedPattern: {
       description:
-        "spec.canonicalRegistration='current' だが registry='candidate' / spec が registry に未登録 (孤立 spec) / current/candidate registry entry に対応 spec が baseline 超過で増加",
+        "spec.canonicalRegistration='current' だが registry='candidate' / spec が registry に未登録 (孤立 spec) / current または active candidate registry entry に対応 spec が無い (baseline=0 を超過)",
     },
     decisionCriteria: {
-      when: "registry の runtimeStatus を変更するとき (Promote Ceremony) / 新 calc を追加するとき",
-      exceptions: "なし",
+      when: "registry の runtimeStatus を変更するとき (Promote Ceremony) / 新 calc を追加するとき / candidate file を physical landing するとき",
+      exceptions:
+        "registry の candidate slot に対応する physical .ts file が未生成 (planning-only) の場合は spec 不要 (informational counter で別途 drift 検出)",
       escalation:
         "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) で 1 PR 5 同期",
     },
@@ -6073,7 +6074,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. registry の runtimeStatus を変更したら同 PR で対応 CALC spec の canonicalRegistration を更新",
         "2. 逆に spec の canonicalRegistration を変えたいなら同 PR で registry を更新",
-        "3. ratchet-down で uncovered baseline を段階的に 0 化 (Phase D Step 3+)",
+        "3. candidate file を physical landing する PR は同 PR で CALC spec (lifecycleStatus: proposed) を必ず添付 (active candidate 化で +1 over baseline=0)",
       ],
     },
     sunsetCondition:
