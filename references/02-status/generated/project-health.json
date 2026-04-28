@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-27T22:43:04.892Z",
+  "timestamp": "2026-04-28T00:04:44.375Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 26,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 869,
-    "checkedCheckboxes": 783
+    "totalCheckboxes": 922,
+    "checkedCheckboxes": 789
   },
   "projects": [
     {
@@ -131,6 +131,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/calendar-modal-route-unification/AI_CONTEXT.md",
       "checklistPath": "projects/completed/calendar-modal-route-unification/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "canonicalization-domain-consolidation",
+      "title": "整合性 / 正本化ドメイン統合計画",
+      "kind": "project",
+      "declaredStatus": "draft",
+      "derivedStatus": "in_progress",
+      "checked": 6,
+      "total": 53,
+      "progress": 0.113,
+      "entrypoint": "projects/canonicalization-domain-consolidation/AI_CONTEXT.md",
+      "checklistPath": "projects/canonicalization-domain-consolidation/checklist.md",
       "parent": null
     },
     {

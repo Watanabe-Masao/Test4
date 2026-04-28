@@ -1,0 +1,44 @@
+{
+  "$comment": "整合性 / 正本化ドメイン統合 project。散在する registry+guard ペア (現状 13+ 種類) を app-domain/integrity/ の正本ドメインに統合し、共通パターンを抽出、旧経路を撤退する。さらに正本化されていない領域 (hooks / charts / stores / pages / formatting / constants 等) を横展開候補として inventory し、必要なものを段階的に正本化する。",
+  "projectId": "canonicalization-domain-consolidation",
+  "title": "整合性 / 正本化ドメイン統合計画",
+  "status": "draft",
+  "projectRoot": "projects/canonicalization-domain-consolidation",
+  "projectization": {
+    "$comment": "Level 4 (umbrella scope) — 横展開を伴う architecture refactor。実装は段階展開し各 sub-phase を実質 Level 3 として運用する。breakingChange は 旧経路撤退 phase で発生。requiresLegacyRetirement = true (旧 scattered guard 群の sunset)、requiresGuard = true (domain 内 invariant test)、requiresHumanApproval = true (domain 境界の確定)。",
+    "level": 4,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app-domain/integrity/",
+      "app/src/test/guards/",
+      "app/src/test/calculationCanonRegistry.ts",
+      "app/src/test/responsibilityTaxonomyRegistryV2.ts",
+      "app/src/test/testTaxonomyRegistryV2.ts",
+      "app/src/test/architectureRules/",
+      "tools/widget-specs/",
+      "tools/architecture-health/src/collectors/",
+      "docs/contracts/",
+      "references/01-principles/canonicalization-principles.md",
+      "references/03-guides/integrity-domain-architecture.md",
+      "references/05-contents/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "drift 検出強度の弱体化 (リファクタは強度を保ったまま重複削減のみ)",
+      "ドメイン logic の振る舞い変更 (整合性メタの統合のみで業務 logic は不変)",
+      "新規 registry+guard の追加 (横展開候補の inventory + 段階導入のみで一斉導入はしない)",
+      "phased-content-specs-rollout の進行妨害 (本 project は並行 active project、Phase A-D は phased side で継続)",
+      "active overlay の切替 (本 project が overlay-active になるのは domain landing 後)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/canonicalization-domain-consolidation/AI_CONTEXT.md",
+    "handoff": "projects/canonicalization-domain-consolidation/HANDOFF.md",
+    "plan": "projects/canonicalization-domain-consolidation/plan.md",
+    "checklist": "projects/canonicalization-domain-consolidation/checklist.md",
+    "projectization": "projects/canonicalization-domain-consolidation/projectization.md"
+  }
+}
