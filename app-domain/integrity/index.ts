@@ -21,6 +21,7 @@ export {
   findIdLine,
   findExportLine,
   jsonRegistry,
+  tsRegistry,
   type SpecKind,
   type SpecFrontmatter,
   type LifecycleStatus,
