@@ -52,6 +52,15 @@ specVersion: 1
 - INV-MA-04: `windowSize === 1` → ok 値はそのまま透過
 - INV-MA-05: 出力配列長 = 入力配列長（C8 単純さ、変換は要素数を保つ）
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `windowSlice.length < windowSize` → `value=null, status='missing'`（窓不足は ok 扱い禁止、INV-MA-01）| tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
+| CLM-002 | `policy='strict'` で窓内 missing が 1 件でも → `null`、`policy='partial'` で okValues のみで平均（INV-MA-02 / INV-MA-03、policy 切替で挙動完全分岐）| tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
+| CLM-003 | 出力配列長 = 入力配列長（INV-MA-05、要素数保存則、`map` で要素単位変換）| tested | medium | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
+| CLM-004 | candidate (`candidate/temporal/computeMovingAverage.ts`) との数値同等性 (dual-run observation guard 監視下)| guarded | high | - | app/src/test/observation/movingAverageCandidateObservation.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `ANA-009`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

@@ -56,6 +56,15 @@ specVersion: 1
 - INV-BS-04: `lyCoverageDay !== null` のとき `remLY = max(0, lyMonthly - elapsedLY)` でキャップ吸収
 - INV-BS-05: 全率は `pct(ratio) = ratio * 100`（小数表現を % 整数表現に統一）
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `SimulatorScenarioSchema.refine` が `daysInMonth === new Date(year, month, 0).getDate()` を強制（Gregorian 暦不整合 = INV-BS-01 違反は Zod parse fail）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
+| CLM-002 | 比較対象 0 → 比率系（YoY / Achievement）は `null` を返す（D2 ゼロ除算禁止、INV-BS-02、null 伝播）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
+| CLM-003 | `elapsedBudget + remBudget === monthlyBudget`（prorateBudget との保存則、INV-BS-03、daily-cumulative split で破壊禁止）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
+| CLM-004 | 率は **% 整数**（`pct(ratio) = ratio * 100`）でプロトタイプ命名規約に統一（INV-BS-05、表現規約変更は全 caller の数値見直し = 互換破壊）| reviewed | medium | - | - |
+
 ## 5. Migration Plan
 
 - registry: `ANA-010`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

@@ -55,6 +55,15 @@ specVersion: 1
 - INV-TR-05: `movingAvgN` の最初 `N-1` 要素は `null`（trailing window、窓不足）
 - INV-TR-06: `overallTrend` は `TREND_CHANGE_THRESHOLD`（domain/constants）で `up`/`down`/`flat` 判定
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | 入力空配列 → `seasonalIndex` は 12 要素全て `1` 返却（季節性中立、INV-TR-01、`MONTHS_PER_YEAR` 固定長）| tested | high | app/src/domain/calculations/trendAnalysis.test.ts | - |
+| CLM-002 | 前月 `totalSales === 0` → `momChanges[i] = null`（ゼロ除算禁止、INV-TR-03、null 伝播 = D2）| tested | high | app/src/domain/calculations/trendAnalysis.test.ts | - |
+| CLM-003 | `movingAvgN` の最初 `N-1` 要素は `null`（trailing window 窓不足、INV-TR-05、先頭埋め禁止）| tested | medium | app/src/domain/calculations/trendAnalysis.test.ts | - |
+| CLM-004 | candidate (`candidate/algorithms/trendAnalysis.ts`) との数値同等性 (dual-run observation guard 監視下)| guarded | high | - | app/src/test/observation/trendAnalysisCandidateObservation.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `ANA-004`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

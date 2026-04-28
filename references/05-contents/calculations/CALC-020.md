@@ -54,6 +54,15 @@ specVersion: 1
 - INV-AF-04: `regressionProjection` の slope*d 寄与は `>= 0` クランプ（負売上禁止）
 - INV-AF-05: 95% Z = `CONFIDENCE_95_ZSCORE`（domain/constants）固定、変更時は不確実性帯再評価
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | empty `dailySales` → 全 field 0（pure 安全、INV-AF-01、entries.filter で `v > 0` 経由）| tested | high | app/src/domain/calculations/advancedForecast.test.ts | - |
+| CLM-002 | `confidenceInterval.lower = max(0, bestEstimate - projectionUncertainty)`（負売上禁止クランプ、INV-AF-02）| tested | high | app/src/domain/calculations/advancedForecast.test.ts | - |
+| CLM-003 | `bestEstimate = mean(linearProjection, dowAdjustedProjection, wmaProjection)`（3 手法平均、INV-AF-03、regressionProjection は別系列で参考値）| tested | medium | app/src/domain/calculations/advancedForecast.test.ts | - |
+| CLM-004 | 95% Z は `CONFIDENCE_95_ZSCORE` (domain/constants) に固定（INV-AF-05、変更時は信頼区間幅が全 caller 波及するため reviewed）| reviewed | high | - | - |
+
 ## 5. Migration Plan
 
 - registry: `ANA-002`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`
