@@ -5,9 +5,10 @@
 
 ## ファイル一覧
 
-| ファイル                   | 役割                                                                              | 正本 (prose)                                          |
-| -------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `adoption-candidates.json` | Phase A §4 採用候補リストの構造化版 (priority / phase / primitives / risk / note) | `references/03-guides/integrity-pair-inventory.md §4` |
+| ファイル                          | 役割                                                                                                         | 正本 (prose)                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `adoption-candidates.json`        | Phase A §4 採用候補リストの構造化版 (priority / phase / primitives / risk / note)                            | `references/03-guides/integrity-pair-inventory.md §4` |
+| `adoption-candidates.schema.json` | 上記 JSON の JSON Schema (Draft 2020-12)。13 ペア / 3 ゲート / 6+8+1+4 primitive 等の cardinality を機械検証 | (本 file 自体が schema 正本)                          |
 
 ## 使い方
 
