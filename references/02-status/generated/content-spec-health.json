@@ -1,10 +1,10 @@
 {
   "$schema": "content-spec-health-v1",
-  "generatedAt": "2026-04-28T03:33:51.003Z",
+  "generatedAt": "2026-04-28T03:39:06.564Z",
   "contentSpec": {
-    "total": 76,
+    "total": 81,
     "byKind": {
-      "calculation": 11,
+      "calculation": 16,
       "chart": 5,
       "read-model": 10,
       "ui-component": 5,
@@ -14,7 +14,7 @@
     "stale": 0,
     "lifecycleViolation": 0,
     "lifecycle": {
-      "active": 76,
+      "active": 81,
       "proposed": 0,
       "deprecated": 0,
       "sunsetting": 0,

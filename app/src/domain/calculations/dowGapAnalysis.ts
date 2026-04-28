@@ -58,6 +58,7 @@ export interface DowGapDailyData {
 /**
  * 曜日ギャップ分析を実行する
  */
+/** @calc-id CALC-012 */
 export function analyzeDowGap(
   currentYear: number,
   currentMonth: number,

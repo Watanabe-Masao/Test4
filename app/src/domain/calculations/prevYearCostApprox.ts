@@ -31,6 +31,7 @@ import type { PrevYearData } from '@/features/comparison'
  * @returns prevYear が無効 / totalSales <= 0 の場合は undefined。
  *          有効な場合は day (number) → approxCost (number) の Map。
  */
+/** @calc-id CALC-014 */
 export function buildPrevYearCostApprox(
   prevYear: PrevYearData,
 ): ReadonlyMap<number, number> | undefined {

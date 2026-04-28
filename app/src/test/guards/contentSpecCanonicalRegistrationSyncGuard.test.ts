@@ -68,20 +68,20 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
     // baseline で既知未 cover を許容しつつ ratchet-down で 0 を目指す。
     //
     // baseline: registry に current/candidate として存在するが CALC spec が無い entry の数。
-    // Phase D Step 3 (2026-04-28) 時点で:
-    //   - cover 済 (CALC spec あり、11 件): customerGap / piValue / inventoryCalc /
+    // Phase D Step 4 (2026-04-28) 時点で:
+    //   - cover 済 (CALC spec あり、16 件): customerGap / piValue / inventoryCalc /
     //     pinIntervals / observationPeriod / remainingBudgetRate (Step 1+2、tier1) +
     //     factorDecomposition / forecast / invMethod / estMethod / budgetAnalysis (Step 3、tier2)
-    //   - 未 cover (24 件): tier3 系の analytic-authoritative + utility +
-    //     candidate-authoritative。内訳: discountImpact / prevYearCostApprox /
-    //     costAggregation / markupRate / timeSlotCalculations / budgetSimulator /
-    //     budgetSimulatorAggregations / dowGapAnalysis / algorithms/* (4) /
-    //     temporal/* (1) / candidate/* (10、物理 file 未生成)
+    //     + dowGapAnalysis / discountImpact / prevYearCostApprox / costAggregation /
+    //     markupRate (Step 4、tier3 第一波)
+    //   - 未 cover (19 件): timeSlotCalculations / budgetSimulator / budgetSimulatorAggregations /
+    //     algorithms/* (4) / temporal/* (1) / candidate/* (10、物理 file 未生成)
     //
     // candidate/* は物理 file 未生成のため CALC spec も未生成（lifecycleStatus: proposed
-    // で先行 spec 化することは可能だが Phase D Step 4+ scope）。
-    // ratchet-down 戦略: Phase D Step 4+ で tier3 候補を順次 spec 化し baseline を 0 に近づける。
-    const SPEC_COVERAGE_BASELINE = 24
+    // で先行 spec 化することは可能だが Phase D Step 5+ scope）。
+    // ratchet-down 戦略: Phase D Step 5+ で残 tier3 (algorithms/temporal/budgetSimulator) を
+    // 順次 spec 化し baseline を 0 に近づける。
+    const SPEC_COVERAGE_BASELINE = 19
     const specSourceRefs = new Set<string>()
     for (const spec of loadAllSpecs()) {
       if (spec.kind !== 'calculation') continue

@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は phased-content-specs-rollout Phase A〜F で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（11 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）+ `charts/`（5 件、Chart Input Builder Pattern 記録）+ `ui-components/`（Phase F 着手段階で 5 件、selection rule 通過 UI 部品）の 5 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜J で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（16 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 + Behavior Claims (Phase J Evidence Level) institutionalize）+ `charts/`（5 件、Chart Input Builder Pattern 記録）+ `ui-components/`（5 件、selection rule 通過 UI 部品）の 5 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -101,6 +101,11 @@
 | `CALC-009.md` | `calculateInvMethod`           | `domain/calculations/invMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-001、RM-002 が wrap）|
 | `CALC-010.md` | `calculateEstMethod`           | `domain/calculations/estMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-002、RM-002 が wrap）|
 | `CALC-011.md` | `calculateBudgetAnalysis`      | `domain/calculations/budgetAnalysis.ts`                    | active / current（予算進捗 + 着地予測、BIZ-003、StoreResult 統合）|
+| `CALC-012.md` | `analyzeDowGap`                | `domain/calculations/dowGapAnalysis.ts`                    | active / current（analytic-authoritative、ANA-007、calendar_effect）|
+| `CALC-013.md` | `calculateDiscountImpact`      | `domain/calculations/discountImpact.ts`                    | active / current（売変ロス原価、BIZ-005、CALC-010 と協調）|
+| `CALC-014.md` | `buildPrevYearCostApprox`      | `domain/calculations/prevYearCostApprox.ts`                | active / current（前年近似原価、ANA-005、SP-B 抽出）|
+| `CALC-015.md` | `calculateTransferTotals`      | `domain/calculations/costAggregation.ts`                   | active / current（移動 + 在庫仕入、BIZ-006）|
+| `CALC-016.md` | `calculateMarkupRates`         | `domain/calculations/markupRate.ts`                        | active / current（値入率、BIZ-007、CALC-010 供給元）|
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 

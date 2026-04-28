@@ -71,7 +71,7 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 |---|---|---|
 | `widgets/` | widget 仕様書（`WID-NNN.md`） | registry 登録された全 widget（45 件） |
 | `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 10 件（仕入原価 / 粗利 / 売上 / 値引き / 客数 / 要因分解 / 自由期間 3 種 / 月次前年売上）|
-| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D Step 3 完遂段階で 11 件 (Step 1+2 tier1 6 件: customerGap / piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate + Step 3 tier2 5 件: factorDecomposition / forecast / invMethod / estMethod / budgetAnalysis)。Lifecycle State Machine + Promote Ceremony + canonicalRegistration sync + replacedBy/supersedes 双方向対称を institutionalize、ratchet-down で残 24 件 cover 予定 |
+| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D Step 4 完遂段階で 16 件 (Step 1+2 tier1 6 件 + Step 3 tier2 5 件 + Step 4 tier3 第一波 5 件: dowGapAnalysis / discountImpact / prevYearCostApprox / costAggregation / markupRate)。Lifecycle State Machine + Promote Ceremony + canonicalRegistration sync + replacedBy/supersedes 双方向対称 + Behavior Claims (Phase J Evidence Level) を institutionalize、ratchet-down で残 19 件 cover 予定 |
 | `charts/` | Chart component 仕様書（`CHART-NNN.md`） | Phase E 着手段階で 5 件 (SalesPurchaseComparisonChart / PerformanceIndexChart / BudgetVsActualChart / CustomerScatterChart / GrossProfitAmountChart)。Chart Input Builder Pattern (builders / logic / vm / optionBuilder / styles) + 状態カバレッジ (empty/loading/ready/error) を frontmatter に記録 |
 | `ui-components/` | Selected UI Component 仕様書（`UIC-NNN.md`） | Phase F 着手段階で 5 件 (ConditionSummaryEnhanced / KpiCard / KpiGrid / ChartCard / ChartLoading)。selection rule (複数 widget/page 参照 / props 重い / responsibility hotspot) で対象限定、props contract / hooks / sideEffects / state coverage を記録 |
 

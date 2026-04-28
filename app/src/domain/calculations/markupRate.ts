@@ -64,6 +64,7 @@ export const MarkupRateResultSchema = z.object({
  *   corePrice = purchasePrice + transferPrice
  *   coreCost  = purchaseCost  + transferCost
  */
+/** @calc-id CALC-016 */
 export function calculateMarkupRates(input: MarkupRateInput): MarkupRateResult {
   const allPrice = input.purchasePrice + input.deliveryPrice + input.transferPrice
   const allCost = input.purchaseCost + input.deliveryCost + input.transferCost

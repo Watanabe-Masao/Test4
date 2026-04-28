@@ -43,6 +43,12 @@
  * tier2 cover で AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC の uncovered baseline
  * を 29 → 24 に ratchet-down（残 24 件は tier3 系を Step 4+ で順次 cover）。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 4: dowGapAnalysis (ANA-007) /
+ * discountImpact (BIZ-005) / prevYearCostApprox (ANA-005) / costAggregation (BIZ-006) /
+ * markupRate (BIZ-007) の 5 件に @calc-id (CALC-012〜016) JSDoc 注入。tier3 第一波
+ * cover で baseline を 24 → 19 に ratchet-down（残 19 件: algorithms 4 件 / temporal 1 件 /
+ * timeSlotCalculations / budgetSimulator / budgetSimulatorAggregations / candidate/* 10 件）。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

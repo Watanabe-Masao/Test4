@@ -87,6 +87,7 @@ export function calculateDiscountImpactWithStatus(
  * @sunsetCondition 全 caller が calculateDiscountImpactWithStatus 版に移行し、本関数の参照が 0 になった時
  * @reason 結果値のみ返す旧 API。WithStatus 版は status/issue 情報を含むため、エラー処理品質が向上する
  */
+/** @calc-id CALC-013 */
 export function calculateDiscountImpact(input: DiscountImpactInput): DiscountImpactResult {
   const result = calculateDiscountImpactWithStatus(input)
   if (result.value != null) {
