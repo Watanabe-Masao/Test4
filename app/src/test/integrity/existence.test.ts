@@ -90,12 +90,12 @@ describe('detection/checkPathExistence', () => {
   })
 
   it('exists 関数 injection で純粋性を確保 (本 test 内で fs 触らない)', () => {
-    let calls = 0
-    const customExists = (_p: string) => {
-      calls++
+    const calls: string[] = []
+    const customExists = (p: string): boolean => {
+      calls.push(p)
       return true
     }
     checkPathExistence([{ absPath: '/x', displayPath: 'x' }], customExists, opts)
-    expect(calls).toBe(1)
+    expect(calls).toEqual(['/x'])
   })
 })
