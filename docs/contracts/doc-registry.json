@@ -1026,6 +1026,26 @@
           "label": "CALC-016 値入率 (calculateMarkupRates) — BIZ-007、CALC-010 推定法 markupRate 供給元"
         },
         {
+          "path": "references/05-contents/calculations/CALC-017.md",
+          "label": "CALC-017 時間帯分析 core/turnaround (findCoreTime) — ANA-001、time_pattern、補助 findTurnaroundHour/buildHourlyMap"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-018.md",
+          "label": "CALC-018 予算達成シミュレータ KPI 基盤 (computeKpis) — ANA-010、budget_simulation、budgetAnalysis 部品の orchestration"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-019.md",
+          "label": "CALC-019 予算シミュレータ ドリルダウン (aggregateDowAverages) — ANA-010、CALC-018 と協調、曜日別/週別集計"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-020.md",
+          "label": "CALC-020 高度な月末予測 (calculateMonthEndProjection) — ANA-002、forecasting、複数手法+95%信頼区間"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-021.md",
+          "label": "CALC-021 相関分析 (pearsonCorrelation) — ANA-005、statistical、相関マトリクス/正規化/divergence"
+        },
+        {
           "path": "references/05-contents/charts/README.md",
           "label": "charts 仕様書カタログ — Phase E で導入、Chart Input Builder Pattern (builders / logic / vm / optionBuilder / styles) 三層を frontmatter で記録"
         },

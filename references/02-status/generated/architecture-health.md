@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-28T03:39:06.564Z
+> Generated: 2026-04-28T05:39:40.071Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -87,7 +87,7 @@
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
-| contentSpec.total | Content Spec 総数 (全 kind) | 81 | OK |
+| contentSpec.total | Content Spec 総数 (全 kind) | 86 | OK |
 | contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
 | contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
 | contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |

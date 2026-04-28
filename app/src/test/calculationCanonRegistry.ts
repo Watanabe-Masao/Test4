@@ -49,6 +49,13 @@
  * cover で baseline を 24 → 19 に ratchet-down（残 19 件: algorithms 4 件 / temporal 1 件 /
  * timeSlotCalculations / budgetSimulator / budgetSimulatorAggregations / candidate/* 10 件）。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 5: timeSlotCalculations (ANA-001) /
+ * budgetSimulator (ANA-010) / budgetSimulatorAggregations (ANA-010) /
+ * algorithms/advancedForecast (ANA-002) / algorithms/correlation (ANA-005) の 5 件に
+ * @calc-id (CALC-017〜021) JSDoc 注入。tier3 第二波 cover で baseline を 19 → 14 に
+ * ratchet-down（残 14 件: current 3 件 = algorithms/sensitivity / algorithms/trendAnalysis /
+ * temporal/computeMovingAverage、candidate/* 11 件）。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *
