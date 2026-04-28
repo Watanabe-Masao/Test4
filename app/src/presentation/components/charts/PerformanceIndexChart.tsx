@@ -73,6 +73,7 @@ const EMPTY_PREV_YEAR: ReadonlyMap<
   { sales: number; discount: number; customers?: number }
 > = new Map()
 
+/** @chart-id CHART-002 */
 export const PerformanceIndexChart = memo(function PerformanceIndexChart({
   daily,
   daysInMonth,

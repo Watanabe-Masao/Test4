@@ -51,17 +51,30 @@ proposed ──→ active ──→ deprecated ──→ sunsetting ──→ re
 
 詳細: `references/03-guides/promote-ceremony-pr-template.md`
 
-## 初期割当表（Phase D 着手段階で 1 件、漸次拡大）
+## 初期割当表（Phase D Step 3 完遂段階、11 件）
 
-`calculationCanonRegistry.ts` の `business-authoritative + current + maintenance` を起点に、
-WASM migration 候補を持つ計算を優先 spec 化する。
+`calculationCanonRegistry.ts` の `business-authoritative + current + maintenance` (tier1) と
+analytic-authoritative / 業務 critical (tier2) を起点に優先 spec 化する。
 
-| ID | export | 配置 | semanticClass / authorityKind | runtimeStatus | 候補 (replacedBy 候補) |
+| ID | export | 配置 | contractId / semanticClass / authorityKind | runtimeStatus | tier / WASM 候補 |
 |---|---|---|---|---|---|
-| CALC-001 | `calculateCustomerGap` | `app/src/domain/calculations/customerGap.ts` | business / business-authoritative | current | wasm/customer-gap/（registry: `candidate/customerGap.ts`、未物理化）|
+| CALC-001 | `calculateCustomerGap` | `customerGap.ts` | BIZ-013 / business / business-authoritative | current | tier1 / wasm/customer-gap/ (未物理化)|
+| CALC-002 | `calculatePIValues` | `piValue.ts` | BIZ-012 / business / business-authoritative | current | tier1 / wasm/pi-value/ (未物理化)|
+| CALC-003 | `computeEstimatedInventory` | `inventoryCalc.ts` | BIZ-009 / business / business-authoritative | current | tier1 / wasm/inventory-calc/ (FFI 6 列 flat、未物理化)|
+| CALC-004 | `calculatePinIntervals` | `pinIntervals.ts` | BIZ-011 / business / business-authoritative | current | tier1 / wasm/pin-intervals/ (rateOwnership: engine、未物理化)|
+| CALC-005 | `evaluateObservationPeriod` | `observationPeriod.ts` | BIZ-010 / business / business-authoritative | current | tier1 / wasm/observation-period/ (FFI bitmask、未物理化)|
+| CALC-006 | `calculateRemainingBudgetRate` | `remainingBudgetRate.ts` | BIZ-008 / business / business-authoritative | current | tier1 / wasm/remaining-budget-rate/ (rateOwnership: engine、未物理化)|
+| CALC-007 | `decompose5` | `factorDecomposition.ts` | BIZ-004 / business / business-authoritative | current | tier2 / wasm/factor-decomposition/ (WASM bridge 部分稼働、RM-006 が wrap)|
+| CALC-008 | `calculateForecast` | `forecast.ts` | ANA-006 / analytic / analytic-authoritative | current | tier2 / wasm/forecast/ (forecastBridge WASM 部分稼働)|
+| CALC-009 | `calculateInvMethod` | `invMethod.ts` | BIZ-001 / business / business-authoritative | current | tier2 / wasm/gross-profit/ (WASM bridge 稼働、RM-002 が wrap、4 種粗利のうち 2 種)|
+| CALC-010 | `calculateEstMethod` | `estMethod.ts` | BIZ-002 / business / business-authoritative | current | tier2 / wasm/gross-profit/ (RM-002 が wrap、4 種粗利のうち 2 種)|
+| CALC-011 | `calculateBudgetAnalysis` | `budgetAnalysis.ts` | BIZ-003 / business / business-authoritative | current | tier2 / wasm/budget-analysis/ (WASM bridge 稼働、StoreResult 統合)|
 
-> Phase D 後続 batch で CALC-002 〜（piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate / dowGapAnalysis）を追加予定。
-> WASM candidate 物理化後に spec-pair 化（current ↔ candidate の双方向リンク完成）。
+> Phase D Step 4+ で残 tier3 候補（`dowGapAnalysis` / `discountImpact` / `prevYearCostApprox` /
+> `costAggregation` / `markupRate` / `timeSlotCalculations` / `budgetSimulator` /
+> `budgetSimulatorAggregations` / `algorithms/*` (4) / `temporal/*` (1) / `candidate/*` (10、物理化未))
+> を spec 化予定。AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC が uncovered baseline=24 で
+> ratchet-down 管理。
 
 ## spec doc フォーマット
 

@@ -56,6 +56,7 @@ interface Props {
   rangeEnd?: number
 }
 
+/** @chart-id CHART-003 */
 export const BudgetVsActualChart = memo(function BudgetVsActualChart({
   data,
   budget,

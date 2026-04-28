@@ -6046,6 +6046,91 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC",
+    principleRefs: ["G1", "I3"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/calculations/README.md",
+    what: "kind=calculation の spec の canonicalRegistration が calculationCanonRegistry.runtimeStatus と完全一致する",
+    why: "user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec が「candidate」になっていたら、改修者がどちらを信じればよいか判断できない。Promote Ceremony で 1 PR 同期更新を機械的に強制することで構造的に乖離を排除する",
+    correctPattern: {
+      description:
+        "spec.canonicalRegistration === registry[sourceRefKey].runtimeStatus、双方向一致。registry の current/candidate entry に対応 CALC spec がある (ratchet-down で 0 を目指す)",
+    },
+    outdatedPattern: {
+      description:
+        "spec.canonicalRegistration='current' だが registry='candidate' / spec が registry に未登録 (孤立 spec) / current/candidate registry entry に対応 spec が baseline 超過で増加",
+    },
+    decisionCriteria: {
+      when: "registry の runtimeStatus を変更するとき (Promote Ceremony) / 新 calc を追加するとき",
+      exceptions: "なし",
+      escalation:
+        "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) で 1 PR 5 同期",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. registry の runtimeStatus を変更したら同 PR で対応 CALC spec の canonicalRegistration を更新",
+        "2. 逆に spec の canonicalRegistration を変えたいなら同 PR で registry を更新",
+        "3. ratchet-down で uncovered baseline を段階的に 0 化 (Phase D Step 3+)",
+      ],
+    },
+    sunsetCondition:
+      "なし（registry ↔ spec の双方向一致は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "registry と spec の判定乖離 (改修者がどちらを信じるべきか不明になる)",
+        "片方更新で半移行状態が居残る",
+        "孤立 spec (registry に未登録の calc に CALC spec があるが consumer 不明)",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/03-guides/promote-ceremony-pr-template.md",
+    what: "replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
+    why: "片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の replacedBy=B なら spec B の supersedes=A を必須化することで、Promote Ceremony が 1 PR で双方を同期更新することを構造的に強制する",
+    correctPattern: {
+      description:
+        "spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし",
+    },
+    outdatedPattern: {
+      description:
+        "spec A.replacedBy=B だが spec B.supersedes が A 以外 / 孤立リンク (参照先 spec が存在しない) / 自己参照 (replacedBy / supersedes が自分を指す)",
+    },
+    decisionCriteria: {
+      when: "Promote Ceremony で current↔candidate 昇格・退役するとき",
+      exceptions: "なし",
+      escalation: "Promote Ceremony PR template の 5 同期に従う",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. 旧 spec の replacedBy を新 spec ID に設定",
+        "2. 新 spec の supersedes を旧 spec ID に設定",
+        "3. 同 PR で双方を更新 (片方だけ commit したら guard が hard fail)",
+      ],
+    },
+    sunsetCondition:
+      "なし（双方向リンクの対称性は恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "片方向リンクで「移行完了したか分からない」状態",
+        "自己参照ループによる lifecycle 検証の無限ループ",
+        "孤立リンク (削除済み spec への dangling 参照)",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-OWNER",
     principleRefs: ["G1"],
     ruleClass: "invariant",

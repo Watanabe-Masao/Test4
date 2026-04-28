@@ -198,6 +198,7 @@ export function decomposePriceMix(
  * これにより φ_C + φ_Q + φ_price + φ_mix = curSales − prevSales が
  * データソース間の差異に関係なく常に成立する。
  */
+/** @calc-id CALC-007 */
 export function decompose5(
   prevSales: number,
   curSales: number,

@@ -630,4 +630,14 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: Lifecycle State Machine (proposed→active→deprecated→sunsetting→retired→archived) の必須 field + deadline 超過 hard fail',
   },
+  'AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: kind=calculation の spec.canonicalRegistration ↔ calculationCanonRegistry.runtimeStatus 双方向一致 (Promote Ceremony 1 PR 同期更新を機械強制)',
+  },
+  'AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: replacedBy / supersedes 双方向対称 + 自己参照禁止 (片方向リンク = 半移行状態を構造的に排除)',
+  },
 } as const

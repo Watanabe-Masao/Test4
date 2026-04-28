@@ -46,6 +46,7 @@ interface Props {
   rangeEnd?: number
 }
 
+/** @chart-id CHART-005 */
 export const GrossProfitAmountChart = memo(function GrossProfitAmountChart({
   daily,
   daysInMonth,

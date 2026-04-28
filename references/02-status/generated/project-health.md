@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-27T22:43:04.892Z
+> 生成: 2026-04-28T01:05:14.954Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 5 |
+| active project 数（archive 未実施を含む） | 6 |
 | archived project 数 | 26 |
-| in_progress project 数 | 4 |
+| in_progress project 数 | 5 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 869 |
-| 全 project の checked checkbox 総数 | 783 |
+| 全 project の required checkbox 総数 | 922 |
+| 全 project の checked checkbox 総数 | 794 |
 
 ## projects
 
@@ -31,6 +31,7 @@
 | `budget-achievement-simulator` | 予算達成シミュレーター | **archived** | — | 45/45 (100%) | [`projects/completed/budget-achievement-simulator/AI_CONTEXT.md`](../../../projects/completed/budget-achievement-simulator/AI_CONTEXT.md) |
 | `calendar-modal-bundle-migration` | カレンダーモーダル bundle 移行 — timeSlotLane 契約拡張 + HourlyChart の bundle 経由化 | **archived** | — | 18/18 (100%) | [`projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md) |
 | `calendar-modal-route-unification` | カレンダーモーダル正規ルート統一 — useDayDetailPlan の bundle / paired handler 経由化 | **archived** | — | 6/6 (100%) | [`projects/completed/calendar-modal-route-unification/AI_CONTEXT.md`](../../../projects/completed/calendar-modal-route-unification/AI_CONTEXT.md) |
+| `canonicalization-domain-consolidation` | 整合性 / 正本化ドメイン統合計画 | **in_progress** | — | 6/53 (11%) | [`projects/canonicalization-domain-consolidation/AI_CONTEXT.md`](../../../projects/canonicalization-domain-consolidation/AI_CONTEXT.md) |
 | `category-leaf-daily-entry-shape-break` | CategoryLeafDailyEntry 独立構造化 — alias 解除で presentation を raw 型から完全隔離 (Option B 平坦化) | **archived** | — | — | [`projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md`](../../../projects/category-leaf-daily-entry-shape-break/AI_CONTEXT.md) |
 | `category-leaf-daily-series` | カテゴリ leaf-grain 正本化 — CategoryLeafDailySeries 新設と 3 consumer 載せ替え | **archived** | — | 22/22 (100%) | [`projects/completed/category-leaf-daily-series/AI_CONTEXT.md`](../../../projects/completed/category-leaf-daily-series/AI_CONTEXT.md) |
 | `chart-color-alignment` | Chart Color Alignment — 前年バー slate 統一 + 売変 71-74 tokenize | **archived** | — | — | [`projects/chart-color-alignment/AI_CONTEXT.md`](../../../projects/chart-color-alignment/AI_CONTEXT.md) |
@@ -41,7 +42,7 @@
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **archived** | `architecture-debt-recovery` | 26/26 (100%) | [`projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
-| `phased-content-specs-rollout` | Content Spec System 段階展開計画 | **in_progress** | — | 32/80 (40%) | [`projects/phased-content-specs-rollout/AI_CONTEXT.md`](../../../projects/phased-content-specs-rollout/AI_CONTEXT.md) |
+| `phased-content-specs-rollout` | Content Spec System 段階展開計画 | **in_progress** | — | 37/80 (46%) | [`projects/phased-content-specs-rollout/AI_CONTEXT.md`](../../../projects/phased-content-specs-rollout/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/16 (81%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/113 (74%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |

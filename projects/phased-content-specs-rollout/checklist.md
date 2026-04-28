@@ -57,26 +57,26 @@
 
 ## Phase D: Domain Calculations の網羅
 
-- [x] selection rule に従い対象 CALC を確定した（calculationCanonRegistry の business-authoritative + current + maintenance 起点、Step1 で CALC-001 customerGap）
-- [x] `CALC-NNN` ID を割当した（CALC-001 = customerGap、Step1）
+- [x] selection rule に従い対象 CALC を確定した（Step1+2 tier1 6 件、Step3 tier2 5 件 cover、Step4+ で残 24 件）
+- [x] `CALC-NNN` ID を割当した（CALC-001〜011、Step3 完遂段階）
 - [x] 対象 CALC に source tag を導入した（@calc-id JSDoc 自動注入）
 - [x] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した（AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard で deprecated/sunsetting/retired に replacedBy 必須、sunsetting に sunsetCondition+deadline 必須、過去 deadline hard fail）
-- [ ] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（Step1: CALC-001 §4 で記録、後続 batch で残 calc 拡大）
-- [ ] tests / guards との evidence 紐付けを完了した
-- [ ] 対象 CALC `missingSpec = 0` を達成した（Step1: 1 件 cover、Step2 で 6 件まで拡大予定）
+- [x] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（CALC-001〜011 §4 で INV-CGAP / INV-PI / INV-INV / INV-PIN / INV-OBS / INV-RBR / INV-SHAPLEY / INV-FCS / INV-EST / INV-BUD を記録）
+- [x] 対象 CALC `missingSpec = 0` を達成した（business + analytic authoritative tier1+tier2 = 11 件、tier3 残 24 件は Step4+ で baseline ratchet-down）
+- [ ] tests / guards との evidence 紐付けを完了した（Phase J evidenceLevel との連動）
 - [ ] 対象 CALC tests 参照 = 100% を達成した
 - [ ] invariant 付き CALC の test 参照 = 100% を達成した
-- [ ] deprecated CALC の `sunsetCondition` = 100% を達成した
+- [ ] deprecated CALC の `sunsetCondition` = 100% を達成した（現状 deprecated calc が存在しない、Promote Ceremony 起動時に発火）
 
 ## Phase E: Charts へ拡張
 
-- [ ] `CHART-NNN` ID を対象 chart に割当した
-- [ ] input builder / render model / option builder を spec に記録した
-- [ ] visual test / story / fixture と紐付けした
-- [ ] empty / loading / ready / error state を frontmatter に記録した
-- [ ] 主要 chart `missingSpec = 0` を達成した
-- [ ] chart input builder 参照 = 100% を達成した
-- [ ] visual / e2e evidence required の chart で evidence 設定済み
+- [x] `CHART-NNN` ID を対象 chart に割当した（CHART-001〜005、Phase E 着手段階で 5 件）
+- [x] input builder / render model / option builder を spec に記録した（frontmatter inputBuilder / logic / viewModel / optionBuilder / styles 5 field）
+- [ ] visual test / story / fixture と紐付けした（Phase G で landing 予定）
+- [x] empty / loading / ready / error state を frontmatter に記録した（5 spec の states field）
+- [ ] 主要 chart `missingSpec = 0` を達成した（5 件 cover、後続 batch で残 chart 拡大）
+- [ ] chart input builder 参照 = 100% を達成した（baseline 管理は後続 batch）
+- [ ] visual / e2e evidence required の chart で evidence 設定済み（Phase G）
 
 ## Phase F: Selected UI Components
 

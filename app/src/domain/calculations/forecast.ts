@@ -194,6 +194,7 @@ export function detectAnomalies(
 /**
  * 予測分析をまとめて実行する
  */
+/** @calc-id CALC-008 */
 export function calculateForecast(input: ForecastInput): ForecastResult {
   return {
     weeklySummaries: calculateWeeklySummaries(input),

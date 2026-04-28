@@ -37,6 +37,7 @@ const KIND_DIRS = {
   widget: 'widgets',
   'read-model': 'read-models',
   calculation: 'calculations',
+  chart: 'charts',
 }
 
 // id prefix → kind 推定
@@ -44,6 +45,7 @@ function inferKindFromId(id) {
   if (/^WID-\d{3}$/.test(id)) return 'widget'
   if (/^RM-\d{3}$/.test(id)) return 'read-model'
   if (/^CALC-\d{3}$/.test(id)) return 'calculation'
+  if (/^CHART-\d{3}$/.test(id)) return 'chart'
   return null
 }
 
@@ -307,9 +309,41 @@ const FIELD_ORDER_CALCULATION = [
   'specVersion',
 ]
 
+const FIELD_ORDER_CHART = [
+  'id',
+  'kind',
+  'exportName',
+  'sourceRef',
+  'sourceLine',
+  // Chart Input Builder Pattern (optional triple)
+  'inputBuilder',
+  'logic',
+  'viewModel',
+  'optionBuilder',
+  'styles',
+  // 状態カバレッジ (Phase G visual evidence)
+  'states',
+  'stories',
+  'visualTests',
+  // 業務意味の正本リンク
+  'definitionDoc',
+  // lifecycle (kind 横断、Phase D で active 化)
+  'lifecycleStatus',
+  'replacedBy',
+  'supersedes',
+  'sunsetCondition',
+  'deadline',
+  'lastVerifiedCommit',
+  'owner',
+  'reviewCadenceDays',
+  'lastReviewedAt',
+  'specVersion',
+]
+
 function fieldOrderFor(kind) {
   if (kind === 'read-model') return FIELD_ORDER_READ_MODEL
   if (kind === 'calculation') return FIELD_ORDER_CALCULATION
+  if (kind === 'chart') return FIELD_ORDER_CHART
   return FIELD_ORDER_WIDGET
 }
 
@@ -680,7 +714,9 @@ function listSpecs(filterWid, scope) {
           ? /^RM-\d{3}\.md$/
           : kind === 'calculation'
             ? /^CALC-\d{3}\.md$/
-            : null
+            : kind === 'chart'
+              ? /^CHART-\d{3}\.md$/
+              : null
     if (!re) continue
     const files = readdirSync(fullDir).filter((f) => re.test(f))
     for (const f of files) {
@@ -728,8 +764,60 @@ function processSpec(spec, opts) {
   if (kind === 'calculation') {
     return processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
   }
+  if (kind === 'chart') {
+    return processChartSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts })
+  }
   errors.push(`${id}: unknown kind "${kind}"`)
   return { changed: false, drifted, errors }
+}
+
+function processChartSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
+  const exportName = frontmatter.exportName
+  const sourcePath = frontmatter.sourceRef
+  if (!exportName || !sourcePath) {
+    errors.push(`${id}: missing exportName or sourceRef`)
+    return { changed: false, drifted, errors }
+  }
+  if (!existsSync(resolve(REPO_ROOT, sourcePath))) {
+    errors.push(`${id}: sourceRef not found: ${sourcePath}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext = extractReadModelFields(sourcePath, exportName)
+  if (!ext.found) {
+    errors.push(`${id}: ${ext.diagnostics.join('; ')}`)
+    return { changed: false, drifted, errors }
+  }
+  const ext0 = ext.fields
+
+  const merged = { ...frontmatter }
+  merged.id = id
+  merged.kind = 'chart'
+  const machineUpdates = {
+    exportName: ext0.exportName,
+    sourceRef: sourcePath,
+    sourceLine: ext0.sourceLine,
+  }
+  for (const [k, v] of Object.entries(machineUpdates)) {
+    if (!fieldEqual(merged[k], v)) {
+      drifted.push(`${k}: ${formatVal(merged[k])} → ${formatVal(v)}`)
+      merged[k] = v
+    }
+  }
+  if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
+  if (merged.owner === undefined) merged.owner = 'implementation'
+  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
+  if (merged.specVersion === undefined) merged.specVersion = 1
+
+  return finalizeSpecWrite({
+    specPath,
+    merged,
+    body,
+    raw,
+    fieldOrder: FIELD_ORDER_CHART,
+    drifted,
+    errors,
+    opts,
+  })
 }
 
 function processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, drifted, opts }) {
@@ -954,6 +1042,13 @@ function injectJsdocAll(specs) {
       const list = editsBySource.get(sourcePath) ?? []
       list.push({ id: spec.id, kind: 'calculation', match: { exportName } })
       editsBySource.set(sourcePath, list)
+    } else if (spec.kind === 'chart') {
+      const exportName = frontmatter.exportName
+      const sourcePath = frontmatter.sourceRef
+      if (!exportName || !sourcePath) continue
+      const list = editsBySource.get(sourcePath) ?? []
+      list.push({ id: spec.id, kind: 'chart', match: { exportName } })
+      editsBySource.set(sourcePath, list)
     }
   }
 
@@ -1009,7 +1104,11 @@ function buildInjectMatcher(edit) {
   if (edit.kind === 'widget') {
     return new RegExp(`^(\\s*)id:\\s*['"\`]${escapeRegex(edit.match.widgetDefId)}['"\`]`)
   }
-  if (edit.kind === 'read-model' || edit.kind === 'calculation') {
+  if (
+    edit.kind === 'read-model' ||
+    edit.kind === 'calculation' ||
+    edit.kind === 'chart'
+  ) {
     const n = escapeRegex(edit.match.exportName)
     // matches: `export function NAME`, `export async function NAME`, `export const NAME`,
     //          `export class NAME`, `export interface NAME`, `export type NAME`
@@ -1024,6 +1123,7 @@ function jsdocTagFor(edit) {
   if (edit.kind === 'widget') return `@widget-id ${edit.id}`
   if (edit.kind === 'read-model') return `@rm-id ${edit.id}`
   if (edit.kind === 'calculation') return `@calc-id ${edit.id}`
+  if (edit.kind === 'chart') return `@chart-id ${edit.id}`
   throw new Error(`Unknown edit kind: ${edit.kind}`)
 }
 
