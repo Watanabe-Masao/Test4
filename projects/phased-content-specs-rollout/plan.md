@@ -399,14 +399,74 @@ npm run content-specs:impact -- --base main --head HEAD
 - **J3:** high-risk claim は `asserted` 禁止
 - **J4:** `tested` claim は test path 必須
 - **J5:** `guarded` claim は guard path 必須
+- **J6:** Behavior Claims が無い spec の数を ratchet-down baseline で coverage 強制（Step 2 で導入）
 
 **完了条件:**
 
 - high-risk claim の `evidenceLevel = asserted` が 0
 - `tested` claim の test 参照欠落 = 0
 - `guarded` claim の guard 参照欠落 = 0
+- J6 coverage baseline = 0（**全 spec カバー**）
 
 **依存:** Phase I 完遂
+
+**実施実績 (2026-04-28、Step 1〜10 全 landed):**
+
+| Step | 範囲 | claim 累積 | baseline | commit |
+|---|---|---:|---:|---|
+| 1 (pilot) | CALC-001/002/007 | 11 | — | (Phase J 着手時) |
+| 2 | CALC-003〜006 (tier1 残) | 27 | 82 | 9c01678 |
+| 3 | CALC-008〜011 (tier2) | 43 | 78 | 2a8b7fd |
+| 4 | CALC-012〜016 (tier3 第一波) | 63 | 73 | d9de54f |
+| 5 | CALC-017〜024 (tier3 第二波 + completed) | 95 | 65 | f4cb252 |
+| 6 | RM-001〜010 (read-model 全件) | 135 | 55 | 3067e8d |
+| 7 | CHART-001〜005 + UIC-001〜005 | 175 | 45 | 0d67ed7 |
+| 8 | WID-001〜015 (widget batch 1) | 220 | 30 | b32732f |
+| 9 | WID-016〜030 (widget batch 2) | 265 | 15 | 582f508 |
+| **10** | **WID-031〜045 (widget batch 3)** | **310** | **0** | 5564b60 |
+
+**完遂時 (2026-04-28、commit 5564b60):**
+
+- 全 89 spec が Behavior Claims 完備（widget 45 + RM 10 + CALC 24 + chart 5 + UIC 5）
+- 310 claim、各 spec 平均 3.5
+- 6 種 J-level enforcement (J1〜J6) active で違反 0
+- 124 file / 834 test PASS、Hard Gate PASS、53 KPI all OK
+- **baseline=0 永続化** で C 層 drift（主張 vs 実装乖離）の構造的根絶
+
+---
+
+### Phase J 後続課題（数値以外、commit 5564b60 以降）
+
+`baseline=0` の構造的保護を確立した後、claim **品質**を高める次の段階:
+
+| 優先度 | 課題 | 内容 | 連動 project |
+|---|---|---|---|
+| 高 | **B: J7 path 実在 guard** | claim 内 tests/guards path が実 file を指すこと | canonicalization Phase B `detection/pathExistence.ts` 抽出と同形 |
+| 高 | **E: AST 整合検証** | claim text と source code の意味的整合 | (独立、future work) |
+| 中 | **A: reviewed → tested/guarded 昇格** | 主張の実証品質向上、特に widget の CLM-001/002 | (独立) |
+| 中 | **C: Phase G visual evidence** | UIC/CHART の Storybook + visual regression | (独立、Phase G 後続) |
+| 低 | **D: Promote Ceremony** | candidate physical landing 時の制度反応 | Phase D Step 7 既 institutionalize |
+
+### canonicalization-domain-consolidation との handoff (2026-04-28)
+
+Phase J 完遂と並行 active な `canonicalization-domain-consolidation` (status=draft、
+Phase 0 bootstrap 完遂) との相乗効果が成立した:
+
+- 本 project の **11 guard** / `contentSpecHelpers.ts` / 5 KPI collector / generator は、
+  canonicalization plan §1.2 の **#12 ペア (`references/05-contents/` × `contentSpec*Guard.test.ts`)**
+  そのもの。
+- canonicalization plan §3.2 で予定の domain primitive
+  (`parsing/yamlFrontmatter` / `detection/existence` / `detection/ratchet` /
+  `detection/temporal` / `reporting/formatViolation`) は、本 project の Phase J 完遂時点で
+  すでに `contentSpecHelpers.ts` 内に **実体として存在**。
+- canonicalization Phase B (Domain Skeleton) 着手時、本 project の helper は
+  「ゼロから設計する素材」ではなく「**crystallize する実体**」として機能する。
+- Phase J 後続 B (J7 path 実在 guard) は、canonicalization が抽出する
+  `detection/pathExistence.ts` primitive と同形 — **両 project 共通 primitive 抽出の触媒**として
+  実装する合意 (canonicalization HANDOFF.md「直近」§4)。
+
+詳細: `projects/canonicalization-domain-consolidation/plan.md §1.2 #12` /
+       `projects/canonicalization-domain-consolidation/plan.md §3.2`。
 
 ---
 
@@ -683,3 +743,4 @@ hard fail。Phase H で `architecture-health.json` の `contentSpec.exceptions.{
 | 2026-04-26 | 初版起草（umbrella inquiry/22 として、SP-B Anchor Slice + SP-B/D absorption 戦略を起点に Phase A〜J 構造） |
 | 2026-04-26 | Operational Control System §1〜§11 を追加（State/Behavior/Decision 分離 / Evidence Level / PR Impact Report / Lifecycle State Machine / Promotion Gate / Drift Budget / SP-B/SP-D checklist 統合 / Exception Policy / Human Review Boundary / 4-Loop Operational Model）。最終方針 5 → 6 |
 | 2026-04-26 | **post-archive 改訂**: umbrella + 4 sub-project (SP-A/B/C/D) 全 archive と 45 WID spec 本文 landed を反映。inquiry/22 を **独立 active project の plan.md** に移管（archived umbrella は immutable）。Phase A の作業を「spec 量産」から「source ↔ spec 機械接続（JSDoc + frontmatter generator + AR rule active 化）」に修正。SP-B/D absorption 戦略は §5.7「archived sub-project SUMMARY との連携」に置換 |
+| 2026-04-28 | **Phase J 完遂 + canonicalization handoff plan 統合**。Step 1〜10 全 landed (commit 5564b60) で全 89 spec / 310 claim / baseline=0 達成。§4 Phase J に J6 step 追加 + 実施実績表 + 完遂サマリ追加。Phase J 後続課題（B〜E）を §4 末尾に明文化。`canonicalization-domain-consolidation` plan §1.2 #12 / §3.2 と相互参照する handoff セクション追加（共通 primitive 抽出の触媒として J7 path 実在 guard 実装合意を含む）|
