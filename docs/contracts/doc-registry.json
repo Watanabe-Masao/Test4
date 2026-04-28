@@ -1046,6 +1046,18 @@
           "label": "CALC-021 相関分析 (pearsonCorrelation) — ANA-005、statistical、相関マトリクス/正規化/divergence"
         },
         {
+          "path": "references/05-contents/calculations/CALC-022.md",
+          "label": "CALC-022 感度分析 (calculateSensitivity) — ANA-003、what_if、4 種 delta による粗利インパクト"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-023.md",
+          "label": "CALC-023 複数月トレンド (analyzeTrend) — ANA-004、temporal_pattern、MoM/YoY/MA/季節性"
+        },
+        {
+          "path": "references/05-contents/calculations/CALC-024.md",
+          "label": "CALC-024 trailing 移動平均 (computeMovingAverage) — ANA-009、time_series、strict/partial missingness"
+        },
+        {
           "path": "references/05-contents/charts/README.md",
           "label": "charts 仕様書カタログ — Phase E で導入、Chart Input Builder Pattern (builders / logic / vm / optionBuilder / styles) 三層を frontmatter で記録"
         },

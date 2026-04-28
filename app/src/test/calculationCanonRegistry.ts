@@ -56,6 +56,13 @@
  * ratchet-down（残 14 件: current 3 件 = algorithms/sensitivity / algorithms/trendAnalysis /
  * temporal/computeMovingAverage、candidate/* 11 件）。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 6: algorithms/sensitivity (ANA-003) /
+ * algorithms/trendAnalysis (ANA-004) / temporal/computeMovingAverage (ANA-009) の 3 件に
+ * @calc-id (CALC-022〜024) JSDoc 注入。**current 全件 cover 完了**で baseline を 14 → 11 に
+ * ratchet-down（残 11 件は全て candidate/*。Promote Ceremony 着手フェーズで
+ * lifecycleStatus: proposed の先行 spec 化 → 数値同等性検証 → current 昇格 1 PR 5 同期で
+ * 段階的に 0 化）。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

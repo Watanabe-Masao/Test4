@@ -31,6 +31,7 @@ export type MovingAverageMissingnessPolicy = z.infer<typeof MovingAverageMissing
  *
  * 入力 series は requiredRange の全日を含む前提。
  * anchorRange への切り戻しは handler 側の責務。
+ * @calc-id CALC-024
  */
 export function computeMovingAverage(
   series: readonly MovingAveragePoint[],

@@ -73,6 +73,7 @@ export type ElasticityResult = z.infer<typeof ElasticityResultSchema>
  * - 売上 = 客数 × 客単価
  * - 粗利 = 売上 - 原価 - 売変 - 消耗品
  * - 各deltaは独立に適用（相互作用項あり: 客数×客単価は乗算効果）
+ * @calc-id CALC-022
  */
 export function calculateSensitivity(
   base: SensitivityBase,
