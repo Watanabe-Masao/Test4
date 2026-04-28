@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-28T11:30:44.896Z
+> 生成: 2026-04-28T11:46:00.399Z
 
 ## サマリー
 

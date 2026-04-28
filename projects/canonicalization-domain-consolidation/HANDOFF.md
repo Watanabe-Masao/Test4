@@ -4,7 +4,7 @@
 
 ## 現在地
 
-**status: draft（Phase 0 bootstrap 完遂 + Phase A primary deliverable 完遂、Phase B 未着手）**
+**status: draft（Phase 0 bootstrap 完遂 + Phase A primary deliverable + Phase A 周辺整備完遂、Phase B 未着手）**
 
 ### 完遂したもの
 
@@ -47,16 +47,17 @@
    - **判断**: 既存 doc-registry.json には projects/ 配下の file が **0 件**登録されている。新たに追加すると既存 project（phased-content-specs-rollout / pure-calculation-reorg / taxonomy-v2 等）との非対称が生まれる。この pattern を採用するなら **全 live project に対称的に適用する別 project** として立ち上げるべき（不可侵原則 4「新 registry+guard の追加 ≠ 横展開」適用）
    - inventory.md の登録は完了（label を populated 状態に更新済）
 
-3. **CLAUDE.md 更新確認 — 保留（documentation-steward 判断）**
-   - manifest.json の `discovery.byTopic` に「整合性ドメイン」を追加するか
-   - Phase B (`app-domain/integrity/` 配置) 完遂後の方が適切な可能性
-   - 現時点では Phase A の prose 自体が `byTopic` として discoverable
+3. **CLAUDE.md / manifest.json 更新 — ✅ 完遂 (2026-04-28)**
+   - `.claude/manifest.json` の `discovery.byTopic` に「整合性ペア (registry+guard)」エントリを追加
+     → `references/03-guides/integrity-pair-inventory.md` + `references/01-principles/canonicalization-principles.md` の 2 doc を hint として配置
+   - manifestGuard 通過 (path 実在検証のみ、追加制約なし — 当初の「Phase B 後の方が適切」判定は manifest が hints-only policy のため不要と判定)
+   - Phase B 完遂時に追加 hint (`app-domain/integrity/` 配下) を再評価可
 
-4. **Phase J 後続 B (J7 path 実在 guard) との同期 — Phase B 着手時に明文化**
-   - inventory §3.2 で **`detection/pathExistence.ts` を「最重要 primitive」**として明記済
-   - inventory §1 末尾の共通観察で「path 実在検証が #3 / #5 / #11 / #12 / J7 で重複」を記録
-   - J7 着手時には本 primitive shape で先行設計する合意は inventory 内に固定された
-   - 別 PR での明文化は不要、Phase B 着手 PR で adapter として直接実装
+4. **Phase J 後続 B (J7 path 実在 guard) との同期 — ✅ 完遂 (2026-04-28、cross-link 確認のみ)**
+   - 双方向 cross-link 既に確立:
+     - canonicalization 側: inventory §3.2 で `detection/pathExistence.ts` を「最重要 primitive」として明記、§1 共通観察で「path 実在検証が #3 / #5 / #11 / #12 / J7 で重複」を記録
+     - phased-content-specs 側: HANDOFF §高優先 #1 で「canonicalization-aware 設計: 将来 `app-domain/integrity/detection/pathExistence.ts` に extract される shape で実装」を明記、plan §4 Phase J 後続課題 B でも同合意
+   - **追加作業不要**。J7 実装 PR が canonicalization Phase B `detection/pathExistence.ts` の reference 実装供給を兼ねる (#12 の contentSpec\*Guard と同様の Phase J → Phase B 寄稿 pattern)
 
 ### Phase B 着手前の準備状態
 
