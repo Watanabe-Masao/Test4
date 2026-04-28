@@ -35,6 +35,10 @@ import {
   writeTaxonomyHealth,
 } from "./collectors/taxonomy-collector.js";
 import {
+  collectFromContentSpec,
+  writeContentSpecHealth,
+} from "./collectors/content-spec-collector.js";
+import {
   collectRemediationSnapshot,
   writeRemediationFiles,
 } from "./collectors/architecture-debt-recovery-collector.js";
@@ -126,6 +130,10 @@ console.error("[collect] taxonomy...");
 const taxonomyKpis = collectFromTaxonomy(repoRoot);
 writeTaxonomyHealth(repoRoot);
 
+console.error("[collect] content specs...");
+const contentSpecKpis = collectFromContentSpec(repoRoot);
+writeContentSpecHealth(repoRoot);
+
 const allKpis = [
   ...snapshotKpis,
   ...guardKpis,
@@ -138,6 +146,7 @@ const allKpis = [
   ...projectKpis,
   ...testContractKpis,
   ...taxonomyKpis,
+  ...contentSpecKpis,
 ];
 console.error(`[collect] done — ${allKpis.length} KPIs`);
 

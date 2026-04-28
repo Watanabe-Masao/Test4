@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-28T02:47:49.166Z
+> Generated: 2026-04-28T03:07:21.668Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 48 |
-| OK | 48 |
+| Total KPIs | 53 |
+| OK | 53 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -83,10 +83,15 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 922 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 801 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 805 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
+| contentSpec.total | Content Spec 総数 (全 kind) | 76 | OK |
+| contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
+| contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
+| contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |
+| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 9 | OK |
 
 ## バンドル性能
 
@@ -154,5 +159,11 @@
 | taxonomy.test.unknownVocabulary | definition | references/01-principles/test-taxonomy-schema.md |
 | taxonomy.vocabulary.responsibilityCount | definition | projects/taxonomy-v2/plan.md |
 | taxonomy.vocabulary.testCount | definition | projects/taxonomy-v2/plan.md |
+| contentSpec.total | definition | references/05-contents/README.md |
+| contentSpec.missingOwner | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-OWNER |
+| contentSpec.stale | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-FRESHNESS |
+| contentSpec.lifecycleViolation | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-LIFECYCLE-FIELDS |
+| contentSpec.lifecycleViolation | definition | references/03-guides/promote-ceremony-pr-template.md |
+| contentSpec.evidenceUncovered | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-VISUAL-EVIDENCE |
 
 </details>

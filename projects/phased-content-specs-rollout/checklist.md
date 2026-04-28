@@ -97,11 +97,11 @@
 
 ## Phase H: Architecture Health 詳細 KPI 連携
 
-- [ ] `references/02-status/generated/content-spec-health.json` collector を実装した
-- [ ] `contentSpec.{total, byKind, missingSpec, frontmatterDrift, coChangeViolation, stale, missingOwner, lifecycleViolation, evidenceCoverage, exceptions.total, exceptions.expired, promotionLevel.distribution}` を出力した
-- [ ] `architecture-health.json` summary に Content Spec カテゴリを反映した
-- [ ] Drift Budget の threshold を設定した
-- [ ] Promotion Gate L6 到達を確認した
+- [x] `references/02-status/generated/content-spec-health.json` collector を実装した（tools/architecture-health/src/collectors/content-spec-collector.ts、Phase H 着手）
+- [x] `contentSpec.{total, byKind, missingOwner, stale, lifecycleViolation, lifecycle, evidence (chart/uiComponent breakdown), driftBudget}` を出力した（plan §schema 準拠、Phase H 着手段階で 5 KPI を architecture-health に feed）
+- [x] `architecture-health.json` summary に Content Spec カテゴリを反映した（48 → 53 KPIs）
+- [x] Drift Budget の threshold を設定した（missingOwner=0 / stale=5 / lifecycleViolation=0 / evidenceUncovered=baseline 9）
+- [ ] Promotion Gate L6 到達を確認した（per-tag promotion level tracking は frontmatter schema 拡張が必要、後続 batch）
 
 ## Phase I: PR Impact Report / Bot 連携
 

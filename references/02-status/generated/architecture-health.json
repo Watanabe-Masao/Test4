@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T02:47:49.166Z",
+  "timestamp": "2026-04-28T03:07:21.668Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1038,7 +1038,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 801,
+      "value": 805,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1250,11 +1250,110 @@
       "implRefs": [
         "app/src/test/testTaxonomyRegistryV2.ts"
       ]
+    },
+    {
+      "id": "contentSpec.total",
+      "label": "Content Spec 総数 (全 kind)",
+      "category": "docs",
+      "value": 76,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/05-contents/README.md"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-spec-collector.ts",
+        "references/02-status/generated/content-spec-health.json"
+      ]
+    },
+    {
+      "id": "contentSpec.missingOwner",
+      "label": "Content Spec: owner 未設定数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-OWNER"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecOwnerGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.stale",
+      "label": "Content Spec: lastReviewedAt cadence 超過数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-FRESHNESS"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecFreshnessGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.lifecycleViolation",
+      "label": "Content Spec: lifecycle 必須 field 違反数",
+      "category": "docs",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "architecture",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-LIFECYCLE-FIELDS"
+        },
+        {
+          "kind": "definition",
+          "path": "references/03-guides/promote-ceremony-pr-template.md"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecLifecycleGuard.test.ts"
+      ]
+    },
+    {
+      "id": "contentSpec.evidenceUncovered",
+      "label": "Content Spec: chart/UIC visual evidence 未整備数",
+      "category": "docs",
+      "value": 9,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+          "section": "AR-CONTENT-SPEC-VISUAL-EVIDENCE"
+        }
+      ],
+      "implRefs": [
+        "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts"
+      ]
     }
   ],
   "summary": {
-    "totalKpis": 48,
-    "ok": 48,
+    "totalKpis": 53,
+    "ok": 53,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true
