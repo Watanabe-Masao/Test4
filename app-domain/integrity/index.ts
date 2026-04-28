@@ -20,6 +20,7 @@ export {
   inferKindFromId,
   findIdLine,
   findExportLine,
+  jsonRegistry,
   type SpecKind,
   type SpecFrontmatter,
   type LifecycleStatus,

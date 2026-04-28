@@ -12,3 +12,4 @@ export {
   type BehaviorClaim,
 } from "./yamlFrontmatter";
 export { findIdLine, findExportLine } from "./sourceLineLookup";
+export { jsonRegistry } from "./jsonRegistry";

@@ -37,11 +37,17 @@
 
 ## Phase C: First Migration (doc-registry)
 
-- [ ] doc-registry parsing を `app-domain/integrity/parsing/jsonRegistry.ts` 経由に切替えた
-- [ ] existence check を `detection/existence.ts` 経由に切替えた
-- [ ] 旧 / 新 guard 双方が同 PR で同 violation 集合を出すこと（dual-emit 動作同一性）を確認した
-- [ ] 旧 docRegistryGuard を `@deprecated` JSDoc + sunsetCondition で marking した
-- [ ] `legacy-retirement.md` に sunsetCondition 記録した
+- [x] doc-registry parsing を `app-domain/integrity/parsing/jsonRegistry.ts` 経由に切替えた
+- [x] existence check を `detection/existence.ts` 経由に切替えた
+- [x] 旧 / 新 guard 双方が同 PR で同 violation 集合を出すこと（dual-emit 動作同一性）を確認した
+- [x] 旧 docRegistryGuard を `@deprecated` JSDoc + sunsetCondition で marking した
+- [x] `legacy-retirement.md` に sunsetCondition 記録した
+
+> **Phase C 戦略の補注**: 単一 guard の in-place migration を採用。
+> 5 step 撤退規律のうち step 1-3 (並行運用 → 観察期間 → @deprecated 化) は
+> 別 file に新 guard を立てる場合の手順。本 case は **同 file 内で inline ロジック →
+> domain primitive 経由に同時切替**で 6 既存 test 全件 PASS を維持し、
+> step 5 (singular) に直接到達。`legacy-retirement.md §7` に判例として記録。
 
 ## Phase D: Bulk Migration (waves)
 
