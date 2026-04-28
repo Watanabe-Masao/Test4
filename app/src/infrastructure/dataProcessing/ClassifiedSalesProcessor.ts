@@ -7,7 +7,7 @@
  *
  * 列位置はヘッダー名で自動検出する。
  *
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 import { parseDate } from '../fileImport/dateParser'
 import { safeNumber } from '@/domain/calculations/utils'

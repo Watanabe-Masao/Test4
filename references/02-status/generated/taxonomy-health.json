@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-04-28T09:03:15.267Z",
+  "generatedAt": "2026-04-28T09:55:57.450Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {
@@ -19,10 +19,10 @@
       "unknownVocabulary": 0,
       "missingOrigin": 0,
       "tagDistribution": {
-        "R:unclassified": 1317,
+        "R:unclassified": 1299,
         "R:calculation": 27,
         "R:hook": 2,
-        "R:adapter": 6,
+        "R:adapter": 24,
         "R:read-model": 2,
         "R:bridge": 2,
         "R:store": 2,

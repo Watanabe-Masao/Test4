@@ -1,5 +1,5 @@
 /**
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 
 import * as XLSX from 'xlsx'
@@ -138,8 +138,9 @@ export function parseCsvString(csv: string): unknown[][] {
         i++
       } else {
         rows.push(row)
+        if (i >= normalized.length) break // EOF: 最終フィールド push 済、再エントリ防止
         row = []
-        if (i < normalized.length) i++ // \n をスキップ
+        i++ // \n をスキップ
       }
     }
   }

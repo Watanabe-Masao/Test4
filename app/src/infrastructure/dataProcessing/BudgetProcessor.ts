@@ -1,5 +1,5 @@
 /**
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 
 import { parseDateComponents, monthKey } from '../fileImport/dateParser'

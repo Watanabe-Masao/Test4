@@ -4,7 +4,7 @@
  * 単一ファイルのデータ種別判定→プロセッサ実行→結果検査と、
  * 全ファイル処理後の storeId 正規化を担当する。
  *
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 import type {
   PurchaseData,

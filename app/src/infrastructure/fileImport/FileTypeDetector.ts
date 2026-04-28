@@ -1,5 +1,5 @@
 /**
- * @responsibility R:unclassified
+ * @responsibility R:adapter
  */
 
 import type { DataType } from '@/domain/models/storeTypes'
