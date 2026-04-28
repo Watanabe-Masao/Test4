@@ -88,6 +88,10 @@
           "label": "ルール運用ガイド"
         },
         {
+          "path": "references/03-guides/integrity-pair-inventory.md",
+          "label": "整合性ペア inventory (canonicalization-domain-consolidation Phase A 成果物、13 ペア + 横展開候補 + 共通 primitive 候補) — skeleton landed、§1.1〜§1.13 詳細は後続 commit"
+        },
+        {
           "path": "references/03-guides/allowlist-management.md",
           "label": "Allowlist 管理ガイド"
         },

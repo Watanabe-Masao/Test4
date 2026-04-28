@@ -250,6 +250,7 @@
 | `01-principles/safe-performance-principles.md`       | H カテゴリ（Screen Runtime）の詳細                                                 |
 | `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                   |
 | `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                       |
+| `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、skeleton landed)                  |
 | `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                               |
 | `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                          |
 | `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                           |
