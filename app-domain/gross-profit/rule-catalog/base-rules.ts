@@ -6185,14 +6185,14 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     why: "spec の prose claim が test / guard で実証されているかを構造保証することで、prose 層の C 層 drift (主張だけで実装と乖離) を Phase J 段階展開で 0 化する。high-risk claim の asserted 禁止 / tested の test path 必須 / guarded の guard path 必須 を強制",
     correctPattern: {
       description:
-        "Behavior Claims table の各行 (CLM-NNN) で evidenceLevel ∈ enum / riskLevel ∈ enum / high-risk claim != asserted / tested → tests 非空 / guarded → guards 非空",
+        "Behavior Claims table の各行 (CLM-NNN) で evidenceLevel ∈ enum / riskLevel ∈ enum / high-risk claim != asserted / tested → tests 非空 / guarded → guards 非空。J6 coverage: claims 0 件 spec 数が baseline 以下 (ratchet-down で 0 に向かう)",
     },
     outdatedPattern: {
       description:
-        "evidenceLevel / riskLevel が enum 外 / high-risk claim の asserted 滞留 / tested で tests cell 空 / guarded で guards cell 空 / CLM-NNN 形式違反",
+        "evidenceLevel / riskLevel が enum 外 / high-risk claim の asserted 滞留 / tested で tests cell 空 / guarded で guards cell 空 / CLM-NNN 形式違反 / claims 0 件 spec 数が baseline 超過 (新規 spec で claims 同梱を怠った)",
     },
     decisionCriteria: {
-      when: "spec に Behavior Claims セクションを追加するとき、test / guard を新設して claim の evidence を昇格させるとき",
+      when: "spec に Behavior Claims セクションを追加するとき、test / guard を新設して claim の evidence を昇格させるとき、新規 spec を追加するとき (claims 同梱必須)",
       exceptions: "なし",
       escalation:
         "high-risk claim を asserted で commit したい場合は riskLevel=medium / low に再分類して PR review で議論",
@@ -6204,6 +6204,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 各 claim に CLM-NNN id / evidenceLevel / riskLevel / tests / guards を記入",
         "3. high-risk claim は tested / guarded / reviewed のいずれかに整理",
         "4. tested は test path、guarded は guard path を必須記入",
+        "5. 新規 spec 追加時は claim 同梱、既存 spec への展開は J6 coverage baseline を ratchet-down",
       ],
     },
     sunsetCondition:

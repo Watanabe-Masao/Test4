@@ -231,4 +231,33 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     }
     expect(violations, violations.join('\n')).toEqual([])
   })
+
+  it('Behavior Claims が無い spec の数が baseline を超えない (J6 coverage ratchet-down)', () => {
+    // Phase J Step 2 (2026-04-28): Behavior Claims を全 spec に段階展開する。
+    // baseline は「claims 0 件 spec 数」。本値は ratchet-down のみ許可（増加禁止）。
+    //
+    // baseline 算定:
+    //   - 全 spec 数 (現時点 89 件)
+    //   - cover 済 spec (claims 1 件以上、Phase J Step 1: CALC-001 / 002 / 007 +
+    //     Step 2: CALC-003 / 004 / 005 / 006 = 計 7 件)
+    //   - 未 cover spec = 89 - 7 = 82 件
+    //
+    // 段階計画:
+    //   Step 1 (J1〜J5): 3 件（pilot）
+    //   Step 2 (本 it): tier1 残 4 件 cover、baseline=82 (ratchet-down 起点)
+    //   Step 3+: tier2 / tier3 / chart / widget / read-model / ui-component に拡大
+    //
+    // 「全 spec カバー」は Phase J 完遂条件（baseline=0）。
+    const COVERAGE_BASELINE = 82
+    const uncovered: string[] = []
+    for (const sc of allClaims) {
+      if (sc.claims.length === 0) uncovered.push(sc.specId)
+    }
+    expect(
+      uncovered.length,
+      `claims 未記載 spec ${uncovered.length} / baseline ${COVERAGE_BASELINE}\n` +
+        `  uncovered (数多いため head 10): ${uncovered.slice(0, 10).join(', ')}${uncovered.length > 10 ? ` ... (他 ${uncovered.length - 10} 件)` : ''}\n` +
+        `  ratchet-down: baseline 以上に増やしてはいけない（新規 spec 追加時は claim 同梱）`,
+    ).toBeLessThanOrEqual(COVERAGE_BASELINE)
+  })
 })
