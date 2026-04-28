@@ -2,10 +2,15 @@
  * Integrity Domain Skeleton Guard — `app-domain/integrity/` の構造保証
  *
  * canonicalization-domain-consolidation Phase B Step B-1 で landing。
- * Phase B Step B-2〜B-5 で primitive 群 (reporting / parsing / detection) を追加し、
- * 本 guard も拡張済 (2026-04-28)。
+ * Phase C / D / E で primitive 群が出揃った時点で本 guard を最終形に拡張 (2026-04-28)。
  *
- * Phase B Step B-6 以降で adapter migration が landing したら、
+ * 検証対象 (Phase E 完了時点):
+ * - 必須 file 存在 (parsing 6 / detection 7 / reporting 1 / types 1 + 4 barrel)
+ * - public API barrel が全 14 関数 + 4 type を export
+ * - domain 純粋性: types.ts は外部 import なし
+ * - domain 純粋性: 全 primitive file は I/O module を import しない (caller 注入)
+ * - domain 純粋性: index.ts が 4 sub-barrel (./types ./parsing ./detection ./reporting) を re-export
+ *
  * 本 guard は domain 構造の最終形を保証するゲートとして恒久運用される。
  *
  * @see references/03-guides/integrity-domain-architecture.md
@@ -22,7 +27,55 @@ import * as integrity from '@app-domain/integrity'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const INTEGRITY_DIR = path.join(PROJECT_ROOT, 'app-domain/integrity')
 
-describe('Integrity Domain Skeleton (Phase B Step B-1〜B-5)', () => {
+// Phase C/D/E 完遂時点の primitive file 一覧 (caller side I/O は本 list 対象外)
+const PRIMITIVE_FILES = [
+  'parsing/yamlFrontmatter.ts',
+  'parsing/sourceLineLookup.ts',
+  'parsing/jsonRegistry.ts',
+  'parsing/tsRegistry.ts',
+  'parsing/markdownIdScan.ts',
+  'parsing/filesystemRegistry.ts',
+  'detection/existence.ts',
+  'detection/pathExistence.ts',
+  'detection/ratchet.ts',
+  'detection/temporal.ts',
+  'detection/setRelation.ts',
+  'detection/cardinality.ts',
+  'detection/bidirectionalReference.ts',
+  'reporting/formatViolation.ts',
+] as const
+
+// 全 runtime export 関数 (Phase B-2 〜 D-W3 で出揃った 14 関数)
+const EXPECTED_RUNTIME_EXPORTS = [
+  // parsing (B-3 + C + D-W1 + D-W3)
+  'parseSpecFrontmatter',
+  'inferKindFromId',
+  'findIdLine',
+  'findExportLine',
+  'jsonRegistry',
+  'tsRegistry',
+  'scanMarkdownIds',
+  'filesystemRegistry',
+  // detection (B-4 + B-5 + D-W1 + D-W2)
+  'checkBidirectionalExistence',
+  'checkPathExistence',
+  'checkRatchet',
+  'checkExpired',
+  'checkFreshness',
+  'checkDisjoint',
+  'checkInclusion',
+  'checkInclusionByPredicate',
+  'checkUniqueness',
+  'checkUpperBound',
+  'checkNonEmpty',
+  'checkSizeEquality',
+  'checkBidirectionalReference',
+  // reporting (B-2)
+  'formatViolations',
+  'formatStringViolations',
+] as const
+
+describe('Integrity Domain Skeleton (Phase B〜E 最終形)', () => {
   it('app-domain/integrity/ ディレクトリが存在する', () => {
     expect(fs.existsSync(INTEGRITY_DIR)).toBe(true)
   })
@@ -33,52 +86,21 @@ describe('Integrity Domain Skeleton (Phase B Step B-1〜B-5)', () => {
     expect(missing, `missing files: ${missing.join(', ')}`).toEqual([])
   })
 
-  it('B-2: reporting/ subdir + formatViolation.ts + index.ts', () => {
-    const required = ['reporting/formatViolation.ts', 'reporting/index.ts']
+  it('全 sub-barrel (parsing/detection/reporting/index.ts) が揃っている', () => {
+    const required = ['parsing/index.ts', 'detection/index.ts', 'reporting/index.ts']
     const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
-    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+    expect(missing, `missing barrels: ${missing.join(', ')}`).toEqual([])
   })
 
-  it('B-3: parsing/ subdir + yamlFrontmatter.ts + sourceLineLookup.ts + index.ts', () => {
-    const required = [
-      'parsing/yamlFrontmatter.ts',
-      'parsing/sourceLineLookup.ts',
-      'parsing/index.ts',
-    ]
-    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
-    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
+  it('全 primitive file が物理存在する (parsing 6 / detection 7 / reporting 1)', () => {
+    const missing = PRIMITIVE_FILES.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
+    expect(missing, `missing primitives: ${missing.join(', ')}`).toEqual([])
   })
 
-  it('B-4: detection/ subdir + existence.ts + pathExistence.ts', () => {
-    const required = ['detection/existence.ts', 'detection/pathExistence.ts']
-    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
-    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
-  })
-
-  it('B-5: detection/ratchet.ts + temporal.ts + index.ts', () => {
-    const required = ['detection/ratchet.ts', 'detection/temporal.ts', 'detection/index.ts']
-    const missing = required.filter((f) => !fs.existsSync(path.join(INTEGRITY_DIR, f)))
-    expect(missing, `missing: ${missing.join(', ')}`).toEqual([])
-  })
-
-  it('public API barrel が runtime symbol (関数) を export している', () => {
+  it('public API barrel が全 14 関数を runtime export している', () => {
     expect(typeof integrity).toBe('object')
-    // Phase B Step B-2〜B-5 完了で runtime 関数 export が出揃う
-    const expectedFns = [
-      'parseSpecFrontmatter',
-      'inferKindFromId',
-      'findIdLine',
-      'findExportLine',
-      'checkBidirectionalExistence',
-      'checkPathExistence',
-      'checkRatchet',
-      'checkExpired',
-      'checkFreshness',
-      'formatViolations',
-      'formatStringViolations',
-    ] as const
     const moduleKeys = new Set(Object.keys(integrity))
-    const missing = expectedFns.filter((fn) => !moduleKeys.has(fn))
+    const missing = EXPECTED_RUNTIME_EXPORTS.filter((fn) => !moduleKeys.has(fn))
     expect(missing, `missing exports: ${missing.join(', ')}`).toEqual([])
   })
 
@@ -93,25 +115,19 @@ describe('Integrity Domain Skeleton (Phase B Step B-1〜B-5)', () => {
     ).toEqual([])
   })
 
-  it('domain 純粋性: 全 primitive file が node:fs / node:path を import しない (I/O は caller 側)', () => {
-    const primitiveFiles = [
-      'parsing/yamlFrontmatter.ts',
-      'parsing/sourceLineLookup.ts',
-      'detection/existence.ts',
-      'detection/pathExistence.ts',
-      'detection/ratchet.ts',
-      'detection/temporal.ts',
-      'reporting/formatViolation.ts',
-    ]
+  it('domain 純粋性: 全 primitive file が I/O module (node:fs / node:path 等) を import しない', () => {
     const violations: string[] = []
-    for (const f of primitiveFiles) {
+    for (const f of PRIMITIVE_FILES) {
       const content = fs.readFileSync(path.join(INTEGRITY_DIR, f), 'utf-8')
+      // 行頭の `import ... from 'node:fs|node:path|fs|path|node:child_process|node:os'` を検出
+      // (JSDoc 内の `import` 文字列は対象外 — 行頭が `*` の comment 行を除外)
       const ioImports = content
         .split('\n')
         .filter(
           (l) =>
             /^\s*import\s+/.test(l) &&
-            /from\s+['"](node:fs|node:path|fs|path|node:child_process)['"]/.test(l),
+            !l.trim().startsWith('*') &&
+            /from\s+['"](node:fs|node:path|fs|path|node:child_process|node:os)['"]/.test(l),
         )
       if (ioImports.length > 0) {
         violations.push(`${f}: ${ioImports.join(' / ')}`)
@@ -120,6 +136,28 @@ describe('Integrity Domain Skeleton (Phase B Step B-1〜B-5)', () => {
     expect(
       violations,
       `primitives must not import I/O modules. found: ${violations.join('; ')}`,
+    ).toEqual([])
+  })
+
+  it('domain 純粋性: 全 primitive file が app/src 経由の cross-layer import を持たない', () => {
+    const violations: string[] = []
+    for (const f of PRIMITIVE_FILES) {
+      const content = fs.readFileSync(path.join(INTEGRITY_DIR, f), 'utf-8')
+      const crossImports = content
+        .split('\n')
+        .filter(
+          (l) =>
+            /^\s*import\s+/.test(l) &&
+            !l.trim().startsWith('*') &&
+            /from\s+['"](@\/|\.\.\/\.\.\/|app\/src)/.test(l),
+        )
+      if (crossImports.length > 0) {
+        violations.push(`${f}: ${crossImports.join(' / ')}`)
+      }
+    }
+    expect(
+      violations,
+      `primitives must not import from app/src. found: ${violations.join('; ')}`,
     ).toEqual([])
   })
 

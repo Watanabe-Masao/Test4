@@ -4,11 +4,22 @@
 > Phase A inventory (`integrity-pair-inventory.md` §3) で抽出した primitive 集合を
 > `app-domain/integrity/` の物理 module 構成として確定する。
 >
-> **status (2026-04-28 更新): implementation-complete (B-1〜B-7 全 landed)** —
-> Phase B Step B-1〜B-7 全件 landed。`app-domain/integrity/` に 11 primitive +
-> public API barrel 実装、contentSpecHelpers.ts は domain delegation 層に再構成、
-> `@deprecated` (3 metadata 完備、@expiresAt: 2026-10-31) で marking 済。
-> 11 contentSpec\*Guard / 51 integrity unit test / 計 125 file / 844 test PASS。
+> **status (2026-04-28 最終 update): Phase B〜E 全 landed、domain は最終形に到達** —
+> Phase B (skeleton) / C (doc-registry first migration) / D Wave 1〜3 (11 ペア bulk
+> migration) / E (legacy retirement、contentSpecHelpers re-export 撤去) の全成果物が
+> branch にて完遂。`app-domain/integrity/` は **14 primitive** (parsing 6 / detection 7 /
+> reporting 1) + **types 4** + **4 barrel** を持ち、20 file 構成として stable。
+> 90+ integrity unit test / 125 guard / 844 test PASS、domain 純粋性は skeleton guard が機械検証。
+>
+> **実装と当初計画の乖離 (Phase 進行中に確定)**:
+>
+> - `parsing/jsdocTag.ts` は実装せず — taxonomy v2 は `tsRegistry` (record 経由) で対応
+> - `parsing/sourceLineLookup.ts` を計画外で追加 — `findIdLine` / `findExportLine` の
+>   TS source 行 lookup を切り出した結果 (jsdocTag の slot を実質置換)
+> - `detection/shapeSync.ts` は実装せず — readModels 構造の Types/index/impl trio 検査は
+>   readModels 専用パターンのため caller (canonicalizationSystemGuard) に inline 残置
+> - 親 `architectureRuleGuard.test.ts` (823 行) と `obligation-collector` は Phase D で
+>   touch せず、本 file の stable な責務として継続運用 (Phase H で再評価)
 
 ## 0. 設計目標 (Phase A North Star の継承)
 
@@ -28,30 +39,36 @@ app-domain/
    ├─ APP_DOMAIN_INDEX.md       # 本 doc への entry（既存 gross-profit と対称）
    ├─ types.ts                  # 抽象型 4 種
    ├─ parsing/                  # 入力形式 → Registry<Entry> 中間表現
-   │  ├─ jsonRegistry.ts
-   │  ├─ tsRegistry.ts
-   │  ├─ yamlFrontmatter.ts
-   │  ├─ filesystemRegistry.ts
-   │  ├─ markdownIdScan.ts
-   │  ├─ jsdocTag.ts
+   │  ├─ jsonRegistry.ts        # Phase C: JSON file → Registry<TEntry>
+   │  ├─ tsRegistry.ts          # Phase D-W1: TS Record → Registry<TEntry>
+   │  ├─ yamlFrontmatter.ts     # Phase B-3: spec frontmatter
+   │  ├─ filesystemRegistry.ts  # Phase D-W3: dir 列挙 → Registry<FileEntry>
+   │  ├─ markdownIdScan.ts      # Phase D-W3: heading id 抽出
+   │  ├─ sourceLineLookup.ts    # Phase B-3+: findIdLine / findExportLine (jsdocTag slot を実質置換)
    │  └─ index.ts
-   ├─ detection/                # Registry<Entry> + 比較対象 → Violation[]
-   │  ├─ existence.ts
-   │  ├─ pathExistence.ts
-   │  ├─ shapeSync.ts
-   │  ├─ ratchet.ts
-   │  ├─ temporal.ts
-   │  ├─ setRelation.ts
-   │  ├─ bidirectionalReference.ts
-   │  ├─ cardinality.ts
+   ├─ detection/                # Registry<Entry> + 比較対象 → DriftReport[]
+   │  ├─ existence.ts           # Phase B-4: checkBidirectionalExistence
+   │  ├─ pathExistence.ts       # Phase B-4: checkPathExistence
+   │  ├─ ratchet.ts             # Phase B-5: checkRatchet
+   │  ├─ temporal.ts            # Phase B-5: checkExpired / checkFreshness
+   │  ├─ setRelation.ts         # Phase D-W1: checkDisjoint / checkInclusion / checkInclusionByPredicate
+   │  ├─ cardinality.ts         # Phase D-W2: checkUniqueness / checkUpperBound / checkNonEmpty / checkSizeEquality
+   │  ├─ bidirectionalReference.ts  # Phase D-W2: checkBidirectionalReference
    │  └─ index.ts
-   ├─ reporting/                # violation[] → message
-   │  ├─ formatViolation.ts
+   ├─ reporting/                # DriftReport[] → message
+   │  ├─ formatViolation.ts     # Phase B-2: formatViolations / formatStringViolations
    │  └─ index.ts
    └─ index.ts                  # public API barrel
 ```
 
-総 ファイル数: **20 件**（types 1 + parsing 7 + detection 9 + reporting 2 + barrel 1）。
+総 ファイル数: **20 件**（APP_DOMAIN_INDEX 1 + types 1 + parsing 7 = 6 primitive + 1 barrel /
+detection 8 = 7 primitive + 1 barrel / reporting 2 = 1 primitive + 1 barrel / root index 1）。
+
+> **未実装 (実装段階で deferred)**: 当初計画の `parsing/jsdocTag.ts` と
+> `detection/shapeSync.ts` は本 Phase で実装せず。前者は `tsRegistry` (taxonomy
+> v2 の Record 経由) と `sourceLineLookup` (TS source 行 lookup) で代替、
+> 後者は readModels 専用 trio shape 検査が caller side (canonicalizationSystemGuard) に
+> inline 残置 (一般化候補は Phase H 横展開で再評価)。
 
 ## 2. 既存 `app-domain/` との関係
 

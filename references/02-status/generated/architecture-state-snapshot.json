@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-27T21:32:35.172Z",
+  "timestamp": "2026-04-28T23:09:38.263Z",
   "totalAllowlistEntries": 14,
   "categoryBreakdown": {
     "adapter": 1,
@@ -102,7 +102,7 @@
       "file": "presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx",
       "memoCount": 7,
       "stateCount": 7,
-      "lineCount": 466
+      "lineCount": 467
     },
     {
       "file": "presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx",

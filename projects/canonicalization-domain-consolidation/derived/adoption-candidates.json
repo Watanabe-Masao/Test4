@@ -1,5 +1,5 @@
 {
-  "$comment": "Phase A 採用候補リスト machine-readable 版 — references/03-guides/integrity-pair-inventory.md §4 を構造化。AI / 後続 phase の collector が parse して priority 順を引ける形にする。",
+  "$comment": "Phase A 採用候補リスト machine-readable 版 — references/03-guides/integrity-pair-inventory.md §4 を構造化。AI / 後続 phase の collector が parse して priority 順を引ける形にする。**実装段階の primitive 名 drift (2026-04-28 追記)**: existingPairs[].primitives は Phase A inventory のスロット名 (一部実装名と異なる)。実装名へのマップ — `tokenInclusion` → `checkInclusionByPredicate` (in setRelation)、`shapeSync` → 実装せず (readModels 専用 trio 検査は caller inline、Phase H で一般化候補)、`jsdocTag` → 実装せず (taxonomy v2 は tsRegistry + sourceLineLookup で対応、Phase H 再評価)。実装と確定した primitive 名は app-domain/integrity/index.ts の export 群 / integrity-domain-architecture.md §1 を正本とする。",
   "$schema": "./adoption-candidates.schema.json",
   "version": "1.0.0",
   "generated": "2026-04-28",
