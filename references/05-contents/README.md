@@ -71,7 +71,7 @@ presentation 層は 4 層依存ルール（`Presentation → Application → Dom
 |---|---|---|
 | `widgets/` | widget 仕様書（`WID-NNN.md`） | registry 登録された全 widget（45 件） |
 | `read-models/` | readModel 仕様書（`RM-NNN.md`） | Phase C 着手段階で 10 件（仕入原価 / 粗利 / 売上 / 値引き / 客数 / 要因分解 / 自由期間 3 種 / 月次前年売上）|
-| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D Step 2 完遂段階で 6 件 (CALC-001 customerGap / CALC-002 piValue / CALC-003 inventoryCalc / CALC-004 pinIntervals / CALC-005 observationPeriod / CALC-006 remainingBudgetRate)。Lifecycle State Machine + Promote Ceremony + canonicalRegistration sync + replacedBy/supersedes 双方向対称を institutionalize |
+| `calculations/` | Domain calculation 仕様書（`CALC-NNN.md`） | Phase D Step 3 完遂段階で 11 件 (Step 1+2 tier1 6 件: customerGap / piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate + Step 3 tier2 5 件: factorDecomposition / forecast / invMethod / estMethod / budgetAnalysis)。Lifecycle State Machine + Promote Ceremony + canonicalRegistration sync + replacedBy/supersedes 双方向対称を institutionalize、ratchet-down で残 24 件 cover 予定 |
 
 将来の追加候補（decisions 不要、必要になったら増やす）:
 - `charts/` — chart component 仕様書

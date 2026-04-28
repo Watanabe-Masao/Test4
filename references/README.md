@@ -96,6 +96,11 @@
 | `CALC-004.md` | `calculatePinIntervals`        | `domain/calculations/pinIntervals.ts`                      | active / current（WASM 候補 BIZ-011、rateOwnership: engine）|
 | `CALC-005.md` | `evaluateObservationPeriod`    | `domain/calculations/observationPeriod.ts`                 | active / current（WASM 候補 BIZ-010、データ品質 bitmask）|
 | `CALC-006.md` | `calculateRemainingBudgetRate` | `domain/calculations/remainingBudgetRate.ts`               | active / current（WASM 候補 BIZ-008、rateOwnership: engine）|
+| `CALC-007.md` | `decompose5`                   | `domain/calculations/factorDecomposition.ts`               | active / current（domain math、INV-SHAPLEY、BIZ-004、RM-006 が wrap）|
+| `CALC-008.md` | `calculateForecast`            | `domain/calculations/forecast.ts`                          | active / current（analytic-authoritative、ANA-006、forecastBridge）|
+| `CALC-009.md` | `calculateInvMethod`           | `domain/calculations/invMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-001、RM-002 が wrap）|
+| `CALC-010.md` | `calculateEstMethod`           | `domain/calculations/estMethod.ts`                         | active / current（domain math、4 種粗利のうち 2 種、BIZ-002、RM-002 が wrap）|
+| `CALC-011.md` | `calculateBudgetAnalysis`      | `domain/calculations/budgetAnalysis.ts`                    | active / current（予算進捗 + 着地予測、BIZ-003、StoreResult 統合）|
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 

@@ -57,12 +57,12 @@
 
 ## Phase D: Domain Calculations の網羅
 
-- [x] selection rule に従い対象 CALC を確定した（calculationCanonRegistry の business-authoritative + current + maintenance 起点、Step2 で 6 件 cover）
-- [x] `CALC-NNN` ID を割当した（CALC-001〜006、Step2 完遂段階）
+- [x] selection rule に従い対象 CALC を確定した（Step1+2 tier1 6 件、Step3 tier2 5 件 cover、Step4+ で残 24 件）
+- [x] `CALC-NNN` ID を割当した（CALC-001〜011、Step3 完遂段階）
 - [x] 対象 CALC に source tag を導入した（@calc-id JSDoc 自動注入）
 - [x] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した（AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard で deprecated/sunsetting/retired に replacedBy 必須、sunsetting に sunsetCondition+deadline 必須、過去 deadline hard fail）
-- [x] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（CALC-001〜006 §4 で INV-CGAP / INV-PI / INV-INV / INV-PIN / INV-OBS / INV-RBR を記録）
-- [x] 対象 CALC `missingSpec = 0` を達成した（business-authoritative + tier1 = 6 件、tier2 残 29 件は Step3+ で baseline ratchet-down）
+- [x] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（CALC-001〜011 §4 で INV-CGAP / INV-PI / INV-INV / INV-PIN / INV-OBS / INV-RBR / INV-SHAPLEY / INV-FCS / INV-EST / INV-BUD を記録）
+- [x] 対象 CALC `missingSpec = 0` を達成した（business + analytic authoritative tier1+tier2 = 11 件、tier3 残 24 件は Step4+ で baseline ratchet-down）
 - [ ] tests / guards との evidence 紐付けを完了した（Phase J evidenceLevel との連動）
 - [ ] 対象 CALC tests 参照 = 100% を達成した
 - [ ] invariant 付き CALC の test 参照 = 100% を達成した

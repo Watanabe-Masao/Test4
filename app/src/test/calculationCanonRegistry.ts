@@ -37,6 +37,12 @@
  * 一致を hard fail で強制（Promote Ceremony で 1 PR 同期更新を機械化）。
  * AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY が replacedBy/supersedes 双方向対称を強制。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 3: factorDecomposition
+ * (BIZ-004) / forecast (ANA-006) / invMethod (BIZ-001) / estMethod (BIZ-002) /
+ * budgetAnalysis (BIZ-003) の 5 件に @calc-id (CALC-007〜011) JSDoc 注入。
+ * tier2 cover で AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC の uncovered baseline
+ * を 29 → 24 に ratchet-down（残 24 件は tier3 系を Step 4+ で順次 cover）。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

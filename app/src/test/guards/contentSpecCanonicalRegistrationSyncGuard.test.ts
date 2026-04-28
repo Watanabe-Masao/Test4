@@ -68,19 +68,20 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
     // baseline で既知未 cover を許容しつつ ratchet-down で 0 を目指す。
     //
     // baseline: registry に current/candidate として存在するが CALC spec が無い entry の数。
-    // Phase D Step 2 (2026-04-28) 時点で:
-    //   - cover 済 (CALC spec あり): customerGap / piValue / inventoryCalc / pinIntervals /
-    //     observationPeriod / remainingBudgetRate (6 件、business-authoritative + tier1)
-    //   - 未 cover (29 件): tier2 系の analytic-authoritative + candidate-authoritative。
-    //     内訳: invMethod / estMethod / budgetAnalysis / factorDecomposition / discountImpact /
-    //     prevYearCostApprox / costAggregation / markupRate / timeSlotCalculations /
-    //     budgetSimulator / budgetSimulatorAggregations / forecast / dowGapAnalysis /
-    //     algorithms/* (4) / temporal/* (1) / candidate/* (10、物理 file 未生成)
+    // Phase D Step 3 (2026-04-28) 時点で:
+    //   - cover 済 (CALC spec あり、11 件): customerGap / piValue / inventoryCalc /
+    //     pinIntervals / observationPeriod / remainingBudgetRate (Step 1+2、tier1) +
+    //     factorDecomposition / forecast / invMethod / estMethod / budgetAnalysis (Step 3、tier2)
+    //   - 未 cover (24 件): tier3 系の analytic-authoritative + utility +
+    //     candidate-authoritative。内訳: discountImpact / prevYearCostApprox /
+    //     costAggregation / markupRate / timeSlotCalculations / budgetSimulator /
+    //     budgetSimulatorAggregations / dowGapAnalysis / algorithms/* (4) /
+    //     temporal/* (1) / candidate/* (10、物理 file 未生成)
     //
     // candidate/* は物理 file 未生成のため CALC spec も未生成（lifecycleStatus: proposed
-    // で先行 spec 化することは可能だが Phase D Step 3+ scope）。
-    // ratchet-down 戦略: Phase D Step 3+ で tier2 候補を順次 spec 化し baseline を 0 に近づける。
-    const SPEC_COVERAGE_BASELINE = 29
+    // で先行 spec 化することは可能だが Phase D Step 4+ scope）。
+    // ratchet-down 戦略: Phase D Step 4+ で tier3 候補を順次 spec 化し baseline を 0 に近づける。
+    const SPEC_COVERAGE_BASELINE = 24
     const specSourceRefs = new Set<string>()
     for (const spec of loadAllSpecs()) {
       if (spec.kind !== 'calculation') continue

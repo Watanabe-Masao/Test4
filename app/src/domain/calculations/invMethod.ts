@@ -33,6 +33,7 @@ export interface InvMethodResult {
  * 粗利益   = 売上高 - 売上原価
  * 粗利率   = 粗利益 / 売上高
  */
+/** @calc-id CALC-009 */
 export function calculateInvMethod(input: InvMethodInput): InvMethodResult {
   const { openingInventory, closingInventory, totalPurchaseCost, totalSales } = input
 

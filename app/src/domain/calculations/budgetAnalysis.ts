@@ -101,6 +101,7 @@ export interface BudgetAnalysisResult {
 /**
  * 予算分析を実行する
  */
+/** @calc-id CALC-011 */
 export function calculateBudgetAnalysis(input: BudgetAnalysisInput): BudgetAnalysisResult {
   const { totalSales, budget, budgetDaily, salesDaily, elapsedDays, daysInMonth } = input
 
