@@ -57,6 +57,15 @@ specVersion: 1
 
 詳細: `gross-profit-definition.md` §「在庫法粗利の定義式」、`grossProfitInvariants.test.ts`
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | 期首 / 期末在庫いずれかが `null` → 結果全 field を `null` で返す（partial 計算禁止、INV-INV-NULL）| tested | high | app/src/domain/calculations/invMethod.test.ts | - |
+| CLM-002 | 在庫法 COGS 公式 `cogs = openingInventory + totalPurchaseCost - closingInventory`（実績ベース、推定法と差別化）| tested | high | app/src/domain/calculations/invMethod.test.ts | - |
+| CLM-003 | `grossProfitRate = safeDivide(grossProfit, totalSales, 0)`（sales=0 でゼロ除算回避、INV-INV-RATE）| tested | high | app/src/domain/calculations/invMethod.test.ts | - |
+| CLM-004 | RM-002 `calculateGrossProfit` が本 calc を 4 種粗利の 1 つとして wrap、grossProfit WASM bridge 経路との数値同等性 | guarded | high | - | app/src/test/observation/grossProfitObservation.test.ts |
+
 ## 5. Migration Plan
 
 - registry: `BIZ-001`、`runtimeStatus: 'current'`、`ownerKind: 'maintenance'`

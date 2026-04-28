@@ -238,17 +238,18 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
     //
     // baseline 算定:
     //   - 全 spec 数 (現時点 89 件)
-    //   - cover 済 spec (claims 1 件以上、Phase J Step 1: CALC-001 / 002 / 007 +
-    //     Step 2: CALC-003 / 004 / 005 / 006 = 計 7 件)
-    //   - 未 cover spec = 89 - 7 = 82 件
+    //   - cover 済 spec (claims 1 件以上、Step 1: CALC-001/002/007 +
+    //     Step 2: CALC-003〜006 + Step 3: CALC-008〜011 = 計 11 件)
+    //   - 未 cover spec = 89 - 11 = 78 件
     //
     // 段階計画:
     //   Step 1 (J1〜J5): 3 件（pilot）
-    //   Step 2 (本 it): tier1 残 4 件 cover、baseline=82 (ratchet-down 起点)
-    //   Step 3+: tier2 / tier3 / chart / widget / read-model / ui-component に拡大
+    //   Step 2: tier1 残 4 件 cover、baseline=82 (ratchet-down 起点)
+    //   Step 3 (本 commit): tier2 calc 4 件 cover、baseline=78
+    //   Step 4+: tier3 / chart / widget / read-model / ui-component に拡大
     //
     // 「全 spec カバー」は Phase J 完遂条件（baseline=0）。
-    const COVERAGE_BASELINE = 82
+    const COVERAGE_BASELINE = 78
     const uncovered: string[] = []
     for (const sc of allClaims) {
       if (sc.claims.length === 0) uncovered.push(sc.specId)
