@@ -63,6 +63,15 @@ specVersion: 1
 - 現状: visual test 未連携（Phase G で landing 予定）
 - Storybook story 未整備
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | RM-005 customerFact ready/fallback 経路と CALC-001 客数 GAP の双方を mapping（chart 内 raw 計算禁止、C9）| reviewed | high | - | - |
+| CLM-002 | scatter プロットの x/y 軸は CALC-001 / CALC-002 出力をそのまま使用（B3 chart 側で率再計算禁止）| guarded | high | - | app/src/test/guards/customerGapPathGuard.test.ts |
+| CLM-003 | prevYear 不在時 → 当年データのみで scatter 描画（前年比較系列を skip、null 安全）| reviewed | medium | - | - |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+
 ## 6. Consumers
 
 - **WID-017** `analysis-customer-scatter` — 唯一の registry consumer（`{ result: r, daysInMonth, year, month, prevYear }` destructuring）

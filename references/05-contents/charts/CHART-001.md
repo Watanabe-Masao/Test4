@@ -64,6 +64,15 @@ specVersion: 1
 - 現状: visual test 未連携（Phase G で landing 予定）
 - Storybook story 未整備（Phase G）
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | `comparisonResults.length < 2` で null return（empty 状態は registry 行の早期 return で chart 描画前に skip）| reviewed | medium | - | - |
+| CLM-002 | storeDailyLane 経由で markup/discount 系列を取得（SP-B Phase 6.5-5a 移行済、raw `result.daily` 走査禁止）| guarded | high | - | app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts |
+| CLM-003 | lane pending → `storeDailySeries=null` で縮退描画（loading 状態の専用 spinner なし、空系列で chart は表示）| reviewed | medium | - | - |
+| CLM-004 | lane error → registry 経由で fallback（ChartCard 通知のみ、chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+
 ## 6. Consumers
 
 - **WID-006** `chart-sales-purchase-comparison` — 唯一の registry consumer

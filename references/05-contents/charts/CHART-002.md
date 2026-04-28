@@ -66,6 +66,15 @@ specVersion: 1
 - 現状: visual test 未連携（Phase G で landing 予定）
 - Storybook story 未整備
 
+### Behavior Claims (Phase J Evidence Level)
+
+| ID | claim | evidenceLevel | riskLevel | tests | guards |
+|---|---|---|---|---|---|
+| CLM-001 | CALC-002 `calculatePIValues` 出力を mapping して描画（chart 内 raw 計算禁止、C9 現実把握）| reviewed | high | - | - |
+| CLM-002 | RM-005 customerFact ready/fallback 経路に依存（grandTotalCustomers が母数、ready 不在で chart 縮退）| guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts |
+| CLM-003 | 標準偏差 / Z スコア層は CALC-002 出力 field をそのまま mapping（chart 側で再計算しない、B3 率算出禁止）| reviewed | high | - | - |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+
 ## 6. Consumers
 
 - **WID-018** `analysis-performance-index` — 唯一の registry consumer
