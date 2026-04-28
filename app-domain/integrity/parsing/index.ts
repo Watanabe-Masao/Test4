@@ -14,3 +14,9 @@ export {
 export { findIdLine, findExportLine } from "./sourceLineLookup";
 export { jsonRegistry } from "./jsonRegistry";
 export { tsRegistry } from "./tsRegistry";
+export {
+  scanMarkdownIds,
+  type MarkdownIdHeading,
+  type MarkdownIdScanOptions,
+} from "./markdownIdScan";
+export { filesystemRegistry, type FileEntry } from "./filesystemRegistry";

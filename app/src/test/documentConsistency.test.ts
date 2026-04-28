@@ -17,7 +17,12 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { jsonRegistry, checkInclusion, checkInclusionByPredicate } from '@app-domain/integrity'
+import {
+  jsonRegistry,
+  checkInclusion,
+  checkInclusionByPredicate,
+  scanMarkdownIds,
+} from '@app-domain/integrity'
 import {
   applicationToInfrastructure,
   presentationDuckdbHook,
@@ -245,16 +250,22 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
     const catalog = readFile('references/03-guides/invariant-catalog.md')
     const guardMap = readFile('references/03-guides/guard-test-map.md')
 
-    const invPattern = /### (INV-[A-Z]+-\d+)/g
-    const catalogIds: string[] = []
-    let match
-    while ((match = invPattern.exec(catalog)) !== null) {
-      catalogIds.push(match[1])
-    }
+    // Phase D Wave 3: scanMarkdownIds で id を抽出 + checkInclusionByPredicate で包含検査
+    const catalogReg = scanMarkdownIds(catalog, 'invariant-catalog.md', {
+      idPattern: /^###\s+(INV-[A-Z]+-\d+)/,
+    })
+    expect(catalogReg.entries.size).toBeGreaterThan(0)
 
-    expect(catalogIds.length).toBeGreaterThan(0)
-
-    const missing = catalogIds.filter((id) => !guardMap.includes(id))
+    const violations = checkInclusionByPredicate(
+      new Set(catalogReg.entries.keys()),
+      (id) => guardMap.includes(id),
+      {
+        ruleId: 'documentConsistency.invariant',
+        subsetLabel: 'invariant-catalog.md INV ids',
+        supersetLabel: 'guard-test-map.md',
+      },
+    )
+    const missing = violations.map((v) => v.location.replace(/^guard-test-map\.md: /, ''))
     expect(missing).toEqual([])
   })
 
@@ -262,16 +273,22 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
     const catalog = readFile('references/03-guides/invariant-catalog.md')
     const guardMap = readFile('references/03-guides/guard-test-map.md')
 
+    // guard-test-map は heading でなく inline でも id 出現するため、global regex で集約
     const invPattern = /INV-[A-Z]+-\d+/g
     const mapIds = new Set<string>()
     let match
     while ((match = invPattern.exec(guardMap)) !== null) {
       mapIds.add(match[0])
     }
-
     expect(mapIds.size).toBeGreaterThan(0)
 
-    const missing = [...mapIds].filter((id) => !catalog.includes(id))
+    // Phase D Wave 3: domain 経由で逆方向 inclusion 検査
+    const violations = checkInclusionByPredicate(mapIds, (id) => catalog.includes(id), {
+      ruleId: 'documentConsistency.invariant',
+      subsetLabel: 'guard-test-map.md INV ids',
+      supersetLabel: 'invariant-catalog.md',
+    })
+    const missing = violations.map((v) => v.location.replace(/^invariant-catalog\.md: /, ''))
     expect(missing).toEqual([])
   })
 })
