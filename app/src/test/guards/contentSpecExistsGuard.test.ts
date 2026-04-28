@@ -26,6 +26,7 @@ function jsdocTagFor(spec: { kind: string; id: string }): string {
   if (spec.kind === 'read-model') return `@rm-id ${spec.id}`
   if (spec.kind === 'calculation') return `@calc-id ${spec.id}`
   if (spec.kind === 'chart') return `@chart-id ${spec.id}`
+  if (spec.kind === 'ui-component') return `@uic-id ${spec.id}`
   return `@id ${spec.id}`
 }
 

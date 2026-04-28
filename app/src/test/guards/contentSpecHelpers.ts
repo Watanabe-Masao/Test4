@@ -28,7 +28,7 @@ export const PHASE_A_ANCHOR_WIDS: readonly string[] = [
   'WID-040',
 ]
 
-export type SpecKind = 'widget' | 'read-model' | 'calculation' | 'chart'
+export type SpecKind = 'widget' | 'read-model' | 'calculation' | 'chart' | 'ui-component'
 
 /** id prefix から kind を推定する。未知の prefix は null。 */
 export function inferKindFromId(id: string): SpecKind | null {
@@ -36,11 +36,13 @@ export function inferKindFromId(id: string): SpecKind | null {
   if (/^RM-\d{3}$/.test(id)) return 'read-model'
   if (/^CALC-\d{3}$/.test(id)) return 'calculation'
   if (/^CHART-\d{3}$/.test(id)) return 'chart'
+  if (/^UIC-\d{3}$/.test(id)) return 'ui-component'
   return null
 }
 
 export const SPECS_CALCULATIONS_DIR = resolve(SPECS_BASE, 'calculations')
 export const SPECS_CHARTS_DIR = resolve(SPECS_BASE, 'charts')
+export const SPECS_UI_COMPONENTS_DIR = resolve(SPECS_BASE, 'ui-components')
 
 export function specPathFor(id: string): string {
   const kind = inferKindFromId(id)
@@ -48,6 +50,7 @@ export function specPathFor(id: string): string {
   if (kind === 'read-model') return resolve(SPECS_READ_MODELS_DIR, `${id}.md`)
   if (kind === 'calculation') return resolve(SPECS_CALCULATIONS_DIR, `${id}.md`)
   if (kind === 'chart') return resolve(SPECS_CHARTS_DIR, `${id}.md`)
+  if (kind === 'ui-component') return resolve(SPECS_UI_COMPONENTS_DIR, `${id}.md`)
   throw new Error(`Unknown id format: ${id}`)
 }
 
@@ -82,13 +85,22 @@ export function listAllCharts(): readonly string[] {
     .sort()
 }
 
-/** 全 kind の spec id を列挙（widget + read-model + calculation + chart）。 */
+export function listAllUiComponents(): readonly string[] {
+  if (!existsSync(SPECS_UI_COMPONENTS_DIR)) return []
+  return readdirSync(SPECS_UI_COMPONENTS_DIR)
+    .filter((f) => /^UIC-\d{3}\.md$/.test(f))
+    .map((f) => f.replace(/\.md$/, ''))
+    .sort()
+}
+
+/** 全 kind の spec id を列挙（widget + read-model + calculation + chart + ui-component）。 */
 export function listAllSpecIds(): readonly string[] {
   return [
     ...listAllWids(),
     ...listAllReadModels(),
     ...listAllCalculations(),
     ...listAllCharts(),
+    ...listAllUiComponents(),
   ].sort()
 }
 

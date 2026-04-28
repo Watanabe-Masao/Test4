@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は phased-content-specs-rollout Phase A〜E で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（11 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）+ `charts/`（Phase E 着手段階で 5 件、Chart Input Builder Pattern 記録）の 4 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜F で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（11 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）+ `charts/`（5 件、Chart Input Builder Pattern 記録）+ `ui-components/`（Phase F 着手段階で 5 件、selection rule 通過 UI 部品）の 5 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -115,6 +115,18 @@
 | `CHART-005.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`               | logic 有（chartRenderingStructureGuard reference）|
 
 完全割当表は `05-contents/charts/README.md` §「初期割当表」参照。
+
+### 05-contents/ui-components/ 個別 spec（Phase F 着手）
+
+| 型番         | export                          | 配置                                                                       | category / 該当 selection rule |
+| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ------------------------------- |
+| `UIC-001.md` | `ConditionSummaryEnhanced`     | `presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx`       | dashboard-summary（4 widget 参照、Pick<> 重 props、ADR-A-001 PR3 関連）|
+| `UIC-002.md` | `KpiCard`                       | `presentation/components/common/KpiCard.tsx`                              | kpi-display（5+ pages、KpiWarningInfo / KpiDisplayMode、Storybook 整備）|
+| `UIC-003.md` | `KpiGrid`                       | `presentation/components/common/KpiCard.styles.ts`                        | kpi-layout（KpiCard と pair で多用）|
+| `UIC-004.md` | `ChartCard`                     | `presentation/components/charts/ChartCard.tsx`                            | chart-shell（全 chart 共通 wrapper、4 state overlay）|
+| `UIC-005.md` | `ChartLoading`                  | `presentation/components/charts/ChartState.tsx`                           | chart-state（ChartError / ChartEmpty と pair）|
+
+完全割当表は `05-contents/ui-components/README.md` §「初期割当表」参照。selection rule (複数 widget/page 参照 / props 重い / responsibility hotspot) 通過のみ対象。
 
 ## 正本一覧
 

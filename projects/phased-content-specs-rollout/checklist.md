@@ -80,12 +80,12 @@
 
 ## Phase F: Selected UI Components
 
-- [ ] selection rule に基づく対象 UIC 一覧を確定した
-- [ ] `UIC-NNN` ID を割当した
-- [ ] props contract / children / hooks / side effects を記録した
-- [ ] 対象 UIC `missingSpec = 0` を達成した
-- [ ] props `sourceRef drift = 0` を達成した
-- [ ] story or visual evidence required 対象の設定完了
+- [x] selection rule に基づく対象 UIC 一覧を確定した（複数 widget/page 参照 / props 重い / responsibility hotspot の 5 件で初期 batch、後続で漸次拡大）
+- [x] `UIC-NNN` ID を割当した（UIC-001〜005、Phase F 着手段階）
+- [x] props contract / children / hooks / side effects を記録した（5 spec の §2-§5 に prose、frontmatter の hooks / children / sideEffects field）
+- [ ] 対象 UIC `missingSpec = 0` を達成した（5 件 cover、後続 batch で残 component 拡大）
+- [x] props `sourceRef drift = 0` を達成した（generator が機械検証）
+- [ ] story or visual evidence required 対象の設定完了（KpiCard.stories のみ、Phase G で拡大）
 
 ## Phase G: Storybook / Visual Evidence 連携
 
