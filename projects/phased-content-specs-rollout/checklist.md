@@ -70,13 +70,13 @@
 
 ## Phase E: Charts へ拡張
 
-- [ ] `CHART-NNN` ID を対象 chart に割当した
-- [ ] input builder / render model / option builder を spec に記録した
-- [ ] visual test / story / fixture と紐付けした
-- [ ] empty / loading / ready / error state を frontmatter に記録した
-- [ ] 主要 chart `missingSpec = 0` を達成した
-- [ ] chart input builder 参照 = 100% を達成した
-- [ ] visual / e2e evidence required の chart で evidence 設定済み
+- [x] `CHART-NNN` ID を対象 chart に割当した（CHART-001〜005、Phase E 着手段階で 5 件）
+- [x] input builder / render model / option builder を spec に記録した（frontmatter inputBuilder / logic / viewModel / optionBuilder / styles 5 field）
+- [ ] visual test / story / fixture と紐付けした（Phase G で landing 予定）
+- [x] empty / loading / ready / error state を frontmatter に記録した（5 spec の states field）
+- [ ] 主要 chart `missingSpec = 0` を達成した（5 件 cover、後続 batch で残 chart 拡大）
+- [ ] chart input builder 参照 = 100% を達成した（baseline 管理は後続 batch）
+- [ ] visual / e2e evidence required の chart で evidence 設定済み（Phase G）
 
 ## Phase F: Selected UI Components
 

@@ -43,6 +43,7 @@ interface Props {
   prevYearDaily?: ReadonlyMap<string, { sales: number; discount: number; customers?: number }>
 }
 
+/** @chart-id CHART-004 */
 export const CustomerScatterChart = memo(function CustomerScatterChart({
   daily,
   daysInMonth,

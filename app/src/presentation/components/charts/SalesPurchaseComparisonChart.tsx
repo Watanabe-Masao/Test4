@@ -141,6 +141,7 @@ function SalesCompChart({
   return <EChart option={option} height={300} ariaLabel="売仕比較チャート" />
 }
 
+/** @chart-id CHART-001 */
 export const SalesPurchaseComparisonChart = memo(function SalesPurchaseComparisonChart({
   comparisonResults,
   stores,

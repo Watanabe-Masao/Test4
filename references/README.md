@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は phased-content-specs-rollout Phase A〜D で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（Phase D Step 2 完遂段階で 6 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）の 3 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜E で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（11 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）+ `charts/`（Phase E 着手段階で 5 件、Chart Input Builder Pattern 記録）の 4 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -103,6 +103,18 @@
 | `CALC-011.md` | `calculateBudgetAnalysis`      | `domain/calculations/budgetAnalysis.ts`                    | active / current（予算進捗 + 着地予測、BIZ-003、StoreResult 統合）|
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
+
+### 05-contents/charts/ 個別 spec（Phase E 着手）
+
+| 型番         | export                          | 配置                                                                       | builders / logic / vm                            |
+| ------------ | ------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
+| `CHART-001.md` | `SalesPurchaseComparisonChart` | `presentation/components/charts/SalesPurchaseComparisonChart.tsx`         | builders 有 / 他 -（WID-006 子）|
+| `CHART-002.md` | `PerformanceIndexChart`        | `presentation/components/charts/PerformanceIndexChart.tsx`                | builders 有 / 他 -（WID-018 子、PI 値）|
+| `CHART-003.md` | `BudgetVsActualChart`          | `presentation/components/charts/BudgetVsActualChart.tsx`                  | builders + vm（reference 実装）|
+| `CHART-004.md` | `CustomerScatterChart`         | `presentation/components/charts/CustomerScatterChart.tsx`                 | builders 有 / 他 -（WID-017 子）|
+| `CHART-005.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`               | logic 有（chartRenderingStructureGuard reference）|
+
+完全割当表は `05-contents/charts/README.md` §「初期割当表」参照。
 
 ## 正本一覧
 
