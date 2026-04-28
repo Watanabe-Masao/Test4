@@ -18,12 +18,12 @@
 
 ## Phase A: Inventory + Selection Rule 確定
 
-- [ ] 既存 13 ペアの正式 inventory を `references/03-guides/integrity-pair-inventory.md` に記録した
-- [ ] 各ペアの不変条件 / parser / 検出パターンを表で整理した
-- [ ] 横展開候補（hooks / charts / stores / pages / formatting / constants / wasm / design-token / storage）の inventory を作成した
-- [ ] selection rule（複数 caller / 業務意味 / 重複検出有効性 等）を `canonicalization-principles.md` に明文化した
-- [ ] 採用候補リスト（tier1 / tier2 / 不採用）を `derived/` に出力した
-- [ ] 共通パターン仮説を draft した（domain skeleton 設計）
+- [x] 既存 13 ペアの正式 inventory を `references/03-guides/integrity-pair-inventory.md` に記録した
+- [x] 各ペアの不変条件 / parser / 検出パターンを表で整理した
+- [x] 横展開候補（hooks / charts / stores / pages / formatting / constants / wasm / design-token / storage）の inventory を作成した
+- [x] selection rule（複数 caller / 業務意味 / 重複検出有効性 等）を `canonicalization-principles.md` に明文化した
+- [x] 採用候補リスト（tier1 / tier2 / 不採用）を `derived/` に出力した
+- [x] 共通パターン仮説を draft した（domain skeleton 設計）
 
 ## Phase B: Domain Skeleton
 
@@ -32,7 +32,7 @@
 - [ ] `app-domain/integrity/detection/` に existence / shapeSync / ratchet / temporal を実装した
 - [ ] `app-domain/integrity/reporting/formatViolation.ts` を実装した
 - [ ] domain 自体の invariant test を pass させた（domain 純粋性 + 完全性）
-- [ ] spec-state 系（contentSpec*Guard）を domain 経由に切替し動作同一性を確認した
+- [ ] spec-state 系（contentSpec\*Guard）を domain 経由に切替し動作同一性を確認した
 - [ ] `references/03-guides/integrity-domain-architecture.md` に domain 設計を記録した
 
 ## Phase C: First Migration (doc-registry)

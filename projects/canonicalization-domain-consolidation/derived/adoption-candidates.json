@@ -1,0 +1,304 @@
+{
+  "$comment": "Phase A 採用候補リスト machine-readable 版 — references/03-guides/integrity-pair-inventory.md §4 を構造化。AI / 後続 phase の collector が parse して priority 順を引ける形にする。",
+  "$schema": "./adoption-candidates.schema.json",
+  "version": "1.0.0",
+  "generated": "2026-04-28",
+  "source": "references/03-guides/integrity-pair-inventory.md §4",
+  "selectionRule": {
+    "source": "references/01-principles/canonicalization-principles.md §P8",
+    "gates": [
+      {
+        "id": "G-1",
+        "name": "Business Meaning",
+        "criterion": "drift が起きると業務 KPI / UX / 計算正本性に観測可能な影響が出るか?"
+      },
+      {
+        "id": "G-2",
+        "name": "Drift Detectability",
+        "criterion": "既存 7 検出パターンで drift が機械検出可能か? rule に判断 (subjective) を要求しないか?"
+      },
+      {
+        "id": "G-3",
+        "name": "Cardinality",
+        "criterion": "registry 対象が 3 件以上かつ複数 caller / 複数 module から参照されるか?"
+      }
+    ],
+    "tieBreakers": [
+      {
+        "id": "C-1",
+        "name": "primitive reuse",
+        "criterion": "最低 2 primitive を再利用できるか?"
+      },
+      {
+        "id": "C-2",
+        "name": "ratchet-down fit",
+        "criterion": "段階的 0 化が可能か?"
+      },
+      {
+        "id": "C-3",
+        "name": "non-conflict",
+        "criterion": "並行 active project の進行を阻害しないか?"
+      }
+    ]
+  },
+  "existingPairs": [
+    {
+      "priority": 1,
+      "pairId": 12,
+      "name": "references/05-contents/ ↔ contentSpec*Guard × 11",
+      "registry": "references/05-contents/{widgets,read-models,calculations,charts,ui-components}/",
+      "guard": "app/src/test/guards/contentSpec*Guard.test.ts",
+      "risk": "lowest",
+      "phase": "B",
+      "primitives": [
+        "yamlFrontmatter",
+        "existence",
+        "pathExistence",
+        "ratchet",
+        "temporal"
+      ],
+      "note": "Phase J 完遂、reference 実装の供給元。Phase B primitive 抽出 reference として先行 adapter 化。"
+    },
+    {
+      "priority": 2,
+      "pairId": 3,
+      "name": "doc-registry.json ↔ docRegistryGuard",
+      "registry": "docs/contracts/doc-registry.json",
+      "guard": "app/src/test/guards/docRegistryGuard.test.ts",
+      "risk": "low",
+      "phase": "C",
+      "primitives": ["jsonRegistry", "existence", "pathExistence", "ratchet"],
+      "note": "plan.md §4 で「lowest risk migration」明記、Phase C 単独で完了"
+    },
+    {
+      "priority": 3,
+      "pairId": 1,
+      "name": "calculationCanonRegistry ↔ calculationCanonGuard",
+      "registry": "app/src/test/calculationCanonRegistry.ts",
+      "guard": "app/src/test/guards/calculationCanonGuard.test.ts",
+      "risk": "low",
+      "phase": "D-W1",
+      "primitives": ["tsRegistry", "existence", "ratchet"],
+      "note": "pure-calculation-reorg と協調必要"
+    },
+    {
+      "priority": 4,
+      "pairId": 2,
+      "name": "readModels 構造 ↔ canonicalizationSystemGuard",
+      "registry": "app/src/application/readModels/<dir>/",
+      "guard": "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+      "risk": "low",
+      "phase": "D-W1",
+      "primitives": ["filesystemRegistry", "shapeSync", "pathExistence"],
+      "note": "ハードコード REQUIRED_* 配列を JSON registry 化検討"
+    },
+    {
+      "priority": 5,
+      "pairId": 4,
+      "name": "test-contract.json ↔ testContractGuard",
+      "registry": "docs/contracts/test-contract.json",
+      "guard": "app/src/test/guards/testContractGuard.test.ts",
+      "risk": "low",
+      "phase": "D-W1",
+      "primitives": ["jsonRegistry", "setRelation", "pathExistence"],
+      "note": "discriminated union loader generic"
+    },
+    {
+      "priority": 6,
+      "pairId": 5,
+      "name": "scope.json ↔ scopeJsonGuard / scopeBoundaryInvariant",
+      "registry": "roles/<role>/scope.json",
+      "guard": "app/src/test/guards/scopeJsonGuard.test.ts + app/src/test/scopeBoundaryInvariant.test.ts",
+      "risk": "low",
+      "phase": "D-W1",
+      "primitives": ["jsonRegistry", "pathExistence", "setRelation"],
+      "note": "EXPECTED_ROLES 配列を JSON registry 化検討"
+    },
+    {
+      "priority": 7,
+      "pairId": 7,
+      "name": "principles.json ↔ documentConsistency.test.ts",
+      "registry": "docs/contracts/principles.json",
+      "guard": "app/src/test/documentConsistency.test.ts",
+      "risk": "medium",
+      "phase": "D-W2",
+      "primitives": ["jsonRegistry", "setRelation", "tokenInclusion"],
+      "note": "documentConsistency.test.ts (863 行) の分割が前提"
+    },
+    {
+      "priority": 8,
+      "pairId": 6,
+      "name": "taxonomy v2 R/T registry ↔ taxonomyInterlockGuard 等",
+      "registry": "app/src/test/responsibilityTaxonomyRegistryV2.ts + testTaxonomyRegistryV2.ts",
+      "guard": "taxonomyInterlockGuard.test.ts / responsibilityTagGuardV2.test.ts / testTaxonomyGuardV2.test.ts",
+      "risk": "medium-high",
+      "phase": "D-W2",
+      "primitives": [
+        "tsRegistry",
+        "jsdocTag",
+        "bidirectionalReference",
+        "cardinality",
+        "temporal"
+      ],
+      "note": "AAG 第 3 の柱、Constitution 整合維持必須"
+    },
+    {
+      "priority": 9,
+      "pairId": 8,
+      "name": "architectureRules base+overlays+defaults ↔ architectureRule(MergeSmoke)Guard",
+      "registry": "app-domain/gross-profit/rule-catalog/base-rules.ts + overlays + defaults",
+      "guard": "architectureRuleGuard.test.ts + architectureRulesMergeSmokeGuard.test.ts",
+      "risk": "medium",
+      "phase": "D-W2",
+      "primitives": ["tsRegistry", "setRelation", "cardinality"],
+      "note": "4 経路 + 互換 facade の同一性は引き続き smoke で担保"
+    },
+    {
+      "priority": 10,
+      "pairId": 9,
+      "name": "allowlists/*.ts ↔ allowlistMetadataGuard",
+      "registry": "app/src/test/allowlists/*.ts",
+      "guard": "app/src/test/guards/allowlistMetadataGuard.test.ts",
+      "risk": "medium",
+      "phase": "D-W3",
+      "primitives": ["tsRegistry", "temporal", "ratchet"],
+      "note": "M5 hard fail (expiresAt 超過) 動作の同一性が要"
+    },
+    {
+      "priority": 11,
+      "pairId": 10,
+      "name": "projects/<id>/checklist.md ↔ checklistFormat / GovernanceSymmetryGuard",
+      "registry": "projects/<id>/checklist.md",
+      "guard": "checklistFormatGuard.test.ts + checklistGovernanceSymmetryGuard.test.ts",
+      "risk": "medium",
+      "phase": "D-W3",
+      "primitives": ["filesystemRegistry", "markdownIdScan", "setRelation"],
+      "note": "live project 列挙 + heading 走査の generic 化"
+    },
+    {
+      "priority": 12,
+      "pairId": 11,
+      "name": "OBLIGATION_MAP ↔ obligation-collector / architectureRuleGuard",
+      "registry": "tools/architecture-health/src/collectors/obligation-collector.ts (OBLIGATION_MAP)",
+      "guard": "obligation-collector runtime + architectureRuleGuard.test.ts",
+      "risk": "medium",
+      "phase": "D-W3",
+      "primitives": ["tsRegistry", "pathExistence"],
+      "note": "git diff 連携あり、CI 経路で慎重に"
+    },
+    {
+      "priority": 13,
+      "pairId": 13,
+      "name": "invariant-catalog.md ↔ invariant test 群",
+      "registry": "references/03-guides/invariant-catalog.md",
+      "guard": "math invariants test 群 (factorDecomposition.test.ts 等)",
+      "risk": "medium",
+      "phase": "D-W3",
+      "primitives": ["markdownIdScan", "bidirectionalReference"],
+      "note": "invariant-guardian role と協働 (158 invariant)"
+    }
+  ],
+  "horizontalCandidates": [
+    {
+      "priority": "H-α",
+      "tier": "tier1",
+      "id": "H-1",
+      "name": "app/src/application/hooks/ (useXxxBundle / useXxxPlan)",
+      "risk": "medium",
+      "primitives": ["tsRegistry", "existence", "shapeSync", "cardinality"],
+      "note": "plan.md §1.3「重複検出有効性高」明記、Phase H 1 番手"
+    },
+    {
+      "priority": "H-β",
+      "tier": "tier1",
+      "id": "H-2",
+      "name": "app/src/presentation/components/charts/ (input/option builder pair)",
+      "risk": "medium",
+      "primitives": ["yamlFrontmatter", "shapeSync", "bidirectionalReference"],
+      "note": "#12 contentSpec の直接拡張、primitive コスト最小"
+    },
+    {
+      "priority": "H-γ",
+      "tier": "tier1",
+      "id": "H-7",
+      "name": "wasm/<module>/ (registry + bridge 対応表)",
+      "risk": "high",
+      "primitives": [
+        "jsonRegistry",
+        "tsRegistry",
+        "filesystemRegistry",
+        "setRelation"
+      ],
+      "note": "計算 engine 正本性に直結、Phase B primitive 安定後"
+    },
+    {
+      "priority": "H-δ",
+      "tier": "tier1",
+      "id": "H-9",
+      "name": "Storage admin / IndexedDB schema (migration ladder)",
+      "risk": "medium",
+      "primitives": ["tsRegistry", "bidirectionalReference", "cardinality"],
+      "note": "業務影響大 (data loss)、ROI 高"
+    }
+  ],
+  "deferred": [
+    {
+      "id": "H-3",
+      "name": "app/src/application/stores/ (Zustand)",
+      "tier": "tier2",
+      "handoffTo": "後続 project (phased-content-specs 後)"
+    },
+    {
+      "id": "H-4",
+      "name": "app/src/application/navigation/pageRegistry.ts",
+      "tier": "tier2",
+      "handoffTo": "後続 project (phased-content-specs Phase G 完遂後)"
+    },
+    {
+      "id": "H-5",
+      "name": "app/src/domain/formatting/ (F2 文字列カタログ)",
+      "tier": "tier2",
+      "handoffTo": "後続 project (Phase G 後)"
+    },
+    {
+      "id": "H-8",
+      "name": "references/04-design-system/ token",
+      "tier": "tier2",
+      "handoffTo": "後続 project (phased-content-specs 後)"
+    },
+    {
+      "id": "H-6",
+      "name": "app/src/domain/constants/",
+      "tier": "rejected",
+      "rationale": "G-2 検出可能性が弱い、codePatternGuard で代替可"
+    }
+  ],
+  "primitives": {
+    "$comment": "Phase B で app-domain/integrity/ に抽出予定の primitive 集合",
+    "parsing": [
+      "jsonRegistry",
+      "tsRegistry",
+      "yamlFrontmatter",
+      "filesystemRegistry",
+      "markdownIdScan",
+      "jsdocTag"
+    ],
+    "detection": [
+      "existence",
+      "pathExistence",
+      "shapeSync",
+      "ratchet",
+      "temporal",
+      "setRelation",
+      "bidirectionalReference",
+      "cardinality"
+    ],
+    "reporting": ["formatViolation"],
+    "types": [
+      "Registry<TEntry>",
+      "DriftReport",
+      "SyncDirection",
+      "EnforcementSeverity"
+    ]
+  }
+}
