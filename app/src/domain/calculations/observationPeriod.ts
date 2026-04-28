@@ -67,6 +67,7 @@ export const DEFAULT_OBSERVATION_THRESHOLDS: Readonly<ObservationThresholds> = {
  * @param thresholds - 閾値設定（省略時はデフォルト）
  * @returns ObservationPeriod
  */
+/** @calc-id CALC-005 */
 export function evaluateObservationPeriod(
   daily: ReadonlyMap<number, { readonly sales: number }>,
   daysInMonth: number,

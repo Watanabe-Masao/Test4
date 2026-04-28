@@ -15,7 +15,7 @@
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
 
-`05-contents/` は phased-content-specs-rollout Phase A〜D で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（Phase D 着手段階で 1 件、Lifecycle State Machine institutionalize）の 3 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
+`05-contents/` は phased-content-specs-rollout Phase A〜D で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（Phase D Step 2 完遂段階で 6 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 institutionalize）の 3 サブカテゴリを保持。今後 `charts/` / `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 
 ### 05-contents/widgets/ 個別 spec（pilot）
 
@@ -91,6 +91,11 @@
 | 型番         | export                          | 配置                                                       | lifecycle / canonicalRegistration |
 | ------------ | ------------------------------- | ---------------------------------------------------------- | --------------------------------- |
 | `CALC-001.md` | `calculateCustomerGap`         | `domain/calculations/customerGap.ts`                       | active / current（WASM 候補 BIZ-013 を migration plan に記録）|
+| `CALC-002.md` | `calculatePIValues`            | `domain/calculations/piValue.ts`                           | active / current（WASM 候補 BIZ-012 を migration plan に記録）|
+| `CALC-003.md` | `computeEstimatedInventory`    | `domain/calculations/inventoryCalc.ts`                     | active / current（WASM 候補 BIZ-009、推定法粗利の入力）|
+| `CALC-004.md` | `calculatePinIntervals`        | `domain/calculations/pinIntervals.ts`                      | active / current（WASM 候補 BIZ-011、rateOwnership: engine）|
+| `CALC-005.md` | `evaluateObservationPeriod`    | `domain/calculations/observationPeriod.ts`                 | active / current（WASM 候補 BIZ-010、データ品質 bitmask）|
+| `CALC-006.md` | `calculateRemainingBudgetRate` | `domain/calculations/remainingBudgetRate.ts`               | active / current（WASM 候補 BIZ-008、rateOwnership: engine）|
 
 完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
 

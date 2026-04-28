@@ -51,17 +51,22 @@ proposed ──→ active ──→ deprecated ──→ sunsetting ──→ re
 
 詳細: `references/03-guides/promote-ceremony-pr-template.md`
 
-## 初期割当表（Phase D 着手段階で 1 件、漸次拡大）
+## 初期割当表（Phase D Step 2 完遂段階、6 件）
 
 `calculationCanonRegistry.ts` の `business-authoritative + current + maintenance` を起点に、
 WASM migration 候補を持つ計算を優先 spec 化する。
 
-| ID | export | 配置 | semanticClass / authorityKind | runtimeStatus | 候補 (replacedBy 候補) |
+| ID | export | 配置 | contractId / semanticClass / authorityKind | runtimeStatus | WASM 候補 (replacedBy 候補) |
 |---|---|---|---|---|---|
-| CALC-001 | `calculateCustomerGap` | `app/src/domain/calculations/customerGap.ts` | business / business-authoritative | current | wasm/customer-gap/（registry: `candidate/customerGap.ts`、未物理化）|
+| CALC-001 | `calculateCustomerGap` | `customerGap.ts` | BIZ-013 / business / business-authoritative | current | wasm/customer-gap/（registry: `candidate/customerGap.ts`、未物理化）|
+| CALC-002 | `calculatePIValues` | `piValue.ts` | BIZ-012 / business / business-authoritative | current | wasm/pi-value/（registry: `candidate/piValue.ts`、未物理化）|
+| CALC-003 | `computeEstimatedInventory` | `inventoryCalc.ts` | BIZ-009 / business / business-authoritative | current | wasm/inventory-calc/（FFI: 6 列 flat contract、registry: `candidate/inventoryCalc.ts`、未物理化）|
+| CALC-004 | `calculatePinIntervals` | `pinIntervals.ts` | BIZ-011 / business / business-authoritative | current | wasm/pin-intervals/（rateOwnership: engine、registry: `candidate/pinIntervals.ts`、未物理化）|
+| CALC-005 | `evaluateObservationPeriod` | `observationPeriod.ts` | BIZ-010 / business / business-authoritative | current | wasm/observation-period/（FFI: bitmask 出力、registry: `candidate/observationPeriod.ts`、未物理化）|
+| CALC-006 | `calculateRemainingBudgetRate` | `remainingBudgetRate.ts` | BIZ-008 / business / business-authoritative | current | wasm/remaining-budget-rate/（rateOwnership: engine、registry: `candidate/remainingBudgetRate.ts`、未物理化）|
 
-> Phase D 後続 batch で CALC-002 〜（piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate / dowGapAnalysis）を追加予定。
-> WASM candidate 物理化後に spec-pair 化（current ↔ candidate の双方向リンク完成）。
+> Phase D Step 3+ で tier2 候補（`dowGapAnalysis` / `factorDecomposition` / `forecast` / `algorithms/*` 等 23 件）を spec 化予定。
+> WASM candidate 物理化後に spec-pair 化（current ↔ candidate の双方向リンク完成、Promote Ceremony 1 PR 5 同期）。
 
 ## spec doc フォーマット
 

@@ -68,6 +68,7 @@ export const InventoryDetailRowSchema = z.object({
  * ※ getDailyTotalCost を唯一の原価算出元とすることで
  *   storeAssembler (totalCost → inventoryCost) との整合性を保証する。
  */
+/** @calc-id CALC-003 */
 export function computeEstimatedInventory(
   daily: ReadonlyMap<number, DailyRecord>,
   daysInMonth: number,

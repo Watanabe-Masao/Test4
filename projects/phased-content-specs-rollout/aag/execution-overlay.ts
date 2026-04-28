@@ -109,4 +109,22 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  'AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+    reviewPolicy: {
+      owner: 'architecture',
+      lastReviewedAt: '2026-04-28',
+      reviewCadenceDays: 90,
+    },
+  },
+  'AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+    reviewPolicy: {
+      owner: 'architecture',
+      lastReviewedAt: '2026-04-28',
+      reviewCadenceDays: 90,
+    },
+  },
 }

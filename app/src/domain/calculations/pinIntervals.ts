@@ -37,6 +37,7 @@ export const PinIntervalSchema = z.object({
  * pins: [day, closingInventory][] を日付昇順で受け取り、
  * 各区間の売上原価(COGS)と粗利率を算出する。
  */
+/** @calc-id CALC-004 */
 export function calculatePinIntervals(
   daily: ReadonlyMap<number, DailyRecord>,
   openingInventory: number | null,

@@ -29,6 +29,14 @@
  * で 1 PR 5 同期化を強制（runtimeStatus / 旧 spec lifecycleStatus / 新 spec lifecycleStatus /
  * sunsetCondition / ADR）。AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard が deadline 超過を hard fail。
  *
+ * 2026-04-28 phased-content-specs-rollout Phase D Step 2: piValue (BIZ-012) /
+ * inventoryCalc (BIZ-009) / pinIntervals (BIZ-011) / observationPeriod (BIZ-010) /
+ * remainingBudgetRate (BIZ-008) の 5 件に @calc-id (CALC-002〜006) JSDoc 注入
+ * （registry の semantic 分類は不変）。AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC
+ * guard が本 registry の runtimeStatus と CALC spec の canonicalRegistration の双方向
+ * 一致を hard fail で強制（Promote Ceremony で 1 PR 同期更新を機械化）。
+ * AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY が replacedBy/supersedes 双方向対称を強制。
+ *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *

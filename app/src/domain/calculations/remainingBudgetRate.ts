@@ -39,6 +39,7 @@ export const RemainingBudgetRateInputSchema = z.object({
  *
  * @returns 達成率（%表示済み）。残期間予算が 0 なら 0 を返す。
  */
+/** @calc-id CALC-006 */
 export function calculateRemainingBudgetRate(input: RemainingBudgetRateInput): number {
   const { budget, totalSales, budgetDaily, elapsedDays, daysInMonth } = input
 

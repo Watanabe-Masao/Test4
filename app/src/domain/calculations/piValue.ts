@@ -74,6 +74,7 @@ export function calculateAmountPI(totalSales: number, customers: number): number
 /**
  * PI値を一括計算する。
  */
+/** @calc-id CALC-002 */
 export function calculatePIValues(input: PIValueInput): PIValueResult {
   return {
     quantityPI: calculateQuantityPI(input.totalQuantity, input.customers),

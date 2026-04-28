@@ -724,4 +724,12 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'small', priority: 1 },
   },
+  'AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC': {
+    fixNow: 'now',
+    executionPlan: { effort: 'small', priority: 1 },
+  },
+  'AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
 }
