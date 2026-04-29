@@ -30,10 +30,10 @@
 - [ ] Q.O-4: Repair-style guard message 標準を `references/03-guides/guard-failure-playbook.md` (新設) に文書化、AagResponse の延長として位置づけ
 - [ ] Q.M-1: AAG_CHANGE_IMPACT PR template を整備し、AAG 変更 PR で必須化する guard を実装した
 
-### 保留 (採用 4 件 landing 後に再評価)
+### cut (採用 4 件 landing 後の最終 disposition)
 
-- [ ] (保留) Q.O-3: Change classification (Micro/Local/System/Constitutional) — projectization Level 1-4 + Q.M-1 CHANGE_IMPACT template が PR 入口判定をどこまで吸収できるか観察してから判断
-- [ ] (保留) Q.O-5: projects 直下 auto-generated README — Q.O-1 AAG_OVERVIEW.md が project navigation も兼ねられるか観察してから判断
+- ~~Q.O-3 (Change classification)~~ — 採用 4 件 landing 後の再評価で Q.M-1 `AAG_CHANGE_IMPACT` (Affected layer + Risk + Anti-bloat self-test) + projectization Level 0-4 が同機能を richer に cover することを確認、第 3 分類軸は overlap で **cut**
+- ~~Q.O-5 (auto-generated README)~~ — 現状 project 数 ≈ 8 で manual maintenance 可能、auto-gen は additive value で harm prevention にならない (anti-bloat 質問 1 に答えにくい) → **defer**。復活 trigger: project 数 ≥ 15 or onboarding 事故
 
 ### cut (Phase R で実害 evidence 出た時のみ additive 追加)
 

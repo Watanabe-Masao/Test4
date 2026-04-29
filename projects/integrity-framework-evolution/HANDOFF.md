@@ -25,28 +25,37 @@
 
 ## 次にやること
 
-### 直近 (Phase Q 着手 — scope reduced 14→4)
+### Phase Q 完遂 (2026-04-29、採用 4 件 + cut 10 件)
 
-> **Phase Q scope reduction** (anti-bloat self-test、2026-04-29): 14 要素 → 4 採用 + 2 保留 + 8 cut。詳細: `plan.md §Phase Q scope reduction` / `derived/quality-review.md §10`。
+> **Phase Q final disposition**: 14 要素 → 4 採用 (landed) + 10 cut。詳細: `plan.md §Phase Q scope reduction` / `derived/quality-review.md §10`。
 
-1. **採用 4 件を順次 landing**:
-   - Q.O-1 (3 入口 doc): AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md
-   - Q.O-2 (BaseRule に tier 追加 + Tier 0 最小指定): schema 追加は optional field、Tier 0 のみ初期指定、他は徐々に
-   - Q.O-4 (Repair-style guard message 標準): guard-failure-playbook.md 新設
-   - Q.M-1 (AAG_CHANGE_IMPACT PR template + guard): AAG 変更 PR で必須化
+**採用 4 件 landed** (commit `dde1d4e`):
+- Q.O-1: 3 入口 doc (AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md)
+- Q.O-2: BaseRule に `tier?: 0|1|2|3` 追加、Tier 0 を 6 rule に初期指定
+- Q.O-4: guard-failure-playbook.md (Repair-style standard 明文化)
+- Q.M-1: PR template `AAG Change Impact` section + aag-change-impact-template.md
 
-2. **保留 2 件 (採用 4 件 landing 後に再評価)**:
-   - Q.O-3 (Change classification): projectization Level 1-4 + Q.M-1 が PR 入口判定をどこまで吸収できるか観察してから判断
-   - Q.O-5 (auto-generated README): Q.O-1 AAG_OVERVIEW が project navigation も兼ねられるか観察してから判断
+**cut 10 件**:
+- Q.O-3 (Change classification) → Q.M-1 + projectization Level 0-4 で代替済み
+- Q.O-5 (auto-generated README) → defer (復活 trigger: project 数 ≥ 15)
+- Q.O-6 / Q.M-4 (efficacy KPIs)、Q.M-2 (invariants doc)、Q.M-3 (meta-guards)、Q.M-5 / Q.M-6 / Q.M-7 / Q.M-8 → Phase R で実害 evidence が出た時のみ additive 追加 (YAGNI)
 
-3. **cut 8 件 (Phase R で実害 evidence 出た時のみ additive 追加、YAGNI)**:
-   - Q.O-6 / Q.M-4 (efficacy KPIs) / Q.M-2 (invariants doc) / Q.M-3 (meta-guards)
-   - Q.M-5 (promotion gate) / Q.M-6 (canary) / Q.M-7 (rollback) / Q.M-8 (2 段 review)
+### 次にやること: Phase R 着手
 
-### 中期 (Phase R 着手 — Phase Q 完了が prerequisite)
+> Phase Q 完遂 (採用 4 件 landed) が prerequisite ✓ クリア。Phase R は **Q.O-2 Tier 制 + Q.M-1 CHANGE_IMPACT template** で protect された状態で landing。Q.M-6 canary は cut したので各 reform は git revert + ratchet で rollback 可能性を確保。
 
-- R-①〜R-⑥ を Phase Q deliverable (Q.O-2 Tier / Q.M-1 IMPACT template / Q.M-6 canary 等) で protect された状態で landing
-- 各 reform は Q.M-6 canary rollout policy に従い段階導入
+**順序**:
+
+1. **R-① Bidirectional Canonical Contract schema** (先行、他 reform の前提)
+   - `app-domain/integrity/types.ts` に `CanonicalContract` schema 追加
+   - 13 pair を contract schema で再分類、COVERAGE_MAP + integrity-collector の duplicate logic 解消
+2. **R-② Time-axis Decision Record schema** (R-① と並行可)
+   - 全 archive (rejected/accepted/deferred/retired/scope-changes) を共通 `DecisionRecord` schema 化
+   - taxonomy origin journal も同 schema で reframe
+3. **R-③ mechanism / judgement / hybrid 3-zone 制** (R-① / R-② 後)
+4. **R-④ Cross-domain Framework Layer** (R-③ 後)
+5. **R-⑤ Decision Artifact Standard** (R-② 拡張)
+6. **R-⑥ Dogfooding Mandate** (最後、AAG #14 pair 化)
 
 ### 中期 (Phase H 着手 — Phase R 完了が prerequisite)
 

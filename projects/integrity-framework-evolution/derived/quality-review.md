@@ -365,10 +365,14 @@ anti-bloat invariant が要求する 6 質問 (§8.5):
 | Q.O-4 (Repair-style messages) | actionable error は universal good、AagResponse の延長 |
 | Q.M-1 (CHANGE_IMPACT template) | PR checklist は cheap、AAG 変更 PR review 質向上 |
 
-### 10.3 保留判定 2 件 (採用 4 件 landing 後に再評価)
+### 10.3 保留判定 2 件 → final disposition (2026-04-29、採用 4 件 landing 後)
 
-- **Q.O-3 (Change classification)**: projectization Level 1-4 + Q.M-1 CHANGE_IMPACT template が PR 入口判定をどこまで吸収できるか観察してから判断
-- **Q.O-5 (auto-generated README)**: Q.O-1 AAG_OVERVIEW.md が project navigation も兼ねられるか観察してから判断
+| ID | final | 根拠 |
+|---|---|---|
+| **Q.O-3 (Change classification)** | **cut** | 採用 4 件 landing 後の analytical re-evaluation で Q.M-1 `AAG_CHANGE_IMPACT` (Affected layer + Risk + Anti-bloat self-test) が Q.O-3 提案分類を richer に cover、projectization Level 0-4 が project-scope 軸を提供。第 3 分類軸は overlap で混乱招く |
+| **Q.O-5 (auto-generated README)** | **defer** | 現状 project 数 ≈ 8 で manual maintenance 可能。auto-gen は additive value で harm prevention にならない (anti-bloat 質問 1「何の事故を防ぐか」に答えにくい)。復活 trigger: project 数 ≥ 15 or onboarding 事故が発生したら再起案 |
+
+→ Phase Q 最終確定: **採用 4 件 + cut 10 件**。
 
 ### 10.4 cut 判定 8 件
 

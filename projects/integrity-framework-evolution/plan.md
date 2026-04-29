@@ -138,8 +138,8 @@ Phase Q 自身が anti-bloat invariant (Q.M-2 #9 = 「product value / risk reduc
 | Q.O-2（Tier 0-3） | **採用** | rule importance 差別化は実利あり、Tier 0 を最小限指定 |
 | Q.O-4（Repair-style messages） | **採用** | actionable error は universal good、AagResponse 延長 |
 | Q.M-1（CHANGE_IMPACT template） | **採用** | PR checklist は cheap、AAG 変更 PR review 質向上 |
-| Q.O-3（Change classification） | **保留** | projectization Level 1-4 と重複 risk、採用 4 件後に再評価 |
-| Q.O-5（auto-generated README） | **保留** | 1 人 project で navigation 価値限定、採用 4 件後に再評価 |
+| Q.O-3（Change classification） | **cut** | 採用 4 件 landing 後に再評価 → Q.M-1 `AAG_CHANGE_IMPACT` の Affected layer + Risk + Anti-bloat self-test と projectization Level 0-4 が Q.O-3 提案分類を richer に cover。第 3 の分類軸は overlap |
+| Q.O-5（auto-generated README） | **defer** | 採用 4 件 landing 後に再評価 → 現状 project 数 ≈ 8 で manual maintenance 可能。auto-generation は additive value、harm prevention にならない。復活 trigger: project 数 ≥ 15 or onboarding 事故 |
 | Q.O-6 / Q.M-4（14 efficacy KPIs） | **cut** | speculative、Phase R で測定問題が出てから addit ive 追加 |
 | Q.M-2（9 invariants doc） | **cut** | anti-bloat / no-resurrect は既存 AAG 第 7 / 第 8 原則に内包 |
 | Q.M-3（8 meta-guards） | **cut** | speculative、drift 事例が出てから ratchet で追加 |
@@ -482,3 +482,4 @@ decision record = {
 |---|---|
 | 2026-04-29 | 初版起草。前駆 project canonicalization-domain-consolidation の Phase A〜I 完遂 + 13 dimension review を input として、Phase R (Framework Reset) + Phase H (Horizontal Expansion) + Phase I (Institutionalization) の 3 phase 構成で立ち上げ。status=draft、Phase 0 bootstrap のみ完遂 |
 | 2026-04-29 | Phase Q scope reduction (anti-bloat self-test): 14 要素 → 4 要素 (Q.O-1 / Q.O-2 / Q.O-4 / Q.M-1) + 保留 2 件 (Q.O-3 / Q.O-5) + cut 8 件。理由: AAG は現在 Healthy で bloat 実害なし、Meta-AAG 不在で前駆 project が成功した実績、external review が audit 不能、1 人 project で過剰 ceremony 化リスク。cut 要素は Phase R で実害 evidence 出た時のみ additive 追加 (YAGNI) |
+| 2026-04-29 | Phase Q 採用 4 件 landing 後の 保留 2 件 final disposition。Q.O-3 → cut (Q.M-1 + projectization で代替済み、第 3 分類軸は overlap)、Q.O-5 → defer (project 数 8 で manual 可能、復活 trigger は project 数 ≥ 15 or onboarding 事故)。Phase Q 最終確定: 採用 4 件 + cut 10 件 |
