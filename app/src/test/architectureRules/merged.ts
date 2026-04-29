@@ -21,10 +21,39 @@
  * @see references/03-guides/governance-final-placement-plan.md
  */
 
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { EXECUTION_OVERLAY } from '@project-overlay/execution-overlay'
 import { DEFAULT_EXECUTION_OVERLAY } from './defaults'
 import { ARCHITECTURE_RULES as BASE_RULES } from './rules'
 import type { ArchitectureRule } from './types'
+
+/**
+ * Phase K Option 1 後続 C (2026-04-29):
+ * `CURRENT_PROJECT.md` から active project id を読み取って error message に含める。
+ * 「どの project の execution-overlay.ts に追加すべきか」を runtime hint として
+ * 明示することで、wrong project への AR rule 追加事故を防ぐ (本セッションで遭遇した
+ * `phased-content-specs-rollout` vs `pure-calculation-reorg` の混乱を予防)。
+ *
+ * 失敗時 (CURRENT_PROJECT.md が読めない / parse 失敗) は null を返し、error message は
+ * 従来の汎用文字列で fall back する (本 helper は hint であり mechanism の必須要素ではない)。
+ */
+function getActiveProjectId(): string | null {
+  try {
+    // app/src/test/architectureRules/merged.ts → repo root は ../../../..
+    const repoRoot = resolve(__dirname, '../../../..')
+    const content = readFileSync(resolve(repoRoot, 'CURRENT_PROJECT.md'), 'utf-8')
+    const match = content.match(/^active:\s*([^\s]+)\s*$/m)
+    return match ? match[1] : null
+  } catch {
+    return null
+  }
+}
+
+const ACTIVE_PROJECT_ID = getActiveProjectId()
+const ACTIVE_OVERLAY_HINT = ACTIVE_PROJECT_ID
+  ? `projects/${ACTIVE_PROJECT_ID}/aag/execution-overlay.ts (active project per CURRENT_PROJECT.md)`
+  : 'projects/<active-project>/aag/execution-overlay.ts (active project は CURRENT_PROJECT.md 参照)'
 
 /**
  * derived merge: App Domain（BaseRule）+ Project Overlay（RuleOperationalState）
@@ -46,8 +75,9 @@ function mergeRules(): readonly ArchitectureRule[] {
       throw new Error(
         `[execution-overlay] Missing overlay for rule: ${rule.id}. ` +
           `Either project overlay (EXECUTION_OVERLAY) or ` +
-          `DEFAULT_EXECUTION_OVERLAY must define it. ` +
-          `See: app/src/test/architectureRules/defaults.ts`,
+          `DEFAULT_EXECUTION_OVERLAY must define it.\n` +
+          `  → defaults: app/src/test/architectureRules/defaults.ts\n` +
+          `  → project overlay: ${ACTIVE_OVERLAY_HINT}`,
       )
     }
     // project overlay が明示的に定義されていれば各フィールドで優先、
@@ -63,8 +93,9 @@ function mergeRules(): readonly ArchitectureRule[] {
       throw new Error(
         `[execution-overlay] Missing reviewPolicy for rule: ${rule.id}. ` +
           `Project overlay (EXECUTION_OVERLAY) must provide reviewPolicy ` +
-          `(owner / lastReviewedAt / reviewCadenceDays) for all rules. ` +
-          `See: projects/architecture-debt-recovery/aag/execution-overlay.ts`,
+          `(owner / lastReviewedAt / reviewCadenceDays) for all rules.\n` +
+          `  → 修正先: ${ACTIVE_OVERLAY_HINT}\n` +
+          `  → 参考実装: projects/completed/architecture-debt-recovery/aag/execution-overlay.ts`,
       )
     }
     return {
