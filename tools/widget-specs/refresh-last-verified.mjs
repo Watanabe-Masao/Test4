@@ -41,7 +41,10 @@ function fetchLatestCommit(sourcePath) {
   const fullPath = resolve(REPO_ROOT, sourcePath)
   if (!existsSync(fullPath)) return null
   try {
-    const out = execSync(`git log -1 --format=%h -- "${sourcePath}"`, {
+    // Phase K hotfix v2 (2026-04-29): full SHA (`%H`) を使用。短縮 hash (`%h`) は
+    // repo 成長で長さが変動 + prefix 衝突で false-negative リスクがあるため、
+    // commit identity の保証には full 40-char SHA を spec frontmatter に記録する。
+    const out = execSync(`git log -1 --format=%H -- "${sourcePath}"`, {
       cwd: REPO_ROOT,
       encoding: 'utf-8',
       timeout: 10_000,

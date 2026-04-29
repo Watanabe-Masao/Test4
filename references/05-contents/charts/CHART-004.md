@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: db443c4
+lastVerifiedCommit: db443c4da02705e4b7924933579ee92ebfe527c6
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28

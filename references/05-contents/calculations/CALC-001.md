@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 50018d3
+lastVerifiedCommit: 50018d335f84f9bcc380fea410d95a85a5485f97
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-27

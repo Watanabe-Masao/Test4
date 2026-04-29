@@ -63,7 +63,11 @@ function fetchLatestCommitHash(sourcePath: string): string | null {
   const fullPath = resolve(REPO_ROOT, sourcePath)
   if (!existsSync(fullPath)) return null
   try {
-    const out = execSync(`git log -1 --format=%h -- "${sourcePath}"`, {
+    // Phase K hotfix v2 (2026-04-29): full SHA (`%H`) を使用する。
+    // `%h` (短縮 hash) は repo 成長で長さが変動 (7→8 chars) し、prefix-match では
+    // ハッシュ衝突時に false-negative (異 commit を同一と誤判定) を起こす。
+    // full SHA の完全一致だけが commit identity を確実に保証する。
+    const out = execSync(`git log -1 --format=%H -- "${sourcePath}"`, {
       cwd: REPO_ROOT,
       encoding: 'utf-8',
       timeout: 10_000,
@@ -117,15 +121,12 @@ describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED
         mismatches.push({ specId: spec.id, sourcePath, declared: null, actual: actualHash })
         continue
       }
-      // Phase K hotfix (2026-04-29): prefix match による比較
-      // git の `%h` は最小 unique abbreviation を返す。リポジトリ成長で同じ commit でも
-      // 必要文字数が増える (例: 7 chars `50018d3` → 8 chars `50018d33`)。spec 生成時に
-      // unique だった declared は actual の prefix であり続けるので、prefix 一致で「同じ
-      // commit」と判定する。完全一致比較だと repo 成長のたびに false-positive が出る。
+      // Phase K hotfix v2 (2026-04-29): full SHA 完全一致で commit identity を判定。
+      // 短縮 hash の prefix-match は repo 成長 (`%h` 長変動) と prefix 衝突時に
+      // false-negative を起こす (例: declared=abcdef0、新 commit が abcdef0X だと
+      // 異 commit でも prefix 一致して spec drift が検出されない)。
       const declaredTrimmed = declared.trim()
-      const isSameCommit =
-        actualHash.startsWith(declaredTrimmed) || declaredTrimmed.startsWith(actualHash)
-      if (!isSameCommit) {
+      if (declaredTrimmed !== actualHash) {
         mismatches.push({
           specId: spec.id,
           sourcePath,
