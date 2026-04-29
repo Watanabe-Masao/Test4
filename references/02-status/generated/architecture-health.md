@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T07:55:31.616Z
+> Generated: 2026-04-29T08:30:06.193Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -98,7 +98,7 @@
 | contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
 | contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
 | contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |
-| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 8 | OK |
+| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 6 | OK |
 
 ## バンドル性能
 

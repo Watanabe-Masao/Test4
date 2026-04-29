@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T07:55:31.616Z",
+  "timestamp": "2026-04-29T08:30:06.193Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1347,7 +1347,7 @@
       "id": "contentSpec.evidenceUncovered",
       "label": "Content Spec: chart/UIC visual evidence 未整備数",
       "category": "docs",
-      "value": 8,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "implementation",

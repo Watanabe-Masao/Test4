@@ -9,9 +9,11 @@
  *   evidence あり = stories.length > 0 || visualTests.length > 0
  *   evidence なし = 上記いずれも空
  *
- * baseline=8 (Phase G 進捗段階、2026-04-29 ratchet-down):
- *   cover 済 2 件 (UIC-002 KpiCard / UIC-003 KpiGrid indirect via KpiCard.stories) / 対象 10 件 (5 CHART + 5 UIC)
- *   残 8 件は Phase G 後続 batch で story / visual test を整備して selective に 0 化を目指す。
+ * baseline=6 (Phase G 進捗段階、2026-04-29 ratchet-down):
+ *   cover 済 4 件 (UIC-002 KpiCard / UIC-003 KpiGrid indirect via KpiCard.stories /
+ *   UIC-004 ChartCard / UIC-005 ChartLoading indirect via ChartCard.stories) / 対象 10 件
+ *   (5 CHART + 5 UIC)。残 6 件は Phase G 後続 batch で story / visual test を整備して
+ *   selective に 0 化を目指す。
  *
  * 不可侵原則:
  *   chart / UIC は **見た目の変更が業務影響を持つ**（粗利率の色 / 警告 severity の
@@ -40,18 +42,19 @@ function hasVisualEvidence(spec: SpecFrontmatter): boolean {
 describe('Content Spec Visual Evidence Guard (AR-CONTENT-SPEC-VISUAL-EVIDENCE)', () => {
   it('chart / ui-component spec の evidence 未整備件数が baseline を超えない（ratchet-down）', () => {
     // Phase G 進捗段階 (2026-04-29):
-    //   - cover 済 (stories or visualTests あり、2 件): UIC-002 KpiCard / UIC-003 KpiGrid (indirect via KpiCard.stories)
-    //   - 未 cover (8 件): CHART-001〜005, UIC-001/004/005
+    //   - cover 済 (stories or visualTests あり、4 件):
+    //       UIC-002 KpiCard / UIC-003 KpiGrid (indirect via KpiCard.stories) /
+    //       UIC-004 ChartCard / UIC-005 ChartLoading (indirect via ChartCard.stories)
+    //   - 未 cover (6 件): CHART-001〜005, UIC-001
     //
     // ratchet-down 戦略: 後続で
-    //   - UIC-004 ChartCard / UIC-005 ChartLoading は ChartCard 単独 story で同時 cover (中 cost、全 chart wrapper drift 防御で value 大)
     //   - UIC-001 ConditionSummaryEnhanced は widget 専属で独立 story cost > value、selection rule で defer
     //   - CHART-001〜005 は selection rule で個別評価（変更頻度・consumer 数で絞る）
     //
     // baseline 増加（新 chart / UIC で evidence なし）は禁止。新規追加時は
     // 同 PR で stories / visualTests を整備するか、既存 baseline 内の cover 改善で
     // 相殺すること。
-    const VISUAL_EVIDENCE_BASELINE = 8
+    const VISUAL_EVIDENCE_BASELINE = 6
     const target = loadAllSpecs().filter((s) => VISUAL_EVIDENCE_TARGET_KINDS.has(s.kind))
     const uncovered = target.filter((s) => !hasVisualEvidence(s))
     expect(
