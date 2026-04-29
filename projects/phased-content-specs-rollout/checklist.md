@@ -50,10 +50,10 @@
 - [x] 主要 readModel の spec body authoring + source tag を実施した（RM-001 〜 RM-010、10 件 = canonicalizationSystemGuard 監視 readModel 全件）
 - [x] frontmatter generator を新サブカテゴリに拡張した（kind=read-model dispatch、`@rm-id` JSDoc 自動注入）
 - [x] 主要 readModel `missingSpec = 0` を達成した（10 件、AR-CONTENT-SPEC-EXISTS guard で検証）
-- [ ] 主要 pipeline `missingSpec = 0` を達成した
-- [ ] queryHandler / projection の `sourceRef drift = 0` を達成した
-- [ ] pipeline lineage が graph で追跡可能になった — **deferred**: PIPE/QH/PROJ サブカテゴリの新設が prerequisite (現状 read-models/ のみ存在)。content graph 機構自体は landed (2026-04-29)
-- [ ] Promotion Gate L5 到達を確認した — **deferred**: prerequisite 上記 (pipeline lineage graph) + Phase J evidence-backed の per-spec verification
+- ~~主要 pipeline `missingSpec = 0` を達成した~~ — **cut (2026-04-29)**: 全 67 query / 46 handler の spec 化が実 drift / risk を捕まえる mechanism として validated でなく、Phase L 立ち上げ自体が performative の risk 高。`spec 化されるべき drift が PIPE / QH / PROJ に実在するか` を validation してから着手判断（HANDOFF.md §2 #3 の "Phase L として独立 project 化を推奨" は一旦保留）
+- ~~queryHandler / projection の `sourceRef drift = 0` を達成した~~ — **cut**: 上記と同（同じ Phase L scope）
+- ~~pipeline lineage が graph で追跡可能になった~~ — **cut**: 上記と同。content graph 機構自体は landed (2026-04-29、`content-graph-collector`) し PIPE/QH/PROJ node 拡張は「必要だと判断したら」着手
+- ~~Promotion Gate L5 到達を確認した~~ — **cut**: 上記と同（pipeline lineage graph 前提 + per-spec evidence verification、両方 Phase L 内）
 
 ## Phase D: Domain Calculations の網羅
 
@@ -72,11 +72,11 @@
 
 - [x] `CHART-NNN` ID を対象 chart に割当した（CHART-001〜005、Phase E 着手段階で 5 件）
 - [x] input builder / render model / option builder を spec に記録した（frontmatter inputBuilder / logic / viewModel / optionBuilder / styles 5 field）
-- [ ] visual test / story / fixture と紐付けした（Phase G で landing 予定）
+- ~~visual test / story / fixture と紐付けした~~ — **cut (2026-04-29)**: visual evidence selection rule (consumer 数 / 365d commits / severity color / optionBuilder 等の指標群) は performative と判定され撤回。視覚 regression を実際に捕まえる mechanism としての有効性が validated されていない。`contentSpecVisualEvidenceGuard` baseline + REQUIRED_COVERED_IDS hard-pin の構造的保証は維持
 - [x] empty / loading / ready / error state を frontmatter に記録した（5 spec の states field）
 - ~~主要 chart `missingSpec = 0` を達成した（全 chart cover）~~ — **cut (2026-04-29、anti-bloat self-test)**: Chart 58 件中 5 件 spec で selection rule 意図的限定、HANDOFF 不可侵原則 3 (anchor 5 件から拡大しない)。anchor 機構保証は確立済、全件展開は不可侵原則違反 risk
 - ~~chart input builder 参照 = 100% を達成した~~ — **cut**: 上記と同 (全 chart cover が前提)
-- [ ] visual / e2e evidence required の chart で evidence 設定済み（Phase G）
+- ~~visual / e2e evidence required の chart で evidence 設定済み~~ — **cut**: 上記 visual test 紐付け と同（"evidence required" 判定軸 = selection rule 自体が performative）
 
 ## Phase F: Selected UI Components
 
@@ -85,14 +85,14 @@
 - [x] props contract / children / hooks / side effects を記録した（5 spec の §2-§5 に prose、frontmatter の hooks / children / sideEffects field）
 - ~~対象 UIC `missingSpec = 0` を達成した（全 UIC cover）~~ — **cut (anti-bloat self-test)**: UIC 26 件中 5 件 spec で selection rule 意図的限定、HANDOFF 不可侵原則 3 と同型
 - [x] props `sourceRef drift = 0` を達成した（generator が機械検証）
-- [ ] story or visual evidence required 対象の設定完了（KpiCard.stories のみ、Phase G で拡大）
+- ~~story or visual evidence required 対象の設定完了~~ — **cut (2026-04-29)**: Phase E と同（visual evidence selection rule が performative と判定、撤回）。UIC-002 KpiCard / UIC-003 KpiGrid (indirect) / UIC-004 ChartCard / UIC-005 ChartLoading (indirect) の cover 4 件は `REQUIRED_COVERED_IDS` hard-pin で構造保護されており、それ以上の "required 対象" 設定は不要
 
 ## Phase G: Storybook / Visual Evidence 連携
 
 - [x] spec frontmatter に `stories` / `visualTests` / `states` フィールドを追加した（Phase E/F で既に schema に乗せ済、Phase G 着手で UIC-002 KpiCard に path 記入）
 - [x] UI spec の story / visual evidence guard を active 化した（AR-CONTENT-SPEC-VISUAL-EVIDENCE、kind=ui-component を含む）
 - [x] Chart spec の visual evidence guard を active 化した（同 rule で kind=chart も対象）
-- [ ] 対象 UI / Chart の evidence coverage が基準値以上に到達した（baseline=9 / 対象 10 件、現状 cover 1 件、Phase G 後続 batch で減算）
+- ~~対象 UI / Chart の evidence coverage が基準値以上に到達した~~ — **cut (2026-04-29)**: 「基準値」概念自体が selection rule (= performative) に依存しており成立しない。`contentSpecVisualEvidenceGuard` の baseline=6 + REQUIRED_COVERED_IDS hard-pin がそのまま structurally accepted state を固定し、新規後退を禁止する
 - ~~empty / error state の story coverage が基準値以上に到達した~~ — **cut (anti-bloat)**: state 別 story 管理は frontmatter schema 拡張要 (cost > value)、現状 spec.states 列挙で代替可能
 
 ## Phase H: Architecture Health 詳細 KPI 連携
@@ -129,19 +129,19 @@
 
 ### Option 1 (推奨): cadence 廃止 + lastVerifiedCommit 強化
 
-- [ ] `reviewCadenceDays` / `lastReviewedAt` field を deprecate（frontmatter generator で警告、最終的に削除）
-- [ ] `contentSpecLastVerifiedCommitGuard` を新設: spec の `lastVerifiedCommit` が source file の `git log -1 -- sourceRef` の commit hash と一致することを検証（co-change が active なため通常時は自動 sync、stale spec の検出に特化）
-- [ ] `contentSpecFreshnessGuard` を deprecate（cadence-based check 撤退、commit-based に移行）
+- [x] `reviewCadenceDays` / `lastReviewedAt` field を deprecate（PR #1206 で `.skip` 化 → PR #1208 で物理削除完遂）
+- [x] `contentSpecLastVerifiedCommitGuard` を新設（PR #1206 landed、`AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` rule active、full 40-char SHA 完全一致比較）
+- [x] `contentSpecFreshnessGuard` を deprecate（PR #1208 で `.skip` 撤去 → ファイル削除 + rule registry から `AR-CONTENT-SPEC-FRESHNESS` 削除完遂）
 
 ### Option 2 (併用推奨): reviewed claim に `verificationNote` 必須化
 
-- [ ] Behavior Claims table に `verificationNote` 列を追加（evidenceLevel=reviewed のみ必須、なぜ test 化しないかの 1-2 文 rationale）
-- [ ] `contentSpecEvidenceLevelGuard` 拡張: `reviewed` claim で `verificationNote` 空欄を hard fail
-- [ ] 既存 5 件の reviewed claim (CALC-013/014/016/018/020 CLM-004) に rationale 記入
+- [x] Behavior Claims table に `verificationNote` 列を追加（PR #1206、`parseBehaviorClaimsTable` を 7 列対応に拡張）
+- [x] `contentSpecEvidenceLevelGuard` 拡張: `reviewed` claim で `verificationNote` 空欄を hard fail（PR #1206 landed）
+- [x] 既存 reviewed claim 全 110+ 件 (CALC-013/014/016/018/020 CLM-004 含む) に rationale 一括記入（PR #1206、`migrate-verification-note.mjs` 経由）
 
 ### Option 3 (保留): sunset trigger
 
-- [ ] source file が caller 0 件 + N commit 未更新で `lifecycleStatus: deprecated` flag を提案（sunset-or-confirm 二択強制）
+- [ ] source file が caller 0 件 + N commit 未更新で `lifecycleStatus: deprecated` flag を提案（sunset-or-confirm 二択強制） — **defer (Tier 2)**: prerequisite (caller graph + age tracking collector) 未整備、現状 deprecated calc 0 件で発火条件成立せず、明確 value 出現で再着手判断
 
 ### 復活 / cut 判断
 
