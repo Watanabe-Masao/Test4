@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 783a74a
+lastVerifiedCommit: c0a56f3
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -56,12 +56,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `remainingPeriodBudget = 0` で `safeDivide` が 0 を返しゼロ除算回避（INV-RBR-01）| tested | high | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - |
-| CLM-002 | 結果は **% 値**（100 = 計画通り、>100 = 巻き返し必要、<100 = 余裕）| tested | medium | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - |
-| CLM-003 | Zod `RemainingBudgetRateInputSchema` で input fail-fast（汚染データ流入禁止）| tested | medium | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - |
-| CLM-004 | `rateOwnership: engine` 不変 — UI/VM/SQL での率再計算は禁止（INV-RBR-03）| guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `remainingPeriodBudget = 0` で `safeDivide` が 0 を返しゼロ除算回避（INV-RBR-01） | tested | high | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - | - |
+| CLM-002 | 結果は **% 値**（100 = 計画通り、>100 = 巻き返し必要、<100 = 余裕） | tested | medium | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - | - |
+| CLM-003 | Zod `RemainingBudgetRateInputSchema` で input fail-fast（汚染データ流入禁止） | tested | medium | app/src/domain/calculations/__tests__/remainingBudgetRate.test.ts | - | - |
+| CLM-004 | `rateOwnership: engine` 不変 — UI/VM/SQL での率再計算は禁止（INV-RBR-03） | guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts | - |
 
 ## 5. Migration Plan
 

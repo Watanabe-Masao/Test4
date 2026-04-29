@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: c0a56f3
+lastVerifiedCommit: 8be44bc
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -63,12 +63,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `discountRate >= 1 ∨ discountRate < 0` → `invalidResult` を返す（domain 外入力 fail-fast、`calculateEstMethodWithStatus`）| tested | high | app/src/domain/calculations/__tests__/estMethod.test.ts | - |
-| CLM-002 | 粗売上公式 `coreSales / (1 - discountRate)` で売変前売価を逆算、推定原価 `grossSales × (1 - markupRate) + costInclusionCost` | tested | high | app/src/domain/calculations/estMethod.test.ts | - |
-| CLM-003 | `markupRate < 0 ∨ markupRate > 1` は warning のみ（`okResult` で値返却）— 実用域逸脱を伝播し UI 側で警告表示 | tested | medium | app/src/domain/calculations/__tests__/estMethod.test.ts | - |
-| CLM-004 | RM-002 `calculateGrossProfit` が本 calc を 4 種粗利の 1 つとして wrap、推定法 markupRate は CALC-016 から供給（`@deprecated calculateEstMethod` は WithStatus 版に段階移行中、@expiresAt 2026-12-31）| guarded | high | - | app/src/test/observation/grossProfitObservation.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `discountRate >= 1 ∨ discountRate < 0` → `invalidResult` を返す（domain 外入力 fail-fast、`calculateEstMethodWithStatus`） | tested | high | app/src/domain/calculations/__tests__/estMethod.test.ts | - | - |
+| CLM-002 | 粗売上公式 `coreSales / (1 - discountRate)` で売変前売価を逆算、推定原価 `grossSales × (1 - markupRate) + costInclusionCost` | tested | high | app/src/domain/calculations/estMethod.test.ts | - | - |
+| CLM-003 | `markupRate < 0 ∨ markupRate > 1` は warning のみ（`okResult` で値返却）— 実用域逸脱を伝播し UI 側で警告表示 | tested | medium | app/src/domain/calculations/__tests__/estMethod.test.ts | - | - |
+| CLM-004 | RM-002 `calculateGrossProfit` が本 calc を 4 種粗利の 1 つとして wrap、推定法 markupRate は CALC-016 から供給（`@deprecated calculateEstMethod` は WithStatus 版に段階移行中、@expiresAt 2026-12-31） | guarded | high | - | app/src/test/observation/grossProfitObservation.test.ts | - |
 
 ## 5. Migration Plan
 

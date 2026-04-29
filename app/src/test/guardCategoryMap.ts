@@ -655,6 +655,11 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: Phase J7 (2026-04-29) Behavior Claims tests / guards 列の各 path が実 file を指すことを checkPathExistence 経由で検証 (path typo / stale reference / orphan 検出)',
   },
+  'AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: Phase K Option 1 (2026-04-29) 全 spec の lastVerifiedCommit が source file の最新 commit hash と一致を git log -1 経由で検証 (date-based cadence の AR-CONTENT-SPEC-FRESHNESS を deprecate して構造的 mechanism に置換)',
+  },
   'AR-INTEGRITY-NO-RESURRECT': {
     category: 'registry-integrity',
     layer: 'schema',

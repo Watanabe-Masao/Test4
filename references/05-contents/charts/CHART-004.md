@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 8be44bc
+lastVerifiedCommit: db443c4
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -65,12 +65,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | RM-005 customerFact ready/fallback 経路と CALC-001 客数 GAP の双方を mapping（chart 内 raw 計算禁止、C9）| reviewed | high | - | - |
-| CLM-002 | scatter プロットの x/y 軸は CALC-001 / CALC-002 出力をそのまま使用（B3 chart 側で率再計算禁止）| guarded | high | - | app/src/test/guards/customerGapPathGuard.test.ts |
-| CLM-003 | prevYear 不在時 → 当年データのみで scatter 描画（前年比較系列を skip、null 安全）| reviewed | medium | - | - |
-| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | RM-005 customerFact ready/fallback 経路と CALC-001 客数 GAP の双方を mapping（chart 内 raw 計算禁止、C9） | reviewed | high | - | - | mapping の正しさは RM-005 + CALC-001 出力契約 (Zod schema) で fail-fast。chart 内 raw 計算不在は chartInputBuilderGuard で構造的保証 |
+| CLM-002 | scatter プロットの x/y 軸は CALC-001 / CALC-002 出力をそのまま使用（B3 chart 側で率再計算禁止） | guarded | high | - | app/src/test/guards/customerGapPathGuard.test.ts | - |
+| CLM-003 | prevYear 不在時 → 当年データのみで scatter 描画（前年比較系列を skip、null 安全） | reviewed | medium | - | - | null 安全 mapping は CALC-001 出力契約で表現済。skip の妥当性は UI 縮退設計判断で test より宣言的契約が適切 |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6） | guarded | high | - | app/src/test/guards/topologyGuard.test.ts | - |
 
 ## 6. Consumers
 

@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 783a74a
+lastVerifiedCommit: c0a56f3
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -61,12 +61,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `lastRecordedSalesDay` は daily Map から **導出**（field として保持しない、pure 派生不変）| tested | high | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - |
-| CLM-002 | 整数演算のみ（B3 「率は domain/calculations で算出」原則準拠、本 calc は率を返さない）| tested | medium | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - |
-| CLM-003 | status 判定は `minDaysForValid` / `minDaysForOk` / `minSalesDays` 閾値ベース（`DEFAULT_OBSERVATION_THRESHOLDS` 暗黙 default、INV-OBS-04）| tested | high | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - |
-| CLM-004 | `worseObservationStatus(a, ok) === a`（ok は単位元、status 結合則の起点、INV-OBS-03）| tested | medium | app/src/domain/calculations/observationPeriodInvariants.test.ts | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `lastRecordedSalesDay` は daily Map から **導出**（field として保持しない、pure 派生不変） | tested | high | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - | - |
+| CLM-002 | 整数演算のみ（B3 「率は domain/calculations で算出」原則準拠、本 calc は率を返さない） | tested | medium | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - | - |
+| CLM-003 | status 判定は `minDaysForValid` / `minDaysForOk` / `minSalesDays` 閾値ベース（`DEFAULT_OBSERVATION_THRESHOLDS` 暗黙 default、INV-OBS-04） | tested | high | app/src/domain/calculations/__tests__/observationPeriod.test.ts | - | - |
+| CLM-004 | `worseObservationStatus(a, ok) === a`（ok は単位元、status 結合則の起点、INV-OBS-03） | tested | medium | app/src/domain/calculations/observationPeriodInvariants.test.ts | - | - |
 
 ## 5. Migration Plan
 

@@ -13,16 +13,21 @@
  *   J4: tested claim の test path 必須 (本 commit、tests cell 空なら hard fail)
  *   J5: guarded claim の guard path 必須 (本 commit、guards cell 空なら hard fail)
  *
+ * Phase K Option 2 (2026-04-29):
+ *   K1: reviewed claim に `verificationNote` 必須 (なぜ test 化しないかの 1〜2 文 rationale、
+ *       空なら hard fail)。reviewed → tested 機械的昇格の anti-pattern を構造的に防ぐ。
+ *
  * Behavior Claims セクション format (markdown table、spec body):
  *
  *   ### Behavior Claims (Phase J Evidence Level)
  *
- *   | ID | claim | evidenceLevel | riskLevel | tests | guards |
- *   |---|---|---|---|---|---|
- *   | CLM-001 | claim text | tested | high | path/to/test.ts | - |
- *   | CLM-002 | claim text | guarded | medium | - | path/to/guard.test.ts |
+ *   | ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+ *   |---|---|---|---|---|---|---|
+ *   | CLM-001 | claim text | tested | high | path/to/test.ts | - | - |
+ *   | CLM-002 | claim text | guarded | medium | - | path/to/guard.test.ts | - |
+ *   | CLM-003 | claim text | reviewed | medium | - | - | rationale 1〜2 文 |
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase J + §5.2 Evidence Level
+ * 詳細: projects/phased-content-specs-rollout/plan.md §Phase J / §Phase K + §5.2 Evidence Level
  *
  * @taxonomyKind T:meta-guard
  *
@@ -151,6 +156,24 @@ describe('Content Spec Evidence Level Guard (AR-CONTENT-SPEC-EVIDENCE-LEVEL)', (
         if (c.evidenceLevel === 'guarded' && c.guards.length === 0) {
           violations.push(
             `${spec.specId} ${c.id}: evidenceLevel=guarded で guards cell が空。guard ファイル path を記入すること`,
+          )
+        }
+      }
+    }
+    expect(violations, violations.join('\n')).toEqual([])
+  })
+
+  it('reviewed claim には verificationNote が必須 (K1)', () => {
+    // Phase K Option 2 (2026-04-29): reviewed claim は test 化しにくい性質
+    // (横断的意味整合 / 表現規約 / 定数固定 等) を持つ。「なぜ test 化しないか」の
+    // explicit rationale を verificationNote 列で強制し、reviewed → tested 機械的
+    // 昇格の anti-pattern を防ぐ (HANDOFF.md §3.9 + plan.md §Phase K K1)。
+    const violations: string[] = []
+    for (const spec of specsWithClaims) {
+      for (const c of spec.claims) {
+        if (c.evidenceLevel === 'reviewed' && c.verificationNote.trim() === '') {
+          violations.push(
+            `${spec.specId} ${c.id}: evidenceLevel=reviewed で verificationNote が空。なぜ test 化しないかの 1〜2 文 rationale を記入すること`,
           )
         }
       }

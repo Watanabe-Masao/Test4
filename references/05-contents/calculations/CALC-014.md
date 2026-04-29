@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: d8d3282
+lastVerifiedCommit: f43b5bd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -47,12 +47,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `prevYear.hasPrevYear === false ∨ prevYear.totalSales <= 0` → `undefined` 返却（呼出側で chart 系列 skip、INV-PYC-01）| tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
-| CLM-002 | 近似公式 `approxCost(day) = max(0, sales(day) - discount(day))`（前年に日別仕入原価 field 不在のため売上 - 売変で代用、INV-PYC-02 pure 純粋）| tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
-| CLM-003 | `entry.sales === 0` のとき該当 day を 0 で map に登録（粗利推移 chart 上の skip ではなく明示 0）| tested | medium | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - |
-| CLM-004 | analytic-authoritative であり「正確値ではない」性質を spec / source JSDoc 双方に明記（傾向比較用途のみ、INV-PYC-03 の registry 行参照経路で呼出）| reviewed | medium | - | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `prevYear.hasPrevYear === false ∨ prevYear.totalSales <= 0` → `undefined` 返却（呼出側で chart 系列 skip、INV-PYC-01） | tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - | - |
+| CLM-002 | 近似公式 `approxCost(day) = max(0, sales(day) - discount(day))`（前年に日別仕入原価 field 不在のため売上 - 売変で代用、INV-PYC-02 pure 純粋） | tested | high | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - | - |
+| CLM-003 | `entry.sales === 0` のとき該当 day を 0 で map に登録（粗利推移 chart 上の skip ではなく明示 0） | tested | medium | app/src/domain/calculations/__tests__/prevYearCostApprox.test.ts | - | - |
+| CLM-004 | analytic-authoritative であり「正確値ではない」性質を spec / source JSDoc 双方に明記（傾向比較用途のみ、INV-PYC-03 の registry 行参照経路で呼出） | reviewed | medium | - | - | analytic-authoritative classification は semantic 性質宣言で test 化不能。registry 行参照経路 + INV-PYC-03 で構造的保証 |
 
 ## 5. Migration Plan
 

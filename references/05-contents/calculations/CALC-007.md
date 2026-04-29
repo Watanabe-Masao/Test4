@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: c0a56f3
+lastVerifiedCommit: 8be44bc
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -57,12 +57,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | 5 要素 Shapley 恒等式: sum(factors) === total が常に成立 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - |
-| CLM-002 | 2/3 要素 Shapley 恒等式（decompose2 / decompose3）も同じ恒等式 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - |
-| CLM-003 | 取得経路の唯一性（要因分解は本 calc + RM-006 wrapper のみが正本）| guarded | high | - | app/src/test/guards/factorDecompositionPathGuard.test.ts |
-| CLM-004 | calculationCanonRegistry での `factorDecomposition.ts` 分類整合 | guarded | medium | - | app/src/test/guards/calculationCanonGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | 5 要素 Shapley 恒等式: sum(factors) === total が常に成立 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - | - |
+| CLM-002 | 2/3 要素 Shapley 恒等式（decompose2 / decompose3）も同じ恒等式 | tested | high | app/src/test/shapleyIdentityInvariant.test.ts | - | - |
+| CLM-003 | 取得経路の唯一性（要因分解は本 calc + RM-006 wrapper のみが正本） | guarded | high | - | app/src/test/guards/factorDecompositionPathGuard.test.ts | - |
+| CLM-004 | calculationCanonRegistry での `factorDecomposition.ts` 分類整合 | guarded | medium | - | app/src/test/guards/calculationCanonGuard.test.ts | - |
 
 ## 5. Migration Plan
 

@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 8be44bc
+lastVerifiedCommit: db443c4
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -68,12 +68,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | CALC-002 `calculatePIValues` 出力を mapping して描画（chart 内 raw 計算禁止、C9 現実把握）| reviewed | high | - | - |
-| CLM-002 | RM-005 customerFact ready/fallback 経路に依存（grandTotalCustomers が母数、ready 不在で chart 縮退）| guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts |
-| CLM-003 | 標準偏差 / Z スコア層は CALC-002 出力 field をそのまま mapping（chart 側で再計算しない、B3 率算出禁止）| reviewed | high | - | - |
-| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | CALC-002 `calculatePIValues` 出力を mapping して描画（chart 内 raw 計算禁止、C9 現実把握） | reviewed | high | - | - | chart 内 raw 計算不在は chartInputBuilderGuard で構造的保証。mapping の意味整合は CALC-002 出力契約 (Zod schema) で fail-fast |
+| CLM-002 | RM-005 customerFact ready/fallback 経路に依存（grandTotalCustomers が母数、ready 不在で chart 縮退） | guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts | - |
+| CLM-003 | 標準偏差 / Z スコア層は CALC-002 出力 field をそのまま mapping（chart 側で再計算しない、B3 率算出禁止） | reviewed | high | - | - | B3 (率は domain で算出) は responsibilityTagGuard で構造的保証。chart layer の再計算不在は chartInputBuilderGuard で hard fail |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6） | guarded | high | - | app/src/test/guards/topologyGuard.test.ts | - |
 
 ## 6. Consumers
 

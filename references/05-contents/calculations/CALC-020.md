@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: f43b5bd
+lastVerifiedCommit: b4e07fd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -56,12 +56,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | empty `dailySales` → 全 field 0（pure 安全、INV-AF-01、entries.filter で `v > 0` 経由）| tested | high | app/src/domain/calculations/advancedForecast.test.ts | - |
-| CLM-002 | `confidenceInterval.lower = max(0, bestEstimate - projectionUncertainty)`（負売上禁止クランプ、INV-AF-02）| tested | high | app/src/domain/calculations/advancedForecast.test.ts | - |
-| CLM-003 | `bestEstimate = mean(linearProjection, dowAdjustedProjection, wmaProjection)`（3 手法平均、INV-AF-03、regressionProjection は別系列で参考値）| tested | medium | app/src/domain/calculations/advancedForecast.test.ts | - |
-| CLM-004 | 95% Z は `CONFIDENCE_95_ZSCORE` (domain/constants) に固定（INV-AF-05、変更時は信頼区間幅が全 caller 波及するため reviewed）| reviewed | high | - | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | empty `dailySales` → 全 field 0（pure 安全、INV-AF-01、entries.filter で `v > 0` 経由） | tested | high | app/src/domain/calculations/advancedForecast.test.ts | - | - |
+| CLM-002 | `confidenceInterval.lower = max(0, bestEstimate - projectionUncertainty)`（負売上禁止クランプ、INV-AF-02） | tested | high | app/src/domain/calculations/advancedForecast.test.ts | - | - |
+| CLM-003 | `bestEstimate = mean(linearProjection, dowAdjustedProjection, wmaProjection)`（3 手法平均、INV-AF-03、regressionProjection は別系列で参考値） | tested | medium | app/src/domain/calculations/advancedForecast.test.ts | - | - |
+| CLM-004 | 95% Z は `CONFIDENCE_95_ZSCORE` (domain/constants) に固定（INV-AF-05、変更時は信頼区間幅が全 caller 波及するため reviewed） | reviewed | high | - | - | 定数固定の宣言は domain/constants の declarative 配置で構造的保証。変更時の全 caller 波及は INV-AF-05 invariant + import path guard で検出 |
 
 ## 5. Migration Plan
 

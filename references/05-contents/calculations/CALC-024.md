@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: b4e07fd
+lastVerifiedCommit: b2b3be8
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -54,12 +54,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `windowSlice.length < windowSize` → `value=null, status='missing'`（窓不足は ok 扱い禁止、INV-MA-01）| tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
-| CLM-002 | `policy='strict'` で窓内 missing が 1 件でも → `null`、`policy='partial'` で okValues のみで平均（INV-MA-02 / INV-MA-03、policy 切替で挙動完全分岐）| tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
-| CLM-003 | 出力配列長 = 入力配列長（INV-MA-05、要素数保存則、`map` で要素単位変換）| tested | medium | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - |
-| CLM-004 | candidate (`candidate/temporal/computeMovingAverage.ts`) との数値同等性 (dual-run observation guard 監視下)| guarded | high | - | app/src/test/observation/movingAverageCandidateObservation.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `windowSlice.length < windowSize` → `value=null, status='missing'`（窓不足は ok 扱い禁止、INV-MA-01） | tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - | - |
+| CLM-002 | `policy='strict'` で窓内 missing が 1 件でも → `null`、`policy='partial'` で okValues のみで平均（INV-MA-02 / INV-MA-03、policy 切替で挙動完全分岐） | tested | high | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - | - |
+| CLM-003 | 出力配列長 = 入力配列長（INV-MA-05、要素数保存則、`map` で要素単位変換） | tested | medium | app/src/domain/calculations/temporal/computeMovingAverage.test.ts | - | - |
+| CLM-004 | candidate (`candidate/temporal/computeMovingAverage.ts`) との数値同等性 (dual-run observation guard 監視下) | guarded | high | - | app/src/test/observation/movingAverageCandidateObservation.test.ts | - |
 
 ## 5. Migration Plan
 

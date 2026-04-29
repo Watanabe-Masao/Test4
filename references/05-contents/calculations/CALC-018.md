@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: f43b5bd
+lastVerifiedCommit: b4e07fd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -58,12 +58,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `SimulatorScenarioSchema.refine` が `daysInMonth === new Date(year, month, 0).getDate()` を強制（Gregorian 暦不整合 = INV-BS-01 違反は Zod parse fail）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-002 | 比較対象 0 → 比率系（YoY / Achievement）は `null` を返す（D2 ゼロ除算禁止、INV-BS-02、null 伝播）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-003 | `elapsedBudget + remBudget === monthlyBudget`（prorateBudget との保存則、INV-BS-03、daily-cumulative split で破壊禁止）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-004 | 率は **% 整数**（`pct(ratio) = ratio * 100`）でプロトタイプ命名規約に統一（INV-BS-05、表現規約変更は全 caller の数値見直し = 互換破壊）| reviewed | medium | - | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `SimulatorScenarioSchema.refine` が `daysInMonth === new Date(year, month, 0).getDate()` を強制（Gregorian 暦不整合 = INV-BS-01 違反は Zod parse fail） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-002 | 比較対象 0 → 比率系（YoY / Achievement）は `null` を返す（D2 ゼロ除算禁止、INV-BS-02、null 伝播） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-003 | `elapsedBudget + remBudget === monthlyBudget`（prorateBudget との保存則、INV-BS-03、daily-cumulative split で破壊禁止） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-004 | 率は **% 整数**（`pct(ratio) = ratio * 100`）でプロトタイプ命名規約に統一（INV-BS-05、表現規約変更は全 caller の数値見直し = 互換破壊） | reviewed | medium | - | - | 表現規約 (% 整数 vs ratio) の統一は test より命名規約宣言が一次。INV-BS-05 + caller 全体の数値見直し義務で互換破壊を防御 |
 
 ## 5. Migration Plan
 

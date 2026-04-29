@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T07:55:31.616Z
+> Generated: 2026-04-29T09:04:46.393Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,17 +51,17 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 118 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 119 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 164 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 85 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 165 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 86 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 58 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 164 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 33 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 165 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 34 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 0 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 101 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 102 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 | taxonomy.responsibility.unknownVocabulary | taxonomy 責務軸: unknown vocabulary 使用 file 数 | 0 | OK |
 | taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 1 | OK |
@@ -98,7 +98,7 @@
 | contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
 | contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
 | contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |
-| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 8 | OK |
+| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 6 | OK |
 
 ## バンドル性能
 

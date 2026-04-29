@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 783a74a
+lastVerifiedCommit: c0a56f3
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -54,12 +54,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `getDailyTotalCost(rec) − deliverySales.cost` を在庫仕入原価の唯一算出元（storeAssembler の `totalCost → inventoryCost` との整合性保証）| tested | high | app/src/domain/calculations/inventoryCalc.test.ts | - |
-| CLM-002 | コア売上は日別 `max(0)` クランプしない（月次集計 `calculateEstMethod` との Σ 不等式回避、INV-INV-01 保存則の前提）| tested | high | app/src/domain/calculations/inventoryCalc.test.ts | - |
-| CLM-003 | Zod `InventoryPointSchema` / `InventoryDetailRowSchema` で input/output 双方 fail-fast（汚染データ流入禁止）| tested | medium | app/src/domain/calculations/inventoryCalc.test.ts | - |
-| CLM-004 | 取得経路の唯一性（推定在庫は本 calc のみ、`grossProfitPathGuard` 監視下）| guarded | high | - | app/src/test/guards/grossProfitPathGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `getDailyTotalCost(rec) − deliverySales.cost` を在庫仕入原価の唯一算出元（storeAssembler の `totalCost → inventoryCost` との整合性保証） | tested | high | app/src/domain/calculations/inventoryCalc.test.ts | - | - |
+| CLM-002 | コア売上は日別 `max(0)` クランプしない（月次集計 `calculateEstMethod` との Σ 不等式回避、INV-INV-01 保存則の前提） | tested | high | app/src/domain/calculations/inventoryCalc.test.ts | - | - |
+| CLM-003 | Zod `InventoryPointSchema` / `InventoryDetailRowSchema` で input/output 双方 fail-fast（汚染データ流入禁止） | tested | medium | app/src/domain/calculations/inventoryCalc.test.ts | - | - |
+| CLM-004 | 取得経路の唯一性（推定在庫は本 calc のみ、`grossProfitPathGuard` 監視下） | guarded | high | - | app/src/test/guards/grossProfitPathGuard.test.ts | - |
 
 ## 5. Migration Plan
 
