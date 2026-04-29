@@ -37,7 +37,7 @@ concrete application として実証する。
 2. 各 Phase は **依存 Phase が完了基準を満たしてから着手** する（Wave 構造）
 3. Phase 1（AAG core 文書化）は **既存章の意味改変禁止**。新章を独立追加するのみ
 4. Phase 3（網羅的 doc audit）は **findings 集約のみで sunset / 修正実行はしない**。実行は Phase 4 / 5 / 8
-5. Phase 4（legacy 撤退）は **migrationRecipe + 履歴付きで段階削除**。即時物理削除を遡及的に行わない
+5. Phase 4（legacy 撤退）は **migrationRecipe + 履歴付きで段階削除**。段階遷移の trigger は **時間経過でなく機械検証可能な状態条件** (state-based、Phase K Option 1 の anti-ritual 思想を継承)。即時物理削除を遡及的に行わない
 6. Phase 5（既存 rule audit）は **ratchet-down で漸次対応**。一括 100% 製本化は scope creep
 7. Phase 8（新規製本創出）は **Phase 7 meta-guard が landing してから**着手（順序遵守、循環 fail 防止）
 8. Phase 9（DFR guards）は **observed drift を baseline として ratchet-down 起点に**。即時 0 化を試みない

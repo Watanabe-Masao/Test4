@@ -5,10 +5,17 @@
 
 ## 1. 現在地
 
-**Phase A〜K 全 landed (2026-04-29)。** 残作業は **人間 review + archive 承認のみ**。
+**Phase A〜K 全 landed (2026-04-29)。checklist 機能項目 100% 処理済 (achieved + 撤回判定)。**
+残作業は **人間 review + archive 承認 (line 158 gate) のみ**。
 status: `active` / parent: なし。Phase K Option 1+2 の landing で source ↔ spec 同期は
 date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism** に置換済。
-**本 project は archive 候補状態**。
+**🚦 本 project は HUMAN APPROVAL READY 状態**: line 158 を承認すれば archive プロセスへ移行。
+
+**checklist 全件処理状況 (2026-04-29 末)**:
+- Phase 0/A/B/C/D/E/F/G/H/I/J/K 全 sub-item が `[x]` または `~~strikethrough~~` で処理済
+- 撤回判定 9 件 (理由付き strikethrough): Phase C 4 件 / Phase E 2 件 / Phase F 1 件 / Phase G 1 件 / Phase K Option 3 1 件
+- achievement 14+ 件 (Phase K Option 1+2 6 件 / Phase D 残 3 件 Phase J/K 連動 / 他 phase 達成項目)
+- 残 unchecked = line 158 human approval gate **のみ** (人間判断待ち)
 
 > **2026-04-29 末セッションの判断**: 旧版 HANDOFF が Tier 1 残として記載していた
 > #9 (CHART visual evidence selection) / #10 (pipeline / queryHandler / projection) は、

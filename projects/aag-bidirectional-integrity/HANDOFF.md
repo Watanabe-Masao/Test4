@@ -174,13 +174,25 @@ Phase 3 は **findings 集約のみ**で sunset / 修正実行はしない。実
 Phase 3 で「これ stale だから消そう」を即実行すると、後続 phase の input が消失して
 order 崩壊。phase boundary を厳守する。
 
-### 3.8. legacy 撤退 (Phase 4) の段階削除原則
+### 3.8. legacy 撤退 (Phase 4) の段階削除原則 — anti-ritual (state-based trigger)
 
 Phase 4 で sunset 判定された doc は **遡及的物理削除を行わない**。`legacy-retirement.md`
-に migrationRecipe + 履歴付きで段階削除（archived 移管 → cooling period → 物理削除 という
-3 段階）。後任が「なぜこの doc が消えたか」を git log で追えるよう、commit message と
-migrationRecipe で経緯を残す。phased-content-specs-rollout の Phase K Option 1 物理削除
-パターン（`.skip` 化 → registry 削除 → 物理削除を別 commit）を踏襲。
+に migrationRecipe + 履歴付きで段階削除（deprecation marker → archive 移管 → 物理削除 の
+3 段階）。
+
+**重要 (anti-ritual)**: 段階遷移の trigger は **時間経過 (date / cadence) でなく、
+機械検証可能な状態条件 (state condition)** とする。phased-content-specs-rollout Phase K
+Option 1 で撤回した「90 日 review cadence」と同型の儀式を本 project で再生産しない。
+
+具体的には:
+- archive 移管 trigger = 「機械検証で旧 path への inbound 0 + migrationRecipe 完備」
+- 物理削除 trigger = 「inbound 0 が直近 N commits 連続 (例: 30 commits)」 AND 「同期間で
+  新 doc が active に referenced」の両条件 — **日付でなく commit 数 + 0 reference の状態**
+- 「30 日経ったから次へ」は禁止 (発火条件に触れずに見落とす risk、見落としで安全になっていない)
+
+詳細: `legacy-retirement.md` §2 段階削除原則。
+phased-content-specs-rollout Phase K Option 1 物理削除パターン（`.skip` 化 → registry 削除
+→ 物理削除を別 commit）を踏襲。
 
 ## 4. 関連文書
 
