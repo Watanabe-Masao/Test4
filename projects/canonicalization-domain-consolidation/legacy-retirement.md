@@ -2,19 +2,14 @@
 
 > 役割: 本 project が `requiresLegacyRetirement=true` の対象として撤退する旧 guard / 旧 parser / 旧 helper / 重複 logic を列挙し、撤退順序 / sunset 条件 / rollback を記録する（draft 段階）。
 
-## 1. 撤退規律（plan.md §5 と整合）
+## 1. 撤退規律
 
-各 retirement は **5 step** を経由:
+正本: `references/01-principles/canonicalization-principles.md §P9`。
 
-| step                          | 状態                               | 検証                                           |
-| ----------------------------- | ---------------------------------- | ---------------------------------------------- |
-| 1. 並行運用開始               | 旧 active / 新 active              | 両 guard が同 PR で同 violation 集合を出す     |
-| 2. 観察期間 (≥ 1 週間 / 5 PR) | 旧 active / 新 active              | drift 数の dual-emit 等価性を継続              |
-| 3. @deprecated 化             | 旧 `@deprecated` JSDoc / 新 active | `deprecatedMetadataGuard` が 4 metadata を認識 |
-| 4. 物理削除                   | 削除 / 新 singular                 | caller=0、import grep で 0 件                  |
-| 5. baseline 統合              | (削除済) / 新が baseline 統合      | `architecture-health` に統合後 KPI 反映        |
+- **default**: step 5 直接到達 (in-place migration、本 project では Phase B-6 / C / D-W1〜W3 / E 全 13 件で採用)
+- **5 step フルコース**: 公開 API / 別 file 論理移動 / 多数 caller (≥ 5 file) のいずれかに該当する場合のみ
 
-各 PR で **1 step だけ進める**。
+本 §1 では migration 完了 record (§7) のみを保持し、step 詳細は §P9 を参照する。
 
 ## 2. 撤退対象一覧（draft、Phase A の inventory で具体化）
 

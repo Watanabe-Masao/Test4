@@ -73,8 +73,11 @@
 
 ## Phase F: Domain Invariant Test
 
-- [ ] domain 純粋性 test（I/O が guard 側に閉じている）を pass させた
-- [ ] domain 完全性 test（全 registry pattern が domain primitive で表現可能）を pass させた
+> **scope (2026-04-28 縮小)**: 完全性 test は「Phase B〜E で migration 済 13 ペア + Phase H tier1 候補が primitive で表現可能」に限定。Phase H 着手前に「真の完全性」を要求すると Phase F が永久未到達になるため。Phase H 完了時に「Phase H tier1 含む完全性」へ昇格 (本 checklist で再確認)。
+
+- [ ] domain 純粋性 test（I/O が guard 側に閉じている）を pass させた (skeleton guard で landed、本 phase は再確認)
+- [ ] domain 完全性 test (Phase B〜E migration 済 13 ペアが primitive 経由で表現されている) を pass させた
+- [ ] adapter shape test (旧 guard refactor 後の caller 行数 / I/O 集約) を pass させた
 - [ ] coverage matrix（primitive 別の使用 registry）を generated section で出力した
 
 ## Phase G: Architecture-Health KPI 統合
@@ -87,17 +90,27 @@
 
 ## Phase H: Horizontal Expansion (新規正本化)
 
-- [ ] Phase A で selection rule 通過した tier1 候補を確定した
-- [ ] tier1 候補の最初のもの（hooks 系の bundle / plan）を 1 PR で正本化した
-- [ ] 各 tier1 候補に integrity domain 経由の guard を active 化した
-- [ ] tier2 候補は本 phase scope 外として後続 project へ送り出した
+> **prerequisite (2026-04-28 追加)**: Phase F が PASS 状態であること (domain 純粋性 + 13 ペア完全性) を着手の機械検証 trigger とする。Phase F 未完で H に進むと skeleton guard 自体が 12 primitive の drift を検出できなかった Phase E 時点と同じ構造的弱点が再発する。
+>
+> **scope (2026-04-28 narrowing)**: tier1 候補は wasm + charts の 2 件に絞る。hooks (H-1) は selection rule 再判定後に判断、storage (H-9) は別 project に切り出し済 (`derived/adoption-candidates.json` deferred 参照)。
+
+- [ ] Phase F PASS を確認した (本 phase の prerequisite)
+- [ ] tier1 候補に対し G-1 / G-2 / G-3 を再判定した (`adoption-candidates.json` `phaseHEntryRequirement` 参照)
+- [ ] wasm (H-7) の registry + bridge 対応表を 1 PR で正本化した
+- [ ] charts (H-2) の input/option builder pair 整合を 1 PR で正本化した
+- [ ] hooks (H-1) は再判定結果に従って採否を決定した
+- [ ] 各採用候補に integrity domain 経由の guard を active 化した
+- [ ] Phase F 完全性 test を「Phase H 採用候補を含む形」に昇格させた
 
 ## Phase I: 制度文書化 + Handoff
 
-- [ ] `references/01-principles/integrity-domain.md` を新設し不変条件 / 設計思想 / 撤退規律を記録した
+> **scope (2026-04-28 圧縮)**: 当初計画の新設 2 doc (`integrity-domain.md` / `canonicalization-checklist.md`) のうち、`integrity-domain.md` は `references/03-guides/integrity-domain-architecture.md` の `references/01-principles/` 昇格で代替。`canonicalization-principles.md §P9` (撤退規律 default) は Phase E 振り返りで institutionalize 済。新設は `canonicalization-checklist.md` のみ。
+
+- [ ] `references/03-guides/integrity-domain-architecture.md` を `references/01-principles/integrity-domain.md` に昇格した (不変条件 / 設計思想 / 撤退規律を §P9 への参照で吸収)
 - [ ] `references/03-guides/canonicalization-checklist.md` を新設し新 registry+guard 追加 checklist を整備した
 - [ ] Promote Ceremony PR template の整合性版（registry+guard の追加 / 撤退儀式）を整備した
 - [ ] `architectureRuleGuard` に「新 guard が domain 非経由」を検出する rule を追加した
+- [ ] `architectureRuleGuard` に `AR-INTEGRITY-NO-RESURRECT` (`adoption-candidates.json` `rejected[].originalSlot` の resurrection 検出) を追加した
 - [ ] 後続 project への引き継ぎ doc を整備した
 
 ## 最終レビュー (人間承認)

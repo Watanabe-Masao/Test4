@@ -179,13 +179,10 @@ primitive はすでに `contentSpecHelpers.ts` 内に **実体として存在** 
 
 ### 3.3. 旧経路撤退の規律
 
-各 guard の sunset は **3 step**:
+正本: `references/01-principles/canonicalization-principles.md §P9` (2026-04-28 institutionalize)。
 
-1. **新 domain 経由の guard を並行運用**（旧 guard と同じ違反を検出することを観察）
-2. **動作同一性確認**: 1 PR の変更が両 guard で同じ違反を出すこと
-3. **旧 guard 物理削除**: `legacy-retirement.md` に sunset 記録、`@deprecated` JSDoc → 物理削除
-
-ratchet-down baseline は domain 側で吸収し、移行後に baseline を 0 化（重複 detection の解消）。
+本 project の Phase B〜E は **default = step 5 直接到達 (in-place migration)** を採用 (13 件中 12 件)。
+ratchet-down baseline は同 PR で domain 側に統合し、移行後に baseline を 0 化（重複 detection の解消）。
 
 ### 3.4. Promote Ceremony との整合
 
@@ -374,17 +371,7 @@ A ─→ B ─→ C ─→ D ─→ E ─→ F ─→ G ─→ H ─→ I
 
 ## 5. 旧経路撤退の規律（不可侵原則 3 の具体化）
 
-各 guard の sunset は次の表に従う:
-
-| step | 旧 guard 状態 | 新 domain guard 状態 | 検証 |
-|---|---|---|---|
-| 1. 並行運用開始 | active | active | 両 guard が同 PR で同 violation 集合を出す |
-| 2. 観察期間 (≥ 1 週間 / 5 PR) | active | active | drift 数の dual-emit が継続 |
-| 3. @deprecated 化 | `@deprecated` JSDoc + sunsetCondition + expiresAt | active | `deprecatedMetadataGuard` が認識 |
-| 4. 物理削除 | 削除 | active (singular) | caller=0、import grep で 0 件 |
-| 5. baseline 統合 | (削除済) | ratchet-down baseline を統合 | `architecture-health` に統合後 KPI 反映 |
-
-各 PR で **1 step だけ進める**。一気に 2 step 以上進めない（観察期間を確保するため）。
+正本: `references/01-principles/canonicalization-principles.md §P9`。本 §は §3.3 と統合し、§P9 を参照する単一 reference にする (冗長性回避、2026-04-28)。
 
 ## 6. 制度（institution）として作るもの
 

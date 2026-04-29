@@ -12,6 +12,7 @@
     "existingPairs",
     "horizontalCandidates",
     "deferred",
+    "rejected",
     "primitives"
   ],
   "additionalProperties": true,
@@ -64,6 +65,15 @@
     "deferred": {
       "type": "array",
       "items": { "$ref": "#/$defs/DeferredCandidate" }
+    },
+    "rejected": {
+      "type": "array",
+      "description": "Phase A inventory のスロット名で起案されたが、実装段階で「採用しない」と決定された slot 群。AR-INTEGRITY-NO-RESURRECT (将来 guard) で同名 primitive の resurrection を機械検出する archive。`deferred` (後続 project に handoff) とは別概念。",
+      "items": { "$ref": "#/$defs/RejectedSlot" }
+    },
+    "phaseHEntryRequirement": {
+      "type": "string",
+      "description": "Phase H 着手 PR で tier1 候補に対して selection rule (G-1/G-2/G-3) を再判定する義務 (Phase A〜H 間隔による前提 drift を吸収)。"
     },
     "primitives": {
       "type": "object",
@@ -216,6 +226,25 @@
         "tier": { "$ref": "#/$defs/Tier" },
         "handoffTo": { "type": "string" },
         "rationale": { "type": "string" }
+      }
+    },
+    "RejectedSlot": {
+      "type": "object",
+      "required": ["originalSlot", "reason", "decidedAt"],
+      "properties": {
+        "originalSlot": {
+          "type": "string",
+          "description": "Phase A inventory で起案された primitive 名 (実装には存在しない)"
+        },
+        "replacedBy": {
+          "type": "string",
+          "description": "「実装名 (path)」または 「実装せず (理由)」"
+        },
+        "reason": { "type": "string" },
+        "decidedAt": {
+          "type": "string",
+          "format": "date"
+        }
       }
     }
   }
