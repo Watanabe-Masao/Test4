@@ -5,11 +5,12 @@
   "status": "active",
   "projectRoot": "projects/aag-bidirectional-integrity",
   "projectization": {
-    "$comment": "Level 3 — AAG core への章追加 + 既存 AR rule の audit + binding + 新 meta-guard 2 件 + display rule registry bootstrap + 5 DFR rule guards 実装。複数 mechanism にまたがる architecture-level governance-hardening。Level 4 (Umbrella) ではない (sub-project なし、単独 active project)。",
+    "$comment": "Level 3 — AAG core への章追加 + 網羅的 doc audit + legacy 撤退 cleaning + 既存 AR rule の audit + binding + 新 meta-guard 2 件 + 新規製本創出 (display rule registry 含む) + 5 DFR rule guards 実装。複数 mechanism にまたがる architecture-level governance-hardening。Level 4 (Umbrella) ではない (sub-project なし、単独 active project)。",
     "level": 3,
     "changeType": "governance-hardening",
     "implementationScope": [
       "projects/aag-bidirectional-integrity/",
+      "references/",
       "references/01-principles/adaptive-architecture-governance.md",
       "references/01-principles/adaptive-governance-evolution.md",
       "references/01-principles/display-rule-registry.md",
@@ -22,7 +23,7 @@
       "app/src/test/guards/displayRuleGuard.test.ts"
     ],
     "breakingChange": false,
-    "requiresLegacyRetirement": false,
+    "requiresLegacyRetirement": true,
     "requiresGuard": true,
     "requiresHumanApproval": true,
     "nonGoals": [
@@ -30,7 +31,9 @@
       "全 100+ AR-NNN rule の即座 100% 製本化 (baseline ratchet-down で漸次対応、新 rule 追加時のみ即時必須)",
       "本体アプリ (粗利管理ツール) の機能変更",
       "phased-content-specs-rollout の archive 判定への干渉 (parent project は独立に archive process を進める)",
-      "新 AAG framework (4 層 → N 層 等) への構造変更 (本 project は meta-rule の追加のみ)"
+      "新 AAG framework (4 層 → N 層 等) への構造変更 (本 project は meta-rule の追加のみ)",
+      "audit で発見された全 gap の即時解消 (重要度に応じて baseline / ratchet-down / sunset で漸次対応)",
+      "doc cleaning で sunset 判定された doc の物理削除を遡及的に行う (各 sunset は migrationRecipe + 履歴付きで段階削除)"
     ]
   },
   "entrypoints": {

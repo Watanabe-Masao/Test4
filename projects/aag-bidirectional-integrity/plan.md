@@ -33,15 +33,17 @@ concrete application として実証する。
 
 ## 2. 不可侵原則
 
-1. **「やらないこと」ではなく「順番を後にすること」として明記する**。Phase 2〜7 を放棄しない
+1. **「やらないこと」ではなく「順番を後にすること」として明記する**。Phase 2〜9 を放棄しない
 2. 各 Phase は **依存 Phase が完了基準を満たしてから着手** する（Wave 構造）
 3. Phase 1（AAG core 文書化）は **既存章の意味改変禁止**。新章を独立追加するのみ
-4. Phase 3（既存 rule audit）は **ratchet-down で漸次対応**。一括 100% 製本化は scope creep
-5. Phase 6（DFR registry）は **Phase 5 meta-guard が landing してから**着手（順序遵守、循環 fail 防止）
-6. Phase 7（DFR guards）は **observed drift を baseline として ratchet-down 起点に**。即時 0 化を試みない
-7. AAG framework そのものの構造変更（4 層 → N 層 等）は本 project scope 外
-8. ratchet-down baseline を増加方向に戻さない
-9. parent project (`phased-content-specs-rollout`) の archive process に干渉しない（独立進行）
+4. Phase 3（網羅的 doc audit）は **findings 集約のみで sunset / 修正実行はしない**。実行は Phase 4 / 5 / 8
+5. Phase 4（legacy 撤退）は **migrationRecipe + 履歴付きで段階削除**。即時物理削除を遡及的に行わない
+6. Phase 5（既存 rule audit）は **ratchet-down で漸次対応**。一括 100% 製本化は scope creep
+7. Phase 8（新規製本創出）は **Phase 7 meta-guard が landing してから**着手（順序遵守、循環 fail 防止）
+8. Phase 9（DFR guards）は **observed drift を baseline として ratchet-down 起点に**。即時 0 化を試みない
+9. AAG framework そのものの構造変更（4 層 → N 層 等）は本 project scope 外
+10. ratchet-down baseline を増加方向に戻さない
+11. parent project (`phased-content-specs-rollout`) の archive process に干渉しない（独立進行）
 
 ## 3. 設計思想
 
@@ -124,19 +126,60 @@ Layer 4: AAG enforcement (機械検証)
 
 **完了条件**: 既存全 rule が空 array で初期化、build / lint / 既存 guard 全て PASS。
 
-### Phase 3: 既存 AR-NNN rule の audit + binding（partial）
+### Phase 3: 網羅的 doc audit (rule canonization mapping + gap analysis)
 
-**目的**: 自明な既製本 rule（分類 A）を即時 binding、B/C/D は後続 sprint。
+**目的**: `references/` 配下全 doc を網羅的に scan し、rule canonization の現状把握 +
+gap 識別 + redundancy / staleness 検出。Phase 4 (legacy 撤退) と Phase 5 (AR rule binding)
+の両方の input を産出する集約 phase。
+
+**deliverable**:
+- 全 doc inventory（path / 役割 / 分類: rule-defining / rule-using / status-status /
+  archive / template / etc.）
+- 各 rule-defining doc が canonize している rule の抽出（人間語の rule statement → AR rule
+  ID 候補のマッピング）
+- gap 識別（実装 / 慣習として確立しているが doc 化されていない rule の候補）
+- redundancy 識別（同一概念を複数 doc が説明している箇所、conflict があれば flag）
+- staleness 識別（archived / superseded / 内容が古い doc）
+- audit 結果を `references/02-status/doc-audit-report.md` に集約（generated section と
+  prose の両形式）
+
+**完了条件**: doc inventory + rule mapping + gap list + redundancy list + staleness list
+の 5 件が aggregated artifact として成立、Phase 4/5 への hand-off が可能。
+
+### Phase 4: legacy 撤退 (不要 doc 整理 + 冗長性解消 + 不足補完)
+
+**目的**: Phase 3 audit findings に基づき既存 doc 群の cleaning。**汚れた基盤の上に
+整合性 mechanism を乗せても integrity は成立しない** という前提整理。
+
+**deliverable**:
+- `legacy-retirement.md` (Phase 4 の sunset / consolidation / 補完計画)
+- staleness 判定 doc の sunset（archived 移管 or 物理削除 with migrationRecipe）
+- redundancy 解消（同一概念の複数 doc は 1 つを正本化、他を back link 化）
+- gap の補完（必要最低限の新規 doc を Phase 8 と区別して即時補完）
+- `99-archive/` への移管基準と履歴記録
+- doc-registry.json の reflect
+
+**完了条件**: Phase 3 の staleness / redundancy 全件が status 判定済（即時撤退 / 漸次撤退 /
+維持）、`legacy-retirement.md` で各判定の理由 + migrationRecipe が記録、ratchet-down baseline 確定。
+
+### Phase 5: 既存 AR-NNN rule の audit + binding (partial)
+
+**目的**: Phase 3 の rule mapping を input に、既存 100+ AR rule を 4 分類で binding。
+自明な既製本 rule（分類 A）を即時 binding、B/C/D は後続 sprint。
 
 **deliverable**:
 - 既存 100+ rule を A/B/C/D 4 分類に audit
+  - **A. 既製本済**: Phase 3 mapping で対応 doc が確定
+  - **B. 半製本**: doc に rule の意図はあるが正本確定が必要
+  - **C. 製本されていない**: 純粋 mechanism rule（meta-rule の例外）or 撤回検討
+  - **D. 撤回判定**: proxy / performative
 - 分類 A の `canonicalDocRef` 即時記入
-- 分類 D（撤回判定）の sunset 計画
-- audit 結果を `references/02-status/` に記録
+- 分類 D の sunset 計画
+- audit 結果を `references/02-status/ar-rule-audit.md` に記録
 
 **完了条件**: 分類 A の binding 100%、分類 D の sunset trigger 確定。
 
-### Phase 4: Layer 2 既存 doc に back link section 追加
+### Phase 6: Layer 2 既存 doc に back link section 追加
 
 **目的**: canonical doc 群に `## Mechanism Enforcement` section を追加、双方向 binding 構築。
 
@@ -145,9 +188,9 @@ Layer 4: AAG enforcement (機械検証)
 - `01-principles/` / `03-guides/` の rule 定義 doc に section 追加
 - 各 section が指す AR rule ID 一覧
 
-**完了条件**: Phase 3 分類 A の rule が、Layer 2 doc 側からも back link で見える状態。
+**完了条件**: Phase 5 分類 A の rule が、Layer 2 doc 側からも back link で見える状態。
 
-### Phase 5: forward / reverse meta-guard 実装
+### Phase 7: forward / reverse meta-guard 実装
 
 **目的**: 双方向 integrity を機械検証する 2 件の meta-guard を landing。
 
@@ -159,24 +202,30 @@ Layer 4: AAG enforcement (機械検証)
 
 **完了条件**: 既存 baseline で PASS、新 rule 追加 PR で immediate enforcement、循環 fail なし。
 
-### Phase 6: 表示 rule registry 製本化（Layer 3）
+### Phase 8: 新規製本創出 (Phase 3 で identified gaps への対応)
 
-**目的**: `display-rule-registry.md` を Layer 3 として新設、DFR-001〜005 を登録。
+**目的**: Phase 3 で識別された gap（実装 / 慣習として確立しているが doc 化されていない rule）
+に対して新規 canonical doc を作成。display-rule registry はその最初の concrete instance。
 
 **deliverable**:
-- `references/01-principles/display-rule-registry.md` 新設
-- DFR-001 chart semantic color
-- DFR-002 axis formatter via useAxisFormatter
-- DFR-003 percent via formatPercent
-- DFR-004 currency via formatCurrency（thousands separator 明文化）
-- DFR-005 icon via pageRegistry / emoji canonical
-- `content-and-voice.md` の "not enforced" 記述を更新
+- `references/01-principles/display-rule-registry.md` 新設（最重要 instance）
+  - DFR-001 chart semantic color
+  - DFR-002 axis formatter via useAxisFormatter
+  - DFR-003 percent via formatPercent
+  - DFR-004 currency via formatCurrency（thousands separator 明文化）
+  - DFR-005 icon via pageRegistry / emoji canonical
+- Phase 3 で gap 判定された他 rule に対する新規 doc（必要なものに限定、anti-bloat 適用）
+- `content-and-voice.md` の "thousands-separator convention is not enforced" 記述を更新
+- doc-registry.json への registry 登録
 
-**完了条件**: DFR-001〜005 が rule entry として完全（Layer 1 source link / Layer 2 doc link / bypass pattern / 適用 path / migrationRecipe）。
+**完了条件**: 新規製本対象 doc 全件が rule entry として完全（Layer 1 source link /
+Layer 2 doc link / bypass pattern / 適用 path / migrationRecipe）、Phase 7 forward
+meta-guard で integrity 成立。
 
-### Phase 7: 表示 rule guards 実装
+### Phase 9: 表示 rule guards 実装 (Phase 8 instances を Layer 4 で機械検証)
 
-**目的**: DFR-001〜005 を Layer 4 で機械検証、observed drift を baseline 化。
+**目的**: DFR-001〜005 + Phase 8 で創出した他新規 rule を Layer 4 で機械検証、observed
+drift を baseline 化。
 
 **deliverable**:
 - `displayRuleGuard.test.ts` 新設（rule registry framework）
@@ -184,17 +233,20 @@ Layer 4: AAG enforcement (機械検証)
 - 各 rule の baseline 確定（観測済 drift を ratchet-down 起点に）
 - migrationRecipe の各 rule への記入
 
-**完了条件**: 全 DFR rule が active、baseline で PASS、新規 drift は immediate fail。
+**完了条件**: 全 DFR rule が active、baseline で PASS、新規 drift は immediate fail、
+Phase 7 reverse meta-guard で全 DFR rule の `canonicalDocRef` 整合成立。
 
 ## 5. やってはいけないこと
 
-- **既存 AR-NNN rule の振る舞い変更** (Phase 3 で audit + binding のみ、enforcement logic 変更は別 project)
+- **既存 AR-NNN rule の振る舞い変更** (Phase 5 で audit + binding のみ、enforcement logic 変更は別 project)
 - **全 100+ rule の即座 100% 製本化** (scope creep、ratchet-down で漸次対応)
-- **Phase 6 を Phase 5 より先にやる** (循環 fail、meta-guard が registry を hard fail させる)
-- **dialog で観測された drift の即時修正** (Phase 7 まで開けない、順序遵守)
+- **Phase 8 を Phase 7 より先にやる** (循環 fail、meta-guard が registry を hard fail させる)
+- **dialog で観測された drift の即時修正** (Phase 9 まで開けない、順序遵守)
 - **AAG framework 構造変更** (4 層 → N 層 等は別 project)
 - **parent project の archive process への干渉** (parent は独立進行)
 - **`adaptive-architecture-governance.md` 既存章の意味改変** (Phase 1 は新章追加のみ、Constitution 改訂相当の慎重さ)
+- **Phase 4 で sunset 判定された doc の遡及的物理削除** (migrationRecipe + 履歴付きで段階削除、後任が経緯を追える状態を維持)
+- **Phase 3 audit の段階で sunset / 修正を実行する** (audit は findings 集約のみ、実行は Phase 4 / 5 / 8 で別 wave)
 
 ## 6. 関連実装
 
@@ -202,21 +254,27 @@ Layer 4: AAG enforcement (機械検証)
 |---|---|
 | `references/01-principles/adaptive-architecture-governance.md` | AAG core 正本（Phase 1 で双方向 integrity 章を追加） |
 | `references/01-principles/adaptive-governance-evolution.md` | AAG 進化方針（本 project の位置付け確認） |
-| `references/01-principles/display-rule-registry.md` | Phase 6 で新設、DFR-NNN registry |
-| `references/04-design-system/docs/chart-semantic-colors.md` | DFR-001 Layer 2 製本（Phase 4 で back link 追加） |
-| `references/04-design-system/docs/echarts-integration.md` | DFR-002 Layer 2 製本（Phase 4 で back link 追加） |
-| `references/04-design-system/docs/iconography.md` | DFR-005 Layer 2 製本（Phase 4 で back link 追加） |
-| `references/04-design-system/docs/content-and-voice.md` | thousands-separator 記述更新（Phase 6） |
-| `references/03-guides/coding-conventions.md` §数値表示ルール | DFR-003/004 Layer 2 製本（Phase 4 で back link 追加） |
-| `app/src/test/architectureRules/defaults.ts` | rule registry（Phase 2 で schema 拡張、Phase 3/7 で entry 追加） |
+| `references/01-principles/display-rule-registry.md` | Phase 8 で新設、DFR-NNN registry |
+| `references/02-status/doc-audit-report.md` | Phase 3 audit findings 集約 |
+| `references/02-status/ar-rule-audit.md` | Phase 5 既存 AR rule audit 結果 |
+| `references/04-design-system/docs/chart-semantic-colors.md` | DFR-001 Layer 2 製本（Phase 6 で back link 追加） |
+| `references/04-design-system/docs/echarts-integration.md` | DFR-002 Layer 2 製本（Phase 6 で back link 追加） |
+| `references/04-design-system/docs/iconography.md` | DFR-005 Layer 2 製本（Phase 6 で back link 追加） |
+| `references/04-design-system/docs/content-and-voice.md` | thousands-separator 記述更新（Phase 8） |
+| `references/03-guides/coding-conventions.md` §数値表示ルール | DFR-003/004 Layer 2 製本（Phase 6 で back link 追加） |
+| `references/99-archive/` | Phase 4 sunset doc の移管先 |
+| `app/src/test/architectureRules/defaults.ts` | rule registry（Phase 2 で schema 拡張、Phase 5/9 で entry 追加） |
 | `app/src/test/guardCategoryMap.ts` | rule category（同上） |
-| `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` | Phase 5 reverse meta-guard |
-| `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` | Phase 5 forward meta-guard |
-| `app/src/test/guards/displayRuleGuard.test.ts` | Phase 7 DFR guards |
+| `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` | Phase 7 reverse meta-guard |
+| `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` | Phase 7 forward meta-guard |
+| `app/src/test/guards/displayRuleGuard.test.ts` | Phase 9 DFR guards |
+| `projects/aag-bidirectional-integrity/legacy-retirement.md` | Phase 4 sunset / consolidation / 補完計画 |
 
 ## 7. 成功判定
 
 - AAG core に「双方向 integrity」章が landing
+- Phase 3 doc audit の findings (inventory / rule mapping / gap / redundancy / staleness) が aggregated artifact として landing
+- Phase 4 legacy 撤退で staleness / redundancy 全件が status 判定済 + `legacy-retirement.md` に migrationRecipe 記録
 - 既存 AR-NNN rule のうち分類 A（自明な既製本）が 100% binding 済
 - forward / reverse meta-guard が active で違反 0
 - DFR-001〜005 が registry に登録、各 baseline で PASS

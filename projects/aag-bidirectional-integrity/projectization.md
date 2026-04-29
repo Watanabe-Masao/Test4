@@ -13,7 +13,7 @@
 | `changeType` | governance-hardening |
 | `implementationScope` | `["principles", "test/architectureRules", "test/guards", "design-system-docs"]` |
 | `breakingChange` | false |
-| `requiresLegacyRetirement` | false |
+| `requiresLegacyRetirement` | true |
 | `requiresGuard` | true |
 | `requiresHumanApproval` | true |
 
@@ -48,6 +48,17 @@
 - 既存 guard / migration / Constitution の意味改変なし
 - 新 rule（DFR-NNN）追加は新規導入のみで既存 contract 破壊なし
 
+**requiresLegacyRetirement=true** の根拠:
+
+- Phase 3 網羅的 doc audit で発見された **不要 doc / 冗長 doc / 不足部分** を Phase 4 で
+  cleaning する scope を含む
+- 既存 reference doc 群（`references/01-principles/`, `03-guides/`, `04-design-system/`,
+  `05-contents/`, `02-status/`, `99-archive/`）に対して redundancy / staleness / gap の
+  audit + 段階的 sunset / consolidation / 補完を実施
+- legacy doc cleaning は本 project の Phase 1〜2 (meta-rule 確立) と Phase 5〜9 (rule binding /
+  guard 実装) の **間に挟まる前提整理** として位置付ける（汚れた基盤の上に整合性 mechanism を
+  乗せても integrity が成立しない）
+
 ## 3. 必要な文書
 
 | 文書 | 必要性 | 理由 |
@@ -58,20 +69,22 @@
 | `checklist.md` | required | 7 phase の completion 判定の入力 |
 | `inquiry/` | optional | 必要な inquiry が発生したら追加（現時点不要） |
 | `breaking-changes.md` | forbidden | breakingChange=false |
-| `legacy-retirement.md` | forbidden | requiresLegacyRetirement=false |
+| `legacy-retirement.md` | required | requiresLegacyRetirement=true、Phase 4 doc cleaning の sunset / consolidation / 補完計画を記録 |
 | `sub-project-map.md` | forbidden | sub-project なし、独立 active project |
 | guard 設計 (plan.md 内) | required | Phase 5 (meta-guard 2 件) + Phase 7 (DFR guards) の設計が plan.md §4 に含まれる |
 | 最終レビュー (人間承認) checkbox | required | requiresHumanApproval=true、Level 4 standard |
 
 ## 4. やらないこと (nonGoals)
 
-- 既存 AR-NNN rule の振る舞い変更（Phase 3 で audit + binding のみ、enforcement logic 変更は別 project）
+- 既存 AR-NNN rule の振る舞い変更（Phase 5 で audit + binding のみ、enforcement logic 変更は別 project）
 - 全 100+ AR-NNN rule の即座 100% 製本化（baseline ratchet-down で漸次対応、新 rule 追加時のみ即時必須）
 - 本体アプリ（粗利管理ツール）の機能変更
 - `phased-content-specs-rollout` の archive 判定への干渉（parent project は独立に archive process を進める）
 - 新 AAG framework 構造変更（4 層 → N 層 等は別 project）
-- DFR rule の即時 0 化（Phase 7 で baseline 確定、ratchet-down で漸次解消）
+- DFR rule の即時 0 化（Phase 9 で baseline 確定、ratchet-down で漸次解消）
 - 既存 `adaptive-architecture-governance.md` 章の意味改変（Phase 1 は新章追加のみ）
+- audit で発見された全 gap の即時解消（重要度に応じて baseline / ratchet-down / sunset で漸次対応）
+- doc cleaning で sunset 判定された doc の物理削除を遡及的に行う（各 sunset は migrationRecipe + 履歴付きで段階削除）
 
 ## 5. Escalation / De-escalation 条件
 
@@ -88,3 +101,4 @@
 | 日付 | 変更 | 理由 |
 |---|---|---|
 | 2026-04-29 | 初期判定 (Level 3) | `phased-content-specs-rollout` 末セッション dialog で発見された AAG 構造的弱点（双方向 integrity 不在）の根本対策として独立 active project で spawn。AAG core への章追加 + 既存 rule audit + 新 meta-guard 2 件 + DFR registry framework + 5 rule guards の複合 scope は Level 3 governance-hardening 相当（sub-project なしの単独 project のため Level 4 Umbrella ではない）。 |
+| 2026-04-29 | scope 拡張 (requiresLegacyRetirement=true) | dialog 進展で「網羅的 doc audit + legacy 撤退 (不要 doc 整理 / 冗長性解消 / 不足補完)」を本 project の前提整理 phase として吸収。実 execution 順序: Phase 1〜2 (meta-rule) → Phase 3 (audit) → Phase 4 (legacy 撤退) → Phase 5〜9 (rule binding / guard 実装)。Level 3 governance-hardening のまま、`legacy-retirement.md` を追加 required 文書化。 |
