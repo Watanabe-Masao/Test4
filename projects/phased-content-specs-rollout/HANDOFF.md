@@ -24,6 +24,15 @@ date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism**
 >   不使用)** は実 drift を観測したが、ちゃんと考えてから着手判断のため pause
 >
 > checklist.md には対応する 8 項目を理由付き strikethrough で記録 (commit 99c4504)。
+>
+> **2026-04-29 末セッションの追加発見 (AAG 構造的弱点)**: 上記 2 件の撤回経験を統合的に
+> 振り返ると、AAG (Adaptive Architecture Governance) 自体に **製本 ↔ AAG の双方向
+> integrity** が確立されておらず、製本されていない proxy metric が guard 化される構造的余地が
+> 存在する。本 project の scope では収まらない AAG core 進化テーマであるため、
+> 独立 active project **`aag-bidirectional-integrity`** を spawn (commit pending)。
+> 同 project が AAG core への双方向 integrity meta-rule 追加 + 既存 100+ AR rule の audit
+> + display rule registry (DFR-NNN) bootstrap + meta-guard 2 件 + DFR guards 実装 を
+> 段階展開する。本 project の archive 進行とは独立して進む（parent / child 関係なし）。
 
 ### Phase A〜K 完遂サマリ (2026-04-29)
 
