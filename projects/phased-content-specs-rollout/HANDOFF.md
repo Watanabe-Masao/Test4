@@ -56,32 +56,47 @@ canonicalization plan §3.2 対応表）。
 
 ## 2. 次にやること
 
-詳細は `plan.md` §4 末尾「Phase J 後続課題」 / `checklist.md` を参照。
+> **scope reduction (2026-04-29、anti-bloat self-test)**: 25 未着手 → keep 12 + defer 5 + vacuous 1 + cut 6 + human gate 1。詳細: `checklist.md` の各項目注記。Phase Q reduction と同思想を本 project にも一貫適用。
+> 詳細は `plan.md` §4 末尾「Phase J 後続課題」 / `checklist.md` を参照。
 
-### 高優先（Phase J 後続 + canonicalization 連動）
+### Tier 1: active 継続 (concrete value、現実装に直接価値)
 
-1. **B: J7 path 実在 guard** — claim 内 tests/guards path が実 file を指すこと
+1. **behavior section guard (J7 path 実在)** — claim 内 tests/guards path が実 file を指すこと
    - `app/src/test/guards/contentSpecPathExistenceGuard.test.ts` を新設
    - `contentSpecHelpers.ts` に `pathExists(repoRelPath)` を追加
-   - **canonicalization-aware 設計**: 将来 `app-domain/integrity/detection/pathExistence.ts` に
-     extract される shape で実装（canonicalization HANDOFF.md「直近」§4 合意）
+   - **canonicalization-aware 設計**: 将来 `app-domain/integrity/detection/pathExistence.ts` に extract される shape で実装
 
-2. **canonicalization Phase A inventory への寄稿**
-   - `references/03-guides/integrity-pair-inventory.md` の #12 セルに Phase J 完遂状態を記載
-   - `contentSpecHelpers.ts` を Phase B reference 実装として明記
-   - 共通 primitive 候補（parse / list / existence / shapeSync / ratchet / temporal / format）を
-     inventory に上げる
+2. **content graph 初版 collector** — Phase A 残課題、#3-9 の prerequisite (5 件 defer 解消)
 
-### 中優先
+3. **pipeline / queryHandler / projection の missingSpec=0 + sourceRef drift=0** (Phase C)
 
-3. **A: reviewed → tested/guarded 昇格** — 主張の実証品質向上
-   - 特に widget の CLM-001 / CLM-002（全件 reviewed）に test 接続
-4. **C: Phase G visual evidence** — UIC/CHART の Storybook + visual regression
-5. **E: AST 整合検証** — claim text と source code の意味的整合（responsibilityTagGuard 系の手法応用）
+4. **CALC test 紐付け** (Phase D 残) — reviewed → tested/guarded 昇格 (CLM-001/002 等)
 
-### 低優先（trigger 待ち）
+5. **Phase G visual evidence (chart/UIC anchor 5 件範囲内)** — KpiCard.stories から漸次拡大
 
-6. **D: Promote Ceremony** — candidate physical landing 時の制度反応（Phase D Step 7 既 institutionalize）
+6. **CI artifact 保存** (Phase I) — content-specs:impact CLI を CI integration
+
+### Tier 2: defer (prerequisite 待ち、auto-trigger)
+
+- 全 45 WID content graph + Promotion Gate L4 (#2 完成後に対象化)
+- pipeline lineage graph + Promotion Gate L5 (#2 + Phase C 完成後)
+- deprecated CALC sunsetCondition: vacuously achieved (現状 0 件、guard active)
+
+### cut (anti-bloat self-test 結果、2026-04-29)
+
+- 全 chart cover (58 中 5 spec で selection rule 限定、HANDOFF 不可侵原則 3)
+- 全 UIC cover (26 中 5 spec、同様)
+- empty/error state 別 story 管理 (schema 拡張 cost > value)
+- Promotion Gate L6 (per-tag tracking、1 人 project で過剰)
+- PR comment bot (CLI 実用可能、手動運用で十分)
+
+復活 trigger: chart/UIC selection rule 突破事例、deprecated calc 出現、PR コメント運用に pain 発生時に別 minor project として再起案。
+
+### canonicalization 連動 (本 project と独立)
+
+- `references/03-guides/integrity-pair-inventory.md` の #12 セル更新
+- `contentSpecHelpers.ts` を Phase B reference 実装として明記
+- 共通 primitive 候補を inventory 化
 
 ### 旧 Phase A〜J の作業（landed、参考用）
 
