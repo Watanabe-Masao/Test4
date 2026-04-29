@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T14:29:48.647Z",
+  "timestamp": "2026-04-29T21:50:10.032Z",
   "summary": {
     "active": 6,
     "archived": 28,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 923,
-    "checkedCheckboxes": 826
+    "totalCheckboxes": 922,
+    "checkedCheckboxes": 829
   },
   "projects": [
     {
@@ -308,9 +308,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 68,
-      "total": 73,
-      "progress": 0.932,
+      "checked": 71,
+      "total": 72,
+      "progress": 0.986,
       "entrypoint": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
       "checklistPath": "projects/phased-content-specs-rollout/checklist.md",
       "parent": null

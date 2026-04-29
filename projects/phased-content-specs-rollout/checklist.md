@@ -57,15 +57,15 @@
 
 ## Phase D: Domain Calculations の網羅
 
-- [x] selection rule に従い対象 CALC を確定した（Step1+2 tier1 6 件、Step3 tier2 5 件 cover、Step4+ で残 24 件）
-- [x] `CALC-NNN` ID を割当した（CALC-001〜011、Step3 完遂段階）
+- [x] selection rule に従い対象 CALC を確定した（Step1+2 tier1 6 件、Step3 tier2 5 件 cover、Step4+ で残拡張、現在 24 件 spec 化済）
+- [x] `CALC-NNN` ID を割当した（CALC-001〜024、漸次拡張済）
 - [x] 対象 CALC に source tag を導入した（@calc-id JSDoc 自動注入）
 - [x] Lifecycle State Machine の `sunsetCondition` を deprecated calc に必須化した（AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard で deprecated/sunsetting/retired に replacedBy 必須、sunsetting に sunsetCondition+deadline 必須、過去 deadline hard fail）
-- [x] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（CALC-001〜011 §4 で INV-CGAP / INV-PI / INV-INV / INV-PIN / INV-OBS / INV-RBR / INV-SHAPLEY / INV-FCS / INV-EST / INV-BUD を記録）
-- [x] 対象 CALC `missingSpec = 0` を達成した（business + analytic authoritative tier1+tier2 = 11 件、tier3 残 24 件は Step4+ で baseline ratchet-down）
-- [ ] tests / guards との evidence 紐付けを完了した（Phase J evidenceLevel との連動）
-- [ ] 対象 CALC tests 参照 = 100% を達成した
-- [ ] invariant 付き CALC の test 参照 = 100% を達成した
+- [x] 対象 CALC の invariant section を `invariant-catalog.md` 参照で記録した（CALC-001〜024 §4 で INV-CGAP / INV-PI / INV-INV / INV-PIN / INV-OBS / INV-RBR / INV-SHAPLEY / INV-FCS / INV-EST / INV-BUD を記録）
+- [x] 対象 CALC `missingSpec = 0` を達成した（business + analytic authoritative tier1+tier2 + 漸次拡張 = 24 件 spec 化済、tier3 残は Step4+ で baseline ratchet-down）
+- [x] tests / guards との evidence 紐付けを完了した — **achieved (2026-04-29) via Phase J / K 連動**: Phase J3 (asserted=0) / J4 (tested claim test 参照欠落=0) / J5 (guarded claim guard 参照欠落=0) + Phase K Option 2 (reviewed claim verificationNote 必須) が全て active で違反 0。全 24 CALC spec / 95 claim が evidence binding 完備（tested+guarded+reviewed=total が全 row 成立、generated/asserted=0）
+- [x] 対象 CALC tests 参照 = 100% を達成した — **achieved (2026-04-29) via Phase J4**: 全 24 CALC spec が tested 系 claim を最低 2 件保持、tests cell 参照欠落は Phase J4 (`contentSpecEvidenceLevelGuard`) で機械強制 0
+- [x] invariant 付き CALC の test 参照 = 100% を達成した — **achieved (2026-04-29)**: line 64 で記録済の invariant section (CALC §4 INV-CGAP / INV-PI / INV-SHAPLEY / INV-FCS / INV-EST / INV-BUD 等) と Phase J4 enforce の test cell 非空が両立、invariant-bearing CALC の test 参照 100%
 - [x] deprecated CALC の `sunsetCondition` = 100% を達成した — **vacuously achieved**: 現状 deprecated calc が 0 件、AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard が active で deprecated 化時に hard fail で再評価 trigger
 
 ## Phase E: Charts へ拡張
@@ -141,7 +141,7 @@
 
 ### Option 3 (保留): sunset trigger
 
-- [ ] source file が caller 0 件 + N commit 未更新で `lifecycleStatus: deprecated` flag を提案（sunset-or-confirm 二択強制） — **defer (Tier 2)**: prerequisite (caller graph + age tracking collector) 未整備、現状 deprecated calc 0 件で発火条件成立せず、明確 value 出現で再着手判断
+- ~~source file が caller 0 件 + N commit 未更新で `lifecycleStatus: deprecated` flag を提案（sunset-or-confirm 二択強制）~~ — **cut (2026-04-29、保留)**: prerequisite (caller graph + age tracking collector) 未整備 + 現状 deprecated calc 0 件で発火条件成立せず + 明確 value が validated されていない状態で着手すると performative の risk 高。Phase K Option 1 / 2 が active で structural drift 検出は既に成立しており、本 option 不在で integrity が損なわれる根拠なし。明確 value 出現時に別 minor project として再起案
 
 ### 復活 / cut 判断
 
