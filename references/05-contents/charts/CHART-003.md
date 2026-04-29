@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 8be44bc
+lastVerifiedCommit: db443c4
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -63,12 +63,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | RM-001 / CALC-011 出力を mapping して累計予算 vs 累計実績を描画（chart 内 raw 計算禁止、C9）| reviewed | high | - | - |
-| CLM-002 | budget = 0 のとき達成率 0% 表示（CALC-011 が 0 を返す、null 化禁止で chart 軸破壊回避）| reviewed | medium | - | - |
-| CLM-003 | StoreResult 統合経路で予算分析を取得（domain calc B3 経由、SQL 内率算出禁止、CALC-011 wrap）| tested | high | app/src/domain/calculations/budgetAnalysisInvariants.test.ts | - |
-| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | RM-001 / CALC-011 出力を mapping して累計予算 vs 累計実績を描画（chart 内 raw 計算禁止、C9） | reviewed | high | - | - | mapping の正しさは RM-001 + CALC-011 出力契約で fail-fast。chart 内 raw 計算不在は chartInputBuilderGuard で構造的保証 |
+| CLM-002 | budget = 0 のとき達成率 0% 表示（CALC-011 が 0 を返す、null 化禁止で chart 軸破壊回避） | reviewed | medium | - | - | CALC-011 が 0 を返す契約は CALC layer の test で保証。null 化禁止は chart 軸の前提条件で UI 設計判断 (test 化より契約宣言が適切) |
+| CLM-003 | StoreResult 統合経路で予算分析を取得（domain calc B3 経由、SQL 内率算出禁止、CALC-011 wrap） | tested | high | app/src/domain/calculations/budgetAnalysisInvariants.test.ts | - | - |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6） | guarded | high | - | app/src/test/guards/topologyGuard.test.ts | - |
 
 ## 6. Consumers
 

@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: f43b5bd
+lastVerifiedCommit: b4e07fd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -56,12 +56,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `r ∈ [-1, 1]` 出力時 clamp（浮動小数点誤差吸収、INV-CORR-01、Math.max/min で clamp）| tested | high | app/src/domain/calculations/algorithms/correlation.test.ts | - |
-| CLM-002 | `n < 2` または `varX = 0 ∨ varY = 0` → `r = 0` フォールバック（INV-CORR-02 / INV-CORR-03、`safeDivide` がゼロ分母吸収）| tested | high | app/src/domain/calculations/algorithms/correlation.test.ts | - |
-| CLM-003 | `correlationMatrix` は上三角のみ（`i < j`）— 自己相関 / 重複ペアを除外（INV-CORR-04、出力配列長 = `n*(n-1)/2`）| tested | medium | app/src/domain/calculations/algorithms/correlation.test.ts | - |
-| CLM-004 | candidate (`candidate/algorithms/correlation.ts`) との数値同等性 (dual-run observation guard 監視下)| guarded | high | - | app/src/test/observation/correlationCandidateObservation.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `r ∈ [-1, 1]` 出力時 clamp（浮動小数点誤差吸収、INV-CORR-01、Math.max/min で clamp） | tested | high | app/src/domain/calculations/algorithms/correlation.test.ts | - | - |
+| CLM-002 | `n < 2` または `varX = 0 ∨ varY = 0` → `r = 0` フォールバック（INV-CORR-02 / INV-CORR-03、`safeDivide` がゼロ分母吸収） | tested | high | app/src/domain/calculations/algorithms/correlation.test.ts | - | - |
+| CLM-003 | `correlationMatrix` は上三角のみ（`i < j`）— 自己相関 / 重複ペアを除外（INV-CORR-04、出力配列長 = `n*(n-1)/2`） | tested | medium | app/src/domain/calculations/algorithms/correlation.test.ts | - | - |
+| CLM-004 | candidate (`candidate/algorithms/correlation.ts`) との数値同等性 (dual-run observation guard 監視下) | guarded | high | - | app/src/test/observation/correlationCandidateObservation.test.ts | - |
 
 ## 5. Migration Plan
 

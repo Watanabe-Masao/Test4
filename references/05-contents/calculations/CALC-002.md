@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 783a74a
+lastVerifiedCommit: c0a56f3
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -57,12 +57,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `customers === 0` で除算回避（quantityPI / amountPI 双方が 0）| tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - |
-| CLM-002 | Zod schema が入力 / 出力双方で fail-fast（汚染数値の流入防止）| tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - |
-| CLM-003 | 正本客数経路 (RM-005 ready / fallback) が `selectTotalCustomers` 経由 | guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts |
-| CLM-004 | 取得経路の唯一性（PI 値計算は本 calc のみが正本）| guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `customers === 0` で除算回避（quantityPI / amountPI 双方が 0） | tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - | - |
+| CLM-002 | Zod schema が入力 / 出力双方で fail-fast（汚染数値の流入防止） | tested | high | app/src/domain/calculations/__tests__/piValue.test.ts | - | - |
+| CLM-003 | 正本客数経路 (RM-005 ready / fallback) が `selectTotalCustomers` 経由 | guarded | high | - | app/src/test/guards/customerFactPathGuard.test.ts | - |
+| CLM-004 | 取得経路の唯一性（PI 値計算は本 calc のみが正本） | guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts | - |
 
 ## 5. Migration Plan
 

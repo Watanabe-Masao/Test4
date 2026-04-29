@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: f43b5bd
+lastVerifiedCommit: b4e07fd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -51,12 +51,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | empty Map → `null` 返却（findCoreTime / findTurnaroundHour 双方、INV-CT-01）| tested | high | app/src/domain/calculations/__tests__/timeSlotCalculations.test.ts | - |
-| CLM-002 | コアタイムは **連続 3 時間帯固定**（`endHour - startHour === 2`、INV-CT-02、可変窓 N の拡張は新 export 必須）| tested | high | app/src/domain/calculations/__tests__/timeSlotCalculations.test.ts | - |
-| CLM-003 | `findTurnaroundHour` は累積 50% 到達 hour を返す（昇順走査の単調性、INV-CT-04）| tested | medium | app/src/domain/calculations/__tests__/timeSlotCalculationsInvariants.test.ts | - |
-| CLM-004 | timeSlotBridge WASM 経路との数値同等性 (dual-run observation guard 監視下)| guarded | high | - | app/src/test/observation/timeSlotObservation.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | empty Map → `null` 返却（findCoreTime / findTurnaroundHour 双方、INV-CT-01） | tested | high | app/src/domain/calculations/__tests__/timeSlotCalculations.test.ts | - | - |
+| CLM-002 | コアタイムは **連続 3 時間帯固定**（`endHour - startHour === 2`、INV-CT-02、可変窓 N の拡張は新 export 必須） | tested | high | app/src/domain/calculations/__tests__/timeSlotCalculations.test.ts | - | - |
+| CLM-003 | `findTurnaroundHour` は累積 50% 到達 hour を返す（昇順走査の単調性、INV-CT-04） | tested | medium | app/src/domain/calculations/__tests__/timeSlotCalculationsInvariants.test.ts | - | - |
+| CLM-004 | timeSlotBridge WASM 経路との数値同等性 (dual-run observation guard 監視下) | guarded | high | - | app/src/test/observation/timeSlotObservation.test.ts | - |
 
 ## 5. Migration Plan
 

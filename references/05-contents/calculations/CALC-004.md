@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 783a74a
+lastVerifiedCommit: c0a56f3
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -54,12 +54,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `pins` 空配列 → 空配列を返す（pure 安全、INV-PIN-05 連続性の起点）| tested | medium | app/src/domain/calculations/pinIntervals.test.ts | - |
-| CLM-002 | 在庫法 COGS 公式 `cogs = prevInventory + totalPurchaseCost - closingInv` を区間ごとに適用（INV-PIN-03）| tested | high | app/src/domain/calculations/pinIntervals.test.ts | - |
-| CLM-003 | `grossProfitRate = safeDivide(grossProfit, totalSales, 0)` で sales=0 のゼロ除算回避（INV-PIN-04）| tested | high | app/src/domain/calculations/pinIntervals.test.ts | - |
-| CLM-004 | `rateOwnership: engine` 不変 — UI/VM/SQL での率再計算は 4 層依存違反として禁止 | guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `pins` 空配列 → 空配列を返す（pure 安全、INV-PIN-05 連続性の起点） | tested | medium | app/src/domain/calculations/pinIntervals.test.ts | - | - |
+| CLM-002 | 在庫法 COGS 公式 `cogs = prevInventory + totalPurchaseCost - closingInv` を区間ごとに適用（INV-PIN-03） | tested | high | app/src/domain/calculations/pinIntervals.test.ts | - | - |
+| CLM-003 | `grossProfitRate = safeDivide(grossProfit, totalSales, 0)` で sales=0 のゼロ除算回避（INV-PIN-04） | tested | high | app/src/domain/calculations/pinIntervals.test.ts | - | - |
+| CLM-004 | `rateOwnership: engine` 不変 — UI/VM/SQL での率再計算は 4 層依存違反として禁止 | guarded | high | - | app/src/test/guards/piValuePathGuard.test.ts | - |
 
 ## 5. Migration Plan
 

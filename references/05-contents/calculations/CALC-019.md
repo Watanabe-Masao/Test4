@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: f43b5bd
+lastVerifiedCommit: b4e07fd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -56,12 +56,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `aggregateDowAverages` は曜日 0-6 順固定で 7 行を返す（INV-BSA-01、欠損曜日も 0 行で出力、出現順スワップ禁止）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-002 | `count === 0` のとき `*Avg = 0`（INV-BSA-02、`safeDivide` 同等のゼロ除算回避、null 化禁止で 0 統一）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-003 | `aggregateWeeks` 区切りは `startDay = weekIndex*7+1` の 7 日刻み（INV-BSA-03、月末週は短くなりうる）| tested | medium | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
-| CLM-004 | `achievement = null ⇔ budgetTotal = 0`（INV-BSA-04、null 伝播。budgetTotal>0 で actual=0 → 0% を返却、null 化禁止）| tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `aggregateDowAverages` は曜日 0-6 順固定で 7 行を返す（INV-BSA-01、欠損曜日も 0 行で出力、出現順スワップ禁止） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-002 | `count === 0` のとき `*Avg = 0`（INV-BSA-02、`safeDivide` 同等のゼロ除算回避、null 化禁止で 0 統一） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-003 | `aggregateWeeks` 区切りは `startDay = weekIndex*7+1` の 7 日刻み（INV-BSA-03、月末週は短くなりうる） | tested | medium | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
+| CLM-004 | `achievement = null ⇔ budgetTotal = 0`（INV-BSA-04、null 伝播。budgetTotal>0 で actual=0 → 0% を返却、null 化禁止） | tested | high | app/src/domain/calculations/__tests__/budgetSimulator.test.ts | - | - |
 
 ## 5. Migration Plan
 

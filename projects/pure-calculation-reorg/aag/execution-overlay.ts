@@ -1584,6 +1584,15 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-04-29",
+      reviewCadenceDays: 90,
+    },
+  },
   // ── AR-INTEGRITY-* (canonicalization-domain-consolidation Phase I) ──
   "AR-INTEGRITY-NO-RESURRECT": {
     fixNow: "now",

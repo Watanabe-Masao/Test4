@@ -55,8 +55,20 @@ describe('Content Spec Visual Evidence Guard (AR-CONTENT-SPEC-VISUAL-EVIDENCE)',
     // 同 PR で stories / visualTests を整備するか、既存 baseline 内の cover 改善で
     // 相殺すること。
     const VISUAL_EVIDENCE_BASELINE = 6
+    // 必須カバー spec — count baseline では「1 件 cover が外れて他 1 件が新規 cover」
+    // でも baseline を満たしてしまう。本 set は **後退禁止** の hard pin として作用し、
+    // count 内訳の入れ替わりによる隠れ regression を構造的に防ぐ (CodeRabbit 指摘経由)
+    const REQUIRED_COVERED_IDS = new Set(['UIC-002', 'UIC-003', 'UIC-004', 'UIC-005'])
     const target = loadAllSpecs().filter((s) => VISUAL_EVIDENCE_TARGET_KINDS.has(s.kind))
     const uncovered = target.filter((s) => !hasVisualEvidence(s))
+    const coveredIds = new Set(target.filter(hasVisualEvidence).map((s) => s.id))
+    const regressedRequired = [...REQUIRED_COVERED_IDS].filter((id) => !coveredIds.has(id))
+
+    expect(
+      regressedRequired,
+      `必須カバー spec が未カバーに後退: ${regressedRequired.join(', ')} (REQUIRED_COVERED_IDS から外れた)`,
+    ).toEqual([])
+
     expect(
       uncovered.length,
       `evidence 未整備 ${uncovered.length} / baseline ${VISUAL_EVIDENCE_BASELINE}\n` +

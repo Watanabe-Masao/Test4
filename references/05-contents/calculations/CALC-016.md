@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: d8d3282
+lastVerifiedCommit: f43b5bd
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -54,12 +54,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `averageMarkupRate = (allPrice - allCost) / allPrice`（全仕入＝仕入 + 売上納品 + 移動の値入率、`safeDivide` で allPrice=0 時 0 返却）| tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - |
-| CLM-002 | `coreMarkupRate = (corePrice - coreCost) / corePrice`（コア仕入＝仕入 + 移動、売上納品除外。corePrice=0 時 `defaultMarkupRate` フォールバック）| tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - |
-| CLM-003 | Zod `MarkupRateInputSchema` で `markupRate ∈ [0, 1]` 範囲を input 側 validate、`MarkupRateResultSchema` で output 双方向 fail-fast（INV-MKR-02 / INV-MKR-03）| tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - |
-| CLM-004 | CALC-010 `calculateEstMethod` の `markupRate` 入力は本 calc の `coreMarkupRate` 出力と意味一貫（INV-MKR-04、推定法粗利の精度依存性）| reviewed | high | - | - |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `averageMarkupRate = (allPrice - allCost) / allPrice`（全仕入＝仕入 + 売上納品 + 移動の値入率、`safeDivide` で allPrice=0 時 0 返却） | tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - | - |
+| CLM-002 | `coreMarkupRate = (corePrice - coreCost) / corePrice`（コア仕入＝仕入 + 移動、売上納品除外。corePrice=0 時 `defaultMarkupRate` フォールバック） | tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - | - |
+| CLM-003 | Zod `MarkupRateInputSchema` で `markupRate ∈ [0, 1]` 範囲を input 側 validate、`MarkupRateResultSchema` で output 双方向 fail-fast（INV-MKR-02 / INV-MKR-03） | tested | high | app/src/domain/calculations/__tests__/markupRate.test.ts | - | - |
+| CLM-004 | CALC-010 `calculateEstMethod` の `markupRate` 入力は本 calc の `coreMarkupRate` 出力と意味一貫（INV-MKR-04、推定法粗利の精度依存性） | reviewed | high | - | - | 異 CALC 間の入出力意味一貫性は test 単独で表現不能。INV-MKR-04 + 推定法粗利の精度依存性宣言で構造的保証 |
 
 ## 5. Migration Plan
 

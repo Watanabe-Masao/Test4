@@ -83,7 +83,7 @@ app-domain/integrity/
 
 ### 既存 13 ペア (Phase B-E migration、priority 順)
 
-1. `references/05-contents/` ↔ `contentSpec*Guard × 11` (priority 1, Phase B reference)
+1. `references/05-contents/` ↔ `contentSpec*Guard × 12` (priority 1, Phase B reference) — Phase K Option 1 で contentSpecLastVerifiedCommitGuard 追加
 2. `docs/contracts/doc-registry.json` ↔ `docRegistryGuard` (priority 2, Phase C lowest risk)
 3. `app/src/test/calculationCanonRegistry.ts` ↔ `calculationCanonGuard` (Phase D-W1)
 4. `app/src/application/readModels/<dir>/` ↔ `canonicalizationSystemGuard` (Phase D-W1)

@@ -5974,34 +5974,75 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["G1"],
     epoch: 1,
     doc: "references/05-contents/widgets/README.md",
-    what: "WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない",
-    why: "spec は時間とともに陳腐化する。レビュー周期を機械的に強制することで「いつか読まれない台帳」化を防ぐ。reviewPolicy 由来の cadence enforcement と同じ思想",
+    what: "[DEPRECATED in Phase K, replaced by AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT] WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない",
+    why: "[DEPRECATED] date-based cadence は『review = date 更新』で構造的検証を伴わない儀式 (HANDOFF.md §3.9)。既存 5 guard (co-change / frontmatter-sync / path-existence / lifecycle / evidence-level) が構造的 drift を網羅し、lastVerifiedCommit が concrete signal を提供するため重複かつ低 value。Phase K Option 1 で AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT に置換",
     correctPattern: {
       description:
-        "(today - lastReviewedAt) <= reviewCadenceDays（× 0.8 超過で warn、超過で fail）",
+        "(today - lastReviewedAt) <= reviewCadenceDays（× 0.8 超過で warn、超過で fail）。Phase K で deprecated、guard は .skip 状態",
     },
     outdatedPattern: {
       description: "lastReviewedAt が長期間更新されておらず cadence を超過",
     },
     decisionCriteria: {
-      when: "spec 内容を読み直し / 更新するとき",
-      exceptions: "なし",
-      escalation: "review 後に lastReviewedAt を当日に更新",
+      when: "[DEPRECATED] spec 内容を読み直し / 更新するとき",
+      exceptions: "Phase K Option 1 完遂以降は AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
+      escalation: "review 後に lastReviewedAt を当日に更新（暫定運用、撤退準備中）",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
       steps: [
-        "1. spec 内容を読み直す",
-        "2. frontmatter の lastReviewedAt を当日 (YYYY-MM-DD) に更新",
-        "3. 必要なら reviewCadenceDays を見直す",
+        "1. [DEPRECATED] 本 rule は Phase K で deprecated。AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
+        "2. 既存 cadence based check は guard test が .skip 化されており active な検証なし",
+        "3. 1 sprint 後の物理削除に向けた deprecation 期間",
       ],
     },
     sunsetCondition:
-      "なし（freshness 強制は spec の信頼性維持の恒久的 mechanism）",
+      "Phase K Option 1 後続 sprint で物理削除（AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が active で stale spec 検出を担う、cadence 儀式は撤退）",
     protectedHarm: {
       prevents: [
-        "spec が読まれない台帳化（古い記述のまま流通）",
-        "owner が変わったのに記録されない責任所在の喪失",
+        "[DEPRECATED] spec が読まれない台帳化 → AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が source 動作と spec 同期を構造的に保証",
+        "[DEPRECATED] owner 喪失 → AR-CONTENT-SPEC-OWNER で別途強制",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/05-contents/widgets/README.md",
+    what: "全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する",
+    why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastVerifiedCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net",
+    correctPattern: {
+      description:
+        "spec.lastVerifiedCommit === git log -1 --format=%h -- <sourceRef> の出力。完全一致のみ allow、不一致は『source 動作と spec の同期漏れ』signal として hard fail",
+    },
+    outdatedPattern: {
+      description: "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
+    },
+    decisionCriteria: {
+      when: "source file を変更するとき",
+      exceptions: "なし — 機械的 sync (`node tools/widget-specs/generate.mjs` で再計算)",
+      escalation: "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `node tools/widget-specs/generate.mjs --refresh-last-verified` で全 spec の lastVerifiedCommit を一括再計算",
+        "2. source 変更を伴う PR では generator 実行を含めて co-change",
+        "3. 個別 spec のみ更新する場合は `git log -1 --format=%h -- <sourceRef>` で確認して frontmatter 更新",
+      ],
+    },
+    sunsetCondition:
+      "なし（lastVerifiedCommit 強制は source ↔ spec 同期の恒久的 mechanism）",
+    protectedHarm: {
+      prevents: [
+        "source が動いたのに spec が更新されない (stale spec)",
+        "co-change guard が漏らした source 変更を検出する safety net",
+        "date-based cadence の儀式に逃げる (Phase K で構造的 mechanism に置換)",
       ],
     },
   },

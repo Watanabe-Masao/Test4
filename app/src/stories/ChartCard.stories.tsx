@@ -36,19 +36,18 @@ const READY_PLACEHOLDER = (
   </div>
 )
 
+const baseArgs = {
+  title: '売上推移',
+  subtitle: '直近30日',
+}
+
 export const Ready: Story = {
-  args: {
-    title: '売上推移',
-    subtitle: '直近30日',
-  },
+  args: baseArgs,
   render: (args) => <ChartCard {...args}>{READY_PLACEHOLDER}</ChartCard>,
 }
 
 export const Loading: Story = {
-  args: {
-    title: '売上推移',
-    subtitle: '直近30日',
-  },
+  args: baseArgs,
   render: (args) => (
     <ChartCard {...args}>
       <ChartLoading height={240} />
@@ -57,10 +56,7 @@ export const Loading: Story = {
 }
 
 export const Error: Story = {
-  args: {
-    title: '売上推移',
-    subtitle: '直近30日',
-  },
+  args: baseArgs,
   render: (args) => (
     <ChartCard {...args}>
       <ChartError message="データの取得に失敗しました" height={240} />
@@ -69,10 +65,7 @@ export const Error: Story = {
 }
 
 export const Empty: Story = {
-  args: {
-    title: '売上推移',
-    subtitle: '直近30日',
-  },
+  args: baseArgs,
   render: (args) => (
     <ChartCard {...args}>
       <ChartEmpty height={240} />
@@ -91,6 +84,7 @@ export const SectionVariant: Story = {
 
 export const Collapsible: Story = {
   args: {
+    ...baseArgs,
     title: '折りたたみ可能なチャート',
     subtitle: 'タイトル帯クリックで開閉',
     collapsible: true,

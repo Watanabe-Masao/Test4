@@ -1,11 +1,18 @@
 /**
- * Content Spec Freshness Guard — AR-CONTENT-SPEC-FRESHNESS
+ * Content Spec Freshness Guard — AR-CONTENT-SPEC-FRESHNESS [DEPRECATED in Phase K]
  *
- * Phase C scope (2026-04-27): 全 spec (widget + read-model) frontmatter について
- * `(today - lastReviewedAt) > reviewCadenceDays` で fail、`> reviewCadenceDays * 0.8`
- * で warn（warn は console 出力のみ）。
+ * Phase C scope (2026-04-27、deprecated 2026-04-29): 全 spec (widget + read-model)
+ * frontmatter について `(today - lastReviewedAt) > reviewCadenceDays` で fail、
+ * `> reviewCadenceDays * 0.8` で warn（warn は console 出力のみ）。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B / §Phase C,
+ * **Phase K Option 1 (2026-04-29、deprecation):**
+ * date-based cadence は「review = date 更新」で構造的検証を伴わない儀式
+ * (HANDOFF.md §3.9 + plan.md §Phase K)。`lastVerifiedCommit` が source 最新
+ * commit と一致するかを検証する `contentSpecLastVerifiedCommitGuard` (新設、
+ * AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT) に置換。本 guard は `.skip` 化し、
+ * 1 sprint 後の物理削除に向けた deprecation 期間とする。
+ *
+ * 詳細: projects/phased-content-specs-rollout/plan.md §Phase K K2,
  * references/05-contents/{widgets,read-models}/README.md §「3 軸 drift 防御 / 時間軸」。
  *
  * @taxonomyKind T:meta-guard
@@ -23,7 +30,7 @@ function ageInDays(lastReviewedAt: string, today: Date): number {
   return Math.floor((today.getTime() - reviewed.getTime()) / MS_PER_DAY)
 }
 
-describe('Content Spec Freshness Guard (AR-CONTENT-SPEC-FRESHNESS)', () => {
+describe.skip('Content Spec Freshness Guard (AR-CONTENT-SPEC-FRESHNESS) [DEPRECATED]', () => {
   const today = new Date()
 
   it('全 spec (widget + read-model) の lastReviewedAt が reviewCadenceDays を超過していない', () => {

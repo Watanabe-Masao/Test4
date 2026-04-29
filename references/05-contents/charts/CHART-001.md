@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 8be44bc
+lastVerifiedCommit: db443c4
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -66,12 +66,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `comparisonResults.length < 2` で null return（empty 状態は registry 行の早期 return で chart 描画前に skip）| reviewed | medium | - | - |
-| CLM-002 | storeDailyLane 経由で markup/discount 系列を取得（SP-B Phase 6.5-5a 移行済、raw `result.daily` 走査禁止）| guarded | high | - | app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts |
-| CLM-003 | lane pending → `storeDailySeries=null` で縮退描画（loading 状態の専用 spinner なし、空系列で chart は表示）| reviewed | medium | - | - |
-| CLM-004 | lane error → registry 経由で fallback（ChartCard 通知のみ、chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `comparisonResults.length < 2` で null return（empty 状態は registry 行の早期 return で chart 描画前に skip） | reviewed | medium | - | - | 空状態の早期 return は registry 行で chart 描画前に skip する宣言的経路。chart layer の test は raw 計算 / fetch の不在を前提とし当該 condition は registry 側責務 |
+| CLM-002 | storeDailyLane 経由で markup/discount 系列を取得（SP-B Phase 6.5-5a 移行済、raw `result.daily` 走査禁止） | guarded | high | - | app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts | - |
+| CLM-003 | lane pending → `storeDailySeries=null` で縮退描画（loading 状態の専用 spinner なし、空系列で chart は表示） | reviewed | medium | - | - | lane pending は infrastructure load 時の中間状態で、専用 spinner なしの縮退描画は UX 設計判断。chart layer test より infrastructure load test で構造的保証 |
+| CLM-004 | lane error → registry 経由で fallback（ChartCard 通知のみ、chart 内部 error UI 禁止 = H6） | guarded | high | - | app/src/test/guards/topologyGuard.test.ts | - |
 
 ## 6. Consumers
 

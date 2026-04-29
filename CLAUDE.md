@@ -27,7 +27,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-04-29T08:30:06.198Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-04-29T08:58:57.198Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -556,16 +556,16 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 後方互換負債 | OK | 0/3 / 0/3 |
 | 複雑性圧 | OK | 1/5 / 10/10 / 25/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 118/30 / 0/5 |
+| ガード強度 | OK | 119/30(+1) / 0/5 |
 | 性能 | OK | 6602/7000 / 2386/2500 / 919/1000 |
-| Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 164/92 / 33/9 / 2/1 |
-| Rule Efficacy | OK | 101 / 0/3 / 0/10 |
+| Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 165/92(+1) / 34/9(+1) / 2/1 |
+| Rule Efficacy | OK | 102(+1) / 0/3 / 0/10 |
 | Project Governance | OK | 5/20 / 4/20 / 0/0 / 28/100 |
 
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-04-29T08:30:06.193Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-29T08:58:57.192Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

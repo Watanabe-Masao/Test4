@@ -20,10 +20,15 @@
  *
  *   ### Behavior Claims (Phase J Evidence Level)
  *
- *   | ID | claim | evidenceLevel | riskLevel | tests | guards |
- *   |---|---|---|---|---|---|
- *   | CLM-001 | claim text | tested | high | path/to/test.ts | - |
- *   | CLM-002 | claim text | guarded | medium | - | path/to/guard.test.ts |
+ *   | ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+ *   |---|---|---|---|---|---|---|
+ *   | CLM-001 | claim text | tested | high | path/to/test.ts | - | - |
+ *   | CLM-002 | claim text | guarded | medium | - | path/to/guard.test.ts | - |
+ *   | CLM-003 | claim text | reviewed | medium | - | - | reviewed 理由を 1〜2 文 |
+ *
+ * Phase K Option 2 (2026-04-29): `verificationNote` 列を追加。`evidenceLevel = reviewed`
+ * のみ caller 側 guard で必須化（`reviewed` 以外は空セル可）。後方互換: 6 列のみの
+ * 旧 format も parse 可、`verificationNote` は空文字列扱い。
  */
 
 /**
@@ -36,6 +41,8 @@
  * - `riskLevel`: high / medium / low のいずれか (同上)
  * - `tests`: tests cell の path 列 (`-` / `なし` / `none` / 空は空配列)
  * - `guards`: guards cell の path 列 (同上)
+ * - `verificationNote`: reviewed claim で「なぜ test 化しないか」の rationale 文字列
+ *   (空 / `-` / `なし` / `none` は空文字列扱い、caller 側 guard で `reviewed` のみ必須化)
  */
 export interface ParsedBehaviorClaim {
   readonly id: string
@@ -44,6 +51,7 @@ export interface ParsedBehaviorClaim {
   readonly riskLevel: string
   readonly tests: readonly string[]
   readonly guards: readonly string[]
+  readonly verificationNote: string
 }
 
 /**
@@ -68,6 +76,19 @@ function parseCellList(cell: string): readonly string[] {
 }
 
 /**
+ * verificationNote cell を parse する。
+ *
+ * - 空 / `-` / `なし` / `none` → `''`
+ * - それ以外 → trim 結果
+ */
+function parseVerificationNote(cell: string | undefined): string {
+  if (cell === undefined) return ''
+  const trimmed = cell.trim()
+  if (trimmed === '' || trimmed === '-' || trimmed === 'なし' || trimmed === 'none') return ''
+  return trimmed
+}
+
+/**
  * spec body の Behavior Claims markdown table を parse する。
  *
  * 動作:
@@ -75,6 +96,7 @@ function parseCellList(cell: string): readonly string[] {
  * 2. 直下の `| ID | ...` header row まで進む
  * 3. header + separator を skip し、空行 / 次 heading / `|` 始まりでない行で終了
  * 4. 各行を `|` で split、6 cell 未満は skip、`CLM-` 始まりでない id も skip
+ * 5. 7 cell 目の `verificationNote` を parse（旧 6 列 format も後方互換、空文字列扱い）
  *
  * Behavior Claims section が無い spec / table が無い spec → `[]`
  *
@@ -106,7 +128,7 @@ export function parseBehaviorClaimsTable(specContent: string): readonly ParsedBe
       i++
       continue
     }
-    const [id, claim, evidenceLevel, riskLevel, testsRaw, guardsRaw] = cells
+    const [id, claim, evidenceLevel, riskLevel, testsRaw, guardsRaw, verificationNoteRaw] = cells
     if (!id.startsWith('CLM-')) {
       i++
       continue
@@ -118,6 +140,7 @@ export function parseBehaviorClaimsTable(specContent: string): readonly ParsedBe
       riskLevel,
       tests: parseCellList(testsRaw),
       guards: parseCellList(guardsRaw),
+      verificationNote: parseVerificationNote(verificationNoteRaw),
     })
     i++
   }

@@ -470,13 +470,114 @@ Phase 0 bootstrap 完遂) との相乗効果が成立した:
 
 ---
 
+### Phase K: Freshness Mechanism Redesign（儀式 → mechanism 置換）
+
+**背景:**
+
+Phase C で導入した `reviewCadenceDays + lastReviewedAt` の date-based cadence は
+概念的に **儀式的**（`review` の意味が「date 更新」のみで構造的検証を伴わない）。
+既存の co-change / frontmatter-sync / path-existence / lifecycle / evidence-level の
+5 guard が構造的 drift を網羅し、`lastVerifiedCommit` が既に concrete signal を
+提供しているため、cadence は重複かつ低 value。本 phase はその儀式を機械的
+mechanism に置換する設計。
+
+> **基本姿勢:** 「90 日ごとに人が見直す」を強制するのではなく、
+> 「source が動いたら spec も動いた」を構造的に保証する。reviewed claim は
+> 「test 化しない理由」を explicit rationale として記録し、忘却・漏れを防ぐ。
+
+**対象:**
+
+- frontmatter field: `reviewCadenceDays` / `lastReviewedAt` / `lastVerifiedCommit`
+- guard: `contentSpecFreshnessGuard` / `contentSpecCoChangeGuard` /
+  `contentSpecEvidenceLevelGuard`
+- claim 構造: Behavior Claims table の列定義（`parseBehaviorClaimsTable`）
+
+**段階:**
+
+#### K1. Option 2 — `verificationNote` 必須化（先行実装、低リスク）
+
+`evidenceLevel = reviewed` claim に「なぜ test 化しないか」の explicit rationale を
+強制する。reviewed → tested 機械的昇格の anti-pattern（横断的意味整合 / 表現規約 /
+定数固定 等は test 単独で表現不能）を構造的に防ぐ。
+
+- **K1-1:** `parseBehaviorClaimsTable@app-domain/integrity` を `verificationNote` 列
+  対応に拡張（後方互換: 列なしでも parse 可、未記入なら空文字列扱い）
+- **K1-2:** `ParsedBehaviorClaim` 型に `verificationNote: string` を追加
+- **K1-3:** `contentSpecEvidenceLevelGuard.test.ts` に「`reviewed` claim で
+  `verificationNote` 空欄 → hard fail」test 追加
+- **K1-4:** 全 89 spec の Behavior Claims table に `verificationNote` 列を追加
+  （reviewed 以外は空セルで OK）
+- **K1-5:** 既存 5 件の reviewed CLM-004（CALC-013 / CALC-014 / CALC-016 /
+  CALC-018 / CALC-020）に rationale 1〜2 文記入
+
+**完了条件:** 全 reviewed claim で `verificationNote` 非空、guard で機械強制。
+
+#### K2. Option 1 — `lastVerifiedCommit` guard 強化 + cadence deprecate
+
+source file の最新 commit hash と spec の `lastVerifiedCommit` の **完全一致**を
+guard で検証。co-change が active なため通常時は自動 sync、stale spec の検出に特化。
+
+- **K2-1:** `contentSpecLastVerifiedCommitGuard.test.ts` 新設 — 全 spec の
+  `lastVerifiedCommit` が `git log -1 --format=%h -- <sourceRef>` の最新短縮
+  hash と一致を検証（不一致なら「source が動いたが spec が動いていない」signal）
+- **K2-2:** AR rule registry に `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` を追加、
+  `architectureRules.ts` に entry 登録
+- **K2-3:** 全 89 spec の `lastVerifiedCommit` を `git log` 結果で再計算して同期
+  （`tools/widget-specs/generate.mjs` に再計算 logic 追加 or 単発 migration script）
+- **K2-4:** `contentSpecFreshnessGuard.test.ts` を `.skip` 化 + JSDoc に「Phase K
+  で deprecate、撤退候補」明記。1 sprint 後の物理削除に向けた deprecation marker。
+- **K2-5:** `architectureRules.ts` の `AR-CONTENT-SPEC-FRESHNESS` entry を
+  `lifecycleStatus: deprecated` 化、`replacedBy: AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT`
+- **K2-6:** frontmatter generator (`tools/widget-specs/generate.mjs`) で
+  `reviewCadenceDays` / `lastReviewedAt` field 設定時に warn を出す（field は残す、
+  最終削除は別 PR）
+
+**完了条件:**
+- 全 spec の `lastVerifiedCommit` が source の最新 commit hash と一致
+- freshness guard が `.skip` 状態 + AR rule deprecated
+- generator で cadence field に deprecation warning 出力
+
+#### K3. Option 3 — sunset trigger（保留）
+
+source file が caller 0 件 + N commit 未更新の状態で `lifecycleStatus: deprecated`
+flag を提案する mechanism。複雑度の割に value が読めないため Phase K では着手せず、
+将来課題として記録のみ。
+
+**実施順:** K1 → K2 → (K3 保留)
+
+**完了条件（Phase K 全体）:**
+
+- `verificationNote` 強制で reviewed claim の rationale 漏れ = 0
+- `lastVerifiedCommit` guard で stale spec 検出が active
+- freshness guard が deprecated 状態（撤退準備完了）
+- 既存 5 reviewed CLM-004 が rationale 記入済（#8 の派生完遂）
+
+**依存:** Phase J 完遂（claim evidence enforcement の上に立つ）
+
+**復活 / cut 判断:**
+
+- 90 日 cadence の儀式を維持する明確 value が後から見つかった場合は本 Phase を
+  撤回し cadence を残す（`AR-CONTENT-SPEC-FRESHNESS` を active に戻す）
+- 現時点では既存 5 guard との重複が cut 判定の理由（anti-bloat self-test 適用）
+
+**ハマりポイント:**
+
+- `lastVerifiedCommit` の更新は機械的（`git log` 経由）。人間が手で書き換えない
+- `verificationNote` の記入義務は **`reviewed` のみ**。tested / guarded / asserted /
+  generated は空セル可（誤って全 claim 必須化すると baseline 320 violation）
+- freshness guard の `.skip` 化は撤退準備、削除は K3 完了 or 1 sprint 後
+
+---
+
 ### Phase 依存グラフ
 
 ```text
-A ─→ B ─→ C ─→ D ─→ E ─→ F ─→ G ─→ H ─→ I ─→ J
+A ─→ B ─→ C ─→ D ─→ E ─→ F ─→ G ─→ H ─→ I ─→ J ─→ K
 ```
 
-各 Phase は前 Phase 完了後に着手（Wave 構造）。
+各 Phase は前 Phase 完了後に着手（Wave 構造）。Phase K は J の上に立つ
+freshness mechanism redesign で、Phase J の claim evidence enforcement を
+前提とする。
 
 ## 5. Operational Control System §1〜§11
 

@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: c0a56f3
+lastVerifiedCommit: 8be44bc
 owner: architecture
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -60,12 +60,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | `budget = 0` で `budgetAchievementRate = safeDivide(..., 0, 0) = 0`（ゼロ除算回避、達成率 null 化禁止で 0 統一）| tested | high | app/src/domain/calculations/budgetAnalysisInvariants.test.ts | - |
-| CLM-002 | `budgetProgressGap = budgetProgressRate − budgetElapsedRate`（消化率 − 経過率、正 = 前倒し / 負 = 遅れ）| tested | high | app/src/domain/calculations/budgetAnalysis.test.ts | - |
-| CLM-003 | `projectedSales = totalSales + averageDailySales × remainingDays`（線形外挿、分母と乗数は同一基準で `remainingDays > 0` のみ requiredDailySales 計算）| tested | high | app/src/domain/calculations/budgetAnalysis.test.ts | - |
-| CLM-004 | budget WASM bridge 経路との数値同等性（dual-run observation guard 監視下、StoreResult 統合経路）| guarded | high | - | app/src/test/observation/budgetAnalysisObservation.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | `budget = 0` で `budgetAchievementRate = safeDivide(..., 0, 0) = 0`（ゼロ除算回避、達成率 null 化禁止で 0 統一） | tested | high | app/src/domain/calculations/budgetAnalysisInvariants.test.ts | - | - |
+| CLM-002 | `budgetProgressGap = budgetProgressRate − budgetElapsedRate`（消化率 − 経過率、正 = 前倒し / 負 = 遅れ） | tested | high | app/src/domain/calculations/budgetAnalysis.test.ts | - | - |
+| CLM-003 | `projectedSales = totalSales + averageDailySales × remainingDays`（線形外挿、分母と乗数は同一基準で `remainingDays > 0` のみ requiredDailySales 計算） | tested | high | app/src/domain/calculations/budgetAnalysis.test.ts | - | - |
+| CLM-004 | budget WASM bridge 経路との数値同等性（dual-run observation guard 監視下、StoreResult 統合経路） | guarded | high | - | app/src/test/observation/budgetAnalysisObservation.test.ts | - |
 
 ## 5. Migration Plan
 

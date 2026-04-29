@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: 8be44bc
+lastVerifiedCommit: db443c4
 owner: implementation
 reviewCadenceDays: 90
 lastReviewedAt: 2026-04-28
@@ -69,12 +69,12 @@ specVersion: 1
 
 ### Behavior Claims (Phase J Evidence Level)
 
-| ID | claim | evidenceLevel | riskLevel | tests | guards |
-|---|---|---|---|---|---|
-| CLM-001 | CALC-014 `buildPrevYearCostApprox` 出力を chart 入力として mapping（前年近似原価を傾向比較系列に使用、registry 行で wrap）| reviewed | high | - | - |
-| CLM-002 | RM-002 calculateGrossProfit 出力を chart 入力として mapping（4 種粗利を ChartInputBuilder で統合、chart 内 raw 計算禁止）| guarded | high | - | app/src/test/guards/grossProfitPathGuard.test.ts |
-| CLM-003 | logic.ts (純 pure layer) で計算、tsx (presentation) は描画のみ（A3 / C4 描画純粋、Logic test で数値検証）| reviewed | high | - | - |
-| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6）| guarded | high | - | app/src/test/guards/topologyGuard.test.ts |
+| ID | claim | evidenceLevel | riskLevel | tests | guards | verificationNote |
+|---|---|---|---|---|---|---|
+| CLM-001 | CALC-014 `buildPrevYearCostApprox` 出力を chart 入力として mapping（前年近似原価を傾向比較系列に使用、registry 行で wrap） | reviewed | high | - | - | mapping の正しさは CALC-014 出力契約で fail-fast。「前年近似」性質の表明は analytic-authoritative classification で declarative (semanticClassification) |
+| CLM-002 | RM-002 calculateGrossProfit 出力を chart 入力として mapping（4 種粗利を ChartInputBuilder で統合、chart 内 raw 計算禁止） | guarded | high | - | app/src/test/guards/grossProfitPathGuard.test.ts | - |
+| CLM-003 | logic.ts (純 pure layer) で計算、tsx (presentation) は描画のみ（A3 / C4 描画純粋、Logic test で数値検証） | reviewed | high | - | - | tsx と logic の責務分離は A3 + C4 + presentationIsolationGuard で構造的保証。数値検証は Logic test に委譲済 |
+| CLM-004 | ChartCard 経由で empty/loading/error 状態通知（chart 内部 error UI 禁止 = H6） | guarded | high | - | app/src/test/guards/topologyGuard.test.ts | - |
 
 ## 6. Consumers
 
