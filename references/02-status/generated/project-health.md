@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-29T14:17:22.410Z
+> 生成: 2026-04-29T14:29:48.647Z
 
 ## サマリー
 
@@ -15,14 +15,14 @@
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 908 |
-| 全 project の checked checkbox 総数 | 825 |
+| 全 project の required checkbox 総数 | 923 |
+| 全 project の checked checkbox 総数 | 826 |
 
 ## projects
 
 | projectId | title | derivedStatus | parent | progress | entrypoint |
 |---|---|---|---|---|---|
-| `aag-bidirectional-integrity` | AAG 双方向 integrity meta-rule + 表示 rule 製本化 | **in_progress** | — | 6/46 (13%) | [`projects/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/aag-bidirectional-integrity/AI_CONTEXT.md) |
+| `aag-bidirectional-integrity` | AAG 双方向 integrity meta-rule + 表示 rule 製本化 | **in_progress** | — | 7/61 (12%) | [`projects/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/aag-bidirectional-integrity/AI_CONTEXT.md) |
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |

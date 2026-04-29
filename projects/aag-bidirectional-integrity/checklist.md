@@ -10,11 +10,12 @@
 ## Phase 0: 計画 doc landing
 
 - [x] `projects/aag-bidirectional-integrity/` を `_template` から bootstrap した
-- [x] `config/project.json` に projectization (Level 4 / governance-hardening / status active) を記録した
-- [x] `plan.md` に Phase 1〜7 + 不可侵原則 + やってはいけないこと を記録した
+- [x] `config/project.json` に projectization (Level 3 / governance-hardening / status active / requiresLegacyRetirement=true) を記録した
+- [x] `plan.md` に Phase 1〜9 + 不可侵原則 + やってはいけないこと を記録した
 - [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order を記録した
-- [x] `HANDOFF.md` に現在地（spawn 直後）と次にやること（Phase 1〜7）と ハマりポイントを記録した
-- [x] `projectization.md` に AAG-COA 判定 (Level 4) と nonGoals を記録した
+- [x] `HANDOFF.md` に現在地（spawn 直後）と次にやること（Phase 1〜9）と ハマりポイントを記録した
+- [x] `projectization.md` に AAG-COA 判定 (Level 3 / requiresLegacyRetirement=true) と nonGoals を記録した
+- [x] `legacy-retirement.md` の skeleton を landing した（Phase 4 で実値を埋める）
 
 ## Phase 1: 双方向 integrity meta-rule の AAG core 文書化
 
@@ -30,21 +31,40 @@
 - [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` 空 array で初期化した
 - [ ] TypeScript 型定義の整合を確認した（build / lint PASS）
 
-## Phase 3: 既存 AR-NNN rule の audit + binding（partial）
+## Phase 3: 網羅的 doc audit (rule canonization mapping + gap analysis)
 
-- [ ] 既存 100+ AR-NNN rule を A/B/C/D 4 分類で audit した（結果を `references/02-status/` に記録）
+- [ ] `references/` 配下全 doc inventory を作成した（path / 役割 / 分類: rule-defining / rule-using / status / archive / template）
+- [ ] 各 rule-defining doc が canonize している rule を抽出した（人間語 → AR rule ID 候補マッピング）
+- [ ] gap 識別を完了した（実装 / 慣習として確立しているが doc 化されていない rule の候補）
+- [ ] redundancy 識別を完了した（同一概念を複数 doc が説明している箇所、conflict があれば flag）
+- [ ] staleness 識別を完了した（archived / superseded / 内容が古い doc）
+- [ ] audit 結果を `references/02-status/doc-audit-report.md` に集約した
+
+## Phase 4: legacy 撤退 (不要 doc 整理 + 冗長性解消 + 不足補完)
+
+- [ ] `legacy-retirement.md` に Phase 4 の sunset / consolidation / 補完計画を確定した
+- [ ] staleness 判定 doc 全件の判定（即時 sunset / 漸次 sunset / 維持）を確定した
+- [ ] sunset 判定 doc を `99-archive/` に移管した（migrationRecipe 付き、物理削除は段階）
+- [ ] redundancy 判定対象の正本確定 + 他 doc の back link 化を完了した
+- [ ] gap 補完の必要最低限 doc を新設した（Phase 8 と区別、即時補完が前提整理に必要なもののみ）
+- [ ] doc-registry.json に変更を反映した
+
+## Phase 5: 既存 AR-NNN rule の audit + binding (partial)
+
+- [ ] Phase 3 mapping を input に既存 100+ AR-NNN rule を A/B/C/D 4 分類で audit した
 - [ ] 分類 A（自明な既製本）の rule に `canonicalDocRef` を即時記入した
 - [ ] 分類 D（撤回判定）の rule の sunset trigger を確定した
 - [ ] 分類 B/C は後続 sprint で漸次対応する旨を HANDOFF に明示した
+- [ ] audit 結果を `references/02-status/ar-rule-audit.md` に記録した
 
-## Phase 4: Layer 2 既存 doc に back link section 追加
+## Phase 6: Layer 2 既存 doc に back link section 追加
 
 - [ ] `04-design-system/docs/` 関連 doc に `## Mechanism Enforcement` section を追加した
 - [ ] `01-principles/` 関連 doc（rule 定義系）に同 section を追加した
 - [ ] `03-guides/` 関連 doc（数値表示ルール / coding-conventions 等）に同 section を追加した
-- [ ] 各 section が指す AR rule ID 一覧と Phase 3 分類 A の binding が双方向で整合した
+- [ ] 各 section が指す AR rule ID 一覧と Phase 5 分類 A の binding が双方向で整合した
 
-## Phase 5: forward / reverse meta-guard 実装
+## Phase 7: forward / reverse meta-guard 実装
 
 - [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設した
 - [ ] reverse guard が各 AR rule の `canonicalDocRef` 必須化 + path 実在 + doc 内 rule ID 出現を検証した
@@ -53,18 +73,19 @@
 - [ ] 例外 allowlist の baseline を機械管理した（ratchet-down のみ、増加禁止）
 - [ ] 新 rule 追加 PR で immediate enforcement が hard fail することを synthetic 注入で確認した
 
-## Phase 6: 表示 rule registry 製本化（Layer 3）
+## Phase 8: 新規製本創出 (Phase 3 で identified gaps + display-rule registry)
 
-- [ ] `references/01-principles/display-rule-registry.md` を新設した
+- [ ] `references/01-principles/display-rule-registry.md` を新設した（Phase 8 の最重要 instance）
 - [ ] DFR-001 chart semantic color を rule entry として登録した（Layer 1 source link / Layer 2 doc link / bypass pattern / 適用 path / migrationRecipe）
 - [ ] DFR-002 axis formatter via useAxisFormatter を登録した
 - [ ] DFR-003 percent via formatPercent を登録した
 - [ ] DFR-004 currency via formatCurrency を登録した（thousands separator 明文化）
 - [ ] DFR-005 icon via pageRegistry / emoji canonical を登録した
+- [ ] Phase 3 で gap 判定された他 rule に対する新規 doc を必要なものに限定して新設した（anti-bloat 適用）
 - [ ] `content-and-voice.md` の "thousands-separator convention is not enforced" 記述を更新した
-- [ ] `doc-registry.json` に `display-rule-registry.md` を登録した
+- [ ] `doc-registry.json` に新規 doc を登録した
 
-## Phase 7: 表示 rule guards 実装
+## Phase 9: 表示 rule guards 実装
 
 - [ ] `displayRuleGuard.test.ts` を rule registry framework として新設した
 - [ ] DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録した
@@ -74,7 +95,7 @@
 - [ ] DFR-004 baseline 確定（survey 結果から）
 - [ ] DFR-005 baseline 確定（survey 結果から）
 - [ ] 各 rule の migrationRecipe を記入した（fix 方法を機械生成可能に）
-- [ ] Phase 5 reverse meta-guard が DFR-001〜005 全てに対して PASS した（双方向 integrity 成立）
+- [ ] Phase 7 reverse meta-guard が DFR-001〜005 全てに対して PASS した（双方向 integrity 成立）
 
 ## 最終レビュー (人間承認)
 
@@ -83,4 +104,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase (1〜7) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase (1〜9) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

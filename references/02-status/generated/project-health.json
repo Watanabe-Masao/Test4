@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T14:17:22.410Z",
+  "timestamp": "2026-04-29T14:29:48.647Z",
   "summary": {
     "active": 6,
     "archived": 28,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 908,
-    "checkedCheckboxes": 825
+    "totalCheckboxes": 923,
+    "checkedCheckboxes": 826
   },
   "projects": [
     {
@@ -18,9 +18,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 6,
-      "total": 46,
-      "progress": 0.13,
+      "checked": 7,
+      "total": 61,
+      "progress": 0.115,
       "entrypoint": "projects/aag-bidirectional-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/aag-bidirectional-integrity/checklist.md",
       "parent": null
