@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-04-29T11:21:50.208Z",
+  "generatedAt": "2026-04-29T11:34:28.969Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {
-      "totalTargets": 1387,
-      "tagged": 1387,
+      "totalTargets": 1388,
+      "tagged": 1388,
       "untagged": 0,
       "inAnchorSlice": 59,
       "anchorBreakdown": {
@@ -19,7 +19,7 @@
       "unknownVocabulary": 0,
       "missingOrigin": 0,
       "tagDistribution": {
-        "R:unclassified": 1300,
+        "R:unclassified": 1301,
         "R:calculation": 27,
         "R:hook": 2,
         "R:adapter": 24,
@@ -31,17 +31,17 @@
       }
     },
     "test": {
-      "totalTargets": 758,
-      "tagged": 758,
+      "totalTargets": 759,
+      "tagged": 759,
       "untagged": 0,
-      "inAnchorSlice": 40,
+      "inAnchorSlice": 41,
       "anchorBreakdown": {
         "T:zod-contract": 2,
         "T:contract-parity": 2,
         "T:boundary": 2,
         "T:unit-numerical": 2,
         "T:render-shape": 1,
-        "T:meta-guard": 31
+        "T:meta-guard": 32
       },
       "unknownVocabulary": 1,
       "missingOrigin": 0,
@@ -59,7 +59,7 @@
         "T:unmount-path": 2,
         "T:render-shape": 1,
         "T:allowlist-integrity": 1,
-        "T:meta-guard": 31,
+        "T:meta-guard": 32,
         "T:*` を持たない": 1,
         "unknown:T:*` を持たない": 1
       }

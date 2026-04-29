@@ -665,4 +665,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: Phase K Option 1 後続再発防止 (2026-04-29) — `.github/workflows/*.yml` の actions/checkout step で full history が必要な job (test:guards / vitest run 等を含む) に `fetch-depth: 0` を強制。allowlist (wasm-build / e2e / pages-build / deploy) で full history 不要 job を明示',
   },
+  'AR-COVERAGE-MAP-DISPLAY-NAME-COUNT': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: Phase K Option 1 後続再発防止 B (2026-04-29) — coverage-map.json の各 pair の displayName 末尾 `× N` 表記が guardFiles.length と一致を機械検証。新 guard 追加時の手作業 count drift を防止 (PR #1207 で発生した × 11 → × 12 更新漏れの再発防止)',
+  },
 } as const

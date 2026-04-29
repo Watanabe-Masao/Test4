@@ -6350,6 +6350,47 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
+    id: "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "app-domain/integrity/APP_DOMAIN_INDEX.md",
+    what: "integrity COVERAGE_MAP の各 pair の `displayName` 末尾 `× N` 表記が `guardFiles.length` と一致する",
+    why: "PR #1207 着手時に `contentSpec*Guard × 11` を `× 12` に手作業更新する作業が発生 (新 guard 追加に伴う count drift)。`× N` は coverage-map.json の displayName と APP_DOMAIN_INDEX.md / HANDOFF.md の prose に重複出現し、guard 追加・撤退のたびに手作業更新が必要で drift の温床。本 rule は coverage-map 内での自己整合 (displayName ↔ guardFiles count) を構造的に保証する safety net",
+    correctPattern: {
+      description:
+        "coverage-map.json の各 entry の displayName 末尾 `× N` (例: 'contentSpec*Guard × 11') の N が guardFiles.length と完全一致する。displayName に `× N` 表記が無い entry は対象外 (deferred / 単一 guard)",
+    },
+    outdatedPattern: {
+      description:
+        "新 guard を guardFiles に追加したが displayName の `× N` が旧値のまま (例: × 11 → × 12 の手作業更新漏れ)",
+    },
+    decisionCriteria: {
+      when: "COVERAGE_MAP に新 guardFile を追加 / 既存 guardFile を削除するとき",
+      exceptions: "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
+      escalation: "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `app-domain/integrity/coverage/coverage-map.json` を開く",
+        "2. 該当 pair の displayName 末尾 `× N` を guardFiles.length と一致する値に更新",
+        "3. APP_DOMAIN_INDEX.md / HANDOFF.md 等で同 pair を参照している prose も併せて更新 (将来的に displayName の derived view 化検討)",
+      ],
+    },
+    sunsetCondition:
+      "displayName を直接書く運用から、guardFiles.length の derived expression に切り替えた場合は sunset 候補",
+    protectedHarm: {
+      prevents: [
+        "新 guard 追加時の displayName count 更新漏れ (本 rule 不在時に PR #1207 着手で発生した手作業 drift の再発)",
+        "guard 撤退時の displayName 更新漏れ (count が減った時も同様)",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
     id: "AR-CI-FETCH-DEPTH",
     principleRefs: ["G1"],
     ruleClass: "invariant",

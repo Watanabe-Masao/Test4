@@ -25,6 +25,14 @@ export interface ObligationRule {
   readonly label: string
   /** 検証方法 */
   readonly check: ObligationCheck
+  /**
+   * Phase K Option 1 後続 F (2026-04-29):
+   * true なら **新規追加ファイル** (`git diff --name-only --diff-filter=A`) のみを
+   * trigger 対象にする。既存ファイルの modification は trigger しない。
+   * 「新規 .md → registry 登録必須」のような additive-only な義務に使用する。
+   * 既定値 false (= 全変更を trigger 対象 = 従来挙動)。
+   */
+  readonly triggerOnAdded?: boolean
 }
 
 type ObligationCheck =
@@ -141,11 +149,14 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     check: { type: 'health_regenerated' },
   },
   // --- references/ に新文書追加 → doc-registry.json に登録 ---
+  // triggerOnAdded: true で新規 .md 追加のみを trigger 対象にする (既存ファイル
+  // modification は registry 既登録済のため obligation 不要、Phase K F 改善)。
   {
     pathPattern: 'references/03-guides/',
     obligationId: 'obligation.guides.registry',
     label: '実装ガイド追加時は doc-registry.json にも登録が必要',
     check: { type: 'file_modified', file: 'docs/contracts/doc-registry.json' },
+    triggerOnAdded: true,
   },
   // --- features/ に新モジュール追加 → CLAUDE.md 更新 ---
   {
@@ -268,6 +279,31 @@ function getChangedFiles(repoRoot: string, base?: string): string[] {
   }
 }
 
+/**
+ * Phase K Option 1 後続 F (2026-04-29):
+ * git diff で **新規追加** ファイルのみを取得する (`--diff-filter=A`)。
+ * `triggerOnAdded: true` の obligation rule で使用。
+ */
+function getAddedFiles(repoRoot: string, base?: string): string[] {
+  const diffTarget = base ?? 'HEAD~1'
+  try {
+    const output = execSync(
+      `git diff --name-only --diff-filter=A ${diffTarget} 2>/dev/null`,
+      {
+        cwd: repoRoot,
+        encoding: 'utf-8',
+        timeout: 10000,
+      },
+    )
+    return output
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0)
+  } catch {
+    return []
+  }
+}
+
 function isHealthJsonFresh(_repoRoot: string, changedFiles: string[]): boolean {
   return changedFiles.includes('references/02-status/generated/architecture-health.json')
 }
@@ -320,13 +356,17 @@ export function collectObligations(
   const diffTarget = options?.base ?? 'HEAD~1'
   const changedFiles = getChangedFiles(repoRoot, options?.base)
   if (changedFiles.length === 0) return []
+  // triggerOnAdded: true の rule 評価用に新規追加ファイル list も並行取得
+  const addedFiles = getAddedFiles(repoRoot, options?.base)
 
   const kpis: HealthKpi[] = []
   let violations = 0
 
   for (const rule of OBLIGATION_MAP) {
+    // triggerOnAdded: true なら新規追加ファイルのみ、false (default) なら全変更ファイルを trigger source とする
+    const sourceFiles = rule.triggerOnAdded ? addedFiles : changedFiles
     // generated section のみの変更はトリガーから除外する
-    const triggered = changedFiles.some(
+    const triggered = sourceFiles.some(
       (f) =>
         f.startsWith(rule.pathPattern) && !isGeneratedSectionOnlyChange(repoRoot, f, diffTarget),
     )
