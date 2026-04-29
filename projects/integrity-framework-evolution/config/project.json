@@ -1,0 +1,46 @@
+{
+  "$comment": "整合性 framework の進化 project。前駆 project canonicalization-domain-consolidation の Phase A〜I で確立された整合性 domain (14 primitive + 13 ペア + Hard Gate KPI) を基盤に、(1) 前駆 project の最終 13 dimension quality review で発見した構造的問題 (正本性の単方向化 / 時間軸の不在 / mechanism と judgement の境界 / state machine の不在 / scope 暗黙 / cross-domain disconnection / 再帰性) を Phase R: Framework Reset で institutional answer として整備、(2) 整えた framework の上で Phase H: Horizontal Expansion (wasm + charts + hooks) を実施、(3) Phase I で institutionalization。",
+  "projectId": "integrity-framework-evolution",
+  "title": "整合性 framework 進化 — Reset + Horizontal Expansion",
+  "status": "draft",
+  "projectRoot": "projects/integrity-framework-evolution",
+  "parent": null,
+  "dependsOn": [
+    "projects/canonicalization-domain-consolidation"
+  ],
+  "projectization": {
+    "$comment": "Level 4 (umbrella scope) — Phase R は AAG framework 自身の structural change、Phase H は前駆 project の horizontal expansion 引き継ぎ。breakingChange は Phase R で発生 (schema 変更 / 既存 archive 移行)。requiresLegacyRetirement = true (Phase R 後に旧 schema 撤退)、requiresGuard = true (新 framework の自己保護 + Phase H tier1 の guard)、requiresHumanApproval = true (framework reset の境界確定)。",
+    "level": 4,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app-domain/integrity/",
+      "app/src/test/guards/",
+      "tools/architecture-health/src/collectors/",
+      "projects/integrity-framework-evolution/derived/",
+      "references/01-principles/canonicalization-principles.md",
+      "references/03-guides/integrity-domain-architecture.md",
+      "references/03-guides/canonicalization-checklist.md",
+      "wasm/",
+      "app/src/presentation/components/charts/",
+      "app/src/application/hooks/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "Phase R で AAG framework の根本設計 (4 層 / authoritative / scope.json) を変更しない",
+      "Phase H で新 business logic を導入しない (registry+guard 整備のみ)",
+      "active overlay の自動切替 (人間判断、Phase R 完了後に検討)",
+      "前駆 project (canonicalization-domain-consolidation) で確定済の §P8/§P9 を変更しない (拡張は可、変更不可)",
+      "13 dimension review で deferred とした項目 (ID-1 warnAt / Z-4 mechanicalSignal 等) のうち本 project scope 外項目に踏み込まない (第 5 の柱 project に handoff)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/integrity-framework-evolution/AI_CONTEXT.md",
+    "handoff": "projects/integrity-framework-evolution/HANDOFF.md",
+    "plan": "projects/integrity-framework-evolution/plan.md",
+    "checklist": "projects/integrity-framework-evolution/checklist.md",
+    "projectization": "projects/integrity-framework-evolution/projectization.md"
+  }
+}
