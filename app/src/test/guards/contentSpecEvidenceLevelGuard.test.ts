@@ -32,7 +32,13 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { REPO_ROOT, SPECS_BASE } from './contentSpecHelpers'
-import type { SpecKind, EvidenceLevel, RiskLevel } from '@app-domain/integrity'
+import {
+  parseBehaviorClaimsTable,
+  type ParsedBehaviorClaim,
+  type SpecKind,
+  type EvidenceLevel,
+  type RiskLevel,
+} from '@app-domain/integrity'
 
 const VALID_EVIDENCE_LEVELS = new Set<EvidenceLevel>([
   'generated',
@@ -52,19 +58,10 @@ const KIND_DIRS: Record<SpecKind, string> = {
   'ui-component': 'ui-components',
 }
 
-interface ParsedClaim {
-  readonly id: string
-  readonly claim: string
-  readonly evidenceLevel: string
-  readonly riskLevel: string
-  readonly tests: readonly string[]
-  readonly guards: readonly string[]
-}
-
 interface SpecClaims {
   readonly specId: string
   readonly specPath: string
-  readonly claims: readonly ParsedClaim[]
+  readonly claims: readonly ParsedBehaviorClaim[]
 }
 
 function listSpecFiles(): string[] {
@@ -76,60 +73,6 @@ function listSpecFiles(): string[] {
     for (const f of files) out.push(resolve(fullDir, f))
   }
   return out
-}
-
-function parseCellList(cell: string): readonly string[] {
-  const trimmed = cell.trim()
-  if (trimmed === '' || trimmed === '-' || trimmed === 'なし' || trimmed === 'none') return []
-  return trimmed
-    .split(/[,;\n]/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && s !== '-')
-}
-
-function parseBehaviorClaimsTable(specContent: string): readonly ParsedClaim[] {
-  const lines = specContent.split('\n')
-  let i = 0
-  // Find heading containing "Behavior Claims"
-  while (i < lines.length && !/^#+\s+.*Behavior Claims/i.test(lines[i])) i++
-  if (i >= lines.length) return []
-  // Skip to header row
-  while (i < lines.length && !/^\s*\|\s*ID\s*\|/i.test(lines[i])) i++
-  if (i >= lines.length) return []
-  // Skip header + separator
-  i += 2
-  const claims: ParsedClaim[] = []
-  while (i < lines.length) {
-    const line = lines[i].trim()
-    if (line === '' || !line.startsWith('|')) break
-    // skip if next heading
-    if (line.startsWith('#')) break
-    // Parse pipe-delimited row
-    const cells = line
-      .replace(/^\|/, '')
-      .replace(/\|$/, '')
-      .split('|')
-      .map((c) => c.trim())
-    if (cells.length < 6) {
-      i++
-      continue
-    }
-    const [id, claim, evidenceLevel, riskLevel, testsRaw, guardsRaw] = cells
-    if (!id.startsWith('CLM-')) {
-      i++
-      continue
-    }
-    claims.push({
-      id,
-      claim,
-      evidenceLevel,
-      riskLevel,
-      tests: parseCellList(testsRaw),
-      guards: parseCellList(guardsRaw),
-    })
-    i++
-  }
-  return claims
 }
 
 function loadAllClaims(): SpecClaims[] {

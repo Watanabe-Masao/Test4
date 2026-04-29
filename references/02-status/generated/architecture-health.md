@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T06:46:20.854Z
+> Generated: 2026-04-29T07:11:22.427Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,17 +51,17 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 117 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 118 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
-| guard.rules.total | 総 Architecture Rule 数 | 163 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 84 | OK |
+| guard.rules.total | 総 Architecture Rule 数 | 164 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 85 | OK |
 | guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 58 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
-| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 163 / 92 | OK |
-| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 32 / 9 | OK |
+| temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 164 / 92 | OK |
+| temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 33 / 9 | OK |
 | temporal.rules.reviewOverdue.count | review overdue ルール数 | 0 / 0 | OK |
 | temporal.rules.heuristicGate.count | heuristic + gate ルール数 | 0 / 32 | OK |
-| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 100 | OK |
+| efficacy.rules.withProtectedHarm.count | protectedHarm 設定済みルール数 | 101 | OK |
 | efficacy.rules.highNoise.count | 高例外圧ルール数（≥10 件） | 0 / 3 | OK |
 | taxonomy.responsibility.unknownVocabulary | taxonomy 責務軸: unknown vocabulary 使用 file 数 | 0 | OK |
 | taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 1 | OK |
@@ -90,7 +90,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 4 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 863 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 811 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 812 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |

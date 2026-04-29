@@ -26,7 +26,7 @@
 - [x] `AR-CONTENT-SPEC-FRESHNESS` rule を登録 + active 化した
 - [x] `AR-CONTENT-SPEC-OWNER` rule を登録 + active 化した
 - [x] `obligation-collector.ts` の `OBLIGATION_MAP` に registry 変更 → spec 更新義務を追加した
-- [ ] behavior section guard（spec が usage ではなく behavior を記述している検証）を実装した
+- [x] behavior section guard を実装した（J7 path existence: `contentSpecPathExistenceGuard.test.ts` + `AR-CONTENT-SPEC-PATH-EXISTENCE` rule + `parseBehaviorClaimsTable` primitive を `@app-domain/integrity` に extract、evidence guard と共有）
 - [x] content graph の初版 collector を実装した — `tools/architecture-health/src/collectors/content-graph-collector.ts` 新設、3 KPI (nodes=89 / edges=47 / orphans=47) を architecture-health に feed、`content-graph.json` 生成 (2026-04-29)
 - [x] `npm run content-specs:check` script を package.json に追加した
 - [x] CI workflow に content-specs:check を組み込んだ（`test:guards` 経由で fast-gate に組み込み — `contentSpecFrontmatterSyncGuard` が generator --check を spawn する）

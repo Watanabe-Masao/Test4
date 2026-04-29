@@ -650,6 +650,11 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: spec body の Behavior Claims table の evidenceLevel / riskLevel 整合 (high-risk asserted 禁止 / tested→test path / guarded→guard path 必須)',
   },
+  'AR-CONTENT-SPEC-PATH-EXISTENCE': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: Phase J7 (2026-04-29) Behavior Claims tests / guards 列の各 path が実 file を指すことを checkPathExistence 経由で検証 (path typo / stale reference / orphan 検出)',
+  },
   'AR-INTEGRITY-NO-RESURRECT': {
     category: 'registry-integrity',
     layer: 'schema',

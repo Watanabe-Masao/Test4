@@ -61,12 +61,12 @@ canonicalization plan §3.2 対応表）。
 
 ### Tier 1: active 継続 (concrete value、現実装に直接価値)
 
-1. **behavior section guard (J7 path 実在)** — claim 内 tests/guards path が実 file を指すこと
-   - `app/src/test/guards/contentSpecPathExistenceGuard.test.ts` を新設
-   - `contentSpecHelpers.ts` に `pathExists(repoRelPath)` を追加
-   - **canonicalization-aware 設計**: 将来 `app-domain/integrity/detection/pathExistence.ts` に extract される shape で実装
+1. ✅ **behavior section guard (J7 path 実在)** — landed 2026-04-29
+   - `contentSpecPathExistenceGuard.test.ts` 新設 + AR-CONTENT-SPEC-PATH-EXISTENCE rule
+   - `parseBehaviorClaimsTable` を `@app-domain/integrity/parsing/` に crystallize、
+     evidence guard と共有 (DRY + dogfooding)
 
-2. **content graph 初版 collector** — Phase A 残課題、#3-9 の prerequisite (5 件 defer 解消)
+2. ✅ **content graph 初版 collector** — landed 2026-04-29 (5 件 defer 解消)
 
 3. **pipeline / queryHandler / projection の missingSpec=0 + sourceRef drift=0** (Phase C)
 
