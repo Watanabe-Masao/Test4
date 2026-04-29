@@ -21,6 +21,7 @@ import type {
   FixNowClassification as _FixNowClassification,
   DetectionSeverity as _DetectionSeverity,
   MigrationEffort as _MigrationEffort,
+  RuleTier as _RuleTier,
   DetectionConfig as _DetectionConfig,
   DecisionCriteria as _DecisionCriteria,
   MigrationRecipe as _MigrationRecipe,
@@ -39,6 +40,7 @@ export type ConfidenceLevel = _ConfidenceLevel
 export type FixNowClassification = _FixNowClassification
 export type DetectionSeverity = _DetectionSeverity
 export type MigrationEffort = _MigrationEffort
+export type RuleTier = _RuleTier
 export type DetectionConfig = _DetectionConfig
 export type DecisionCriteria = _DecisionCriteria
 export type MigrationRecipe = _MigrationRecipe

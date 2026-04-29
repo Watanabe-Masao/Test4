@@ -55,6 +55,20 @@ export type DetectionSeverity = 'gate' | 'warn' | 'block-merge'
 /** 修正工数 */
 export type MigrationEffort = 'trivial' | 'small' | 'medium'
 
+/**
+ * ルールの risk tier（Phase Q.O-2 で導入）
+ *
+ * - 0: data corruption / financial correctness / layer inversion — 即 fail、例外原則禁止、allowlist 不可
+ * - 1: architecture drift / source-of-truth drift / stale docs — 原則 fail、短期 allowlist 可
+ * - 2: complexity / ergonomics / migration debt — ratchet 管理
+ * - 3: review-only / observation — report と review 対象
+ *
+ * Tier 0 一覧: `references/AAG_CRITICAL_RULES.md`
+ *
+ * @see references/AAG_CRITICAL_RULES.md
+ */
+export type RuleTier = 0 | 1 | 2 | 3
+
 // ─── RuleSemantics — 何を守るか ────────────────────────────
 
 /**
@@ -93,6 +107,16 @@ export interface RuleSemantics {
   }
   /** 所属する関心スライス */
   readonly slice?: AagSlice
+  /**
+   * Risk tier（Phase Q.O-2、optional schema、Tier 0 のみ初期指定）
+   *
+   * Tier 0 (data corruption / financial correctness / layer inversion) を AAG_CRITICAL_RULES.md
+   * に集約し、初見者が「絶対踏んではいけない rule」を 1 ページで把握できるようにする。
+   *
+   * 未指定の rule は暗黙的に Tier 1-2 として扱う（Phase Q.O-2 minimal landing 方針：
+   * 162 rule の bulk classification は speculative なので避け、Tier 0 のみ明示）。
+   */
+  readonly tier?: RuleTier
 }
 
 // ─── RuleGovernance — どう扱うか ───────────────────────────

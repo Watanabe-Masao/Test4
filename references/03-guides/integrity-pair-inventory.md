@@ -2,7 +2,7 @@
 
 > **canonicalization-domain-consolidation Phase A 成果物** (2026-04-28 起草)。
 > 散在する 13 種類の「registry / 契約 ↔ guard」ペアを正式に inventory し、
-> 共通パターンを抽出する。`projects/canonicalization-domain-consolidation/plan.md`
+> 共通パターンを抽出する。`projects/completed/canonicalization-domain-consolidation/plan.md`
 > §1.2 の表を本 doc が canonical 化する。
 >
 > 本 doc は **Phase B (Domain Skeleton)** の素材になる。各ペアの parser /
@@ -336,7 +336,7 @@
 
 > **目的**: §1 の 13 既存ペア (Phase B-E migration 対象) と §2 tier1 横展開候補 (Phase H 採用) を、
 > Phase B〜H 全体での **着手 priority 順**に統合する単一リスト。
-> 各候補の出力先は `projects/canonicalization-domain-consolidation/derived/` (Phase A 完了条件)。
+> 各候補の出力先は `projects/completed/canonicalization-domain-consolidation/derived/` (Phase A 完了条件)。
 
 ### 4.1 — 既存 13 ペア (Phase B-E migration)
 
@@ -384,7 +384,7 @@
 本 §は次の 2 場所に出力する:
 
 1. **本 doc (`references/03-guides/integrity-pair-inventory.md`)** — canonical inventory (本ファイル)
-2. **`projects/canonicalization-domain-consolidation/derived/`** — 採用候補リストの machine-readable 版 (JSON / YAML、Phase A 完了 commit で landing)
+2. **`projects/completed/canonicalization-domain-consolidation/derived/`** — 採用候補リストの machine-readable 版 (JSON / YAML、Phase A 完了 commit で landing)
 3. **`references/01-principles/canonicalization-principles.md`** — selection rule (§2.1 の 3 ゲート + 3 tie-breaker) を拡張版として記述 (Phase A 完了 commit で landing)
 4. **doc-registry.json** — 本 doc + 上記 2/3 の path を category `guides` / `principles` に追加 (HANDOFF.md「次にやること」#2 の同期実施)
 
@@ -398,7 +398,7 @@ Phase A が「完遂」とみなせるのは次の全てが成立した時点:
 - [x] §3 共通 primitive 候補 (parsing 6 / detection 7 / reporting 1 / types 4) (本 commit)
 - [x] §4 採用候補リスト (本 §) (本 commit)
 - [x] `references/01-principles/canonicalization-principles.md` の selection rule 拡張版 landing (P8 として追加、本 commit)
-- [x] `projects/canonicalization-domain-consolidation/derived/` machine-readable 版 landing (`adoption-candidates.json` + README.md、本 commit)
+- [x] `projects/completed/canonicalization-domain-consolidation/derived/` machine-readable 版 landing (`adoption-candidates.json` + README.md、本 commit)
 - [x] doc-registry.json への本 doc 追加 (label を populated 状態に更新済、前 commit)
 
 → 全項目完遂。**Phase A primary deliverable 完遂**を HANDOFF.md に反映。Phase B 着手準備完了。

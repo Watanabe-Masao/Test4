@@ -82,5 +82,7 @@
 - North Star: `plan.md §0`
 - 設計思想: `plan.md §3`
 - 撤退規律: `references/01-principles/canonicalization-principles.md §P9`
-- 後続 project: `projects/integrity-framework-evolution/` (Phase R + H + I)
-- ground truth: `projects/integrity-framework-evolution/derived/quality-review.md`
+- 後続 project: `projects/completed/integrity-framework-evolution/` (Phase Q 採用 4 件 + R-① 部分 + R-⑥ で完遂、本 project と同 session で archive)
+- ground truth: `projects/completed/integrity-framework-evolution/derived/quality-review.md`
+
+Archived: 2026-04-29

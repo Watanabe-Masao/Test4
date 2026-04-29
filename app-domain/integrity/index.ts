@@ -70,3 +70,10 @@ export {
 } from "./detection";
 
 export { formatViolations, formatStringViolations } from "./reporting";
+
+export {
+  COVERAGE_MAP,
+  COVERAGE_MAP_JSON_PATH,
+  type PairId,
+  type PairCoverage,
+} from "./coverage";

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T02:58:09.135Z",
+  "timestamp": "2026-04-29T04:48:17.257Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -776,7 +776,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 7,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -827,7 +827,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 26,
+      "value": 28,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -895,7 +895,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 6,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -997,7 +997,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 967,
+      "value": 869,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1047,7 +1047,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 865,
+      "value": 806,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1454,7 +1454,7 @@
         },
         {
           "kind": "roadmap",
-          "path": "projects/canonicalization-domain-consolidation/checklist.md"
+          "path": "projects/completed/canonicalization-domain-consolidation/checklist.md"
         }
       ],
       "implRefs": [

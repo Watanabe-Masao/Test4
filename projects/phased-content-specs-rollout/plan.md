@@ -465,8 +465,8 @@ Phase 0 bootstrap 完遂) との相乗効果が成立した:
   `detection/pathExistence.ts` primitive と同形 — **両 project 共通 primitive 抽出の触媒**として
   実装する合意 (canonicalization HANDOFF.md「直近」§4)。
 
-詳細: `projects/canonicalization-domain-consolidation/plan.md §1.2 #12` /
-       `projects/canonicalization-domain-consolidation/plan.md §3.2`。
+詳細: `projects/completed/canonicalization-domain-consolidation/plan.md §1.2 #12` /
+       `projects/completed/canonicalization-domain-consolidation/plan.md §3.2`。
 
 ---
 

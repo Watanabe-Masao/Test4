@@ -2,8 +2,8 @@
  * Integrity Domain Collector — Phase G architecture-health KPI 統合
  *
  * canonicalization-domain-consolidation Phase G で landing (2026-04-29)。
- * `integrityDomainCoverageGuard.test.ts` の COVERAGE_MAP を file 走査で読み取り、
- * 4 KPI を architecture-health.json に出力する。
+ * Phase R-① 部分採用 (2026-04-29) で COVERAGE_MAP を shared JSON module から直接 read
+ * するように改修 (旧: test file の regex parse、新: app-domain/integrity/coverage/coverage-map.json)。
  *
  * 出力 KPI:
  * - integrity.violations.total       — Hard Gate (eq 0): migrated pair で domain 経由
@@ -13,20 +13,19 @@
  *                                       @expiresAt 過去日 markers
  * - integrity.consolidationProgress  — info (percent): migrated / total
  *
- * **設計判断 (2026-04-29)**: 機械可読 const は test file 内に in-lined のまま、
- * collector 側で regex parse する。理由:
- *   - 既存 collector (test-contract / taxonomy / content-spec) と同じ「file 読み + 構造抽出」pattern
- *   - tools/ tsconfig は rootDir=src で app/src/test を import 不能
- *   - 13 pair の構造は安定 (Phase H で 2 件追加予定だが構造変更なし)
+ * **設計判断 (Phase R-① 部分採用、2026-04-29)**: 旧 regex parse は test file の構造変更に
+ * 脆弱だった。COVERAGE_MAP を JSON 正本に集約し、test/collector 双方が `JSON.parse` 経由で
+ * 構造化 read する形に統一。drift risk 解消 (傾向 1 解消)。
  *
  * @see references/03-guides/integrity-domain-architecture.md §8
- * @see app/src/test/guards/integrityDomainCoverageGuard.test.ts (COVERAGE_MAP 正本)
+ * @see app-domain/integrity/coverage/coverage-map.json (正本 data)
+ * @see app-domain/integrity/coverage/index.ts (test 側 typed wrapper)
  */
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { HealthKpi } from "../types.js";
 
-const COVERAGE_GUARD_REL = "app/src/test/guards/integrityDomainCoverageGuard.test.ts";
+const COVERAGE_MAP_JSON_REL = "app-domain/integrity/coverage/coverage-map.json";
 const INTEGRITY_DOMAIN_REL = "app-domain/integrity";
 
 interface PairEntry {
@@ -42,52 +41,39 @@ interface CoverageStats {
   pairs: readonly PairEntry[];
 }
 
+interface CoverageMapJson {
+  $comment?: string;
+  pairs: ReadonlyArray<{
+    pairId: string;
+    displayName: string;
+    guardFiles: readonly string[];
+    maxLines: Readonly<Record<string, number>>;
+    status: "migrated" | "deferred";
+    deferReason?: string;
+  }>;
+}
+
 /**
- * COVERAGE_MAP から pair 情報を抽出する。
+ * COVERAGE_MAP を shared JSON から直接 read する。
  *
- * test file の構造を仮定:
- *   { pairId: 'foo', ..., guardFiles: ['guards/x.test.ts', ...], ..., status: 'migrated', ... }
- *
- * 各 entry block を `{ pairId:` から次の閉じ括弧までで切り出し、
- * pairId / status / guardFiles 配列を抽出する。
+ * 旧 regex parse 方式 (Phase G) は test file の構造変更に脆弱だった。本実装は
+ * `coverage-map.json` を正本として読み、`pairs[]` から pairId / status /
+ * guardFiles を構造化抽出する。
  */
 function parseCoverageMap(repoRoot: string): CoverageStats {
-  const path = resolve(repoRoot, COVERAGE_GUARD_REL);
-  if (!existsSync(path)) {
+  const jsonPath = resolve(repoRoot, COVERAGE_MAP_JSON_REL);
+  if (!existsSync(jsonPath)) {
     return { total: 0, migrated: 0, deferred: 0, pairs: [] };
   }
-  const content = readFileSync(path, "utf-8");
 
-  const pairs: PairEntry[] = [];
-  // entry の開始: "pairId: '<id>'" を anchor にする
-  const entryRe = /pairId:\s*'([^']+)'/g;
-  const entryStarts: { id: string; index: number }[] = [];
-  let m: RegExpExecArray | null;
-  while ((m = entryRe.exec(content)) !== null) {
-    entryStarts.push({ id: m[1], index: m.index });
-  }
+  const content = readFileSync(jsonPath, "utf-8");
+  const parsed: CoverageMapJson = JSON.parse(content);
 
-  for (let i = 0; i < entryStarts.length; i++) {
-    const start = entryStarts[i].index;
-    const end = i + 1 < entryStarts.length ? entryStarts[i + 1].index : content.length;
-    const block = content.slice(start, end);
-
-    const statusMatch = block.match(/status:\s*'(migrated|deferred)'/);
-    if (!statusMatch) continue;
-
-    const guardFiles: string[] = [];
-    const guardFilesMatch = block.match(/guardFiles:\s*\[([^\]]*)\]/);
-    if (guardFilesMatch) {
-      const items = guardFilesMatch[1].matchAll(/'([^']+)'/g);
-      for (const it of items) guardFiles.push(it[1]);
-    }
-
-    pairs.push({
-      pairId: entryStarts[i].id,
-      status: statusMatch[1] as "migrated" | "deferred",
-      guardFiles,
-    });
-  }
+  const pairs: PairEntry[] = parsed.pairs.map((p) => ({
+    pairId: p.pairId,
+    status: p.status,
+    guardFiles: p.guardFiles,
+  }));
 
   const migrated = pairs.filter((p) => p.status === "migrated").length;
   const deferred = pairs.filter((p) => p.status === "deferred").length;

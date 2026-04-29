@@ -30,7 +30,7 @@
 
 ### 1.2 不採用 archive 確認
 
-- [ ] 採用したい primitive 名が `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json`
+- [ ] 採用したい primitive 名が `projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json`
       の `rejected[].originalSlot` に含まれていないこと
 
 含まれている場合: その判断を反転させる必要がある (review window 経由)。
@@ -133,4 +133,4 @@
 - 撤退規律: 同 §P9
 - domain 設計: `references/03-guides/integrity-domain-architecture.md`
 - inventory: `references/03-guides/integrity-pair-inventory.md`
-- adoption candidates: `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json`
+- adoption candidates: `projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json`

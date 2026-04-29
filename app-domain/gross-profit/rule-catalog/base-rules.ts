@@ -66,6 +66,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "layer-boundary",
     id: "AR-002",
+    tier: 0,
     principleRefs: ["A1", "B1"],
     ruleClass: "invariant",
     guardTags: ["G1", "A3"],
@@ -358,6 +359,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "layer-boundary",
     id: "AR-A1-PRES-INFRA",
+    tier: 0,
     principleRefs: ["A1", "A3"],
     ruleClass: "invariant",
     guardTags: ["A1", "A3", "A5"],
@@ -1080,6 +1082,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "canonicalization",
     id: "AR-PATH-GROSS-PROFIT",
+    tier: 0,
     principleRefs: ["B1", "B3"],
     ruleClass: "invariant",
     guardTags: ["F9", "D1"],
@@ -1387,6 +1390,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "canonicalization",
     id: "AR-PATH-FACTOR-DECOMPOSITION",
+    tier: 0,
     principleRefs: ["B1", "D1", "D2"],
     ruleClass: "invariant",
     guardTags: ["F9", "D1", "D2"],
@@ -1872,6 +1876,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "layer-boundary",
     id: "AR-STRUCT-PRES-ISOLATION",
+    tier: 0,
     principleRefs: ["A3", "H4", "B2"],
     ruleClass: "default",
     guardTags: ["A3", "B2"],
@@ -6258,6 +6263,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   {
     slice: "governance-ops",
     id: "AR-INTEGRITY-NO-RESURRECT",
+    tier: 0,
     principleRefs: ["G1"],
     ruleClass: "invariant",
     guardTags: ["G1"],

@@ -25,48 +25,39 @@
 
 ## 次にやること
 
-### 直近 (Phase Q 着手 — Phase R の prerequisite)
+### Phase Q 完遂 (2026-04-29、採用 4 件 + cut 10 件)
 
-> **Phase Q を Phase R より前に挿入** (外部レビュー 1 + 2 統合、2026-04-29)。Phase Q は operational + meta-governance の 2 軸 14 要素。
+> **Phase Q final disposition**: 14 要素 → 4 採用 (landed) + 10 cut。詳細: `plan.md §Phase Q scope reduction` / `derived/quality-review.md §10`。
 
-1. **Phase Q operational axis (Q.O-1〜Q.O-6) を順次 landing** — 認知負荷削減 + 効果測定:
-   - Q.O-1 (入口整備) を最先行: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md
-   - Q.O-2 (Risk tiering Tier 0-3) で全 rule に tier 必須化
-   - Q.O-3 (Change classification Micro/Local/System/Constitutional) で PR 入口判定
-   - Q.O-4 (Repair-style guard messages) で remediation system 化
-   - Q.O-5 (projects 直下 README auto-generate) で project navigation
-   - Q.O-6 (operational KPIs efficacy + degradation) で AAG 効果測定
+**採用 4 件 landed** (commit `dde1d4e`):
+- Q.O-1: 3 入口 doc (AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md)
+- Q.O-2: BaseRule に `tier?: 0|1|2|3` 追加、Tier 0 を 6 rule に初期指定
+- Q.O-4: guard-failure-playbook.md (Repair-style standard 明文化)
+- Q.M-1: PR template `AAG Change Impact` section + aag-change-impact-template.md
 
-2. **Phase Q meta-governance axis (Q.M-1〜Q.M-8) を順次 landing** — AAG 自己保護:
-   - Q.M-1 (AAG_CHANGE_IMPACT template) を Q.O-1 と並行 (Phase Q 自身も適用対象)
-   - Q.M-2 (AAG invariant list 9 件、anti-bloat 含む)
-   - Q.M-3 (AAG meta-guards 8 件)
-   - Q.M-4 (operational KPIs collector — Q.O-6 と同 collector の 2 vue)
-   - Q.M-5 (promotion gate L0-L7) で new rule 成熟度
-   - Q.M-6 (canary rollout policy Phase 0-4) で段階導入
-   - Q.M-7 (rollback policy) で failure 時降格経路
-   - Q.M-8 (governance review checklist) で二段階 review
+**cut 10 件**:
+- Q.O-3 (Change classification) → Q.M-1 + projectization Level 0-4 で代替済み
+- Q.O-5 (auto-generated README) → defer (復活 trigger: project 数 ≥ 15)
+- Q.O-6 / Q.M-4 (efficacy KPIs)、Q.M-2 (invariants doc)、Q.M-3 (meta-guards)、Q.M-5 / Q.M-6 / Q.M-7 / Q.M-8 → Phase R で実害 evidence が出た時のみ additive 追加 (YAGNI)
 
-3. **Phase Q 順序の判断**:
-   - Q.O-1 + Q.M-1 を最先行 (入口 doc + AAG 変更 template、後続 reform の review に必須)
-   - Q.O-2 + Q.M-2 (Tier + invariants schema 拡張) を Q.M-3 (meta-guards) の前に
-   - Q.O-6 と Q.M-4 は同 collector、合わせて landing
-   - 他は並行可
+### 次にやること: 縮小版 Phase R + I
 
-### 中期 (Phase R 着手 — Phase Q 完了が prerequisite)
+> **Phase R/H/I scope reduction (2026-04-29)**: 6 reform + 4 candidate + I 多数 → **2 採用 + archive transition** に縮小。詳細: `plan.md §Phase R/H/I` / `derived/quality-review.md §11`。
 
-- R-①〜R-⑥ を Phase Q deliverable (Q.O-2 Tier / Q.M-1 IMPACT template / Q.M-6 canary 等) で protect された状態で landing
-- 各 reform は Q.M-6 canary rollout policy に従い段階導入
+**残 work (~3 PR)**:
 
-### 中期 (Phase H 着手 — Phase R 完了が prerequisite)
+1. **archive transition (Phase I 縮小版)**: 前駆 project canonicalization-domain-consolidation を `projects/completed/` に移行
+2. **R-① 部分**: COVERAGE_MAP を shared module 化、integrity-collector の regex parse 廃止
+3. **R-⑥**: integrityDomainCoverageGuard を integrity primitive で書き直し (dogfooding)
 
-- H-α (hooks 再判定) → H-β (charts 採用) → H-γ (wasm 採用) → H-δ (COVERAGE_MAP 拡張)
+完遂後、本 project の status を `draft` → `completed` に移行して archive。
 
-### Phase I (institutionalization + handoff)
+### cut (anti-bloat self-test)
 
-- §P8/§P9 の 3-zone 化
-- 前駆 project archive
-- 第 5 の柱 (Project Lifecycle Governance) への handoff doc
+- Phase R: R-①全体 / R-② / R-③ / R-④ / R-⑤
+- Phase H: H-α / H-β / H-γ / H-δ
+- Phase I: §P8/§P9 3-zone 化 / canonicalization-checklist.md 3-zone 化 / 第 5 の柱 handoff doc
+- 復活 trigger: 各項目に対応する concrete drift / pain evidence が出た時のみ別 minor project として起案 (YAGNI)
 
 ## 並行進行している project
 
@@ -87,6 +78,8 @@
 
 - North Star: `plan.md §0`
 - ground truth: `derived/quality-review.md`
-- 前駆 project の最終 state: `projects/canonicalization-domain-consolidation/HANDOFF.md`
+- 前駆 project の最終 state: `projects/completed/canonicalization-domain-consolidation/HANDOFF.md` (本 project と同 session で archive)
 - 撤退規律: `references/01-principles/canonicalization-principles.md §P9`
 - 整合性 domain 設計: `references/03-guides/integrity-domain-architecture.md`
+
+Archived: 2026-04-29
