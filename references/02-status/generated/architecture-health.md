@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T07:11:22.427Z
+> Generated: 2026-04-29T07:55:31.616Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -89,8 +89,8 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 4 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 863 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 812 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 870 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 813 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
@@ -98,7 +98,7 @@
 | contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
 | contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
 | contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |
-| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 9 | OK |
+| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 8 | OK |
 
 ## バンドル性能
 

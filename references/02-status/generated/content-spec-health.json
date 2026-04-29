@@ -1,6 +1,6 @@
 {
   "$schema": "content-spec-health-v1",
-  "generatedAt": "2026-04-29T07:11:22.420Z",
+  "generatedAt": "2026-04-29T07:55:31.606Z",
   "contentSpec": {
     "total": 89,
     "byKind": {
@@ -23,8 +23,8 @@
     },
     "evidence": {
       "targetTotal": 10,
-      "covered": 1,
-      "uncovered": 9,
+      "covered": 2,
+      "uncovered": 8,
       "baseline": 9,
       "byKind": {
         "chart": {
@@ -33,7 +33,7 @@
         },
         "uiComponent": {
           "total": 5,
-          "covered": 1
+          "covered": 2
         }
       }
     },
@@ -51,7 +51,7 @@
         "budget": 0
       },
       "evidenceUncovered": {
-        "value": 9,
+        "value": 8,
         "budget": 9
       }
     }
