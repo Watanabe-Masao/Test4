@@ -71,13 +71,9 @@ describe('parsing/parseSpecFrontmatter', () => {
   })
 
   it('null / 数値 scalar を正しく parse', () => {
-    const content = [
-      '---',
-      'id: RM-001',
-      'sourceLine: 42',
-      'lastVerifiedCommit: null',
-      '---',
-    ].join('\n')
+    const content = ['---', 'id: RM-001', 'sourceLine: 42', 'lastVerifiedCommit: null', '---'].join(
+      '\n',
+    )
     const spec = parseSpecFrontmatter(content, 'RM-001.md')
     expect(spec.kind).toBe('read-model')
     expect(spec.sourceLine).toBe(42)
