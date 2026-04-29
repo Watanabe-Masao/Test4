@@ -13,7 +13,7 @@
  * を更新する PR を先に landing させる (`canonicalization-principles.md §P8` 適用)。
  *
  * @see app-domain/gross-profit/rule-catalog/base-rules.ts (AR-INTEGRITY-NO-RESURRECT)
- * @see projects/canonicalization-domain-consolidation/derived/adoption-candidates.json
+ * @see projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard
@@ -23,9 +23,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
+// project archive (2026-04-29) で projects/canonicalization-domain-consolidation/ →
+// projects/completed/canonicalization-domain-consolidation/ に移動。
 const REJECTED_REGISTRY_PATH = path.join(
   PROJECT_ROOT,
-  'projects/canonicalization-domain-consolidation/derived/adoption-candidates.json',
+  'projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json',
 )
 const INTEGRITY_DIR = path.join(PROJECT_ROOT, 'app-domain/integrity')
 

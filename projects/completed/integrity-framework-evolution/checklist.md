@@ -85,4 +85,4 @@
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase (R / H / I) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase (R / H / I) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する (2026-04-29 user 承認、Phase R/H/I scope reduction で残 work 縮小済、option (a) 「両方 archive まで進めてください」に基づく archive 代行)

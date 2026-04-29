@@ -2,8 +2,8 @@
   "$comment": "整合性 framework の進化 project。前駆 project canonicalization-domain-consolidation の Phase A〜I で確立された整合性 domain (14 primitive + 13 ペア + Hard Gate KPI) を基盤に、(1) 前駆 project の最終 13 dimension quality review で発見した構造的問題 (正本性の単方向化 / 時間軸の不在 / mechanism と judgement の境界 / state machine の不在 / scope 暗黙 / cross-domain disconnection / 再帰性) を Phase R: Framework Reset で institutional answer として整備、(2) 整えた framework の上で Phase H: Horizontal Expansion (wasm + charts + hooks) を実施、(3) Phase I で institutionalization。",
   "projectId": "integrity-framework-evolution",
   "title": "整合性 framework 進化 — Reset + Horizontal Expansion",
-  "status": "draft",
-  "projectRoot": "projects/integrity-framework-evolution",
+  "status": "archived",
+  "projectRoot": "projects/completed/integrity-framework-evolution",
   "parent": null,
   "dependsOn": [
     "projects/canonicalization-domain-consolidation"

@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T04:36:07.036Z",
+  "timestamp": "2026-04-29T04:48:17.260Z",
   "summary": {
-    "active": 7,
-    "archived": 26,
-    "inProgress": 6,
+    "active": 5,
+    "archived": 28,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 940,
-    "checkedCheckboxes": 871
+    "totalCheckboxes": 869,
+    "checkedCheckboxes": 806
   },
   "projects": [
     {
@@ -137,11 +137,11 @@
       "projectId": "canonicalization-domain-consolidation",
       "title": "整合性 / 正本化ドメイン統合計画",
       "kind": "project",
-      "declaredStatus": "in_progress",
-      "derivedStatus": "in_progress",
-      "checked": 49,
-      "total": 52,
-      "progress": 0.942,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/canonicalization-domain-consolidation/AI_CONTEXT.md",
       "checklistPath": "projects/canonicalization-domain-consolidation/checklist.md",
       "parent": null
@@ -267,11 +267,11 @@
       "projectId": "integrity-framework-evolution",
       "title": "整合性 framework 進化 — Reset + Horizontal Expansion",
       "kind": "project",
-      "declaredStatus": "draft",
-      "derivedStatus": "in_progress",
-      "checked": 16,
-      "total": 19,
-      "progress": 0.842,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
       "entrypoint": "projects/integrity-framework-evolution/AI_CONTEXT.md",
       "checklistPath": "projects/integrity-framework-evolution/checklist.md",
       "parent": null

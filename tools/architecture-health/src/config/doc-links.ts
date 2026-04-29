@@ -179,7 +179,7 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
   'integrity.consolidationProgress': {
     docRefs: [
       { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
-      { kind: 'roadmap', path: 'projects/canonicalization-domain-consolidation/checklist.md' },
+      { kind: 'roadmap', path: 'projects/completed/canonicalization-domain-consolidation/checklist.md' },
     ],
     implRefs: ['app-domain/integrity/index.ts'],
   },

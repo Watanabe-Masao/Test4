@@ -78,6 +78,8 @@
 
 - North Star: `plan.md §0`
 - ground truth: `derived/quality-review.md`
-- 前駆 project の最終 state: `projects/canonicalization-domain-consolidation/HANDOFF.md`
+- 前駆 project の最終 state: `projects/completed/canonicalization-domain-consolidation/HANDOFF.md` (本 project と同 session で archive)
 - 撤退規律: `references/01-principles/canonicalization-principles.md §P9`
 - 整合性 domain 設計: `references/03-guides/integrity-domain-architecture.md`
+
+Archived: 2026-04-29

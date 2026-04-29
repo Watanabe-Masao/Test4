@@ -16,7 +16,7 @@
  *
  * **scope (2026-04-28 縮小)**: Phase H tier1 (wasm + charts) は本 guard 対象外
  * (Phase F 完了時点で未 migration)。Phase H 完了時に「Phase H 採用候補を含む形」
- * へ昇格する (`projects/canonicalization-domain-consolidation/checklist.md` Phase H)。
+ * へ昇格する (`projects/completed/canonicalization-domain-consolidation/checklist.md` Phase H)。
  *
  * @see references/01-principles/canonicalization-principles.md §P9
  * @see references/03-guides/integrity-domain-architecture.md

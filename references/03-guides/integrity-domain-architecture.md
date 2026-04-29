@@ -226,7 +226,7 @@ ratchet-down baseline (lines) の唯一正本。本 doc に重複表を持たな
 
 `app/src/test/guards/integrityDomainCoverageGuard.test.ts` の `COVERAGE_MAP` 定数を
 正本として参照。Phase H landing 時に同 file を「Phase H 採用候補を含む形」へ拡張する
-(`projects/canonicalization-domain-consolidation/checklist.md` Phase H 完了条件)。
+(`projects/completed/canonicalization-domain-consolidation/checklist.md` Phase H 完了条件)。
 
 ## 9. 関連実装
 
@@ -234,7 +234,7 @@ ratchet-down baseline (lines) の唯一正本。本 doc に重複表を持たな
 | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `references/03-guides/integrity-pair-inventory.md` (本 doc の正本入力)            | Phase A inventory + selection rule + primitive 候補   |
 | `references/01-principles/canonicalization-principles.md §P8 §P9`                 | selection rule + 撤退規律 default = step 5 直接到達   |
-| `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` | Phase A §4 採用候補 + rejected slot archive           |
+| `projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json` | Phase A §4 採用候補 + rejected slot archive           |
 | `app/src/test/guards/integrityDomainSkeletonGuard.test.ts`                        | domain 構造 + 命名規約 + 純粋性 (introspection-based) |
 | `app/src/test/guards/integrityDomainCoverageGuard.test.ts`                        | Phase F 完全性 + adapter shape (本 §8 の機械検証経路) |
 | `app/src/test/guards/contentSpecHelpers.ts`                                       | Phase B reference 実装の供給元 (Phase J 完遂、312 行) |
