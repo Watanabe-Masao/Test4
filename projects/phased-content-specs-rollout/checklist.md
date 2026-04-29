@@ -118,6 +118,36 @@
 - [x] J4: `tested` claim の test 参照欠落 = 0 になった（同 guard、tests cell 空で hard fail）
 - [x] J5: `guarded` claim の guard 参照欠落 = 0 になった（同 guard、guards cell 空で hard fail）
 
+## Phase K: Freshness Mechanism Redesign (proposal、anti-ritual)
+
+> 背景: 90 日 review cadence (`reviewCadenceDays + lastReviewedAt`) は概念的に儀式的
+> （`review` の意味が「date 更新」のみで構造的検証を伴わない）。既存の co-change /
+> frontmatter-sync / path-existence / lifecycle / evidence-level 5 guard が構造的
+> drift を網羅し、`lastVerifiedCommit` が既に concrete signal を提供しているため、
+> cadence は重複かつ低 value。本 phase はその儀式を機械的 mechanism に置換する設計。
+> 着手前に plan.md §Phase K として canonical 化する。
+
+### Option 1 (推奨): cadence 廃止 + lastVerifiedCommit 強化
+
+- [ ] `reviewCadenceDays` / `lastReviewedAt` field を deprecate（frontmatter generator で警告、最終的に削除）
+- [ ] `contentSpecLastVerifiedCommitGuard` を新設: spec の `lastVerifiedCommit` が source file の `git log -1 -- sourceRef` の commit hash と一致することを検証（co-change が active なため通常時は自動 sync、stale spec の検出に特化）
+- [ ] `contentSpecFreshnessGuard` を deprecate（cadence-based check 撤退、commit-based に移行）
+
+### Option 2 (併用推奨): reviewed claim に `verificationNote` 必須化
+
+- [ ] Behavior Claims table に `verificationNote` 列を追加（evidenceLevel=reviewed のみ必須、なぜ test 化しないかの 1-2 文 rationale）
+- [ ] `contentSpecEvidenceLevelGuard` 拡張: `reviewed` claim で `verificationNote` 空欄を hard fail
+- [ ] 既存 5 件の reviewed claim (CALC-013/014/016/018/020 CLM-004) に rationale 記入
+
+### Option 3 (保留): sunset trigger
+
+- [ ] source file が caller 0 件 + N commit 未更新で `lifecycleStatus: deprecated` flag を提案（sunset-or-confirm 二択強制）
+
+### 復活 / cut 判断
+
+- 90 日 cadence の儀式を維持する明確 value が後から見つかった場合は本 Phase を cut し cadence を残す
+- 現時点では既存防御との重複が cut 判定の理由（anti-bloat self-test 適用、Phase Q reduction と同思想）
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
