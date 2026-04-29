@@ -82,11 +82,12 @@
 
 ## Phase G: Architecture-Health KPI 統合
 
-- [ ] `integrity.violations.total` KPI を出力した
-- [ ] `integrity.driftBudget` KPI を出力した
-- [ ] `integrity.expiredExceptions` KPI を出力した
-- [ ] `integrity.consolidationProgress` KPI を出力した
-- [ ] Hard Gate に `integrity.violations.total > 0` を追加した
+- [x] `integrity.violations.total` KPI を出力した (Hard Gate eq 0、現状 0)
+- [x] `integrity.driftBudget` KPI を出力した (info、現状 1 = #11 obligation-collector deferred)
+- [x] `integrity.expiredExceptions` KPI を出力した (Hard Gate eq 0、現状 0)
+- [x] `integrity.consolidationProgress` KPI を出力した (info gte 90、現状 92.3%)
+- [x] Hard Gate に `integrity.violations.total > 0` + `integrity.expiredExceptions > 0` を追加した
+- [x] docs:check (pre-push hook) にも integrity collector を配線し pre-push 段階で Hard Gate 判定する
 
 ## Phase H: Horizontal Expansion (新規正本化)
 

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T00:20:46.105Z
+> Generated: 2026-04-29T00:56:21.334Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 53 |
-| OK | 53 |
+| Total KPIs | 57 |
+| OK | 57 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -67,6 +67,10 @@
 | taxonomy.test.unknownVocabulary | taxonomy テスト軸: unknown vocabulary 使用 test 数 | 1 | OK |
 | taxonomy.vocabulary.responsibilityCount | taxonomy 責務軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 10 | OK |
 | taxonomy.vocabulary.testCount | taxonomy テスト軸: vocabulary 数 (Cognitive Load Ceiling 15 cap) | 15 | OK |
+| integrity.violations.total | Integrity domain coverage 違反数 (Hard Gate) | 0 / 0 | OK |
+| integrity.driftBudget | Integrity drift budget (deferred pair 数) | 1 / 2 | OK |
+| integrity.expiredExceptions | Integrity 関連 file の @expiresAt 過去日 markers (Hard Gate) | 0 / 0 | OK |
+| integrity.consolidationProgress | Integrity consolidation progress (migrated / total) | 92.3 / 90 | OK |
 
 ## ドキュメント整合
 
@@ -82,8 +86,8 @@
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 5 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
-| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 927 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 842 | OK |
+| project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 928 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 848 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 7 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
@@ -165,5 +169,14 @@
 | contentSpec.lifecycleViolation | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-LIFECYCLE-FIELDS |
 | contentSpec.lifecycleViolation | definition | references/03-guides/promote-ceremony-pr-template.md |
 | contentSpec.evidenceUncovered | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-VISUAL-EVIDENCE |
+| integrity.violations.total | definition | references/03-guides/integrity-domain-architecture.md #8 |
+| integrity.violations.total | definition | references/01-principles/canonicalization-principles.md #P9 |
+| integrity.violations.total | guard | app/src/test/guards/integrityDomainCoverageGuard.test.ts |
+| integrity.driftBudget | definition | references/03-guides/integrity-domain-architecture.md #8 |
+| integrity.driftBudget | guard | app/src/test/guards/integrityDomainCoverageGuard.test.ts |
+| integrity.expiredExceptions | definition | references/01-principles/canonicalization-principles.md #P9 |
+| integrity.expiredExceptions | guard | app/src/test/guards/integrityDomainCoverageGuard.test.ts |
+| integrity.consolidationProgress | definition | references/03-guides/integrity-domain-architecture.md #8 |
+| integrity.consolidationProgress | roadmap | projects/canonicalization-domain-consolidation/checklist.md |
 
 </details>

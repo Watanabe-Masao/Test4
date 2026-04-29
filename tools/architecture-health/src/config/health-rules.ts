@@ -221,4 +221,35 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     operator: "lte",
     target: 10,
   },
+
+  // --- Integrity Domain (canonicalization-domain-consolidation Phase G) ---
+  // Hard gate: migrated pair で domain 経由 import が壊れていることを許さない
+  // (Phase F coverage guard と同期、collector level observability)
+  {
+    id: "integrity.violations.total",
+    type: "hard_gate",
+    operator: "eq",
+    target: 0,
+  },
+  // Hard gate: integrity 関連 file の @expiresAt 過去日 markers を許さない
+  {
+    id: "integrity.expiredExceptions",
+    type: "hard_gate",
+    operator: "eq",
+    target: 0,
+  },
+  // Info: deferred pair 数 (Phase H 進捗指標、現状 1 件 = obligation-collector)
+  {
+    id: "integrity.driftBudget",
+    type: "info",
+    operator: "lte",
+    target: 2,
+  },
+  // Info: consolidation progress (現状 12/13 = 92.3%、Phase H で更新)
+  {
+    id: "integrity.consolidationProgress",
+    type: "info",
+    operator: "gte",
+    target: 90,
+  },
 ] as const;
