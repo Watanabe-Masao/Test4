@@ -24,6 +24,7 @@ export {
   tsRegistry,
   scanMarkdownIds,
   filesystemRegistry,
+  parseBehaviorClaimsTable,
   type MarkdownIdHeading,
   type MarkdownIdScanOptions,
   type FileEntry,
@@ -33,6 +34,7 @@ export {
   type EvidenceLevel,
   type RiskLevel,
   type BehaviorClaim,
+  type ParsedBehaviorClaim,
 } from "./parsing";
 
 export {

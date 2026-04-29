@@ -32,16 +32,16 @@
 | 後方互換負債 | OK | 0/3 / 0/3 |
 | 複雑性圧 | OK | 1/5 / 10/10 / 25/30 |
 | 境界健全性 | OK | 0/0 / 0/0 |
-| ガード強度 | OK | 117/30 / 0/5 |
+| ガード強度 | OK | 118/30 / 0/5 |
 | 性能 | OK | 6602/7000 / 2386/2500 / 919/1000 |
-| Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 163/92 / 32/9 / 2/1 |
-| Rule Efficacy | OK | 100 / 0/3 / 0/10 |
+| Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 164/92 / 33/9 / 2/1 |
+| Rule Efficacy | OK | 101 / 0/3 / 0/10 |
 | Project Governance | OK | 5/20 / 4/20 / 0/0 / 28/100 |
 
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-04-29T04:48:17.257Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-29T07:11:22.427Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

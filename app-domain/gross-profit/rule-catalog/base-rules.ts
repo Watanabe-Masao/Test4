@@ -6225,6 +6225,47 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
+    id: "AR-CONTENT-SPEC-PATH-EXISTENCE",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "projects/phased-content-specs-rollout/plan.md",
+    what: "spec body の Behavior Claims に記載された tests / guards path が repo 内に実在することを機械検証する (Phase J 後続課題 J7 path 実在 guard)",
+    why: "evidenceLevel guard は cell 非空のみ検証、参照 path が実 file を指すかは未保証。path 不在 / typo / 移動後の stale reference を検出することで「tested / guarded を名乗りながら実 evidence なし」状態を排除する。AR-CONTENT-SPEC-EVIDENCE-LEVEL の補完 rule",
+    correctPattern: {
+      description:
+        "全 spec の Behavior Claims tests / guards 列の各 path が REPO_ROOT 起点で existsSync = true",
+    },
+    outdatedPattern: {
+      description:
+        "tests / guards に記載された path が実 file を指していない (typo / 移動後の stale / 削除後の orphan)",
+    },
+    decisionCriteria: {
+      when: "spec に Behavior Claims を追加するとき、test / guard を移動 / リネーム / 削除するとき",
+      exceptions: "なし",
+      escalation:
+        "path が見つからない場合は spec の path を更新するか、test / guard を復活させる。path を消したいなら claim の evidenceLevel を unknown / asserted に降格 (riskLevel 整合は AR-CONTENT-SPEC-EVIDENCE-LEVEL 側)",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. guard の error message から該当 spec / claim id を特定",
+        "2. tests / guards 列の path を実 file に合わせて修正、または file を復活",
+        "3. evidence を再収集できないなら evidenceLevel を unknown / asserted に降格",
+      ],
+    },
+    sunsetCondition: "なし（path 実在は spec 主張 = 実装 の C 層保証として恒久的）",
+    protectedHarm: {
+      prevents: [
+        "spec の Behavior Claims 内 path が typo / stale で実 file を指さない (silent evidence drift)",
+        "test / guard を移動 / 削除した後に spec が更新されない (orphan reference)",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-OWNER",
     principleRefs: ["G1"],
     ruleClass: "invariant",

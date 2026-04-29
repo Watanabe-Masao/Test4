@@ -20,3 +20,7 @@ export {
   type MarkdownIdScanOptions,
 } from "./markdownIdScan";
 export { filesystemRegistry, type FileEntry } from "./filesystemRegistry";
+export {
+  parseBehaviorClaimsTable,
+  type ParsedBehaviorClaim,
+} from "./behaviorClaimsTable";

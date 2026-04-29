@@ -81,7 +81,7 @@
     },
     {
       "pairId": "content-spec",
-      "displayName": "#12 references/05-contents/ ↔ contentSpec*Guard × 10",
+      "displayName": "#12 references/05-contents/ ↔ contentSpec*Guard × 11",
       "guardFiles": [
         "guards/contentSpecCanonicalRegistrationSyncGuard.test.ts",
         "guards/contentSpecCoChangeGuard.test.ts",
@@ -92,18 +92,20 @@
         "guards/contentSpecLifecycleGuard.test.ts",
         "guards/contentSpecLifecycleLinkSymmetryGuard.test.ts",
         "guards/contentSpecOwnerGuard.test.ts",
+        "guards/contentSpecPathExistenceGuard.test.ts",
         "guards/contentSpecVisualEvidenceGuard.test.ts"
       ],
       "maxLines": {
         "guards/contentSpecCanonicalRegistrationSyncGuard.test.ts": 170,
         "guards/contentSpecCoChangeGuard.test.ts": 90,
-        "guards/contentSpecEvidenceLevelGuard.test.ts": 290,
+        "guards/contentSpecEvidenceLevelGuard.test.ts": 230,
         "guards/contentSpecExistsGuard.test.ts": 100,
         "guards/contentSpecFreshnessGuard.test.ts": 70,
         "guards/contentSpecFrontmatterSyncGuard.test.ts": 70,
         "guards/contentSpecLifecycleGuard.test.ts": 130,
         "guards/contentSpecLifecycleLinkSymmetryGuard.test.ts": 100,
         "guards/contentSpecOwnerGuard.test.ts": 50,
+        "guards/contentSpecPathExistenceGuard.test.ts": 100,
         "guards/contentSpecVisualEvidenceGuard.test.ts": 110
       },
       "status": "migrated"

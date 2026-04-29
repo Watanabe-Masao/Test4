@@ -59,11 +59,21 @@ interface CoverageMapJson {
  * 旧 regex parse 方式 (Phase G) は test file の構造変更に脆弱だった。本実装は
  * `coverage-map.json` を正本として読み、`pairs[]` から pairId / status /
  * guardFiles を構造化抽出する。
+ *
+ * **正本 missing は hard fail**: `coverage-map.json` は本 collector の正本なので、
+ * 不在は silent fallback (zeros) ではなく throw する。silent fallback は
+ * driftBudget=0 / consolidationProgress=0 として Hard Gate を欺く形になり、
+ * 本 collector が KPI evaluator の hard_gate と二重判定で violation を見落とす
+ * リスクがあるため避ける。
  */
 function parseCoverageMap(repoRoot: string): CoverageStats {
   const jsonPath = resolve(repoRoot, COVERAGE_MAP_JSON_REL);
   if (!existsSync(jsonPath)) {
-    return { total: 0, migrated: 0, deferred: 0, pairs: [] };
+    throw new Error(
+      `[integrity-collector] coverage-map.json not found at ${jsonPath}. ` +
+        `本 file は integrity domain の正本 (Phase R-① 部分採用)。silent fallback は ` +
+        `Hard Gate (integrity.violations.total / integrity.expiredExceptions) を欺くので throw。`,
+    );
   }
 
   const content = readFileSync(jsonPath, "utf-8");
@@ -168,6 +178,19 @@ function walkTsFiles(dir: string): string[] {
   return result;
 }
 
+/**
+ * 4 KPI を architecture-health.json に出力する。
+ *
+ * **status は collector で 'ok' 固定**: pass/fail 判定は evaluator
+ * (`tools/architecture-health/src/config/health-rules.ts`) が `value` と
+ * `target` (hard_gate / info) を比較して決定する。collector は raw value のみ
+ * 出力し、判定は単一 source of truth (health-rules.ts) に集約する設計
+ * (本 codebase の collector 全 30+ KPI で一貫)。
+ *
+ * 例: integrity.violations.total は health-rules.ts で `hard_gate, eq, target=0`
+ * と宣言されており、value > 0 で自動 fail する。collector で status を動的に
+ * 設定すると二重判定 anti-pattern になるため避ける。
+ */
 export function collectFromIntegrityDomain(repoRoot: string): readonly HealthKpi[] {
   const stats = parseCoverageMap(repoRoot);
   const violations = countViolations(repoRoot, stats);

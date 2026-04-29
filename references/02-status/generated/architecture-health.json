@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T04:48:17.257Z",
+  "timestamp": "2026-04-29T07:11:22.427Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 117,
+      "value": 118,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -297,6 +297,7 @@
         "app/src/test/guards/contentSpecLifecycleGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleLinkSymmetryGuard.test.ts",
         "app/src/test/guards/contentSpecOwnerGuard.test.ts",
+        "app/src/test/guards/contentSpecPathExistenceGuard.test.ts",
         "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts",
         "app/src/test/guards/coreRequiredFieldNullCheckGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
@@ -409,7 +410,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 163,
+      "value": 164,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -427,7 +428,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 84,
+      "value": 85,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -628,7 +629,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 163,
+      "value": 164,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -647,7 +648,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 32,
+      "value": 33,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -730,7 +731,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 100,
+      "value": 101,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -997,7 +998,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 869,
+      "value": 863,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1047,7 +1048,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 806,
+      "value": 812,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1461,11 +1462,68 @@
         "app-domain/integrity/index.ts"
       ],
       "budget": 90
+    },
+    {
+      "id": "contentGraph.nodes.count",
+      "label": "Content Graph node 数 (= spec 総数)",
+      "category": "guard",
+      "value": 89,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 89
+    },
+    {
+      "id": "contentGraph.edges.count",
+      "label": "Content Graph edge 数 (spec 間 reference)",
+      "category": "guard",
+      "value": 47,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "contentGraph.orphans.count",
+      "label": "Content Graph orphan 数 (in / out edge ゼロ spec)",
+      "category": "guard",
+      "value": 47,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 100
     }
   ],
   "summary": {
-    "totalKpis": 57,
-    "ok": 57,
+    "totalKpis": 60,
+    "ok": 60,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true
