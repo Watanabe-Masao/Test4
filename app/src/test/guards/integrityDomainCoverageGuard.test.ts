@@ -103,6 +103,37 @@ describe('Integrity Domain Coverage (Phase F 完全性 + adapter shape)', () => 
     it('Phase A inventory 13 ペア全件が coverage map に list されている', () => {
       expect(COVERAGE_MAP.length).toBe(13)
     })
+
+    // Phase R-① 部分採用 follow-up (review #1201): PairId union と JSON 内
+    // pairId 集合の drift を機械検証する。両者が手書き (TS union と JSON entry)
+    // で並んでいるため、片方の追加・削除を忘れると silent drift する。
+    it('PairId union と JSON 内 pairId 集合が一致する (drift detection)', () => {
+      // PairId union のメンバを runtime で列挙するため、本 set を hardcode する。
+      // 新 pair 追加時は coverage-map.json + PairId type + 本 set の 3 箇所更新。
+      const expectedFromUnion: ReadonlySet<string> = new Set([
+        'calc-canon',
+        'canonicalization-system',
+        'doc-registry',
+        'test-contract',
+        'scope-json',
+        'taxonomy-v2',
+        'principles',
+        'architecture-rules-merge',
+        'allowlists',
+        'checklist',
+        'obligation-collector',
+        'content-spec',
+        'invariant-catalog',
+      ])
+      const actualFromJson: ReadonlySet<string> = new Set(COVERAGE_MAP.map((p) => p.pairId))
+      expect(actualFromJson).toEqual(expectedFromUnion)
+    })
+
+    // Phase R-① follow-up: COVERAGE_MAP は Object.freeze() されている。
+    // runtime mutation を防ぐ (TypeScript の readonly は compile-time のみ)。
+    it('COVERAGE_MAP は runtime で frozen (mutation 不可)', () => {
+      expect(Object.isFrozen(COVERAGE_MAP)).toBe(true)
+    })
   })
 
   describe('F-2: integrity domain coverage guard 自身が baseline 化されている', () => {

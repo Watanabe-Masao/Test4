@@ -83,14 +83,22 @@ interface CoverageMapJson {
 /**
  * 13 pair の coverage map (正本: `coverage-map.json`)。
  *
- * 本配列は **runtime で freeze されている** (JSON import の readonly 性 + as const 効果)。
- * 上書き禁止。新 pair 追加は coverage-map.json + PairId type を両方更新。
+ * 本配列は **runtime で `Object.freeze()` されている**。上書き禁止。
+ * 新 pair 追加は coverage-map.json + 本 file の PairId type を両方更新する
+ * (drift は integrityDomainCoverageGuard.test.ts で機械検証)。
  */
 // JSON import の literal type 推論が strict すぎるため (各 pair の maxLines が
 // それぞれ異なる literal shape として narrow される)、一度 unknown を経由する。
 // runtime data は変わらないので type 安全性は CoverageMapJson interface で保証される。
-export const COVERAGE_MAP: readonly PairCoverage[] = (coverageMapJson as unknown as CoverageMapJson)
-  .pairs
+//
+// PairId / JSON drift 検証は `app/src/test/guards/integrityDomainCoverageGuard.test.ts`
+// の "PairId union と JSON 内 pairId 集合の整合性" test で機械検証される。
+//
+// runtime mutation 防止のため Object.freeze() を適用 (TypeScript の readonly は
+// compile-time のみ、JSON parse 後の array は mutable のため明示的 freeze が必要)。
+export const COVERAGE_MAP: readonly PairCoverage[] = Object.freeze(
+  (coverageMapJson as unknown as CoverageMapJson).pairs,
+)
 
 /**
  * collector 側で使う path (repo root 起点)。
