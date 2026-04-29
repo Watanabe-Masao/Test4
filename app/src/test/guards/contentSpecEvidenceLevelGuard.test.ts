@@ -31,13 +31,8 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import {
-  REPO_ROOT,
-  SPECS_BASE,
-  type SpecKind,
-  type EvidenceLevel,
-  type RiskLevel,
-} from './contentSpecHelpers'
+import { REPO_ROOT, SPECS_BASE } from './contentSpecHelpers'
+import type { SpecKind, EvidenceLevel, RiskLevel } from '@app-domain/integrity'
 
 const VALID_EVIDENCE_LEVELS = new Set<EvidenceLevel>([
   'generated',

@@ -4,8 +4,22 @@
 > Phase A inventory (`integrity-pair-inventory.md` §3) で抽出した primitive 集合を
 > `app-domain/integrity/` の物理 module 構成として確定する。
 >
-> **status: design-locked, implementation-pending** — 本 doc は Phase B 着手前の
-> 設計固定。実コード（`.ts`）は別 PR で landing する（documentation-first 原則）。
+> **status (2026-04-28 最終 update): Phase B〜E 全 landed、domain は最終形に到達** —
+> Phase B (skeleton) / C (doc-registry first migration) / D Wave 1〜3 (11 ペア bulk
+> migration) / E (legacy retirement、contentSpecHelpers re-export 撤去) の全成果物が
+> branch にて完遂。`app-domain/integrity/` は **14 primitive** (parsing 6 / detection 7 /
+> reporting 1) + **types 4** + **4 barrel** を持ち、20 file 構成として stable。
+> 90+ integrity unit test / 125 guard / 844 test PASS、domain 純粋性は skeleton guard が機械検証。
+>
+> **実装と当初計画の乖離 (Phase 進行中に確定)**:
+>
+> - `parsing/jsdocTag.ts` は実装せず — taxonomy v2 は `tsRegistry` (record 経由) で対応
+> - `parsing/sourceLineLookup.ts` を計画外で追加 — `findIdLine` / `findExportLine` の
+>   TS source 行 lookup を切り出した結果 (jsdocTag の slot を実質置換)
+> - `detection/shapeSync.ts` は実装せず — readModels 構造の Types/index/impl trio 検査は
+>   readModels 専用パターンのため caller (canonicalizationSystemGuard) に inline 残置
+> - 親 `architectureRuleGuard.test.ts` (823 行) と `obligation-collector` は Phase D で
+>   touch せず、本 file の stable な責務として継続運用 (Phase H で再評価)
 
 ## 0. 設計目標 (Phase A North Star の継承)
 
@@ -25,30 +39,36 @@ app-domain/
    ├─ APP_DOMAIN_INDEX.md       # 本 doc への entry（既存 gross-profit と対称）
    ├─ types.ts                  # 抽象型 4 種
    ├─ parsing/                  # 入力形式 → Registry<Entry> 中間表現
-   │  ├─ jsonRegistry.ts
-   │  ├─ tsRegistry.ts
-   │  ├─ yamlFrontmatter.ts
-   │  ├─ filesystemRegistry.ts
-   │  ├─ markdownIdScan.ts
-   │  ├─ jsdocTag.ts
+   │  ├─ jsonRegistry.ts        # Phase C: JSON file → Registry<TEntry>
+   │  ├─ tsRegistry.ts          # Phase D-W1: TS Record → Registry<TEntry>
+   │  ├─ yamlFrontmatter.ts     # Phase B-3: spec frontmatter
+   │  ├─ filesystemRegistry.ts  # Phase D-W3: dir 列挙 → Registry<FileEntry>
+   │  ├─ markdownIdScan.ts      # Phase D-W3: heading id 抽出
+   │  ├─ sourceLineLookup.ts    # Phase B-3+: findIdLine / findExportLine (jsdocTag slot を実質置換)
    │  └─ index.ts
-   ├─ detection/                # Registry<Entry> + 比較対象 → Violation[]
-   │  ├─ existence.ts
-   │  ├─ pathExistence.ts
-   │  ├─ shapeSync.ts
-   │  ├─ ratchet.ts
-   │  ├─ temporal.ts
-   │  ├─ setRelation.ts
-   │  ├─ bidirectionalReference.ts
-   │  ├─ cardinality.ts
+   ├─ detection/                # Registry<Entry> + 比較対象 → DriftReport[]
+   │  ├─ existence.ts           # Phase B-4: checkBidirectionalExistence
+   │  ├─ pathExistence.ts       # Phase B-4: checkPathExistence
+   │  ├─ ratchet.ts             # Phase B-5: checkRatchet
+   │  ├─ temporal.ts            # Phase B-5: checkExpired / checkFreshness
+   │  ├─ setRelation.ts         # Phase D-W1: checkDisjoint / checkInclusion / checkInclusionByPredicate
+   │  ├─ cardinality.ts         # Phase D-W2: checkUniqueness / checkUpperBound / checkNonEmpty / checkSizeEquality
+   │  ├─ bidirectionalReference.ts  # Phase D-W2: checkBidirectionalReference
    │  └─ index.ts
-   ├─ reporting/                # violation[] → message
-   │  ├─ formatViolation.ts
+   ├─ reporting/                # DriftReport[] → message
+   │  ├─ formatViolation.ts     # Phase B-2: formatViolations / formatStringViolations
    │  └─ index.ts
    └─ index.ts                  # public API barrel
 ```
 
-総 ファイル数: **20 件**（types 1 + parsing 7 + detection 9 + reporting 2 + barrel 1）。
+総 ファイル数: **20 件**（APP_DOMAIN_INDEX 1 + types 1 + parsing 7 = 6 primitive + 1 barrel /
+detection 8 = 7 primitive + 1 barrel / reporting 2 = 1 primitive + 1 barrel / root index 1）。
+
+> **未実装 (実装段階で deferred)**: 当初計画の `parsing/jsdocTag.ts` と
+> `detection/shapeSync.ts` は本 Phase で実装せず。前者は `tsRegistry` (taxonomy
+> v2 の Record 経由) と `sourceLineLookup` (TS source 行 lookup) で代替、
+> 後者は readModels 専用 trio shape 検査が caller side (canonicalizationSystemGuard) に
+> inline 残置 (一般化候補は Phase H 横展開で再評価)。
 
 ## 2. 既存 `app-domain/` との関係
 
@@ -191,18 +211,38 @@ inventory §3.5 と整合:
 | D-W2  | #6 #7 #8 (taxonomy / principles / architecture-rules)              | tsRegistry / jsdocTag / bidirectionalReference / cardinality |
 | D-W3  | #9 #10 #11 #13 (allowlists / checklist / obligation / invariant)   | tsRegistry / temporal / markdownIdScan                       |
 
-## 8. 関連実装
+## 8. Phase F coverage 正本
+
+Phase F (Domain Invariant Test) で「Phase B〜E migration 済 13 ペアが primitive 経由
+で表現されている」完全性 + adapter shape の機械検証は **`integrityDomainCoverageGuard`**
+で landing 済 (2026-04-29)。`COVERAGE_MAP` 定数 (13 entry) が pair → guard file →
+ratchet-down baseline (lines) の唯一正本。本 doc に重複表を持たない (冗長性回避)。
+
+- 完全性 (F-2): `@app-domain/integrity` 直接 import / `contentSpecHelpers` 経由 (認可
+  済 adapter) のいずれかで domain primitive に到達できることを検証
+- adapter shape (F-3): caller 側 guard file の行数が baseline 以下 (ratchet-down)
+- deferred: #11 obligation-collector は Phase E scope 外、Phase H で
+  `architectureRuleGuard.test.ts` と共に再評価
+
+`app/src/test/guards/integrityDomainCoverageGuard.test.ts` の `COVERAGE_MAP` 定数を
+正本として参照。Phase H landing 時に同 file を「Phase H 採用候補を含む形」へ拡張する
+(`projects/canonicalization-domain-consolidation/checklist.md` Phase H 完了条件)。
+
+## 9. 関連実装
 
 | パス                                                                              | 役割                                                  |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `references/03-guides/integrity-pair-inventory.md` (本 doc の正本入力)            | Phase A inventory + selection rule + primitive 候補   |
-| `references/01-principles/canonicalization-principles.md §P8`                     | selection rule 拡張版 (Phase I で checklist 化)       |
-| `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` | Phase A §4 採用候補 machine-readable                  |
+| `references/01-principles/canonicalization-principles.md §P8 §P9`                 | selection rule + 撤退規律 default = step 5 直接到達   |
+| `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` | Phase A §4 採用候補 + rejected slot archive           |
+| `app/src/test/guards/integrityDomainSkeletonGuard.test.ts`                        | domain 構造 + 命名規約 + 純粋性 (introspection-based) |
+| `app/src/test/guards/integrityDomainCoverageGuard.test.ts`                        | Phase F 完全性 + adapter shape (本 §8 の機械検証経路) |
 | `app/src/test/guards/contentSpecHelpers.ts`                                       | Phase B reference 実装の供給元 (Phase J 完遂、312 行) |
 | `app-domain/gross-profit/APP_DOMAIN_INDEX.md`                                     | 既存 app-domain pattern (本 doc の対称配置 reference) |
 
-## 9. 改訂履歴
+## 10. 改訂履歴
 
 | 日付       | 変更                                                                                                                                                                                                                                                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-04-28 | 初版起草。Phase A inventory §3 を物理 module 構成として確定。types 1 + parsing 6 + detection 8 + reporting 1 + barrel 4 = 計 20 ファイル。Phase B 実装順 B-1〜B-7 + adapter パターン + domain 純粋性 4 不変条件 + 既存 `app-domain/gross-profit/` との対称配置を明記。status: design-locked, implementation-pending |
+| 2026-04-29 | §8 Phase F coverage 正本 を追加 (`integrityDomainCoverageGuard.test.ts` `COVERAGE_MAP` を 13 ペア coverage の唯一正本として明示、本 doc に重複表を持たない方針)。§9 関連実装に skeleton guard / coverage guard を追記、§P8 を §P8 §P9 に拡張参照。section 番号を §8 →§9 / §9 → §10 に shift。                       |

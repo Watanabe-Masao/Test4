@@ -14,6 +14,12 @@
  * - **F4: 「常時チェック」セクション内の checkbox** — 同上
  * - **F5: 「最重要項目」セクション内の checkbox** — 同上
  *
+ * **Phase D Wave 3 (2026-04-28)**: canonicalization-domain-consolidation Phase D で
+ * `app-domain/integrity/` 経由の adapter 化。filesystemRegistry (live project 列挙) +
+ * checkPathExistence (F1) + checkRatchet (FORMAT_EXEMPT 0 baseline) 経由に切替。
+ * F2-F5 の section-aware checkbox 走査は markdown 専用 logic として caller 残置。
+ * 動作同一性は 3 既存 test で検証済。
+ *
  * `projects/_template/` および `projects/completed/` 配下は別ルールで扱う:
  * - `_template` は placeholder のため checklist が空でも OK
  * - `completed` は archive 済みなので checklist の編集を期待しない
@@ -31,6 +37,15 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import {
+  filesystemRegistry,
+  checkPathExistence,
+  checkRatchet,
+  type FileEntry,
+  type RegisteredPath,
+} from '@app-domain/integrity'
+
+const RULE_ID = 'checklistFormatGuard'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 const PROJECTS_DIR = path.join(PROJECT_ROOT, 'projects')
@@ -59,13 +74,20 @@ interface ProjectInfo {
 }
 
 function listLiveProjects(): ProjectInfo[] {
-  const out: ProjectInfo[] = []
-  if (!fs.existsSync(PROJECTS_DIR)) return out
+  // Phase D Wave 3: live project 列挙を filesystemRegistry に整える
+  if (!fs.existsSync(PROJECTS_DIR)) return []
+  const fileEntries: FileEntry[] = []
   for (const entry of fs.readdirSync(PROJECTS_DIR)) {
     if (entry === 'completed' || entry.startsWith('_')) continue
     const entryPath = path.join(PROJECTS_DIR, entry)
     if (!fs.statSync(entryPath).isDirectory()) continue
-    const configPath = path.join(entryPath, 'config/project.json')
+    fileEntries.push({ name: entry, absPath: entryPath, displayPath: `projects/${entry}` })
+  }
+  const projectRegistry = filesystemRegistry(fileEntries, 'projects/')
+
+  const out: ProjectInfo[] = []
+  for (const fe of projectRegistry.entries.values()) {
+    const configPath = path.join(fe.absPath, 'config/project.json')
     if (!fs.existsSync(configPath)) continue
     let project: ProjectJson
     try {
@@ -94,8 +116,15 @@ interface FormatViolation {
 function checkChecklist(info: ProjectInfo): FormatViolation[] {
   const violations: FormatViolation[] = []
 
-  // F1: 必須ファイル欠落
-  if (!fs.existsSync(info.checklistAbsPath)) {
+  // F1: 必須ファイル欠落 (domain 経由の checkPathExistence)
+  const paths: RegisteredPath[] = [
+    { absPath: info.checklistAbsPath, displayPath: info.checklistPath },
+  ]
+  const f1Reports = checkPathExistence(paths, fs.existsSync, {
+    ruleId: RULE_ID,
+    registryLabel: `${info.projectId} entrypoints.checklist`,
+  })
+  if (f1Reports.length > 0) {
     violations.push({
       projectId: info.projectId,
       file: info.checklistPath,
@@ -204,6 +233,12 @@ describe('Checklist Format Guard', () => {
   })
 
   it('FORMAT_EXEMPT 互換例外は ratchet-down のため減らすこと（増やしてはいけない）', () => {
+    const ratchet = checkRatchet(FORMAT_EXEMPT_PROJECT_IDS.size, {
+      ruleId: RULE_ID,
+      counterLabel: 'FORMAT_EXEMPT_PROJECT_IDS',
+      baseline: 0,
+    })
+    if (ratchet.ratchetDownHint) console.log(ratchet.ratchetDownHint)
     expect(FORMAT_EXEMPT_PROJECT_IDS.size).toBeLessThanOrEqual(0)
   })
 })

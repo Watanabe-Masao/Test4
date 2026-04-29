@@ -152,4 +152,35 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
     ],
     implRefs: [],
   },
+
+  // --- Integrity Domain (canonicalization-domain-consolidation Phase G) ---
+  'integrity.violations.total': {
+    docRefs: [
+      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
+      { kind: 'definition', path: 'references/01-principles/canonicalization-principles.md', section: 'P9' },
+      { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
+    ],
+    implRefs: ['app-domain/integrity/index.ts'],
+  },
+  'integrity.driftBudget': {
+    docRefs: [
+      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
+      { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
+    ],
+    implRefs: ['app-domain/integrity/index.ts'],
+  },
+  'integrity.expiredExceptions': {
+    docRefs: [
+      { kind: 'definition', path: 'references/01-principles/canonicalization-principles.md', section: 'P9' },
+      { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
+    ],
+    implRefs: ['app-domain/integrity/'],
+  },
+  'integrity.consolidationProgress': {
+    docRefs: [
+      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
+      { kind: 'roadmap', path: 'projects/canonicalization-domain-consolidation/checklist.md' },
+    ],
+    implRefs: ['app-domain/integrity/index.ts'],
+  },
 }

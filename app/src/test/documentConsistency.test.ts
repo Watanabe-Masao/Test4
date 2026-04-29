@@ -3,6 +3,13 @@
  *
  * CLAUDE.md・roles/・references/ とコードベースの整合性を機械的に検証する。
  *
+ * **Phase D Wave 2 (2026-04-28)**: canonicalization-domain-consolidation Phase D で
+ * `Structured source consistency` describe 内 principles 部分を `app-domain/integrity/`
+ * 経由の adapter 化。jsonRegistry (principles.json 読込) + checkInclusionByPredicate
+ * (CLAUDE.md / README.md token 包含) + checkInclusion (guardTagRegistry ⊆ principles)
+ * 経由に切替。動作同一性は 4 principles test で検証済。他 describe (MetricId / Role /
+ * Guard tag 等) は scope 外、touch しない。
+ *
  * @guard G1 ルールはテストに書く
  *
  * @taxonomyKind T:unclassified
@@ -10,6 +17,12 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
+import {
+  jsonRegistry,
+  checkInclusion,
+  checkInclusionByPredicate,
+  scanMarkdownIds,
+} from '@app-domain/integrity'
 import {
   applicationToInfrastructure,
   presentationDuckdbHook,
@@ -237,16 +250,22 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
     const catalog = readFile('references/03-guides/invariant-catalog.md')
     const guardMap = readFile('references/03-guides/guard-test-map.md')
 
-    const invPattern = /### (INV-[A-Z]+-\d+)/g
-    const catalogIds: string[] = []
-    let match
-    while ((match = invPattern.exec(catalog)) !== null) {
-      catalogIds.push(match[1])
-    }
+    // Phase D Wave 3: scanMarkdownIds で id を抽出 + checkInclusionByPredicate で包含検査
+    const catalogReg = scanMarkdownIds(catalog, 'invariant-catalog.md', {
+      idPattern: /^###\s+(INV-[A-Z]+-\d+)/,
+    })
+    expect(catalogReg.entries.size).toBeGreaterThan(0)
 
-    expect(catalogIds.length).toBeGreaterThan(0)
-
-    const missing = catalogIds.filter((id) => !guardMap.includes(id))
+    const violations = checkInclusionByPredicate(
+      new Set(catalogReg.entries.keys()),
+      (id) => guardMap.includes(id),
+      {
+        ruleId: 'documentConsistency.invariant',
+        subsetLabel: 'invariant-catalog.md INV ids',
+        supersetLabel: 'guard-test-map.md',
+      },
+    )
+    const missing = violations.map((v) => v.location.replace(/^guard-test-map\.md: /, ''))
     expect(missing).toEqual([])
   })
 
@@ -254,16 +273,22 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
     const catalog = readFile('references/03-guides/invariant-catalog.md')
     const guardMap = readFile('references/03-guides/guard-test-map.md')
 
+    // guard-test-map は heading でなく inline でも id 出現するため、global regex で集約
     const invPattern = /INV-[A-Z]+-\d+/g
     const mapIds = new Set<string>()
     let match
     while ((match = invPattern.exec(guardMap)) !== null) {
       mapIds.add(match[0])
     }
-
     expect(mapIds.size).toBeGreaterThan(0)
 
-    const missing = [...mapIds].filter((id) => !catalog.includes(id))
+    // Phase D Wave 3: domain 経由で逆方向 inclusion 検査
+    const violations = checkInclusionByPredicate(mapIds, (id) => catalog.includes(id), {
+      ruleId: 'documentConsistency.invariant',
+      subsetLabel: 'guard-test-map.md INV ids',
+      supersetLabel: 'invariant-catalog.md',
+    })
+    const missing = violations.map((v) => v.location.replace(/^invariant-catalog\.md: /, ''))
     expect(missing).toEqual([])
   })
 })
@@ -648,27 +673,62 @@ describe('後方互換コード監視', () => {
 // ─── 構造化データ（docs/contracts/）ベースの整合性検証 ──────
 
 describe('Structured source consistency (docs/contracts/)', () => {
-  const principles = JSON.parse(readFile('docs/contracts/principles.json'))
+  // ── Phase D Wave 2: domain 経由で principles.json を Registry<Category> に整える ──
+  interface PrincipleCategory {
+    readonly id: string
+    readonly title: string
+  }
+  interface PrinciplesEnvelope {
+    readonly categories: PrincipleCategory[]
+    readonly taxonomy: string
+    readonly obsoleteTerms: string[]
+  }
+  const principlesRegistry = jsonRegistry<PrincipleCategory>(
+    readFile('docs/contracts/principles.json'),
+    (parsed) => {
+      const env = parsed as PrinciplesEnvelope
+      return env.categories.map((c) => [c.id, c] as const)
+    },
+    'docs/contracts/principles.json',
+  )
+  const principlesEnvelope = JSON.parse(
+    readFile('docs/contracts/principles.json'),
+  ) as PrinciplesEnvelope
   const metadata = JSON.parse(readFile('docs/contracts/project-metadata.json'))
 
   // ── 設計原則 taxonomy ──────────────────────────────────
 
   it('CLAUDE.md の設計原則カテゴリが principles.json と一致する', () => {
     const claudeMd = readFile('CLAUDE.md')
-    for (const cat of principles.categories) {
-      expect(
-        claudeMd,
-        `CLAUDE.md に設計原則カテゴリ "${cat.id}. ${cat.title}" が見つかりません`,
-      ).toContain(`${cat.id}. ${cat.title}`)
-    }
+    const expectedTokens = new Set(
+      [...principlesRegistry.entries.values()].map((c) => `${c.id}. ${c.title}`),
+    )
+    const violations = checkInclusionByPredicate(
+      expectedTokens,
+      (token) => claudeMd.includes(token),
+      {
+        ruleId: 'documentConsistency.principles',
+        subsetLabel: 'principles.json categories',
+        supersetLabel: 'CLAUDE.md',
+      },
+    )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('references/README.md の taxonomy が principles.json と一致する', () => {
     const refReadme = readFile('references/README.md')
-    const taxonomy = principles.taxonomy
-    expect(refReadme, `references/README.md に taxonomy "${taxonomy}" が見つかりません`).toContain(
-      taxonomy.replace('+', ' + '),
+    const taxonomy = principlesEnvelope.taxonomy
+    const expected = taxonomy.replace('+', ' + ')
+    const violations = checkInclusionByPredicate(
+      new Set([expected]),
+      (token) => refReadme.includes(token),
+      {
+        ruleId: 'documentConsistency.principles',
+        subsetLabel: `principles.taxonomy='${taxonomy}'`,
+        supersetLabel: 'references/README.md',
+      },
     )
+    expect(violations.map((v) => v.location)).toEqual([])
   })
 
   it('guardTagRegistry.ts の全カテゴリ ID が principles.json に存在する', () => {
@@ -679,10 +739,13 @@ describe('Structured source consistency (docs/contracts/)', () => {
     while ((match = idPattern.exec(registryContent)) !== null) {
       registryCategories.add(match[1])
     }
-
-    const principleIds = new Set(principles.categories.map((c: { id: string }) => c.id))
-
-    const missing = [...registryCategories].filter((id) => !principleIds.has(id))
+    const principleIds = new Set(principlesRegistry.entries.keys())
+    const violations = checkInclusion(registryCategories, principleIds, {
+      ruleId: 'documentConsistency.principles',
+      subsetLabel: 'guardTagRegistry categories',
+      supersetLabel: 'principles.json categories',
+    })
+    const missing = violations.map((v) => v.location.replace(/^principles\.json categories: /, ''))
     expect(
       missing,
       `guardTagRegistry に存在するが principles.json に未定義のカテゴリ: ${missing.join(', ')}`,
@@ -698,17 +761,21 @@ describe('Structured source consistency (docs/contracts/)', () => {
       'references/README.md',
       'references/01-principles/design-principles.md',
     ]
-
+    const obsoleteTerms = new Set(principlesEnvelope.obsoleteTerms)
     const violations: string[] = []
     for (const doc of docsToCheck) {
       const content = readFile(doc)
-      for (const term of principles.obsoleteTerms) {
-        if (content.includes(term)) {
-          violations.push(`${doc}: 旧語彙 "${term}" が残っています`)
-        }
+      // 旧語彙検出は「絶対に出現しないこと」検査 — predicate を反転
+      const reports = checkInclusionByPredicate(obsoleteTerms, (term) => !content.includes(term), {
+        ruleId: 'documentConsistency.obsolete',
+        subsetLabel: 'obsoleteTerms',
+        supersetLabel: doc,
+      })
+      for (const r of reports) {
+        const term = r.location.replace(new RegExp(`^${doc}: `), '')
+        violations.push(`${doc}: 旧語彙 "${term}" が残っています`)
       }
     }
-
     expect(violations, violations.join('\n')).toEqual([])
   })
 

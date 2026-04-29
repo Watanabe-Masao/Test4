@@ -1,5 +1,5 @@
 {
-  "$comment": "Phase A 採用候補リスト machine-readable 版 — references/03-guides/integrity-pair-inventory.md §4 を構造化。AI / 後続 phase の collector が parse して priority 順を引ける形にする。",
+  "$comment": "Phase A 採用候補リスト machine-readable 版 — references/03-guides/integrity-pair-inventory.md §4 を構造化。AI / 後続 phase の collector が parse して priority 順を引ける形にする。**実装段階の primitive 名 drift (2026-04-28 追記)**: existingPairs[].primitives は Phase A inventory のスロット名 (一部実装名と異なる)。実装名へのマップ — `tokenInclusion` → `checkInclusionByPredicate` (in setRelation)、`shapeSync` → 実装せず (readModels 専用 trio 検査は caller inline、Phase H で一般化候補)、`jsdocTag` → 実装せず (taxonomy v2 は tsRegistry + sourceLineLookup で対応、Phase H 再評価)。実装と確定した primitive 名は app-domain/integrity/index.ts の export 群 / integrity-domain-architecture.md §1 を正本とする。",
   "$schema": "./adoption-candidates.schema.json",
   "version": "1.0.0",
   "generated": "2026-04-28",
@@ -230,18 +230,16 @@
         "setRelation"
       ],
       "note": "計算 engine 正本性に直結、Phase B primitive 安定後"
-    },
-    {
-      "priority": "H-δ",
-      "tier": "tier1",
-      "id": "H-9",
-      "name": "Storage admin / IndexedDB schema (migration ladder)",
-      "risk": "medium",
-      "primitives": ["tsRegistry", "bidirectionalReference", "cardinality"],
-      "note": "業務影響大 (data loss)、ROI 高"
     }
   ],
   "deferred": [
+    {
+      "id": "H-9",
+      "name": "Storage admin / IndexedDB schema (migration ladder)",
+      "tier": "tier2",
+      "handoffTo": "別 project に切り出し (data loss 懸念は本 project scope 外、独立した design review を要する)",
+      "rationale": "Phase E 振り返り (2026-04-28) で当初の H-δ tier1 から deferred に格下げ。業務影響大だが migration ladder の正本化は本 project の primitive で表現困難 + 独立した stakeholder review が必要。"
+    },
     {
       "id": "H-3",
       "name": "app/src/application/stores/ (Zustand)",
@@ -273,6 +271,27 @@
       "rationale": "G-2 検出可能性が弱い、codePatternGuard で代替可"
     }
   ],
+  "rejected": [
+    {
+      "originalSlot": "shapeSync",
+      "replacedBy": "実装せず (caller inline)",
+      "reason": "registry-by-registry の構造一致検査は generic 化困難。readModels Types/index/impl trio は専用 helper、principles/architectureRules は cardinality + setRelation primitive で代替可能。Phase H で一般化候補を再評価。",
+      "decidedAt": "2026-04-28"
+    },
+    {
+      "originalSlot": "tokenInclusion",
+      "replacedBy": "checkInclusionByPredicate (in detection/setRelation.ts)",
+      "reason": "Phase D-W2 で setRelation primitive に統合 (predicate-based inclusion check として汎用化)。tokenInclusion 単独 primitive は不要。",
+      "decidedAt": "2026-04-28"
+    },
+    {
+      "originalSlot": "jsdocTag",
+      "replacedBy": "実装せず (tsRegistry + sourceLineLookup で代替)",
+      "reason": "taxonomy v2 用 JSDoc 解析は responsibilityTagGuardV2 / testTaxonomyGuardV2 内で sourceLineLookup + tsRegistry の組合せで対応。専用 primitive 化する value がない。Phase H 横展開で再評価。",
+      "decidedAt": "2026-04-28"
+    }
+  ],
+  "phaseHEntryRequirement": "Phase H 着手 PR で全 tier1 候補に対して G-1 (業務意味) / G-2 (検出可能性) / G-3 (cardinality) を再判定する。Phase A 確定 (2026-04-28) から Phase H 着手まで時間が経過するほど前提 drift が大きくなるため、再評価を機械的に強制する (canonicalization-principles.md §P8 適用)。",
   "primitives": {
     "$comment": "Phase B で app-domain/integrity/ に抽出予定の primitive 集合",
     "parsing": [

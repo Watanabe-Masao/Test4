@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-28T13:20:56.576Z",
+  "timestamp": "2026-04-29T01:32:11.639Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 115,
+      "value": 117,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -322,7 +322,9 @@
         "app/src/test/guards/grossProfitPathGuard.test.ts",
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
         "app/src/test/guards/hookCanonicalPathGuard.test.ts",
+        "app/src/test/guards/integrityDomainCoverageGuard.test.ts",
         "app/src/test/guards/integrityDomainSkeletonGuard.test.ts",
+        "app/src/test/guards/integrityNoResurrectGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
         "app/src/test/guards/manifestGuard.test.ts",
         "app/src/test/guards/migrationTagGuard.test.ts",
@@ -407,7 +409,7 @@
       "id": "guard.rules.total",
       "label": "総 Architecture Rule 数",
       "category": "guard",
-      "value": 162,
+      "value": 163,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -425,7 +427,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 83,
+      "value": 84,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -626,7 +628,7 @@
       "id": "temporal.rules.reviewPolicy.count",
       "label": "reviewPolicy 設定済みルール数",
       "category": "guard",
-      "value": 162,
+      "value": 163,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -645,7 +647,7 @@
       "id": "temporal.rules.sunsetCondition.count",
       "label": "sunsetCondition 設定済みルール数",
       "category": "guard",
-      "value": 31,
+      "value": 32,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -728,7 +730,7 @@
       "id": "efficacy.rules.withProtectedHarm.count",
       "label": "protectedHarm 設定済みルール数",
       "category": "guard",
-      "value": 99,
+      "value": 100,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -991,7 +993,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 922,
+      "value": 928,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1040,7 +1042,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 820,
+      "value": 854,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1351,11 +1353,112 @@
       "implRefs": [
         "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts"
       ]
+    },
+    {
+      "id": "integrity.violations.total",
+      "label": "Integrity domain coverage 違反数 (Hard Gate)",
+      "category": "guard",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/integrity-domain-architecture.md",
+          "section": "8"
+        },
+        {
+          "kind": "definition",
+          "path": "references/01-principles/canonicalization-principles.md",
+          "section": "P9"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/integrityDomainCoverageGuard.test.ts"
+        }
+      ],
+      "implRefs": [
+        "app-domain/integrity/index.ts"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "integrity.driftBudget",
+      "label": "Integrity drift budget (deferred pair 数)",
+      "category": "guard",
+      "value": 1,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/integrity-domain-architecture.md",
+          "section": "8"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/integrityDomainCoverageGuard.test.ts"
+        }
+      ],
+      "implRefs": [
+        "app-domain/integrity/index.ts"
+      ],
+      "budget": 2
+    },
+    {
+      "id": "integrity.expiredExceptions",
+      "label": "Integrity 関連 file の @expiresAt 過去日 markers (Hard Gate)",
+      "category": "guard",
+      "value": 0,
+      "unit": "count",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/01-principles/canonicalization-principles.md",
+          "section": "P9"
+        },
+        {
+          "kind": "guard",
+          "path": "app/src/test/guards/integrityDomainCoverageGuard.test.ts"
+        }
+      ],
+      "implRefs": [
+        "app-domain/integrity/"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "integrity.consolidationProgress",
+      "label": "Integrity consolidation progress (migrated / total)",
+      "category": "guard",
+      "value": 92.3,
+      "unit": "percent",
+      "status": "ok",
+      "owner": "documentation-steward",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/03-guides/integrity-domain-architecture.md",
+          "section": "8"
+        },
+        {
+          "kind": "roadmap",
+          "path": "projects/canonicalization-domain-consolidation/checklist.md"
+        }
+      ],
+      "implRefs": [
+        "app-domain/integrity/index.ts"
+      ],
+      "budget": 90
     }
   ],
   "summary": {
-    "totalKpis": 53,
-    "ok": 53,
+    "totalKpis": 57,
+    "ok": 57,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

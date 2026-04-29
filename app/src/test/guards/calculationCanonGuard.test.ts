@@ -4,6 +4,11 @@
  * 全ファイルが CALCULATION_CANON_REGISTRY に分類されていることを保証する。
  * 未分類のファイルが追加された場合、このテストが失敗する。
  *
+ * **Phase D Wave 1 (2026-04-28)**: canonicalization-domain-consolidation Phase D で
+ * 第 1 describe block を `app-domain/integrity/` 経由の adapter 化を実施。
+ * inline iteration ロジックを削除し、tsRegistry + checkBidirectionalExistence +
+ * checkRatchet 経由に切替。動作同一性は 15 既存 test で検証済。
+ *
  * @see references/01-principles/calculation-canonicalization-map.md
  * @see references/01-principles/semantic-classification-policy.md
  * ルール定義: architectureRules.ts (AR-STRUCT-CALC-CANON)
@@ -24,23 +29,36 @@ import {
   ANALYTIC_KERNEL_VIEW,
   MIGRATION_CANDIDATE_VIEW,
 } from '../semanticViews'
+import {
+  tsRegistry,
+  checkBidirectionalExistence,
+  checkRatchet,
+  formatStringViolations,
+} from '@app-domain/integrity'
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
 const CALC_DIR = path.join(SRC_DIR, 'domain/calculations')
 
+// ── domain 経由で registry を一度だけ構築 ──
+const calcRegistry = tsRegistry(
+  CALCULATION_CANON_REGISTRY,
+  'app/src/test/calculationCanonRegistry.ts',
+)
+const registryKeys: ReadonlySet<string> = new Set(calcRegistry.entries.keys())
+
 describe('domain/calculations/ 正本化分類ガード', () => {
   it('全ファイルが CALCULATION_CANON_REGISTRY に分類されている（未分類なし）', () => {
-    const files = collectTsFiles(CALC_DIR, true)
-    const unregistered: string[] = []
-
-    for (const file of files) {
-      const relPath = path.relative(CALC_DIR, file)
-      if (!CALCULATION_CANON_REGISTRY[relPath]) {
-        unregistered.push(relPath)
-      }
-    }
-
+    const fsKeys = new Set(collectTsFiles(CALC_DIR, true).map((f) => path.relative(CALC_DIR, f)))
+    const violations = checkBidirectionalExistence(registryKeys, fsKeys, {
+      ruleId: 'AR-STRUCT-CALC-CANON',
+      registryLabel: 'CALCULATION_CANON_REGISTRY',
+      sourceLabel: 'domain/calculations/',
+      direction: 'source-to-registry',
+    })
+    const unregistered = violations
+      .map((v) => v.location.replace(/^domain\/calculations\/: /, ''))
+      .filter((p) => fsKeys.has(p))
     expect(
       unregistered,
       `domain/calculations/ に未分類のファイルがあります:\n${unregistered.join('\n')}\n` +
@@ -49,17 +67,18 @@ describe('domain/calculations/ 正本化分類ガード', () => {
   })
 
   it('レジストリに存在するが実ファイルがないエントリがない（陳腐化防止）', () => {
-    const files = new Set(collectTsFiles(CALC_DIR, true).map((f) => path.relative(CALC_DIR, f)))
-    const stale: string[] = []
-
-    for (const key of Object.keys(CALCULATION_CANON_REGISTRY)) {
-      // candidate/ prefix は WASM crate（wasm/ 配下）のため domain/calculations/ に物理ファイルがない
-      if (key.startsWith('candidate/')) continue
-      if (!files.has(key)) {
-        stale.push(key)
-      }
-    }
-
+    const fsKeys = new Set(collectTsFiles(CALC_DIR, true).map((f) => path.relative(CALC_DIR, f)))
+    // candidate/ prefix は WASM crate（wasm/ 配下）のため domain/calculations/ に物理ファイルがない
+    const registryKeysNonCandidate = new Set(
+      [...registryKeys].filter((k) => !k.startsWith('candidate/')),
+    )
+    const violations = checkBidirectionalExistence(registryKeysNonCandidate, fsKeys, {
+      ruleId: 'AR-STRUCT-CALC-CANON',
+      registryLabel: 'CALCULATION_CANON_REGISTRY',
+      sourceLabel: 'domain/calculations/',
+      direction: 'registry-to-source',
+    })
+    const stale = violations.map((v) => v.location.replace(/^CALCULATION_CANON_REGISTRY: /, ''))
     expect(
       stale,
       `レジストリに実ファイルがないエントリ:\n${stale.join('\n')}\n` +
@@ -69,25 +88,31 @@ describe('domain/calculations/ 正本化分類ガード', () => {
 
   it('必須分類のファイルは全て Zod 契約が追加されるべき', () => {
     const requiredWithoutZod: string[] = []
-    for (const [key, entry] of Object.entries(CALCULATION_CANON_REGISTRY)) {
+    for (const [key, entry] of calcRegistry.entries) {
       if (entry.tag === 'required' && !entry.zodAdded) {
         requiredWithoutZod.push(`${key}: ${entry.reason}`)
       }
     }
-
     // 現在の未完了数を上限として設定（段階的に 0 に近づける）
+    const ratchet = checkRatchet(requiredWithoutZod.length, {
+      ruleId: 'AR-STRUCT-CALC-CANON',
+      counterLabel: '必須分類で Zod 未追加',
+      baseline: 3,
+    })
+    if (ratchet.ratchetDownHint) console.log(ratchet.ratchetDownHint)
     expect(
       requiredWithoutZod.length,
-      `必須分類で Zod 未追加:\n${requiredWithoutZod.join('\n')}`,
+      `必須分類で Zod 未追加:\n${requiredWithoutZod.join('\n')}\n${formatStringViolations(
+        requiredWithoutZod,
+      )}`,
     ).toBeLessThanOrEqual(3)
   })
 
   it('分類の合計 = レジストリのエントリ数', () => {
-    const entries = Object.values(CALCULATION_CANON_REGISTRY)
+    const entries = [...calcRegistry.entries.values()]
     const required = entries.filter((e) => e.tag === 'required').length
     const review = entries.filter((e) => e.tag === 'review').length
     const notNeeded = entries.filter((e) => e.tag === 'not-needed').length
-
     expect(required + review + notNeeded).toBe(entries.length)
   })
 })

@@ -23,6 +23,7 @@ import {
 } from "./collectors/obligation-collector.js";
 import { collectFromTemporalGovernance } from "./collectors/temporal-governance-collector.js";
 import { collectFromProjectChecklists } from "./collectors/project-checklist-collector.js";
+import { collectFromIntegrityDomain } from "./collectors/integrity-collector.js";
 import { evaluate } from "./evaluator.js";
 import {
   assessOverall,
@@ -51,6 +52,7 @@ const obligationKpis = collectObligations(repoRoot);
 const requiredReadsKpis = collectRequiredReadsKpis(repoRoot);
 const temporalKpis = collectFromTemporalGovernance(repoRoot);
 const projectKpis = collectFromProjectChecklists(repoRoot);
+const integrityKpis = collectFromIntegrityDomain(repoRoot);
 
 const allKpis = [
   ...snapshotKpis,
@@ -61,6 +63,7 @@ const allKpis = [
   ...requiredReadsKpis,
   ...temporalKpis,
   ...projectKpis,
+  ...integrityKpis,
 ];
 console.log(`[docs:check] ${allKpis.length} KPIs collected`);
 

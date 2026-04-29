@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-04-27T21:32:35.172Z
+> Generated: 2026-04-28T23:09:38.263Z
 
 ## Allowlist Summary
 
@@ -97,7 +97,7 @@
 |---|---|---|---|
 | presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 527 |
 | presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 466 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 467 |
 | presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 451 |
 | presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
 | presentation/pages/Insight/useInsightData.ts | 5 | 7 | 250 |

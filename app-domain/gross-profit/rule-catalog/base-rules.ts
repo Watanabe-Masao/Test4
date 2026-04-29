@@ -6252,4 +6252,50 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  // ── AR-INTEGRITY-* (canonicalization-domain-consolidation Phase I) ──
+
+  {
+    slice: "governance-ops",
+    id: "AR-INTEGRITY-NO-RESURRECT",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/01-principles/canonicalization-principles.md",
+    what: "`adoption-candidates.json` の `rejected[].originalSlot` で永久不採用と決定された primitive 名を `app-domain/integrity/{parsing,detection,reporting}/` 配下に新規 file として復活させることを禁止する",
+    why: "Phase A inventory のスロット名のうち実装段階で「採用しない」と決定されたもの (shapeSync / tokenInclusion / jsdocTag) は、置換実装が確定済 (例: tokenInclusion → checkInclusionByPredicate)。同名 primitive が再提案されると過去の判断を上書きするリスクがある (AI が記憶を持たないため)。`rejected` archive を機械検証することで「同じ slot を再導入する」ことを構造的に防ぐ",
+    correctPattern: {
+      description:
+        "`rejected[].originalSlot` 名の primitive を新設したい場合は、まず `adoption-candidates.json` の rejected entry を削除し、なぜ判断が変わったか reason / decidedAt を更新する (review window 経由)",
+    },
+    outdatedPattern: {
+      description:
+        "`adoption-candidates.json` の rejected archive を更新せずに `app-domain/integrity/{parsing,detection,reporting}/<originalSlot>.ts` を新設する",
+    },
+    decisionCriteria: {
+      when: "`app-domain/integrity/{parsing,detection,reporting}/` 配下に新 primitive file を追加するとき",
+      exceptions:
+        "rejected entry を削除して judgment を反転させる場合のみ許容 (PR で reason 反転を明示)",
+      escalation:
+        "rejected entry を削除して再採用するか、別名の primitive を作る (例: shapeSync → structuralEquality)",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` の rejected[] から該当 entry を削除",
+        "2. 削除理由を decidedAt 更新 + reason を「Phase X で再採用判断」に書き換え",
+        "3. PR で「rejected → 再採用」の経緯を明示し review window 経由で landing",
+        "4. その後 `app-domain/integrity/<category>/<name>.ts` を新設",
+      ],
+    },
+    sunsetCondition:
+      "なし (rejected archive の resurrection 検出は恒久的 mechanism)",
+    protectedHarm: {
+      prevents: [
+        "Phase A inventory で永久不採用と決定された slot 名の sneaky 復活",
+        "AI / 人間が rejected archive を確認せずに同名 primitive を再提案するリスク",
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[];

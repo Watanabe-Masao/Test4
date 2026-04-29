@@ -650,4 +650,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: spec body の Behavior Claims table の evidenceLevel / riskLevel 整合 (high-risk asserted 禁止 / tested→test path / guarded→guard path 必須)',
   },
+  'AR-INTEGRITY-NO-RESURRECT': {
+    category: 'registry-integrity',
+    layer: 'schema',
+    note: 'core-rule: adoption-candidates.json rejected[] の originalSlot 名と app-domain/integrity/{parsing,detection,reporting}/<name>.ts の同名 file 出現を禁止 (永久不採用 archive の resurrection 検出)',
+  },
 } as const

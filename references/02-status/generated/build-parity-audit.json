@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-27T21:33:02.124Z",
+  "timestamp": "2026-04-28T23:09:46.235Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -49,6 +49,7 @@
     "content-specs:check:anchor",
     "content-specs:generate",
     "content-specs:generate:anchor",
+    "content-specs:impact",
     "verify:project"
   ],
   "ci": {
@@ -61,6 +62,9 @@
       "build",
       "test:guards",
       "docs:check",
+      "content-specs:impact",
+      "content-specs:impact",
+      "content-specs:impact",
       "build",
       "build-storybook",
       "build",
