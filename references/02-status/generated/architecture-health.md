@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T06:29:44.771Z
+> Generated: 2026-04-29T06:46:20.854Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -8,8 +8,8 @@
 
 | 指標 | 値 |
 |---|---|
-| Total KPIs | 57 |
-| OK | 57 |
+| Total KPIs | 60 |
+| OK | 60 |
 | WARN | 0 |
 | FAIL | 0 |
 | Hard Gate | PASS |
@@ -71,6 +71,9 @@
 | integrity.driftBudget | Integrity drift budget (deferred pair 数) | 1 / 2 | OK |
 | integrity.expiredExceptions | Integrity 関連 file の @expiresAt 過去日 markers (Hard Gate) | 0 / 0 | OK |
 | integrity.consolidationProgress | Integrity consolidation progress (migrated / total) | 92.3 / 90 | OK |
+| contentGraph.nodes.count | Content Graph node 数 (= spec 総数) | 89 / 89 | OK |
+| contentGraph.edges.count | Content Graph edge 数 (spec 間 reference) | 47 / 0 | OK |
+| contentGraph.orphans.count | Content Graph orphan 数 (in / out edge ゼロ spec) | 47 / 100 | OK |
 
 ## ドキュメント整合
 
@@ -87,7 +90,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 4 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 863 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 807 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 811 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
@@ -178,5 +181,8 @@
 | integrity.expiredExceptions | guard | app/src/test/guards/integrityDomainCoverageGuard.test.ts |
 | integrity.consolidationProgress | definition | references/03-guides/integrity-domain-architecture.md #8 |
 | integrity.consolidationProgress | roadmap | projects/completed/canonicalization-domain-consolidation/checklist.md |
+| contentGraph.nodes.count | definition | references/02-status/generated/content-graph.json |
+| contentGraph.edges.count | definition | references/02-status/generated/content-graph.json |
+| contentGraph.orphans.count | definition | references/02-status/generated/content-graph.json |
 
 </details>

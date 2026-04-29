@@ -39,6 +39,7 @@ import {
   writeContentSpecHealth,
 } from "./collectors/content-spec-collector.js";
 import { collectFromIntegrityDomain } from "./collectors/integrity-collector.js";
+import { collectFromContentGraph } from "./collectors/content-graph-collector.js";
 import {
   collectRemediationSnapshot,
   writeRemediationFiles,
@@ -138,6 +139,9 @@ writeContentSpecHealth(repoRoot);
 console.error("[collect] integrity domain...");
 const integrityKpis = collectFromIntegrityDomain(repoRoot);
 
+console.error("[collect] content graph...");
+const contentGraphKpis = collectFromContentGraph(repoRoot);
+
 const allKpis = [
   ...snapshotKpis,
   ...guardKpis,
@@ -152,6 +156,7 @@ const allKpis = [
   ...taxonomyKpis,
   ...contentSpecKpis,
   ...integrityKpis,
+  ...contentGraphKpis,
 ];
 console.error(`[collect] done — ${allKpis.length} KPIs`);
 

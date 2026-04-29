@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T06:29:44.771Z",
+  "timestamp": "2026-04-29T06:46:20.854Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1047,7 +1047,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 807,
+      "value": 811,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1461,11 +1461,68 @@
         "app-domain/integrity/index.ts"
       ],
       "budget": 90
+    },
+    {
+      "id": "contentGraph.nodes.count",
+      "label": "Content Graph node 数 (= spec 総数)",
+      "category": "guard",
+      "value": 89,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 89
+    },
+    {
+      "id": "contentGraph.edges.count",
+      "label": "Content Graph edge 数 (spec 間 reference)",
+      "category": "guard",
+      "value": 47,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 0
+    },
+    {
+      "id": "contentGraph.orphans.count",
+      "label": "Content Graph orphan 数 (in / out edge ゼロ spec)",
+      "category": "guard",
+      "value": 47,
+      "unit": "count",
+      "status": "ok",
+      "owner": "implementation",
+      "docRefs": [
+        {
+          "kind": "definition",
+          "path": "references/02-status/generated/content-graph.json"
+        }
+      ],
+      "implRefs": [
+        "tools/architecture-health/src/collectors/content-graph-collector.ts"
+      ],
+      "budget": 100
     }
   ],
   "summary": {
-    "totalKpis": 57,
-    "ok": 57,
+    "totalKpis": 60,
+    "ok": 60,
     "warn": 0,
     "fail": 0,
     "hardGatePass": true

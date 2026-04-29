@@ -252,4 +252,27 @@ export const HEALTH_RULES: readonly HealthRule[] = [
     operator: "gte",
     target: 90,
   },
+  // --- Content Graph (phased-content-specs-rollout Phase A #2) ---
+  // Info: spec 総数 (現状 89 = 45 widget + 10 RM + 24 CALC + 5 chart + 5 UIC)
+  {
+    id: "contentGraph.nodes.count",
+    type: "info",
+    operator: "gte",
+    target: 89,
+  },
+  // Info: spec 間 reference 総数 (現状 baseline、後続 batch で増加見込)
+  {
+    id: "contentGraph.edges.count",
+    type: "info",
+    operator: "gte",
+    target: 0,
+  },
+  // Info: orphan spec 数 (in / out edge ゼロ。低いほど良いが kind によっては
+  // 意図的に orphan あり。後続 batch で baseline 設定)
+  {
+    id: "contentGraph.orphans.count",
+    type: "info",
+    operator: "lte",
+    target: 100,
+  },
 ] as const;

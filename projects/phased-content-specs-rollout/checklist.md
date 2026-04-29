@@ -27,11 +27,11 @@
 - [x] `AR-CONTENT-SPEC-OWNER` rule を登録 + active 化した
 - [x] `obligation-collector.ts` の `OBLIGATION_MAP` に registry 変更 → spec 更新義務を追加した
 - [ ] behavior section guard（spec が usage ではなく behavior を記述している検証）を実装した
-- [ ] content graph の初版 collector を実装した
+- [x] content graph の初版 collector を実装した — `tools/architecture-health/src/collectors/content-graph-collector.ts` 新設、3 KPI (nodes=89 / edges=47 / orphans=47) を architecture-health に feed、`content-graph.json` 生成 (2026-04-29)
 - [x] `npm run content-specs:check` script を package.json に追加した
 - [x] CI workflow に content-specs:check を組み込んだ（`test:guards` 経由で fast-gate に組み込み — `contentSpecFrontmatterSyncGuard` が generator --check を spawn する）
 - [x] Anchor Slice 5 件で `missingSpec / frontmatterDrift / coChangeViolation = 0` を達成した
-- [ ] Anchor Slice 5 件で Promotion Gate L4 到達を確認した — **deferred**: prerequisite #2 (content graph 初版 collector) 完成後に対象化
+- [x] Anchor Slice 5 件で Promotion Gate L4 到達を確認した — Phase A guard 群 (AR-CONTENT-SPEC-CO-CHANGE / LIFECYCLE-FIELDS / OWNER) が widget kind 全件で active、L4 条件「Guarded (co-change / lifecycle / owner guard がある)」(plan §5.5) を満たす
 - [x] source 変更 → spec 未更新で `npm run docs:check` が hard fail することを CI で確認した（synthetic drift 注入で contentSpecCoChangeGuard / FrontmatterSync が hard fail することを確認）
 
 ## Phase B: WID 全体への拡張
@@ -40,8 +40,8 @@
 - [x] frontmatter generator を全 45 件に適用し drift = 0 を達成した
 - [x] co-change guard を 45 件全体で active 化した
 - [x] freshness / owner guard が 45 件全体で動作することを確認した
-- [ ] 全 45 WID の content graph が生成された — **deferred**: prerequisite #2 (Phase A の content graph 初版 collector)
-- [ ] 全 45 WID で Promotion Gate L4 到達を確認した — **deferred**: prerequisite 上記 (content graph)
+- [x] 全 45 WID の content graph が生成された — `content-graph-collector` (2026-04-29) で 89 spec 全件 (45 widget 含む) が graph node に登録、`content-graph.json` 出力
+- [x] 全 45 WID で Promotion Gate L4 到達を確認した — co-change / lifecycle / owner guard が 45 WID 全件で active (Phase B 完遂時点)、L4 条件 (plan §5.5) を満たす
 
 ## Phase C: ReadModels / Pipelines の網羅
 
@@ -52,8 +52,8 @@
 - [x] 主要 readModel `missingSpec = 0` を達成した（10 件、AR-CONTENT-SPEC-EXISTS guard で検証）
 - [ ] 主要 pipeline `missingSpec = 0` を達成した
 - [ ] queryHandler / projection の `sourceRef drift = 0` を達成した
-- [ ] pipeline lineage が graph で追跡可能になった — **deferred**: prerequisite #2 (content graph) + 主要 pipeline missingSpec=0
-- [ ] Promotion Gate L5 到達を確認した — **deferred**: prerequisite 上記 (pipeline lineage graph)
+- [ ] pipeline lineage が graph で追跡可能になった — **deferred**: PIPE/QH/PROJ サブカテゴリの新設が prerequisite (現状 read-models/ のみ存在)。content graph 機構自体は landed (2026-04-29)
+- [ ] Promotion Gate L5 到達を確認した — **deferred**: prerequisite 上記 (pipeline lineage graph) + Phase J evidence-backed の per-spec verification
 
 ## Phase D: Domain Calculations の網羅
 
