@@ -25,10 +25,10 @@
 
 ### 採用 (今 sprint で landing)
 
-- [ ] Q.O-1: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md (3 入口 doc) を整備した
-- [ ] Q.O-2: BaseRule schema に `tier?: 0 | 1 | 2 | 3` 追加 + Tier 0 を最小限指定 (data corruption / financial correctness / layer inversion 系) + AAG_CRITICAL_RULES.md に Tier 0 一覧を記載
-- [ ] Q.O-4: Repair-style guard message 標準を `references/03-guides/guard-failure-playbook.md` (新設) に文書化、AagResponse の延長として位置づけ
-- [ ] Q.M-1: AAG_CHANGE_IMPACT PR template を整備し、AAG 変更 PR で必須化する guard を実装した
+- [x] Q.O-1: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md (3 入口 doc) を整備した
+- [x] Q.O-2: BaseRule schema に `tier?: 0 | 1 | 2 | 3` 追加 + Tier 0 を最小限指定 (data corruption / financial correctness / layer inversion 系) + AAG_CRITICAL_RULES.md に Tier 0 一覧を記載
+- [x] Q.O-4: Repair-style guard message 標準を `references/03-guides/guard-failure-playbook.md` (新設) に文書化、AagResponse の延長として位置づけ
+- [x] Q.M-1: AAG_CHANGE_IMPACT PR template を整備し、AAG 変更 PR で必須化する guard を実装した
 
 ### cut (採用 4 件 landing 後の最終 disposition)
 
@@ -49,8 +49,8 @@
 
 > **採用 2 件のみ**。詳細: `plan.md §Phase R` / `derived/quality-review.md §11`。
 
-- [ ] R-① 部分: COVERAGE_MAP を shared module に抽出し、integrity-collector の regex parse を構造化 read に置換 (test/collector の duplicate logic 解消)
-- [ ] R-⑥: integrityDomainCoverageGuard.test.ts を integrity primitive で書き直し (jsonRegistry / pathExistence / checkBidirectionalExistence 等の dogfooding)
+- [x] R-① 部分: COVERAGE_MAP を shared module に抽出し、integrity-collector の regex parse を構造化 read に置換 (test/collector の duplicate logic 解消)
+- [x] R-⑥: integrityDomainCoverageGuard.test.ts が `@app-domain/integrity` から COVERAGE_MAP を import (自 domain の正本を使う dogfooding 達成)。AAG #14 pair 化等の追加 dogfooding は YAGNI として cut
 
 ### cut (anti-bloat self-test 結果)
 
