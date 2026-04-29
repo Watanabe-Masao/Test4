@@ -6,11 +6,17 @@
 
 ## 1. 破壊対象の概要
 
-本 project は AAG framework 自身の structural change (Phase R) を行うため、以下の領域で
-互換性のない schema 変更が発生する:
+本 project は **Phase Q (Meta-AAG layer 新設) + Phase R (AAG framework structural change)** を行うため、以下の領域で互換性のない schema 変更が発生する。
 
-| 領域 | 現状 | Phase R 後 | 移行 path |
+Phase Q 自体は principle 上 additive (新 layer 追加) だが、PR template 必須化 (Q.M-1) や全 rule への tier 必須化 (Q.O-2) は **既存 PR / 既存 rule に schema 変更を要求** するため、breaking change として扱う。
+
+詳細:
+
+| 領域 | 現状 | Phase Q/R 後 | 移行 path |
 |---|---|---|---|
+| **(Phase Q.O-2)** `BaseRule` schema | (現状) `tier` field なし | (Phase Q.O-2 後) 全 rule に `tier: 0 \| 1 \| 2 \| 3` 必須化 | architectureRuleGuard で tier 必須化、既存 162 rule に bulk add |
+| **(Phase Q.M-2)** AAG invariant 適用 | (現状) 「気をつける」 prose | (Phase Q.M-2 後) 9 invariant の機械検証 | meta-guard を追加、既存 AAG file に invariant tag bulk add |
+| **(Phase Q.M-1)** AAG 変更 PR | (現状) PR description は free-form | (Phase Q.M-1 後) `AAG_CHANGE_IMPACT` section 必須化 | PR template 拡張 + projectizationPolicyGuard 拡張 |
 | `app-domain/integrity/types.ts` の type 定義 | `Registry / DriftReport / SyncDirection / EnforcementSeverity` (4 type) | + `CanonicalContract` / `DecisionRecord` / `LifecycleState` / `ZoneTag` | additive、既存 import は壊れない |
 | `adoption-candidates.json` の archive schema | `existingPairs[]` / `horizontalCandidates[]` / `deferred[]` / `rejected[]` (各独自 shape) | 全 archive が `DecisionRecord` schema 準拠 (when / who / why / evidence / reversal / state) | Phase R-② で 1 PR 一括移行 (既存 entry を新 schema に migrate) |
 | `COVERAGE_MAP` (`integrityDomainCoverageGuard.test.ts`) | `pairId` / `displayName` / `guardFiles` / `maxLines` / `status` / `deferReason` | `pairId` / `displayName` / `contract: CanonicalContract` / `lifecycleState: LifecycleState` / `zoneTags: ZoneTag[]` | Phase R-① で 1 PR 一括移行 |

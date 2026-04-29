@@ -4,7 +4,7 @@
 
 ## 現在地
 
-**status: draft (Phase 0 bootstrap 完遂、Phase R 着手前)**
+**status: draft (Phase 0 bootstrap 完遂、Phase Q 着手前)**
 
 ### 完遂したもの (Phase 0 bootstrap、2026-04-29)
 
@@ -25,24 +25,41 @@
 
 ## 次にやること
 
-### 直近 (Phase R 着手)
+### 直近 (Phase Q 着手 — Phase R の prerequisite)
 
-1. **Phase R 各 reform の作業 PR を順次 landing**:
-   - R-①: Bidirectional Canonical Contract schema (`app-domain/integrity/types.ts` 拡張)
-   - R-②: Time-axis Decision Record schema (全 archive 共通適用)
-   - R-③: 3-zone 分類を §P8/§P9 / selection rule / 撤退規律に適用
-   - R-④: APP_DOMAIN_INDEX.md 統一 template 整備
-   - R-⑤: Decision Artifact Standard PR template + guard
-   - R-⑥: Dogfooding Mandate (AAG #14 pair / coverage guard refactor)
+> **Phase Q を Phase R より前に挿入** (外部レビュー 1 + 2 統合、2026-04-29)。Phase Q は operational + meta-governance の 2 軸 14 要素。
 
-2. **Phase R 順序の判断**:
-   - R-① / R-② を先行 (schema 基盤、後続 reform が依存)
-   - R-③ は §P8/§P9 改修なので前駆 project の archive 確認後に着手するのが安全
-   - R-④ / R-⑤ / R-⑥ は並行可
+1. **Phase Q operational axis (Q.O-1〜Q.O-6) を順次 landing** — 認知負荷削減 + 効果測定:
+   - Q.O-1 (入口整備) を最先行: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md
+   - Q.O-2 (Risk tiering Tier 0-3) で全 rule に tier 必須化
+   - Q.O-3 (Change classification Micro/Local/System/Constitutional) で PR 入口判定
+   - Q.O-4 (Repair-style guard messages) で remediation system 化
+   - Q.O-5 (projects 直下 README auto-generate) で project navigation
+   - Q.O-6 (operational KPIs efficacy + degradation) で AAG 効果測定
 
-### 中期 (Phase H 着手)
+2. **Phase Q meta-governance axis (Q.M-1〜Q.M-8) を順次 landing** — AAG 自己保護:
+   - Q.M-1 (AAG_CHANGE_IMPACT template) を Q.O-1 と並行 (Phase Q 自身も適用対象)
+   - Q.M-2 (AAG invariant list 9 件、anti-bloat 含む)
+   - Q.M-3 (AAG meta-guards 8 件)
+   - Q.M-4 (operational KPIs collector — Q.O-6 と同 collector の 2 vue)
+   - Q.M-5 (promotion gate L0-L7) で new rule 成熟度
+   - Q.M-6 (canary rollout policy Phase 0-4) で段階導入
+   - Q.M-7 (rollback policy) で failure 時降格経路
+   - Q.M-8 (governance review checklist) で二段階 review
 
-- Phase R 完了確認 (Phase H entry の prerequisite)
+3. **Phase Q 順序の判断**:
+   - Q.O-1 + Q.M-1 を最先行 (入口 doc + AAG 変更 template、後続 reform の review に必須)
+   - Q.O-2 + Q.M-2 (Tier + invariants schema 拡張) を Q.M-3 (meta-guards) の前に
+   - Q.O-6 と Q.M-4 は同 collector、合わせて landing
+   - 他は並行可
+
+### 中期 (Phase R 着手 — Phase Q 完了が prerequisite)
+
+- R-①〜R-⑥ を Phase Q deliverable (Q.O-2 Tier / Q.M-1 IMPACT template / Q.M-6 canary 等) で protect された状態で landing
+- 各 reform は Q.M-6 canary rollout policy に従い段階導入
+
+### 中期 (Phase H 着手 — Phase R 完了が prerequisite)
+
 - H-α (hooks 再判定) → H-β (charts 採用) → H-γ (wasm 採用) → H-δ (COVERAGE_MAP 拡張)
 
 ### Phase I (institutionalization + handoff)

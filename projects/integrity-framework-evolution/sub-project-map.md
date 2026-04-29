@@ -11,9 +11,10 @@ sub-project (子 project) を切り出さず、Phase 単位で進行する。
 
 | Phase | scope | sub-project 化判断 |
 |---|---|---|
-| Phase R: Framework Reset | 6 reform (R-①〜R-⑥) | 単 project 内 phase として運用 (子 project 化しない理由: 6 reform は同時成立 design、分散させない) |
-| Phase H: Horizontal Expansion | 3 候補 (wasm + charts + hooks) | 単 project 内 phase として運用 (前駆 project から継承した COVERAGE_MAP 拡張なので独立 project にしない) |
-| Phase I: Institutionalization | §P8/§P9 3-zone 化 + archive transition | 単 project 内 phase として運用 |
+| Phase Q: AAG Maturation | 2 軸 14 要素 (operational Q.O-1〜Q.O-6 + meta-governance Q.M-1〜Q.M-8) | 単 project 内 phase として運用 (両 review 統合の Meta-AAG layer、Phase R/H/I の prerequisite) |
+| Phase R: Framework Reset | 6 reform (R-①〜R-⑥) | 単 project 内 phase として運用 (6 reform は同時成立 design、Phase Q deliverable で protect される) |
+| Phase H: Horizontal Expansion | 3 候補 (wasm + charts + hooks) | 単 project 内 phase として運用 (前駆 project から継承した COVERAGE_MAP 拡張、Phase R framework の最初の正規利用) |
+| Phase I: Institutionalization | §P8/§P9 3-zone 化 + archive transition + Phase Q deliverable の制度化 | 単 project 内 phase として運用 |
 
 ## 2. 親 project / 依存元
 
