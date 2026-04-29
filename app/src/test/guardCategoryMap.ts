@@ -665,4 +665,9 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'schema',
     note: 'core-rule: adoption-candidates.json rejected[] の originalSlot 名と app-domain/integrity/{parsing,detection,reporting}/<name>.ts の同名 file 出現を禁止 (永久不採用 archive の resurrection 検出)',
   },
+  'AR-CI-FETCH-DEPTH': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: Phase K Option 1 後続再発防止 (2026-04-29) — `.github/workflows/*.yml` の actions/checkout step で full history が必要な job (test:guards / vitest run 等を含む) に `fetch-depth: 0` を強制。allowlist (wasm-build / e2e / pages-build / deploy) で full history 不要 job を明示',
+  },
 } as const

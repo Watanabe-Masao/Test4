@@ -6387,4 +6387,49 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
   },
+
+  {
+    slice: "governance-ops",
+    id: "AR-CI-FETCH-DEPTH",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "references/01-principles/adaptive-architecture-governance.md",
+    what: "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する (allowlist された job 以外)",
+    why: "PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
+    correctPattern: {
+      description:
+        "full git history が必要な job (test:guards / vitest run / git log を読む code を実行) の actions/checkout step で `with: fetch-depth: 0` を明示する。Allowlist (full history 不要): wasm-build / e2e / pages-build / deploy",
+    },
+    outdatedPattern: {
+      description:
+        "full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定なし (= default `fetch-depth: 1` = shallow clone) のまま push する",
+    },
+    decisionCriteria: {
+      when: "`.github/workflows/*.yml` で新 job 追加 / 既存 job の checkout 修正時",
+      exceptions:
+        "Allowlist 入り (full history 不要) — wasm-build / e2e / pages-build / deploy。新規 allowlist 追加は guard test 内の `FETCH_DEPTH_NOT_REQUIRED_JOBS` set を更新する PR で明示する",
+      escalation:
+        "新 job が git log / git diff / 履歴依存 test を実行する場合 → with: fetch-depth: 0 を必須化",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. 新 job が git log / git diff / 履歴依存 test を実行するか判定",
+        "2. 必要なら actions/checkout step の with: block に `fetch-depth: 0` を追加",
+        "3. 不要なら ciFetchDepthGuard.test.ts の `FETCH_DEPTH_NOT_REQUIRED_JOBS` set に job 名を追加 (rationale をコメントで併記)",
+        "4. 既存 allowlist job の責務が変わって git log 依存 code を実行する場合 → allowlist から外して fetch-depth: 0 を追加",
+      ],
+    },
+    sunsetCondition:
+      "なし (CI checkout の fetch-depth 強制は git log 依存 guard が active な限り恒久的 mechanism)",
+    protectedHarm: {
+      prevents: [
+        "新 workflow / 新 job 追加時に fetch-depth 指定漏れ → git log 依存 guard の false-positive 一括 fail (PR #1205 の事故再発)",
+        "既存 job の checkout block を整理して fetch-depth 指定を意図せず削除するリスク",
+        "CI 環境差 (shallow vs full clone) で local PASS / CI FAIL のような hidden 起因の事故",
+      ],
+    },
+  },
 ] as const satisfies readonly BaseRule[];

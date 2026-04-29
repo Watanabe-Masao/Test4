@@ -754,4 +754,8 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
+  'AR-CI-FETCH-DEPTH': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
 }
