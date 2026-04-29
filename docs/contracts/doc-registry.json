@@ -60,6 +60,26 @@
       "title": "AAG（Adaptive Architecture Governance）",
       "docs": [
         {
+          "path": "references/AAG_OVERVIEW.md",
+          "label": "AAG 一枚サマリ（Phase Q.O-1 入口 doc）"
+        },
+        {
+          "path": "references/AAG_CRITICAL_RULES.md",
+          "label": "Tier 0 一覧（Phase Q.O-1/Q.O-2 入口 doc）"
+        },
+        {
+          "path": "references/03-guides/aag-onboarding-path.md",
+          "label": "初見者向け最短経路（Phase Q.O-1）"
+        },
+        {
+          "path": "references/03-guides/guard-failure-playbook.md",
+          "label": "Repair-style guard message 標準（Phase Q.O-4）"
+        },
+        {
+          "path": "references/03-guides/aag-change-impact-template.md",
+          "label": "AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1）"
+        },
+        {
           "path": "references/01-principles/adaptive-architecture-governance.md",
           "label": "AAG 正本"
         },

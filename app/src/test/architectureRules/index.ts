@@ -22,6 +22,7 @@ export type {
   FixNowClassification,
   DetectionSeverity,
   MigrationEffort,
+  RuleTier,
   DetectionConfig,
   DecisionCriteria,
   MigrationRecipe,

@@ -17,35 +17,33 @@
 - [x] `sub-project-map.md` に親 / 並行 / 後続 project 関係を記録した
 - [x] `derived/quality-review.md` に 13 dimension review + Meta-AAG insight の ground truth を保存した
 
-## Phase Q: AAG Maturation (operational + meta-governance, 2 axes)
+## Phase Q: AAG Maturation (scope reduced 14→4, 2026-04-29)
 
 > **AAG を「強い品質ゲート」から「低認知負荷で、リスクに応じて、修正まで導く品質運用システム」へ進化。Phase R/H/I の prerequisite。**
 >
-> 2 axes (operational Q.O-1〜Q.O-6 + meta-governance Q.M-1〜Q.M-8 = 計 14 要素) は AAG 5.2 collector-governance symmetry を先行例として institutionalize する。
+> **Scope reduction (anti-bloat self-test)**: 14 要素 → 4 要素 (採用) + 2 要素 (保留、採用後に再評価) + 8 要素 (cut、Phase R で実害 evidence 出た時のみ additive 追加)。詳細: `plan.md §Phase Q scope reduction`。
 
-### Phase Q operational axis (Q.O-1〜Q.O-6)
+### 採用 (今 sprint で landing)
 
 - [ ] Q.O-1: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md (3 入口 doc) を整備した
-- [ ] Q.O-2: 全 rule に Tier 0/1/2/3 を必須化、`base-rules.ts BaseRule` schema 拡張 + architectureRuleGuard で機械検証した
-- [ ] Q.O-3: Change classification (Micro/Local/System/Constitutional) を PR template + projectizationPolicyGuard 拡張で機械検証した
-- [ ] Q.O-4: Repair-style guard messages 標準を整備した (各 guard に violationCode/why/commonCause/fixPath/command/escalation 必須化、guard-failure-playbook.md と連動)
-- [ ] Q.O-5: projects 直下 README を projectChecklistCollector で auto-generate (project navigation 一覧、手書き禁止)
-- [ ] Q.O-6: AAG operational KPIs (efficacy 系 4 + degradation 系 10 = 14 KPIs) を `aag.*` 名前空間で `architecture-health.json` に出力した
-
-### Phase Q meta-governance axis (Q.M-1〜Q.M-8)
-
+- [ ] Q.O-2: BaseRule schema に `tier?: 0 | 1 | 2 | 3` 追加 + Tier 0 を最小限指定 (data corruption / financial correctness / layer inversion 系) + AAG_CRITICAL_RULES.md に Tier 0 一覧を記載
+- [ ] Q.O-4: Repair-style guard message 標準を `references/03-guides/guard-failure-playbook.md` (新設) に文書化、AagResponse の延長として位置づけ
 - [ ] Q.M-1: AAG_CHANGE_IMPACT PR template を整備し、AAG 変更 PR で必須化する guard を実装した
-- [ ] Q.M-2: AAG invariant list (9 hard invariants、anti-bloat 含む) を `references/01-principles/aag-invariants.md` (新設) に記録した
-- [ ] Q.M-3: AAG meta-guards 8 件 (meta-governance / source-of-truth / collector symmetry generic / health schema / lifecycle simulation / generated drift / rule metadata / guard noise) を実装した
-- [ ] Q.M-4: AAG operational KPIs collector (Q.O-6 と同 collector、efficacy + degradation の 2 vue) を実装した
-- [ ] Q.M-5: AAG promotion gate (L0-L7) を rule definition schema に組み込み、各 rule に成熟度 level を必須化した
-- [ ] Q.M-6: Canary rollout policy (Phase 0-4) を `references/03-guides/aag-canary-rollout.md` (新設) に文書化した
-- [ ] Q.M-7: AAG rollback policy を同 doc に記録し、failure 時の降格経路 (warn / health-only / collector rollback 等) を明示した
-- [ ] Q.M-8: Governance review checklist (technical + governance 二段階) を PR template + reviewer assignment に組み込んだ
 
-### Phase Q self-protection
+### 保留 (採用 4 件 landing 後に再評価)
 
-- [ ] Q.M-3 meta-guards が Q.O-1〜Q.O-6 + Q.M-1〜Q.M-8 の整合性を機械検証している (再帰性確保)
+- [ ] (保留) Q.O-3: Change classification (Micro/Local/System/Constitutional) — projectization Level 1-4 + Q.M-1 CHANGE_IMPACT template が PR 入口判定をどこまで吸収できるか観察してから判断
+- [ ] (保留) Q.O-5: projects 直下 auto-generated README — Q.O-1 AAG_OVERVIEW.md が project navigation も兼ねられるか観察してから判断
+
+### cut (Phase R で実害 evidence 出た時のみ additive 追加)
+
+- ~~Q.O-6 / Q.M-4 (14 efficacy KPIs)~~ — speculative、Phase R 進行中に measurement gap が出たら追加
+- ~~Q.M-2 (9 invariants doc)~~ — anti-bloat / no-resurrect は既存 AAG 第 7 / 第 8 原則に内包
+- ~~Q.M-3 (8 meta-guards)~~ — speculative、drift 事例が出てから ratchet で追加
+- ~~Q.M-5 (promotion gate L0-L7)~~ — 1 人 project で過剰 ceremony
+- ~~Q.M-6 (canary rollout)~~ — 同上
+- ~~Q.M-7 (rollback policy)~~ — 既存の git revert + allowlist 機構で代替可能
+- ~~Q.M-8 (2 段 review)~~ — 1 人 project で過剰
 
 ## Phase R: Framework Reset
 

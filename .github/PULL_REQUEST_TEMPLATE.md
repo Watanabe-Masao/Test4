@@ -86,3 +86,42 @@
 - [ ] useMemo/useCallback の依存配列から参照値を省いていない
 - [ ] domain/ に外部依存・副作用を持ち込んでいない
 - [ ] UI が生データソースを直接参照していない
+
+## AAG Change Impact（AAG 変更時のみ）
+
+> 変更が AAG framework（rule / guard / KPI / health collector / architecture-rules.ts / app-domain/integrity / aag-* doc / projectization policy 等）に touch する場合は本 section を埋める。
+> 対象範囲・記入要領: [`references/03-guides/aag-change-impact-template.md`](../references/03-guides/aag-change-impact-template.md)（Phase Q.M-1 deliverable）。
+>
+> AAG 変更でない場合は「該当なし」とだけ記載してこの section を畳んでください。
+
+**Affected layer**（複数可）:
+- [ ] Constitution（principles / 不変条件 / 設計原則）
+- [ ] Schema（rule type / KPI schema / health JSON schema / project.json schema）
+- [ ] Execution（guard test / health collector / pre-commit hook）
+- [ ] Operations（allowlist / generated docs / obligation map / PR template）
+- [ ] 該当なし（AAG 変更ではない）
+
+**Affected artifacts**（該当のみ）:
+- [ ] `app-domain/gross-profit/rule-catalog/base-rules.ts`（rule 定義）
+- [ ] `app/src/test/guards/`（guard test）
+- [ ] `tools/architecture-health/`（health metrics / collector）
+- [ ] `references/02-status/generated/`（generated docs）
+- [ ] `app-domain/integrity/`（整合性 domain primitives）
+- [ ] `references/01-principles/aag-*` / `AAG_*.md`（AAG 正本 / 入口 doc）
+- [ ] `docs/contracts/*.json`（doc-registry / principles / project-metadata 等の構造化正本）
+- [ ] taxonomy（responsibility / test taxonomy registry）
+
+**Risk**（該当のみ、なしなら「なし」と明記）:
+- [ ] new Hard Gate を追加する（migration path 必須）
+- [ ] new human approval 経路を導入する
+- [ ] new generated artifact を導入する（drift 検証必須）
+- [ ] new source of truth を導入する（既存正本との重複に注意）
+- [ ] 既存 schema の breaking change（移行 PR 必須）
+- [ ] Tier 0 rule の追加 / 変更（`AAG_CRITICAL_RULES.md` 更新必須）
+- [ ] なし（additive、後方互換）
+
+**Anti-bloat self-test**:
+- [ ] この変更は何の事故を防ぐのか 1 文で答えられる
+- [ ] 既存 guard / rule / doc では防げないことを確認した
+- [ ] false positive リスクを検討した（該当時）
+- [ ] 削除可能性を検討した（不要になったら sunset できる経路がある）

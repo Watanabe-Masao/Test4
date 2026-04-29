@@ -8,7 +8,7 @@
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 46         |
 | `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
-| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 68         |
+| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 71         |
 | `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
 | `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 4          |
 
@@ -244,6 +244,11 @@
 
 | ファイル                                             | 内容                                                                                                            |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `AAG_OVERVIEW.md`                                    | **入口 doc** — AAG 一枚サマリ + 「困った時にどこを見るか」索引（Phase Q.O-1 deliverable）                        |
+| `AAG_CRITICAL_RULES.md`                              | **入口 doc** — Tier 0 一覧（絶対踏んではいけない rule、Phase Q.O-1 + Q.O-2 deliverable）                         |
+| `03-guides/aag-onboarding-path.md`                   | **入口 doc** — 初見者向け最短経路（タスク種別別の minimal reading path、Phase Q.O-1 deliverable）                |
+| `03-guides/guard-failure-playbook.md`                | Repair-style guard message 標準（既存 AagResponse / renderAagResponse 系統の明文化、Phase Q.O-4 deliverable）   |
+| `03-guides/aag-change-impact-template.md`            | AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1 deliverable）                                                |
 | `01-principles/adaptive-architecture-governance.md`  | **AAG 正本** — 構成要素、設計原則、バージョン履歴                                                               |
 | `01-principles/adaptive-governance-evolution.md`     | 進化の設計 — 3 層サイクル（発見→蓄積→評価）                                                                     |
 | `01-principles/design-principles.md`                 | 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                                          |

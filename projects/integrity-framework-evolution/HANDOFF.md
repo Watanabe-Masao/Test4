@@ -25,33 +25,23 @@
 
 ## 次にやること
 
-### 直近 (Phase Q 着手 — Phase R の prerequisite)
+### 直近 (Phase Q 着手 — scope reduced 14→4)
 
-> **Phase Q を Phase R より前に挿入** (外部レビュー 1 + 2 統合、2026-04-29)。Phase Q は operational + meta-governance の 2 軸 14 要素。
+> **Phase Q scope reduction** (anti-bloat self-test、2026-04-29): 14 要素 → 4 採用 + 2 保留 + 8 cut。詳細: `plan.md §Phase Q scope reduction` / `derived/quality-review.md §10`。
 
-1. **Phase Q operational axis (Q.O-1〜Q.O-6) を順次 landing** — 認知負荷削減 + 効果測定:
-   - Q.O-1 (入口整備) を最先行: AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md
-   - Q.O-2 (Risk tiering Tier 0-3) で全 rule に tier 必須化
-   - Q.O-3 (Change classification Micro/Local/System/Constitutional) で PR 入口判定
-   - Q.O-4 (Repair-style guard messages) で remediation system 化
-   - Q.O-5 (projects 直下 README auto-generate) で project navigation
-   - Q.O-6 (operational KPIs efficacy + degradation) で AAG 効果測定
+1. **採用 4 件を順次 landing**:
+   - Q.O-1 (3 入口 doc): AAG_OVERVIEW.md / AAG_CRITICAL_RULES.md / aag-onboarding-path.md
+   - Q.O-2 (BaseRule に tier 追加 + Tier 0 最小指定): schema 追加は optional field、Tier 0 のみ初期指定、他は徐々に
+   - Q.O-4 (Repair-style guard message 標準): guard-failure-playbook.md 新設
+   - Q.M-1 (AAG_CHANGE_IMPACT PR template + guard): AAG 変更 PR で必須化
 
-2. **Phase Q meta-governance axis (Q.M-1〜Q.M-8) を順次 landing** — AAG 自己保護:
-   - Q.M-1 (AAG_CHANGE_IMPACT template) を Q.O-1 と並行 (Phase Q 自身も適用対象)
-   - Q.M-2 (AAG invariant list 9 件、anti-bloat 含む)
-   - Q.M-3 (AAG meta-guards 8 件)
-   - Q.M-4 (operational KPIs collector — Q.O-6 と同 collector の 2 vue)
-   - Q.M-5 (promotion gate L0-L7) で new rule 成熟度
-   - Q.M-6 (canary rollout policy Phase 0-4) で段階導入
-   - Q.M-7 (rollback policy) で failure 時降格経路
-   - Q.M-8 (governance review checklist) で二段階 review
+2. **保留 2 件 (採用 4 件 landing 後に再評価)**:
+   - Q.O-3 (Change classification): projectization Level 1-4 + Q.M-1 が PR 入口判定をどこまで吸収できるか観察してから判断
+   - Q.O-5 (auto-generated README): Q.O-1 AAG_OVERVIEW が project navigation も兼ねられるか観察してから判断
 
-3. **Phase Q 順序の判断**:
-   - Q.O-1 + Q.M-1 を最先行 (入口 doc + AAG 変更 template、後続 reform の review に必須)
-   - Q.O-2 + Q.M-2 (Tier + invariants schema 拡張) を Q.M-3 (meta-guards) の前に
-   - Q.O-6 と Q.M-4 は同 collector、合わせて landing
-   - 他は並行可
+3. **cut 8 件 (Phase R で実害 evidence 出た時のみ additive 追加、YAGNI)**:
+   - Q.O-6 / Q.M-4 (efficacy KPIs) / Q.M-2 (invariants doc) / Q.M-3 (meta-guards)
+   - Q.M-5 (promotion gate) / Q.M-6 (canary) / Q.M-7 (rollback) / Q.M-8 (2 段 review)
 
 ### 中期 (Phase R 着手 — Phase Q 完了が prerequisite)
 
