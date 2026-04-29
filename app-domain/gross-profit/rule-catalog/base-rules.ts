@@ -6018,7 +6018,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastVerifiedCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net",
     correctPattern: {
       description:
-        "spec.lastVerifiedCommit === git log -1 --format=%h -- <sourceRef> の出力。完全一致のみ allow、不一致は『source 動作と spec の同期漏れ』signal として hard fail。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
+        "spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-char SHA) と完全一致。短縮 hash (`%h`) は repo 成長で長さ変動 + prefix 衝突時に false-negative (異 commit を同一と誤判定) リスクがあるため、commit identity の保証には full SHA を使用する。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
     },
     outdatedPattern: {
       description: "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
