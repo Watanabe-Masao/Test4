@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T00:00:58.679Z",
+  "timestamp": "2026-04-29T00:20:46.105Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 115,
+      "value": 116,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -322,6 +322,7 @@
         "app/src/test/guards/grossProfitPathGuard.test.ts",
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
         "app/src/test/guards/hookCanonicalPathGuard.test.ts",
+        "app/src/test/guards/integrityDomainCoverageGuard.test.ts",
         "app/src/test/guards/integrityDomainSkeletonGuard.test.ts",
         "app/src/test/guards/layerBoundaryGuard.test.ts",
         "app/src/test/guards/manifestGuard.test.ts",
@@ -1040,7 +1041,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 838,
+      "value": 842,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

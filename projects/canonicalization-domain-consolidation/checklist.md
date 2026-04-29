@@ -75,10 +75,10 @@
 
 > **scope (2026-04-28 縮小)**: 完全性 test は「Phase B〜E で migration 済 13 ペア + Phase H tier1 候補が primitive で表現可能」に限定。Phase H 着手前に「真の完全性」を要求すると Phase F が永久未到達になるため。Phase H 完了時に「Phase H tier1 含む完全性」へ昇格 (本 checklist で再確認)。
 
-- [ ] domain 純粋性 test（I/O が guard 側に閉じている）を pass させた (skeleton guard で landed、本 phase は再確認)
-- [ ] domain 完全性 test (Phase B〜E migration 済 13 ペアが primitive 経由で表現されている) を pass させた
-- [ ] adapter shape test (旧 guard refactor 後の caller 行数 / I/O 集約) を pass させた
-- [ ] coverage matrix（primitive 別の使用 registry）を generated section で出力した
+- [x] domain 純粋性 test（I/O が guard 側に閉じている）を pass させた (skeleton guard で landed 済、本 phase で再確認)
+- [x] domain 完全性 test (Phase B〜E migration 済 13 ペアが primitive 経由で表現されている) を pass させた (`integrityDomainCoverageGuard.test.ts` F-2、12 migrated + 1 deferred)
+- [x] adapter shape test (旧 guard refactor 後の caller 行数 / I/O 集約) を pass させた (同 guard F-3、12 file の lines baseline ratchet-down)
+- [x] coverage matrix（13 ペア → guard file → primitive 経由）を `COVERAGE_MAP` 定数で正本化した (`integrity-domain-architecture.md §8` で参照、冗長性回避のため本 doc に重複表を持たない)
 
 ## Phase G: Architecture-Health KPI 統合
 
