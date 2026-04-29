@@ -5968,46 +5968,6 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
-    id: "AR-CONTENT-SPEC-FRESHNESS",
-    principleRefs: ["G1"],
-    ruleClass: "invariant",
-    guardTags: ["G1"],
-    epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
-    what: "[DEPRECATED in Phase K, replaced by AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT] WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない",
-    why: "[DEPRECATED] date-based cadence は『review = date 更新』で構造的検証を伴わない儀式 (HANDOFF.md §3.9)。既存 5 guard (co-change / frontmatter-sync / path-existence / lifecycle / evidence-level) が構造的 drift を網羅し、lastVerifiedCommit が concrete signal を提供するため重複かつ低 value。Phase K Option 1 で AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT に置換",
-    correctPattern: {
-      description:
-        "(today - lastReviewedAt) <= reviewCadenceDays（× 0.8 超過で warn、超過で fail）。Phase K で deprecated、guard は .skip 状態",
-    },
-    outdatedPattern: {
-      description: "lastReviewedAt が長期間更新されておらず cadence を超過",
-    },
-    decisionCriteria: {
-      when: "[DEPRECATED] spec 内容を読み直し / 更新するとき",
-      exceptions: "Phase K Option 1 完遂以降は AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
-      escalation: "review 後に lastReviewedAt を当日に更新（暫定運用、撤退準備中）",
-    },
-    detection: { type: "custom", severity: "gate", baseline: 0 },
-    migrationRecipe: {
-      steps: [
-        "1. [DEPRECATED] 本 rule は Phase K で deprecated。AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
-        "2. 既存 cadence based check は guard test が .skip 化されており active な検証なし",
-        "3. 1 sprint 後の物理削除に向けた deprecation 期間",
-      ],
-    },
-    sunsetCondition:
-      "Phase K Option 1 後続 sprint で物理削除（AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が active で stale spec 検出を担う、cadence 儀式は撤退）",
-    protectedHarm: {
-      prevents: [
-        "[DEPRECATED] spec が読まれない台帳化 → AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が source 動作と spec 同期を構造的に保証",
-        "[DEPRECATED] owner 喪失 → AR-CONTENT-SPEC-OWNER で別途強制",
-      ],
-    },
-  },
-
-  {
-    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT",
     principleRefs: ["G1"],
     ruleClass: "invariant",

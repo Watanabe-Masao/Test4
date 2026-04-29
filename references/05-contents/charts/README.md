@@ -90,8 +90,6 @@ lastVerifiedCommit: <sha>
 
 # 時間 drift 防御
 owner: implementation
-reviewCadenceDays: 90
-lastReviewedAt: 2026-04-28
 
 specVersion: 1
 ---
@@ -122,10 +120,12 @@ specVersion: 1
 - generator が source AST から `sourceLine` / `exportName` を再生成、diff 0 を強制
 - registry source 行が変わったら spec 更新義務（既存 obligation-collector と整合）
 
-### 時間軸: `AR-CONTENT-SPEC-FRESHNESS` + `AR-CONTENT-SPEC-OWNER`
+### commit-pin 軸: `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` + `AR-CONTENT-SPEC-OWNER`
 
-- 全 spec に `owner` / `reviewCadenceDays` / `lastReviewedAt` 必須
-- cadence 超過で fail（× 0.8 で warn）
+- 全 spec に `owner` / `lastVerifiedCommit` (full 40-char SHA) 必須
+- `git log -1 --format=%H -- <sourceRef>` と完全一致しないと fail
+
+> **Phase K Option 1 (2026-04-29) で撤退済**: `AR-CONTENT-SPEC-FRESHNESS` (date-based cadence) は儀式と判定して撤退。commit-pin で構造的に置換。
 
 ### Lifecycle 軸: `AR-CONTENT-SPEC-LIFECYCLE-FIELDS` + `LIFECYCLE-LINK-SYMMETRY`
 

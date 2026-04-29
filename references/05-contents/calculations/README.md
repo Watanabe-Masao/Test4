@@ -150,8 +150,6 @@ lastVerifiedCommit: <sha>
 
 # 時間 drift 防御
 owner: architecture
-reviewCadenceDays: 90
-lastReviewedAt: 2026-04-27
 
 # spec schema
 specVersion: 1
@@ -183,10 +181,12 @@ specVersion: 1
 - generator が source AST から `sourceLine` / `exportName` を再生成
 - `canonicalRegistration` ↔ `calculationCanonRegistry.runtimeStatus` の双方向 sync（後続 commit で sync guard 追加）
 
-### 時間軸: `AR-CONTENT-SPEC-FRESHNESS` + `AR-CONTENT-SPEC-LIFECYCLE-DEADLINE`
+### commit-pin 軸: `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` + `AR-CONTENT-SPEC-LIFECYCLE-DEADLINE`
 
-- `lastReviewedAt` cadence 超過で fail
+- `lastVerifiedCommit` (full SHA) が `git log -1 --format=%H -- <sourceRef>` と完全一致しないと fail
 - `sunsetting` の `deadline` 超過で hard fail（temporal governance）
+
+> **Phase K Option 1 (2026-04-29) で撤退済**: `AR-CONTENT-SPEC-FRESHNESS` (date-based cadence) は儀式と判定して撤退。commit-pin (`AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT`) で構造的に置換。
 
 ### Lifecycle 軸: `AR-CONTENT-SPEC-LIFECYCLE-FIELDS`
 

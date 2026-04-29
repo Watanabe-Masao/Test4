@@ -74,14 +74,14 @@ describe('parsing/parseSpecFrontmatter', () => {
     const content = [
       '---',
       'id: RM-001',
-      'reviewCadenceDays: 90',
-      'lastReviewedAt: null',
+      'sourceLine: 42',
+      'lastVerifiedCommit: null',
       '---',
     ].join('\n')
     const spec = parseSpecFrontmatter(content, 'RM-001.md')
     expect(spec.kind).toBe('read-model')
-    expect(spec.reviewCadenceDays).toBe(90)
-    expect(spec.lastReviewedAt).toBeNull()
+    expect(spec.sourceLine).toBe(42)
+    expect(spec.lastVerifiedCommit).toBeNull()
   })
 
   it('純粋性: 同じ入力 → 同じ出力 (副作用なし)', () => {

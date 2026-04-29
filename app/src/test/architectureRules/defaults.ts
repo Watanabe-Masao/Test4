@@ -712,10 +712,6 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
-  'AR-CONTENT-SPEC-FRESHNESS': {
-    fixNow: 'debt',
-    executionPlan: { effort: 'trivial', priority: 2 },
-  },
   'AR-CONTENT-SPEC-OWNER': {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },

@@ -615,11 +615,6 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'schema',
     note: 'core-rule: registry source の id 行と spec.registryLine の同期 (Phase A 静的、Phase I で git diff ベースに置換)',
   },
-  'AR-CONTENT-SPEC-FRESHNESS': {
-    category: 'registry-integrity',
-    layer: 'operations',
-    note: 'core-rule: lastReviewedAt + reviewCadenceDays による spec の陳腐化防止',
-  },
   'AR-CONTENT-SPEC-OWNER': {
     category: 'registry-integrity',
     layer: 'operations',
@@ -658,7 +653,7 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT': {
     category: 'registry-integrity',
     layer: 'operations',
-    note: 'core-rule: Phase K Option 1 (2026-04-29) 全 spec の lastVerifiedCommit が source file の最新 commit hash と一致を git log -1 経由で検証 (date-based cadence の AR-CONTENT-SPEC-FRESHNESS を deprecate して構造的 mechanism に置換)',
+    note: 'core-rule: Phase K Option 1 (2026-04-29) 全 spec の lastVerifiedCommit が source file の最新 commit hash (full SHA) と完全一致を git log -1 --format=%H 経由で検証 (date-based cadence は撤退済、AR-CONTENT-SPEC-FRESHNESS は registry 削除済)',
   },
   'AR-INTEGRITY-NO-RESURRECT': {
     category: 'registry-integrity',

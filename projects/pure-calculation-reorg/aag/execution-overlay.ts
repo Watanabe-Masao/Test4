@@ -1512,15 +1512,6 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
-  "AR-CONTENT-SPEC-FRESHNESS": {
-    fixNow: "debt",
-    executionPlan: { effort: "trivial", priority: 2 },
-    reviewPolicy: {
-      owner: "documentation-steward",
-      lastReviewedAt: "2026-04-27",
-      reviewCadenceDays: 90,
-    },
-  },
   "AR-CONTENT-SPEC-OWNER": {
     fixNow: "now",
     executionPlan: { effort: "trivial", priority: 1 },

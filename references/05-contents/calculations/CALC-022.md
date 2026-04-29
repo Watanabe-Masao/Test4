@@ -17,8 +17,6 @@ sunsetCondition: null
 deadline: null
 lastVerifiedCommit: b2b3be8b34e6f3bcf3c8b7ca75abee2c5d9ea150
 owner: architecture
-reviewCadenceDays: 90
-lastReviewedAt: 2026-04-28
 specVersion: 1
 ---
 
