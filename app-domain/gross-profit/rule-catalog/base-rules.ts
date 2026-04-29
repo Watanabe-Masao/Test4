@@ -6018,22 +6018,23 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastVerifiedCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net",
     correctPattern: {
       description:
-        "spec.lastVerifiedCommit === git log -1 --format=%h -- <sourceRef> の出力。完全一致のみ allow、不一致は『source 動作と spec の同期漏れ』signal として hard fail",
+        "spec.lastVerifiedCommit === git log -1 --format=%h -- <sourceRef> の出力。完全一致のみ allow、不一致は『source 動作と spec の同期漏れ』signal として hard fail。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
     },
     outdatedPattern: {
       description: "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
     },
     decisionCriteria: {
       when: "source file を変更するとき",
-      exceptions: "なし — 機械的 sync (`node tools/widget-specs/generate.mjs` で再計算)",
+      exceptions: "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
       escalation: "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
       steps: [
-        "1. `node tools/widget-specs/generate.mjs --refresh-last-verified` で全 spec の lastVerifiedCommit を一括再計算",
-        "2. source 変更を伴う PR では generator 実行を含めて co-change",
+        "1. `node tools/widget-specs/refresh-last-verified.mjs` で全 spec の lastVerifiedCommit を一括再計算",
+        "2. source 変更を伴う PR では refresh script 実行を含めて co-change",
         "3. 個別 spec のみ更新する場合は `git log -1 --format=%h -- <sourceRef>` で確認して frontmatter 更新",
+        "4. 新 CI workflow に actions/checkout を追加するときは `with: fetch-depth: 0` を必ず指定する (本 guard が機能するために必須)",
       ],
     },
     sunsetCondition:

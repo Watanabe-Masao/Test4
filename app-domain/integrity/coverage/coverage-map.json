@@ -103,7 +103,7 @@
         "guards/contentSpecExistsGuard.test.ts": 100,
         "guards/contentSpecFreshnessGuard.test.ts": 70,
         "guards/contentSpecFrontmatterSyncGuard.test.ts": 70,
-        "guards/contentSpecLastVerifiedCommitGuard.test.ts": 110,
+        "guards/contentSpecLastVerifiedCommitGuard.test.ts": 150,
         "guards/contentSpecLifecycleGuard.test.ts": 130,
         "guards/contentSpecLifecycleLinkSymmetryGuard.test.ts": 100,
         "guards/contentSpecOwnerGuard.test.ts": 50,
