@@ -2,6 +2,30 @@
 
 本ファイルはガードテスト → 管理ロール → 保護対象ファイルの対応を示す。
 
+## 新規 guard 追加 — scaffold script
+
+新 architecture rule + guard test を追加するときは、5 箇所への co-change 義務がある:
+1. `app-domain/gross-profit/rule-catalog/base-rules.ts` (rule 定義)
+2. `app/src/test/architectureRules/defaults.ts` (DEFAULT_EXECUTION_OVERLAY)
+3. `projects/<active>/aag/execution-overlay.ts` (project overlay + reviewPolicy)
+4. `app/src/test/guardCategoryMap.ts` (category / layer / note)
+5. 本 doc の guard table
+
+`tools/scaffold-guard.mjs` で skeleton + 5 paste-ready snippets を生成できる:
+
+```bash
+node tools/scaffold-guard.mjs \
+  --rule-id AR-FOO-BAR \
+  --guard-name fooBar \
+  --slice governance-ops \
+  --owner architecture \
+  --description "<one-line what>" \
+  --why "<rationale>"
+```
+
+`--no-write` で skeleton 生成せず snippets だけ出力する dry-run モード可。
+詳細は `tools/scaffold-guard.mjs` の冒頭 JSDoc を参照。
+
 ## テストファイル一覧
 
 | テストファイル | 管理ロール | ルール数 | 保護対象 |
