@@ -12,6 +12,15 @@
  * 修正方法:
  *   `node tools/widget-specs/refresh-last-verified.mjs` で全 spec を一括再計算
  *
+ * 環境前提 (2026-04-29 hotfix):
+ *   - 本 guard は full git history を必要とする (`git log -1 -- <file>` で
+ *     source file の最新 touch commit を解決するため)。
+ *   - shallow clone (`fetch-depth=1` の CI 等) では `git log` が現在 HEAD しか
+ *     見えず、merge commit が常に返って false-positive 一括 fail を起こす。
+ *   - 本 guard は `git rev-parse --is-shallow-repository` で shallow を検出して
+ *     **explicit に skip する**（黙らせない、CI workflow に `fetch-depth: 0` を
+ *     指定する義務を明示する）。CI 関連 workflow は既に修正済 (.github/workflows/ci.yml)。
+ *
  * 詳細: projects/phased-content-specs-rollout/plan.md §Phase K K2,
  * HANDOFF.md §3.9（90 日 cadence の儀式性）.
  *
@@ -24,6 +33,19 @@ import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { REPO_ROOT, loadAllSpecs } from './contentSpecHelpers'
+
+function isShallowClone(): boolean {
+  try {
+    const out = execSync('git rev-parse --is-shallow-repository', {
+      cwd: REPO_ROOT,
+      encoding: 'utf-8',
+      timeout: 5_000,
+    })
+    return out.trim() === 'true'
+  } catch {
+    return false
+  }
+}
 
 interface CommitMismatch {
   readonly specId: string
@@ -55,6 +77,19 @@ function fetchLatestCommitHash(sourcePath: string): string | null {
 
 describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT)', () => {
   it('全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する', () => {
+    if (isShallowClone()) {
+      // CI workflow が fetch-depth: 0 を指定していない場合に shallow clone となり、
+      // git log -1 が merge commit のみを返して false-positive 一括 fail を起こす。
+      // 本 guard はこの状態を skip し、CI workflow 修正を促す。
+      // 修正: .github/workflows/ci.yml の各 actions/checkout@v4 step に
+      //   `with: fetch-depth: 0` を追加する（fast-gate / docs-health / test-coverage が必須）
+      console.warn(
+        '[content-spec-last-verified-commit] shallow clone detected — guard skipped. ' +
+          'CI workflow must specify `fetch-depth: 0` on actions/checkout@v4 ' +
+          '(see .github/workflows/ci.yml fast-gate / docs-health / test-coverage steps)',
+      )
+      return
+    }
     const specs = loadAllSpecs()
     const sourceCache = new Map<string, string | null>()
     const mismatches: CommitMismatch[] = []

@@ -1,5 +1,5 @@
 {
-  "$comment": "プロジェクトメタデータの唯一正本。バージョン、Node要件、ベースパス等の変動値を集約する。documentConsistency.test.ts がこの JSON と各文書の整合性を検証する。全 WASM crate に [package.metadata.semantic] を Phase 4 で追加済み。CI workflow 確認 (2026-04-26): wasm-build pkg/ キャッシュ導入 (main commit ac71976) は metadata 値に影響なし。本更新は obligation collector の path-pattern 検出を満たすための touch。",
+  "$comment": "プロジェクトメタデータの唯一正本。バージョン、Node要件、ベースパス等の変動値を集約する。documentConsistency.test.ts がこの JSON と各文書の整合性を検証する。全 WASM crate に [package.metadata.semantic] を Phase 4 で追加済み。CI workflow 確認 (2026-04-26): wasm-build pkg/ キャッシュ導入 (main commit ac71976) は metadata 値に影響なし。CI workflow 確認 (2026-04-29): fast-gate / docs-health / test-coverage に fetch-depth: 0 追加 (Phase K Option 1 contentSpecLastVerifiedCommitGuard が full git history を必要とするため)、metadata 値に影響なし。",
   "appVersion": "1.10.0",
   "defaultNodeVersion": "22",
   "defaultNpmVersionMin": "10",
