@@ -107,7 +107,7 @@
 
 - [x] `npm run content-specs:impact -- --base main --head HEAD` CLI を実装した（tools/widget-specs/impact.mjs）
 - [x] CLI 出力に Changed sources / Affected specs / Required spec updates / Risk level を含めた（markdown / --json 両出力対応、risk: high/medium/low + reasons 列挙）
-- [ ] CI artifact として保存される設定を完了した（CI workflow への組込みは Phase I 後続 batch、現状 CLI 実用可能）
+- [x] CI artifact として保存される設定を完了した（`.github/workflows/ci.yml` の `content-specs-impact` job、PR でのみ trigger、markdown / JSON 両 artifact を 14 日 retention で upload + job log に summary echo）
 - ~~必要に応じ PR comment bot 化した~~ — **cut (anti-bloat)**: 1 人 dev project で過剰 ceremony、CLI (`content-specs:impact`) が実用可能で PR コメントは手動運用で十分
 
 ## Phase J: Claim Evidence Enforcement
