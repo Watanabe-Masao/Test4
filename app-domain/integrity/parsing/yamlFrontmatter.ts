@@ -69,8 +69,6 @@ export interface SpecFrontmatter {
   readonly sunsetCondition: string | null;
   readonly deadline: string | null;
   readonly owner: string | null;
-  readonly reviewCadenceDays: number | null;
-  readonly lastReviewedAt: string | null;
   readonly lastVerifiedCommit: string | null;
   readonly raw: Record<string, unknown>;
 }
@@ -175,10 +173,6 @@ export function parseSpecFrontmatter(
       typeof raw.sunsetCondition === "string" ? raw.sunsetCondition : null,
     deadline: typeof raw.deadline === "string" ? raw.deadline : null,
     owner: typeof raw.owner === "string" ? raw.owner : null,
-    reviewCadenceDays:
-      typeof raw.reviewCadenceDays === "number" ? raw.reviewCadenceDays : null,
-    lastReviewedAt:
-      typeof raw.lastReviewedAt === "string" ? raw.lastReviewedAt : null,
     lastVerifiedCommit:
       typeof raw.lastVerifiedCommit === "string"
         ? raw.lastVerifiedCommit

@@ -12,8 +12,12 @@
  *   consumedCtxFields, consumedReadModels, consumedQueryHandlers, children
  *
  * 手書きフィールド（保持）:
- *   id, kind, acquisitionPath, owner, reviewCadenceDays, lastReviewedAt,
- *   specVersion, lastVerifiedCommit
+ *   id, kind, acquisitionPath, owner, specVersion, lastVerifiedCommit
+ *
+ * 撤退済 (Phase K Option 1 後続、2026-04-29):
+ *   reviewCadenceDays / lastReviewedAt は date-based cadence 儀式のため撤退。
+ *   AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT (full SHA 比較) が source ↔ spec 同期の
+ *   構造的 mechanism を担う。AR-CONTENT-SPEC-FRESHNESS は registry から削除済。
  *
  * CLI:
  *   node tools/widget-specs/generate.mjs              # 全 WID を再生成 (write)
@@ -259,8 +263,6 @@ const FIELD_ORDER_WIDGET = [
   'children',
   'lastVerifiedCommit',
   'owner',
-  'reviewCadenceDays',
-  'lastReviewedAt',
   'specVersion',
 ]
 
@@ -280,8 +282,6 @@ const FIELD_ORDER_READ_MODEL = [
   'deadline',
   'lastVerifiedCommit',
   'owner',
-  'reviewCadenceDays',
-  'lastReviewedAt',
   'specVersion',
 ]
 
@@ -306,8 +306,6 @@ const FIELD_ORDER_CALCULATION = [
   'deadline',
   'lastVerifiedCommit',
   'owner',
-  'reviewCadenceDays',
-  'lastReviewedAt',
   'specVersion',
 ]
 
@@ -337,8 +335,6 @@ const FIELD_ORDER_CHART = [
   'deadline',
   'lastVerifiedCommit',
   'owner',
-  'reviewCadenceDays',
-  'lastReviewedAt',
   'specVersion',
 ]
 
@@ -368,8 +364,6 @@ const FIELD_ORDER_UI_COMPONENT = [
   'deadline',
   'lastVerifiedCommit',
   'owner',
-  'reviewCadenceDays',
-  'lastReviewedAt',
   'specVersion',
 ]
 
@@ -844,7 +838,6 @@ function processUiComponentSpec({ id, specPath, frontmatter, body, raw, errors, 
   }
   if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
   if (merged.owner === undefined) merged.owner = 'implementation'
-  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
   return finalizeSpecWrite({
@@ -893,7 +886,6 @@ function processChartSpec({ id, specPath, frontmatter, body, raw, errors, drifte
   }
   if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
   if (merged.owner === undefined) merged.owner = 'implementation'
-  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
   return finalizeSpecWrite({
@@ -942,7 +934,6 @@ function processCalculationSpec({ id, specPath, frontmatter, body, raw, errors, 
   }
   if (merged.lifecycleStatus === undefined) merged.lifecycleStatus = 'active'
   if (merged.owner === undefined) merged.owner = 'architecture'
-  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
   return finalizeSpecWrite({
@@ -1000,7 +991,6 @@ function processWidgetSpec({ id, specPath, frontmatter, body, raw, errors, drift
   }
   if (merged.acquisitionPath === undefined) merged.acquisitionPath = 'ctx-direct'
   if (merged.owner === undefined) merged.owner = 'implementation'
-  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
   return finalizeSpecWrite({
@@ -1048,7 +1038,6 @@ function processReadModelSpec({ id, specPath, frontmatter, body, raw, errors, dr
     }
   }
   if (merged.owner === undefined) merged.owner = 'implementation'
-  if (merged.reviewCadenceDays === undefined) merged.reviewCadenceDays = 90
   if (merged.specVersion === undefined) merged.specVersion = 1
 
   return finalizeSpecWrite({

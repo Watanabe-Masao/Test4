@@ -712,10 +712,6 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
-  'AR-CONTENT-SPEC-FRESHNESS': {
-    fixNow: 'debt',
-    executionPlan: { effort: 'trivial', priority: 2 },
-  },
   'AR-CONTENT-SPEC-OWNER': {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
@@ -755,6 +751,10 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     executionPlan: { effort: 'trivial', priority: 1 },
   },
   'AR-CI-FETCH-DEPTH': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
+  'AR-COVERAGE-MAP-DISPLAY-NAME-COUNT': {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },

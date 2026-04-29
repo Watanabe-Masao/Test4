@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-04-29T10:47:12.189Z
+> Generated: 2026-04-29T11:40:49.889Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -54,8 +54,8 @@
 | guard.files.count | ガードテストファイル数 | 120 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 166 | OK |
-| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 87 | OK |
-| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 58 | OK |
+| guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 88 | OK |
+| guard.rules.fixNow.debt | fixNow=debt ルール数（構造負債） | 57 | OK |
 | guard.rules.fixNow.review | fixNow=review ルール数（観測） | 21 | OK |
 | temporal.rules.reviewPolicy.count | reviewPolicy 設定済みルール数 | 166 / 92 | OK |
 | temporal.rules.sunsetCondition.count | sunsetCondition 設定済みルール数 | 35 / 9 | OK |

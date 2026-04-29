@@ -184,10 +184,35 @@ check_doc_registry() {
 # 学習ソース: 原則文書変更時、principles.json の連鎖更新漏れ
 # 理由: principles.json は設計原則体系の唯一正本。ここと references/01-principles/
 #       の不一致は documentConsistency.test.ts で落ちる
+# 改修 (Phase K Option 1 後続 F、2026-04-29): generated section (docs:generate が
+# 自動更新する timestamp 等) のみの変更は false-positive として除外する。手書き
+# 部分が変わったときだけ warn する (HANDOFF.md §3.10 で記録された false-positive
+# の構造的解消)
 # severity: warn
 check_principles_json() {
   changed_matches "^references/01-principles/" || return 0
   changed_matches "^docs/contracts/principles\.json" && return 0
+
+  # 各 principle file について、generated section 以外で変更があるかを検査。
+  # 全 file が generated-only 変更なら warn を出さない。
+  CHANGED_PRINCIPLES=$(echo "$CHANGED_FILES" | grep "^references/01-principles/.*\.md$" || true)
+  [ -z "$CHANGED_PRINCIPLES" ] && return 0
+
+  HAS_SUBSTANTIVE=0
+  OLD_IFS="$IFS"
+  IFS='
+'
+  for f in $CHANGED_PRINCIPLES; do
+    # exit 0 = generated-only / 1 = substantive / 2 = error (新規等、安全側 substantive 扱い)
+    node tools/check-substantive-change.mjs "$f" "$PUSH_RANGE" 2>/dev/null
+    case $? in
+      0) ;; # generated-only — skip
+      *) HAS_SUBSTANTIVE=1; break ;;
+    esac
+  done
+  IFS="$OLD_IFS"
+
+  [ "$HAS_SUBSTANTIVE" = "0" ] && return 0
   add_warn "references/01-principles/ 変更あり → docs/contracts/principles.json が未更新の可能性"
 }
 

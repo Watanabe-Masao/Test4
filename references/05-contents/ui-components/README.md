@@ -83,8 +83,6 @@ lastVerifiedCommit: <sha>
 
 # 時間 drift 防御
 owner: implementation
-reviewCadenceDays: 90
-lastReviewedAt: 2026-04-28
 
 specVersion: 1
 ---
@@ -110,5 +108,5 @@ specVersion: 1
 3 軸は他カテゴリと同じ（plan.md / parent README 参照）:
 - 存在軸: AR-CONTENT-SPEC-EXISTS（`@uic-id UIC-NNN` JSDoc 必須）
 - 構造軸: AR-CONTENT-SPEC-FRONTMATTER-SYNC + AR-CONTENT-SPEC-CO-CHANGE
-- 時間軸: AR-CONTENT-SPEC-FRESHNESS + AR-CONTENT-SPEC-OWNER
+- commit-pin 軸: AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT + AR-CONTENT-SPEC-OWNER (Phase K Option 1 で AR-CONTENT-SPEC-FRESHNESS から置換、date-based cadence は儀式として撤退)
 - Lifecycle 軸: AR-CONTENT-SPEC-LIFECYCLE-FIELDS + LIFECYCLE-LINK-SYMMETRY

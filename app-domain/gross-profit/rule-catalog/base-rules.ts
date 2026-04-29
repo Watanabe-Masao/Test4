@@ -5968,46 +5968,6 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
-    id: "AR-CONTENT-SPEC-FRESHNESS",
-    principleRefs: ["G1"],
-    ruleClass: "invariant",
-    guardTags: ["G1"],
-    epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
-    what: "[DEPRECATED in Phase K, replaced by AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT] WID-NNN.md の lastReviewedAt が reviewCadenceDays を超過していない",
-    why: "[DEPRECATED] date-based cadence は『review = date 更新』で構造的検証を伴わない儀式 (HANDOFF.md §3.9)。既存 5 guard (co-change / frontmatter-sync / path-existence / lifecycle / evidence-level) が構造的 drift を網羅し、lastVerifiedCommit が concrete signal を提供するため重複かつ低 value。Phase K Option 1 で AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT に置換",
-    correctPattern: {
-      description:
-        "(today - lastReviewedAt) <= reviewCadenceDays（× 0.8 超過で warn、超過で fail）。Phase K で deprecated、guard は .skip 状態",
-    },
-    outdatedPattern: {
-      description: "lastReviewedAt が長期間更新されておらず cadence を超過",
-    },
-    decisionCriteria: {
-      when: "[DEPRECATED] spec 内容を読み直し / 更新するとき",
-      exceptions: "Phase K Option 1 完遂以降は AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
-      escalation: "review 後に lastReviewedAt を当日に更新（暫定運用、撤退準備中）",
-    },
-    detection: { type: "custom", severity: "gate", baseline: 0 },
-    migrationRecipe: {
-      steps: [
-        "1. [DEPRECATED] 本 rule は Phase K で deprecated。AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT を参照",
-        "2. 既存 cadence based check は guard test が .skip 化されており active な検証なし",
-        "3. 1 sprint 後の物理削除に向けた deprecation 期間",
-      ],
-    },
-    sunsetCondition:
-      "Phase K Option 1 後続 sprint で物理削除（AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が active で stale spec 検出を担う、cadence 儀式は撤退）",
-    protectedHarm: {
-      prevents: [
-        "[DEPRECATED] spec が読まれない台帳化 → AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT が source 動作と spec 同期を構造的に保証",
-        "[DEPRECATED] owner 喪失 → AR-CONTENT-SPEC-OWNER で別途強制",
-      ],
-    },
-  },
-
-  {
-    slice: "governance-ops",
     id: "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT",
     principleRefs: ["G1"],
     ruleClass: "invariant",
@@ -6384,6 +6344,47 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "Phase A inventory で永久不採用と決定された slot 名の sneaky 復活",
         "AI / 人間が rejected archive を確認せずに同名 primitive を再提案するリスク",
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+    principleRefs: ["G1"],
+    ruleClass: "invariant",
+    guardTags: ["G1"],
+    epoch: 1,
+    doc: "app-domain/integrity/APP_DOMAIN_INDEX.md",
+    what: "integrity COVERAGE_MAP の各 pair の `displayName` 末尾 `× N` 表記が `guardFiles.length` と一致する",
+    why: "PR #1207 着手時に `contentSpec*Guard × 11` を `× 12` に手作業更新する作業が発生 (新 guard 追加に伴う count drift)。`× N` は coverage-map.json の displayName と APP_DOMAIN_INDEX.md / HANDOFF.md の prose に重複出現し、guard 追加・撤退のたびに手作業更新が必要で drift の温床。本 rule は coverage-map 内での自己整合 (displayName ↔ guardFiles count) を構造的に保証する safety net",
+    correctPattern: {
+      description:
+        "coverage-map.json の各 entry の displayName 末尾 `× N` (例: 'contentSpec*Guard × 11') の N が guardFiles.length と完全一致する。displayName に `× N` 表記が無い entry は対象外 (deferred / 単一 guard)",
+    },
+    outdatedPattern: {
+      description:
+        "新 guard を guardFiles に追加したが displayName の `× N` が旧値のまま (例: × 11 → × 12 の手作業更新漏れ)",
+    },
+    decisionCriteria: {
+      when: "COVERAGE_MAP に新 guardFile を追加 / 既存 guardFile を削除するとき",
+      exceptions: "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
+      escalation: "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. `app-domain/integrity/coverage/coverage-map.json` を開く",
+        "2. 該当 pair の displayName 末尾 `× N` を guardFiles.length と一致する値に更新",
+        "3. APP_DOMAIN_INDEX.md / HANDOFF.md 等で同 pair を参照している prose も併せて更新 (将来的に displayName の derived view 化検討)",
+      ],
+    },
+    sunsetCondition:
+      "displayName を直接書く運用から、guardFiles.length の derived expression に切り替えた場合は sunset 候補",
+    protectedHarm: {
+      prevents: [
+        "新 guard 追加時の displayName count 更新漏れ (本 rule 不在時に PR #1207 着手で発生した手作業 drift の再発)",
+        "guard 撤退時の displayName 更新漏れ (count が減った時も同様)",
       ],
     },
   },

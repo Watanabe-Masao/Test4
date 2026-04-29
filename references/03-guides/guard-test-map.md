@@ -2,6 +2,30 @@
 
 本ファイルはガードテスト → 管理ロール → 保護対象ファイルの対応を示す。
 
+## 新規 guard 追加 — scaffold script
+
+新 architecture rule + guard test を追加するときは、5 箇所への co-change 義務がある:
+1. `app-domain/gross-profit/rule-catalog/base-rules.ts` (rule 定義)
+2. `app/src/test/architectureRules/defaults.ts` (DEFAULT_EXECUTION_OVERLAY)
+3. `projects/<active>/aag/execution-overlay.ts` (project overlay + reviewPolicy)
+4. `app/src/test/guardCategoryMap.ts` (category / layer / note)
+5. 本 doc の guard table
+
+`tools/scaffold-guard.mjs` で skeleton + 5 paste-ready snippets を生成できる:
+
+```bash
+node tools/scaffold-guard.mjs \
+  --rule-id AR-FOO-BAR \
+  --guard-name fooBar \
+  --slice governance-ops \
+  --owner architecture \
+  --description "<one-line what>" \
+  --why "<rationale>"
+```
+
+`--no-write` で skeleton 生成せず snippets だけ出力する dry-run モード可。
+詳細は `tools/scaffold-guard.mjs` の冒頭 JSDoc を参照。
+
 ## テストファイル一覧
 
 | テストファイル | 管理ロール | ルール数 | 保護対象 |
@@ -92,7 +116,6 @@
 | `app/src/test/guards/contentSpecExistsGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-EXISTS: Phase C scope (50 spec = 45 WID + 5 RM) の双方向存在性検証。source の anchor 行 (widget=`id:` / read-model=`export <name>`) 直前 3 行以内に対応する JSDoc tag (`@widget-id` / `@rm-id`) が付与されていることを kind 別に dispatch 検証 |
 | `app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-FRONTMATTER-SYNC: Phase C scope (50 spec) について `tools/widget-specs/generate.mjs --check` を 1 spawn で実行し drift 0 を検証。kind=widget は registryLine / consumedCtxFields / children / linkTo / contextType / consumedReadModels / consumedQueryHandlers、kind=read-model は exportName / sourceLine の機械フィールド完全一致 |
 | `app/src/test/guards/contentSpecCoChangeGuard.test.ts` | documentation-steward | 2件 | AR-CONTENT-SPEC-CO-CHANGE: Phase C scope (50 spec) の anchor 行 (kind=widget→registryLine / kind=read-model→sourceLine) と source 実 anchor 行の一致 / lastVerifiedCommit が空でない（Phase A/B/C 静的検証、Phase I で git diff ベースに置換予定） |
-| `app/src/test/guards/contentSpecFreshnessGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-FRESHNESS: Phase C scope (50 spec) について `(today - lastReviewedAt) > reviewCadenceDays` で fail、`> reviewCadenceDays * 0.8` で warn (kind 横断) |
 | `app/src/test/guards/contentSpecOwnerGuard.test.ts` | documentation-steward | 1件 | AR-CONTENT-SPEC-OWNER: Phase C scope (50 spec = 45 WID + 5 RM) の frontmatter に owner field が必須 |
 | `app/src/test/guards/contentSpecLifecycleGuard.test.ts` | architecture | 4件 | AR-CONTENT-SPEC-LIFECYCLE-FIELDS: Phase D 着手 (2026-04-27) Lifecycle State Machine の institutional 強制。lifecycleStatus enum 値 / deprecated/sunsetting/retired には replacedBy 必須 / sunsetting には sunsetCondition + deadline 必須 / deadline 形式 + 過去 deadline (sunsetting/deprecated) hard fail。Promote Ceremony PR template (`references/03-guides/promote-ceremony-pr-template.md`) と連動 |
 | `app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts` | implementation | 2件 | AR-CONTENT-SPEC-VISUAL-EVIDENCE: Phase G 着手 (2026-04-28) kind=chart / ui-component の Storybook story or visual regression test 整備件数 ratchet-down (baseline=9 / 対象 10 件、UIC-002 KpiCard が cover 済)。chart / UIC の見た目 silent drift を構造的に抑制、新規 spec の evidence 同時整備を強制 |
@@ -104,6 +127,7 @@
 | `app/src/test/guards/integrityDomainCoverageGuard.test.ts` | documentation-steward | 35件 | canonicalization-domain-consolidation Phase F (Domain Invariant Test) で landing (2026-04-29)。F-2 完全性 (Phase B〜E migration 済 13 ペアが domain primitive 経由) + F-3 adapter shape (caller 行数 ratchet-down baseline、12 file)。Phase H 着手の prerequisite。COVERAGE_MAP 定数が 13 ペア → guard file → primitive 経路の唯一正本 (integrity-domain-architecture.md §8 で参照) |
 | `app/src/test/guards/integrityNoResurrectGuard.test.ts` | documentation-steward | 3件 | canonicalization-domain-consolidation Phase I (制度文書化) で landing (2026-04-29)。AR-INTEGRITY-NO-RESURRECT を実装。`adoption-candidates.json rejected[].originalSlot` (shapeSync / tokenInclusion / jsdocTag) と `app-domain/integrity/{parsing,detection,reporting}/` 配下 file 名の衝突を hard fail で検出 (永久不採用 slot の resurrection 防止)。判断反転には rejected entry 削除を先行 PR で実施する必要がある |
 | `app/src/test/guards/ciFetchDepthGuard.test.ts` | architecture | 2件 | Phase K Option 1 後続再発防止 (2026-04-29) で landing。AR-CI-FETCH-DEPTH を実装。`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job (test:guards / vitest run / git log を読む code 含む) で `with: fetch-depth: 0` を hard fail 強制。Allowlist (full history 不要、`FETCH_DEPTH_NOT_REQUIRED_JOBS`): wasm-build / e2e / pages-build / deploy。新 workflow 追加時の同種事故 (PR #1205 の shallow clone 起因 false-positive 一括 fail) を構造的に防止 |
+| `app/src/test/guards/coverageMapDisplayNameGuard.test.ts` | documentation-steward | 1件 | Phase K Option 1 後続再発防止 B (2026-04-29) で landing。AR-COVERAGE-MAP-DISPLAY-NAME-COUNT を実装。coverage-map.json の各 pair の displayName 末尾 `× N` 表記が guardFiles.length と一致を機械検証。新 guard 追加時の手作業 count drift (PR #1207 で発生した × 11 → × 12 更新漏れ) を構造的に再発防止 |
 
 ## ルール → テスト対応
 

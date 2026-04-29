@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T10:47:12.189Z",
+  "timestamp": "2026-04-29T11:40:49.889Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -293,7 +293,6 @@
         "app/src/test/guards/contentSpecCoChangeGuard.test.ts",
         "app/src/test/guards/contentSpecEvidenceLevelGuard.test.ts",
         "app/src/test/guards/contentSpecExistsGuard.test.ts",
-        "app/src/test/guards/contentSpecFreshnessGuard.test.ts",
         "app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts",
         "app/src/test/guards/contentSpecLastVerifiedCommitGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleGuard.test.ts",
@@ -302,6 +301,7 @@
         "app/src/test/guards/contentSpecPathExistenceGuard.test.ts",
         "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts",
         "app/src/test/guards/coreRequiredFieldNullCheckGuard.test.ts",
+        "app/src/test/guards/coverageMapDisplayNameGuard.test.ts",
         "app/src/test/guards/customerFactPathGuard.test.ts",
         "app/src/test/guards/customerGapPathGuard.test.ts",
         "app/src/test/guards/dataIntegrityGuard.test.ts",
@@ -430,7 +430,7 @@
       "id": "guard.rules.fixNow.now",
       "label": "fixNow=now ルール数（即修正）",
       "category": "guard",
-      "value": 87,
+      "value": 88,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -441,7 +441,7 @@
       "id": "guard.rules.fixNow.debt",
       "label": "fixNow=debt ルール数（構造負債）",
       "category": "guard",
-      "value": 58,
+      "value": 57,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",

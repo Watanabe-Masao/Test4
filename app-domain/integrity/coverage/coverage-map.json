@@ -81,13 +81,12 @@
     },
     {
       "pairId": "content-spec",
-      "displayName": "#12 references/05-contents/ ↔ contentSpec*Guard × 12",
+      "displayName": "#12 references/05-contents/ ↔ contentSpec*Guard × 11",
       "guardFiles": [
         "guards/contentSpecCanonicalRegistrationSyncGuard.test.ts",
         "guards/contentSpecCoChangeGuard.test.ts",
         "guards/contentSpecEvidenceLevelGuard.test.ts",
         "guards/contentSpecExistsGuard.test.ts",
-        "guards/contentSpecFreshnessGuard.test.ts",
         "guards/contentSpecFrontmatterSyncGuard.test.ts",
         "guards/contentSpecLastVerifiedCommitGuard.test.ts",
         "guards/contentSpecLifecycleGuard.test.ts",
@@ -101,7 +100,6 @@
         "guards/contentSpecCoChangeGuard.test.ts": 90,
         "guards/contentSpecEvidenceLevelGuard.test.ts": 240,
         "guards/contentSpecExistsGuard.test.ts": 100,
-        "guards/contentSpecFreshnessGuard.test.ts": 70,
         "guards/contentSpecFrontmatterSyncGuard.test.ts": 70,
         "guards/contentSpecLastVerifiedCommitGuard.test.ts": 160,
         "guards/contentSpecLifecycleGuard.test.ts": 130,

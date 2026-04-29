@@ -59,8 +59,6 @@ lastVerifiedCommit: <sha>                     # source と突合した直近 com
 
 # 時間 drift 防御（freshness）
 owner: implementation
-reviewCadenceDays: 90
-lastReviewedAt: 2026-04-27
 
 # spec schema
 specVersion: 1
@@ -96,10 +94,12 @@ specVersion: 1
 - 再生成後 diff が発生 → `docs:check` fail
 - source export 行が変更されたのに `lastVerifiedCommit` が更新されていない → fail（Phase A から共通機構）
 
-### 時間軸: `AR-CONTENT-SPEC-FRESHNESS` + `AR-CONTENT-SPEC-OWNER`
+### commit-pin 軸: `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` + `AR-CONTENT-SPEC-OWNER`
 
-- 全 spec に `owner` / `reviewCadenceDays` / `lastReviewedAt` 必須
-- cadence 超過で fail（× 0.8 で warn）
+- 全 spec に `owner` / `lastVerifiedCommit` (full 40-char SHA) 必須
+- `git log -1 --format=%H -- <sourceRef>` と完全一致しないと fail
+
+> **Phase K Option 1 (2026-04-29) で撤退済**: `AR-CONTENT-SPEC-FRESHNESS` (date-based cadence) は儀式と判定して撤退。commit-pin で構造的に置換。
 
 ### enforcement phase
 
