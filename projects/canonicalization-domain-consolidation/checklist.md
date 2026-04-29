@@ -14,7 +14,7 @@
 - [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order を記録した
 - [x] `HANDOFF.md` に現在地（draft 起草段階）と次にやることを記録した
 - [x] `projectization.md` に AAG-COA 判定 (Level 4) と nonGoals を記録した
-- [ ] `docs/contracts/doc-registry.json` に project doc 群を登録した
+- [x] `docs/contracts/doc-registry.json` に project doc 群を登録した
 
 ## Phase A: Inventory + Selection Rule 確定
 
@@ -89,19 +89,21 @@
 - [x] Hard Gate に `integrity.violations.total > 0` + `integrity.expiredExceptions > 0` を追加した
 - [x] docs:check (pre-push hook) にも integrity collector を配線し pre-push 段階で Hard Gate 判定する
 
-## Phase H: Horizontal Expansion (新規正本化)
+## Phase H: Horizontal Expansion — handoff to `integrity-framework-evolution`
 
-> **prerequisite (2026-04-28 追加)**: Phase F が PASS 状態であること (domain 純粋性 + 13 ペア完全性) を着手の機械検証 trigger とする。Phase F 未完で H に進むと skeleton guard 自体が 12 primitive の drift を検出できなかった Phase E 時点と同じ構造的弱点が再発する。
+> **scope 転換 (2026-04-29 確定)**: Phase H は **後続 project `integrity-framework-evolution` に handoff**。
 >
-> **scope (2026-04-28 narrowing)**: tier1 候補は wasm + charts の 2 件に絞る。hooks (H-1) は selection rule 再判定後に判断、storage (H-9) は別 project に切り出し済 (`derived/adoption-candidates.json` deferred 参照)。
-
-- [ ] Phase F PASS を確認した (本 phase の prerequisite)
-- [ ] tier1 候補に対し G-1 / G-2 / G-3 を再判定した (`adoption-candidates.json` `phaseHEntryRequirement` 参照)
-- [ ] wasm (H-7) の registry + bridge 対応表を 1 PR で正本化した
-- [ ] charts (H-2) の input/option builder pair 整合を 1 PR で正本化した
-- [ ] hooks (H-1) は再判定結果に従って採否を決定した
-- [ ] 各採用候補に integrity domain 経由の guard を active 化した
-- [ ] Phase F 完全性 test を「Phase H 採用候補を含む形」に昇格させた
+> 13 dimension review (本 project sprint の最終 review session) で AAG framework に **7 つの構造 pattern** (正本性の単方向化 / 時間軸の構造的不在 / judgement と mechanism の境界 / state machine の不在 / scope の暗黙化 / cross-domain disconnection / 再帰性の不足) と **3 つの構造的問題 + 3 つの制度的問題** が発見された。これらは「進めながら整える」より「整えてから進める」方が後戻りコストが小さいと判断、Phase H 着手前に **Phase R (Framework Reset)** を先行整備する設計に転換した。
+>
+> 後続 project の Phase 構造:
+>
+> - **Phase R**: Framework Reset (双方向契約 schema / 時間軸 schema / 3-zone 分類 / cross-domain bridge / decision artifact standard / dogfooding mandate)
+> - **Phase H**: Horizontal Expansion (wasm + charts + hooks) — Phase R で整えた framework の最初の正規利用
+> - **Phase I 拡張**: institutionalization
+>
+> 本 project の Phase F (`integrityDomainCoverageGuard` PASS) は後続 project の Phase H 着手 prerequisite として inheritance される。
+>
+> 詳細: `projects/integrity-framework-evolution/plan.md` (新設)、13 dimension review の ground truth は同 project `derived/quality-review.md` に保存。
 
 ## Phase I: 制度文書化 + Handoff
 

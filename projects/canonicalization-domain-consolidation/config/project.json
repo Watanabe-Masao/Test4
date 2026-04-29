@@ -2,7 +2,7 @@
   "$comment": "整合性 / 正本化ドメイン統合 project。散在する registry+guard ペア (現状 13+ 種類) を app-domain/integrity/ の正本ドメインに統合し、共通パターンを抽出、旧経路を撤退する。さらに正本化されていない領域 (hooks / charts / stores / pages / formatting / constants 等) を横展開候補として inventory し、必要なものを段階的に正本化する。",
   "projectId": "canonicalization-domain-consolidation",
   "title": "整合性 / 正本化ドメイン統合計画",
-  "status": "draft",
+  "status": "in_progress",
   "projectRoot": "projects/canonicalization-domain-consolidation",
   "projectization": {
     "$comment": "Level 4 (umbrella scope) — 横展開を伴う architecture refactor。実装は段階展開し各 sub-phase を実質 Level 3 として運用する。breakingChange は 旧経路撤退 phase で発生。requiresLegacyRetirement = true (旧 scattered guard 群の sunset)、requiresGuard = true (domain 内 invariant test)、requiresHumanApproval = true (domain 境界の確定)。",

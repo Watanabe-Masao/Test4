@@ -1,100 +1,86 @@
 # HANDOFF — canonicalization-domain-consolidation
 
-> 役割: project の volatile な進行状態（現在地 / 次にやること / 並行進行 / 着手前確認）を 1 箇所に集約する。AI セッション再開時の進行同期点。
+> 役割: project の volatile な進行状態（現在地 / 次にやること / handoff 先）を 1 箇所に集約。
 
 ## 現在地
 
-**status: draft（Phase 0 bootstrap 完遂 + Phase A primary deliverable + Phase A 周辺整備完遂、Phase B 未着手）**
+**status: in_progress (Phase A〜I 完遂、final review pending、Phase H は後続 project に handoff)**
 
-### 完遂したもの
+### Phase 進行サマリ (2026-04-29 時点)
 
-#### Phase 0 bootstrap
+| Phase | 状態 | landed 内容 |
+|---|---|---|
+| Phase 0 | ✅ | bootstrap (plan / checklist / projectization / AI_CONTEXT / HANDOFF / config) |
+| Phase A | ✅ | inventory + selection rule §P8 + adoption-candidates.json |
+| Phase B | ✅ | domain skeleton (14 primitive + 4 type) |
+| Phase C | ✅ | doc-registry first migration |
+| Phase D-W1〜W3 | ✅ | 11 ペア bulk migration |
+| Phase E | ✅ | legacy retirement + retrospective fixes (§P9 step 5 直接到達 default 化) |
+| Phase F | ✅ | domain 完全性 + adapter shape + COVERAGE_MAP 正本 (`integrityDomainCoverageGuard`) |
+| Phase G | ✅ | 4 KPI architecture-health 統合 (Hard Gate 2 件: violations.total + expiredExceptions) |
+| Phase H | **handoff** | 後続 project `integrity-framework-evolution` に移管 |
+| Phase I | ✅ | 制度文書化 (NO-RESURRECT rule + canonicalization-checklist.md + handoff) |
+| Final review | pending | 人間レビュー待ち |
 
-- plan.md（North Star + Phase A〜I + 不可侵 7 原則 + 撤退規律 5 step）
-- checklist.md（Phase 0 + A〜I + 最終レビュー）
-- projectization.md（Level 4 architecture-refactor 判定）
-- AI_CONTEXT.md（scope + read order）
-- config/project.json（Level 4, status=draft）
-- aag/execution-overlay.ts（空 overlay、本 project が active 化したら埋める）
+### 主要 deliverable
 
-#### Phase A primary deliverable（2026-04-28 完遂）
+**正本 docs (永続成果)**:
+- `references/01-principles/canonicalization-principles.md` §P8 (selection rule) + §P9 (撤退規律 default = step 5 直接到達)
+- `references/03-guides/integrity-pair-inventory.md` (13 ペア + 横展開候補 inventory)
+- `references/03-guides/integrity-domain-architecture.md` (domain 設計 + Phase F coverage 正本)
+- `references/03-guides/canonicalization-checklist.md` (新規追加 / 撤退の標準手順)
 
-- `references/03-guides/integrity-pair-inventory.md` §1〜§4 prose landed（13 ペア詳細 + selection rule + primitive 対応表 + 採用候補リスト）
-- `references/01-principles/canonicalization-principles.md` P8 selection rule 拡張版 landed（3 ゲート + 3 tie-breaker、Phase I checklist の素材）
-- `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` machine-readable 版 landed（priority / phase / primitives 構造化、collector 用）
-- `projects/canonicalization-domain-consolidation/derived/README.md`（同期規約 + 用途）
-- `docs/contracts/doc-registry.json` の inventory.md label を populated 状態に更新
+**実装 (`app-domain/integrity/`)**:
+- 14 primitive (parsing 6 / detection 7 / reporting 1) + 4 type
+- 90+ unit test、domain 純粋性 4 不変条件 active
 
-### 立ち上げの経緯
+**guard (`app/src/test/guards/`)**:
+- `integrityDomainSkeletonGuard` (introspection-based、命名規約 + 純粋性検証)
+- `integrityDomainCoverageGuard` (COVERAGE_MAP 13 ペア完全性 + adapter shape)
+- `integrityNoResurrectGuard` (rejected[] resurrection 検出、AR-INTEGRITY-NO-RESURRECT 実装)
 
-- `phased-content-specs-rollout` Phase D Step 1（Lifecycle State Machine + Promote Ceremony PR template）の実装完了直後、user の指摘で立ち上がった
-- 「Spec State (整合性) ドメインが暗黙に出現していて、独立 domain として recognize すべき」「散在する他の整合性層も含めて統合したい」「未正本化領域への横展開も同時計画に含めたい」というスコープ拡張
-- 直前の対話で「**正本化 → 制度の統一性 → 簡素な仕組みで強固な効果**」が North Star として確定（plan.md §0）
+**KPI (`architecture-health.json`)**:
+- `integrity.violations.total` (Hard Gate eq 0)
+- `integrity.expiredExceptions` (Hard Gate eq 0)
+- `integrity.driftBudget` (info、現状 1)
+- `integrity.consolidationProgress` (info、現状 92.3%)
+
+**機械化 record (archive)**:
+- `derived/adoption-candidates.json` (existingPairs / horizontalCandidates / deferred / **rejected**)
+- `legacy-retirement.md §7` (Phase B/C/D-W1/D-W2/D-W3/E の actual sunset 日付)
+
+## Phase H handoff の経緯 (2026-04-29)
+
+本 project sprint の最終段階で **13 dimension quality review** を実施し、AAG framework に **7 つの構造 pattern + 3 つの構造的問題 + 3 つの制度的問題** が発見された。
+
+これらは「進めながら整える」より「整えてから進める」方が後戻りコストが小さいと判断、Phase H を含む horizontal expansion を **後続 project `integrity-framework-evolution`** に handoff する設計に転換。
+
+- **後続 project の Phase R**: Framework Reset (双方向契約 schema / 時間軸 schema / 3-zone 分類 / cross-domain bridge / decision artifact standard / dogfooding mandate)
+- **後続 project の Phase H**: Horizontal Expansion (wasm + charts + hooks)、Phase R で整えた framework の最初の正規利用
+- **後続 project の Phase I**: institutionalization
+
+13 dimension review の生 ground truth は後続 project の `derived/quality-review.md` に保存。
 
 ## 次にやること
 
-### 直近（次の 1〜2 PR で）
+### 本 project に対して
+1. **final review (人間承認)** — Phase A〜I 成果 + handoff 判断を確認、approve で archive 経路へ
+2. archive 経路: completed プレフィックス配下への移動 (project-checklist-governance §6.2 参照、archive 時点で path は確定する)
 
-1. **Phase A inventory 着手 — ✅ 完遂 (2026-04-28)**
-   - `references/03-guides/integrity-pair-inventory.md` §1〜§4 prose landed
-   - `references/01-principles/canonicalization-principles.md` P8 selection rule 拡張版 landed
-   - `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` machine-readable 版 landed
-   - 13 ペア詳細 + 横展開候補 9 件の selection 判定（tier1 4 / tier2 4 / 不採用 1）+ primitive 6+8+1+4 抽出順 + 採用候補 priority 順
-   - **Phase J 知見の固定済**（#12 が「reference 実装の供給元」として明示、Phase B 完了見積もり ~30% 圧縮）
-
-2. **doc-registry.json への project doc 登録 — 保留（人間判断）**
-   - 当初予定: 本 project の plan / checklist / projectization / AI_CONTEXT / HANDOFF を doc-registry に追加
-   - **判断**: 既存 doc-registry.json には projects/ 配下の file が **0 件**登録されている。新たに追加すると既存 project（phased-content-specs-rollout / pure-calculation-reorg / taxonomy-v2 等）との非対称が生まれる。この pattern を採用するなら **全 live project に対称的に適用する別 project** として立ち上げるべき（不可侵原則 4「新 registry+guard の追加 ≠ 横展開」適用）
-   - inventory.md の登録は完了（label を populated 状態に更新済）
-
-3. **CLAUDE.md / manifest.json 更新 — ✅ 完遂 (2026-04-28)**
-   - `.claude/manifest.json` の `discovery.byTopic` に「整合性ペア (registry+guard)」エントリを追加
-     → `references/03-guides/integrity-pair-inventory.md` + `references/01-principles/canonicalization-principles.md` の 2 doc を hint として配置
-   - manifestGuard 通過 (path 実在検証のみ、追加制約なし — 当初の「Phase B 後の方が適切」判定は manifest が hints-only policy のため不要と判定)
-   - Phase B 完遂時に追加 hint (`app-domain/integrity/` 配下) を再評価可
-
-4. **Phase J 後続 B (J7 path 実在 guard) との同期 — ✅ 完遂 (2026-04-28、cross-link 確認のみ)**
-   - 双方向 cross-link 既に確立:
-     - canonicalization 側: inventory §3.2 で `detection/pathExistence.ts` を「最重要 primitive」として明記、§1 共通観察で「path 実在検証が #3 / #5 / #11 / #12 / J7 で重複」を記録
-     - phased-content-specs 側: HANDOFF §高優先 #1 で「canonicalization-aware 設計: 将来 `app-domain/integrity/detection/pathExistence.ts` に extract される shape で実装」を明記、plan §4 Phase J 後続課題 B でも同合意
-   - **追加作業不要**。J7 実装 PR が canonicalization Phase B `detection/pathExistence.ts` の reference 実装供給を兼ねる (#12 の contentSpec\*Guard と同様の Phase J → Phase B 寄稿 pattern)
-
-### Phase B 着手前の準備状態
-
-- inventory §4 採用候補リスト priority 1: **#12 contentSpec ↔ contentSpec\*Guard × 11**（reference 実装、Phase J 完遂）
-- inventory §3.5 Phase B primitive 抽出順: `formatViolation` → `yamlFrontmatter` → `existence` + `pathExistence` → `ratchet`
-- 着手 1 番手 4 primitive で 13 ペアのうち約 8 ペアの adapter 化が最小コストで可能
-
-### 中期（Phase B〜C）
-
-- Phase B: domain skeleton 設置（`app-domain/integrity/`）
-- Phase B: spec-state 系（contentSpec\*Guard）を最初の adapter に
-- Phase C: doc-registry guard を 2 番目の adapter に（lowest risk migration）
+### 後続 project に対して (= horizontal expansion + framework reset)
+1. `projects/integrity-framework-evolution/` を bootstrap (本 PR で skeleton 投入済の場合)
+2. Phase R 着手 (6 reforms ①〜⑥)
+3. Phase H 着手 (wasm + charts + hooks)、Phase R framework 上で
 
 ## 並行進行している project
 
-- **phased-content-specs-rollout**（**Phase A〜J 完遂、2026-04-28**）
-  - Phase J Step 10 完遂時点で 11 guard / 89 spec / 310 claim / baseline 全 0
-  - Behavior Claims Evidence Level enforcement (J1〜J6) 全て active で違反 0
-  - candidate slot 二状態モデル（planning-only / active candidate split）institutionalize 済
-  - 本 project の **Phase B reference 実装の供給元** として確定（plan §1.2 #12 / §3.2 対応表）
-  - `contentSpecHelpers.ts` が **Phase B domain primitive の暗黙の skeleton** として待機
-  - 後続課題: J7 path 実在 guard / reviewed→tested 昇格 / AST 整合検証 / Phase G visual evidence
-    （これらは canonicalization Phase B/C 以降と並走可能、共通 primitive 抽出の触媒となりうる）
-- **pure-calculation-reorg**（active、CURRENT_PROJECT.md = active overlay）
-  - 本 project の Phase D bulk migration で `calculationCanonRegistry` 周辺を touch する際は協調必要
-
-## 着手前の確認事項
-
-- 不可侵原則 1（drift 検出強度を弱めない）を全 commit で確認する
-- nonGoals（business logic 変更しない / 一斉導入しない）を毎 PR で確認する
-- 撤退 5 step を skip しない（並行運用 → 観察 → @deprecated → 物理削除 → baseline 統合）
+- **pure-calculation-reorg** (active overlay): 本 project の `calculationCanonRegistry` を Phase D-W1 で touch 済、影響なし
+- **phased-content-specs-rollout** (Phase A〜J 完遂、2026-04-28): 本 project Phase B の reference 実装供給元として機能、handoff は完了
 
 ## 関連リンク
 
 - North Star: `plan.md §0`
 - 設計思想: `plan.md §3`
-- 撤退規律: `plan.md §5`
-- 既存正本化原則: `references/01-principles/canonicalization-principles.md`
-- 既存 inventory 起点: `app/src/test/calculationCanonRegistry.ts` 周辺
-- 既存 spec-state 実装（reference): `tools/widget-specs/generate.mjs` + `app/src/test/guards/contentSpec*`
+- 撤退規律: `references/01-principles/canonicalization-principles.md §P9`
+- 後続 project: `projects/integrity-framework-evolution/` (Phase R + H + I)
+- ground truth: `projects/integrity-framework-evolution/derived/quality-review.md`
