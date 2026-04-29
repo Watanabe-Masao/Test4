@@ -117,11 +117,19 @@ describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED
         mismatches.push({ specId: spec.id, sourcePath, declared: null, actual: actualHash })
         continue
       }
-      if (declared.trim() !== actualHash) {
+      // Phase K hotfix (2026-04-29): prefix match による比較
+      // git の `%h` は最小 unique abbreviation を返す。リポジトリ成長で同じ commit でも
+      // 必要文字数が増える (例: 7 chars `50018d3` → 8 chars `50018d33`)。spec 生成時に
+      // unique だった declared は actual の prefix であり続けるので、prefix 一致で「同じ
+      // commit」と判定する。完全一致比較だと repo 成長のたびに false-positive が出る。
+      const declaredTrimmed = declared.trim()
+      const isSameCommit =
+        actualHash.startsWith(declaredTrimmed) || declaredTrimmed.startsWith(actualHash)
+      if (!isSameCommit) {
         mismatches.push({
           specId: spec.id,
           sourcePath,
-          declared: declared.trim(),
+          declared: declaredTrimmed,
           actual: actualHash,
         })
       }
