@@ -5,11 +5,25 @@
 
 ## 1. 現在地
 
-**Phase A〜K 全 landed (2026-04-29)。** 残作業は #9 (CHART visual evidence selection) /
-#10 (pipeline / queryHandler / projection 新サブカテゴリ) / 人間 review + archive 承認のみ。
+**Phase A〜K 全 landed (2026-04-29)。** 残作業は **人間 review + archive 承認のみ**。
 status: `active` / parent: なし。Phase K Option 1+2 の landing で source ↔ spec 同期は
 date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism** に置換済。
-**本 project は archive 候補状態に近い**（checklist 同期のみ要、Phase #9/#10 は別 sprint 推奨）。
+**本 project は archive 候補状態**。
+
+> **2026-04-29 末セッションの判断**: 旧版 HANDOFF が Tier 1 残として記載していた
+> #9 (CHART visual evidence selection) / #10 (pipeline / queryHandler / projection) は、
+> dialog で **両者とも performative documentation** と判定され撤回:
+> - **#9 撤回**: visual evidence selection rule の指標群 (consumer 数 / 365d commits /
+>   severity color / optionBuilder) は proxy metric / 適用 0 件 / governance theater。
+>   `contentSpecVisualEvidenceGuard` の baseline=6 + `REQUIRED_COVERED_IDS` hard-pin が
+>   そのまま structurally accepted state を固定（新規後退禁止は維持）
+> - **#10 保留**: parent HANDOFF が「Phase L として独立 project 化を推奨」していたが、
+>   PIPE / QH / PROJ に **spec 化されるべき実 drift / risk が validated されていない**
+>   ため、Phase L 立ち上げ自体が performative の risk 高。validation 後に再判断
+> - **色整合性 direction (CHART-004 semantic.customers 不使用 / CHART-005 semantic.grossProfit
+>   不使用)** は実 drift を観測したが、ちゃんと考えてから着手判断のため pause
+>
+> checklist.md には対応する 8 項目を理由付き strikethrough で記録 (commit 99c4504)。
 
 ### Phase A〜K 完遂サマリ (2026-04-29)
 
@@ -62,7 +76,8 @@ canonicalization plan §3.2 対応表）。
 ## 2. 次にやること
 
 > **状態 (2026-04-29 末時点)**: Phase A〜K 全 mechanism 完遂、本セッションで再発防止 5 件 (E/B/C/D/F) も追加 landed。
-> 残作業は **checklist 同期** (低コスト) + **#9 / #10** (別 sprint) + **人間 review + archive 承認** (gate)。
+> 末セッションで checklist 同期 + #9/#10 撤回判定 (commit 99c4504)。
+> 残作業は **人間 review + archive 承認** (gate) のみ。
 
 ### Tier 0: 完了 (本 session、2026-04-29 全 landed)
 
@@ -84,26 +99,27 @@ canonicalization plan §3.2 対応表）。
 | 14 | **C** architectureRules merged.ts error message に active project id 明示 | PR **#1208** |
 | 15 | **D** 新 guard scaffold script (`tools/scaffold-guard.mjs`) | PR **#1208** |
 
-### Tier 1: 残 (active 継続 / 別 sprint 推奨)
+### Tier 1: 残 (人間 gate のみ)
 
-#### 1. **checklist 同期** — 即実行可能、低リスク
-- `checklist.md` の Phase K (lines 132〜140) の 9 項目を `[x]` に flip (PR #1206/#1208 で全 landed)
-- Phase J 後続課題 (path 実在 / 昇格) も対応する完了項目を check
-- 約 10 項目 / 1 commit、最終レビュー gate (line 158) 前の前提整理
+#### 1. ✅ **checklist 同期** — landed 2026-04-29 (commit 99c4504)
+- Phase K Option 1 / Option 2 の 6 項目を `[x]` flip (PR #1206 / #1208 で実 landed)
+- Phase K Option 3 に defer 注記 (vacuous condition)
 
-#### 2. **#9 CHART-001〜005 visual evidence selection** — 中規模、別 sprint
-- 各 CHART の consumer 数 + 変更頻度を測定し selection rule で必要 chart のみ整備
-- baseline 6 → 段階的削減
-- 全件機械 cover は anti-bloat
+#### 2. ✅ **#9 visual evidence selection rule 撤回** — landed 2026-04-29 (commit 99c4504)
+- 旧版 HANDOFF が「中規模、別 sprint」と推奨した内容を dialog で performative と判定
+- 「consumer 数 / 365d commits / severity color / optionBuilder」全 4 指標が proxy metric / 適用 0 件 / governance theater
+- Phase E 2 件 / Phase F 1 件 / Phase G 1 件 を理由付き strikethrough で記録
+- structurally accepted state は guard 側 (baseline=6 + `REQUIRED_COVERED_IDS` hard-pin) で維持
 
-#### 3. **#10 pipeline / queryHandler / projection の missingSpec=0** — 大規模、別 sprint
-- queries 68 files / Handler 49 files
-- `references/05-contents/{pipelines,query-handlers,projections}/` 新サブカテゴリ追加要
-- Phase L 等として独立 project 化推奨
+#### 3. ✅ **#10 Phase L spawn 保留判定** — landed 2026-04-29 (commit 99c4504)
+- 旧版 HANDOFF が「Phase L として独立 project 化を推奨」と記載していたが、Phase L spawn 自体が performative の risk 高
+- PIPE / QH / PROJ に **spec 化されるべき実 drift / risk が validated されていない**
+- 着手判断は validation 後（drift / risk 実証後）に再評価
+- Phase C 4 項目を理由付き strikethrough で記録
 
 #### 4. **最終 review + archive 承認** — `checklist.md` line 158、人間 gate
-- 全 Phase (A〜K) の成果物を人間レビュー → archive プロセスへ移行承認
-- #9 / #10 を別 project に切り出した上で本 project は archive 可能と判断
+- 全 Phase (A〜K) の成果物 + 末セッションの撤回判定 (#9 / #10) を人間レビュー → archive プロセスへ移行承認
+- 本 project の active 状態は本 gate のみで保留中
 
 ### Tier 2: defer (prerequisite 待ち、auto-trigger)
 
