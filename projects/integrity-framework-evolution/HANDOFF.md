@@ -40,32 +40,24 @@
 - Q.O-5 (auto-generated README) → defer (復活 trigger: project 数 ≥ 15)
 - Q.O-6 / Q.M-4 (efficacy KPIs)、Q.M-2 (invariants doc)、Q.M-3 (meta-guards)、Q.M-5 / Q.M-6 / Q.M-7 / Q.M-8 → Phase R で実害 evidence が出た時のみ additive 追加 (YAGNI)
 
-### 次にやること: Phase R 着手
+### 次にやること: 縮小版 Phase R + I
 
-> Phase Q 完遂 (採用 4 件 landed) が prerequisite ✓ クリア。Phase R は **Q.O-2 Tier 制 + Q.M-1 CHANGE_IMPACT template** で protect された状態で landing。Q.M-6 canary は cut したので各 reform は git revert + ratchet で rollback 可能性を確保。
+> **Phase R/H/I scope reduction (2026-04-29)**: 6 reform + 4 candidate + I 多数 → **2 採用 + archive transition** に縮小。詳細: `plan.md §Phase R/H/I` / `derived/quality-review.md §11`。
 
-**順序**:
+**残 work (~3 PR)**:
 
-1. **R-① Bidirectional Canonical Contract schema** (先行、他 reform の前提)
-   - `app-domain/integrity/types.ts` に `CanonicalContract` schema 追加
-   - 13 pair を contract schema で再分類、COVERAGE_MAP + integrity-collector の duplicate logic 解消
-2. **R-② Time-axis Decision Record schema** (R-① と並行可)
-   - 全 archive (rejected/accepted/deferred/retired/scope-changes) を共通 `DecisionRecord` schema 化
-   - taxonomy origin journal も同 schema で reframe
-3. **R-③ mechanism / judgement / hybrid 3-zone 制** (R-① / R-② 後)
-4. **R-④ Cross-domain Framework Layer** (R-③ 後)
-5. **R-⑤ Decision Artifact Standard** (R-② 拡張)
-6. **R-⑥ Dogfooding Mandate** (最後、AAG #14 pair 化)
+1. **archive transition (Phase I 縮小版)**: 前駆 project canonicalization-domain-consolidation を `projects/completed/` に移行
+2. **R-① 部分**: COVERAGE_MAP を shared module 化、integrity-collector の regex parse 廃止
+3. **R-⑥**: integrityDomainCoverageGuard を integrity primitive で書き直し (dogfooding)
 
-### 中期 (Phase H 着手 — Phase R 完了が prerequisite)
+完遂後、本 project の status を `draft` → `completed` に移行して archive。
 
-- H-α (hooks 再判定) → H-β (charts 採用) → H-γ (wasm 採用) → H-δ (COVERAGE_MAP 拡張)
+### cut (anti-bloat self-test)
 
-### Phase I (institutionalization + handoff)
-
-- §P8/§P9 の 3-zone 化
-- 前駆 project archive
-- 第 5 の柱 (Project Lifecycle Governance) への handoff doc
+- Phase R: R-①全体 / R-② / R-③ / R-④ / R-⑤
+- Phase H: H-α / H-β / H-γ / H-δ
+- Phase I: §P8/§P9 3-zone 化 / canonicalization-checklist.md 3-zone 化 / 第 5 の柱 handoff doc
+- 復活 trigger: 各項目に対応する concrete drift / pain evidence が出た時のみ別 minor project として起案 (YAGNI)
 
 ## 並行進行している project
 

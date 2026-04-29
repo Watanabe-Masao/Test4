@@ -45,34 +45,40 @@
 - ~~Q.M-7 (rollback policy)~~ — 既存の git revert + allowlist 機構で代替可能
 - ~~Q.M-8 (2 段 review)~~ — 1 人 project で過剰
 
-## Phase R: Framework Reset
+## Phase R: Framework Reset (scope reduced 6→2)
 
-- [ ] R-①: Bidirectional Canonical Contract schema を `app-domain/integrity/types.ts` に追加した
-- [ ] R-①: 13 pair を contract schema で再分類した (COVERAGE_MAP + integrity-collector の duplicate logic 解消)
-- [ ] R-②: Time-axis Decision Record schema を全 archive (accepted/rejected/deferred/retired/scope-changes) に共通適用した
-- [ ] R-②: taxonomy origin journal を同 schema で reframe した (cross-domain 適用)
-- [ ] R-③: mechanism/judgement/hybrid 3-zone 分類を全 invariant に必須化した
-- [ ] R-③: §P8/§P9 / selection rule / 撤退規律を 3-zone 分類で書き直した
-- [ ] R-④: Cross-domain Framework Layer の `APP_DOMAIN_INDEX.md` 統一 template を整備した
-- [ ] R-⑤: Decision Artifact Standard PR template + archive 義務 + guard を整備した
-- [ ] R-⑥: Dogfooding Mandate により AAG framework を #14 pair として inventory 化した
-- [ ] R-⑥: integrity domain の coverage guard を integrity primitive で書き直した
+> **採用 2 件のみ**。詳細: `plan.md §Phase R` / `derived/quality-review.md §11`。
 
-## Phase H: Horizontal Expansion
+- [ ] R-① 部分: COVERAGE_MAP を shared module に抽出し、integrity-collector の regex parse を構造化 read に置換 (test/collector の duplicate logic 解消)
+- [ ] R-⑥: integrityDomainCoverageGuard.test.ts を integrity primitive で書き直し (jsonRegistry / pathExistence / checkBidirectionalExistence 等の dogfooding)
 
-- [ ] Phase Q + Phase R 完了確認 (本 phase の prerequisite、Q が R を protect、R が H を支える)
-- [ ] H-α: hooks (H-1) re-evaluation を 3-zone selection rule で実施した
-- [ ] H-β: charts (H-2) を Phase R framework 上で 1 PR で正本化した
-- [ ] H-γ: wasm (H-7) を Phase R framework 上で 1 PR で正本化した (新 primitive 必要時は単独追加 PR を先行)
-- [ ] H-δ: COVERAGE_MAP を 13 → N pair に拡張、Phase F audit 昇格した
+### cut (anti-bloat self-test 結果)
 
-## Phase I: Institutionalization
+- ~~R-① 全体 (CanonicalContract schema)~~ → 部分採用、schema 全体導入は theoretical
+- ~~R-② time-axis Decision Record schema~~ → 1 人 project で必要性 evidence なし
+- ~~R-③ mechanism/judgement/hybrid 3-zone 必須化~~ → 既に大部分機械化済
+- ~~R-④ Cross-domain Framework Layer~~ → 3 domain で over-engineering
+- ~~R-⑤ Decision Artifact Standard~~ → Q.M-1 AAG_CHANGE_IMPACT が cover 済
 
-- [ ] §P8/§P9 を R-①/R-②/R-③ schema で再構造化した
-- [ ] canonicalization-checklist.md を 3-zone 分類で書き直した
+## Phase H: Horizontal Expansion (全 cut)
+
+> Phase R 縮小で前提崩壊、4 candidate 全 cut。詳細: `plan.md §Phase H`。
+
+- ~~H-α (hooks re-eval)~~ / ~~H-β (charts)~~ / ~~H-γ (wasm)~~ / ~~H-δ (COVERAGE_MAP 拡張)~~
+- 必要性 evidence が出たら別 minor project として起案
+
+## Phase I: Institutionalization (scope reduced)
+
+> archive transition + status 移行のみ。詳細: `plan.md §Phase I`。
+
 - [ ] 前駆 project (canonicalization-domain-consolidation) を archive 経路に移行した (project-checklist-governance §6.2)
 - [ ] 本 project の status を completed に更新した
-- [ ] 第 5 の柱 (Project Lifecycle Governance) に handoff doc を整備した
+
+### cut
+
+- ~~§P8/§P9 を R-①/R-②/R-③ schema で再構造化~~ → R-②/R-③ cut で前提崩壊
+- ~~canonicalization-checklist.md 3-zone 化~~ → 同上
+- ~~第 5 の柱 (Project Lifecycle Governance) handoff doc~~ → future work
 
 ## 最終レビュー (人間承認)
 

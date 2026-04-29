@@ -374,6 +374,58 @@ anti-bloat invariant が要求する 6 質問 (§8.5):
 
 → Phase Q 最終確定: **採用 4 件 + cut 10 件**。
 
+## 11. Phase R / H / I scope reduction (2026-04-29、anti-bloat self-test 拡張)
+
+§7 / §8 で提示された Phase R 6 reform + Phase H 4 candidate + Phase I 多数 を **anti-bloat invariant** に対して照合した結果、**残 work を 2 採用 + archive transition に縮小**。
+
+### 11.1 Phase R 6 reform → 2 採用 + 4 cut
+
+| Reform | self-test 結果 | 判定 |
+|---|---|---|
+| **R-① 全体 (CanonicalContract schema)** | structural problem A は具体 evidence あるが、`rejected[]` archive + `integrityNoResurrectGuard` で部分解消済。残るは COVERAGE_MAP duplicate のみ。schema 全体導入は theoretical | **部分採用 (R-① 部分)**: COVERAGE_MAP を shared module 化し integrity-collector の regex parse 廃止、duplicate logic 解消 |
+| **R-② Time-axis Decision Record schema** | 1 人 project で時間軸 schema 必要性 evidence なし。`rejected[]` schema 化済で十分、accepted/deferred/retired/scope-changes は実体薄い | **cut** |
+| **R-③ 3-zone 必須化** | 既に大部分機械化済、残 prose は機械化コスト > 価値 | **cut** (選択的 zone tag 自体も他 PR で実害 evidence が出た時に追加) |
+| **R-④ Cross-domain Framework Layer** | 3 domain で over-engineering、新 domain 立ち上げ trigger なし | **cut** (新 domain 出現で再起案) |
+| **R-⑤ Decision Artifact Standard** | Q.M-1 AAG_CHANGE_IMPACT が機能 cover 済 | **cut** (機能重複) |
+| **R-⑥ Dogfooding Mandate** | integrityDomainCoverageGuard 自身が integrity primitive を一部しか使っていない、framework credibility (第 7 原則) の貫徹 | **採用** (既存 guard refactor) |
+
+### 11.2 Phase H 4 candidate → 全 cut
+
+Phase H 自身は本来「Phase R framework の最初の正規利用」として設計されたが、Phase R 縮小で前提崩壊。各 candidate も採用 evidence 弱い:
+
+| Candidate | 判定 | 理由 |
+|---|---|---|
+| H-α hooks re-eval | **cut** | 前駆 project で tier1 から narrow 済、再評価 trigger なし |
+| H-β charts / H-γ wasm | **cut** | 採用 evidence 弱い、必要性が出たら別 minor project として起案 |
+| H-δ COVERAGE_MAP 拡張 | **cut** | R-① 部分採用に統合 (新 pair 追加は本 project scope 外) |
+
+### 11.3 Phase I → archive transition + status 移行のみ
+
+| Item | 判定 | 理由 |
+|---|---|---|
+| §P8/§P9 3-zone 化 | **cut** | R-③ cut で前提崩壊、§P8/§P9 は前駆 project Phase I で institutionalize 済 |
+| canonicalization-checklist.md 3-zone 化 | **cut** | 同上 |
+| 前駆 project archive transition | **採用** | technical hygiene、project-checklist-governance §6.2 process |
+| 第 5 の柱 handoff doc | **cut** | future work、現 evidence なし |
+| 本 project status 移行 | **採用** | `draft` → `completed` |
+
+### 11.4 残 work 規模
+
+- archive transition: ~30 分
+- R-① 部分: ~半日
+- R-⑥: ~半日
+- 計: **~1-2 PR × 1 日**
+
+これにより本 project の **structural debt 95% 解消**、残り 5% は YAGNI として future work へ。
+
+### 11.5 cut 要素の復活経路
+
+cut した要素は **concrete drift / pain evidence が出た時のみ** 別 minor project として起案 (anti-bloat invariant が cut した要素自身を抑制)。復活時は本 §11 に evidence を追記する。
+
+### 11.6 §1〜§10 との関係
+
+§1〜§10 は **観察と提案として保存**するが、提案された 13 dimension review の全 reform を採用する義務はない。external review / 内部 review の **思想は input**、**採用判断は project が行う** (canonicalization-principles.md 第 8 原則と同型)。本 §11 は最終採用判断の trace。
+
 ### 10.4 cut 判定 8 件
 
 | ID | cut 理由 |

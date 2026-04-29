@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-29T04:01:57.950Z",
+  "timestamp": "2026-04-29T04:24:48.548Z",
   "summary": {
     "active": 7,
     "archived": 26,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 956,
+    "totalCheckboxes": 940,
     "checkedCheckboxes": 865
   },
   "projects": [
@@ -270,8 +270,8 @@
       "declaredStatus": "draft",
       "derivedStatus": "in_progress",
       "checked": 10,
-      "total": 35,
-      "progress": 0.286,
+      "total": 19,
+      "progress": 0.526,
       "entrypoint": "projects/integrity-framework-evolution/AI_CONTEXT.md",
       "checklistPath": "projects/integrity-framework-evolution/checklist.md",
       "parent": null

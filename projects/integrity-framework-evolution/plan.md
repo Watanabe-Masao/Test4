@@ -344,9 +344,22 @@ AAG 変更 PR は **二段階 review** 必須:
 
 > **Q.O-1 (入口整備) と Q.O-4 (Repair-style guard messages) が前 Phase Q draft の Q-9 / Q-10 を吸収している**。本 Phase Q は operational axis (Q.O-1〜Q.O-6) + meta-governance axis (Q.M-1〜Q.M-8) = **計 14 要素** の 2 軸構造。
 
-### Phase R: Framework Reset
+### Phase R: Framework Reset (scope reduced 6→2、2026-04-29)
 
-> **structural answer to A/B/C, institutional answer to D/E/F**
+> **scope reduction (anti-bloat self-test 結果)**: Phase Q reduction と同じ思想を Phase R にも適用、6 reform → 2 採用 + 4 cut に再設計。詳細: `derived/quality-review.md §11`。
+>
+> **採用 2 件**:
+> - **R-①の一部 (COVERAGE_MAP duplicate 解消)**: concrete drift evidence (collector regex parse fragility + COVERAGE_MAP test/collector 二重管理) → shared module で single source of truth 化
+> - **R-⑥ Dogfooding refactor**: integrityDomainCoverageGuard.test.ts を integrity primitive で書き直し、AAG が AAG 自身を守る credibility を確保 (第 7 原則の貫徹)
+>
+> **cut 4 件 (self-test で価値 evidence 弱い、または既存で代替済)**:
+> - ~~R-① 全体 (CanonicalContract schema)~~ → 部分採用 (COVERAGE_MAP 解消のみ)。schema 全体導入は theoretical
+> - ~~R-② time-axis Decision Record schema~~: 1 人 project で時間軸 schema 必要性 evidence なし、`rejected[]` schema 化済で十分
+> - ~~R-③ mechanism/judgement/hybrid 3-zone 必須化~~: 既に大部分機械化済、残 prose は機械化コスト > 価値
+> - ~~R-④ Cross-domain Framework Layer~~: 3 domain で over-engineering、新 domain 立ち上げ trigger なし
+> - ~~R-⑤ Decision Artifact Standard~~: Q.M-1 AAG_CHANGE_IMPACT が cover 済
+
+#### R-① Bidirectional Canonical Contract schema (全体は cut、部分のみ採用)
 
 #### R-① Bidirectional Canonical Contract schema
 
@@ -419,43 +432,23 @@ decision record = {
 - integrity domain の coverage guard が integrity primitive で書き直される
 - 解消する gap: 制度的問題 F、傾向 7
 
-### Phase H: Horizontal Expansion
+### Phase H: Horizontal Expansion (全 cut、2026-04-29)
 
-> **Phase R で整えた framework の最初の正規利用**
+> **scope reduction (anti-bloat self-test 結果)**: 4 candidate (H-α〜H-δ) を全 cut。理由: 採用すべき concrete evidence が弱い、Phase H は本来 Phase R framework の最初の正規利用として設計されたが、Phase R 自身が縮小したので Phase H の前提が崩れた。
 
-#### H-α: hooks (H-1) re-evaluation
+- ~~H-α (hooks re-eval)~~: 前駆 project で tier1 から narrow 済、再評価 trigger なし
+- ~~H-β (charts)~~ / ~~H-γ (wasm)~~: 採用 evidence 弱い、必要性が出たら別 minor project として起案
+- ~~H-δ (COVERAGE_MAP 拡張)~~: R-① 部分採用に統合 (新 pair 追加は本 project scope 外)
 
-- selection rule 3-zone (R-③) で再判定
-- accepted[] entry に判断 trace
-- 採否決定: `accepted` / `out-of-scope` / `pending`
+### Phase I: Institutionalization (scope reduced、2026-04-29)
 
-#### H-β: charts (H-2) 採用
+> **scope reduction**: §P8/§P9 3-zone 化 + 第 5 の柱 handoff doc を cut。**前駆 project archive transition のみを採用**。
 
-- registry: chart input/option builder pair 対応表
-- guard: `chartPairCanonicalGuard.test.ts` 新設 or `chartInputBuilderGuard` 拡張
-- COVERAGE_MAP に entry 追加
-- decision artifact (R-⑤) を archive に
-- 既存 14 primitive で表現可能か検証 (R-① contract 適用)
-
-#### H-γ: wasm (H-7) 採用
-
-- registry: wasm module + bridge 対応表
-- 新 primitive 必要性検証 (例: `wasmModuleGraph`)、必要なら primitive 単独追加 PR を先行
-- guard: `wasmRegistryGuard.test.ts` 新設
-- COVERAGE_MAP に entry 追加
-- decision artifact (R-⑤) を archive に
-
-#### H-δ: COVERAGE_MAP 拡張 + Phase F audit 昇格
-
-- 13 → 15〜16 pair に拡張
-- adapter shape baseline を新 guard で設定
-- KPI 自動追従確認
-
-### Phase I: Institutionalization (拡張)
-
-- 前駆 project の Phase I で institutionalize 済の §P8/§P9 / canonicalization-checklist.md を **R-① / R-② / R-③ schema** で再構造化
-- archive transition (前駆 project と本 project の status 同期更新)
-- 後続 project (第 5 の柱: Project Lifecycle Governance) に handoff
+- ~~§P8/§P9 を R-①/R-②/R-③ schema で再構造化~~: R-②/R-③ cut で前提崩壊、§P8/§P9 は前駆 project Phase I で既に institutionalize 済
+- ~~canonicalization-checklist.md 3-zone 化~~: 同上
+- **採用**: 前駆 project (canonicalization-domain-consolidation) の archive transition (project-checklist-governance §6.2 process)
+- ~~第 5 の柱 handoff doc~~: future work (現 evidence なし、必要性が出たら別 project)
+- 本 project status を `draft` → `completed` に移行
 
 ## 4. やってはいけないこと
 
@@ -483,3 +476,4 @@ decision record = {
 | 2026-04-29 | 初版起草。前駆 project canonicalization-domain-consolidation の Phase A〜I 完遂 + 13 dimension review を input として、Phase R (Framework Reset) + Phase H (Horizontal Expansion) + Phase I (Institutionalization) の 3 phase 構成で立ち上げ。status=draft、Phase 0 bootstrap のみ完遂 |
 | 2026-04-29 | Phase Q scope reduction (anti-bloat self-test): 14 要素 → 4 要素 (Q.O-1 / Q.O-2 / Q.O-4 / Q.M-1) + 保留 2 件 (Q.O-3 / Q.O-5) + cut 8 件。理由: AAG は現在 Healthy で bloat 実害なし、Meta-AAG 不在で前駆 project が成功した実績、external review が audit 不能、1 人 project で過剰 ceremony 化リスク。cut 要素は Phase R で実害 evidence 出た時のみ additive 追加 (YAGNI) |
 | 2026-04-29 | Phase Q 採用 4 件 landing 後の 保留 2 件 final disposition。Q.O-3 → cut (Q.M-1 + projectization で代替済み、第 3 分類軸は overlap)、Q.O-5 → defer (project 数 8 で manual 可能、復活 trigger は project 数 ≥ 15 or onboarding 事故)。Phase Q 最終確定: 採用 4 件 + cut 10 件 |
+| 2026-04-29 | **Phase R / H / I 全体 scope reduction (anti-bloat self-test 拡張)**: Phase R 6 reform → 2 採用 (R-① 部分 + R-⑥) + 4 cut。Phase H 全 cut。Phase I → archive transition + status 移行のみ。理由: AAG は現在 Healthy で structural problem A/B/C は具体 evidence あるも、Phase R 当初設計の解決策が問題サイズに対して過剰、Q.M-1 が R-⑤ を cover 済、3 domain で R-④ over-engineering、Phase R 縮小で H 前提崩壊。残 work 規模: 小 (~3 PR)。Phase Q reduction と同思想を Phase R/H/I にも一貫適用 |
