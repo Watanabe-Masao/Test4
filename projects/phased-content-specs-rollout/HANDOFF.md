@@ -5,22 +5,27 @@
 
 ## 1. 現在地
 
-**Phase A〜J 全 landed (2026-04-28、commit 5564b60)。**
-status: `active` / parent: なし。後続課題（J7 path 実在 guard / reviewed 昇格 / AST 整合 / Phase G visual evidence / Promote Ceremony）と
-`canonicalization-domain-consolidation` の Phase A inventory との並行が次の作業フェーズ。
+**Phase A〜K 全 landed (2026-04-29)。** 残作業は #9 (CHART visual evidence selection) /
+#10 (pipeline / queryHandler / projection 新サブカテゴリ) / 人間 review + archive 承認のみ。
+status: `active` / parent: なし。Phase K Option 1+2 の landing で source ↔ spec 同期は
+date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism** に置換済。
+**本 project は archive 候補状態に近い**（checklist 同期のみ要、Phase #9/#10 は別 sprint 推奨）。
 
-### Phase A〜J 完遂サマリ (2026-04-28)
+### Phase A〜K 完遂サマリ (2026-04-29)
 
 | 軸 | 達成値 |
 |---|---:|
 | 全 spec 数 | 89（widget 45 / RM 10 / CALC 24 / chart 5 / UIC 5）|
 | Behavior Claims | **310** (各 spec 平均 3.5)|
-| guard 数 | **12 active** (`contentSpec*Guard.test.ts`、Phase K で lastVerifiedCommitGuard 追加 / freshness は `.skip` deprecated) |
-| coverage baseline | **全 0** (J6 / canonical-registration-sync 等)|
-| Evidence Level enforcement | J1〜J6 全 active で違反 0 |
+| reviewed claim verificationNote | **110+ 件全件記入済** (Phase K Option 2、#8 完遂) |
+| guard 数 | **11 active** (`contentSpec*Guard.test.ts`、Phase K で `FRESHNESS` 撤退 → `LAST-VERIFIED-COMMIT` 置換) |
+| coverage baseline | **全 0** (J6 / canonical-registration-sync 等) |
+| Evidence Level enforcement | J1〜J6 + K1 全 active で違反 0 |
+| Visual Evidence baseline | **6** (UIC-002/003/004/005 の 4 件 cover、`REQUIRED_COVERED_IDS` で hard-pin) |
 | Promote Ceremony | candidate slot 二状態モデル institutionalize 済 |
-| 統合 KPI | 53 KPI all OK / Hard Gate PASS |
-| test 結果 | 124 file / 834 test PASS |
+| 統合 KPI | 60 KPI all OK / Hard Gate PASS |
+| test 結果 | **130 file / 893 test PASS** |
+| 本セッションで成立した再発防止 mechanism | E (`AR-CI-FETCH-DEPTH`) / B (`AR-COVERAGE-MAP-DISPLAY-NAME-COUNT`) / C (active project hint) / D (`tools/scaffold-guard.mjs`) / F (`tools/check-substantive-change.mjs`) |
 
 ### canonicalization-domain-consolidation との handoff
 
@@ -56,65 +61,56 @@ canonicalization plan §3.2 対応表）。
 
 ## 2. 次にやること
 
-> **scope reduction (2026-04-29、anti-bloat self-test)**: 25 未着手 → keep 12 + defer 5 + vacuous 1 + cut 6 + human gate 1。詳細: `checklist.md` の各項目注記。Phase Q reduction と同思想を本 project にも一貫適用。
-> 詳細は `plan.md` §4 末尾「Phase J 後続課題」 / `checklist.md` を参照。
+> **状態 (2026-04-29 末時点)**: Phase A〜K 全 mechanism 完遂、本セッションで再発防止 5 件 (E/B/C/D/F) も追加 landed。
+> 残作業は **checklist 同期** (低コスト) + **#9 / #10** (別 sprint) + **人間 review + archive 承認** (gate)。
 
-### Tier 1: active 継続 (concrete value、現実装に直接価値)
+### Tier 0: 完了 (本 session、2026-04-29 全 landed)
 
-1. ✅ **behavior section guard (J7 path 実在)** — landed 2026-04-29
-   - `contentSpecPathExistenceGuard.test.ts` 新設 + AR-CONTENT-SPEC-PATH-EXISTENCE rule
-   - `parseBehaviorClaimsTable` を `@app-domain/integrity/parsing/` に crystallize、
-     evidence guard と共有 (DRY + dogfooding)
+| # | 内容 | merge commit / PR |
+|---|---|---|
+| 1 | J7 path 実在 guard (contentSpecPathExistenceGuard) | (5564b60 系) |
+| 2 | content graph 初版 collector | (5564b60 系) |
+| 3 | CI artifact 保存 (Phase I) | commit ceaac3f |
+| 4 | UIC-003 visual evidence cover (baseline 9 → 8) | commit ceaac3f |
+| 5 | Phase K Freshness Mechanism Redesign 提案 | commit b872f5f |
+| 6 | **#7** UIC-004/005 ChartCard story (baseline 8 → 6、`REQUIRED_COVERED_IDS` hard-pin 追加) | PR **#1204** (71c1270) |
+| 7 | **#6** Phase K Option 1 + 2 実装 (lastVerifiedCommit guard / verificationNote 必須化) | PR **#1206** |
+| 8 | **#8** reviewed claim 全 110+ 件 verificationNote rationale 記入 | PR **#1206** (#7 と同梱) |
+| 9 | **shallow clone CI 修正** (workflow に `fetch-depth: 0` + guard defensive 検出 + 比較を full SHA 化) | PR #1205 / PR **#1206** |
+| 10 | **E** `AR-CI-FETCH-DEPTH` meta-guard 新設 (workflow に fetch-depth: 0 強制) | PR **#1207** |
+| 11 | **#11** AR-CONTENT-SPEC-FRESHNESS / cadence field 物理削除 (Phase K Option 1 後続) | PR **#1208** |
+| 12 | **F** pre-push false-positive 解消 (`tools/check-substantive-change.mjs`) | PR **#1208** + PR **#1210** (set -e fix) |
+| 13 | **B** coverage-map displayName count drift 検出 + obligation false-positive 修正 | PR **#1208** |
+| 14 | **C** architectureRules merged.ts error message に active project id 明示 | PR **#1208** |
+| 15 | **D** 新 guard scaffold script (`tools/scaffold-guard.mjs`) | PR **#1208** |
 
-2. ✅ **content graph 初版 collector** — landed 2026-04-29 (5 件 defer 解消)
+### Tier 1: 残 (active 継続 / 別 sprint 推奨)
 
-3. ✅ **CI artifact 保存** (Phase I) — landed 2026-04-29 (commit ceaac3f、checklist stale 同期)
-   - `.github/workflows/ci.yml` の `content-specs-impact` job が PR 時に
-     markdown / JSON 両 artifact を 14 日 retention で upload + job log に summary echo
+#### 1. **checklist 同期** — 即実行可能、低リスク
+- `checklist.md` の Phase K (lines 132〜140) の 9 項目を `[x]` に flip (PR #1206/#1208 で全 landed)
+- Phase J 後続課題 (path 実在 / 昇格) も対応する完了項目を check
+- 約 10 項目 / 1 commit、最終レビュー gate (line 158) 前の前提整理
 
-4. ✅ **UIC-003 KpiGrid visual evidence cover** — landed 2026-04-29 (baseline 9 → 8)
-   - `KpiCard.stories.tsx` DashboardGrid を indirect cover として登録（CLM-002 整合）
+#### 2. **#9 CHART-001〜005 visual evidence selection** — 中規模、別 sprint
+- 各 CHART の consumer 数 + 変更頻度を測定し selection rule で必要 chart のみ整備
+- baseline 6 → 段階的削減
+- 全件機械 cover は anti-bloat
 
-5. ✅ **Phase K Freshness Mechanism Redesign 提案** — landed 2026-04-29 (commit b872f5f)
-   - 90 日 review cadence の儀式性を critique したユーザ問いを受けて代替設計 3 案を
-     `checklist.md §Phase K` に記録（実装は別 sprint）。詳細は §5 参照
+#### 3. **#10 pipeline / queryHandler / projection の missingSpec=0** — 大規模、別 sprint
+- queries 68 files / Handler 49 files
+- `references/05-contents/{pipelines,query-handlers,projections}/` 新サブカテゴリ追加要
+- Phase L 等として独立 project 化推奨
 
-6. ✅ **UIC-004/005 ChartCard 単独 story 作成** — landed 2026-04-29 (commit 71c1270、baseline 8 → 6)
-   - `app/src/stories/ChartCard.stories.tsx` 新設 (Ready / Loading / Error / Empty / SectionVariant / Collapsible)
-   - UIC-004 直接 cover + UIC-005 ChartLoading を children として indirect cover
-   - `contentSpecVisualEvidenceGuard` baseline ratchet-down + `REQUIRED_COVERED_IDS` hard-pin (UIC-002/003/004/005) を追加で隠れ regression 防止 (CodeRabbit feedback)
-
-7. ✅ **Phase K Freshness Mechanism Redesign — Option 1 + 2 実装** — landed 2026-04-29
-   - Option 2 (`verificationNote` 必須化): `parseBehaviorClaimsTable` を 7 列対応に拡張、
-     `contentSpecEvidenceLevelGuard` で `reviewed` claim の rationale 空欄を hard fail。
-     既存 110+ reviewed claim に rationale を一括記入 (#8 同時完遂)
-   - Option 1 (`lastVerifiedCommit` guard 新設): `contentSpecLastVerifiedCommitGuard.test.ts` 新設
-     + `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` rule 登録、全 89 spec の `lastVerifiedCommit` を
-     `git log` 結果で sync。`contentSpecFreshnessGuard` を `.skip` 化 + 旧 rule deprecated
-   - `tools/widget-specs/refresh-last-verified.mjs` 新設 (修正経路)
-   - plan.md §Phase K canonical 化済
-
-8. ✅ **CALC reviewed claim rationale 記入** — landed 2026-04-29 (Phase K Option 2 同時完遂)
-   - 5 件 (CALC-013/014/016/018/020 CLM-004) + 他 reviewed claim 全 110+ 件に
-     `verificationNote` rationale を一括記入
-   - 機械的 reviewed → tested 昇格の anti-pattern を構造的に防止 (HANDOFF.md §3.9)
-
-9. **CHART-001〜005 visual evidence selection** — selection rule で個別評価
-   - 変更頻度・consumer 数で「visual test 必要 chart」を絞る、全件機械 cover は anti-bloat
-
-10. **pipeline / queryHandler / projection の missingSpec=0 + sourceRef drift=0** (Phase C)
-    - 大規模、新サブカテゴリ追加要、別 sprint 推奨
-
-11. **freshness guard 物理削除 + cadence field deprecate** (Phase K K2 後続 sprint)
-    - `contentSpecFreshnessGuard.test.ts` の `.skip` 撤去 → ファイル削除
-    - `AR-CONTENT-SPEC-FRESHNESS` を rule registry から削除
-    - frontmatter generator から `reviewCadenceDays` / `lastReviewedAt` field を撤廃
+#### 4. **最終 review + archive 承認** — `checklist.md` line 158、人間 gate
+- 全 Phase (A〜K) の成果物を人間レビュー → archive プロセスへ移行承認
+- #9 / #10 を別 project に切り出した上で本 project は archive 可能と判断
 
 ### Tier 2: defer (prerequisite 待ち、auto-trigger)
 
 - 全 45 WID content graph + Promotion Gate L4 (#2 完成後に対象化)
 - pipeline lineage graph + Promotion Gate L5 (#2 + Phase C 完成後)
 - deprecated CALC sunsetCondition: vacuously achieved (現状 0 件、guard active)
+- Phase K Option 3 (sunset trigger): 保留中、明確 value 出現で再着手判断
 
 ### cut (anti-bloat self-test 結果、2026-04-29)
 
@@ -233,19 +229,87 @@ section 外で変更があるときだけ warn を出すよう精度を上げた
 (`<!-- GENERATED:START -->` / `<!-- GENERATED:END -->`) で囲まれた範囲を
 diff 計算から除外する。
 
+### 3.11. CI workflow checkout は `fetch-depth: 0` 必須 — 構造的に強制済
+
+**[mechanism 化済 — 2026-04-29]** Phase K Option 1 で導入した
+`contentSpecLastVerifiedCommitGuard` は `git log -1 --format=%H -- <sourceRef>` で
+source の最新 commit を解決するため **full git history** が必要。`actions/checkout@v4` の
+default は `fetch-depth: 1` (shallow clone) で、merge commit のみが返って全 89 spec で
+false-positive 一括 fail を起こす事故 (PR #1205 後 main で発生)。
+
+修正と再発防止 (2026-04-29):
+- `.github/workflows/ci.yml` の `fast-gate` / `docs-health` / `test-coverage` に
+  `fetch-depth: 0` を明示
+- guard 側に `git rev-parse --is-shallow-repository` で defensive 検出 (shallow なら skip + warn)
+- **E. `AR-CI-FETCH-DEPTH` meta-guard 新設** (PR #1207、`tools/git-hooks/pre-push` 経由
+  で workflow YAML を機械検証)。新 workflow / 新 job 追加時の同種事故を構造的に予防。
+  Allowlist (full history 不要): `wasm-build` / `e2e` / `pages-build` / `deploy`
+
+### 3.12. git の `%h` short hash は repo 成長で長さ変動 — full SHA (`%H`) 比較が正解
+
+**[mechanism 化済 — 2026-04-29]** Phase K Option 1 初版で `git log -1 --format=%h` の
+短縮 hash (7-char) を spec frontmatter に保存 → 完全一致比較していた。リポジトリが
+大きくなると `%h` は最小 unique abbreviation を返すため必要文字数が増える
+(例: 7 chars `50018d3` → 8 chars `50018d33`)。これで完全一致比較が false-positive
+一括 fail を起こした (PR #1205 main merge 後)。
+
+中間案 (prefix-match) は CodeRabbit P1 review で false-negative リスク指摘:
+declared = 古い 7-char prefix `abcdef0`、新 commit が `abcdef0X...` (prefix 衝突 = まさに
+`%h` 長を 7→8 に伸ばす条件) だと、異 commit でも `actual.startsWith(declared)` で
+誤って同一判定 → drift 検出見逃し。
+
+最終解 (PR #1206、2026-04-29):
+- `git log -1 --format=%H` で **full 40-char SHA** を取得
+- spec frontmatter も full SHA で記録 (refresh-last-verified.mjs も同様)
+- 完全一致比較 (`===`) のみで commit identity を判定
+- Repo 成長 / prefix 衝突 / abbreviation 長変動 すべての false-positive/negative を排除
+
+**やってはいけないこと**: spec.lastVerifiedCommit を短縮 hash で記録する。
+`tools/widget-specs/refresh-last-verified.mjs` で full SHA に統一済、手書き編集は禁止。
+
+### 3.13. shell hook の `set -e` 下で helper exit 1/2 が hook abort を起こす
+
+**[修正済 — 2026-04-29、PR #1210]** `tools/git-hooks/pre-push` は冒頭で `set -e` を
+有効化している。`check_principles_json` で `node tools/check-substantive-change.mjs` を
+呼出し `case $?` で分岐していたが、helper が exit 1 (substantive change) や exit 2
+(error) を返した時点で **`case` 行に到達する前に `set -e` が hook を abort** していた。
+warn-only の check が hard push failure に化けていた。
+
+修正: `if/else` パターンに変更。`if node ...; then ... else ... fi` の condition は
+exit code を期待するため、非 0 でも `set -e` を triggered せず `else` 分岐で正しく
+処理される。
+
+**やってはいけないこと（恒久）**: `set -e` 下の shell スクリプトで helper の exit code
+を分岐に使うときは `case $?` ではなく `if/else` を使う (もしくは `cmd || true` で明示
+吸収)。同型 bug を新 check 追加時に再発させない。
+
 ## 4. 関連文書
 
 | ファイル | 役割 |
 |---|---|
 | `AI_CONTEXT.md` | why / scope / read order |
-| **`plan.md`** | **canonical 計画 doc — Phase A〜J + Operational Control System §1〜§11** |
-| `checklist.md` | Phase 0〜J completion 条件 |
+| **`plan.md`** | **canonical 計画 doc — Phase A〜K + Operational Control System §1〜§11** |
+| `checklist.md` | Phase 0〜K completion 条件 (Phase K landing 後の同期は次セッション初手) |
 | `projectization.md` | AAG-COA 判定 (Level 3 / governance-hardening) |
 | `config/project.json` | project manifest（`status: "active"` / parent なし） |
-| `aag/execution-overlay.ts` | rule overlay（initial 空） |
+| `aag/execution-overlay.ts` | rule overlay |
 | `projects/completed/architecture-debt-recovery/HANDOFF.md` | archived umbrella の完遂サマリ |
 | `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md` | WSS bootstrap 決定（D1〜D8） |
 | `projects/completed/widget-registry-simplification/SUMMARY.md` | SP-B archive サマリ（Anchor Slice 選定の文脈） |
-| `references/05-contents/README.md` | CSS カテゴリ正本（3 軸 drift 防御） |
+| `references/05-contents/README.md` | CSS カテゴリ正本（3 軸 drift 防御、Phase K で commit-pin 軸に更新済） |
 | `references/05-contents/widgets/README.md` | WID-001〜045 型番割当 + 全 45 spec 本文 |
 | `references/03-guides/project-checklist-governance.md` | AAG Layer 4A 運用ルール |
+| `references/03-guides/guard-test-map.md` | guard 一覧 + scaffold script 使用方法 (本 session で追記) |
+
+## 5. 本セッション (2026-04-29) で導入した script / mechanism
+
+| script / file | 役割 |
+|---|---|
+| `tools/widget-specs/refresh-last-verified.mjs` | 全 89 spec の `lastVerifiedCommit` を `git log -1 --format=%H` の出力で一括 sync (Phase K Option 1 修正経路) |
+| `tools/widget-specs/migrate-verification-note.mjs` | 全 spec の Behavior Claims table を 7 列化 + reviewed claim に rationale 一括記入 (Phase K Option 2、本 session 完遂後は use-case 限定) |
+| `tools/check-substantive-change.mjs` | 文書の generated section 外で substantive change があるかを判定する CLI (pre-push hook 等の false-positive 解消用) |
+| `tools/scaffold-guard.mjs` | 新 architecture rule + guard test を skeleton + 5 箇所 paste-ready snippets で半自動生成 (E/B/D 系の co-change 義務軽減) |
+| `app/src/test/guards/contentSpecLastVerifiedCommitGuard.test.ts` | spec ↔ source の commit-pin sync を full SHA 完全一致で検証 (`AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT`) |
+| `app/src/test/guards/coverageMapDisplayNameGuard.test.ts` | coverage-map.json の `× N` 表記が `guardFiles.length` と一致を機械検証 (`AR-COVERAGE-MAP-DISPLAY-NAME-COUNT`) |
+| `app/src/test/guards/ciFetchDepthGuard.test.ts` | `.github/workflows/*.yml` の actions/checkout に `fetch-depth: 0` を強制 (`AR-CI-FETCH-DEPTH`、Allowlist: wasm-build / e2e / pages-build / deploy) |
+| `app/src/stories/ChartCard.stories.tsx` | UIC-004 ChartCard + UIC-005 ChartLoading の 6 状態 visual evidence (Ready / Loading / Error / Empty / SectionVariant / Collapsible) |
