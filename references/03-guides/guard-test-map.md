@@ -101,6 +101,7 @@
 | `app/src/test/guards/contentSpecLifecycleLinkSymmetryGuard.test.ts` | architecture | 3件 | AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY: Phase D Step 2 (2026-04-28) replacedBy / supersedes の双方向対称性を強制（spec A.replacedBy=B ⟺ spec B.supersedes=A）+ 孤立リンク禁止 + 自己参照禁止。片方向リンク (半移行状態) を構造的に排除 |
 | `app/src/test/guards/integrityDomainSkeletonGuard.test.ts` | documentation-steward | 13件 | canonicalization-domain-consolidation Phase B Step B-1 で landing、Phase E 振り返りで introspection 化 (2026-04-28)。app-domain/integrity/ の物理 module 構成 + 命名規約 (parsing 名詞 / detection check\* / reporting format\*) + domain 純粋性 4 不変条件を機械検証。primitive 追加時に EXPECTED 配列 hardcode 更新が不要な構造 |
 | `app/src/test/guards/integrityDomainCoverageGuard.test.ts` | documentation-steward | 35件 | canonicalization-domain-consolidation Phase F (Domain Invariant Test) で landing (2026-04-29)。F-2 完全性 (Phase B〜E migration 済 13 ペアが domain primitive 経由) + F-3 adapter shape (caller 行数 ratchet-down baseline、12 file)。Phase H 着手の prerequisite。COVERAGE_MAP 定数が 13 ペア → guard file → primitive 経路の唯一正本 (integrity-domain-architecture.md §8 で参照) |
+| `app/src/test/guards/integrityNoResurrectGuard.test.ts` | documentation-steward | 3件 | canonicalization-domain-consolidation Phase I (制度文書化) で landing (2026-04-29)。AR-INTEGRITY-NO-RESURRECT を実装。`adoption-candidates.json rejected[].originalSlot` (shapeSync / tokenInclusion / jsdocTag) と `app-domain/integrity/{parsing,detection,reporting}/` 配下 file 名の衝突を hard fail で検出 (永久不採用 slot の resurrection 防止)。判断反転には rejected entry 削除を先行 PR で実施する必要がある |
 
 ## ルール → テスト対応
 

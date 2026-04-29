@@ -115,10 +115,25 @@ candidate ────→ current ────→ deprecated ────→ sun
 - 「`replacedBy` を記入できない」場合は **退役判断** を ADR に書く（後継なき廃止の根拠）
 - 後継なき廃止は `replacedBy: <root-cause-ADR-link>` のような ADR リンクで代替する例外があるが、AR rule 違反としてレビュー必須
 
+## 整合性ペア (registry+guard) の追加 / 撤退儀式
+
+calculation 系 spec とは別に、整合性ペア (registry+guard) の追加 / 撤退は **専用 checklist**
+に従う。本 PR template は「current ↔ candidate Promote Ceremony」専用、整合性ペアは:
+
+- 採用 / 撤退判断: `references/03-guides/canonicalization-checklist.md` (Phase I 成果物)
+- selection rule: `canonicalization-principles.md §P8`
+- 撤退規律 default: 同 `§P9` (step 5 直接到達、in-place migration)
+- 機械検証: `integrityDomainCoverageGuard` / `integrityNoResurrectGuard`
+
+整合性ペア追加 PR では canonicalization-checklist.md §1 を、撤退 PR では §2 を埋める。
+本 template の 5 同期チェック / 状態遷移規則は適用しない (整合性ペアは Lifecycle State
+Machine 不要、step 5 直接到達が default)。
+
 ## 参照
 
 - `references/05-contents/calculations/README.md` §「Lifecycle State Machine」
 - `app/src/test/guards/contentSpecLifecycleGuard.test.ts` — AR-CONTENT-SPEC-LIFECYCLE-FIELDS
 - `app/src/test/calculationCanonRegistry.ts` — runtimeStatus / authorityKind / migrationTier
-- `references/01-principles/canonicalization-principles.md` — current / candidate 分離原則
+- `references/01-principles/canonicalization-principles.md` — current / candidate 分離原則 (§P1-P7) + 整合性ペア selection rule (§P8) + 撤退規律 default (§P9)
+- `references/03-guides/canonicalization-checklist.md` — 整合性ペア追加 / 撤退の標準手順 (Phase I 成果物)
 - `projects/pure-calculation-reorg/plan.md` — Promote Ceremony の運用主体（active project）

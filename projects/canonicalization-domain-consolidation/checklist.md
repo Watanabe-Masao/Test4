@@ -105,14 +105,22 @@
 
 ## Phase I: 制度文書化 + Handoff
 
-> **scope (2026-04-28 圧縮)**: 当初計画の新設 2 doc (`integrity-domain.md` / `canonicalization-checklist.md`) のうち、`integrity-domain.md` は `references/03-guides/integrity-domain-architecture.md` の `references/01-principles/` 昇格で代替。`canonicalization-principles.md §P9` (撤退規律 default) は Phase E 振り返りで institutionalize 済。新設は `canonicalization-checklist.md` のみ。
+> **scope (2026-04-29 確定)**: 不変条件 / 設計思想 / 撤退規律は既に
+> `canonicalization-principles.md §P8 + §P9` に institutionalize 済。
+> 新設は `canonicalization-checklist.md` のみ (architecture.md は 03-guides/ に
+> 残置、principles 部分は §P9 が正本)。
+>
+> **AR-INTEGRITY-NEW-GUARD-DOMAIN は redundant** として skip:
+> Phase F coverage guard (`integrityDomainCoverageGuard`) が同 logic を既に機械検証
+> しているため AR rule を追加すると冗長性違反。canonicalization-checklist.md §4 で
+> 機械検証経路を一覧として明示することで代替。
 
-- [ ] `references/03-guides/integrity-domain-architecture.md` を `references/01-principles/integrity-domain.md` に昇格した (不変条件 / 設計思想 / 撤退規律を §P9 への参照で吸収)
-- [ ] `references/03-guides/canonicalization-checklist.md` を新設し新 registry+guard 追加 checklist を整備した
-- [ ] Promote Ceremony PR template の整合性版（registry+guard の追加 / 撤退儀式）を整備した
-- [ ] `architectureRuleGuard` に「新 guard が domain 非経由」を検出する rule を追加した
-- [ ] `architectureRuleGuard` に `AR-INTEGRITY-NO-RESURRECT` (`adoption-candidates.json` `rejected[].originalSlot` の resurrection 検出) を追加した
-- [ ] 後続 project への引き継ぎ doc を整備した
+- [x] `references/01-principles/integrity-domain.md` 昇格は **不要**と確定 — principles は `canonicalization-principles.md §P8 + §P9` に既に institutionalize 済、architecture.md は実装ガイドとして 03-guides/ に残置 (冗長性回避)
+- [x] `references/03-guides/canonicalization-checklist.md` を新設し新 registry+guard 追加 checklist を整備した (§1 採用 / §2 撤退 / §3 不採用 archive / §4 機械検証経路一覧)
+- [x] Promote Ceremony PR template の整合性版を `promote-ceremony-pr-template.md` に追記した (整合性ペアは canonicalization-checklist.md に委譲する旨を明示、本 template は calculation 系 spec 専用と画定)
+- [x] `architectureRuleGuard` に AR-INTEGRITY-NO-RESURRECT を追加 + `integrityNoResurrectGuard.test.ts` で実装 (`adoption-candidates.json rejected[].originalSlot` resurrection 検出、3 test)
+- [x] AR-INTEGRITY-NEW-GUARD-DOMAIN は skip (Phase F coverage guard と redundant、本 §scope 注記で代替)
+- [x] 後続 project への引き継ぎ doc を整備した (`canonicalization-checklist.md §1〜5` が実行可能 entry point、整合性ペア追加 / 撤退の standard 経路として handoff)
 
 ## 最終レビュー (人間承認)
 

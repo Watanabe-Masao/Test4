@@ -251,7 +251,8 @@
 | `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                                                |
 | `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                                                    |
 | `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、13 ペア詳細 + selection rule + primitive 候補 + 採用候補リスト) |
-| `03-guides/integrity-domain-architecture.md`         | 整合性 Domain Skeleton 設計 (canonicalization Phase B、design-locked / implementation-pending)                  |
+| `03-guides/integrity-domain-architecture.md`         | 整合性 Domain Skeleton 設計 (canonicalization Phase B〜F 完遂、14 primitive + adapter pattern + Phase F coverage 正本)        |
+| `03-guides/canonicalization-checklist.md`            | 整合性ペア追加 / 撤退の標準手順 (canonicalization Phase I 成果物、selection rule + 撤退規律 + 機械検証経路一覧)                |
 | `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                                                            |
 | `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                                                       |
 | `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                                                        |
