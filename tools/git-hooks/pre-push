@@ -202,13 +202,20 @@ check_principles_json() {
   OLD_IFS="$IFS"
   IFS='
 '
+  # 注意: 本 hook は `set -e` 下で動作するため、helper の exit 1/2 で hook 全体が
+  # abort してしまわないよう if/else パターンで分岐する (case $? は set -e 下では
+  # 非 0 exit で到達できない)。helper の exit code は:
+  #   0 = generated-only (skip / warn 出さない)
+  #   1 = substantive change (warn 必須)
+  #   2 = 新規ファイル等の error (安全側で substantive 扱い)
+  # 1 / 2 のいずれも HAS_SUBSTANTIVE=1 にしたいので else 分岐で一括処理する。
   for f in $CHANGED_PRINCIPLES; do
-    # exit 0 = generated-only / 1 = substantive / 2 = error (新規等、安全側 substantive 扱い)
-    node tools/check-substantive-change.mjs "$f" "$PUSH_RANGE" 2>/dev/null
-    case $? in
-      0) ;; # generated-only — skip
-      *) HAS_SUBSTANTIVE=1; break ;;
-    esac
+    if node tools/check-substantive-change.mjs "$f" "$PUSH_RANGE" 2>/dev/null; then
+      : # exit 0 = generated-only — skip
+    else
+      HAS_SUBSTANTIVE=1
+      break
+    fi
   done
   IFS="$OLD_IFS"
 
