@@ -100,7 +100,7 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 | doc path | 撤退理由 | 移管先 | redirect 先 |
 |---|---|---|---|
 | `references/99-archive/aag-four-layer-architecture.md` | 旧 4 層 (Principles/Judgment/Detection/Response) は新 4 層 (Constitution/Schema/Execution/Operations) で superseded、aag-5-constitution.md line 162 で明示済 | `99-archive/01-principles/aag-four-layer-architecture.md` | `aag/architecture.md` (新 4 層、Phase 4 で Create) |
-| `references/01-principles/aag-rule-splitting-plan.md` | completed project (`projects/completed/aag-rule-splitting-execution/`、2026-04-13 archive) の execution 記録、doc 自身が冒頭で完了宣言 | `99-archive/01-principles/aag-rule-splitting-plan.md` | `projects/completed/aag-rule-splitting-execution/` |
+| `references/99-archive/aag-rule-splitting-plan.md` | completed project (`projects/completed/aag-rule-splitting-execution/`、2026-04-13 archive) の execution 記録、doc 自身が冒頭で完了宣言 | `99-archive/01-principles/aag-rule-splitting-plan.md` | `projects/completed/aag-rule-splitting-execution/` |
 
 ### 3.2. Rewrite + Relocate + Rename → Archive (旧 path、Phase 4 で新規書き起こし完了後)
 

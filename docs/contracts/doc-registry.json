@@ -128,8 +128,8 @@
           "label": "[ARCHIVED Project A Phase 5.5] 運用区分表 (旧、件数を articulate していた) — Phase 5.5 で archive 移管済 + allowlist 13 件削除。新 doc: aag/operational-classification.md (件数を articulate しない原則で再構築)"
         },
         {
-          "path": "references/01-principles/aag-rule-splitting-plan.md",
-          "label": "[DEPRECATED] ルール分割計画 (旧、completed project execution 記録) — Project A Phase 5 で archive 予定"
+          "path": "references/99-archive/aag-rule-splitting-plan.md",
+          "label": "[ARCHIVED Project A Phase 5.6] ルール分割計画 (旧、completed project execution 記録) — Phase 5.6 で archive 移管済。実行記録: projects/completed/aag-rule-splitting-execution/、ルール classification の current articulation: aag/operational-classification.md"
         },
         {
           "path": "references/01-principles/architecture-rule-feasibility.md",

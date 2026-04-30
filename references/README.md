@@ -10,7 +10,7 @@
 | `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
 | `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 71         |
 | `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
-| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 4          |
+| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 10         |
 
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。

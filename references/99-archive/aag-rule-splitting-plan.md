@@ -1,4 +1,16 @@
-# AAG ルール分割計画 — 設計記録
+# [ARCHIVED Project A Phase 5.6] AAG ルール分割計画 — 設計記録 (completed project execution)
+
+> **Archived**: 2026-04-30 (Project A Phase 5.6)
+> **Archived By**: 本 commit
+> **Migrated To**: 本 doc は **completed project execution 記録** として historical retain。実行記録は [`projects/completed/aag-rule-splitting-execution/`](../../projects/completed/aag-rule-splitting-execution/)、ルール classification の current articulation は [`aag/operational-classification.md`](../01-principles/aag/operational-classification.md)
+> **Inbound 0 検証**: active 0 件
+> **Rollback Anchor / Milestone Acknowledgment / Decision Trace**: Phase 5.1〜5.5 と同 pattern
+> **Active Reference Migration**: `architectureRuleGuard.test.ts` L268 + `references/AAG_OVERVIEW.md` L38 を archive path + completed project link に update
+> **Decision Trace** (Insight 1): 本 doc は「設計記録」 = `aag-rule-splitting-execution/` で 2026-04 に completed、本 doc の articulation は historical 設計参照のため archive 移管。`recent-changes.md` L83 は historical narrative reference (= 「from 本 plan を撤去」記述) のため archive path に migrate 済 (mapping inbound として acceptable)
+
+---
+
+# (元 content) AAG ルール分割計画 — 設計記録
 
 > **役割: 設計記録（分割案と判定基準の正本）**
 >

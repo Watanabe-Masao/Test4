@@ -34,8 +34,8 @@ Layer 4: Human review → irreversible transition を制御（archive / promotio
 | guard が落ちた | guard の error message → `03-guides/guard-failure-playbook.md`（Q.O-4 deliverable）|
 | 設計原則の正本 | `01-principles/design-principles.md` |
 | rule 一覧と運用区分 | `01-principles/aag-operational-classification.md` |
-| 4 層詳細 | `01-principles/aag-four-layer-architecture.md` |
-| ルール分割原則 | `01-principles/aag-rule-splitting-plan.md` |
+| 4 層詳細 (Phase 5.2 archived、新 doc: aag/architecture.md §4.2) | `99-archive/aag-four-layer-architecture.md` |
+| ルール分割原則 (Phase 5.6 archived、実行記録: projects/completed/aag-rule-splitting-execution/) | `99-archive/aag-rule-splitting-plan.md` |
 | Architecture Rule の運用ガイド | `03-guides/architecture-rule-system.md` |
 | 許可リスト管理 | `03-guides/allowlist-management.md` |
 | Discovery Review チェックリスト | `03-guides/discovery-review-checklist.md` |

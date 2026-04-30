@@ -265,7 +265,7 @@ describe('Architecture Rule Registry', () => {
             `\n    ${ruleId}: 例外 ${count} 件 — 分割を検討` +
             `\n    理由: ${rule.why}` +
             `\n    詳細: ${rule.doc ?? ''}` +
-            `\n    参考: references/01-principles/aag-rule-splitting-plan.md`,
+            `\n    参考: references/99-archive/aag-rule-splitting-plan.md (Phase 5.6 archived) / projects/completed/aag-rule-splitting-execution/ (実行記録)`,
         )
       }
     }

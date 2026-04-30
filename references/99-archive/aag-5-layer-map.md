@@ -24,7 +24,7 @@
 | `references/99-archive/adaptive-governance-evolution.md` | 進化設計（発見→蓄積→評価） |
 | `references/99-archive/aag-four-layer-architecture.md` | 4層アーキテクチャ |
 | `references/99-archive/aag-operational-classification.md` | now / debt / review 分類 |
-| `references/01-principles/aag-rule-splitting-plan.md` | ルール分割戦略 |
+| `references/99-archive/aag-rule-splitting-plan.md` | ルール分割戦略 |
 
 ### 設計原則
 

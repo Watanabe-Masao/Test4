@@ -43,7 +43,7 @@ AAG の意味そのものを置く層。変更頻度が最も低い。
 | `references/01-principles/adaptive-architecture-governance.md` | AAG 正本 |
 | `references/99-archive/adaptive-governance-evolution.md` | 進化の設計（3層サイクル） |
 | `references/99-archive/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測） |
-| `references/01-principles/aag-rule-splitting-plan.md` | ルール分割計画 |
+| `references/99-archive/aag-rule-splitting-plan.md` | ルール分割計画 |
 | Architecture Rule の `what` / `why` / `protectedHarm` / `sunsetCondition` | ルールの意味 |
 | `references/01-principles/design-principles.md` | 設計原則 A-H+Q |
 | Guard tag の意味定義（`guardTagRegistry.ts`） | タグの意味 |
