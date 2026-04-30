@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T11:12:02.048Z",
+  "timestamp": "2026-04-30T13:36:13.611Z",
   "summary": {
-    "active": 5,
+    "active": 9,
     "archived": 29,
-    "inProgress": 4,
+    "inProgress": 8,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 999,
-    "checkedCheckboxes": 874
+    "totalCheckboxes": 1180,
+    "checkedCheckboxes": 890
   },
   "projects": [
     {
@@ -19,8 +19,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 51,
-      "total": 138,
-      "progress": 0.37,
+      "total": 170,
+      "progress": 0.3,
       "entrypoint": "projects/aag-bidirectional-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/aag-bidirectional-integrity/checklist.md",
       "parent": null
@@ -39,6 +39,32 @@
       "parent": null
     },
     {
+      "projectId": "aag-core-doc-refactor",
+      "title": "AAG Core doc content refactoring + legacy retirement",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 16,
+      "total": 41,
+      "progress": 0.39,
+      "entrypoint": "projects/aag-core-doc-refactor/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-core-doc-refactor/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-display-rule-registry",
+      "title": "Display-Focused Rule registry + display rule guards",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 38,
+      "progress": 0,
+      "entrypoint": "projects/aag-display-rule-registry/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-display-rule-registry/checklist.md",
+      "parent": null
+    },
+    {
       "projectId": "aag-format-redesign",
       "title": "AAG フォーマット改修とサブプロジェクト機能",
       "kind": "project",
@@ -49,6 +75,32 @@
       "progress": 0,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-legacy-retirement",
+      "title": "AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc)",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 28,
+      "progress": 0,
+      "entrypoint": "projects/aag-legacy-retirement/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-legacy-retirement/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-rule-schema-meta-guard",
+      "title": "AAG rule schema 拡張 + AR-rule binding + meta-guard MVP",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 42,
+      "progress": 0,
+      "entrypoint": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-rule-schema-meta-guard/checklist.md",
       "parent": null
     },
     {

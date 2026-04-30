@@ -12,17 +12,17 @@
 
 ## AAG Core (Layer 2 + 3: 設計 + 実装)
 
-> Phase 4 で旧 doc から新規書き起こし → 階層化後 landing 予定。Phase 3 audit 完了後の split decision hard gate を経て、本 project 内で継続 or follow-up project 化を決定。
+> Project A (`aag-core-doc-refactor`) Phase 1 で 6 doc を新規 Create 済。Phase 2 で旧 doc から内容書き起こし、Phase 5 で旧 doc archive 移管 (inbound 0 機械検証 + §1.5 archive 前 mapping 義務 PASS 後)。
 
-| doc (予定 path) | 役割 | 状態 |
+| doc | 役割 | 状態 |
 |---|---|---|
-| `strategy.md` | 戦略マスター (旧 `adaptive-architecture-governance.md` core を Split + Rewrite) | Phase 4 予定 |
-| `architecture.md` | 5 層構造定義 + 旧 4 層 → 新 5 層 mapping (旧 `aag-5-constitution.md` を Rewrite + Relocate + Rename) | Phase 4 予定 |
-| `evolution.md` | 進化動学 = Discovery / Accumulation / Evaluation (旧 `adaptive-governance-evolution.md` を Rewrite + Relocate + Rename) | Phase 4 予定 |
-| `operational-classification.md` | now / debt / review 運用区分 (旧 `aag-operational-classification.md` を Rewrite + Relocate) | Phase 4 予定 |
-| `source-of-truth.md` | 正本 / 派生物 / 運用物 ポリシー (旧 `aag-5-source-of-truth-policy.md` を Rewrite + Relocate + Rename) | Phase 4 予定 |
-| `layer-map.md` | ファイルの 5 層マッピング (旧 `aag-5-layer-map.md` を Rewrite + Relocate + Rename) | Phase 4 予定 |
-| `display-rule-registry.md` | DFR-NNN registry (Phase 9 で新規 Create、双方向 integrity の最初の concrete instance) | Phase 9 予定 |
+| [`strategy.md`](./strategy.md) | 戦略マスター + 文化論 + 意図的に残す弱さ (旧 `adaptive-architecture-governance.md` core を Split + Rewrite) | landing (Project A Phase 1) |
+| [`architecture.md`](./architecture.md) | 5 層構造定義 + 旧 4 層 → 新 5 層 mapping (旧 `aag-5-constitution.md` を Rewrite + Relocate + Rename) | landing (Project A Phase 1) |
+| [`evolution.md`](./evolution.md) | 進化動学 = Discovery / Accumulation / Evaluation (旧 `adaptive-governance-evolution.md` を Rewrite + Relocate + Rename) | landing (Project A Phase 1) |
+| [`operational-classification.md`](./operational-classification.md) | now / debt / review 運用区分 (旧 `aag-operational-classification.md` を Rewrite + Relocate) | landing (Project A Phase 1) |
+| [`source-of-truth.md`](./source-of-truth.md) | 正本 / 派生物 / 運用物 ポリシー (旧 `aag-5-source-of-truth-policy.md` を Rewrite + Relocate + Rename) | landing (Project A Phase 1) |
+| [`layer-map.md`](./layer-map.md) | ファイルの 5 層マッピング (旧 `aag-5-layer-map.md` を Rewrite + Relocate + Rename) | landing (Project A Phase 1) |
+| `display-rule-registry.md` | DFR-NNN registry (Project C で新規 Create、双方向 integrity の最初の concrete instance) | Project C 着手後 |
 
 ## AAG Audit (Layer 4: 検証 = 外部監査)
 

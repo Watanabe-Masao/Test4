@@ -27,7 +27,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-04-30T11:12:02.052Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-04-30T13:36:13.614Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -48,70 +48,25 @@ AI が context から導き出す力を信頼する設計。
 
 ## AAG を背景にした思考
 
-> **AAG 関連 doc 群の単一エントリ**: [`references/01-principles/aag/README.md`](./references/01-principles/aag/README.md) — Layer 0+1 (Meta) / Layer 2+3 (Core) / Layer 4 (Audit) の index。詳細は本 README 経由で aag/meta.md / aag/strategy.md (Phase 4 予定) ほかを参照。本セクション薄化は本 project (`aag-bidirectional-integrity`) の Phase 4 で実施予定 (鉄則 quote + 詳細 link、§8.13 判断 = B 適用)。
+> **AAG 関連 doc 群の単一エントリ**: [`references/01-principles/aag/README.md`](./references/01-principles/aag/README.md) — Layer 0+1 (Meta) / Layer 2+3 (Core) / Layer 4 (Audit) の index。詳細は [`aag/strategy.md`](./references/01-principles/aag/strategy.md) (戦略) / [`aag/architecture.md`](./references/01-principles/aag/architecture.md) (5 層構造) / [`aag/evolution.md`](./references/01-principles/aag/evolution.md) (進化動学) / [`aag/source-of-truth.md`](./references/01-principles/aag/source-of-truth.md) (正本ポリシー) を参照。
 
-AAG は **機械的品質管理を担う OS / フレームワーク**（ガードレール）。
-CLAUDE.md は **AAG では保証できない品質を能動的に管理・提案・批判する** 動的思考の場。
+### 鉄則 (Project A Phase 3 で薄化、§8.13 判断 = B 適用)
 
-> **「良くすること」は目的ではない。その先の到達点を実現するために、要件を正しく理解した上で改善する（局所対応しない）**。
+1. **AAG = ガードレール、CLAUDE.md = 動的思考の場** — 振り分け原則: commit / CI で YES/NO 判定可能か? **YES → AAG / NO → CLAUDE.md**
+2. **製本されないものを guard 化しない** — guard は canonical doc に裏打ちされる (`AAG-REQ-NON-PERFORMATIVE`)
+3. **期間 buffer は anti-ritual** — archive / sunset の trigger は state-based (inbound 0 機械検証 + 人間 deletion approval) のみ (`AAG-REQ-NO-DATE-RITUAL`)
+4. **重複と参照を切り分ける** — 上位 content の copy 禁止、下位は pointer + `problemAddressed` + `resolutionContribution` で参照 (`AAG-REQ-ANTI-DUPLICATION` + `AAG-REQ-SEMANTIC-ARTICULATION`)
+5. **AAG PASS = ルール準拠であり、「良い実装」を保証しない** — AAG が床を保証した上で CLAUDE.md は意図 / 粒度 / 専門性 / 保留 / より良い形 / AAG が拾わない壊れ方を能動的に問う
 
-### 役割の質的差異
+> **「良くすること」は目的ではない。その先の到達点を実現するために、要件を正しく理解した上で改善する (局所対応しない)**。
 
-| | AAG | CLAUDE.md / 運用 |
-|---|---|---|
-| 性質 | OS / フレームワーク（機械的ガードレール）| 思考のパートナー（動的な批判と提案）|
-| 動作 | 機械的（YES/NO の判定）| 文脈依存（提案・批判・動的判断）|
-| 質保証の方法 | rule への準拠を強制 | 質を上げる方向に能動的に問いかける |
-| 介入 | 受動的（commit / CI 時の検出）| 能動的（思考のたびに立ち上がる）|
-| 担う | ルール違反検出 + migrationRecipe | 品質管理 / 品質提案 / 批判的思考 / 動的思考 |
-| やらない | 合理性評価 / 戦略判断 / 改善提案 | 機械的検証の重複 / 状況非依存の固定 rule |
+### 動的思考の材料 (hint であって rule ではない)
 
-振り分け原則:「commit / CI で YES/NO 判定可能か？」**YES → AAG / NO → CLAUDE.md**。
-
-### AAG が守る範囲（前提として把握）
-
-AAG は次を機械検証する（詳細は `references/01-principles/adaptive-architecture-governance.md`）:
-
-- 4 層依存方向 / `authoritative` 修飾 / ファイルサイズ / 正本一致 / 越境検出（scope.json）
-- ガード違反検出 + ratchet-down + migrationRecipe + fixNow 分類
-
-**AAG PASS = ルール準拠。「良い実装」を保証するわけではない**。
-ここから先が CLAUDE.md の領分。
-
-### CLAUDE.md が能動的に行うこと
-
-AAG が床を保証した上で、AI は次を **能動的に** 思考する:
-
-- **品質提案**: 「AAG は通った。さらに意図が伝わる書き方は？」「もっと簡潔にできないか？」
-- **批判的思考**: 「前提を疑う：本当にこの抽象化は必要か？」「この task そのものを保留すべきか？」
-- **動的思考**: 「文脈 A なら approach X、文脈 B なら approach Y」
-
-これらは checklist ではなく **思考の能動的な姿勢**。AI は context から導出する。
-
-### AAG が PASS した後に立ち上がる問い
-
-批判的思考の **トリガー**（網羅でも強制でもない）:
-
-- **意図は明確か？** — 読み手は「なぜこう書いたか」を理解できるか
-- **粒度は適切か？** — C8（1 文説明テスト）に通る単純さか
-- **専門性が要るか？** — manifest.discovery.byExpertise を consult するか
-- **保留すべきか？** — 不確かさが大きいなら commit より対話を優先
-- **より良い形は？** — 既存パターンの再利用で済むなら新規パターン導入を避ける（C1）
-- **AAG が拾わない壊れ方は？** — エッジケース・再起動・データ欠損
-
-### 動的思考の材料（hint であって rule ではない）
-
-- **業務用語**: `.claude/manifest.json` の `discovery.byTopic`
-- **専門性**: `.claude/manifest.json` の `discovery.byExpertise`
-- **設計原則の詳細**: `references/01-principles/design-principles.md`
-- **AAG ルール一覧**: `app/src/test/architectureRules.ts` + `references/03-guides/architecture-rule-system.md`
-- **過去の判断履歴**: `references/02-status/recent-changes.md`
-
-### 思考の保存方法
-
-「保留する」「pause して相談する」「設計を見直す」のような判断は **対話で発生する揮発物**。
-コミットされない。AI が記録したい思考の途中経過は
-manifest.activeContext.workingNotes / openQuestions に free-form で残す（強制ではない）。
+- **業務用語 / 専門性**: `.claude/manifest.json` の `discovery.byTopic` / `byExpertise`
+- **AAG 詳細**: [`references/01-principles/aag/`](./references/01-principles/aag/) (戦略 / 構造 / 進化 / 運用区分 / 正本 / layer-map)
+- **設計原則の詳細**: [`references/01-principles/design-principles.md`](./references/01-principles/design-principles.md)
+- **過去の判断履歴**: [`references/02-status/recent-changes.md`](./references/02-status/recent-changes.md)
+- **思考の途中経過**: `.claude/manifest.json` の `activeContext.workingNotes` / `openQuestions` に free-form (強制ではない、揮発物は commit されない)
 
 ## ロール・スキルシステム
 
@@ -562,12 +517,12 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6602/7000 / 2386/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 166/92 / 35/9 / 2/1 |
 | Rule Efficacy | OK | 103 / 0/3 / 0/10 |
-| Project Governance | OK | 5/20 / 4/20 / 0/0 / 29/100 |
+| Project Governance | OK | 9/20 / 8/20 / 0/0 / 29/100 |
 
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-04-30T11:12:02.045Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-04-30T13:36:13.608Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

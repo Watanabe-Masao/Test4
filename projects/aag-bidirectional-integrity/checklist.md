@@ -425,6 +425,76 @@
 | Phase 3 hard gate (AI 推奨段階) | Phase 4〜10 split decision の AI 推奨 articulate | AI 自主推奨 (deferred-decision-pattern §3.1) | **AI 推奨 = B** (default、未確定) | criteria 適用 (audit report §7.2): scope 規模 = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project 継続 (A) は scope 過大、分割 (B) が default。但し本 hard gate は **高 blast radius** (project 構造の不可逆判断) のため deferred-decision-pattern §3.2 例外則を適用し、ユーザー確認を必須 gate として運用する (= AI 単独で確定しない) | (本 commit、AI 推奨段階のみ) |
 | Phase 3 hard gate (ユーザー確認段階) | Phase 4〜10 split decision の確定 | **人間判断 (ユーザー)** | **B 確定** (= AI 推奨採用) | ユーザー articulate「Bでよろしくお願いします」(2026-04-30) により Project A〜D 分割を確定。本 project は MVP scope (Phase 1 + Phase 3 + cyclic refinement) で完遂、Phase 4〜10 は別 project (仮称 Project A〜D) に移管、本 project は次 session 以降で archive プロセスへ migrate | (本 commit) |
 
+## Future follow-up = Project E (仮称 = AAG Decision Traceability + Quality Connection + Correction Chain + AI Utilization、9 insight 統合)
+
+> **背景**: 2026-04-30 dialog で user articulate された 9 insight (HANDOFF.md §2 で詳細 articulate)。本 section は Project A〜D 完了後に institutional 化する候補を checklist 化、急がない (user articulate)、適切なタイミングで spawn。
+>
+> **着手 trigger**: Project A〜D 完了後 (本 project archive 直前 or 直後)、または本 project archive 後の独立 follow-up として spawn。
+
+### Project E spawn 前 prerequisite
+
+- [ ] Project A 完了 (= AAG Core 6 doc Create + Split / Rewrite + CLAUDE.md 薄化 + registry 整合 + legacy archive)
+- [ ] Project B 完了 (= SemanticTraceBinding 型 family + 166 rule initial value + binding 記入 + meta-guard 4 件 MVP)
+- [ ] Project C 完了 (= DFR registry doc + DFR-NNN base-rules 登録 + displayRuleGuard)
+- [ ] Project D 必要性 re-evaluate 完了 (case A 拡張案件あり / case B なし のいずれか確定)
+
+### Project E MVP-1 (Level 2、即効可能、concept doc landing)
+
+- [ ] `references/03-guides/decision-trace-pattern.md` 新設 (Layer 4A System Operations、9 insight 統合の DecisionTrace schema articulate)
+- [ ] `references/03-guides/human-review-specification.md` 新設 (Layer 4A System Operations、人間判断 2 pragmatic function = consensus + announcement の view list + judgment criteria + approval record standard)
+- [ ] `references/03-guides/ai-utilization-patterns.md` 新設 (Insight 9、AI が AAG を leverage する典型 pattern catalog)
+- [ ] `docs/contracts/doc-registry.json` に 3 新 doc 登録
+- [ ] `references/README.md` 索引に 3 新 doc articulate
+
+### Project E MVP-2 (Level 2、retrospective retrofit)
+
+- [ ] 本 project の Phase 3 hard gate decision (= ユーザー確認 = B 確定) を decision-trace-pattern.md schema 化 (= 初の retrospective retrofit application instance)
+- [ ] Project A〜D の各 Phase 完了 decision を decision-trace 化 (= AI 自主判断 + criteria + collection sources を schema 形式で集約)
+- [ ] decision-log.json 形式の sample articulate (将来 schema 化のための pilot)
+
+### Project E Full (Level 3、AAG-REQ-* 拡張 + meta-guard + correction chain)
+
+- [ ] `aag/meta.md` §2 update — 9 新 AAG-REQ-* 追加:
+  - `AAG-REQ-DECISION-TRACEABILITY`
+  - `AAG-REQ-HUMAN-REVIEW-EXPLICITNESS`
+  - `AAG-REQ-QUALITY-ORIENTED-JUDGMENT`
+  - `AAG-REQ-MISTAKE-ADMISSION-AND-CORRECTION`
+  - `AAG-REQ-BLAME-FREE-LEARNING`
+  - `AAG-REQ-CONSENSUS-AS-PROVISIONAL-ANSWER` (Insight 7-a)
+  - `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` (Insight 7-b)
+  - `AAG-REQ-ROLLBACK-ANCHOR-PRESERVATION` (Insight 8)
+  - `AAG-REQ-AI-UTILIZATION-FRIENDLINESS` (Insight 9 = meta-principle)
+- [ ] `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を最終 narrow (Layer 0 + 7-a consensus formation + 7-b milestone acknowledgment のみ)
+- [ ] `aag/meta.md` §3.2 audit framework に新 sub-audit 追加:
+  - 4.6 Retrospective Audit (= provisional answer の usefulness 評価、correctness 軸ではない)
+  - 4.7 AI-Usability Audit (= AAG mechanism の AI utilization friendliness 評価)
+- [ ] DecisionTrace schema 実装 (= TypeScript 型 + JSON schema、investigation + verification + hypothesis ≥ 2 件 + evidence + decision + rationale + alternatives + reversibility + rollbackAnchor + qualityImpact + retrospectiveAudit + correctionChain)
+- [ ] `_template/checklist.md` 最終レビュー checkbox を view list + judgment criteria + approval record 必須形式に extend
+- [ ] `references/03-guides/deferred-decision-pattern.md` §3.2 縮小 (高 blast radius decision を decision trace + retrospective audit + correction chain に置換、人間判断必須は物理削除 + 最終レビューのみに narrow)
+- [ ] correction chain mechanism 実装 (rollback / supersede / accept-as-debt 3 経路)
+- [ ] health KPI + certificate + Layer 4.5 Functional Audit と decision trace の双方向 link mechanism
+- [ ] meta-guard 実装: `decisionTraceSchemaGuard` / `rollbackAnchorPreservationGuard` / `qualityImpactLinkGuard` / `aiUtilizationFriendlinessGuard`
+
+### Project F (仮称 = AI Utilization Tooling、Project E の延長 candidate)
+
+- [ ] `tools/decision-trace-cli.ts` (or claude command) 新設 — AI session が判断する時に schema-conformant decision trace を semi-automate
+- [ ] `.claude/manifest.json` discovery 拡張 — decision-making / quality-assessment / correction / rollback の hint embed
+- [ ] retrospective audit の trigger 自動化 (= project archive / KPI ratchet-down / regression 発生 で自動 trigger)
+- [ ] umbrella requirement への集約検討: 9 件 AAG-REQ-* を `AAG-REQ-DECISION-LIFECYCLE` umbrella に集約、sub-requirement で展開 (cognitive load 軽減)
+
+### Project E + F 着手前判断 (decision gates、AI 自主判断 + 適切なタイミング)
+
+- [ ] **着手 trigger 確認**: Project A〜D 完了済 (4 project all archived or in final review)
+  - **判断基準**: project-health.json で 4 project の derivedStatus = completed
+  - **判断材料**: `references/02-status/generated/project-health.json` grep
+- [ ] **MVP-1 / MVP-2 / Full / Project F 分割の確定**
+  - **判断基準**: scope 規模 (deliverable 件数 / commit 数見積もり) + 依存関係 (concept doc → schema → meta-guard → tooling)
+  - **判断材料**: 9 insight articulation の deliverable 12 件 + dependency
+- [ ] **品質 foundation 議論** (前回 assessment Tension A): Layer 0 (= 目的) を quality axiom として articulate するか、別 mechanism か
+- [ ] **rollback blast radius 判定基準** (前回 assessment Tension C): git 単独 rollback 可能 vs 外部 clean-up 必須の分類軸を articulate
+- [ ] **supersede vs rollback 使い分け基準** (前回 assessment Tension D): correctionChain での 3 経路選択基準を articulate
+- [ ] **AAG-REQ-* expansion vs umbrella 集約判断** (前回 assessment Tension E): top-level 12 + 9 = 21 件 expand vs umbrella 集約 13 件で sub-requirement articulate
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
@@ -434,3 +504,4 @@
 
 - [ ] 全 Phase (1〜10) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
 - [ ] 全 decision gates ([途中判断 checklist] section) が [x] flip 済 + decision log に記録済
+- [ ] Future follow-up Project E (+ Project F) の articulation を人間レビューし、spawn 着手 trigger を確認 (実 spawn は本 project archive 後)

@@ -1,0 +1,38 @@
+{
+  "$comment": "DFR (Display-Focused Rule) registry 構築 + display rule guards 実装。親 project (aag-bidirectional-integrity) の Phase 9 + Phase 10 を Project C として spawn (Phase 3 hard gate B 確定、2026-04-30)。bidirectional integrity の最初の concrete instance。",
+  "projectId": "aag-display-rule-registry",
+  "title": "Display-Focused Rule registry + display rule guards",
+  "status": "active",
+  "projectRoot": "projects/aag-display-rule-registry",
+  "projectization": {
+    "$comment": "AAG-COA 判定: 新規 canonical doc + 5 DFR rule + 1 displayRuleGuard = Level 2。breakingChange = false (新規追加のみ)、requiresGuard = true (新 displayRuleGuard)、Project A → Project B → 本 project。",
+    "level": 2,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "references/01-principles/aag/display-rule-registry.md",
+      "app-domain/gross-profit/rule-catalog/base-rules.ts",
+      "app/src/test/guards/displayRuleGuard.test.ts",
+      "docs/contracts/doc-registry.json",
+      "references/03-guides/content-and-voice.md"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "AAG Core doc content refactor (Project A 所掌)",
+      "AR-rule schema 拡張 / SemanticTraceBinding 型 family 実装 (Project B 所掌)",
+      "meta-guard 4 件実装 (Project B 所掌)",
+      "複雑 legacy archive 案件 (Project D 所掌)",
+      "業務ロジック / domain calculation の変更",
+      "Phase 9 で識別された他 gap 候補のうち anti-bloat 違反のもの (新規 doc 制作の bloat 抑制)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/aag-display-rule-registry/AI_CONTEXT.md",
+    "handoff": "projects/aag-display-rule-registry/HANDOFF.md",
+    "plan": "projects/aag-display-rule-registry/plan.md",
+    "checklist": "projects/aag-display-rule-registry/checklist.md",
+    "projectization": "projects/aag-display-rule-registry/projectization.md"
+  }
+}

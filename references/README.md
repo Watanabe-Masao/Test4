@@ -224,9 +224,15 @@
 | Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）       | `03-guides/deferred-decision-pattern.md`                        |
 | AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）  | `01-principles/aag/README.md`                                   |
 | AAG Meta charter（目的 + 要件 = AAG-REQ-* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `01-principles/aag/meta.md`                            |
-| AAG 5.0 4層構造定義                                                                        | `01-principles/aag-5-constitution.md`                           |
-| AAG 5.0 既存ファイル層マッピング                                                           | `01-principles/aag-5-layer-map.md`                              |
-| AAG 5.0 正本/派生/運用物ポリシー                                                           | `01-principles/aag-5-source-of-truth-policy.md`                 |
+| AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                        | `01-principles/aag/strategy.md`                                 |
+| AAG Architecture（5 層構造定義 + 旧 4 層 → 新 5 層 mapping、Layer 1+2）                    | `01-principles/aag/architecture.md`                             |
+| AAG Evolution（進化動学 = Discovery / Accumulation / Evaluation、Layer 1+2）              | `01-principles/aag/evolution.md`                                |
+| AAG Operational Classification（now / debt / review 運用区分、Layer 2 governance-ops）     | `01-principles/aag/operational-classification.md`               |
+| AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）         | `01-principles/aag/source-of-truth.md`                          |
+| AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                              | `01-principles/aag/layer-map.md`                                |
+| AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                | `01-principles/aag-5-constitution.md`                           |
+| AAG 5.0 既存ファイル層マッピング（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-layer-map.md`                              |
+| AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-source-of-truth-policy.md`                 |
 | Test Signal Integrity — 品質シグナル保全の原則                                             | `01-principles/test-signal-integrity.md`                        |
 | Test Signal Integrity Advisory 運用ガイド                                                  | `03-guides/test-signal-integrity-advisory.md`                   |
 | Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則）                               | `01-principles/taxonomy-constitution.md`                        |
