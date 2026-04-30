@@ -65,6 +65,8 @@ AAG が satisfy すべき要件を **不変条件** (Invariants、positive) + **
 > 各 doc / 実装が「どの層 × どの縦スライスに住むか」を articulate し、§2 要件の達成判定の input となる。
 >
 > Phase 3 audit findings で各セル content が確定 (現状は枠組み + 既知 entry を pre-fill、Phase 1 と Phase 3 の同期方針 = B 順序付き 3 段階で update)。
+>
+> **Phase 3 audit findings reflect 完了** (2026-04-30、§8.14 順序付き 3 段階の第 3 段 cyclic refinement): `references/02-status/aag-doc-audit-report.md` §0〜§7 で 8 AAG doc + CLAUDE.md AAG section の articulation 完遂 (operation 22 件 = Create 7 + Split 1 + Rewrite 6 + Archive 8、5 縦スライス reshape 不要、Layer 3-4 混在 guard 5 件 identify、新 5 層 ↔ 旧 4 層 mapping 確定)。本 §3 は audit findings を反映した状態。Phase 3 hard gate decision (default B = follow-up project 分割) はユーザー判断 gate (project A〜D 分割案、audit report §7 articulate)。
 
 ### §3.1 5 層 × 5 縦スライス matrix
 
@@ -98,16 +100,21 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 
 ### §3.3 旧 AAG doc → 新 5 層 mapping (Phase 4 で各 doc に articulate)
 
-| 旧 doc | 新 path (Phase 4 予定) | 5 層位置付け | operation |
-|---|---|---|---|
-| `adaptive-architecture-governance.md` | `aag/strategy.md` (Split + Rewrite) | Layer 2 (戦略マスター) | Split / Rewrite / Archive |
-| `aag-5-constitution.md` | `aag/architecture.md` | Layer 2 (構造設計、5 層 + 旧 4 層 mapping table) | Rewrite / Relocate / Rename |
-| `aag-5-layer-map.md` | `aag/layer-map.md` | Layer 2 reference | Rewrite / Relocate / Rename |
-| `aag-5-source-of-truth-policy.md` | `aag/source-of-truth.md` | Layer 2 reference | Rewrite / Relocate / Rename |
-| `aag-four-layer-architecture.md` | `99-archive/` | (旧 4 層、superseded) | **即 Archive** |
-| `aag-operational-classification.md` | `aag/operational-classification.md` | Layer 2-3 境界 (now/debt/review) | Rewrite / Relocate |
-| `aag-rule-splitting-plan.md` | `99-archive/` | (completed project execution 記録) | **即 Archive** |
-| `adaptive-governance-evolution.md` | `aag/evolution.md` | Layer 2 (進化動学) | Rewrite / Relocate / Rename |
+> **Phase 3 audit findings 反映**: 詳細 articulation は `references/02-status/aag-doc-audit-report.md §1.1〜§1.9` 各 doc 7 項目 (5 層位置付け / 責務 / write/non-write / drill-down / operation / 影響範囲 / migration order) を参照。本 §3.3 は要約 mapping。
+
+| 旧 doc | 新 path (Phase 4 予定) | 5 層位置付け | operation | inbound 数 | audit ref |
+|---|---|---|---|---:|---|
+| `adaptive-architecture-governance.md` | `aag/strategy.md` (Split + Rewrite) + 一部 Archive | Layer 2 (戦略マスター、6 責務同居 = C1 違反) | Split / Rewrite / 部分 Archive | 36 | §1.1 |
+| `aag-5-constitution.md` | `aag/architecture.md` | Layer 2 (構造設計、5 層 + 旧 4 層 mapping table) + 内容分散 (非目的 → meta.md §2.2) | Rewrite / Relocate / Rename | 27 | §1.2 |
+| `aag-5-layer-map.md` | `aag/layer-map.md` | Layer 2 reference (4 層 → 5 層 拡張) | Rewrite / Relocate / Rename | 10 | §1.3 |
+| `aag-5-source-of-truth-policy.md` | `aag/source-of-truth.md` | Layer 2 reference | Rewrite / Relocate / Rename | 16 | §1.4 |
+| `aag-four-layer-architecture.md` | `99-archive/` | (旧 4 層、superseded) | **即 Archive** (mapping 義務 §1.5 適用) | 15 | §1.5 |
+| `aag-operational-classification.md` | `aag/operational-classification.md` | Layer 2-3 境界 (now/debt/review) | Rewrite (84 → 166 ルール件数) / Relocate | 17 | §1.6 |
+| `aag-rule-splitting-plan.md` | `99-archive/` | (completed project execution 記録) | **即 Archive** | 21 | §1.7 |
+| `adaptive-governance-evolution.md` | `aag/evolution.md` | Layer 2 (進化動学、5 層対応 articulation 追加) | Rewrite / Relocate / Rename | 18 | §1.8 |
+| `CLAUDE.md` AAG section | (CLAUDE.md inline 維持、薄化) | section-level (Layer 0+1 dynamic thinking 誘導) | Rewrite (薄化、§8.13 判断 B 適用) | inline | §1.9 |
+
+**Phase 3 hard gate decision input**: scope 規模 evaluation (operation 22 件 / commit 15-20 件 / 既存 166 rule binding) = Level 4 寄り → **default B = follow-up project 分割** (Project A: AAG Core doc refactor / Project B: rule schema + meta-guard / Project C: DFR registry + guards / Project D: legacy retirement、audit report §7 articulate)。
 
 ## §4 達成判定総括 (audit summary)
 
@@ -147,13 +154,14 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 
 | 日付 | Requirement ID | 旧 status | 新 status | 反映 commit / Phase |
 |---|---|---|---|---|
-| 2026-04-30 | (本 §4 landing) | — | initial articulation | Phase 1 (本 commit) |
-| TBD | `AAG-REQ-SEMANTIC-ARTICULATION` | 未達成 | 達成 | Phase 2 + Phase 8 MVP |
-| TBD | `AAG-REQ-LAYER-SEPARATION` | 未達成 | 達成 | Phase 4 doc refactoring |
-| TBD | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 未達成 | 達成 | Phase 8 MVP (4.2 方向監査 landing) |
-| TBD | `AAG-REQ-ANTI-DUPLICATION` | 未達成 | 達成 | Phase 8 MVP (4.4 完備性監査 landing) |
-| TBD | `AAG-REQ-NON-PERFORMATIVE` | 未達成 | 達成 | Phase 6 binding + Phase 8 MVP |
-| TBD | `AAG-REQ-SELF-HOSTING` | 未達成 | 達成 | follow-up project |
+| 2026-04-30 | (本 §4 landing) | — | initial articulation | Phase 1 (commit `49edd57`、PR #1223 merged) |
+| 2026-04-30 | (Phase 3 audit findings reflect) | — | §3 cyclic refinement 完了 | Phase 3 (本 commit、§8.14 順序付き 3 段階の第 3 段) |
+| TBD | `AAG-REQ-SEMANTIC-ARTICULATION` | 未達成 | 達成 | Phase 2 + Phase 8 MVP (Project B 候補) |
+| TBD | `AAG-REQ-LAYER-SEPARATION` | 未達成 | 達成 | Phase 4 doc refactoring (Project A 候補、`aag/architecture.md §4.1` mapping table landing) |
+| TBD | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 未達成 | 達成 | Phase 8 MVP (4.2 方向監査 landing、Project B 候補) |
+| TBD | `AAG-REQ-ANTI-DUPLICATION` | 未達成 | 達成 | Phase 8 MVP (4.4 完備性監査 landing、Project B 候補) |
+| TBD | `AAG-REQ-NON-PERFORMATIVE` | 未達成 | 達成 | Phase 6 binding + Phase 8 MVP (Project B 候補) |
+| TBD | `AAG-REQ-SELF-HOSTING` | 未達成 | 達成 | follow-up project (selfHostingGuard、Phase 8 MVP scope 外) |
 
 各 flip は project commit に対応、後任 AI / 人間が trace + revisit 可能。
 
