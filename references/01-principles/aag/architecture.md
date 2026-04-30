@@ -145,6 +145,6 @@ Layer 2 (設計) + Layer 3 (実装) は 5 縦スライスで責務を articulate
 | [`operational-classification.md`](./operational-classification.md) | now/debt/review 区分 (Layer 2) — orthogonal axis での運用区分 |
 | `references/02-status/aag-doc-audit-report.md` | Phase 3 audit findings (本 doc の 5 縦スライス reshape 判定 + 旧 doc operation 判定の根拠) |
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (5 層 articulation の元) |
-| `projects/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
+| `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
 
 

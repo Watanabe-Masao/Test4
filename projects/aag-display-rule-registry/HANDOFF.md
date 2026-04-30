@@ -27,7 +27,7 @@
 入力 doc:
 - `projects/aag-bidirectional-integrity/plan.md` §Phase 9 / §Phase 10 / §3.10 (DFR registry 設計の正本)
 - `projects/aag-rule-schema-meta-guard/plan.md` (Project B 正本、本 project の前提となる schema / meta-guard)
-- `projects/aag-core-doc-refactor/plan.md` (Project A 正本、`aag/` 階層整備の前提)
+- `projects/completed/aag-core-doc-refactor/plan.md` (Project A 正本、`aag/` 階層整備の前提)
 
 ## 2. 次にやること
 
@@ -93,7 +93,7 @@ meta-guard 未 PASS で hard fail (本 project plan 不可侵原則 7)。
 |---|---|
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§Phase 9 / §Phase 10 / §3.10) |
 | `projects/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提) |
-| `projects/aag-core-doc-refactor/plan.md` | Project A 正本 (`aag/` 階層整備の前提) |
+| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`aag/` 階層整備の前提) |
 | `references/01-principles/aag/meta.md` | AAG Meta charter (Phase 4 で §2 / §4 status flip) |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (Phase 2 で DFR-001〜005 登録) |
 | `app/src/test/guards/displayRuleGuard.test.ts` | Phase 3 で新規実装 |

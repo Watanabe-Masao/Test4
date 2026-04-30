@@ -171,6 +171,7 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 > **注**: 以下の Project A〜D は **仮称** (まだ project entity として未存在)。実 project entity の id / path は **bootstrap session でユーザー判断** により確定 (= 本 articulation は spawn 計画の sketch であり、project id を予約しない)。
 
 - [x] **Project A bootstrap** (= `aag-core-doc-refactor`): bootstrap 完了 (commit `4dc88b6`、8 doc Create、project-health 登録済、test:guards 全 PASS)
+- [x] **Project A 全 Phase + archive 完遂** (= `projects/completed/aag-core-doc-refactor/`): Phase 1〜6 全完遂 (6 新 doc Create + Split/Rewrite + CLAUDE.md 67% 薄化 + registry 整合 + 8 旧 doc archive 移管 + 最終レビュー人間承認 + 8-step archive 完了、2026-04-30)。AAG-REQ-LAYER-SEPARATION 達成 trigger landed
 - [x] **Project B bootstrap** (= `aag-rule-schema-meta-guard`): 本 commit で bootstrap 完了 (5 doc Create: AI_CONTEXT / HANDOFF / plan / checklist / projectization / config、Phase 2 + Phase 6 + Phase 8 MVP 移管)
 - [x] **Project C bootstrap** (= `aag-display-rule-registry`): 本 commit で bootstrap 完了 (5 doc Create、Phase 9 + Phase 10 移管、Project B Phase 4 完了後に着手)
 - [x] **Project D bootstrap** (= `aag-legacy-retirement`): 本 commit で bootstrap 完了 (7 doc Create: + breaking-changes + legacy-retirement、Project A Phase 5 拡張案件、Project A Phase 5 完了後に case A/B 判定で着手要否判定)

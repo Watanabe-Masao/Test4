@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T21:32:19.945Z",
+  "timestamp": "2026-04-30T21:52:55.094Z",
   "summary": {
-    "active": 9,
-    "archived": 29,
-    "inProgress": 8,
+    "active": 8,
+    "archived": 30,
+    "inProgress": 7,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
@@ -42,13 +42,13 @@
       "projectId": "aag-core-doc-refactor",
       "title": "AAG Core doc content refactoring + legacy retirement",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
       "checked": 33,
       "total": 45,
       "progress": 0.733,
-      "entrypoint": "projects/aag-core-doc-refactor/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-core-doc-refactor/checklist.md",
+      "entrypoint": "projects/completed/aag-core-doc-refactor/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-core-doc-refactor/checklist.md",
       "parent": null
     },
     {

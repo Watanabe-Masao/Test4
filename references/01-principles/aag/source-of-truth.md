@@ -159,4 +159,4 @@
 | [`operational-classification.md`](./operational-classification.md) | now / debt / review 運用区分 (orthogonal axis) |
 | [`README.md`](./README.md) | aag/ ディレクトリ index |
 | `references/03-guides/architecture-rule-system.md` | AR-rule 運用ガイド |
-| `projects/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
+| `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |

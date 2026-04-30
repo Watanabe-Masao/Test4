@@ -28,7 +28,7 @@
 - `projects/aag-bidirectional-integrity/plan.md` §3.4 (SemanticTraceBinding 設計の正本)
 - `projects/aag-bidirectional-integrity/breaking-changes.md` §1.2 (AAG rule schema 拡張の articulate 詳細)
 - `references/01-principles/aag/meta.md` §2 (12 AAG-REQ-* requirement = `metaRequirementRefs` の供給元)
-- `projects/aag-core-doc-refactor/plan.md` (Project A 正本、`canonicalDocRef.refs[].docPath` の供給元)
+- `projects/completed/aag-core-doc-refactor/plan.md` (Project A 正本、`canonicalDocRef.refs[].docPath` の供給元)
 
 ## 2. 次にやること
 
@@ -96,7 +96,7 @@ keyword (TBD / N/A / same / see above 等) 検出、重複検出、status 整合
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§3.4 SemanticTraceBinding / §Phase 2 / 6 / 8) |
 | `projects/aag-bidirectional-integrity/breaking-changes.md` | 親 project の breaking-changes §1.2 (schema 拡張の articulate 詳細) |
 | `references/01-principles/aag/meta.md` | AAG Meta charter (`metaRequirementRefs.refs[].requirementId` の供給元) |
-| `projects/aag-core-doc-refactor/plan.md` | Project A 正本 (`canonicalDocRef.refs[].docPath` の供給元) |
+| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`canonicalDocRef.refs[].docPath` の供給元) |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (本 project の主要 implementation 対象) |
 | `app/src/test/aag-core-types.ts` / `architectureRules/types.ts` | 型定義 (SemanticTraceBinding 追加先) |
 | `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |

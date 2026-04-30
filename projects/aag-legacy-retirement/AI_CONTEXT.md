@@ -39,7 +39,7 @@ Project A (`aag-core-doc-refactor`) の Phase 5 (= AAG Core 旧 doc archive) で
 3. `plan.md`（不可侵原則と Phase 構造）
 4. `checklist.md`（completion 判定の入力）
 5. 親 project の `projects/aag-bidirectional-integrity/plan.md` §Phase 5 + §3.5 操作順序原則 + §1.5 archive 前 mapping 義務
-6. Project A (`projects/aag-core-doc-refactor/`) の plan + legacy-retirement.md (= 単純案件と複雑案件の境界 articulation)
+6. Project A (`projects/completed/aag-core-doc-refactor/`) の plan + legacy-retirement.md (= 単純案件と複雑案件の境界 articulation)
 
 ## Why this project exists
 
@@ -72,8 +72,8 @@ Project A (`aag-core-doc-refactor`) の Phase 5 (= AAG Core 旧 doc archive) で
 | 文書 | 役割 |
 |---|---|
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§Phase 5 / §3.5 操作順序原則 / §1.5 archive 前 mapping 義務) |
-| `projects/aag-core-doc-refactor/plan.md` | Project A 正本 (Phase 5 で完遂する範囲の定義 = 単純案件と複雑案件の境界) |
-| `projects/aag-core-doc-refactor/legacy-retirement.md` | Project A の legacy-retirement (単純案件の articulate) |
+| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (Phase 5 で完遂する範囲の定義 = 単純案件と複雑案件の境界) |
+| `projects/completed/aag-core-doc-refactor/legacy-retirement.md` | Project A の legacy-retirement (単純案件の articulate) |
 | `references/99-archive/adaptive-architecture-governance.md` | 複雑 archive 候補の典型例 (Split + 部分 Archive) |
 | `references/99-archive/` | archive 配下 (本 project の物理移管先) |
 | `references/02-status/legacy-retirement-extended.md` | 拡張案件の articulate doc (本 project Phase 1 で landing 想定) |
