@@ -21,7 +21,7 @@
 | ファイル | 役割 |
 |---------|------|
 | `references/01-principles/adaptive-architecture-governance.md` | AAG マスター定義 |
-| `references/01-principles/adaptive-governance-evolution.md` | 進化設計（発見→蓄積→評価） |
+| `references/99-archive/adaptive-governance-evolution.md` | 進化設計（発見→蓄積→評価） |
 | `references/99-archive/aag-four-layer-architecture.md` | 4層アーキテクチャ |
 | `references/01-principles/aag-operational-classification.md` | now / debt / review 分類 |
 | `references/01-principles/aag-rule-splitting-plan.md` | ルール分割戦略 |

@@ -110,7 +110,7 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 | `references/99-archive/aag-5-layer-map.md` | `references/01-principles/aag/layer-map.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
 | `references/01-principles/aag-5-source-of-truth-policy.md` | `references/01-principles/aag/source-of-truth.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
 | `references/01-principles/aag-operational-classification.md` | `references/01-principles/aag/operational-classification.md` | ディレクトリ階層化 | grep 結果 0 件 |
-| `references/01-principles/adaptive-governance-evolution.md` | `references/01-principles/aag/evolution.md` | `adaptive-` prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
+| `references/99-archive/adaptive-governance-evolution.md` | `references/01-principles/aag/evolution.md` | `adaptive-` prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
 
 ### 3.3. Split + Rewrite + Archive (旧 path、Phase 4 で複数 doc に分割完了後)
 

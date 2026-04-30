@@ -116,8 +116,8 @@
           "label": "[DEPRECATED Project A Phase 1-2] AAG 旧マスター — Project A Phase 5 で archive 予定 (inbound 0 機械検証 + §1.5 mapping 義務 PASS 後)。新 doc 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping)"
         },
         {
-          "path": "references/01-principles/adaptive-governance-evolution.md",
-          "label": "[DEPRECATED Project A Phase 1] 進化の設計 (旧) — Project A Phase 5 で archive 予定。新 doc: aag/evolution.md"
+          "path": "references/99-archive/adaptive-governance-evolution.md",
+          "label": "[ARCHIVED Project A Phase 5.3] 進化の設計 (旧、3 層サイクル = Discovery / Accumulation / Evaluation) — Phase 5.3 で archive 移管済。新 doc: aag/evolution.md (5 insight 統合)"
         },
         {
           "path": "references/99-archive/aag-four-layer-architecture.md",

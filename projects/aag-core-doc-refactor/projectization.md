@@ -11,7 +11,7 @@
 |---|---|
 | `projectizationLevel` | Level 3 |
 | `changeType` | architecture-refactor |
-| `implementationScope` | `["references/01-principles/aag/", "references/01-principles/adaptive-architecture-governance.md", "references/01-principles/adaptive-governance-evolution.md", "references/01-principles/aag-5-constitution.md", "references/01-principles/aag-5-source-of-truth-policy.md", "references/99-archive/aag-5-layer-map.md", "references/01-principles/aag-operational-classification.md", "CLAUDE.md", "docs/contracts/doc-registry.json", "docs/contracts/principles.json", ".claude/manifest.json"]` |
+| `implementationScope` | `["references/01-principles/aag/", "references/01-principles/adaptive-architecture-governance.md", "references/99-archive/adaptive-governance-evolution.md", "references/01-principles/aag-5-constitution.md", "references/01-principles/aag-5-source-of-truth-policy.md", "references/99-archive/aag-5-layer-map.md", "references/01-principles/aag-operational-classification.md", "CLAUDE.md", "docs/contracts/doc-registry.json", "docs/contracts/principles.json", ".claude/manifest.json"]` |
 | `breakingChange` | true |
 | `requiresLegacyRetirement` | true |
 | `requiresGuard` | false |

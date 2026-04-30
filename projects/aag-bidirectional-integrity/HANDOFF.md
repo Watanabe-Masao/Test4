@@ -546,7 +546,7 @@ articulate し、人間 review でのみ変更。Layer 1 (要件) 以下が stat
 | `aag/execution-overlay.ts` | rule overlay (initial 空) |
 | `references/01-principles/adaptive-architecture-governance.md` | 旧 AAG マスター (Phase 4 で Split + Rewrite + Relocate) |
 | `references/01-principles/aag-5-constitution.md` | 旧 4 層構造定義 (Phase 4 で Rewrite + Relocate + Rename) |
-| `references/01-principles/adaptive-governance-evolution.md` | 旧進化動学 (Phase 4 で Rewrite + Relocate + Rename) |
+| `references/99-archive/adaptive-governance-evolution.md` | 旧進化動学 (Phase 4 で Rewrite + Relocate + Rename) |
 | `projects/completed/phased-content-specs-rollout/HANDOFF.md` | parent dialog の経緯 |
 | `references/04-design-system/docs/chart-semantic-colors.md` | DFR-001 Layer 2 製本 |
 | `references/04-design-system/docs/echarts-integration.md` | DFR-002 Layer 2 製本 |

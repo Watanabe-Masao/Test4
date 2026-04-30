@@ -54,7 +54,7 @@
 - [x] `aag-5-layer-map.md` の inbound 全件 update + archive 移管 — **Phase 5.1 完遂** (commit `14479a4`、active inbound 1 件 = `projectization-policy.md` L596 を新 path に update + mapping inbound 7 件を archive path に migrate + git mv → 99-archive/ + frontmatter (archived / archivedAt / archivedBy / migratedTo / mapping anchor / rollback anchor / milestone acknowledgment / decision trace) 追加 + doc-registry.json archive section migrate)
 - [x] `aag-four-layer-architecture.md` の inbound 全件 update + archive 移管 — **Phase 5.2 完遂** (本 commit、active inbound 2 件 = `architectureRules/helpers.ts` L70 + L86 の `@see` を `aag/architecture.md` に update + mapping inbound 10 件を archive path に migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive section migrate)
 - [ ] `aag-operational-classification.md` の inbound 全件 update + archive 移管
-- [ ] `adaptive-governance-evolution.md` の inbound 全件 update + archive 移管
+- [x] `adaptive-governance-evolution.md` の inbound 全件 update + archive 移管 — **Phase 5.3 完遂** (本 commit、active inbound 2 件 = CLAUDE.md L360 + `allowlists/types.ts` L87 を `aag/evolution.md` に update + mapping inbound 残を archive path に migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化。`projects/completed/architecture-debt-recovery/plan.md` L673 は immutable archive のため update 対象外、archive-to-archive 参照として許容)
 - [ ] 各旧 doc archive 前に新 doc 内 mapping table が landed 済を確認 (§1.5 archive 前 mapping 義務、plan 不可侵原則 5)
 - [ ] `breaking-changes.md` 各 entry 完遂 articulate
 - [ ] `legacy-retirement.md` 各旧 path の取り扱い完遂 articulate
