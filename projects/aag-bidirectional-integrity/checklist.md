@@ -43,15 +43,40 @@
 - [ ] CLAUDE.md AAG セクションに `aag/README.md` への 1 行索引 link を追加した (詳細薄化は Phase 4)
 - [ ] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ)
 
-## Phase 2: AAG rule metadata 拡張 (semantic articulation 構造)
+## Phase 2: AAG rule metadata 拡張 (semantic articulation 構造 + status field)
 
-> 着手前 prerequisite: plan §8.2 (architectureRules.ts の現実 schema 確認) + §8.9 (`principleRefs` semantic 化検討)
+> 着手前 prerequisite: plan §8.2 (BaseRule schema 確認) + §8.9 (`principleRefs` semantic 化検討)
+>
+> **変更対象正本** (PR review #2 反映、defaults.ts は execution overlay = 運用状態のため対象外):
+> - 型定義: `app/src/test/aag-core-types.ts` または `app/src/test/architectureRules/types.ts`
+> - 実データ: `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule の物理正本、`ARCHITECTURE_RULES` 配列)
+> - derived consumer: `app/src/test/architectureRules/merged.ts`
+> - **`guardCategoryMap.ts` は touch しない** (PR review #4 反映、二重正本回避: BaseRule のみが semantic binding 正本)
 
-- [ ] `architectureRules/defaults.ts` の rule entry schema に `canonicalDocRef: Array<{ docPath, problemAddressed, resolutionContribution }>` を追加した
-- [ ] 同 schema に `metaRequirementRefs: Array<{ requirementId, problemAddressed, resolutionContribution }>` を追加した
-- [ ] `guardCategoryMap.ts` の対応 field を追加した (または schema 統合)
-- [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` + `metaRequirementRefs: []` 空 array で初期化した
-- [ ] TypeScript 型定義の整合を確認した (build / lint PASS)
+- [ ] `architectureRules/types.ts` (or `aag-core-types.ts`) に **`SemanticTraceBinding<T>` 型 + `CanonicalDocTraceRef` / `MetaRequirementTraceRef`** を追加した:
+  ```typescript
+  type TraceBindingStatus = 'pending' | 'not-applicable' | 'bound'
+  interface SemanticTraceRef {
+    readonly problemAddressed: string
+    readonly resolutionContribution: string
+  }
+  interface CanonicalDocTraceRef extends SemanticTraceRef { readonly docPath: string }
+  interface MetaRequirementTraceRef extends SemanticTraceRef { readonly requirementId: string }
+  interface SemanticTraceBinding<TRef> {
+    readonly status: TraceBindingStatus
+    readonly justification?: string  // status='not-applicable' のとき必須
+    readonly refs: readonly TRef[]
+  }
+  ```
+- [ ] **`RuleBinding` 型** (`architectureRules/types.ts`) に下記 field を追加した (PR review #3 反映、`RuleSemantics` ではなく `RuleBinding` 側に置く理由は docPath がリポジトリ固有具体値のため):
+  - `canonicalDocRef?: SemanticTraceBinding<CanonicalDocTraceRef>` (実装 → 設計 doc binding)
+  - `metaRequirementRefs?: SemanticTraceBinding<MetaRequirementTraceRef>` (実装 → 要件 binding)
+- [ ] `app-domain/gross-profit/rule-catalog/base-rules.ts` の `ARCHITECTURE_RULES` 全 rule に下記初期値を設定した (PR review #2 #4 反映、空配列でなく status object で「未対応」と「意図的不要」を区別):
+  - `canonicalDocRef: { status: 'pending', refs: [] }`
+  - `metaRequirementRefs: { status: 'pending', refs: [] }`
+- [ ] `architectureRules/defaults.ts` (execution overlay) は **触らない** ことを確認した (semantic binding は運用状態でなく rule 正本側に置く)
+- [ ] `guardCategoryMap.ts` は **触らない** ことを確認した (二重正本回避、category / layer / note のまま)
+- [ ] TypeScript 型定義の整合を確認した (build / lint PASS、`merged.ts` 経由で consumer から canonicalDocRef + metaRequirementRefs にアクセス可能)
 
 ## Phase 3: AAG Core doc audit (5 層位置付け + 責務 + drill-down semantic + operation 判定)
 
@@ -77,15 +102,25 @@
 - [ ] **AAG Audit (Layer 4) の home doc 必要性を判定した** (plan §8.10、A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 / C: aag/architecture.md 内包 のいずれか)
 - [ ] audit 結果を `references/02-status/aag-doc-audit-report.md` に集約した
 
-### Phase 3 完了 → Phase 4〜10 split review (PR review #3 反映)
+### Phase 3 完了 → Phase 4〜10 split decision gate (HARD GATE、Phase 4 着手の必須前提)
 
 > Phase 3 audit findings を踏まえ、Phase 4〜10 を単一 project 内で継続するか sub-project /
-> follow-up project に分割するかを人間レビュー (本 project は Level 3 だが実体は Level 4 近い)。
+> follow-up project に分割するかの **hard gate decision** (PR review #3 + Review 3 P0 #3 反映)。
+> 本 project は Level 3 だが実体は Level 4 寄り (106 checkbox + 横断 implementationScope) のため、
+> 単なる review checkbox ではなく **明示的な決定 gate** として運用。Phase 4 着手は本 gate 通過が
+> 必須前提。
+>
+> **default 推奨**: MVP = Phase 1〜3 / Follow-up = Phase 4〜10 を別 project 化 (Review 3 推奨)。
+> 単一 project 継続は audit findings で正当化される場合のみ。
 
 - [ ] Phase 3 audit 完了後、Phase 4 doc refactor の所要 commit 数を見積もった (10+ commits 想定)
-- [ ] Phase 4〜10 を単一 project 内で継続するか、sub-project / follow-up project に分割するかを人間レビューした
-- [ ] split 判定の場合、対象 Phase 群を別 project に切り出し、本 project は scope 縮減した
-- [ ] 単一 project 継続の場合、Phase 4 を sub-phase 化 (4.1 Create / 4.2 Split / 4.3 Rewrite / 4.4 Cleanup) するかを判断した
+- [ ] **decision**: Phase 4〜10 を以下のどちらで進めるか人間判断 + 明示記録した:
+  - **A. 単一 project 継続** (audit findings で「scope は管理可能」と正当化された場合のみ)
+  - **B. sub-project / follow-up project に分割** (default、推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement)
+- [ ] 分割 (B) の場合、対象 Phase 群を別 project に切り出した (本 project は MVP = Phase 1〜3 で完遂、status を archive 候補に)
+- [ ] 単一 project 継続 (A) の場合、Phase 4 を sub-phase 化 (4.1 Create / 4.2 Split / 4.3 Rewrite / 4.4 Cleanup) するかを判断した
+- [ ] 決定理由 (A or B) を `references/02-status/aag-doc-audit-report.md` の末尾に articulate した
+- [ ] **本 hard gate を通過するまで Phase 4 着手しない** ことを HANDOFF に明示した
 
 ## Phase 4: AAG Core doc content refactoring (新規書き起こし優先)
 
@@ -129,47 +164,51 @@ operation 順序:
 - [ ] `03-guides/` 関連 doc (数値表示ルール / coding-conventions 等) に同 section を追加した
 - [ ] 各 section の各 entry が **3 要素を保持** (AR rule ID + 要件 ID + architect 寄与 articulation) を確認した
 
-## Phase 8: Layer 4 sub-audit 実装 (forward / reverse meta-guard + sub-categorization)
+## Phase 8: Layer 4 sub-audit MVP 実装 (4.2 方向 + 4.4 完備性 のみ)
 
-> 着手前 prerequisite: Phase 2 schema 拡張完了 + Phase 6 / Phase 7 binding 完了 + plan §8.4.1 (Layer 4 sub-audit list 確定) + plan §8.9 C / H 候補の判断
+> 着手前 prerequisite: Phase 2 schema 拡張完了 + Phase 6 / Phase 7 binding 完了 + plan §8.4.1 (Layer 4 sub-audit list 確定)
+>
+> **MVP scope** (PR review #5 + Review 3 P1 #6 反映): 5 sub-audit (4.1〜4.5) を一気に実装すると
+> 新たな governance debt 化のため、**MVP は 4.2 方向 + 4.4 完備性 のみ**。4.1 境界 / 4.3 波及 /
+> 4.5 機能性 + selfHostingGuard + metaRequirementBindingGuard は **follow-up project に逃がす**
+> (Phase 3 split decision gate で別 project 化 default)。
 
-### Phase 8.1. 4.1 境界監査 (Boundary Audit) sub-audit
+### Phase 8.2. 4.2 方向監査 (Direction Audit) sub-audit (MVP)
 
-- [ ] 目的 (Layer 0) と要件 (Layer 1) の混同を機械検出する guard を確立した (機械検証可能 condition が Layer 0 に articulated されていないか)
-- [ ] Layer 2 / Layer 3 / Layer 4 の境界違反検出を確立した (例: 既存 `architectureRuleGuard.test.ts` を Layer 3 schema 整合性 + Layer 4 functional check に分離)
-
-### Phase 8.2. 4.2 方向監査 (Direction Audit) sub-audit
-
-- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設し、各 AR rule の `canonicalDocRef` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty を検証した
+- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設し、各 AR rule の `canonicalDocRef.refs` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty を検証した
 - [ ] `canonicalDocBackLinkGuard.test.ts` (forward) を新設し、canonical doc の `## Mechanism Enforcement` section の各 entry について AR ID + 要件 ID + articulation non-empty を検証した
-- [ ] (option) `metaRequirementBindingGuard.test.ts` を新設した (Layer 1 ↔ Layer 3 binding 検証、forward + reverse)
-- [ ] 4 層依存原則 (本体側 layer-boundary 縦スライスと同型) の AAG 内部適用を検証した
+- [ ] 5 層依存原則 (本体側 layer-boundary 縦スライスの 4 層依存原則と同型) の AAG 内部適用を検証した
 
-### Phase 8.3. 4.3 波及監査 (Impact Audit) sub-audit
+### Phase 8.4. 4.4 完備性監査 (Completeness Audit) sub-audit (MVP)
 
-- [ ] cross-cutting impact 検出 mechanism を確立した (rule / doc 変更が他の縦スライス / 層へ与える未 articulated な影響の検出)
-- [ ] obligation map の trigger 漏れを検出する mechanism を確立した
+- [ ] `semanticArticulationQualityGuard.test.ts` を新設した (PR review #5 + Review 3 P1 #7 反映、構文整合 hard fail / 意味品質 warning):
+  - **hard fail**: 禁止 keyword (TBD/N/A/same/see above/misc/various/`-`/unknown 等) のマッチ
+  - **hard fail**: `problemAddressed` / `resolutionContribution` / `justification` 各 20 文字以上
+  - **hard fail**: 同 rule 内で `problemAddressed` と `resolutionContribution` 完全一致禁止
+  - **warning** (sample audit + Discovery Review、hard fail にしない): 意味的に「それっぽい空文」(例: 「該当する」「対応する」のみ) — human review でのみ判定
+- [ ] `statusIntegrityGuard.test.ts` を新設した (status field の整合性、binding wrapper の正しさ):
+  - `status='bound'` のとき `refs.length > 0` を hard check
+  - `status='not-applicable'` のとき `justification` 必須 + 上記品質基準を適用
+  - `status='pending'` の rule 数を baseline 化、ratchet-down で漸次解消 (新規 rule では `status='pending'` を hard fail で禁止)
+- [ ] 既存 `docRegistryGuard.test.ts` / `docCodeConsistencyGuard.test.ts` / Discovery Review が 4.4 完備性に分類されることを確認した (実装は touch しない、分類 articulation のみ)
 
-### Phase 8.4. 4.4 完備性監査 (Completeness Audit) sub-audit
-
-- [ ] 5 層 × 5 縦スライスの 25 セル gap 検出 mechanism を確立した
-- [ ] orphan implementation (要件なき実装) / orphan requirement (実装なき要件) 検出を確立した
-- [ ] redundancy (重複 articulation = anti-duplication 違反) 検出を確立した
-- [ ] 既存 `docRegistryGuard.test.ts` / `docCodeConsistencyGuard.test.ts` / Discovery Review が 4.4 完備性に分類されることを確認した
-
-### Phase 8.5. 4.5 機能性監査 (Functional Audit) sub-audit
-
-- [ ] (option / candidate C) `selfHostingGuard.test.ts` を新設した (aag/meta.md 自身が AR-rule に linked + 内部整合性 hard check)
-- [ ] 既存 `health-rules.ts` / Hard Gate / `docStaticNumberGuard.test.ts` / `certificate renderer` が 4.5 機能性に分類されることを確認した
-- [ ] rule schema 整合性検証が Layer 3 から分離され Layer 4.5 として articulated された
-
-### Phase 8.6. 共通
+### Phase 8.6. 共通 (MVP)
 
 - [ ] 各 sub-audit に **個別 baseline + 個別 fixNow** を持たせた (混在 baseline は責務分離違反、C1 適用)
 - [ ] 例外 allowlist の baseline を機械管理した (ratchet-down のみ、増加禁止)
 - [ ] 新 rule 追加 PR で immediate enforcement が hard fail することを synthetic 注入で確認した
 - [ ] aag/meta.md §2 の **双方向 integrity 要件 status が「未達成」→「達成」に flip** した
-- [ ] aag/meta.md §3 (Core mapping) で各 sub-audit が「どの sub-audit instance を保持するか」articulate した
+
+### follow-up project に逃がす項目 (Phase 8 MVP scope 外、PR review Review 3 P1 #6 反映)
+
+> Phase 3 split decision gate で別 project 化 (例: Project B = rule schema + meta-guard) を
+> default とする。本 project の Phase 8 では MVP (4.2 方向 + 4.4 完備性) のみ実装。
+
+- ~~4.1 境界監査 (Boundary Audit) — 目的 / 要件混同検出、Layer 境界違反検出~~ → follow-up project (`architectureRuleGuard.test.ts` の Layer 3 / Layer 4 分離も follow-up)
+- ~~4.3 波及監査 (Impact Audit) — cross-cutting impact 検出、obligation map trigger 漏れ検出~~ → follow-up project
+- ~~4.5 機能性監査 (Functional Audit) — claim vs actual 全数照合~~ → follow-up project (既存 `health-rules.ts` / Hard Gate / `docStaticNumberGuard.test.ts` / `certificate renderer` が部分的に既 cover)
+- ~~`metaRequirementBindingGuard.test.ts` (Layer 1 ↔ Layer 3 binding 専用 guard)~~ → follow-up project (4.2 方向監査の forward / reverse で部分的に cover、独立 guard 化は別途)
+- ~~`selfHostingGuard.test.ts` (aag/meta.md 自身の自己整合 hard check)~~ → follow-up project
 
 ## Phase 9: DFR registry (Layer 2 新規製本)
 
