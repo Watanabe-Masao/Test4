@@ -5,99 +5,161 @@
 
 ## Project
 
-AAG 双方向 integrity meta-rule + 表示 rule 製本化（aag-bidirectional-integrity） — **active**
+AAG Meta 確立 + AAG Core doc 群の責務再定義 + 双方向 integrity の機械化 + 表示 rule 製本化
+（aag-bidirectional-integrity） — **active**
 
 ## Status
 
-**active（2026-04-29 spawn、plan のみ landing）** — 実 execution は次セッション以降。
+**active（2026-04-29 spawn、2026-04-30 経営階層 drill-down 視点で plan refinement、execution は次セッション以降）**。
 canonical 計画 doc は本 project の `plan.md`。parent: なし（`phased-content-specs-rollout`
 末セッションの dialog で発見された問題への根本対策として独立 spawn）。
 
 ## Purpose
 
 AAG (Adaptive Architecture Governance) は「機械的品質管理を担う OS / フレームワーク」と
-位置付けられているが、現状 AAG rule (AR-NNN) と canonical doc (製本) の binding が
-**慣習レベルで運用されている** ため、次の構造的弱点を持つ:
+位置付けられているが、次の構造的弱点を持つ:
 
-- **forward 方向の弱点**: canonical doc (製本) で定義された rule が AAG で機械検証されず、製本が「装飾」になる
-- **reverse 方向の弱点**: AAG rule が製本されていない proxy / 派生 metric を回し、guard が「performative」になる
+- **AAG Meta が articulate されていない**: AAG が満たすべき要件 (目的 + 不変条件 + 禁則) を
+  単一エントリで articulate する doc がなく、Constitution / 設計原則 / 文化論 が 8 doc に sprawl。
+  AI / 後任が「AAG とは何で何でないか」を単一エントリで把握できない
+- **forward 方向の弱点**: 設計 doc (canonical doc) で定義された rule が AAG で機械検証されず、製本が「装飾」になる
+- **reverse 方向の弱点**: AR-rule が製本されていない proxy / 派生 metric を回し、guard が「performative」になる
+- **drill-down chain の semantic 管理不在**: 下位 (実装) が上位 (設計 / 要件 / 目的) の何を課題として
+  何を解決しているかが pointer + articulation として機械管理されていない
 
-`phased-content-specs-rollout` の末セッションで撤回した次のケースは、いずれも reverse 方向の
-弱点が表面化した事例:
+`phased-content-specs-rollout` の末セッションで撤回した次のケースは、上記 reverse 方向 + semantic 管理不在の
+表面化事例:
 
 - visual evidence selection rule (consumer 数 / 365d commits / severity color / optionBuilder) — 製本されていない proxy metric を guard 化していた
 - Phase L spawn (PIPE / QH / PROJ) — spec 化されるべき drift / risk が validate されていない状態で spec authoring を guard 化しようとしていた
 
-本 project は AAG Core 既存章への意味改変を避けるため、**新 doc `aag-meta.md` を charter
-(憲章) として独立創出** する方針を採用する。AAG Meta は AAG 自身の identity / goals /
-limits / invariants / non-goals / boundaries を明文化し、双方向 integrity (forward + reverse)
-は invariants の 1 つとして位置付ける。AAG Core (operational / どう動くか) / Meta
-(statics / どうあるべきか) / Evolution (dynamics / どう進化するか) の 3 doc 構造で
-orthogonal な責務分離を確立する。
+## 設計の核心 (2026-04-30 0 ベース re-derivation)
 
-display-rule registry (DFR-NNN) は本 meta-rule の最初の concrete application として
-本 project に吸収する（dialog で発見された CHART-004 semantic.customers 不使用 / CHART-005
-semantic.grossProfit 不使用 / FactorDecomp 等の axis formatter bypass / formatPercent
-bypass の実 drift を、製本ベースで構造的に検出する）。
+### 5 層 drill-down 構造 + 縦スライス (AAG architecture pattern)
 
-## Why this project exists
+AAG は **5 層 (横軸) × 5 縦スライス (縦軸)** の matrix で articulate (= 本プロジェクト本体側
+modular monolith evolution と parallel)。経営階層 metaphor は image、正式用語が下表:
 
-`phased-content-specs-rollout` の末セッション dialog で発見された **AAG の構造的弱点**
-は、phased-content-specs-rollout の scope（content spec rollout）には収まらない AAG core
-の進化テーマであるため独立 active project として spawn。
+**横軸 (5 層 drill-down)**:
 
-CLAUDE.md の AAG セクション「**AAG が PASS した後に立ち上がる問い**」が想定する critical
-thinking は人間の能動的姿勢に依存しており、構造的に保証されていない。本 project はこの
-不足を mechanism として解消する。
+| Layer | 用語 | metaphor | 性質 |
+|---|---|---|---|
+| 0 | **目的** (Purpose) | 経営理念 | AAG の存在意義、人間判断、機械検証不可 |
+| 1 | **要件** (Requirements) | 社訓 | 不変条件 + 禁則、機械検証可能 |
+| 2 | **設計** (Design) | 経営戦略 | AAG の構造方針 |
+| 3 | **実装** (Implementation) | 戦術 | AAG が能動的に行うこと (rule / guard / allowlist / health) |
+| 4 | **検証** (Verification) | 外部監査 | AAG が claim と actual を受動的に照合すること、5 sub-audit に細分 (4.1 境界 / 4.2 方向 / 4.3 波及 / 4.4 完備性 / 4.5 機能性、initial set / extensible) |
+
+**縦軸 (5 縦スライス、AAG 既存)**: layer-boundary / canonicalization / query-runtime /
+responsibility-separation / governance-ops。各セルに「縦スライスの特定層に住む doc / 実装」が
+articulate される (詳細: plan §3.1.3 matrix view)。
+
+**3 軸の役割分担**:
+- **AAG Meta** = Layer 0 + 1 (`aag/meta.md` を新規 Create で articulate、目的 + 要件)
+- **AAG Core** = Layer 2 + 3 (設計 doc 群 + 実装 = 8 doc + rule + guard + allowlist)
+- **AAG Audit** = Layer 4 (検証 = 外部監査視点で AAG 全体を audit、health-rules / Discovery Review / meta-guard / certificate)
+- AAG Meta は **目的 (= 評価基準を規定する側)**、AAG Core は **対象 (= 評価される側)**、AAG Audit は **第三者監査 (= claim と actual を照合)**
+
+### 破壊的変更前提
+
+本 project は AAG の根本的整理を行うため、追加コスト / 変更コストを考慮せず必要な変更を遂行する。
+既存 AR-NNN rule の振る舞い変更 / 縦スライス境界の reshape / 4 層構造の調整 / AAG framework 構造変更
+等を許容 (本体アプリの機能変更は scope 外)。Phase 3 audit + Phase 4 refactor で必要な breaking change
+を identify し、Phase 6+ で順次実施。
+
+### drill-down chain の semantic management
+
+各層間の binding は単なる pointer ではなく **重複と参照の切り分け** + **semantic articulation**:
+
+- 重複 (上位 content の copy) は禁止
+- 参照は pointer + `problemAddressed` (上位の何を課題として) + `resolutionContribution` (何を解決) を mandate
+- 機械検証 + 維持される field として確立 (Phase 8 meta-guard で検証)
+
+### doc operation taxonomy
+
+AAG Core 8 doc の整理は単純な「追加 / 退役」ではなく 7 operation で articulate (Create / Split /
+Merge / Rename / Relocate / Rewrite / Archive)。**新規書き起こし優先** (edit-in-place 禁止)、操作順序
+原則に従い段階実行。**期間 buffer (日数 / commits 数) を一切使わず inbound 0 trigger** のみで物理削除。
+
+### ディレクトリ階層化案 (Phase 3 audit で確定)
+
+```
+references/01-principles/aag/         ← 新ディレクトリ集約
+├── README.md, meta.md, strategy.md, architecture.md,
+├── evolution.md, operational-classification.md,
+├── source-of-truth.md, layer-map.md, display-rule-registry.md
+```
+
+`aag-5-` / `adaptive-` prefix は撤廃 (ディレクトリで階層性を表現)。
 
 ## Scope
 
 含む:
 
-- **AAG Meta charter doc (`aag-meta.md`) の新規創出**（identity / goals / limits / invariants / non-goals / boundaries / 他 doc 境界 の 7 section）
-- AAG Core (`adaptive-architecture-governance.md`) への back link 1 行追加（**意味改変なし**）
-- AAG rule metadata に `canonicalDocRef: string[]` field 追加（`architectureRules/defaults.ts` schema 拡張）
-- 網羅的 doc audit + legacy 撤退 cleaning（汚れた基盤の上に integrity 不成立、Phase 3 + 4）
-- 既存 AR-NNN rule 全数の audit（製本されているか / されていないか）+ binding 整備
-- Layer 2 既存 canonical doc 群への back link section 追加（重複管理防止）
-- forward / reverse 双方向 meta-guard の実装
-- display-rule registry (`display-rule-registry.md`) の製本化と DFR-001〜DFR-005 の登録
-- 各 DFR rule の guard 実装と baseline 確定（観測済 drift を ratchet-down 起点に）
+- **AAG Meta doc (`aag/meta.md`) の新規 Create** (§1 目的 / §2 要件 / §3 AAG Core mapping / §4 達成判定総括 の 4 section、要件定義 + audit framework + AR-rule binding hub の 3 機能融合 mechanism doc)
+- **AAG Core 8 doc の content refactoring** (新規書き起こし → 旧 doc 退役、4 層位置付け + 責務 + drill-down semantic articulation を装着、ディレクトリ階層化)
+- **AR-rule schema 拡張** (`canonicalDocRef` + `metaRequirementRefs` を semantic articulation 構造で追加)
+- **Phase 3 網羅的 doc audit** (各 doc の 4 層位置付け + 責務 + write/non-write list + 影響範囲 + 必要 operation を articulate)
+- **Phase 5 legacy 撤退** (旧 doc を inbound 0 trigger で archive 移管 → 物理削除、期間 buffer なし)
+- 既存 AR-NNN rule 全数の audit (製本されているか / されていないか) + binding 整備
+- Layer 2 既存 canonical doc 群への `## Mechanism Enforcement` section 追加 + drill-down semantic 装着
+- forward / reverse 双方向 meta-guard の実装 (semantic articulation 検証含む)
+- display-rule registry (`aag/display-rule-registry.md`) の製本化と DFR-001〜DFR-005 の登録
+- 各 DFR rule の guard 実装と baseline 確定 (観測済 drift を ratchet-down 起点に)
 
 含まない:
 
-- **AAG Core 既存章の意味改変**（Phase 1 は新 doc 創出 + back link 追加のみ、本体不変）
-- 既存 AR-NNN rule の振る舞い変更（audit + binding のみ、enforcement logic 変更は別 project）
-- 全 100+ AR-NNN rule の即座 100% 製本化（漸次対応、新 rule のみ即時必須）
-- 本体アプリ（粗利管理ツール）の機能変更
-- `phased-content-specs-rollout` の archive 判定への干渉（parent は独立に archive process を進める）
-- AAG framework そのものの構造変更（4 層 → N 層 等は別 project）
-- date-based ritual の導入（cooling period / 月次 review hook 等 = aag-meta.md non-goals で構造禁止）
+- **AAG Core 既存 doc の edit-in-place で意味改変** (Phase 4 doc refactor は新規書き起こし → 旧 doc 退役 のみ)
+- **AAG 関連以外の doc の整理** (canonicalization / business-values / design / coding-conventions 等は別 project、scope creep 防止)
+- 既存 AR-NNN rule の振る舞い変更 (audit + binding のみ、enforcement logic 変更は別 project)
+- 全 100+ AR-NNN rule の即座 100% 製本化 (漸次対応、新 rule のみ即時必須)
+- 本体アプリ (粗利管理ツール) の機能変更
+- `phased-content-specs-rollout` の archive 判定への干渉 (parent は独立に archive process を進める)
+- AAG framework そのものの構造変更 (4 層 → N 層 等は別 project)
+- date-based ritual の導入 (cooling period / 月次 review hook 等 = aag/meta.md §2 禁則で構造禁止)
+- **期間 buffer (日数 / commits 数)** を archive trigger に使う (anti-ritual)
+- **重複 articulation の生成** (上位 content の copy を下位 doc に書く、§3.4.2 anti-duplication)
+- **Layer 0 (目的) を機械検証可能 condition に変換しようとする** (Layer 0 は人間判断のみ)
+
+## Why this project exists
+
+`phased-content-specs-rollout` の末セッション dialog で発見された **AAG の構造的弱点**
+(双方向 integrity 不在 + AAG Meta articulation 不在 + drill-down chain semantic 管理不在) は、
+parent project の scope (content spec rollout) には収まらない AAG core の進化テーマであるため
+独立 active project として spawn。
+
+CLAUDE.md の AAG セクション「**AAG が PASS した後に立ち上がる問い**」が想定する critical
+thinking は人間の能動的姿勢に依存しており、構造的に保証されていない。本 project はこの
+不足を **AAG Meta 確立 + drill-down chain semantic management の機械化** として解消する。
 
 ## Read Order
 
-1. 本ファイル（why / scope / read order）
-2. `HANDOFF.md`（現在地 / 次にやること / ハマりポイント）
-3. **`plan.md`**（canonical 計画 doc — Phase 1〜7）
-4. `checklist.md`（completion 判定の入力 — Phase 別 required checkbox 集合）
-5. `projectization.md`（AAG-COA 判定 Level 3 / governance-hardening）
-6. **`references/01-principles/adaptive-architecture-governance.md`**（AAG core 正本、本 project が拡張）
-7. **`references/01-principles/adaptive-governance-evolution.md`**（AAG 進化方針、本 project の動線確認）
-8. `projects/phased-content-specs-rollout/HANDOFF.md`（parent dialog の経緯、本 project spawn の trigger）
-9. `references/04-design-system/docs/`（DFR rule の Layer 2 製本群）
+1. 本ファイル (why / scope / read order)
+2. `HANDOFF.md` (現在地 / 次にやること / ハマりポイント)
+3. **`plan.md`** (canonical 計画 doc — Phase 1〜10、§3 設計思想 §3.4 semantic management 必読)
+4. `checklist.md` (completion 判定の入力 — Phase 別 required checkbox 集合)
+5. `projectization.md` (AAG-COA 判定 Level 3 / governance-hardening)
+6. `legacy-retirement.md` (Phase 5 sunset / archive 計画、inbound 0 trigger)
+7. **`references/01-principles/adaptive-architecture-governance.md`** (旧 AAG マスター、Phase 4 で Split + Rewrite)
+8. **`references/01-principles/aag-5-constitution.md`** (旧 4 層構造定義、Phase 4 で Rewrite + Relocate + Rename)
+9. **`references/01-principles/adaptive-governance-evolution.md`** (旧進化動学、Phase 4 で Rewrite + Relocate + Rename)
+10. `projects/phased-content-specs-rollout/HANDOFF.md` (parent dialog の経緯、本 project spawn の trigger)
+11. `references/04-design-system/docs/` (DFR rule の Layer 2 製本群)
 
 ## 関連文書
 
 | 文書 | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG Core (operational、本 project は back link 1 行追加のみ、意味改変なし) |
-| `references/01-principles/aag-meta.md` | **AAG Meta charter doc** (statics、Phase 1 で新規創出) |
-| `references/01-principles/adaptive-governance-evolution.md` | AAG Evolution (dynamics) |
+| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール (AAG Layer 4A) |
+| `references/01-principles/adaptive-architecture-governance.md` | 旧 AAG マスター (Phase 4 で Split + Rewrite + Relocate → aag/strategy.md ほか) |
+| `references/01-principles/aag-5-constitution.md` | 旧 4 層構造定義 (Phase 4 で Rewrite + Relocate + Rename → aag/architecture.md) |
+| `references/01-principles/adaptive-governance-evolution.md` | 旧進化動学 (Phase 4 で Rewrite + Relocate + Rename → aag/evolution.md) |
+| `references/01-principles/aag/meta.md` (仮、Phase 1 新規 Create) | **AAG Meta** (Layer 0 + 1: 目的 + 要件) |
+| `references/01-principles/aag/README.md` (仮、Phase 1 新規 Create) | aag/ ディレクトリ index |
 | `projects/phased-content-specs-rollout/HANDOFF.md` | parent dialog の経緯、本 project spawn の trigger |
 | `references/04-design-system/docs/chart-semantic-colors.md` | DFR-001 (色) の Layer 2 製本 |
 | `references/04-design-system/docs/echarts-integration.md` | DFR-002 (axis) の Layer 2 製本 |
 | `references/03-guides/coding-conventions.md` §数値表示ルール | DFR-003/004 (% / 通貨) の Layer 2 製本 |
 | `references/04-design-system/docs/iconography.md` | DFR-005 (icon) の Layer 2 製本 |
-| `app/src/test/architectureRules/defaults.ts` | AAG rule metadata（本 project で `canonicalDocRef` field 追加） |
-| `app/src/test/guardCategoryMap.ts` | AAG rule category / layer / note |
+| `app/src/test/architectureRules/defaults.ts` | AR-rule registry (Phase 2 で `canonicalDocRef` + `metaRequirementRefs` schema 拡張、semantic articulation 構造) |
+| `app/src/test/guardCategoryMap.ts` | rule category / layer / note |

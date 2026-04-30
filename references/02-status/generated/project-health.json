@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T00:22:56.273Z",
+  "timestamp": "2026-04-30T03:32:47.083Z",
   "summary": {
     "active": 6,
     "archived": 28,
@@ -8,19 +8,19 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 929,
+    "totalCheckboxes": 953,
     "checkedCheckboxes": 829
   },
   "projects": [
     {
       "projectId": "aag-bidirectional-integrity",
-      "title": "AAG 双方向 integrity meta-rule + 表示 rule 製本化",
+      "title": "AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化",
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 7,
-      "total": 68,
-      "progress": 0.103,
+      "total": 92,
+      "progress": 0.076,
       "entrypoint": "projects/aag-bidirectional-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/aag-bidirectional-integrity/checklist.md",
       "parent": null
