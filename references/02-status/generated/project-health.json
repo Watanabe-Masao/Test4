@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T13:31:42.369Z",
+  "timestamp": "2026-04-30T13:36:13.611Z",
   "summary": {
     "active": 9,
     "archived": 29,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1137,
+    "totalCheckboxes": 1180,
     "checkedCheckboxes": 890
   },
   "projects": [
@@ -19,8 +19,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 51,
-      "total": 138,
-      "progress": 0.37,
+      "total": 170,
+      "progress": 0.3,
       "entrypoint": "projects/aag-bidirectional-integrity/AI_CONTEXT.md",
       "checklistPath": "projects/aag-bidirectional-integrity/checklist.md",
       "parent": null
@@ -45,8 +45,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 16,
-      "total": 39,
-      "progress": 0.41,
+      "total": 41,
+      "progress": 0.39,
       "entrypoint": "projects/aag-core-doc-refactor/AI_CONTEXT.md",
       "checklistPath": "projects/aag-core-doc-refactor/checklist.md",
       "parent": null
@@ -58,7 +58,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 35,
+      "total": 38,
       "progress": 0,
       "entrypoint": "projects/aag-display-rule-registry/AI_CONTEXT.md",
       "checklistPath": "projects/aag-display-rule-registry/checklist.md",
@@ -84,7 +84,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 25,
+      "total": 28,
       "progress": 0,
       "entrypoint": "projects/aag-legacy-retirement/AI_CONTEXT.md",
       "checklistPath": "projects/aag-legacy-retirement/checklist.md",
@@ -97,7 +97,7 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 0,
-      "total": 39,
+      "total": 42,
       "progress": 0,
       "entrypoint": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
       "checklistPath": "projects/aag-rule-schema-meta-guard/checklist.md",

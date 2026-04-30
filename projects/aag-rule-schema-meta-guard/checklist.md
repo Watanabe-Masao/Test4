@@ -85,6 +85,18 @@
   - **判断基準**: 残 sub-audit の責務 orthogonal 度 / 既存 follow-up project の有無
   - **判断材料**: 親 plan §3.1.5 sub-audit 一覧 / Project C / Project D の現在 scope
 
+## Future follow-up project candidate consideration (必ず触れる原則、user articulate 2026-04-30)
+
+> **趣旨**: AI / 人間は checklist に沿って作業する。checklist にないものは触れられない。Future follow-up project candidate (= Project E + F、AAG Decision Traceability + AI Utilization、9 insight 統合) を本 project の作業中に **必ず触れる** mechanism として articulate (= 「いつ考えるか / どう brush up するか」は別問題、必ず engage することのみ義務化)。
+>
+> **正本 articulation**: `projects/aag-bidirectional-integrity/HANDOFF.md` §2 + `projects/aag-bidirectional-integrity/checklist.md` の「Future follow-up = Project E」section。
+>
+> **本 project との特別 relevance**: 本 project は SemanticTraceBinding 型 family + meta-guard 4 件 を実装する。これは Project E の DecisionTrace schema (= investigation + verification + hypothesis + evidence + decision + rationale + alternatives + reversibility + rollbackAnchor + qualityImpact + retrospectiveAudit + correctionChain) の **直系 precursor**。本 project Phase 1 (型定義) で SemanticTraceBinding を実装する際、Project E DecisionTrace schema との extensibility を articulate (= 共通 base type / shared field / extension path) すべき。
+
+- [ ] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** (= 親 HANDOFF §2 に追記 or 本 checklist の note に articulate、決定的な action は不要、engage のみ義務)
+- [ ] 本 project Phase 1 (SemanticTraceBinding 型 family 実装) 着手時に Project E DecisionTrace schema との extensibility を articulate (共通 base type / shared field / extension path)
+- [ ] 本 project archive 前に Project E candidate spawn 着手 trigger を確認
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。

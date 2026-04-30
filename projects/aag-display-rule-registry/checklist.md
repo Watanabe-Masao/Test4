@@ -77,6 +77,18 @@
   - **判断基準**: Project B Phase 4 + 本 project Phase 3 完了で satisfy される requirement の判定
   - **判断材料**: aag/meta.md §2 の 12 requirement articulation / Project B Phase 4 完遂状態
 
+## Future follow-up project candidate consideration (必ず触れる原則、user articulate 2026-04-30)
+
+> **趣旨**: AI / 人間は checklist に沿って作業する。checklist にないものは触れられない。Future follow-up project candidate (= Project E + F、AAG Decision Traceability + AI Utilization、9 insight 統合) を本 project の作業中に **必ず触れる** mechanism として articulate (= 「いつ考えるか / どう brush up するか」は別問題、必ず engage することのみ義務化)。
+>
+> **正本 articulation**: `projects/aag-bidirectional-integrity/HANDOFF.md` §2 + `projects/aag-bidirectional-integrity/checklist.md` の「Future follow-up = Project E」section。
+>
+> **本 project との特別 relevance**: 本 project は DFR registry (= bidirectional integrity の最初の concrete instance) を実装。これは Project E の **AAG-REQ-QUALITY-ORIENTED-JUDGMENT + AAG-REQ-AI-UTILIZATION-FRIENDLINESS** の application instance precursor (= DFR rule articulation 自体が AI が leverage しやすい registry pattern として function)。本 project Phase 1 で DFR registry を articulate する際、Project E AI utilization patterns との整合性を考慮。
+
+- [ ] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** (= 親 HANDOFF §2 に追記 or 本 checklist の note に articulate、決定的な action は不要、engage のみ義務)
+- [ ] 本 project Phase 1 (DFR registry doc 制作) 時に Project E AI utilization patterns との整合性 articulate (= DFR registry 自体が AI utilization friendliness 模範 candidate)
+- [ ] 本 project archive 前に Project E candidate spawn 着手 trigger を確認
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。

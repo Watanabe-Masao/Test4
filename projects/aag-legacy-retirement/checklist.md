@@ -63,6 +63,18 @@
   - **判断者**: 人間レビューア (AI でなく)
   - **AI action**: archive 移管後の物理削除は AI が独自判断で実行しない、人間 approval を待つ
 
+## Future follow-up project candidate consideration (必ず触れる原則、user articulate 2026-04-30)
+
+> **趣旨**: AI / 人間は checklist に沿って作業する。checklist にないものは触れられない。Future follow-up project candidate (= Project E + F、AAG Decision Traceability + AI Utilization、9 insight 統合) を本 project の作業中に **必ず触れる** mechanism として articulate (= 「いつ考えるか / どう brush up するか」は別問題、必ず engage することのみ義務化)。
+>
+> **正本 articulation**: `projects/aag-bidirectional-integrity/HANDOFF.md` §2 + `projects/aag-bidirectional-integrity/checklist.md` の「Future follow-up = Project E」section。
+>
+> **本 project との特別 relevance**: 本 project は legacy 撤退 + 物理削除 trigger (= Project E の `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` + `AAG-REQ-ROLLBACK-ANCHOR-PRESERVATION` の application instance precursor) を扱う。物理削除 trigger は **不可逆 milestone** の典型例、archive 移管は rollback anchor の典型例。本 project Phase 1 (必要性 re-evaluate) で case A / B 判定する decision 自体が Project E DecisionTrace schema の sample candidate。
+
+- [ ] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** (= 親 HANDOFF §2 に追記 or 本 checklist の note に articulate、決定的な action は不要、engage のみ義務)
+- [ ] 本 project Phase 1 (必要性 re-evaluate、case A/B 判定) を Project E DecisionTrace schema の retrospective retrofit candidate として articulate (= 本 project 自体の存在判断が DecisionTrace の典型例)
+- [ ] 本 project archive 前に Project E candidate spawn 着手 trigger を確認
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。

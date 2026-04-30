@@ -87,6 +87,15 @@
   - **trigger 条件**: archive 配下 file への inbound 0 機械検証 + **人間 deletion approval** (frontmatter `humanDeletionApproved: true` + `approvedBy` + `approvedCommit`)
   - **判断者**: 人間レビューア (AI でなく)
 
+## Future follow-up project candidate consideration (必ず触れる原則、user articulate 2026-04-30)
+
+> **趣旨**: AI / 人間は checklist に沿って作業する。checklist にないものは触れられない。Future follow-up project candidate (= Project E + F、AAG Decision Traceability + AI Utilization、9 insight 統合) を本 project の作業中に **必ず触れる** mechanism として articulate (= 「いつ考えるか / どう brush up するか」は別問題、必ず engage することのみ義務化)。
+>
+> **正本 articulation**: `projects/aag-bidirectional-integrity/HANDOFF.md` §2 + `projects/aag-bidirectional-integrity/checklist.md` の「Future follow-up = Project E」section。
+
+- [ ] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** (= 親 HANDOFF §2 に追記 or 本 checklist の note に articulate、決定的な action は不要、engage のみ義務)
+- [ ] 本 project archive 前に Project E candidate spawn 着手 trigger を確認 (= Project A 完了 → Project B / D 着手可能性、Project E は Project A〜D 全完了後)
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
