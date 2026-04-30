@@ -12,7 +12,7 @@
 > **全 project に共通する運用骨格** である。プロジェクトが変わっても残る
 > 共通手順として AAG Core 側に置かれ、`promote-ceremony-template.md` /
 > `architecture-rule-system.md` / `allowlist-management.md` 等と同じ層に属する。
-> 詳細: `references/01-principles/aag-5-constitution.md` §Layer 4A。
+> 詳細: `references/99-archive/aag-5-constitution.md` §Layer 4A。
 >
 > 関連する AAG 実装:
 >
@@ -662,7 +662,7 @@ guard は触らずに自動検査される。
 | Layer 3 Execution | `app/src/test/guards/versionSyncGuard.test.ts` | registry を loop して **検査**（V1: ファイル存在 / V2: 値抽出 / V3: 値一致） |
 | Layer 4A System Operations | 本セクション §12 | **運用ルール**（追加方法 / 命名規則） |
 
-これは AAG の 4 層モデル（`references/01-principles/aag-5-constitution.md`）に
+これは AAG の 4 層モデル（`references/99-archive/aag-5-constitution.md`）に
 完全に準拠した設計であり、本仕組み自体が AAG の管理下にある。
 
 ### 12.3. 新しい同期ペアの追加（運用手順）

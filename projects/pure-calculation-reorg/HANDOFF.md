@@ -304,7 +304,7 @@ npm run test:guards     # docs:generate 後に再度
 
 ## 10. AAG 5.0 の構造
 
-AAG は 4 層で構成されている。詳細は `references/01-principles/aag-5-constitution.md` を参照。
+AAG は 4 層で構成されている。詳細は `references/99-archive/aag-5-constitution.md` を参照。
 
 | 層 | 役割 | 代表ファイル |
 |----|------|------------|

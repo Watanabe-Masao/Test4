@@ -1,4 +1,20 @@
-# AAG 5.1.0 — 4層構造定義
+# [ARCHIVED Project A Phase 5.7] AAG 5.1.0 — 4層構造定義 (新 4 層 = Constitution / Schema / Execution / Operations)
+
+> **Archived**: 2026-04-30 (Project A Phase 5.7)
+> **Archived By**: 本 commit
+> **Migrated To**: [`references/01-principles/aag/architecture.md`](../01-principles/aag/architecture.md) §1 (新 5 層構造定義 = 目的 / 要件 / 設計 / 実装 / 検証) + §4.1 (旧 4 層 → 新 5 層 mapping table = AAG-REQ-LAYER-SEPARATION 達成 trigger)
+> **Mapping Anchor**: `aag/architecture.md §4.1` (= 旧 4 層 (Constitution / Schema / Execution / Operations) → 新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) mapping table)
+> **Inbound 0 検証**: active 0 件
+> **Rollback Anchor / Milestone Acknowledgment / Decision Trace**: Phase 5.1〜5.6 と同 pattern
+> **Active Reference Migration**:
+>   - `app/src/test/aagSchemas.ts` L22 (`@see` comment) → `aag/architecture.md`
+>   - `app/src/test/guardCategoryMap.ts` L17 (`@see` comment) → `aag/architecture.md`
+>   - `aag/core/AAG_CORE_INDEX.md` L40 + L59 → `aag/architecture.md`
+> **Decision Trace** (Insight 1): 本 doc は AAG 5.1.0 の新 4 層 (Constitution / Schema / Execution / Operations) を articulate していたが、Project A Phase 1 で `aag/architecture.md` に **新 5 層 (目的 / 要件 / 設計 / 実装 / 検証)** として extend、§4.1 mapping table で旧 → 新 transformation が landed 済 (= AAG-REQ-LAYER-SEPARATION 達成 trigger)。新 5 層は 旧 4 層の **Constitution + Operations を「目的」「要件」「検証」に分解** + Schema/Execution は「設計」「実装」に対応する extension。本 doc は historical reference として archive 移管。
+
+---
+
+# (元 content) AAG 5.1.0 — 4層構造定義
 
 > AAG を作り直すのではなく、品質OSとして骨格整理する。
 

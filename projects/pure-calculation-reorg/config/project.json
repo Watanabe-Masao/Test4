@@ -38,7 +38,7 @@
     "projectization": "projects/pure-calculation-reorg/projectization.md"
   },
   "requiredCore": [
-    "references/01-principles/aag-5-constitution.md",
+    "references/99-archive/aag-5-constitution.md",
     "references/99-archive/aag-5-source-of-truth-policy.md",
     "references/01-principles/semantic-classification-policy.md",
     "references/01-principles/engine-boundary-policy.md",

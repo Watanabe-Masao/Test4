@@ -49,7 +49,7 @@
 
 - [ ] `adaptive-architecture-governance.md` の inbound 全件 grep + 新 path に書き換え完了 (inbound 0 機械検証 PASS)
 - [ ] `adaptive-architecture-governance.md` を `references/99-archive/` に移管 (frontmatter `archived: true` 追加)
-- [ ] `aag-5-constitution.md` の inbound 全件 update + archive 移管
+- [x] `aag-5-constitution.md` の inbound 全件 update + archive 移管 — **Phase 5.7 完遂** (本 commit、active 4 = `aagSchemas.ts` L22 + `guardCategoryMap.ts` L17 + `aag/core/AAG_CORE_INDEX.md` L40 + L59 を `aag/architecture.md` に update + mapping bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化)
 - [x] `aag-5-source-of-truth-policy.md` の inbound 全件 update + archive 移管 — **Phase 5.4 完遂** (本 commit、active inbound 2 = `aag/core/AAG_CORE_INDEX.md` L60 + `app/src/test/aagSchemas.ts` L23 を `aag/source-of-truth.md` に update + mapping inbound bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化)
 - [x] `aag-5-layer-map.md` の inbound 全件 update + archive 移管 — **Phase 5.1 完遂** (commit `14479a4`、active inbound 1 件 = `projectization-policy.md` L596 を新 path に update + mapping inbound 7 件を archive path に migrate + git mv → 99-archive/ + frontmatter (archived / archivedAt / archivedBy / migratedTo / mapping anchor / rollback anchor / milestone acknowledgment / decision trace) 追加 + doc-registry.json archive section migrate)
 - [x] `aag-four-layer-architecture.md` の inbound 全件 update + archive 移管 — **Phase 5.2 完遂** (本 commit、active inbound 2 件 = `architectureRules/helpers.ts` L70 + L86 の `@see` を `aag/architecture.md` に update + mapping inbound 10 件を archive path に migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive section migrate)

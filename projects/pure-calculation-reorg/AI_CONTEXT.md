@@ -66,7 +66,7 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 | `aag/core/principles/core-boundary-policy.md` | Core | 3 層境界ポリシー（5 原則） |
 | `app/src/test/aag-core-types.ts` | Core | Core ルール型（RuleSemantics / Governance / DetectionSpec） |
 | `app/src/test/aagSchemas.ts` | Core | AAG 5.0 スキーマ定義 |
-| `references/01-principles/aag-5-constitution.md` | Core | AAG 4層構造定義 |
+| `references/99-archive/aag-5-constitution.md` | Core | AAG 4層構造定義 |
 | `references/99-archive/aag-5-source-of-truth-policy.md` | Core | 正本/派生/運用物ポリシー |
 
 ## Required App Domain References

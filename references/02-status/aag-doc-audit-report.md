@@ -13,7 +13,7 @@
 | # | doc path | inbound 数 | 行数 | 5 層位置付け | 必要 operation |
 |---|---|---:|---:|---|---|
 | 1 | `references/01-principles/adaptive-architecture-governance.md` | 36 | 531 | Layer 2 戦略マスター + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 (混在) | **Split + Rewrite + 部分 Archive** |
-| 2 | `references/01-principles/aag-5-constitution.md` | 27 | 208 | Layer 2 構造設計 (旧 4 層) + Layer 1 非目的 (混在) | **Rewrite + Relocate + Rename + 内容分散** |
+| 2 | `references/99-archive/aag-5-constitution.md` | 27 | 208 | Layer 2 構造設計 (旧 4 層) + Layer 1 非目的 (混在) | **Rewrite + Relocate + Rename + 内容分散** |
 | 3 | `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) | 10 | 174 | Layer 2 reference (ファイル別 4 層 mapping) | Rewrite + Relocate + Rename |
 | 4 | `references/99-archive/aag-5-source-of-truth-policy.md` | 16 | 148 | Layer 2 reference (正本/派生物/運用物 ポリシー) | Rewrite + Relocate + Rename |
 | 5 | `references/99-archive/aag-four-layer-architecture.md` | 15 | 100 | (旧 4 層 = Principles/Judgment/Detection/Response、superseded) | **即 Archive** |
