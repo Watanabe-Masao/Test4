@@ -57,7 +57,13 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 |---|---|
 | 通常 → deprecation marker | Phase 3 audit で operation 判定 + 経緯 commit |
 | deprecation marker → archive 移管 | **旧 path への inbound 0 (機械検証) + migrationRecipe 完備 + §1.5 mapping table が新 doc に landed (旧 4 層 → 新 5 層 等の概念継承を保つ)** |
-| archive → 物理削除 | **archive 配下 file への inbound 0 (機械検証、99-archive 内 reference も all clear)** |
+| archive → 物理削除 | **(a) archive 配下 file への inbound 0 (機械検証、99-archive 内 reference も all clear) + (b) 人間 deletion approval** (PR review Review 3 P2 #8 反映、anti-ritual と orthogonal、grep できない参照 / 外部メモ / 過去 PR / 自然言語参照を考慮した安全装置) |
+
+**人間 deletion approval の機械検証** (期間 buffer でなく state-based gate):
+- archive file の frontmatter に `humanDeletionApproved: true` + `approvedBy: <reviewer>` + `approvedCommit: <SHA>` を必須化
+- `legacyRetirementGuard.test.ts` (or 既存 docRegistryGuard 内) で物理削除前に approval 状態を機械検証
+- approval なしの物理削除は hard fail
+- これにより「期間 buffer なし (anti-ritual)」と「人間最終承認 (安全装置)」を両立
 
 ### 不可侵原則
 
@@ -66,7 +72,23 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 - migrationRecipe を本 doc に記録 (消去 doc が指していた概念を、新どこに辿り着くべきかの指針)
 - phased-content-specs-rollout の Phase K Option 1 物理削除パターン (`.skip` 化 → registry 削除 → 物理削除を別 commit) を踏襲
 - **期間 (日数 / commits 数) のみで段階を進めない**。`30 日経ったから次へ` / `30 commits 連続` は anti-pattern (発火条件に触れずに見落とす risk)
-- **inbound 0 が唯一の機械検証可能な trigger**。それ以外は禁止
+- **inbound 0 が唯一の機械検証可能な archive trigger**。それ以外は禁止
+- **物理削除は inbound 0 + 人間 deletion approval の両条件**。anti-ritual (期間 buffer なし) と orthogonal な安全装置として人間最終承認を保持
+
+### observeForDays vs inbound 0 trigger 切り分け (PR review #6 反映)
+
+既存 `app/src/test/architectureRules/defaults.ts` の `lifecyclePolicy.observeForDays` field との
+衝突を回避するため、適用範囲を明示分離:
+
+| context | trigger 種別 | 期間 buffer 許容? |
+|---|---|---|
+| **legacy doc 削除** (Phase 5 archive 移管 / 物理削除) | `inbound 0` 機械検証のみ + 人間 deletion approval | ❌ 禁止 (`AAG-REQ-NO-DATE-RITUAL` 適用) |
+| **experimental rule 昇格 / 撤回** (既存 lifecyclePolicy) | 主 trigger は `sunsetCondition` 状態満足、`observeForDays` は **supplementary signal** (= 観測指標、trigger ではない) | ✅ 観測指標として許容、ただし trigger には使わない |
+| **rule の deprecated 化** (proxy / performative 撤回) | Phase 6 audit 結果 (state-based 判定、proxy metric の articulate 等) | ❌ 期間 buffer 禁止 |
+
+**aag/meta.md §2 で `AAG-REQ-NO-DATE-RITUAL` の説明欄に「期間ベース判断の禁止範囲」を articulate**:
+- 禁止範囲: legacy doc 削除 / rule deprecated 化 / archive 移管 trigger
+- 例外 (許容範囲): experimental rule 昇格 / 撤回観測 (supplementary signal、ただし trigger でなく観測のみ)
 
 ## 3. 撤退対象 list
 
