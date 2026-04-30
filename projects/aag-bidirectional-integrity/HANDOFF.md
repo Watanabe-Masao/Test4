@@ -125,24 +125,33 @@ main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 
 
 Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
-## 1.6. Phase 3 hard gate decision = B 確定 (2026-04-30、本 project MVP 完遂)
+## 1.6. Phase 3 hard gate decision = AI 推奨 B (ユーザー確認待ち)
 
-**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI 自主判断 (deferred-decision-pattern §3.1 適用) で **B (Project A〜D 分割) を確定**。
+**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI が criteria を適用して **推奨 B** を articulate。但し本 gate は **高 blast radius** (= project 構造の不可逆判断 + 4 project bootstrap 計画) のため `deferred-decision-pattern.md` §3.2 例外則 (構造的安全装置) を適用し、ユーザー確認を必須 gate として運用 (= AI 単独で確定しない)。
 
 | 項目 | 状態 |
 |---|---|
 | §8.14 第 1 段 (Phase 1 skeleton landing) | ✅ PR #1216-#1223 merged |
 | §8.14 第 2 段 (Phase 3 audit landing) | ✅ commit `6762d39` |
 | §8.14 第 3 段 (Phase 1 §3 fill cyclic refinement) | ✅ commit `477ef41` |
-| Phase 3 hard gate decision | ✅ **B 確定** (本 commit) |
+| Phase 3 hard gate (AI 推奨段階) | ✅ **B 推奨** (本 commit、deferred-decision-pattern §3.1) |
+| Phase 3 hard gate (ユーザー確認段階) | ⏳ **未確定** (a/b/c のいずれか待ち、deferred-decision-pattern §3.2) |
 
-**rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い。**default B = follow-up project 分割を採用**。
+**AI 推奨 rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い → **default B (follow-up project 分割) を AI 推奨**。
 
-### 本 project (`aag-bidirectional-integrity`) は **MVP 完遂状態** に到達
+**ユーザー判断選択肢**:
+- **a) B 確定** (= AI 推奨採用、Project A〜D 分割で進行)
+- **b) A 単一継続** (= scope は管理可能と判断、本 project 内で Phase 4〜10 を継続)
+- **c) 別案** (= 異なる分割または scope 縮小、ユーザー articulate)
 
-- **MVP scope**: Phase 1 (AAG Meta charter landing) + Phase 3 (AAG Core doc audit landing) + cyclic refinement (Phase 1 §3 fill) = 全完遂
-- **後続 Phase 4〜10 は Project A〜D に移管**: 別 session で各 project を bootstrap 後に execution
-- **本 project の status**: 次 session 以降で archive 候補に migrate (Project A〜D bootstrap 完了後、本 project は archive プロセスへ)
+### 本 project (`aag-bidirectional-integrity`) の状態
+
+- **MVP scope (Phase 1 + Phase 3 + cyclic refinement)**: ✅ 全完遂
+- **MVP 完遂状態 articulate**: 本 commit で完了
+- **後続 Phase 4〜10 の処理方針**: ⏳ ユーザー確認後に確定 (a/b/c のいずれか)
+  - a) 確定時 → 後続 Phase は別 project (仮称 Project A〜D) に移管、本 project は archive プロセスへ
+  - b) 確定時 → 後続 Phase は本 project 内で継続、archive は Phase 10 完遂後
+  - c) 確定時 → ユーザー articulate に従い再計画
 
 ### Project A〜D 分割案 (audit report §7.2)
 
@@ -165,10 +174,12 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
 各 project bootstrap は **1 session = 1 project**:
 
-- [ ] **Project A bootstrap** (AAG Core doc refactor): `projects/aag-core-doc-refactor/` を `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
-- [ ] **Project B bootstrap** (rule schema + meta-guard): `projects/aag-rule-schema-meta-guard/` を bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
-- [ ] **Project C bootstrap** (DFR registry + display guards): `projects/aag-display-rule-registry/` を bootstrap、Phase 9 + Phase 10 を移管
-- [ ] **Project D bootstrap** (legacy retirement): `projects/aag-legacy-retirement/` を bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
+> **注**: 以下の Project A〜D は **仮称** (まだ project entity として未存在)。実 project entity の id / path は **bootstrap session でユーザー判断** により確定 (= 本 articulation は spawn 計画の sketch であり、project id を予約しない)。
+
+- [ ] **Project A bootstrap** (仮称 = AAG Core doc refactor): 適切な project id を確定し `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
+- [ ] **Project B bootstrap** (仮称 = rule schema + meta-guard): 適切な project id を確定し bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
+- [ ] **Project C bootstrap** (仮称 = DFR registry + display guards): 適切な project id を確定し bootstrap、Phase 9 + Phase 10 を移管
+- [ ] **Project D bootstrap** (仮称 = legacy retirement): 適切な project id を確定し bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
 
 各 project の **依存関係**:
 - Project A → Project B (= AAG Core doc refactor 完了後に rule schema 拡張、binding 記入対象が安定)
