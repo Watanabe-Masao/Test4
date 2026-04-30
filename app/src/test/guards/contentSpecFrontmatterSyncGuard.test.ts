@@ -16,7 +16,7 @@
  *
  * 修正方法: `node tools/widget-specs/generate.mjs`（引数なしで全件再生成）
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B,
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase A / §Phase B,
  * references/05-contents/widgets/README.md §「構造軸」。
  *
  * @taxonomyKind T:meta-guard

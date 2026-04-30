@@ -155,4 +155,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase (A〜K) の成果物 (commit / PR / 関連正本 / generated artifact) + 末セッションの撤回判定 (Phase C 4 件 / Phase E 2 件 / Phase F 1 件 / Phase G 1 件 + Phase K Option 3 = 計 9 件、全て理由付き strikethrough で記録) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase (A〜K) の成果物 (commit / PR / 関連正本 / generated artifact) + 末セッションの撤回判定 (Phase C 4 件 / Phase E 2 件 / Phase F 1 件 / Phase G 1 件 + Phase K Option 3 = 計 9 件、全て理由付き strikethrough で記録) を人間がレビューし、archive プロセスへの移行を承認する

@@ -14,7 +14,7 @@
  *   1 PR で registry の `runtimeStatus` を更新し、spec の `canonicalRegistration` を
  *   同期更新することを **本 guard が強制** する。片方だけ更新したら hard fail。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
  * references/03-guides/promote-ceremony-pr-template.md.
  *
  * @taxonomyKind T:meta-guard

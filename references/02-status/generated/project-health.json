@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T06:13:42.045Z",
+  "timestamp": "2026-04-30T08:19:16.754Z",
   "summary": {
-    "active": 6,
-    "archived": 28,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 29,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1000,
-    "checkedCheckboxes": 842
+    "checkedCheckboxes": 843
   },
   "projects": [
     {
@@ -306,13 +306,13 @@
       "projectId": "phased-content-specs-rollout",
       "title": "Content Spec System 段階展開計画",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 71,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 72,
       "total": 72,
-      "progress": 0.986,
-      "entrypoint": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
-      "checklistPath": "projects/phased-content-specs-rollout/checklist.md",
+      "progress": 1,
+      "entrypoint": "projects/completed/phased-content-specs-rollout/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/phased-content-specs-rollout/checklist.md",
       "parent": null
     },
     {

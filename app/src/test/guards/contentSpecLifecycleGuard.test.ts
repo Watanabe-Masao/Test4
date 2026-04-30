@@ -20,7 +20,7 @@
  * + 「deadline 超過の Hard fail」を検証する。replacedBy/supersedes の双方向対称
  * 検証は後続 commit。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
  * references/05-contents/calculations/README.md §「Lifecycle State Machine」.
  *
  * @taxonomyKind T:meta-guard

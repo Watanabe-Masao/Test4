@@ -5867,7 +5867,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       when: "registry source または WID-NNN.md を変更するとき",
       exceptions: "なし（Anchor Slice scope 内では例外なし）",
       escalation:
-        "spec 単独で landed させる場合は projects/phased-content-specs-rollout/plan.md §Phase A の Anchor Slice scope 拡大手続きを経由",
+        "spec 単独で landed させる場合は projects/completed/phased-content-specs-rollout/plan.md §Phase A の Anchor Slice scope 拡大手続きを経由",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -6187,7 +6187,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "projects/phased-content-specs-rollout/plan.md",
+    doc: "projects/completed/phased-content-specs-rollout/plan.md",
     what: "spec body の Behavior Claims セクションの evidenceLevel / riskLevel 整合性を機械検証する (Phase J Evidence Level Enforcement)",
     why: "spec の prose claim が test / guard で実証されているかを構造保証することで、prose 層の C 層 drift (主張だけで実装と乖離) を Phase J 段階展開で 0 化する。high-risk claim の asserted 禁止 / tested の test path 必須 / guarded の guard path 必須 を強制",
     correctPattern: {
@@ -6232,7 +6232,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "projects/phased-content-specs-rollout/plan.md",
+    doc: "projects/completed/phased-content-specs-rollout/plan.md",
     what: "spec body の Behavior Claims に記載された tests / guards path が repo 内に実在することを機械検証する (Phase J 後続課題 J7 path 実在 guard)",
     why: "evidenceLevel guard は cell 非空のみ検証、参照 path が実 file を指すかは未保証。path 不在 / typo / 移動後の stale reference を検出することで「tested / guarded を名乗りながら実 evidence なし」状態を排除する。AR-CONTENT-SPEC-EVIDENCE-LEVEL の補完 rule",
     correctPattern: {

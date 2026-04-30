@@ -18,7 +18,7 @@
  * 詳細出力 (`content-spec-health.json` のみ):
  *   - byKind 内訳 / lifecycle 状態分布 / evidence カバレッジ詳細
  *
- * @see projects/phased-content-specs-rollout/plan.md §Phase H
+ * @see projects/completed/phased-content-specs-rollout/plan.md §Phase H
  * @see references/05-contents/
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'

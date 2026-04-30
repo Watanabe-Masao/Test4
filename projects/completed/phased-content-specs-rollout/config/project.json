@@ -2,8 +2,10 @@
   "$comment": "Content Spec System (CSS / WSS) を「実装状態を取得・検証・変更レビュー接続・ライフサイクル管理する運用制御システム」へ段階展開する独立 active project。2026-04-26 改訂版（umbrella architecture-debt-recovery archive 後、旧 inquiry/22 を本 project の plan.md に移管）。canonical 計画 doc は plan.md。Phase A〜J + Operational Control System §1〜§11 を保持する。",
   "projectId": "phased-content-specs-rollout",
   "title": "Content Spec System 段階展開計画",
-  "status": "active",
-  "projectRoot": "projects/phased-content-specs-rollout",
+  "status": "archived",
+  "archivedAt": "2026-04-30",
+  "archivedReason": "Phase A〜K 全 mechanism 完遂 + 末セッション 9 件撤回判定 (Phase C 4 / Phase E 2 / Phase F 1 / Phase G 1 / Phase K Option 3)、人間 review 通過 (checklist L158 flip) 後 archive プロセス移行。本 project 末セッション dialog で発見された AAG 構造的弱点 (双方向 integrity 不在 + AAG Meta articulation 不在 + drill-down chain semantic 管理不在) は後継 active project `aag-bidirectional-integrity` (PR #1216〜#1221) で根本対策として展開中。",
+  "projectRoot": "projects/completed/phased-content-specs-rollout",
   "projectization": {
     "$comment": "Level 3 — Phase A で 5 件の新 Architecture Rule active 化 + frontmatter generator 実装 + obligation-collector 拡張。複数 guard + collector + script にまたがる architecture level 改修。Phase B 以降も同類の拡張が続く。",
     "level": 3,
@@ -32,10 +34,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/phased-content-specs-rollout/AI_CONTEXT.md",
-    "handoff": "projects/phased-content-specs-rollout/HANDOFF.md",
-    "plan": "projects/phased-content-specs-rollout/plan.md",
-    "checklist": "projects/phased-content-specs-rollout/checklist.md",
-    "projectization": "projects/phased-content-specs-rollout/projectization.md"
+    "aiContext": "projects/completed/phased-content-specs-rollout/AI_CONTEXT.md",
+    "handoff": "projects/completed/phased-content-specs-rollout/HANDOFF.md",
+    "plan": "projects/completed/phased-content-specs-rollout/plan.md",
+    "checklist": "projects/completed/phased-content-specs-rollout/checklist.md",
+    "projectization": "projects/completed/phased-content-specs-rollout/projectization.md"
   }
 }
