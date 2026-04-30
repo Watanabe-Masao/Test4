@@ -27,28 +27,31 @@
 
 ### 設計の核心 (2026-04-30 0 ベース re-derivation)
 
-#### 4 層 drill-down 構造 + 5 縦スライス (AAG architecture pattern)
+#### 5 層 drill-down 構造 + 5 縦スライス (AAG architecture pattern)
 
-AAG は **4 層 (横軸) × 5 縦スライス (縦軸)** の matrix で articulate (本プロジェクト本体側
-modular monolith evolution と parallel)。経営階層 metaphor (経営理念 → 社訓 → 経営戦略 → 戦術)
-は横軸の概念伝達 image、正式用語が下表:
+AAG は **5 層 (横軸) × 5 縦スライス (縦軸)** の matrix で articulate (本プロジェクト本体側
+modular monolith evolution と parallel)。経営階層 metaphor (経営理念 → 社訓 → 経営戦略 → 戦術
+→ 監査) は横軸の概念伝達 image、正式用語が下表:
 
-**横軸 (4 層 drill-down)**:
+**横軸 (5 層 drill-down)**:
 
 | Layer | 用語 | metaphor | 性質 |
 |---|---|---|---|
 | 0 | **目的** (Purpose) | 経営理念 | AAG の存在意義、人間判断、機械検証不可 |
 | 1 | **要件** (Requirements) | 社訓 | 不変条件 + 禁則、機械検証可能 |
 | 2 | **設計** (Design) | 経営戦略 | AAG の構造方針 |
-| 3 | **実装** (Implementation) | 戦術 | 個別 rule / guard / allowlist / health |
+| 3 | **実装** (Implementation) | 戦術 | AAG が能動的に行うこと (rule / guard / allowlist) |
+| 4 | **検証** (Verification) | 外部監査 | AAG が claim と actual を受動的に照合すること (health KPI / certificate / Discovery Review / meta-guard / aag/meta.md §4 達成判定) |
 
 **縦軸 (5 縦スライス、AAG 既存)**: layer-boundary / canonicalization / query-runtime /
 responsibility-separation / governance-ops。各セルに「縦スライスの特定層に住む doc / 実装」が
 articulate される (詳細: plan §3.1.3 matrix view)。
 
+**3 軸の役割分担**:
 - **AAG Meta** = Layer 0 + 1 (`aag/meta.md` を新規 Create で articulate、4 section: 目的 / 要件 / Core mapping / 達成判定総括)
-- **AAG Core** = Layer 2 + 3 (8 doc + rule + guard + allowlist + health)
-- AAG Meta は **目的 (= 評価基準を規定する側)**、AAG Core は **対象 (= 評価される側)**
+- **AAG Core** = Layer 2 + 3 (設計 doc 群 + 実装 = 8 doc + rule + guard + allowlist)
+- **AAG Audit** = Layer 4 (外部監査視点で AAG 全体を audit、health-rules / Discovery Review / meta-guard / certificate)
+- AAG Meta は **目的 (= 評価基準を規定する側)**、AAG Core は **対象 (= 評価される側)**、AAG Audit は **第三者監査 (= claim と actual を照合)**
 
 #### 破壊的変更前提
 

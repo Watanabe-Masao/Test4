@@ -11,98 +11,139 @@
 
 - [x] `projects/aag-bidirectional-integrity/` を `_template` から bootstrap した
 - [x] `config/project.json` に projectization (Level 3 / governance-hardening / status active / requiresLegacyRetirement=true) を記録した
-- [x] `plan.md` に Phase 1〜9 + 不可侵原則 + やってはいけないこと を記録した
-- [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order を記録した
-- [x] `HANDOFF.md` に現在地（spawn 直後）と次にやること（Phase 1〜9）と ハマりポイントを記録した
+- [x] `plan.md` に Phase 1〜10 + 不可侵原則 + やってはいけないこと + 5 層 drill-down + 縦スライス matrix + 破壊的変更前提 + 検証層 + §8 確認・調査事項 を記録した
+- [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order と 5 層 drill-down + 3 軸 (Meta/Core/Audit) を記録した
+- [x] `HANDOFF.md` に現在地と次にやること（Phase 1〜10）とハマりポイントを記録した
 - [x] `projectization.md` に AAG-COA 判定 (Level 3 / requiresLegacyRetirement=true) と nonGoals を記録した
-- [x] `legacy-retirement.md` の skeleton を landing した（Phase 4 で実値を埋める）
+- [x] `legacy-retirement.md` の skeleton を landing した（Phase 5 で実値を埋める）
 
-## Phase 1: AAG Meta charter doc の新規創出
+## Phase 1: AAG Meta doc (`aag/meta.md`) の新規創出 (Layer 0+1)
 
-- [ ] `references/01-principles/aag-meta.md` を新規作成し、§1 identity (AAG とは何であり何でないか) を記述した
-- [ ] `aag-meta.md` §2 goals (解決する問題) を記述した — 動くが意図に反するコードの即時検出 / 過去判断の文脈消失防止 / 暗黙知の形式知化 / 改善の不可逆化 / 双方向 integrity 等
-- [ ] `aag-meta.md` §3 limits (解決できない問題) を記述した — 設計の良し悪し / 業務的妥当性 / 創造性 / 戦略判断 / 意味的意図 (= CLAUDE.md 領分) との境界明示
-- [ ] `aag-meta.md` §4 invariants (実現すべき性質) を記述した — 双方向 integrity (forward + reverse) / state-based trigger / self-hosting / ratchet-down / 例外管理の構造化
-- [ ] `aag-meta.md` §5 non-goals (してはいけないこと) を記述した — performative work 生成 / date-based ritual 許容 / 完璧主義 / AI-人間判断の代替 / 業務 logic への侵入 / 意味改変
-- [ ] `aag-meta.md` §6 boundaries (限界の honest な認識) を記述した — 検出の粗さ / Discovery 属人性 / 評価の手動性は意図的な弱さとして steady state
-- [ ] `aag-meta.md` §7 他 AAG doc との境界 (Core: operational / Meta: statics / Evolution: dynamics) を記述した
-- [ ] AAG Core (`adaptive-architecture-governance.md`) の「関連文書」table に back link 1 行追加した — diff 目視で意味改変ゼロを確認
-- [ ] CLAUDE.md AAG セクションに 1 行索引 link を追加した
-- [ ] `docs/contracts/doc-registry.json` に `aag-meta.md` を登録した
-- [ ] charter doc の人間 review を経て確定した（Constitution 改訂と同等の慎重さ）
+> 着手前 prerequisite: plan §8.5 (registry / contract 系の現実 schema 確認) + §8.8 (命名規則 / ディレクトリ階層化整合性) + §8.9 (もう一押し候補の integrate 判断: A / C / E / F / G / J)
 
-## Phase 2: AAG rule metadata 拡張
+- [ ] `references/01-principles/aag/meta.md` を新規 Create し、§1 目的 (Purpose、Layer 0、1-2 段落) を記述した
+- [ ] `aag/meta.md` §2 要件 (Requirements、Layer 1) を記述した — 不変条件 + 禁則 table、各行に enforcing AR-rule + state-based 達成条件 + 達成 status (双方向 integrity / state-based / self-hosting / ratchet-down / non-performative 等)
+- [ ] `aag/meta.md` §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix) を記述した
+- [ ] `aag/meta.md` §4 達成判定総括 (全要件の達成度サマリ + 不達成解消責務) を記述した
+- [ ] `references/01-principles/aag/README.md` を新規 Create した (aag/ ディレクトリ index、CLAUDE.md からの 1 link entry)
+- [ ] `docs/contracts/doc-registry.json` に新 doc 群 (`aag/meta.md` + `aag/README.md`) を登録した
+- [ ] CLAUDE.md AAG セクションに `aag/README.md` への 1 行索引 link を追加した (詳細薄化は Phase 4)
+- [ ] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ)
 
-- [ ] `architectureRules/defaults.ts` の rule entry schema に `canonicalDocRef: string[]` を追加した
-- [ ] `guardCategoryMap.ts` の対応 field を追加した（または schema 統合）
-- [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` 空 array で初期化した
-- [ ] TypeScript 型定義の整合を確認した（build / lint PASS）
+## Phase 2: AAG rule metadata 拡張 (semantic articulation 構造)
 
-## Phase 3: 網羅的 doc audit (rule canonization mapping + gap analysis)
+> 着手前 prerequisite: plan §8.2 (architectureRules.ts の現実 schema 確認) + §8.9 (`principleRefs` semantic 化検討)
 
-- [ ] `references/` 配下全 doc inventory を作成した（path / 役割 / 分類: rule-defining / rule-using / status / archive / template）
-- [ ] 各 rule-defining doc が canonize している rule を抽出した（人間語 → AR rule ID 候補マッピング）
-- [ ] gap 識別を完了した（実装 / 慣習として確立しているが doc 化されていない rule の候補）
-- [ ] redundancy 識別を完了した（同一概念を複数 doc が説明している箇所、conflict があれば flag）
-- [ ] staleness 識別を完了した（archived / superseded / 内容が古い doc）
-- [ ] audit 結果を `references/02-status/doc-audit-report.md` に集約した
+- [ ] `architectureRules/defaults.ts` の rule entry schema に `canonicalDocRef: Array<{ docPath, problemAddressed, resolutionContribution }>` を追加した
+- [ ] 同 schema に `metaRequirementRefs: Array<{ requirementId, problemAddressed, resolutionContribution }>` を追加した
+- [ ] `guardCategoryMap.ts` の対応 field を追加した (または schema 統合)
+- [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` + `metaRequirementRefs: []` 空 array で初期化した
+- [ ] TypeScript 型定義の整合を確認した (build / lint PASS)
 
-## Phase 4: legacy 撤退 (不要 doc 整理 + 冗長性解消 + 不足補完)
+## Phase 3: AAG Core doc audit (4 層位置付け + 責務 + drill-down semantic + operation 判定)
 
-- [ ] `legacy-retirement.md` に Phase 4 の sunset / consolidation / 補完計画を確定した
-- [ ] staleness 判定 doc 全件の判定（即時 sunset / 漸次 sunset / 維持）を確定した
-- [ ] sunset 判定 doc を `99-archive/` に移管した（migrationRecipe 付き、物理削除は段階）
-- [ ] redundancy 判定対象の正本確定 + 他 doc の back link 化を完了した
-- [ ] gap 補完の必要最低限 doc を新設した（Phase 8 と区別、即時補完が前提整理に必要なもののみ）
-- [ ] doc-registry.json に変更を反映した
+> 着手前 prerequisite: plan §8.1 (8 doc + CLAUDE.md AAG セクションの実 inbound link 数 grep) + §8.3 (5 縦スライス整合性検証) + §8.4 (Layer 3 / Layer 4 境界 identify) + §8.7 (Layer 2 doc 状態確認)
 
-## Phase 5: 既存 AR-NNN rule の audit + binding (partial)
+各 AAG 関連 doc に対して:
+
+- [ ] **5 層位置付け** (Layer 0/1/2/3/4 / 境界 のどれか) を articulate した
+- [ ] **責務** (1 doc 1 責務、C1 適用) を articulate した
+- [ ] **書くべきこと (write list)** + **書かないこと (non-write list)** を articulate した
+- [ ] **drill-down pointer** (上位 back-pointer + 下位 drill-down) を articulate した
+- [ ] **必要 operation** (Create / Split / Merge / Rename / Relocate / Rewrite / Archive のどれか、複数可) を判定した
+- [ ] **影響範囲 inventory** (inbound link 数 / 索引 / registry / guard binding) を集約した
+- [ ] **migration order** (operation 間の依存 + commit 順序) を articulate した
+
+追加 deliverable:
+
+- [ ] AR-rule canonization mapping (人間語 → AR rule ID 候補) を作成した
+- [ ] gap 識別 / redundancy 識別 / staleness 識別を完了した
+- [ ] 5 縦スライス境界の reshape 必要性を判定した
+- [ ] Layer 3 (実装) と Layer 4 (検証) に混在している guard を identify した
+- [ ] audit 結果を `references/02-status/aag-doc-audit-report.md` に集約した
+
+## Phase 4: AAG Core doc content refactoring (新規書き起こし優先)
+
+> 着手前 prerequisite: Phase 3 audit 完了 + plan §8.8 (命名 / ディレクトリ整合性) + Phase 1 aag/meta.md skeleton 完了
+
+operation 順序:
+
+- [ ] **Create 段階**: 新 path に新 doc を直接 Create (`aag/strategy.md` / `aag/architecture.md` / `aag/evolution.md` / `aag/layer-map.md` / `aag/source-of-truth.md` / `aag/operational-classification.md`)
+- [ ] **Split / Merge / Rewrite 段階**: 旧 doc から内容を選別して新 doc に書き起こし、5 層位置付け + drill-down pointer + semantic articulation を装着した
+- [ ] Layer 3 (実装) と Layer 4 (検証) を明示分離した (混在 guard の責務再分離)
+- [ ] **CLAUDE.md AAG セクション薄化**: 「AAG を背景にした思考」の core を `aag/meta.md` に逃がし、CLAUDE.md は `aag/README.md` への 1 link 索引のみにした
+- [ ] **doc-registry.json + principles.json + manifest.json** を更新した (新 doc 登録、旧 doc は deprecation marker 段階)
+- [ ] 各 operation 独立 commit で履歴を残した、parallel comparison 期間に entered
+
+## Phase 5: legacy 撤退 (旧 doc archive、inbound 0 trigger)
+
+> 着手前 prerequisite: Phase 4 完了 + 旧 path への inbound migration 完了
+
+- [ ] `legacy-retirement.md` を実値で update した (Phase 3 audit の Archive 候補対象を埋める)
+- [ ] 各旧 doc の **inbound 0 機械検証** を実施した (旧 path への参照を全 doc / 全 registry / 全 guard binding で grep)
+- [ ] inbound 0 確認した旧 doc を `references/99-archive/` に移管した (migrationRecipe + 履歴付き)
+- [ ] 99-archive 配下の旧 doc に対する inbound も 0 になった file を物理削除した (即時、buffer なし)
+- [ ] doc-registry.json + principles.json + manifest.json の reflect を完了した
+
+## Phase 6: 既存 AR-NNN rule の audit + binding (partial)
+
+> 着手前 prerequisite: Phase 3 audit 完了 + Phase 4 refactor 完了 (新 path で binding 記入)
 
 - [ ] Phase 3 mapping を input に既存 100+ AR-NNN rule を A/B/C/D 4 分類で audit した
-- [ ] 分類 A（自明な既製本）の rule に `canonicalDocRef` を即時記入した
-- [ ] 分類 D（撤回判定）の rule の sunset trigger を確定した
+- [ ] 分類 A の rule に `canonicalDocRef` + `metaRequirementRefs` を semantic articulation 付きで即時記入した
+- [ ] 分類 D の rule の sunset trigger を確定した
 - [ ] 分類 B/C は後続 sprint で漸次対応する旨を HANDOFF に明示した
 - [ ] audit 結果を `references/02-status/ar-rule-audit.md` に記録した
 
-## Phase 6: Layer 2 既存 doc に back link section 追加
+## Phase 7: Layer 2 doc に back link section + drill-down semantic 装着
+
+> 着手前 prerequisite: plan §8.7 (Layer 2 doc の rule canonization 状態確認) + Phase 6 binding 完了
 
 - [ ] `04-design-system/docs/` 関連 doc に `## Mechanism Enforcement` section を追加した
-- [ ] `01-principles/` 関連 doc（rule 定義系）に同 section を追加した
-- [ ] `03-guides/` 関連 doc（数値表示ルール / coding-conventions 等）に同 section を追加した
-- [ ] 各 section が指す AR rule ID 一覧と Phase 5 分類 A の binding が双方向で整合した
+- [ ] `01-principles/` 関連 doc (rule 定義系) に同 section を追加した
+- [ ] `03-guides/` 関連 doc (数値表示ルール / coding-conventions 等) に同 section を追加した
+- [ ] 各 section の各 entry が **3 要素を保持** (AR rule ID + 要件 ID + architect 寄与 articulation) を確認した
 
-## Phase 7: forward / reverse meta-guard 実装
+## Phase 8: forward / reverse meta-guard 実装 (Layer 4 検証層)
 
-- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設した
-- [ ] reverse guard が各 AR rule の `canonicalDocRef` 必須化 + path 実在 + doc 内 rule ID 出現を検証した
-- [ ] `canonicalDocBackLinkGuard.test.ts` (forward) を新設した
-- [ ] forward guard が canonical doc の Mechanism Enforcement section が指す AR ID の実在を検証した
-- [ ] 例外 allowlist の baseline を機械管理した（ratchet-down のみ、増加禁止）
+> 着手前 prerequisite: Phase 2 schema 拡張完了 + Phase 6 / Phase 7 binding 完了 + plan §8.9 C / H 候補の判断
+
+- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設し、各 AR rule の `canonicalDocRef` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty を検証した
+- [ ] `canonicalDocBackLinkGuard.test.ts` (forward) を新設し、canonical doc の `## Mechanism Enforcement` section の各 entry について AR ID + 要件 ID + articulation non-empty を検証した
+- [ ] (option) `metaRequirementBindingGuard.test.ts` を新設した (Layer 1 ↔ Layer 3 binding 検証)
+- [ ] (option / candidate C) `selfHostingGuard.test.ts` を新設した (aag/meta.md 自身が AR-rule に linked + 内部整合性 hard check)
+- [ ] 例外 allowlist の baseline を機械管理した (ratchet-down のみ、増加禁止)
 - [ ] 新 rule 追加 PR で immediate enforcement が hard fail することを synthetic 注入で確認した
+- [ ] aag/meta.md §2 の **双方向 integrity 要件 status が「未達成」→「達成」に flip** した
 
-## Phase 8: 新規製本創出 (Phase 3 で identified gaps + display-rule registry)
+## Phase 9: DFR registry (Layer 2 新規製本)
 
-- [ ] `references/01-principles/display-rule-registry.md` を新設した（Phase 8 の最重要 instance）
-- [ ] DFR-001 chart semantic color を rule entry として登録した（Layer 1 source link / Layer 2 doc link / bypass pattern / 適用 path / migrationRecipe）
+> 着手前 prerequisite: Phase 8 meta-guard landing 完了 + plan §8.6 DFR-001〜005 の実 baseline survey 完了
+
+- [ ] `references/01-principles/aag/display-rule-registry.md` を新設した
+- [ ] DFR-001 chart semantic color を rule entry として登録した (Layer 1 source link / Layer 2 doc link / bypass pattern / 適用 path / migrationRecipe / metaRequirementRefs semantic 付き)
 - [ ] DFR-002 axis formatter via useAxisFormatter を登録した
 - [ ] DFR-003 percent via formatPercent を登録した
-- [ ] DFR-004 currency via formatCurrency を登録した（thousands separator 明文化）
+- [ ] DFR-004 currency via formatCurrency を登録した (thousands separator 明文化)
 - [ ] DFR-005 icon via pageRegistry / emoji canonical を登録した
-- [ ] Phase 3 で gap 判定された他 rule に対する新規 doc を必要なものに限定して新設した（anti-bloat 適用）
+- [ ] Phase 3 で gap 判定された他 rule に対する新規 doc を必要なものに限定して新設した (anti-bloat 適用)
 - [ ] `content-and-voice.md` の "thousands-separator convention is not enforced" 記述を更新した
 - [ ] `doc-registry.json` に新規 doc を登録した
 
-## Phase 9: 表示 rule guards 実装
+## Phase 10: 表示 rule guards 実装 (Layer 4 検証層 instances)
+
+> 着手前 prerequisite: Phase 8 meta-guard landing 完了 + Phase 9 DFR registry landing 完了
 
 - [ ] `displayRuleGuard.test.ts` を rule registry framework として新設した
-- [ ] DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録した
-- [ ] DFR-001 baseline 確定（CHART-004 / CHART-005 の semantic 不使用）
-- [ ] DFR-002 baseline 確定（FactorDecomp / BudgetVsActual.builders 等の `toAxisYen` 直接呼び）
-- [ ] DFR-003 baseline 確定（BudgetTrend / Seasonal 等の `Math.round(v * 100)`）
-- [ ] DFR-004 baseline 確定（survey 結果から）
-- [ ] DFR-005 baseline 確定（survey 結果から）
-- [ ] 各 rule の migrationRecipe を記入した（fix 方法を機械生成可能に）
-- [ ] Phase 7 reverse meta-guard が DFR-001〜005 全てに対して PASS した（双方向 integrity 成立）
+- [ ] DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録した (semantic articulation 付き)
+- [ ] DFR-001 baseline 確定 (CHART-004 / CHART-005 の semantic 不使用)
+- [ ] DFR-002 baseline 確定 (FactorDecomp / BudgetVsActual.builders 等の `toAxisYen` 直接呼び)
+- [ ] DFR-003 baseline 確定 (BudgetTrend / Seasonal 等の `Math.round(v * 100)`)
+- [ ] DFR-004 baseline 確定 (survey 結果から)
+- [ ] DFR-005 baseline 確定 (survey 結果から)
+- [ ] 各 rule の migrationRecipe を記入した (fix 方法を機械生成可能に)
+- [ ] Phase 8 reverse meta-guard が DFR-001〜005 全てに対して PASS した (双方向 integrity 成立)
+- [ ] aag/meta.md §2 の **performative 防止 要件 status が「未達成」→「達成」に flip** した
 
 ## 最終レビュー (人間承認)
 
@@ -111,4 +152,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase (1〜9) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase (1〜10) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
