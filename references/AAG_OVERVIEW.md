@@ -1,7 +1,7 @@
 # AAG_OVERVIEW — Adaptive Architecture Governance 一枚サマリ
 
 > **目的**: AAG の全体像と「困った時に見る場所」を 1 ページで提供する。
-> **正本**: `references/01-principles/adaptive-architecture-governance.md`（本 doc は索引、思想の正本ではない）。
+> **正本**: `references/99-archive/adaptive-architecture-governance.md`（本 doc は索引、思想の正本ではない）。
 > **位置づけ**: Phase Q.O-1 deliverable（onboarding cognitive load 削減）。
 
 ## AAG とは

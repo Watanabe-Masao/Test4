@@ -35,7 +35,7 @@
 
 | 順 | doc | 所要 |
 |---|---|---|
-| 1 | `references/01-principles/adaptive-architecture-governance.md` § 設計原則 7 / 8 | 5 分 — rule 変更プロトコル |
+| 1 | `references/99-archive/adaptive-architecture-governance.md` § 設計原則 7 / 8 | 5 分 — rule 変更プロトコル |
 | 2 | `references/AAG_CRITICAL_RULES.md` | 1 分 — Tier 0 を変更しようとしていないか確認 |
 | 3 | `references/03-guides/aag-change-impact-template.md`（Q.M-1 deliverable） | PR description の必須 section |
 | 4 | `references/03-guides/architecture-rule-system.md` | 必要時 — rule 運用ガイド |

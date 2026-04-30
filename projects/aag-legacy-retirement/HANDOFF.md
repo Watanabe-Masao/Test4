@@ -93,7 +93,7 @@ archive 配下 file への inbound 0 機械検証 PASS 後の物理削除は AI 
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§Phase 5 / §3.5 / §1.5) |
 | `projects/aag-core-doc-refactor/plan.md` | Project A 正本 (Phase 5 完遂範囲の確認元) |
 | `projects/aag-core-doc-refactor/legacy-retirement.md` | Project A の legacy-retirement (単純案件と複雑案件の境界 articulation) |
-| `references/01-principles/adaptive-architecture-governance.md` | 複雑 archive 候補の典型例 (Split + 部分 Archive、Phase 2 で扱う可能性) |
+| `references/99-archive/adaptive-architecture-governance.md` | 複雑 archive 候補の典型例 (Split + 部分 Archive、Phase 2 で扱う可能性) |
 | `references/99-archive/` | archive 配下 (Phase 3 で物理移管先) |
 | `references/02-status/legacy-retirement-extended.md` | Phase 1 で新規 Create (拡張案件 articulation の集約 doc) |
 | `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |

@@ -10,7 +10,7 @@
     "changeType": "architecture-refactor",
     "implementationScope": [
       "references/01-principles/aag/",
-      "references/01-principles/adaptive-architecture-governance.md",
+      "references/99-archive/adaptive-architecture-governance.md",
       "references/99-archive/adaptive-governance-evolution.md",
       "references/99-archive/aag-5-constitution.md",
       "references/99-archive/aag-5-source-of-truth-policy.md",

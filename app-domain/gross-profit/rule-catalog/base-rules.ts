@@ -3325,7 +3325,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["G1", "F8"],
     slice: "governance-ops",
     epoch: 1,
-    doc: "references/01-principles/adaptive-architecture-governance.md",
+    doc: "references/01-principles/aag/strategy.md",
     what: "文書中のハードコード数値は generated section か例外リストで管理する",
     why: "静的数値は code と乖離して嘘になる。drift を機械的に検出する",
     correctPattern: {
@@ -6396,7 +6396,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/adaptive-architecture-governance.md",
+    doc: "references/01-principles/aag/strategy.md",
     what: "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する (allowlist された job 以外)",
     why: "PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
     correctPattern: {

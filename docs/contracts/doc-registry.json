@@ -112,8 +112,8 @@
           "label": "AAG Layer Map — ファイル別 5 層マッピング (Layer 2 reference)。旧 references/99-archive/aag-5-layer-map.md (Phase 5.1 archived) を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/adaptive-architecture-governance.md",
-          "label": "[DEPRECATED Project A Phase 1-2] AAG 旧マスター — Project A Phase 5 で archive 予定 (inbound 0 機械検証 + §1.5 mapping 義務 PASS 後)。新 doc 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping)"
+          "path": "references/99-archive/adaptive-architecture-governance.md",
+          "label": "[ARCHIVED Project A Phase 5.8] AAG 旧戦略マスター (6 責務同居 = 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table) — Phase 5.8 で archive 移管済 (Phase 5 multi-session 最後)。Split 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping) + aag/operational-classification.md §6 (Response フロー) + design-principles.md (設計原則 8 件)"
         },
         {
           "path": "references/99-archive/adaptive-governance-evolution.md",

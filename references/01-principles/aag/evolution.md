@@ -6,7 +6,7 @@
 >
 > **drill-down pointer**:
 > - 上位 (back-pointer): [`meta.md`](./meta.md) §1 (目的) + §2 (要件、`AAG-REQ-RATCHET-DOWN` + `AAG-REQ-NO-PERFECTIONISM`) / [`strategy.md`](./strategy.md) §4 (戦略の進化方針)
-> - 下位 (drill-down): `references/01-principles/adaptive-architecture-governance.md` §進化動学 (旧 articulate、Phase 5 で archive) / [`operational-classification.md`](./operational-classification.md) (now/debt/review 区分)
+> - 下位 (drill-down): `references/99-archive/adaptive-architecture-governance.md` §進化動学 (旧 articulate、Phase 5 で archive) / [`operational-classification.md`](./operational-classification.md) (now/debt/review 区分)
 >
 > **5 層位置付け** (本 doc 自身): Layer 1+2 (要件 + 設計、進化動学 articulate)
 >

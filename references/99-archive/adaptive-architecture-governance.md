@@ -1,4 +1,27 @@
-# Adaptive Architecture Governance (AAG)
+# [ARCHIVED Project A Phase 5.8] Adaptive Architecture Governance (AAG) — 旧戦略マスター
+
+> **Archived**: 2026-04-30 (Project A Phase 5.8、Phase 5 multi-session 最後)
+> **Archived By**: 本 commit
+> **Migrated To** (Split 移管先):
+>   - 戦略 + 文化論 + AAG の本質 + AI 対話 → [`aag/strategy.md`](../01-principles/aag/strategy.md) §1〜§3 (Project A Phase 1〜2 で landed)
+>   - 旧 4 層構造定義 → [`aag/architecture.md`](../01-principles/aag/architecture.md) §1 (新 5 層) + §4.1 (旧 4 層 → 新 5 層 mapping)
+>   - AAG Response フロー → [`aag/operational-classification.md`](../01-principles/aag/operational-classification.md) §6
+>   - 設計原則 8 件 → `references/01-principles/design-principles.md` (既存 doc に articulate 済)
+>   - バージョン履歴 → `references/02-status/recent-changes.md` + per-PR commit message に分散
+> **Mapping Anchor**: `aag/strategy.md §7` (旧 戦略マスター → 新 戦略 mapping table)
+> **Inbound 0 検証**: active 0 件
+> **Rollback Anchor / Milestone Acknowledgment / Decision Trace**: Phase 5.1〜5.7 と同 pattern
+> **Active Reference Migration**:
+>   - `app/src/test/allowlists/docs.ts` L57-L82 の旧 doc 用 5 allowlist entries 削除 (新 aag/strategy.md は「4 層」「5 スライス」「第 7 原則」等の旧 articulation を含まない)
+>   - `app/src/test/guards/docRegistryGuard.test.ts` L199 (AAG 正本 child doc 検証) → `aag/README.md`
+>   - `app/src/test/guards/docStaticNumberGuard.test.ts` L34 TARGET_FILES → `aag/strategy.md`
+>   - `app-domain/gross-profit/rule-catalog/base-rules.ts` L3328 + L6399 (rule entry の `doc:` field) → `aag/strategy.md`
+>   - `CLAUDE.md` L359 (詳細 link) → `aag/strategy.md`
+> **Decision Trace** (Insight 1): 本 doc は AAG 戦略マスターとして 6 責務同居 (戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table、C1 違反)。Project A Phase 1〜2 で **責務分離** = `aag/strategy.md` (戦略 + 文化論) + `aag/architecture.md` (構造) + `aag/operational-classification.md §6` (Response フロー) + `design-principles.md` (設計原則) に Split + Rewrite 完了。本 doc は Phase 5.8 で archive 移管 = Project A Phase 5 multi-session の **最後** の sub-phase 完遂を marker。
+
+---
+
+# (元 content) Adaptive Architecture Governance (AAG)
 
 > **この文書は AAG の正本定義。** 運用上の入口は違反時レスポンス（`renderAagResponse()`）。
 > 最初からここを読む必要はない。止まったときに返る情報が AAG の実運用入口。
@@ -259,7 +282,7 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 | fixNow=review（観測） | 21 |
 | ガードテストファイル | 120 |
 
-> 生成: 2026-04-30T14:57:53.048Z — 正本: `app/src/test/architectureRules.ts`
+> 生成: 2026-04-30T15:06:07.651Z — 正本: `app/src/test/architectureRules.ts`
 <!-- GENERATED:END aag-rule-stats -->
 
 ## 運用区分

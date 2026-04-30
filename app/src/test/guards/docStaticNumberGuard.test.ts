@@ -31,7 +31,7 @@ const rule = getRuleById('AR-DOC-STATIC-NUMBER')!
 const TARGET_FILES = [
   'CLAUDE.md',
   'CONTRIBUTING.md',
-  'references/01-principles/adaptive-architecture-governance.md',
+  'references/01-principles/aag/strategy.md',
   'references/01-principles/aag/operational-classification.md',
   'references/03-guides/architecture-rule-system.md',
 ]

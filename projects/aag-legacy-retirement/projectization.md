@@ -9,7 +9,7 @@
 |---|---|
 | `projectizationLevel` | Level 2 |
 | `changeType` | legacy-retirement |
-| `implementationScope` | `["references/01-principles/adaptive-architecture-governance.md", "references/99-archive/", "docs/contracts/doc-registry.json", "references/02-status/legacy-retirement-extended.md"]` |
+| `implementationScope` | `["references/99-archive/adaptive-architecture-governance.md", "references/99-archive/", "docs/contracts/doc-registry.json", "references/02-status/legacy-retirement-extended.md"]` |
 | `breakingChange` | true |
 | `requiresLegacyRetirement` | true |
 | `requiresGuard` | false |

@@ -54,31 +54,16 @@ export const DOC_STATIC_NUMBER_EXCEPTIONS: readonly DocStaticNumberException[] =
     reason: '原則定義: UI/UX 4原則のセクション見出し',
   },
 
-  // ── adaptive-architecture-governance.md: 構造定義 ──
+  // ── aag/strategy.md: 戦略 articulation (Project A Phase 1〜2) ──
   {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '4 層',
-    reason: '構造定義: AAG の 4 層アーキテクチャ',
+    fileName: 'strategy.md',
+    pattern: '3 原則',
+    reason: '戦略 articulation: §1.1 戦略の核心 3 原則 (正本を増やさない / 導出可能なものは導出 / 思想-型-検査-運用を混ぜない)',
   },
   {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '5 スライス',
-    reason: '構造定義: AAG の 5 縦スライス',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 7 原則',
-    reason: '序数: 原則の番号であり件数ではない',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 8 原則',
-    reason: '序数: 原則の番号であり件数ではない',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 9 原則',
-    reason: '序数: 原則の番号であり件数ではない',
+    fileName: 'strategy.md',
+    pattern: '4 原則',
+    reason: '原則 reference: UI/UX 4 原則 (out-of-scope reference として articulate)',
   },
 
   // ── architecture-rule-system.md: 原則定義 ──

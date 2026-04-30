@@ -318,7 +318,7 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 | ファイル                                                       | 役割                                                                                   |
 | -------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `references/03-guides/project-checklist-governance.md`         | 運用ルール（AAG Layer 4A）                                                             |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 5.2 Constitution（思想的根拠）                                                     |
+| `references/99-archive/adaptive-architecture-governance.md` | AAG 5.2 Constitution（思想的根拠）                                                     |
 | `app/src/test/responsibilityTagRegistry.ts`                    | 現行 v1 の正本（子 Phase 0 で v2 化）                                                  |
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts`         | 現行 TSIG（子 Phase 0 で T:kind 認識化）                                               |
 | `docs/contracts/principles.json`                               | A-I+Q 9 カテゴリ設計原則の正本（taxonomy-v2 は不変、$comment に landing 経緯のみ追記） |

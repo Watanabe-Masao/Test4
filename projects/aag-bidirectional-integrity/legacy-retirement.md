@@ -116,7 +116,7 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 
 | 旧 path | 新 path 群 (Phase 4 で Create) | Split 理由 | inbound 0 機械検証対象 |
 |---|---|---|---|
-| `references/01-principles/adaptive-architecture-governance.md` | `aag/strategy.md` (戦略マスター) + `aag/evolution.md` (進化動学、Merge 候補) + バージョン履歴は per-doc 分散 + 旧 4 層は Archive | 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table が同居 (1 doc 1 責務違反、C1 違反)、責務分離のため Split | grep 結果 0 件 |
+| `references/99-archive/adaptive-architecture-governance.md` | `aag/strategy.md` (戦略マスター) + `aag/evolution.md` (進化動学、Merge 候補) + バージョン履歴は per-doc 分散 + 旧 4 層は Archive | 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table が同居 (1 doc 1 責務違反、C1 違反)、責務分離のため Split | grep 結果 0 件 |
 
 ### 3.4. CLAUDE.md AAG セクション薄化 (Phase 4 で実施)
 
