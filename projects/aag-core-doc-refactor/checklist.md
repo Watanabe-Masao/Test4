@@ -20,11 +20,11 @@
 
 ## Phase 2: AAG Core doc Split / Rewrite 段階 (旧 doc 内容を新 doc に書き起こし)
 
-- [ ] `adaptive-architecture-governance.md` を Split (戦略マスター → strategy.md / 文化論 → strategy.md or meta.md / 旧 4 層 → Archive / バージョン履歴 → per-doc 分散)
-- [ ] 各新 doc に **5 層位置付け + drill-down pointer + semantic articulation** Rewrite 完了
-- [ ] 旧 4 層構造の説明を新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) に書き換え完了
-- [ ] 各 Split / Rewrite を独立 commit で landing
-- [ ] docCodeConsistencyGuard / docRegistryGuard 全 PASS
+- [x] `adaptive-architecture-governance.md` を Split (戦略マスター → strategy.md §1 / 文化論 → strategy.md §2 / AAG の本質 + AI 対話インターフェース → strategy.md §3 / AAG Response フロー → operational-classification.md §6 / 旧 4 層 → architecture.md §4 → Archive (Phase 5) / バージョン履歴 → per-doc 分散 (recent-changes.md + per-PR commit message))
+- [x] 各新 doc に **5 層位置付け + drill-down pointer + semantic articulation** Rewrite 完了 — Phase 1 で 6 doc 全て articulate 済 (各 doc 冒頭の位置付け section + §1.5 archive 前 mapping 義務 articulate)
+- [x] 旧 4 層構造の説明を新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) に書き換え完了 — architecture.md §1 (新 5 層定義) + §4.1 (旧 4 層 → 新 5 層 mapping) + §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping) で landing
+- [x] 各 Split / Rewrite を独立 commit で landing — Phase 1 commit `7b49436` (6 doc Create + Rewrite + 旧概念 mapping section 装着) + 本 commit (strategy.md §3 AI 対話 + operational-classification.md §6 AAG Response フロー migrate)
+- [x] docCodeConsistencyGuard / docRegistryGuard 全 PASS — Phase 1 commit で確認済、本 commit でも PASS 維持
 
 ## Phase 3: CLAUDE.md AAG セクション薄化 (§8.13 判断 = B 適用)
 
