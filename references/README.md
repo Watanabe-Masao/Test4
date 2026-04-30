@@ -6,11 +6,11 @@
 
 | ディレクトリ     | 内容                                                                                                                               | ファイル数 |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 46         |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 40         |
 | `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
 | `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 71         |
 | `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
-| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 4          |
+| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 12         |
 
 `04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
 サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
@@ -231,7 +231,7 @@
 | AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）         | `01-principles/aag/source-of-truth.md`                          |
 | AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                              | `01-principles/aag/layer-map.md`                                |
 | AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                | `01-principles/aag-5-constitution.md`                           |
-| AAG 5.0 既存ファイル層マッピング（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-layer-map.md`                              |
+| AAG 5.0 既存ファイル層マッピング（旧、Phase 5.1 で archive 移管済 → aag/layer-map.md）       | `99-archive/aag-5-layer-map.md`                                 |
 | AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-source-of-truth-policy.md`                 |
 | Test Signal Integrity — 品質シグナル保全の原則                                             | `01-principles/test-signal-integrity.md`                        |
 | Test Signal Integrity Advisory 運用ガイド                                                  | `03-guides/test-signal-integrity-advisory.md`                   |
@@ -289,7 +289,7 @@
 | `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                                              |
 | `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                                                            |
 | `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                                               |
-| `01-principles/aag-5-layer-map.md`                   | AAG 5.0 — 既存ファイルの層マッピング棚卸し                                                                      |
+| `99-archive/aag-5-layer-map.md`                      | AAG 5.0 — 既存ファイルの層マッピング棚卸し（Phase 5.1 archived → 新 doc: aag/layer-map.md）                     |
 | `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                              |
 | `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                  |
 | `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                |

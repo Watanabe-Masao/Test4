@@ -1,4 +1,19 @@
-# Adaptive Architecture Governance — 進化の設計
+# [ARCHIVED Project A Phase 5.3] Adaptive Architecture Governance — 進化の設計
+
+> **Archived**: 2026-04-30 (Project A Phase 5.3)
+> **Archived By**: 本 commit
+> **Migrated To**: [`references/01-principles/aag/evolution.md`](../01-principles/aag/evolution.md) (Project A Phase 1 で landed、Discovery / Accumulation / Evaluation 3 層サイクル)
+> **Mapping Anchor**: `aag/evolution.md §5` (旧 進化動学 → 新 進化動学 mapping)
+> **Inbound 0 検証**: `git grep references/01-principles/adaptive-governance-evolution.md` = active 0 件 (`projects/completed/` 配下の immutable archive 1 件は archive-to-archive 参照として許容)
+> **Rollback Anchor** (Insight 8): 本 archive 移管 commit、git revert で復活可能
+> **Milestone Acknowledgment** (Insight 7-b): archive 移管 = 「不可逆ステップを今ここで踏む」の announcement
+> **Decision Trace** (Insight 1): Project A Phase 1 で `aag/evolution.md` が landed 済、active reference (CLAUDE.md L360 + allowlists/types.ts L87) を新 path に update 済、本 doc は historical reference として retain
+> **Active Reference Migration**: CLAUDE.md L360 + `app/src/test/allowlists/types.ts` L87 を `aag/evolution.md` に update (Phase 5.3 同 commit)
+> **Note (archive-to-archive exception)**: `projects/completed/architecture-debt-recovery/plan.md` L673 は archived project の immutable reference のため update 対象外 (= inbound 0 は active 非 archived 範囲での 0 を意味する pragmatic 解釈)
+
+---
+
+# (元 content) Adaptive Architecture Governance — 進化の設計
 
 ## この文書の位置づけ
 

@@ -10,7 +10,7 @@
 >
 > **5 層位置付け** (本 doc 自身): Layer 2 (設計 reference)
 >
-> **§1.5 archive 前 mapping 義務**: 旧 `aag-5-layer-map.md` (旧 4 層 マッピング) の archive 前提は本 doc が新 5 層 マッピングに extend 済 (= 旧 → 新 transformation を §6 に articulate)。
+> **§1.5 archive 前 mapping 義務**: 旧 `references/99-archive/aag-5-layer-map.md` (旧 4 層 マッピング、Project A Phase 5.1 で archive 移管済) の archive 前提は本 doc が新 5 層 マッピングに extend 済 (= 旧 → 新 transformation を §6 に articulate)。
 >
 > **件数を書かない原則**: 件数 (`N rule` / `N file` / `N guard`) は **generated section に寄せる** (`AAG-REQ-NO-DATE-RITUAL` と同じ「現在値を prose に書かない」原則、`docStaticNumberGuard` 適用)。本 doc は file path + 役割のみ articulate、件数は `references/02-status/generated/architecture-health.md` 参照。
 
@@ -169,7 +169,7 @@ Layer 4 は外部監査視点で AAG 全体を audit。詳細は [`meta.md`](./m
 
 ## §6 旧 4 層マッピング → 新 5 層マッピング 変換 (`§1.5 archive 前 mapping 義務`)
 
-旧 `aag-5-layer-map.md` (旧 4 層 マッピング = Constitution / Schema / Execution / Operations) から新 5 層への変換:
+旧 `references/99-archive/aag-5-layer-map.md` (旧 4 層 マッピング = Constitution / Schema / Execution / Operations、Phase 5.1 で archive 移管済) から新 5 層への変換:
 
 | 旧 4 層 | 新 5 層 | 変換ルール |
 |---|---|---|

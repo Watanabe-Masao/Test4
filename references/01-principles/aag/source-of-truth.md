@@ -89,7 +89,7 @@
 | `CLAUDE.md` の generated section | architecture-health.json | 同上 |
 | `references/02-status/technical-debt-roadmap.md` の generated section | 同上 | 同上 |
 | `references/02-status/project-structure.md` の generated section | 同上 | 同上 |
-| `references/01-principles/adaptive-architecture-governance.md` の `#aag-rule-stats` (Phase 5 で archive 前) | architectureRules.ts + base-rules.ts | 同上 |
+| `references/99-archive/adaptive-architecture-governance.md` の `#aag-rule-stats` (Phase 5 で archive 前) | architectureRules.ts + base-rules.ts | 同上 |
 
 **鉄則**: 派生物に現在値を手書きしない。prose に件数を書かない (`docStaticNumberGuard` 適用)。
 

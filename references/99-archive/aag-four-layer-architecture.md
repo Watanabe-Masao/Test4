@@ -1,4 +1,16 @@
-# AAG 4 層アーキテクチャ
+# [ARCHIVED Project A Phase 5.2] AAG 4 層アーキテクチャ (旧 旧 4 層 = AAG v4.x)
+
+> **Archived**: 2026-04-30 (Project A Phase 5.2)
+> **Archived By**: 本 commit
+> **Migrated To**: [`references/01-principles/aag/architecture.md`](../01-principles/aag/architecture.md) §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping)
+> **Mapping Anchor**: `aag/architecture.md §4.2` (旧 旧 4 層 v4.x = Principles/Judgment/Detection/Response → 新 4 層 5.x = Constitution/Schema/Execution/Operations → 新 5 層 = 目的/要件/設計/実装/検証 の 2 重 mapping)
+> **Inbound 0 検証**: `git grep references/01-principles/aag-four-layer-architecture.md` = 0 件
+> **Rollback Anchor** (Insight 8): 本 archive 移管 commit、git revert で復活可能
+> **Milestone Acknowledgment** (Insight 7-b): archive 移管 = 「不可逆ステップを今ここで踏む」の announcement
+> **Decision Trace** (Insight 1): 旧 旧 4 層 (AAG v4.x) は新 4 層 (AAG 5.x = aag-5-constitution.md) で 2026-04 に superseded、その後 Project A Phase 1 で新 5 層 (aag/architecture.md §4.2) に 2 重 mapping 拡張完了、historical reference として archive 移管
+> **Active Reference Migration**: `app/src/test/architectureRules/helpers.ts` L70 + L86 の `@see` を `aag/architecture.md` に update (Phase 5.2 同 commit)
+
+---
 
 ## 概要
 
@@ -28,10 +40,10 @@ AAG の意味そのものを置く層。変更頻度が最も低い。
 
 | ファイル | 内容 |
 |---------|------|
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 正本 |
-| `references/01-principles/adaptive-governance-evolution.md` | 進化の設計（3層サイクル） |
-| `references/01-principles/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測） |
-| `references/01-principles/aag-rule-splitting-plan.md` | ルール分割計画 |
+| `references/99-archive/adaptive-architecture-governance.md` | AAG 正本 |
+| `references/99-archive/adaptive-governance-evolution.md` | 進化の設計（3層サイクル） |
+| `references/99-archive/aag-operational-classification.md` | 運用区分表（即修正/構造負債/観測） |
+| `references/99-archive/aag-rule-splitting-plan.md` | ルール分割計画 |
 | Architecture Rule の `what` / `why` / `protectedHarm` / `sunsetCondition` | ルールの意味 |
 | `references/01-principles/design-principles.md` | 設計原則 A-H+Q |
 | Guard tag の意味定義（`guardTagRegistry.ts`） | タグの意味 |

@@ -67,7 +67,7 @@ export function checkRatchetDown(
  * 4. 例外がありうるか（decisionCriteria.exceptions）
  * 5. 深掘り先（doc）
  *
- * @see references/01-principles/aag-four-layer-architecture.md
+ * @see references/01-principles/aag/architecture.md
  */
 export function formatViolationMessage(
   rule: ArchitectureRule,
@@ -83,7 +83,7 @@ export function formatViolationMessage(
  * AAG 統一レスポンス — guard / obligation / health / pre-commit 共通
  *
  * どこで止まっても同じ情報構造で返る。
- * @see references/01-principles/aag-four-layer-architecture.md
+ * @see references/01-principles/aag/architecture.md
  */
 export interface AagResponse {
   /** 情報源: guard / obligation / health / pre-commit */

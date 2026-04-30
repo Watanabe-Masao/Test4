@@ -110,7 +110,7 @@ Split + Rewrite を実行 (§3.5 操作順序原則)。
 
 | パス | 役割 |
 |---|---|
-| `references/01-principles/adaptive-architecture-governance.md` | 複雑 archive 候補の典型例 (Split + 部分 Archive、Phase 2 で扱う可能性) |
+| `references/99-archive/adaptive-architecture-governance.md` | 複雑 archive 候補の典型例 (Split + 部分 Archive、Phase 2 で扱う可能性) |
 | `references/99-archive/` | archive 配下 (Phase 3 で物理移管先) |
 | `references/02-status/legacy-retirement-extended.md` | Phase 1 で新規 Create (拡張案件 articulation の集約 doc) |
 | `docs/contracts/doc-registry.json` | Phase 3 で archive section update |

@@ -109,27 +109,27 @@
         },
         {
           "path": "references/01-principles/aag/layer-map.md",
-          "label": "AAG Layer Map — ファイル別 5 層マッピング (Layer 2 reference)。旧 aag-5-layer-map.md を Rewrite + Relocate + Rename (Project A Phase 1)"
+          "label": "AAG Layer Map — ファイル別 5 層マッピング (Layer 2 reference)。旧 references/99-archive/aag-5-layer-map.md (Phase 5.1 archived) を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/adaptive-architecture-governance.md",
-          "label": "AAG 正本 (旧 AAG マスター、Phase 4 で Split + Rewrite + Relocate → aag/strategy.md ほか予定)"
+          "path": "references/99-archive/adaptive-architecture-governance.md",
+          "label": "[ARCHIVED Project A Phase 5.8] AAG 旧戦略マスター (6 責務同居 = 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table) — Phase 5.8 で archive 移管済 (Phase 5 multi-session 最後)。Split 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping) + aag/operational-classification.md §6 (Response フロー) + design-principles.md (設計原則 8 件)"
         },
         {
-          "path": "references/01-principles/adaptive-governance-evolution.md",
-          "label": "進化の設計"
+          "path": "references/99-archive/adaptive-governance-evolution.md",
+          "label": "[ARCHIVED Project A Phase 5.3] 進化の設計 (旧、3 層サイクル = Discovery / Accumulation / Evaluation) — Phase 5.3 で archive 移管済。新 doc: aag/evolution.md (5 insight 統合)"
         },
         {
-          "path": "references/01-principles/aag-four-layer-architecture.md",
-          "label": "AAG 4 層"
+          "path": "references/99-archive/aag-four-layer-architecture.md",
+          "label": "[ARCHIVED Project A Phase 5.2] AAG 旧 旧 4 層 (AAG v4.x = Principles/Judgment/Detection/Response) — Phase 5.2 で archive 移管済。新 doc: aag/architecture.md §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping)"
         },
         {
-          "path": "references/01-principles/aag-operational-classification.md",
-          "label": "運用区分表"
+          "path": "references/99-archive/aag-operational-classification.md",
+          "label": "[ARCHIVED Project A Phase 5.5] 運用区分表 (旧、件数を articulate していた) — Phase 5.5 で archive 移管済 + allowlist 13 件削除。新 doc: aag/operational-classification.md (件数を articulate しない原則で再構築)"
         },
         {
-          "path": "references/01-principles/aag-rule-splitting-plan.md",
-          "label": "ルール分割計画"
+          "path": "references/99-archive/aag-rule-splitting-plan.md",
+          "label": "[ARCHIVED Project A Phase 5.6] ルール分割計画 (旧、completed project execution 記録) — Phase 5.6 で archive 移管済。実行記録: projects/completed/aag-rule-splitting-execution/、ルール classification の current articulation: aag/operational-classification.md"
         },
         {
           "path": "references/01-principles/architecture-rule-feasibility.md",
@@ -236,16 +236,16 @@
           "label": "Promote Ceremony テンプレート"
         },
         {
-          "path": "references/01-principles/aag-5-constitution.md",
-          "label": "AAG 5.0 4層構造定義"
+          "path": "references/99-archive/aag-5-constitution.md",
+          "label": "[ARCHIVED Project A Phase 5.7] AAG 5.1.0 旧 4 層構造定義 (Constitution / Schema / Execution / Operations) — Phase 5.7 で archive 移管済。新 doc: aag/architecture.md (新 5 層構造 = 目的 / 要件 / 設計 / 実装 / 検証 + §4.1 旧 4 層 → 新 5 層 mapping = AAG-REQ-LAYER-SEPARATION 達成 trigger)"
         },
         {
-          "path": "references/01-principles/aag-5-layer-map.md",
-          "label": "AAG 5.0 既存ファイル層マッピング"
+          "path": "references/99-archive/aag-5-layer-map.md",
+          "label": "[ARCHIVED Project A Phase 5.1] AAG 5.0 旧 既存ファイル層マッピング — Phase 5.1 で archive 移管済。新 doc: aag/layer-map.md (5 層マッピングに extend)"
         },
         {
-          "path": "references/01-principles/aag-5-source-of-truth-policy.md",
-          "label": "AAG 5.0 正本/派生/運用物ポリシー"
+          "path": "references/99-archive/aag-5-source-of-truth-policy.md",
+          "label": "[ARCHIVED Project A Phase 5.4] AAG 5.0 旧 正本/派生/運用物ポリシー — Phase 5.4 で archive 移管済。新 doc: aag/source-of-truth.md"
         },
         {
           "path": "references/01-principles/test-signal-integrity.md",

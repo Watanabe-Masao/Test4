@@ -54,100 +54,16 @@ export const DOC_STATIC_NUMBER_EXCEPTIONS: readonly DocStaticNumberException[] =
     reason: '原則定義: UI/UX 4原則のセクション見出し',
   },
 
-  // ── adaptive-architecture-governance.md: 構造定義 ──
+  // ── aag/strategy.md: 戦略 articulation (Project A Phase 1〜2) ──
   {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '4 層',
-    reason: '構造定義: AAG の 4 層アーキテクチャ',
+    fileName: 'strategy.md',
+    pattern: '3 原則',
+    reason: '戦略 articulation: §1.1 戦略の核心 3 原則 (正本を増やさない / 導出可能なものは導出 / 思想-型-検査-運用を混ぜない)',
   },
   {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '5 スライス',
-    reason: '構造定義: AAG の 5 縦スライス',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 7 原則',
-    reason: '序数: 原則の番号であり件数ではない',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 8 原則',
-    reason: '序数: 原則の番号であり件数ではない',
-  },
-  {
-    fileName: 'adaptive-architecture-governance.md',
-    pattern: '第 9 原則',
-    reason: '序数: 原則の番号であり件数ではない',
-  },
-
-  // ── aag-operational-classification.md: 運用区分見出し ──
-  // これらはセクション見出しに含まれるルール数。
-  // ルール追加時に文書自体を更新する obligation がある。
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '即修正（31 ルール',
-    reason: '運用区分見出し: セクション見出し。ルール追加時に文書更新義務あり',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '構造負債（33 ルール',
-    reason: '運用区分見出し: セクション見出し。ルール追加時に文書更新義務あり',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '観測（20 ルール',
-    reason: '運用区分見出し: セクション見出し。ルール追加時に文書更新義務あり',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '7 ルール — invariant',
-    reason: '運用区分見出し: サブセクション。ルール追加時に文書更新義務あり',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '8 ルール）',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '14 ルール — 主に',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '2 ルール）',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '7 ルール — heuristic',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '20 ルール — heuristic',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '6 ルール — default',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '12 ルール — default',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '4 ルール — default',
-    reason: '運用区分見出し: サブセクション',
-  },
-  {
-    fileName: 'aag-operational-classification.md',
-    pattern: '4 ルール — heuristic',
-    reason: '運用区分見出し: サブセクション',
+    fileName: 'strategy.md',
+    pattern: '4 原則',
+    reason: '原則 reference: UI/UX 4 原則 (out-of-scope reference として articulate)',
   },
 
   // ── architecture-rule-system.md: 原則定義 ──

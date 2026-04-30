@@ -84,7 +84,7 @@ export interface AllowlistEntry {
   readonly lifecycle?: AllowlistLifecycle
   /**
    * 残留理由の構造化分類。Discovery Review の棚卸しで使用。
-   * @see references/01-principles/adaptive-governance-evolution.md
+   * @see references/01-principles/aag/evolution.md
    */
   readonly retentionReason?: RetentionReason
   // ── 時間軸（Temporal Governance） ──

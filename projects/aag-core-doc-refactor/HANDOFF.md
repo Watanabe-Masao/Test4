@@ -13,11 +13,50 @@ Phase 5 (legacy 撤退) を本 project に独立 spawn**。
 
 | 項目 | 状態 |
 |---|---|
-| project bootstrap (skeleton 8 doc) | ✅ 完了 (本 commit) |
+| project bootstrap (skeleton 8 doc) | ✅ 完了 |
 | 親 project の MVP scope | ✅ 完遂 (Phase 1 + Phase 3 + cyclic refinement、commit `c1ffc3a`) |
 | 親 project の Phase 3 hard gate | ✅ B 確定 (Project A〜D 分割) |
-| 本 project Phase 1 (Create 段階) | ⏳ 未着手 (次セッション以降で着手) |
-| 本 project Phase 5 (legacy 撤退) | ⏳ 未着手 |
+| **本 project Phase 1 (Create 段階)** | ✅ 完遂 (commit `7b49436`、6 新 doc Create + 5 層位置付け + drill-down + mapping 装着) |
+| **本 project Phase 2 (Split / Rewrite 段階)** | ✅ 完遂 (commit `85a07b0`、AAG の本質 + AI 対話 + Response フロー migrate) |
+| **本 project Phase 3 (CLAUDE.md 薄化)** | ✅ 完遂 (commit `c5de337`、67 行 → 22 行 = 67% 削減、§8.13 判断 = B 適用) |
+| **本 project Phase 4 (registry / manifest 整合)** | ✅ 完遂 (commit `9cc0ebe`、旧 8 doc deprecation marker + manifest discovery 新 path migrate) |
+| **本 project Phase 5 (legacy 撤退)** | ⏳ multi-session work (8 旧 doc archive、各 inbound 0 + §1.5 mapping 義務 PASS が前提、Phase 5.1〜5.8 sub-phase で 1 session = 1〜2 doc archive 推奨) |
+
+### Phase 5 multi-session 計画 (旧 8 doc archive、inbound 状況に基づく順序)
+
+各旧 doc の inbound 数 (`active references/* + projects/aag-bidirectional-integrity/* + projects/aag-core-doc-refactor/* を除く`):
+
+| # | 旧 doc | inbound 数 | 推奨 archive 順序 | 主要 active inbound |
+|---|---|---|---|---|
+| 5.1 | `aag-5-layer-map.md` | 8 | 最初 (pilot) | `references/03-guides/projectization-policy.md` L596 (= Layer 4A 登録 reference) |
+| 5.2 | `aag-five-layer-architecture.md` | 12 | 2 番目 (即 archive 候補、旧 4 層) | (未調査) |
+| 5.3 | `adaptive-governance-evolution.md` | 14 | 3 番目 | (未調査) |
+| 5.4 | `aag-5-source-of-truth-policy.md` | 15 | 4 番目 | (未調査) |
+| 5.5 | `aag-operational-classification.md` | 16 | 5 番目 | (未調査) |
+| 5.6 | `aag-rule-splitting-plan.md` | 18 | 6 番目 (即 archive 候補、completed project execution 記録) | (未調査) |
+| 5.7 | `aag-5-constitution.md` | 23 | 7 番目 | (未調査) |
+| 5.8 | `adaptive-architecture-governance.md` | 43 | **最後** (最大、Split 既実施で Phase 2 で migrate 済 part あり) | (未調査) |
+
+**Phase 5 sub-phase 共通手順** (per-doc archive workflow):
+1. 該当 doc の inbound 全件 grep (`git grep "<旧 path>"`)
+2. inbound を分類:
+   - **active reference** (= 「現在の情報源として使ってる」): 新 path に update
+   - **mapping reference** (= 「旧 → 新 mapping 表記」): archive 移管後の path (`references/99-archive/<旧 path>`) に update or 表記方法の rephrase
+3. inbound 全件 update commit (sub-phase 内 別 commit 推奨)
+4. `git mv references/01-principles/<旧 path> references/99-archive/<旧 path>` で archive 移管
+5. archive frontmatter (`archived: true` + `archivedAt` + `archivedBy` + `migratedTo`) 追加
+6. `docs/contracts/doc-registry.json` の archive section に entry migrate
+7. test:guards / docs:check 全 PASS 確認
+8. checklist Phase 5.X [x] flip + commit + push
+
+### Project E candidate engagement (Phase 5 必ず触れる原則)
+
+Phase 5 の archive workflow (= inbound 0 trigger + §1.5 mapping 義務 + 物理削除 trigger 人間判断) は Project E の以下 deliverable の **direct application instance**:
+- `AAG-REQ-ROLLBACK-ANCHOR-PRESERVATION` (Insight 8): archive 移管 commit が rollback anchor、`git revert` で復活可能
+- `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` (Insight 7-b): archive 移管自体が「不可逆ステップを今ここで踏みます」の announcement、最終的な物理削除は更に強い milestone (人間 deletion approval 必須)
+- `AAG-REQ-DECISION-TRACEABILITY` (Insight 1): 各 archive 移管に decision trace (= なぜ archive するか / どう mapping するか / inbound 0 確認結果) を articulate
+
+Phase 5 進行中に Project E vision との整合性を継続 articulate (= 各 archive 移管 commit message に decision trace 雛形を articulate)、Project E 着手時に retrospective retrofit candidate として活用。
 
 ### 親 project からの継承事項
 

@@ -106,7 +106,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 |---|---|---|---|---:|---|
 | `adaptive-architecture-governance.md` | `aag/strategy.md` (Split + Rewrite) + 一部 Archive | Layer 2 (戦略マスター、6 責務同居 = C1 違反) | Split / Rewrite / 部分 Archive | 36 | §1.1 |
 | `aag-5-constitution.md` | `aag/architecture.md` | Layer 2 (構造設計、5 層 + 旧 4 層 mapping table) + 内容分散 (非目的 → meta.md §2.2) | Rewrite / Relocate / Rename | 27 | §1.2 |
-| `aag-5-layer-map.md` | `aag/layer-map.md` | Layer 2 reference (4 層 → 5 層 拡張) | Rewrite / Relocate / Rename | 10 | §1.3 |
+| `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) | `aag/layer-map.md` | Layer 2 reference (4 層 → 5 層 拡張) | Rewrite / Relocate / Rename | 10 | §1.3 |
 | `aag-5-source-of-truth-policy.md` | `aag/source-of-truth.md` | Layer 2 reference | Rewrite / Relocate / Rename | 16 | §1.4 |
 | `aag-four-layer-architecture.md` | `99-archive/` | (旧 4 層、superseded) | **即 Archive** (mapping 義務 §1.5 適用) | 15 | §1.5 |
 | `aag-operational-classification.md` | `aag/operational-classification.md` | Layer 2-3 境界 (now/debt/review) | Rewrite (84 → 166 ルール件数) / Relocate | 17 | §1.6 |

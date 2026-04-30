@@ -15,7 +15,7 @@
 
 | 候補 | 想定される複雑性 | 移行方針 |
 |---|---|---|
-| `references/01-principles/adaptive-architecture-governance.md` | **Split + 部分 Archive** (戦略マスター + 文化論 + 旧 4 層 + バージョン履歴 が同居、複数の新 doc に分散書き起こし必要) | Project A `aag/` 配下 doc に分散書き起こし → 旧 doc archive (Phase 2-3) |
+| `references/99-archive/adaptive-architecture-governance.md` | **Split + 部分 Archive** (戦略マスター + 文化論 + 旧 4 層 + バージョン履歴 が同居、複数の新 doc に分散書き起こし必要) | Project A `aag/` 配下 doc に分散書き起こし → 旧 doc archive (Phase 2-3) |
 | (Phase 1 で identify される他の拡張案件) | (case-by-case) | (case-by-case) |
 
 ### 1.2. 移行原則 (Project A breaking-changes.md §2 を継承)

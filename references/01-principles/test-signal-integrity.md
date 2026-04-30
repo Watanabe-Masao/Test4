@@ -398,7 +398,7 @@ Allowed exceptions
 | `app/src/test/allowlists/signalIntegrity.ts` | G3 + Signal Integrity 共通の rationale 必須 allowlist（Phase 3 で作成） |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | Architecture Rule カタログ（TSIG-* / AR-G3-SUPPRESS-RATIONALE 登録先） |
 | `tools/architecture-health/src/aag-response.ts` | `renderAagResponse()` の正本 |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 4 層構造（本原則は Layer 1） |
+| `references/99-archive/adaptive-architecture-governance.md` | AAG 4 層構造（本原則は Layer 1） |
 
 ## 関連 reference
 

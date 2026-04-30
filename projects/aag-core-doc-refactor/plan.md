@@ -154,12 +154,12 @@ AI session 開始時の AAG context が aag/README.md → aag/meta.md → aag/st
 |---|---|
 | `references/01-principles/aag/meta.md` | AAG Meta charter (Phase 1 で landing 済、本 project が refer する目的 + 要件 + 達成判定総括) |
 | `references/01-principles/aag/README.md` | aag/ ディレクトリ index (Phase 1 で landing 済、本 project が新 doc を追加する先) |
-| `references/01-principles/adaptive-architecture-governance.md` | 旧戦略マスター (Phase 2 で Split、Phase 5 で archive) |
-| `references/01-principles/adaptive-governance-evolution.md` | 旧進化動学 (Phase 1 で aag/evolution.md として Rewrite + Relocate、Phase 5 で archive) |
-| `references/01-principles/aag-5-constitution.md` | 旧 Constitution (Phase 1 で aag/architecture.md に統合 Rewrite、Phase 5 で archive) |
-| `references/01-principles/aag-5-source-of-truth-policy.md` | 旧正本/派生物/運用物 (Phase 1 で aag/source-of-truth.md として Rewrite + Relocate、Phase 5 で archive) |
-| `references/01-principles/aag-5-layer-map.md` | 旧 5 層 マッピング (Phase 1 で aag/layer-map.md として Rewrite + Relocate、Phase 5 で archive) |
-| `references/01-principles/aag-operational-classification.md` | 旧 now/debt/review 区分 (Phase 1 で aag/operational-classification.md として Rewrite + Relocate、Phase 5 で archive) |
+| `references/99-archive/adaptive-architecture-governance.md` | 旧戦略マスター (Phase 2 で Split、Phase 5 で archive) |
+| `references/99-archive/adaptive-governance-evolution.md` | 旧進化動学 (Phase 1 で aag/evolution.md として Rewrite + Relocate、Phase 5 で archive) |
+| `references/99-archive/aag-5-constitution.md` | 旧 Constitution (Phase 1 で aag/architecture.md に統合 Rewrite、Phase 5 で archive) |
+| `references/99-archive/aag-5-source-of-truth-policy.md` | 旧正本/派生物/運用物 (Phase 1 で aag/source-of-truth.md として Rewrite + Relocate、Phase 5 で archive) |
+| `references/99-archive/aag-5-layer-map.md` | 旧 5 層 マッピング (Phase 1 で aag/layer-map.md として Rewrite + Relocate、Phase 5 で archive) |
+| `references/99-archive/aag-operational-classification.md` | 旧 now/debt/review 区分 (Phase 1 で aag/operational-classification.md として Rewrite + Relocate、Phase 5 で archive) |
 | `CLAUDE.md` | AAG セクション (Phase 3 で §8.13 判断 = B 適用、鉄則 quote + link に薄化) |
 | `docs/contracts/doc-registry.json` | 新 doc 登録 + 旧 doc deprecation flag (Phase 4) |
 | `docs/contracts/principles.json` | $comment update (各 Phase commit で進行状態 articulate) |

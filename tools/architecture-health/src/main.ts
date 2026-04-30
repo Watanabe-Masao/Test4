@@ -267,7 +267,7 @@ if (!isCheck) {
 
   const ruleStatsResults = updateGeneratedSections(repoRoot, [
     {
-      filePath: "references/01-principles/adaptive-architecture-governance.md",
+      filePath: "references/99-archive/adaptive-architecture-governance.md",
       sectionId: "aag-rule-stats",
       content: ruleStatsContent,
     },

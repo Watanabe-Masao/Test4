@@ -34,21 +34,28 @@
 
 ## Phase 4: doc-registry / principles.json / manifest.json 整合 + deprecation marker
 
-- [ ] `docs/contracts/doc-registry.json` の AAG category 全 update (新 doc 登録 + 旧 doc deprecated flag)
-- [ ] `docs/contracts/principles.json` の `$comment` update (本 project 進行状態の articulate)
-- [ ] `.claude/manifest.json` の discovery hint update (byTopic / byExpertise / pathTriggers)
-- [ ] `references/README.md` の AAG 関連 doc 索引 update
-- [ ] docRegistryGuard / docCodeConsistencyGuard / manifestGuard 全 PASS
+- [x] `docs/contracts/doc-registry.json` の AAG category 全 update (新 doc 登録 + 旧 doc deprecated flag) — 新 6 doc は Phase 1 で登録済、旧 7 doc に `[DEPRECATED Project A Phase X]` marker + 新 doc 移管先 articulate 追加 (本 commit、`adaptive-architecture-governance.md` / `adaptive-governance-evolution.md` / `aag-four-layer-architecture.md` / `aag-operational-classification.md` / `aag-rule-splitting-plan.md` / `aag-5-constitution.md` / `aag-5-layer-map.md` / `aag-5-source-of-truth-policy.md`)
+- [x] `docs/contracts/principles.json` の `$comment` update (本 project 進行状態の articulate) — Phase 1 / Phase 2 / Phase 3 articulate 済 (前 commit)、Phase 4 articulate (本 commit)
+- [x] `.claude/manifest.json` の discovery hint update (byTopic / byExpertise / pathTriggers) — `discovery.byTopic.AAG` を旧 2 doc (`adaptive-architecture-governance.md` + `adaptive-governance-evolution.md`) から新 8 doc (`aag/README.md` + `aag/meta.md` + `aag/strategy.md` + `aag/architecture.md` + `aag/evolution.md` + `aag/operational-classification.md` + `aag/source-of-truth.md` + `aag/layer-map.md`) に migrate (AI session 開始時の AAG context 参照経路を新 path 主導に切替)
+- [x] `references/README.md` の AAG 関連 doc 索引 update — Phase 1 で 6 新 doc 索引 + 旧 3 doc archive 予定 articulate 済
+- [x] docRegistryGuard / docCodeConsistencyGuard / manifestGuard 全 PASS — 本 commit で確認
+
+### Project E candidate engagement (Phase 4 必ず触れる原則)
+
+- [x] **Project E + F candidate を一読** (= HANDOFF.md §2 + 親 project HANDOFF.md §2)
+- [x] **Phase 4 と Project E relevance articulate**: 本 Phase の `manifest.json discovery.byTopic.AAG` 拡張 (旧 2 doc → 新 8 doc) は **Project E deliverable 10** (= `.claude/manifest.json` discovery 拡張、Insight 9 AI utilization friendliness) の **precursor application instance**。本 Phase で実施した「discovery hint を新 path 主導に切替える pattern」は、将来 Project E で decision-making / quality-assessment / correction / rollback の hint を embed する際の reference として再利用可能
 
 ## Phase 5: 旧 AAG Core doc archive (legacy retirement、inbound 0 trigger)
 
-- [ ] `adaptive-architecture-governance.md` の inbound 全件 grep + 新 path に書き換え完了 (inbound 0 機械検証 PASS)
-- [ ] `adaptive-architecture-governance.md` を `references/99-archive/` に移管 (frontmatter `archived: true` 追加)
-- [ ] `aag-5-constitution.md` の inbound 全件 update + archive 移管
-- [ ] `aag-5-source-of-truth-policy.md` の inbound 全件 update + archive 移管
-- [ ] `aag-5-layer-map.md` の inbound 全件 update + archive 移管
-- [ ] `aag-operational-classification.md` の inbound 全件 update + archive 移管
-- [ ] `adaptive-governance-evolution.md` の inbound 全件 update + archive 移管
+- [x] `adaptive-architecture-governance.md` の inbound 全件 grep + 新 path に書き換え完了 (inbound 0 機械検証 PASS) — **Phase 5.8 完遂** (本 commit、active 5+ = `allowlists/docs.ts` L57-L82 5 件削除 + `docRegistryGuard.test.ts` L199 → aag/README.md + `docStaticNumberGuard.test.ts` L34 → aag/strategy.md + `base-rules.ts` L3328 + L6399 (rule entry doc field) → aag/strategy.md + CLAUDE.md L359 → aag/strategy.md / mapping bulk migrate / `projects/completed/` immutable references は exception)
+- [x] `adaptive-architecture-governance.md` を `references/99-archive/` に移管 (frontmatter 装着) — **Phase 5.8 完遂** (本 commit、Phase 5 multi-session 最後の archive)
+- [x] `aag-5-constitution.md` の inbound 全件 update + archive 移管 — **Phase 5.7 完遂** (本 commit、active 4 = `aagSchemas.ts` L22 + `guardCategoryMap.ts` L17 + `aag/core/AAG_CORE_INDEX.md` L40 + L59 を `aag/architecture.md` に update + mapping bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化)
+- [x] `aag-5-source-of-truth-policy.md` の inbound 全件 update + archive 移管 — **Phase 5.4 完遂** (本 commit、active inbound 2 = `aag/core/AAG_CORE_INDEX.md` L60 + `app/src/test/aagSchemas.ts` L23 を `aag/source-of-truth.md` に update + mapping inbound bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化)
+- [x] `aag-5-layer-map.md` の inbound 全件 update + archive 移管 — **Phase 5.1 完遂** (commit `14479a4`、active inbound 1 件 = `projectization-policy.md` L596 を新 path に update + mapping inbound 7 件を archive path に migrate + git mv → 99-archive/ + frontmatter (archived / archivedAt / archivedBy / migratedTo / mapping anchor / rollback anchor / milestone acknowledgment / decision trace) 追加 + doc-registry.json archive section migrate)
+- [x] `aag-four-layer-architecture.md` の inbound 全件 update + archive 移管 — **Phase 5.2 完遂** (本 commit、active inbound 2 件 = `architectureRules/helpers.ts` L70 + L86 の `@see` を `aag/architecture.md` に update + mapping inbound 10 件を archive path に migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive section migrate)
+- [x] `aag-operational-classification.md` の inbound 全件 update + archive 移管 — **Phase 5.5 完遂** (本 commit、active 2 = `docStaticNumberGuard.test.ts` L35 を新 path に update + `allowlists/docs.ts` L84-L151 の旧 doc 用 13 allowlist entries を削除 (新 doc は件数 articulate なしの原則) + mapping bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化)
+- [x] `aag-rule-splitting-plan.md` の inbound 全件 update + archive 移管 — **Phase 5.6 完遂** (本 commit、active 2 = `architectureRuleGuard.test.ts` L268 + `references/AAG_OVERVIEW.md` L38 を archive path + completed project link に update + mapping bulk migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化。本 doc は completed project execution 記録、実行は `projects/completed/aag-rule-splitting-execution/` で完了済、ルール classification の current articulation は `aag/operational-classification.md`)
+- [x] `adaptive-governance-evolution.md` の inbound 全件 update + archive 移管 — **Phase 5.3 完遂** (本 commit、active inbound 2 件 = CLAUDE.md L360 + `allowlists/types.ts` L87 を `aag/evolution.md` に update + mapping inbound 残を archive path に migrate + git mv → 99-archive/ + frontmatter 装着 + doc-registry archive 化。`projects/completed/architecture-debt-recovery/plan.md` L673 は immutable archive のため update 対象外、archive-to-archive 参照として許容)
 - [ ] 各旧 doc archive 前に新 doc 内 mapping table が landed 済を確認 (§1.5 archive 前 mapping 義務、plan 不可侵原則 5)
 - [ ] `breaking-changes.md` 各 entry 完遂 articulate
 - [ ] `legacy-retirement.md` 各旧 path の取り扱い完遂 articulate

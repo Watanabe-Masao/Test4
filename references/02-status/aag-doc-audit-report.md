@@ -12,14 +12,14 @@
 
 | # | doc path | inbound 数 | 行数 | 5 層位置付け | 必要 operation |
 |---|---|---:|---:|---|---|
-| 1 | `references/01-principles/adaptive-architecture-governance.md` | 36 | 531 | Layer 2 戦略マスター + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 (混在) | **Split + Rewrite + 部分 Archive** |
-| 2 | `references/01-principles/aag-5-constitution.md` | 27 | 208 | Layer 2 構造設計 (旧 4 層) + Layer 1 非目的 (混在) | **Rewrite + Relocate + Rename + 内容分散** |
-| 3 | `references/01-principles/aag-5-layer-map.md` | 10 | 174 | Layer 2 reference (ファイル別 4 層 mapping) | Rewrite + Relocate + Rename |
-| 4 | `references/01-principles/aag-5-source-of-truth-policy.md` | 16 | 148 | Layer 2 reference (正本/派生物/運用物 ポリシー) | Rewrite + Relocate + Rename |
-| 5 | `references/01-principles/aag-four-layer-architecture.md` | 15 | 100 | (旧 4 層 = Principles/Judgment/Detection/Response、superseded) | **即 Archive** |
-| 6 | `references/01-principles/aag-operational-classification.md` | 17 | 197 | Layer 2-3 境界 (now/debt/review 運用区分) | Rewrite + Relocate |
-| 7 | `references/01-principles/aag-rule-splitting-plan.md` | 21 | 174 | (completed project execution 記録) | **即 Archive** |
-| 8 | `references/01-principles/adaptive-governance-evolution.md` | 18 | 214 | Layer 2 進化動学 (3 層サイクル + 価値方程式) | Rewrite + Relocate + Rename |
+| 1 | `references/99-archive/adaptive-architecture-governance.md` | 36 | 531 | Layer 2 戦略マスター + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 (混在) | **Split + Rewrite + 部分 Archive** |
+| 2 | `references/99-archive/aag-5-constitution.md` | 27 | 208 | Layer 2 構造設計 (旧 4 層) + Layer 1 非目的 (混在) | **Rewrite + Relocate + Rename + 内容分散** |
+| 3 | `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) | 10 | 174 | Layer 2 reference (ファイル別 4 層 mapping) | Rewrite + Relocate + Rename |
+| 4 | `references/99-archive/aag-5-source-of-truth-policy.md` | 16 | 148 | Layer 2 reference (正本/派生物/運用物 ポリシー) | Rewrite + Relocate + Rename |
+| 5 | `references/99-archive/aag-four-layer-architecture.md` | 15 | 100 | (旧 4 層 = Principles/Judgment/Detection/Response、superseded) | **即 Archive** |
+| 6 | `references/99-archive/aag-operational-classification.md` | 17 | 197 | Layer 2-3 境界 (now/debt/review 運用区分) | Rewrite + Relocate |
+| 7 | `references/99-archive/aag-rule-splitting-plan.md` | 21 | 174 | (completed project execution 記録) | **即 Archive** |
+| 8 | `references/99-archive/adaptive-governance-evolution.md` | 18 | 214 | Layer 2 進化動学 (3 層サイクル + 価値方程式) | Rewrite + Relocate + Rename |
 | 9 | `CLAUDE.md` AAG セクション | (CLAUDE.md 内 inline) | — | section-level (Layer 0+1 dynamic thinking 誘導) | **Phase 4 で薄化** (§8.13 判断 B、鉄則 quote + link) |
 
 **合計 inbound link**: 160 file references (重複あり、unique inbound はより少)。詳細は §1.X 各 doc audit 参照。
@@ -72,7 +72,7 @@
 - **影響範囲 inventory**: inbound 27 file references
 - **migration order**: 1. `aag/architecture.md` Create + 5 層構造 articulate → 2. §4.1 mapping table fill → 3. 非目的 + 前提 を `aag/meta.md` に移動 (重複なし、参照 link で繋ぐ) → 4. inbound link migration → 5. 旧 doc archive 移管 (Phase 5)
 
-### §1.3 `aag-5-layer-map.md` (Rewrite + Relocate + Rename)
+### §1.3 `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) (Rewrite + Relocate + Rename)
 
 - **5 層位置付け**: Layer 2 reference (ファイル別 4 層 mapping)
 - **責務 (現状)**: 1 doc 1 責務 (ファイル別 mapping のみ、既に clean)
@@ -102,7 +102,7 @@
 - **書かないこと**: 全内容を archive 移管
 - **drill-down pointer**: なし (legacy doc、新 5 層モデルでは relevance なし)
 - **必要 operation**: **即 Archive** (Phase 5 で `references/99-archive/` に移管、mapping 義務 §1.5 = `aag/architecture.md` §4.1 旧 4 層 → 新 5 層 mapping table が landed されてから移管)
-- **影響範囲 inventory**: inbound 15 file references (主に `aag-5-constitution.md` + `aag-5-layer-map.md` + 設計 doc 群、historical 参照)
+- **影響範囲 inventory**: inbound 15 file references (主に `aag-5-constitution.md` + `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) + 設計 doc 群、historical 参照)
 - **migration order**: 1. `aag/architecture.md` §4.1 mapping table landing → 2. inbound 15 件の参照を新 path or mapping へ migrate → 3. archive 移管 (Phase 5)
 
 ### §1.6 `aag-operational-classification.md` (Rewrite + Relocate)
@@ -225,7 +225,7 @@
 | 4 層構造定義 | `aag-5-constitution.md §4層定義` + `aag-five-layer-architecture.md` (旧 4 層) + `adaptive-architecture-governance.md §4 層アーキテクチャ` | **`aag/architecture.md`** (新 5 層) + §4.1 旧 4 層 → 新 5 層 mapping、他は archive |
 | 進化サイクル | `adaptive-governance-evolution.md` + `adaptive-architecture-governance.md §3 層サイクル` | **`aag/evolution.md`** (集約)、他は pointer |
 | 設計原則 8 | `adaptive-architecture-governance.md §設計原則` (8 原則) + `design-principles.md` (A-I+Q taxonomy) | **`aag/strategy.md` §設計原則** (8 原則 = AAG framework 自身の design principle) と `design-principles.md` (= application logic の design principle) を **責務分離** で維持 |
-| ファイル別 4 層 mapping | `aag-5-layer-map.md` + `aag-5-constitution.md §含むもの` (各 Layer の含む doc 例) | **`aag/layer-map.md`** (新 5 層) で集約 (Phase 4)、`aag/architecture.md` は概念定義のみ |
+| ファイル別 4 層 mapping | `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) + `aag-5-constitution.md §含むもの` (各 Layer の含む doc 例) | **`aag/layer-map.md`** (新 5 層) で集約 (Phase 4)、`aag/architecture.md` は概念定義のみ |
 
 ### §3.3 gap (articulate されていない rule / 概念)
 

@@ -292,4 +292,4 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 | `references/02-status/taxonomy-review-journal.md`              | review window 記録（Phase 2 で skeleton landing）                |
 | `references/02-status/generated/taxonomy-health.json`          | health KPI（Phase 3 + Phase 4 で landing）                       |
 | `CLAUDE.md` §taxonomy-binding                                  | AI Vocabulary Binding（review window 外の新タグ提案禁止）        |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 全体（本 Constitution は AAG 第 3 の柱）                     |
+| `references/99-archive/adaptive-architecture-governance.md` | AAG 全体（本 Constitution は AAG 第 3 の柱）                     |

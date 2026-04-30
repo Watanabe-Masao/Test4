@@ -1,4 +1,19 @@
-# AAG 運用区分表 — ルールの 3 分類
+# [ARCHIVED Project A Phase 5.5] AAG 運用区分表 — ルールの 3 分類
+
+> **Archived**: 2026-04-30 (Project A Phase 5.5)
+> **Archived By**: 本 commit
+> **Migrated To**: [`references/01-principles/aag/operational-classification.md`](../01-principles/aag/operational-classification.md) (Project A Phase 1 で landed、AAG Response フロー §6 + 件数を articulate しない原則 = `docStaticNumberGuard` 適用)
+> **Mapping Anchor**: `aag/operational-classification.md §6` (旧 → 新 mapping)
+> **Inbound 0 検証**: active 0 件
+> **Rollback Anchor / Milestone Acknowledgment / Decision Trace**: Phase 5.1〜5.4 と同 pattern
+> **Active Reference Migration**:
+>   - `app/src/test/guards/docStaticNumberGuard.test.ts` L35 の TARGET_FILES を `aag/operational-classification.md` に update
+>   - `app/src/test/allowlists/docs.ts` L84-L151 の旧 doc 用 13 allowlist entries を削除 (新 doc は「件数を articulate しない」原則で記述、allowlist 不要)
+> **Note**: 旧 doc は 静的数値 (例: "即修正（31 ルール）") を heading に articulate していたが、新 doc は generated section で対応する設計のため、旧 doc archive と allowlist 削除は **同時に実施可能**
+
+---
+
+# (元 content) AAG 運用区分表 — ルールの 3 分類
 
 ## 運用方針
 

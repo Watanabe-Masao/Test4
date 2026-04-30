@@ -99,24 +99,24 @@ mapping 不在で archive すると、後任が「旧 4 層 = 新 何?」「Oper
 
 | doc path | 撤退理由 | 移管先 | redirect 先 |
 |---|---|---|---|
-| `references/01-principles/aag-four-layer-architecture.md` | 旧 4 層 (Principles/Judgment/Detection/Response) は新 4 層 (Constitution/Schema/Execution/Operations) で superseded、aag-5-constitution.md line 162 で明示済 | `99-archive/01-principles/aag-four-layer-architecture.md` | `aag/architecture.md` (新 4 層、Phase 4 で Create) |
-| `references/01-principles/aag-rule-splitting-plan.md` | completed project (`projects/completed/aag-rule-splitting-execution/`、2026-04-13 archive) の execution 記録、doc 自身が冒頭で完了宣言 | `99-archive/01-principles/aag-rule-splitting-plan.md` | `projects/completed/aag-rule-splitting-execution/` |
+| `references/99-archive/aag-four-layer-architecture.md` | 旧 4 層 (Principles/Judgment/Detection/Response) は新 4 層 (Constitution/Schema/Execution/Operations) で superseded、aag-5-constitution.md line 162 で明示済 | `99-archive/01-principles/aag-four-layer-architecture.md` | `aag/architecture.md` (新 4 層、Phase 4 で Create) |
+| `references/99-archive/aag-rule-splitting-plan.md` | completed project (`projects/completed/aag-rule-splitting-execution/`、2026-04-13 archive) の execution 記録、doc 自身が冒頭で完了宣言 | `99-archive/01-principles/aag-rule-splitting-plan.md` | `projects/completed/aag-rule-splitting-execution/` |
 
 ### 3.2. Rewrite + Relocate + Rename → Archive (旧 path、Phase 4 で新規書き起こし完了後)
 
 | 旧 path | 新 path (Phase 4 で Create) | 撤退理由 | inbound 0 機械検証対象 |
 |---|---|---|---|
-| `references/01-principles/aag-5-constitution.md` | `references/01-principles/aag/architecture.md` | `aag-5-` prefix 撤廃、旧 4 層構造定義 → 新 5 層構造定義に拡張 (Layer 4 検証追加、§4.1 mapping table 必須)、非目的は aag/meta.md §2.2 に移動 | grep 結果 0 件 |
-| `references/01-principles/aag-5-layer-map.md` | `references/01-principles/aag/layer-map.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
-| `references/01-principles/aag-5-source-of-truth-policy.md` | `references/01-principles/aag/source-of-truth.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
-| `references/01-principles/aag-operational-classification.md` | `references/01-principles/aag/operational-classification.md` | ディレクトリ階層化 | grep 結果 0 件 |
-| `references/01-principles/adaptive-governance-evolution.md` | `references/01-principles/aag/evolution.md` | `adaptive-` prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
+| `references/99-archive/aag-5-constitution.md` | `references/01-principles/aag/architecture.md` | `aag-5-` prefix 撤廃、旧 4 層構造定義 → 新 5 層構造定義に拡張 (Layer 4 検証追加、§4.1 mapping table 必須)、非目的は aag/meta.md §2.2 に移動 | grep 結果 0 件 |
+| `references/99-archive/aag-5-layer-map.md` | `references/01-principles/aag/layer-map.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
+| `references/99-archive/aag-5-source-of-truth-policy.md` | `references/01-principles/aag/source-of-truth.md` | prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
+| `references/99-archive/aag-operational-classification.md` | `references/01-principles/aag/operational-classification.md` | ディレクトリ階層化 | grep 結果 0 件 |
+| `references/99-archive/adaptive-governance-evolution.md` | `references/01-principles/aag/evolution.md` | `adaptive-` prefix 撤廃、ディレクトリ階層化 | grep 結果 0 件 |
 
 ### 3.3. Split + Rewrite + Archive (旧 path、Phase 4 で複数 doc に分割完了後)
 
 | 旧 path | 新 path 群 (Phase 4 で Create) | Split 理由 | inbound 0 機械検証対象 |
 |---|---|---|---|
-| `references/01-principles/adaptive-architecture-governance.md` | `aag/strategy.md` (戦略マスター) + `aag/evolution.md` (進化動学、Merge 候補) + バージョン履歴は per-doc 分散 + 旧 4 層は Archive | 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table が同居 (1 doc 1 責務違反、C1 違反)、責務分離のため Split | grep 結果 0 件 |
+| `references/99-archive/adaptive-architecture-governance.md` | `aag/strategy.md` (戦略マスター) + `aag/evolution.md` (進化動学、Merge 候補) + バージョン履歴は per-doc 分散 + 旧 4 層は Archive | 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table が同居 (1 doc 1 責務違反、C1 違反)、責務分離のため Split | grep 結果 0 件 |
 
 ### 3.4. CLAUDE.md AAG セクション薄化 (Phase 4 で実施)
 

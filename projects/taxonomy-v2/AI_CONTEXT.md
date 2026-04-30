@@ -74,7 +74,7 @@
 | 文書                                                           | 役割                                           |
 | -------------------------------------------------------------- | ---------------------------------------------- |
 | `references/03-guides/project-checklist-governance.md`         | 本 project の運用ルール（AAG Layer 4A）        |
-| `references/01-principles/adaptive-architecture-governance.md` | AAG 5.2 Constitution — 制度化の思想的根拠      |
+| `references/99-archive/adaptive-architecture-governance.md` | AAG 5.2 Constitution — 制度化の思想的根拠      |
 | `references/03-guides/responsibility-separation-catalog.md`    | 現行 v1 の 24 パターン（移行対象）             |
 | `app/src/test/responsibilityTagRegistry.ts`                    | 現行 v1 の正本（v2 で統合的に拡張）            |
 | `app/src/test/guards/responsibilityTagGuard.test.ts`           | 現行 v1 guard                                  |
