@@ -88,6 +88,30 @@
           "label": "AAG Meta charter — Layer 0 (目的) + Layer 1 (要件、AAG-REQ-* namespace 12 件 = 不変条件 7 + 禁則 5) + §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix + Layer 4 audit framework) + §4 達成判定総括。要件定義 + audit framework + AR-rule binding hub の 3 機能融合 mechanism doc"
         },
         {
+          "path": "references/01-principles/aag/strategy.md",
+          "label": "AAG Strategy — 戦略マスター + 文化論 + 意図的に残す弱さ (Layer 0+1)。旧 adaptive-architecture-governance.md の戦略 + 文化論 part を Split + Rewrite (Project A Phase 1)"
+        },
+        {
+          "path": "references/01-principles/aag/architecture.md",
+          "label": "AAG Architecture — 5 層構造定義 + 旧 4 層 → 新 5 層 mapping (Layer 1+2、AAG-REQ-LAYER-SEPARATION 達成 trigger)。旧 aag-5-constitution.md を Rewrite + Relocate + Rename (Project A Phase 1)"
+        },
+        {
+          "path": "references/01-principles/aag/evolution.md",
+          "label": "AAG Evolution — 進化動学 = Discovery / Accumulation / Evaluation (Layer 1+2)。旧 adaptive-governance-evolution.md を Rewrite + Relocate + Rename (Project A Phase 1)"
+        },
+        {
+          "path": "references/01-principles/aag/operational-classification.md",
+          "label": "AAG Operational Classification — now / debt / review 運用区分 (Layer 2 governance-ops)。旧 aag-operational-classification.md を Rewrite + Relocate (Project A Phase 1)"
+        },
+        {
+          "path": "references/01-principles/aag/source-of-truth.md",
+          "label": "AAG Source of Truth — 正本 / 派生物 / 運用物 区分ポリシー (Layer 2 governance-ops)。旧 aag-5-source-of-truth-policy.md を Rewrite + Relocate + Rename (Project A Phase 1)"
+        },
+        {
+          "path": "references/01-principles/aag/layer-map.md",
+          "label": "AAG Layer Map — ファイル別 5 層マッピング (Layer 2 reference)。旧 aag-5-layer-map.md を Rewrite + Relocate + Rename (Project A Phase 1)"
+        },
+        {
           "path": "references/01-principles/adaptive-architecture-governance.md",
           "label": "AAG 正本 (旧 AAG マスター、Phase 4 で Split + Rewrite + Relocate → aag/strategy.md ほか予定)"
         },

@@ -9,14 +9,14 @@
 
 ## Phase 1: AAG Core doc Create 段階 (新 path 新 doc 直接 Create)
 
-- [ ] `references/01-principles/aag/strategy.md` を新規 Create (戦略マスター、Layer 0+1、5 層位置付け + drill-down pointer + 旧概念 mapping section 装着)
-- [ ] `references/01-principles/aag/architecture.md` を新規 Create (5 層構造定義 + 旧 4 層 → 新 5 層 mapping table、Layer 1+2)
-- [ ] `references/01-principles/aag/evolution.md` を新規 Create (進化動学、Layer 1+2、旧 `adaptive-governance-evolution.md` から Rewrite + Relocate + Rename)
-- [ ] `references/01-principles/aag/operational-classification.md` を新規 Create (now/debt/review 区分、Layer 2、旧 `aag-operational-classification.md` から Rewrite + Relocate)
-- [ ] `references/01-principles/aag/source-of-truth.md` を新規 Create (正本/派生物/運用物、Layer 2、旧 `aag-5-source-of-truth-policy.md` から Rewrite + Relocate + Rename)
-- [ ] `references/01-principles/aag/layer-map.md` を新規 Create (5 層 マッピング、Layer 2、旧 `aag-5-layer-map.md` から Rewrite + Relocate + Rename)
-- [ ] 各新 doc を独立 commit で landing (parallel comparison 期間を確保、旧 doc は touch せず併存)
-- [ ] 各新 doc に **5 層位置付け + drill-down pointer + 旧概念 mapping section** 全て articulate 済を機械検証 (grep で section heading 確認)
+- [x] `references/01-principles/aag/strategy.md` を新規 Create (戦略マスター、Layer 0+1、5 層位置付け + drill-down pointer + 旧概念 mapping section 装着)
+- [x] `references/01-principles/aag/architecture.md` を新規 Create (5 層構造定義 + 旧 4 層 → 新 5 層 mapping table、Layer 1+2)
+- [x] `references/01-principles/aag/evolution.md` を新規 Create (進化動学、Layer 1+2、旧 `adaptive-governance-evolution.md` から Rewrite + Relocate + Rename)
+- [x] `references/01-principles/aag/operational-classification.md` を新規 Create (now/debt/review 区分、Layer 2、旧 `aag-operational-classification.md` から Rewrite + Relocate)
+- [x] `references/01-principles/aag/source-of-truth.md` を新規 Create (正本/派生物/運用物、Layer 2、旧 `aag-5-source-of-truth-policy.md` から Rewrite + Relocate + Rename)
+- [x] `references/01-principles/aag/layer-map.md` を新規 Create (5 層 マッピング、Layer 2、旧 `aag-5-layer-map.md` から Rewrite + Relocate + Rename)
+- [x] 各新 doc を独立 commit で landing (parallel comparison 期間を確保、旧 doc は touch せず併存) — 本 commit で 6 doc 一括 landing (parallel comparison 期間は本 commit 以降〜Phase 5 archive まで継続、各 doc 独立 section で articulate 済)
+- [x] 各新 doc に **5 層位置付け + drill-down pointer + 旧概念 mapping section** 全て articulate 済を機械検証 (grep で section heading 確認) — 全 6 doc 冒頭に「5 層位置付け」「drill-down pointer」articulate、「§(旧概念 → 新概念) mapping」section 装着済
 
 ## Phase 2: AAG Core doc Split / Rewrite 段階 (旧 doc 内容を新 doc に書き起こし)
 
