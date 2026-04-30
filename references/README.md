@@ -220,6 +220,7 @@
 | projects/ 運用ルール（ドキュメントと課題の分離 / checklist 駆動の completion 管理）        | `03-guides/project-checklist-governance.md`                     |
 | 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証） | `03-guides/new-project-bootstrap-guide.md`                      |
 | AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                          | `03-guides/projectization-policy.md`                            |
+| Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）       | `03-guides/deferred-decision-pattern.md`                        |
 | AAG 5.0 4層構造定義                                                                        | `01-principles/aag-5-constitution.md`                           |
 | AAG 5.0 既存ファイル層マッピング                                                           | `01-principles/aag-5-layer-map.md`                              |
 | AAG 5.0 正本/派生/運用物ポリシー                                                           | `01-principles/aag-5-source-of-truth-policy.md`                 |
@@ -427,6 +428,7 @@
 | `03-guides/project-checklist-governance.md`  | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理）                                                       |
 | `03-guides/new-project-bootstrap-guide.md`   | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）          |
 | `03-guides/projectization-policy.md`         | AAG-COA — Projectization Policy（**立ち上げ前の入口判定** — Level 0-4 / required + forbidden artifacts / escalation / project.json metadata / guard 仕様） |
+| `03-guides/deferred-decision-pattern.md`     | Deferred Decision Pattern（**途中判断 制度化** — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred、判断基準 + 収集元 + AI/人間判断分離 + decision log + 適用 template、AAG Layer 4A System Operations、project-checklist-governance.md と並列） |
 
 ### 移行・廃止
 
