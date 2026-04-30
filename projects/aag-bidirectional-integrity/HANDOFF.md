@@ -150,14 +150,21 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 - [ ] CLAUDE.md AAG セクションに 1 行索引 link 追加 (詳細薄化は Phase 4)
 - [ ] charter 人間 review (Constitution 改訂と同等の慎重さ)
 
-### Phase 2: AAG rule metadata 拡張 (semantic articulation 構造)
+### Phase 2: AAG rule metadata 拡張 (semantic articulation 構造 + status field、変更対象 = BaseRule 物理正本)
 
-- [ ] `architectureRules/defaults.ts` schema 拡張:
-  - `canonicalDocRef: Array<{ docPath, problemAddressed, resolutionContribution }>` (実装 → 設計 doc binding)
-  - `metaRequirementRefs: Array<{ requirementId, problemAddressed, resolutionContribution }>` (実装 → 要件 binding)
-- [ ] `guardCategoryMap.ts` の対応 field を追加 (または schema 統合)
-- [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` + `metaRequirementRefs: []` 空 array で初期化
-- [ ] TypeScript 型定義の整合 (build / lint PASS)
+> **変更対象正本** (PR review Review 3 P0 #1 + P1 #4 反映):
+> - 型定義: `app/src/test/architectureRules/types.ts` / `app/src/test/aag-core-types.ts`
+> - 実データ: `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule 物理正本)
+> - derived consumer: `app/src/test/architectureRules/merged.ts`
+> - **触らない**: `defaults.ts` (execution overlay) / `guardCategoryMap.ts` (二重正本回避)
+
+- [ ] `architectureRules/types.ts` (or `aag-core-types.ts`) に `SemanticTraceBinding<T>` 型 family + `CanonicalDocTraceRef` / `MetaRequirementTraceRef` を追加
+- [ ] `RuleBinding` 型に下記 field を追加 (`RuleSemantics` でなく `RuleBinding`、docPath は App Domain 寄り):
+  - `canonicalDocRef?: SemanticTraceBinding<CanonicalDocTraceRef>` (実装 → 設計 doc binding)
+  - `metaRequirementRefs?: SemanticTraceBinding<MetaRequirementTraceRef>` (実装 → 要件 binding)
+- [ ] `app-domain/gross-profit/rule-catalog/base-rules.ts` の全 rule に `{ status: 'pending', refs: [] }` で初期化 (空配列でなく status object、未対応 vs 適用外を区別)
+- [ ] `defaults.ts` (execution overlay) と `guardCategoryMap.ts` は **触らない** ことを確認
+- [ ] TypeScript 型定義の整合 (build / lint PASS、`merged.ts` 経由で consumer から canonicalDocRef + metaRequirementRefs にアクセス可能)
 
 ### Phase 3: AAG Core doc audit (5 層位置付け + 責務 + drill-down semantic + operation 判定)
 
@@ -209,13 +216,33 @@ operation 順序:
 - [ ] `03-guides/` 関連 doc (数値表示ルール / coding-conventions 等) に同 section を追加
 - [ ] 各 section の各 entry は **3 要素を保持**: AR rule ID + 要件 ID + architect 寄与 articulation
 
-### Phase 8: forward / reverse meta-guard 実装 (semantic articulation 検証)
+### Phase 8: Layer 4 sub-audit MVP 実装 (4.2 方向 + 4.4 完備性 のみ、PR review Review 3 P1 #6 反映)
 
-- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse): 各 AR rule の `canonicalDocRef` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty
-- [ ] `canonicalDocBackLinkGuard.test.ts` (forward): canonical doc の Mechanism Enforcement section の各 entry について AR ID + 要件 ID + articulation non-empty
-- [ ] (option) `metaRequirementBindingGuard.test.ts`: Layer 1 ↔ Layer 3 binding 検証
+> **MVP scope**: 5 sub-audit (4.1〜4.5) を一気に実装すると新たな governance debt 化のため、
+> **MVP は 4.2 方向 + 4.4 完備性 のみ**。4.1 境界 / 4.3 波及 / 4.5 機能性 + selfHostingGuard +
+> metaRequirementBindingGuard は **follow-up project に逃がす** (Phase 3 split decision gate で
+> 別 project 化 default)。
+
+#### 4.2 方向監査 (MVP)
+
+- [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse): 各 AR rule の `canonicalDocRef.refs` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty
+- [ ] `canonicalDocBackLinkGuard.test.ts` (forward): canonical doc の `## Mechanism Enforcement` section の各 entry について AR ID + 要件 ID + articulation non-empty
+
+#### 4.4 完備性監査 (MVP)
+
+- [ ] `semanticArticulationQualityGuard.test.ts`: hard fail (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) / warning (意味品質は human review)
+- [ ] `statusIntegrityGuard.test.ts`: status field の整合性 (`bound` のとき `refs.length > 0` / `not-applicable` のとき `justification` 必須 / 新規 rule で `pending` 禁止)
+
+#### 共通 (MVP)
+
 - [ ] 例外 allowlist の baseline を機械管理 (ratchet-down のみ、増加禁止)
 - [ ] 新 rule 追加 PR で immediate enforcement が hard fail することを synthetic 注入で確認
+
+#### follow-up project に逃がす (Phase 8 MVP scope 外)
+
+- ~~4.1 境界監査 / 4.3 波及監査 / 4.5 機能性監査~~ → follow-up project
+- ~~`metaRequirementBindingGuard.test.ts` (Layer 1 ↔ Layer 3 binding 専用)~~ → follow-up project
+- ~~`selfHostingGuard.test.ts` (aag/meta.md 自己整合)~~ → follow-up project
 
 ### Phase 9: DFR registry (Layer 2 新規製本)
 
@@ -231,7 +258,7 @@ operation 順序:
 ### Phase 10: 表示 rule guards 実装
 
 - [ ] `displayRuleGuard.test.ts` を rule registry framework として新設
-- [ ] DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録 (semantic articulation 付き)
+- [ ] DFR-001〜005 を `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule 物理正本) に登録 (`canonicalDocRef` + `metaRequirementRefs` の `SemanticTraceBinding<T>` 形式で semantic articulation 付き)。`defaults.ts` (overlay) と `guardCategoryMap.ts` には **置かない** (二重正本回避)
 - [ ] DFR-001 baseline 確定 (CHART-004 / CHART-005 の semantic 不使用)
 - [ ] DFR-002 baseline 確定 (FactorDecomp / BudgetVsActual.builders 等の `toAxisYen` 直接呼び)
 - [ ] DFR-003 baseline 確定 (BudgetTrend / Seasonal 等の `Math.round(v * 100)`)
