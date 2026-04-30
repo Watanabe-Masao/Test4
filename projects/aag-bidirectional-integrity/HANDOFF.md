@@ -125,23 +125,26 @@ main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 
 
 Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
-## 1.6. Phase 3 hard gate decision = B 確定 (2026-04-30、本 project MVP 完遂)
+## 1.6. Phase 3 hard gate decision = B 確定 (AI 推奨 + ユーザー確認、2026-04-30)
 
-**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI 自主判断 (deferred-decision-pattern §3.1 適用) で **B (Project A〜D 分割) を確定**。
+**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI 推奨 + ユーザー確認 hybrid (deferred-decision-pattern §3.1 + §3.2 例外則) で **B (Project A〜D 分割) を確定**。
 
 | 項目 | 状態 |
 |---|---|
 | §8.14 第 1 段 (Phase 1 skeleton landing) | ✅ PR #1216-#1223 merged |
 | §8.14 第 2 段 (Phase 3 audit landing) | ✅ commit `6762d39` |
 | §8.14 第 3 段 (Phase 1 §3 fill cyclic refinement) | ✅ commit `477ef41` |
-| Phase 3 hard gate decision | ✅ **B 確定** (本 commit) |
+| Phase 3 hard gate (AI 推奨段階) | ✅ **B 推奨** (commit `5e6193f`、deferred-decision-pattern §3.1) |
+| Phase 3 hard gate (ユーザー確認段階) | ✅ **B 確定** (本 commit、ユーザー articulate「Bでよろしくお願いします」、deferred-decision-pattern §3.2) |
 
-**rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い。**default B = follow-up project 分割を採用**。
+**AI 推奨 rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い → **default B (follow-up project 分割) を AI 推奨**。
+
+**ユーザー確認**: ユーザー articulate「Bでよろしくお願いします」(2026-04-30) により Project A〜D 分割を確定。
 
 ### 本 project (`aag-bidirectional-integrity`) は **MVP 完遂状態** に到達
 
-- **MVP scope**: Phase 1 (AAG Meta charter landing) + Phase 3 (AAG Core doc audit landing) + cyclic refinement (Phase 1 §3 fill) = 全完遂
-- **後続 Phase 4〜10 は Project A〜D に移管**: 別 session で各 project を bootstrap 後に execution
+- **MVP scope (Phase 1 + Phase 3 + cyclic refinement)**: ✅ 全完遂
+- **後続 Phase 4〜10**: Project A〜D (仮称) に移管。実 project entity の id は bootstrap session でユーザー判断により確定
 - **本 project の status**: 次 session 以降で archive 候補に migrate (Project A〜D bootstrap 完了後、本 project は archive プロセスへ)
 
 ### Project A〜D 分割案 (audit report §7.2)
@@ -165,10 +168,12 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
 各 project bootstrap は **1 session = 1 project**:
 
-- [ ] **Project A bootstrap** (AAG Core doc refactor): `projects/aag-core-doc-refactor/` を `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
-- [ ] **Project B bootstrap** (rule schema + meta-guard): `projects/aag-rule-schema-meta-guard/` を bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
-- [ ] **Project C bootstrap** (DFR registry + display guards): `projects/aag-display-rule-registry/` を bootstrap、Phase 9 + Phase 10 を移管
-- [ ] **Project D bootstrap** (legacy retirement): `projects/aag-legacy-retirement/` を bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
+> **注**: 以下の Project A〜D は **仮称** (まだ project entity として未存在)。実 project entity の id / path は **bootstrap session でユーザー判断** により確定 (= 本 articulation は spawn 計画の sketch であり、project id を予約しない)。
+
+- [ ] **Project A bootstrap** (仮称 = AAG Core doc refactor): 適切な project id を確定し `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
+- [ ] **Project B bootstrap** (仮称 = rule schema + meta-guard): 適切な project id を確定し bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
+- [ ] **Project C bootstrap** (仮称 = DFR registry + display guards): 適切な project id を確定し bootstrap、Phase 9 + Phase 10 を移管
+- [ ] **Project D bootstrap** (仮称 = legacy retirement): 適切な project id を確定し bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
 
 各 project の **依存関係**:
 - Project A → Project B (= AAG Core doc refactor 完了後に rule schema 拡張、binding 記入対象が安定)

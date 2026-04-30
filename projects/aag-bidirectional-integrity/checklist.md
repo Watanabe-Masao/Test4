@@ -124,11 +124,10 @@
 > 単一 project 継続は audit findings で正当化される場合のみ。
 
 - [x] Phase 3 audit 完了後、Phase 4 doc refactor の所要 commit 数を見積もった (10+ commits 想定) — audit report §7.1 で operation 22 件 / commit 15-20 件 articulate (想定超過、Level 4 寄り)
-- [x] **decision**: Phase 4〜10 を以下のどちらで進めるか **AI 自主判断** + 明示記録した — **decision: B (sub-project / follow-up project に分割、default 採用)**
+- [x] **AI 推奨 articulate**: Phase 4〜10 を以下のどちらで進めるか AI が criteria を適用して **推奨 (default)** を決定した — **AI 推奨: B (sub-project / follow-up project に分割)**
   - **A. 単一 project 継続** (audit findings で「scope は管理可能」と正当化された場合のみ)
-  - **B. sub-project / follow-up project に分割** (default、推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement) ← **採用**
-- [x] 分割 (B) の場合、対象 Phase 群を別 project に切り出した (本 project は MVP = Phase 1〜3 で完遂、status を archive 候補に) — 本 commit で本 project は MVP 完遂状態に articulate (Project A〜D bootstrap は次 session で各 project 個別に実施)
-- [x] ~~単一 project 継続 (A) の場合、Phase 4 を sub-phase 化~~ — **decision = B により skip**
+  - **B. sub-project / follow-up project に分割** (default、推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement) ← **AI 推奨**
+- [x] **ユーザー確認 (= 人間判断 gate)**: Phase 3 hard gate は **高 blast radius** (= project 構造の不可逆判断 + 4 project bootstrap 計画) のため、`deferred-decision-pattern.md` §3.2 例外則 (構造的安全装置) を適用し、AI 推奨に対するユーザー判断を必須 gate として運用する — **判断確定: a) B 確定** (2026-04-30、ユーザー articulate 「Bでよろしくお願いします」) → Project A〜D 分割で進行、本 project は MVP 完遂で archive 候補へ migrate
 - [x] 決定理由 (A or B) を `references/02-status/aag-doc-audit-report.md` の末尾に articulate した — §7.2 で B 推奨 rationale articulate 済 (scope 規模 evaluation: operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り)
 - [x] **本 hard gate を通過するまで Phase 4 着手しない** ことを HANDOFF に明示した — HANDOFF §1.4 + §2 で articulate 済
 
@@ -423,7 +422,8 @@
 | Phase 1 着手前 | §8.14 Phase 1+3 同期方針 | AI 自主 | **B** (順序付き 3 段階、推奨通り) | Phase 1 deliverable 5+ commits / Phase 3 audit findings 9 entry → A bundling は単一 PR scope 大きすぎる、C parallel branches は necessity 低い / B 3 段階 (skeleton → audit → §3 fill) は parallel comparison + cyclic refinement 可能 | (本 commit) |
 | Phase 3 audit (本 phase の deliverable) | 全 7 項目 + 6 追加 deliverable articulate 完了 | AI 自主 | ✅ 完了 | aag-doc-audit-report.md §0〜§8 で全 13 deliverable articulate (8 doc + CLAUDE.md AAG section、inbound 160+ file references、operation 22 件 = Create 7 + Split 1 + Rewrite 6 + Archive 8) | (Phase 3 audit commit、本 commit 後) |
 | Phase 3 完了時 (HARD GATE) | Phase 4〜10 split decision | AI 自主推奨 → **人間判断 gate** (default B) | **B 推奨** (sub-project / follow-up project に分割) | aag-doc-audit-report.md §7.2 rationale: Phase 4 operation 22 件 + commit 15-20 件 + Phase 6 既存 166 rule binding は単一 project の Phase で重い、Level 4 寄り。推奨分割案: Project A (AAG Core doc refactor) + Project B (rule schema + meta-guard) + Project C (DFR registry + guards) + Project D (legacy retirement)。本 project MVP scope = Phase 1 (完了) + Phase 3 (本 commit で完了) | (Phase 3 audit commit + ユーザー判断 = next session) |
-| Phase 3 hard gate 確定 (本 commit) | Phase 4〜10 split decision = B 確定 | AI 自主判断 (default 採用、deferred-decision-pattern §3.1) | **B 確定** (Project A〜D 別 project spawn) | 本 commit で AI 自主判断により default B を確定: ユーザー指示 = 「よろしくお願いします」 → AI 推奨を進める意思 → Project A〜D 分割計画を articulate + 本 project は MVP 完遂状態 (Phase 1 + Phase 3) で archive 候補へ migrate 予定 (next session で実 spawn + archive 実施)。Project A〜D bootstrap は各 project ごとに別セッションで実施 (1 session = 1 project bootstrap が clean) | (本 commit) |
+| Phase 3 hard gate (AI 推奨段階) | Phase 4〜10 split decision の AI 推奨 articulate | AI 自主推奨 (deferred-decision-pattern §3.1) | **AI 推奨 = B** (default、未確定) | criteria 適用 (audit report §7.2): scope 規模 = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project 継続 (A) は scope 過大、分割 (B) が default。但し本 hard gate は **高 blast radius** (project 構造の不可逆判断) のため deferred-decision-pattern §3.2 例外則を適用し、ユーザー確認を必須 gate として運用する (= AI 単独で確定しない) | (本 commit、AI 推奨段階のみ) |
+| Phase 3 hard gate (ユーザー確認段階) | Phase 4〜10 split decision の確定 | **人間判断 (ユーザー)** | **B 確定** (= AI 推奨採用) | ユーザー articulate「Bでよろしくお願いします」(2026-04-30) により Project A〜D 分割を確定。本 project は MVP scope (Phase 1 + Phase 3 + cyclic refinement) で完遂、Phase 4〜10 は別 project (仮称 Project A〜D) に移管、本 project は次 session 以降で archive プロセスへ migrate | (本 commit) |
 
 ## 最終レビュー (人間承認)
 
