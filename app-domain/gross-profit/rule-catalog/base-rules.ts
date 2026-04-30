@@ -61,6 +61,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "bridge パターンが存在しなくなった",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -100,6 +102,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     sunsetCondition:
       "presentation → wasmEngine の経路が構造的に存在しなくなった",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -145,6 +149,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "UnifiedWidgetContext が feature slice に完全分割された",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -182,6 +188,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "deprecated が全て削除された",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -219,6 +227,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "shared plan が全て features/ に移行された",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
   // ── layerBoundaryGuard 由来 ──
 
@@ -271,6 +281,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "計算結果の信頼性低下",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -315,6 +327,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "インフラ変更時の影響範囲拡大",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -354,6 +368,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["application と presentation の循環依存", "ビルド順序の破壊"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -404,6 +420,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "テスト困難化",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -440,6 +458,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. allowlist の残り 1 件を解消して baseline を 0 にする",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -481,6 +501,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "循環依存の発生",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -516,6 +538,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["infrastructure と presentation の直接結合"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── codePatternGuard 由来 ──
@@ -551,6 +575,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. テストは public API 経由で間接的に検証する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -583,6 +609,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. store action は計算結果を set() するだけに変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -621,6 +649,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["型安全性の形骸化", "lint 規約の無効化", "バグの隠蔽"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -659,6 +689,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "金額ゼロの正当な取引が消える",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -694,6 +726,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["全フィールド変更で再レンダリング", "パフォーマンス劣化"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -727,6 +761,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["エラーの握り潰し", "デバッグ不能な不具合"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── sizeGuard 由来 ──
@@ -764,6 +800,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な計算は *Builders.ts / *Logic.ts に抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -798,6 +836,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. useReducer に統合できる場合は *Reducer.ts に抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -831,6 +871,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な計算は *Builders.ts / *Logic.ts に抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -865,6 +907,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 描画が長い → 子コンポーネントに分割",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -896,6 +940,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 共通ユーティリティは domain/utils/ に移動",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -927,6 +973,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 共通処理は infrastructure/shared/ に抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -958,6 +1006,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 共通の builder は application/usecases/shared/ に抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -990,6 +1040,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 条件分岐が必要なら呼び出し先で Strategy パターンを使う",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── パスガード由来（正本取得経路の保護） ──
@@ -1042,6 +1094,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["売上データの不整合", "旧クエリと新正本の値の乖離"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1077,6 +1131,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readDiscountFact() 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1122,6 +1178,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "店舗間の粗利不整合",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1165,6 +1223,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "移動原価の方向ミス（IN のみで OUT 漏れ）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1203,6 +1263,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["客数集計の不一致", "PI 値計算への不正確な入力"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1241,6 +1303,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["客数 GAP の定義不一致", "インライン計算による精度劣化"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1279,6 +1343,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["0 除算ガードの欠落", "PI 値フォーマットの不統一"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1313,6 +1379,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readFreePeriodFact() 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1349,6 +1417,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readFreePeriodBudgetFact() 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1385,6 +1455,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readFreePeriodDeptKPI() 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1425,6 +1497,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["要因分解の合計値が売上差と不一致（D1 不変条件違反）"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1461,6 +1535,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 独自経路があれば getEffectiveGrossProfit / grossProfitFromStoreResult に移行",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── 構造・純粋性・移行ガード由来 ──
@@ -1494,6 +1570,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 直接クエリ入力の構築を AnalysisFrame 経由に変更"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1529,6 +1607,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. required なら Zod 契約を追加",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1566,6 +1646,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 出力型の Zod schema を定義",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1604,6 +1686,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "review 分類の Zod 未済が 0 になった",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1634,6 +1718,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. canonical input builder 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1680,6 +1766,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["readModel の体系的品質保証の欠落", "異なる経路で異なる値"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1710,6 +1798,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 直接構築を削除", "2. buildComparisonScope() に置き換え"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1751,6 +1841,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "state リセット漏れ",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1782,6 +1874,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. インフラ層 dual-run 関連コードを発見したら削除"],
     },
     sunsetCondition: "インフラ層 dual-run 関連コードが完全に削除された",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1811,6 +1905,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. builder でフォールバック判定を実装",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1841,6 +1937,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. 旧パスの import を features/<feature>/ のパスに変更"],
     },
     sunsetCondition: "features/ 移行が 100% 完了した",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1871,6 +1969,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. routes.tsx の PAGE_COMPONENT_MAP と整合確認",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1906,6 +2006,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. application/hooks/ の hook 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -1953,6 +2055,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "WASM 移行の阻害",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2001,6 +2105,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "比較結果の不一致",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2038,6 +2144,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["描画時のストレージ副作用", "SSR 互換性の喪失"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ─── 責務分離ルール（旧 AR-STRUCT-RESP-SEPARATION を 7 分割） ─
@@ -2076,6 +2184,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["presentation 層の store 直接結合", "テスト困難な副作用"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2111,6 +2221,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["グローバル変数の散在", "テスト間の状態リーク"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2147,6 +2259,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["God Hook の発生", "レンダリング依存配列の爆発"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2181,6 +2295,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["feature hook の責務肥大化"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2215,6 +2331,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["モデルの責務肥大化", "変更理由の複数化"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2241,6 +2359,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. 散在ファイルを特定", "2. 共通ユーティリティに集約"],
     },
     protectedHarm: { prevents: ["正規化ロジックの重複", "データ不整合"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2278,6 +2398,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["初期値管理の責務分散", "fallback 忘れによるランタイムエラー"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2312,6 +2434,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "StoreResult.totalCustomers が削除された",
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ─── 構造規約ルール（旧 AR-STRUCT-CONVENTION を 3 分割） ──────
@@ -2343,6 +2467,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["import 解決の循環", "tree-shaking 崩壊"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2372,6 +2498,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["feature 間の循環依存", "topology 崩壊"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2402,6 +2530,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["データの不一致", "キャッシュの二重管理"] },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2432,6 +2562,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 逆流 import を削除", "2. 結果は hook 経由で受け取る"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2466,6 +2598,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 比較モードごとに適切なスコープを選択",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2491,6 +2625,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 新規ディレクトリを features/<feature>/ または既存層に移動"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── 追加ルール（未参照タグのカバー） ──
@@ -2526,6 +2662,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 旧 API を削除",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2558,6 +2696,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 不明なものは未分類のまま残す",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2589,6 +2729,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 超過していたらキャッシュ戦略を簡素化",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2629,6 +2771,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["チャートにデータ取得責務が混入", "テスト困難化"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2659,6 +2803,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. alignment 判定をコンポーネントから handler に移動"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── タグ選択ガイド ──
@@ -2716,6 +2862,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "4. 確信がなければ未分類のまま残す",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
@@ -2753,6 +2901,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. データ取得は plan hook 経由に変更",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2786,6 +2936,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. React 依存を排除",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2823,6 +2975,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な入力→出力の関数として維持",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2858,6 +3012,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. データ変換は純粋関数として維持",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2890,6 +3046,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 状態遷移のみに専念させる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2923,6 +3081,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 実行ロジックは useQueryWithHandler に委譲",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2956,6 +3116,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. キャッシュ管理のみに専念",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -2989,6 +3151,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 表示と通知のみに専念",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3022,6 +3186,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. ページは組み立てのみ",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3054,6 +3220,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. フォームは入力処理に専念",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3086,6 +3254,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. レイアウトは構造のみ",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3120,6 +3290,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. orchestration は hook の組み立てのみ",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3156,6 +3328,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. hooks を使わない純粋関数なら hooks を別ファイルに抽出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3185,6 +3359,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. ビジネスロジックを hook に抽出", "2. Context は値の提供のみ"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3214,6 +3390,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 計算ロジックを domain 層に抽出", "2. 永続化操作に専念"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3243,6 +3421,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. ビジネスロジックを抽出", "2. 外部 API との変換のみに専念"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3278,6 +3458,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. reducer は (state, action) => state のみ",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3314,6 +3496,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. barrel は export 文のみに",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── 文書品質（governance-ops） ────────────────────────────────
@@ -3349,6 +3533,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 除去できない場合は EXCEPTIONS に理由付きで追加",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══════════════════════════════════════════════════════════
@@ -3396,6 +3582,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "DB 破損の未検出",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3437,6 +3625,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "キャッシュ保存失敗による性能劣化",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3479,6 +3669,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "月遷移時の stale data 表示",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3520,6 +3712,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "重複レコードによる二重計上",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3552,6 +3746,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["DuckDB の部分 INSERT による集計不正"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3589,6 +3785,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["本番での型不正データ通過", "readModel .parse() クラッシュ"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3629,6 +3827,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "ミューテックスデッドロック",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3663,6 +3863,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["月遷移時に前月の KPI が一瞬表示される問題"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══════════════════════════════════════════════════════════
@@ -3708,6 +3910,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["CI 失敗: テストが旧 severity を期待して不一致"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3745,6 +3949,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["CI 失敗: モック未対応で undefined.toArray() クラッシュ"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3785,6 +3991,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["CI 失敗: パスガードが旧 parse メソッド名を期待して不一致"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
   // ═══ I: 意味分類 ═══
   // @guard I1 @guard I2 @guard I3 @guard I4
@@ -3832,6 +4040,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "意味空間の混線により current/candidate 管理が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
   {
     id: "AR-CANON-SEMANTIC-REQUIRED",
@@ -3875,6 +4085,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "derived view に未分類エントリが紛れ込み運用が混乱する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3909,6 +4121,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. derived view で分離を確認",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -3943,6 +4157,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. current に candidate 状態遷移を追加しない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══ Phase 3: 契約固定 + bridge 境界 ═══
@@ -3988,6 +4204,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "意味分類なしの契約が混入し business/analytic の契約体系が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4033,6 +4251,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "業務意味不明の計算が Business Contract を持ち、分析計算と混同される",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4076,6 +4296,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "技法不明の計算が Analytic Contract を持ち、不変条件の検証が不可能になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4120,6 +4342,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "engine と UI で異なる率が表示される",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4165,6 +4389,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "fallback / dual-run の対象外になる計算呼び出しが生まれる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4209,6 +4435,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "rollback が困難になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══ Phase 4: current 群保守対象化 ═══
@@ -4253,6 +4481,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "current が staging area 化し保守対象と移行対象の境界が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4296,6 +4526,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "意味分類なしの current が混入し保守レビューの基準が適用できない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4338,6 +4570,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "current 群で business/analytic が区別できず保守観点が混線する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4379,6 +4613,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "business と analytic の保守基準が混線し、保守レビューの品質が低下する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4424,6 +4660,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "rollback が困難になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4464,6 +4702,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["bridge 管理外の呼び出しが増え一元管理が崩壊する"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4506,6 +4746,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "factorDecomposition が analytic に再分類され、業務 KPI としての出力が分析基盤と混同される",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══ Phase 5: Tier 1 Business 候補移行 ═══
@@ -4551,6 +4793,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["契約なしの candidate が混入し parity 比較の基準がなくなる"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4591,6 +4835,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["実験資産が安定運用 view に混入し品質基準が崩壊する"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4633,6 +4879,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "business と analytics の bridge が交差接続し意味空間が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4671,6 +4919,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["率の二重計算により parity 比較が不可能になる"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4712,6 +4962,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4752,6 +5004,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["rollback 不可の candidate が運用に入りユーザー影響が出る"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4797,6 +5051,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "parity 未検証の candidate が昇格され業務値の不整合が発生する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══ Phase 6: Analytic Kernel 候補移行 ═══
@@ -4846,6 +5102,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "契約なしの analytic candidate が混入し不変条件の検証が不可能になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4888,6 +5146,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "analytics と business の bridge が交差接続し検証基準が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4932,6 +5192,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "技法不明の analytic candidate が混入し不変条件の定義が不可能になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -4971,6 +5233,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["数学的正確性が未検証のまま analytic candidate が昇格される"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5012,6 +5276,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5055,6 +5321,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "analytic candidate が business current に混入し両方の品質基準が崩壊する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5098,6 +5366,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "factorDecomposition が analytics に再分類され業務 KPI の出力が分析基盤と混同される",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ═══ Phase 7: Guard 統合整理 + JS 正本縮退 ═══
@@ -5145,6 +5415,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["JS に authoritative ロジックが増殖し二重管理が再発する"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5185,6 +5457,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["JS reference が増殖し縮退方針（A→B→C→D）が機能しなくなる"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5225,6 +5499,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["描画用ヘルパーが authoritative に昇格し責務の混線が起きる"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5266,6 +5542,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["意味分類未確定のまま移行し大規模な修正が必要になる"],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5299,6 +5577,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 手編集禁止 guard を追加",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── AAG 入口一元化（C2: direct import 禁止の guard 化）──
@@ -5350,6 +5630,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "BaseRule + Overlay の自前合成が各所に散り、正本が事実上複数化する",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5392,6 +5674,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "overlay 未合成の BaseRule を consumer が参照し、fixNow / executionPlan 欠損に気づかない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5435,6 +5719,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "consumer が Project Overlay を直接参照し、案件差し替え時に consumer 側の修正が必要になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
@@ -5491,6 +5777,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "Governance Drift: allowlist が「なんとなく許容」になる",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── Scope-Aware Mutation ──
@@ -5547,6 +5835,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "当年データの巻き込み削除（deletePrevYearRowsAt が is_prev_year=false 行を誤削除）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
@@ -5597,6 +5887,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務再判断の機会喪失（review window のトリガーとして R:unclassified が機能）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5638,6 +5930,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務分類の意味の希薄化（review window を経由しない ad-hoc タグの蓄積）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5678,6 +5972,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "review window の判断負荷増（混在タグは判定基準が複数になり review が長期化）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5721,6 +6017,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務分類の False Green（タグだけ付けて検証 test がない）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5761,6 +6059,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責任不在のタグ追加（who を記録しないと撤退提案者が不明）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5801,6 +6101,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "統廃合機会の喪失（上限なき vocabulary は無秩序に増殖する）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5841,6 +6143,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "taxonomy 体系の意図しない drift（AI 起案でも必ず人間承認を経由）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── AR-CONTENT-SPEC-* (phased-content-specs-rollout Phase A: Anchor Slice 5 件) ──
@@ -5885,6 +6189,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "WID 識別子の source 側不在による改修時の追跡不能",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5926,6 +6232,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "spec を読んでから改修した結果が古い情報に基づく事故",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -5964,6 +6272,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "lastVerifiedCommit が長期間更新されない結果としての真贋判定不能",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6006,6 +6316,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "date-based cadence の儀式に逃げる (Phase K で構造的 mechanism に置換)",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6049,6 +6361,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "deadline 過ぎても retired に transition しない（消費者が古い実装を使い続ける）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6093,6 +6407,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "孤立 spec (registry に未登録の calc に CALC spec があるが consumer 不明)",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6135,6 +6451,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "孤立リンク (削除済み spec への dangling 参照)",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6178,6 +6496,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "新規 chart / UIC が evidence なしで増殖（後追いの整備コスト累積）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6223,6 +6543,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "tested / guarded を名乗りながら参照 path 不在で実証されない",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6264,6 +6586,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "test / guard を移動 / 削除した後に spec が更新されない (orphan reference)",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6299,6 +6623,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責任所在不明 spec（誰がレビューすべきか不明）",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   // ── AR-INTEGRITY-* (canonicalization-domain-consolidation Phase I) ──
@@ -6346,6 +6672,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "AI / 人間が rejected archive を確認せずに同名 primitive を再提案するリスク",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6387,6 +6715,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "guard 撤退時の displayName 更新漏れ (count が減った時も同様)",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 
   {
@@ -6432,5 +6762,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "CI 環境差 (shallow vs full clone) で local PASS / CI FAIL のような hidden 起因の事故",
       ],
     },
+    canonicalDocRef: { status: "pending", refs: [] },
+    metaRequirementRefs: { status: "pending", refs: [] },
   },
 ] as const satisfies readonly BaseRule[];

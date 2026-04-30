@@ -4,23 +4,23 @@
 
 ## 1. 現在地
 
-**Phase 1 完遂 (2026-04-30、SemanticTraceBinding 型 family 実装 landing)**。
+**Phase 2 完遂 (2026-04-30、166 rule に initial value `{ status: 'pending', refs: [] }` 装着)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
 受けて、**Phase 2 (AR-rule schema 拡張) + Phase 6 (binding 記入) + Phase 8 MVP (meta-guard 4 件)** を
-本 project に独立 spawn。Phase 1 で型基盤が landing、次は Phase 2 (166 rule に initial value 装着)。
+本 project に独立 spawn。Phase 1〜2 で型 + 全 rule 初期化が landing、次は Phase 3 (binding 記入 batch)。
 
-| 項目                                                | 状態                                                    |
-| --------------------------------------------------- | ------------------------------------------------------- |
-| project bootstrap (skeleton 5 doc)                  | ✅ 完了                                                 |
-| 親 project MVP scope                                | ✅ 完遂                                                 |
-| 親 project Phase 3 hard gate                        | ✅ B 確定                                               |
-| Project A bootstrap + 全 Phase + archive            | ✅ 完遂 (commit `cf8d995`)                              |
-| Project D Phase 1 + archive (case B)                | ✅ 完遂 (commit `aaffaf7`)                              |
-| **本 project Phase 1 (型定義)**                     | ✅ **完遂** (本 commit、5 型 + 2 binding field landing) |
-| 本 project Phase 2 (166 rule に initial value 装着) | ⏳ 未着手                                               |
-| 本 project Phase 3 (binding 記入 batch)             | ⏳ 未着手                                               |
-| 本 project Phase 4 (meta-guard MVP)                 | ⏳ 未着手                                               |
+| 項目                                                    | 状態                                                                  |
+| ------------------------------------------------------- | --------------------------------------------------------------------- |
+| project bootstrap (skeleton 5 doc)                      | ✅ 完了                                                               |
+| 親 project MVP scope                                    | ✅ 完遂                                                               |
+| 親 project Phase 3 hard gate                            | ✅ B 確定                                                             |
+| Project A bootstrap + 全 Phase + archive                | ✅ 完遂 (commit `cf8d995`)                                            |
+| Project D Phase 1 + archive (case B)                    | ✅ 完遂 (commit `aaffaf7`)                                            |
+| 本 project Phase 1 (型定義)                             | ✅ 完遂 (commit `e7b5330`、5 型 + 2 binding field landing)            |
+| **本 project Phase 2 (166 rule に initial value 装着)** | ✅ **完遂** (本 commit、`grep -c canonicalDocRef = 166` + 同 metaReq) |
+| 本 project Phase 3 (binding 記入 batch)                 | ⏳ 未着手 (Project A 完了済、新 doc path 安定状態)                    |
+| 本 project Phase 4 (meta-guard MVP)                     | ⏳ 未着手                                                             |
 
 ### Phase 1 deliverable
 

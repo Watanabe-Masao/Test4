@@ -20,11 +20,11 @@
 
 ## Phase 2: 166 rule に initial value 装着
 
-- [ ] `app-domain/gross-profit/rule-catalog/base-rules.ts` の全 rule entry を grep + 件数確認 (= 166 件想定)
-- [ ] 全 rule に `canonicalDocRef: { status: 'pending', refs: [] }` 装着 (batch script or AI 補助 edit)
-- [ ] 全 rule に `metaRequirementRefs: { status: 'pending', refs: [] }` 装着
-- [ ] tsc -b PASS + lint PASS + format:check PASS + 既存全 guard PASS
-- [ ] 新 field 整合性確認 (空配列でなく明示的 `{ status: 'pending', refs: [] }` が articulate 済を grep で検証)
+- [x] `app-domain/gross-profit/rule-catalog/base-rules.ts` の全 rule entry を grep + 件数確認 (= 166 件想定) — 確認済 (`grep -cE "^  \{" base-rules.ts` = 166)
+- [x] 全 rule に `canonicalDocRef: { status: 'pending', refs: [] }` 装着 (batch script or AI 補助 edit) — Python regex script で 166 entry に bulk insert (`^  \},$` 直前に挿入)
+- [x] 全 rule に `metaRequirementRefs: { status: 'pending', refs: [] }` 装着 — 同 script で同時 insert
+- [x] tsc -b PASS + lint PASS + format:check PASS + 既存全 guard PASS — tsc -b clean / lint 0 errors / format:check PASS / test:guards 130 file 894 test PASS
+- [x] 新 field 整合性確認 (空配列でなく明示的 `{ status: 'pending', refs: [] }` が articulate 済を grep で検証) — `grep -c "canonicalDocRef:" = 166` + `grep -c "metaRequirementRefs:" = 166`、空配列のみの状態は存在しない
 
 ## Phase 3: AR-rule binding 記入 (Project A 完了後 or 並行可能 batch)
 
