@@ -58,7 +58,8 @@ export const DOC_STATIC_NUMBER_EXCEPTIONS: readonly DocStaticNumberException[] =
   {
     fileName: 'strategy.md',
     pattern: '3 原則',
-    reason: '戦略 articulation: §1.1 戦略の核心 3 原則 (正本を増やさない / 導出可能なものは導出 / 思想-型-検査-運用を混ぜない)',
+    reason:
+      '戦略 articulation: §1.1 戦略の核心 3 原則 (正本を増やさない / 導出可能なものは導出 / 思想-型-検査-運用を混ぜない)',
   },
   {
     fileName: 'strategy.md',
