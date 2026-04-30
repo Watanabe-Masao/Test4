@@ -1,0 +1,168 @@
+# AAG Meta — 経営理念 (目的) + 社訓 (要件)
+
+> **役割**: AAG (Adaptive Architecture Governance) が満たすべき要件 (目的 + 不変条件 + 禁則) を articulate する単一エントリ doc。
+>
+> **位置付け**: AAG architecture pattern の **Layer 0 + 1** (= 目的 + 要件) を articulate する Meta charter。AAG Core (Layer 2 設計 + Layer 3 実装) は本 Meta が課す要件を満たす実体、AAG Audit (Layer 4 検証) は外部監査視点で AAG 全体を audit する。
+>
+> **3 機能融合 mechanism doc**: (1) 要件定義、(2) 達成度 audit framework、(3) AR-rule binding hub。
+>
+> **設計意図**: AI が判断するための criteria + collection sources を embed することで、後任 AI session でも一貫した judgement が可能。重複と参照の切り分け + drill-down chain semantic management で AAG の構造的健全性を保証する。
+
+## §1 目的 (Purpose、Layer 0)
+
+AAG は **「動くが意図に反するコード」を早期検出し、コードベースの知能ある進化を保証する mechanism** である。
+
+AI / 人間が共同で開発する codebase において、テストが通るコードが必ずしも設計意図に沿っているとは限らない。AAG は次の 3 件を構造的に保証する:
+
+1. **意図に反するコードの早期検出** — 機械検証 (rule + guard) で「動くが意図に反する」を即時 fail させる
+2. **過去判断の文脈消失防止** — allowlist の retentionReason / Architecture Rule の why / Discovery Review で判断履歴を蓄積、後任 AI / 人間が文脈を継承可能
+3. **改善の不可逆化** — ratchet-down で baseline 増加方向を構造禁止、進化を一方向に維持
+
+Layer 0 は **why の正本** であり、Layer 1 (要件) 以下が realize する。**機械検証不可、人間判断のみで変更**。改訂は Constitution 改訂と同等の慎重さで扱う。
+
+## §2 要件 (Requirements、Layer 1)
+
+AAG が satisfy すべき要件を **不変条件** (Invariants、positive) + **禁則** (Non-goals、negative) で articulate。各要件は **stable Requirement ID (`AAG-REQ-*`)** + 達成条件 (state-based) + 達成 status を持つ。AR-rule の `metaRequirementRefs` field から本 §2 の Requirement ID を pointer + semantic articulation (`problemAddressed` + `resolutionContribution`) で参照する (Phase 2 schema)。
+
+### §2.1 不変条件 (Invariants)
+
+| Requirement ID | 内容 | 達成条件 (state-based) | 達成 status |
+|---|---|---|---|
+| **`AAG-REQ-BIDIRECTIONAL-INTEGRITY`** | 双方向 integrity (forward + reverse) — 設計 doc ↔ 実装 (AR-rule) の双方向 binding が機械検証される | `canonicalDocBackLinkGuard.test.ts` (forward) + `canonicalDocRefIntegrityGuard.test.ts` (reverse) が active && baseline=0 | **未達成** (Phase 8 で達成予定) |
+| **`AAG-REQ-STATE-BASED-GOVERNANCE`** | state-based trigger — 期間 (日数 / commits 数) を一切使わず参照場所が 0 になった瞬間が trigger | `aag/` 配下に date-based cadence 検出 0 件 + legacy doc archive trigger は inbound 0 機械検証のみ | **達成** (本 project Phase 0.5 で articulate 済) |
+| **`AAG-REQ-SELF-HOSTING`** | self-hosting — AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked | aag/meta.md §2 要件が AR-AAG-META-* rule に bind + meta-rule が自分自身を検証 | **未達成** (Phase 8 follow-up project で達成予定) |
+| **`AAG-REQ-RATCHET-DOWN`** | 改善は不可逆 — baseline は下がる方向のみ、増加方向は構造禁止 | `health-rules.ts` の各 baseline 増加方向で hard fail | **達成** (既存 mechanism) |
+| **`AAG-REQ-LAYER-SEPARATION`** | 層境界 (5 層 drill-down) 維持 — Layer 0/1/2/3/4 が orthogonal 軸で articulate される | aag/architecture.md 5 層構造定義 + 各 doc / 実装が 5 層位置付けを持つ | **未達成** (Phase 4 doc refactoring で達成予定) |
+| **`AAG-REQ-ANTI-DUPLICATION`** | 重複と参照の切り分け — 上位 content の copy 禁止、下位は pointer + 解決 articulation で参照 | doc 間の重複検出 + AR-rule の重複 articulation 検出 (semanticArticulationQualityGuard) | **未達成** (Phase 8 で達成予定) |
+| **`AAG-REQ-SEMANTIC-ARTICULATION`** | drill-down chain の semantic management — pointer + `problemAddressed` + `resolutionContribution` を必須 field 化 | AR-rule schema に `canonicalDocRef` + `metaRequirementRefs` (status object + semantic articulation) が追加 + meta-guard で hard fail / warning 分離検証 | **未達成** (Phase 2 schema 拡張 + Phase 8 quality guard で達成予定) |
+
+### §2.2 禁則 (Non-goals)
+
+| Requirement ID | 内容 | 禁則条件 (state-based) | 達成 status |
+|---|---|---|---|
+| **`AAG-REQ-NON-PERFORMATIVE`** | performative work 生成禁止 — 製本されていない proxy / 派生 metric を guard 化しない | guard が canonical doc に裏打ちされる (canonicalDocRef status='bound' or 'not-applicable' with justification) | **未達成** (Phase 6 binding + Phase 8 meta-guard で達成予定) |
+| **`AAG-REQ-NO-DATE-RITUAL`** | date-based ritual 禁止 — cooling period / 月次 review hook 等を構造禁止 | aag/ 配下 + project 配下 + checklist で date-based cadence 検出 0 件 | **達成** (本 project Phase 0.5 で articulate 済) |
+| **`AAG-REQ-NO-PERFECTIONISM`** | 完璧主義禁止 — 弱さを構造的に受容、意図的に残す弱さを articulate | adaptive-architecture-governance.md §「意図的に残す弱さ」 の articulate 維持 | **達成** (既存 articulation) |
+| **`AAG-REQ-NO-AI-HUMAN-SUBSTITUTION`** | AI / 人間判断の代替禁止 — 機械検証で判定不可能な領域 (戦略 / 業務的妥当性 / 創造性) は人間判断に残す | Layer 0 (目的) を機械検証 condition に変換しない + 物理削除 trigger に人間 deletion approval 必須 | **達成** (本 project で articulate) |
+| **`AAG-REQ-NO-BUSINESS-LOGIC-INTRUSION`** | 業務 logic 侵入禁止 — AAG framework は本体アプリ機能に侵入しない | aag/ 配下に業務 pattern 検出 0 件 + AAG framework 拡張時に本体コード touch しない (aag-5-constitution.md §前提) | **達成** (既存 mechanism) |
+
+### §2.3 期間ベース判断の禁止範囲 (`AAG-REQ-NO-DATE-RITUAL` 詳細、observeForDays 切り分け)
+
+`AAG-REQ-NO-DATE-RITUAL` は state-based trigger を全 AAG context で強制するが、既存 `lifecyclePolicy.observeForDays` field との衝突回避のため **適用範囲を明示分離**:
+
+| context | trigger 種別 | 期間 buffer 許容? |
+|---|---|---|
+| **legacy doc 削除** (archive 移管 / 物理削除) | `inbound 0` 機械検証のみ + 人間 deletion approval | ❌ 禁止 |
+| **rule の deprecated 化** (proxy / performative 撤回) | audit 結果 (state-based 判定、proxy metric の articulate 等) | ❌ 禁止 |
+| **archive 移管 trigger** | 旧 path への inbound 0 + migrationRecipe 完備 + 新 doc に mapping table が landed | ❌ 禁止 |
+| **experimental rule 昇格 / 撤回観測** | 主 trigger は `sunsetCondition` 状態満足、`observeForDays` は **supplementary signal** (= 観測指標、trigger ではない) | ✅ 観測指標として許容、ただし trigger には使わない |
+
+「期間を経過したら」「N commits 連続で」のような **儀式的 trigger は禁止**。発火条件に触れずに見落とす risk が残るため。observeForDays は「観測 cadence」として情報を提供するが、archive / deprecated 化の **判定** には使わない。
+
+## §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix + Layer 4 audit framework)
+
+> 本 §3 は AAG Meta が AAG Core (Layer 2 + 3) と AAG Audit (Layer 4) を **評価対象として参照する map**。
+> 各 doc / 実装が「どの層 × どの縦スライスに住むか」を articulate し、§2 要件の達成判定の input となる。
+>
+> Phase 3 audit findings で各セル content が確定 (現状は枠組み + 既知 entry を pre-fill、Phase 1 と Phase 3 の同期方針 = B 順序付き 3 段階で update)。
+
+### §3.1 5 層 × 5 縦スライス matrix
+
+| | layer-boundary | canonicalization | query-runtime | responsibility-separation | governance-ops |
+|---|---|---|---|---|---|
+| **Layer 0 目的** | (Layer 0 は AAG 全体で 1 つ、§1 で articulate、縦スライス分割不要) | | | | |
+| **Layer 1 要件** | invariant: 4 層依存方向、Layer 境界違反禁止 | invariant: readModel 経路、双方向 integrity (§2.1) | invariant: pair/bundle 契約、alignment-aware | invariant: 1 doc 1 責務 (C1)、責務分離 | invariant: ratchet-down (§2.1)、state-based (§2.3)、self-hosting (§2.1) |
+| **Layer 2 設計** | aag/strategy.md §層境界 (Phase 4) | canonicalization-principles.md / canonical-input-sets.md | engine-boundary-policy.md / engine-responsibility.md | responsibility-taxonomy-schema.md / design-principles.md | aag/operational-classification.md / aag/source-of-truth.md / aag/evolution.md (Phase 4) |
+| **Layer 3 実装** | layerBoundaryGuard / topologyGuard | calculationCanonGuard / canonicalizationSystemGuard / *PathGuard 群 | queryPatternGuard / analysisFrameGuard / comparisonScopeGuard | responsibilitySeparationGuard / responsibilityTagGuard / sizeGuard | architectureRuleGuard / docRegistryGuard / docCodeConsistencyGuard |
+| **Layer 4 検証** | layer-boundary 違反観測 | canonicalDocRefIntegrityGuard / canonicalDocBackLinkGuard (Phase 8 MVP) | queryPattern audit | responsibility 純度 audit / Discovery Review | health-rules.ts / certificate / aag/meta.md §4 達成判定 / semanticArticulationQualityGuard (Phase 8 MVP) |
+
+各セルは Phase 3 audit で fill。空きセルは「未 articulated 領域」(audit / governance-evolution の input)、過密セルは「責務分離未完了」(分割 / Split operation の検討対象)。
+
+### §3.2 Layer 4 検証 (audit framework、§8.10 判断 = A 適用)
+
+> §8.10 判断 = **A** (aag/meta.md §3 で articulate)。Layer 4 検証は本 §3 内に集約 articulate。volume が膨張した場合は B (aag/audit.md 新規) or C (aag/architecture.md 内包) に refactor 可能 (extensible)。
+
+Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
+
+| Sub-layer | 役割 | enforcing 実装 | Phase 8 MVP scope |
+|---|---|---|---|
+| **4.1 境界監査** (Boundary Audit) | 層境界が正しいか — 目的 vs 要件混同検出、Layer 2/3/4 境界違反 | `layerBoundaryGuard.test.ts` (既存、本 project で責務分離) | follow-up |
+| **4.2 方向監査** (Direction Audit) | drill-down chain の依存方向 — forward / reverse 双方向 integrity | `canonicalDocRefIntegrityGuard.test.ts` (reverse) + `canonicalDocBackLinkGuard.test.ts` (forward) | **MVP** (Phase 8 で landing) |
+| **4.3 波及監査** (Impact Audit) | 他項目への漏れ — cross-cutting impact、obligation map trigger 漏れ | obligation-collector.ts (既存) | follow-up |
+| **4.4 完備性監査** (Completeness Audit) | 漏れ / 抜かり / 重複 — 25 セル gap 検出、orphan / redundancy | `semanticArticulationQualityGuard.test.ts` + `statusIntegrityGuard.test.ts` (Phase 8 MVP) + 既存 `docRegistryGuard` / `docCodeConsistencyGuard` / Discovery Review | **MVP** (Phase 8 で landing) |
+| **4.5 機能性監査** (Functional Audit) | 個々が claimed 通り動くか — claim vs actual 照合 | 既存 `health-rules.ts` / Hard Gate / `docStaticNumberGuard.test.ts` / `certificate renderer` | follow-up |
+
+**MVP scope** (Phase 8): 4.2 + 4.4 のみ実装。4.1 / 4.3 / 4.5 + selfHostingGuard + metaRequirementBindingGuard は **follow-up project** に逃がす (PR review Review 3 P1 #6 反映、Phase 3 split decision hard gate で別 project 化 default)。
+
+**追加候補** (Phase 3 audit で collapse 可否判定): 4.6 同期監査 / 4.7 ratchet 監査 / 4.8 退役監査 / 4.9 例外 lifecycle 監査。
+
+### §3.3 旧 AAG doc → 新 5 層 mapping (Phase 4 で各 doc に articulate)
+
+| 旧 doc | 新 path (Phase 4 予定) | 5 層位置付け | operation |
+|---|---|---|---|
+| `adaptive-architecture-governance.md` | `aag/strategy.md` (Split + Rewrite) | Layer 2 (戦略マスター) | Split / Rewrite / Archive |
+| `aag-5-constitution.md` | `aag/architecture.md` | Layer 2 (構造設計、5 層 + 旧 4 層 mapping table) | Rewrite / Relocate / Rename |
+| `aag-5-layer-map.md` | `aag/layer-map.md` | Layer 2 reference | Rewrite / Relocate / Rename |
+| `aag-5-source-of-truth-policy.md` | `aag/source-of-truth.md` | Layer 2 reference | Rewrite / Relocate / Rename |
+| `aag-four-layer-architecture.md` | `99-archive/` | (旧 4 層、superseded) | **即 Archive** |
+| `aag-operational-classification.md` | `aag/operational-classification.md` | Layer 2-3 境界 (now/debt/review) | Rewrite / Relocate |
+| `aag-rule-splitting-plan.md` | `99-archive/` | (completed project execution 記録) | **即 Archive** |
+| `adaptive-governance-evolution.md` | `aag/evolution.md` | Layer 2 (進化動学) | Rewrite / Relocate / Rename |
+
+## §4 達成判定総括 (audit summary)
+
+§2 要件の達成度 + 不達成項目の解消責務 (どの project / Phase で landing するか) を集約。
+本 §4 は Layer 4 検証 (§3.2 audit framework) の出力 = AAG Audit が AAG Core を評価した結果。
+
+### §4.1 達成 status サマリ
+
+| 状態 | 件数 | 内訳 |
+|---|---|---|
+| **達成** | 6 件 | `AAG-REQ-STATE-BASED-GOVERNANCE` / `AAG-REQ-RATCHET-DOWN` / `AAG-REQ-NO-DATE-RITUAL` / `AAG-REQ-NO-PERFECTIONISM` / `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` / `AAG-REQ-NO-BUSINESS-LOGIC-INTRUSION` |
+| **未達成** | 6 件 | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` / `AAG-REQ-SELF-HOSTING` / `AAG-REQ-LAYER-SEPARATION` / `AAG-REQ-ANTI-DUPLICATION` / `AAG-REQ-SEMANTIC-ARTICULATION` / `AAG-REQ-NON-PERFORMATIVE` |
+| **総計** | 12 件 (不変条件 7 + 禁則 5) | initial set、extensible |
+
+### §4.2 不達成項目の解消責務 mapping
+
+| Requirement ID | 解消責務 (project / Phase) |
+|---|---|
+| `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 本 project Phase 8 MVP (4.2 方向監査 = canonicalDocRefIntegrityGuard + canonicalDocBackLinkGuard) |
+| `AAG-REQ-SELF-HOSTING` | follow-up project (selfHostingGuard.test.ts、Phase 8 MVP scope 外) |
+| `AAG-REQ-LAYER-SEPARATION` | 本 project Phase 4 doc refactoring (aag/architecture.md で 5 層構造定義 + 旧 4 層 → 新 5 層 mapping table landing) |
+| `AAG-REQ-ANTI-DUPLICATION` | 本 project Phase 8 MVP (4.4 完備性監査 = semanticArticulationQualityGuard) |
+| `AAG-REQ-SEMANTIC-ARTICULATION` | 本 project Phase 2 schema 拡張 (canonicalDocRef + metaRequirementRefs を SemanticTraceBinding<T> 形式) + Phase 8 MVP (statusIntegrityGuard + semanticArticulationQualityGuard) |
+| `AAG-REQ-NON-PERFORMATIVE` | 本 project Phase 6 binding (分類 D = proxy / performative の撤回 trigger 確定) + Phase 8 MVP (canonicalDocRefIntegrityGuard) |
+
+### §4.3 達成 condition の機械検証経路
+
+各要件の達成判定は **state-based 機械検証** で実行 (Layer 0 を除く)。具体的には:
+
+- **Phase 8 meta-guard active && baseline=0**: `AAG-REQ-BIDIRECTIONAL-INTEGRITY` / `AAG-REQ-SEMANTIC-ARTICULATION` / `AAG-REQ-ANTI-DUPLICATION`
+- **status='pending' baseline ratchet-down**: `AAG-REQ-NON-PERFORMATIVE` (Phase 6 で分類 A から順次 'bound' に flip)
+- **doc 構造検証** (5 層 mapping table 存在): `AAG-REQ-LAYER-SEPARATION`
+- **AR-rule に linked + meta-guard で内部整合性 hard check**: `AAG-REQ-SELF-HOSTING`
+- **既存 mechanism 継続**: `AAG-REQ-RATCHET-DOWN` / `AAG-REQ-STATE-BASED-GOVERNANCE` 等 (達成済)
+
+### §4.4 audit 履歴 (Phase 進行に伴う達成 status flip 記録)
+
+| 日付 | Requirement ID | 旧 status | 新 status | 反映 commit / Phase |
+|---|---|---|---|---|
+| 2026-04-30 | (本 §4 landing) | — | initial articulation | Phase 1 (本 commit) |
+| TBD | `AAG-REQ-SEMANTIC-ARTICULATION` | 未達成 | 達成 | Phase 2 + Phase 8 MVP |
+| TBD | `AAG-REQ-LAYER-SEPARATION` | 未達成 | 達成 | Phase 4 doc refactoring |
+| TBD | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 未達成 | 達成 | Phase 8 MVP (4.2 方向監査 landing) |
+| TBD | `AAG-REQ-ANTI-DUPLICATION` | 未達成 | 達成 | Phase 8 MVP (4.4 完備性監査 landing) |
+| TBD | `AAG-REQ-NON-PERFORMATIVE` | 未達成 | 達成 | Phase 6 binding + Phase 8 MVP |
+| TBD | `AAG-REQ-SELF-HOSTING` | 未達成 | 達成 | follow-up project |
+
+各 flip は project commit に対応、後任 AI / 人間が trace + revisit 可能。
+
+## 関連 doc
+
+| パス | 役割 |
+|---|---|
+| [`README.md`](./README.md) | aag/ ディレクトリ index、CLAUDE.md からの 1 link entry |
+| `references/03-guides/deferred-decision-pattern.md` | 途中判断制度 (本 doc の §2 / §3 / §4 の articulation を継続的 update する mechanism) |
+| `references/03-guides/project-checklist-governance.md` | project lifecycle 規約 |
+| `projects/aag-bidirectional-integrity/plan.md` | 本 doc を landing する project の canonical 計画 doc |
+| `projects/aag-bidirectional-integrity/checklist.md` | Phase 1〜10 + 途中判断 checklist (decision gates、本 doc の最初の application instance) |

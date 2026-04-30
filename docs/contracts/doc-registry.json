@@ -80,8 +80,16 @@
           "label": "AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1）"
         },
         {
+          "path": "references/01-principles/aag/README.md",
+          "label": "AAG ディレクトリ index — Layer 0+1 (Meta) / Layer 2+3 (Core) / Layer 4 (Audit) の単一エントリ。CLAUDE.md AAG セクションからの 1 link entry"
+        },
+        {
+          "path": "references/01-principles/aag/meta.md",
+          "label": "AAG Meta charter — Layer 0 (目的) + Layer 1 (要件、AAG-REQ-* namespace 12 件 = 不変条件 7 + 禁則 5) + §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix + Layer 4 audit framework) + §4 達成判定総括。要件定義 + audit framework + AR-rule binding hub の 3 機能融合 mechanism doc"
+        },
+        {
           "path": "references/01-principles/adaptive-architecture-governance.md",
-          "label": "AAG 正本"
+          "label": "AAG 正本 (旧 AAG マスター、Phase 4 で Split + Rewrite + Relocate → aag/strategy.md ほか予定)"
         },
         {
           "path": "references/01-principles/adaptive-governance-evolution.md",

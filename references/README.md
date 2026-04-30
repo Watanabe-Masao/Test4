@@ -221,6 +221,8 @@
 | 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証） | `03-guides/new-project-bootstrap-guide.md`                      |
 | AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                          | `03-guides/projectization-policy.md`                            |
 | Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）       | `03-guides/deferred-decision-pattern.md`                        |
+| AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）  | `01-principles/aag/README.md`                                   |
+| AAG Meta charter（目的 + 要件 = AAG-REQ-* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `01-principles/aag/meta.md`                            |
 | AAG 5.0 4層構造定義                                                                        | `01-principles/aag-5-constitution.md`                           |
 | AAG 5.0 既存ファイル層マッピング                                                           | `01-principles/aag-5-layer-map.md`                              |
 | AAG 5.0 正本/派生/運用物ポリシー                                                           | `01-principles/aag-5-source-of-truth-policy.md`                 |
