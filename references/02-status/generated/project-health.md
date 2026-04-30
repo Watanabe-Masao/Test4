@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-30T23:25:33.655Z
+> 生成: 2026-04-30T23:48:45.852Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1184 |
-| 全 project の checked checkbox 総数 | 949 |
+| 全 project の checked checkbox 総数 | 953 |
 
 ## projects
 
@@ -28,7 +28,7 @@
 | `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **in_progress** | — | 0/38 (0%) | [`projects/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/aag-display-rule-registry/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **archived** | — | 28/28 (100%) | [`projects/completed/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/completed/aag-legacy-retirement/AI_CONTEXT.md) |
-| `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **in_progress** | — | 14/42 (33%) | [`projects/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
+| `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **in_progress** | — | 18/42 (43%) | [`projects/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 30/30 (100%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **archived** | — | 73/73 (100%) | [`projects/completed/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/completed/architecture-debt-recovery/AI_CONTEXT.md) |

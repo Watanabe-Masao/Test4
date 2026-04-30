@@ -28,10 +28,10 @@
 
 ## Phase 3: AR-rule binding 記入 (Project A 完了後 or 並行可能 batch)
 
-- [ ] **Phase 3 着手前判断**: Project A の Phase 1〜2 完了状況を確認 (新 doc path 安定状態)
-- [ ] batch 戦略確定: 5-10 rule で品質基準 protocol 確定 → 残 rule batch 適用
-- [ ] **batch 1 (5-10 rule、protocol 確定 batch)**: 各 rule の `canonicalDocRef.status` を `bound` or `not-applicable` に flip + `refs[]` 記入 + `problemAddressed` + `resolutionContribution` articulate
-- [ ] **batch 1 で品質基準 protocol を `references/02-status/ar-rule-audit.md` に articulate** (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在)
+- [x] **Phase 3 着手前判断**: Project A の Phase 1〜2 完了状況を確認 (新 doc path 安定状態) — Project A 全 Phase + archive 完遂 (commit `cf8d995`)、新 doc path (`aag/strategy.md` 等) 安定状態を確認
+- [x] batch 戦略確定: 5-10 rule で品質基準 protocol 確定 → 残 rule batch 適用 — batch 1 = 5 rule (AR-001 / AR-002 / AR-A1-DOMAIN / AR-G3-SUPPRESS / AR-005)、protocol 確定後 batch 2〜N で残 161 rule に適用方針確定
+- [x] **batch 1 (5-10 rule、protocol 確定 batch)**: 各 rule の `canonicalDocRef.status` を `bound` or `not-applicable` に flip + `refs[]` 記入 + `problemAddressed` + `resolutionContribution` articulate — batch 1 完遂 (5 rule、status: pending → bound、各 rule に canonicalDocRef + metaRequirementRefs articulate)
+- [x] **batch 1 で品質基準 protocol を `references/02-status/ar-rule-audit.md` に articulate** (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) — 本 commit で landing (5 criteria + batch 1 articulation result + batch 2〜N 運用方針)
 - [ ] **batch 2〜N (残 rule、batch protocol 適用)**: 全 166 rule の binding 記入を batch 適用、Discovery Review (人間レビュー) で意味品質補完
 - [ ] 全 166 rule の `metaRequirementRefs` も同様に記入 (binding ID = aag/meta.md §2 の `AAG-REQ-*`)
 - [ ] 全 rule の status 整合確認 (`pending` 0 件 = MVP 完遂条件 or 一部 `pending` を follow-up project に逃がす articulation)

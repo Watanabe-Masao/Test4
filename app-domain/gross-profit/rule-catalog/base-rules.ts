@@ -61,8 +61,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "bridge パターンが存在しなくなった",
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/safety-first-architecture-plan.md",
+          problemAddressed:
+            "退役済み dual-run コード (dualRunObserver / getExecutionMode / recordCall / recordMismatch) の再導入により、Phase 1-2 で確立した bridge 単一経路の安全性が逆戻りする",
+          resolutionContribution:
+            "本 rule は退役 4 シンボルの import 出現を gate severity で 0 件固定し、再導入を含む commit を機械的に拒否することで safety-first plan が articulate した「退役後の安定状態」を維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善は不可逆 (baseline は下がる方向のみ、増加方向は構造禁止) を維持しなければ、Phase 1-2 で退役した dual-run 負債が再発し改善の蓄積が逆戻りする",
+          resolutionContribution:
+            "本 rule の baseline=0 + gate severity 設定により退役シンボル import の再導入を構造的に禁止し、ratchet-down の不可逆性を本 rule scope で担保する",
+        },
+      ],
+    },
   },
 
   {
@@ -102,8 +124,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     sunsetCondition:
       "presentation → wasmEngine の経路が構造的に存在しなくなった",
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "presentation 層が wasmEngine を直接 import すると、A1 (4 層境界) と B1 (Authoritative engine 境界) の両方を逸脱し、描画専用であるべき層に engine 詳細が混入して責務分離が崩れる",
+          resolutionContribution:
+            "本 rule は presentation/ → wasmEngine の import を gate severity で 0 件固定し、design-principles.md A1 + B1 の articulate を application 層 hook 経由のアクセスとして構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れると各層の責務分離が機械検証不能になり、Layer 4 (検証) の独立性も失われる",
+          resolutionContribution:
+            "本 rule は presentation 層が application 層を skip して infrastructure (wasm engine) に直接到達するパターンを import 検出で拒否し、層境界を構造的に維持する",
+        },
+      ],
+    },
   },
 
   {
@@ -227,8 +271,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "shared plan が全て features/ に移行された",
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/modular-monolith-evolution.md",
+          problemAddressed:
+            "category / time-slot 等が features/ に移行済の今、application/hooks/plans/ への新規 shared plan hook 追加は feature slice 原則に逆行し、共有ハブの肥大化を招く",
+          resolutionContribution:
+            "本 rule は application/hooks/plans/ の shared plan hook 数を baseline=13 で count 凍結し、modular-monolith-evolution.md が articulate する縦スライス境界を新規 hook の features/ 配置として構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "shared plan hook の baseline が増加方向に動くと、feature slice への移行という改善方向が逆戻りし modular-monolith 進化が停滞する",
+          resolutionContribution:
+            "本 rule の count baseline=13 + gate severity 設定により shared plan hook 数の増加を構造的に禁止し、ratchet-down (baseline は下がる方向のみ) を本 rule scope で担保する",
+        },
+      ],
+    },
   },
   // ── layerBoundaryGuard 由来 ──
 
@@ -281,8 +347,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "計算結果の信頼性低下",
       ],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "domain/ が外部層 (application/ / infrastructure/ / presentation/) に依存すると、純粋関数性 (A2) が崩れテスト容易性と移植性が失われ、domain で完結すべきビジネスロジック検証にモックが必須化する",
+          resolutionContribution:
+            "本 rule は domain/ から外部層への import を gate severity で 0 件固定し、design-principles.md A1 (層境界) + A2 (Domain 純粋) の articulate を interface 経由 DI パターンとして構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の最深 (Domain) が外部依存を持つと層境界が崩れ、Domain 純粋性が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は domain/ が他層を import するパターンを構造的に禁止し、Domain 純粋性 (= 層境界 mapping の起点) を機械的に強制する",
+        },
+      ],
+    },
   },
 
   {
@@ -649,8 +737,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["型安全性の形骸化", "lint 規約の無効化", "バグの隠蔽"],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "eslint-disable / @ts-ignore / @ts-expect-error の濫用により、型安全性と lint 規約が形骸化し、警告に隠れたバグが accumulate する",
+          resolutionContribution:
+            "本 rule は警告抑制 directive を gate severity で baseline=0 固定し、coding-conventions.md G3 (警告黙殺禁止) の articulate を根本原因修正の強制として構造化する。例外は G3_ALLOWLIST に正当理由付き articulate のみ許容",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が 警告抑制 directive で迂回されると、製本されたルールが performative (= 形骸化) し、guard の検証性が canonical doc に裏打ちされない状態に劣化する",
+          resolutionContribution:
+            "本 rule は guard 迂回手段である eslint-disable / @ts-ignore / @ts-expect-error を構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態 (non-performative) を維持する",
+        },
+      ],
+    },
   },
 
   {
