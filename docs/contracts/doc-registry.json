@@ -113,23 +113,23 @@
         },
         {
           "path": "references/01-principles/adaptive-architecture-governance.md",
-          "label": "AAG 正本 (旧 AAG マスター、Phase 4 で Split + Rewrite + Relocate → aag/strategy.md ほか予定)"
+          "label": "[DEPRECATED Project A Phase 1-2] AAG 旧マスター — Project A Phase 5 で archive 予定 (inbound 0 機械検証 + §1.5 mapping 義務 PASS 後)。新 doc 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping)"
         },
         {
           "path": "references/01-principles/adaptive-governance-evolution.md",
-          "label": "進化の設計"
+          "label": "[DEPRECATED Project A Phase 1] 進化の設計 (旧) — Project A Phase 5 で archive 予定。新 doc: aag/evolution.md"
         },
         {
           "path": "references/01-principles/aag-four-layer-architecture.md",
-          "label": "AAG 4 層"
+          "label": "[DEPRECATED] AAG 旧 旧 4 層 (AAG v4.x) — 既に新 4 層 (AAG 5.x) で superseded 済、Project A Phase 5 で archive 予定。新 doc: aag/architecture.md §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping)"
         },
         {
           "path": "references/01-principles/aag-operational-classification.md",
-          "label": "運用区分表"
+          "label": "[DEPRECATED Project A Phase 1] 運用区分表 (旧) — Project A Phase 5 で archive 予定。新 doc: aag/operational-classification.md"
         },
         {
           "path": "references/01-principles/aag-rule-splitting-plan.md",
-          "label": "ルール分割計画"
+          "label": "[DEPRECATED] ルール分割計画 (旧、completed project execution 記録) — Project A Phase 5 で archive 予定"
         },
         {
           "path": "references/01-principles/architecture-rule-feasibility.md",
@@ -237,15 +237,15 @@
         },
         {
           "path": "references/01-principles/aag-5-constitution.md",
-          "label": "AAG 5.0 4層構造定義"
+          "label": "[DEPRECATED Project A Phase 1] AAG 5.0 旧 4 層構造定義 — Project A Phase 5 で archive 予定。新 doc: aag/architecture.md (5 層構造定義 + §4.1 旧 4 層 → 新 5 層 mapping = AAG-REQ-LAYER-SEPARATION 達成 trigger)"
         },
         {
           "path": "references/01-principles/aag-5-layer-map.md",
-          "label": "AAG 5.0 既存ファイル層マッピング"
+          "label": "[DEPRECATED Project A Phase 1] AAG 5.0 旧 既存ファイル層マッピング — Project A Phase 5 で archive 予定。新 doc: aag/layer-map.md (5 層マッピングに extend)"
         },
         {
           "path": "references/01-principles/aag-5-source-of-truth-policy.md",
-          "label": "AAG 5.0 正本/派生/運用物ポリシー"
+          "label": "[DEPRECATED Project A Phase 1] AAG 5.0 旧 正本/派生/運用物ポリシー — Project A Phase 5 で archive 予定。新 doc: aag/source-of-truth.md"
         },
         {
           "path": "references/01-principles/test-signal-integrity.md",

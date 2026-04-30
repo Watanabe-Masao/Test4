@@ -34,11 +34,16 @@
 
 ## Phase 4: doc-registry / principles.json / manifest.json 整合 + deprecation marker
 
-- [ ] `docs/contracts/doc-registry.json` の AAG category 全 update (新 doc 登録 + 旧 doc deprecated flag)
-- [ ] `docs/contracts/principles.json` の `$comment` update (本 project 進行状態の articulate)
-- [ ] `.claude/manifest.json` の discovery hint update (byTopic / byExpertise / pathTriggers)
-- [ ] `references/README.md` の AAG 関連 doc 索引 update
-- [ ] docRegistryGuard / docCodeConsistencyGuard / manifestGuard 全 PASS
+- [x] `docs/contracts/doc-registry.json` の AAG category 全 update (新 doc 登録 + 旧 doc deprecated flag) — 新 6 doc は Phase 1 で登録済、旧 7 doc に `[DEPRECATED Project A Phase X]` marker + 新 doc 移管先 articulate 追加 (本 commit、`adaptive-architecture-governance.md` / `adaptive-governance-evolution.md` / `aag-four-layer-architecture.md` / `aag-operational-classification.md` / `aag-rule-splitting-plan.md` / `aag-5-constitution.md` / `aag-5-layer-map.md` / `aag-5-source-of-truth-policy.md`)
+- [x] `docs/contracts/principles.json` の `$comment` update (本 project 進行状態の articulate) — Phase 1 / Phase 2 / Phase 3 articulate 済 (前 commit)、Phase 4 articulate (本 commit)
+- [x] `.claude/manifest.json` の discovery hint update (byTopic / byExpertise / pathTriggers) — `discovery.byTopic.AAG` を旧 2 doc (`adaptive-architecture-governance.md` + `adaptive-governance-evolution.md`) から新 8 doc (`aag/README.md` + `aag/meta.md` + `aag/strategy.md` + `aag/architecture.md` + `aag/evolution.md` + `aag/operational-classification.md` + `aag/source-of-truth.md` + `aag/layer-map.md`) に migrate (AI session 開始時の AAG context 参照経路を新 path 主導に切替)
+- [x] `references/README.md` の AAG 関連 doc 索引 update — Phase 1 で 6 新 doc 索引 + 旧 3 doc archive 予定 articulate 済
+- [x] docRegistryGuard / docCodeConsistencyGuard / manifestGuard 全 PASS — 本 commit で確認
+
+### Project E candidate engagement (Phase 4 必ず触れる原則)
+
+- [x] **Project E + F candidate を一読** (= HANDOFF.md §2 + 親 project HANDOFF.md §2)
+- [x] **Phase 4 と Project E relevance articulate**: 本 Phase の `manifest.json discovery.byTopic.AAG` 拡張 (旧 2 doc → 新 8 doc) は **Project E deliverable 10** (= `.claude/manifest.json` discovery 拡張、Insight 9 AI utilization friendliness) の **precursor application instance**。本 Phase で実施した「discovery hint を新 path 主導に切替える pattern」は、将来 Project E で decision-making / quality-assessment / correction / rollback の hint を embed する際の reference として再利用可能
 
 ## Phase 5: 旧 AAG Core doc archive (legacy retirement、inbound 0 trigger)
 
