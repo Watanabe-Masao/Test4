@@ -593,4 +593,4 @@ template は `projects/_template/projectization.md`。
 | `app/src/test/guards/projectizationPolicyGuard.test.ts` | 機械検証 |
 | `references/03-guides/project-checklist-governance.md` | 立ち上げ後の completion 管理 |
 | `references/03-guides/new-project-bootstrap-guide.md` | bootstrap 手順（AAG-COA 判定が入口） |
-| `references/01-principles/aag-5-layer-map.md` | Layer 4A 登録 |
+| `references/01-principles/aag/layer-map.md` | Layer 4A 登録 (Project A Phase 1 で `aag-5-layer-map.md` から Rewrite + Relocate + Rename) |

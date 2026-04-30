@@ -20,7 +20,7 @@ Phase 3 audit findings (`references/02-status/aag-doc-audit-report.md` §1) に�
 | `references/01-principles/adaptive-governance-evolution.md` | **Rewrite + Relocate + Rename → Archive** | `references/01-principles/aag/evolution.md` (新 path 短縮名) | Phase 1 で Rewrite + Relocate + Rename、Phase 5 で archive |
 | `references/01-principles/aag-5-constitution.md` | **Rewrite + Relocate + Rename → Archive** | `references/01-principles/aag/architecture.md` に統合 (Constitution = Layer 1 の articulate を Layer 1+2 として再構築) | Phase 1〜2 で Rewrite + 統合、Phase 5 で archive |
 | `references/01-principles/aag-5-source-of-truth-policy.md` | **Rewrite + Relocate + Rename → Archive** | `references/01-principles/aag/source-of-truth.md` (新 path 短縮名、prefix 撤廃) | Phase 1 で Rewrite + Relocate + Rename、Phase 5 で archive |
-| `references/01-principles/aag-5-layer-map.md` | **Rewrite + Relocate + Rename → Archive** | `references/01-principles/aag/layer-map.md` (新 path 短縮名、5 層 マッピングに extend) | Phase 1 で Rewrite + Relocate + Rename、Phase 5 で archive |
+| `references/99-archive/aag-5-layer-map.md` | **Rewrite + Relocate + Rename → Archive** | `references/01-principles/aag/layer-map.md` (新 path 短縮名、5 層 マッピングに extend) | Phase 1 で Rewrite + Relocate + Rename、Phase 5 で archive |
 | `references/01-principles/aag-operational-classification.md` | **Rewrite + Relocate → Archive** | `references/01-principles/aag/operational-classification.md` (新 path 短縮名、prefix 撤廃) | Phase 1 で Rewrite + Relocate、Phase 5 で archive |
 
 > **注**: `aag-four-layer-architecture.md` および `aag-rule-splitting-plan.md` は親 Phase 3 audit

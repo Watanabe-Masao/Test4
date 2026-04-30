@@ -231,7 +231,7 @@
 | AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）         | `01-principles/aag/source-of-truth.md`                          |
 | AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                              | `01-principles/aag/layer-map.md`                                |
 | AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                | `01-principles/aag-5-constitution.md`                           |
-| AAG 5.0 既存ファイル層マッピング（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-layer-map.md`                              |
+| AAG 5.0 既存ファイル層マッピング（旧、Phase 5.1 で archive 移管済 → aag/layer-map.md）       | `99-archive/aag-5-layer-map.md`                                 |
 | AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-source-of-truth-policy.md`                 |
 | Test Signal Integrity — 品質シグナル保全の原則                                             | `01-principles/test-signal-integrity.md`                        |
 | Test Signal Integrity Advisory 運用ガイド                                                  | `03-guides/test-signal-integrity-advisory.md`                   |
@@ -289,7 +289,7 @@
 | `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                                              |
 | `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                                                            |
 | `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                                               |
-| `01-principles/aag-5-layer-map.md`                   | AAG 5.0 — 既存ファイルの層マッピング棚卸し                                                                      |
+| `99-archive/aag-5-layer-map.md`                      | AAG 5.0 — 既存ファイルの層マッピング棚卸し（Phase 5.1 archived → 新 doc: aag/layer-map.md）                     |
 | `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                              |
 | `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                  |
 | `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                |

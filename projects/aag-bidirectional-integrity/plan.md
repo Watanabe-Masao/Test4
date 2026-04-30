@@ -805,7 +805,7 @@ reverse meta-guard で全 DFR rule の binding 整合成立。**aag/meta.md §2 
 |---|---|---|
 | `references/01-principles/adaptive-architecture-governance.md` | Split + Rewrite + Archive | `aag/strategy.md` + バージョン履歴は per-doc 分散 + 旧 4 層は Archive |
 | `references/01-principles/aag-5-constitution.md` | Rewrite + Relocate + Rename | `aag/architecture.md` (退役後 Archive) |
-| `references/01-principles/aag-5-layer-map.md` | Rewrite + Relocate + Rename | `aag/layer-map.md` (退役後 Archive) |
+| `references/99-archive/aag-5-layer-map.md` | Rewrite + Relocate + Rename | `aag/layer-map.md` (退役後 Archive) |
 | `references/01-principles/aag-5-source-of-truth-policy.md` | Rewrite + Relocate + Rename | `aag/source-of-truth.md` (退役後 Archive) |
 | `references/01-principles/aag-four-layer-architecture.md` | **即 Archive** | `99-archive/` (旧 4 層、superseded) |
 | `references/01-principles/aag-operational-classification.md` | Rewrite + Relocate | `aag/operational-classification.md` (退役後 Archive) |

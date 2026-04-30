@@ -1,4 +1,15 @@
-# AAG 5.0.0 — 既存ファイルの層マッピング
+# [ARCHIVED Project A Phase 5.1] AAG 5.0.0 — 既存ファイルの層マッピング
+
+> **Archived**: 2026-04-30 (Project A Phase 5.1)
+> **Archived By**: commit (本 commit) — Phase 5.1 archive 移管 commit
+> **Migrated To**: [`references/01-principles/aag/layer-map.md`](../01-principles/aag/layer-map.md) (Project A Phase 1 で landed、5 層マッピングに extend)
+> **Mapping Anchor**: `aag/architecture.md §4.1` (旧 4 層 → 新 5 層 mapping table)、`aag/layer-map.md §6` (旧 4 層マッピング → 新 5 層マッピング 変換)
+> **Inbound 0 検証**: Phase 5.1 で旧 path への active inbound = 0 確認 (mapping inbound は archive path = `references/99-archive/aag-5-layer-map.md` に migrate)
+> **Rollback Anchor** (Insight 8 application instance): 本 archive 移管 commit が rollback anchor、`git revert <SHA>` で復活可能 (= Project E `AAG-REQ-ROLLBACK-ANCHOR-PRESERVATION` の concrete instance)
+> **Milestone Acknowledgment** (Insight 7-b application instance): archive 移管自体が「ここから先は不可逆ステップを今ここで踏みます」の announcement (Project E `AAG-REQ-MILESTONE-ACKNOWLEDGMENT`、ただし archive 移管は git revert で reversible、物理削除のみ irreversible で人間 deletion approval 必須)
+> **Decision Trace** (Insight 1 application instance): archive 移管理由 = Project A Phase 1 で `aag/layer-map.md` が landed され、5 層マッピングに extend 済 + 旧 4 層 → 新 5 層 mapping table が `aag/architecture.md §4.1` に landed 済のため、旧 doc は historical reference として archive へ移管可能となった (= AAG-REQ-LAYER-SEPARATION 達成 trigger の副産物)
+
+---
 
 > 既存の全主要 AAG アーティファクトがどの層に属するかの棚卸し。
 > 件数は書かない（正本ポリシーに従い、件数は generated section に寄せる）。
