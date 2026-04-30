@@ -17,12 +17,19 @@
 - [x] `projectization.md` に AAG-COA 判定 (Level 3 / requiresLegacyRetirement=true) と nonGoals を記録した
 - [x] `legacy-retirement.md` の skeleton を landing した（Phase 4 で実値を埋める）
 
-## Phase 1: 双方向 integrity meta-rule の AAG core 文書化
+## Phase 1: AAG Meta charter doc の新規創出
 
-- [ ] `adaptive-architecture-governance.md` に「双方向 integrity」章を追加した（forward / reverse の定義 + 図示 + 例）
-- [ ] meta-rule の例外カテゴリ（pure mechanism rule allowlist）を明示した
-- [ ] 例外 list の改廃のための review window 経路を明示した
-- [ ] 章の人間 review を経て確定した（Constitution 改訂と同等の慎重さ）
+- [ ] `references/01-principles/aag-meta.md` を新規作成し、§1 identity (AAG とは何であり何でないか) を記述した
+- [ ] `aag-meta.md` §2 goals (解決する問題) を記述した — 動くが意図に反するコードの即時検出 / 過去判断の文脈消失防止 / 暗黙知の形式知化 / 改善の不可逆化 / 双方向 integrity 等
+- [ ] `aag-meta.md` §3 limits (解決できない問題) を記述した — 設計の良し悪し / 業務的妥当性 / 創造性 / 戦略判断 / 意味的意図 (= CLAUDE.md 領分) との境界明示
+- [ ] `aag-meta.md` §4 invariants (実現すべき性質) を記述した — 双方向 integrity (forward + reverse) / state-based trigger / self-hosting / ratchet-down / 例外管理の構造化
+- [ ] `aag-meta.md` §5 non-goals (してはいけないこと) を記述した — performative work 生成 / date-based ritual 許容 / 完璧主義 / AI-人間判断の代替 / 業務 logic への侵入 / 意味改変
+- [ ] `aag-meta.md` §6 boundaries (限界の honest な認識) を記述した — 検出の粗さ / Discovery 属人性 / 評価の手動性は意図的な弱さとして steady state
+- [ ] `aag-meta.md` §7 他 AAG doc との境界 (Core: operational / Meta: statics / Evolution: dynamics) を記述した
+- [ ] AAG Core (`adaptive-architecture-governance.md`) の「関連文書」table に back link 1 行追加した — diff 目視で意味改変ゼロを確認
+- [ ] CLAUDE.md AAG セクションに 1 行索引 link を追加した
+- [ ] `docs/contracts/doc-registry.json` に `aag-meta.md` を登録した
+- [ ] charter doc の人間 review を経て確定した（Constitution 改訂と同等の慎重さ）
 
 ## Phase 2: AAG rule metadata 拡張
 

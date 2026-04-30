@@ -17,14 +17,19 @@
 | Phase L spawn (PIPE / QH / PROJ) が drift validation 抜きで spec authoring 計画されていた | reverse: AAG → 製本 が不在、guard が「あるかもしれない」を guard 化する余地 |
 
 これらは AAG の 4 層構造（Constitution / rule / guard / migration）には組み込まれて
-いない、より深層の **製本 ↔ AAG binding** の不在を示す。本 project は AAG core 自体に
-**双方向 integrity** の meta-rule を確立し、display rule registry (DFR-NNN) を最初の
-concrete application として実証する。
+いない、より深層の **製本 ↔ AAG binding** の不在を示す。
+
+本 project は AAG core 既存章への意味改変を避けるため、**新 doc `aag-meta.md` を
+charter (憲章) として独立創出** する方針を採用する。AAG Meta は AAG 自身の identity /
+goals / limits / invariants / non-goals / boundaries を明文化し、双方向 integrity は
+その invariant の 1 つとして位置付ける (詳細: §3.1 AAG Meta charter 構造)。display rule
+registry (DFR-NNN) は本 charter の最初の concrete application として実証する。
 
 ### 1.2. 関連既存資産
 
-- **AAG core**: `references/01-principles/adaptive-architecture-governance.md` (本 project が章追加)
-- **AAG 進化方針**: `references/01-principles/adaptive-governance-evolution.md` (本 project の動線)
+- **AAG core**: `references/01-principles/adaptive-architecture-governance.md` (本 project は **意味改変なし**、関連文書 table への back link 追加のみ)
+- **AAG Meta** (新規): `references/01-principles/aag-meta.md` (本 project の Phase 1 deliverable、charter doc)
+- **AAG 進化方針**: `references/01-principles/adaptive-governance-evolution.md` (本 project の動線、AAG Core / Meta / Evolution の 3 doc 構造で boundary 明示)
 - **rule registry**: `app/src/test/architectureRules/defaults.ts` + `guardCategoryMap.ts` (本 project が schema 拡張)
 - **既存 canonical doc**: `04-design-system/docs/`, `01-principles/`, `03-guides/` (Phase 4 で back link 追加)
 - **CHART semantic 実 drift 観測**: CHART-004 / CHART-005 (Phase 7 baseline)
@@ -47,7 +52,27 @@ concrete application として実証する。
 
 ## 3. 設計思想
 
-### 3.1. 双方向 integrity meta-rule の構造
+### 3.1. AAG Meta charter doc の構造
+
+`aag-meta.md` は AAG 自身の **identity と boundary** を明文化する charter (憲章) doc。
+「規律集」でなく **「AAG とは何であり、何でないか」** を articulate する位置付け。
+
+7 section 構成:
+
+| section | 主旨 | 例 |
+|---|---|---|
+| 1. identity | AAG とは何か | 生きた組織 / 機械的検証 system / AI-人間 interface / 文化醸成装置 |
+| 2. goals | 解決する問題 | 動くが意図に反するコードの即時検出、過去判断の文脈消失防止、双方向 integrity 等 |
+| 3. limits | 解決できない問題 | 設計の良し悪し、業務的妥当性、創造性、戦略判断 (= CLAUDE.md の領分) |
+| 4. invariants | 実現すべき性質 | 双方向 integrity / state-based / self-hosting / ratchet-down / 例外管理の構造化 |
+| 5. non-goals | してはいけないこと | performative work 生成、date-based ritual 許容、完璧主義、AI/人間判断の代替 |
+| 6. boundaries | 限界の honest な認識 | regex 検出の粗さ、Discovery 属人性、評価の手動性 — 意図的な弱さ |
+| 7. 他 AAG doc との境界 | Core (operational) / Meta (statics) / Evolution (dynamics) の orthogonal 軸 |
+
+### 3.2. 双方向 integrity (invariants の 1 つ)
+
+§3.1 で示した invariants の中で最も重要な 1 件。本 project の発端であり、Phase 7 の
+meta-guard 2 件で機械強制される。
 
 ```
 forward: 製本 → AAG
@@ -63,9 +88,11 @@ reverse: AAG → 製本
         path 実在 + doc 内に rule ID が出現することを検証
 ```
 
-### 3.2. meta-rule の例外（純粋 mechanism rule）
+### 3.3. meta-rule の例外（純粋 mechanism rule）
 
-次のような rule は製本不要で許容される（Phase 5 meta-guard の allowlist で管理）:
+次のような rule は製本不要で許容される（Phase 7 meta-guard の allowlist で管理）。
+allowlist は **PR-gated + justification 必須 + ratchet-down baseline 増加禁止** の構造的設計
+（aag-meta.md §4 invariants の 1 つとして明文化）:
 
 - **suppress directive 規律** (例: `AR-G3-SUPPRESS-RATIONALE`) — コード品質 hygiene
 - **size guard** (例: `AR-FILE-SIZE-LIMIT`) — 純粋 mechanism、業務 rule 不在
@@ -74,9 +101,11 @@ reverse: AAG → 製本
 例外判定の軸: 「rule が無くてもプロダクトの **業務的意味** が壊れない」「pure mechanism として
 完結する」「人間の意思決定でなく数値閾値 / pattern matching で完結する」。
 
-例外 list の追加 / 削除は **review window 経路** で人間判断（Phase 1 で経路を明示）。
+例外追加 / 削除の trigger は **PR-gated state-based** で完結（date-based cadence 禁止 =
+aag-meta.md §5 non-goals で構造禁止）。Discovery Review (月 1) には hook しない
+(date-based 儀式の再生産防止)。
 
-### 3.3. Layer 構造（製本の 3 層 + AAG）
+### 3.4. Layer 構造（製本の 3 層 + AAG）
 
 ```
 Layer 1: 真の正本 (source code)
@@ -88,14 +117,14 @@ Layer 2: 製本 description (既存 canonical doc)
 
 Layer 3: AAG rule registry (Layer 2 の rule を ID 化)
   display-rule-registry.md (DFR-NNN), 既存 architectureRules.ts (AR-NNN)
-  → Phase 6 で DFR-001〜005 登録
+  → Phase 8 で DFR-001〜005 登録
 
 Layer 4: AAG enforcement (機械検証)
   guards/*Guard.test.ts
-  → Phase 5 で meta-guard 2 件、Phase 7 で displayRuleGuard
+  → Phase 7 で meta-guard 2 件、Phase 9 で displayRuleGuard
 ```
 
-### 3.4. display rule (DFR) を本 project に吸収する理由
+### 3.5. display rule (DFR) を本 project に吸収する理由
 
 - 双方向 integrity の **最初の concrete application** として実証価値が高い
 - DFR は新規 rule であり、Phase 5 meta-guard の **forward 方向** を初日から強制適用できる
@@ -104,16 +133,27 @@ Layer 4: AAG enforcement (機械検証)
 
 ## 4. Phase 構造
 
-### Phase 1: 双方向 integrity meta-rule の AAG core 文書化
+### Phase 1: AAG Meta charter doc の新規創出
 
-**目的**: AAG core に双方向 integrity の章を追加、meta-rule の正本化。
+**目的**: AAG 自身の identity / goals / limits / invariants / non-goals / boundaries を
+明文化する charter (憲章) doc を新規創出。AAG Core / Meta / Evolution の 3 doc 構造を
+確立し、双方向 integrity を invariants の 1 つとして位置付ける。
 
 **deliverable**:
-- `adaptive-architecture-governance.md` 新章「双方向 integrity」
-- meta-rule の例外カテゴリ定義（pure mechanism rule の allowlist 基準）
-- review window 経路（例外 list の改廃）
+- `references/01-principles/aag-meta.md` 新規作成（7 section 構成、§3.1 参照）:
+  1. identity (AAG とは何であり何でないか)
+  2. goals (解決する問題)
+  3. limits (解決できない問題、CLAUDE.md 領分との境界)
+  4. invariants (実現すべき性質: 双方向 integrity / state-based / self-hosting / ratchet-down / 例外管理の構造化)
+  5. non-goals (してはいけないこと: performative work / date-based ritual / 完璧主義 / AI-人間判断の代替)
+  6. boundaries (限界の honest な認識: 検出の粗さ / Discovery 属人性 / 評価手動性は意図的な弱さとして steady state)
+  7. 他 AAG doc との境界 (Core: operational / Meta: statics / Evolution: dynamics の 3 軸)
+- `adaptive-architecture-governance.md` 「関連文書」table に 1 行 back link 追加（**意味改変なし**）
+- `CLAUDE.md` AAG セクションに 1 行索引 link 追加
+- `docs/contracts/doc-registry.json` に新 doc 登録
 
-**完了条件**: 章の人間 review + Constitution 改訂と同等の慎重さでの確定。
+**完了条件**: charter doc の人間 review (Constitution 改訂と同等の慎重さ) + AAG Core
+意味改変ゼロの確認 + doc-registry 登録 + 既存 guard 全 PASS。
 
 ### Phase 2: AAG rule metadata 拡張
 
@@ -244,7 +284,7 @@ Phase 7 reverse meta-guard で全 DFR rule の `canonicalDocRef` 整合成立。
 - **dialog で観測された drift の即時修正** (Phase 9 まで開けない、順序遵守)
 - **AAG framework 構造変更** (4 層 → N 層 等は別 project)
 - **parent project の archive process への干渉** (parent は独立進行)
-- **`adaptive-architecture-governance.md` 既存章の意味改変** (Phase 1 は新章追加のみ、Constitution 改訂相当の慎重さ)
+- **`adaptive-architecture-governance.md` 既存章の意味改変** (Phase 1 は新 doc `aag-meta.md` 創出 + Core への back link 1 行追加のみ、本体の改変ゼロ)
 - **Phase 4 で sunset 判定された doc の遡及的物理削除** (migrationRecipe + 履歴付きで段階削除、後任が経緯を追える状態を維持)
 - **Phase 3 audit の段階で sunset / 修正を実行する** (audit は findings 集約のみ、実行は Phase 4 / 5 / 8 で別 wave)
 
@@ -252,8 +292,9 @@ Phase 7 reverse meta-guard で全 DFR rule の `canonicalDocRef` 整合成立。
 
 | パス | 役割 |
 |---|---|
-| `references/01-principles/adaptive-architecture-governance.md` | AAG core 正本（Phase 1 で双方向 integrity 章を追加） |
-| `references/01-principles/adaptive-governance-evolution.md` | AAG 進化方針（本 project の位置付け確認） |
+| `references/01-principles/adaptive-architecture-governance.md` | AAG Core 正本（operational、Phase 1 では back link 1 行追加のみ、意味改変なし） |
+| `references/01-principles/aag-meta.md` | **AAG Meta charter doc**（statics、Phase 1 で新規創出） |
+| `references/01-principles/adaptive-governance-evolution.md` | AAG Evolution（dynamics、本 project の位置付け確認） |
 | `references/01-principles/display-rule-registry.md` | Phase 8 で新設、DFR-NNN registry |
 | `references/02-status/doc-audit-report.md` | Phase 3 audit findings 集約 |
 | `references/02-status/ar-rule-audit.md` | Phase 5 既存 AR rule audit 結果 |
@@ -272,7 +313,9 @@ Phase 7 reverse meta-guard で全 DFR rule の `canonicalDocRef` 整合成立。
 
 ## 7. 成功判定
 
-- AAG core に「双方向 integrity」章が landing
+- **AAG Meta charter doc (`aag-meta.md`) が landing**（identity / goals / limits / invariants / non-goals / boundaries / 他 doc 境界 の 7 section 完備）
+- AAG Core / Meta / Evolution の 3 doc 構造が orthogonal 軸で確立 (operational / statics / dynamics)
+- AAG Core 既存章の意味改変ゼロ（back link 1 行追加のみ）
 - Phase 3 doc audit の findings (inventory / rule mapping / gap / redundancy / staleness) が aggregated artifact として landing
 - Phase 4 legacy 撤退で staleness / redundancy 全件が status 判定済 + `legacy-retirement.md` に migrationRecipe 記録
 - 既存 AR-NNN rule のうち分類 A（自明な既製本）が 100% binding 済

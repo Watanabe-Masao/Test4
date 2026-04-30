@@ -1,5 +1,5 @@
 {
-  "$comment": "AAG (Adaptive Architecture Governance) 自体に「双方向 integrity (forward: 製本→AAG / reverse: AAG→製本)」の meta-rule を確立し、既存 AR-NNN rule の audit + 製本との binding + Layer 2 既存 doc への back link 整備 + meta-guard 実装を行う独立 active project。phased-content-specs-rollout 末セッションの dialog で発見された AAG の構造的弱点 (performative rule の混入余地) を解消する根本対策。display-rule registry (DFR-NNN) は本 project の双方向 integrity meta-rule の最初の concrete application として吸収。",
+  "$comment": "AAG (Adaptive Architecture Governance) 自身の identity / goals / limits / invariants / non-goals / boundaries を明文化する charter (憲章) doc `aag-meta.md` を新規創出し、AAG Core / Meta / Evolution の 3 doc 構造で operational / statics / dynamics の orthogonal 軸を確立する独立 active project。双方向 integrity (forward + reverse) は AAG Meta invariants の 1 つとして位置付ける。phased-content-specs-rollout 末セッションの dialog で発見された AAG の構造的弱点 (performative rule の混入余地) を解消する根本対策。display-rule registry (DFR-NNN) は AAG Meta charter の最初の concrete application として吸収。",
   "projectId": "aag-bidirectional-integrity",
   "title": "AAG 双方向 integrity meta-rule + 表示 rule 製本化",
   "status": "active",
@@ -11,11 +11,14 @@
     "implementationScope": [
       "projects/aag-bidirectional-integrity/",
       "references/",
+      "references/01-principles/aag-meta.md",
       "references/01-principles/adaptive-architecture-governance.md",
       "references/01-principles/adaptive-governance-evolution.md",
       "references/01-principles/display-rule-registry.md",
       "references/04-design-system/docs/",
       "references/03-guides/coding-conventions.md",
+      "docs/contracts/doc-registry.json",
+      "CLAUDE.md",
       "app/src/test/architectureRules/defaults.ts",
       "app/src/test/guardCategoryMap.ts",
       "app/src/test/guards/canonicalDocBackLinkGuard.test.ts",
