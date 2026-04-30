@@ -532,6 +532,10 @@
         {
           "path": "references/03-guides/projectization-policy.md",
           "label": "AAG-COA — Projectization Policy（立ち上げ前の入口判定 / Level 0-4 / required + forbidden artifacts / breakingChange / legacy-retirement / guard / human approval 判定 / escalation / project.json metadata / projectizationPolicyGuard）"
+        },
+        {
+          "path": "references/03-guides/deferred-decision-pattern.md",
+          "label": "Deferred Decision Pattern (途中判断 制度化) — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred する制度。判断基準 + 判断材料の収集元 + AI 自主判断 vs 人間判断の分離 + decision log + 適用 template を articulate。AAG Layer 4A System Operations、project-checklist-governance.md と並列。aag-bidirectional-integrity が最初の application instance"
         }
       ]
     },
