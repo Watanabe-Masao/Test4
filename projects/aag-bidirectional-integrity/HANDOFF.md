@@ -170,7 +170,7 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
 > **注**: 以下の Project A〜D は **仮称** (まだ project entity として未存在)。実 project entity の id / path は **bootstrap session でユーザー判断** により確定 (= 本 articulation は spawn 計画の sketch であり、project id を予約しない)。
 
-- [ ] **Project A bootstrap** (仮称 = AAG Core doc refactor): 適切な project id を確定し `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
+- [x] **Project A bootstrap** (= `aag-core-doc-refactor`): 本 commit で bootstrap 完了 (8 doc Create: AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / breaking-changes / legacy-retirement、project-health 登録済、test:guards 全 PASS)
 - [ ] **Project B bootstrap** (仮称 = rule schema + meta-guard): 適切な project id を確定し bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
 - [ ] **Project C bootstrap** (仮称 = DFR registry + display guards): 適切な project id を確定し bootstrap、Phase 9 + Phase 10 を移管
 - [ ] **Project D bootstrap** (仮称 = legacy retirement): 適切な project id を確定し bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管

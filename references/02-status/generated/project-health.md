@@ -3,19 +3,19 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-30T11:12:02.048Z
+> 生成: 2026-04-30T11:46:55.304Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 5 |
+| active project 数（archive 未実施を含む） | 6 |
 | archived project 数 | 29 |
-| in_progress project 数 | 4 |
+| in_progress project 数 | 5 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 999 |
+| 全 project の required checkbox 総数 | 1038 |
 | 全 project の checked checkbox 総数 | 874 |
 
 ## projects
@@ -24,6 +24,7 @@
 |---|---|---|---|---|---|
 | `aag-bidirectional-integrity` | AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化 | **in_progress** | — | 51/138 (37%) | [`projects/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/aag-bidirectional-integrity/AI_CONTEXT.md) |
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
+| `aag-core-doc-refactor` | AAG Core doc content refactoring + legacy retirement | **in_progress** | — | 0/39 (0%) | [`projects/aag-core-doc-refactor/AI_CONTEXT.md`](../../../projects/aag-core-doc-refactor/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 30/30 (100%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |

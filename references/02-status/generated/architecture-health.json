@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T11:12:02.045Z",
+  "timestamp": "2026-04-30T11:46:55.300Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -779,7 +779,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 5,
+      "value": 6,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -792,6 +792,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -862,6 +863,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -900,7 +902,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 4,
+      "value": 5,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -913,6 +915,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -965,6 +968,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -1004,7 +1008,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 999,
+      "value": 1038,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1017,6 +1021,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -1068,6 +1073,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
@@ -1119,6 +1125,7 @@
       "implRefs": [
         "projects/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
+        "projects/aag-core-doc-refactor/checklist.md",
         "projects/aag-format-redesign/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",

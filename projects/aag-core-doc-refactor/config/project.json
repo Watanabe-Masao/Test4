@@ -1,0 +1,43 @@
+{
+  "$comment": "AAG Core 8 doc + CLAUDE.md AAG セクションの content refactoring + legacy 撤退。親 project (aag-bidirectional-integrity) の Phase 4 + Phase 5 を Project A として spawn (Phase 3 hard gate B 確定、2026-04-30)。",
+  "projectId": "aag-core-doc-refactor",
+  "title": "AAG Core doc content refactoring + legacy retirement",
+  "status": "active",
+  "projectRoot": "projects/aag-core-doc-refactor",
+  "projectization": {
+    "$comment": "AAG-COA 判定: refactor 系で 8 doc を新規書き起こし + 旧 doc archive、inbound 160+ 件への影響あり、Level 3。breakingChange = true (doc path 変更で inbound 全 update 必要)、requiresLegacyRetirement = true (旧 path archive)。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "references/01-principles/aag/",
+      "references/01-principles/adaptive-architecture-governance.md",
+      "references/01-principles/adaptive-governance-evolution.md",
+      "references/01-principles/aag-5-constitution.md",
+      "references/01-principles/aag-5-source-of-truth-policy.md",
+      "references/01-principles/aag-5-layer-map.md",
+      "references/01-principles/aag-operational-classification.md",
+      "CLAUDE.md",
+      "docs/contracts/doc-registry.json",
+      "docs/contracts/principles.json",
+      ".claude/manifest.json"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "BaseRule schema 拡張 (Project B 所掌)",
+      "AR-rule binding 記入 (Project B 所掌)",
+      "meta-guard 実装 (Project B 所掌)",
+      "DFR registry 構築 (Project C 所掌)",
+      "業務ロジック / domain calculation の変更"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/aag-core-doc-refactor/AI_CONTEXT.md",
+    "handoff": "projects/aag-core-doc-refactor/HANDOFF.md",
+    "plan": "projects/aag-core-doc-refactor/plan.md",
+    "checklist": "projects/aag-core-doc-refactor/checklist.md",
+    "projectization": "projects/aag-core-doc-refactor/projectization.md"
+  }
+}
