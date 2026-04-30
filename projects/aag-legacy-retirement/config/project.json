@@ -1,0 +1,36 @@
+{
+  "$comment": "Project A の Phase 5 で完遂しない複雑 archive 案件 (例: adaptive-architecture-governance.md Split + 部分 Archive、複数 doc 横断の inbound migration が複雑なケース) の拡張処理。親 project (aag-bidirectional-integrity) の Phase 5 拡張を Project D として spawn (Phase 3 hard gate B 確定、2026-04-30)。",
+  "projectId": "aag-legacy-retirement",
+  "title": "AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc)",
+  "status": "active",
+  "projectRoot": "projects/aag-legacy-retirement",
+  "projectization": {
+    "$comment": "AAG-COA 判定: legacy 撤退の拡張版 (Project A の Phase 5 で完遂しない複雑案件)。Level 2、changeType = legacy-retirement、Project A → 本 project。",
+    "level": 2,
+    "changeType": "legacy-retirement",
+    "implementationScope": [
+      "references/01-principles/adaptive-architecture-governance.md",
+      "references/99-archive/",
+      "docs/contracts/doc-registry.json",
+      "references/02-status/legacy-retirement-extended.md"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": true,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "AAG Core doc content refactor / 新 doc Create (Project A 所掌)",
+      "AR-rule schema 拡張 / meta-guard 実装 (Project B 所掌)",
+      "DFR registry 構築 (Project C 所掌)",
+      "業務ロジック / domain calculation の変更",
+      "Project A の Phase 5 で完遂可能な単純 archive 案件 (本 project 着手前に Project A Phase 5 を先に完遂)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/aag-legacy-retirement/AI_CONTEXT.md",
+    "handoff": "projects/aag-legacy-retirement/HANDOFF.md",
+    "plan": "projects/aag-legacy-retirement/plan.md",
+    "checklist": "projects/aag-legacy-retirement/checklist.md",
+    "projectization": "projects/aag-legacy-retirement/projectization.md"
+  }
+}

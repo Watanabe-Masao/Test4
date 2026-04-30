@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T11:49:10.735Z",
+  "timestamp": "2026-04-30T12:09:24.680Z",
   "summary": {
-    "active": 6,
+    "active": 9,
     "archived": 29,
-    "inProgress": 5,
+    "inProgress": 8,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1038,
+    "totalCheckboxes": 1137,
     "checkedCheckboxes": 874
   },
   "projects": [
@@ -52,6 +52,19 @@
       "parent": null
     },
     {
+      "projectId": "aag-display-rule-registry",
+      "title": "Display-Focused Rule registry + display rule guards",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 35,
+      "progress": 0,
+      "entrypoint": "projects/aag-display-rule-registry/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-display-rule-registry/checklist.md",
+      "parent": null
+    },
+    {
       "projectId": "aag-format-redesign",
       "title": "AAG フォーマット改修とサブプロジェクト機能",
       "kind": "project",
@@ -62,6 +75,32 @@
       "progress": 0,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-legacy-retirement",
+      "title": "AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc)",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 25,
+      "progress": 0,
+      "entrypoint": "projects/aag-legacy-retirement/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-legacy-retirement/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-rule-schema-meta-guard",
+      "title": "AAG rule schema 拡張 + AR-rule binding + meta-guard MVP",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 39,
+      "progress": 0,
+      "entrypoint": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-rule-schema-meta-guard/checklist.md",
       "parent": null
     },
     {

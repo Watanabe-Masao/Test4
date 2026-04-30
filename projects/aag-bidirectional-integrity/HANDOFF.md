@@ -170,10 +170,10 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
 > **注**: 以下の Project A〜D は **仮称** (まだ project entity として未存在)。実 project entity の id / path は **bootstrap session でユーザー判断** により確定 (= 本 articulation は spawn 計画の sketch であり、project id を予約しない)。
 
-- [x] **Project A bootstrap** (= `aag-core-doc-refactor`): 本 commit で bootstrap 完了 (8 doc Create: AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / breaking-changes / legacy-retirement、project-health 登録済、test:guards 全 PASS)
-- [ ] **Project B bootstrap** (仮称 = rule schema + meta-guard): 適切な project id を確定し bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
-- [ ] **Project C bootstrap** (仮称 = DFR registry + display guards): 適切な project id を確定し bootstrap、Phase 9 + Phase 10 を移管
-- [ ] **Project D bootstrap** (仮称 = legacy retirement): 適切な project id を確定し bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
+- [x] **Project A bootstrap** (= `aag-core-doc-refactor`): bootstrap 完了 (commit `4dc88b6`、8 doc Create、project-health 登録済、test:guards 全 PASS)
+- [x] **Project B bootstrap** (= `aag-rule-schema-meta-guard`): 本 commit で bootstrap 完了 (5 doc Create: AI_CONTEXT / HANDOFF / plan / checklist / projectization / config、Phase 2 + Phase 6 + Phase 8 MVP 移管)
+- [x] **Project C bootstrap** (= `aag-display-rule-registry`): 本 commit で bootstrap 完了 (5 doc Create、Phase 9 + Phase 10 移管、Project B Phase 4 完了後に着手)
+- [x] **Project D bootstrap** (= `aag-legacy-retirement`): 本 commit で bootstrap 完了 (7 doc Create: + breaking-changes + legacy-retirement、Project A Phase 5 拡張案件、Project A Phase 5 完了後に case A/B 判定で着手要否判定)
 
 各 project の **依存関係**:
 - Project A → Project B (= AAG Core doc refactor 完了後に rule schema 拡張、binding 記入対象が安定)
