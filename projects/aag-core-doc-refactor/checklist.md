@@ -28,9 +28,9 @@
 
 ## Phase 3: CLAUDE.md AAG セクション薄化 (§8.13 判断 = B 適用)
 
-- [ ] CLAUDE.md AAG セクションを **鉄則 quote 3-5 行 + 詳細 link** に薄化
-- [ ] AI session 開始時の dynamic thinking trigger を維持 (manifest.json discovery hint と併用)
-- [ ] CLAUDE.md test-contract guard (canonicalization-tokens / features-modules / generated-sections / canonical-table / reference-link-existence / no-static-numbers) 全 PASS
+- [x] CLAUDE.md AAG セクションを **鉄則 quote 5 件 + 詳細 link** に薄化 (約 67 行 → 約 22 行、67% 削減)
+- [x] AI session 開始時の dynamic thinking trigger を維持 (manifest.json discovery hint との併用、本 commit で `discovery.byTopic` / `byExpertise` link articulate)
+- [x] CLAUDE.md test-contract guard (canonicalization-tokens / features-modules / generated-sections / canonical-table / reference-link-existence / no-static-numbers) 全 PASS — docCodeConsistencyGuard / docRegistryGuard / docStaticNumberGuard / canonicalizationSystemGuard / projectStructureGuard 全 PASS 確認済
 
 ## Phase 4: doc-registry / principles.json / manifest.json 整合 + deprecation marker
 
