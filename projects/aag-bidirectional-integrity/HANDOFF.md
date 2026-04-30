@@ -21,18 +21,28 @@
 | Phase L spawn (PIPE / QH / PROJ) | spec 化されるべき実 drift / risk が validate されていない状態で spec authoring を guard 化しようとしていた |
 
 これらは AAG rule が製本（canonical doc）に紐付かず、**guard が performative になる構造的余地**
-が AAG 自体に内包されていることを示す。本 project はこの余地を **forward + reverse
-双方向 integrity の meta-rule** で構造的に塞ぐ。
+が AAG 自体に内包されていることを示す。本 project はこの余地を **AAG Meta charter doc の
+新規創出 + 双方向 integrity meta-rule** で構造的に塞ぐ。
 
 ### 本 project の特徴
 
 - **scope 内に 4 つの concrete deliverable**:
-  1. AAG core 進化（双方向 integrity meta-rule + 既存 100+ AR rule の audit + binding）
+  1. **AAG Meta charter doc (`aag-meta.md`) の新規創出** — AAG とは何であり何でないかを 7 section (identity / goals / limits / invariants / non-goals / boundaries / 他 doc 境界) で明文化。AAG Core 既存章は意味改変ゼロ
   2. **網羅的 doc audit** + **legacy 撤退 cleaning**（Phase 3 + 4、汚れた基盤の上に integrity を乗せない前提整理）
-  3. forward / reverse meta-guard（Phase 7、双方向 integrity の機械強制）
+  3. forward / reverse meta-guard（Phase 7、双方向 integrity の機械強制 — aag-meta.md invariants の 1 つを Layer 4 落とし込み）
   4. **新規製本創出 (display-rule registry を含む)**（Phase 8、双方向 integrity の最初の concrete instances）+ DFR guards (Phase 9)
 - **parent: なし**（`phased-content-specs-rollout` は独立に archive 進行）
 - Level 3 / governance-hardening / requiresHumanApproval=true / **requiresLegacyRetirement=true**
+
+### AAG Core / Meta / Evolution の 3 doc 構造
+
+| doc | 軸 | 主旨 | 本 project での扱い |
+|---|---|---|---|
+| **AAG Core** (`adaptive-architecture-governance.md`) | operational | どう動くか | back link 1 行追加のみ、意味改変なし |
+| **AAG Meta** (`aag-meta.md`、新規) | statics | どうあるべきか / 何でないか | Phase 1 で新規創出 (charter doc) |
+| **AAG Evolution** (`adaptive-governance-evolution.md`) | dynamics | どう進化するか | 参照のみ |
+
+3 doc は orthogonal、相互参照 link で連結。重複なし。
 
 ## 2. 次にやること
 
@@ -42,13 +52,20 @@
 > - display-rule registry (DFR-NNN) は Phase 8 の最初の concrete instance として吸収
 > - DFR-005 thousands separator は明文化方向で進む（content-and-voice.md の "not enforced" 記述は更新対象）
 
-### Phase 1: 双方向 integrity meta-rule の AAG core 文書化
+### Phase 1: AAG Meta charter doc の新規創出
 
-- [ ] `adaptive-architecture-governance.md` に「双方向 integrity」章を追加
-  - forward 方向: 製本 → AAG（製本 rule は全て AAG 検証される、装飾化禁止）
-  - reverse 方向: AAG → 製本（AAG rule は全て製本に存在する、performative 禁止）
-- [ ] meta-rule の例外（pure mechanism rule、製本不要なケース）を明示
-- [ ] human review 経路の明示（meta-rule の例外は review window 経由）
+- [ ] `references/01-principles/aag-meta.md` を新規作成（7 section 構成）
+  - §1 identity (AAG とは何であり何でないか)
+  - §2 goals (解決する問題)
+  - §3 limits (解決できない問題、CLAUDE.md 領分との境界明示)
+  - §4 invariants (双方向 integrity / state-based / self-hosting / ratchet-down / 例外管理の構造化)
+  - §5 non-goals (してはいけないこと: performative work / date-based ritual / 完璧主義 / AI-人間判断の代替)
+  - §6 boundaries (限界の honest な認識: 検出の粗さ / Discovery 属人性は意図的な弱さ)
+  - §7 他 AAG doc との境界 (Core: operational / Meta: statics / Evolution: dynamics)
+- [ ] AAG Core (`adaptive-architecture-governance.md`) 「関連文書」table に back link 1 行追加（**意味改変ゼロ確認**）
+- [ ] CLAUDE.md AAG セクションに 1 行索引 link 追加
+- [ ] `docs/contracts/doc-registry.json` に新 doc 登録
+- [ ] charter doc の人間 review (Constitution 改訂と同等の慎重さ)
 
 ### Phase 2: AAG rule metadata 拡張
 
@@ -125,11 +142,18 @@
 
 ## 3. ハマりポイント
 
-### 3.1. AAG core への変更は慎重に
+### 3.1. AAG Core への変更は最小化（charter doc 創出方針）
 
-`adaptive-architecture-governance.md` は AAG 全体の正本。本 project の Phase 1 で章を
-追加するのみで、既存章の **意味改変は禁止**。新章は明確に「双方向 integrity」と命名し、
-既存内容と独立した位置に配置する。Constitution 改訂と同等の慎重さで扱う。
+`adaptive-architecture-governance.md` (AAG Core) は AAG 全体の正本。本 project の Phase 1 では
+**新 doc `aag-meta.md` を charter として独立創出** し、AAG Core への変更は「関連文書」table への
+**back link 1 行追加のみ**に限定する。既存章への subsection 追加 / 意味改変は禁止。
+
+理由: AAG Core は「operational (どう動くか)」を扱う doc であり、「statics (どうあるべきか / 何で
+ないか)」を扱う meta layer は dedicated doc に分離する方が責務が clean。第 9 原則 subsection
+拡張案も検討されたが、章構造膨張 + 意味改変解釈余地のリスクから charter 独立創出に方針確定。
+
+Constitution 改訂と同等の慎重さで扱うこと。AAG Core 編集後は diff を目視確認し、
+table 追加以外の変更がゼロであることを確認する。
 
 ### 3.2. 既存 100+ AR rule の audit は ratchet-down で漸次対応
 
