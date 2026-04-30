@@ -104,17 +104,47 @@ operation 順序:
 - [ ] `03-guides/` 関連 doc (数値表示ルール / coding-conventions 等) に同 section を追加した
 - [ ] 各 section の各 entry が **3 要素を保持** (AR rule ID + 要件 ID + architect 寄与 articulation) を確認した
 
-## Phase 8: forward / reverse meta-guard 実装 (Layer 4 検証層)
+## Phase 8: Layer 4 sub-audit 実装 (forward / reverse meta-guard + sub-categorization)
 
-> 着手前 prerequisite: Phase 2 schema 拡張完了 + Phase 6 / Phase 7 binding 完了 + plan §8.9 C / H 候補の判断
+> 着手前 prerequisite: Phase 2 schema 拡張完了 + Phase 6 / Phase 7 binding 完了 + plan §8.4.1 (Layer 4 sub-audit list 確定) + plan §8.9 C / H 候補の判断
+
+### Phase 8.1. 4.1 境界監査 (Boundary Audit) sub-audit
+
+- [ ] 目的 (Layer 0) と要件 (Layer 1) の混同を機械検出する guard を確立した (機械検証可能 condition が Layer 0 に articulated されていないか)
+- [ ] Layer 2 / Layer 3 / Layer 4 の境界違反検出を確立した (例: 既存 `architectureRuleGuard.test.ts` を Layer 3 schema 整合性 + Layer 4 functional check に分離)
+
+### Phase 8.2. 4.2 方向監査 (Direction Audit) sub-audit
 
 - [ ] `canonicalDocRefIntegrityGuard.test.ts` (reverse) を新設し、各 AR rule の `canonicalDocRef` の各 entry について docPath 実在 + rule ID 出現 + articulation non-empty を検証した
 - [ ] `canonicalDocBackLinkGuard.test.ts` (forward) を新設し、canonical doc の `## Mechanism Enforcement` section の各 entry について AR ID + 要件 ID + articulation non-empty を検証した
-- [ ] (option) `metaRequirementBindingGuard.test.ts` を新設した (Layer 1 ↔ Layer 3 binding 検証)
+- [ ] (option) `metaRequirementBindingGuard.test.ts` を新設した (Layer 1 ↔ Layer 3 binding 検証、forward + reverse)
+- [ ] 4 層依存原則 (本体側 layer-boundary 縦スライスと同型) の AAG 内部適用を検証した
+
+### Phase 8.3. 4.3 波及監査 (Impact Audit) sub-audit
+
+- [ ] cross-cutting impact 検出 mechanism を確立した (rule / doc 変更が他の縦スライス / 層へ与える未 articulated な影響の検出)
+- [ ] obligation map の trigger 漏れを検出する mechanism を確立した
+
+### Phase 8.4. 4.4 完備性監査 (Completeness Audit) sub-audit
+
+- [ ] 5 層 × 5 縦スライスの 25 セル gap 検出 mechanism を確立した
+- [ ] orphan implementation (要件なき実装) / orphan requirement (実装なき要件) 検出を確立した
+- [ ] redundancy (重複 articulation = anti-duplication 違反) 検出を確立した
+- [ ] 既存 `docRegistryGuard.test.ts` / `docCodeConsistencyGuard.test.ts` / Discovery Review が 4.4 完備性に分類されることを確認した
+
+### Phase 8.5. 4.5 機能性監査 (Functional Audit) sub-audit
+
 - [ ] (option / candidate C) `selfHostingGuard.test.ts` を新設した (aag/meta.md 自身が AR-rule に linked + 内部整合性 hard check)
+- [ ] 既存 `health-rules.ts` / Hard Gate / `docStaticNumberGuard.test.ts` / `certificate renderer` が 4.5 機能性に分類されることを確認した
+- [ ] rule schema 整合性検証が Layer 3 から分離され Layer 4.5 として articulated された
+
+### Phase 8.6. 共通
+
+- [ ] 各 sub-audit に **個別 baseline + 個別 fixNow** を持たせた (混在 baseline は責務分離違反、C1 適用)
 - [ ] 例外 allowlist の baseline を機械管理した (ratchet-down のみ、増加禁止)
 - [ ] 新 rule 追加 PR で immediate enforcement が hard fail することを synthetic 注入で確認した
 - [ ] aag/meta.md §2 の **双方向 integrity 要件 status が「未達成」→「達成」に flip** した
+- [ ] aag/meta.md §3 (Core mapping) で各 sub-audit が「どの sub-audit instance を保持するか」articulate した
 
 ## Phase 9: DFR registry (Layer 2 新規製本)
 

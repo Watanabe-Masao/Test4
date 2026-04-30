@@ -48,7 +48,7 @@ modular monolith evolution と parallel)。経営階層 metaphor は image、正
 | 1 | **要件** (Requirements) | 社訓 | 不変条件 + 禁則、機械検証可能 |
 | 2 | **設計** (Design) | 経営戦略 | AAG の構造方針 |
 | 3 | **実装** (Implementation) | 戦術 | AAG が能動的に行うこと (rule / guard / allowlist / health) |
-| 4 | **検証** (Verification) | 外部監査 | AAG が claim と actual を受動的に照合すること (health KPI / certificate / Discovery Review / meta-guard / aag/meta.md §4 達成判定) |
+| 4 | **検証** (Verification) | 外部監査 | AAG が claim と actual を受動的に照合すること、5 sub-audit に細分 (4.1 境界 / 4.2 方向 / 4.3 波及 / 4.4 完備性 / 4.5 機能性、initial set / extensible) |
 
 **縦軸 (5 縦スライス、AAG 既存)**: layer-boundary / canonicalization / query-runtime /
 responsibility-separation / governance-ops。各セルに「縦スライスの特定層に住む doc / 実装」が
