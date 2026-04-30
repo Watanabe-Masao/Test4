@@ -175,6 +175,7 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 - [x] **Project B bootstrap** (= `aag-rule-schema-meta-guard`): 本 commit で bootstrap 完了 (5 doc Create: AI_CONTEXT / HANDOFF / plan / checklist / projectization / config、Phase 2 + Phase 6 + Phase 8 MVP 移管)
 - [x] **Project C bootstrap** (= `aag-display-rule-registry`): 本 commit で bootstrap 完了 (5 doc Create、Phase 9 + Phase 10 移管、Project B Phase 4 完了後に着手)
 - [x] **Project D bootstrap** (= `aag-legacy-retirement`): 本 commit で bootstrap 完了 (7 doc Create: + breaking-changes + legacy-retirement、Project A Phase 5 拡張案件、Project A Phase 5 完了後に case A/B 判定で着手要否判定)
+- [x] **Project D Phase 1 + archive 完遂** (= `projects/completed/aag-legacy-retirement/`): **case B 確定 (拡張案件 0 件、early scope-out)** で Phase 1 のみで MVP scope 完遂、ユーザー承認 + 8-step archive 完了 (2026-04-30)。Project A archive 完遂により全 8 旧 AAG Core doc が `references/99-archive/` に移管完了 + 各旧 doc active inbound = 0 のため Phase 2-4 (Split + Rewrite + 拡張案件 archive 移管 + 物理削除) は scope out。Project E DecisionTrace schema retrospective retrofit candidate として「本 project 自体の存在判断」が typical example
 
 各 project の **依存関係**:
 - Project A → Project B (= AAG Core doc refactor 完了後に rule schema 拡張、binding 記入対象が安定)

@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-04-30T22:20:49.300Z
+> 生成: 2026-04-30T22:53:15.009Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 8 |
-| archived project 数 | 30 |
-| in_progress project 数 | 7 |
+| active project 数（archive 未実施を含む） | 7 |
+| archived project 数 | 31 |
+| in_progress project 数 | 6 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1184 |
-| 全 project の checked checkbox 総数 | 934 |
+| 全 project の checked checkbox 総数 | 935 |
 
 ## projects
 
@@ -27,7 +27,7 @@
 | `aag-core-doc-refactor` | AAG Core doc content refactoring + legacy retirement | **archived** | — | 33/45 (73%) | [`projects/completed/aag-core-doc-refactor/AI_CONTEXT.md`](../../../projects/completed/aag-core-doc-refactor/AI_CONTEXT.md) |
 | `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **in_progress** | — | 0/38 (0%) | [`projects/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/aag-display-rule-registry/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
-| `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **in_progress** | — | 27/28 (96%) | [`projects/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/aag-legacy-retirement/AI_CONTEXT.md) |
+| `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **archived** | — | 28/28 (100%) | [`projects/completed/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/completed/aag-legacy-retirement/AI_CONTEXT.md) |
 | `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **in_progress** | — | 0/42 (0%) | [`projects/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 30/30 (100%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |

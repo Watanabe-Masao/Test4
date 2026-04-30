@@ -1,10 +1,19 @@
-# HANDOFF — aag-legacy-retirement
+# [ARCHIVED] HANDOFF — aag-legacy-retirement
+
+> **Archived: 2026-04-30** — Project D は Phase 1 のみで MVP scope 完遂 (case B 確定、拡張案件 0 件)、
+> ユーザー承認 (本 commit) により archive プロセス完了。physical archive 移管 =
+> `projects/completed/aag-legacy-retirement/` (本 commit)。
+>
+> **判定 = case B (early scope-out)**: Project A archive 完遂 (`projects/completed/aag-core-doc-refactor/`、
+> commit `cf8d995`) により全 8 旧 AAG Core doc が `references/99-archive/` に移管完了 +
+> 各旧 doc active inbound = 0 のため、本 project が引き受ける拡張案件は 0 件。Phase 2-4
+> (Split + Rewrite + 拡張案件 archive 移管 + 物理削除) は scope out。
 
 > 役割: 起点文書。後任者が最初に読む。
 
 ## 1. 現在地
 
-**Phase 1 完遂 + case B 確定 → 最終レビュー (人間承認) 待ち (2026-04-30)**。
+**Phase 1 完遂 + case B 確定 → archive 完遂 (2026-04-30)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
 受けて、**Project A Phase 5 で完遂しない複雑 archive 案件** を本 project に独立 spawn したが、

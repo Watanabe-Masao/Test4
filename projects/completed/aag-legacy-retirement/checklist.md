@@ -76,4 +76,20 @@
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する — **2026-04-30 ユーザー承認** (case B 確定 + 8-step archive 着手承認)
+
+### Approval Record (Insight 7-b milestone acknowledgment application instance)
+
+> 本 approval は Project E vision の `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` (Insight 7-b、不可逆ステップでの ceremonial commitment) の direct application instance。承認は「正しい / 間違い」軸ではなく「不可逆ステップ (= Project D archive プロセス移行) を今ここで踏む」の announcement。
+
+**View List (人間がレビューした内容)**:
+
+- ✅ Phase 1 完遂: 必要性 re-evaluate + 拡張案件 inventory → **case B 確定** (commit `59bb8e1`)
+- ✅ 判定根拠: Project A archive 完遂 (`projects/completed/aag-core-doc-refactor/`、commit `cf8d995`) + 8 旧 AAG Core doc 全 archive 移管済 + 各旧 doc active inbound = 0 + 拡張案件 0 件
+- ✅ scope decision: Phase 2-4 は N/A (拡張案件 0 件のため発火条件未充足)
+- ✅ Future follow-up engagement: Project E DecisionTrace candidate articulate 済
+- ✅ 全 guard PASS / Hard Gate PASS (commit `59bb8e1`)
+
+**判定 (case B early scope-out)**: 本 project は MVP scope を Phase 1 のみで完遂。拡張案件 0 件のため Phase 2-4 は scope out。
+
+**承認の意味**: 「本 project archive プロセス (8-step) への移行を承認する」 — 承認後 AI は archive を実行
