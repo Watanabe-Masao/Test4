@@ -125,33 +125,27 @@ main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 
 
 Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
-## 1.6. Phase 3 hard gate decision = AI 推奨 B (ユーザー確認待ち)
+## 1.6. Phase 3 hard gate decision = B 確定 (AI 推奨 + ユーザー確認、2026-04-30)
 
-**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI が criteria を適用して **推奨 B** を articulate。但し本 gate は **高 blast radius** (= project 構造の不可逆判断 + 4 project bootstrap 計画) のため `deferred-decision-pattern.md` §3.2 例外則 (構造的安全装置) を適用し、ユーザー確認を必須 gate として運用 (= AI 単独で確定しない)。
+**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI 推奨 + ユーザー確認 hybrid (deferred-decision-pattern §3.1 + §3.2 例外則) で **B (Project A〜D 分割) を確定**。
 
 | 項目 | 状態 |
 |---|---|
 | §8.14 第 1 段 (Phase 1 skeleton landing) | ✅ PR #1216-#1223 merged |
 | §8.14 第 2 段 (Phase 3 audit landing) | ✅ commit `6762d39` |
 | §8.14 第 3 段 (Phase 1 §3 fill cyclic refinement) | ✅ commit `477ef41` |
-| Phase 3 hard gate (AI 推奨段階) | ✅ **B 推奨** (本 commit、deferred-decision-pattern §3.1) |
-| Phase 3 hard gate (ユーザー確認段階) | ⏳ **未確定** (a/b/c のいずれか待ち、deferred-decision-pattern §3.2) |
+| Phase 3 hard gate (AI 推奨段階) | ✅ **B 推奨** (commit `5e6193f`、deferred-decision-pattern §3.1) |
+| Phase 3 hard gate (ユーザー確認段階) | ✅ **B 確定** (本 commit、ユーザー articulate「Bでよろしくお願いします」、deferred-decision-pattern §3.2) |
 
 **AI 推奨 rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い → **default B (follow-up project 分割) を AI 推奨**。
 
-**ユーザー判断選択肢**:
-- **a) B 確定** (= AI 推奨採用、Project A〜D 分割で進行)
-- **b) A 単一継続** (= scope は管理可能と判断、本 project 内で Phase 4〜10 を継続)
-- **c) 別案** (= 異なる分割または scope 縮小、ユーザー articulate)
+**ユーザー確認**: ユーザー articulate「Bでよろしくお願いします」(2026-04-30) により Project A〜D 分割を確定。
 
-### 本 project (`aag-bidirectional-integrity`) の状態
+### 本 project (`aag-bidirectional-integrity`) は **MVP 完遂状態** に到達
 
 - **MVP scope (Phase 1 + Phase 3 + cyclic refinement)**: ✅ 全完遂
-- **MVP 完遂状態 articulate**: 本 commit で完了
-- **後続 Phase 4〜10 の処理方針**: ⏳ ユーザー確認後に確定 (a/b/c のいずれか)
-  - a) 確定時 → 後続 Phase は別 project (仮称 Project A〜D) に移管、本 project は archive プロセスへ
-  - b) 確定時 → 後続 Phase は本 project 内で継続、archive は Phase 10 完遂後
-  - c) 確定時 → ユーザー articulate に従い再計画
+- **後続 Phase 4〜10**: Project A〜D (仮称) に移管。実 project entity の id は bootstrap session でユーザー判断により確定
+- **本 project の status**: 次 session 以降で archive 候補に migrate (Project A〜D bootstrap 完了後、本 project は archive プロセスへ)
 
 ### Project A〜D 分割案 (audit report §7.2)
 
