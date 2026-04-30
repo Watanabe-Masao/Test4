@@ -293,6 +293,132 @@
 - [ ] Phase 8 reverse meta-guard が DFR-001〜005 全てに対して PASS した (双方向 integrity 成立)
 - [ ] aag/meta.md §2 の **performative 防止 要件 status が「未達成」→「達成」に flip** した
 
+## 途中判断 checklist (decision gates、AI 自主判断 + judgement criteria 集約)
+
+> **本 section は `references/03-guides/deferred-decision-pattern.md` の最初の application instance**。
+> 同 doc は AAG Layer 4A System Operations の制度 doc であり、本 project 固有でなく **AAG 全
+> project で再利用可能な deferred decision 制度** を articulate。新規 project spawn 時は同 doc
+> を参照して decision gates section を articulate。
+>
+> 各 Phase 着手前 / 進行中に **AI session が自主的に判断する項目**。判断基準 (criteria) と
+> 判断材料の収集元 (collection sources) を doc に embed し、AI が material を収集 → criteria を
+> 適用 → decision を log + commit message に記録する。
+>
+> **設計意図** (`deferred-decision-pattern.md` §1.3 の application):
+> AI が判断するための **criteria と collection sources** を doc に articulate しておくことで、
+> 後任 AI session でも一貫した judgement が可能。判断結果は本 section 末尾の decision log に
+> 追記し、後任が trace + revisit 可能。
+>
+> **人間判断のまま残す例外** (`deferred-decision-pattern.md` §3.2 適用、構造的安全装置 / 規約):
+> - **Phase 5 物理削除 trigger の人間 deletion approval** (legacy-retirement §2、anti-ritual と orthogonal な安全装置、AI が判断しない)
+> - **最終レビュー** (project-checklist-governance §3.1 規約、archive obligation の発火 gate、人間承認必須)
+>
+> 詳細: plan §8.10〜§8.14 / 各 Phase の着手前 prerequisite。
+>
+> **運用原則**: 各 Phase の checkbox を flip する前に、本 section の対応 decision gate が [x]
+> になっていることを確認する (= decision gates が pre-check として機能)。
+
+### Phase 1 着手前判断 (AI 自主判断、4 件)
+
+- [ ] **Step 0** (parent project `phased-content-specs-rollout` archive 8-step) 完了確認
+  - **判断基準**: main 上の `projects/phased-content-specs-rollout/checklist.md` line 158 が `[x]` か / `projects/phased-content-specs-rollout/` が `projects/completed/` に移管済か
+  - **判断材料の収集元**: `git ls-files projects/phased-content-specs-rollout/` + line 158 状態確認 + `projects/phased-content-specs-rollout/config/project.json` の status field
+  - **AI action**: 未完なら HANDOFF §1.5 の Step 0 8-step を先に実行、完了なら本 checkbox flip
+- [ ] **§8.10 AAG Audit home doc 判断** (A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 Create / C: aag/architecture.md 内包)
+  - **判断基準**:
+    - **A 推奨**: AAG Audit の articulate volume が 1 section (50 行以下) で済み、aag/meta.md §3 内に納まる場合
+    - **B 推奨**: sub-audit (4.1〜4.5 + 追加候補 4.6〜4.9) が将来増える可能性が高く、独立 doc として責務分離が必要な場合
+    - **C 推奨**: AAG architecture (5 層構造) と Audit が structural に一体化していて、aag/architecture.md 内に Layer 4 章として包含する方が clean な場合
+  - **判断材料の収集元**: aag/meta.md §3 Core mapping articulation 量見積もり / 追加候補 sub-audit (plan §3.1.5 末尾) の数 / aag/architecture.md の section 構成案 (Phase 4 で確定予定)
+  - **AI action**: criteria 適用 → decision (A/B/C) 確定 → commit message + decision log に `decision: <A/B/C>, rationale: <reason>` を記録
+- [ ] **§8.13 CLAUDE.md 薄化方式判断** (A: 完全 1 link 索引のみ / B: 鉄則 quote (3-5 行) + 詳細 link)
+  - **判断基準**:
+    - **A 推奨**: `.claude/manifest.json` discovery hint で `aag/` を引ければ AI session 開始時に AAG context を取得可能と判定できる場合
+    - **B 推奨**: AI session 開始時の AAG context を最低限維持するため、3-5 行の鉄則 (例: 「製本されないものを guard 化しない」「期間 buffer は anti-ritual」「重複と参照を切り分ける」) を CLAUDE.md inline で残す方が安全と判定する場合
+  - **判断材料の収集元**: `.claude/manifest.json` discovery 機能 (`byTopic` / `byExpertise` / `pathTriggers` の articulation 量) / CLAUDE.md AAG セクション現状 core 内容 / Phase 1 で確定する aag/meta.md §1 / §2 の articulate 量
+  - **AI action**: criteria 適用 → decision 確定 → commit message + decision log に記録
+- [ ] **§8.14 Phase 1+3 同期方針判断** (A: 同 PR bundling / B: 順序付き 3 段階 / C: parallel branches)
+  - **判断基準**:
+    - **A 推奨**: Phase 1 deliverable の commit 数 ≤ 3 + Phase 3 audit findings の量 ≤ 5 entry で、相互参照が少なく単一 PR で完結可能な場合
+    - **B 推奨 (default)**: skeleton landing → audit landing → §3 fill の 3 段階で parallel comparison が必要、Phase 1 §3 Core mapping を audit 結果で update する設計
+    - **C 推奨**: branch 並行運用で最終 merge を行う必要がある場合 (希少)
+  - **判断材料の収集元**: Phase 1 deliverable の commit 数見積もり (4 section + Requirement ID + observeForDays = 5+ commits) / Phase 3 audit findings の entry 数 (AAG 関連 8 doc + CLAUDE.md = 9 entry)
+  - **AI action**: criteria 適用 → decision 確定 (推奨 = B) → 記録
+
+### Phase 3 完了時判断 (HARD GATE、AI 自主判断、Phase 4 着手必須前提、3 件)
+
+- [ ] **Phase 3 audit 完了確認**: 全 AAG 関連 doc に対して 5 層位置付け / 責務 / write/non-write list / drill-down pointer / operation / 影響範囲 / migration order が articulate された
+  - **判断基準**: `references/02-status/aag-doc-audit-report.md` の各 doc entry が 7 項目全て fill されている
+  - **判断材料の収集元**: aag-doc-audit-report.md の各 entry 完成度 (grep / line count)
+  - **AI action**: 未完了 doc を identify → audit 完遂後に本 checkbox flip
+- [ ] **Phase 4〜10 split decision** (A: 単一 project 継続 / B: sub-project / follow-up project 分割)
+  - **判断基準**:
+    - **A 推奨**: Phase 3 audit findings で「scope は管理可能」と正当化される (= AAG Core doc 数が想定通り 8 doc 以下、operation 数が想定通り 7 種類以下、影響範囲が project 内で完結)
+    - **B 推奨 (default)**: audit findings で「scope が想定超過」(= doc 数 > 8、operation 数 > 7、影響範囲が project 横断) → follow-up project 分割 (Project A: AAG Meta + Core doc / Project B: rule schema + meta-guard / Project C: DFR registry + guards / Project D: legacy retirement)
+  - **判断材料の収集元**: aag-doc-audit-report.md findings (doc 数 / operation 数 / 影響範囲) / project-health.json の checklist 件数 (現状 100+ 想定、超過なら B)
+  - **AI action**: criteria 適用 → decision 確定 → `aag-doc-audit-report.md` 末尾に rationale articulate → commit message + decision log に記録
+- [ ] **decision に応じた次工程準備**
+  - A 選択時: Phase 4 sub-phase 化 (4.1 Create / 4.2 Split / 4.3 Rewrite / 4.4 Cleanup) の必要性を判断 + 着手準備
+  - B 選択時: 対象 Phase 群 (Project A〜D) の別 project metadata (config/project.json + AI_CONTEXT + HANDOFF + plan + checklist) を準備、本 project は MVP=Phase 1〜3 で archive 候補に migrate
+
+### Phase 4 着手前判断 (AI 自主判断、2 件)
+
+- [ ] **§8.13 CLAUDE.md 薄化実施方式の最終確認**: Phase 1 で確定した A or B を Phase 4 で実施
+  - **判断基準**: Phase 1 判断時点と現在 (Phase 4 着手時) で、AAG context の articulate 量に変化があるか確認 (大きな変化なら踏襲、変化大なら revisit)
+  - **判断材料の収集元**: Phase 1 decision log の rationale / aag/meta.md §1 §2 の current articulation / CLAUDE.md AAG セクション current 内容
+  - **AI action**: Phase 1 判断 踏襲 / revisit を decision log に追記
+- [ ] **doc operation 順序原則の遵守 commit 計画 articulate**
+  - **判断基準**: plan §3.5 (Create 先行 → Split / Merge / Rewrite 中段 → Rename / Relocate / Archive 後段) に従う commit 順序を Phase 4.1〜4.4 別に articulate
+  - **判断材料の収集元**: Phase 3 audit findings の operation 判定 (各 doc に対する Create / Split / Merge / Rewrite / Rename / Relocate / Archive)
+  - **AI action**: commit 順序 plan を `aag-doc-audit-report.md` または HANDOFF に articulate
+
+### Phase 5 進行中判断 (各 archive 移管時、毎 doc ごと、3 件)
+
+- [ ] **旧 path への inbound 0 機械検証** PASS (各 doc ごと、AI 自主判断)
+  - **判断基準**: 旧 path への inbound 参照が grep で 0 件
+  - **判断材料の収集元**: `git grep "<旧 path>"` 全 doc / registry / guard binding 横断 / `docRegistryGuard.test.ts` PASS
+  - **AI action**: 0 件確認後に archive 移管 commit
+- [ ] **§1.5 archive 前 mapping 義務** PASS (AI 自主判断)
+  - **判断基準**: 新 doc に「旧概念 → 新概念 mapping table」が landed
+  - **判断材料の収集元**: `aag/architecture.md` の §4.1 mapping table grep / 各新 doc の mapping section 確認
+  - **AI action**: mapping landing 後に archive 移管に進む
+- [ ] **物理削除 trigger** (anti-ritual と orthogonal な安全装置、**人間判断必須、AI 判断しない**)
+  - **trigger 条件**: archive 配下 file への inbound 0 機械検証 + **人間 deletion approval** (frontmatter `humanDeletionApproved: true` + `approvedBy` + `approvedCommit`)
+  - **判断者**: 人間レビューア (AI でなく)
+  - **AI action**: archive 移管後の物理削除は AI が独自判断で実行しない、人間 approval を待つ
+
+### Phase 6 着手前判断 (AI 自主判断、2 件)
+
+- [ ] **§8.12 articulation draft 生成 protocol 確定**
+  - **判断基準**: Phase 6.1 で 5-10 rule (分類 A 候補、自明な既製本) で AI 補助 draft → AI 自主 review (§3.4.5 hard fail PASS) で protocol を確定し `ar-rule-audit.md` 冒頭に articulate
+  - **判断材料の収集元**: 既存 100+ AR rule の `note` / `what` / `why` field、Phase 3 audit の rule canonization mapping、§3.4.5 hard fail criteria
+  - **AI action**: 5-10 rule で protocol 確定 → ar-rule-audit.md に articulate → decision log に「protocol confirmed at: <commit SHA>」記録
+- [ ] **AI 補助 draft の品質基準確認**
+  - **判断基準**: §3.4.5 hard fail (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) PASS を draft 生成 prompt に embed
+  - **判断材料の収集元**: plan §3.4.5 articulation
+  - **AI action**: draft 生成 prompt に hard fail criteria を embed、自動 PASS check
+
+### Phase 8 着手前判断 (AI 自主判断、2 件)
+
+- [ ] **§8.4.1 Layer 4 sub-audit list 確定**
+  - **判断基準**: initial 5 (4.1 境界 / 4.2 方向 / 4.3 波及 / 4.4 完備性 / 4.5 機能性) + 追加候補 (4.6 同期 / 4.7 ratchet / 4.8 退役 / 4.9 例外 lifecycle) の collapse 可否を Phase 3 audit findings に基づき確定:
+    - **collapse 可**: 追加候補が initial 5 の範疇に収まる場合 (例: 4.6 同期 → 4.4 完備性に collapse)
+    - **独立 articulate 必要**: 追加候補が initial 5 と orthogonal な責務を持つ場合
+  - **判断材料の収集元**: Phase 3 audit findings の sub-audit responsibility 分析 / 既存 guard の sub-audit 分類 (plan §3.1.5)
+  - **AI action**: collapse / 独立 を decision log に articulate
+- [ ] **follow-up project に逃がす項目の確定** (Phase 8 MVP scope 外)
+  - **判断基準**: 4.1 境界 / 4.3 波及 / 4.5 機能性 + selfHostingGuard + metaRequirementBindingGuard を follow-up project (Project B: rule schema + meta-guard) に逃がす確認
+  - **判断材料の収集元**: Phase 3 split decision (A 単一継続なら本 project の Phase 8 follow-up section に逃がす / B 分割なら Project B に逃がす) / plan §3.1.5 + checklist Phase 8 MVP scope
+  - **AI action**: follow-up 配置先を decision log に確定
+
+### 判断履歴 (decision log、AI 自主判断 + 人間判断の両方を追記)
+
+各 [x] flip 時に「判断者 (AI session ID / 人間)」「判断 trigger」「決定 (A/B/C)」「rationale」「commit SHA」を追記。後任 AI が本 log を読んで一貫した judgement を継承可能。
+
+| 判断 trigger | 判断項目 | 判断者 | 選択 (A/B/C) | rationale (collection sources + criteria 適用) | commit SHA |
+|---|---|---|---|---|---|
+| TBD | TBD | TBD | TBD | TBD | TBD |
+
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
@@ -301,3 +427,4 @@
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
 - [ ] 全 Phase (1〜10) の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 decision gates ([途中判断 checklist] section) が [x] flip 済 + decision log に記録済
