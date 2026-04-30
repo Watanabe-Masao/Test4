@@ -22,7 +22,7 @@ cd app && npx tsx src/test/generators/generateEvidencePack.ts --all
 
 - スキーマ定義: `app/src/test/aagSchemas.ts` — AagEvidencePack / AagPromoteRecord
 - 生成ツール: `app/src/test/generators/generateEvidencePack.ts`
-- 正本ポリシー: `references/01-principles/aag-5-source-of-truth-policy.md`
+- 正本ポリシー: `references/99-archive/aag-5-source-of-truth-policy.md`
 
 ## 2. 提案書フォーマット
 

@@ -1,4 +1,16 @@
-# AAG 5.0.0 — 正本 / 派生 / 運用物ポリシー
+# [ARCHIVED Project A Phase 5.4] AAG 5.0.0 — 正本 / 派生 / 運用物ポリシー
+
+> **Archived**: 2026-04-30 (Project A Phase 5.4)
+> **Archived By**: 本 commit
+> **Migrated To**: [`references/01-principles/aag/source-of-truth.md`](../01-principles/aag/source-of-truth.md) (Project A Phase 1 で landed)
+> **Mapping Anchor**: `aag/source-of-truth.md §5` (旧 → 新 概念 / 用語 mapping)
+> **Inbound 0 検証**: active 0 件
+> **Rollback Anchor** (Insight 8) / **Milestone Acknowledgment** (Insight 7-b) / **Decision Trace** (Insight 1): Phase 5.1〜5.3 と同 pattern (本 commit が rollback anchor、archive 移管 = 不可逆ステップ announcement、active reference 全 update 済)
+> **Active Reference Migration**: `aag/core/AAG_CORE_INDEX.md` L60 + `app/src/test/aagSchemas.ts` L23 (`@see` comment) を `aag/source-of-truth.md` に update (Phase 5.4 同 commit)
+
+---
+
+# (元 content) AAG 5.0.0 — 正本 / 派生 / 運用物ポリシー
 
 > 「何が正本か」を1枚で固定する。
 

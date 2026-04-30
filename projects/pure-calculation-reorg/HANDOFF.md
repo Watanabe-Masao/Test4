@@ -295,7 +295,7 @@ npm run test:guards     # docs:generate 後に再度
 | **registry-integrity** | `app/src/test/calculationCanonRegistry.ts` | 該当パスガード（`guards/*PathGuard.test.ts`） |
 | **bridge-runtime-boundary** | `references/01-principles/engine-boundary-policy.md` | 該当 bridge ファイル（`application/services/*Bridge.ts`） |
 | **current-candidate-lifecycle** | `references/03-guides/tier1-business-migration-plan.md` | `references/03-guides/analytic-kernel-migration-plan.md` |
-| **docs-synchronization** | `references/01-principles/aag-5-source-of-truth-policy.md` | `docs/contracts/doc-registry.json` |
+| **docs-synchronization** | `references/99-archive/aag-5-source-of-truth-policy.md` | `docs/contracts/doc-registry.json` |
 | **promote-retire-lifecycle** | `references/03-guides/promote-ceremony-template.md` | `references/03-guides/guard-consolidation-and-js-retirement.md` |
 | **ratchet-legacy-control** | 該当 allowlist（`app/src/test/allowlists/`） | `references/03-guides/architecture-rule-system.md` |
 

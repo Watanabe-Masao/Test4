@@ -20,7 +20,7 @@
  * @responsibility R:unclassified
  * @see aag/core/AAG_CORE_INDEX.md — Core 入口
  * @see references/01-principles/aag-5-constitution.md — 4層構造定義
- * @see references/01-principles/aag-5-source-of-truth-policy.md — 正本ポリシー
+ * @see references/01-principles/aag/source-of-truth.md — 正本ポリシー
  */
 
 import type { SemanticClass, AuthorityKind, RuntimeStatus } from './calculationCanonRegistry'

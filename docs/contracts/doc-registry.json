@@ -244,8 +244,8 @@
           "label": "[ARCHIVED Project A Phase 5.1] AAG 5.0 旧 既存ファイル層マッピング — Phase 5.1 で archive 移管済。新 doc: aag/layer-map.md (5 層マッピングに extend)"
         },
         {
-          "path": "references/01-principles/aag-5-source-of-truth-policy.md",
-          "label": "[DEPRECATED Project A Phase 1] AAG 5.0 旧 正本/派生/運用物ポリシー — Project A Phase 5 で archive 予定。新 doc: aag/source-of-truth.md"
+          "path": "references/99-archive/aag-5-source-of-truth-policy.md",
+          "label": "[ARCHIVED Project A Phase 5.4] AAG 5.0 旧 正本/派生/運用物ポリシー — Phase 5.4 で archive 移管済。新 doc: aag/source-of-truth.md"
         },
         {
           "path": "references/01-principles/test-signal-integrity.md",
