@@ -88,6 +88,6 @@ grep -A2 'lastReviewedAt' src/test/architectureRules.ts | head -30
 
 ## 参照
 
-- 運用区分表: `references/01-principles/aag-operational-classification.md`
+- 運用区分表: `references/99-archive/aag-operational-classification.md`
 - Architecture Rule 運用ガイド: `references/03-guides/architecture-rule-system.md`
 - Allowlist 管理: `references/03-guides/allowlist-management.md`
