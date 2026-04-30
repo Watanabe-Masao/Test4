@@ -10,12 +10,25 @@
 ## Phase 0: 計画 doc landing
 
 - [x] `projects/aag-bidirectional-integrity/` を `_template` から bootstrap した
-- [x] `config/project.json` に projectization (Level 3 / governance-hardening / status active / requiresLegacyRetirement=true) を記録した
-- [x] `plan.md` に Phase 1〜10 + 不可侵原則 + やってはいけないこと + 5 層 drill-down + 縦スライス matrix + 破壊的変更前提 + 検証層 + §8 確認・調査事項 を記録した
+- [x] `config/project.json` に projectization (Level 3 / governance-hardening / status active / requiresLegacyRetirement=true / breakingChange=true) を記録した
+- [x] `plan.md` に Phase 0.5〜10 + 不可侵原則 + やってはいけないこと + 5 層 drill-down + 縦スライス matrix + 破壊的変更前提 + 検証層 + §8 確認・調査事項 を記録した
 - [x] `AI_CONTEXT.md` に scope (含む / 含まない) と read order と 5 層 drill-down + 3 軸 (Meta/Core/Audit) を記録した
-- [x] `HANDOFF.md` に現在地と次にやること（Phase 1〜10）とハマりポイントを記録した
-- [x] `projectization.md` に AAG-COA 判定 (Level 3 / requiresLegacyRetirement=true) と nonGoals を記録した
-- [x] `legacy-retirement.md` の skeleton を landing した（Phase 5 で実値を埋める）
+- [x] `HANDOFF.md` に現在地と次にやること（Phase 0.5〜10）とハマりポイントを記録した
+- [x] `projectization.md` に AAG-COA 判定 (Level 3 / requiresLegacyRetirement=true / breakingChange=true) と nonGoals を記録した
+- [x] `legacy-retirement.md` の skeleton を landing した (Phase 5 で実値を埋める)
+- [x] `breaking-changes.md` を landing した (PZ-7 解消、6 カテゴリの破壊対象 + 移行方針 articulate)
+
+## Phase 0.5: terminology / scope 整合性修正 (Phase 1 execution 前 prerequisite)
+
+> **目的**: PR review で identify された計画段階の不整合を解消。Phase 1 execution 前に必須。
+
+- [x] AI_CONTEXT.md の scope contradiction を修正した (「含まない」から「既存 AR-NNN rule 振る舞い変更」を削除、`breakingChange=true` 側に整合 = breaking-changes.md §1.6 + plan §1.2 #10 と一致)
+- [x] 4 層 / 5 層 の表記ゆれを全 project doc で解消した (旧 4 層 = 旧 Constitution/Schema/Execution/Operations を指す場合のみ「旧 4 層」明記、AAG architecture pattern は「5 層」に統一)
+- [x] `breakingChange=true` と nonGoals の整合性を確認した (projectization.md / config/project.json / AI_CONTEXT.md / HANDOFF.md / breaking-changes.md / plan.md §5 やってはいけないこと が一貫)
+- [x] Phase 3 audit 完了後の project split review checkbox を Phase 3 末尾に追加した
+- [x] Phase 2 schema 初期化方針を強化 (空配列 → status field: pending/not-applicable/bound、未対応と意図的不要を区別)
+- [x] Phase 8 semantic articulation quality 強化 (TBD/N/A/same/see above 等の禁止 + minimum 文字数 chacking)
+- [x] legacy-retirement archive 前 mapping 義務化 (旧 4 層 → 新 5 層 mapping を新 doc に必須、`aag-four-layer-architecture.md` archive 前の prerequisite)
 
 ## Phase 1: AAG Meta doc (`aag/meta.md`) の新規創出 (Layer 0+1)
 
@@ -40,7 +53,7 @@
 - [ ] 既存全 AR-NNN rule に `canonicalDocRef: []` + `metaRequirementRefs: []` 空 array で初期化した
 - [ ] TypeScript 型定義の整合を確認した (build / lint PASS)
 
-## Phase 3: AAG Core doc audit (4 層位置付け + 責務 + drill-down semantic + operation 判定)
+## Phase 3: AAG Core doc audit (5 層位置付け + 責務 + drill-down semantic + operation 判定)
 
 > 着手前 prerequisite: plan §8.1 (8 doc + CLAUDE.md AAG セクションの実 inbound link 数 grep) + §8.3 (5 縦スライス整合性検証) + §8.4 (Layer 3 / Layer 4 境界 identify) + §8.7 (Layer 2 doc 状態確認)
 
@@ -60,7 +73,19 @@
 - [ ] gap 識別 / redundancy 識別 / staleness 識別を完了した
 - [ ] 5 縦スライス境界の reshape 必要性を判定した
 - [ ] Layer 3 (実装) と Layer 4 (検証) に混在している guard を identify した
+- [ ] **新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) と 既存 AAG 5.1.0 の旧 4 層 (Constitution/Schema/Execution/Operations) の mapping を確定した** (plan §8.11、`aag/architecture.md` Phase 4 の前提)
+- [ ] **AAG Audit (Layer 4) の home doc 必要性を判定した** (plan §8.10、A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 / C: aag/architecture.md 内包 のいずれか)
 - [ ] audit 結果を `references/02-status/aag-doc-audit-report.md` に集約した
+
+### Phase 3 完了 → Phase 4〜10 split review (PR review #3 反映)
+
+> Phase 3 audit findings を踏まえ、Phase 4〜10 を単一 project 内で継続するか sub-project /
+> follow-up project に分割するかを人間レビュー (本 project は Level 3 だが実体は Level 4 近い)。
+
+- [ ] Phase 3 audit 完了後、Phase 4 doc refactor の所要 commit 数を見積もった (10+ commits 想定)
+- [ ] Phase 4〜10 を単一 project 内で継続するか、sub-project / follow-up project に分割するかを人間レビューした
+- [ ] split 判定の場合、対象 Phase 群を別 project に切り出し、本 project は scope 縮減した
+- [ ] 単一 project 継続の場合、Phase 4 を sub-phase 化 (4.1 Create / 4.2 Split / 4.3 Rewrite / 4.4 Cleanup) するかを判断した
 
 ## Phase 4: AAG Core doc content refactoring (新規書き起こし優先)
 

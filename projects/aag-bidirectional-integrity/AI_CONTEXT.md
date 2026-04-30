@@ -63,7 +63,7 @@ articulate される (詳細: plan §3.1.3 matrix view)。
 ### 破壊的変更前提
 
 本 project は AAG の根本的整理を行うため、追加コスト / 変更コストを考慮せず必要な変更を遂行する。
-既存 AR-NNN rule の振る舞い変更 / 縦スライス境界の reshape / 4 層構造の調整 / AAG framework 構造変更
+既存 AR-NNN rule の振る舞い変更 / 縦スライス境界の reshape / 5 層構造の調整 / AAG framework 構造変更
 等を許容 (本体アプリの機能変更は scope 外)。Phase 3 audit + Phase 4 refactor で必要な breaking change
 を identify し、Phase 6+ で順次実施。
 
@@ -97,9 +97,9 @@ references/01-principles/aag/         ← 新ディレクトリ集約
 含む:
 
 - **AAG Meta doc (`aag/meta.md`) の新規 Create** (§1 目的 / §2 要件 / §3 AAG Core mapping / §4 達成判定総括 の 4 section、要件定義 + audit framework + AR-rule binding hub の 3 機能融合 mechanism doc)
-- **AAG Core 8 doc の content refactoring** (新規書き起こし → 旧 doc 退役、4 層位置付け + 責務 + drill-down semantic articulation を装着、ディレクトリ階層化)
+- **AAG Core 8 doc の content refactoring** (新規書き起こし → 旧 doc 退役、5 層位置付け + 責務 + drill-down semantic articulation を装着、ディレクトリ階層化)
 - **AR-rule schema 拡張** (`canonicalDocRef` + `metaRequirementRefs` を semantic articulation 構造で追加)
-- **Phase 3 網羅的 doc audit** (各 doc の 4 層位置付け + 責務 + write/non-write list + 影響範囲 + 必要 operation を articulate)
+- **Phase 3 網羅的 doc audit** (各 doc の 5 層位置付け + 責務 + write/non-write list + 影響範囲 + 必要 operation を articulate)
 - **Phase 5 legacy 撤退** (旧 doc を inbound 0 trigger で archive 移管 → 物理削除、期間 buffer なし)
 - 既存 AR-NNN rule 全数の audit (製本されているか / されていないか) + binding 整備
 - Layer 2 既存 canonical doc 群への `## Mechanism Enforcement` section 追加 + drill-down semantic 装着
@@ -111,11 +111,9 @@ references/01-principles/aag/         ← 新ディレクトリ集約
 
 - **AAG Core 既存 doc の edit-in-place で意味改変** (Phase 4 doc refactor は新規書き起こし → 旧 doc 退役 のみ)
 - **AAG 関連以外の doc の整理** (canonicalization / business-values / design / coding-conventions 等は別 project、scope creep 防止)
-- 既存 AR-NNN rule の振る舞い変更 (audit + binding のみ、enforcement logic 変更は別 project)
-- 全 100+ AR-NNN rule の即座 100% 製本化 (漸次対応、新 rule のみ即時必須)
-- 本体アプリ (粗利管理ツール) の機能変更
+- **本体アプリ (粗利管理ツール) の機能変更**
+- **既存 AR-NNN rule の無制限な全面再設計** (Phase 6 audit を経た rule by rule の振る舞い変更 / proxy 撤回 / enforcement logic 変更 / schema migration は **scope 内** = 破壊的変更前提、§1.2 #10、breaking-changes.md §1.6 参照)
 - `phased-content-specs-rollout` の archive 判定への干渉 (parent は独立に archive process を進める)
-- AAG framework そのものの構造変更 (4 層 → N 層 等は別 project)
 - date-based ritual の導入 (cooling period / 月次 review hook 等 = aag/meta.md §2 禁則で構造禁止)
 - **期間 buffer (日数 / commits 数)** を archive trigger に使う (anti-ritual)
 - **重複 articulation の生成** (上位 content の copy を下位 doc に書く、§3.4.2 anti-duplication)

@@ -13,15 +13,16 @@
 
 | 対象 | 変更内容 | 移行方針 | 影響範囲 |
 |---|---|---|---|
-| **4 層 → 5 層 modelへの拡張** | 既存 4 層 (Constitution/Schema/Execution/Operations) に **Layer 4 検証 (Verification)** を追加 (5 sub-audit: 4.1 境界 / 4.2 方向 / 4.3 波及 / 4.4 完備性 / 4.5 機能性) | aag/architecture.md (新 Create) で 5 層構造を articulate、aag/meta.md §3 (Core mapping) で 5 層 × 5 縦スライス matrix view を保持 | AAG 全体、Phase 4 doc refactor + Phase 8 meta-guard |
+| **旧 4 層 → 新 5 層 model への拡張** | 旧 4 層 (Constitution/Schema/Execution/Operations) に **Layer 4 検証 (Verification)** を追加 (5 sub-audit: 4.1 境界 / 4.2 方向 / 4.3 波及 / 4.4 完備性 / 4.5 機能性) | aag/architecture.md (新 Create) で **旧 4 層 → 新 5 層 mapping table** + 5 層構造を articulate、aag/meta.md §3 (Core mapping) で 5 層 × 5 縦スライス matrix view を保持 | AAG 全体、Phase 4 doc refactor + Phase 8 meta-guard |
 | **5 縦スライス境界の reshape** | 既存 5 縦スライス (`layer-boundary` / `canonicalization` / `query-runtime` / `responsibility-separation` / `governance-ops`) の境界を Phase 3 audit で reshape 許容 (新スライス追加 / 分割 / merge) | Phase 3 audit findings に基づき Phase 4 で実施、aag/meta.md §3 matrix で reshape 後の境界を articulate | 既存 100+ AR-NNN rule の slice assignment、guardCategoryMap.ts |
 
 ### 1.2. AAG rule schema の拡張 (semantic articulation 構造)
 
 | 対象 | 変更内容 | 移行方針 | 影響範囲 |
 |---|---|---|---|
-| **`canonicalDocRef` field 追加** | `architectureRules/defaults.ts` の rule entry schema に `canonicalDocRef: Array<{ docPath, problemAddressed, resolutionContribution }>` を追加 (実装 → 設計 doc binding、semantic articulation 必須) | 既存全 rule に空 array で初期化、Phase 6 で分類 A から順次記入。Phase 2 で schema migration | 既存 100+ AR-NNN rule、`guardCategoryMap.ts`、TypeScript 型定義 |
-| **`metaRequirementRefs` field 追加** | rule entry schema に `metaRequirementRefs: Array<{ requirementId, problemAddressed, resolutionContribution }>` を追加 (実装 → 要件 binding、Layer 1 ↔ Layer 3 の機械検証要件) | 既存全 rule に空 array で初期化、Phase 6 で binding 記入。Phase 8 meta-guard で検証 | 既存全 rule、Phase 8 で landing する `metaRequirementBindingGuard.test.ts` |
+| **`canonicalDocRef` field 追加** | `architectureRules/defaults.ts` の rule entry schema に `canonicalDocRef: { status: 'pending'\|'not-applicable'\|'bound', justification?, refs: Array<{ docPath, problemAddressed, resolutionContribution }> }` を追加 (実装 → 設計 doc binding、status field で「未対応」「意図的不要」「binding 完了」を区別、semantic articulation 必須) | 既存全 rule に `status: 'pending'` で初期化、Phase 6 で分類 A から順次 `'bound'` に flip or `'not-applicable'` で justify。Phase 2 で schema migration | 既存 100+ AR-NNN rule、`guardCategoryMap.ts`、TypeScript 型定義 |
+| **`metaRequirementRefs` field 追加** | rule entry schema に `metaRequirementRefs: { status, justification?, refs: Array<{ requirementId, problemAddressed, resolutionContribution }> }` を追加 (実装 → 要件 binding、Layer 1 ↔ Layer 3 の機械検証要件) | 既存全 rule に `status: 'pending'` で初期化、Phase 6 で binding 記入。Phase 8 meta-guard で検証 (status 整合性 + semantic 品質基準) | 既存全 rule、Phase 8 で landing する `metaRequirementBindingGuard.test.ts` + `statusIntegrityGuard.test.ts` |
+| **semantic articulation 品質基準** (Phase 8 で機械検証) | `problemAddressed` / `resolutionContribution` / `justification` の禁止 keyword (TBD/N/A/same/see above 等) + 20 文字 minimum + 重複検出 を `semanticArticulationQualityGuard.test.ts` で hard fail | Phase 0.5 で品質基準確定、Phase 8 で guard 実装 | semantic articulation を持つ全 rule entry |
 | **(検討) `principleRefs` の semantic 化** | 既存 `principleRefs: PrincipleId[]` (pointer のみ) を `Array<{ principleId, problemAddressed, resolutionContribution }>` に拡張 (Phase 2 で判断) | plan §8.9 で integrate 判断、別 sprint へ分離も検討 | 既存 92+ rule の principleRefs assignment |
 
 ### 1.3. AAG Core doc 群の構造変更
