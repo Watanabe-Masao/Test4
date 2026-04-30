@@ -325,22 +325,41 @@ metaRequirementRefs: {
 - **正本は BaseRule (= `app-domain/gross-profit/rule-catalog/base-rules.ts`)**: `defaults.ts` (execution overlay) と `guardCategoryMap.ts` には semantic binding を **置かない**。二重正本回避、derived metadata のみ guardCategoryMap で扱う場合は「BaseRule から読む」設計に
 - **将来の Core 昇格**: 本当に AAG Core 汎用型へ昇格できると判断した時点で `RuleSemantics` 側へ移す
 
-#### 3.4.5. semantic articulation の品質基準 (Phase 8 で機械検証)
+#### 3.4.5. semantic articulation の品質基準 (Phase 8 で機械検証、hard fail / warning 分離)
 
 `problemAddressed` / `resolutionContribution` / `justification` の non-empty だけでは不十分
-(`TBD` / `N/A` / `same` / `see above` 等の実質空文を防げない、PR review で指摘)。Phase 8 で
-**`semanticArticulationQualityGuard.test.ts`** (or `canonicalDocRefIntegrityGuard` 内に統合) を
-実装:
+(`TBD` / `N/A` / `same` / `see above` 等の実質空文を防げない、PR review #5 で指摘)。一方、20 文字
+以上の文字数チェックでも「それっぽい空文」(例: 「該当する」「対応する」のみ) は通る (PR review
+Review 3 P1 #7 で指摘)。両指摘を統合し、**hard fail (構文整合) と warning (意味品質) を分離**。
+
+Phase 8 で **`semanticArticulationQualityGuard.test.ts`** (4.4 完備性監査) を実装:
+
+##### hard fail (構文整合、機械検証で確実に防げるもの)
 
 | 検証項目 | 内容 |
 |---|---|
 | **禁止 keyword** | `TBD` / `N/A` / `same` / `see above` / `misc` / `various` / `-` / `unknown` / `to be determined` / `same as above` 等の正規表現マッチで hard fail |
-| **最小文字数** | `problemAddressed` / `resolutionContribution` 各 **20 文字以上** (英数字 + 日本語混在で意味のある記述を強制) |
-| **重複検出** | 同 rule 内で `problemAddressed` と `resolutionContribution` が完全一致は禁止 (役割が違う field なので意味が乖離するはず) |
-| **status='not-applicable' の justification** | 必須 + 上記禁止 keyword と minimum 文字数を同じく適用 |
+| **最小文字数** | `problemAddressed` / `resolutionContribution` 各 **20 文字以上** |
+| **重複検出** | 同 rule 内で `problemAddressed` と `resolutionContribution` が完全一致は禁止 |
+| **status 整合性** | `status='bound'` のとき `refs.length > 0` / `status='not-applicable'` のとき `justification` 必須 + 上記基準を適用 / `status='pending'` は新規 rule では禁止 (既存 rule の baseline は ratchet-down) |
+| **path 実在 / ID 実在** | `docPath` 実在 / `requirementId` が aag/meta.md §2 に存在 |
+| **doc backlink 一致** | doc 側 `## Mechanism Enforcement` section と rule 側 `canonicalDocRef` が双方向一致 |
 
-これにより semantic articulation が performative にならない構造を確立。本品質基準は Phase 0.5 で
-確定 (PR review #5 反映)。
+##### warning (意味品質、機械検証では防ぎきれないもの、human review で扱う)
+
+| 検証項目 | 対応 |
+|---|---|
+| **「それっぽい空文」** (20 文字以上だが実質意味希薄、例: 「該当する」「対応する」のみ) | sample audit + Discovery Review で human review、hard fail にしない |
+| **意味の乖離** (problemAddressed と resolutionContribution の論理整合) | human review、Phase 6 binding 記入時に PR review で確認 |
+| **抽象度の妥当性** (rule の context に対して articulation が抽象すぎ / 具体的すぎ) | human review |
+
+##### 設計原則
+
+機械検証で防ぐべきなのは **「articulation を書かない」 / 「実質空文で書く」** という構造的回避
+であり、**「articulation の意味的妥当性」は機械では判定しない** (false positive で正当な articulation
+を block する risk が大きい)。後者は human review + sample audit + Discovery Review で扱う。
+
+本品質基準は Phase 0.5 + 本 commit で確定 (PR review #5 + Review 3 P1 #7 統合反映)。
 
 ### 3.5. doc operation taxonomy + 操作順序原則
 
@@ -862,6 +881,23 @@ reverse meta-guard で全 DFR rule の binding 整合成立。**aag/meta.md §2 
 
 > **本セッション (構造と計画) → 実装セッションへの handoff**: 実装着手前に以下を調査・確認する。
 > 各項目は「どの Phase で必要か」を articulate。
+
+### 8.0. Phase 別 prerequisite 集約 view (改善 1 反映、粒度補正)
+
+§8.1〜§8.14 を Phase 別に集約 (各 Phase 着手前に確認すべき項目):
+
+| Phase | 着手前 prerequisite | 詳細 § |
+|---|---|---|
+| Phase 1 (aag/meta.md skeleton + Requirement ID + observeForDays) | §8.5 registry / contract 系現実 schema、§8.8 命名 / 階層化整合性、§8.10 Audit home doc 判断 (A/B/C)、§8.13 CLAUDE.md 薄化判断 (A/B)、§8.14 同期方針 (B 推奨) | §8.5 / §8.8 / §8.10 / §8.13 / §8.14 |
+| Phase 2 (BaseRule schema 拡張) | §8.2 BaseRule schema 確認、§8.9 principleRefs semantic 化検討 | §8.2 / §8.9 |
+| Phase 3 (AAG Core doc audit) | §8.1 doc inventory grep、§8.3 縦スライス整合性、§8.4 Layer 3-4 境界、§8.7 Layer 2 doc 状態、§8.11 旧 4 層 → 新 5 層 mapping | §8.1 / §8.3 / §8.4 / §8.7 / §8.11 |
+| Phase 4 (doc content refactoring) | Phase 3 audit 完了 + Phase 3 split hard gate 通過、§8.8 命名 / 階層化、§8.13 CLAUDE.md 薄化 | §8.8 / §8.13 |
+| Phase 5 (legacy 撤退) | Phase 4 完了 + inbound migration 完了 | (Phase 5 自体が機械検証) |
+| Phase 6 (既存 AR rule audit + binding) | Phase 3 mapping、§8.2 schema、§8.12 articulation draft 生成 protocol | §8.2 / §8.12 |
+| Phase 7 (Layer 2 back link section) | §8.7 Layer 2 doc 状態、Phase 6 binding 完了 | §8.7 |
+| Phase 8 (MVP meta-guard 4.2 + 4.4) | Phase 2 schema 拡張完了、Phase 6/7 binding 完了、§8.4.1 sub-audit list 確定 | §8.4.1 |
+| Phase 9 (DFR registry) | Phase 8 meta-guard landing 完了、§8.6 DFR baseline survey | §8.6 |
+| Phase 10 (DFR guards) | Phase 8 + Phase 9 完了 | (Phase 10 自体が実装) |
 
 ### 8.1. AAG Core 既存 doc の実 inventory (Phase 3 audit の入力)
 

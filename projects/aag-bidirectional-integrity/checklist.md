@@ -18,17 +18,27 @@
 - [x] `legacy-retirement.md` の skeleton を landing した (Phase 5 で実値を埋める)
 - [x] `breaking-changes.md` を landing した (PZ-7 解消、6 カテゴリの破壊対象 + 移行方針 articulate)
 
-## Phase 0.5: terminology / scope 整合性修正 (Phase 1 execution 前 prerequisite)
+## Phase 0.5: terminology / scope 整合性修正 (Phase 1 execution 前 prerequisite、完遂済)
 
 > **目的**: PR review で identify された計画段階の不整合を解消。Phase 1 execution 前に必須。
+>
+> **完遂宣言** (改善 4 反映、再 open は新 PR review でのみ):
+> 本 phase は **commit 91061ca + c66df31 + 本 commit で完遂**。全 checkbox は [x] 済。
+> 後続 PR review で新たな不整合が identify された場合は、新 Phase 0.X を別 commit で立ち上げる
+> (本 Phase 0.5 を再 open しない、混乱回避)。
 
 - [x] AI_CONTEXT.md の scope contradiction を修正した (「含まない」から「既存 AR-NNN rule 振る舞い変更」を削除、`breakingChange=true` 側に整合 = breaking-changes.md §1.6 + plan §1.2 #10 と一致)
 - [x] 4 層 / 5 層 の表記ゆれを全 project doc で解消した (旧 4 層 = 旧 Constitution/Schema/Execution/Operations を指す場合のみ「旧 4 層」明記、AAG architecture pattern は「5 層」に統一)
 - [x] `breakingChange=true` と nonGoals の整合性を確認した (projectization.md / config/project.json / AI_CONTEXT.md / HANDOFF.md / breaking-changes.md / plan.md §5 やってはいけないこと が一貫)
-- [x] Phase 3 audit 完了後の project split review checkbox を Phase 3 末尾に追加した
+- [x] Phase 3 audit 完了後の project split review checkbox を Phase 3 末尾に追加した (本 commit で hard gate 化)
 - [x] Phase 2 schema 初期化方針を強化 (空配列 → status field: pending/not-applicable/bound、未対応と意図的不要を区別)
-- [x] Phase 8 semantic articulation quality 強化 (TBD/N/A/same/see above 等の禁止 + minimum 文字数 chacking)
+- [x] Phase 8 semantic articulation quality 強化 (hard fail = 禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在 / warning = 意味品質 human review、本 commit で hard fail / warning 分離統合)
 - [x] legacy-retirement archive 前 mapping 義務化 (旧 4 層 → 新 5 層 mapping を新 doc に必須、`aag-four-layer-architecture.md` archive 前の prerequisite)
+- [x] **PR review Review 3 P0 #1 反映**: Phase 2 変更対象を `defaults.ts` から `types.ts` + `base-rules.ts` に修正、`guardCategoryMap.ts` は二重正本回避のため touch しない (本 commit + c66df31 で完遂)
+- [x] **PR review Review 3 P1 #5 反映**: Phase 1 deliverable に Requirement ID namespace (`AAG-REQ-*`) を articulate (本 commit + c66df31)
+- [x] **PR review Review 3 P1 #6 反映**: Phase 8 を MVP (4.2 + 4.4) に縮小、4.1/4.3/4.5 + selfHosting + metaRequirementBinding は follow-up project に逃がす (本 commit + c66df31)
+- [x] **PR review Review 3 P2 #8 反映**: 物理削除 trigger に inbound 0 + 人間 deletion approval を articulate (本 commit、anti-ritual と orthogonal な安全装置)
+- [x] **重大指摘 #6 反映**: observeForDays vs inbound 0 trigger 切り分け articulate (legacy doc 削除 = inbound 0 only / experimental rule 昇格・撤回 = observeForDays 許容 supplementary signal、本 commit)
 
 ## Phase 1: AAG Meta doc (`aag/meta.md`) の新規創出 (Layer 0+1)
 
@@ -122,18 +132,47 @@
 - [ ] 決定理由 (A or B) を `references/02-status/aag-doc-audit-report.md` の末尾に articulate した
 - [ ] **本 hard gate を通過するまで Phase 4 着手しない** ことを HANDOFF に明示した
 
-## Phase 4: AAG Core doc content refactoring (新規書き起こし優先)
+## Phase 4: AAG Core doc content refactoring (新規書き起こし優先、4 sub-phase 構成)
 
-> 着手前 prerequisite: Phase 3 audit 完了 + plan §8.8 (命名 / ディレクトリ整合性) + Phase 1 aag/meta.md skeleton 完了
+> 着手前 prerequisite: Phase 3 audit 完了 + Phase 3 split hard gate 通過 + plan §8.8 (命名 / ディレクトリ整合性) + Phase 1 aag/meta.md skeleton 完了
+>
+> **sub-phase 構成** (改善 2 反映、Phase 4 単体で 10+ commits 想定のため事前 articulation。Phase 3
+> hard gate で「単一 project 継続」判定の場合に本 sub-phase 構成を適用、「分割」判定の場合は
+> Project A = AAG Meta + Core doc refactor の Phase 構造として適用):
 
-operation 順序:
+### Phase 4.1. Create 段階 (新 path 新 doc Create)
 
-- [ ] **Create 段階**: 新 path に新 doc を直接 Create (`aag/strategy.md` / `aag/architecture.md` / `aag/evolution.md` / `aag/layer-map.md` / `aag/source-of-truth.md` / `aag/operational-classification.md`)
-- [ ] **Split / Merge / Rewrite 段階**: 旧 doc から内容を選別して新 doc に書き起こし、5 層位置付け + drill-down pointer + semantic articulation を装着した
-- [ ] Layer 3 (実装) と Layer 4 (検証) を明示分離した (混在 guard の責務再分離)
-- [ ] **CLAUDE.md AAG セクション薄化**: 「AAG を背景にした思考」の core を `aag/meta.md` に逃がし、CLAUDE.md は `aag/README.md` への 1 link 索引のみにした
-- [ ] **doc-registry.json + principles.json + manifest.json** を更新した (新 doc 登録、旧 doc は deprecation marker 段階)
-- [ ] 各 operation 独立 commit で履歴を残した、parallel comparison 期間に entered
+- [ ] `references/01-principles/aag/strategy.md` を新規 Create (戦略マスター、旧 adaptive-architecture-governance.md core を Split + Rewrite)
+- [ ] `references/01-principles/aag/architecture.md` を新規 Create (5 層構造定義 + 旧 4 層 → 新 5 層 mapping table、旧 aag-5-constitution.md を Rewrite + Relocate + Rename)
+- [ ] `references/01-principles/aag/evolution.md` を新規 Create (進化動学、旧 adaptive-governance-evolution.md を Rewrite + Relocate + Rename)
+- [ ] `references/01-principles/aag/operational-classification.md` を新規 Create (now/debt/review 区分、旧 aag-operational-classification.md を Rewrite + Relocate)
+- [ ] `references/01-principles/aag/source-of-truth.md` を新規 Create (正本/派生物/運用物、旧 aag-5-source-of-truth-policy.md を Rewrite + Relocate + Rename)
+- [ ] `references/01-principles/aag/layer-map.md` を新規 Create (5 層 マッピング、旧 aag-5-layer-map.md を Rewrite + Relocate + Rename)
+- [ ] 各 doc を独立 commit で landing (parallel comparison 期間を確保)
+
+### Phase 4.2. Split / Merge 段階 (内容分割 / 統合)
+
+- [ ] `adaptive-architecture-governance.md` (戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table 同居) を Split:
+  - 戦略マスター → `aag/strategy.md`
+  - 文化論 + 「AAG が防ぐ AI の本質的弱点」+ 「意図的に残す弱さ」 → `aag/strategy.md` or `aag/meta.md` 振り分け
+  - 旧 4 層 → Archive (`99-archive/`)
+  - バージョン履歴 → per-doc 分散
+- [ ] 各 Split を独立 commit で履歴記録
+
+### Phase 4.3. Rewrite 段階 (内容を新 path で完成)
+
+- [ ] 各新 doc に **5 層位置付け + drill-down pointer + semantic articulation** を装着
+- [ ] 各新 doc の `## Mechanism Enforcement` section を articulate (Phase 7 で fill する base 構造)
+- [ ] Layer 3 (実装) と Layer 4 (検証) を明示分離 (混在 guard の責務再分離は Phase 8 + follow-up で実施、Rewrite 時に articulate のみ)
+- [ ] **CLAUDE.md AAG セクション薄化** (Phase 4.3 で実施、§8.13 判断 A or B を反映): 「AAG を背景にした思考」の core を `aag/meta.md` に逃がし、CLAUDE.md は `aag/README.md` への 1 link 索引のみに
+
+### Phase 4.4. Cleanup 段階 (registry / contract update)
+
+- [ ] **`docs/contracts/doc-registry.json`** に新 doc 群を登録、旧 doc を deprecation marker 段階に置く (まだ archive しない、Phase 5 で対応)
+- [ ] **`docs/contracts/principles.json`** の reference を新 path に migrate
+- [ ] **`.claude/manifest.json`** の `discovery.byTopic` / `byExpertise` / `pathTriggers` の path を新 path に migrate
+- [ ] obligation map (`tools/architecture-health/src/collectors/obligation-collector.ts`) の path を新 path に migrate
+- [ ] 各 operation 独立 commit で履歴を残し、parallel comparison 期間に entered (Phase 5 archive 移管 trigger = 旧 path への inbound 0 機械検証を待つ)
 
 ## Phase 5: legacy 撤退 (旧 doc archive、inbound 0 trigger)
 
@@ -145,15 +184,30 @@ operation 順序:
 - [ ] 99-archive 配下の旧 doc に対する inbound も 0 になった file を物理削除した (即時、buffer なし)
 - [ ] doc-registry.json + principles.json + manifest.json の reflect を完了した
 
-## Phase 6: 既存 AR-NNN rule の audit + binding (partial)
+## Phase 6: 既存 AR-NNN rule の audit + binding (partial、初期 batch 別出し)
 
-> 着手前 prerequisite: Phase 3 audit 完了 + Phase 4 refactor 完了 (新 path で binding 記入)
+> 着手前 prerequisite: Phase 3 audit 完了 + Phase 4 refactor 完了 (新 path で binding 記入) + plan §8.12 articulation draft 生成 protocol
+
+### Phase 6.1. 初期 batch (articulation draft 生成 protocol 確定、改善 3 反映)
+
+> **目的** (改善 3 = PR review #4 反映): 100+ rule への一括 articulation 記入は無理がある。
+> 最初に 5-10 rule で **articulation draft 生成 protocol** を確定し、scaling 可能な手順を articulate
+> してから漸次対応に進む。
+
+- [ ] 既存 rule から **分類 A 候補 (自明な既製本) を 5-10 rule** 選定した (例: AR-PATH-SALES, AR-PATH-DISCOUNT 等の path guard 群)
+- [ ] 各 rule の `note` / `what` / `why` field から **AI 補助で初期 draft 生成** (problemAddressed + resolutionContribution の draft)
+- [ ] draft を **人間 review** で validate (品質基準 = §3.4.5 hard fail 通過 + 意味的妥当性確認)
+- [ ] **articulation draft 生成 protocol** を `references/02-status/ar-rule-audit.md` 冒頭に articulate (今後の rule binding 作業で参照する標準 procedure)
+- [ ] 5-10 rule の `canonicalDocRef` + `metaRequirementRefs` を `status: 'bound'` で記入完了 (本 phase の MVP 完遂条件)
+
+### Phase 6.2. 残 rule の漸次対応 (ratchet-down)
 
 - [ ] Phase 3 mapping を input に既存 100+ AR-NNN rule を A/B/C/D 4 分類で audit した
-- [ ] 分類 A の rule に `canonicalDocRef` + `metaRequirementRefs` を semantic articulation 付きで即時記入した
-- [ ] 分類 D の rule の sunset trigger を確定した
+- [ ] 分類 A の rule に Phase 6.1 protocol で `canonicalDocRef` + `metaRequirementRefs` を semantic articulation 付きで漸次記入 (一括ではなく ratchet-down で `status: 'pending'` baseline 減少)
+- [ ] 分類 D (proxy / performative) の rule の sunset trigger を確定した
 - [ ] 分類 B/C は後続 sprint で漸次対応する旨を HANDOFF に明示した
 - [ ] audit 結果を `references/02-status/ar-rule-audit.md` に記録した
+- [ ] Phase 8 status='pending' baseline を確定 (ratchet-down 起点)
 
 ## Phase 7: Layer 2 doc に back link section + drill-down semantic 装着
 
