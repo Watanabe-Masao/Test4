@@ -283,7 +283,7 @@
 > 着手前 prerequisite: Phase 8 meta-guard landing 完了 + Phase 9 DFR registry landing 完了
 
 - [ ] `displayRuleGuard.test.ts` を rule registry framework として新設した
-- [ ] DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録した (semantic articulation 付き)
+- [ ] DFR-001〜005 を `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule 物理正本) に登録した (`canonicalDocRef` + `metaRequirementRefs` を `SemanticTraceBinding<T>` 形式で semantic articulation 付き)。`defaults.ts` (overlay) と `guardCategoryMap.ts` には **置かない** (二重正本回避)
 - [ ] DFR-001 baseline 確定 (CHART-004 / CHART-005 の semantic 不使用)
 - [ ] DFR-002 baseline 確定 (FactorDecomp / BudgetVsActual.builders 等の `toAxisYen` 直接呼び)
 - [ ] DFR-003 baseline 確定 (BudgetTrend / Seasonal 等の `Math.round(v * 100)`)

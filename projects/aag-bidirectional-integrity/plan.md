@@ -52,7 +52,12 @@ dialog で次の本質要件が articulate された:
   - `aag-rule-splitting-plan.md` (completed project execution 記録、Archive 候補)
   - `adaptive-governance-evolution.md` (進化動学、Rename + Relocate 候補)
 - **CLAUDE.md AAG セクション** (「AAG を背景にした思考」が事実上の charter、Meta 確立後に薄化)
-- **rule registry**: `app/src/test/architectureRules/defaults.ts` + `guardCategoryMap.ts` (本 project が schema 拡張: `canonicalDocRef` + `metaSocialRefs`)
+- **rule registry**:
+  - BaseRule 物理正本: `app-domain/gross-profit/rule-catalog/base-rules.ts` (本 project が `canonicalDocRef` + `metaRequirementRefs` を `SemanticTraceBinding<T>` 形式で追加)
+  - 型定義: `app/src/test/architectureRules/types.ts` / `app/src/test/aag-core-types.ts`
+  - derived consumer: `app/src/test/architectureRules/merged.ts`
+  - `app/src/test/architectureRules/defaults.ts` は execution overlay (運用状態のみ、semantic binding は置かない)
+  - `app/src/test/guardCategoryMap.ts` は category / layer / note の補助 metadata のみ (semantic binding は置かない、二重正本回避)
 - **CHART semantic 実 drift 観測**: CHART-004 / CHART-005 (Phase 10 baseline)
 - **axis formatter 実 drift**: FactorDecomp / BudgetVsActual.builders (Phase 10 baseline)
 - **formatPercent 実 drift**: BudgetTrend / Seasonal (Phase 10 baseline)
@@ -718,7 +723,7 @@ drift を baseline 化。
 
 **deliverable**:
 - `displayRuleGuard.test.ts` 新設 (rule registry framework)
-- DFR-001〜005 を `architectureRules/defaults.ts` + `guardCategoryMap.ts` に登録
+- DFR-001〜005 を `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule 物理正本) に登録 (`canonicalDocRef` + `metaRequirementRefs` を `SemanticTraceBinding<T>` 形式で含む)。`defaults.ts` (overlay) と `guardCategoryMap.ts` には semantic binding を **置かない** (二重正本回避)。category 補助のみ必要なら `guardCategoryMap.ts` に entry 追加可
 - 各 rule の baseline 確定 (観測済 drift を ratchet-down 起点に)
 - migrationRecipe の各 rule への記入
 - 各 rule に `canonicalDocRef` + `metaRequirementRefs` 記入
@@ -820,8 +825,11 @@ reverse meta-guard で全 DFR rule の binding 整合成立。**aag/meta.md §2 
 
 | パス | 役割 | Phase |
 |---|---|---|
-| `app/src/test/architectureRules/defaults.ts` | rule registry (Phase 2 で `canonicalDocRef` + `metaRequirementRefs` schema 拡張、Phase 6/10 で entry 追加) | Phase 2 / 6 / 10 |
-| `app/src/test/guardCategoryMap.ts` | rule category (同上) | Phase 2 / 6 / 10 |
+| `app-domain/gross-profit/rule-catalog/base-rules.ts` | **BaseRule 物理正本** (Phase 2 で `canonicalDocRef` + `metaRequirementRefs` を `SemanticTraceBinding<T>` 形式で追加、Phase 6/10 で entry 追加) | Phase 2 / 6 / 10 |
+| `app/src/test/architectureRules/types.ts` / `app/src/test/aag-core-types.ts` | BaseRule / RuleBinding 型定義 (Phase 2 で `SemanticTraceBinding<T>` / `CanonicalDocTraceRef` / `MetaRequirementTraceRef` 型追加) | Phase 2 |
+| `app/src/test/architectureRules/merged.ts` | derived consumer (consumer は merged.ts 経由のみアクセス) | Phase 2 |
+| `app/src/test/architectureRules/defaults.ts` | execution overlay (運用状態 = fixNow / executionPlan / lifecyclePolicy 限定)。**semantic binding は置かない、本 project では touch しない** | (touch しない) |
+| `app/src/test/guardCategoryMap.ts` | category / layer / note の補助 metadata。**semantic binding は置かない** (二重正本回避、本 project では touch しない) | (touch しない) |
 | `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` | Phase 8 reverse meta-guard (semantic articulation 検証含む) | Phase 8 |
 | `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` | Phase 8 forward meta-guard (semantic articulation 検証含む) | Phase 8 |
 | `app/src/test/guards/metaRequirementBindingGuard.test.ts` | Phase 8 option (Layer 1 ↔ Layer 3 binding 検証) | Phase 8 |
