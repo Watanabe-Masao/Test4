@@ -44,14 +44,14 @@
 
 > 着手前 prerequisite: plan §8.5 (registry / contract 系の現実 schema 確認) + §8.8 (命名規則 / ディレクトリ階層化整合性) + §8.9 (もう一押し候補の integrate 判断: A / C / E / F / G / J)
 
-- [ ] `references/01-principles/aag/meta.md` を新規 Create し、§1 目的 (Purpose、Layer 0、1-2 段落) を記述した
-- [ ] `aag/meta.md` §2 要件 (Requirements、Layer 1) を記述した — 不変条件 + 禁則 table、各行に enforcing AR-rule + state-based 達成条件 + 達成 status (双方向 integrity / state-based / self-hosting / ratchet-down / non-performative 等)
-- [ ] `aag/meta.md` §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix) を記述した
-- [ ] `aag/meta.md` §4 達成判定総括 (全要件の達成度サマリ + 不達成解消責務) を記述した
-- [ ] `references/01-principles/aag/README.md` を新規 Create した (aag/ ディレクトリ index、CLAUDE.md からの 1 link entry)
-- [ ] `docs/contracts/doc-registry.json` に新 doc 群 (`aag/meta.md` + `aag/README.md`) を登録した
-- [ ] CLAUDE.md AAG セクションに `aag/README.md` への 1 行索引 link を追加した (詳細薄化は Phase 4)
-- [ ] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ)
+- [x] `references/01-principles/aag/meta.md` を新規 Create し、§1 目的 (Purpose、Layer 0、1-2 段落) を記述した
+- [x] `aag/meta.md` §2 要件 (Requirements、Layer 1) を記述した — 不変条件 7 + 禁則 5 = 12 件 (`AAG-REQ-*` namespace)、各行に enforcing AR-rule + state-based 達成条件 + 達成 status + observeForDays 切り分け (§2.3) を articulate
+- [x] `aag/meta.md` §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix + Layer 4 audit framework = §8.10 判断 A 適用) を記述した
+- [x] `aag/meta.md` §4 達成判定総括 (達成 6 件 / 未達成 6 件 + 解消責務 mapping + audit 履歴 table) を記述した
+- [x] `references/01-principles/aag/README.md` を新規 Create した (aag/ ディレクトリ index、CLAUDE.md からの 1 link entry)
+- [x] `docs/contracts/doc-registry.json` に新 doc 群 (`aag/meta.md` + `aag/README.md`) を登録した
+- [x] CLAUDE.md AAG セクションに `aag/README.md` への 1 行索引 link を追加した (§8.13 判断 = B 適用は Phase 4 で実施、Phase 1 では index link のみ)
+- [ ] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ) ← 本 PR review で対応
 
 ## Phase 2: AAG rule metadata 拡張 (semantic articulation 構造 + status field)
 
@@ -320,24 +320,24 @@
 
 ### Phase 1 着手前判断 (AI 自主判断、4 件)
 
-- [ ] **Step 0** (parent project `phased-content-specs-rollout` archive 8-step) 完了確認
+- [x] **Step 0** (parent project `phased-content-specs-rollout` archive 8-step) 完了確認 — **PR #1222 で main 反映済 (commit `fac575d`、2026-04-30)**
   - **判断基準**: main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 158 が `[x]` か / `projects/completed/phased-content-specs-rollout/` が `projects/completed/` に移管済か
   - **判断材料の収集元**: `git ls-files projects/completed/phased-content-specs-rollout/` + line 158 状態確認 + `projects/completed/phased-content-specs-rollout/config/project.json` の status field
-  - **AI action**: 未完なら HANDOFF §1.5 の Step 0 8-step を先に実行、完了なら本 checkbox flip
-- [ ] **§8.10 AAG Audit home doc 判断** (A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 Create / C: aag/architecture.md 内包)
+  - **AI action**: ✅ **完了** (PR #1222 merged、status=archived 確認済)
+- [x] **§8.10 AAG Audit home doc 判断** (A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 Create / C: aag/architecture.md 内包) — **decision: A** (本 commit で aag/meta.md §3.2 として landing)
   - **判断基準**:
     - **A 推奨**: AAG Audit の articulate volume が 1 section (50 行以下) で済み、aag/meta.md §3 内に納まる場合
     - **B 推奨**: sub-audit (4.1〜4.5 + 追加候補 4.6〜4.9) が将来増える可能性が高く、独立 doc として責務分離が必要な場合
     - **C 推奨**: AAG architecture (5 層構造) と Audit が structural に一体化していて、aag/architecture.md 内に Layer 4 章として包含する方が clean な場合
   - **判断材料の収集元**: aag/meta.md §3 Core mapping articulation 量見積もり / 追加候補 sub-audit (plan §3.1.5 末尾) の数 / aag/architecture.md の section 構成案 (Phase 4 で確定予定)
   - **AI action**: criteria 適用 → decision (A/B/C) 確定 → commit message + decision log に `decision: <A/B/C>, rationale: <reason>` を記録
-- [ ] **§8.13 CLAUDE.md 薄化方式判断** (A: 完全 1 link 索引のみ / B: 鉄則 quote (3-5 行) + 詳細 link)
+- [x] **§8.13 CLAUDE.md 薄化方式判断** (A: 完全 1 link 索引のみ / B: 鉄則 quote (3-5 行) + 詳細 link) — **decision: B** (Phase 4 で実施、Phase 1 では index link のみ追加)
   - **判断基準**:
     - **A 推奨**: `.claude/manifest.json` discovery hint で `aag/` を引ければ AI session 開始時に AAG context を取得可能と判定できる場合
     - **B 推奨**: AI session 開始時の AAG context を最低限維持するため、3-5 行の鉄則 (例: 「製本されないものを guard 化しない」「期間 buffer は anti-ritual」「重複と参照を切り分ける」) を CLAUDE.md inline で残す方が安全と判定する場合
   - **判断材料の収集元**: `.claude/manifest.json` discovery 機能 (`byTopic` / `byExpertise` / `pathTriggers` の articulation 量) / CLAUDE.md AAG セクション現状 core 内容 / Phase 1 で確定する aag/meta.md §1 / §2 の articulate 量
   - **AI action**: criteria 適用 → decision 確定 → commit message + decision log に記録
-- [ ] **§8.14 Phase 1+3 同期方針判断** (A: 同 PR bundling / B: 順序付き 3 段階 / C: parallel branches)
+- [x] **§8.14 Phase 1+3 同期方針判断** (A: 同 PR bundling / B: 順序付き 3 段階 / C: parallel branches) — **decision: B** (推奨 default 通り、Phase 1 skeleton landing → Phase 3 audit landing → Phase 1 §3 fill)
   - **判断基準**:
     - **A 推奨**: Phase 1 deliverable の commit 数 ≤ 3 + Phase 3 audit findings の量 ≤ 5 entry で、相互参照が少なく単一 PR で完結可能な場合
     - **B 推奨 (default)**: skeleton landing → audit landing → §3 fill の 3 段階で parallel comparison が必要、Phase 1 §3 Core mapping を audit 結果で update する設計
@@ -417,7 +417,10 @@
 
 | 判断 trigger | 判断項目 | 判断者 | 選択 (A/B/C) | rationale (collection sources + criteria 適用) | commit SHA |
 |---|---|---|---|---|---|
-| TBD | TBD | TBD | TBD | TBD | TBD |
+| Phase 1 着手前 | Step 0 (parent archive) 完了確認 | 人間 + AI | ✅ 完了 | PR #1222 で main 反映済、`projects/completed/phased-content-specs-rollout/` に移管 + status=archived 確認 | `fac575d` (Step 0 archive 8-step) |
+| Phase 1 着手前 | §8.10 AAG Audit home doc | AI 自主 | **A** (aag/meta.md §3 で articulate) | aag/meta.md §3 Core mapping 量見積もり = 1 doc 内で管理可能 (50-100 行) / 追加候補 sub-audit (4.6〜4.9) は extensible として Phase 3 audit で確定 / structural 一体化は不要 (Layer 4 = 評価 lens、AAG 構造内部でない) → A 推奨条件 (volume 1 section で済む) を満たす + B/C は将来 sub-audit 拡張時に refactor 可能 | (本 commit) |
+| Phase 1 着手前 | §8.13 CLAUDE.md 薄化方式 | AI 自主 | **B** (鉄則 quote + link) | manifest discovery hint は補助、AI session 開始時の dynamic thinking trigger には鉄則 inline が必要 / CLAUDE.md AAG セクション現状の dynamic thinking 誘導 articulation は維持価値あり / Phase 1 では index link のみ追加、Phase 4 で薄化実施 (鉄則 quote 確定) | (本 commit + Phase 4 で実施) |
+| Phase 1 着手前 | §8.14 Phase 1+3 同期方針 | AI 自主 | **B** (順序付き 3 段階、推奨通り) | Phase 1 deliverable 5+ commits / Phase 3 audit findings 9 entry → A bundling は単一 PR scope 大きすぎる、C parallel branches は necessity 低い / B 3 段階 (skeleton → audit → §3 fill) は parallel comparison + cyclic refinement 可能 | (本 commit) |
 
 ## 最終レビュー (人間承認)
 
