@@ -189,6 +189,7 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 > **Insight 3**: 判断の連続の先にあるものは「過去の判断は正しかったか」ではなく「**最終品質を向上させる判断であったか**」という **品質保証** につなげるべき (= outcome-based quality contribution evaluation)
 > **Insight 4**: 「**間違った判断であったことを認め、修正する機会を提供すべき**」 — retrospective audit で negative 評価された decision に対して **mistake admission + correction opportunity** を構造的に提供する mechanism (`AAG-REQ-NO-PERFECTIONISM` の natural extension = 弱さを受容するなら、間違いを認める + 修正経路 mechanism が必要)
 > **Insight 5**: 「**責任追及ではない点に注意**」 — mistake admission + correction opportunity は **構造的な改善 mechanism** であり、個別 decision-maker (AI session / 人間 reviewer) への blame ではない。retrospective audit は「**学習機会** として機能、責任追及として機能しない」。過去判断を非難せずに、**structural defect として捉え、修正 chain で次の品質向上に connect** する (= **blame-free culture** の institutionalization、`AAG-REQ-NO-PERFECTIONISM` の精神 = 弱さの受容を decision-level に extend)
+> **Insight 6**: 「**人間の判断が正しいでもありません**」 — AI 判断 / 人間判断は **equal authority** で扱う。人間判断は authority (= 必ず正しい) ではなく、機械判定不可能な特定領域の **safety device**。両者とも間違えうる、両者とも retrospective audit の対象、両者とも品質貢献評価される。本 articulate で旧 "構造的安全装置として残す" の implicit な "human authority" 含意を removing し、**equal traceability + equal audit** に refine
 >
 > **4 insight 統合フレーム**:
 >
@@ -228,12 +229,13 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 1. `references/03-guides/decision-trace-pattern.md` 新設 (Layer 4A System Operations) — DecisionTrace schema (investigation + verification + hypothesis ≥ 2 件 + evidence + decision + rationale + alternatives + reversibility + **qualityImpact (targetQualityMetric + expectedQualityChange + measuredQualityChange)** + retrospectiveAudit + **correctionChain (admitMistake + correctionOpportunity + correctionExecuted)**) を articulate。**blame-free 原則** を冒頭で articulate (= 過去 decision-maker への責任追及禁止、structural defect として扱う)
 2. `references/03-guides/human-review-specification.md` 新設 (Layer 4A System Operations) — 人間判断 gate の必須要素 (view list + judgment criteria + approval record) standard pattern
 3. `aag/meta.md` §2 update — 新規 requirement 追加:
-   - `AAG-REQ-DECISION-TRACEABILITY` (全 decision に full trace + retrospective audit 経路)
+   - `AAG-REQ-DECISION-TRACEABILITY` (全 decision に full trace + retrospective audit 経路、AI / 人間問わず equal traceability)
    - `AAG-REQ-HUMAN-REVIEW-EXPLICITNESS` (人間判断 gate に view list + judgment criteria 必須)
    - `AAG-REQ-QUALITY-ORIENTED-JUDGMENT` (全 decision に target quality metric + expected change が articulate、retrospective audit で quality contribution 評価)
-   - `AAG-REQ-MISTAKE-ADMISSION-AND-CORRECTION` (negative 評価 decision に admitMistake + correctionOpportunity 必須、修正経路の構造的提供)
+   - `AAG-REQ-MISTAKE-ADMISSION-AND-CORRECTION` (negative 評価 decision に admitMistake + correctionOpportunity 必須、修正経路の構造的提供、AI / 人間問わず equal correction)
    - `AAG-REQ-BLAME-FREE-LEARNING` (mistake admission は **system-level learning** であり責任追及ではない、過去 decision-maker への blame 禁止 = `AAG-REQ-NO-PERFECTIONISM` の decision-level extension)
-   - `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を **Layer 0 + 構造的安全装置のみ** に narrow
+   - **`AAG-REQ-EQUAL-JUDGMENT-AUTHORITY`** (新、Insight 6): AI 判断 / 人間判断は equal authority で扱う、人間判断は authority ではなく safety device、両者とも retrospective audit の対象 + 品質貢献評価される
+   - `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を **Layer 0 + 機械判定不可能な特定領域での safety device のみ** に narrow (= 旧 "構造的安全装置として残す" の implicit "human authority" 含意を removing)
 4. `aag/meta.md` §3.2 audit framework に **4.6 Retrospective Audit sub-audit** 追加 — 評価軸 = 「**最終品質向上に貢献したか**」(positive / neutral / negative / inconclusive)、入力 = targetQualityMetric の baseline 推移 (ratchet-down history) + 関連 decision trace 群、出力 = quality contribution 判定 + negative の場合 correctionOpportunity link、**blame-free 原則を audit framework に embed** (= 「過去判断は当時の info で最善、後の info で改善余地あり」という framing で articulate、個別 decision-maker を責めない)
 5. `_template/checklist.md` の最終レビュー checkbox を view list + judgment criteria + approval record 必須形式に extend
 6. `references/03-guides/deferred-decision-pattern.md` §3.2 縮小 — 高 blast radius decision の「ユーザー確認必須 gate」を decision trace + quality impact link + retrospective audit + correction chain に置換 (人間判断必須は **物理削除 trigger + 最終レビュー** のみに narrow)
