@@ -180,6 +180,7 @@
 | Engine 昇格基準                                                                            | `02-status/promotion-criteria.md`                               |
 | 品質監査レポート                                                                           | `02-status/quality-audit-latest.md`                             |
 | 技術的負債ロードマップ                                                                     | `02-status/technical-debt-roadmap.md`                           |
+| AAG Core doc audit report (Phase 3 deliverable)                                            | `02-status/aag-doc-audit-report.md`                             |
 | 直近の主要変更                                                                             | `02-status/recent-changes.md`                                   |
 | プロジェクト構成                                                                           | `02-status/project-structure.md`                                |
 | PI値昇格準備度                                                                             | `02-status/promotion-readiness-piValue.md`                      |
