@@ -180,6 +180,35 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 - Project A → Project D (= legacy retirement は Project A の Rewrite + Relocate 後の archive 移管)
 - Project B → Project C (= rule schema + meta-guard 完了後に DFR registry の concrete instance 化)
 
+### Future follow-up project 候補 (Project A〜D 完了後、user vision = 「人間判断最小化 + traceability 強化」を institutional 化)
+
+> **背景** (2026-04-30 dialog で articulate): 現状 AAG は (1) `requiresHumanApproval=true` / `deferred-decision-pattern §3.2` / 物理削除 trigger / 最終レビュー / 高 blast radius decision のユーザー確認 など **人間判断 gate に依存しすぎ**、(2) 人間判断する場合でも「**何を見るか / 何で判断するか**」が articulate されていない、という根本問題を抱える。
+>
+> **vision 統合フレーム**: 判断 = AI 自主判断 (大多数、decision trace 完備) + 人間判断 (構造的安全装置のみ、view list + judgment criteria + approval record 必須)。両 path 共通で **decision trace** が後追い audit (Layer 4.6 Retrospective Audit、新 sub-audit) の入力となる。
+
+#### Project E (仮称 = AAG Decision Traceability、Level 3、本 session で提案 articulate)
+
+**scope**: 「人間判断最小化 + traceability 強化」の institutional 化。具体的に:
+
+1. `references/03-guides/decision-trace-pattern.md` 新設 (Layer 4A System Operations) — DecisionTrace schema (investigation + verification + hypothesis ≥ 2 件 + evidence + decision + rationale + alternatives + reversibility + retrospectiveAudit) を articulate
+2. `references/03-guides/human-review-specification.md` 新設 (Layer 4A System Operations) — 人間判断 gate の必須要素 (view list + judgment criteria + approval record) standard pattern
+3. `aag/meta.md` §2 update — `AAG-REQ-DECISION-TRACEABILITY` + `AAG-REQ-HUMAN-REVIEW-EXPLICITNESS` 新規追加、`AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を **Layer 0 + 構造的安全装置のみ** に narrow
+4. `aag/meta.md` §3.2 audit framework に **4.6 Retrospective Audit sub-audit** 追加 (extensible articulate 既存)
+5. `_template/checklist.md` の最終レビュー checkbox を view list + judgment criteria + approval record 必須形式に extend
+6. `references/03-guides/deferred-decision-pattern.md` §3.2 縮小 — 高 blast radius decision の「ユーザー確認必須 gate」を decision trace + retrospective audit に置換 (人間判断必須は **物理削除 trigger + 最終レビュー** のみに narrow)
+
+**着手 trigger**: Project A〜D 完了後 (本 project archive 直前 or 直後)、または本 project archive 後の独立 follow-up として spawn。
+
+**急がない**: 既存 mechanism (deferred-decision-pattern §3.1 = AI 自主判断 + criteria + collection sources + decision log) が 部分的に integrate 済のため、現状の運用に致命的問題なし。**適切なタイミングで institutional 化** する candidate。
+
+**retrospective 検証対象**: 本 session 冒頭の Phase 3 hard gate decision (ユーザー確認 = B 確定) は本 vision で運用すれば **AI 自主判断 + decision trace + retrospective audit** に置換可能。Project A〜D 完了後に「分割は正しかったか」を Layer 4.6 Retrospective Audit で検証する初の application instance に candidate。
+
+**追加 follow-up 候補 (2026-04-30 dialog で identify、参考)**:
+- 「最も多い失敗」(`@deprecated` + sunsetCondition 不在) hard fail mechanism (architecture-debt-recovery §3.3 教訓) — Project B Phase 4 meta-guard 拡張 candidate
+- C4 violation error message に「forward reference 仮称 articulation」 hint (本 session 冒頭で 30 分 friction)
+- obligation 違反を pre-commit に移動 (本 session で 4 回連続 fail)
+- inquiry doc に「仮説 ≥ 2 件」必須 section (architecture-debt-recovery §3.2 教訓)
+
 ### 次 session で実施 (本 project archive)
 
 Project A〜D bootstrap 完了後、本 project (`aag-bidirectional-integrity`) は archive プロセスへ:
