@@ -340,7 +340,7 @@ aag-projectization-policy / **本 taxonomy-v2 Phase 1**）。
 
 | ファイル                                        | 役割                                                    |
 | ----------------------------------------------- | ------------------------------------------------------- |
-| `projects/phased-content-specs-rollout/plan.md` | 同じ運用制御 pattern を採用する姉妹 project（先行採用） |
+| `projects/completed/phased-content-specs-rollout/plan.md` | 同じ運用制御 pattern を採用する姉妹 project（先行採用） |
 | `projects/pure-calculation-reorg/HANDOFF.md`    | 姉妹 project（同じ制度化フレーム）                      |
 
 ## 5. 改訂履歴

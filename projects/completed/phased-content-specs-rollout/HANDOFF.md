@@ -1,15 +1,27 @@
-# HANDOFF — phased-content-specs-rollout
+# HANDOFF — phased-content-specs-rollout (ARCHIVED 2026-04-30)
 
-> 役割: 起点文書。後任者が最初に読む。
+> 役割: 起点文書 (本 project は **archived**)。
 > 完了済みの全景 + 次にやること + ハマりポイントを 1 画面で把握できる。
 
-## 1. 現在地
+## ✅ Archived 2026-04-30
+
+**Phase A〜K 全 mechanism 完遂 + 9 件撤回判定 (理由付き strikethrough) + 人間 review 通過
+(checklist L158 [x] flip) → archive プロセス移行**。本 project の dialog で発見された AAG
+構造的弱点 (双方向 integrity 不在 + AAG Meta articulation 不在 + drill-down chain semantic
+管理不在) は後継 active project **`aag-bidirectional-integrity`** (PR #1216〜#1221) で根本対策
+展開中。
+
+- Archive commit: 本 commit (Step 0 archive 8-step)
+- 後継 project: `projects/aag-bidirectional-integrity/AI_CONTEXT.md`
+- 移管先: `projects/completed/phased-content-specs-rollout/`
+- status: `archived` (config/project.json)
+
+## 1. 現在地 (archive 前の状態 = 2026-04-29 末)
 
 **Phase A〜K 全 landed (2026-04-29)。checklist 機能項目 100% 処理済 (achieved + 撤回判定)。**
-残作業は **人間 review + archive 承認 (line 158 gate) のみ**。
-status: `active` / parent: なし。Phase K Option 1+2 の landing で source ↔ spec 同期は
-date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism** に置換済。
-**🚦 本 project は HUMAN APPROVAL READY 状態**: line 158 を承認すれば archive プロセスへ移行。
+status: `active` → `archived` (2026-04-30 archive プロセス移行)。Phase K Option 1+2 の landing で
+source ↔ spec 同期は date-based cadence 儀式から **commit-pin (full SHA) の構造的 mechanism** に
+置換済。
 
 **checklist 全件処理状況 (2026-04-29 末)**:
 - Phase 0/A/B/C/D/E/F/G/H/I/J/K 全 sub-item が `[x]` または `~~strikethrough~~` で処理済

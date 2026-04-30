@@ -165,5 +165,5 @@ CLAUDE.md 全体の archive ではない。詳細: plan §6.3。
 | `references/02-status/aag-doc-audit-report.md` (Phase 3 で landing) | Phase 3 audit の input source |
 | `references/99-archive/` | sunset 移管先 |
 | `references/03-guides/projectization-policy.md` | requiresLegacyRetirement=true 対応 |
-| `projects/phased-content-specs-rollout/` Phase K Option 1 | 段階削除 pattern 参考 (`.skip` 化 → registry 削除 → 物理削除) |
+| `projects/completed/phased-content-specs-rollout/` Phase K Option 1 | 段階削除 pattern 参考 (`.skip` 化 → registry 削除 → 物理削除) |
 | `projects/completed/aag-rule-splitting-execution/` | aag-rule-splitting-plan.md archive 後の参照先 |

@@ -27,7 +27,7 @@
  *   | CLM-002 | claim text | guarded | medium | - | path/to/guard.test.ts | - |
  *   | CLM-003 | claim text | reviewed | medium | - | - | rationale 1〜2 文 |
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase J / §Phase K + §5.2 Evidence Level
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase J / §Phase K + §5.2 Evidence Level
  *
  * @taxonomyKind T:meta-guard
  *

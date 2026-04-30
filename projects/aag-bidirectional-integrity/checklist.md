@@ -321,8 +321,8 @@
 ### Phase 1 着手前判断 (AI 自主判断、4 件)
 
 - [ ] **Step 0** (parent project `phased-content-specs-rollout` archive 8-step) 完了確認
-  - **判断基準**: main 上の `projects/phased-content-specs-rollout/checklist.md` line 158 が `[x]` か / `projects/phased-content-specs-rollout/` が `projects/completed/` に移管済か
-  - **判断材料の収集元**: `git ls-files projects/phased-content-specs-rollout/` + line 158 状態確認 + `projects/phased-content-specs-rollout/config/project.json` の status field
+  - **判断基準**: main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 158 が `[x]` か / `projects/completed/phased-content-specs-rollout/` が `projects/completed/` に移管済か
+  - **判断材料の収集元**: `git ls-files projects/completed/phased-content-specs-rollout/` + line 158 状態確認 + `projects/completed/phased-content-specs-rollout/config/project.json` の status field
   - **AI action**: 未完なら HANDOFF §1.5 の Step 0 8-step を先に実行、完了なら本 checkbox flip
 - [ ] **§8.10 AAG Audit home doc 判断** (A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 Create / C: aag/architecture.md 内包)
   - **判断基準**:

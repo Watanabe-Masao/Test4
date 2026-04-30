@@ -4,7 +4,7 @@
  * Phase C scope (2026-04-27): 全 spec (widget + read-model) frontmatter に
  * `owner` フィールドが必須。owner 欠落 spec は責任所在不明のため fail。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase A / §Phase B / §Phase C
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase A / §Phase B / §Phase C
  *
  * @taxonomyKind T:meta-guard
  *

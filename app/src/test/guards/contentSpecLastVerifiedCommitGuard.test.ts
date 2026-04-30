@@ -21,7 +21,7 @@
  *     **explicit に skip する**（黙らせない、CI workflow に `fetch-depth: 0` を
  *     指定する義務を明示する）。CI 関連 workflow は既に修正済 (.github/workflows/ci.yml)。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase K K2,
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase K K2,
  * HANDOFF.md §3.9（90 日 cadence の儀式性）.
  *
  * @taxonomyKind T:meta-guard

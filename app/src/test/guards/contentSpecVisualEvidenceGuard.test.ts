@@ -20,7 +20,7 @@
  *   赤色 / KPI 配置の段差等）。visual evidence なしで silent に変わる drift を
  *   構造的に許容しない。ratchet-down は増加方向に戻さない。
  *
- * 詳細: projects/phased-content-specs-rollout/plan.md §Phase G,
+ * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase G,
  * references/05-contents/{charts,ui-components}/README.md §「Visual Evidence」.
  *
  * @taxonomyKind T:meta-guard

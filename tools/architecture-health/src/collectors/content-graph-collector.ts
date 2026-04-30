@@ -22,8 +22,8 @@
  * - graph 出力 JSON 経路: `references/02-status/generated/content-graph.json`
  *   (architecture-health.json は KPI のみ集約、content graph 詳細は別 file)
  *
- * @see projects/phased-content-specs-rollout/checklist.md Phase A #2
- * @see projects/phased-content-specs-rollout/plan.md §Phase A 実施内容 #6
+ * @see projects/completed/phased-content-specs-rollout/checklist.md Phase A #2
+ * @see projects/completed/phased-content-specs-rollout/plan.md §Phase A 実施内容 #6
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
