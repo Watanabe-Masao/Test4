@@ -16,7 +16,7 @@
 | 2 | `references/01-principles/aag-5-constitution.md` | 27 | 208 | Layer 2 構造設計 (旧 4 層) + Layer 1 非目的 (混在) | **Rewrite + Relocate + Rename + 内容分散** |
 | 3 | `references/99-archive/aag-5-layer-map.md` (Phase 5.1 archived) | 10 | 174 | Layer 2 reference (ファイル別 4 層 mapping) | Rewrite + Relocate + Rename |
 | 4 | `references/01-principles/aag-5-source-of-truth-policy.md` | 16 | 148 | Layer 2 reference (正本/派生物/運用物 ポリシー) | Rewrite + Relocate + Rename |
-| 5 | `references/01-principles/aag-four-layer-architecture.md` | 15 | 100 | (旧 4 層 = Principles/Judgment/Detection/Response、superseded) | **即 Archive** |
+| 5 | `references/99-archive/aag-four-layer-architecture.md` | 15 | 100 | (旧 4 層 = Principles/Judgment/Detection/Response、superseded) | **即 Archive** |
 | 6 | `references/01-principles/aag-operational-classification.md` | 17 | 197 | Layer 2-3 境界 (now/debt/review 運用区分) | Rewrite + Relocate |
 | 7 | `references/01-principles/aag-rule-splitting-plan.md` | 21 | 174 | (completed project execution 記録) | **即 Archive** |
 | 8 | `references/01-principles/adaptive-governance-evolution.md` | 18 | 214 | Layer 2 進化動学 (3 層サイクル + 価値方程式) | Rewrite + Relocate + Rename |

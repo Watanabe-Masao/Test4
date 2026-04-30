@@ -120,8 +120,8 @@
           "label": "[DEPRECATED Project A Phase 1] 進化の設計 (旧) — Project A Phase 5 で archive 予定。新 doc: aag/evolution.md"
         },
         {
-          "path": "references/01-principles/aag-four-layer-architecture.md",
-          "label": "[DEPRECATED] AAG 旧 旧 4 層 (AAG v4.x) — 既に新 4 層 (AAG 5.x) で superseded 済、Project A Phase 5 で archive 予定。新 doc: aag/architecture.md §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping)"
+          "path": "references/99-archive/aag-four-layer-architecture.md",
+          "label": "[ARCHIVED Project A Phase 5.2] AAG 旧 旧 4 層 (AAG v4.x = Principles/Judgment/Detection/Response) — Phase 5.2 で archive 移管済。新 doc: aag/architecture.md §4.2 (旧 旧 4 層 → 新 5 層 2 重 mapping)"
         },
         {
           "path": "references/01-principles/aag-operational-classification.md",
