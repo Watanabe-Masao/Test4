@@ -271,19 +271,20 @@ Response（入口）→ Judgment（判断）→ Principles（思想）← Detect
 | **AagResponse** | 統一違反レスポンス構造（単一描画経路） | Response | `aag-response.ts` |
 | **Discovery Review** | 定期的な現実観察と新パターン発見 | Principles | 制度（月1回） |
 
-### ルール統計（自動生成）
+### ルール統計（旧自動生成、Phase 5.8 archive 移管後 frozen）
 
-<!-- GENERATED:START aag-rule-stats -->
-| 指標 | 値 |
+> **[ARCHIVED] Phase 5.8 archive 移管時 (2026-04-30) の snapshot**。
+> 現在のルール統計は `references/02-status/generated/architecture-health.md` を参照
+> (`CLAUDE.md` の `architecture-health-summary` GENERATED section に同期済)。
+> 本 archived doc は immutable historical reference のため、本 section の自動生成は停止。
+
+| 指標 | 値 (Phase 5.8 archive 時 snapshot) |
 |------|-----|
 | 総ルール数 | 166 |
 | fixNow=now（即修正） | 88 |
 | fixNow=debt（構造負債） | 57 |
 | fixNow=review（観測） | 21 |
 | ガードテストファイル | 120 |
-
-> 生成: 2026-04-30T21:22:35.755Z — 正本: `app/src/test/architectureRules.ts`
-<!-- GENERATED:END aag-rule-stats -->
 
 ## 運用区分
 

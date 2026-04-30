@@ -39,7 +39,7 @@ readSalesFact、useDataStore、UnifiedWidgetContext、PAGE_REGISTRY のような
 
 | カテゴリ | 例 |
 |---|---|
-| フレームワーク構造 | 4 層定義、source-of-truth policy、governance evolution |
+| フレームワーク構造 | 5 層定義 (目的 / 要件 / 設計 / 実装 / 検証、旧 4 層 = Constitution / Schema / Execution / Operations を §4.1 mapping で参照、Project A で landed)、source-of-truth policy、governance evolution |
 | スキーマ型定義 | RuleSemantics, RuleGovernance, RuleDetectionSpec, AagViolation, AagEvidencePack |
 | Allowlist 共通型 | AllowlistEntry, AllowlistLifecycle, CoreRetentionReason |
 | Health 共通型 | HealthRule, HealthKpi, evaluator, renderer |
