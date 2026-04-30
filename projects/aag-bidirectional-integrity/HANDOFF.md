@@ -125,7 +125,64 @@ main 上の `projects/completed/phased-content-specs-rollout/checklist.md` line 
 
 Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 
-## 2. 次にやること
+## 1.6. Phase 3 hard gate decision = B 確定 (2026-04-30、本 project MVP 完遂)
+
+**§8.14 順序付き 3 段階完遂後の Phase 3 hard gate decision**: AI 自主判断 (deferred-decision-pattern §3.1 適用) で **B (Project A〜D 分割) を確定**。
+
+| 項目 | 状態 |
+|---|---|
+| §8.14 第 1 段 (Phase 1 skeleton landing) | ✅ PR #1216-#1223 merged |
+| §8.14 第 2 段 (Phase 3 audit landing) | ✅ commit `6762d39` |
+| §8.14 第 3 段 (Phase 1 §3 fill cyclic refinement) | ✅ commit `477ef41` |
+| Phase 3 hard gate decision | ✅ **B 確定** (本 commit) |
+
+**rationale** (audit report §7.2): scope 規模 evaluation = operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り → 単一 project では重い。**default B = follow-up project 分割を採用**。
+
+### 本 project (`aag-bidirectional-integrity`) は **MVP 完遂状態** に到達
+
+- **MVP scope**: Phase 1 (AAG Meta charter landing) + Phase 3 (AAG Core doc audit landing) + cyclic refinement (Phase 1 §3 fill) = 全完遂
+- **後続 Phase 4〜10 は Project A〜D に移管**: 別 session で各 project を bootstrap 後に execution
+- **本 project の status**: 次 session 以降で archive 候補に migrate (Project A〜D bootstrap 完了後、本 project は archive プロセスへ)
+
+### Project A〜D 分割案 (audit report §7.2)
+
+| Project | scope | size | bootstrap 予定 |
+|---|---|---|---|
+| **Project A** | AAG Core doc refactor (Phase 4 doc Create/Split/Rewrite/Rename/Relocate + Phase 5 legacy 撤退) | Level 3 | next session |
+| **Project B** | rule schema + meta-guard (Phase 2 schema 拡張 + Phase 6 AR-rule binding + Phase 8 MVP = canonicalDocRefIntegrityGuard + canonicalDocBackLinkGuard + semanticArticulationQualityGuard + statusIntegrityGuard) | Level 3 | next session |
+| **Project C** | DFR registry + display guards (Phase 9 DFR registry + Phase 10 DFR guards) | Level 2 | next session |
+| **Project D** | legacy retirement (Phase 5 で完遂しない複雑な archive 案件、例: `adaptive-architecture-governance.md` Split + 部分 Archive) | Level 2 | next session |
+
+各 project の bootstrap は **1 session = 1 project が clean** (project lifecycle の整合性を保つため)。
+
+## 2. 次にやること (MVP 完遂後の next step、Project A〜D 移管)
+
+> **本 project の MVP scope は完遂**: Phase 1 (charter landing) + Phase 3 (audit landing) + cyclic refinement (§8.14 第 3 段) で完了。Phase 4〜10 は **Project A〜D に分割移管** が default 採用済 (§1.6)。
+>
+> 以下の「Phase 1〜10 細部」は **historical articulation** として保持 (= 本 project が Phase 1〜10 を articulate していた時点での deliverable design)。実 execution は Project A〜D 各々で実施。
+
+### 次 session で実施 (Project A〜D bootstrap)
+
+各 project bootstrap は **1 session = 1 project**:
+
+- [ ] **Project A bootstrap** (AAG Core doc refactor): `projects/aag-core-doc-refactor/` を `_template` から bootstrap、Phase 1〜10 のうち Phase 4 + Phase 5 を移管 + 5 必須 doc (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config / legacy-retirement / breaking-changes) Create
+- [ ] **Project B bootstrap** (rule schema + meta-guard): `projects/aag-rule-schema-meta-guard/` を bootstrap、Phase 2 + Phase 6 + Phase 8 MVP を移管
+- [ ] **Project C bootstrap** (DFR registry + display guards): `projects/aag-display-rule-registry/` を bootstrap、Phase 9 + Phase 10 を移管
+- [ ] **Project D bootstrap** (legacy retirement): `projects/aag-legacy-retirement/` を bootstrap、複雑 archive 案件 (例: `adaptive-architecture-governance.md` Split + 部分 Archive) を移管
+
+各 project の **依存関係**:
+- Project A → Project B (= AAG Core doc refactor 完了後に rule schema 拡張、binding 記入対象が安定)
+- Project A → Project D (= legacy retirement は Project A の Rewrite + Relocate 後の archive 移管)
+- Project B → Project C (= rule schema + meta-guard 完了後に DFR registry の concrete instance 化)
+
+### 次 session で実施 (本 project archive)
+
+Project A〜D bootstrap 完了後、本 project (`aag-bidirectional-integrity`) は archive プロセスへ:
+
+- [ ] checklist 末尾「最終レビュー (人間承認)」 [x] flip
+- [ ] 8-step archive: mv to `projects/completed/` + status=archived + open-issues update + HANDOFF Archived header + docs:generate + principles.json update + docs:check + tests PASS
+
+### 旧 Phase 1〜10 articulation (historical、Project A〜D 移管後は不活性)
 
 > **状態 (2026-04-30 plan refinement 完了)**: plan / AI_CONTEXT / checklist / legacy-retirement /
 > projectization は経営階層 drill-down 視点で全面 refine 済、実 execution は次セッション以降。
