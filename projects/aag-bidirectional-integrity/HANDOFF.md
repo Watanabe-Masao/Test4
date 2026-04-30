@@ -180,28 +180,72 @@ Step 0 完了後、本 project の Phase 0.5 → Phase 1 に進む。
 - Project A → Project D (= legacy retirement は Project A の Rewrite + Relocate 後の archive 移管)
 - Project B → Project C (= rule schema + meta-guard 完了後に DFR registry の concrete instance 化)
 
-### Future follow-up project 候補 (Project A〜D 完了後、user vision = 「人間判断最小化 + traceability 強化」を institutional 化)
+### Future follow-up project 候補 (Project A〜D 完了後、user vision = 「判断 chain → 品質保証 + 間違い認識 + 修正機会、責任追及ではなく blame-free な system-level learning」を institutional 化)
 
-> **背景** (2026-04-30 dialog で articulate): 現状 AAG は (1) `requiresHumanApproval=true` / `deferred-decision-pattern §3.2` / 物理削除 trigger / 最終レビュー / 高 blast radius decision のユーザー確認 など **人間判断 gate に依存しすぎ**、(2) 人間判断する場合でも「**何を見るか / 何で判断するか**」が articulate されていない、という根本問題を抱える。
+> **背景** (2026-04-30 dialog、5 insight 統合 articulate):
 >
-> **vision 統合フレーム**: 判断 = AI 自主判断 (大多数、decision trace 完備) + 人間判断 (構造的安全装置のみ、view list + judgment criteria + approval record 必須)。両 path 共通で **decision trace** が後追い audit (Layer 4.6 Retrospective Audit、新 sub-audit) の入力となる。
+> **Insight 1**: 人間判断をできる限り最小化、代わりに調査 / 検証 / 仮説 / 根拠 を元にどう判断したかの **traceability** を実装、後追いで past decision を検証可能に
+> **Insight 2**: 人間判断する場合でも「**何を見るか / 何で判断するか**」が現状 articulate されておらず reviewer に丸投げ → view list + judgment criteria + approval record の必須化
+> **Insight 3**: 判断の連続の先にあるものは「過去の判断は正しかったか」ではなく「**最終品質を向上させる判断であったか**」という **品質保証** につなげるべき (= outcome-based quality contribution evaluation)
+> **Insight 4**: 「**間違った判断であったことを認め、修正する機会を提供すべき**」 — retrospective audit で negative 評価された decision に対して **mistake admission + correction opportunity** を構造的に提供する mechanism (`AAG-REQ-NO-PERFECTIONISM` の natural extension = 弱さを受容するなら、間違いを認める + 修正経路 mechanism が必要)
+> **Insight 5**: 「**責任追及ではない点に注意**」 — mistake admission + correction opportunity は **構造的な改善 mechanism** であり、個別 decision-maker (AI session / 人間 reviewer) への blame ではない。retrospective audit は「**学習機会** として機能、責任追及として機能しない」。過去判断を非難せずに、**structural defect として捉え、修正 chain で次の品質向上に connect** する (= **blame-free culture** の institutionalization、`AAG-REQ-NO-PERFECTIONISM` の精神 = 弱さの受容を decision-level に extend)
+>
+> **4 insight 統合フレーム**:
+>
+> ```
+> 判断 (Decision) — 連続 chain として品質保証に connect
+> │
+> ├─ AI 自主判断 (大多数、decision trace 完備で expand)
+> │   ├─ 入力: investigation + verification + hypothesis (≥ 2 件) + evidence
+> │   ├─ 出力: decision + rationale + alternatives
+> │   ├─ 退路: reversibility + rollbackPath
+> │   ├─ quality impact link: targetQualityMetric (health KPI ID) + expectedQualityChange + measuredQualityChange
+> │   │
+> │   └─ 後追い: retrospectiveAudit (Layer 4.6)
+> │       ├─ 評価軸 = 「最終品質向上に貢献したか」(positive / neutral / negative / inconclusive)
+> │       │
+> │       └─ negative / partially-correct と判定された場合:
+> │           ├─ admitMistake: 間違いを認める articulate (= 自己批判的記録、AI / 人間判断 共通)
+> │           ├─ correctionOpportunity: 修正経路を articulate
+> │           │   ├─ rollback: reversibility=reversible なら rollbackPath 実行
+> │           │   ├─ supersede: 新 decision で superseded、旧 decision は historical context 保持
+> │           │   └─ accept-as-debt: 修正不能なら accumulated-debt として articulate (将来 corrective action)
+> │           └─ correctionExecuted: 修正 commit / 新 decision SHA を link (= 修正後の retrospective audit chain)
+> │
+> └─ 人間判断 (構造的安全装置のみ、厳格な少数派)
+>     ├─ 入力: AI 事前集約 view list (具体 material 一覧)
+>     ├─ 基準: AI articulate judgment criteria (承認/却下基準)
+>     ├─ 出力: approval/reject + 承認 record (何を見たか / どう判断したか)
+>     └─ 後追い: retrospectiveAudit (品質寄与評価 + 必要なら admitMistake + correctionOpportunity)
+> ```
+>
+> 両 path 共通: **decision trace** が **品質保証 chain** (= ratchet-down history との双方向 link) として後追い audit に活用される。AAG-REQ-RATCHET-DOWN (改善は不可逆) と AAG-REQ-NO-PERFECTIONISM (弱さを受容) を **decision-level traceability + correction chain** で extend。
 
-#### Project E (仮称 = AAG Decision Traceability、Level 3、本 session で提案 articulate)
+#### Project E (仮称 = AAG Decision Traceability + Quality Connection + Correction Chain、Level 3〜4、本 session で提案 articulate)
 
-**scope**: 「人間判断最小化 + traceability 強化」の institutional 化。具体的に:
+**scope**: 「判断 chain → 品質保証 + 間違い認識 + 修正機会、blame-free な system-level learning」の institutional 化。具体的に:
 
-1. `references/03-guides/decision-trace-pattern.md` 新設 (Layer 4A System Operations) — DecisionTrace schema (investigation + verification + hypothesis ≥ 2 件 + evidence + decision + rationale + alternatives + reversibility + retrospectiveAudit) を articulate
+1. `references/03-guides/decision-trace-pattern.md` 新設 (Layer 4A System Operations) — DecisionTrace schema (investigation + verification + hypothesis ≥ 2 件 + evidence + decision + rationale + alternatives + reversibility + **qualityImpact (targetQualityMetric + expectedQualityChange + measuredQualityChange)** + retrospectiveAudit + **correctionChain (admitMistake + correctionOpportunity + correctionExecuted)**) を articulate。**blame-free 原則** を冒頭で articulate (= 過去 decision-maker への責任追及禁止、structural defect として扱う)
 2. `references/03-guides/human-review-specification.md` 新設 (Layer 4A System Operations) — 人間判断 gate の必須要素 (view list + judgment criteria + approval record) standard pattern
-3. `aag/meta.md` §2 update — `AAG-REQ-DECISION-TRACEABILITY` + `AAG-REQ-HUMAN-REVIEW-EXPLICITNESS` 新規追加、`AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を **Layer 0 + 構造的安全装置のみ** に narrow
-4. `aag/meta.md` §3.2 audit framework に **4.6 Retrospective Audit sub-audit** 追加 (extensible articulate 既存)
+3. `aag/meta.md` §2 update — 新規 requirement 追加:
+   - `AAG-REQ-DECISION-TRACEABILITY` (全 decision に full trace + retrospective audit 経路)
+   - `AAG-REQ-HUMAN-REVIEW-EXPLICITNESS` (人間判断 gate に view list + judgment criteria 必須)
+   - `AAG-REQ-QUALITY-ORIENTED-JUDGMENT` (全 decision に target quality metric + expected change が articulate、retrospective audit で quality contribution 評価)
+   - `AAG-REQ-MISTAKE-ADMISSION-AND-CORRECTION` (negative 評価 decision に admitMistake + correctionOpportunity 必須、修正経路の構造的提供)
+   - `AAG-REQ-BLAME-FREE-LEARNING` (mistake admission は **system-level learning** であり責任追及ではない、過去 decision-maker への blame 禁止 = `AAG-REQ-NO-PERFECTIONISM` の decision-level extension)
+   - `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` を **Layer 0 + 構造的安全装置のみ** に narrow
+4. `aag/meta.md` §3.2 audit framework に **4.6 Retrospective Audit sub-audit** 追加 — 評価軸 = 「**最終品質向上に貢献したか**」(positive / neutral / negative / inconclusive)、入力 = targetQualityMetric の baseline 推移 (ratchet-down history) + 関連 decision trace 群、出力 = quality contribution 判定 + negative の場合 correctionOpportunity link、**blame-free 原則を audit framework に embed** (= 「過去判断は当時の info で最善、後の info で改善余地あり」という framing で articulate、個別 decision-maker を責めない)
 5. `_template/checklist.md` の最終レビュー checkbox を view list + judgment criteria + approval record 必須形式に extend
-6. `references/03-guides/deferred-decision-pattern.md` §3.2 縮小 — 高 blast radius decision の「ユーザー確認必須 gate」を decision trace + retrospective audit に置換 (人間判断必須は **物理削除 trigger + 最終レビュー** のみに narrow)
+6. `references/03-guides/deferred-decision-pattern.md` §3.2 縮小 — 高 blast radius decision の「ユーザー確認必須 gate」を decision trace + quality impact link + retrospective audit + correction chain に置換 (人間判断必須は **物理削除 trigger + 最終レビュー** のみに narrow)
+7. existing health KPI (`health-rules.ts`) + certificate + Layer 4.5 Functional Audit と decision trace の **双方向 link mechanism** (= 個別 decision が KPI 改善に貢献したかの自動 attribution)
+8. **correction chain mechanism** (新): retrospective audit で negative / partially-correct 評価された decision に対する 3 種の修正経路 (rollback / supersede / accept-as-debt) と、修正実行時の新 decision との chain articulate
 
 **着手 trigger**: Project A〜D 完了後 (本 project archive 直前 or 直後)、または本 project archive 後の独立 follow-up として spawn。
 
 **急がない**: 既存 mechanism (deferred-decision-pattern §3.1 = AI 自主判断 + criteria + collection sources + decision log) が 部分的に integrate 済のため、現状の運用に致命的問題なし。**適切なタイミングで institutional 化** する candidate。
 
-**retrospective 検証対象**: 本 session 冒頭の Phase 3 hard gate decision (ユーザー確認 = B 確定) は本 vision で運用すれば **AI 自主判断 + decision trace + retrospective audit** に置換可能。Project A〜D 完了後に「分割は正しかったか」を Layer 4.6 Retrospective Audit で検証する初の application instance に candidate。
+**retrospective 検証対象** (Project E vision で再評価する candidate):
+- 本 session 冒頭の Phase 3 hard gate decision (ユーザー確認 = B 確定) を Layer 4.6 Retrospective Audit の **初 application instance** として検証 — 評価軸: 「Project A〜D 分割は AAG 全体の品質向上に貢献したか」(NOT 「正しかったか」)。具体 quality metric 候補: KPI 60 / project-health derivedStatus 全 in_progress→completed への到達速度 / `AAG-REQ-LAYER-SEPARATION` 等の達成 status flip 数 / health-rules.ts ratchet-down 件数
 
 **追加 follow-up 候補 (2026-04-30 dialog で identify、参考)**:
 - 「最も多い失敗」(`@deprecated` + sunsetCondition 不在) hard fail mechanism (architecture-debt-recovery §3.3 教訓) — Project B Phase 4 meta-guard 拡張 candidate
