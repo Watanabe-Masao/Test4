@@ -4,20 +4,38 @@
 
 ## 1. 現在地
 
-**Bootstrap 完了 (2026-04-30、Project B spawn)**。
+**Phase 1 完遂 (2026-04-30、SemanticTraceBinding 型 family 実装 landing)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
 受けて、**Phase 2 (AR-rule schema 拡張) + Phase 6 (binding 記入) + Phase 8 MVP (meta-guard 4 件)** を
-本 project に独立 spawn。
+本 project に独立 spawn。Phase 1 で型基盤が landing、次は Phase 2 (166 rule に initial value 装着)。
 
-| 項目 | 状態 |
-|---|---|
-| project bootstrap (skeleton 5 doc) | ✅ 完了 (本 commit) |
-| 親 project MVP scope | ✅ 完遂 |
-| 親 project Phase 3 hard gate | ✅ B 確定 |
-| Project A bootstrap | ✅ 完了 |
-| 本 project Phase 1 (型定義) | ⏳ 未着手 |
-| 本 project Phase 4 (meta-guard MVP) | ⏳ 未着手 |
+| 項目                                                | 状態                                                    |
+| --------------------------------------------------- | ------------------------------------------------------- |
+| project bootstrap (skeleton 5 doc)                  | ✅ 完了                                                 |
+| 親 project MVP scope                                | ✅ 完遂                                                 |
+| 親 project Phase 3 hard gate                        | ✅ B 確定                                               |
+| Project A bootstrap + 全 Phase + archive            | ✅ 完遂 (commit `cf8d995`)                              |
+| Project D Phase 1 + archive (case B)                | ✅ 完遂 (commit `aaffaf7`)                              |
+| **本 project Phase 1 (型定義)**                     | ✅ **完遂** (本 commit、5 型 + 2 binding field landing) |
+| 本 project Phase 2 (166 rule に initial value 装着) | ⏳ 未着手                                               |
+| 本 project Phase 3 (binding 記入 batch)             | ⏳ 未着手                                               |
+| 本 project Phase 4 (meta-guard MVP)                 | ⏳ 未着手                                               |
+
+### Phase 1 deliverable
+
+- `app/src/test/aag-core-types.ts` (Core 層) に SemanticTraceBinding 型 family 5 件を landing:
+  - `TraceBindingStatus = 'pending' | 'not-applicable' | 'bound'` (status field、空配列との明示的差別化)
+  - `SemanticTraceRef` (`problemAddressed` + `resolutionContribution` の必須対、AAG-REQ-ANTI-DUPLICATION の構造的強制)
+  - `CanonicalDocTraceRef extends SemanticTraceRef` (`docPath` 追加)
+  - `MetaRequirementTraceRef extends SemanticTraceRef` (`requirementId` 追加)
+  - `SemanticTraceBinding<TRef extends SemanticTraceRef>` (`status` + `justification?` + `refs[]` の三位一体)
+- `app/src/test/architectureRules/types.ts` (App Domain 層) に `RuleBinding` 拡張:
+  - `canonicalDocRef?: SemanticTraceBinding<CanonicalDocTraceRef>` (forward direction、実装 → 設計 doc binding)
+  - `metaRequirementRefs?: SemanticTraceBinding<MetaRequirementTraceRef>` (reverse direction、実装 → 要件 binding)
+- `architectureRules/index.ts` barrel に 5 型を re-export
+- `architectureRulesMergeSmokeGuard.test.ts` に type-level smoke test 1 件追加 (barrel 経由 type access 検証)
+- 検証: build PASS / lint 0 errors / test:guards 130 file 894 test PASS / docs:check Hard Gate PASS
 
 ### 親 project からの継承事項
 
@@ -25,9 +43,10 @@
 詳細概念定義は親 plan を正本とし、本 project では operational plan に絞る。
 
 入力 doc:
+
 - `projects/aag-bidirectional-integrity/plan.md` §3.4 (SemanticTraceBinding 設計の正本)
 - `projects/aag-bidirectional-integrity/breaking-changes.md` §1.2 (AAG rule schema 拡張の articulate 詳細)
-- `references/01-principles/aag/meta.md` §2 (12 AAG-REQ-* requirement = `metaRequirementRefs` の供給元)
+- `references/01-principles/aag/meta.md` §2 (12 AAG-REQ-\* requirement = `metaRequirementRefs` の供給元)
 - `projects/completed/aag-core-doc-refactor/plan.md` (Project A 正本、`canonicalDocRef.refs[].docPath` の供給元)
 
 ## 2. 次にやること
@@ -91,13 +110,13 @@ keyword (TBD / N/A / same / see above 等) 検出、重複検出、status 整合
 
 ## 4. 関連文書
 
-| ファイル | 役割 |
-|---|---|
-| `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§3.4 SemanticTraceBinding / §Phase 2 / 6 / 8) |
-| `projects/aag-bidirectional-integrity/breaking-changes.md` | 親 project の breaking-changes §1.2 (schema 拡張の articulate 詳細) |
-| `references/01-principles/aag/meta.md` | AAG Meta charter (`metaRequirementRefs.refs[].requirementId` の供給元) |
-| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`canonicalDocRef.refs[].docPath` の供給元) |
-| `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (本 project の主要 implementation 対象) |
-| `app/src/test/aag-core-types.ts` / `architectureRules/types.ts` | 型定義 (SemanticTraceBinding 追加先) |
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |
-| `references/03-guides/deferred-decision-pattern.md` | 途中判断 checklist の制度 doc |
+| ファイル                                                        | 役割                                                                   |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `projects/aag-bidirectional-integrity/plan.md`                  | 親 project の正本 (§3.4 SemanticTraceBinding / §Phase 2 / 6 / 8)       |
+| `projects/aag-bidirectional-integrity/breaking-changes.md`      | 親 project の breaking-changes §1.2 (schema 拡張の articulate 詳細)    |
+| `references/01-principles/aag/meta.md`                          | AAG Meta charter (`metaRequirementRefs.refs[].requirementId` の供給元) |
+| `projects/completed/aag-core-doc-refactor/plan.md`              | Project A 正本 (`canonicalDocRef.refs[].docPath` の供給元)             |
+| `app-domain/gross-profit/rule-catalog/base-rules.ts`            | BaseRule 物理正本 (本 project の主要 implementation 対象)              |
+| `app/src/test/aag-core-types.ts` / `architectureRules/types.ts` | 型定義 (SemanticTraceBinding 追加先)                                   |
+| `references/03-guides/project-checklist-governance.md`          | 本 project の運用ルール                                                |
+| `references/03-guides/deferred-decision-pattern.md`             | 途中判断 checklist の制度 doc                                          |

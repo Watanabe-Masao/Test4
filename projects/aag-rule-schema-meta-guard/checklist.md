@@ -8,15 +8,15 @@
 
 ## Phase 1: SemanticTraceBinding 型 family 実装
 
-- [ ] `app/src/test/aag-core-types.ts` (or `architectureRules/types.ts`) に `TraceBindingStatus` 型 alias 追加 (`'pending' | 'not-applicable' | 'bound'`)
-- [ ] `SemanticTraceRef` interface 追加 (`problemAddressed: string` + `resolutionContribution: string`)
-- [ ] `CanonicalDocTraceRef` interface 追加 (extends `SemanticTraceRef`、`docPath: string`)
-- [ ] `MetaRequirementTraceRef` interface 追加 (extends `SemanticTraceRef`、`requirementId: string`)
-- [ ] `SemanticTraceBinding<TRef>` interface 追加 (`status` + `justification?` + `refs: readonly TRef[]`)
-- [ ] `RuleBinding` 型に `canonicalDocRef?: SemanticTraceBinding<CanonicalDocTraceRef>` を optional 追加
-- [ ] `RuleBinding` 型に `metaRequirementRefs?: SemanticTraceBinding<MetaRequirementTraceRef>` を optional 追加
-- [ ] `merged.ts` 経由で consumer から型アクセス可能を確認 (sample import 1 件)
-- [ ] tsc -b PASS + 既存全 guard PASS
+- [x] `app/src/test/aag-core-types.ts` (or `architectureRules/types.ts`) に `TraceBindingStatus` 型 alias 追加 (`'pending' | 'not-applicable' | 'bound'`) — `aag-core-types.ts` (Core 層) に landing
+- [x] `SemanticTraceRef` interface 追加 (`problemAddressed: string` + `resolutionContribution: string`) — `aag-core-types.ts` に landing、AAG-REQ-ANTI-DUPLICATION の必須対構造
+- [x] `CanonicalDocTraceRef` interface 追加 (extends `SemanticTraceRef`、`docPath: string`) — `aag-core-types.ts` に landing
+- [x] `MetaRequirementTraceRef` interface 追加 (extends `SemanticTraceRef`、`requirementId: string`) — `aag-core-types.ts` に landing
+- [x] `SemanticTraceBinding<TRef>` interface 追加 (`status` + `justification?` + `refs: readonly TRef[]`) — `aag-core-types.ts` に landing、TRef は `SemanticTraceRef` 制約付き
+- [x] `RuleBinding` 型に `canonicalDocRef?: SemanticTraceBinding<CanonicalDocTraceRef>` を optional 追加 — `architectureRules/types.ts` (App Domain 層) に landing
+- [x] `RuleBinding` 型に `metaRequirementRefs?: SemanticTraceBinding<MetaRequirementTraceRef>` を optional 追加 — `architectureRules/types.ts` に landing
+- [x] `merged.ts` 経由で consumer から型アクセス可能を確認 (sample import 1 件) — `architectureRules/index.ts` barrel 経由で 5 型 re-export + `architectureRulesMergeSmokeGuard.test.ts` に type-level smoke test 追加 (10 tests PASS)
+- [x] tsc -b PASS + 既存全 guard PASS — build PASS / lint 0 errors / test:guards 130 file 894 test PASS / docs:check Hard Gate PASS
 
 ## Phase 2: 166 rule に initial value 装着
 

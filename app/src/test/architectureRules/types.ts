@@ -29,6 +29,11 @@ import type {
   ReviewPolicy as _ReviewPolicy,
   LifecyclePolicy as _LifecyclePolicy,
   RuleRelationships as _RuleRelationships,
+  TraceBindingStatus as _TraceBindingStatus,
+  SemanticTraceRef as _SemanticTraceRef,
+  CanonicalDocTraceRef as _CanonicalDocTraceRef,
+  MetaRequirementTraceRef as _MetaRequirementTraceRef,
+  SemanticTraceBinding as _SemanticTraceBinding,
 } from '../aag-core-types'
 
 // Core 型を re-export（既存 consumer の import を壊さない）
@@ -48,6 +53,13 @@ export type ExecutionPlan = _ExecutionPlan
 export type ReviewPolicy = _ReviewPolicy
 export type LifecyclePolicy = _LifecyclePolicy
 export type RuleRelationships = _RuleRelationships
+
+// SemanticTraceBinding family — drill-down chain の semantic management (Project B Phase 1)
+export type TraceBindingStatus = _TraceBindingStatus
+export type SemanticTraceRef = _SemanticTraceRef
+export type CanonicalDocTraceRef = _CanonicalDocTraceRef
+export type MetaRequirementTraceRef = _MetaRequirementTraceRef
+export type SemanticTraceBinding<TRef extends _SemanticTraceRef> = _SemanticTraceBinding<TRef>
 
 // Core 意味層
 export type RuleSemantics = _RuleSemantics
@@ -150,6 +162,24 @@ export interface RuleBinding {
     readonly imports?: readonly string[]
     readonly codeSignals?: readonly string[]
   }
+  /**
+   * 実装 → 設計 doc binding (forward direction)。
+   *
+   * 各 rule が canonize する canonical doc への trace ref + status。
+   * Phase 1 では initial value `{ status: 'pending', refs: [] }` で全 rule に装着、
+   * Phase 3 で各 rule の `status` を `'bound'` or `'not-applicable'` に flip。
+   *
+   * @see references/01-principles/aag/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
+   */
+  readonly canonicalDocRef?: _SemanticTraceBinding<_CanonicalDocTraceRef>
+  /**
+   * 実装 → 要件 binding (reverse direction)。
+   *
+   * 各 rule が satisfy に貢献する `AAG-REQ-*` 要件への trace ref + status。
+   * Phase 1 では initial value `{ status: 'pending', refs: [] }` で全 rule に装着、
+   * Phase 3 で各 rule の `status` を `'bound'` or `'not-applicable'` に flip。
+   */
+  readonly metaRequirementRefs?: _SemanticTraceBinding<_MetaRequirementTraceRef>
 }
 
 /**

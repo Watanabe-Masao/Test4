@@ -34,6 +34,12 @@ export type {
   RuleGovernance,
   RuleOperationalState,
   RuleDetectionSpec,
+  // SemanticTraceBinding family (Project B Phase 1)
+  TraceBindingStatus,
+  SemanticTraceRef,
+  CanonicalDocTraceRef,
+  MetaRequirementTraceRef,
+  SemanticTraceBinding,
 } from './types'
 
 export { SLICE_GUIDANCE } from './types'
