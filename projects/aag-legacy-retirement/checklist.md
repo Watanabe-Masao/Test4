@@ -7,35 +7,35 @@
 
 ## Phase 1: 必要性 re-evaluate + 拡張案件 inventory
 
-- [ ] **着手前判断**: Project A Phase 5 完了状況を確認 (本 project 必要性 re-evaluate の前提)
-- [ ] Project A Phase 5 完遂状況 grep (各旧 doc の archive 移管完了 / 未完了の identify)
-- [ ] 未完遂 doc の複雑性分析 (Split 必要 / 複数 doc 横断 / inbound 60+ 件 等の判定基準を articulate)
-- [ ] **判定**: case A (拡張案件あり、Phase 2 へ) / case B (なし、本 project archive 候補に migrate) を articulate
-- [ ] case A の場合: `references/02-status/legacy-retirement-extended.md` 新設 (拡張案件 articulation の集約 doc)
-- [ ] case B の場合: 本 project archive プロセス着手 articulation (checklist 末尾「最終レビュー (人間承認)」 [x] flip 経由)
+- [x] **着手前判断**: Project A Phase 5 完了状況を確認 (本 project 必要性 re-evaluate の前提) — Project A は 2026-04-30 archive 完遂 (`projects/completed/aag-core-doc-refactor/`、commit `cf8d995`)。Phase 5.1〜5.8 全 [x]、最終レビュー人間承認済
+- [x] Project A Phase 5 完遂状況 grep (各旧 doc の archive 移管完了 / 未完了の identify) — 8 旧 doc 全て `references/99-archive/` 配下に移管済 (`adaptive-architecture-governance.md` / `aag-5-constitution.md` / `aag-5-layer-map.md` / `aag-5-source-of-truth-policy.md` / `aag-four-layer-architecture.md` / `aag-operational-classification.md` / `aag-rule-splitting-plan.md` / `adaptive-governance-evolution.md`)。各旧 doc の active inbound = 0 (`principles.json` $comment 内の歴史的 changelog 言及 1 件のみ存在、これは migration 対象外の historical articulation)
+- [x] 未完遂 doc の複雑性分析 (Split 必要 / 複数 doc 横断 / inbound 60+ 件 等の判定基準を articulate) — **未完遂 doc = 0 件** (全 8 doc archive 完遂)。複雑性分析対象なし
+- [x] **判定**: case A (拡張案件あり、Phase 2 へ) / case B (なし、本 project archive 候補に migrate) を articulate — **case B 確定** (拡張案件 0 件、Project A Phase 5 で全 8 doc archive 完遂のため)
+- [x] case A の場合: `references/02-status/legacy-retirement-extended.md` 新設 (拡張案件 articulation の集約 doc) — N/A (case B 確定、本 doc 新設不要)
+- [x] case B の場合: 本 project archive プロセス着手 articulation (checklist 末尾「最終レビュー (人間承認)」 [x] flip 経由) — Phase 1 完遂、最終レビュー (人間承認) 待ち状態へ移行
 
-## Phase 2: 拡張案件の Split + Rewrite (case A 限定)
+## Phase 2: 拡張案件の Split + Rewrite (case A 限定) — **N/A (case B 確定、Phase 1 で本 Phase scope out)**
 
-- [ ] case A 確定後、各拡張案件の責務分割 articulate (例: `adaptive-architecture-governance.md` = 戦略マスター + 文化論 + 旧 4 層 + バージョン履歴 同居 → 4 分割)
-- [ ] Split 先の新 doc (or 既存 doc、Project A の `aag/` 配下 doc を活用) への内容書き起こし
-- [ ] 各分割成果物の独立 commit
-- [ ] archive 前 mapping table の landing (新 doc 内に「旧概念 → 新概念 mapping」articulate)
-- [ ] build / lint / docs:check 全 PASS
+- [x] case A 確定後、各拡張案件の責務分割 articulate — N/A (case B 確定)
+- [x] Split 先の新 doc への内容書き起こし — N/A (case B 確定)
+- [x] 各分割成果物の独立 commit — N/A (case B 確定)
+- [x] archive 前 mapping table の landing — N/A (case B 確定)
+- [x] build / lint / docs:check 全 PASS — N/A (case B 確定、Phase 2 着手しないため独立検証不要、Phase 1 完遂時の Hard Gate PASS で代替)
 
-## Phase 3: 拡張案件の inbound migration + archive 移管 (case A 限定)
+## Phase 3: 拡張案件の inbound migration + archive 移管 (case A 限定) — **N/A (case B 確定)**
 
-- [ ] 各拡張案件の inbound grep + 全件 update (`git grep "<旧 path>"` で 0 件確認)
-- [ ] archive 移管 (`mv references/01-principles/<旧 path>.md references/99-archive/<旧 path>.md`)
-- [ ] frontmatter `archived: true` + `archivedAt: 2026-XX-XX` + `archivedBy: <commit SHA>` 追加
-- [ ] `docs/contracts/doc-registry.json` の archive section update
-- [ ] inbound 0 機械検証 PASS + docRegistryGuard / docCodeConsistencyGuard 全 PASS
+- [x] 各拡張案件の inbound grep + 全件 update — N/A (case B 確定)
+- [x] archive 移管 — N/A (case B 確定)
+- [x] frontmatter 装着 — N/A (case B 確定)
+- [x] doc-registry.json の archive section update — N/A (case B 確定)
+- [x] inbound 0 機械検証 PASS + docRegistryGuard / docCodeConsistencyGuard 全 PASS — N/A (case B 確定、Phase 1 完遂時に検証済 = 8 旧 doc active inbound 0)
 
-## Phase 4: 物理削除 (人間判断後、case A 限定)
+## Phase 4: 物理削除 (人間判断後、case A 限定) — **N/A (case B 確定)**
 
-- [ ] **判断**: 各 archive file の人間 approval 状態確認 (人間判断 gate、AI 判断しない)
-- [ ] 各 archive file の frontmatter `humanDeletionApproved: true` + `approvedBy` + `approvedCommit` の articulate (人間レビューアが記入)
-- [ ] AI 側で `humanDeletionApproved: true` を検出した case のみ物理削除 commit を実行
-- [ ] 物理削除完遂を本 project HANDOFF / 親 project HANDOFF に通知 update
+- [x] **判断**: 各 archive file の人間 approval 状態確認 — N/A (case B 確定、本 project では物理削除 trigger 発火しない)
+- [x] frontmatter `humanDeletionApproved: true` 等の articulate — N/A (case B 確定)
+- [x] AI 側で `humanDeletionApproved: true` を検出した case のみ物理削除 commit を実行 — N/A (case B 確定)
+- [x] 物理削除完遂を本 project HANDOFF / 親 project HANDOFF に通知 update — N/A (case B 確定、本 project archive 完遂を親 HANDOFF に articulate で代替)
 
 ## 途中判断 (decision gates、AI 自主判断 + judgement criteria)
 
@@ -43,25 +43,22 @@
 
 ### Phase 1 着手前判断
 
-- [ ] **Project A Phase 5 完了状況確認**
+- [x] **Project A Phase 5 完了状況確認**
   - **判断基準**: Project A checklist Phase 5 全 [x] / 全旧 doc が `references/99-archive/` に移管済
   - **判断材料**: Project A checklist 状態 + `git ls-files references/99-archive/` 結果
-- [ ] **必要性 re-evaluate (case A / case B 判定)**
+  - **判断結果 (2026-04-30)**: Project A は archive 完遂 (`projects/completed/aag-core-doc-refactor/`、commit `cf8d995`)。Phase 5.1〜5.8 全 [x]、最終レビュー人間承認済 (commit `306c8b9`)。8 旧 doc 全て `references/99-archive/` 配下に物理移管済を `ls` で確認
+- [x] **必要性 re-evaluate (case A / case B 判定)**
   - **判断基準**: case A = Project A Phase 5 で完遂しなかった doc あり (複雑性 = Split 必要 / 複数 doc 横断 / inbound 60+ 件 等)、case B = 完遂済で拡張案件なし
   - **判断材料**: Project A Phase 5 残作業 grep + 各 doc の inbound count + 複雑性分析結果
+  - **判断結果 (2026-04-30)**: **case B 確定**。8 旧 doc 全 archive 完遂 + 全 doc の active inbound = 0 (`principles.json` $comment 内の歴史的 changelog 言及 1 件は migration 対象外)。拡張案件 (= Project A Phase 5 で完遂しなかった複雑案件) は **0 件**、本 project は MVP scope を Phase 1 のみで完遂し、Phase 2-4 は scope out
 
-### Phase 2 着手前判断 (case A 限定)
+### Phase 2 着手前判断 (case A 限定) — N/A (case B 確定)
 
-- [ ] **各拡張案件の Split 粒度確定**
-  - **判断基準**: 1 doc 1 責務 (C1 適用) / 後任が責務継承を Trace 可能か / Project A `aag/` 配下 doc との重複回避
-  - **判断材料**: 各拡張案件の責務 inventory / Project A `aag/` 配下 doc の articulate 状態
+- [x] **各拡張案件の Split 粒度確定** — N/A (case B 確定)
 
-### Phase 4 進行中判断 (case A 限定、毎 archive file ごと)
+### Phase 4 進行中判断 (case A 限定、毎 archive file ごと) — N/A (case B 確定)
 
-- [ ] **物理削除の人間 approval 確認** (人間判断必須、AI 判断しない)
-  - **trigger 条件**: archive 配下 file への inbound 0 機械検証 + 人間 deletion approval (frontmatter `humanDeletionApproved: true` + `approvedBy` + `approvedCommit`)
-  - **判断者**: 人間レビューア (AI でなく)
-  - **AI action**: archive 移管後の物理削除は AI が独自判断で実行しない、人間 approval を待つ
+- [x] **物理削除の人間 approval 確認** — N/A (case B 確定、本 project では物理削除 trigger 発火しない)
 
 ## Future follow-up project candidate consideration (必ず触れる原則、user articulate 2026-04-30)
 
@@ -71,9 +68,9 @@
 >
 > **本 project との特別 relevance**: 本 project は legacy 撤退 + 物理削除 trigger (= Project E の `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` + `AAG-REQ-ROLLBACK-ANCHOR-PRESERVATION` の application instance precursor) を扱う。物理削除 trigger は **不可逆 milestone** の典型例、archive 移管は rollback anchor の典型例。本 project Phase 1 (必要性 re-evaluate) で case A / B 判定する decision 自体が Project E DecisionTrace schema の sample candidate。
 
-- [ ] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** (= 親 HANDOFF §2 に追記 or 本 checklist の note に articulate、決定的な action は不要、engage のみ義務)
-- [ ] 本 project Phase 1 (必要性 re-evaluate、case A/B 判定) を Project E DecisionTrace schema の retrospective retrofit candidate として articulate (= 本 project 自体の存在判断が DecisionTrace の典型例)
-- [ ] 本 project archive 前に Project E candidate spawn 着手 trigger を確認
+- [x] 本 project の各 Phase 着手前 / 完了時に **Project E + F candidate を一読** + 本 project の context で **新たな insight / 反証 / brush up があれば articulate** — Phase 1 着手前に親 `aag-bidirectional-integrity/HANDOFF.md` §2 を一読、case B 判定の事実 (= 「Project A の単純 archive 範囲が当初想定より広く、Project D の拡張 scope が空集合になった」) は Project E `AAG-REQ-DECISION-TRACEABILITY` の sample candidate として保持。本 project の context での新たな反証なし (engage 義務満たす)
+- [x] 本 project Phase 1 (必要性 re-evaluate、case A/B 判定) を Project E DecisionTrace schema の retrospective retrofit candidate として articulate — **本 project 自体の存在判断 = case B = early scope-out** が Project E DecisionTrace の典型例 (decision = case B / criteria = 拡張案件 0 件 / evidence = 8 旧 doc archive 完遂状況 grep / outcome = Phase 2-4 scope out + archive 候補 migrate)
+- [x] 本 project archive 前に Project E candidate spawn 着手 trigger を確認 — Project E spawn trigger = Project A〜D 全完了。Project A 完遂 (✅) / 本 project (D) MVP scope 完遂で archive 候補 (本 commit) / Project B/C は別途進行。本 project archive 完遂時点で Project A + D = 2/4 完了、Project E spawn 条件 (4/4) は未充足、引き続き Project B/C 完遂を待つ
 
 ## 最終レビュー (人間承認)
 

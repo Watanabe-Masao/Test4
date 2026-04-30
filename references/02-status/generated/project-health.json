@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-04-30T21:52:55.094Z",
+  "timestamp": "2026-04-30T22:20:49.300Z",
   "summary": {
     "active": 8,
     "archived": 30,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1184,
-    "checkedCheckboxes": 907
+    "checkedCheckboxes": 934
   },
   "projects": [
     {
@@ -83,9 +83,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
+      "checked": 27,
       "total": 28,
-      "progress": 0,
+      "progress": 0.964,
       "entrypoint": "projects/aag-legacy-retirement/AI_CONTEXT.md",
       "checklistPath": "projects/aag-legacy-retirement/checklist.md",
       "parent": null
