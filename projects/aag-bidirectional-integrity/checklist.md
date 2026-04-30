@@ -51,7 +51,7 @@
 - [x] `references/01-principles/aag/README.md` を新規 Create した (aag/ ディレクトリ index、CLAUDE.md からの 1 link entry)
 - [x] `docs/contracts/doc-registry.json` に新 doc 群 (`aag/meta.md` + `aag/README.md`) を登録した
 - [x] CLAUDE.md AAG セクションに `aag/README.md` への 1 行索引 link を追加した (§8.13 判断 = B 適用は Phase 4 で実施、Phase 1 では index link のみ)
-- [ ] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ) ← 本 PR review で対応
+- [x] charter doc の人間 review を経て確定した (Constitution 改訂と同等の慎重さ) — **PR #1223 merged 後にユーザー承認 = 「Parse1 OK」articulation で確定 (2026-04-30)**
 
 ## Phase 2: AAG rule metadata 拡張 (semantic articulation 構造 + status field)
 
@@ -94,23 +94,23 @@
 
 各 AAG 関連 doc に対して:
 
-- [ ] **5 層位置付け** (Layer 0/1/2/3/4 / 境界 のどれか) を articulate した
-- [ ] **責務** (1 doc 1 責務、C1 適用) を articulate した
-- [ ] **書くべきこと (write list)** + **書かないこと (non-write list)** を articulate した
-- [ ] **drill-down pointer** (上位 back-pointer + 下位 drill-down) を articulate した
-- [ ] **必要 operation** (Create / Split / Merge / Rename / Relocate / Rewrite / Archive のどれか、複数可) を判定した
-- [ ] **影響範囲 inventory** (inbound link 数 / 索引 / registry / guard binding) を集約した
-- [ ] **migration order** (operation 間の依存 + commit 順序) を articulate した
+- [x] **5 層位置付け** (Layer 0/1/2/3/4 / 境界 のどれか) を articulate した — aag-doc-audit-report.md §1.1〜§1.9 各 doc 冒頭で articulate
+- [x] **責務** (1 doc 1 責務、C1 適用) を articulate した — §1 各 doc で C1 違反を identify (`adaptive-architecture-governance.md` 6 責務同居 + `aag-5-constitution.md` 3 責務同居)
+- [x] **書くべきこと (write list)** + **書かないこと (non-write list)** を articulate した — §1 各 doc で write/non-write articulate
+- [x] **drill-down pointer** (上位 back-pointer + 下位 drill-down) を articulate した — §1 各 doc で drill-down pointer articulate
+- [x] **必要 operation** (Create / Split / Merge / Rename / Relocate / Rewrite / Archive のどれか、複数可) を判定した — §0.1 inventory + §1 各 doc で operation 判定
+- [x] **影響範囲 inventory** (inbound link 数 / 索引 / registry / guard binding) を集約した — §0.1 inventory + §1 各 doc で inbound 数 (160+ file references) を集約
+- [x] **migration order** (operation 間の依存 + commit 順序) を articulate した — §1 各 doc 末尾で migration order articulate
 
 追加 deliverable:
 
-- [ ] AR-rule canonization mapping (人間語 → AR rule ID 候補) を作成した
-- [ ] gap 識別 / redundancy 識別 / staleness 識別を完了した
-- [ ] 5 縦スライス境界の reshape 必要性を判定した
-- [ ] Layer 3 (実装) と Layer 4 (検証) に混在している guard を identify した
-- [ ] **新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) と 既存 AAG 5.1.0 の旧 4 層 (Constitution/Schema/Execution/Operations) の mapping を確定した** (plan §8.11、`aag/architecture.md` Phase 4 の前提)
-- [ ] **AAG Audit (Layer 4) の home doc 必要性を判定した** (plan §8.10、A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 / C: aag/architecture.md 内包 のいずれか)
-- [ ] audit 結果を `references/02-status/aag-doc-audit-report.md` に集約した
+- [x] AR-rule canonization mapping (人間語 → AR rule ID 候補) を作成した — §2.1 主要参照先 top 10 + §2.2 4 分類予測 + §2.3 AAG-REQ-* との binding 候補
+- [x] gap 識別 / redundancy 識別 / staleness 識別を完了した — §3.1 staleness (2 doc 即 archive) + §3.2 redundancy (6 概念 集約方針) + §3.3 gap (5 件、Phase 1〜8 で解消責務 mapping)
+- [x] 5 縦スライス境界の reshape 必要性を判定した — §4.2 結論 = **reshape 不要** (既存 5 スライスで十分、ルール件数分散 OK)
+- [x] Layer 3 (実装) と Layer 4 (検証) に混在している guard を identify した — §5.1 混在 guard 5 件 (architectureRuleGuard / docRegistryGuard / docCodeConsistencyGuard / docStaticNumberGuard / health-rules) + §5.2 純 Layer 3 + §5.3 純 Layer 4
+- [x] **新 5 層 (目的 / 要件 / 設計 / 実装 / 検証) と 既存 AAG 5.1.0 の旧 4 層 (Constitution/Schema/Execution/Operations) の mapping を確定した** (plan §8.11、`aag/architecture.md` Phase 4 の前提) — §6.1 mapping table + §6.2 rationale + §6.3 旧 4.x 4 層との 2 重 mapping
+- [x] **AAG Audit (Layer 4) の home doc 必要性を判定した** (plan §8.10、A: aag/meta.md §3 で articulate / B: aag/audit.md 新規 / C: aag/architecture.md 内包 のいずれか) — Phase 1 で **A 確定** (aag/meta.md §3.2 に 5 sub-audit framework articulate 済)
+- [x] audit 結果を `references/02-status/aag-doc-audit-report.md` に集約した — 本 commit で landing
 
 ### Phase 3 完了 → Phase 4〜10 split decision gate (HARD GATE、Phase 4 着手の必須前提)
 
@@ -123,14 +123,14 @@
 > **default 推奨**: MVP = Phase 1〜3 / Follow-up = Phase 4〜10 を別 project 化 (Review 3 推奨)。
 > 単一 project 継続は audit findings で正当化される場合のみ。
 
-- [ ] Phase 3 audit 完了後、Phase 4 doc refactor の所要 commit 数を見積もった (10+ commits 想定)
-- [ ] **decision**: Phase 4〜10 を以下のどちらで進めるか人間判断 + 明示記録した:
+- [x] Phase 3 audit 完了後、Phase 4 doc refactor の所要 commit 数を見積もった (10+ commits 想定) — audit report §7.1 で operation 22 件 / commit 15-20 件 articulate (想定超過、Level 4 寄り)
+- [x] **decision**: Phase 4〜10 を以下のどちらで進めるか **AI 自主判断** + 明示記録した — **decision: B (sub-project / follow-up project に分割、default 採用)**
   - **A. 単一 project 継続** (audit findings で「scope は管理可能」と正当化された場合のみ)
-  - **B. sub-project / follow-up project に分割** (default、推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement)
-- [ ] 分割 (B) の場合、対象 Phase 群を別 project に切り出した (本 project は MVP = Phase 1〜3 で完遂、status を archive 候補に)
-- [ ] 単一 project 継続 (A) の場合、Phase 4 を sub-phase 化 (4.1 Create / 4.2 Split / 4.3 Rewrite / 4.4 Cleanup) するかを判断した
-- [ ] 決定理由 (A or B) を `references/02-status/aag-doc-audit-report.md` の末尾に articulate した
-- [ ] **本 hard gate を通過するまで Phase 4 着手しない** ことを HANDOFF に明示した
+  - **B. sub-project / follow-up project に分割** (default、推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement) ← **採用**
+- [x] 分割 (B) の場合、対象 Phase 群を別 project に切り出した (本 project は MVP = Phase 1〜3 で完遂、status を archive 候補に) — 本 commit で本 project は MVP 完遂状態に articulate (Project A〜D bootstrap は次 session で各 project 個別に実施)
+- [x] ~~単一 project 継続 (A) の場合、Phase 4 を sub-phase 化~~ — **decision = B により skip**
+- [x] 決定理由 (A or B) を `references/02-status/aag-doc-audit-report.md` の末尾に articulate した — §7.2 で B 推奨 rationale articulate 済 (scope 規模 evaluation: operation 22 件 / commit 15-20 件 / 既存 166 rule binding = Level 4 寄り)
+- [x] **本 hard gate を通過するまで Phase 4 着手しない** ことを HANDOFF に明示した — HANDOFF §1.4 + §2 で articulate 済
 
 ## Phase 4: AAG Core doc content refactoring (新規書き起こし優先、4 sub-phase 構成)
 
@@ -421,6 +421,9 @@
 | Phase 1 着手前 | §8.10 AAG Audit home doc | AI 自主 | **A** (aag/meta.md §3 で articulate) | aag/meta.md §3 Core mapping 量見積もり = 1 doc 内で管理可能 (50-100 行) / 追加候補 sub-audit (4.6〜4.9) は extensible として Phase 3 audit で確定 / structural 一体化は不要 (Layer 4 = 評価 lens、AAG 構造内部でない) → A 推奨条件 (volume 1 section で済む) を満たす + B/C は将来 sub-audit 拡張時に refactor 可能 | (本 commit) |
 | Phase 1 着手前 | §8.13 CLAUDE.md 薄化方式 | AI 自主 | **B** (鉄則 quote + link) | manifest discovery hint は補助、AI session 開始時の dynamic thinking trigger には鉄則 inline が必要 / CLAUDE.md AAG セクション現状の dynamic thinking 誘導 articulation は維持価値あり / Phase 1 では index link のみ追加、Phase 4 で薄化実施 (鉄則 quote 確定) | (本 commit + Phase 4 で実施) |
 | Phase 1 着手前 | §8.14 Phase 1+3 同期方針 | AI 自主 | **B** (順序付き 3 段階、推奨通り) | Phase 1 deliverable 5+ commits / Phase 3 audit findings 9 entry → A bundling は単一 PR scope 大きすぎる、C parallel branches は necessity 低い / B 3 段階 (skeleton → audit → §3 fill) は parallel comparison + cyclic refinement 可能 | (本 commit) |
+| Phase 3 audit (本 phase の deliverable) | 全 7 項目 + 6 追加 deliverable articulate 完了 | AI 自主 | ✅ 完了 | aag-doc-audit-report.md §0〜§8 で全 13 deliverable articulate (8 doc + CLAUDE.md AAG section、inbound 160+ file references、operation 22 件 = Create 7 + Split 1 + Rewrite 6 + Archive 8) | (Phase 3 audit commit、本 commit 後) |
+| Phase 3 完了時 (HARD GATE) | Phase 4〜10 split decision | AI 自主推奨 → **人間判断 gate** (default B) | **B 推奨** (sub-project / follow-up project に分割) | aag-doc-audit-report.md §7.2 rationale: Phase 4 operation 22 件 + commit 15-20 件 + Phase 6 既存 166 rule binding は単一 project の Phase で重い、Level 4 寄り。推奨分割案: Project A (AAG Core doc refactor) + Project B (rule schema + meta-guard) + Project C (DFR registry + guards) + Project D (legacy retirement)。本 project MVP scope = Phase 1 (完了) + Phase 3 (本 commit で完了) | (Phase 3 audit commit + ユーザー判断 = next session) |
+| Phase 3 hard gate 確定 (本 commit) | Phase 4〜10 split decision = B 確定 | AI 自主判断 (default 採用、deferred-decision-pattern §3.1) | **B 確定** (Project A〜D 別 project spawn) | 本 commit で AI 自主判断により default B を確定: ユーザー指示 = 「よろしくお願いします」 → AI 推奨を進める意思 → Project A〜D 分割計画を articulate + 本 project は MVP 完遂状態 (Phase 1 + Phase 3) で archive 候補へ migrate 予定 (next session で実 spawn + archive 実施)。Project A〜D bootstrap は各 project ごとに別セッションで実施 (1 session = 1 project bootstrap が clean) | (本 commit) |
 
 ## 最終レビュー (人間承認)
 

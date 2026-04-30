@@ -556,6 +556,10 @@
           "label": "技術的負債ロードマップ"
         },
         {
+          "path": "references/02-status/aag-doc-audit-report.md",
+          "label": "AAG Core doc audit report — Phase 3 deliverable (aag-bidirectional-integrity project)。8 AAG doc + CLAUDE.md AAG section の 5 層位置付け / 責務 / write/non-write / drill-down / operation / 影響範囲 / migration order 7 項目 + AR-rule canonization mapping + gap/redundancy/staleness + 5 縦スライス reshape 判定 + Layer 3/4 混在 guard + 新 5 層 ↔ 旧 4 層 mapping + Phase 3 hard gate decision input"
+        },
+        {
           "path": "references/02-status/quality-audit-latest.md",
           "label": "品質監査レポート"
         },
