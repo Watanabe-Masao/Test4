@@ -27,6 +27,13 @@ import { ARCHITECTURE_RULES as FROM_BARREL } from '../architectureRules'
 import { ARCHITECTURE_RULES as FROM_INDEX } from '../architectureRules/index'
 import { ARCHITECTURE_RULES as FROM_MERGED } from '../architectureRules/merged'
 import { ARCHITECTURE_RULES as FROM_BASE_RE_EXPORT } from '../architectureRules/rules'
+// SemanticTraceBinding family の barrel 経由 type access (Project B Phase 1)
+import type {
+  TraceBindingStatus,
+  CanonicalDocTraceRef,
+  MetaRequirementTraceRef,
+  SemanticTraceBinding,
+} from '../architectureRules'
 // 互換 facade（架橋ファイル）
 import { ARCHITECTURE_RULES as FROM_COMPAT_FACADE } from '../architectureRules.ts'
 import {
@@ -130,6 +137,13 @@ describe('Architecture Rules Merge / Facade Smoke', () => {
       },
     )
     expect(violations.map((v) => v.location)).toEqual([])
+  })
+
+  it('SemanticTraceBinding family が barrel 経由で type access 可能 (Project B Phase 1)', () => {
+    const status: TraceBindingStatus = 'pending'
+    const doc: SemanticTraceBinding<CanonicalDocTraceRef> = { status: 'pending', refs: [] }
+    const req: SemanticTraceBinding<MetaRequirementTraceRef> = { status: 'pending', refs: [] }
+    expect([status, doc.refs.length, req.refs.length]).toEqual(['pending', 0, 0])
   })
 
   it('rule id の重複がない', () => {

@@ -160,4 +160,4 @@ Architecture Rule の `what` (何を防ぐか) / `why` (なぜ防ぐか) / `deci
 | `references/01-principles/design-principles.md` | 設計原則 9 カテゴリ (A-I + Q) — 本 doc が articulate しない設計原則の詳細 |
 | `references/01-principles/uiux-principles.md` | UI/UX 4 原則 — 本体アプリ側の戦略 (out-of-scope) |
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 |
-| `projects/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
+| `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |

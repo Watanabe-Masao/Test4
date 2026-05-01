@@ -88,6 +88,7 @@ export type GuardCategory =
   | 'docs-synchronization'
   | 'promote-retire-lifecycle'
   | 'ratchet-legacy-control'
+  | 'display-rule'
 
 // ────────────────────────────────────────────────────────
 // 1. Violation — 違反の構造化表現

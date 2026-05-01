@@ -191,4 +191,4 @@ Layer 4 は外部監査視点で AAG 全体を audit。詳細は [`meta.md`](./m
 | [`operational-classification.md`](./operational-classification.md) | now / debt / review 運用区分 (orthogonal axis) |
 | [`README.md`](./README.md) | aag/ ディレクトリ index |
 | `references/02-status/generated/architecture-health.md` | 件数 / 現在値の正本 (本 doc では articulate しない) |
-| `projects/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
+| `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |

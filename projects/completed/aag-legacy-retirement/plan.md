@@ -1,7 +1,7 @@
 # plan — aag-legacy-retirement
 
 > **正本**: 親 project (`projects/aag-bidirectional-integrity/plan.md`) の §Phase 5 + §3.5 操作順序原則 +
-> §1.5 archive 前 mapping 義務 を継承。Project A (`projects/aag-core-doc-refactor/`) の Phase 5 で
+> §1.5 archive 前 mapping 義務 を継承。Project A (`projects/completed/aag-core-doc-refactor/`) の Phase 5 で
 > 完遂しない複雑案件を本 project に分離。
 
 ## 不可侵原則
@@ -114,5 +114,5 @@ Split + Rewrite を実行 (§3.5 操作順序原則)。
 | `references/99-archive/` | archive 配下 (Phase 3 で物理移管先) |
 | `references/02-status/legacy-retirement-extended.md` | Phase 1 で新規 Create (拡張案件 articulation の集約 doc) |
 | `docs/contracts/doc-registry.json` | Phase 3 で archive section update |
-| `projects/aag-core-doc-refactor/plan.md` | Project A 正本 (Phase 5 完遂範囲の確認元) |
-| `projects/aag-core-doc-refactor/legacy-retirement.md` | Project A の legacy-retirement (単純案件と複雑案件の境界 articulation) |
+| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (Phase 5 完遂範囲の確認元) |
+| `projects/completed/aag-core-doc-refactor/legacy-retirement.md` | Project A の legacy-retirement (単純案件と複雑案件の境界 articulation) |

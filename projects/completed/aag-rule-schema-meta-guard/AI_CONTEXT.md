@@ -37,7 +37,7 @@ AAG (Adaptive Architecture Governance) の **bidirectional integrity** (= forwar
 5. 親 project の `projects/aag-bidirectional-integrity/plan.md` §3.4 (SemanticTraceBinding 設計の正本)
 6. 親 project の `projects/aag-bidirectional-integrity/breaking-changes.md` §1.2 (AAG rule schema 拡張の articulate 詳細)
 7. 親 project の `references/01-principles/aag/meta.md` §2 (12 AAG-REQ-* requirement = `metaRequirementRefs.refs[].requirementId` の供給元)
-8. Project A (`projects/aag-core-doc-refactor/`) の plan + HANDOFF (= `canonicalDocRef.refs[].docPath` の供給元)
+8. Project A (`projects/completed/aag-core-doc-refactor/`) の plan + HANDOFF (= `canonicalDocRef.refs[].docPath` の供給元)
 
 ## Why this project exists
 
@@ -78,7 +78,7 @@ AAG (Adaptive Architecture Governance) の **bidirectional integrity** (= forwar
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§3.4 SemanticTraceBinding 設計、§Phase 2 / 6 / 8 articulation の出元) |
 | `projects/aag-bidirectional-integrity/breaking-changes.md` | 親 project の breaking-changes §1.2 (AAG rule schema 拡張の articulate 詳細) |
 | `references/01-principles/aag/meta.md` | AAG Meta charter (12 AAG-REQ-* requirement = `metaRequirementRefs` の供給元) |
-| `projects/aag-core-doc-refactor/plan.md` | Project A の正本 (新 doc path = `canonicalDocRef` の供給元) |
+| `projects/completed/aag-core-doc-refactor/plan.md` | Project A の正本 (新 doc path = `canonicalDocRef` の供給元) |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (本 project の主要 implementation 対象) |
 | `app/src/test/aag-core-types.ts` / `architectureRules/types.ts` | 型定義 (SemanticTraceBinding 追加先) |
 | `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |

@@ -1614,4 +1614,51 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+
+  // ── DFR-* (Project C: aag-display-rule-registry Phase 2) ──
+  "DFR-001": {
+    fixNow: "debt",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
+  "DFR-002": {
+    fixNow: "debt",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
+  "DFR-003": {
+    fixNow: "debt",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
+  "DFR-004": {
+    fixNow: "debt",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
+  "DFR-005": {
+    fixNow: "debt",
+    executionPlan: { effort: "small", priority: 2 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
 };

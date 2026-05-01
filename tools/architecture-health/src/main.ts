@@ -241,37 +241,12 @@ if (!isCheck) {
     },
   ]);
 
-  // AAG 正本文書のルール統計 generated section
-  const allKpis = report.kpis;
-  const ruleTotal =
-    allKpis.find((k) => k.id === "guard.rules.total")?.value ?? "?";
-  const fixNow =
-    allKpis.find((k) => k.id === "guard.rules.fixNow.now")?.value ?? "?";
-  const fixDebt =
-    allKpis.find((k) => k.id === "guard.rules.fixNow.debt")?.value ?? "?";
-  const fixReview =
-    allKpis.find((k) => k.id === "guard.rules.fixNow.review")?.value ?? "?";
-  const guardFiles =
-    allKpis.find((k) => k.id === "guard.files.count")?.value ?? "?";
-  const ruleStatsContent = [
-    `| 指標 | 値 |`,
-    `|------|-----|`,
-    `| 総ルール数 | ${ruleTotal} |`,
-    `| fixNow=now（即修正） | ${fixNow} |`,
-    `| fixNow=debt（構造負債） | ${fixDebt} |`,
-    `| fixNow=review（観測） | ${fixReview} |`,
-    `| ガードテストファイル | ${guardFiles} |`,
-    ``,
-    `> 生成: ${new Date().toISOString()} — 正本: \`app/src/test/architectureRules.ts\``,
-  ].join("\n");
-
-  const ruleStatsResults = updateGeneratedSections(repoRoot, [
-    {
-      filePath: "references/99-archive/adaptive-architecture-governance.md",
-      sectionId: "aag-rule-stats",
-      content: ruleStatsContent,
-    },
-  ]);
+  // [Project A Phase 5.8 後の整理 (2026-04-30)] aag-rule-stats generated section は撤去:
+  // 旧 target = `references/99-archive/adaptive-architecture-governance.md` だが、本 doc は
+  // archive 済 (immutable historical reference) のため自動生成 target には不適切。ルール統計は
+  // CLAUDE.md の `architecture-health-summary` GENERATED section + architecture-health.md に
+  // 集約済のため、本 generation 経路は不要。archived doc 内には Phase 5.8 archive 時 snapshot
+  // が frozen 表記で残置 (= historical reference として完結)。
 
   // プロジェクト構成の generated sections（features/ + guards/）
   const featuresDir = resolve(repoRoot, "app/src/features");
@@ -315,7 +290,6 @@ if (!isCheck) {
 
   for (const r of [
     ...results,
-    ...ruleStatsResults,
     ...structureResults,
     ...testContractResults,
   ]) {

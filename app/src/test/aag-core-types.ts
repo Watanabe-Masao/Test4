@@ -243,6 +243,62 @@ export interface RuleDetectionSpec {
   readonly relationships?: RuleRelationships
 }
 
+// ─── SemanticTraceBinding — drill-down chain の semantic management ───
+
+/**
+ * Trace binding の運用状態 — pointer + 解決 articulation の status field。
+ *
+ * - `'pending'`: 未対応 (initial value、Phase 6 で flip 対象)
+ * - `'not-applicable'`: 構造的に該当しない (`justification` 必須で理由を articulate)
+ * - `'bound'`: pointer + `problemAddressed` + `resolutionContribution` 全て埋まり、参照先実在
+ *
+ * 空配列との明示的差別化: 「未対応」と「該当しない」を構造的に区別する。
+ *
+ * @see references/01-principles/aag/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
+ */
+export type TraceBindingStatus = 'pending' | 'not-applicable' | 'bound'
+
+/**
+ * Semantic articulation の必須対 — pointer 単独 (= 重複の指摘) ではなく
+ * 「上位の何を課題として」「下位がどう貢献するか」を pair で記述する。
+ *
+ * - `problemAddressed`: 上位 (canonical doc / requirement) で識別された課題
+ * - `resolutionContribution`: 本 binding (実装) がその課題にどう寄与するか
+ *
+ * 重複と参照の切り分け (AAG-REQ-ANTI-DUPLICATION) を mechanically 強制する。
+ */
+export interface SemanticTraceRef {
+  readonly problemAddressed: string
+  readonly resolutionContribution: string
+}
+
+/** Canonical doc への trace ref — `docPath` で参照先 doc を指す */
+export interface CanonicalDocTraceRef extends SemanticTraceRef {
+  readonly docPath: string
+}
+
+/** AAG-REQ-* 要件への trace ref — `requirementId` で aag/meta.md §2 の要件を指す */
+export interface MetaRequirementTraceRef extends SemanticTraceRef {
+  readonly requirementId: string
+}
+
+/**
+ * Semantic trace binding — status + justification + refs の三位一体構造。
+ *
+ * - `status='pending'`: `refs` 空配列、後続 Phase で flip 対象
+ * - `status='not-applicable'`: `justification` 必須 (該当しない理由)、`refs` 通常空配列
+ * - `status='bound'`: `refs` 1 件以上、各 ref の `problemAddressed` + `resolutionContribution` 必須
+ *
+ * meta-guard (Phase 8) が status と refs の整合性、refs の品質 (禁止 keyword / minimum 文字数 /
+ * 重複 / path 実在) を hard fail で検証する。
+ */
+export interface SemanticTraceBinding<TRef extends SemanticTraceRef> {
+  readonly status: TraceBindingStatus
+  /** `status='not-applicable'` のとき必須 (該当しない理由を articulate) */
+  readonly justification?: string
+  readonly refs: readonly TRef[]
+}
+
 // ─── slice 誘導文 ──────────────────────────────────────────
 
 /** slice ごとの短い誘導文 — 違反時に「向かう先」を 1 行で示す */

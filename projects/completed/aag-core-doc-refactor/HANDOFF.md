@@ -1,7 +1,12 @@
-# HANDOFF — aag-core-doc-refactor
+# [ARCHIVED] HANDOFF — aag-core-doc-refactor
 
-> 役割: 起点文書。後任者が最初に読む。
-> 完了済みの全景 + 次にやること + ハマりポイントを 1 画面で把握できる。
+> **Archived: 2026-04-30** — Project A は Phase 1〜6 全完遂、ユーザー承認 (commit `306c8b9`) により
+> archive プロセス完了。physical archive 移管 = `projects/completed/aag-core-doc-refactor/` (本 commit)。
+>
+> **AAG-REQ-LAYER-SEPARATION 達成 trigger landed**: 8 旧 doc archive 移管 + 新 5 層 mapping table
+> + 責務分離 (6 責務同居 → 4 doc Split) 完遂。詳細: `references/02-status/recent-changes.md`。
+>
+> 役割: 起点文書 (本 archive 後は historical reference)。
 
 ## 1. 現在地
 

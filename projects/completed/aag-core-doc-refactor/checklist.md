@@ -110,4 +110,29 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する — **2026-04-30 ユーザー承認**「1、承認でよろしくお願いします」
+
+### Approval Record (Insight 7-b milestone acknowledgment application instance)
+
+> 本 approval は Project E vision の `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` (Insight 7-b、不可逆ステップでの ceremonial commitment) の direct application instance。承認は「正しい / 間違い」軸ではなく「不可逆ステップ (= Project A archive プロセス移行) を今ここで踏む」の announcement。
+
+**View List (人間がレビューした内容)**:
+- ✅ Phase 1 完遂: 6 新 doc Create (`aag/strategy.md` / `architecture.md` / `evolution.md` / `operational-classification.md` / `source-of-truth.md` / `layer-map.md`)、5 層位置付け + drill-down pointer + 旧概念 mapping 装着済 (commit `7b49436`)
+- ✅ Phase 2 完遂: Split / Rewrite 段階 (AAG の本質 + AI 対話 + Response フロー migrate、commit `85a07b0`)
+- ✅ Phase 3 完遂: CLAUDE.md AAG セクション薄化 (67% 削減、§8.13 判断 = B 適用、commit `c5de337`)
+- ✅ Phase 4 完遂: registry / manifest 整合 + 旧 8 doc deprecation marker (commit `9cc0ebe`)
+- ✅ Phase 5 完遂: 8 旧 doc archive 移管 (Phase 5.1〜5.8、149+ inbound update、commits `14479a4` 〜 `1b13dbb`)
+- ✅ format / docs:check fix (commit `d3285ce`)
+- ✅ 全 PR merged: PR #1227 (Phase 5.1〜5.8 archive) + PR #1228 (format/regenerate fix)
+
+**Judgment Criteria (承認基準)**:
+- 全 Phase 1〜5 deliverable が main に landing 済 (PR #1216-1228 merged 累計)
+- AAG-REQ-LAYER-SEPARATION 達成 trigger landed (`aag/architecture.md §4` mapping table)
+- 責務分離完了 (旧 6 責務同居 → 新 4 doc に Split)
+- 8 旧 doc が 99-archive/ に移管済 (frontmatter archived: true、mapping anchor articulate 済)
+- inbound 0 機械検証 PASS (8 doc 全件)
+- test:guards 130 file / 893 test 全 PASS、docs:check Hard Gate PASS
+
+**Approval Statement (Insight 7-b 形式)**:
+- 「ここから先は不可逆ステップを今ここで踏みます」 — Project A は完遂状態 (Phase 1〜6 全 [x])、archive プロセス移行 gate 通過、project lifecycle で `derivedStatus = completed` への遷移が機械的に発火可能
+- ただし archive 8-step (= mv to projects/completed/) は別 commit / 別 process で実施 (本 approval は status flip の prerequisite 完備の確認、physical archive 移管は次 session 以降)

@@ -61,6 +61,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "bridge パターンが存在しなくなった",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/safety-first-architecture-plan.md",
+          problemAddressed:
+            "退役済み dual-run コード (dualRunObserver / getExecutionMode / recordCall / recordMismatch) の再導入により、Phase 1-2 で確立した bridge 単一経路の安全性が逆戻りする",
+          resolutionContribution:
+            "本 rule は退役 4 シンボルの import 出現を gate severity で 0 件固定し、再導入を含む commit を機械的に拒否することで safety-first plan が articulate した「退役後の安定状態」を維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善は不可逆 (baseline は下がる方向のみ、増加方向は構造禁止) を維持しなければ、Phase 1-2 で退役した dual-run 負債が再発し改善の蓄積が逆戻りする",
+          resolutionContribution:
+            "本 rule の baseline=0 + gate severity 設定により退役シンボル import の再導入を構造的に禁止し、ratchet-down の不可逆性を本 rule scope で担保する",
+        },
+      ],
+    },
   },
 
   {
@@ -100,6 +124,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     sunsetCondition:
       "presentation → wasmEngine の経路が構造的に存在しなくなった",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "presentation 層が wasmEngine を直接 import すると、A1 (4 層境界) と B1 (Authoritative engine 境界) の両方を逸脱し、描画専用であるべき層に engine 詳細が混入して責務分離が崩れる",
+          resolutionContribution:
+            "本 rule は presentation/ → wasmEngine の import を gate severity で 0 件固定し、design-principles.md A1 + B1 の articulate を application 層 hook 経由のアクセスとして構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れると各層の責務分離が機械検証不能になり、Layer 4 (検証) の独立性も失われる",
+          resolutionContribution:
+            "本 rule は presentation 層が application 層を skip して infrastructure (wasm engine) に直接到達するパターンを import 検出で拒否し、層境界を構造的に維持する",
+        },
+      ],
+    },
   },
 
   {
@@ -145,6 +193,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "UnifiedWidgetContext が feature slice に完全分割された",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/widget-coordination-architecture.md",
+          problemAddressed:
+            "widget-coordination-architecture で articulate された前提に対し、UnifiedWidgetContext に readonly フィールドを追加する のパターンが残ると、共有コンテキストが肥大化すると全ウィジェットの結合度が上がり変更コストが増大する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「UnifiedWidgetContext のフィールド数を凍結し shared hub の肥大化を防ぐ」を構造的に強制し、新規フィールドは feature slice のローカルコンテキストに寄せる のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 共有コンテキストが肥大化すると全ウィジェットの結合度が上がり変更コストが増大する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: UnifiedWidgetContext のフィールド数を凍結し shared hub の肥大化を防ぐ",
+        },
+      ],
+    },
   },
 
   {
@@ -182,6 +254,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "deprecated が全て削除された",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、application/services/ や domain/ に @deprecated を追加する のパターンが残ると、deprecated wrapper が増えると間接層が膨張し削除可能性の追跡が困難になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「@deprecated wrapper の新規追加を禁止する」を構造的に強制し、新しい wrapper を作らず、呼び出し元を直接新 API に移行する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: deprecated wrapper が増えると間接層が膨張し削除可能性の追跡が困難になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: @deprecated wrapper の新規追加を禁止する",
+        },
+      ],
+    },
   },
 
   {
@@ -219,6 +315,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "shared plan が全て features/ に移行された",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/modular-monolith-evolution.md",
+          problemAddressed:
+            "category / time-slot 等が features/ に移行済の今、application/hooks/plans/ への新規 shared plan hook 追加は feature slice 原則に逆行し、共有ハブの肥大化を招く",
+          resolutionContribution:
+            "本 rule は application/hooks/plans/ の shared plan hook 数を baseline=13 で count 凍結し、modular-monolith-evolution.md が articulate する縦スライス境界を新規 hook の features/ 配置として構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "shared plan hook の baseline が増加方向に動くと、feature slice への移行という改善方向が逆戻りし modular-monolith 進化が停滞する",
+          resolutionContribution:
+            "本 rule の count baseline=13 + gate severity 設定により shared plan hook 数の増加を構造的に禁止し、ratchet-down (baseline は下がる方向のみ) を本 rule scope で担保する",
+        },
+      ],
+    },
   },
   // ── layerBoundaryGuard 由来 ──
 
@@ -271,6 +391,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "計算結果の信頼性低下",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "domain/ が外部層 (application/ / infrastructure/ / presentation/) に依存すると、純粋関数性 (A2) が崩れテスト容易性と移植性が失われ、domain で完結すべきビジネスロジック検証にモックが必須化する",
+          resolutionContribution:
+            "本 rule は domain/ から外部層への import を gate severity で 0 件固定し、design-principles.md A1 (層境界) + A2 (Domain 純粋) の articulate を interface 経由 DI パターンとして構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の最深 (Domain) が外部依存を持つと層境界が崩れ、Domain 純粋性が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は domain/ が他層を import するパターンを構造的に禁止し、Domain 純粋性 (= 層境界 mapping の起点) を機械的に強制する",
+        },
+      ],
+    },
   },
 
   {
@@ -315,6 +459,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "インフラ変更時の影響範囲拡大",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "application/ が infrastructure/ を adapter パターン外で直接 import すると、ドメイン調停層がインフラ詳細に密結合し、インフラ変更時の影響範囲が application 全体に拡大する",
+          resolutionContribution:
+            "本 rule は application → infrastructure の直接 import を gate severity で 0 件固定し、design-principles.md A1 (層境界) を構造的に強制する。許容経路 (DuckDB hooks / QueryHandler / runtime-adapters) は allowlist で個別 articulate",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "application 層と infrastructure 層の境界が adapter パターン外で漏れると、5 層構造の orthogonal 軸が崩れ層境界 mapping が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は application → infrastructure の直接依存を構造的に拒否し、adapter パターンを介した依存方向を保つことで層境界を機械的に維持する",
+        },
+      ],
+    },
   },
 
   {
@@ -353,6 +521,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["application と presentation の循環依存", "ビルド順序の破壊"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、application/ から presentation/ を import する のパターンが残ると、依存方向は Presentation → Application。逆方向は循環依存を生む という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「application/ は presentation/ に依存しない」を構造的に強制し、application/ から presentation/ への依存を削除し、依存方向を逆転する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 依存方向は Presentation → Application。逆方向は循環依存を生む)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: application/ は presentation/ に依存しない",
+        },
+      ],
     },
   },
 
@@ -404,6 +596,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "テスト困難化",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、presentation/ から infrastructure/ を value import する のパターンが残ると、presentation は描画専用。データ取得は application 層の hook を経由する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「presentation/ は infrastructure/ に直接依存しない」を構造的に強制し、application/ の hook 経由でデータを取得する。useQueryWithHandler を推奨 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: presentation は描画専用。データ取得は application 層の hook を経由する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: presentation/ は infrastructure/ に直接依存しない",
+        },
+      ],
+    },
   },
 
   {
@@ -438,6 +654,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. usecases/ への value import を削除（import type は許容）",
         "2. application/hooks/ の hook 経由でデータを取得するように変更",
         "3. allowlist の残り 1 件を解消して baseline を 0 にする",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、presentation/ から application/usecases/ を value import する のパターンが残ると、usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「presentation/ は application/usecases/ を直接 import しない」を構造的に強制し、application/ の hook 経由でデータを取得する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: presentation/ は application/usecases/ を直接 import しない",
+        },
       ],
     },
   },
@@ -481,6 +721,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "循環依存の発生",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、infrastructure/ から application/ を import する のパターンが残ると、infrastructure/ は domain/ のみに依存する。application/ への依存は循環を生む という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「infrastructure/ は application/ に依存しない」を構造的に強制し、依存を domain/ 経由の契約（interface）に変更する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: infrastructure/ は domain/ のみに依存する。application/ への依存は循環を生む)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: infrastructure/ は application/ に依存しない",
+        },
+      ],
+    },
   },
 
   {
@@ -516,6 +780,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["infrastructure と presentation の直接結合"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、infrastructure/ から presentation/ を import する のパターンが残ると、infrastructure/ と presentation/ は直接依存しない。application/ を経由する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「infrastructure/ は presentation/ に依存しない」を構造的に強制し、infrastructure/ から presentation/ への依存を削除する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: infrastructure/ と presentation/ は直接依存しない。application/ を経由する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: infrastructure/ は presentation/ に依存しない",
+        },
+      ],
+    },
   },
 
   // ── codePatternGuard 由来 ──
@@ -551,6 +839,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. テストは public API 経由で間接的に検証する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、@internal コメント付きの export を作成する のパターンが残ると、テスト用 export は本番 API を汚染する。テストは public API 経由で行う という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「hooks/ に @internal export を作らない」を構造的に強制し、public API のみを export する。内部関数はファイル内に閉じる のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: テスト用 export は本番 API を汚染する。テストは public API 経由で行う)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: hooks/ に @internal export を作らない",
+        },
+      ],
+    },
   },
 
   {
@@ -581,6 +893,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. set() コールバック内の算術式を特定",
         "2. 計算を domain/calculations/ の純粋関数に抽出",
         "3. store action は計算結果を set() するだけに変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、set() コールバック内で (a) + (b) のような算術代入を行う のパターンが残ると、store は state の反映のみ。計算は domain 層に委譲する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「store action 内に業務ロジック（算術式）を埋め込まない」を構造的に強制し、store action は set() で値を反映するだけ。算術計算は domain/calculations/ で行う のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: store は state の反映のみ。計算は domain 層に委譲する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: store action 内に業務ロジック（算術式）を埋め込まない",
+        },
       ],
     },
   },
@@ -621,6 +957,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["型安全性の形骸化", "lint 規約の無効化", "バグの隠蔽"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "eslint-disable / @ts-ignore / @ts-expect-error の濫用により、型安全性と lint 規約が形骸化し、警告に隠れたバグが accumulate する",
+          resolutionContribution:
+            "本 rule は警告抑制 directive を gate severity で baseline=0 固定し、coding-conventions.md G3 (警告黙殺禁止) の articulate を根本原因修正の強制として構造化する。例外は G3_ALLOWLIST に正当理由付き articulate のみ許容",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が 警告抑制 directive で迂回されると、製本されたルールが performative (= 形骸化) し、guard の検証性が canonical doc に裏打ちされない状態に劣化する",
+          resolutionContribution:
+            "本 rule は guard 迂回手段である eslint-disable / @ts-ignore / @ts-expect-error を構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態 (non-performative) を維持する",
+        },
+      ],
+    },
   },
 
   {
@@ -659,6 +1019,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "金額ゼロの正当な取引が消える",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、!result.numericField のような truthiness チェック のパターンが残ると、0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「数値フィールドの truthiness チェックを禁止する」を構造的に強制し、欠損判定は value == null を使う のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 数値フィールドの truthiness チェックを禁止する",
+        },
+      ],
+    },
   },
 
   {
@@ -694,6 +1078,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["全フィールド変更で再レンダリング", "パフォーマンス劣化"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、useDataStore() のようにセレクタなしで呼ぶ のパターンが残ると、セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「Zustand store はセレクタ付きで呼ぶ」を構造的に強制し、useDataStore((s) => s.field) のようにセレクタを指定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: Zustand store はセレクタ付きで呼ぶ",
+        },
+      ],
+    },
   },
 
   {
@@ -727,6 +1135,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["エラーの握り潰し", "デバッグ不能な不具合"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、.catch(() => {}) のような空のエラーハンドラ のパターンが残ると、エラーを無視するとデバッグ不能な不具合につながる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「空の catch ブロックでエラーを握り潰さない」を構造的に強制し、catch 内で最低でも console.warn を入れるか、エラーを伝播する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: エラーを無視するとデバッグ不能な不具合につながる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 空の catch ブロックでエラーを握り潰さない",
+        },
+      ],
+    },
   },
 
   // ── sizeGuard 由来 ──
@@ -764,6 +1196,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な計算は *Builders.ts / *Logic.ts に抽出",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "useMemo が多い hook ファイルは複数の導出値を抱えており、1 ファイル 1 責務 (C1) の articulate に反する責務混在が累積する",
+          resolutionContribution:
+            "本 rule は useMemo 数を上限 7 で count 検出し、超過時は hook 分割または pure builder への抽出を強制することで、responsibility-separation-catalog.md の articulate する責務分離パターンを構造的に駆動する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "useMemo 数の baseline が増加方向に動くと、責務混在の累積が逆戻りし、責務分離の改善蓄積が解消される",
+          resolutionContribution:
+            "本 rule の count baseline + heuristic ruleClass 設定により、許可されたケースを allowlists で articulate しつつ全体としては useMemo 数を ratchet-down 方向に固定する",
+        },
+      ],
+    },
   },
 
   {
@@ -798,6 +1254,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. useReducer に統合できる場合は *Reducer.ts に抽出",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、1 つの hook に大量の useState を詰め込む のパターンが残ると、useState が多いファイルは複数の状態責務を抱えており God Hook の兆候 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「application/hooks/ の useState 呼び出しを上限以下に保つ」を構造的に強制し、useState ≤ 6。超える場合は状態管理を分離するか allowlists/complexity.ts に正当理由を記載 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: useState が多いファイルは複数の状態責務を抱えており God Hook の兆候)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: application/hooks/ の useState 呼び出しを上限以下に保つ",
+        },
+      ],
+    },
   },
 
   {
@@ -829,6 +1309,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. ファイルの責務を 1 文で説明できるか確認（C8）",
         "2. AND が入るなら責務ごとに hook を分割",
         "3. 純粋な計算は *Builders.ts / *Logic.ts に抽出",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、1 つの hook ファイルに大量のロジックを詰め込む のパターンが残ると、長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「application/hooks/ のファイルを 300 行以下に保つ」を構造的に強制し、300 行以下。超える場合は hook を分割するか allowlists/complexity.ts に正当理由を記載 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: application/hooks/ のファイルを 300 行以下に保つ",
+        },
       ],
     },
   },
@@ -865,6 +1369,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 描画が長い → 子コンポーネントに分割",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、1 つのコンポーネントファイルに全ての描画ロジックを詰め込む のパターンが残ると、大きなコンポーネントは描画・状態・ロジックが混在している兆候 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「presentation/ の .tsx コンポーネントを 600 行以下に保つ」を構造的に強制し、600 行以下。超える場合は子コンポーネントに分割する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 大きなコンポーネントは描画・状態・ロジックが混在している兆候)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: presentation/ の .tsx コンポーネントを 600 行以下に保つ",
+        },
+      ],
+    },
   },
 
   {
@@ -894,6 +1422,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 関連する計算関数を別ファイルに分割",
         "2. 共通ユーティリティは domain/utils/ に移動",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、1 つの domain ファイルに大量の関数を詰め込む のパターンが残ると、domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「domain/ のファイルを 300 行以下に保つ」を構造的に強制し、300 行以下。超える場合は関数を分割する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: domain/ のファイルを 300 行以下に保つ",
+        },
       ],
     },
   },
@@ -927,6 +1479,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 共通処理は infrastructure/shared/ に抽出",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、1 つのインフラファイルに大量のクエリや処理を詰め込む のパターンが残ると、インフラ層のファイルが大きくなると外部依存の影響範囲が広がる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「infrastructure/ のファイルを 400 行以下に保つ」を構造的に強制し、400 行以下。超える場合は adapter を分割する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: インフラ層のファイルが大きくなると外部依存の影響範囲が広がる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: infrastructure/ のファイルを 400 行以下に保つ",
+        },
+      ],
+    },
   },
 
   {
@@ -956,6 +1532,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. usecase のインデックス構築を責務ごとに分割",
         "2. 共通の builder は application/usecases/shared/ に抽出",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、1 つの usecase に大量のインデックス構築を詰め込む のパターンが残ると、usecase が肥大化するとデータ構築の責務が不明確になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「application/usecases/ のファイルを 400 行以下に保つ」を構造的に強制し、400 行以下。超える場合は usecase を分割する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: usecase が肥大化するとデータ構築の責務が不明確になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: application/usecases/ のファイルを 400 行以下に保つ",
+        },
       ],
     },
   },
@@ -988,6 +1588,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. if/switch の分岐を呼び出し先の hook に委譲",
         "2. facade は hook の組み立て（orchestration）のみにする",
         "3. 条件分岐が必要なら呼び出し先で Strategy パターンを使う",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、facade 内で if/switch による条件分岐を多用する のパターンが残ると、facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「facade ファイルの分岐を 5 以下に保つ（orchestration のみ）」を構造的に強制し、facade は hook の組み立てのみ。分岐は呼び出し先に委譲する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: facade ファイルの分岐を 5 以下に保つ（orchestration のみ）",
+        },
       ],
     },
   },
@@ -1042,6 +1666,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["売上データの不整合", "旧クエリと新正本の値の乖離"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/sales-definition.md",
+          problemAddressed:
+            "売上データを旧クエリ (categoryTimeSales / timeSlots / salesFactQueries) で直接取得すると、正本 readSalesFact が articulate する SalesFactReadModel との値の乖離が発生し、複数経路の取得結果が同じ売上値で食い違う",
+          resolutionContribution:
+            "本 rule は presentation 層から旧クエリへの import を gate severity で 0 件固定し、sales-definition.md が articulate する readSalesFact / useWidgetDataOrchestrator 経由の唯一経路を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "売上の正本が複数経路で取得可能な状態は、製本された readSalesFact の正本性が performative (= 形骸化) し、guard で固定した一貫性が canonical doc に裏打ちされない状態に劣化する",
+          resolutionContribution:
+            "本 rule は旧クエリ import を構造的に拒否し、sales 取得経路を readSalesFact 単一に閉じることで sales-definition.md の articulate を実装で機械的に裏打ちする",
+        },
+      ],
+    },
   },
 
   {
@@ -1075,6 +1723,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 旧クエリへの import を削除",
         "2. readDiscountFact() 経由に変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/discount-definition.md",
+          problemAddressed:
+            "値引きデータを旧クエリで直接取得すると、discount-definition.md が articulate する readDiscountFact 経由の正本性が崩れ、複数経路で取得した値引き額が食い違う",
+          resolutionContribution:
+            "本 rule は presentation 層から旧 discount クエリへの import を gate severity で 0 件固定し、readDiscountFact / useWidgetDataOrchestrator 経由の唯一経路を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "値引きの正本が複数経路で取得可能な状態は、readDiscountFact の正本性が performative に劣化し、discount-definition.md の articulate が実装で裏打ちされない",
+          resolutionContribution:
+            "本 rule は旧 discount クエリ import を構造的に拒否し、取得経路を readDiscountFact 単一に閉じることで canonical doc の articulate を機械的に裏打ちする",
+        },
       ],
     },
   },
@@ -1122,6 +1794,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "店舗間の粗利不整合",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/gross-profit-definition.md",
+          problemAddressed:
+            "gross-profit-definition で articulate された前提に対し、独自の粗利計算や旧関数を使用する のパターンが残ると、粗利の計算方法が散在すると不変条件（売上−原価=粗利）が破壊される という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「粗利計算は calculateGrossProfit 経由でのみ実行する」を構造的に強制し、calculateGrossProfit() で全 4 種の粗利を統一的に計算 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 粗利の計算方法が散在すると不変条件（売上−原価=粗利）が破壊される)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 粗利計算は calculateGrossProfit 経由でのみ実行する",
+        },
+      ],
+    },
   },
 
   {
@@ -1165,6 +1861,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "移動原価の方向ミス（IN のみで OUT 漏れ）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/purchase-cost-definition.md",
+          problemAddressed:
+            "purchase-cost-definition で articulate された前提に対し、旧 queryPurchaseTotal 等 7 関数の使用（廃止済み） のパターンが残ると、3 独立正本（通常仕入・売上納品・移動原価）の一貫性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「仕入原価は readPurchaseCost 経由でのみ取得する」を構造的に強制し、readPurchaseCost() / usePurchaseCost() 経由で取得 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 3 独立正本（通常仕入・売上納品・移動原価）の一貫性を保証する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 仕入原価は readPurchaseCost 経由でのみ取得する",
+        },
+      ],
+    },
   },
 
   {
@@ -1202,6 +1922,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["客数集計の不一致", "PI 値計算への不正確な入力"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/customer-definition.md",
+          problemAddressed:
+            "customer-definition で articulate された前提に対し、presentation/ から旧客数クエリを直接 import のパターンが残ると、客数の正本が散在すると集計の一貫性が失われる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「客数データは readCustomerFact 経由でのみ取得する」を構造的に強制し、readCustomerFact() 経由で取得 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 客数の正本が散在すると集計の一貫性が失われる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 客数データは readCustomerFact 経由でのみ取得する",
+        },
+      ],
     },
   },
 
@@ -1241,6 +1985,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["客数 GAP の定義不一致", "インライン計算による精度劣化"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/customer-gap-definition.md",
+          problemAddressed:
+            "customer-gap-definition で articulate された前提に対し、インラインで客数差を計算する（例: current - previous） のパターンが残ると、インライン計算は GAP の定義（昨対差）との不整合を生む という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「客数 GAP は calculateCustomerGap 経由でのみ計算する」を構造的に強制し、calculateCustomerGap() を使用 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: インライン計算は GAP の定義（昨対差）との不整合を生む)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 客数 GAP は calculateCustomerGap 経由でのみ計算する",
+        },
+      ],
+    },
   },
 
   {
@@ -1279,6 +2047,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["0 除算ガードの欠落", "PI 値フォーマットの不統一"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/pi-value-definition.md",
+          problemAddressed:
+            "pi-value-definition で articulate された前提に対し、インラインで売上÷客数の除算を行う のパターンが残ると、インラインの除算は 0 除算ガードの欠落やフォーマット不統一を招く という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する」を構造的に強制し、calculateQuantityPI() / calculateAmountPI() を使用 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: インラインの除算は 0 除算ガードの欠落やフォーマット不統一を招く)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する",
+        },
+      ],
+    },
   },
 
   {
@@ -1311,6 +2103,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 旧クエリへの import を削除",
         "2. readFreePeriodFact() 経由に変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/01-principles/free-period-analysis-definition.md",
+          problemAddressed:
+            "free-period-analysis-definition で articulate された前提に対し、presentation/ から旧自由期間クエリを直接 import のパターンが残ると、自由期間の正本が散在すると期間スコープの一貫性が失われる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「自由期間分析データは readFreePeriodFact 経由でのみ取得する」を構造的に強制し、readFreePeriodFact() / freePeriodHandler 経由で取得 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 自由期間の正本が散在すると期間スコープの一貫性が失われる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 自由期間分析データは readFreePeriodFact 経由でのみ取得する",
+        },
       ],
     },
   },
@@ -1349,6 +2166,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readFreePeriodBudgetFact() 経由に変更",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/01-principles/free-period-budget-kpi-contract.md",
+          problemAddressed:
+            "free-period-budget-kpi-contract で articulate された前提に対し、旧予算クエリを直接利用 のパターンが残ると、予算データの取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する」を構造的に強制し、readFreePeriodBudgetFact() 経由で取得 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 予算データの取得経路を統一し、集計の一貫性を保証する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する",
+        },
+      ],
+    },
   },
 
   {
@@ -1383,6 +2225,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 旧クエリへの import を削除",
         "2. readFreePeriodDeptKPI() 経由に変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/01-principles/free-period-budget-kpi-contract.md",
+          problemAddressed:
+            "free-period-budget-kpi-contract で articulate された前提に対し、旧部門 KPI クエリを直接利用 のパターンが残ると、部門 KPI の取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する」を構造的に強制し、readFreePeriodDeptKPI() 経由で取得 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 部門 KPI の取得経路を統一し、集計の一貫性を保証する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する",
+        },
       ],
     },
   },
@@ -1425,6 +2292,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["要因分解の合計値が売上差と不一致（D1 不変条件違反）"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/01-principles/authoritative-calculation-definition.md",
+          problemAddressed:
+            "authoritative-calculation-definition で articulate された前提に対し、独自の要因分解計算やインラインのシャープリー値計算 のパターンが残ると、要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件） という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「要因分解は calculateFactorDecomposition 経由でのみ実行する」を構造的に強制し、calculateFactorDecomposition() を使用。WASM ready なら WASM、そうでなければ TS fallback のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件）)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 要因分解は calculateFactorDecomposition 経由でのみ実行する",
+        },
+      ],
+    },
   },
 
   {
@@ -1461,6 +2353,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 独自経路があれば getEffectiveGrossProfit / grossProfitFromStoreResult に移行",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/gross-profit-definition.md",
+          problemAddressed:
+            "gross-profit-definition で articulate された前提に対し、独自の粗利取得関数を作成する のパターンが残ると、異なる経路で粗利を取得すると値の不整合が発生する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「粗利計算の一貫性を保証する（全経路で同一値）」を構造的に強制し、calculateGrossProfit → getEffectiveGrossProfit → grossProfitFromStoreResult の 2… のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 異なる経路で粗利を取得すると値の不整合が発生する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 粗利計算の一貫性を保証する（全経路で同一値）",
+        },
+      ],
+    },
   },
 
   // ── 構造・純粋性・移行ガード由来 ──
@@ -1493,6 +2409,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "custom", severity: "gate" },
     migrationRecipe: {
       steps: ["1. 直接クエリ入力の構築を AnalysisFrame 経由に変更"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "AnalysisFrame / CalculationFrame を経由しないクエリ入力構築は、キャッシュキーの不整合や期間スコープの矛盾を招き、safe-performance-principles.md が articulate する H1 (Screen Plan 経由のみ) の前提が崩れる",
+          resolutionContribution:
+            "本 rule は presentation 層から直接クエリ入力を組み立てるパターンを custom detection で gate severity 拒否し、AnalysisFrame / CalculationFrame 経由の単一入口を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "クエリ入力構築の入口が複数経路に開いていると、application 層 (frame) と presentation 層 (描画) の責務分離が崩れ、層境界の orthogonal 軸が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は frame 経由を唯一入口として強制し、presentation 層がクエリ入力組立 (= application 責務) に侵入するパターンを構造的に禁止する",
+        },
+      ],
     },
   },
 
@@ -1527,6 +2467,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. calculationCanonRegistry.ts に分類を追加（required/review/not-needed）",
         "2. required なら Zod 契約を追加",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/01-principles/calculation-canonicalization-map.md",
+          problemAddressed:
+            "calculation-canonicalization-map で articulate された前提に対し、domain/calculations/ にファイルを追加してレジストリに未登録 のパターンが残ると、未登録ファイルは正本化体系の管理外となり品質保証が及ばない という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-include 検出 + gate severity で「domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている」を構造的に強制し、新規ファイル追加時に calculationCanonRegistry.ts に分類を登録する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 未登録ファイルは正本化体系の管理外となり品質保証が及ばない)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている",
+        },
       ],
     },
   },
@@ -1564,6 +2529,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. 入力型の Zod schema を定義",
         "2. 関数の先頭で .parse() を呼ぶ",
         "3. 出力型の Zod schema を定義",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/canonicalization-principles.md",
+          problemAddressed:
+            "canonicalization-principles で articulate された前提に対し、required 分類なのに Zod parse がないファイル のパターンが残ると、Zod 契約なしの計算は型安全な境界検証が欠落し、実行時エラーを招く という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-include 検出 + gate severity で「required 分類の domain/calculations/ ファイルは Zod 入出力契約を持つ」を構造的に強制し、z.object(...).parse() で入力を検証し、結果型を Zod schema で定義する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: Zod 契約なしの計算は型安全な境界検証が欠落し、実行時エラーを招く)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: required 分類の domain/calculations/ ファイルは Zod 入出力契約を持つ",
+        },
       ],
     },
   },
@@ -1604,6 +2593,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "review 分類の Zod 未済が 0 になった",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/canonicalization-principles.md",
+          problemAddressed:
+            "canonicalization-principles で articulate された前提に対し、review 分類で zodAdded: false のまま放置する のパターンが残ると、review 分類の Zod 化が進むと正本化体系の信頼性が向上する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「review 分類の Zod 未済ファイルを段階的に解消する」を構造的に強制し、review ファイルに Zod 契約を追加し zodAdded: true に更新する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: review 分類の Zod 化が進むと正本化体系の信頼性が向上する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: review 分類の Zod 未済ファイルを段階的に解消する",
+        },
+      ],
+    },
   },
 
   {
@@ -1632,6 +2645,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. インライン計算を削除",
         "2. canonical input builder 経由に変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/canonical-input-sets.md",
+          problemAddressed:
+            "canonical-input-sets で articulate された前提に対し、presentation/ で独自に PI値や GAP を計算する のパターンが残ると、presentation/ でのインライン計算は不変条件を破壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「PI値・客数GAPは正本 input builder 経由でのみ計算する」を構造的に強制し、canonical input builder を使用して正本関数に渡す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: presentation/ でのインライン計算は不変条件を破壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: PI値・客数GAPは正本 input builder 経由でのみ計算する",
+        },
       ],
     },
   },
@@ -1680,6 +2717,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["readModel の体系的品質保証の欠落", "異なる経路で異なる値"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/canonicalization-principles.md",
+          problemAddressed:
+            "canonicalization-principles で articulate された前提に対し、正本化手順を省略して readModel を追加する のパターンが残ると、正本化体系の整合性が崩れると、異なる経路で異なる値が計算される という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「全 readModel と calculation canonical が正本化原則に従っている」を構造的に強制し、readModels/ に配置、Zod 契約、パスガード、定義書を揃える のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 正本化体系の整合性が崩れると、異なる経路で異なる値が計算される)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 全 readModel と calculation canonical が正本化原則に従っている",
+        },
+      ],
+    },
   },
 
   {
@@ -1709,6 +2770,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "import", severity: "gate", baseline: 0 },
     migrationRecipe: {
       steps: ["1. 直接構築を削除", "2. buildComparisonScope() に置き換え"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "safe-performance-principles で articulate された前提に対し、presentation/ で直接 ComparisonScope を構築する のパターンが残ると、ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「ComparisonScope は buildComparisonScope() のみで生成する」を構造的に強制し、buildComparisonScope() factory 経由で生成する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: ComparisonScope は buildComparisonScope() のみで生成する",
+        },
+      ],
     },
   },
 
@@ -1751,6 +2836,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "state リセット漏れ",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/invariant-catalog.md",
+          problemAddressed:
+            "invariant-catalog で articulate された前提に対し、二重計上、DuckDB is_prev_year の不整合、state リセット漏れ のパターンが残ると、過去に発生したバグの再発を機械的に防止する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する」を構造的に強制し、定義書の集計ルールに従い、state リセットを忘れない のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 過去に発生したバグの再発を機械的に防止する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する",
+        },
+      ],
+    },
   },
 
   {
@@ -1782,6 +2891,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. インフラ層 dual-run 関連コードを発見したら削除"],
     },
     sunsetCondition: "インフラ層 dual-run 関連コードが完全に削除された",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/safety-first-architecture-plan.md",
+          problemAddressed:
+            "safety-first-architecture-plan で articulate された前提に対し、dualRunObserver / getExecutionMode / recordCall / recordMismatch の復活 のパターンが残ると、dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の dual-run-compa…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役」を構造的に強制し、WASM ready なら WASM、そうでなければ TS fallback の 2 モード。candidate compare は compareUtils… のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の dual-run-compare…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役",
+        },
+      ],
+    },
   },
 
   {
@@ -1809,6 +2942,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. readModel 型に usedFallback を追加",
         "2. builder でフォールバック判定を実装",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/invariant-catalog.md",
+          problemAddressed:
+            "invariant-catalog で articulate された前提に対し、フォールバックの発生を隠蔽する のパターンが残ると、サイレントフォールバックは計算結果の信頼性を損なう という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-include 検出 + gate severity で「クリティカルな readModel は usedFallback フィールドを持つ」を構造的に強制し、readModel に usedFallback: boolean を含め、フォールバック時に true を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: サイレントフォールバックは計算結果の信頼性を損なう)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: クリティカルな readModel は usedFallback フィールドを持つ",
+        },
       ],
     },
   },
@@ -1841,6 +2998,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. 旧パスの import を features/<feature>/ のパスに変更"],
     },
     sunsetCondition: "features/ 移行が 100% 完了した",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/modular-monolith-evolution.md",
+          problemAddressed:
+            "modular-monolith-evolution で articulate された前提に対し、旧パス（application/hooks/ 等）経由で移行済みモジュールを import する のパターンが残ると、移行後に旧パスの import が増えると移行が巻き戻る という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない」を構造的に強制し、features/<feature>/ 経由で import する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 移行後に旧パスの import が増えると移行が巻き戻る)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない",
+        },
+      ],
+    },
   },
 
   {
@@ -1869,6 +3050,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. PAGE_REGISTRY にエントリ追加",
         "2. routes.tsx の PAGE_COMPONENT_MAP と整合確認",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/new-page-checklist.md",
+          problemAddressed:
+            "new-page-checklist で articulate された前提に対し、PAGE_REGISTRY なしでページを追加する のパターンが残ると、ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は co-change 検出 + gate severity で「PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している」を構造的に強制し、PAGE_REGISTRY にメタデータを追加し、routes.tsx の PAGE_COMPONENT_MAP と一致させる のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している",
+        },
       ],
     },
   },
@@ -1904,6 +3109,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. infrastructure/ への直接 import を削除",
         "2. application/hooks/ の hook 経由に変更",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、presentation/ から DuckDB クエリを直接実行する のパターンが残ると、presentation にデータ取得が混入すると責務が曖昧になりテストが困難になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止」を構造的に強制し、application/ の hook 経由でデータを取得。SQL は infrastructure 層に閉じる のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: presentation にデータ取得が混入すると責務が曖昧になりテストが困難になる)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止",
+        },
       ],
     },
   },
@@ -1951,6 +3180,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "domain に副作用が混入",
         "計算の再現性喪失",
         "WASM 移行の阻害",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、domain/ に async 関数や副作用を含む のパターンが残ると、domain の純粋性はテスト容易性・移植性・正確性の基盤 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-not-coexist 検出 + gate severity で「domain/ は純粋（副作用なし・async なし）、率は domain で算出」を構造的に強制し、domain/ は同期純粋関数のみ。async/副作用は application 層に置く のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: domain の純粋性はテスト容易性・移植性・正確性の基盤)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: domain/ は純粋（副作用なし・async なし）、率は domain で算出",
+        },
       ],
     },
   },
@@ -2001,6 +3254,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "比較結果の不一致",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "safe-performance-principles で articulate された前提に対し、コンポーネント内で直接クエリを組み立て実行する のパターンが残ると、クエリパターンの統一は保守性とキャッシュの一貫性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「クエリは正規化入力・pair/bundle 契約・handler 経由で実行する」を構造的に強制し、QueryHandler + useQueryWithHandler 経由。input は正規化必須 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: クエリパターンの統一は保守性とキャッシュの一貫性を保証する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: クエリは正規化入力・pair/bundle 契約・handler 経由で実行する",
+        },
+      ],
+    },
   },
 
   {
@@ -2037,6 +3314,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["描画時のストレージ副作用", "SSR 互換性の喪失"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、localStorage.getItem / sessionStorage.setItem を直接呼ぶ のパターンが残ると、ストレージ操作は副作用であり presentation 層の責務外 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「presentation/ は localStorage/sessionStorage を直接使用しない」を構造的に強制し、uiPersistenceAdapter 経由でストレージにアクセスする のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: ストレージ操作は副作用であり presentation 層の責務外)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: presentation/ は localStorage/sessionStorage を直接使用しない",
+        },
+      ],
     },
   },
 
@@ -2076,6 +3377,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["presentation 層の store 直接結合", "テスト困難な副作用"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、useDataStore.getState() / useUiStore.getState() の直接呼び出し のパターンが残ると、Store への直接結合は描画層の独立性を破壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「presentation 層で getState() を直接呼ばない（P2）」を構造的に強制し、Zustand selector hook または callback props 経由でアクセス のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: Store への直接結合は描画層の独立性を破壊する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: presentation 層で getState() を直接呼ばない（P2）",
+        },
+      ],
+    },
   },
 
   {
@@ -2110,6 +3435,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["グローバル変数の散在", "テスト間の状態リーク"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、let _cache = null; let _initialized = false; のパターンが残ると、module-scope の可変状態はテスト困難で副作用の温床 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「module-scope let（グローバル変数）を禁止する（P7）」を構造的に強制し、const object / WeakMap / useRef / Zustand store のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: module-scope の可変状態はテスト困難で副作用の温床)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: module-scope let（グローバル変数）を禁止する（P7）",
+        },
+      ],
     },
   },
 
@@ -2147,6 +3496,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["God Hook の発生", "レンダリング依存配列の爆発"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、useMemo + useCallback が 12 を超えるコンポーネント/hook のパターンが残ると、hook の合計数は責務の複雑性を示す。12 を超えたら分割候補 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「useMemo + useCallback の合計を上限以下に保つ（P8）」を構造的に強制し、sub-hook 抽出で合計 ≤12。thin wrapper は plain function 化 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: hook の合計数は責務の複雑性を示す。12 を超えたら分割候補)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: useMemo + useCallback の合計を上限以下に保つ（P8）",
+        },
+      ],
+    },
   },
 
   {
@@ -2181,6 +3554,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["feature hook の責務肥大化"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、features/ 内で useMemo/useState が上限を超えるファイル のパターンが残ると、feature hook の複雑性を制御し、責務の肥大化を防ぐ という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「features/ の useMemo/useState を上限以下に保つ（P10）」を構造的に強制し、useMemo ≤7 / useState ≤6。超えたら builder 抽出 or useReducer のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: feature hook の複雑性を制御し、責務の肥大化を防ぐ)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: features/ の useMemo/useState を上限以下に保つ（P10）",
+        },
+      ],
+    },
   },
 
   {
@@ -2215,6 +3612,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["モデルの責務肥大化", "変更理由の複数化"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、domain/models/ で export が 8 を超えるファイル のパターンが残ると、export 過多はモデルの責務混在を示す。型と操作を分離すべき という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「domain/models/ の export 数を上限以下に保つ（P12）」を構造的に強制し、export ≤8。超えたら操作関数を別ファイルに分離 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: export 過多はモデルの責務混在を示す。型と操作を分離すべき)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: domain/models/ の export 数を上限以下に保つ（P12）",
+        },
+      ],
+    },
   },
 
   {
@@ -2241,6 +3662,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: ["1. 散在ファイルを特定", "2. 共通ユーティリティに集約"],
     },
     protectedHarm: { prevents: ["正規化ロジックの重複", "データ不整合"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、storeIds 正規化が複数ファイルにコピーされている のパターンが残ると、正規化ロジックの重複はデータ不整合の温床 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「storeIds 正規化パターンの散在を上限以下に保つ（P17）」を構造的に強制し、正規化は集約モジュールで一元管理 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 正規化ロジックの重複はデータ不整合の温床)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: storeIds 正規化パターンの散在を上限以下に保つ（P17）",
+        },
+      ],
+    },
   },
 
   {
@@ -2278,6 +3723,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["初期値管理の責務分散", "fallback 忘れによるランタイムエラー"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、DUMMY_/EMPTY_/ZERO_/IDLE_ が 7 を超えるファイル のパターンが残ると、ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「fallback 定数密度を上限以下に保つ（P18）」を構造的に強制し、ファイルあたり ≤7。超えたらローカルエイリアスまたは共通モジュールに集約 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: fallback 定数密度を上限以下に保つ（P18）",
+        },
+      ],
+    },
   },
 
   {
@@ -2312,6 +3781,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     sunsetCondition: "StoreResult.totalCustomers が削除された",
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/customer-definition.md",
+          problemAddressed:
+            "customer-definition で articulate された前提に対し、StoreResult.totalCustomers を分析・計算の入力に使用する のパターンが残ると、StoreResult の totalCustomers は表示用集計値であり分析精度が異なる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）」を構造的に強制し、readCustomerFact() から CustomerFact を取得して分析に使う のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: StoreResult の totalCustomers は表示用集計値であり分析精度が異なる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）",
+        },
+      ],
+    },
   },
 
   // ─── 構造規約ルール（旧 AR-STRUCT-CONVENTION を 3 分割） ──────
@@ -2343,6 +3836,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["import 解決の循環", "tree-shaking 崩壊"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、バレルファイルに関数定義や計算ロジックが含まれている のパターンが残ると、バレルにロジックが混入すると import 解決と tree-shaking が崩壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-only 検出 + gate severity で「バレルは re-export のみ。ロジック・計算・副作用を含まない」を構造的に強制し、バレルファイルに関数定義や計算ロジックが含まれている のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "重複と参照の切り分けが崩れて上位 content の copy が許容されると、drill-down chain が冗長化し参照健全性 + 単一正本性が損なわれる (本 rule scope: バレルにロジックが混入すると import 解決と tree-shaking が崩壊する)",
+          resolutionContribution:
+            "本 rule は重複パターンを構造的に拒否し、参照の切り分け + 単一正本性を機械的に維持する。本 rule の具体寄与: バレルは re-export のみ。ロジック・計算・副作用を含まない",
+        },
+      ],
+    },
   },
 
   {
@@ -2372,6 +3889,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["feature 間の循環依存", "topology 崩壊"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、features/ 配下が別の features/ を直接 import のパターンが残ると、feature 間の直接依存は topology を崩壊させ循環依存の温床になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「feature 間の直接依存を禁止。shared/ 経由のみ」を構造的に強制し、features/A → shared/ → features/B のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: feature 間の直接依存は topology を崩壊させ循環依存の温床になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: feature 間の直接依存を禁止。shared/ 経由のみ",
+        },
+      ],
+    },
   },
 
   {
@@ -2402,6 +3943,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       ],
     },
     protectedHarm: { prevents: ["データの不一致", "キャッシュの二重管理"] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、ウィジェットが ctx 提供済みデータの hook を独自に呼び出している のパターンが残ると、ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「ctx 提供データの独自取得を禁止。コンテキストから受け取る」を構造的に強制し、ctx.result / ctx.prevYear 等を使う のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "重複と参照の切り分けが崩れて上位 content の copy が許容されると、drill-down chain が冗長化し参照健全性 + 単一正本性が損なわれる (本 rule scope: ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる)",
+          resolutionContribution:
+            "本 rule は重複パターンを構造的に拒否し、参照の切り分け + 単一正本性を機械的に維持する。本 rule の具体寄与: ctx 提供データの独自取得を禁止。コンテキストから受け取る",
+        },
+      ],
+    },
   },
 
   {
@@ -2431,6 +3996,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "import", severity: "gate" },
     migrationRecipe: {
       steps: ["1. 逆流 import を削除", "2. 結果は hook 経由で受け取る"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/temporal-analysis-policy.md",
+          problemAddressed:
+            "temporal-analysis-policy で articulate された前提に対し、temporal 計算結果を UI や比較ロジックに逆流させる のパターンが残ると、temporal ロジックの逆流はデータフローの一方向性を破壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）」を構造的に強制し、temporal 計算は一方向。結果は hook 経由で消費のみ のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: temporal ロジックの逆流はデータフローの一方向性を破壊する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）",
+        },
+      ],
     },
   },
 
@@ -2466,6 +4055,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. 比較モードごとに適切なスコープを選択",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/temporal-scope-semantics.md",
+          problemAddressed:
+            "temporal-scope-semantics で articulate された前提に対し、sameDate と sameDow を同一コンテキストで混在使用する のパターンが残ると、期間スコープの混在は比較結果の信頼性を損なう という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「期間スコープの分離ルール（sameDate/sameDow 混在禁止等）」を構造的に強制し、sameDate と sameDow は排他。予算比較に alignment を持ち込まない のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 期間スコープの混在は比較結果の信頼性を損なう)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: 期間スコープの分離ルール（sameDate/sameDow 混在禁止等）",
+        },
+      ],
+    },
   },
 
   {
@@ -2490,6 +4103,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "custom", severity: "gate" },
     migrationRecipe: {
       steps: ["1. 新規ディレクトリを features/<feature>/ または既存層に移動"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/modular-monolith-evolution.md",
+          problemAddressed:
+            "modular-monolith-evolution で articulate された前提に対し、src/ 直下に新規ディレクトリを作成する のパターンが残ると、未承認ディレクトリの追加は層構造の破壊を招く という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/features/stories/test）」を構造的に強制し、新機能は features/<feature>/ に配置。共通は既存 4 層に配置 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 未承認ディレクトリの追加は層構造の破壊を招く)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/f…",
+        },
+      ],
     },
   },
 
@@ -2526,6 +4163,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 旧 API を削除",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、同じ目的の関数を 2 つ export する（例: getData と fetchData） のパターンが残ると、同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「同義の API を併存させない（1 つの責務に 1 つの API）」を構造的に強制し、旧 API を @deprecated にして新 API に一本化。併存期間は最短にする のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: 同義の API を併存させない（1 つの責務に 1 つの API）",
+        },
+      ],
+    },
   },
 
   {
@@ -2558,6 +4219,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 不明なものは未分類のまま残す",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、分類のカバレッジを上げるために不正確なタグを付ける のパターンが残ると、自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれ、信頼性が損なわれる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）」を構造的に強制し、確信がないファイルには @responsibility を付けない。未分類数を正確に把握する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれ、信頼性が損なわれる)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: 正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）",
+        },
+      ],
+    },
   },
 
   {
@@ -2587,6 +4272,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. キャッシュ行数と本体行数を比較",
         "2. 超過していたらキャッシュ戦略を簡素化",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/cache-responsibility.md",
+          problemAddressed:
+            "cache-responsibility で articulate された前提に対し、キャッシュ制御（invalidation, memo, dedup）が本体より大きい のパターンが残ると、キャッシュ最適化が本体より複雑になると保守コストが逆転する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + warn severity で「キャッシュコードは本体コード以下に保つ」を構造的に強制し、キャッシュ行数 ≤ 本体行数。超えたらキャッシュ戦略を見直す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: キャッシュ最適化が本体より複雑になると保守コストが逆転する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: キャッシュコードは本体コード以下に保つ",
+        },
       ],
     },
   },
@@ -2629,6 +4338,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["チャートにデータ取得責務が混入", "テスト困難化"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "safe-performance-principles で articulate された前提に対し、Chart コンポーネントから useDuckDB* hook を直接 import する のパターンが残ると、チャートは描画に専念。データ取得は plan/handler 経由で行う という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「Chart コンポーネントは DuckDB hook を直接 import しない」を構造的に強制し、useWidgetQueryContext / useWidgetDataOrchestrator 経由でデータを受け取る のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: チャートは描画に専念。データ取得は plan/handler 経由で行う)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: Chart コンポーネントは DuckDB hook を直接 import しない",
+        },
+      ],
+    },
   },
 
   {
@@ -2658,6 +4391,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "custom", severity: "gate" },
     migrationRecipe: {
       steps: ["1. alignment 判定をコンポーネントから handler に移動"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "safe-performance-principles で articulate された前提に対し、コンポーネントや hook で直接 alignment を判定する のパターンが残ると、alignment ロジックが散在すると比較結果の一貫性が失われる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「alignment-aware access は handler/resolver に閉じる」を構造的に強制し、QueryHandler または resolver 内でのみ alignment を処理する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: alignment ロジックが散在すると比較結果の一貫性が失われる)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: alignment-aware access は handler/resolver に閉じる",
+        },
+      ],
     },
   },
 
@@ -2716,6 +4473,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "4. 確信がなければ未分類のまま残す",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、ファイルの特徴を確認せずに R:utility を付ける（最も多い誤分類パターン） のパターンが残ると、不正確なタグは TAG_EXPECTATIONS との不一致を生み、ガードの信頼性を損なう という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「@responsibility タグはファイルの特徴に基づいて正確に選択する」を構造的に強制し、ファイルの特徴から適切なタグを判定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 不正確なタグは TAG_EXPECTATIONS との不一致を生み、ガードの信頼性を損なう)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: @responsibility タグはファイルの特徴に基づいて正確に選択する",
+        },
+      ],
+    },
   },
 
   // ── 責務タグ別の閾値（TAG_EXPECTATIONS 由来） ──
@@ -2753,6 +4534,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. データ取得は plan hook 経由に変更",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、チャートコンポーネント内にデータ取得・状態管理・計算ロジックを混在させる のパターンが残ると、チャート描画と状態管理が混在すると変更理由が 2 つになる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「chart-view は描画に専念する。状態・計算を持ちすぎない」を構造的に強制し、useMemo ≤ 4, useCallback ≤ 4, useState ≤ 2, 400 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: チャート描画と状態管理が混在すると変更理由が 2 つになる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: chart-view は描画に専念する。状態・計算を持ちすぎない",
+        },
+      ],
+    },
   },
 
   {
@@ -2784,6 +4589,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. useState/useCallback があれば hook に抽出",
         "2. オプション構築は純粋関数として維持",
         "3. React 依存を排除",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、オプション構築ファイルに useState や useCallback を含む のパターンが残ると、オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「chart-option は ECharts オプション構築のみ。React hooks を含まない」を構造的に強制し、useMemo ≤ 2, useCallback = 0, useState = 0, 600 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: chart-option は ECharts オプション構築のみ。React hooks を含まない",
+        },
       ],
     },
   },
@@ -2823,6 +4652,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な入力→出力の関数として維持",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/engine-boundary-policy.md",
+          problemAddressed:
+            "engine-boundary-policy で articulate された前提に対し、計算ファイルに React hooks や副作用を含む のパターンが残ると、計算ロジックはフレームワーク非依存。テスト容易性と再利用性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-not-coexist 検出 + gate severity で「calculation は純粋関数。React hooks を一切含まない」を構造的に強制し、useMemo = 0, useCallback = 0, useState = 0, 400 行以内。純粋な入力→出力 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: 計算ロジックはフレームワーク非依存。テスト容易性と再利用性を保証する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: calculation は純粋関数。React hooks を一切含まない",
+        },
+      ],
+    },
   },
 
   {
@@ -2858,6 +4711,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. データ変換は純粋関数として維持",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、変換ファイルに useState や副作用を含む のパターンが残ると、データ変換は純粋関数であるべき。状態を持つと副作用が混入する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「transform はデータ変換のみ。状態を持たない」を構造的に強制し、useMemo ≤ 2, useCallback = 0, useState = 0, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: データ変換は純粋関数であるべき。状態を持つと副作用が混入する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: transform はデータ変換のみ。状態を持たない",
+        },
+      ],
+    },
   },
 
   {
@@ -2888,6 +4765,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 200 行を超えていたら描画ロジックとの分離を確認",
         "2. 状態遷移のみに専念させる",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、状態管理ファイルに描画ロジックやデータ取得を混在させる のパターンが残ると、状態管理が肥大化すると状態遷移の追跡が困難になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「state-machine は状態管理に専念する。短く保つ」を構造的に強制し、useMemo ≤ 3, useCallback ≤ 12, useState ≤ 8, 200 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 状態管理が肥大化すると状態遷移の追跡が困難になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: state-machine は状態管理に専念する。短く保つ",
+        },
       ],
     },
   },
@@ -2923,6 +4824,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 実行ロジックは useQueryWithHandler に委譲",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "safe-performance-principles で articulate された前提に対し、plan ファイル内でクエリを実行する、または状態を持つ のパターンが残ると、クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「query-plan はクエリ入力の組み立てのみ。実行しない」を構造的に強制し、useMemo ≤ 5, useCallback = 0, useState = 0, 200 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: query-plan はクエリ入力の組み立てのみ。実行しない",
+        },
+      ],
+    },
   },
 
   {
@@ -2954,6 +4879,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. ビジネスロジックが混入していないか確認",
         "2. 計算は domain 層に委譲",
         "3. キャッシュ管理のみに専念",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/runtime-data-path.md",
+          problemAddressed:
+            "runtime-data-path で articulate された前提に対し、クエリ実行ファイルに計算ロジックや描画を含む のパターンが残ると、クエリ実行にビジネスロジックが混入すると責務が不明確になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「query-exec はクエリ実行とキャッシュ管理に専念する」を構造的に強制し、useMemo ≤ 3, useCallback ≤ 1, useState ≤ 1, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: クエリ実行にビジネスロジックが混入すると責務が不明確になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: query-exec はクエリ実行とキャッシュ管理に専念する",
+        },
       ],
     },
   },
@@ -2989,6 +4938,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 表示と通知のみに専念",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/widget-coordination-architecture.md",
+          problemAddressed:
+            "widget-coordination-architecture で articulate された前提に対し、ウィジェット内にデータ取得・計算・状態管理を詰め込む のパターンが残ると、ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「widget は通知と表示の統合点。過度に状態を持たない」を構造的に強制し、useMemo ≤ 4, useCallback ≤ 4, useState ≤ 3, 400 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: widget は通知と表示の統合点。過度に状態を持たない",
+        },
+      ],
+    },
   },
 
   {
@@ -3020,6 +4993,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. インライン計算を hook に抽出",
         "2. 長いレンダリングロジックを子コンポーネントに分割",
         "3. ページは組み立てのみ",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/new-page-checklist.md",
+          problemAddressed:
+            "new-page-checklist で articulate された前提に対し、ページ内にインライン計算や長いレンダリングロジックを含む のパターンが残ると、ページは子コンポーネントの組み立て。ロジックは hooks に委譲する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「page は統合点。hooks 数は多いが行数は抑える」を構造的に強制し、useMemo ≤ 8, useCallback ≤ 10, useState ≤ 8, 500 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: ページは子コンポーネントの組み立て。ロジックは hooks に委譲する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: page は統合点。hooks 数は多いが行数は抑える",
+        },
       ],
     },
   },
@@ -3054,6 +5051,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. フォームは入力処理に専念",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、フォーム内に計算ロジックやデータ取得を含む のパターンが残ると、フォームにビジネスロジックが混入すると変更理由が増える という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「form は入力処理に専念する」を構造的に強制し、useMemo ≤ 3, useCallback ≤ 6, useState ≤ 6, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: フォームにビジネスロジックが混入すると変更理由が増える)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: form は入力処理に専念する",
+        },
+      ],
+    },
   },
 
   {
@@ -3084,6 +5105,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. データ取得や状態管理が混在していれば hook に抽出",
         "2. レイアウトは構造のみ",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、レイアウト内にデータ取得や状態管理を含む のパターンが残ると、レイアウトにロジックが混入すると UI の再構成が困難になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「layout はレイアウト構造のみ。ビジネスロジックを持たない」を構造的に強制し、useMemo ≤ 2, useCallback ≤ 3, useState ≤ 3, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: レイアウトにロジックが混入すると UI の再構成が困難になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: layout はレイアウト構造のみ。ビジネスロジックを持たない",
+        },
       ],
     },
   },
@@ -3118,6 +5163,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. useState があれば状態管理 hook に抽出",
         "2. 副作用は呼び出し先に委譲",
         "3. orchestration は hook の組み立てのみ",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/runtime-data-path.md",
+          problemAddressed:
+            "runtime-data-path で articulate された前提に対し、オーケストレーション hook 内で useState や副作用を直接管理する のパターンが残ると、オーケストレーションが状態を持つと facade が God Object 化する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「orchestration は hook の組み立てのみ。状態を直接持たない」を構造的に強制し、useMemo ≤ 8, useCallback ≤ 2, useState = 0, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: オーケストレーションが状態を持つと facade が God Object 化する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: orchestration は hook の組み立てのみ。状態を直接持たない",
+        },
       ],
     },
   },
@@ -3156,6 +5225,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. hooks を使わない純粋関数なら hooks を別ファイルに抽出",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、ユーティリティに React hooks や副作用を含む のパターンが残ると、ユーティリティはフレームワーク非依存。どの層からも安全に呼べる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-not-coexist 検出 + gate severity で「utility は純粋関数。React hooks を一切含まない」を構造的に強制し、useMemo = 0, useCallback = 0, useState = 0, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: ユーティリティはフレームワーク非依存。どの層からも安全に呼べる)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: utility は純粋関数。React hooks を一切含まない",
+        },
+      ],
+    },
   },
 
   {
@@ -3184,6 +5277,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "count", severity: "gate" },
     migrationRecipe: {
       steps: ["1. ビジネスロジックを hook に抽出", "2. Context は値の提供のみ"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、Context 内にビジネスロジックや複雑な計算を含む のパターンが残ると、Context Provider が肥大化すると再レンダリング範囲が広がる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「context は値の提供のみ。過度なロジックを持たない」を構造的に強制し、useMemo ≤ 3, useCallback ≤ 3, useState ≤ 3, 200 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: Context Provider が肥大化すると再レンダリング範囲が広がる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: context は値の提供のみ。過度なロジックを持たない",
+        },
+      ],
     },
   },
 
@@ -3214,6 +5331,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 計算ロジックを domain 層に抽出", "2. 永続化操作に専念"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、永続化ファイルに計算ロジックや UI 制御を含む のパターンが残ると、永続化にビジネスロジックが混入するとデータ層の責務が不明確になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「persistence は永続化操作に専念する」を構造的に強制し、useMemo ≤ 3, useCallback ≤ 6, useState ≤ 6, 300 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 永続化にビジネスロジックが混入するとデータ層の責務が不明確になる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: persistence は永続化操作に専念する",
+        },
+      ],
+    },
   },
 
   {
@@ -3242,6 +5383,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     detection: { type: "count", severity: "gate" },
     migrationRecipe: {
       steps: ["1. ビジネスロジックを抽出", "2. 外部 API との変換のみに専念"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、アダプタにビジネスロジックや状態管理を含む のパターンが残ると、アダプタが肥大化すると外部依存の影響範囲が広がる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は count 検出 + gate severity で「adapter は外部 API との変換のみ。小さく保つ」を構造的に強制し、useMemo ≤ 1, useCallback ≤ 2, useState ≤ 1, 200 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: アダプタが肥大化すると外部依存の影響範囲が広がる)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: adapter は外部 API との変換のみ。小さく保つ",
+        },
+      ],
     },
   },
 
@@ -3276,6 +5441,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. React hooks が混入していれば別ファイルに抽出",
         "2. reducer は (state, action) => state のみ",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "responsibility-separation-catalog で articulate された前提に対し、reducer に React hooks や副作用を含む のパターンが残ると、reducer は (state, action) => state の純粋関数であるべき という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-not-coexist 検出 + gate severity で「reducer は純粋な状態遷移関数。hooks を含まない」を構造的に強制し、useMemo = 0, useCallback = 0, useState = 0, 200 行以内 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: reducer は (state, action) => state の純粋関数であるべき)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: reducer は純粋な状態遷移関数。hooks を含まない",
+        },
       ],
     },
   },
@@ -3314,6 +5503,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. barrel は export 文のみに",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/coding-conventions.md",
+          problemAddressed:
+            "coding-conventions で articulate された前提に対し、バレルに関数定義や変数宣言を含む のパターンが残ると、バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は must-only 検出 + gate severity で「barrel は re-export のみ。ロジックを含まない」を構造的に強制し、useMemo = 0, useCallback = 0, useState = 0, 50 行以内。export 文のみ のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "5 層構造の orthogonal 軸が崩れて層境界が機械検証不能になると、各層の責務分離 (Layer 0/1/2/3/4) が articulate 単独で支えられない状態に劣化する (本 rule scope: バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する)",
+          resolutionContribution:
+            "本 rule は層境界違反パターンを構造的に拒否し、層境界 mapping を機械的に維持する。本 rule の具体寄与: barrel は re-export のみ。ロジックを含まない",
+        },
+      ],
+    },
   },
 
   // ── 文書品質（governance-ops） ────────────────────────────────
@@ -3347,6 +5560,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       steps: [
         "1. 数値を generated section に移動するか、件数を除去して定性表現に変更",
         "2. 除去できない場合は EXCEPTIONS に理由付きで追加",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/strategy.md",
+          problemAddressed:
+            "strategy で articulate された前提に対し、文書に「N ルール」「N テスト」等をハードコードする のパターンが残ると、静的数値は code と乖離して嘘になる。drift を機械的に検出する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「文書中のハードコード数値は generated section か例外リストで管理する」を構造的に強制し、件数は generated section から自動埋め込み。例外は理由付きで EXCEPTIONS に登録 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 静的数値は code と乖離して嘘になる。drift を機械的に検出する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 文書中のハードコード数値は generated section か例外リストで管理する",
+        },
       ],
     },
   },
@@ -3396,6 +5633,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "DB 破損の未検出",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、エラーを無視する catch: 空 catch、コメントのみ catch、default 値返却のみ のパターンが残ると、サイレント catch はエラーを不可視にし、データ不正やUI欠落の原因を追跡不能にする という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + warn severity で「catch ブロックでエラーを握り潰さない（ログなし catch 禁止）」を構造的に強制し、catch 内で console.warn/error + エラー状態の伝播。または上位に re-throw のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: サイレント catch はエラーを不可視にし、データ不正やUI欠落の原因を追跡不能にする)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: catch ブロックでエラーを握り潰さない（ログなし catch 禁止）",
+        },
+      ],
+    },
   },
 
   {
@@ -3435,6 +5696,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "インポート履歴のサイレント消失",
         "キャッシュ保存失敗による性能劣化",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、repo.save().catch(console.warn) のように await なしで Promise を放置 のパターンが残ると、保存失敗がサイレントだと、ユーザーは保存されたと思い込み次回起動時にデータ消失する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + warn severity で「データ保存 Promise を fire-and-forget しない」を構造的に強制し、await で完了を待つ。失敗時は UI に通知。非クリティカルなら明示コメント のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 保存失敗がサイレントだと、ユーザーは保存されたと思い込み次回起動時にデータ消失する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: データ保存 Promise を fire-and-forget しない",
+        },
       ],
     },
   },
@@ -3479,6 +5764,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "月遷移時の stale data 表示",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、readModels?.model?.field ?? 0 で非同期の null を 0 に潰す のパターンが残ると、?? 0 は「取得中」「失敗」「0件」を区別できず、ユーザーに嘘のデータを見せる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「非同期データに ?? 0 を使わない（loading/error/empty の区別を消さない）」を構造的に強制し、ReadModelSlice の status チェック、または isLoading/error の明示的分岐 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: ?? 0 は「取得中」「失敗」「0件」を区別できず、ユーザーに嘘のデータを見せる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 非同期データに ?? 0 を使わない（loading/error/empty の区別を消さない）",
+        },
+      ],
+    },
   },
 
   {
@@ -3520,6 +5829,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "重複レコードによる二重計上",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、validateImportData() を呼ぶが結果を確認せずデータを無条件で保存 のパターンが残ると、バリデーションを呼んでも結果を無視すると、不正データが計算パイプラインに流入する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「バリデーション結果は必ずチェックし、エラー時はデータフローを制御する」を構造的に強制し、hasValidationErrors() でチェックし、error ならデータ保存をブロックまたはユーザー確認 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: バリデーションを呼んでも結果を無視すると、不正データが計算パイプラインに流入する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: バリデーション結果は必ずチェックし、エラー時はデータフローを制御する",
+        },
+      ],
+    },
   },
 
   {
@@ -3551,6 +5884,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["DuckDB の部分 INSERT による集計不正"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、bulkInsert が rows.length を無検証で返す のパターンが残ると、部分 INSERT 失敗がサイレントだと、集計が不正確になり readModel の数値がずれる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「DuckDB INSERT 後に実投入行数を検証する」を構造的に強制し、INSERT 後に COUNT(*) で検証。不一致時は throw のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 部分 INSERT 失敗がサイレントだと、集計が不正確になり readModel の数値がずれる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: DuckDB INSERT 後に実投入行数を検証する",
+        },
+      ],
     },
   },
 
@@ -3588,6 +5945,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["本番での型不正データ通過", "readModel .parse() クラッシュ"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、import.meta.env.DEV でガードし本番では Zod バリデーションをスキップ のパターンが残ると、本番で型不正データが通過すると、ユーザーに不正な数値が表示されるか UI がクラッシュする という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + warn severity で「Zod バリデーションを本番でも有効にする（DEV 限定にしない）」を構造的に強制し、queryToObjects の safeParse を本番でも first-row モードで実行 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 本番で型不正データが通過すると、ユーザーに不正な数値が表示されるか UI がクラッシュする)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Zod バリデーションを本番でも有効にする（DEV 限定にしない）",
+        },
+      ],
     },
   },
 
@@ -3629,6 +6010,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "ミューテックスデッドロック",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、Worker.postMessage 後にタイムアウトなしで応答を待つ のパターンが残ると、タイムアウトなしの Promise は Worker ハングやデッドロックで永久待ちになる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「Worker 通信・ミューテックス取得にタイムアウトを設ける」を構造的に強制し、Promise.race([operation, timeout(30_000)]) でタイムアウトを強制 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: タイムアウトなしの Promise は Worker ハングやデッドロックで永久待ちになる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Worker 通信・ミューテックス取得にタイムアウトを設ける",
+        },
+      ],
+    },
   },
 
   {
@@ -3662,6 +6067,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["月遷移時に前月の KPI が一瞬表示される問題"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、データソースを更新するが派生状態をクリアしない のパターンが残ると、ソース変更後に派生状態が前月のまま残ると、ユーザーに前月データが表示される という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「データソース変更時に依存する派生状態をクリアする」を構造的に強制し、setCurrentMonthData 時に storeResults を空 Map にクリア のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: ソース変更後に派生状態が前月のまま残ると、ユーザーに前月データが表示される)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: データソース変更時に依存する派生状態をクリアする",
+        },
+      ],
     },
   },
 
@@ -3708,6 +6137,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["CI 失敗: テストが旧 severity を期待して不一致"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、severity のみ変更してテスト側を追従させない のパターンが残ると、severity を warning → error に変えてもテストが warning を探していると CI が通らず、逆に CI が通ったままテストが無意味になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は co-change 検出 + warn severity で「バリデーション severity を変更したら対応するテストも更新する」を構造的に強制し、importDataIntegrity.ts の level 変更時に FileImportService.test.ts のアサーションも同時に変更する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: severity を warning → error に変えてもテストが warning を探していると CI が通らず、逆に CI が通…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: バリデーション severity を変更したら対応するテストも更新する",
+        },
+      ],
+    },
   },
 
   {
@@ -3744,6 +6197,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["CI 失敗: モック未対応で undefined.toArray() クラッシュ"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、本番コードに query を追加してテストモックを更新しない のパターンが残ると、テストモックが新しい query 呼び出しに対応しないと undefined.toArray() でクラッシュする という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は co-change 検出 + warn severity で「DuckDB 関数に conn.query() 呼び出しを追加したら対応テストのモックも更新する」を構造的に強制し、bulkInsert 等に query 追加時は dataLoaderPureFunctions.test.ts のモック conn.query を複数回対応… のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: テストモックが新しい query 呼び出しに対応しないと undefined.toArray() でクラッシュする)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: DuckDB 関数に conn.query() 呼び出しを追加したら対応テストのモックも更新する",
+        },
+      ],
     },
   },
 
@@ -3784,6 +6261,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["CI 失敗: パスガードが旧 parse メソッド名を期待して不一致"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、parse 方式を変更してパスガードの検証文字列を更新しない のパターンが残ると、パスガードが .parse() の存在を検証しているため、.safeParse() に変えるとガードが失敗する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は co-change 検出 + warn severity で「readModel の parse 方式を変更したらパスガードのアサーションも更新する」を構造的に強制し、readXxx.ts で .parse() → .safeParse() に変更したら xxxPathGuard.test.ts の toContain も同… のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: パスガードが .parse() の存在を検証しているため、.safeParse() に変えるとガードが失敗する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: readModel の parse 方式を変更したらパスガードのアサーションも更新する",
+        },
+      ],
     },
   },
   // ═══ I: 意味分類 ═══
@@ -3832,6 +6333,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "意味空間の混線により current/candidate 管理が崩壊する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/semantic-classification-policy.md",
+          problemAddressed:
+            "semantic-classification-policy で articulate された前提に対し、authoritative を修飾なしで使用する のパターンが残ると、AI が business と analytic を混同し、意味空間が混線する。単独 authoritative は意味分類の根拠にならない という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「authoritative を単独語で新規使用しない。必ず business-authoritative / analytic-authoritative / candidate…」を構造的に強制し、authorityKind: business-authoritative / analytic-authoritative / candidate-auth… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: AI が business と analytic を混同し、意味空間が混線する。単独 authoritative は意味分類の根拠にならない)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: authoritative を単独語で新規使用しない。必ず business-authoritative / analytic-autho…",
+        },
+      ],
+    },
   },
   {
     id: "AR-CANON-SEMANTIC-REQUIRED",
@@ -3875,6 +6400,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "derived view に未分類エントリが紛れ込み運用が混乱する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/semantic-classification-policy.md",
+          problemAddressed:
+            "semantic-classification-policy で articulate された前提に対し、tag: 'required' で semanticClass が undefined のまま のパターンが残ると、semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混線する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する」を構造的に強制し、tag: 'required' のエントリには必ず semanticClass + authorityKind を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する",
+        },
+      ],
+    },
   },
 
   {
@@ -3909,6 +6458,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. derived view で分離を確認",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/semantic-classification-policy.md",
+          problemAddressed:
+            "semantic-classification-policy で articulate された前提に対し、pure だからという理由だけで同じ registry view に載せる のパターンが残ると、AI が pure = 同じ棚と誤解し、業務値決定計算と分析基盤計算を混同する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「business と analytic の意味責任を棚として分離する。pure であることは棚の決定基準にしない」を構造的に強制し、semanticClass で business / analytic を区別し、derived view で運用分離する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: AI が pure = 同じ棚と誤解し、業務値決定計算と分析基盤計算を混同する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: business と analytic の意味責任を棚として分離する。pure であることは棚の決定基準にしない",
+        },
+      ],
+    },
   },
 
   {
@@ -3941,6 +6514,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. current と candidate の view を分離",
         "2. candidate を current registry から除外",
         "3. current に candidate 状態遷移を追加しない",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/semantic-classification-policy.md",
+          problemAddressed:
+            "semantic-classification-policy で articulate された前提に対し、candidate を current registry に直接追加する、または current を staging area として使う のパターンが残ると、安定運用資産と実験資産を混ぜると、レビュー基準・進捗管理・rollback が全て濁る という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「current（保守対象）と candidate（移行対象）を同じ view / KPI / review 導線で扱わない」を構造的に強制し、current view と candidate view を分離し、それぞれ独立した KPI と review 導線を持つ のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 安定運用資産と実験資産を混ぜると、レビュー基準・進捗管理・rollback が全て濁る)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current（保守対象）と candidate（移行対象）を同じ view / KPI / review 導線で扱わない",
+        },
       ],
     },
   },
@@ -3988,6 +6585,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "意味分類なしの契約が混入し business/analytic の契約体系が崩壊する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、semanticClass が undefined のまま contractId を設定する のパターンが残ると、契約は意味分類の上に成り立つ。semanticClass なしで契約を付けると business/analytic の境界が曖昧になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「semanticClass 未設定のまま contractId を追加してはならない」を構造的に強制し、contractId を設定する前に必ず semanticClass + authorityKind を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 契約は意味分類の上に成り立つ。semanticClass なしで契約を付けると business/analytic の境界が曖昧になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: semanticClass 未設定のまま contractId を追加してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -4033,6 +6654,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "業務意味不明の計算が Business Contract を持ち、分析計算と混同される",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、BIZ-XXX の contractId があるのに reason が空または汎用的すぎる のパターンが残ると、業務意味を説明できない計算を business に分類すると意味空間が汚染される という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Business Contract (BIZ-XXX) には businessMeaning 相当の reason が必須」を構造的に強制し、contractId が 'BIZ-' で始まるエントリは reason に業務意味を記載する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 業務意味を説明できない計算を business に分類すると意味空間が汚染される)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Business Contract (BIZ-XXX) には businessMeaning 相当の reason が必須",
+        },
+      ],
+    },
   },
 
   {
@@ -4074,6 +6719,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "技法不明の計算が Analytic Contract を持ち、不変条件の検証が不可能になる",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、ANA-XXX の contractId があるのに methodFamily が未設定 のパターンが残ると、methodFamily なしの analytic 契約は技法の境界が曖昧になり再利用性が損なわれる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Analytic Contract (ANA-XXX) には methodFamily が必須」を構造的に強制し、contractId が 'ANA-' で始まるエントリは methodFamily を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: methodFamily なしの analytic 契約は技法の境界が曖昧になり再利用性が損なわれる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Analytic Contract (ANA-XXX) には methodFamily が必須",
+        },
       ],
     },
   },
@@ -4118,6 +6787,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "率の二重計算による丸め誤差・不整合",
         "engine と UI で異なる率が表示される",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、UI / VM / SQL で率を独自計算する（sales / cost で割る等） のパターンが残ると、率の二重計算は丸め誤差・不整合を生む。engine が算出した率をそのまま使う という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「率の算出は engine 側の責務。UI / VM / SQL で率を再計算してはならない」を構造的に強制し、bridge 経由で取得した率をそのまま表示・集計に使う のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 率の二重計算は丸め誤差・不整合を生む。engine が算出した率をそのまま使う)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: 率の算出は engine 側の責務。UI / VM / SQL で率を再計算してはならない",
+        },
       ],
     },
   },
@@ -4165,6 +6858,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "fallback / dual-run の対象外になる計算呼び出しが生まれる",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、application / presentation 層から domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge による current/candidate 切替・fallback・dual-run が機能し…",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「bridge を通さない pure 計算の runtime import を新規追加しない（型参照・テスト除く）」を構造的に強制し、application/services/*Bridge.ts 経由で pure 計算を呼び出す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: direct import が増えると bridge による current/candidate 切替・fallback・dual-run…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: bridge を通さない pure 計算の runtime import を新規追加しない（型参照・テスト除く）",
+        },
+      ],
+    },
   },
 
   {
@@ -4207,6 +6924,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "未検証の candidate が UI の通常運用で使用され品質が崩壊する",
         "rollback が困難になる",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/contract-definition-policy.md",
+          problemAddressed:
+            "contract-definition-policy で articulate された前提に対し、bridge モードを candidate-only に変更して UI の既定動作にする のパターンが残ると、candidate は実験資産。UI の通常運用で candidate を既定にすると安定性が崩壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate-only を UI の既定経路にする変更を禁止する」を構造的に強制し、UI の既定経路は current-only。candidate は dual-run-compare で検証してから切替 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: candidate は実験資産。UI の通常運用で candidate を既定にすると安定性が崩壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate-only を UI の既定経路にする変更を禁止する",
+        },
       ],
     },
   },
@@ -4253,6 +6994,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "current が staging area 化し保守対象と移行対象の境界が崩壊する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、current エントリに dual-run / promotion-ready 等の candidate 状態を付与する のパターンが残ると、current は保守対象。candidate の状態遷移を混ぜると staging area 化し、保守と移行の境界が崩壊する という構造的な不整合が発生…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「current 群に candidate 状態遷移（proposed/extracted/bridged/dual-run/promotion-ready/retired-js）…」を構造的に強制し、current は active / deprecated / review-needed のみ。candidate 状態遷移は candidate 群だけが… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: current は保守対象。candidate の状態遷移を混ぜると staging area 化し、保守と移行の境界が崩壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current 群に candidate 状態遷移（proposed/extracted/bridged/dual-run/promoti…",
+        },
+      ],
+    },
   },
 
   {
@@ -4294,6 +7059,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "意味分類なしの current が混入し保守レビューの基準が適用できない",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、runtimeStatus: 'current' で semanticClass が未設定 のパターンが残ると、意味分類なしの current は business/analytic の保守観点を適用できない という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「current 群の全エントリに semanticClass + authorityKind を必須とする」を構造的に強制し、runtimeStatus: 'current' のエントリには必ず semanticClass + authorityKind を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 意味分類なしの current は business/analytic の保守観点を適用できない)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current 群の全エントリに semanticClass + authorityKind を必須とする",
+        },
       ],
     },
   },
@@ -4338,6 +7127,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "current 群で business/analytic が区別できず保守観点が混線する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、current エントリのコメントや文書で authoritative を修飾なしで使用する のパターンが残ると、単独 authoritative は business/analytic の保守観点を区別できない という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「current 群で authoritative を単独使用しない。必ず business-authoritative / analytic-authoritative で修飾する」を構造的に強制し、current エントリの authorityKind は business-authoritative / analytic-authoritative /… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 単独 authoritative は business/analytic の保守観点を区別できない)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current 群で authoritative を単独使用しない。必ず business-authoritative / analyti…",
+        },
+      ],
+    },
   },
 
   {
@@ -4377,6 +7190,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "business と analytic の保守基準が混線し、保守レビューの品質が低下する",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、business と analytic の current を同じ一覧で混在管理する のパターンが残ると、保守観点が異なる（business=業務意味、analytics=数学的不変条件）ため同じ view で管理すると保守基準が曖昧になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「current/business と current/analytics の運用 view を混在させない」を構造的に強制し、BUSINESS_SEMANTIC_VIEW と ANALYTIC_KERNEL_VIEW を分離して管理する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 保守観点が異なる（business=業務意味、analytics=数学的不変条件）ため同じ view で管理すると保守基準が曖昧になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current/business と current/analytics の運用 view を混在させない",
+        },
       ],
     },
   },
@@ -4424,6 +7261,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "rollback が困難になる",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、current の WASM crate やブリッジに candidate 用の分岐やコードを追加する のパターンが残ると、保守対象（current）に実験コード（candidate）を混ぜると安定性が崩壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「current 群に candidate 実装を混入してはならない」を構造的に強制し、candidate 実装は candidate エントリとして別管理。current のコードベースに追加しない のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 保守対象（current）に実験コード（candidate）を混ぜると安定性が崩壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current 群に candidate 実装を混入してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -4463,6 +7324,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["bridge 管理外の呼び出しが増え一元管理が崩壊する"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、WASM exports や domain/calculations を直接 import する箇所を増やす のパターンが残ると、direct import が増えると bridge による一元管理が崩壊し、current/candidate 切替・fallback が機能しなくなる という構造的な…",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「current 群の direct import を新規に増やさない」を構造的に強制し、bridge 経由で current 群を利用する。新しい呼び出し元を追加する場合は bridge を通す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: direct import が増えると bridge による一元管理が崩壊し、current/candidate 切替・fallback…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: current 群の direct import を新規に増やさない",
+        },
+      ],
     },
   },
 
@@ -4504,6 +7389,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "factorDecomposition が analytic に再分類され、業務 KPI としての出力が分析基盤と混同される",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/current-maintenance-policy.md",
+          problemAddressed:
+            "current-maintenance-policy で articulate された前提に対し、factorDecomposition を semanticClass: analytic に変更する のパターンが残ると、factorDecomposition は技法が analytic（Shapley）だが意味責任は business。安易な再分類は意味空間を破壊する という構造的な不整合が発…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「factorDecomposition の semanticClass を business から変更する場合は businessMeaning の再定義が必須」を構造的に強制し、factorDecomposition は semanticClass: 'business', methodFamily: 'analytic_decomp… のパターンへの収束を機械的に駆動することで canonical…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: factorDecomposition は技法が analytic（Shapley）だが意味責任は business。安易な再分類は意味空…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: factorDecomposition の semanticClass を business から変更する場合は businessMean…",
+        },
       ],
     },
   },
@@ -4551,6 +7460,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["契約なしの candidate が混入し parity 比較の基準がなくなる"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、runtimeStatus: 'candidate' で contractId が未設定 のパターンが残ると、契約なしの candidate は業務意味の検証ができず、parity 比較の基準がない という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Business Contract (BIZ-XXX) なしで candidate/business 化してはならない」を構造的に強制し、candidate/business エントリには必ず contractId: 'BIZ-XXX' を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 契約なしの candidate は業務意味の検証ができず、parity 比較の基準がない)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Business Contract (BIZ-XXX) なしで candidate/business 化してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -4590,6 +7523,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["実験資産が安定運用 view に混入し品質基準が崩壊する"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、candidate エントリに runtimeStatus: 'current' を設定する のパターンが残ると、candidate は実験資産。current view に混ぜるとレビュー基準・進捗管理・rollback が全て濁る という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate/business を current/business の registry view に混入してはならない」を構造的に強制し、candidate は runtimeStatus: 'candidate' で MIGRATION_CANDIDATE_VIEW に配置する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ち…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: candidate は実験資産。current view に混ぜるとレビュー基準・進捗管理・rollback が全て濁る)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/business を current/business の registry view に混入してはならない",
+        },
+      ],
     },
   },
 
@@ -4633,6 +7590,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "business と analytics の bridge が交差接続し意味空間が崩壊する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、business candidate を forecastBridge / timeSlotBridge に接続する のパターンが残ると、business 計算を analytics bridge に接続すると意味空間が混線し、保守観点の適用が不可能になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「business candidate を analytics bridge に接続してはならない」を構造的に強制し、bridgeKind: 'business' の candidate は business bridge のみに接続する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: business 計算を analytics bridge に接続すると意味空間が混線し、保守観点の適用が不可能になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: business candidate を analytics bridge に接続してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -4670,6 +7651,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["率の二重計算により parity 比較が不可能になる"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、candidate の出力値から UI で率を独自計算する のパターンが残ると、candidate でも rateOwnership は engine。二重計算は parity 比較を不可能にする という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate の率を UI / VM / SQL で再計算してはならない」を構造的に強制し、candidate bridge から取得した率をそのまま使用する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: candidate でも rateOwnership は engine。二重計算は parity 比較を不可能にする)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate の率を UI / VM / SQL で再計算してはならない",
+        },
+      ],
     },
   },
 
@@ -4712,6 +7717,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、candidate の WASM exports や domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる という構造的な不整…",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「candidate/business の direct import を新規に増やさない」を構造的に強制し、candidate は bridge 経由でのみ呼び出す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/business の direct import を新規に増やさない",
+        },
+      ],
+    },
   },
 
   {
@@ -4751,6 +7780,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["rollback 不可の candidate が運用に入りユーザー影響が出る"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、candidate に fallbackPolicy: 'none' を設定する、または rollback 手順を未定義にする のパターンが残ると、rollback できない candidate は失敗時にユーザー影響が出る。安全網なしの移行は禁止 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「rollback 不可の candidate を追加してはならない」を構造的に強制し、candidate は fallbackPolicy: 'current' を設定し、bridge で current-only に戻せるようにする のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: rollback できない candidate は失敗時にユーザー影響が出る。安全網なしの移行は禁止)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: rollback 不可の candidate を追加してはならない",
+        },
+      ],
     },
   },
 
@@ -4795,6 +7848,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "parity 未検証の candidate が昇格され業務値の不整合が発生する",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          problemAddressed:
+            "tier1-business-migration-plan で articulate された前提に対し、candidate 実装を追加しただけで dual-run なしに promotion-ready にする のパターンが残ると、dual-run なしの昇格は parity 未検証。業務値の不整合をユーザーに出すリスクがある という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「dual-run 未実装で promotion-ready にしてはならない」を構造的に強制し、dual-run-compare を実施し、値一致・null一致・warning一致・業務解釈の一致を確認してから promotion-ready にする のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: dual-run なしの昇格は parity 未検証。業務値の不整合をユーザーに出すリスクがある)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: dual-run 未実装で promotion-ready にしてはならない",
+        },
       ],
     },
   },
@@ -4846,6 +7923,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "契約なしの analytic candidate が混入し不変条件の検証が不可能になる",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、runtimeStatus: 'candidate', semanticClass: 'analytic' で contractId が未設定 のパターンが残ると、契約なしの analytic candidate は methodFamily / invariantSet の検証ができず p…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Analytic Contract (ANA-XXX) なしで candidate/analytics 化してはならない」を構造的に強制し、candidate/analytics エントリには必ず contractId: 'ANA-XXX' と methodFamily を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 契約なしの analytic candidate は methodFamily / invariantSet の検証ができず parity…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Analytic Contract (ANA-XXX) なしで candidate/analytics 化してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -4886,6 +7987,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "analytics と business の bridge が交差接続し検証基準が崩壊する",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate を grossProfitBridge / budgetAnalysisBridge に接続する のパターンが残ると、analytic 計算を business bridge に接続すると意味空間が混線し、不変条件と業務意味の検証基準が混在する という構…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「analytic candidate を business bridge に接続してはならない」を構造的に強制し、bridgeKind: 'analytics' の candidate は analytics bridge のみに接続する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: analytic 計算を business bridge に接続すると意味空間が混線し、不変条件と業務意味の検証基準が混在する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: analytic candidate を business bridge に接続してはならない",
+        },
       ],
     },
   },
@@ -4932,6 +8057,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "技法不明の analytic candidate が混入し不変条件の定義が不可能になる",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、semanticClass: 'analytic', runtimeStatus: 'candidate' で methodFamily が未設定 のパターンが残ると、methodFamily なしの analytic candidate は技法の境界が曖昧になり再利用性・不変条件の検証が不…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate/analytics に methodFamily 未設定は禁止」を構造的に強制し、candidate/analytics エントリには必ず methodFamily を設定する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: methodFamily なしの analytic candidate は技法の境界が曖昧になり再利用性・不変条件の検証が不可能)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/analytics に methodFamily 未設定は禁止",
+        },
+      ],
+    },
   },
 
   {
@@ -4970,6 +8119,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["数学的正確性が未検証のまま analytic candidate が昇格される"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate に不変条件を定義せずに実装する のパターンが残ると、不変条件なしの analytic candidate は数学的正確性の検証ができず promotion 判定が不可能 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate/analytics に invariantSet の定義が必須」を構造的に強制し、ANA 契約に invariantSet を定義し、テストで検証する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 不変条件なしの analytic candidate は数学的正確性の検証ができず promotion 判定が不可能)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/analytics に invariantSet の定義が必須",
+        },
+      ],
     },
   },
 
@@ -5010,6 +8183,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "bridge 管理外の candidate 呼び出しが生まれ dual-run が機能しない",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、candidate の WASM exports や domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる という構造的な不…",
+          resolutionContribution:
+            "本 rule は import 検出 + gate severity で「candidate/analytics の direct import を新規に増やさない」を構造的に強制し、candidate は analytics bridge 経由でのみ呼び出す のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/analytics の direct import を新規に増やさない",
+        },
       ],
     },
   },
@@ -5055,6 +8252,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "analytic candidate が business current に混入し両方の品質基準が崩壊する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate を BUSINESS_SEMANTIC_VIEW に含める、または business bridge に接続する のパターンが残ると、analytic candidate を business current に混ぜると意味空間と保守基準の両方が崩壊する…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「candidate/analytics を current/business の view・crate・bridge に混入してはならない」を構造的に強制し、candidate/analytics は MIGRATION_CANDIDATE_VIEW に配置し、analytics bridge のみに接続する のパターンへの収束を機械的に駆動することで canonical doc の articula…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: analytic candidate を business current に混ぜると意味空間と保守基準の両方が崩壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: candidate/analytics を current/business の view・crate・bridge に混入してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -5096,6 +8317,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "factorDecomposition が analytics に再分類され業務 KPI の出力が分析基盤と混同される",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          problemAddressed:
+            "analytic-kernel-migration-plan で articulate された前提に対し、factorDecomposition を semanticClass: 'analytic' の candidate として登録する のパターンが残ると、factorDecomposition は技法が Shapley（analytic）だが意味責任は business（BIZ-004）…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「factorDecomposition を analytics 候補として登録してはならない」を構造的に強制し、factorDecomposition は semanticClass: 'business', contractId: 'BIZ-004' を維持する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: factorDecomposition は技法が Shapley（analytic）だが意味責任は business（BIZ-004）。a…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: factorDecomposition を analytics 候補として登録してはならない",
+        },
       ],
     },
   },
@@ -5145,6 +8390,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["JS に authoritative ロジックが増殖し二重管理が再発する"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
+          problemAddressed:
+            "guard-consolidation-and-js-retirement で articulate された前提に対し、domain/calculations/ に新しい authoritative 関数を直接追加する のパターンが残ると、JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「TS に新規 pure authoritative logic を追加してはならない。先に candidate 登録が必要」を構造的に強制し、新しい authoritative 計算は candidate として registry に登録してから実装する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: TS に新規 pure authoritative logic を追加してはならない。先に candidate 登録が必要",
+        },
+      ],
+    },
   },
 
   {
@@ -5185,6 +8455,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["JS reference が増殖し縮退方針（A→B→C→D）が機能しなくなる"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
+          problemAddressed:
+            "guard-consolidation-and-js-retirement で articulate された前提に対し、既存の TS ファイルに新しい authoritative 計算関数を追加する のパターンが残ると、JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「JS reference（compare/fallback 用）に新規正本ロジックを追加してはならない」を構造的に強制し、JS reference はバグ修正のみ。新しいロジックは candidate として追加する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: JS reference（compare/fallback 用）に新規正本ロジックを追加してはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -5224,6 +8519,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     protectedHarm: {
       prevents: ["描画用ヘルパーが authoritative に昇格し責務の混線が起きる"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
+          problemAddressed:
+            "guard-consolidation-and-js-retirement で articulate された前提に対し、presentation/ のヘルパーを semanticClass: 'business' / 'analytic' に変更する のパターンが残ると、presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Presentation Helper を candidate/business や candidate/analytics に昇格してはならない」を構造的に強制し、presentation 層のヘルパーは semanticClass: 'presentation' のまま維持する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起きる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: Presentation Helper を candidate/business や candidate/analytics に昇格しては…",
+        },
+      ],
     },
   },
 
@@ -5266,6 +8586,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["意味分類未確定のまま移行し大規模な修正が必要になる"],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
+          problemAddressed:
+            "guard-consolidation-and-js-retirement で articulate された前提に対し、tag: 'review' のまま runtimeStatus を current や candidate に変更する のパターンが残ると、意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「review-needed のまま current 編入・candidate 化・物理移動をしてはならない」を構造的に強制し、review-needed を解決してから current 編入・candidate 化する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: 意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: review-needed のまま current 編入・candidate 化・物理移動をしてはならない",
+        },
+      ],
+    },
   },
 
   {
@@ -5297,6 +8642,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "1. 既存の分類を全て calculationCanonRegistry に集約",
         "2. derived view を master からの自動導出に変更",
         "3. 手編集禁止 guard を追加",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/semantic-classification-policy.md",
+          problemAddressed:
+            "semantic-classification-policy で articulate された前提に対し、business / analytic / candidate を別ファイルで独立管理する のパターンが残ると、二重管理を始めると AI がどの registry を信じるべきか迷い、意味分類が崩壊する という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + warn severity で「calculationCanonRegistry を唯一の master registry とし、derived view の手編集を禁止する」を構造的に強制し、master registry からフィルタで derived view を生成し、CI で一致を検証する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 二重管理を始めると AI がどの registry を信じるべきか迷い、意味分類が崩壊する)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: calculationCanonRegistry を唯一の master registry とし、derived view の手編集を禁止…",
+        },
       ],
     },
   },
@@ -5350,6 +8719,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "BaseRule + Overlay の自前合成が各所に散り、正本が事実上複数化する",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/governance-final-placement-plan.md",
+          problemAddressed:
+            "governance-final-placement-plan で articulate された前提に対し、'architectureRules/rules' や '@project-overlay/execution-overlay' を consumer から直… のパターンが残ると、merged 以外の direct import を許すと App Domain（BaseRule）と Pr…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「consumer は ARCHITECTURE_RULES の正本ルートを architectureRules 経由でのみ参照する」を構造的に強制し、import { ARCHITECTURE_RULES, getRuleById, ... } from '../architectureRules' のよう… のパターンへの収束を機械的に駆動することで canonical doc の articula…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "重複と参照の切り分けが崩れて上位 content の copy が許容されると、drill-down chain が冗長化し参照健全性 + 単一正本性が損なわれる (本 rule scope: merged 以外の direct import を許すと App Domain（BaseRule）と Project Overlay（E…)",
+          resolutionContribution:
+            "本 rule は重複パターンを構造的に拒否し、参照の切り分け + 単一正本性を機械的に維持する。本 rule の具体寄与: consumer は ARCHITECTURE_RULES の正本ルートを architectureRules 経由でのみ参照する",
+        },
+      ],
+    },
   },
 
   {
@@ -5390,6 +8783,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "overlay 未合成の BaseRule を consumer が参照し、fixNow / executionPlan 欠損に気づかない",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/governance-final-placement-plan.md",
+          problemAddressed:
+            "governance-final-placement-plan で articulate された前提に対し、from '../architectureRules/rules' で BaseRule 配列を直接 import する のパターンが残ると、rules.ts は App Domain 側の BaseRule 配列であり、案件運用状態（fixNow / executionPlan 等）は含…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「consumer が architectureRules/rules（BaseRule 配列）を直接 import することを禁止する」を構造的に強制し、consumer は '../architectureRules' 経由で ARCHITECTURE_RULES（merged 後）を参照する のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "重複と参照の切り分けが崩れて上位 content の copy が許容されると、drill-down chain が冗長化し参照健全性 + 単一正本性が損なわれる (本 rule scope: rules.ts は App Domain 側の BaseRule 配列であり、案件運用状態（fixNow / executionPlan…)",
+          resolutionContribution:
+            "本 rule は重複パターンを構造的に拒否し、参照の切り分け + 単一正本性を機械的に維持する。本 rule の具体寄与: consumer が architectureRules/rules（BaseRule 配列）を直接 import することを禁止する",
+        },
       ],
     },
   },
@@ -5433,6 +8850,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "consumer が Project Overlay を直接参照し、案件差し替え時に consumer 側の修正が必要になる",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/governance-final-placement-plan.md",
+          problemAddressed:
+            "governance-final-placement-plan で articulate された前提に対し、from '@project-overlay/execution-overlay' を consumer から直接 import する のパターンが残ると、Project Overlay（案件運用状態）は derived merge 経由で ArchitectureRule に合成済み。c…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「consumer が @project-overlay/execution-overlay を直接 import することを禁止する」を構造的に強制し、consumer は '../architectureRules' 経由で fixNow / executionPlan を受け取る のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "重複と参照の切り分けが崩れて上位 content の copy が許容されると、drill-down chain が冗長化し参照健全性 + 単一正本性が損なわれる (本 rule scope: Project Overlay（案件運用状態）は derived merge 経由で ArchitectureRule に合成済み。con…)",
+          resolutionContribution:
+            "本 rule は重複パターンを構造的に拒否し、参照の切り分け + 単一正本性を機械的に維持する。本 rule の具体寄与: consumer が @project-overlay/execution-overlay を直接 import することを禁止する",
+        },
       ],
     },
   },
@@ -5491,6 +8932,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "Governance Drift: allowlist が「なんとなく許容」になる",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/test-signal-integrity.md",
+          problemAddressed:
+            "test-signal-integrity で articulate された前提に対し、allowlist 登録された suppression に reason: / removalCondition: が無い、または free-form Eng… のパターンが残ると、allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalC…」を構造的に強制し、allowlist エントリ (signalIntegrity.ts) と source code コメントの両方で reason: / removalCon… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "guard が canonical doc に裏打ちされない状態で運用されると、製本されたルールが performative (= 形骸化) し検証として機能しなくなる (本 rule scope: allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を必須化する…)",
+          resolutionContribution:
+            "本 rule は guard 迂回 / 形骸化につながるパターンを構造的に拒否し、guard が canonical doc に裏打ちされ続ける状態を維持する。本 rule の具体寄与: allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化され…",
+        },
+      ],
+    },
   },
 
   // ── Scope-Aware Mutation ──
@@ -5547,6 +9012,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "当年データの巻き込み削除（deletePrevYearRowsAt が is_prev_year=false 行を誤削除）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "design-principles で articulate された前提に対し、DELETE FROM classified_sales WHERE year = ? AND month = ? — is_prev_year 条件なし のパターンが残ると、スコープ次元を持つテーブルの行レベル変更でスコープを省略すると、意図しないスコープの行が巻き込まれる（前年データ削除バグの再発防止） という構…",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で「is_prev_year 列を持つテーブルへの DELETE/UPDATE で is_prev_year 条件の指定を必須化する」を構造的に強制し、DELETE FROM classified_sales WHERE year = ? AND month = ? AND is_prev_year = fa… のパターンへの収束を機械的に駆動することで canonical doc の articulate…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: スコープ次元を持つテーブルの行レベル変更でスコープを省略すると、意図しないスコープの行が巻き込まれる（前年データ削除バグの再発防止）)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: is_prev_year 列を持つテーブルへの DELETE/UPDATE で is_prev_year 条件の指定を必須化する",
+        },
+      ],
+    },
   },
 
   // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
@@ -5597,6 +9086,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務再判断の機会喪失（review window のトリガーとして R:unclassified が機能）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-constitution.md",
+          problemAddressed:
+            "taxonomy-constitution で articulate された前提に対し、@responsibility / @taxonomyKind タグなしの production file / test のパターンが残ると、原則 1（未分類は分類である）の機械的強制。タグなしは「責務不明」を放置する状態であり、CI fail で能動的な分類を促す。Phase 6 Migration Rol…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「タグなし状態を禁止する（R:unclassified / T:unclassified は能動タグとして許可）」を構造的に強制し、全 file が R:* または R:unclassified、全 test が T:* または T:unclassified を持つ のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 1（未分類は分類である）の機械的強制。タグなしは「責務不明」を放置する状態であり、CI fail で能動的な分類を促す。Phase…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: タグなし状態を禁止する（R:unclassified / T:unclassified は能動タグとして許可）",
+        },
+      ],
+    },
   },
 
   {
@@ -5638,6 +9151,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務分類の意味の希薄化（review window を経由しない ad-hoc タグの蓄積）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-constitution.md",
+          problemAddressed:
+            "taxonomy-constitution で articulate された前提に対し、registry に存在しない R:foo / T:bar の使用 のパターンが残ると、原則 3（語彙生成は高コスト儀式）の機械的強制。registry に存在しない vocabulary を ad-hoc に追加することを禁止し、新タグ追加は review window 経由のみとする という構造的な不整合…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「registry V2 未登録の R:tag / T:kind の使用を禁止する」を構造的に強制し、responsibilityTaxonomyRegistryV2 / testTaxonomyRegistryV2 に登録された vocabulary のみ使用 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 3（語彙生成は高コスト儀式）の機械的強制。registry に存在しない vocabulary を ad-hoc に追加することを禁…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: registry V2 未登録の R:tag / T:kind の使用を禁止する",
+        },
+      ],
+    },
   },
 
   {
@@ -5676,6 +9213,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "軸混在による意味の曖昧化（v1 R:utility 48 件の捨て場化が再発する）",
         "review window の判断負荷増（混在タグは判定基準が複数になり review が長期化）",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-constitution.md",
+          problemAddressed:
+            "taxonomy-constitution で articulate された前提に対し、責務 + 純粋性 + 層を 1 タグに押し込む（v1 の R:utility / R:state-machine 等） のパターンが残ると、原則 2（1 タグ = 1 軸）の機械的強制。v1 の R:utility のような複数軸混在 tag を禁止し、軸ごとに別 namespace（R: / T:）で管理…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「1 タグ = 1 軸を強制する（責務 × 純粋性 × 層を 1 タグに混在させない）」を構造的に強制し、R: prefix は責務軸、T: prefix はテスト軸として分離。1 file は両軸を持てるが、各軸は 1 タグまで のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 2（1 タグ = 1 軸）の機械的強制。v1 の R:utility のような複数軸混在 tag を禁止し、軸ごとに別 namesp…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 1 タグ = 1 軸を強制する（責務 × 純粋性 × 層を 1 タグに混在させない）",
+        },
       ],
     },
   },
@@ -5721,6 +9282,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "責務分類の False Green（タグだけ付けて検証 test がない）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-interlock.md",
+          problemAddressed:
+            "taxonomy-interlock で articulate された前提に対し、R:calculation を持つ file に T:unit-numerical / T:boundary を持つ test がない（contract 破綻） のパターンが残ると、原則 4（Tag ↔ Test は双方向契約）の機械的強制。R:tag が指定する requiredTKinds を満たす test…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「R:tag に対応する required T:kind を持つ test の存在を強制する（R⇔T 双方向契約）」を構造的に強制し、各 R:tag を持つ file に対し、interlock マトリクスの required T:kind を持つ test が最低 1 件存在 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 4（Tag ↔ Test は双方向契約）の機械的強制。R:tag が指定する requiredTKinds を満たす test が存…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: R:tag に対応する required T:kind を持つ test の存在を強制する（R⇔T 双方向契約）",
+        },
+      ],
+    },
   },
 
   {
@@ -5759,6 +9344,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "採択経緯不明な vocabulary の蓄積（撤退判断ができなくなる）",
         "責任不在のタグ追加（who を記録しないと撤退提案者が不明）",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-origin-journal.md",
+          problemAddressed:
+            "taxonomy-origin-journal で articulate された規約から逸脱した実装が累積すると、原則 5（Origin は記録する）の機械的強制。registry V2 entry は ResponsibilityOrigin / TestKindOrigin 型で Origin field… という構造的な不整合が発生し canonical doc が形骸化する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「全 R:tag / T:kind に Origin metadata（why / when / who / sunsetCondition）を必須化する」を構造的に強制し、registry V2 の各 entry が origin: { why, when, who, sunsetCondition } を持つ のパターンへの収束を機械的に駆動することで canonical doc の articul…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 5（Origin は記録する）の機械的強制。registry V2 entry は ResponsibilityOrigin / T…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 全 R:tag / T:kind に Origin metadata（why / when / who / sunsetCondition…",
+        },
       ],
     },
   },
@@ -5801,6 +9410,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "統廃合機会の喪失（上限なき vocabulary は無秩序に増殖する）",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/taxonomy-constitution.md",
+          problemAddressed:
+            "taxonomy-constitution で articulate された前提に対し、15 を超える vocabulary 数（例: 責務軸 16 件以上） のパターンが残ると、原則 7（Cognitive Load Ceiling）の機械的強制。1 人が把握できる vocabulary 量 = 15 を上限とし、超過時は review window で統廃合 or Con… という構造的な不…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「軸ごとの vocabulary 数を 15 以下に制限する（Cognitive Load Ceiling）」を構造的に強制し、責務軸 vocabulary 数 ≤ 15 / テスト軸 vocabulary 数 ≤ 15（軸ごと別カウント） のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 7（Cognitive Load Ceiling）の機械的強制。1 人が把握できる vocabulary 量 = 15 を上限とし…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 軸ごとの vocabulary 数を 15 以下に制限する（Cognitive Load Ceiling）",
+        },
+      ],
+    },
   },
 
   {
@@ -5839,6 +9472,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "AI による review window バイパス（vocabulary 生成プロセスを高コスト儀式として維持）",
         "taxonomy 体系の意図しない drift（AI 起案でも必ず人間承認を経由）",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "CLAUDE.md",
+          problemAddressed:
+            "CLAUDE で articulate された前提に対し、AI が独自判断で git diff に新 R:tag / T:kind を導入 のパターンが残ると、原則 3（語彙生成は高コスト儀式）+ 8 昇華メカニズム #7（AI Vocabulary Binding）の機械的強制。AI（claude）は registry に存在する vocabulary… という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「AI による review window 外の新 vocabulary 追加を block する」を構造的に強制し、AI が registry V2 vocabulary のみ使用 / 新タグ追加は review-journal.md 経由 のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 原則 3（語彙生成は高コスト儀式）+ 8 昇華メカニズム #7（AI Vocabulary Binding）の機械的強制。AI（claud…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: AI による review window 外の新 vocabulary 追加を block する",
+        },
       ],
     },
   },
@@ -5885,6 +9542,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "WID 識別子の source 側不在による改修時の追跡不能",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/widgets/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、spec が孤立している（source に対応 entry が無い）／ source に WID JSDoc が無く spec 側からしか紐付けが見えない のパターンが残ると、spec が source と分離した存在では runtime の振る舞いを記述する台帳としての機能を失い、改修者が「どの spec を更新すべきか」を判断できなく…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に存在する」を構造的に強制し、spec frontmatter の registrySource / widgetDefId が source の実在 widget def を指し、sou… のパターンへの収束を機械的に駆動することで canonical doc の…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: spec が source と分離した存在では runtime の振る舞いを記述する台帳としての機能を失い、改修者が「どの spec を更…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に…",
+        },
+      ],
+    },
   },
 
   {
@@ -5926,6 +9607,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "spec を読んでから改修した結果が古い情報に基づく事故",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/widgets/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、registry source を変更したのに対応 spec の frontmatter を再生成していない のパターンが残ると、frontmatter は registry source を機械的に再現する canonical view であり、両者の drift は spec の信頼性を毀損する。source 変更時には… という構造…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「WID-NNN.md frontmatter の機械フィールドが source AST から再生成した値と完全一致する」を構造的に強制し、`node tools/widget-specs/generate.mjs --check` が exit 0 を返す（registryLine / cons… のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: frontmatter は registry source を機械的に再現する canonical view であり、両者の drift…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: WID-NNN.md frontmatter の機械フィールドが source AST から再生成した値と完全一致する",
+        },
+      ],
+    },
   },
 
   {
@@ -5957,11 +9662,36 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. lastVerifiedCommit を必要に応じて更新",
       ],
     },
-    sunsetCondition: "Phase I で git diff ベースの強い co-change 検査に置換後に sunset",
+    sunsetCondition:
+      "Phase I で git diff ベースの強い co-change 検査に置換後に sunset",
     protectedHarm: {
       prevents: [
         "registry source 変更に伴う spec 更新漏れ",
         "lastVerifiedCommit が長期間更新されない結果としての真贋判定不能",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/widgets/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、registry source を変更したが spec.registryLine が古い のパターンが残ると、registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、P… という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「registry source の id 行と spec frontmatter の registryLine が一致し lastVerifiedCommit が記録されている」を構造的に強制し、spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastVerified… のパターンへの収束を機械的に駆動することで c…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべ…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: registry source の id 行と spec frontmatter の registryLine が一致し lastVeri…",
+        },
       ],
     },
   },
@@ -5981,12 +9711,15 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-char SHA) と完全一致。短縮 hash (`%h`) は repo 成長で長さ変動 + prefix 衝突時に false-negative (異 commit を同一と誤判定) リスクがあるため、commit identity の保証には full SHA を使用する。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
     },
     outdatedPattern: {
-      description: "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
+      description:
+        "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
     },
     decisionCriteria: {
       when: "source file を変更するとき",
-      exceptions: "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
-      escalation: "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
+      exceptions:
+        "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
+      escalation:
+        "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -6004,6 +9737,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "source が動いたのに spec が更新されない (stale spec)",
         "co-change guard が漏らした source 変更を検出する safety net",
         "date-based cadence の儀式に逃げる (Phase K で構造的 mechanism に置換)",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/widgets/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄 のパターンが残ると、date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spe…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する」を構造的に強制し、spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-ch… のパターンへの収束を機械的に駆動することで canonical doc の articulate…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する",
+        },
       ],
     },
   },
@@ -6029,7 +9786,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     decisionCriteria: {
       when: "spec の lifecycle 状態を変更するとき、Promote Ceremony を起動するとき",
       exceptions: "なし",
-      escalation: "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
+      escalation:
+        "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -6047,6 +9805,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "deprecated だが後継不明な spec が居残る（移行先が読めない）",
         "sunsetting だが期限なしの永続移行（temporal governance を骨抜きにする）",
         "deadline 過ぎても retired に transition しない（消費者が古い実装を使い続ける）",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/calculations/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、lifecycleStatus が enum 外 / deprecated だが replacedBy 欠落 / sunsetting だが deadline… のパターンが残ると、Lifecycle State Machine (proposed → active → deprecated → sunsetting → retired…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「全 spec の lifecycleStatus が enum 値であり、状態に応じた必須 field (replacedBy / sunsetCondition / deadl…」を構造的に強制し、lifecycleStatus は 6 enum 値、deprecated/sunsetting/retired は replacedBy 必須、sunset… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: Lifecycle State Machine (proposed → active → deprecated → sunsetting…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 全 spec の lifecycleStatus が enum 値であり、状態に応じた必須 field (replacedBy / sun…",
+        },
       ],
     },
   },
@@ -6084,13 +9866,36 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. candidate file を physical landing する PR は同 PR で CALC spec (lifecycleStatus: proposed) を必ず添付 (active candidate 化で +1 over baseline=0)",
       ],
     },
-    sunsetCondition:
-      "なし（registry ↔ spec の双方向一致は恒久的 mechanism）",
+    sunsetCondition: "なし（registry ↔ spec の双方向一致は恒久的 mechanism）",
     protectedHarm: {
       prevents: [
         "registry と spec の判定乖離 (改修者がどちらを信じるべきか不明になる)",
         "片方更新で半移行状態が居残る",
         "孤立 spec (registry に未登録の calc に CALC spec があるが consumer 不明)",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/calculations/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、spec.canonicalRegistration='current' だが registry='candidate' / spec が registry… のパターンが残ると、user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec が「candidat…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「kind=calculation の spec の canonicalRegistration が calculationCanonRegistry.runtimeStatus…」を構造的に強制し、spec.canonicalRegistration === registry[sourceRefKey].runtimeStatus、双方向一致。regis… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: kind=calculation の spec の canonicalRegistration が calculationCanonReg…",
+        },
       ],
     },
   },
@@ -6106,8 +9911,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     what: "replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
     why: "片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の replacedBy=B なら spec B の supersedes=A を必須化することで、Promote Ceremony が 1 PR で双方を同期更新することを構造的に強制する",
     correctPattern: {
-      description:
-        "spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし",
+      description: "spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし",
     },
     outdatedPattern: {
       description:
@@ -6126,13 +9930,36 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 同 PR で双方を更新 (片方だけ commit したら guard が hard fail)",
       ],
     },
-    sunsetCondition:
-      "なし（双方向リンクの対称性は恒久的 mechanism）",
+    sunsetCondition: "なし（双方向リンクの対称性は恒久的 mechanism）",
     protectedHarm: {
       prevents: [
         "片方向リンクで「移行完了したか分からない」状態",
         "自己参照ループによる lifecycle 検証の無限ループ",
         "孤立リンク (削除済み spec への dangling 参照)",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/03-guides/promote-ceremony-pr-template.md",
+          problemAddressed:
+            "promote-ceremony-pr-template で articulate された前提に対し、spec A.replacedBy=B だが spec B.supersedes が A 以外 / 孤立リンク (参照先 spec が存在しない) / 自己参… のパターンが残ると、片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の r…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)」を構造的に強制し、spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: 片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の replacedBy=B…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
+        },
       ],
     },
   },
@@ -6176,6 +10003,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "chart / UIC の見た目 silent drift（粗利率の色 / 警告 severity の赤色 / KPI 配置）",
         "新規 chart / UIC が evidence なしで増殖（後追いの整備コスト累積）",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/charts/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、新規 chart / UIC で stories / visualTests が空 / baseline 増加（既知未 cover の上に新規未 cover… のパターンが残ると、chart / UIC は見た目の変更が業務影響を持つ（粗利率の色 / 警告 severity の赤色 / KPI 配置の段差等）。visual evidenc…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「kind=chart / kind=ui-component の spec に Storybook story または visual regression test が記録されて…」を構造的に強制し、spec.stories.length > 0 || spec.visualTests.length > 0、増加方向の baseline 緩和なし のパターンへの収束を機械的に駆動することで canon…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: chart / UIC は見た目の変更が業務影響を持つ（粗利率の色 / 警告 severity の赤色 / KPI 配置の段差等）。vis…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: kind=chart / kind=ui-component の spec に Storybook story または visual re…",
+        },
       ],
     },
   },
@@ -6223,6 +10074,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "tested / guarded を名乗りながら参照 path 不在で実証されない",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "projects/completed/phased-content-specs-rollout/plan.md",
+          problemAddressed:
+            "plan で articulate された前提に対し、evidenceLevel / riskLevel が enum 外 / high-risk claim の asserted 滞留 / tested で t… のパターンが残ると、spec の prose claim が test / guard で実証されているかを構造保証することで、prose 層の C 層 drift (主張だけで実装…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「spec body の Behavior Claims セクションの evidenceLevel / riskLevel 整合性を機械検証する (Phase J Evidence…」を構造的に強制し、Behavior Claims table の各行 (CLM-NNN) で evidenceLevel ∈ enum / riskLevel ∈ enum /… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: spec の prose claim が test / guard で実証されているかを構造保証することで、prose 層の C 層 dr…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: spec body の Behavior Claims セクションの evidenceLevel / riskLevel 整合性を機械検証…",
+        },
+      ],
+    },
   },
 
   {
@@ -6257,11 +10132,36 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. evidence を再収集できないなら evidenceLevel を unknown / asserted に降格",
       ],
     },
-    sunsetCondition: "なし（path 実在は spec 主張 = 実装 の C 層保証として恒久的）",
+    sunsetCondition:
+      "なし（path 実在は spec 主張 = 実装 の C 層保証として恒久的）",
     protectedHarm: {
       prevents: [
         "spec の Behavior Claims 内 path が typo / stale で実 file を指さない (silent evidence drift)",
         "test / guard を移動 / 削除した後に spec が更新されない (orphan reference)",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "projects/completed/phased-content-specs-rollout/plan.md",
+          problemAddressed:
+            "plan で articulate された前提に対し、tests / guards に記載された path が実 file を指していない (typo / 移動後の stale / 削除後の orphan) のパターンが残ると、evidenceLevel guard は cell 非空のみ検証、参照 path が実 file を指すかは未保証。path 不在 / typo / 移動後の stal…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「spec body の Behavior Claims に記載された tests / guards path が repo 内に実在することを機械検証する (Phase J 後続…」を構造的に強制し、全 spec の Behavior Claims tests / guards 列の各 path が REPO_ROOT 起点で existsSync = t… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: evidenceLevel guard は cell 非空のみ検証、参照 path が実 file を指すかは未保証。path 不在 /…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: spec body の Behavior Claims に記載された tests / guards path が repo 内に実在するこ…",
+        },
       ],
     },
   },
@@ -6295,8 +10195,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     sunsetCondition: "なし（最小限 governance metadata の必須化は恒久）",
     protectedHarm: {
-      prevents: [
-        "責任所在不明 spec（誰がレビューすべきか不明）",
+      prevents: ["責任所在不明 spec（誰がレビューすべきか不明）"],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/05-contents/widgets/README.md",
+          problemAddressed:
+            "README で articulate された前提に対し、owner field が存在しない / 空 / null のパターンが残ると、owner 不在の spec は責任所在不明であり review / 更新の義務者が決まらない。最小限の governance metadata として owner は必須 という構造的な不整合が発生する",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「WID-NNN.md frontmatter に owner field が設定されている」を構造的に強制し、frontmatter.owner が非空文字列（role-id を期待） のパターンへの収束を機械的に駆動することで canonical doc の articulate を実装で裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: owner 不在の spec は責任所在不明であり review / 更新の義務者が決まらない。最小限の governance metad…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: WID-NNN.md frontmatter に owner field が設定されている",
+        },
       ],
     },
   },
@@ -6346,6 +10268,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "AI / 人間が rejected archive を確認せずに同名 primitive を再提案するリスク",
       ],
     },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/canonicalization-principles.md",
+          problemAddressed:
+            "canonicalization-principles で articulate された前提に対し、`adoption-candidates.json` の rejected archive を更新せずに `app-domain/integrity/{par… のパターンが残ると、Phase A inventory のスロット名のうち実装段階で「採用しない」と決定されたもの (shapeSync…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「`adoption-candidates.json` の `rejected[].originalSlot` で永久不採用と決定された primitive 名を `app-dom…」を構造的に強制し、`rejected[].originalSlot` 名の primitive を新設したい場合は、まず `adoption-candidates.json`… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: Phase A inventory のスロット名のうち実装段階で「採用しない」と決定されたもの (shapeSync / tokenInc…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: `adoption-candidates.json` の `rejected[].originalSlot` で永久不採用と決定された p…",
+        },
+      ],
+    },
   },
 
   {
@@ -6368,8 +10314,10 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     decisionCriteria: {
       when: "COVERAGE_MAP に新 guardFile を追加 / 既存 guardFile を削除するとき",
-      exceptions: "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
-      escalation: "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
+      exceptions:
+        "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
+      escalation:
+        "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -6385,6 +10333,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       prevents: [
         "新 guard 追加時の displayName count 更新漏れ (本 rule 不在時に PR #1207 着手で発生した手作業 drift の再発)",
         "guard 撤退時の displayName 更新漏れ (count が減った時も同様)",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "app-domain/integrity/APP_DOMAIN_INDEX.md",
+          problemAddressed:
+            "APP_DOMAIN_INDEX で articulate された前提に対し、新 guard を guardFiles に追加したが displayName の `× N` が旧値のまま (例: × 11 → × 12 の手作業更新漏れ) のパターンが残ると、PR #1207 着手時に `contentSpec*Guard × 11` を `× 12` に手作業更新する作業が発生 (新 guar…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「integrity COVERAGE_MAP の各 pair の `displayName` 末尾 `× N` 表記が `guardFiles.length` と一致する」を構造的に強制し、coverage-map.json の各 entry の displayName 末尾 `× N` (例: 'contentSpec*Guard × 11')… のパターンへの収束を機械的に駆動することで cano…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: PR #1207 着手時に `contentSpec*Guard × 11` を `× 12` に手作業更新する作業が発生 (新 guar…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: integrity COVERAGE_MAP の各 pair の `displayName` 末尾 `× N` 表記が `guardFil…",
+        },
       ],
     },
   },
@@ -6430,6 +10402,333 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "新 workflow / 新 job 追加時に fetch-depth 指定漏れ → git log 依存 guard の false-positive 一括 fail (PR #1205 の事故再発)",
         "既存 job の checkout block を整理して fetch-depth 指定を意図せず削除するリスク",
         "CI 環境差 (shallow vs full clone) で local PASS / CI FAIL のような hidden 起因の事故",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/strategy.md",
+          problemAddressed:
+            "strategy で articulate された前提に対し、full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定な… のパターンが残ると、PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default `fetch…",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で「`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `…」を構造的に強制し、full git history が必要な job (test:guards / vitest run / git log を読む code を実行) の a… のパターンへの収束を機械的に駆動することで…",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (defaul…)",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: `.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git h…",
+        },
+      ],
+    },
+  },
+
+  // ── Display-Focused Rules (DFR、Project C: aag-display-rule-registry) ──
+
+  {
+    slice: "governance-ops",
+    id: "DFR-001",
+    principleRefs: ["F2", "F3"],
+    ruleClass: "default",
+    guardTags: ["F2", "F3"],
+    epoch: 1,
+    what: "chart の semantic color (実績=緑 / 推定=オレンジ) を hex 直書きでなく theme token 経由で表現する",
+    why: "実績と推定の色彩境界が崩れると UI/UX 原則 1 (実績と推定は別世界) の業務的意味が破壊される",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "presentation/theme/tokens.ts の chartSemanticColors.actualCount / .estimatedCount 経由で color を取得",
+    },
+    outdatedPattern: {
+      description:
+        "chart component 内で '#22c55e' / '#f97316' の hex を直接記述、または theme.palette.success / .warning を chart semantic として alias",
+      codeSignals: ["#22c55e", "#f97316"],
+    },
+    decisionCriteria: {
+      when: "chart で実績値 / 推定値を render するとき",
+      exceptions:
+        "`presentation/theme/tokens.ts` 自身は semantic token の定義元として hex 記述を許容",
+      escalation:
+        "chartSemanticColors.actualCount / .estimatedCount を import して semantic 経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. chart 内の hex literal (#22c55e / #f97316) を grep で identify",
+        "2. semantic 軸が actual / estimated にあることを確認",
+        "3. chartSemanticColors.actualCount / .estimatedCount 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §2 で articulate された前提に対し、chart 内 hex 直書きが残ると UI/UX 原則 1 の semantic 軸 (実績=緑 / 推定=オレンジ) が崩れ、実績と推定の境界が視覚的に消失する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で hex literal の chart bypass を構造的に拒否し、semantic token (chartSemanticColors) 経由のみを強制することで registry の articulate を実装で機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "chart 表示の semantic 軸が canonical doc に裏打ちされない状態は、製本されたルールが performative (= 形骸化) する",
+          resolutionContribution:
+            "本 rule は hex 直書き bypass を構造的に拒否することで、chart semantic color が display-rule-registry に裏打ちされ続ける状態を維持する",
+        },
+        {
+          requirementId: "AAG-REQ-BIDIRECTIONAL-INTEGRITY",
+          problemAddressed:
+            "forward (registry → guard) + reverse (guard → registry) の双方向 integrity が片方向に劣化すると、registry 改修時の orphan rule や registry 不在の rule が発生する",
+          resolutionContribution:
+            "本 rule は DFR registry → base-rules.ts → guard の双方向 binding の concrete instance として、Phase 4 meta-guard が forward + reverse 両方向を機械検証する状態を成立させる",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-002",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "chart axis の formatter は useAxisFormatter hook 経由のみを許容",
+    why: "axis formatter が散在すると同義 API 併存が発生し、表示規約の単一正本性が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "useAxisFormatter('number' | 'date' | 'percent' | 'currency') を chart component から呼び出して axis label format を取得",
+    },
+    outdatedPattern: {
+      description:
+        "chart の xAxis.axisLabel.formatter / yAxis.axisLabel.formatter に inline 関数を記述、または toLocaleString 直接呼び出し",
+      codeSignals: ["axisLabel: {", "axisLabel:{"],
+    },
+    decisionCriteria: {
+      when: "chart axis の format を設定するとき",
+      exceptions:
+        "useAxisFormatter 自身は formatter 集約の起点として inline 実装を許容",
+      escalation: "useAxisFormatter hook を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. chart の axisLabel.formatter field を grep",
+        "2. inline 関数 / toLocaleString 直接呼び出しを identify",
+        "3. useAxisFormatter hook 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §3 で articulate された前提に対し、chart axis formatter が inline 散在すると、useAxisFormatter という単一正本の意味が消失し同義 API 併存が累積する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で axisLabel.formatter の inline 記述を構造的に拒否し、useAxisFormatter 経由の唯一経路を強制することで axis format の単一正本性を機械的に維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "axis formatter が複数経路で実装されると、useAxisFormatter の正本性が performative に劣化し registry の articulate が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline formatter を構造的に拒否し、useAxisFormatter 経由の単一経路を強制することで registry articulate を実装で裏打ちする",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-003",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "percent 表示は formatPercent 関数経由のみを許容 (小数第 2 位)",
+    why: "percent 表示の散在は formatPercent の単一正本性を崩し、丸め桁数の drift を招く",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description: "formatPercent(rate) を import して percent 表示を構築",
+    },
+    outdatedPattern: {
+      description:
+        "(rate * 100).toFixed(N) + '%' の inline 計算、または Math.round(rate * 100) + '%' の inline 丸め",
+      codeSignals: [".toFixed(", "* 100"],
+    },
+    decisionCriteria: {
+      when: "percent (比率) を画面に表示するとき",
+      exceptions:
+        "formatPercent 関数自身は percent 表示の集約点として実装内部で計算を許容",
+      escalation: "formatPercent(rate) を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で `* 100` + `.toFixed(` の組み合わせを grep",
+        "2. inline percent 計算を identify",
+        "3. formatPercent(rate) 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §4 で articulate された前提に対し、percent 表示の inline 計算が残ると、formatPercent の単一正本性が崩れ丸め桁数の drift が累積する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で inline percent 計算を構造的に拒否し、formatPercent 経由の唯一経路を強制することで registry articulate を機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "percent format が複数経路で実装されると、formatPercent の正本性が performative に劣化し canonical doc が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline percent 計算を構造的に拒否し、formatPercent 経由の単一経路を強制することで registry articulate を実装で機械的に維持する",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-004",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "currency (金額) 表示は formatCurrency 関数経由のみを許容 (thousands separator 強制)",
+    why: "currency 表示の散在は thousands separator の drift を招き、registry §5 の convention が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "formatCurrency(value) を import して currency 表示を構築 (¥ prefix + thousands separator)",
+    },
+    outdatedPattern: {
+      description:
+        "'¥' + value.toLocaleString() の inline 構築、または '¥' + value の thousands separator なし表記、または ${value}円 の和文 suffix",
+      codeSignals: ["'¥' +", '"¥" +'],
+    },
+    decisionCriteria: {
+      when: "通貨 (金額) を画面に表示するとき",
+      exceptions:
+        "formatCurrency 関数自身は currency 表示の集約点として実装内部で構築を許容",
+      escalation: "formatCurrency(value) を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で `'¥' +` または `+ '円'` を grep",
+        "2. inline currency 構築を identify",
+        "3. formatCurrency(value) 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §5 で articulate された前提に対し、currency 表示の inline 構築が残ると thousands separator が drift し、registry が固定した convention が崩れる",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で inline currency 構築を構造的に拒否し、formatCurrency 経由の唯一経路を強制することで thousands separator convention を機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "currency format が複数経路で実装されると、formatCurrency の正本性が performative に劣化し registry §5 の convention が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline currency 構築を構造的に拒否し、formatCurrency 経由の単一経路を強制することで registry articulate を実装で機械的に維持する",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-005",
+    principleRefs: ["F2", "F3"],
+    ruleClass: "default",
+    guardTags: ["F2", "F3"],
+    epoch: 1,
+    what: "page identification icon は pageRegistry 経由のみを許容 (emoji canonical / SVG shared component)",
+    why: "page icon の複数箇所 alias / fork は registry の意味を消失させ、navigation / breadcrumb / header 間で page identification の整合性が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description: "pageRegistry[pageId].icon を import して page icon を取得",
+    },
+    outdatedPattern: {
+      description:
+        "navigation menu / breadcrumb / page header 内で emoji literal を直接記述、または SVG component の local copy fork",
+      codeSignals: ["📊", "📈", "📉"],
+    },
+    decisionCriteria: {
+      when: "page identification icon を画面に表示するとき",
+      exceptions:
+        "pageRegistry 定義自身は icon を direct articulate する起点として許容",
+      escalation: "pageRegistry[pageId].icon 経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で emoji literal を grep",
+        "2. 同一 page で複数 emoji が使用されているか identify",
+        "3. pageRegistry[pageId].icon 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §6 で articulate された前提に対し、page icon が複数箇所で alias / fork されると、navigation / breadcrumb / header 間で page identification の整合性が崩れ registry の意味が消失する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で emoji literal の bypass を構造的に拒否し、pageRegistry 経由の唯一経路を強制することで page icon canonical を機械的に維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "同一 page identification の複数経路 alias は重複と参照の切り分けを崩し、registry の単一正本性が performative に劣化する",
+          resolutionContribution:
+            "本 rule は emoji literal bypass を構造的に拒否し、pageRegistry 単一経路を強制することで重複と参照の切り分けを機械的に維持する",
+        },
       ],
     },
   },

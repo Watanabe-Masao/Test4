@@ -57,4 +57,10 @@ export type {
   RuleOperationalState,
   RuleDetectionSpec,
   AagResponse,
+  // SemanticTraceBinding family (Project B Phase 1)
+  TraceBindingStatus,
+  SemanticTraceRef,
+  CanonicalDocTraceRef,
+  MetaRequirementTraceRef,
+  SemanticTraceBinding,
 } from './architectureRules/index'

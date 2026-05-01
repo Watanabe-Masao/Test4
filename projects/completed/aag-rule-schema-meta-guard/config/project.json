@@ -2,8 +2,8 @@
   "$comment": "AR-rule schema 拡張 (SemanticTraceBinding<T> 型 family) + AR-rule binding 記入 + meta-guard MVP (4.2 Direction + 4.4 Completeness) 実装。親 project (aag-bidirectional-integrity) の Phase 2 + Phase 6 + Phase 8 MVP を Project B として spawn (Phase 3 hard gate B 確定、2026-04-30)。",
   "projectId": "aag-rule-schema-meta-guard",
   "title": "AAG rule schema 拡張 + AR-rule binding + meta-guard MVP",
-  "status": "active",
-  "projectRoot": "projects/aag-rule-schema-meta-guard",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-rule-schema-meta-guard",
   "projectization": {
     "$comment": "AAG-COA 判定: schema 拡張 + 166 rule binding + 4 meta-guard 新規 = Level 3。breakingChange = false (既存 field 不変、新 field optional)、requiresGuard = true (新 meta-guard 4 件)、requiresLegacyRetirement = false (既存 schema 撤退なし)。Project A → 本 project (binding 対象 = AAG Core doc が安定後)。",
     "level": 3,
@@ -33,10 +33,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
-    "handoff": "projects/aag-rule-schema-meta-guard/HANDOFF.md",
-    "plan": "projects/aag-rule-schema-meta-guard/plan.md",
-    "checklist": "projects/aag-rule-schema-meta-guard/checklist.md",
-    "projectization": "projects/aag-rule-schema-meta-guard/projectization.md"
+    "aiContext": "projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-rule-schema-meta-guard/HANDOFF.md",
+    "plan": "projects/completed/aag-rule-schema-meta-guard/plan.md",
+    "checklist": "projects/completed/aag-rule-schema-meta-guard/checklist.md",
+    "projectization": "projects/completed/aag-rule-schema-meta-guard/projectization.md"
   }
 }
