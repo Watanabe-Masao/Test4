@@ -1200,8 +1200,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath:
-            "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-guides/responsibility-separation-catalog.md",
           problemAddressed:
             "useMemo が多い hook ファイルは複数の導出値を抱えており、1 ファイル 1 責務 (C1) の articulate に反する責務混在が累積する",
           resolutionContribution:
@@ -2110,7 +2109,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/free-period-analysis-definition.md",
+          docPath:
+            "references/01-principles/free-period-analysis-definition.md",
           problemAddressed:
             "free-period-analysis-definition で articulate された前提に対し、presentation/ から旧自由期間クエリを直接 import のパターンが残ると、自由期間の正本が散在すると期間スコープの一貫性が失われる という構造的な不整合が発生する",
           resolutionContribution:
@@ -2170,7 +2170,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/free-period-budget-kpi-contract.md",
+          docPath:
+            "references/01-principles/free-period-budget-kpi-contract.md",
           problemAddressed:
             "free-period-budget-kpi-contract で articulate された前提に対し、旧予算クエリを直接利用 のパターンが残ると、予算データの取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2230,7 +2231,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/free-period-budget-kpi-contract.md",
+          docPath:
+            "references/01-principles/free-period-budget-kpi-contract.md",
           problemAddressed:
             "free-period-budget-kpi-contract で articulate された前提に対し、旧部門 KPI クエリを直接利用 のパターンが残ると、部門 KPI の取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2294,7 +2296,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/authoritative-calculation-definition.md",
+          docPath:
+            "references/01-principles/authoritative-calculation-definition.md",
           problemAddressed:
             "authoritative-calculation-definition で articulate された前提に対し、独自の要因分解計算やインラインのシャープリー値計算 のパターンが残ると、要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件） という構造的な不整合が発生する",
           resolutionContribution:
@@ -2470,7 +2473,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/calculation-canonicalization-map.md",
+          docPath:
+            "references/01-principles/calculation-canonicalization-map.md",
           problemAddressed:
             "calculation-canonicalization-map で articulate された前提に対し、domain/calculations/ にファイルを追加してレジストリに未登録 のパターンが残ると、未登録ファイルは正本化体系の管理外となり品質保証が及ばない という構造的な不整合が発生する",
           resolutionContribution:
@@ -8390,7 +8394,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/guard-consolidation-and-js-retirement.md",
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、domain/calculations/ に新しい authoritative 関数を直接追加する のパターンが残ると、JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う という構造的な不整合が発生する",
           resolutionContribution:
@@ -8454,7 +8459,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/guard-consolidation-and-js-retirement.md",
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、既存の TS ファイルに新しい authoritative 計算関数を追加する のパターンが残ると、JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -8518,7 +8524,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/guard-consolidation-and-js-retirement.md",
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、presentation/ のヘルパーを semanticClass: 'business' / 'analytic' に変更する のパターンが残ると、presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起…",
           resolutionContribution:
@@ -8583,7 +8590,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/guard-consolidation-and-js-retirement.md",
+          docPath:
+            "references/03-guides/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、tag: 'review' のまま runtimeStatus を current や candidate に変更する のパターンが残ると、意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -9654,7 +9662,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. lastVerifiedCommit を必要に応じて更新",
       ],
     },
-    sunsetCondition: "Phase I で git diff ベースの強い co-change 検査に置換後に sunset",
+    sunsetCondition:
+      "Phase I で git diff ベースの強い co-change 検査に置換後に sunset",
     protectedHarm: {
       prevents: [
         "registry source 変更に伴う spec 更新漏れ",
@@ -9702,12 +9711,15 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-char SHA) と完全一致。短縮 hash (`%h`) は repo 成長で長さ変動 + prefix 衝突時に false-negative (異 commit を同一と誤判定) リスクがあるため、commit identity の保証には full SHA を使用する。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
     },
     outdatedPattern: {
-      description: "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
+      description:
+        "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
     },
     decisionCriteria: {
       when: "source file を変更するとき",
-      exceptions: "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
-      escalation: "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
+      exceptions:
+        "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
+      escalation:
+        "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -9774,7 +9786,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     decisionCriteria: {
       when: "spec の lifecycle 状態を変更するとき、Promote Ceremony を起動するとき",
       exceptions: "なし",
-      escalation: "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
+      escalation:
+        "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -9853,8 +9866,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. candidate file を physical landing する PR は同 PR で CALC spec (lifecycleStatus: proposed) を必ず添付 (active candidate 化で +1 over baseline=0)",
       ],
     },
-    sunsetCondition:
-      "なし（registry ↔ spec の双方向一致は恒久的 mechanism）",
+    sunsetCondition: "なし（registry ↔ spec の双方向一致は恒久的 mechanism）",
     protectedHarm: {
       prevents: [
         "registry と spec の判定乖離 (改修者がどちらを信じるべきか不明になる)",
@@ -9899,8 +9911,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     what: "replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
     why: "片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の replacedBy=B なら spec B の supersedes=A を必須化することで、Promote Ceremony が 1 PR で双方を同期更新することを構造的に強制する",
     correctPattern: {
-      description:
-        "spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし",
+      description: "spec A.replacedBy=B ⟺ spec B.supersedes=A、自己参照なし",
     },
     outdatedPattern: {
       description:
@@ -9919,8 +9930,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 同 PR で双方を更新 (片方だけ commit したら guard が hard fail)",
       ],
     },
-    sunsetCondition:
-      "なし（双方向リンクの対称性は恒久的 mechanism）",
+    sunsetCondition: "なし（双方向リンクの対称性は恒久的 mechanism）",
     protectedHarm: {
       prevents: [
         "片方向リンクで「移行完了したか分からない」状態",
@@ -10122,7 +10132,8 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. evidence を再収集できないなら evidenceLevel を unknown / asserted に降格",
       ],
     },
-    sunsetCondition: "なし（path 実在は spec 主張 = 実装 の C 層保証として恒久的）",
+    sunsetCondition:
+      "なし（path 実在は spec 主張 = 実装 の C 層保証として恒久的）",
     protectedHarm: {
       prevents: [
         "spec の Behavior Claims 内 path が typo / stale で実 file を指さない (silent evidence drift)",
@@ -10184,9 +10195,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     sunsetCondition: "なし（最小限 governance metadata の必須化は恒久）",
     protectedHarm: {
-      prevents: [
-        "責任所在不明 spec（誰がレビューすべきか不明）",
-      ],
+      prevents: ["責任所在不明 spec（誰がレビューすべきか不明）"],
     },
     canonicalDocRef: {
       status: "bound",
@@ -10305,8 +10314,10 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
     decisionCriteria: {
       when: "COVERAGE_MAP に新 guardFile を追加 / 既存 guardFile を削除するとき",
-      exceptions: "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
-      escalation: "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
+      exceptions:
+        "displayName に `× N` 表記を持たない pair (deferred / 単一 guard) は対象外",
+      escalation:
+        "displayName 末尾の `× N` を新しい guardFiles.length に更新する",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -10414,6 +10425,309 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
             "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (defaul…)",
           resolutionContribution:
             "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: `.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git h…",
+        },
+      ],
+    },
+  },
+
+  // ── Display-Focused Rules (DFR、Project C: aag-display-rule-registry) ──
+
+  {
+    slice: "governance-ops",
+    id: "DFR-001",
+    principleRefs: ["F2", "F3"],
+    ruleClass: "default",
+    guardTags: ["F2", "F3"],
+    epoch: 1,
+    what: "chart の semantic color (実績=緑 / 推定=オレンジ) を hex 直書きでなく theme token 経由で表現する",
+    why: "実績と推定の色彩境界が崩れると UI/UX 原則 1 (実績と推定は別世界) の業務的意味が破壊される",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "presentation/theme/tokens.ts の chartSemanticColors.actualCount / .estimatedCount 経由で color を取得",
+    },
+    outdatedPattern: {
+      description:
+        "chart component 内で '#22c55e' / '#f97316' の hex を直接記述、または theme.palette.success / .warning を chart semantic として alias",
+      codeSignals: ["#22c55e", "#f97316"],
+    },
+    decisionCriteria: {
+      when: "chart で実績値 / 推定値を render するとき",
+      exceptions:
+        "`presentation/theme/tokens.ts` 自身は semantic token の定義元として hex 記述を許容",
+      escalation:
+        "chartSemanticColors.actualCount / .estimatedCount を import して semantic 経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. chart 内の hex literal (#22c55e / #f97316) を grep で identify",
+        "2. semantic 軸が actual / estimated にあることを確認",
+        "3. chartSemanticColors.actualCount / .estimatedCount 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §2 で articulate された前提に対し、chart 内 hex 直書きが残ると UI/UX 原則 1 の semantic 軸 (実績=緑 / 推定=オレンジ) が崩れ、実績と推定の境界が視覚的に消失する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で hex literal の chart bypass を構造的に拒否し、semantic token (chartSemanticColors) 経由のみを強制することで registry の articulate を実装で機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "chart 表示の semantic 軸が canonical doc に裏打ちされない状態は、製本されたルールが performative (= 形骸化) する",
+          resolutionContribution:
+            "本 rule は hex 直書き bypass を構造的に拒否することで、chart semantic color が display-rule-registry に裏打ちされ続ける状態を維持する",
+        },
+        {
+          requirementId: "AAG-REQ-BIDIRECTIONAL-INTEGRITY",
+          problemAddressed:
+            "forward (registry → guard) + reverse (guard → registry) の双方向 integrity が片方向に劣化すると、registry 改修時の orphan rule や registry 不在の rule が発生する",
+          resolutionContribution:
+            "本 rule は DFR registry → base-rules.ts → guard の双方向 binding の concrete instance として、Phase 4 meta-guard が forward + reverse 両方向を機械検証する状態を成立させる",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-002",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "chart axis の formatter は useAxisFormatter hook 経由のみを許容",
+    why: "axis formatter が散在すると同義 API 併存が発生し、表示規約の単一正本性が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "useAxisFormatter('number' | 'date' | 'percent' | 'currency') を chart component から呼び出して axis label format を取得",
+    },
+    outdatedPattern: {
+      description:
+        "chart の xAxis.axisLabel.formatter / yAxis.axisLabel.formatter に inline 関数を記述、または toLocaleString 直接呼び出し",
+      codeSignals: ["axisLabel: {", "axisLabel:{"],
+    },
+    decisionCriteria: {
+      when: "chart axis の format を設定するとき",
+      exceptions:
+        "useAxisFormatter 自身は formatter 集約の起点として inline 実装を許容",
+      escalation: "useAxisFormatter hook を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. chart の axisLabel.formatter field を grep",
+        "2. inline 関数 / toLocaleString 直接呼び出しを identify",
+        "3. useAxisFormatter hook 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §3 で articulate された前提に対し、chart axis formatter が inline 散在すると、useAxisFormatter という単一正本の意味が消失し同義 API 併存が累積する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で axisLabel.formatter の inline 記述を構造的に拒否し、useAxisFormatter 経由の唯一経路を強制することで axis format の単一正本性を機械的に維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "axis formatter が複数経路で実装されると、useAxisFormatter の正本性が performative に劣化し registry の articulate が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline formatter を構造的に拒否し、useAxisFormatter 経由の単一経路を強制することで registry articulate を実装で裏打ちする",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-003",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "percent 表示は formatPercent 関数経由のみを許容 (小数第 2 位)",
+    why: "percent 表示の散在は formatPercent の単一正本性を崩し、丸め桁数の drift を招く",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description: "formatPercent(rate) を import して percent 表示を構築",
+    },
+    outdatedPattern: {
+      description:
+        "(rate * 100).toFixed(N) + '%' の inline 計算、または Math.round(rate * 100) + '%' の inline 丸め",
+      codeSignals: [".toFixed(", "* 100"],
+    },
+    decisionCriteria: {
+      when: "percent (比率) を画面に表示するとき",
+      exceptions:
+        "formatPercent 関数自身は percent 表示の集約点として実装内部で計算を許容",
+      escalation: "formatPercent(rate) を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で `* 100` + `.toFixed(` の組み合わせを grep",
+        "2. inline percent 計算を identify",
+        "3. formatPercent(rate) 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §4 で articulate された前提に対し、percent 表示の inline 計算が残ると、formatPercent の単一正本性が崩れ丸め桁数の drift が累積する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で inline percent 計算を構造的に拒否し、formatPercent 経由の唯一経路を強制することで registry articulate を機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "percent format が複数経路で実装されると、formatPercent の正本性が performative に劣化し canonical doc が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline percent 計算を構造的に拒否し、formatPercent 経由の単一経路を強制することで registry articulate を実装で機械的に維持する",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-004",
+    principleRefs: ["F2", "C7"],
+    ruleClass: "default",
+    guardTags: ["F2", "C7"],
+    epoch: 1,
+    what: "currency (金額) 表示は formatCurrency 関数経由のみを許容 (thousands separator 強制)",
+    why: "currency 表示の散在は thousands separator の drift を招き、registry §5 の convention が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description:
+        "formatCurrency(value) を import して currency 表示を構築 (¥ prefix + thousands separator)",
+    },
+    outdatedPattern: {
+      description:
+        "'¥' + value.toLocaleString() の inline 構築、または '¥' + value の thousands separator なし表記、または ${value}円 の和文 suffix",
+      codeSignals: ["'¥' +", '"¥" +'],
+    },
+    decisionCriteria: {
+      when: "通貨 (金額) を画面に表示するとき",
+      exceptions:
+        "formatCurrency 関数自身は currency 表示の集約点として実装内部で構築を許容",
+      escalation: "formatCurrency(value) を import して経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で `'¥' +` または `+ '円'` を grep",
+        "2. inline currency 構築を identify",
+        "3. formatCurrency(value) 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §5 で articulate された前提に対し、currency 表示の inline 構築が残ると thousands separator が drift し、registry が固定した convention が崩れる",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で inline currency 構築を構造的に拒否し、formatCurrency 経由の唯一経路を強制することで thousands separator convention を機械的に裏打ちする",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "currency format が複数経路で実装されると、formatCurrency の正本性が performative に劣化し registry §5 の convention が裏打ちされない",
+          resolutionContribution:
+            "本 rule は inline currency 構築を構造的に拒否し、formatCurrency 経由の単一経路を強制することで registry articulate を実装で機械的に維持する",
+        },
+      ],
+    },
+  },
+
+  {
+    slice: "governance-ops",
+    id: "DFR-005",
+    principleRefs: ["F2", "F3"],
+    ruleClass: "default",
+    guardTags: ["F2", "F3"],
+    epoch: 1,
+    what: "page identification icon は pageRegistry 経由のみを許容 (emoji canonical / SVG shared component)",
+    why: "page icon の複数箇所 alias / fork は registry の意味を消失させ、navigation / breadcrumb / header 間で page identification の整合性が崩れる",
+    doc: "references/01-principles/aag/display-rule-registry.md",
+    correctPattern: {
+      description: "pageRegistry[pageId].icon を import して page icon を取得",
+    },
+    outdatedPattern: {
+      description:
+        "navigation menu / breadcrumb / page header 内で emoji literal を直接記述、または SVG component の local copy fork",
+      codeSignals: ["📊", "📈", "📉"],
+    },
+    decisionCriteria: {
+      when: "page identification icon を画面に表示するとき",
+      exceptions:
+        "pageRegistry 定義自身は icon を direct articulate する起点として許容",
+      escalation: "pageRegistry[pageId].icon 経由に変更",
+    },
+    detection: { type: "regex", severity: "gate", baseline: 0 },
+    migrationRecipe: {
+      steps: [
+        "1. presentation 層で emoji literal を grep",
+        "2. 同一 page で複数 emoji が使用されているか identify",
+        "3. pageRegistry[pageId].icon 経由に置換",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/display-rule-registry.md",
+          problemAddressed:
+            "display-rule-registry §6 で articulate された前提に対し、page icon が複数箇所で alias / fork されると、navigation / breadcrumb / header 間で page identification の整合性が崩れ registry の意味が消失する",
+          resolutionContribution:
+            "本 rule は regex 検出 + gate severity で emoji literal の bypass を構造的に拒否し、pageRegistry 経由の唯一経路を強制することで page icon canonical を機械的に維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-ANTI-DUPLICATION",
+          problemAddressed:
+            "同一 page identification の複数経路 alias は重複と参照の切り分けを崩し、registry の単一正本性が performative に劣化する",
+          resolutionContribution:
+            "本 rule は emoji literal bypass を構造的に拒否し、pageRegistry 単一経路を強制することで重複と参照の切り分けを機械的に維持する",
         },
       ],
     },

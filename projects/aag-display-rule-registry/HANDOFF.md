@@ -4,7 +4,7 @@
 
 ## 1. 現在地
 
-**Phase 1 完遂 (2026-05-01、DFR registry doc landing + doc-registry 登録)**。
+**Phase 1〜4 全完遂 (2026-05-01、DFR registry + 5 rule entry + displayRuleGuard + aag/meta.md status flip)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
 受けて、**Phase 9 (DFR registry) + Phase 10 (DFR guards)** を本 project に独立 spawn。Project B Phase 4
@@ -20,10 +20,11 @@ base-rules.ts に登録 + canonicalDocRef + metaRequirementRefs articulate) → 
 | Project A archive                                       | ✅ 完遂 (commit `cf8d995`)                                                    |
 | Project D archive (case B)                              | ✅ 完遂 (commit `aaffaf7`)                                                    |
 | Project B archive                                       | ✅ 完遂 (commit `35c2e17`)                                                    |
-| **本 project Phase 1 (DFR registry doc)**               | ✅ **完遂** (本 commit、display-rule-registry.md landing + doc-registry 登録) |
-| 本 project Phase 2 (DFR-001〜005 を base-rules.ts 登録) | ⏳ 未着手                                                                     |
-| 本 project Phase 3 (displayRuleGuard 実装)              | ⏳ 未着手                                                                     |
-| 本 project Phase 4 (aag/meta.md status flip)            | ⏳ 未着手                                                                     |
+| 本 project Phase 1 (DFR registry doc)                   | ✅ 完遂 (commit `d907058`、display-rule-registry.md landing + doc-registry 登録) |
+| 本 project Phase 2 (DFR-001〜005 を base-rules.ts 登録) | ✅ 完遂 (本 commit、5 rule entry + canonicalDocRef + metaRequirementRefs 'bound') |
+| 本 project Phase 3 (displayRuleGuard 実装)              | ✅ 完遂 (本 commit、5 test、baseline ratchet-down、135 file 906 test PASS)        |
+| **本 project Phase 4 (aag/meta.md status flip)**        | ✅ **完遂** (本 commit、5 AAG-REQ flip、達成 6→11 件 / 残 1 件)                   |
+| 本 project 最終レビュー (人間承認)                      | ⏳ 待ち                                                                            |
 
 ### 親 project からの継承事項
 

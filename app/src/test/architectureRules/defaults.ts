@@ -758,4 +758,26 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
+
+  // ── DFR-* (Project C: aag-display-rule-registry) ──
+  'DFR-001': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
+  'DFR-002': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
+  'DFR-003': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
+  'DFR-004': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
+  'DFR-005': {
+    fixNow: 'debt',
+    executionPlan: { effort: 'small', priority: 2 },
+  },
 }

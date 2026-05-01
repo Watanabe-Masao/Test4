@@ -670,4 +670,30 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'schema',
     note: 'core-rule: Phase K Option 1 後続再発防止 B (2026-04-29) — coverage-map.json の各 pair の displayName 末尾 `× N` 表記が guardFiles.length と一致を機械検証。新 guard 追加時の手作業 count drift を防止 (PR #1207 で発生した × 11 → × 12 更新漏れの再発防止)',
   },
+  // ── DFR-* (Project C: aag-display-rule-registry Phase 2、2026-05-01) ──
+  'DFR-001': {
+    category: 'display-rule',
+    layer: 'presentation',
+    note: 'core-rule: DFR — chart semantic color (実績=緑 / 推定=オレンジ) — hex 直書き / theme.palette alias を gate で拒否、chartSemanticColors 経由を強制 (UI/UX 原則 1 = 実績と推定は別世界 の構造的維持)',
+  },
+  'DFR-002': {
+    category: 'display-rule',
+    layer: 'presentation',
+    note: 'core-rule: DFR — chart axis formatter は useAxisFormatter 経由のみ — inline 関数 / toLocaleString 直接呼び出しを gate で拒否 (axis format の単一正本性維持)',
+  },
+  'DFR-003': {
+    category: 'display-rule',
+    layer: 'presentation',
+    note: 'core-rule: DFR — percent 表示は formatPercent 経由のみ (小数第 2 位) — inline (rate * 100).toFixed() / Math.round() を gate で拒否 (丸め桁数 drift 防止)',
+  },
+  'DFR-004': {
+    category: 'display-rule',
+    layer: 'presentation',
+    note: 'core-rule: DFR — currency 表示は formatCurrency 経由のみ (thousands separator 強制) — inline `¥` + value / `${value}円` を gate で拒否 (registry §5 で thousands separator convention を Layer 2 固定)',
+  },
+  'DFR-005': {
+    category: 'display-rule',
+    layer: 'presentation',
+    note: 'core-rule: DFR — page identification icon は pageRegistry 経由のみ — emoji literal 直書き / SVG component fork を gate で拒否 (page identification の canonical 維持、navigation/breadcrumb/header 整合性)',
+  },
 } as const
