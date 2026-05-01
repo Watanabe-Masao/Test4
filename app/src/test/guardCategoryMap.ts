@@ -28,12 +28,9 @@ export type GuardCategoryEntry = Pick<AagGuardMetadata, 'category' | 'layer'> & 
   /**
    * 再編メタ情報（該当なしは null）
    *
-   * 標準プレフィックス:
-   * - `core-rule:` カテゴリの中核ルール
-   * - `merge-candidate:` 他ルールとの統合候補
-   * - `duplicate-family:` 同系統ルール群
-   * - `sunset-candidate:` 廃止検討対象
-   * - `review-focus:` 観測期間後に要見直し
+   * 標準プレフィックスは {@link ./guardNotePrefixRegistry} を正本とする
+   * (AAG-REQ-SELF-HOSTING precursor、AAG vocabulary 拡張は AAG-internal で完結)。
+   * `architectureRuleGuard.test.ts` が registry を参照して prefix 整合性を hard fail 検証。
    */
   readonly note: string | null
 }
@@ -674,26 +671,26 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
   'DFR-001': {
     category: 'display-rule',
     layer: 'execution',
-    note: 'core-rule: DFR — chart semantic color (実績=緑 / 推定=オレンジ) — hex 直書き / theme.palette alias を gate で拒否、chartSemanticColors 経由を強制 (UI/UX 原則 1 = 実績と推定は別世界 の構造的維持)',
+    note: 'layer-2-bookbinding: DFR — chart semantic color (実績=緑 / 推定=オレンジ) — hex 直書き / theme.palette alias を gate で拒否、chartSemanticColors 経由を強制 (UI/UX 原則 1 = 実績と推定は別世界 の構造的維持)',
   },
   'DFR-002': {
     category: 'display-rule',
     layer: 'execution',
-    note: 'core-rule: DFR — chart axis formatter は useAxisFormatter 経由のみ — inline 関数 / toLocaleString 直接呼び出しを gate で拒否 (axis format の単一正本性維持)',
+    note: 'layer-2-bookbinding: DFR — chart axis formatter は useAxisFormatter 経由のみ — inline 関数 / toLocaleString 直接呼び出しを gate で拒否 (axis format の単一正本性維持)',
   },
   'DFR-003': {
     category: 'display-rule',
     layer: 'execution',
-    note: 'core-rule: DFR — percent 表示は formatPercent 経由のみ (小数第 2 位) — inline (rate * 100).toFixed() / Math.round() を gate で拒否 (丸め桁数 drift 防止)',
+    note: 'layer-2-bookbinding: DFR — percent 表示は formatPercent 経由のみ (小数第 2 位) — inline (rate * 100).toFixed() / Math.round() を gate で拒否 (丸め桁数 drift 防止)',
   },
   'DFR-004': {
     category: 'display-rule',
     layer: 'execution',
-    note: 'core-rule: DFR — currency 表示は formatCurrency 経由のみ (thousands separator 強制) — inline `¥` + value / `${value}円` を gate で拒否 (registry §5 で thousands separator convention を Layer 2 固定)',
+    note: 'layer-2-bookbinding: DFR — currency 表示は formatCurrency 経由のみ (thousands separator 強制) — inline `¥` + value / `${value}円` を gate で拒否 (registry §5 で thousands separator convention を Layer 2 固定)',
   },
   'DFR-005': {
     category: 'display-rule',
     layer: 'execution',
-    note: 'core-rule: DFR — page identification icon は pageRegistry 経由のみ — emoji literal 直書き / SVG component fork を gate で拒否 (page identification の canonical 維持、navigation/breadcrumb/header 整合性)',
+    note: 'layer-2-bookbinding: DFR — page identification icon は pageRegistry 経由のみ — emoji literal 直書き / SVG component fork を gate で拒否 (page identification の canonical 維持、navigation/breadcrumb/header 整合性)',
   },
 } as const
