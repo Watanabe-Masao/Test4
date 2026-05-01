@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T05:56:38.758Z",
+  "timestamp": "2026-05-01T06:14:40.457Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -585,9 +585,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -602,7 +602,7 @@
       "id": "docs.obligation.requiredReads.declaredCount",
       "label": "Required Reads マップ宣言数",
       "category": "docs",
-      "value": 9,
+      "value": 10,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1566,9 +1566,9 @@
   ],
   "summary": {
     "totalKpis": 60,
-    "ok": 60,
+    "ok": 59,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }
