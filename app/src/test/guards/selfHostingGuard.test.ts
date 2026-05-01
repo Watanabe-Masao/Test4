@@ -18,7 +18,16 @@
  * 本 guard の存在自体が AAG framework が自分自身を保護する instance であり、
  * AAG-REQ-SELF-HOSTING の達成判定 mechanism (= ar-rule-audit.md §6 articulate 済)。
  *
- * ## 検証 (3 tests)
+ * ## 検証 (5 tests)
+ *
+ * ### Test 0a (hard fail): §2 articulation 存在
+ *   aag/meta.md §2.1 / §2.2 の table 範囲内に AAG-REQ-SELF-HOSTING が articulate 済。
+ *
+ * ### Test 0b (hard fail、§2 ↔ §4 drift 検出、PR #1234 review comment 1 対処)
+ *   aag/meta.md §2.1 で AAG-REQ-SELF-HOSTING が **達成** として articulate 済。
+ *   §4.1 サマリは §2 個別 status の derivative であり、§4 を flip しても §2 が
+ *   未達成のまま残ると canonical drift を起こす。本 test は §2 を真値として
+ *   self-hosting 達成状態を検証する。
  *
  * ### Test 1 (hard fail): AAG-REQ-SELF-HOSTING が rule に bound
  *   aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が、
@@ -29,8 +38,10 @@
  *   `references/01-principles/aag/meta.md` を指していることを検証。
  *   これにより rule cluster ↔ meta.md の双方向 closure が機械的に保証される。
  *
- * ### Test 3 (warn-only, ratchet-down 候補): orphan AAG-REQ coverage
- *   12 AAG-REQ-* のうち rule binding を持たない orphan の数を baseline 化。
+ * ### Test 3 (hard fail with ratchet-down baseline): orphan AAG-REQ coverage
+ *   12 AAG-REQ-* のうち rule binding を持たない orphan の数を baseline=6 として
+ *   ratchet-down 軸に articulate (PR #1234 review comment 2 対処で §2.1 / §2.2
+ *   table 範囲のみから抽出、prose 言及による false orphan 検出を回避)。
  *   現状 baseline=6 (NO-AI-HUMAN-SUBSTITUTION / NO-BUSINESS-LOGIC-INTRUSION /
  *   NO-DATE-RITUAL / NO-PERFECTIONISM / SEMANTIC-ARTICULATION /
  *   STATE-BASED-GOVERNANCE)。Phase 2 で各 orphan に対応 rule を articulate して
@@ -57,14 +68,69 @@ const SELF_HOSTING_REQ_ID = 'AAG-REQ-SELF-HOSTING'
 /** ratchet-down baseline: orphan AAG-REQ count (Phase 2 で 0 に向けて漸次解消) */
 const ORPHAN_BASELINE = 6
 
+/**
+ * meta.md §2.1 (Invariants) + §2.2 (Non-goals) の table 範囲のみから AAG-REQ-* を抽出する。
+ *
+ * 全文 grep だと §3 / §4 / §4.4 履歴 / prose に出現する REQ ID 言及まで canonical
+ * requirement として treat してしまい、§2 を変更していない doc edit で false orphan
+ * を起こす (PR #1234 review comment 2 への対処)。本関数は §2.1 / §2.2 section
+ * heading から次 section heading までの範囲に scope を限定する。
+ */
+function extractSection(content: string, headingPattern: RegExp): string {
+  const headingMatch = content.match(headingPattern)
+  if (!headingMatch || headingMatch.index === undefined) return ''
+  const start = headingMatch.index + headingMatch[0].length
+  const rest = content.slice(start)
+  // 次の同 level (### ) または上位 level (## ) heading で section 終端
+  const nextHeading = rest.match(/^(##|###) /m)
+  return nextHeading && nextHeading.index !== undefined ? rest.slice(0, nextHeading.index) : rest
+}
+
 function loadKnownRequirementIds(): Set<string> {
   if (!fs.existsSync(META_DOC_PATH)) {
     throw new Error(`aag/meta.md not found: ${META_DOC_PATH}`)
   }
   const content = fs.readFileSync(META_DOC_PATH, 'utf-8')
+  const invariantsSection = extractSection(content, /^### §2\.1 不変条件.*$/m)
+  const nonGoalsSection = extractSection(content, /^### §2\.2 禁則.*$/m)
+  const scoped = invariantsSection + '\n' + nonGoalsSection
+  if (scoped.trim() === '') {
+    throw new Error('aag/meta.md §2.1 / §2.2 section が空 (parse 失敗)')
+  }
   const pattern = /AAG-REQ-[A-Z][A-Z0-9-]+/g
-  const matches = content.match(pattern) ?? []
+  const matches = scoped.match(pattern) ?? []
   return new Set(matches)
+}
+
+/**
+ * meta.md §2.1 / §2.2 table 内で各 AAG-REQ-* の達成 status を抽出する。
+ *
+ * §4.1 サマリは §2 個別 status の derivative。§4 を達成に flip しても §2 が
+ * 未達成のままだと canonical drift を起こす (PR #1234 review comment 1 への対処)。
+ * §2 の `達成 status` 列を canonical 真値として読み取る。
+ *
+ * 戻り値: { reqId → 達成 status の判定 ('達成' | '未達成' | 'unknown') }
+ */
+function loadRequirementStatuses(): Map<string, '達成' | '未達成' | 'unknown'> {
+  const result = new Map<string, '達成' | '未達成' | 'unknown'>()
+  const content = fs.readFileSync(META_DOC_PATH, 'utf-8')
+  const sections = [
+    extractSection(content, /^### §2\.1 不変条件.*$/m),
+    extractSection(content, /^### §2\.2 禁則.*$/m),
+  ].join('\n')
+  for (const line of sections.split('\n')) {
+    if (!line.startsWith('|')) continue
+    const reqMatch = line.match(/AAG-REQ-[A-Z][A-Z0-9-]+/)
+    if (!reqMatch) continue
+    const reqId = reqMatch[0]
+    // bold formatting (**達成** / **未達成**) は table の status 列で一貫的に使われる
+    // convention。未達成 を先に判定 (含字 "達成" との衝突回避)。
+    let status: '達成' | '未達成' | 'unknown' = 'unknown'
+    if (/\*\*未達成\*\*/.test(line)) status = '未達成'
+    else if (/\*\*達成\*\*/.test(line)) status = '達成'
+    result.set(reqId, status)
+  }
+  return result
 }
 
 interface RuleBindingSelfHosting {
@@ -95,12 +161,28 @@ function findRulesBindingSelfHosting(): RuleBindingSelfHosting[] {
 
 describe('Self-Hosting Guard (AR-AAG-META-SELF-HOSTING)', () => {
   const knownRequirementIds = loadKnownRequirementIds()
+  const requirementStatuses = loadRequirementStatuses()
 
   it('aag/meta.md §2 が AAG-REQ-SELF-HOSTING を articulate 済 (canonical 起点が空でない)', () => {
     expect(
       knownRequirementIds.has(SELF_HOSTING_REQ_ID),
       `aag/meta.md §2 に ${SELF_HOSTING_REQ_ID} の articulation が見つからない (${META_DOC_REL})`,
     ).toBe(true)
+  })
+
+  it('aag/meta.md §2.1 が AAG-REQ-SELF-HOSTING を「達成」として articulate 済 (Test 0、§2 ↔ §4 drift 検出)', () => {
+    // §4.1 サマリ (達成 12/12) は §2 個別 status の derivative。§4 を flip しても
+    // §2 が **未達成** のまま残ると canonical drift。本 test は §2 を真値として
+    // self-hosting 達成状態を検証する (PR #1234 review comment 1 への対処)。
+    const status = requirementStatuses.get(SELF_HOSTING_REQ_ID)
+    expect(
+      status,
+      [
+        `${SELF_HOSTING_REQ_ID} の §2.1 status が「達成」でない (現状: ${status ?? '取得失敗'})。`,
+        `修正: ${META_DOC_REL} §2.1 の ${SELF_HOSTING_REQ_ID} 行 4 列目を **達成** に更新。`,
+        `本 guard が active な間、self-hosting closure が成立した状態 = §2.1 達成 articulate が canonical 真値。`,
+      ].join('\n'),
+    ).toBe('達成')
   })
 
   it(`AAG-REQ-SELF-HOSTING が ≥ 1 rule の metaRequirementRefs に bound (Test 1)`, () => {
