@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T12:50:47.040Z",
+  "timestamp": "2026-05-01T13:47:48.223Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 36,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1203,
-    "checkedCheckboxes": 1137
+    "totalCheckboxes": 1294,
+    "checkedCheckboxes": 1144
   },
   "projects": [
     {
@@ -114,6 +114,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-legacy-retirement/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-legacy-retirement/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-platformization",
+      "title": "AAG Platformization Program — authority + artifact + contract + change-policy",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 7,
+      "total": 91,
+      "progress": 0.077,
+      "entrypoint": "projects/aag-platformization/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-platformization/checklist.md",
       "parent": null
     },
     {
