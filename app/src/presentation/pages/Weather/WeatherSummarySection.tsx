@@ -114,7 +114,7 @@ interface Props {
 }
 
 export function WeatherSummarySection({ summary, prevSummary, label }: Props) {
-  const icon = summary.weatherCategory ? (WEATHER_ICONS[summary.weatherCategory] ?? '') : '📊'
+  const icon = summary.weatherCategory ? (WEATHER_ICONS[summary.weatherCategory] ?? '') : '🌤'
 
   return (
     <Wrapper>
@@ -160,7 +160,7 @@ export function WeatherSummarySection({ summary, prevSummary, label }: Props) {
       {/* 前年 */}
       {prevSummary && (
         <>
-          <Label style={{ opacity: 0.5, fontSize: '0.7rem', marginTop: 4 }}>📊 前年</Label>
+          <Label style={{ opacity: 0.5, fontSize: '0.7rem', marginTop: 4 }}>前年</Label>
           <Row>
             {METRICS.map((m) => {
               const cur = m.value(summary)

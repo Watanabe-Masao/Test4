@@ -16,7 +16,7 @@ import type { Store } from '@/domain/models/Store'
 import type { StoreCategoryPIOutput } from '@/application/queries/cts/StoreCategoryPIHandler'
 import { buildStorePIData, buildHeatmapData } from './StorePIComparisonChart.builders'
 import { useCurrencyFormat } from './chartTheme'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { chartFontSize, palette } from '@/presentation/theme/tokens'
 import { SegmentedControl } from '@/presentation/components/common/layout'
 import { ChartCard } from './ChartCard'
 import { ChartLoading, ChartEmpty } from './ChartState'
@@ -38,13 +38,13 @@ const LEVEL_OPTIONS: readonly { value: Level; label: string }[] = [
 ]
 
 const STORE_COLORS = [
-  '#6366f1',
-  '#22c55e',
-  '#f59e0b',
-  '#ef4444',
-  '#8b5cf6',
-  '#06b6d4',
-  '#ec4899',
+  palette.primary,
+  palette.successDark,
+  palette.warningDark,
+  palette.dangerDark,
+  palette.purpleDark,
+  palette.cyanDark,
+  palette.pinkDark,
   '#14b8a6',
 ]
 

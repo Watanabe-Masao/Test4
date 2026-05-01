@@ -6,7 +6,7 @@ const fileTypeIcons: Record<string, string> = {
   purchase: '📦',
   classifiedSales: '💰',
   initialSettings: '⚙️',
-  budget: '📊',
+  budget: '📋',
   flowers: '🌸',
   directProduce: '🥬',
   consumables: '🧹',

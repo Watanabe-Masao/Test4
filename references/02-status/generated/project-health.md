@@ -3,26 +3,26 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-05-01T01:11:52.652Z
+> 生成: 2026-05-01T03:59:23.394Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 5 |
-| archived project 数 | 33 |
-| in_progress project 数 | 4 |
+| active project 数（archive 未実施を含む） | 4 |
+| archived project 数 | 34 |
+| in_progress project 数 | 3 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 1184 |
-| 全 project の checked checkbox 総数 | 999 |
+| 全 project の required checkbox 総数 | 1185 |
+| 全 project の checked checkbox 総数 | 1119 |
 
 ## projects
 
 | projectId | title | derivedStatus | parent | progress | entrypoint |
 |---|---|---|---|---|---|
-| `aag-bidirectional-integrity` | AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化 | **in_progress** | — | 51/170 (30%) | [`projects/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/aag-bidirectional-integrity/AI_CONTEXT.md) |
+| `aag-bidirectional-integrity` | AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化 | **archived** | — | 170/170 (100%) | [`projects/completed/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/completed/aag-bidirectional-integrity/AI_CONTEXT.md) |
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-core-doc-refactor` | AAG Core doc content refactoring + legacy retirement | **archived** | — | 33/45 (73%) | [`projects/completed/aag-core-doc-refactor/AI_CONTEXT.md`](../../../projects/completed/aag-core-doc-refactor/AI_CONTEXT.md) |
 | `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **archived** | — | 30/38 (79%) | [`projects/completed/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/completed/aag-display-rule-registry/AI_CONTEXT.md) |
@@ -52,7 +52,7 @@
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/16 (81%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/113 (74%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 6/7 (86%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
+| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 7/8 (88%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
 | `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **archived** | `taxonomy-v2` | — | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
 | `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 50/55 (91%) | [`projects/taxonomy-v2/AI_CONTEXT.md`](../../../projects/taxonomy-v2/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |

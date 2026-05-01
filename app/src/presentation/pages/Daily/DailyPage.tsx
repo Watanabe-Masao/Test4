@@ -277,7 +277,7 @@ export function DailyPage() {
                         style={{ cursor: 'pointer' }}
                       >
                         {anomaly === 'up' ? '↑' : '↓'}
-                        {yoyRatio != null ? `${((yoyRatio - 1) * 100).toFixed(0)}%` : ''}
+                        {yoyRatio != null ? formatPercent(yoyRatio - 1, 0) : ''}
                       </AnomalyBadge>
                     )}
                   </Td>

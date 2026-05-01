@@ -11,6 +11,9 @@ import { useNavigate } from 'react-router-dom'
 import { useCalculation } from '@/application/hooks/calculation'
 import { useStoreSelection, useMonthSwitcher } from '@/application/hooks/ui'
 import { useSettingsStore } from '@/application/stores/settingsStore'
+import { getPageById } from '@/application/navigation/pageRegistry'
+
+const DASHBOARD_PAGE_ICON = getPageById('dashboard')?.icon ?? ''
 import { usePeriodSelectionStore } from '@/application/stores/periodSelectionStore'
 import { usePageComparisonModule } from '@/application/hooks/usePageComparisonModule'
 import { extractPrevYearCustomerCount } from '@/features/comparison'
@@ -115,7 +118,7 @@ export function MobileDashboardPage() {
           <DesktopLink onClick={handleGoDesktop}>PC版</DesktopLink>
         </Header>
         <EmptyMessage>
-          <EmptyIcon>📊</EmptyIcon>
+          <EmptyIcon>{DASHBOARD_PAGE_ICON}</EmptyIcon>
           <div>
             データを読み込んでください
             <br />

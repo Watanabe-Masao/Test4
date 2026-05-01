@@ -15,6 +15,7 @@ import * as path from 'path'
 import { ARCHITECTURE_RULES, SLICE_GUIDANCE, type AagSlice } from '../architectureRules'
 import { GUARD_TAG_REGISTRY } from '../guardTagRegistry'
 import { GUARD_CATEGORY_MAP } from '../guardCategoryMap'
+import { GUARD_NOTE_VALID_PREFIXES } from '../guardNotePrefixRegistry'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 
@@ -799,18 +800,11 @@ describe('AAG Entry Quality: 入口品質の自己監視', () => {
   })
 
   it('guardCategoryMap の note が標準プレフィックスを持つ（AAG 5.0 A3）', () => {
-    const VALID_PREFIXES = [
-      'core-rule:',
-      'merge-candidate:',
-      'duplicate-family:',
-      'sunset-candidate:',
-      'review-focus:',
-    ]
     const violations: string[] = []
 
     for (const [ruleId, entry] of Object.entries(GUARD_CATEGORY_MAP)) {
       if (entry.note === null) continue
-      const hasValidPrefix = VALID_PREFIXES.some((p) => entry.note!.startsWith(p))
+      const hasValidPrefix = GUARD_NOTE_VALID_PREFIXES.some((p) => entry.note!.startsWith(p))
       if (!hasValidPrefix) {
         violations.push(
           `${ruleId}: note が標準プレフィックスで始まっていない: "${entry.note!.slice(0, 40)}..."`,

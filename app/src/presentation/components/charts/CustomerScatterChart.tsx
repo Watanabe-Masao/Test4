@@ -14,20 +14,20 @@ import { ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, standardLegend, valueYAxis } from './builders'
 import { QuadrantGrid, QuadrantTag } from './CustomerScatterChart.styles'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { chartFontSize, palette } from '@/presentation/theme/tokens'
 import { buildAbsoluteScatter, buildYoyScatter } from './CustomerScatterChart.builders'
 
 type AxisMode = 'absolute' | 'yoyChange'
 
 const DOW_LABELS = ['日', '月', '火', '水', '木', '金', '土'] as const
 const DOW_COLORS: Record<number, string> = {
-  0: '#ef4444',
-  1: '#6366f1',
-  2: '#f59e0b',
+  0: palette.dangerDark,
+  1: palette.primary,
+  2: palette.warningDark,
   3: '#10b981',
-  4: '#f97316',
-  5: '#3b82f6',
-  6: '#8b5cf6',
+  4: palette.orange,
+  5: palette.blueDark,
+  6: palette.purpleDark,
 }
 
 const MODE_OPTIONS: readonly { value: AxisMode; label: string }[] = [

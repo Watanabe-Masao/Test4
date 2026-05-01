@@ -17,14 +17,14 @@ import { ChartLoading, ChartError, ChartEmpty } from './ChartState'
 import { EChart, type EChartsOption } from './EChart'
 import { standardGrid, standardTooltip, valueYAxis } from './builders'
 import { LegendRow, LegendItem, QuadrantLabel } from './PiCvBubbleChart.styles'
-import { chartFontSize } from '@/presentation/theme/tokens'
+import { chartFontSize, palette } from '@/presentation/theme/tokens'
 import { HIERARCHY_LABELS, type HierarchyLevel } from './ChartParts'
 
 const TYPE_COLORS: Record<ProductType, string> = {
-  flagship: '#22c55e',
-  regional: '#3b82f6',
+  flagship: palette.successDark,
+  regional: palette.blueDark,
   standard: '#9ca3af',
-  unstable: '#f97316',
+  unstable: palette.orange,
 }
 
 type PiMetric = 'salesPi' | 'quantityPi'

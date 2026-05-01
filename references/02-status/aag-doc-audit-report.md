@@ -2,7 +2,7 @@
 
 > **役割**: AAG 関連 doc 群 (`references/01-principles/` 配下 8 doc + `CLAUDE.md` AAG セクション) の **5 層位置付け / 責務 / write/non-write list / drill-down pointer / 必要 operation / 影響範囲 inventory / migration order** を articulate する Phase 3 audit findings。
 >
-> **規約**: `projects/aag-bidirectional-integrity/plan.md` §4 Phase 3 + `projects/aag-bidirectional-integrity/checklist.md` Phase 3 deliverable + `references/03-guides/deferred-decision-pattern.md` (本 audit は AI 自主判断、collection sources = grep / line count / doc 内容)。
+> **規約**: `projects/completed/aag-bidirectional-integrity/plan.md` §4 Phase 3 + `projects/completed/aag-bidirectional-integrity/checklist.md` Phase 3 deliverable + `references/03-guides/deferred-decision-pattern.md` (本 audit は AI 自主判断、collection sources = grep / line count / doc 内容)。
 >
 > **次工程**: Phase 3 完了 hard gate decision (Phase 4〜10 split、default = follow-up project 分割) → 本 audit findings を input に Phase 1 §3 fill (cyclic refinement) + Phase 4 doc refactoring 着手。
 

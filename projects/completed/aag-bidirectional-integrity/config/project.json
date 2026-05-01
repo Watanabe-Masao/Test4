@@ -2,14 +2,14 @@
   "$comment": "AAG architecture pattern を 5 層 (目的 / 要件 / 設計 / 実装 / 検証) × 5 縦スライス (layer-boundary / canonicalization / query-runtime / responsibility-separation / governance-ops) の matrix として確立し、AAG Meta (Layer 0+1 = `aag/meta.md`) / AAG Core (Layer 2+3) / AAG Audit (Layer 4 = 外部監査) の 3 軸で responsibility 分離する独立 active project。双方向 integrity (forward + reverse) は AAG Meta 要件 §2 の不変条件として位置付け、Phase 8 MVP meta-guard (4.2 方向監査 + 4.4 完備性監査) で機械強制 (4.1 / 4.3 / 4.5 + selfHostingGuard + metaRequirementBindingGuard は follow-up project 候補)。drill-down chain は重複と参照の切り分け + semantic articulation (problemAddressed + resolutionContribution の必須 field 化、`SemanticTraceBinding<T>` 形式 + status field) で機械管理。schema 正本は BaseRule 物理正本 (`app-domain/gross-profit/rule-catalog/base-rules.ts`) + 型定義 (`architectureRules/types.ts` / `aag-core-types.ts`)、`defaults.ts` (execution overlay) と `guardCategoryMap.ts` は touch しない (二重正本回避)。AAG Core 8 doc は新規書き起こし (edit-in-place 禁止) → 旧 doc 退役の段階パスで `references/01-principles/aag/` ディレクトリに集約 (`aag-5-` / `adaptive-` prefix 撤廃)。期間 buffer (日数 / commits 数) を一切使わず参照場所が 0 になった瞬間 (inbound 0 + 人間 deletion approval) のみが物理削除 trigger。phased-content-specs-rollout 末セッションの dialog で発見された AAG の構造的弱点 (performative rule の混入余地 + AAG Meta articulation 不在 + drill-down chain semantic 管理不在) を解消する根本対策。display-rule registry (DFR-NNN) は双方向 integrity の最初の concrete application として吸収。本 project は破壊的変更前提 (追加コスト / 変更コストを考慮せず、既存 AR rule の振る舞い変更 / 縦スライス境界 reshape / 5 層構造調整 / AAG framework 構造変更等を許容、本体アプリ機能変更は scope 外)。**Phase 構造**: Level 3 のまま開始するが、**Phase 3 audit 完了後に Phase 4〜10 の split decision hard gate** を設置 (Phase 4 着手必須前提)、audit findings により Phase 4〜10 を **follow-up project へ分割するのが default** 推奨 (推奨分割例: Project A = AAG Meta + Core doc refactor / Project B = rule schema + meta-guard / Project C = DFR registry + display guards / Project D = legacy retirement)。",
   "projectId": "aag-bidirectional-integrity",
   "title": "AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化",
-  "status": "active",
-  "projectRoot": "projects/aag-bidirectional-integrity",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-bidirectional-integrity",
   "projectization": {
     "$comment": "Level 3 — AAG Meta doc (`aag/meta.md`) 新規創出 + AAG Core 8 doc の 7 operation refactoring (Create / Split / Merge / Rename / Relocate / Rewrite / Archive) + ディレクトリ階層化 (`aag/`) + 既存 AR rule schema 拡張 (semantic articulation: canonicalDocRef + metaRequirementRefs に problemAddressed + resolutionContribution) + 双方向 integrity meta-guard 2 件 + display rule registry + 5 DFR rule guards。複数 mechanism にまたがる architecture-level governance-hardening。breakingChange=true (破壊的変更前提)。Level 4 (Umbrella) ではない (sub-project なし、単独 active project、Phase 1〜10 内で完結)。",
     "level": 3,
     "changeType": "governance-hardening",
     "implementationScope": [
-      "projects/aag-bidirectional-integrity/",
+      "projects/completed/aag-bidirectional-integrity/",
       "references/01-principles/aag/",
       "references/01-principles/aag/meta.md",
       "references/01-principles/aag/README.md",
@@ -62,11 +62,11 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-bidirectional-integrity/AI_CONTEXT.md",
-    "handoff": "projects/aag-bidirectional-integrity/HANDOFF.md",
-    "plan": "projects/aag-bidirectional-integrity/plan.md",
-    "checklist": "projects/aag-bidirectional-integrity/checklist.md",
-    "projectization": "projects/aag-bidirectional-integrity/projectization.md",
-    "legacyRetirement": "projects/aag-bidirectional-integrity/legacy-retirement.md"
+    "aiContext": "projects/completed/aag-bidirectional-integrity/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-bidirectional-integrity/HANDOFF.md",
+    "plan": "projects/completed/aag-bidirectional-integrity/plan.md",
+    "checklist": "projects/completed/aag-bidirectional-integrity/checklist.md",
+    "projectization": "projects/completed/aag-bidirectional-integrity/projectization.md",
+    "legacyRetirement": "projects/completed/aag-bidirectional-integrity/legacy-retirement.md"
   }
 }

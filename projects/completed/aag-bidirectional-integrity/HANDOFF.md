@@ -1,4 +1,45 @@
-# HANDOFF — aag-bidirectional-integrity
+# [ARCHIVED] HANDOFF — aag-bidirectional-integrity
+
+> **Archived: 2026-05-01** — Project A〜D 4 project 全 MVP scope 完遂後、ユーザー承認 (本 commit、
+> Insight 7-b milestone acknowledgment) により archive プロセス完了。physical archive 移管 =
+> `projects/completed/aag-bidirectional-integrity/` (本 commit)。
+>
+> **MVP scope 完遂状態**: Phase 1 (charter doc landing) + Phase 3 (audit landing) + cyclic refinement
+> (§8.14 第 3 段) を本 project で完遂。Phase 2 + Phase 4〜10 は §1.6 hard gate decision = B により
+> Project A〜D 4 project に分割移管・全 archive 完遂。
+>
+> **deliverable summary**:
+>
+> - **Phase 1 (charter doc landing)**: `references/01-principles/aag/meta.md` 4 section
+>   (§1 目的 / §2 要件 12 件 + observeForDays 切り分け / §3 5 層 × 5 縦スライス matrix + 5 sub-audit
+>   framework / §4 達成判定総括) + `aag/README.md` index landing。`AAG-REQ-*` namespace stable ID
+>   12 件確立。
+> - **Phase 3 (audit landing)**: `references/02-status/aag-doc-audit-report.md` §0〜§8 で全 13 deliverable
+>   articulate (8 doc + CLAUDE.md AAG section、inbound 160+ file references、operation 22 件 = Create 7
+>   + Split 1 + Rewrite 6 + Archive 8)。
+> - **§1.6 Phase 3 hard gate decision = B 確定** (2026-04-30、AI 推奨 + ユーザー articulate「Bでよろ
+>   しくお願いします」、deferred-decision-pattern §3.2 例外則 = 高 blast radius 構造判断のため人間
+>   判断 gate)。
+> - **Project A〜D 4 project 全 archive 完遂** (2026-04-30 〜 2026-05-01、本 commit milestone):
+>   - Project A (`aag-core-doc-refactor`、cf8d995): AAG Core 6 新 doc + 8 旧 doc archive 移管 +
+>     CLAUDE.md 67% 薄化 + 149+ inbound migrate
+>   - Project B (`aag-rule-schema-meta-guard`、35c2e17): SemanticTraceBinding 型 family + 166 rule
+>     全 bound + 4 meta-guard MVP fixed-mode (baseline=0 invariant)
+>   - Project C (`aag-display-rule-registry`、d18dd3e): DFR registry doc + DFR-001〜005 + displayRuleGuard
+>     + 5 AAG-REQ status flip
+>   - Project D (`aag-legacy-retirement`、aaffaf7): case B early scope-out (拡張案件 0 件)
+>
+> **AAG-REQ 達成度 11/12** (達成: BIDIRECTIONAL-INTEGRITY / STATE-BASED-GOVERNANCE / RATCHET-DOWN /
+> LAYER-SEPARATION / ANTI-DUPLICATION / SEMANTIC-ARTICULATION / NON-PERFORMATIVE / NO-DATE-RITUAL /
+> NO-PERFECTIONISM / NO-AI-HUMAN-SUBSTITUTION / NO-BUSINESS-LOGIC-INTRUSION、残: AAG-REQ-SELF-HOSTING
+> = follow-up project candidate に articulate 済 = `references/02-status/ar-rule-audit.md §6`)。
+>
+> **検証状態**: test:guards 135 file 906 test PASS / docs:check Hard Gate PASS。
+>
+> **Future follow-up = Project E candidate** (DecisionTrace + AI utilization、9 insight 統合) は
+> 本 project archive 後の独立 spawn judgment gate に逃がす (詳細: §2「Future follow-up project 候補」)。
+>
+> 以下は archive 前の active 状態の articulation (historical context)。
 
 > 役割: 起点文書。後任者が最初に読む。
 > 完了済みの全景 + 次にやること + ハマりポイントを 1 画面で把握できる。
