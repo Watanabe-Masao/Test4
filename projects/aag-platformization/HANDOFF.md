@@ -109,6 +109,8 @@ Phase 9 で Go binary を作るが、本 cutover (CI の主経路化 / TS 側の
 
 **例外**: judgementCommit が landing 直後 (まだ tag を打っていない / push していない) で typo を発見した場合のみ amend 可。一度 tag 化または push したら以降 amend 禁止。
 
+**追加禁則 (DA-α-000 軌道修正で landing)**: rollback tag の動作確認は worktree clean 時に限定する。unstaged work がある状態で `git checkout <rollbackTag> -- .` を実行すると unstaged 変更が revert されてデータロスする。動作確認は (1) commit / stash で worktree を clean にしてから、(2) 別 branch に checkout して、(3) 確認後 main branch に戻る、の手順で行う。
+
 ### 3.10. 言語層を跨がないこと
 
 `plan.md` 原則 0 の物理境界:

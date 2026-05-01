@@ -178,5 +178,73 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 
 - `plan.md` §不可侵原則 5 (本 mechanism の根拠)
 - `plan.md` §"Decision Audit Mechanism" (entry 構造の根拠)
-- `AI_CONTEXT.md` §5 "AI-driven judgement + retrospective verification"
+- `AI_CONTEXT.md` §5 "AI-driven judgement + retrospective verification + commit-bound rollback"
 - `references/01-principles/aag/evolution.md` (AAG の進化動学の上位思想)
+
+---
+
+## DA-α-000: 本 program の進行モデルとして AI-driven judgement + retrospective + commit-bound rollback を採用する
+
+**status**: active
+
+> 本 entry は本 mechanism そのものの判断記録 (self-dogfooding)。本 mechanism が動く / 動かないを後日振り返るため、最初の DA entry として記録する。
+
+### 判断時 (Phase 0 完了時 / 2026-05-01)
+
+- **判断主体**: AI (Claude)
+- **候補**:
+  1. 人間承認 gate モデル (3 Gate + 最終レビュー = 4 ヶ所で人間承認)
+  2. AI judgement only (judgement 履歴を残さず、commit log のみで追跡)
+  3. AI judgement + retrospective verification (判断時に観測点を articulate、Phase 完了時に実測)
+  4. AI judgement + retrospective + commit-bound rollback (上記 + 判断と commit を物理結合し、判定が "間違い" の時に物理的に戻れる)
+- **採用案**: 候補 4 (commit-bound rollback 込みの retrospective モデル)
+- **判断根拠**:
+  - 事実 1: user 指示「人間承認はとにかく減らす方向」「commit log を残しておくこと」「判断が間違ってると判断が決まった場合はそのcommitに戻れるよう制度化」(本 session 内、commit `d0b079f` 後)
+  - 事実 2: `aag/core/principles/core-boundary-policy.md` が「邪魔だから」を理由にできない原則を articulate (調査済)
+  - 事実 3: 本 program 自身が AAG の進化動学 (`references/01-principles/aag/evolution.md`) を実装する立場にあり、自分自身を例外にできない (self-hosting 要請)
+  - 推論: 候補 1 は人間承認の総量が多く original 方針と矛盾。候補 2 は判断履歴が消失し後続 program が学習できない。候補 3 は事後検証は可能だが軌道修正の物理経路がない (rollback target が曖昧)。候補 4 は判断 + 振り返り + 物理戻り経路の 3 点を結合する
+- **想定リスク**:
+  - 採用案が外れたときの最大被害: judgementCommit / Tag の管理コストが overhead になり、Phase 進行が鈍化する。判断の数が多すぎて DA entry が読めなくなる
+  - 二番目に被害が大きい外れ方: rollback tag を打っても実際は forward-fix 一択になり、tag が dead reference になる (rollback の物理経路が形骸化)
+- **振り返り観測点** (5 点):
+  - 観測点 1 (肯定検証): Phase 1〜3 の各判断 (DA-α-001 / 002 / 003) で commit lineage が漏れなく記録されている
+  - 観測点 2 (肯定検証): 少なくとも 1 つの DA entry で振り返り判定が "間違い" or "部分的" になり、軌道修正 entry が活用される (mechanism が機能する証拠)
+  - 観測点 3 (反証可能): Phase 5 までに judgementCommit を amend / rebase した事故が 0 件 (≧1 件発覚なら mechanism が運用に耐えていない)
+  - 観測点 4 (反証可能): 「commit lineage の管理が overhead」という主観的判断によって本 mechanism を skip した entry が 1 件以上発生しない
+  - 観測点 5 (反証可能): rollback tag が一度も使われない (全 entry が "正しい" 判定で終わる) と、mechanism 自体が dead weight。最低 1 件は軌道修正 entry が landing することを期待
+
+### Commit Lineage
+
+- **judgementCommit**: `96a9521` — `docs(projects): aag-platformization 判断モデル更新 (AI-driven + commit-bound rollback)`
+- **preJudgementCommit**: `d0b079f` — `docs(projects): aag-platformization に breaking-changes.md 追加 + path 整理`
+- **judgementTag**: `aag-platformization/DA-α-000-judgement` (96a9521 に annotated tag landing 済)
+- **rollbackTag**: `aag-platformization/DA-α-000-rollback-target` (d0b079f に annotated tag landing 済)
+- **implementationCommits**:
+  - `96a9521` — 不可侵原則 5 + Decision Audit Mechanism + commit-bound rollback institution の articulate
+
+### 振り返り (本 program archive 直前 / TBD)
+
+> Phase 10 完了時または archive 直前に追記する。observation 5 件すべての実測結果を記録。
+
+- 観測点 1: TBD
+- 観測点 2: TBD
+- 観測点 3: TBD
+- 観測点 4: TBD
+- 観測点 5: TBD
+- **判定**: TBD
+- **学習**: TBD
+- **retrospectiveCommit**: TBD
+- **retrospectiveTag**: TBD
+
+### 軌道修正
+
+> 振り返りで判定が "部分的" / "間違い" になった場合に追記。
+
+#### 早期事象 (judgement 直後 / 2026-05-01)
+
+判断時直後の sanity check で `git checkout aag-platformization/DA-α-000-rollback-target -- .` を unstaged work がある状態で実行し、本 entry の判断時セクションを意図せず revert させてしまった。本 mechanism のリスク観測:
+
+- **観測**: rollback tag は機能するが、unstaged work と衝突するとデータロスを起こしうる
+- **学習**: rollback 動作確認は worktree clean 時に限定する。unstaged 中の sanity check を禁じる
+- **forward-fix**: 本 entry を再 landing し、`HANDOFF.md §3.9` (judgementCommit を amend しない) に「rollback tag の動作確認は worktree clean 時に限定」を追記する
+- これは判定 "間違い" ではなく **mechanism の使い方の学習**。DA-α-000 自体は active のまま継続。
