@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T03:59:23.391Z",
+  "timestamp": "2026-05-01T05:53:36.270Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 125,
+      "value": 126,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -266,6 +266,7 @@
       ],
       "implRefs": [
         "app/src/test/guards/aagDerivedOnlyImportGuard.test.ts",
+        "app/src/test/guards/aagResponseFeedbackUnificationGuard.test.ts",
         "app/src/test/guards/allowlistMetadataGuard.test.ts",
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/architectureRuleGuard.test.ts",
