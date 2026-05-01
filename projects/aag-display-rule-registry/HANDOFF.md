@@ -4,20 +4,26 @@
 
 ## 1. 現在地
 
-**Bootstrap 完了 (2026-04-30、Project C spawn)**。
+**Phase 1 完遂 (2026-05-01、DFR registry doc landing + doc-registry 登録)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
-受けて、**Phase 9 (DFR registry) + Phase 10 (DFR guards)** を本 project に独立 spawn。
+受けて、**Phase 9 (DFR registry) + Phase 10 (DFR guards)** を本 project に独立 spawn。Project B Phase 4
+完了で循環 fail risk が解消、Phase 1 着手可能になり本 commit で完遂。次は Phase 2 (DFR-001〜005 を
+base-rules.ts に登録 + canonicalDocRef + metaRequirementRefs articulate) → Phase 3 (displayRuleGuard
+実装、ratchet-down baseline 化) → Phase 4 (aag/meta.md §2 status flip = bidirectional integrity 成立)。
 
-| 項目 | 状態 |
-|---|---|
-| project bootstrap (skeleton 5 doc) | ✅ 完了 (本 commit) |
-| 親 project MVP scope | ✅ 完遂 |
-| 親 project Phase 3 hard gate | ✅ B 確定 |
-| Project A bootstrap | ✅ 完了 |
-| Project B bootstrap | ✅ 完了 |
-| 本 project Phase 1 (DFR registry doc) | ⏳ 未着手 (Project B Phase 4 完了後に着手、循環 fail 防止) |
-| 本 project Phase 3 (displayRuleGuard) | ⏳ 未着手 |
+| 項目                                                    | 状態                                                                          |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| project bootstrap (skeleton 5 doc)                      | ✅ 完了                                                                       |
+| 親 project MVP scope                                    | ✅ 完遂                                                                       |
+| 親 project Phase 3 hard gate                            | ✅ B 確定                                                                     |
+| Project A archive                                       | ✅ 完遂 (commit `cf8d995`)                                                    |
+| Project D archive (case B)                              | ✅ 完遂 (commit `aaffaf7`)                                                    |
+| Project B archive                                       | ✅ 完遂 (commit `35c2e17`)                                                    |
+| **本 project Phase 1 (DFR registry doc)**               | ✅ **完遂** (本 commit、display-rule-registry.md landing + doc-registry 登録) |
+| 本 project Phase 2 (DFR-001〜005 を base-rules.ts 登録) | ⏳ 未着手                                                                     |
+| 本 project Phase 3 (displayRuleGuard 実装)              | ⏳ 未着手                                                                     |
+| 本 project Phase 4 (aag/meta.md status flip)            | ⏳ 未着手                                                                     |
 
 ### 親 project からの継承事項
 
@@ -25,6 +31,7 @@
 詳細概念定義は親 plan を正本。
 
 入力 doc:
+
 - `projects/aag-bidirectional-integrity/plan.md` §Phase 9 / §Phase 10 / §3.10 (DFR registry 設計の正本)
 - `projects/completed/aag-rule-schema-meta-guard/plan.md` (Project B 正本、本 project の前提となる schema / meta-guard)
 - `projects/completed/aag-core-doc-refactor/plan.md` (Project A 正本、`aag/` 階層整備の前提)
@@ -89,13 +96,13 @@ meta-guard 未 PASS で hard fail (本 project plan 不可侵原則 7)。
 
 ## 4. 関連文書
 
-| ファイル | 役割 |
-|---|---|
-| `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§Phase 9 / §Phase 10 / §3.10) |
-| `projects/completed/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提) |
-| `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`aag/` 階層整備の前提) |
-| `references/01-principles/aag/meta.md` | AAG Meta charter (Phase 4 で §2 / §4 status flip) |
-| `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (Phase 2 で DFR-001〜005 登録) |
-| `app/src/test/guards/displayRuleGuard.test.ts` | Phase 3 で新規実装 |
-| `references/03-guides/content-and-voice.md` | content + voice convention (Phase 1 で thousands-separator 更新) |
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール |
+| ファイル                                                | 役割                                                             |
+| ------------------------------------------------------- | ---------------------------------------------------------------- |
+| `projects/aag-bidirectional-integrity/plan.md`          | 親 project の正本 (§Phase 9 / §Phase 10 / §3.10)                 |
+| `projects/completed/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提)                               |
+| `projects/completed/aag-core-doc-refactor/plan.md`      | Project A 正本 (`aag/` 階層整備の前提)                           |
+| `references/01-principles/aag/meta.md`                  | AAG Meta charter (Phase 4 で §2 / §4 status flip)                |
+| `app-domain/gross-profit/rule-catalog/base-rules.ts`    | BaseRule 物理正本 (Phase 2 で DFR-001〜005 登録)                 |
+| `app/src/test/guards/displayRuleGuard.test.ts`          | Phase 3 で新規実装                                               |
+| `references/03-guides/content-and-voice.md`             | content + voice convention (Phase 1 で thousands-separator 更新) |
+| `references/03-guides/project-checklist-governance.md`  | 本 project の運用ルール                                          |

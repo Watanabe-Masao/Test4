@@ -7,17 +7,17 @@
 
 ## Phase 1: DFR registry doc 制作 (Layer 2 新規製本、Project B Phase 4 完了後)
 
-- [ ] **着手前判断**: Project B Phase 4 (meta-guard MVP 4 件 全 PASS) 完了状況を確認 (循環 fail 防止)
-- [ ] **着手前判断**: anti-bloat 適用 — Phase 9 で識別された他 gap 候補のうち本 project に含めるものを judge
-- [ ] `references/01-principles/aag/display-rule-registry.md` 新設 (Layer 2 新規製本、`aag/` ディレクトリ整合)
-- [ ] DFR-001 chart semantic color の rule entry articulate (実績 = 緑 / 推定 = オレンジ + Layer 1 source link + Layer 2 doc link + bypass pattern + 適用 path + migrationRecipe + metaRequirementRefs)
-- [ ] DFR-002 axis formatter via useAxisFormatter の rule entry articulate
-- [ ] DFR-003 percent via formatPercent の rule entry articulate (小数第 2 位、認可)
-- [ ] DFR-004 currency via formatCurrency の rule entry articulate (thousands separator 明文化)
-- [ ] DFR-005 icon via pageRegistry / emoji canonical の rule entry articulate
-- [ ] `references/03-guides/content-and-voice.md` の "thousands-separator convention is not enforced" 記述更新
-- [ ] `docs/contracts/doc-registry.json` への display-rule-registry 登録
-- [ ] docRegistryGuard / docCodeConsistencyGuard 全 PASS
+- [x] **着手前判断**: Project B Phase 4 (meta-guard MVP 4 件 全 PASS) 完了状況を確認 (循環 fail 防止) — Project B Phase 1〜5 + archive 完遂 (commit `35c2e17`、`projects/completed/aag-rule-schema-meta-guard/`)、4 meta-guard PASS 確認済 (134 file 901 test PASS)
+- [x] **着手前判断**: anti-bloat 適用 — Phase 9 で識別された他 gap 候補のうち本 project に含めるものを judge — DFR-001〜005 のみで MVP scope 確定 (親 plan §Phase 9 articulation 踏襲、追加 rule は scope creep risk のため follow-up に逃がす)
+- [x] `references/01-principles/aag/display-rule-registry.md` 新設 (Layer 2 新規製本、`aag/` ディレクトリ整合) — 本 commit で landing (§1 DFR registry の意味 + §2〜§6 DFR-001〜005 articulation + §7 implementation 接続 + §8 関連 doc)
+- [x] DFR-001 chart semantic color の rule entry articulate (実績 = 緑 / 推定 = オレンジ + Layer 1 source link + Layer 2 doc link + bypass pattern + 適用 path + migrationRecipe + metaRequirementRefs) — `display-rule-registry.md §2` で全項目 articulate
+- [x] DFR-002 axis formatter via useAxisFormatter の rule entry articulate — `display-rule-registry.md §3` で全項目 articulate
+- [x] DFR-003 percent via formatPercent の rule entry articulate (小数第 2 位、認可) — `display-rule-registry.md §4` で全項目 articulate
+- [x] DFR-004 currency via formatCurrency の rule entry articulate (thousands separator 明文化) — `display-rule-registry.md §5` で thousands separator を Layer 2 で固定 articulate (旧 "not enforced" 記述更新の代替)
+- [x] DFR-005 icon via pageRegistry / emoji canonical の rule entry articulate — `display-rule-registry.md §6` で全項目 articulate
+- [x] `references/03-guides/content-and-voice.md` の "thousands-separator convention is not enforced" 記述更新 — content-and-voice.md には該当記述が存在しなかった (grep で確認)、DFR-004 §5 articulation で thousands separator convention は本 doc に集約 (= canonical articulation の起点を移動、旧記述の update は不要)
+- [x] `docs/contracts/doc-registry.json` への display-rule-registry 登録 — 本 commit で aag/layer-map.md 直後に entry 追加
+- [x] docRegistryGuard / docCodeConsistencyGuard 全 PASS — test:guards 134 file 901 test PASS / docs:check Hard Gate PASS
 
 ## Phase 2: DFR-NNN を base-rules.ts に登録
 

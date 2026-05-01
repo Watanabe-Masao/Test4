@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T00:34:55.456Z",
+  "timestamp": "2026-05-01T00:40:56.234Z",
   "summary": {
     "active": 6,
     "archived": 32,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1184,
-    "checkedCheckboxes": 969
+    "checkedCheckboxes": 980
   },
   "projects": [
     {
@@ -57,9 +57,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
+      "checked": 11,
       "total": 38,
-      "progress": 0,
+      "progress": 0.289,
       "entrypoint": "projects/aag-display-rule-registry/AI_CONTEXT.md",
       "checklistPath": "projects/aag-display-rule-registry/checklist.md",
       "parent": null
