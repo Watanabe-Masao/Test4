@@ -9,7 +9,15 @@ AAG Platformization Program — authority + artifact + contract + change-policy 
 
 ## Purpose
 
-AAG をアプリ内サブシステムから、**authority / artifact / contract / change-policy** の 4 軸を持つ独立した品質基盤に昇華する。Go 移行はその最終 runtime 形であって、本 program の goal ではない。本 program ではアプリ業務ロジックを 1 行も変えず、AAG 自体の制度基盤化を完成させる。
+AAG の **既存の振る舞いと思想は変えない**。本 program は AAG を **意味的 / 空間的 / 言語的に分離** することに閉じる:
+
+- **意味的分離** — Core (共通フレームワーク) / Domain (rules + schemas + overlays) / 接続部 (consumer facade) の責務を明示する
+- **空間的分離** — 物理パスを 3 層に分ける (`tools/aag-go/` / `docs/contracts/aag/` + `docs/generated/aag/` / `app/src/test/architectureRules*` + `tools/architecture-health/`)
+- **言語的分離** — Core = Go / Domain = 構造化 format (Phase 3 で AI 判断) + Go / 接続部 = TS。本体 (粗利) で使われている Zod / Rust とは混ぜない
+
+それ以外は既存の AAG 思想 (`aag/core/AAG_CORE_INDEX.md` / `core-boundary-policy.md` / `references/01-principles/aag/`) に **従う**。Go 移行 (Phase 9 PoC) も振る舞いを変えるためではなく、Core を物理的に分離するため。
+
+**例外**: 既存の振る舞いに **矛盾や潜在バグ** が発見された場合は速やかに修正する。本 program 起点の調査で 2 件発見済 (bootstrap 破綻 = §1 / 型二重定義 = §2)。発見時の優先順位は「分離より修正が先」。
 
 ## Read Order
 

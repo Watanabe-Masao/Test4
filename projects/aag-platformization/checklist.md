@@ -157,6 +157,6 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 >
-> **本 program の特例**: 本 checkbox は judgement の正しさを担保しない。判断履歴 (`decision-audit.md`) を読んだ上での **責任の引受** に過ぎない (`plan.md` 原則 5)。
+> **本 program の特例**: 本 checkbox は judgement の正しさを担保しない。判断履歴 (`decision-audit.md`) を読んだ上での **責任の引受** に過ぎない (`plan.md` 原則 6)。
 
 - [ ] 人間が `decision-audit.md` の全 entry (DA-α-* / DA-β-* / DA-γ-*) を読み、本 program の判断履歴と振り返り内容を確認した上で archive プロセスへの移行を承認する

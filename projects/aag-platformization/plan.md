@@ -1,7 +1,8 @@
 # plan — aag-platformization
 
 > **AAG Platformization Program**
-> 目的: AAG をアプリ内サブシステムから、authority + artifact + contract + change-policy を持つ独立した品質基盤へ昇華する。Go 移行はその最終 runtime 形であって、本 program の goal ではない。
+> 目的: AAG の既存の振る舞いと思想は変えず、**意味的 / 空間的 / 言語的に分離** する。Go 移行 (Phase 9 PoC) は振る舞いを変えるためではなく、Core を物理的に分離するため。
+> 例外: 既存の振る舞いに矛盾や潜在バグが発見された場合は速やかに修正する (発見時の優先順位は「分離より修正が先」)。
 
 ## 不可侵原則
 
@@ -27,33 +28,55 @@ AAG は本体 (粗利管理システム) と空間 / 意味 / 言語が異なる
 
 > **理由**: AAG が Zod / Rust を借りると、本体ドメインと AAG が同じ道具立てを共有することになり、責務の混線が起きる。AAG は本体に依存しないことを物理層で保証する。format 選定も同じく、本体 (粗利) で使われている JSON を惰性で踏襲しない。
 
-### 原則 1: アプリ業務ロジックを 1 行も変えない
+### 原則 1: 既存の AAG 振る舞いと思想を変えない (矛盾・潜在バグの修復は例外)
+
+本 program は AAG を分離 (意味的 / 空間的 / 言語的) することに閉じる。既存の `aag/core/AAG_CORE_INDEX.md` / `core-boundary-policy.md` / `references/01-principles/aag/` で articulate された AAG 思想と、現行 `architectureRules.ts` / `merged.ts` / `defaults.ts` / `helpers.ts` / `aag-response.ts` / 各 guard の **振る舞い** を変えない。
+
+**禁じる**:
+
+- 既存 rule / guard の意味 (semantics / governance / detection) を変える
+- 既存 rule の severity / baseline を緩和方向に動かす (原則 3 と重複ガード)
+- 既存 AagResponse / detector output の "見た目" を変える (Phase 5 / 6 は内部正本切替のみ。出力 byte は golden test で同一性保証)
+- 既存 merge 結果を変える (Phase 4 で artifact 化するが、結果は runtime merge と byte-identical)
+- `aag/core/principles/core-boundary-policy.md` の 5 設計原則を変える / 上書きする
+
+**例外** (発見時は分離より修正が先):
+
+- **矛盾**: doc と実装の宣言が物理的に乖離している (例: bootstrap-guide が「空 overlay で動く」と articulate するが merged.ts が throw する)
+- **潜在バグ**: 過去誰も踏んでいないが論理的に必ず壊れる経路 (例: 新規 project bootstrap)
+- **二重定義**: 同一概念が複数 file で別 type として宣言されている (例: `RuleExecutionOverlayEntry`)
+
+例外修復は通常の Phase work として scope に含めるが、**必ず DA entry を起こして根拠と影響範囲を articulate する**。修復前後の振る舞い差分は golden test で機械検証する。
+
+> **理由**: AAG の振る舞いを本 program のついでに変えると、分離が完了したのか思想が変わったのか後から区別不能になる。「分離だけ」が本 program の signature。
+
+### 原則 2: アプリ業務ロジックを 1 行も変えない
 
 本 program は AAG 自体の制度基盤化に閉じる。`domain/calculations/` / `application/usecases/` / `application/queries/` / `presentation/` / readModels の **意味** を変える変更は本 program の scope 外。AAG が改善されたとしても、それを理由に業務側を触らない。
 
 > **理由**: AAG の制度変更とアプリ業務の意味変更を同じ commit に混ぜると、変更の責任境界が崩れる (どちらの diff がどちらの問題を起こしたか追跡不能)。
 
-### 原則 2: 既存 guard の検出範囲を緩めない
+### 原則 3: 既存 guard の検出範囲を緩めない
 
 既存の guard test (architectureRuleGuard / responsibilityTagGuardV2 / testTaxonomyGuardV2 / 等) の baseline を **緩和方向** に動かさない。Phase 2 の bootstrap path 修復で既存 guard が落ちる場合は、guard を緩めるのではなく実装側を直す。ratchet-down (検出範囲を狭めない方向に baseline を動かす) のみ許容。
 
 > **理由**: 制度基盤化の作業中に既存制度を退行させるのは本末転倒。AAG が床を保証している前提を本 program が壊さない。
 
-### 原則 3: derived artifact を手編集しない
+### 原則 4: derived artifact を手編集しない
 
 Phase 4 以降に生成される `docs/generated/aag/merged-architecture-rules.json` / `overlay-coverage.json` / `merge-report.json` は **生成物**。手で編集しない。差分が出たら generator (Phase 4 で landing) を直す。
 
 > **理由**: derived の手編集を許すと「正本 → 派生」の方向性が壊れ、artifact が "手で書いた事実" の置き場になる。`source-of-truth.md` 正本ポリシー違反。
 
-### 原則 4: Go PoC は PoC 止まり、本 cutover はしない
+### 原則 5: Go PoC は PoC 止まり、本 cutover はしない
 
 Phase 9 で Go binary を作るが、CI 主経路の Go 化 / TS facade の縮退 / Go authoritative 宣言は本 program の scope 外。`aag-go-cutover` (仮称) として後続 project に分離する。本 program は cutover charter (Phase 10) までで止める。
 
 > **理由**: Go 移行を本 program に内包すると Level 4 (umbrella) に escalate せざるを得なくなる。本 program は Level 3 で完結することを設計目標とする。Go 実装を急ぐより authority / artifact / contract / change-policy の 4 軸を完成させる方が、後続 cutover の安全性に効く。
 
-### 原則 5: 判断の正しさは "人間の同意" で担保しない
+### 原則 6: 判断の正しさは "人間の同意" で担保しない
 
-本 program は **AI が事実と根拠で判断して進める**。人間承認は **archive 1 点のみ** に圧縮する。各 Phase の選択肢比較・採用案決定は AI が articulate された判断基準で行い、`decision-audit.md` に **判断時の根拠と振り返り観測点** を記録する。Phase 完了時に観測点を実測し、判断が正しかったか / 部分的か / 間違っていたかを追記する。間違っていた場合は同 artifact に軌道修正方針を記録する。
+本 program は **AI が事実と根拠で判断して進める**。人間承認は **archive 1 点のみ** に圧縮する。各 Phase の選択肢比較・採用案決定は AI が articulate された判断基準で行い、`decision-audit.md` に **判断時の根拠と振り返り観測点 + commit lineage** を記録する。Phase 完了時に観測点を実測し、判断が正しかったか / 部分的か / 間違っていたかを追記する。間違っていた場合は同 artifact に軌道修正方針を記録し、`rollbackTag` で物理的に判断前に戻れる。
 
 > **理由**: 「人間が同意したから正しい」という構造を作らない。同意は判断の根拠ではなく **責任の引受** に過ぎない。判断の正しさは事後の事実観測でしか確かめられない。本 program はそれを制度に組み込む (`projectization.md` §2 `requiresHumanApproval=true` は archive 承認のみ。本 §"Decision Audit Mechanism" 参照)。
 
@@ -437,7 +460,7 @@ Decision: DA-α-002 (judgement)
 
 `checklist.md` 末尾の最終レビュー checkbox は `references/03-guides/project-checklist-governance.md` §3.1 の構造要請。AI による本 program の判断履歴 (`decision-audit.md` の全 entry) を人間が読み、archive プロセスへの移行を承認する。
 
-**この承認は判断の正しさを担保しない**。人間の "同意" は責任の引受であって、判断の根拠ではない (原則 5)。判断が後日誤りと判明した場合は、後続 program で `decision-audit.md` の "軌道修正" 列を追記して継承する。
+**この承認は判断の正しさを担保しない**。人間の "同意" は責任の引受であって、判断の根拠ではない (原則 6)。判断が後日誤りと判明した場合は、後続 program で `decision-audit.md` の "軌道修正" 列を追記して継承する。
 
 ---
 
@@ -445,10 +468,11 @@ Decision: DA-α-002 (judgement)
 
 | 禁止事項 | なぜ禁止か |
 |---|---|
-| アプリ業務ロジック (`domain/calculations/` / `application/usecases/` / readModels) の意味を変える | 不可侵原則 1 違反。本 program と業務変更の責任境界が崩れる |
-| 既存 guard の baseline を緩和方向に動かす | 不可侵原則 2 違反。AAG が床を保証している前提を本 program が壊す |
-| `docs/generated/aag/*.json` を手編集する | 不可侵原則 3 違反。正本→派生の方向性が壊れる |
-| Phase 9 完了をもって CI の主経路を Go に切り替える | 不可侵原則 4 違反。後続 `aag-go-cutover` project の所掌 |
+| 既存 AAG 振る舞い (rule semantics / merge 結果 / AagResponse 出力 / detector message) を変える | 不可侵原則 1 違反。分離 program なのに振る舞いが変わると、分離が完了したのか思想が変わったのか後追い不能 |
+| アプリ業務ロジック (`domain/calculations/` / `application/usecases/` / readModels) の意味を変える | 不可侵原則 2 違反。本 program と業務変更の責任境界が崩れる |
+| 既存 guard の baseline を緩和方向に動かす | 不可侵原則 3 違反。AAG が床を保証している前提を本 program が壊す |
+| `docs/generated/aag/*` (確定 format) を手編集する | 不可侵原則 4 違反。正本→派生の方向性が壊れる |
+| Phase 9 完了をもって CI の主経路を Go に切り替える | 不可侵原則 5 違反。後続 `aag-go-cutover` project の所掌。本 program の Go PoC は scope 限定 |
 | `base-rules.ts` (10,805 行) を全 JSON 化する | nonGoal §4。authoring の rich TS 表現 (型補完 / リファクタ安全) を毀損する |
 | `pure-calculation-reorg` の `aag/execution-overlay.ts` rule entry を削除する | nonGoal。本 program は overlay 型 / comment / authority 契約の整理に閉じる。entry の意味判断は所掌外 |
 | `references/99-archive/` 配下の旧 AAG doc を削除する | `aag-legacy-retirement` で archive 移管済み。本 program で再削除すると履歴が壊れる |

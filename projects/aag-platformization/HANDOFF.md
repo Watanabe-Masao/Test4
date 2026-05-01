@@ -85,7 +85,7 @@ Phase 9 で Go binary を作るが、本 cutover (CI の主経路化 / TS 側の
 
 ### 3.8. 人間承認は intentional に最小化されている
 
-本 program の判断モデルは `plan.md` 原則 5。AI が事実根拠で判断 → `decision-audit.md` に articulate → Phase 完了時に振り返り観測点を実測 → 判定 (正しい / 部分的 / 間違い) を記録。**3 AI Checkpoint は人間承認 gate ではない**。最終 archive レビューだけが人間 mandatory で、これは judgement の正しさではなく **責任の引受** に過ぎない。
+本 program の判断モデルは `plan.md` 原則 6。AI が事実根拠で判断 → `decision-audit.md` に articulate → Phase 完了時に振り返り観測点を実測 → 判定 (正しい / 部分的 / 間違い) を記録。**3 AI Checkpoint は人間承認 gate ではない**。最終 archive レビューだけが人間 mandatory で、これは judgement の正しさではなく **責任の引受** に過ぎない。
 
 罠:
 
@@ -105,7 +105,7 @@ Phase 9 で Go binary を作るが、本 cutover (CI の主経路化 / TS 側の
 - judgementTag を delete-and-recreate する (履歴が壊れる)
 - judgementCommit を含む branch を `git push --force` する (remote 側の sha が消える)
 
-**理由**: sha が変わると振り返り時に commit を引き当てられず、rollback target が機能しなくなる。`plan.md` 原則 5 が立脚する物理結合 (判断 ↔ commit) が崩れる。
+**理由**: sha が変わると振り返り時に commit を引き当てられず、rollback target が機能しなくなる。`plan.md` 原則 6 が立脚する物理結合 (判断 ↔ commit) が崩れる。
 
 **例外**: judgementCommit が landing 直後 (まだ tag を打っていない / push していない) で typo を発見した場合のみ amend 可。一度 tag 化または push したら以降 amend 禁止。
 
