@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T12:19:46.383Z",
+  "timestamp": "2026-05-01T12:50:47.040Z",
   "summary": {
-    "active": 6,
-    "archived": 34,
-    "inProgress": 5,
+    "active": 4,
+    "archived": 36,
+    "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1212,
-    "checkedCheckboxes": 1132
+    "totalCheckboxes": 1203,
+    "checkedCheckboxes": 1137
   },
   "projects": [
     {
@@ -55,13 +55,13 @@
       "projectId": "aag-decision-traceability",
       "title": "AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 0,
-      "total": 5,
-      "progress": 0,
-      "entrypoint": "projects/aag-decision-traceability/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-decision-traceability/checklist.md",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 2,
+      "total": 2,
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-decision-traceability/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-decision-traceability/checklist.md",
       "parent": null
     },
     {
@@ -81,13 +81,13 @@
       "projectId": "aag-doc-responsibility-separation",
       "title": "AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 8,
-      "total": 17,
-      "progress": 0.471,
-      "entrypoint": "projects/aag-doc-responsibility-separation/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-doc-responsibility-separation/checklist.md",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 11,
+      "total": 11,
+      "progress": 1,
+      "entrypoint": "projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-doc-responsibility-separation/checklist.md",
       "parent": null
     },
     {

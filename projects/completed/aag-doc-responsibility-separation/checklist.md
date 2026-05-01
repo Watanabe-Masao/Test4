@@ -20,13 +20,9 @@
 - [x] archived `aag-bidirectional-integrity` 行から "Future follow-up = Project E candidate" 文を削除した
 - [x] `references/02-status/open-issues.md` の active 索引に `aag-decision-traceability` を追加した
 
-## Phase 3: ar-rule-audit split
+## Phase 3: ar-rule-audit split — scope out
 
-- [ ] `references/03-guides/ar-rule-binding-quality-protocol.md` を新規 Create し、§1〜§2 / §5 の protocol content を移送した
-- [ ] `references/02-status/ar-rule-audit.md` を §3〜§4 / §6 (status / 履歴 / future task) に縮約した
-- [ ] inbound 参照 (CLAUDE.md / archived project plan / base-rules.ts canonicalDocRef / guard comment) を全て co-update した
-- [ ] `cd app && npm run test:guards` 全 PASS を確認した
-- [ ] `cd app && npm run docs:generate` で generated section が再生成されることを確認した
+- [x] Phase 3 を scope out する判断を articulate した（HANDOFF.md §6 参照、split risk = drill-down chain semantic 破壊 / archived doc immutability 破壊 or linkrot / 重複 articulation 生成 が現状 functional な doc の split benefit を上回るため、AAG-REQ-NO-PERFECTIONISM + AAG-REQ-NON-PERFORMATIVE に従って意図的に残す弱さとして許容）
 
 ## Phase 4: stale status refresh
 
@@ -35,11 +31,9 @@
 - [x] `references/01-principles/aag/layer-map.md` の Phase 8 MVP meta-guard 予定を完遂表現に refresh した
 - [x] `references/01-principles/aag/layer-map.md` の selfHostingGuard follow-up を完遂表現に refresh した
 
-## Phase 5: meta.md → audit.md split 判断
+## Phase 5: meta.md → audit.md split 判断 — scope out
 
-- [ ] `aag/meta.md` の現状責務を再評価し、audit framework / 達成判定 / orphan baseline を切り出すか保持するかを人間が判断した
-- [ ] 判断結果（split / defer / scope out）を HANDOFF.md に articulate した
-- [ ] 判断結果を `references/02-status/open-issues.md` に反映した（split 実施は別 project に escalate）
+- [x] `aag/meta.md` を「3 機能融合 mechanism doc」として永続的に統合維持する判断を articulate した（HANDOFF.md §6 参照、親 project §8.10 の能動判断を覆す新 failure mode なし、selfHostingGuard が §2 を真値参照する依存もあり split cost > benefit）
 
 ## 最終レビュー (人間承認)
 
@@ -48,4 +42,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
