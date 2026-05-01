@@ -133,12 +133,15 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 
 (全 AAG-REQ 達成済、本表 entry なし。新規 AAG-REQ-\* を articulate するときは同 commit で対応 rule binding を articulate する設計判断、本表に未達 entry が landing しないようにする)
 
+> **「達成」の意味 (milestone tolerance vs full binding coverage)**:
+> §4.1 の「達成 12/12」は、各要件の達成条件 (§2 articulate) を **現行 allowed baseline 内で** satisfy した state を意味する。完全な rule binding coverage (= baseline=0) は **Phase 2 完了 criterion** であり、本 milestone の達成定義には含まない。具体的には selfHostingGuard.test.ts Test 3 が **baseline=6** として「rule binding を持たない orphan AAG-REQ の上限」を articulate しており、この baseline 内が現行 milestone の「達成」境界。
+
 > **Phase 2 ratchet-down candidate** (2026-05-01 selfHostingGuard MVP discovery):
 > 12 AAG-REQ のうち rule binding を持たない orphan が現状 6 件 (= `NO-AI-HUMAN-SUBSTITUTION` /
 > `NO-BUSINESS-LOGIC-INTRUSION` / `NO-DATE-RITUAL` / `NO-PERFECTIONISM` /
 > `SEMANTIC-ARTICULATION` / `STATE-BASED-GOVERNANCE`)。selfHostingGuard.test.ts Test 3
 > が baseline=6 として ratchet-down 軸に articulate 済、各 orphan に対応 rule binding を
-> 漸次追加して baseline=0 に向けて解消 (Phase 2 で Project E candidate に統合 or 独立 follow-up)。
+> 漸次追加して baseline=0 (= **Phase 2 完了 criterion**) に向けて解消 (Phase 2 で Project E candidate に統合 or 独立 follow-up)。
 
 ### §4.3 達成 condition の機械検証経路
 
