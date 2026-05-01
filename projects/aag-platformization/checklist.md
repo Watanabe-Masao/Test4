@@ -18,6 +18,7 @@
 - [x] `aag/execution-overlay.ts` を空のままにした (本 program は本体 merge に参加しない)
 - [x] `decision-audit.md` を scaffold として新設した (entry 雛形 + 必須要件 + 判断 entry 一覧)
 - [x] `breaking-changes.md` を派生セットから足した (BC-AAG-1〜6 と rollback plan)
+- [x] `decision-audit.md` の DA-α-000 entry に Phase 0 全 landing 成果物の Q1〜Q5 self-check 表を埋めた (gap 0 件)
 - [ ] `references/02-status/open-issues.md` の active projects に `aag-platformization` 行を追加した
 - [ ] `CURRENT_PROJECT.md` を `aag-platformization` に切り替えた
 - [ ] `cd app && npm run verify:project` が PASS
@@ -36,6 +37,7 @@
 - [ ] `aag/core/AAG_CORE_INDEX.md` から AAG_AUTHORITY_TABLE.md へのリンクを追加した
 - [ ] `references/01-principles/aag/source-of-truth.md` に "Authority Table" セクションを追加した
 - [ ] `cd app && npm run docs:check` が PASS
+- [ ] DA-α-001 entry に Phase 1 landing 成果物の Q1〜Q5 self-check 表を埋めた (gap があれば articulate)
 
 ## Phase 2: Merge Policy Fix
 
@@ -56,20 +58,22 @@
 - [ ] `pure-calculation-reorg` の既存 merge 結果が変わらない (golden test)
 - [ ] `cd app && npm run test:guards` が PASS
 - [ ] `cd app && npm run lint && npm run build` が PASS
+- [ ] DA-α-002 entry に Phase 2 landing 成果物の Q1〜Q5 self-check 表を埋めた (gap があれば articulate)
 
 ## Phase 3: Authority Table + Schema Registry
 
 - [ ] `aag/core/AAG_SCHEMA_REGISTRY.md` を新設し、schema 一覧と version policy を articulate した
-- [ ] `docs/contracts/aag/rule-semantics.schema.json` を新設した
-- [ ] `docs/contracts/aag/rule-governance.schema.json` を新設した
-- [ ] `docs/contracts/aag/rule-operational-state.schema.json` を新設した
-- [ ] `docs/contracts/aag/rule-detection-spec.schema.json` を新設した
-- [ ] `docs/contracts/aag/rule-binding.schema.json` を新設した
-- [ ] 各 schema に `$id` / `version` / `description` を設定した
-- [ ] `app/src/test/guards/aagSchemaIsomorphismGuard.test.ts` を新設し、TS 型と JSON Schema の同型性を検証する
+- [ ] AAG Domain serialization format 候補 (JSON / YAML / TOML / CUE / protobuf / Dhall / KDL / JSON5 / JSONC 等) を「構造性 / Go 親和性 / TS 親和性 / schema-first / diffable / comments / tooling / federated $id」で比較する一覧を `AAG_SCHEMA_REGISTRY.md` に作成した
+- [ ] AI が format 1 つを事実根拠で確定し、`decision-audit.md` DA-α-003 entry (判断時 + commit lineage + 振り返り観測点 3 つ以上) を追加した
+- [ ] DA-α-003 の judgement / rollback-target tag を annotated tag として打って push した
+- [ ] 採用 format で 5 schema を `docs/contracts/aag/` 配下に新設した (rule-semantics / rule-governance / rule-operational-state / rule-detection-spec / rule-binding)
+- [ ] 各 schema に `$id` / `version` / `description` 相当を設定した (format 依存)
+- [ ] schema isomorphism の方向性 (TS-from-schema vs schema-from-TS) を AI が判断し、`decision-audit.md` DA-α-004 entry を追加した
+- [ ] `app/src/test/guards/aagSchemaIsomorphismGuard.test.ts` を新設し、TS 型と schema の同型性を検証する
 - [ ] TS 型を試験的に変更すると aagSchemaIsomorphismGuard が hard fail する
 - [ ] `cd app && npm run test:guards` が PASS
-- [ ] `decision-audit.md` に Phase 1〜3 の判断 (DA-α-001 Authority Table 構造 / DA-α-002 merge policy 採用案 / DA-α-003 schema isomorphism 方向性) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
+- [ ] DA-α-003 / DA-α-004 entry に Phase 3 landing 成果物の Q1〜Q5 self-check 表を埋めた (gap があれば articulate)
+- [ ] `decision-audit.md` に Phase 1〜3 の判断 (DA-α-001 Authority Table 構造 / DA-α-002 merge policy 採用案 / DA-α-003 format 選定 / DA-α-004 schema isomorphism 方向性) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
 - [ ] **[AI Checkpoint α: Authority]** 通過判定 — 上記振り返りを根拠に Phase 4 以降への進行を AI が決定した (人間承認不要)
 
 ## Phase 4: Merged Artifact Generator
@@ -81,6 +85,7 @@
 - [ ] `npm run docs:generate` から 3 artifact が再生成される
 - [ ] `npm run docs:check` が 3 artifact の鮮度差分を検出する
 - [ ] `cd app && npm run docs:generate && npm run docs:check` が PASS
+- [ ] DA-β-001 entry に Phase 4 landing 成果物の Q1〜Q5 self-check 表を埋めた
 
 ## Phase 5: AagResponse Contract Separation
 
@@ -91,6 +96,7 @@
 - [ ] AagResponse を `references/01-principles/aag/` 配下で doc 化した
 - [ ] 4 renderer がそれぞれ手動実行で valid な出力を返す
 - [ ] `cd app && npm run test:guards` が PASS
+- [ ] DA-β-002 entry に Phase 5 landing 成果物の Q1〜Q5 self-check 表を埋めた
 
 ## Phase 6: Detector Protocol
 
@@ -100,6 +106,7 @@
 - [ ] pre-commit hook の output を schema 準拠に揃えた
 - [ ] 全 detector output が schema validation を通る (CI で機械検証)
 - [ ] `cd app && npm run test:guards` が PASS
+- [ ] DA-β-003 entry に Phase 6 landing 成果物の Q1〜Q5 self-check 表を埋めた
 
 ## Phase 7: RuleBinding Boundary Guard
 
@@ -109,7 +116,8 @@
 - [ ] `aag/core/principles/rule-binding-policy.md` を新設し、許可 / 禁止 list の根拠を articulate した
 - [ ] 違反コードを試験的に書くと ruleBindingBoundaryGuard が hard fail する
 - [ ] `cd app && npm run test:guards` が PASS
-- [ ] `decision-audit.md` に Phase 4〜7 の判断 (DA-β-001 artifact 生成タイミング / DA-β-002 AagResponse schema 駆動化方針 / DA-β-003 detector protocol 適用範囲) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
+- [ ] DA-β-005 entry に Phase 7 landing 成果物の Q1〜Q5 self-check 表を埋めた
+- [ ] `decision-audit.md` に Phase 4〜7 の判断 (DA-β-001 artifact 生成タイミング / DA-β-002 AagResponse schema 駆動化方針 / DA-β-003 detector protocol 適用範囲 / DA-β-005 RuleBinding 境界 guard 所属) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
 - [ ] **[AI Checkpoint β: Artifact]** 通過判定 — 上記振り返りを根拠に Phase 8 以降への進行を AI が決定した (人間承認不要)
 
 ## Phase 8: Overlay Artifactization
@@ -117,8 +125,9 @@
 - [ ] `docs/generated/aag/default-execution-overlay.json` を `defaults.ts` から生成
 - [ ] active 各 project の `aag/execution-overlay.ts` を JSON 派生 artifact として並列出力 (TS は authoring 正本として残す)
 - [ ] 上記 JSON 出力先が `docs/generated/aag/overlays/<project-id>.json` 形式に揃う (生成 path は Phase 4 の merge-artifact-generator と同じ命名規約)
-- [ ] TS と JSON の同期 guard を新設した (TS 編集後 JSON 未生成だと guard が落ちる)
+- [ ] TS と派生 artifact (Phase 3 で確定した format) の同期 guard を新設した (TS 編集後 artifact 未生成だと guard が落ちる)
 - [ ] `cd app && npm run docs:generate && npm run test:guards` が PASS
+- [ ] DA-β-004 entry に Phase 8 landing 成果物の Q1〜Q5 self-check 表を埋めた
 
 ## Phase 9: Go Core PoC
 
@@ -128,6 +137,7 @@
 - [ ] `tools/aag-go/cmd/aag-go-render-response/main.go` が動作 (4 renderer)
 - [ ] `tools/aag-go/scripts/parity-check.sh` で TS と Go の merge 結果が byte-identical
 - [ ] **CI に組み込まない** (cutover は本 program の scope 外、checkbox として明示)
+- [ ] DA-γ-001 entry に Phase 9 landing 成果物の Q1〜Q5 self-check 表を埋めた
 
 ## Phase 10: Cutover Charter + Change Policy
 
@@ -136,6 +146,7 @@
 - [ ] `references/02-status/recent-changes.md` に本 program のサマリを追加した
 - [ ] 完了済 4 AAG project (`aag-core-doc-refactor` / `aag-rule-schema-meta-guard` / `aag-display-rule-registry` / `aag-legacy-retirement`) との継承関係を AAG_CUTOVER_CHARTER.md に明記した
 - [ ] `cd app && npm run docs:check` が PASS
+- [ ] DA-γ-002 entry に Phase 10 landing 成果物の Q1〜Q5 self-check 表を埋めた
 - [ ] `decision-audit.md` に Phase 8〜10 の判断 (DA-γ-001 Go PoC scope 決定 / DA-γ-002 cutover charter 後続 project 分離方針) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
 - [ ] **[AI Checkpoint γ: Runtime Replacement]** 通過判定 — 上記振り返りを根拠に最終 archive レビューへの進行を AI が決定した (人間承認不要)
 

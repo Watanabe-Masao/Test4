@@ -63,6 +63,17 @@
 - **retrospectiveCommit**: `<sha>` — 本振り返りを landing した commit
 - **retrospectiveTag**: `aag-platformization/DA-{α|β|γ}-{NNN}-retrospective` — retrospectiveCommit に付与
 
+#### Q1〜Q5 Self-Check (Phase N 完了時の全 landing 成果物)
+
+`plan.md` §"実装品質基準" の 5 基準を本判断に基づく全 landing 成果物について自己点検する。
+
+| 成果物 | Q1 意味 | Q2 境界 | Q3 依存 | Q4 包含 | Q5 構造 |
+|---|---|---|---|---|---|
+| <成果物 1> | OK | OK | OK | OK | OK |
+| <成果物 N> | OK | gap (理由) | OK | OK | OK |
+
+gap がある場合は (a) 即時修正 / (b) 後続 Phase で修正 / (c) escalation のいずれかを articulate。**gap を放置して次 Phase に進まない**。
+
 ### 軌道修正 (判定が "部分的" / "間違い" の場合のみ記入)
 
 - **rollback decision**: 完全 revert / 部分 revert / forward-fix で対応
@@ -150,7 +161,8 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 
 - (Phase 1 着手時) DA-α-001: Authority Table の 10 concept × 4 列構造の妥当性判断
 - (Phase 2 着手時) DA-α-002: Merge Policy 採用案 (defaults stub / merged null / bootstrap seed の 3 案比較)
-- (Phase 3 着手時) DA-α-003: Schema isomorphism の方向性 (TS-from-schema vs schema-from-TS)
+- (Phase 3 着手時) DA-α-003: AAG Domain serialization format 選定 (JSON / YAML / TOML / CUE / protobuf / Dhall / KDL / JSON5 / JSONC を「構造性 / Go 親和性 / TS 親和性 / schema-first / diffable / comments / tooling / federated $id」で比較)
+- (Phase 3 中) DA-α-004: Schema isomorphism の方向性 (TS-from-schema vs schema-from-TS、format 選定後に判断)
 
 ### Workstream B — Artifactization
 
@@ -235,6 +247,20 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 - **学習**: TBD
 - **retrospectiveCommit**: TBD
 - **retrospectiveTag**: TBD
+
+#### Q1〜Q5 Self-Check (Phase 0 完了時 = 本 entry landing 時の全成果物)
+
+| 成果物 | Q1 意味 | Q2 境界 | Q3 依存 | Q4 包含 | Q5 構造 |
+|---|---|---|---|---|---|
+| `AI_CONTEXT.md` | OK (project の why / scope / read order を 1 sentence で articulate) | OK (含む / 含まない を §Scope で明記) | OK (上位 = AAG Core / 下位 = projects/ への一方向参照) | OK (関連文書表が完全) | OK (§番号 + read order + 関連文書表) |
+| `HANDOFF.md` | OK (現在地 / 次にやること / ハマりポイントの 3 軸) | OK (10 ハマりポイントが個別 articulate) | OK (本 doc は project 内のみ参照) | OK (関連文書表が完全) | OK (§1〜§4 構造) |
+| `plan.md` | OK (5 不可侵原則 + 5 実装品質基準 + 4 Workstream + 3 AI Checkpoint + 10 Phase) | OK (Phase 毎に scope 限定) | OK (Workstream A→B/C→D の依存方向) | OK (10 Phase = 4 Workstream の合算) | OK (table-driven articulation 多用) |
+| `checklist.md` | OK (各 checkbox = 1 機械検証可能達成条件) | OK (Phase 単位の境界) | OK (Phase 順序が依存方向と一致) | OK (Phase 0〜10 + 最終レビューで完全) | OK (Phase 階層) |
+| `projectization.md` | OK (Level 3 architecture-refactor の判定理由) | OK (含む / 含まない の §4 nonGoals) | OK (上位 = projectization-policy.md への参照) | OK (必要文書表 + nonGoals 表) | OK (§1〜§6 構造) |
+| `breaking-changes.md` | OK (BC-AAG-1〜6 個別) | OK (各 BC の対象 / Phase / rollback) | OK (Phase 順序を踏襲) | OK (6 BC が implementationScope 全体をカバー) | OK (table 駆動) |
+| `decision-audit.md` (本 file) | OK (1 entry = 1 判断 = 1 振り返り) | OK (entry / template / 必須要件 / 一覧の 4 区分) | OK (plan.md §不可侵原則 5 への上位参照) | OK (planned entries 一覧 = Phase 毎の判断網羅) | OK (template + 必須要件 + 一覧の 3 階層) |
+
+gap なし。本 commit が Phase 0 self-check の最初の成果。
 
 ### 軌道修正
 
