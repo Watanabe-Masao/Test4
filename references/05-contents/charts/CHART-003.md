@@ -20,7 +20,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: db443c4da02705e4b7924933579ee92ebfe527c6
+lastSourceCommit: db443c4da02705e4b7924933579ee92ebfe527c6
 owner: implementation
 specVersion: 1
 ---

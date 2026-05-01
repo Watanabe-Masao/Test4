@@ -106,7 +106,7 @@ children:                                # render 関数が JSX で使う子 com
   - ConditionSummaryEnhanced
 
 # 構造 drift 防御
-lastVerifiedCommit: 1075c69              # source と突合した直近 commit
+lastSourceCommit: 1075c69              # source と突合した直近 commit
 
 # 時間 drift 防御（freshness）
 owner: implementation
@@ -169,17 +169,17 @@ presentation 層は 4 層依存ルール上、パイプライン本体（applica
 
 - generator が source AST から frontmatter を再生成
 - 再生成後 diff が発生 → `docs:check` fail（= sync されていない）
-- registry source の当該 entry 行が変更された PR で、対応 `WID-NNN.md` の `lastVerifiedCommit` が更新されていない → fail
+- registry source の当該 entry 行が変更された PR で、対応 `WID-NNN.md` の `lastSourceCommit` が更新されていない → fail
 
-### commit-pin 軸: `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` + `AR-CONTENT-SPEC-OWNER`
+### commit-pin 軸: `AR-CONTENT-SPEC-LAST-SOURCE-COMMIT` + `AR-CONTENT-SPEC-OWNER`
 
-- 全 spec に `owner` / `lastVerifiedCommit` (full 40-char SHA) 必須
-- `git log -1 --format=%H -- <sourceRef>` の出力と `lastVerifiedCommit` が **完全一致** しないと **fail**
-- 修正経路: `node tools/widget-specs/refresh-last-verified.mjs` で全 spec を一括再計算
+- 全 spec に `owner` / `lastSourceCommit` (full 40-char SHA) 必須
+- `git log -1 --format=%H -- <sourceRef>` の出力と `lastSourceCommit` が **完全一致** しないと **fail**
+- 修正経路: `node tools/widget-specs/refresh-last-source-commit.mjs` で全 spec を一括再計算
 
 > **Phase K Option 1 (2026-04-29) で撤退済**: `AR-CONTENT-SPEC-FRESHNESS` (date-based
 > cadence: `reviewCadenceDays + lastReviewedAt` で陳腐化検出) は儀式 (review = date 更新) と
-> 判定して撤退。source ↔ spec の同期は `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` の
+> 判定して撤退。source ↔ spec の同期は `AR-CONTENT-SPEC-LAST-SOURCE-COMMIT` の
 > 構造的 mechanism (full SHA 完全一致) で保証する。
 
 ### enforcement phase
@@ -189,7 +189,7 @@ presentation 層は 4 層依存ルール上、パイプライン本体（applica
 | `AR-CONTENT-SPEC-EXISTS` | active | 45 spec landed |
 | `AR-CONTENT-SPEC-FRONTMATTER-SYNC` | active | generator + co-change で強制 |
 | `AR-CONTENT-SPEC-CO-CHANGE` | active | static + Phase I で git diff 強化 |
-| `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` | active | Phase K Option 1 で landing (full SHA 完全一致) |
+| `AR-CONTENT-SPEC-LAST-SOURCE-COMMIT` | active | Phase K Option 1 で landing (full SHA 完全一致) |
 | `AR-CONTENT-SPEC-OWNER` | active | 45 spec landed |
 
 詳細設計は `projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md`（Phase 1 addendum）参照。

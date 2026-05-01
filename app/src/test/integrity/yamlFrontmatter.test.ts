@@ -71,13 +71,13 @@ describe('parsing/parseSpecFrontmatter', () => {
   })
 
   it('null / 数値 scalar を正しく parse', () => {
-    const content = ['---', 'id: RM-001', 'sourceLine: 42', 'lastVerifiedCommit: null', '---'].join(
+    const content = ['---', 'id: RM-001', 'sourceLine: 42', 'lastSourceCommit: null', '---'].join(
       '\n',
     )
     const spec = parseSpecFrontmatter(content, 'RM-001.md')
     expect(spec.kind).toBe('read-model')
     expect(spec.sourceLine).toBe(42)
-    expect(spec.lastVerifiedCommit).toBeNull()
+    expect(spec.lastSourceCommit).toBeNull()
   })
 
   it('純粋性: 同じ入力 → 同じ出力 (副作用なし)', () => {

@@ -55,7 +55,7 @@ sourceLine: 242                               # export 宣言の開始行
 definitionDoc: references/01-principles/purchase-cost-definition.md
 
 # 構造 drift 防御
-lastVerifiedCommit: <sha>                     # source と突合した直近 commit
+lastSourceCommit: <sha>                     # source と突合した直近 commit
 
 # 時間 drift 防御（freshness）
 owner: implementation
@@ -92,11 +92,11 @@ specVersion: 1
 
 - generator が source AST から `sourceLine` / `exportName` を再生成
 - 再生成後 diff が発生 → `docs:check` fail
-- source export 行が変更されたのに `lastVerifiedCommit` が更新されていない → fail（Phase A から共通機構）
+- source export 行が変更されたのに `lastSourceCommit` が更新されていない → fail（Phase A から共通機構）
 
-### commit-pin 軸: `AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT` + `AR-CONTENT-SPEC-OWNER`
+### commit-pin 軸: `AR-CONTENT-SPEC-LAST-SOURCE-COMMIT` + `AR-CONTENT-SPEC-OWNER`
 
-- 全 spec に `owner` / `lastVerifiedCommit` (full 40-char SHA) 必須
+- 全 spec に `owner` / `lastSourceCommit` (full 40-char SHA) 必須
 - `git log -1 --format=%H -- <sourceRef>` と完全一致しないと fail
 
 > **Phase K Option 1 (2026-04-29) で撤退済**: `AR-CONTENT-SPEC-FRESHNESS` (date-based cadence) は儀式と判定して撤退。commit-pin で構造的に置換。

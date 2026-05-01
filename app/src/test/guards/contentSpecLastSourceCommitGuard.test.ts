@@ -1,16 +1,22 @@
 /**
- * Content Spec Last-Verified Commit Guard — AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT
+ * Content Spec Last-Source Commit Guard — AR-CONTENT-SPEC-LAST-SOURCE-COMMIT
  *
- * Phase K Option 1 (2026-04-29 着手): 全 spec の `lastVerifiedCommit` が source file の
- * 最新 commit hash (`git log -1 --format=%h -- <sourceRef>`) と一致することを検証。
+ * Phase K Option 1 (2026-04-29 着手): 全 spec の `lastSourceCommit` が source file の
+ * 最新 commit hash (`git log -1 --format=%H -- <sourceRef>`) と一致することを検証。
  *
  * 不一致 = 「source が動いたが spec が動いていない」signal。co-change が active な
  * ため通常は自動 sync、本 guard は co-change が漏らした stale spec を検出する safety
  * net として機能する。date-based cadence (AR-CONTENT-SPEC-FRESHNESS) の儀式に代わる
  * 構造的 mechanism。
  *
+ * Phase B rename note (Project A4, 2026-05-01): field 名は `lastVerifiedCommit` から
+ * `lastSourceCommit` に rename された。旧 field 名は「verified」と claim していたが
+ * mechanism (= refresh script による hash 更新) は semantic 検証していない構造的不整合
+ * (= Goodhart's Law leak) を解消した。新 field 名は記録対象 (= source file の最新
+ * commit hash) を中立的に articulate する。
+ *
  * 修正方法:
- *   `node tools/widget-specs/refresh-last-verified.mjs` で全 spec を一括再計算
+ *   `node tools/widget-specs/refresh-last-source-commit.mjs` で全 spec を一括再計算
  *
  * 環境前提 (2026-04-29 hotfix):
  *   - 本 guard は full git history を必要とする (`git log -1 -- <file>` で
@@ -79,8 +85,8 @@ function fetchLatestCommitHash(sourcePath: string): string | null {
   }
 }
 
-describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT)', () => {
-  it('全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する', () => {
+describe('Content Spec Last-Source Commit Guard (AR-CONTENT-SPEC-LAST-SOURCE-COMMIT)', () => {
+  it('全 spec の lastSourceCommit が source file の最新 commit hash と一致する', () => {
     if (isShallowClone()) {
       // CI workflow が fetch-depth: 0 を指定していない場合に shallow clone となり、
       // git log -1 が merge commit のみを返して false-positive 一括 fail を起こす。
@@ -88,7 +94,7 @@ describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED
       // 修正: .github/workflows/ci.yml の各 actions/checkout@v4 step に
       //   `with: fetch-depth: 0` を追加する（fast-gate / docs-health / test-coverage が必須）
       console.warn(
-        '[content-spec-last-verified-commit] shallow clone detected — guard skipped. ' +
+        '[content-spec-last-source-commit] shallow clone detected — guard skipped. ' +
           'CI workflow must specify `fetch-depth: 0` on actions/checkout@v4 ' +
           '(see .github/workflows/ci.yml fast-gate / docs-health / test-coverage steps)',
       )
@@ -116,7 +122,7 @@ describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED
         skipped.push(`${spec.id}: source ${sourcePath} に commit 履歴なし`)
         continue
       }
-      const declared = spec.lastVerifiedCommit
+      const declared = spec.lastSourceCommit
       if (!declared || declared.trim() === '') {
         mismatches.push({ specId: spec.id, sourcePath, declared: null, actual: actualHash })
         continue
@@ -138,14 +144,14 @@ describe('Content Spec Last-Verified Commit Guard (AR-CONTENT-SPEC-LAST-VERIFIED
 
     if (skipped.length > 0) {
       console.warn(
-        `[content-spec-last-verified-commit] skipped ${skipped.length} spec(s): ${skipped.join(', ')}`,
+        `[content-spec-last-source-commit] skipped ${skipped.length} spec(s): ${skipped.join(', ')}`,
       )
     }
 
     const messages = mismatches.map(
       (m) =>
-        `${m.specId}: lastVerifiedCommit=${m.declared ?? '<未設定>'} but source ${m.sourcePath} latest=${m.actual}.\n` +
-        `    → 修正: node tools/widget-specs/refresh-last-verified.mjs (全 spec を一括再計算)`,
+        `${m.specId}: lastSourceCommit=${m.declared ?? '<未設定>'} but source ${m.sourcePath} latest=${m.actual}.\n` +
+        `    → 修正: node tools/widget-specs/refresh-last-source-commit.mjs (全 spec を一括再計算)`,
     )
     expect(mismatches.length, messages.join('\n')).toBe(0)
   })

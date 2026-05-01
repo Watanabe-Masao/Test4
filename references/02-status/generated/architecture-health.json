@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T06:27:29.356Z",
+  "timestamp": "2026-05-01T08:26:04.943Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -297,7 +297,7 @@
         "app/src/test/guards/contentSpecEvidenceLevelGuard.test.ts",
         "app/src/test/guards/contentSpecExistsGuard.test.ts",
         "app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts",
-        "app/src/test/guards/contentSpecLastVerifiedCommitGuard.test.ts",
+        "app/src/test/guards/contentSpecLastSourceCommitGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleGuard.test.ts",
         "app/src/test/guards/contentSpecLifecycleLinkSymmetryGuard.test.ts",
         "app/src/test/guards/contentSpecOwnerGuard.test.ts",
@@ -1081,7 +1081,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 1122,
+      "value": 1123,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
