@@ -27,6 +27,23 @@ AAG をアプリ内サブシステムから、**authority / artifact / contract 
 
 本 project が独立して立ち上がる理由は 4 つ。**ここに書いた理由が消えたら escalation 判定の見直し対象**。
 
+### 0. 本体 (粗利) と AAG の空間 / 意味 / 言語の分離
+
+本リポジトリは粗利管理システム (shiire-arari) であり、その内部には既に以下の道具立てがある:
+
+- **Zod 契約** — application/queries / readModels の runtime validation (本体ドメイン)
+- **WASM (Rust)** — 計算エンジン (`domain/calculations/` の authoritative path)
+
+AAG はこれらと **空間 / 意味 / 言語が異なる別のサブシステム**。AAG が Zod や Rust を混ぜない理由は技術的好みではなく、**責務の混線を物理的に禁じる** ため。本 program は AAG の道具立てを以下のとおり別レイヤとして固定する:
+
+| AAG layer | 言語 / 形式 | 物理境界 | 同居して良い本体側 |
+|---|---|---|---|
+| **Core** | Go | `tools/aag-go/` (Phase 9 で新設) | なし (本体と完全分離) |
+| **Domain** (rules / schemas / overlays) | JSON + Go | `docs/contracts/aag/` / `docs/generated/aag/` (Phase 3, 4, 8) | なし |
+| **接続部** (consumer facade / authoring helper) | TypeScript | `app/src/test/architectureRules*` / `tools/architecture-health/` | TS のため本体 build pipeline と同居 |
+
+「再利用可能な品質 OS」とは、AAG を他アプリへ移植する話 **ではない**。**境界 / 責務 / パッケージが明確に切れている** ことを指す表現。本 program はこの境界を制度として固定する。
+
 ### 1. AAG 自体の authority 契約が穴を持っている
 
 本 program 起点の調査で、bootstrap path に **物理的に動かない部分** があることが判明した:
@@ -65,7 +82,19 @@ AAG をアプリ内サブシステムから、**authority / artifact / contract 
 
 contract を schema 起点にすることで、TS facade と Go runtime の両方が同じ正本を読める状態にする。
 
-### 5. なぜ既存 project に追加しないか
+### 5. AI-driven judgement + retrospective verification + commit-bound rollback
+
+本 program の **進行モデル** は以下:
+
+- **AI が事実と根拠で判断する** — 各 Phase の選択肢比較・採用案決定・実装方針は、調査と検証に基づいて AI が決める。Phase 2 の 3 案選定もこれに含まれる。
+- **人間承認は最小化** — 「人間が同意したから正しい」という構造を作らない。同意は判断の根拠ではなく **責任の引受** に過ぎない。
+- **判断の事後振り返りを制度化** — 各判断は `decision-audit.md` に articulate される。振り返り観測点を判断時に書いておき、Phase 完了時に観測する。判断が間違っていた / 部分的だったと判明したら、軌道修正方針も同 artifact に記録する。
+- **判断と commit を物理的に結合** — 各 DA entry に `judgementCommit` (sha) + `preJudgementCommit` (sha) + `judgementTag` (annotated tag) + `rollbackTag` (annotated tag) を記録。**判定が "間違い" なら `git checkout <rollbackTag>` で物理的に戻れる**。commit message に `Decision: DA-XXX (...)` を必須化することで `git log --grep` で判断ベースの追跡が可能。
+- **archive 承認だけが人間 mandatory** — `project-checklist-governance.md` の構造的要請に従い、最終 archive 承認のみ人間 (`requiresHumanApproval: true` はこの 1 点のため)。それ以外の判断はすべて AI が事後検証可能な形で articulate して進める。
+
+詳細は `decision-audit.md` (本 commit で scaffold landing 済) と `plan.md` §"Decision Audit Mechanism" を参照。
+
+### 6. なぜ既存 project に追加しないか
 
 - `pure-calculation-reorg` は **pure 計算責務再編** に閉じる (本 project の AAG 制度基盤化と scope が交わらない)
 - `presentation-quality-hardening` は presentation 品質 (scope 外)

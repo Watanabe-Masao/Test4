@@ -11,7 +11,7 @@
 - 必須セット 6 ファイル (AI_CONTEXT / HANDOFF / plan / checklist / projectization / config + aag/execution-overlay) を埋めた
 - 派生セットは未投入 (Workstream B 中盤で `breaking-changes.md` を、Workstream C で `acceptance-suite.md` を後付け予定)
 - `aag/execution-overlay.ts` は空のまま (本 program 自身は本体ガード rule の運用状態を上書きしない方針)
-- **CURRENT_PROJECT.md の切替・docs:generate・open-issues.md 更新・guard 実行は未実施** (人間承認が必要なため、Phase 0 完了 checkbox の一部として残してある)
+- **CURRENT_PROJECT.md の切替・open-issues.md 更新は未実施** (副作用が大きいため Phase 0 checkbox に明示的に残置。docs:generate は本 commit 時に実行済)
 
 実装作業 (Phase 1 以降) は未着手。本 program は AAG 自体の制度基盤化が目的であり、最初に手を入れる先は「実コード」ではなく「authority 文書 (3 doc)」。
 
@@ -22,7 +22,7 @@
 ### 高優先 (Workstream A — Authority Program)
 
 1. **Phase 1: Authority Charter** — Core / App Profile / Derived Artifact / Facade の 4 役割を `aag/core/AAG_AUTHORITY_TABLE.md` (新設) に固定する。これが完了するまで Phase 2 以降は着手しない。
-2. **Phase 2: Merge Policy Fix** — bootstrap 破綻 (空 overlay → merged.ts throw) を修復する。`MERGE_POLICY.md` を新設し、reviewPolicy 契約の穴を 3 案 (defaults に reviewPolicy 追加 / merged.ts に stub 補完 / bootstrap で seed 必須化) から人間承認で 1 つ選ぶ。
+2. **Phase 2: Merge Policy Fix** — bootstrap 破綻 (空 overlay → merged.ts throw) を修復する。`MERGE_POLICY.md` を新設し、reviewPolicy 契約の穴を 3 案 (defaults に reviewPolicy 追加 / merged.ts に stub 補完 / bootstrap で seed 必須化) から **AI が事実根拠で 1 つ選定**、`decision-audit.md` DA-α-002 に判断 + 振り返り観測点を記録する。
 3. **Phase 3: Authority Table + Schema Registry** — `AAG_SCHEMA_REGISTRY.md` を新設し、現存 5 schema (RuleSemantics / Governance / OperationalState / DetectionSpec / Binding) を JSON Schema 化する。
 
 ### 中優先 (Workstream B — Artifactization / C — Contract)
@@ -36,7 +36,7 @@
 
 8. **Phase 8: Overlay Artifactization** — defaults / 各 project の overlay を JSON artifact 化 (TS は thin re-export 化)。
 9. **Phase 9: Go Core PoC** — Go で merge / validate / response の最小実装。**PoC 止まり**、本 cutover はしない。
-10. **Phase 10: Cutover Charter + Change Policy** — `aag/core/AAG_CORE_CHANGE_POLICY.md` を新設し、schema versioning / golden test / compatibility test / 制度変更ルールを文書化。最終人間承認で archive。
+10. **Phase 10: Cutover Charter + Change Policy** — `aag/core/AAG_CORE_CHANGE_POLICY.md` を新設し、schema versioning / golden test / compatibility test / 制度変更ルールを文書化。最終 archive レビューで人間が `decision-audit.md` 全 entry を読んで responsibility を引き受ける (judgement の正しさを担保する承認ではない)。
 
 ## 3. ハマりポイント
 
@@ -83,12 +83,49 @@ npm run lint && npm run build
 
 Phase 9 で Go binary を作るが、本 cutover (CI の主経路化 / TS 側の縮退) は **本 program の scope 外**。後続 project (`aag-go-cutover` 仮称) で実施する。本 program の Phase 10 では「cutover charter + change policy 文書化」までで止める。projectization §5 escalation 条件を発火させないこと。
 
+### 3.8. 人間承認は intentional に最小化されている
+
+本 program の判断モデルは `plan.md` 原則 5。AI が事実根拠で判断 → `decision-audit.md` に articulate → Phase 完了時に振り返り観測点を実測 → 判定 (正しい / 部分的 / 間違い) を記録。**3 AI Checkpoint は人間承認 gate ではない**。最終 archive レビューだけが人間 mandatory で、これは judgement の正しさではなく **責任の引受** に過ぎない。
+
+罠:
+
+- 「人間に承認をもらってから次の Phase に進む」フローを誤って組まないこと。本 program は AI 判断 + 事後振り返りで進む
+- `decision-audit.md` の entry 追加を skip しないこと (判断時に観測点を書き残さないと、振り返り時に何も検証できない)
+- 振り返りで判定を "概ね正しい" 等のグラデーションで逃がさない (3 値: 正しい / 部分的 / 間違い)
+- 判定が "間違い" でも本 program の失敗ではない。**判断の正しさを担保する仕組みが機能した** ことの記録になる
+
+### 3.9. judgementCommit を amend / rebase しない
+
+`decision-audit.md` の各 entry には `judgementCommit` (= 判断を landing した commit sha) と `judgementTag` (annotated tag) を記録する。これらが軌道修正時の rollback target を物理的に指し示す唯一の手がかり。
+
+**禁じる**:
+
+- judgementCommit を `git commit --amend` で書き換える (sha が変わる)
+- judgementCommit を含む branch を `git rebase` で書き換える (sha が変わる)
+- judgementTag を delete-and-recreate する (履歴が壊れる)
+- judgementCommit を含む branch を `git push --force` する (remote 側の sha が消える)
+
+**理由**: sha が変わると振り返り時に commit を引き当てられず、rollback target が機能しなくなる。`plan.md` 原則 5 が立脚する物理結合 (判断 ↔ commit) が崩れる。
+
+**例外**: judgementCommit が landing 直後 (まだ tag を打っていない / push していない) で typo を発見した場合のみ amend 可。一度 tag 化または push したら以降 amend 禁止。
+
+### 3.10. 言語層を跨がないこと
+
+`plan.md` 原則 0 の物理境界:
+
+- AAG Core / Domain で **Zod を使わない** (Zod は本体ドメインの runtime validation 用)
+- AAG Core / Domain で **Rust を使わない** (Rust/WASM は本体計算エンジン用)
+- AAG 接続部 (TS) で **Go をリンクしない** (接続部は TS のまま)
+
+理由は、責務 / 空間 / 意味 / 言語の混線を物理境界で禁じるため。本体 (粗利) と AAG が同じ道具立てを共有しないことを物理層で保証する。Phase 3 の schema 化で「Zod の方が便利だから」と引き入れない。Phase 9 の Go PoC で「TS から Go bridge を生やせば早い」と接続部に Go を持ち込まない。
+
 ## 4. 関連文書
 
 | ファイル | 役割 |
 |---|---|
 | `AI_CONTEXT.md` | project 文脈の入口 — why / scope / read order |
-| `plan.md` | 4 不可侵原則 + 4 Workstream + 3 Gate + 10 Phase 構造 |
+| `plan.md` | 5 不可侵原則 + 4 Workstream + 3 AI Checkpoint + 10 Phase + Decision Audit Mechanism |
+| `decision-audit.md` | 主要判断と事後振り返りの記録 artifact (Phase 1 着手時に新設) |
 | `checklist.md` | completion 判定の機械入力 |
 | `projectization.md` | AAG-COA 判定 (Level 3) と nonGoals |
 | `config/project.json` | manifest |

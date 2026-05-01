@@ -14,8 +14,10 @@
 - [x] `projectization.md` に AAG-COA 判定 (Level 3 / architecture-refactor) を記録した
 - [x] `AI_CONTEXT.md` に why / scope / read order を記述した
 - [x] `HANDOFF.md` に現在地・次にやること・ハマりポイント 7 件を記述した
-- [x] `plan.md` に 4 不可侵原則 / 4 Workstream / 3 Gate / 10 Phase / 関連実装表を記述した
+- [x] `plan.md` に 5 不可侵原則 / 4 Workstream / 3 AI Checkpoint / 10 Phase / 関連実装表 / Decision Audit Mechanism を記述した
 - [x] `aag/execution-overlay.ts` を空のままにした (本 program は本体 merge に参加しない)
+- [x] `decision-audit.md` を scaffold として新設した (entry 雛形 + 必須要件 + 判断 entry 一覧)
+- [x] `breaking-changes.md` を派生セットから足した (BC-AAG-1〜6 と rollback plan)
 - [ ] `references/02-status/open-issues.md` の active projects に `aag-platformization` 行を追加した
 - [ ] `CURRENT_PROJECT.md` を `aag-platformization` に切り替えた
 - [ ] `cd app && npm run verify:project` が PASS
@@ -29,6 +31,8 @@
 
 - [ ] `aag/core/AAG_AUTHORITY_TABLE.md` を新設した
 - [ ] AAG_AUTHORITY_TABLE.md に 10 concept (RuleSemantics / RuleGovernance / RuleOperationalState / RuleDetectionSpec / RuleBinding / DEFAULT_EXECUTION_OVERLAY / EXECUTION_OVERLAY / ARCHITECTURE_RULES / AagResponse / DetectorResult) × 4 列 (concept / authority / physical source / change policy) の表を埋めた
+- [ ] `decision-audit.md` に DA-α-001 (Authority Table の 10 concept × 4 列構造の判断 + 振り返り観測点 3 つ以上) を追加した
+- [ ] DA-α-001 の Commit Lineage に judgementCommit / preJudgementCommit を記録し、annotated tag を 2 本 (judgement + rollback-target) push した
 - [ ] `aag/core/AAG_CORE_INDEX.md` から AAG_AUTHORITY_TABLE.md へのリンクを追加した
 - [ ] `references/01-principles/aag/source-of-truth.md` に "Authority Table" セクションを追加した
 - [ ] `cd app && npm run docs:check` が PASS
@@ -36,7 +40,10 @@
 ## Phase 2: Merge Policy Fix
 
 - [ ] `aag/core/MERGE_POLICY.md` を新設し、3 案 (defaults stub / merged null / bootstrap seed) を articulate した
-- [ ] 3 案から採用案を 1 つ人間承認で確定した
+- [ ] 3 案 (defaults stub / merged null / bootstrap seed) を blast radius / migration cost / 後方互換 で比較する一覧を `MERGE_POLICY.md` に作成した
+- [ ] AI が採用案を 1 つ事実根拠で確定し、`decision-audit.md` DA-α-002 entry (判断時 = 候補・採用案・判断根拠・想定リスク・振り返り観測点 3 つ以上) を追加した
+- [ ] DA-α-002 の Commit Lineage に judgementCommit / preJudgementCommit を記録した
+- [ ] judgement / rollback-target tag を annotated tag として打って push した (`aag-platformization/DA-α-002-judgement` + `aag-platformization/DA-α-002-rollback-target`)
 - [ ] `app/src/test/aag-core-types.ts` に `RuleExecutionOverlayEntry` を集約した
 - [ ] `_template/aag/execution-overlay.ts` の type import を集約版に切り替えた
 - [ ] `pure-calculation-reorg/aag/execution-overlay.ts` の type import を集約版に切り替えた
@@ -62,7 +69,8 @@
 - [ ] `app/src/test/guards/aagSchemaIsomorphismGuard.test.ts` を新設し、TS 型と JSON Schema の同型性を検証する
 - [ ] TS 型を試験的に変更すると aagSchemaIsomorphismGuard が hard fail する
 - [ ] `cd app && npm run test:guards` が PASS
-- [ ] **[Gate 1: Authority Gate]** Phase 1〜3 の成果物を人間がレビューし、Phase 4 以降への進行を承認した
+- [ ] `decision-audit.md` に Phase 1〜3 の判断 (DA-α-001 Authority Table 構造 / DA-α-002 merge policy 採用案 / DA-α-003 schema isomorphism 方向性) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
+- [ ] **[AI Checkpoint α: Authority]** 通過判定 — 上記振り返りを根拠に Phase 4 以降への進行を AI が決定した (人間承認不要)
 
 ## Phase 4: Merged Artifact Generator
 
@@ -101,7 +109,8 @@
 - [ ] `aag/core/principles/rule-binding-policy.md` を新設し、許可 / 禁止 list の根拠を articulate した
 - [ ] 違反コードを試験的に書くと ruleBindingBoundaryGuard が hard fail する
 - [ ] `cd app && npm run test:guards` が PASS
-- [ ] **[Gate 2: Artifact Gate]** Phase 4〜7 の成果物を人間がレビューし、Phase 8 以降への進行を承認した
+- [ ] `decision-audit.md` に Phase 4〜7 の判断 (DA-β-001 artifact 生成タイミング / DA-β-002 AagResponse schema 駆動化方針 / DA-β-003 detector protocol 適用範囲) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
+- [ ] **[AI Checkpoint β: Artifact]** 通過判定 — 上記振り返りを根拠に Phase 8 以降への進行を AI が決定した (人間承認不要)
 
 ## Phase 8: Overlay Artifactization
 
@@ -127,13 +136,16 @@
 - [ ] `references/02-status/recent-changes.md` に本 program のサマリを追加した
 - [ ] 完了済 4 AAG project (`aag-core-doc-refactor` / `aag-rule-schema-meta-guard` / `aag-display-rule-registry` / `aag-legacy-retirement`) との継承関係を AAG_CUTOVER_CHARTER.md に明記した
 - [ ] `cd app && npm run docs:check` が PASS
-- [ ] **[Gate 3: Runtime Replacement Gate]** Phase 8〜10 の成果物を人間がレビューし、最終レビューへの進行を承認した
+- [ ] `decision-audit.md` に Phase 8〜10 の判断 (DA-γ-001 Go PoC scope 決定 / DA-γ-002 cutover charter 後続 project 分離方針) の振り返りを記入し、判定が "正しい" or "部分的+軌道修正記録あり" であることを確認した
+- [ ] **[AI Checkpoint γ: Runtime Replacement]** 通過判定 — 上記振り返りを根拠に最終 archive レビューへの進行を AI が決定した (人間承認不要)
 
-## 最終レビュー (人間承認)
+## 最終 archive レビュー (人間承認、構造的要請)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+>
+> **本 program の特例**: 本 checkbox は judgement の正しさを担保しない。判断履歴 (`decision-audit.md`) を読んだ上での **責任の引受** に過ぎない (`plan.md` 原則 5)。
 
-- [ ] 全 10 Phase の成果物 (commit / PR / 関連正本 / generated artifact / 新設 6 doc / 新設 2 guard / Go PoC) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 人間が `decision-audit.md` の全 entry (DA-α-* / DA-β-* / DA-γ-*) を読み、本 program の判断履歴と振り返り内容を確認した上で archive プロセスへの移行を承認する
