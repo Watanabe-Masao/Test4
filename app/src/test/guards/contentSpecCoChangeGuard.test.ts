@@ -4,7 +4,7 @@
  * Phase C scope (2026-04-27, static): 全 spec (widget + read-model) について、
  * frontmatter の line field (widget=`registryLine` / read-model=`sourceLine`) が
  * source 上の実 anchor 行と一致する。一致していない = source が変更されたのに
- * spec の line / lastVerifiedCommit が更新されていない、と解釈する。
+ * spec の line / lastSourceCommit が更新されていない、と解釈する。
  *
  * Phase A/B/C は静的検証のみ（git diff を持たない）。Phase I (PR Impact Report)
  * で base..HEAD diff ベースの真の co-change 検証に置き換える。
@@ -59,12 +59,12 @@ describe('Content Spec Co-Change Guard (AR-CONTENT-SPEC-CO-CHANGE)', () => {
     expect(violations, violations.join('\n')).toEqual([])
   })
 
-  it('全 spec の lastVerifiedCommit が空でない', () => {
+  it('全 spec の lastSourceCommit が空でない', () => {
     const violations: string[] = []
     for (const spec of loadAllSpecs()) {
-      if (!spec.lastVerifiedCommit || spec.lastVerifiedCommit.trim() === '') {
+      if (!spec.lastSourceCommit || spec.lastSourceCommit.trim() === '') {
         violations.push(
-          `${spec.id}: lastVerifiedCommit が未設定。spec を生成した最後の commit hash を記録すること。`,
+          `${spec.id}: lastSourceCommit が未設定。spec を生成した最後の commit hash を記録すること。`,
         )
       }
     }

@@ -12,12 +12,14 @@
  *   consumedCtxFields, consumedReadModels, consumedQueryHandlers, children
  *
  * 手書きフィールド（保持）:
- *   id, kind, acquisitionPath, owner, specVersion, lastVerifiedCommit
+ *   id, kind, acquisitionPath, owner, specVersion, lastSourceCommit
  *
  * 撤退済 (Phase K Option 1 後続、2026-04-29):
  *   reviewCadenceDays / lastReviewedAt は date-based cadence 儀式のため撤退。
- *   AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT (full SHA 比較) が source ↔ spec 同期の
+ *   AR-CONTENT-SPEC-LAST-SOURCE-COMMIT (full SHA 比較) が source ↔ spec 同期の
  *   構造的 mechanism を担う。AR-CONTENT-SPEC-FRESHNESS は registry から削除済。
+ *   field 名 rename (Project A4, 2026-05-01): lastVerifiedCommit → lastSourceCommit
+ *   (Goodhart's Law leak 緩和、本 mechanism は semantic 検証していない事実を articulate)。
  *
  * CLI:
  *   node tools/widget-specs/generate.mjs              # 全 WID を再生成 (write)
@@ -261,7 +263,7 @@ const FIELD_ORDER_WIDGET = [
   'consumedReadModels',
   'consumedQueryHandlers',
   'children',
-  'lastVerifiedCommit',
+  'lastSourceCommit',
   'owner',
   'specVersion',
 ]
@@ -280,7 +282,7 @@ const FIELD_ORDER_READ_MODEL = [
   'supersedes',
   'sunsetCondition',
   'deadline',
-  'lastVerifiedCommit',
+  'lastSourceCommit',
   'owner',
   'specVersion',
 ]
@@ -304,7 +306,7 @@ const FIELD_ORDER_CALCULATION = [
   'supersedes',
   'sunsetCondition',
   'deadline',
-  'lastVerifiedCommit',
+  'lastSourceCommit',
   'owner',
   'specVersion',
 ]
@@ -333,7 +335,7 @@ const FIELD_ORDER_CHART = [
   'supersedes',
   'sunsetCondition',
   'deadline',
-  'lastVerifiedCommit',
+  'lastSourceCommit',
   'owner',
   'specVersion',
 ]
@@ -362,7 +364,7 @@ const FIELD_ORDER_UI_COMPONENT = [
   'supersedes',
   'sunsetCondition',
   'deadline',
-  'lastVerifiedCommit',
+  'lastSourceCommit',
   'owner',
   'specVersion',
 ]

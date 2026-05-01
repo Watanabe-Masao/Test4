@@ -69,7 +69,7 @@ export interface SpecFrontmatter {
   readonly sunsetCondition: string | null;
   readonly deadline: string | null;
   readonly owner: string | null;
-  readonly lastVerifiedCommit: string | null;
+  readonly lastSourceCommit: string | null;
   readonly raw: Record<string, unknown>;
 }
 
@@ -173,9 +173,9 @@ export function parseSpecFrontmatter(
       typeof raw.sunsetCondition === "string" ? raw.sunsetCondition : null,
     deadline: typeof raw.deadline === "string" ? raw.deadline : null,
     owner: typeof raw.owner === "string" ? raw.owner : null,
-    lastVerifiedCommit:
-      typeof raw.lastVerifiedCommit === "string"
-        ? raw.lastVerifiedCommit
+    lastSourceCommit:
+      typeof raw.lastSourceCommit === "string"
+        ? raw.lastSourceCommit
         : null,
     raw,
   };

@@ -6,7 +6,7 @@
  * full git history が必要な job では `with: fetch-depth: 0` の指定を強制する。
  *
  * 背景:
- *   PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default
+ *   PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default
  *   `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate /
  *   docs-health / test-coverage / content-specs-impact の checkout に明示
  *   `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が
@@ -21,7 +21,7 @@
  *
  * 検証対象 (full history 必須):
  *   - fast-gate / docs-health / test-coverage: vitest 実行に
- *     contentSpecLastVerifiedCommitGuard を含む
+ *     contentSpecLastSourceCommitGuard を含む
  *   - content-specs-impact: base..HEAD diff
  *
  * @guard G1 テストに書く / governance-ops
@@ -142,7 +142,7 @@ describe('CI Fetch-Depth Guard (AR-CI-FETCH-DEPTH)', () => {
         violations.push(
           `${co.file}:${co.stepLine} job=${co.jobName}: actions/checkout で fetch-depth: 0 が未指定。\n` +
             `    → 修正: 同 step の \`with:\` block に \`fetch-depth: 0\` を追加。\n` +
-            `    根拠: contentSpecLastVerifiedCommitGuard 等の git log 依存 guard を実行する job では full history が必要 (PR #1205 の事故を構造的に防止)。\n` +
+            `    根拠: contentSpecLastSourceCommitGuard 等の git log 依存 guard を実行する job では full history が必要 (PR #1205 の事故を構造的に防止)。\n` +
             `    Allowlist (full history 不要 job): ${[...FETCH_DEPTH_NOT_REQUIRED_JOBS].join(', ')}`,
         )
       }

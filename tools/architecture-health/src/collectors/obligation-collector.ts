@@ -248,7 +248,7 @@ export const PATH_TO_REQUIRED_READS: readonly RequiredReadsRule[] = [
     pathPrefix: 'app/src/presentation/components/charts/',
     requiredReads: ['references/05-contents/charts/'],
     rationale:
-      'Chart component 変更時は対応 CHART-NNN.md frontmatter (lastVerifiedCommit 同期) の確認が必要 — `node tools/widget-specs/refresh-last-verified.mjs` で全 spec を一括再計算。本 entry は 2026-05-01 audit (CHART-004 incident) で identify した Type B cascade gap への対処',
+      'Chart component 変更時は対応 CHART-NNN.md frontmatter (lastSourceCommit 同期) の確認が必要 — `node tools/widget-specs/refresh-last-source-commit.mjs` で全 spec を一括再計算。本 entry は 2026-05-01 audit (CHART-004 incident) で identify した Type B cascade gap への対処',
   },
 ] as const
 

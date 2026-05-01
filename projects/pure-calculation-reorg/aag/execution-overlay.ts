@@ -1584,7 +1584,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
-  "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT": {
+  "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT": {
     fixNow: "now",
     executionPlan: { effort: "trivial", priority: 1 },
     reviewPolicy: {

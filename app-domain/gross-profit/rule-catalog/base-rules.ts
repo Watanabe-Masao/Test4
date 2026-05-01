@@ -9711,11 +9711,11 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["G1"],
     epoch: 1,
     doc: "references/05-contents/widgets/README.md",
-    what: "registry source の id 行と spec frontmatter の registryLine が一致し lastVerifiedCommit が記録されている",
+    what: "registry source の id 行と spec frontmatter の registryLine が一致し lastSourceCommit が記録されている",
     why: "registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、Phase I で git diff ベースの真の co-change 検査に拡張",
     correctPattern: {
       description:
-        "spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastVerifiedCommit が非空",
+        "spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastSourceCommit が非空",
     },
     outdatedPattern: {
       description: "registry source を変更したが spec.registryLine が古い",
@@ -9729,7 +9729,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: [
         "1. `node tools/widget-specs/generate.mjs --wid WID-NNN` で frontmatter 再生成",
-        "2. lastVerifiedCommit を必要に応じて更新",
+        "2. lastSourceCommit を必要に応じて更新",
       ],
     },
     sunsetCondition:
@@ -9737,7 +9737,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: [
         "registry source 変更に伴う spec 更新漏れ",
-        "lastVerifiedCommit が長期間更新されない結果としての真贋判定不能",
+        "lastSourceCommit が長期間更新されない結果としての真贋判定不能",
       ],
     },
     canonicalDocRef: {
@@ -9748,7 +9748,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
           problemAddressed:
             "README で articulate された前提に対し、registry source を変更したが spec.registryLine が古い のパターンが残ると、registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、P… という構造的な不整合が発生する",
           resolutionContribution:
-            "本 rule は custom 検出 + gate severity で「registry source の id 行と spec frontmatter の registryLine が一致し lastVerifiedCommit が記録されている」を構造的に強制し、spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastVerified… のパターンへの収束を機械的に駆動することで c…",
+            "本 rule は custom 検出 + gate severity で「registry source の id 行と spec frontmatter の registryLine が一致し lastSourceCommit が記録されている」を構造的に強制し、spec.registryLine === source 上の `id: '<widgetDefId>'` 行（1-indexed）。lastSource… のパターンへの収束を機械的に駆動することで c…",
         },
       ],
     },
@@ -9760,7 +9760,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
           problemAddressed:
             "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべ…)",
           resolutionContribution:
-            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: registry source の id 行と spec frontmatter の registryLine が一致し lastVeri…",
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: registry source の id 行と spec frontmatter の registryLine が一致し lastSour…",
         },
       ],
     },
@@ -9768,40 +9768,40 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
 
   {
     slice: "governance-ops",
-    id: "AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT",
+    id: "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT",
     principleRefs: ["G1"],
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
     doc: "references/05-contents/widgets/README.md",
-    what: "全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する",
-    why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastVerifiedCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net",
+    what: "全 spec の lastSourceCommit が source file の最新 commit hash と一致する",
+    why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastSourceCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net。Project A4 (2026-05-01) で旧名 lastSourceCommit から rename: 旧名は「verified」と claim していたが mechanism は semantic 検証していない構造的不整合 (= Goodhart's Law leak) を解消",
     correctPattern: {
       description:
-        "spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-char SHA) と完全一致。短縮 hash (`%h`) は repo 成長で長さ変動 + prefix 衝突時に false-negative (異 commit を同一と誤判定) リスクがあるため、commit identity の保証には full SHA を使用する。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
+        "spec.lastSourceCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-char SHA) と完全一致。短縮 hash (`%h`) は repo 成長で長さ変動 + prefix 衝突時に false-negative (異 commit を同一と誤判定) リスクがあるため、commit identity の保証には full SHA を使用する。前提: full git history (CI は actions/checkout に `fetch-depth: 0` 指定必須、shallow clone では guard が skip + warn)",
     },
     outdatedPattern: {
       description:
-        "lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄",
+        "lastSourceCommit が source 最新 commit hash と一致しない (stale)、または空欄",
     },
     decisionCriteria: {
       when: "source file を変更するとき",
       exceptions:
         "shallow clone (CI workflow が fetch-depth 未指定) では guard が skip + warn する。原則として CI workflow 側で fetch-depth: 0 を必須化",
       escalation:
-        "spec 内容を読み直して lastVerifiedCommit を最新化、不要なら deprecate",
+        "spec 内容を読み直して lastSourceCommit を最新化、不要なら deprecate",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
       steps: [
-        "1. `node tools/widget-specs/refresh-last-verified.mjs` で全 spec の lastVerifiedCommit を一括再計算",
+        "1. `node tools/widget-specs/refresh-last-source-commit.mjs` で全 spec の lastSourceCommit を一括再計算",
         "2. source 変更を伴う PR では refresh script 実行を含めて co-change",
-        "3. 個別 spec のみ更新する場合は `git log -1 --format=%h -- <sourceRef>` で確認して frontmatter 更新",
+        "3. 個別 spec のみ更新する場合は `git log -1 --format=%H -- <sourceRef>` で確認して frontmatter 更新",
         "4. 新 CI workflow に actions/checkout を追加するときは `with: fetch-depth: 0` を必ず指定する (本 guard が機能するために必須)",
       ],
     },
     sunsetCondition:
-      "なし（lastVerifiedCommit 強制は source ↔ spec 同期の恒久的 mechanism）",
+      "なし（lastSourceCommit 強制は source ↔ spec 同期の恒久的 mechanism）",
     protectedHarm: {
       prevents: [
         "source が動いたのに spec が更新されない (stale spec)",
@@ -9815,9 +9815,9 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         {
           docPath: "references/05-contents/widgets/README.md",
           problemAddressed:
-            "README で articulate された前提に対し、lastVerifiedCommit が source 最新 commit hash と一致しない (stale)、または空欄 のパターンが残ると、date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spe…",
+            "README で articulate された前提に対し、lastSourceCommit が source 最新 commit hash と一致しない (stale)、または空欄 のパターンが残ると、date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spe…",
           resolutionContribution:
-            "本 rule は custom 検出 + gate severity で「全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する」を構造的に強制し、spec.lastVerifiedCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-ch… のパターンへの収束を機械的に駆動することで canonical doc の articulate…",
+            "本 rule は custom 検出 + gate severity で「全 spec の lastSourceCommit が source file の最新 commit hash と一致する」を構造的に強制し、spec.lastSourceCommit が git log -1 --format=%H -- <sourceRef> の出力 (full 40-ch… のパターンへの収束を機械的に駆動することで canonical doc の articulate…",
         },
       ],
     },
@@ -9829,7 +9829,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
           problemAddressed:
             "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source…)",
           resolutionContribution:
-            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 全 spec の lastVerifiedCommit が source file の最新 commit hash と一致する",
+            "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: 全 spec の lastSourceCommit が source file の最新 commit hash と一致する",
         },
       ],
     },
@@ -10440,7 +10440,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     doc: "references/01-principles/aag/strategy.md",
     what: "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する (allowlist された job 以外)",
-    why: "PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
+    why: "PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
     correctPattern: {
       description:
         "full git history が必要な job (test:guards / vitest run / git log を読む code を実行) の actions/checkout step で `with: fetch-depth: 0` を明示する。Allowlist (full history 不要): wasm-build / e2e / pages-build / deploy",
@@ -10480,7 +10480,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         {
           docPath: "references/01-principles/aag/strategy.md",
           problemAddressed:
-            "strategy で articulate された前提に対し、full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定な… のパターンが残ると、PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (default `fetch…",
+            "strategy で articulate された前提に対し、full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定な… のパターンが残ると、PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch…",
           resolutionContribution:
             "本 rule は custom 検出 + gate severity で「`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `…」を構造的に強制し、full git history が必要な job (test:guards / vitest run / git log を読む code を実行) の a… のパターンへの収束を機械的に駆動することで…",
         },
@@ -10492,7 +10492,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         {
           requirementId: "AAG-REQ-RATCHET-DOWN",
           problemAddressed:
-            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: PR #1205 で contentSpecLastVerifiedCommitGuard が shallow clone (defaul…)",
+            "改善が不可逆 (baseline は下がる方向のみ、増加は構造禁止) でなくなると、解消した負債の再発と改善蓄積の逆戻りが起き、ratchet-down 不変条件が崩れる (本 rule scope: PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (defaul…)",
           resolutionContribution:
             "本 rule の baseline + severity 設定により逆戻り方向の commit を構造的に拒否し、ratchet-down 不変条件を本 rule scope で担保する。本 rule の具体寄与: `.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git h…",
         },

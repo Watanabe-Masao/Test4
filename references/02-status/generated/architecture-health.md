@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-01T10:45:19.171Z
+> Generated: 2026-05-01T11:22:01.895Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -90,7 +90,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 3 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 1190 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 1123 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 1124 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |

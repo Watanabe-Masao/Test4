@@ -41,7 +41,7 @@
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-01T10:45:19.171Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-05-01T11:22:01.895Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

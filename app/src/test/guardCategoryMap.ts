@@ -652,10 +652,10 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'core-rule: Phase J7 (2026-04-29) Behavior Claims tests / guards 列の各 path が実 file を指すことを checkPathExistence 経由で検証 (path typo / stale reference / orphan 検出)',
   },
-  'AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT': {
+  'AR-CONTENT-SPEC-LAST-SOURCE-COMMIT': {
     category: 'registry-integrity',
     layer: 'operations',
-    note: 'core-rule: Phase K Option 1 (2026-04-29) 全 spec の lastVerifiedCommit が source file の最新 commit hash (full SHA) と完全一致を git log -1 --format=%H 経由で検証 (date-based cadence は撤退済、AR-CONTENT-SPEC-FRESHNESS は registry 削除済)',
+    note: 'core-rule: Phase K Option 1 (2026-04-29) 全 spec の lastSourceCommit が source file の最新 commit hash (full SHA) と完全一致を git log -1 --format=%H 経由で検証 (date-based cadence は撤退済、AR-CONTENT-SPEC-FRESHNESS は registry 削除済)。Project A4 (2026-05-01) で旧名 AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT から rename: 旧 field 名 lastVerifiedCommit は「verified」と claim していたが mechanism は semantic 検証していない (Goodhart leak) ため、中立的な lastSourceCommit に変更。',
   },
   'AR-INTEGRITY-NO-RESURRECT': {
     category: 'registry-integrity',

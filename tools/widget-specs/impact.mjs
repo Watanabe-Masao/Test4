@@ -14,7 +14,7 @@
  *   - Changed sources (git diff)
  *   - Affected specs (sourceRef / registrySource 一致)
  *   - Risk level (lifecycle / evidence / kind 別)
- *   - Required actions (generator 再実行 / lastVerifiedCommit 更新 / etc)
+ *   - Required actions (generator 再実行 / lastSourceCommit 更新 / etc)
  *
  * 詳細: projects/phased-content-specs-rollout/plan.md §Phase I
  *
