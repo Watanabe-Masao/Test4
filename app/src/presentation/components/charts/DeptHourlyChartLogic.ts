@@ -16,7 +16,7 @@
  */
 import type { CategoryHourlyRow } from '@/application/hooks/duckdb'
 import { topNByTotal } from '@/application/query-bridge/rawAggregation'
-import { STORE_COLORS } from './chartTheme'
+import { STORE_COLORS, toComma } from './chartTheme'
 import { palette } from '@/presentation/theme/tokens'
 import { pearsonCorrelation } from '@/application/hooks/useStatistics'
 import type { AppTheme } from '@/presentation/theme/theme'
@@ -170,6 +170,14 @@ export function detectCannibalization(
 
 // ─── ECharts Option Builders ───────────────────────
 
+// 軸ラベル formatter は module-level 名前付き関数として extract (DFR-002 = inline lambda 禁止、
+// canonical な useAxisFormatter は React hook で pure builder からは呼べないため、本 file 内
+// scope の formatter を named function 化することで axisLabel.formatter inline 記述を避ける)。
+const formatQuantityAxis = (v: number): string => toComma(v)
+const formatCumRatioAxis = (v: number): string => `${v}%`
+const formatTemperatureAxis = (v: number): string => `${v}°`
+const formatPrecipitationAxis = (v: number): string => `${v}mm`
+
 export function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): object {
   const base = {
     type: 'value' as const,
@@ -183,7 +191,7 @@ export function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): o
         ...base,
         name: '点数',
         nameTextStyle: { color: theme.colors.text4 },
-        axisLabel: { color: theme.colors.text4, formatter: (v: number) => v.toLocaleString() },
+        axisLabel: { color: theme.colors.text4, formatter: formatQuantityAxis },
       }
     case 'cumRatio':
       return {
@@ -192,14 +200,14 @@ export function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): o
         nameTextStyle: { color: theme.colors.text4 },
         min: 0,
         max: 100,
-        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}%` },
+        axisLabel: { color: theme.colors.text4, formatter: formatCumRatioAxis },
       }
     case 'temperature':
       return {
         ...base,
         name: '気温(°C)',
         nameTextStyle: { color: theme.colors.text4 },
-        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}°` },
+        axisLabel: { color: theme.colors.text4, formatter: formatTemperatureAxis },
       }
     case 'precipitation':
       return {
@@ -207,7 +215,7 @@ export function buildRightAxisConfig(mode: RightOverlayMode, theme: AppTheme): o
         name: '降水量(mm)',
         nameTextStyle: { color: theme.colors.text4 },
         min: 0,
-        axisLabel: { color: theme.colors.text4, formatter: (v: number) => `${v}mm` },
+        axisLabel: { color: theme.colors.text4, formatter: formatPrecipitationAxis },
       }
   }
 }
