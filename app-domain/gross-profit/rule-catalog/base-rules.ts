@@ -8878,6 +8878,76 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     },
   },
 
+  {
+    slice: "governance-ops",
+    id: "AR-AAG-META-SELF-HOSTING",
+    principleRefs: ["G1", "F8"],
+    guardTags: ["G1", "F8"],
+    epoch: 1,
+    ruleClass: "invariant",
+    confidence: "high",
+    maturity: "stable",
+    doc: "references/01-principles/aag/meta.md",
+    what: "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が AR-rule の metaRequirementRefs に bound + 同 rule が aag/meta.md を canonicalDocRef として指す (self-reference closure)",
+    why: "AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked) を構造的に達成する self-reference closure を確立する。本 rule 自身が closure の起点 (= AAG-REQ-SELF-HOSTING を bind しつつ aag/meta.md を canonicalDocRef として参照) であり、selfHostingGuard.test.ts が closure の構造的整合を機械検証する。closure 不在では meta.md が孤立し、framework 自身が AR-rule の保護対象から外れる構造的盲点となる",
+    correctPattern: {
+      description:
+        "AR-AAG-META-SELF-HOSTING rule が (a) metaRequirementRefs.refs[].requirementId='AAG-REQ-SELF-HOSTING' (b) canonicalDocRef.refs[].docPath='references/01-principles/aag/meta.md' を同時に articulate し、selfHostingGuard.test.ts が両 condition を hard fail で検証",
+    },
+    outdatedPattern: {
+      description:
+        "AAG-REQ-SELF-HOSTING がどの rule の metaRequirementRefs にも bound されない、または bind した rule の canonicalDocRef が aag/meta.md を指していない (= closure 不成立、meta.md が rule cluster から孤立)",
+    },
+    detection: { type: "custom", severity: "gate", baseline: 0 },
+    decisionCriteria: {
+      when: "aag/meta.md §2 の AAG-REQ-* set を変更する / 本 closure を担う rule を改廃するとき",
+      exceptions:
+        "なし (closure は恒久的 mechanism、sunset condition なし)",
+      escalation:
+        "selfHostingGuard が hard fail した場合、本 rule の metaRequirementRefs / canonicalDocRef を articulate し直す",
+    },
+    migrationRecipe: {
+      steps: [
+        "1. 本 rule の metaRequirementRefs.refs[] に { requirementId: 'AAG-REQ-SELF-HOSTING', problemAddressed, resolutionContribution } を articulate",
+        "2. 本 rule の canonicalDocRef.refs[] に { docPath: 'references/01-principles/aag/meta.md', problemAddressed, resolutionContribution } を articulate",
+        "3. selfHostingGuard.test.ts を実行して closure 構造を hard fail で検証",
+      ],
+    },
+    sunsetCondition:
+      "なし (self-hosting closure は AAG framework の恒久的 self-reference mechanism)",
+    protectedHarm: {
+      prevents: [
+        "aag/meta.md が AR-rule cluster から孤立し、framework 自身が rule 保護対象から外れる",
+        "AAG-REQ-SELF-HOSTING が宣言だけで実体的 closure を持たない performative state",
+        "meta-circularity 検出が機械検証されない結果として self-reference の drift が混入",
+      ],
+    },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/aag/meta.md",
+          problemAddressed:
+            "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked、meta-rule が自分自身を検証) が rule cluster に bound されないと、meta.md が孤立し framework が自己保護対象から外れる構造的盲点となる",
+          resolutionContribution:
+            "本 rule は custom 検出 + gate severity で AAG-REQ-SELF-HOSTING の self-reference closure (rule binding + canonicalDocRef back-reference) を構造的に強制し、selfHostingGuard が closure 不成立を hard fail で検出することで meta.md ↔ rule cluster の双方向 binding を機械的に維持する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-SELF-HOSTING",
+          problemAddressed:
+            "AAG が AAG を守る (= aag/meta.md 自身が AR-rule に linked、meta-rule が自分自身を検証) という self-hosting 不変条件が空宣言で終わると、framework の自己保護経路が performative になり、meta-circularity drift が検出されない",
+          resolutionContribution:
+            "本 rule の baseline + severity 設定により self-reference closure 不成立方向の commit を構造的に拒否し、self-hosting 不変条件を本 rule scope で担保する。本 rule の具体寄与: aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が AR-rule に bound + 同 rule が aag/meta.md を canonicalDocRef として指す closure を確立する",
+        },
+      ],
+    },
+  },
+
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
   // 上位原則: references/01-principles/test-signal-integrity.md
   // 思想: 品質シグナル（test / coverage / compile / lint）が改善の結果を表し、

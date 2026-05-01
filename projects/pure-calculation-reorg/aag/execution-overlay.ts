@@ -1384,6 +1384,15 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
       reviewCadenceDays: 90,
     },
   },
+  "AR-AAG-META-SELF-HOSTING": {
+    fixNow: "now",
+    executionPlan: { effort: "trivial", priority: 1 },
+    reviewPolicy: {
+      owner: "architecture",
+      lastReviewedAt: "2026-05-01",
+      reviewCadenceDays: 90,
+    },
+  },
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
   // 上位原則: references/01-principles/test-signal-integrity.md
   // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で

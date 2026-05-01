@@ -544,6 +544,11 @@ export const GUARD_CATEGORY_MAP: Readonly<Record<string, GuardCategoryEntry>> = 
     layer: 'operations',
     note: 'merge-candidate: AR-AAG-DERIVED-ONLY-IMPORT の具体化（Project Overlay 直参照禁止）',
   },
+  'AR-AAG-META-SELF-HOSTING': {
+    category: 'registry-integrity',
+    layer: 'operations',
+    note: 'core-rule: AAG-REQ-SELF-HOSTING の self-reference closure (rule binding + canonicalDocRef back-reference) を selfHostingGuard.test.ts が hard fail で検証 (2026-05-01 Phase 1 MVP、orphan baseline=6 ratchet-down で漸次解消)',
+  },
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
   // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で
   // testSignalIntegrityGuard.test.ts を物理削除した際、本 categoryMap からも削除済 (2026-04-27)。
