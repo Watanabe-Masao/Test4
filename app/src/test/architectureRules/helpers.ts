@@ -3,14 +3,31 @@
  *
  * - Lookup: getRuleById, getRulesByGuardTag, getRulesByDetectionType, getRuleByResponsibilityTag
  * - メッセージ: formatViolationMessage, checkRatchetDown
- * - AAG レスポンス: buildAagResponse, renderAagResponse, buildObligationResponse
+ * - AAG レスポンス: buildAagResponse — rule-aware wrapper
+ *
+ * Feedback 層単一性 (= aag/operational-classification.md §6 の通知統一原則):
+ *   AagResponse 型 + renderAagResponse + buildObligationResponse は
+ *   `tools/architecture-health/src/aag-response.ts` を canonical 正本とし、
+ *   本 file からは re-export のみ。app/ と tools/ の compilation context が
+ *   分離されているため `@tools` alias 経由で import (= app vitest config + tsconfig
+ *   paths で resolved)。`aagResponseFeedbackUnificationGuard.test.ts` が両 file
+ *   間の drift を構造的に拒否する。
  *
  * @responsibility R:unclassified
  */
 
 import type { ArchitectureRule, AagSlice, DetectionType } from './types'
-import { SLICE_GUIDANCE } from './types'
 import { ARCHITECTURE_RULES } from './merged'
+import {
+  type AagResponse,
+  renderAagResponse,
+  buildObligationResponse,
+} from '@tools/architecture-health/aag-response'
+
+// AagResponse 型 + renderer は Feedback 層 canonical (tools/) から re-export
+// (= 本 file の consumer が後方互換的に import 可能、内部統一は guard 検証)
+export type { AagResponse }
+export { renderAagResponse, buildObligationResponse }
 
 // ─── Lookup 関数 ─────────────────────────────────────────
 
@@ -77,36 +94,7 @@ export function formatViolationMessage(
   return `[${rule.id}] ${renderAagResponse(buildAagResponse(rule, violations))}`
 }
 
-// ── AAG 統一レスポンス構造（Phase 3） ──────────────────────────
-
-/**
- * AAG 統一レスポンス — guard / obligation / health / pre-commit 共通
- *
- * どこで止まっても同じ情報構造で返る。
- * @see references/01-principles/aag/architecture.md
- */
-export interface AagResponse {
-  /** 情報源: guard / obligation / health / pre-commit */
-  readonly source: 'guard' | 'obligation' | 'health' | 'pre-commit'
-  /** 運用区分 */
-  readonly fixNow: 'now' | 'debt' | 'review'
-  /** 関心スライス */
-  readonly slice: AagSlice | null
-  /** 1. 何が止まったか */
-  readonly summary: string
-  /** 2. なぜ止まったか */
-  readonly reason: string
-  /** 3. 今やること */
-  readonly steps: readonly string[]
-  /** 4. 例外がありうるか */
-  readonly exceptions: string | null
-  /** 5. 深掘り先 */
-  readonly deepDive: string | null
-  /** 違反の詳細一覧 */
-  readonly violations: readonly string[]
-}
-
-/** ArchitectureRule + 違反一覧 → AagResponse */
+/** ArchitectureRule + 違反一覧 → AagResponse (= rule-aware wrapper、guard 入口で使用) */
 export function buildAagResponse(
   rule: ArchitectureRule,
   violations: readonly string[],
@@ -115,7 +103,7 @@ export function buildAagResponse(
   return {
     source,
     fixNow: rule.fixNow ?? 'debt',
-    slice: rule.slice ?? null,
+    slice: (rule.slice as AagSlice | undefined) ?? null,
     summary: rule.what,
     reason: rule.why,
     steps: rule.migrationRecipe.steps,
@@ -125,88 +113,6 @@ export function buildAagResponse(
   }
 }
 
-/** AagResponse → 人間可読文字列（テスト出力・PR コメント・pre-commit 共通） */
-export function renderAagResponse(resp: AagResponse): string {
-  const fixLabel =
-    resp.fixNow === 'now'
-      ? '⚡ 今すぐ修正'
-      : resp.fixNow === 'debt'
-        ? '📋 構造負債として管理'
-        : '🔍 観測・レビュー対象'
-
-  const sliceLabel = resp.slice ? ` [${resp.slice}]` : ''
-  const guidance = resp.slice ? SLICE_GUIDANCE[resp.slice] : null
-
-  const lines = [`${fixLabel}${sliceLabel}`, `  ${resp.summary}`, `  理由: ${resp.reason}`]
-
-  if (guidance) {
-    lines.push(`  方向: ${guidance}`)
-  }
-
-  // fixNow ごとに返す内容の性格を分ける
-  switch (resp.fixNow) {
-    case 'now':
-      // この diff で直す手順を短く返す
-      if (resp.steps.length > 0) {
-        lines.push('  修正手順:')
-        for (const step of resp.steps) lines.push(`    ${step}`)
-      }
-      break
-    case 'debt':
-      // allowlist / active-debt / removalCondition 側へ誘導
-      lines.push('  対応: allowlist に登録して計画的に返済する')
-      if (resp.steps.length > 0) {
-        lines.push('  解消手順（返済時）:')
-        for (const step of resp.steps) lines.push(`    ${step}`)
-      }
-      break
-    case 'review':
-      // コード修正ではなく、レビューや見直しに回す
-      lines.push('  対応: コード修正不要。Discovery Review で評価する')
-      if (resp.deepDive) {
-        lines.push(`  レビュー先: ${resp.deepDive}`)
-      }
-      break
-  }
-
-  if (resp.exceptions) {
-    lines.push(`  例外: ${resp.exceptions}`)
-  }
-
-  if (resp.fixNow !== 'review' && resp.deepDive) {
-    lines.push(`  詳細: ${resp.deepDive}`)
-  }
-
-  if (resp.violations.length > 0) {
-    const maxShow = resp.fixNow === 'review' ? 3 : resp.violations.length
-    lines.push(`  違反 (${resp.violations.length} 件):`)
-    for (const v of resp.violations.slice(0, maxShow)) lines.push(`    ${v}`)
-    if (resp.violations.length > maxShow) {
-      lines.push(`    ... 他 ${resp.violations.length - maxShow} 件`)
-    }
-  }
-
-  return lines.join('\n')
-}
-
-/** Obligation 違反用の AagResponse 生成（rule を持たないケース） */
-export function buildObligationResponse(
-  obligationId: string,
-  label: string,
-  triggerPath: string,
-): AagResponse {
-  return {
-    source: 'obligation',
-    fixNow: 'now',
-    slice: 'governance-ops',
-    summary: label,
-    reason: `${triggerPath} が変更されたため、関連ドキュメントの更新が必要`,
-    steps: [
-      '1. cd app && npm run docs:generate',
-      '2. git add references/02-status/generated/ CLAUDE.md',
-    ],
-    exceptions: null,
-    deepDive: 'tools/architecture-health/src/collectors/obligation-collector.ts',
-    violations: [`obligation: ${obligationId}`],
-  }
-}
+// AAG 統一レスポンス構造 (= AagResponse / renderAagResponse / buildObligationResponse) は
+// `tools/architecture-health/src/aag-response.ts` を canonical 正本とする (= file 冒頭で
+// re-export 済)。本 file 内では rule-aware wrapper である `buildAagResponse` のみを定義する。

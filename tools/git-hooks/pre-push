@@ -400,10 +400,18 @@ check_format() {
 # 学習ソース: CI fast-gate step 4
 # 理由: 構造制約ガードは CI で落ちる。ローカルで気づく機会を作る
 # severity: error
+#
+# 検出 strategy (2026-05-01 audit fix、Phase A3 [Trigger 層]):
+#   - 旧実装は `grep -q "Test Files.*passed"` で判定していたが、失敗時の出力
+#     `Test Files  1 failed | 135 passed` も "passed" を含むため greedy match
+#     で常に true となり、**全 guard 失敗を検出できない構造的 bug** を持っていた
+#     (= CHART-004 incident で CI まで違反が透過した root cause)
+#   - exit code 経由で判定する方式に修正 (`|| true` を分解して $? を捕捉)
+#   - 補助的に "Test Files <N> failed" の明示 pattern も併用
 check_test_guards() {
   echo "  pre-push: test:guards 実行中..."
-  GUARD_OUTPUT=$(cd app && npm run test:guards 2>&1 || true)
-  if ! echo "$GUARD_OUTPUT" | grep -q "Test Files.*passed"; then
+  GUARD_OUTPUT=$(cd app && npm run test:guards 2>&1) && GUARD_EXIT=0 || GUARD_EXIT=$?
+  if [ "$GUARD_EXIT" -ne 0 ] || echo "$GUARD_OUTPUT" | grep -qE "Test Files +[0-9]+ failed"; then
     GUARD_SUMMARY=$(echo "$GUARD_OUTPUT" | grep "Tests " | head -1)
     add_error \
       "test:guards が失敗: ${GUARD_SUMMARY}" \
