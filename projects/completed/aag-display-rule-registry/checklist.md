@@ -93,4 +93,27 @@
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する — **2026-05-01 ユーザー承認** (Project C Phase 1〜4 全完遂 + 8-step archive 着手承認 + Project A〜D 全 MVP 完了 articulate)
+
+### Approval Record (Insight 7-b milestone acknowledgment application instance)
+
+> 本 approval は Project E vision の `AAG-REQ-MILESTONE-ACKNOWLEDGMENT` (Insight 7-b、不可逆ステップでの ceremonial commitment) の direct application instance。承認は「正しい / 間違い」軸ではなく「不可逆ステップ (= Project C archive プロセス移行 + Project A〜D 全 MVP 完了 milestone) を今ここで踏む」の announcement。
+
+**View List (人間がレビューした内容)**:
+
+- ✅ Phase 1 (DFR registry doc landing、commit `d907058`)
+- ✅ Phase 2 (DFR-001〜005 を base-rules.ts に rule entry 追加 + bound articulation)
+- ✅ Phase 3 (displayRuleGuard 実装、5 test、baseline ratchet-down)
+- ✅ Phase 4 (aag/meta.md §2/§4 status flip、5 AAG-REQ flip、達成 6→11 件)
+- ✅ AAG bidirectional integrity の最初の concrete instance 成立
+- ✅ 全 guard PASS (135 file 906 test) / Hard Gate PASS
+
+**Project A〜D 完了総括** (本 approval が milestone を articulate):
+
+- Project A (aag-core-doc-refactor) ✅ archived (commit `cf8d995`、2026-04-30)
+- Project D (aag-legacy-retirement) ✅ archived case B (commit `aaffaf7`、2026-04-30)
+- Project B (aag-rule-schema-meta-guard) ✅ archived (commit `35c2e17`、2026-05-01)
+- Project C (aag-display-rule-registry) → archive プロセス着手 (本 commit、2026-05-01)
+- 達成: 11/12 AAG-REQ requirement (残 1 件 = AAG-REQ-SELF-HOSTING、follow-up project に articulate 済)
+
+**承認の意味**: 「本 project archive プロセス (8-step) への移行を承認 + Project A〜D 全 MVP 完了 milestone を unmovable に固定する」 — 承認後 AI は archive を実行 + 親 project HANDOFF に Project A〜D 完了総括を articulate

@@ -1,4 +1,16 @@
-# HANDOFF — aag-display-rule-registry
+# [ARCHIVED] HANDOFF — aag-display-rule-registry
+
+> **Archived: 2026-05-01** — Project C Phase 1〜4 全完遂、ユーザー承認 (本 commit) により
+> archive プロセス完了。physical archive 移管 = `projects/completed/aag-display-rule-registry/`
+> (本 commit)。
+>
+> **deliverable summary**: DFR registry doc (display-rule-registry.md) + DFR-001〜005 を
+> base-rules.ts に bound articulation 装着 + displayRuleGuard (5 test、baseline ratchet-down) +
+> aag/meta.md §2 で 5 AAG-REQ status flip (達成 6→11 件)。**AAG bidirectional integrity の
+> 最初の concrete instance 成立**。
+>
+> **Project A〜D milestone**: 本 archive で Project A〜D 4 project 全 MVP scope 完了。
+> Project E (DecisionTrace + AI utilization) candidate spawn judgment trigger 到達。
 
 > 役割: 起点文書。後任者が最初に読む。
 

@@ -119,7 +119,7 @@ describe('Display Rule Guard: DFR-001〜005 bypass pattern 検出 (Project C Pha
   })
 
   it('DFR-005: presentation 層で page emoji literal (📊 / 📈 / 📉) 直書きが baseline 以下', () => {
-    const pattern = /[📊📈📉]/
+    const pattern = /[📊📈📉]/u
     const violations = findViolations(presentationFiles, pattern, DFR_005_ALLOWLIST)
     expect(
       violations.length,

@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T01:08:24.842Z",
+  "timestamp": "2026-05-01T01:11:52.652Z",
   "summary": {
-    "active": 6,
-    "archived": 32,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 33,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1184,
-    "checkedCheckboxes": 998
+    "checkedCheckboxes": 999
   },
   "projects": [
     {
@@ -55,13 +55,13 @@
       "projectId": "aag-display-rule-registry",
       "title": "Display-Focused Rule registry + display rule guards",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 29,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 30,
       "total": 38,
-      "progress": 0.763,
-      "entrypoint": "projects/aag-display-rule-registry/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-display-rule-registry/checklist.md",
+      "progress": 0.789,
+      "entrypoint": "projects/completed/aag-display-rule-registry/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-display-rule-registry/checklist.md",
       "parent": null
     },
     {

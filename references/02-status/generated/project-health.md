@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)
 
-> 生成: 2026-05-01T01:08:24.842Z
+> 生成: 2026-05-01T01:11:52.652Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 6 |
-| archived project 数 | 32 |
-| in_progress project 数 | 5 |
+| active project 数（archive 未実施を含む） | 5 |
+| archived project 数 | 33 |
+| in_progress project 数 | 4 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1184 |
-| 全 project の checked checkbox 総数 | 998 |
+| 全 project の checked checkbox 総数 | 999 |
 
 ## projects
 
@@ -25,7 +25,7 @@
 | `aag-bidirectional-integrity` | AAG Meta 確立 + AAG Core 5 層 × 縦スライス matrix 化 + 双方向 integrity 機械化 + 表示 rule 製本化 | **in_progress** | — | 51/170 (30%) | [`projects/aag-bidirectional-integrity/AI_CONTEXT.md`](../../../projects/aag-bidirectional-integrity/AI_CONTEXT.md) |
 | `aag-collector-purification` | AAG collector 純化 — 規約と実装の対称性回復 | **archived** | — | 28/28 (100%) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
 | `aag-core-doc-refactor` | AAG Core doc content refactoring + legacy retirement | **archived** | — | 33/45 (73%) | [`projects/completed/aag-core-doc-refactor/AI_CONTEXT.md`](../../../projects/completed/aag-core-doc-refactor/AI_CONTEXT.md) |
-| `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **in_progress** | — | 29/38 (76%) | [`projects/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/aag-display-rule-registry/AI_CONTEXT.md) |
+| `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **archived** | — | 30/38 (79%) | [`projects/completed/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/completed/aag-display-rule-registry/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **archived** | — | 28/28 (100%) | [`projects/completed/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/completed/aag-legacy-retirement/AI_CONTEXT.md) |
 | `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **archived** | — | 34/42 (81%) | [`projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md) |

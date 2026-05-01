@@ -2,8 +2,8 @@
   "$comment": "DFR (Display-Focused Rule) registry 構築 + display rule guards 実装。親 project (aag-bidirectional-integrity) の Phase 9 + Phase 10 を Project C として spawn (Phase 3 hard gate B 確定、2026-04-30)。bidirectional integrity の最初の concrete instance。",
   "projectId": "aag-display-rule-registry",
   "title": "Display-Focused Rule registry + display rule guards",
-  "status": "active",
-  "projectRoot": "projects/aag-display-rule-registry",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-display-rule-registry",
   "projectization": {
     "$comment": "AAG-COA 判定: 新規 canonical doc + 5 DFR rule + 1 displayRuleGuard = Level 2。breakingChange = false (新規追加のみ)、requiresGuard = true (新 displayRuleGuard)、Project A → Project B → 本 project。",
     "level": 2,
@@ -29,10 +29,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-display-rule-registry/AI_CONTEXT.md",
-    "handoff": "projects/aag-display-rule-registry/HANDOFF.md",
-    "plan": "projects/aag-display-rule-registry/plan.md",
-    "checklist": "projects/aag-display-rule-registry/checklist.md",
-    "projectization": "projects/aag-display-rule-registry/projectization.md"
+    "aiContext": "projects/completed/aag-display-rule-registry/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-display-rule-registry/HANDOFF.md",
+    "plan": "projects/completed/aag-display-rule-registry/plan.md",
+    "checklist": "projects/completed/aag-display-rule-registry/checklist.md",
+    "projectization": "projects/completed/aag-display-rule-registry/projectization.md"
   }
 }
