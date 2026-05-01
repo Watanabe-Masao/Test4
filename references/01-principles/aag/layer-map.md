@@ -138,14 +138,15 @@ Layer 3 は設計を機械検証する実装。
 
 Layer 4 は外部監査視点で AAG 全体を audit。詳細は [`meta.md`](./meta.md) §3.2 audit framework。
 
-### §5.1 Phase 8 MVP meta-guard (Project B 所掌、Phase 4 で landing 予定)
+### §5.1 meta-guard (archived `aag-rule-schema-meta-guard` で landing)
 
-| file (予定 path) | 役割 | sub-audit |
+| file | 役割 | sub-audit |
 |---|---|---|
 | `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` | forward direction 検証 (実装 → 設計 doc) | 4.2 方向監査 |
 | `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` | reverse direction 検証 (設計 → 実装 逆引き) | 4.2 方向監査 |
 | `app/src/test/guards/semanticArticulationQualityGuard.test.ts` | 意味品質 hard fail (禁止 keyword + 文字数 + 重複 + status + path 実在) | 4.4 完備性監査 |
 | `app/src/test/guards/statusIntegrityGuard.test.ts` | status 整合性 (`pending` / `not-applicable` / `bound`) | 4.4 完備性監査 |
+| `app/src/test/guards/selfHostingGuard.test.ts` | self-reference closure (AAG-REQ-SELF-HOSTING) + orphan AAG-REQ baseline=6 ratchet-down | 4.4 完備性監査 |
 
 ### §5.2 既存 Layer 4 検証
 
@@ -157,15 +158,16 @@ Layer 4 は外部監査視点で AAG 全体を audit。詳細は [`meta.md`](./m
 | `app/src/test/guards/responsibilitySeparationGuard.test.ts` (純度判定 part) | 責務純度 audit | 4.4 完備性監査 |
 | Discovery Review | 意味品質補完 (人間 review) | 4.4 完備性監査 |
 
-### §5.3 follow-up (Phase 8 MVP scope 外、別 project に逃がす)
+### §5.3 follow-up sub-audit (別 project candidate)
 
-| sub-audit | 想定 implementing rule (follow-up project で landing) |
-|---|---|
-| 4.1 境界監査 (Boundary Audit) | `layerBoundaryGuard.test.ts` (既存、本 sub-audit に整合化) |
-| 4.3 波及監査 (Impact Audit) | obligation-collector.ts の rule 化 |
-| 4.5 機能性監査 (Functional Audit) | health-rules.ts の rule 化 + claim vs actual 照合 guard |
-| selfHostingGuard | aag/meta.md 自身が AR-AAG-META-* rule に bind |
-| metaRequirementBindingGuard | metaRequirementRefs.refs[].requirementId が aag/meta.md §2 の `AAG-REQ-*` ID を実在検証 |
+selfHostingGuard は §5.1 で landing 済 (12/12 AAG-REQ milestone 到達)。残 sub-audit は別 project candidate:
+
+| sub-audit | 想定 implementing rule | 状態 |
+|---|---|---|
+| 4.1 境界監査 (Boundary Audit) | `layerBoundaryGuard.test.ts` (既存、本 sub-audit に整合化) | follow-up project candidate |
+| 4.3 波及監査 (Impact Audit) | obligation-collector.ts の rule 化 | follow-up project candidate |
+| 4.5 機能性監査 (Functional Audit) | health-rules.ts の rule 化 + claim vs actual 照合 guard | follow-up project candidate |
+| metaRequirementBindingGuard | metaRequirementRefs.refs[].requirementId が aag/meta.md §2 の `AAG-REQ-*` ID 実在検証 + orphan coverage 検証 | 部分達成 (selfHostingGuard.test.ts Test 3 が orphan baseline=6 ratchet-down で articulate)。独立 guard 化は follow-up project candidate |
 
 ## §6 旧 4 層マッピング → 新 5 層マッピング 変換 (`§1.5 archive 前 mapping 義務`)
 

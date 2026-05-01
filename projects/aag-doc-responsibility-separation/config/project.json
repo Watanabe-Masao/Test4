@@ -1,0 +1,29 @@
+{
+  "projectId": "aag-doc-responsibility-separation",
+  "title": "AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離",
+  "status": "active",
+  "projectRoot": "projects/aag-doc-responsibility-separation",
+  "projectization": {
+    "level": 2,
+    "changeType": "governance-hardening",
+    "implementationScope": [],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "実装層 (app/src/) の構造変更（本 project は doc 責務分離のみ）",
+      "meta.md → audit.md の実分割（Phase 5 は判断のみ、実施は escalate or 別 project）",
+      "AAG framework architecture 自体の変更（aag-bidirectional-integrity 完遂時点を維持）",
+      "inbound 参照を未更新で残す split / move（不可侵原則 1）",
+      "archived doc に live future work を書き戻す（不可侵原則 3）"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/aag-doc-responsibility-separation/AI_CONTEXT.md",
+    "handoff": "projects/aag-doc-responsibility-separation/HANDOFF.md",
+    "plan": "projects/aag-doc-responsibility-separation/plan.md",
+    "checklist": "projects/aag-doc-responsibility-separation/checklist.md",
+    "projectization": "projects/aag-doc-responsibility-separation/projectization.md"
+  }
+}

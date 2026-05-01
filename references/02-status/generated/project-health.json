@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T12:01:02.183Z",
+  "timestamp": "2026-05-01T12:19:46.383Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 34,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1195,
-    "checkedCheckboxes": 1124
+    "totalCheckboxes": 1212,
+    "checkedCheckboxes": 1132
   },
   "projects": [
     {
@@ -75,6 +75,19 @@
       "progress": 0.789,
       "entrypoint": "projects/completed/aag-display-rule-registry/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-display-rule-registry/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-doc-responsibility-separation",
+      "title": "AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 8,
+      "total": 17,
+      "progress": 0.471,
+      "entrypoint": "projects/aag-doc-responsibility-separation/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-doc-responsibility-separation/checklist.md",
       "parent": null
     },
     {

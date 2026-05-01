@@ -16,6 +16,7 @@
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
 | `aag-decision-traceability` | project | AAG Decision Traceability — Project E spawn judgment gate (DecisionTrace + AI utilization、9 insight 統合) | [`projects/aag-decision-traceability/AI_CONTEXT.md`](../../projects/aag-decision-traceability/AI_CONTEXT.md) |
+| `aag-doc-responsibility-separation` | project | AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離 umbrella (5 Phase) | [`projects/aag-doc-responsibility-separation/AI_CONTEXT.md`](../../projects/aag-doc-responsibility-separation/AI_CONTEXT.md) |
 
 ## archived projects
 
