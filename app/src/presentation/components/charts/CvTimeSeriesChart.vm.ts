@@ -9,6 +9,7 @@
  * @responsibility R:unclassified
  */
 import type { CategoryTrendPoint, CategoryBenchmarkTrendRow } from '@/application/hooks/duckdb'
+import { palette } from '@/presentation/theme/tokens'
 
 // ── 型定義 ──
 
@@ -37,10 +38,10 @@ export interface StatusInfo {
 }
 
 export const STATUS_MAP: Record<TrendStatus, StatusInfo> = {
-  stabilizing: { label: '定番化', color: '#22c55e', description: 'PI↑ CV↓' },
-  promotion: { label: 'プロモーション', color: '#f59e0b', description: 'PI↑ CV↑' },
-  degrading: { label: '需要崩れ', color: '#ef4444', description: 'PI↓ CV↑' },
-  stable: { label: '安定', color: '#6366f1', description: 'PI→ CV→' },
+  stabilizing: { label: '定番化', color: palette.successDark, description: 'PI↑ CV↓' },
+  promotion: { label: 'プロモーション', color: palette.warningDark, description: 'PI↑ CV↑' },
+  degrading: { label: '需要崩れ', color: palette.dangerDark, description: 'PI↓ CV↑' },
+  stable: { label: '安定', color: palette.primary, description: 'PI→ CV→' },
   unknown: { label: '不明', color: '#9ca3af', description: 'データ不足' },
 }
 

@@ -4,6 +4,7 @@
  * チャートコンポーネントで共通する styled-components と定数。
  * @responsibility R:unclassified
  */
+import { palette } from '@/presentation/theme/tokens'
 
 // ── Styled Components（styles ファイルから re-export） ──
 
@@ -27,16 +28,16 @@ export const HIERARCHY_LABELS: Record<HierarchyLevel, string> = {
 }
 
 export const CATEGORY_COLORS = [
-  '#6366f1',
-  '#22c55e',
-  '#f59e0b',
-  '#ef4444',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
+  palette.primary,
+  palette.successDark,
+  palette.warningDark,
+  palette.dangerDark,
+  palette.blueDark,
+  palette.purpleDark,
+  palette.pinkDark,
   '#14b8a6',
-  '#f97316',
-  '#06b6d4',
+  palette.orange,
+  palette.cyanDark,
 ] as const
 
 // ── ユーティリティ ──

@@ -75,7 +75,7 @@ function findViolations(files: string[], pattern: RegExp, allowlist: string[]): 
 // Baselines: Project C Phase 3 着手時点で検出された observed drift 件数を baseline 化
 // (project HANDOFF §3.2 = observed drift = baseline、即時 0 化禁止)。
 // Phase 4 以降の commit で漸次 0 に近づける ratchet-down 方式。
-const DFR_001_BASELINE = 7 // chart 内 hex literal 直書き
+const DFR_001_BASELINE = 0 // chart 内 hex literal 直書き (fixed 状態、ratchet-down 完遂 2026-05-01)
 const DFR_002_BASELINE = 0 // axisLabel.formatter inline 関数 (fixed 状態、ratchet-down 完遂 2026-05-01)
 const DFR_003_BASELINE = 0 // inline percent 計算 (fixed 状態、ratchet-down 完遂 2026-05-01)
 const DFR_004_BASELINE = 0 // inline currency 構築 (= 既に 0、fixed 状態)
