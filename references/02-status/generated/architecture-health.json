@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T01:11:52.649Z",
+  "timestamp": "2026-05-01T02:43:04.588Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -784,7 +784,7 @@
       "id": "project.checklist.activeCount",
       "label": "active project 数（archive 未実施を含む）",
       "category": "docs",
-      "value": 5,
+      "value": 4,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -795,7 +795,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -840,7 +840,7 @@
       "id": "project.checklist.archivedCount",
       "label": "archived project 数（projects/completed/ 配下）",
       "category": "docs",
-      "value": 33,
+      "value": 34,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -869,7 +869,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -913,7 +913,7 @@
       "id": "project.checklist.inProgressCount",
       "label": "in_progress な project 数（open required checkbox あり）",
       "category": "docs",
-      "value": 4,
+      "value": 3,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -924,7 +924,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -980,7 +980,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -1036,7 +1036,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -1080,7 +1080,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 999,
+      "value": 1118,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1091,7 +1091,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",
@@ -1146,7 +1146,7 @@
         }
       ],
       "implRefs": [
-        "projects/aag-bidirectional-integrity/checklist.md",
+        "projects/completed/aag-bidirectional-integrity/checklist.md",
         "projects/completed/aag-collector-purification/checklist.md",
         "projects/completed/aag-core-doc-refactor/checklist.md",
         "projects/completed/aag-display-rule-registry/checklist.md",

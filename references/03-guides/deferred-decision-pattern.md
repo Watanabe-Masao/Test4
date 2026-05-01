@@ -152,7 +152,7 @@ decision log は **後任 AI / 人間が trace + revisit 可能** な形で proj
 
 | project | checklist.md decision gates section | 適用 entry 数 |
 |---|---|---|
-| `aag-bidirectional-integrity` | `projects/aag-bidirectional-integrity/checklist.md` 末尾 | Phase 1 / 3 / 4 / 5 / 6 / 8 着手前 + 進行中判断、計 16 件 (本 doc の最初の application instance) |
+| `aag-bidirectional-integrity` | `projects/completed/aag-bidirectional-integrity/checklist.md` 末尾 | Phase 1 / 3 / 4 / 5 / 6 / 8 着手前 + 進行中判断、計 16 件 (本 doc の最初の application instance) |
 | (将来 project) | (適用予定) | TBD |
 
 新規 project spawn 時、本 doc を参照して checklist.md に decision gates section を articulate する。

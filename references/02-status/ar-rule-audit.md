@@ -203,7 +203,7 @@ semanticArticulationQuality / statusIntegrity)。親 plan §3.1.5 で articulate
 
 | doc                                                  | 役割                                                                            |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `projects/aag-bidirectional-integrity/plan.md` §3.4  | SemanticTraceBinding 設計の正本 (型 schema 含む)                                |
+| `projects/completed/aag-bidirectional-integrity/plan.md` §3.4  | SemanticTraceBinding 設計の正本 (型 schema 含む)                                |
 | `references/01-principles/aag/meta.md` §2            | `AAG-REQ-*` requirement 12 件の供給元                                           |
 | `app/src/test/aag-core-types.ts`                     | 型実装 (Project B Phase 1 で landing)                                           |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | binding 物理正本 (Project B Phase 2 で initial value 装着、Phase 3 で順次 flip) |
