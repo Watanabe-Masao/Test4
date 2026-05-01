@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 /**
- * Phase K Option 1 (2026-04-29): 全 spec の `lastVerifiedCommit` を source file の
+ * Phase K Option 1 (2026-04-29): 全 spec の `lastSourceCommit` を source file の
  * 最新 commit hash と一致させる。
+ *
+ * Phase B rename note (Project A4, 2026-05-01): field 名は `lastVerifiedCommit` から
+ * `lastSourceCommit` に rename された。旧 field 名は「verified」と claim していたが
+ * mechanism (= 本 script による hash 更新) は semantic 検証していない構造的不整合
+ * (= Goodhart's Law leak) を解消した。
  *
  * 動作:
  *   1. references/05-contents/{widgets,read-models,calculations,charts,ui-components}/*.md
  *      を走査
  *   2. 各 spec の `sourceRef` (widget は `registrySource`) を読み取り
- *   3. `git log -1 --format=%h -- <source>` で最新 commit の短縮 hash を取得
- *   4. spec の `lastVerifiedCommit:` 行を更新
+ *   3. `git log -1 --format=%H -- <source>` で最新 commit の full SHA を取得
+ *   4. spec の `lastSourceCommit:` 行を更新
  *
- * `contentSpecLastVerifiedCommitGuard` (AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT) の
+ * `contentSpecLastSourceCommitGuard` (AR-CONTENT-SPEC-LAST-SOURCE-COMMIT) の
  * 修正経路として動作。
  */
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
@@ -84,17 +89,17 @@ for (const dir of SPEC_DIRS) {
       totalSkipped++
       continue
     }
-    const declaredMatch = frontmatter.match(/^lastVerifiedCommit:\s*(\S+)/m)
+    const declaredMatch = frontmatter.match(/^lastSourceCommit:\s*(\S+)/m)
     const declared = declaredMatch?.[1]?.trim() ?? ''
     if (declared === actual) continue
     const updated = original.replace(
-      /^lastVerifiedCommit:\s*\S*/m,
-      `lastVerifiedCommit: ${actual}`,
+      /^lastSourceCommit:\s*\S*/m,
+      `lastSourceCommit: ${actual}`,
     )
     if (updated === original) {
-      // lastVerifiedCommit field 自体が無い → frontmatter 末尾に追加するべきだが、
+      // lastSourceCommit field 自体が無い → frontmatter 末尾に追加するべきだが、
       // 現状の generator は field を必ず生成するので no-op
-      console.warn(`warn: ${f}: lastVerifiedCommit field not found, generator 実行を推奨`)
+      console.warn(`warn: ${f}: lastSourceCommit field not found, generator 実行を推奨`)
       continue
     }
     writeFileSync(filePath, updated, 'utf-8')

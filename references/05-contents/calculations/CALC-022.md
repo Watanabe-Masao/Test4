@@ -15,7 +15,7 @@ replacedBy: null
 supersedes: null
 sunsetCondition: null
 deadline: null
-lastVerifiedCommit: b2b3be8b34e6f3bcf3c8b7ca75abee2c5d9ea150
+lastSourceCommit: b2b3be8b34e6f3bcf3c8b7ca75abee2c5d9ea150
 owner: architecture
 specVersion: 1
 ---

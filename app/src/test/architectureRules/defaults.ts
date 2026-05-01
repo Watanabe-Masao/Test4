@@ -740,7 +740,7 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'small', priority: 1 },
   },
-  'AR-CONTENT-SPEC-LAST-VERIFIED-COMMIT': {
+  'AR-CONTENT-SPEC-LAST-SOURCE-COMMIT': {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
