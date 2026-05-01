@@ -79,7 +79,7 @@ const DFR_001_BASELINE = 0 // chart 内 hex literal 直書き (fixed 状態、ra
 const DFR_002_BASELINE = 0 // axisLabel.formatter inline 関数 (fixed 状態、ratchet-down 完遂 2026-05-01)
 const DFR_003_BASELINE = 0 // inline percent 計算 (fixed 状態、ratchet-down 完遂 2026-05-01)
 const DFR_004_BASELINE = 0 // inline currency 構築 (= 既に 0、fixed 状態)
-const DFR_005_BASELINE = 20 // page emoji 直書き
+const DFR_005_BASELINE = 0 // page emoji 直書き (fixed 状態、ratchet-down 完遂 2026-05-01)
 
 describe('Display Rule Guard: DFR-001〜005 bypass pattern 検出 (Project C Phase 3)', () => {
   const presentationFiles = loadFiles(PRESENTATION_DIR)

@@ -11,7 +11,10 @@ import { KpiCard, KpiGrid, MetricBreakdownPanel } from '@/presentation/component
 import { useStoreSelection } from '@/application/hooks/ui'
 import type { ViewType } from '@/domain/models/storeTypes'
 import { VIEW_TO_PATH } from '@/application/navigation/viewMapping'
+import { getPageById } from '@/application/navigation/pageRegistry'
 import { palette } from '@/presentation/theme/tokens'
+
+const DASHBOARD_PAGE_ICON = getPageById('dashboard')?.icon ?? ''
 import type { Store } from '@/domain/models/Store'
 import { useDataStore } from '@/application/stores/dataStore'
 import {
@@ -119,7 +122,7 @@ export function DashboardPage() {
     return (
       <MainContent title="ダッシュボード">
         <EmptyState>
-          <EmptyIcon>📊</EmptyIcon>
+          <EmptyIcon>{DASHBOARD_PAGE_ICON}</EmptyIcon>
           <EmptyTitle>データを読み込んでください</EmptyTitle>
           <p>左のサイドバーからファイルをドラッグ＆ドロップすると自動で計算されます。</p>
         </EmptyState>

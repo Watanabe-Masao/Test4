@@ -341,7 +341,7 @@ export const WeatherPage = memo(function WeatherPage() {
             </AnimatePresence>
 
             {/* 気温推移チャート（天気アイコン統合、クリックで時間帯モーダル） */}
-            <SectionLabel>📈 気温チャート（ダブルクリックで時間帯詳細）</SectionLabel>
+            <SectionLabel>🌡 気温チャート（ダブルクリックで時間帯詳細）</SectionLabel>
             <div style={{ marginBottom: 24 }}>
               <WeatherTemperatureChart
                 daily={combined}
