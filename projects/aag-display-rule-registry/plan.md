@@ -134,5 +134,5 @@ instance** が成立。aag/meta.md §2 の 12 AAG-REQ-* requirement のうち pe
 | `references/03-guides/content-and-voice.md` | content + voice convention (Phase 1 で thousands-separator 記述更新) |
 | `docs/contracts/doc-registry.json` | Phase 1 で registry 登録 |
 | `references/01-principles/aag/meta.md` | Phase 4 で §2 / §4 status flip |
-| `projects/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提) |
+| `projects/completed/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提) |
 | `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`aag/` 階層整備の前提) |

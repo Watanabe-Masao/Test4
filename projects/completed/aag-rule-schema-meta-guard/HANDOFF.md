@@ -1,10 +1,19 @@
-# HANDOFF — aag-rule-schema-meta-guard
+# [ARCHIVED] HANDOFF — aag-rule-schema-meta-guard
+
+> **Archived: 2026-05-01** — Project B Phase 1〜5 全完遂、ユーザー承認 (本 commit) により
+> archive プロセス完了。physical archive 移管 = `projects/completed/aag-rule-schema-meta-guard/`
+> (本 commit)。
+>
+> **deliverable summary**: SemanticTraceBinding 型 family (5 型 + RuleBinding 拡張) /
+> 166 rule 全 bound articulation (batch 1+2 人手 + batch 3 synthesizer) / 4 meta-guard MVP
+> (canonicalDocRefIntegrity / canonicalDocBackLink / semanticArticulationQuality /
+> statusIntegrity) / fixed-mode 採用 + 5 follow-up sub-audit articulate。134 file 901 test PASS。
 
 > 役割: 起点文書。後任者が最初に読む。
 
 ## 1. 現在地
 
-**Phase 1〜5 全完遂 (2026-05-01、本 project MVP scope 完遂 + follow-up scope articulate)**。
+**Phase 1〜5 全完遂 + archive 完遂 (2026-05-01)**。
 
 親 project (`projects/aag-bidirectional-integrity/`) の Phase 3 hard gate B 確定 (= Project A〜D 分割) を
 受けて、**Phase 2 (AR-rule schema 拡張) + Phase 6 (binding 記入) + Phase 8 MVP (meta-guard 4 件)** を

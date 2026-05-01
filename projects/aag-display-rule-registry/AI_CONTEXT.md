@@ -38,7 +38,7 @@ forward / reverse 機械検証を成立させる。
 4. `checklist.md`（completion 判定の入力）
 5. 親 project の `projects/aag-bidirectional-integrity/plan.md` §Phase 9 / §Phase 10 (DFR registry 設計の正本)
 6. 親 project の `projects/aag-bidirectional-integrity/plan.md` §3.10 (DFR を本 project に吸収する理由)
-7. Project B (`projects/aag-rule-schema-meta-guard/plan.md`) — 本 project の前提となる schema / meta-guard
+7. Project B (`projects/completed/aag-rule-schema-meta-guard/plan.md`) — 本 project の前提となる schema / meta-guard
 8. Project A (`projects/completed/aag-core-doc-refactor/plan.md`) — `aag/` ディレクトリ整備の前提
 
 ## Why this project exists
@@ -78,7 +78,7 @@ forward / reverse 機械検証を成立させる。
 | 文書 | 役割 |
 |---|---|
 | `projects/aag-bidirectional-integrity/plan.md` | 親 project の正本 (§Phase 9 / §Phase 10 / §3.10 articulation の出元) |
-| `projects/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提となる schema / meta-guard) |
+| `projects/completed/aag-rule-schema-meta-guard/plan.md` | Project B 正本 (本 project の前提となる schema / meta-guard) |
 | `projects/completed/aag-core-doc-refactor/plan.md` | Project A 正本 (`aag/` ディレクトリ整備の前提) |
 | `references/01-principles/aag/meta.md` | AAG Meta charter (`metaRequirementRefs.refs[].requirementId` の供給元) |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | BaseRule 物理正本 (DFR rule 登録先) |

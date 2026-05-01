@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T00:27:54.621Z",
+  "timestamp": "2026-05-01T00:34:55.456Z",
   "summary": {
-    "active": 7,
-    "archived": 31,
-    "inProgress": 6,
+    "active": 6,
+    "archived": 32,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1184,
-    "checkedCheckboxes": 968
+    "checkedCheckboxes": 969
   },
   "projects": [
     {
@@ -94,13 +94,13 @@
       "projectId": "aag-rule-schema-meta-guard",
       "title": "AAG rule schema 拡張 + AR-rule binding + meta-guard MVP",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 33,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 34,
       "total": 42,
-      "progress": 0.786,
-      "entrypoint": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-rule-schema-meta-guard/checklist.md",
+      "progress": 0.81,
+      "entrypoint": "projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-rule-schema-meta-guard/checklist.md",
       "parent": null
     },
     {
