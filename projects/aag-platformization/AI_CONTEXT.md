@@ -9,15 +9,55 @@ AAG Platformization Program — authority + artifact + contract + change-policy 
 
 ## Purpose
 
-AAG の **既存の振る舞いと思想は変えない**。本 program は AAG を **意味的 / 空間的 / 言語的に分離** することに閉じる:
+AAG は **AI のための実装コンテキスト基盤**。既に `references/01-principles/aag/strategy.md` §3.4 で "AAG ドキュメントは人間のためだけではない。AI が判断基準を理解し、意図に沿った変更を行うためのインターフェース... 「過去の自分」「未来の自分」「AI」の 3 者が同じ判断基準で対話するための共通言語" と articulate されている。
 
-- **意味的分離** — Core (共通フレームワーク) / Domain (rules + schemas + overlays) / 接続部 (consumer facade) の責務を明示する
-- **空間的分離** — 物理パスを 3 層に分ける (`tools/aag-go/` / `docs/contracts/aag/` + `docs/generated/aag/` / `app/src/test/architectureRules*` + `tools/architecture-health/`)
-- **言語的分離** — Core = Go / Domain = 構造化 format (Phase 3 で AI 判断) + Go / 接続部 = TS。本体 (粗利) で使われている Zod / Rust とは混ぜない
+本 program はこの **既存 articulation を変えない**。AAG が既に達成している 12/12 `AAG-REQ-*` (`meta.md` §4.1) と、5 AI 本質的弱点への構造的補強 (`strategy.md` §2.1) は維持する。
 
-それ以外は既存の AAG 思想 (`aag/core/AAG_CORE_INDEX.md` / `core-boundary-policy.md` / `references/01-principles/aag/`) に **従う**。Go 移行 (Phase 9 PoC) も振る舞いを変えるためではなく、Core を物理的に分離するため。
+本 program が変えるのは **AAG の形式** のみ:
 
-**例外**: 既存の振る舞いに **矛盾や潜在バグ** が発見された場合は速やかに修正する。本 program 起点の調査で 2 件発見済 (bootstrap 破綻 = §1 / 型二重定義 = §2)。発見時の優先順位は「分離より修正が先」。
+- **prose-heavy → structured artifact** — 現在 AAG は doc 中心。AI が consume するときに「文を読む」「文脈を組み立てる」コストが session ごとに発生。**Go + 構造化 format の artifact** に変換することで、AI が同じ正本を identical に消費できる
+- **AI-specific → AI-agnostic** — 「どんな AI でも同じように振る舞える」(= AIフリーな設計)。特定の AI 実装 (Claude / GPT / 他) に依存する形ではなく、schema + Go runtime + structured contract で標準化
+- **dynamic context-building → static structured navigation** — AI が動的に文脈を navigate する手助けを doc 階層 + 境界 + 役割 で行う (既存)。本 program は doc 階層 と並列に **structured artifact 階層** を整備し、navigation を更に効率化
+
+## Architectural style — Phase 1 で AI 判断 (DA-α-001a)
+
+「単なる情報やコンテキスト」(= prose-heavy doc) を「再利用しやすい形」(= structured artifact) に変換する手段として、本 program 起点では複数の architectural style が候補:
+
+| # | style | Core (canonical) | reference runtime | AI consumption |
+|---|---|---|---|---|
+| 0 | Go runtime + 構造化 format | Go binary | Go (canonical) | artifact 直読 |
+| **A** | **Pure structured artifact (runtime-less)** | **構造化 format ファイル群** | **任意 / optional** | **artifact 直読** |
+| B | MCP server | server (任意言語) | server | MCP tool 経由 |
+| C | 既存 TS + structured export | TS (既存) | TS | artifact 直読 |
+| D | A + B ハイブリッド | 構造化 format + server | server | 両方 |
+
+style 候補の評価軸:
+
+- **構造をよりシンプル** (user 言明) — runtime layer を Domain layer に吸収する案 (A) が最も articulate
+- **AI-agnostic** (= AIフリーな設計) — data 自体が言語非依存な案 (A / B / D)
+- **本体 (粗利) との分離** — TS 維持の C は分離できない、A / B / D は可能
+- **既存 AAG 思想整合** — strategy.md §1.1 「導出可能なものは導出する」+ §3.4 「3 者対話の共通言語」を最も articulate するのは A
+
+現時点で AI が暫定的に **代替案 A (Pure structured artifact)** を最適候補とみなしているが、**Phase 1 着手時に DA-α-001a として正式判断する**。判断後、本 §Architectural style と Purpose の articulation を採用案で書き直す (forward-fix、`decision-audit.md` 参照)。
+
+採用 style に関わらず共通する不変要件:
+
+- AAG が既に達成している 12/12 `AAG-REQ-*` を維持 (`meta.md` §4.1)
+- 5 AI 本質的弱点への構造的補強 (`strategy.md` §2.1) を維持
+- 接続部 (consumer facade / authoring helper) は TS で維持 (本体 build pipeline と接続するため)
+- 本体 (粗利) で使われている Zod / Rust とは混ぜない (責務 / 言語の物理分離)
+
+## AAG strategy.md §2.1 AI 本質的弱点に対する本 program の貢献
+
+| 弱点 (strategy.md §2.1) | 既存 AAG の構造的補強 (達成済) | 本 program の追加貢献 |
+|---|---|---|
+| 過去判断の文脈消失 | allowlist の `retentionReason` / AR-rule の `why` | `decision-audit.md` (judgement + 振り返り + commit lineage) で **session 間 AI 引き継ぎ** を構造化 |
+| 「動く」の妥当性誤認 | 機械検証 (rule + guard) | Q1〜Q5 self-check + RuleBinding 境界 guard で **AI navigability quality** を機械保証 |
+| 改善の retraversal | `AAG-REQ-RATCHET-DOWN` | annotated tag + commit-bound rollback で **判断単位の物理的不可逆性** を保証 |
+| 重複生成の盲目 | `AAG-REQ-ANTI-DUPLICATION` (達成済) | structured artifact 化で **prose の copy-paste 機会自体を削減** |
+| 抽象化の過剰 | `AAG-REQ-SEMANTIC-ARTICULATION` (達成済) + drill-down chain | schema + 構造化 contract で **「べき」の articulate を schema 制約に変換** |
+
+本 program は既存 AAG-REQ-* を全件継承する。新 AAG-REQ-* (例: `AAG-REQ-AI-AGNOSTIC-CONSUMPTION` / `AAG-REQ-STRUCTURED-CONTRACT`) の追加候補は Phase 1 の DA-α-001 で AI 判断対象とし、人間 review なしで Constitution 改訂に相当する変更はしない (`meta.md` §2 intro)。
 
 ## Read Order
 
