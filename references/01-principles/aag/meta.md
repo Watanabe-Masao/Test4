@@ -121,19 +121,24 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 §2 要件の達成度 + 不達成項目の解消責務 (どの project / Phase で landing するか) を集約。
 本 §4 は Layer 4 検証 (§3.2 audit framework) の出力 = AAG Audit が AAG Core を評価した結果。
 
-### §4.1 達成 status サマリ (2026-05-01 update — Project A〜D 完了に伴う flip 反映)
+### §4.1 達成 status サマリ (2026-05-01 update — selfHostingGuard MVP landing に伴う 12/12 milestone 到達)
 
-| 状態       | 件数                        | 内訳                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ---------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **達成**   | 11 件                       | `AAG-REQ-STATE-BASED-GOVERNANCE` / `AAG-REQ-RATCHET-DOWN` / `AAG-REQ-NO-DATE-RITUAL` / `AAG-REQ-NO-PERFECTIONISM` / `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` / `AAG-REQ-NO-BUSINESS-LOGIC-INTRUSION` / **`AAG-REQ-LAYER-SEPARATION`** (Project A Phase 1) / **`AAG-REQ-SEMANTIC-ARTICULATION`** (Project B Phase 1〜4) / **`AAG-REQ-ANTI-DUPLICATION`** (Project B Phase 4) / **`AAG-REQ-NON-PERFORMATIVE`** (Project B Phase 3〜4) / **`AAG-REQ-BIDIRECTIONAL-INTEGRITY`** (Project B Phase 4 + Project C Phase 3) |
-| **未達成** | 1 件                        | `AAG-REQ-SELF-HOSTING` (follow-up project = selfHostingGuard、Project B Phase 5 で `ar-rule-audit.md §6` に articulate 済)                                                                                                                                                                                                                                                                                                                                                                                    |
-| **総計**   | 12 件 (不変条件 7 + 禁則 5) | initial set、extensible                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 状態       | 件数                        | 内訳                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **達成**   | 12 件                       | `AAG-REQ-STATE-BASED-GOVERNANCE` / `AAG-REQ-RATCHET-DOWN` / `AAG-REQ-NO-DATE-RITUAL` / `AAG-REQ-NO-PERFECTIONISM` / `AAG-REQ-NO-AI-HUMAN-SUBSTITUTION` / `AAG-REQ-NO-BUSINESS-LOGIC-INTRUSION` / **`AAG-REQ-LAYER-SEPARATION`** (Project A Phase 1) / **`AAG-REQ-SEMANTIC-ARTICULATION`** (Project B Phase 1〜4) / **`AAG-REQ-ANTI-DUPLICATION`** (Project B Phase 4) / **`AAG-REQ-NON-PERFORMATIVE`** (Project B Phase 3〜4) / **`AAG-REQ-BIDIRECTIONAL-INTEGRITY`** (Project B Phase 4 + Project C Phase 3) / **`AAG-REQ-SELF-HOSTING`** (selfHostingGuard MVP、2026-05-01) |
+| **未達成** | 0 件                        | (12/12 達成 milestone 到達、2026-05-01)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **総計**   | 12 件 (不変条件 7 + 禁則 5) | initial set、extensible                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 ### §4.2 残不達成項目の解消責務 mapping
 
-| Requirement ID         | 解消責務 (project / Phase)                                                                                                                                                                              |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AAG-REQ-SELF-HOSTING` | follow-up project candidate (selfHostingGuard.test.ts、Project B Phase 5 で `ar-rule-audit.md §6` に articulate 済 — Project E candidate に統合 or independent project spawn を judgment gate に逃がす) |
+(全 AAG-REQ 達成済、本表 entry なし。新規 AAG-REQ-\* を articulate するときは同 commit で対応 rule binding を articulate する設計判断、本表に未達 entry が landing しないようにする)
+
+> **Phase 2 ratchet-down candidate** (2026-05-01 selfHostingGuard MVP discovery):
+> 12 AAG-REQ のうち rule binding を持たない orphan が現状 6 件 (= `NO-AI-HUMAN-SUBSTITUTION` /
+> `NO-BUSINESS-LOGIC-INTRUSION` / `NO-DATE-RITUAL` / `NO-PERFECTIONISM` /
+> `SEMANTIC-ARTICULATION` / `STATE-BASED-GOVERNANCE`)。selfHostingGuard.test.ts Test 3
+> が baseline=6 として ratchet-down 軸に articulate 済、各 orphan に対応 rule binding を
+> 漸次追加して baseline=0 に向けて解消 (Phase 2 で Project E candidate に統合 or 独立 follow-up)。
 
 ### §4.3 達成 condition の機械検証経路
 
@@ -142,7 +147,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 - **Phase 8 meta-guard active && baseline=0**: `AAG-REQ-BIDIRECTIONAL-INTEGRITY` / `AAG-REQ-SEMANTIC-ARTICULATION` / `AAG-REQ-ANTI-DUPLICATION`
 - **status='pending' baseline ratchet-down**: `AAG-REQ-NON-PERFORMATIVE` (Phase 6 で分類 A から順次 'bound' に flip)
 - **doc 構造検証** (5 層 mapping table 存在): `AAG-REQ-LAYER-SEPARATION`
-- **AR-rule に linked + meta-guard で内部整合性 hard check**: `AAG-REQ-SELF-HOSTING`
+- **AR-rule に linked + selfHostingGuard で self-reference closure hard check**: `AAG-REQ-SELF-HOSTING` (達成済、`AR-AAG-META-SELF-HOSTING` rule + `selfHostingGuard.test.ts` で closure 構造を機械検証、2026-05-01)
 - **既存 mechanism 継続**: `AAG-REQ-RATCHET-DOWN` / `AAG-REQ-STATE-BASED-GOVERNANCE` 等 (達成済)
 
 ### §4.4 audit 履歴 (Phase 進行に伴う達成 status flip 記録)
@@ -156,7 +161,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 | 2026-05-01 | `AAG-REQ-ANTI-DUPLICATION`        | 未達成    | 達成                      | Project B Phase 4 (semanticArticulationQualityGuard が protocol §2.3 内部重複 0 を hard fail 検証、commit `f374374` 系)                                      |
 | 2026-05-01 | `AAG-REQ-NON-PERFORMATIVE`        | 未達成    | 達成                      | Project B Phase 3〜4 (166 rule 全 canonicalDocRef 'bound' + canonicalDocRefIntegrityGuard が path 実在を hard fail 検証、commit `8f62877` 〜 `f374374`)      |
 | 2026-05-01 | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 未達成    | 達成                      | Project B Phase 4 で 4 meta-guard landing + Project C Phase 3 (DFR registry が最初の concrete instance、commit `35c2e17` 系 + 本 commit)                     |
-| TBD        | `AAG-REQ-SELF-HOSTING`            | 未達成    | 達成                      | follow-up project candidate (selfHostingGuard、`ar-rule-audit.md §6` に articulate 済、Project E candidate or independent spawn)                             |
+| 2026-05-01 | `AAG-REQ-SELF-HOSTING`            | 未達成    | 達成                      | selfHostingGuard MVP (Phase 1) — `AR-AAG-META-SELF-HOSTING` rule + `app/src/test/guards/selfHostingGuard.test.ts` で self-reference closure を hard fail 検証 (12/12 milestone 到達)                                                |
 
 各 flip は project commit に対応、後任 AI / 人間が trace + revisit 可能。
 

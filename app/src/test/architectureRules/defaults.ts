@@ -658,6 +658,10 @@ export const DEFAULT_EXECUTION_OVERLAY: DefaultExecutionOverlay = {
     fixNow: 'now',
     executionPlan: { effort: 'trivial', priority: 1 },
   },
+  'AR-AAG-META-SELF-HOSTING': {
+    fixNow: 'now',
+    executionPlan: { effort: 'trivial', priority: 1 },
+  },
   // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で
   // testSignalIntegrityGuard.test.ts を物理削除した際、本 overlay からも削除済 (2026-04-27)。
   // 置換は v2 T:kind per-test obligation (taxonomyInterlockGuard + testTaxonomyGuardV2)。
