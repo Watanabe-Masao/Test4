@@ -1,8 +1,8 @@
 {
   "projectId": "aag-decision-traceability",
   "title": "AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective",
-  "status": "active",
-  "projectRoot": "projects/aag-decision-traceability",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-decision-traceability",
   "projectization": {
     "level": 1,
     "changeType": "governance-hardening",
@@ -19,10 +19,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-decision-traceability/AI_CONTEXT.md",
-    "handoff": "projects/aag-decision-traceability/HANDOFF.md",
-    "plan": "projects/aag-decision-traceability/plan.md",
-    "checklist": "projects/aag-decision-traceability/checklist.md",
-    "projectization": "projects/aag-decision-traceability/projectization.md"
+    "aiContext": "projects/completed/aag-decision-traceability/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-decision-traceability/HANDOFF.md",
+    "plan": "projects/completed/aag-decision-traceability/plan.md",
+    "checklist": "projects/completed/aag-decision-traceability/checklist.md",
+    "projectization": "projects/completed/aag-decision-traceability/projectization.md"
   }
 }

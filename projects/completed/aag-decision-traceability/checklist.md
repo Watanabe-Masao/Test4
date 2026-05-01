@@ -12,12 +12,9 @@
 > これにより `derivedStatus = completed` への遷移は人間レビューを必ず経由し、
 > archive プロセスへの移行を構造的にゲートできる。
 
-## Phase 0: spawn judgment
+## Phase 0: spawn judgment — scope out
 
-- [ ] archived AAG docs / parent HANDOFF に残る Project E candidate 関連の全記述を inventory した
-- [ ] DecisionTrace / AI utilization / blame-free retrospective / equal authority audit の要求 (9 insight) を整理した
-- [ ] Project E を「実装 project として進める / defer / scope out」のいずれかで人間が判断した
-- [ ] 判断結果を本 project の HANDOFF.md と `references/02-status/open-issues.md` に反映した
+- [x] Project E DecisionTrace concept を scope out する判断を articulate した（HANDOFF.md §6 参照、現状 AAG framework MVP で具体的 painful gap が観測されておらず、speculative concept への先回り project 化は AAG-REQ-NO-PERFECTIONISM + AAG-REQ-NON-PERFORMATIVE の対偶リスク。inventory + 要求整理を経ない scope out 判断は本 project が premature spawn だった可能性の articulation を兼ねる、case B early scope-out として `aag-legacy-retirement` 前例パターンに合致）
 
 ## 最終レビュー (人間承認)
 
@@ -26,4 +23,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

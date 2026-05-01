@@ -1,8 +1,8 @@
 {
   "projectId": "aag-doc-responsibility-separation",
   "title": "AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離",
-  "status": "active",
-  "projectRoot": "projects/aag-doc-responsibility-separation",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-doc-responsibility-separation",
   "projectization": {
     "level": 2,
     "changeType": "governance-hardening",
@@ -20,10 +20,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/aag-doc-responsibility-separation/AI_CONTEXT.md",
-    "handoff": "projects/aag-doc-responsibility-separation/HANDOFF.md",
-    "plan": "projects/aag-doc-responsibility-separation/plan.md",
-    "checklist": "projects/aag-doc-responsibility-separation/checklist.md",
-    "projectization": "projects/aag-doc-responsibility-separation/projectization.md"
+    "aiContext": "projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-doc-responsibility-separation/HANDOFF.md",
+    "plan": "projects/completed/aag-doc-responsibility-separation/plan.md",
+    "checklist": "projects/completed/aag-doc-responsibility-separation/checklist.md",
+    "projectization": "projects/completed/aag-doc-responsibility-separation/projectization.md"
   }
 }
