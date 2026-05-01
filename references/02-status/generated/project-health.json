@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T11:22:01.899Z",
+  "timestamp": "2026-05-01T11:59:05.443Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 34,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1190,
+    "totalCheckboxes": 1195,
     "checkedCheckboxes": 1124
   },
   "projects": [
@@ -49,6 +49,19 @@
       "progress": 0.733,
       "entrypoint": "projects/completed/aag-core-doc-refactor/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-core-doc-refactor/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-decision-traceability",
+      "title": "AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 5,
+      "progress": 0,
+      "entrypoint": "projects/aag-decision-traceability/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-decision-traceability/checklist.md",
       "parent": null
     },
     {

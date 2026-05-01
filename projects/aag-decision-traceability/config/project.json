@@ -1,0 +1,28 @@
+{
+  "projectId": "aag-decision-traceability",
+  "title": "AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective",
+  "status": "active",
+  "projectRoot": "projects/aag-decision-traceability",
+  "projectization": {
+    "level": 1,
+    "changeType": "governance-hardening",
+    "implementationScope": [],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "Phase 0 判断前に DecisionTrace schema / guard / retrospective protocol を設計する（先回り実装禁止）",
+      "selfHostingGuard baseline=6 ratchet-down を本 project の scope に取り込む（別軸、rule binding 操作）",
+      "archived AAG docs / archived row に Project E candidate の future-follow-up note を残す（§0 鉄則違反）",
+      "Phase 0 結論を曖昧化する（「進める / defer / scope out」の 3 値のいずれかを明示する）"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/aag-decision-traceability/AI_CONTEXT.md",
+    "handoff": "projects/aag-decision-traceability/HANDOFF.md",
+    "plan": "projects/aag-decision-traceability/plan.md",
+    "checklist": "projects/aag-decision-traceability/checklist.md",
+    "projectization": "projects/aag-decision-traceability/projectization.md"
+  }
+}
