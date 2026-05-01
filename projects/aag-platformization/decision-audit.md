@@ -3,14 +3,14 @@
 > 役割: 本 program 中の主要判断と事後振り返りの記録 artifact。
 > AI が事実と根拠で判断し、Phase 完了時に振り返り観測点を実測する。
 >
-> 規約: `plan.md` §"Decision Audit Mechanism" + 原則 6。
+> 規約: `plan.md` §"Decision Audit Mechanism" + 原則 7。
 > 1 entry = 1 判断 = 1 振り返り。判断時と振り返り時で必ず 2 セクションを埋める。
 
 ---
 
 ## このファイルが存在する理由
 
-本 program は AI が事実と根拠で判断して進める。人間承認は archive 1 点のみに圧縮する (`plan.md` 原則 6)。判断の正しさは「人間の同意」では担保できないため、**判断時に振り返り観測点を articulate** し、**Phase 完了時に観測点を実測** する仕組みを内蔵する。さらに **判断と commit を物理的に結合** し、判断が間違いと判定された場合に **物理的に preJudgement commit に戻れる** ことを制度として保証する。これは AAG 自体が標榜する "適応" を、本 program 内部に実装する装置。
+本 program は AI が事実と根拠で判断して進める。人間承認は archive 1 点のみに圧縮する (`plan.md` 原則 7)。判断の正しさは「人間の同意」では担保できないため、**判断時に振り返り観測点を articulate** し、**Phase 完了時に観測点を実測** する仕組みを内蔵する。さらに **判断と commit を物理的に結合** し、判断が間違いと判定された場合に **物理的に preJudgement commit に戻れる** ことを制度として保証する。これは AAG 自体が標榜する "適応" を、本 program 内部に実装する装置。
 
 ---
 
@@ -188,7 +188,7 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 
 ## 関連
 
-- `plan.md` §不可侵原則 6 (本 mechanism の根拠)
+- `plan.md` §不可侵原則 7 (本 mechanism の根拠)
 - `plan.md` §"Decision Audit Mechanism" (entry 構造の根拠)
 - `AI_CONTEXT.md` §5 "AI-driven judgement + retrospective verification + commit-bound rollback"
 - `references/01-principles/aag/evolution.md` (AAG の進化動学の上位思想)
@@ -232,7 +232,7 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 - **judgementTag**: `aag-platformization/DA-α-000-judgement` (96a9521 に annotated tag landing 済)
 - **rollbackTag**: `aag-platformization/DA-α-000-rollback-target` (d0b079f に annotated tag landing 済)
 - **implementationCommits**:
-  - `96a9521` — 不可侵原則 6 + Decision Audit Mechanism + commit-bound rollback institution の articulate
+  - `96a9521` — 不可侵原則 7 + Decision Audit Mechanism + commit-bound rollback institution の articulate
 
 ### 振り返り (本 program archive 直前 / TBD)
 
@@ -258,7 +258,7 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 | `checklist.md` | OK (各 checkbox = 1 機械検証可能達成条件) | OK (Phase 単位の境界) | OK (Phase 順序が依存方向と一致) | OK (Phase 0〜10 + 最終レビューで完全) | OK (Phase 階層) |
 | `projectization.md` | OK (Level 3 architecture-refactor の判定理由) | OK (含む / 含まない の §4 nonGoals) | OK (上位 = projectization-policy.md への参照) | OK (必要文書表 + nonGoals 表) | OK (§1〜§6 構造) |
 | `breaking-changes.md` | OK (BC-AAG-1〜6 個別) | OK (各 BC の対象 / Phase / rollback) | OK (Phase 順序を踏襲) | OK (6 BC が implementationScope 全体をカバー) | OK (table 駆動) |
-| `decision-audit.md` (本 file) | OK (1 entry = 1 判断 = 1 振り返り) | OK (entry / template / 必須要件 / 一覧の 4 区分) | OK (plan.md §不可侵原則 6 への上位参照) | OK (planned entries 一覧 = Phase 毎の判断網羅) | OK (template + 必須要件 + 一覧の 3 階層) |
+| `decision-audit.md` (本 file) | OK (1 entry = 1 判断 = 1 振り返り) | OK (entry / template / 必須要件 / 一覧の 4 区分) | OK (plan.md §不可侵原則 7 への上位参照) | OK (planned entries 一覧 = Phase 毎の判断網羅) | OK (template + 必須要件 + 一覧の 3 階層) |
 
 gap なし。本 commit が Phase 0 self-check の最初の成果。
 

@@ -47,6 +47,12 @@ style 候補の評価軸:
 - 接続部 (consumer facade / authoring helper) は TS で維持 (本体 build pipeline と接続するため)
 - 本体 (粗利) で使われている Zod / Rust とは混ぜない (責務 / 言語の物理分離)
 
+## Doc ↔ Implementation 整合性保証 = AAG の核心役割
+
+AAG が果たす最大の役割の 1 つは **ドキュメントと実装が乖離しないことを機械的に保証すること**。既に 9 件の整合性 guard (I1〜I9) が動作している (`defaultOverlayCompletenessGuard` / `aagResponseFeedbackUnificationGuard` / `executionOverlayGuard` / `canonicalDocBackLinkGuard` / `canonicalDocRefIntegrityGuard` / `selfHostingGuard` / `docStaticNumberGuard` / `docs:check` / `obligation-collector`)。
+
+本 program は **1 件も削除 / 緩和しない**。代わりに新形式 (schema / artifact) を導入することで integrity guard を 4 件追加 (I10〜I13)、**doc ↔ implementation drift の検出範囲を拡張** する。詳細: `plan.md` §"Doc ↔ Implementation 整合性保証 (AAG の核心役割)"。
+
 ## AAG strategy.md §2.1 AI 本質的弱点に対する本 program の貢献
 
 | 弱点 (strategy.md §2.1) | 既存 AAG の構造的補強 (達成済) | 本 program の追加貢献 |

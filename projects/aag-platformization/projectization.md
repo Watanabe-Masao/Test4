@@ -29,7 +29,7 @@
   3. AagResponse contract guard (helper 経由でも schema 準拠の output になること)
   4. detector protocol guard (Go / TS 両側で同一 result schema を返すこと)
 - **層別言語の固定** — 本 program は AAG を Core (Go) / Domain (JSON+Go) / 接続部 (TS) の 3 層に物理分離する。本体 (粗利) で使う Zod / Rust とは混ぜない。理由は責務 / 空間 / 意味 / 言語の混線を物理境界で禁じるため (`plan.md` 原則 0)。
-- **requiresHumanApproval=true** — `references/03-guides/project-checklist-governance.md` §3.1 の構造的要請として、最終 archive 承認 1 点のみ人間 mandatory。**それ以外の判断は AI が事実根拠で行い、`decision-audit.md` に判断時の根拠と振り返り観測点を記録する** (`plan.md` 原則 6)。AI Checkpoint α / β / γ は人間承認 gate ではなく、AI が振り返り観測点を実測して判定する内部手続き。「人間が同意したから正しい」構造を作らない。
+- **requiresHumanApproval=true** — `references/03-guides/project-checklist-governance.md` §3.1 の構造的要請として、最終 archive 承認 1 点のみ人間 mandatory。**それ以外の判断は AI が事実根拠で行い、`decision-audit.md` に判断時の根拠と振り返り観測点を記録する** (`plan.md` 原則 7)。AI Checkpoint α / β / γ は人間承認 gate ではなく、AI が振り返り観測点を実測して判定する内部手続き。「人間が同意したから正しい」構造を作らない。
 
 ## 3. 必要な文書
 
