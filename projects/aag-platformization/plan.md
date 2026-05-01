@@ -165,7 +165,7 @@ Workstream D (Operating System) Phase 9 → Phase 10
 **やること**:
 
 - `docs/generated/aag/default-execution-overlay.json` を `defaults.ts` から生成
-- 各 active project (`pure-calculation-reorg` / `presentation-quality-hardening` / `aag-platformization`) の `aag/execution-overlay.ts` を `aag/execution-overlay.json` と並列出力 (TS は authoring 正本として残す)
+- 各 active project の `aag/execution-overlay.ts` を `docs/generated/aag/overlays/<project-id>.json` として並列出力 (TS は authoring 正本として残す)
 - 後続 Phase 9 の Go PoC が JSON 経由で読めることを確認
 
 **完了条件**: 全 overlay が JSON artifact として存在し、TS と JSON の同期 guard が landing。

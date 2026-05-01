@@ -106,9 +106,8 @@
 ## Phase 8: Overlay Artifactization
 
 - [ ] `docs/generated/aag/default-execution-overlay.json` を `defaults.ts` から生成
-- [ ] `projects/pure-calculation-reorg/aag/execution-overlay.json` を生成
-- [ ] `projects/presentation-quality-hardening/aag/execution-overlay.json` を生成 (該当 project に overlay rule entry がある場合)
-- [ ] `projects/aag-platformization/aag/execution-overlay.json` を生成 (空 overlay として)
+- [ ] active 各 project の `aag/execution-overlay.ts` を JSON 派生 artifact として並列出力 (TS は authoring 正本として残す)
+- [ ] 上記 JSON 出力先が `docs/generated/aag/overlays/<project-id>.json` 形式に揃う (生成 path は Phase 4 の merge-artifact-generator と同じ命名規約)
 - [ ] TS と JSON の同期 guard を新設した (TS 編集後 JSON 未生成だと guard が落ちる)
 - [ ] `cd app && npm run docs:generate && npm run test:guards` が PASS
 
