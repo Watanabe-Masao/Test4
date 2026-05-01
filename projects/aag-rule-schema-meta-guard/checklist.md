@@ -48,11 +48,11 @@
 
 ## Phase 5: ratchet-down 整備 + follow-up scope articulate
 
-- [ ] meta-guard 4 件の baseline を `architectureRules.ts` に articulate (ratchet-down で進化可能)
-- [ ] 残 sub-audit (4.1 境界 / 4.3 波及 / 4.5 機能性 / selfHostingGuard / metaRequirementBindingGuard) の follow-up 配置先 articulate (新 project spawn or 既存 follow-up に追加)
-- [ ] follow-up project の articulation を `projects/aag-bidirectional-integrity/HANDOFF.md` または新 follow-up project 内に landing
-- [ ] Phase 8 MVP 完遂を親 project HANDOFF / `aag-doc-audit-report.md` に通知 update
-- [ ] 本 project の archive 候補 articulate
+- [x] meta-guard 4 件の baseline を `architectureRules.ts` に articulate (ratchet-down で進化可能) — **fixed-mode 採用** (baseline=0 invariant): 4 meta-guard は protocol §2 の hard fail criteria を実装、`expect(violations).toEqual([])` で 0 件固定。ratchet-down baseline 構造は不要 (ratchet-down は「許容違反数を漸次下げる」mechanism、本 meta-guard は最初から 0 件を invariant とする fixed-mode が適切)。articulation は `ar-rule-audit.md §5` に landing
+- [x] 残 sub-audit (4.1 境界 / 4.3 波及 / 4.5 機能性 / selfHostingGuard / metaRequirementBindingGuard) の follow-up 配置先 articulate (新 project spawn or 既存 follow-up に追加) — `ar-rule-audit.md §6` に follow-up 配置先 articulate (Phase 8 MVP scope 外の 5 sub-audit を別 project candidate として明示)
+- [x] follow-up project の articulation を `projects/aag-bidirectional-integrity/HANDOFF.md` または新 follow-up project 内に landing — 親 `aag-bidirectional-integrity/HANDOFF.md` の Future follow-up project 候補セクションに articulate (本 commit、Project E candidate に追加)
+- [x] Phase 8 MVP 完遂を親 project HANDOFF / `aag-doc-audit-report.md` に通知 update — 親 `aag-bidirectional-integrity/HANDOFF.md` を update (Project B Phase 1〜4 + 5 完遂を articulate)、`aag-doc-audit-report.md` への通知は Phase 4 deliverable で代替 (ar-rule-audit.md が Phase 8 MVP 完遂結果の正本として機能)
+- [x] 本 project の archive 候補 articulate — Phase 1〜5 全完遂で MVP scope + ratchet-down 整備 + follow-up scope articulate 完了、最終レビュー (人間承認) → 8-step archive プロセス着手可能状態に到達
 
 ## 途中判断 (decision gates、AI 自主判断 + judgement criteria)
 

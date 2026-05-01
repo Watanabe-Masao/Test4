@@ -144,7 +144,62 @@ articulation 品質を高めるため、後続 session で人間レビュー (Di
 Discovery Review が identify した not-applicable 候補は、follow-up commit で `status='bound'` →
 `status='not-applicable'` + `justification` 装着に flip。
 
-## §5 関連 doc
+## §5 meta-guard 運用方針 (Phase 4 完遂、Phase 5 で fixed-mode 確定)
+
+Project B Phase 4 で landing した 4 meta-guard (= protocol §2 の機械検証実装) は **fixed-mode**
+で運用する (baseline=0 invariant、ratchet-down baseline 構造は不要)。
+
+### fixed-mode 採用の rationale
+
+ratchet-down は「許容違反数を漸次下げる」 mechanism (= 既存負債を許容しつつ新規発生を禁止)。
+本 meta-guard 4 件は **drill-down chain の semantic management** という protocol §1 の構造的
+強制を担うため、最初から **0 件 invariant** を保証する fixed-mode が適切:
+
+- `canonicalDocRefIntegrityGuard`: forward direction の参照健全性は許容 0 件以外不可
+- `canonicalDocBackLinkGuard`: orphan requirementId は許容 0 件以外不可 (false positive がない)
+- `semanticArticulationQualityGuard`: protocol §2.1〜§2.3 違反は articulation の手抜きを示唆、許容不可
+- `statusIntegrityGuard`: status ↔ refs ↔ justification の構造的矛盾は許容不可
+
+実装 pattern: `expect(violations).toEqual([])` (= 0 件固定、許容範囲なし)。
+
+### 違反発生時の対応経路
+
+meta-guard が hard fail で違反を捕捉した場合:
+
+1. **新規 rule 追加で違反**: rule の binding articulation を protocol §2 準拠に再記入
+2. **既存 rule の docPath が破壊**: refactor / archive で参照壊れた canonical doc を修正
+3. **AAG-REQ 名の変更**: aag/meta.md §2 と base-rules.ts の `requirementId` を co-update
+4. **正当な理由で違反を保留したい場合**: `status='not-applicable'` に flip + `justification` 装着で
+   articulate (= 構造的に許容範囲を articulate、安易な escape を避ける)
+
+### 関連 commit
+
+- Project B Phase 4 (`c2f6237` または amend 後 commit): 4 meta-guard 実装 + guard-test-map registration
+
+## §6 follow-up sub-audit scope (Project B MVP 外、別 project candidate)
+
+Project B Phase 8 MVP は **4 meta-guard のみ** (canonicalDocRefIntegrity / canonicalDocBackLink /
+semanticArticulationQuality / statusIntegrity)。親 plan §3.1.5 で articulate された残 sub-audit
+**5 件** は Project B scope 外、follow-up project candidate として articulate:
+
+| sub-audit                                | scope                                                                                                                                                                                                              | 配置先                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| **4.1 境界監査** (boundary audit)        | rule の `slice` field + `principleRefs` の境界整合性検証 (例: layer-boundary slice の rule が A1〜A6 以外を ref していないか、canonicalization slice の rule が B1/F8 を ref しているか)                           | follow-up project candidate (= AAG framework の整合性検証拡張、Project E 候補に統合可)        |
+| **4.3 波及監査** (impact audit)          | rule の `relationships.dependsOn` / `relationships.enables` の整合性検証 (= 双方向 graph の cycle 検出 / orphan 検出 / dependency closure 検証)                                                                    | follow-up project candidate                                                                   |
+| **4.5 機能性監査** (functionality audit) | 各 rule の `detection` 設定が `what` / `why` / `outdatedPattern` と semantically 一致するか検証 (= guard が rule の意図を実装しているか)                                                                           | follow-up project candidate (= AI 補助の human review が必要、機械検証だけでは不十分)         |
+| **selfHostingGuard**                     | `AAG-REQ-SELF-HOSTING` の達成: aag/meta.md 自身が AR-rule に linked、meta-rule が自分自身を検証                                                                                                                    | follow-up project candidate (= AAG framework の自己参照閉じ込め、meta-circularity 検出が必要) |
+| **metaRequirementBindingGuard**          | aag/meta.md §2 の各 `AAG-REQ-*` requirement に対して、bound している rule が **十分なカバレッジ** で存在することを検証 (= 本 project Phase 4 の `canonicalDocBackLinkGuard` は orphan 検出のみ、coverage 検証は別) | follow-up project candidate                                                                   |
+
+### follow-up project 配置方針
+
+- Project E (DecisionTrace + AI utilization) candidate に統合する option がある (= AAG framework の
+  decision traceability + AI 対応性が深まる方向で 5 sub-audit を吸収)
+- または independent な「AAG framework integrity sub-audit」project を spawn する option もある
+- Project A〜D 完了後 (Project B Phase 5 完遂時点で 3/4 完了、Project C は別途進行中) に
+  follow-up project の spawn 判定 (本 project 5.5 文献での explicit articulation 不要、
+  Project A〜D 完了後の judgment gate に逃がす)
+
+## §7 関連 doc
 
 | doc                                                  | 役割                                                                            |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
