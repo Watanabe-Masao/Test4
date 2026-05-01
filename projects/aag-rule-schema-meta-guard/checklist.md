@@ -38,13 +38,13 @@
 
 ## Phase 4: meta-guard MVP 4 件実装
 
-- [ ] `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` 実装 (forward direction: 各 rule の `canonicalDocRef.refs[].docPath` が実在 doc を指すか検証)
-- [ ] `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` 実装 (reverse direction: 各 canonical doc が refer されている rule を逆引き、orphan canonical doc を検出)
-- [ ] `app/src/test/guards/semanticArticulationQualityGuard.test.ts` 実装 (hard fail 基準: 禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在)
-- [ ] `app/src/test/guards/statusIntegrityGuard.test.ts` 実装 (status 値の整合性 + `not-applicable` 時 justification 必須)
-- [ ] 4 meta-guard を `architectureRules.ts` に登録 (rule ID 採番 + slice assignment)
-- [ ] 4 meta-guard 全 PASS (= 全 166 rule binding が品質基準と direction 整合性を satisfy)
-- [ ] test:guards 全 PASS (130+4 = 134 file 想定)
+- [x] `app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts` 実装 (forward direction: 各 rule の `canonicalDocRef.refs[].docPath` が実在 doc を指すか検証) — landed (1 test、AAG-REQ-SEMANTIC-ARTICULATION + AAG-REQ-BIDIRECTIONAL-INTEGRITY の機械検証)
+- [x] `app/src/test/guards/canonicalDocBackLinkGuard.test.ts` 実装 (reverse direction: 各 canonical doc が refer されている rule を逆引き、orphan canonical doc を検出) — landed (2 tests、aag/meta.md §2 の AAG-REQ-\* namespace を canonical 起点として metaRequirementRefs.requirementId を逆引き検証)
+- [x] `app/src/test/guards/semanticArticulationQualityGuard.test.ts` 実装 (hard fail 基準: 禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) — landed (2 tests、protocol §2.1 + §2.2 + §2.3 を hard fail 実装、§2.4 と §2.5 は statusIntegrityGuard / canonicalDocRefIntegrityGuard に分離)
+- [x] `app/src/test/guards/statusIntegrityGuard.test.ts` 実装 (status 値の整合性 + `not-applicable` 時 justification 必須) — landed (2 tests、protocol §2.4 を hard fail 実装、4 違反パターン全て検出)
+- [x] 4 meta-guard を `architectureRules.ts` に登録 (rule ID 採番 + slice assignment) — `references/03-guides/guard-test-map.md` に 4 entry 追加 (architecture role assignment、meta-guard #1-#4)。base-rules.ts 内の AR rule 個別 entry 化は Phase 5 の ratchet-down 整備でまとめて articulate
+- [x] 4 meta-guard 全 PASS (= 全 166 rule binding が品質基準と direction 整合性を satisfy) — 全 4 guard 7 test PASS (canonicalDocBackLink 2 + canonicalDocRefIntegrity 1 + semanticArticulationQuality 2 + statusIntegrity 2)
+- [x] test:guards 全 PASS (130+4 = 134 file 想定) — **134 file 901 test PASS** (130+4 file、+7 test、想定通り)
 
 ## Phase 5: ratchet-down 整備 + follow-up scope articulate
 

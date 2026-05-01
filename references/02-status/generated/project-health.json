@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-01T00:12:43.454Z",
+  "timestamp": "2026-05-01T00:25:10.705Z",
   "summary": {
     "active": 7,
     "archived": 31,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1184,
-    "checkedCheckboxes": 956
+    "checkedCheckboxes": 963
   },
   "projects": [
     {
@@ -96,9 +96,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 21,
+      "checked": 28,
       "total": 42,
-      "progress": 0.5,
+      "progress": 0.667,
       "entrypoint": "projects/aag-rule-schema-meta-guard/AI_CONTEXT.md",
       "checklistPath": "projects/aag-rule-schema-meta-guard/checklist.md",
       "parent": null

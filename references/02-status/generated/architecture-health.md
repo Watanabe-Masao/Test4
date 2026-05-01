@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-01T00:12:43.451Z
+> Generated: 2026-05-01T00:25:10.701Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 120 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 124 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 166 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 88 | OK |
@@ -90,7 +90,7 @@
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 6 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |
 | project.checklist.totalCheckboxes | 全 project の required checkbox 総数 | 1184 | OK |
-| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 956 | OK |
+| project.checklist.checkedCheckboxes | 全 project の checked checkbox 総数 | 963 | OK |
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
