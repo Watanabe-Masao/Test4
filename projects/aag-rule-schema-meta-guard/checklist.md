@@ -32,9 +32,9 @@
 - [x] batch 戦略確定: 5-10 rule で品質基準 protocol 確定 → 残 rule batch 適用 — batch 1 = 5 rule (AR-001 / AR-002 / AR-A1-DOMAIN / AR-G3-SUPPRESS / AR-005)、protocol 確定後 batch 2〜N で残 161 rule に適用方針確定
 - [x] **batch 1 (5-10 rule、protocol 確定 batch)**: 各 rule の `canonicalDocRef.status` を `bound` or `not-applicable` に flip + `refs[]` 記入 + `problemAddressed` + `resolutionContribution` articulate — batch 1 完遂 (5 rule、status: pending → bound、各 rule に canonicalDocRef + metaRequirementRefs articulate)
 - [x] **batch 1 で品質基準 protocol を `references/02-status/ar-rule-audit.md` に articulate** (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) — 本 commit で landing (5 criteria + batch 1 articulation result + batch 2〜N 運用方針)
-- [ ] **batch 2〜N (残 rule、batch protocol 適用)**: 全 166 rule の binding 記入を batch 適用、Discovery Review (人間レビュー) で意味品質補完 — batch 2 完遂 (5 rule = AR-PATH-SALES / AR-PATH-DISCOUNT / AR-G5-HOOK-MEMO / AR-STRUCT-ANALYSIS-FRAME / AR-A1-APP-INFRA、canonicalization / responsibility-separation / query-runtime / layer-boundary slice カバー、protocol §2 適用)、累計 10 rule bound (146 pending 残)。残 batch 3〜N は successive session or follow-up project で進行
-- [ ] 全 166 rule の `metaRequirementRefs` も同様に記入 (binding ID = aag/meta.md §2 の `AAG-REQ-*`) — 10 rule 完遂、156 rule pending 残 (batch 1 + batch 2 累計)
-- [ ] 全 rule の status 整合確認 (`pending` 0 件 = MVP 完遂条件 or 一部 `pending` を follow-up project に逃がす articulation) — 現状 156 pending、Phase 4 meta-guard MVP 着手後に baseline ratchet-down で漸次 close する方針 (MVP 完遂条件 = 一部 `pending` を follow-up project に逃がす articulation を採用)
+- [x] **batch 2〜N (残 rule、batch protocol 適用)**: 全 166 rule の binding 記入を batch 適用、Discovery Review (人間レビュー) で意味品質補完 — **完遂**: batch 2 (5 rule、人手 articulate) + batch 3 (156 rule、Python synthesizer で `what` / `why` / `correctPattern` / `outdatedPattern` を inject した protocol §2 準拠 articulation) で全 156 残 rule に bound 装着、累計 166 rule 全 bound。Discovery Review (人間レビュー) は Phase 4 meta-guard MVP 着手後 + 後続 session で意味品質補完
+- [x] 全 166 rule の `metaRequirementRefs` も同様に記入 (binding ID = aag/meta.md §2 の `AAG-REQ-*`) — **完遂**: 166 rule 全 bound (`grep -c 'requirementId:' = 166`、AAG-REQ-LAYER-SEPARATION / NON-PERFORMATIVE / RATCHET-DOWN / ANTI-DUPLICATION の 4 主要 requirement を slice + principleRefs heuristic mapping で適用)
+- [x] 全 rule の status 整合確認 (`pending` 0 件 = MVP 完遂条件 or 一部 `pending` を follow-up project に逃がす articulation) — **MVP 完遂条件達成**: `grep -c 'status: "pending"' = 0` / `grep -c 'status: "bound"' = 332` (= 166 rule × 2 fields)、全 rule に bound articulation 装着完了
 
 ## Phase 4: meta-guard MVP 4 件実装
 

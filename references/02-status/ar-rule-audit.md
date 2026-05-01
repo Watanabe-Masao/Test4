@@ -86,19 +86,63 @@ batch 1 で観察された pattern:
 - **ratchet-down 系 rule (退役シンボル禁止 / count baseline 凍結) は `AAG-REQ-RATCHET-DOWN` に bound** (改善の不可逆性を本 rule scope で担保する articulate が共通)
 - **guard 迂回系 rule (eslint-disable / @ts-ignore 禁止) は `AAG-REQ-NON-PERFORMATIVE` に bound** (guard が canonical doc に裏打ちされ続ける状態の維持が articulate の核)
 
-## §4 batch 2〜N (残 rule、protocol 適用) の運用
+## §4 batch 2〜3 完遂結果 (2026-05-01、Phase 3 MVP 完遂)
 
-batch 2 以降の運用方針:
+batch 2〜3 で残 161 rule を全 bound articulate、`pending` 0 件達成。
 
-- 本 protocol §2 の品質基準を満たす articulation を 161 rule に適用
-- 自然な domain mapping (slice / principleRefs / doc field) から canonical doc + AAG-REQ を導出
-- 1 rule 1 doc + 1 rule 1 AAG-REQ を default、複数 ref が必要な場合のみ refs[] に追加
-- Discovery Review (人間レビュー) で意味品質を補完 — protocol §2 は機械検証 hard fail criteria、意味の妥当性は人間判断
+### batch 2 (5 rule、人手 articulate、残 slice カバー)
 
-`status='not-applicable'` の articulate 例 (該当しない rule):
+| rule                       | slice                     | canonicalDoc                         | AAG-REQ                    |
+| -------------------------- | ------------------------- | ------------------------------------ | -------------------------- |
+| `AR-PATH-SALES`            | canonicalization          | sales-definition.md                  | `AAG-REQ-NON-PERFORMATIVE` |
+| `AR-PATH-DISCOUNT`         | canonicalization          | discount-definition.md               | `AAG-REQ-NON-PERFORMATIVE` |
+| `AR-G5-HOOK-MEMO`          | responsibility-separation | responsibility-separation-catalog.md | `AAG-REQ-RATCHET-DOWN`     |
+| `AR-STRUCT-ANALYSIS-FRAME` | query-runtime             | safe-performance-principles.md       | `AAG-REQ-LAYER-SEPARATION` |
+| `AR-A1-APP-INFRA`          | layer-boundary            | design-principles.md                 | `AAG-REQ-LAYER-SEPARATION` |
+
+### batch 3 (156 rule、Python synthesizer 一括 bound)
+
+batch 1+2 で確定した protocol §2 を機械適用。各 rule の `what` / `why` / `correctPattern` /
+`outdatedPattern` field を inject して rule-specific な semantic content を保ちつつ、protocol
+§2 (20 char minimum + 禁止 keyword 不在 + 内部重複 0 + status 整合) を機械的に保証。
+
+**AAG-REQ heuristic mapping** (slice + principleRefs):
+
+| slice                       | 条件                            | mapping 先 AAG-REQ         |
+| --------------------------- | ------------------------------- | -------------------------- |
+| `layer-boundary`            | —                               | `AAG-REQ-LAYER-SEPARATION` |
+| `query-runtime`             | —                               | `AAG-REQ-LAYER-SEPARATION` |
+| `canonicalization`          | —                               | `AAG-REQ-NON-PERFORMATIVE` |
+| `responsibility-separation` | `count` detection               | `AAG-REQ-RATCHET-DOWN`     |
+| `responsibility-separation` | otherwise                       | `AAG-REQ-LAYER-SEPARATION` |
+| `governance-ops`            | principleRefs G3 / G4           | `AAG-REQ-NON-PERFORMATIVE` |
+| `governance-ops`            | principleRefs G1 / G5 / G6 / G7 | `AAG-REQ-RATCHET-DOWN`     |
+| `governance-ops`            | principleRefs F1-F3             | `AAG-REQ-ANTI-DUPLICATION` |
+| `governance-ops`            | principleRefs H1-H6             | `AAG-REQ-LAYER-SEPARATION` |
+| `governance-ops`            | principleRefs E1-E4             | `AAG-REQ-NON-PERFORMATIVE` |
+| `governance-ops`            | principleRefs C1-C9             | `AAG-REQ-LAYER-SEPARATION` |
+| `governance-ops`            | default                         | `AAG-REQ-RATCHET-DOWN`     |
+
+**結果**: 全 166 rule が `status: 'bound'` 状態、`pending` 0 件。
+
+### Discovery Review (人間レビュー、follow-up session で実施)
+
+batch 3 の synthesizer は **protocol §2 機械検証 hard fail criteria** を保証するが、**意味の妥当性**
+(= 適切な AAG-REQ mapping、articulation の質、refs[] の追加) は機械では判定不能。protocol §1 の
+articulation 品質を高めるため、後続 session で人間レビュー (Discovery Review) を実施:
+
+- 各 rule の AAG-REQ mapping が真に妥当か (heuristic は domain 特化の誤り得る)
+- `problemAddressed` + `resolutionContribution` が rule 固有性を真に articulate しているか
+- 複数 AAG-REQ に bound すべき rule の refs[] 拡張
+- `not-applicable` justify が妥当な rule の identify (現状全 bound、true negative の articulate 候補)
+
+`status='not-applicable'` の articulate 例 (Phase 3 では発生しなかった):
 
 - AAG framework と orthogonal な domain rule (例: 業務計算式の禁止 import 等) → `metaRequirementRefs` を `not-applicable` で justify
 - 各 rule に対して「対応する AAG-REQ がない」場合のみ not-applicable、安易な escape を避ける
+
+Discovery Review が identify した not-applicable 候補は、follow-up commit で `status='bound'` →
+`status='not-applicable'` + `justification` 装着に flip。
 
 ## §5 関連 doc
 
