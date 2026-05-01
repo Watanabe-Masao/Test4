@@ -145,105 +145,106 @@
 
 各事実の定義元は1箇所。他の文書は正本を参照のみ。
 
-| テーマ                                                                                     | 正本                                                            |
-| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                     | `01-principles/design-principles.md`                            |
-| 設計原則が兼ねる禁止事項                                                                   | CLAUDE.md §設計原則（A1-H6 + Q3-Q4 の各項目が禁止事項を兼ねる） |
-| Engine 境界・3 エンジン定義                                                                | `01-principles/engine-boundary-policy.md`                       |
-| 意味分類ポリシー                                                                           | `01-principles/semantic-classification-policy.md`               |
-| JS vs DuckDB 責務                                                                          | `01-principles/engine-responsibility.md`                        |
-| データパイプライン整合性                                                                   | `01-principles/data-pipeline-integrity.md`                      |
-| 期間スコープの意味論                                                                       | `01-principles/temporal-scope-semantics.md`                     |
-| データフロー 4 段階                                                                        | `01-principles/data-flow.md`                                    |
-| ドメイン率プリミティブ                                                                     | `01-principles/domain-ratio-primitives.md`                      |
-| 観測期間仕様                                                                               | `01-principles/observation-period-spec.md`                      |
-| UI/UX 4 原則                                                                               | `01-principles/uiux-principles.md`                              |
-| 正本化原則（P1-P7）                                                                        | `01-principles/canonicalization-principles.md`                  |
-| 仕入原価の正本定義                                                                         | `01-principles/purchase-cost-definition.md`                     |
-| 粗利の正本定義                                                                             | `01-principles/gross-profit-definition.md`                      |
-| 売上の正本定義                                                                             | `01-principles/sales-definition.md`                             |
-| 値引きの正本定義                                                                           | `01-principles/discount-definition.md`                          |
-| 予算の正本定義                                                                             | `01-principles/budget-definition.md`                            |
-| KPIの正本定義                                                                              | `01-principles/kpi-definition.md`                               |
-| PI値の正本定義                                                                             | `01-principles/pi-value-definition.md`                          |
-| 客数GAPの正本定義                                                                          | `01-principles/customer-gap-definition.md`                      |
-| Authoritative計算の定義                                                                    | `01-principles/authoritative-calculation-definition.md`         |
-| 正本化マップ                                                                               | `01-principles/calculation-canonicalization-map.md`             |
-| MetricId レジストリ                                                                        | `03-guides/metric-id-registry.md`（50 定義/42 実装済み）        |
-| 不変条件カタログ                                                                           | `03-guides/invariant-catalog.md`                                |
-| Compare 共通規約                                                                           | `03-guides/compare-conventions.md`                              |
-| 天気データ基盤                                                                             | `03-guides/weather-architecture.md`                             |
-| ウィジェット連携アーキテクチャ                                                             | `03-guides/widget-coordination-architecture.md`                 |
-| Authoritative 表示ルール                                                                   | `03-guides/authoritative-display-rules.md`                      |
-| Engine maturity 定義                                                                       | `02-status/engine-maturity-matrix.md`                           |
-| Engine 昇格マトリクス                                                                      | `02-status/engine-promotion-matrix.md`                          |
-| Engine 昇格基準                                                                            | `02-status/promotion-criteria.md`                               |
-| 品質監査レポート                                                                           | `02-status/quality-audit-latest.md`                             |
-| 技術的負債ロードマップ                                                                     | `02-status/technical-debt-roadmap.md`                           |
-| AAG Core doc audit report (Phase 3 deliverable)                                            | `02-status/aag-doc-audit-report.md`                             |
-| 直近の主要変更                                                                             | `02-status/recent-changes.md`                                   |
-| プロジェクト構成                                                                           | `02-status/project-structure.md`                                |
-| PI値昇格準備度                                                                             | `02-status/promotion-readiness-piValue.md`                      |
-| 客数GAP昇格準備度                                                                          | `02-status/promotion-readiness-customerGap.md`                  |
-| 残予算率昇格準備度                                                                         | `02-status/promotion-readiness-remainingBudgetRate.md`          |
-| 観測期間昇格準備度                                                                         | `02-status/promotion-readiness-observationPeriod.md`            |
-| 棚卸区間昇格準備度                                                                         | `02-status/promotion-readiness-pinIntervals.md`                 |
-| 推定在庫昇格準備度                                                                         | `02-status/promotion-readiness-inventoryCalc.md`                |
-| 感度分析昇格準備度                                                                         | `02-status/promotion-readiness-sensitivity.md`                  |
-| 相関分析昇格準備度                                                                         | `02-status/promotion-readiness-correlation.md`                  |
-| 移動平均昇格準備度                                                                         | `02-status/promotion-readiness-movingAverage.md`                |
-| トレンド分析昇格準備度                                                                     | `02-status/promotion-readiness-trendAnalysis.md`                |
-| 曜日GAP昇格準備度                                                                          | `02-status/promotion-readiness-dowGapAnalysis.md`               |
-| responsibility-taxonomy-v2 Migration Map                                                   | `03-guides/responsibility-v1-to-v2-migration-map.md`            |
-| test-taxonomy-v2 TSIG Migration Map                                                        | `03-guides/test-tsig-to-v2-migration-map.md`                    |
-| Discovery Review チェックリスト                                                            | `03-guides/discovery-review-checklist.md`                       |
-| ガードテスト対応表                                                                         | `03-guides/guard-test-map.md`                                   |
-| 許可リスト運用                                                                             | `03-guides/allowlist-management.md`                             |
-| 意味分類 Inventory 手順書                                                                  | `03-guides/semantic-inventory-procedure.md`                     |
-| レジストリ所有権ポリシー                                                                   | `03-guides/directory-registry-ownership-policy.md`              |
-| 移行タグ運用ポリシー                                                                       | `03-guides/migration-tag-policy.md`                             |
-| 契約定義ポリシー                                                                           | `03-guides/contract-definition-policy.md`                       |
-| Current群保守ポリシー                                                                      | `03-guides/current-maintenance-policy.md`                       |
-| Tier 1 Business移行計画                                                                    | `03-guides/tier1-business-migration-plan.md`                    |
-| Analytic Kernel移行計画                                                                    | `03-guides/analytic-kernel-migration-plan.md`                   |
-| Guard統合整理+JS正本縮退                                                                   | `03-guides/guard-consolidation-and-js-retirement.md`            |
-| Promote Ceremony テンプレート                                                              | `03-guides/promote-ceremony-template.md`                        |
-| DuckDB アーキテクチャ・Query Access Rules（Q1-Q6）                                         | `03-guides/duckdb-architecture.md`                              |
-| 計算エンジン                                                                               | `03-guides/calculation-engine.md`                               |
-| WASM 二重実行ランブック                                                                    | `03-guides/wasm-dual-run-runbook.md`                            |
-| 拡張プレイブック                                                                           | `03-guides/extension-playbook.md`                               |
-| 仕入原価統合計画                                                                           | `03-guides/purchase-cost-unification-plan.md`                   |
-| Temporal 分析ポリシー                                                                      | `03-guides/temporal-analysis-policy.md`                         |
-| WASM 候補適性判定基準                                                                      | `03-guides/wasm-candidate-eligibility.md`                       |
-| データロード冪等化計画（idempotent load contract 正本 / Done 定義）                        | `03-guides/data-load-idempotency-plan.md`                       |
-| idempotent load contract 引き継ぎ書（要約 — plan のビュー）                                | `03-guides/data-load-idempotency-handoff.md`                    |
-| Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類の根拠資料）                       | `03-guides/read-path-duplicate-audit.md`                        |
-| projects/ 運用ルール（ドキュメントと課題の分離 / checklist 駆動の completion 管理）        | `03-guides/project-checklist-governance.md`                     |
-| 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証） | `03-guides/new-project-bootstrap-guide.md`                      |
-| AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                          | `03-guides/projectization-policy.md`                            |
-| Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）       | `03-guides/deferred-decision-pattern.md`                        |
-| AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）  | `01-principles/aag/README.md`                                   |
-| AAG Meta charter（目的 + 要件 = AAG-REQ-* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `01-principles/aag/meta.md`                            |
-| AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                        | `01-principles/aag/strategy.md`                                 |
-| AAG Architecture（5 層構造定義 + 旧 4 層 → 新 5 層 mapping、Layer 1+2）                    | `01-principles/aag/architecture.md`                             |
-| AAG Evolution（進化動学 = Discovery / Accumulation / Evaluation、Layer 1+2）              | `01-principles/aag/evolution.md`                                |
-| AAG Operational Classification（now / debt / review 運用区分、Layer 2 governance-ops）     | `01-principles/aag/operational-classification.md`               |
-| AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）         | `01-principles/aag/source-of-truth.md`                          |
-| AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                              | `01-principles/aag/layer-map.md`                                |
-| AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                | `01-principles/aag-5-constitution.md`                           |
-| AAG 5.0 既存ファイル層マッピング（旧、Phase 5.1 で archive 移管済 → aag/layer-map.md）       | `99-archive/aag-5-layer-map.md`                                 |
-| AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                   | `01-principles/aag-5-source-of-truth-policy.md`                 |
-| Test Signal Integrity — 品質シグナル保全の原則                                             | `01-principles/test-signal-integrity.md`                        |
-| Test Signal Integrity Advisory 運用ガイド                                                  | `03-guides/test-signal-integrity-advisory.md`                   |
-| Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則）                               | `01-principles/taxonomy-constitution.md`                        |
-| Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約）                                       | `01-principles/taxonomy-interlock.md`                           |
-| Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset）                           | `01-principles/taxonomy-origin-journal.md`                      |
-| Responsibility Taxonomy Schema v2（v2 R:tag vocabulary 仕様正本、子 Phase 1 deliverable）  | `01-principles/responsibility-taxonomy-schema.md`               |
-| Test Taxonomy Schema v2（v2 T:kind vocabulary 仕様正本、子 Phase 1 deliverable）           | `01-principles/test-taxonomy-schema.md`                         |
-| Taxonomy v2 Review Journal（review window 記録）                                           | `02-status/taxonomy-review-journal.md`                          |
-| Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）                    | `03-guides/taxonomy-review-window.md`                           |
-| Responsibility Taxonomy Operations（責務軸 R:\* 運用ガイド、子 Phase 5 deliverable）       | `03-guides/responsibility-taxonomy-operations.md`               |
-| Test Taxonomy Operations（テスト軸 T:\* 運用ガイド、子 Phase 5 deliverable）               | `03-guides/test-taxonomy-operations.md`                         |
+| テーマ                                                                                                 | 正本                                                            |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                                 | `01-principles/design-principles.md`                            |
+| 設計原則が兼ねる禁止事項                                                                               | CLAUDE.md §設計原則（A1-H6 + Q3-Q4 の各項目が禁止事項を兼ねる） |
+| Engine 境界・3 エンジン定義                                                                            | `01-principles/engine-boundary-policy.md`                       |
+| 意味分類ポリシー                                                                                       | `01-principles/semantic-classification-policy.md`               |
+| JS vs DuckDB 責務                                                                                      | `01-principles/engine-responsibility.md`                        |
+| データパイプライン整合性                                                                               | `01-principles/data-pipeline-integrity.md`                      |
+| 期間スコープの意味論                                                                                   | `01-principles/temporal-scope-semantics.md`                     |
+| データフロー 4 段階                                                                                    | `01-principles/data-flow.md`                                    |
+| ドメイン率プリミティブ                                                                                 | `01-principles/domain-ratio-primitives.md`                      |
+| 観測期間仕様                                                                                           | `01-principles/observation-period-spec.md`                      |
+| UI/UX 4 原則                                                                                           | `01-principles/uiux-principles.md`                              |
+| 正本化原則（P1-P7）                                                                                    | `01-principles/canonicalization-principles.md`                  |
+| 仕入原価の正本定義                                                                                     | `01-principles/purchase-cost-definition.md`                     |
+| 粗利の正本定義                                                                                         | `01-principles/gross-profit-definition.md`                      |
+| 売上の正本定義                                                                                         | `01-principles/sales-definition.md`                             |
+| 値引きの正本定義                                                                                       | `01-principles/discount-definition.md`                          |
+| 予算の正本定義                                                                                         | `01-principles/budget-definition.md`                            |
+| KPIの正本定義                                                                                          | `01-principles/kpi-definition.md`                               |
+| PI値の正本定義                                                                                         | `01-principles/pi-value-definition.md`                          |
+| 客数GAPの正本定義                                                                                      | `01-principles/customer-gap-definition.md`                      |
+| Authoritative計算の定義                                                                                | `01-principles/authoritative-calculation-definition.md`         |
+| 正本化マップ                                                                                           | `01-principles/calculation-canonicalization-map.md`             |
+| MetricId レジストリ                                                                                    | `03-guides/metric-id-registry.md`（50 定義/42 実装済み）        |
+| 不変条件カタログ                                                                                       | `03-guides/invariant-catalog.md`                                |
+| Compare 共通規約                                                                                       | `03-guides/compare-conventions.md`                              |
+| 天気データ基盤                                                                                         | `03-guides/weather-architecture.md`                             |
+| ウィジェット連携アーキテクチャ                                                                         | `03-guides/widget-coordination-architecture.md`                 |
+| Authoritative 表示ルール                                                                               | `03-guides/authoritative-display-rules.md`                      |
+| Engine maturity 定義                                                                                   | `02-status/engine-maturity-matrix.md`                           |
+| Engine 昇格マトリクス                                                                                  | `02-status/engine-promotion-matrix.md`                          |
+| Engine 昇格基準                                                                                        | `02-status/promotion-criteria.md`                               |
+| 品質監査レポート                                                                                       | `02-status/quality-audit-latest.md`                             |
+| 技術的負債ロードマップ                                                                                 | `02-status/technical-debt-roadmap.md`                           |
+| AAG Core doc audit report (Phase 3 deliverable)                                                        | `02-status/aag-doc-audit-report.md`                             |
+| AR-rule binding 品質基準 protocol (Project B Phase 3 batch 1)                                          | `02-status/ar-rule-audit.md`                                    |
+| 直近の主要変更                                                                                         | `02-status/recent-changes.md`                                   |
+| プロジェクト構成                                                                                       | `02-status/project-structure.md`                                |
+| PI値昇格準備度                                                                                         | `02-status/promotion-readiness-piValue.md`                      |
+| 客数GAP昇格準備度                                                                                      | `02-status/promotion-readiness-customerGap.md`                  |
+| 残予算率昇格準備度                                                                                     | `02-status/promotion-readiness-remainingBudgetRate.md`          |
+| 観測期間昇格準備度                                                                                     | `02-status/promotion-readiness-observationPeriod.md`            |
+| 棚卸区間昇格準備度                                                                                     | `02-status/promotion-readiness-pinIntervals.md`                 |
+| 推定在庫昇格準備度                                                                                     | `02-status/promotion-readiness-inventoryCalc.md`                |
+| 感度分析昇格準備度                                                                                     | `02-status/promotion-readiness-sensitivity.md`                  |
+| 相関分析昇格準備度                                                                                     | `02-status/promotion-readiness-correlation.md`                  |
+| 移動平均昇格準備度                                                                                     | `02-status/promotion-readiness-movingAverage.md`                |
+| トレンド分析昇格準備度                                                                                 | `02-status/promotion-readiness-trendAnalysis.md`                |
+| 曜日GAP昇格準備度                                                                                      | `02-status/promotion-readiness-dowGapAnalysis.md`               |
+| responsibility-taxonomy-v2 Migration Map                                                               | `03-guides/responsibility-v1-to-v2-migration-map.md`            |
+| test-taxonomy-v2 TSIG Migration Map                                                                    | `03-guides/test-tsig-to-v2-migration-map.md`                    |
+| Discovery Review チェックリスト                                                                        | `03-guides/discovery-review-checklist.md`                       |
+| ガードテスト対応表                                                                                     | `03-guides/guard-test-map.md`                                   |
+| 許可リスト運用                                                                                         | `03-guides/allowlist-management.md`                             |
+| 意味分類 Inventory 手順書                                                                              | `03-guides/semantic-inventory-procedure.md`                     |
+| レジストリ所有権ポリシー                                                                               | `03-guides/directory-registry-ownership-policy.md`              |
+| 移行タグ運用ポリシー                                                                                   | `03-guides/migration-tag-policy.md`                             |
+| 契約定義ポリシー                                                                                       | `03-guides/contract-definition-policy.md`                       |
+| Current群保守ポリシー                                                                                  | `03-guides/current-maintenance-policy.md`                       |
+| Tier 1 Business移行計画                                                                                | `03-guides/tier1-business-migration-plan.md`                    |
+| Analytic Kernel移行計画                                                                                | `03-guides/analytic-kernel-migration-plan.md`                   |
+| Guard統合整理+JS正本縮退                                                                               | `03-guides/guard-consolidation-and-js-retirement.md`            |
+| Promote Ceremony テンプレート                                                                          | `03-guides/promote-ceremony-template.md`                        |
+| DuckDB アーキテクチャ・Query Access Rules（Q1-Q6）                                                     | `03-guides/duckdb-architecture.md`                              |
+| 計算エンジン                                                                                           | `03-guides/calculation-engine.md`                               |
+| WASM 二重実行ランブック                                                                                | `03-guides/wasm-dual-run-runbook.md`                            |
+| 拡張プレイブック                                                                                       | `03-guides/extension-playbook.md`                               |
+| 仕入原価統合計画                                                                                       | `03-guides/purchase-cost-unification-plan.md`                   |
+| Temporal 分析ポリシー                                                                                  | `03-guides/temporal-analysis-policy.md`                         |
+| WASM 候補適性判定基準                                                                                  | `03-guides/wasm-candidate-eligibility.md`                       |
+| データロード冪等化計画（idempotent load contract 正本 / Done 定義）                                    | `03-guides/data-load-idempotency-plan.md`                       |
+| idempotent load contract 引き継ぎ書（要約 — plan のビュー）                                            | `03-guides/data-load-idempotency-handoff.md`                    |
+| Read-path 重複耐性 Spot Audit（FRAGILE/PARTIAL/SAFE 分類の根拠資料）                                   | `03-guides/read-path-duplicate-audit.md`                        |
+| projects/ 運用ルール（ドキュメントと課題の分離 / checklist 駆動の completion 管理）                    | `03-guides/project-checklist-governance.md`                     |
+| 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証）             | `03-guides/new-project-bootstrap-guide.md`                      |
+| AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                                      | `03-guides/projectization-policy.md`                            |
+| Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）                   | `03-guides/deferred-decision-pattern.md`                        |
+| AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）               | `01-principles/aag/README.md`                                   |
+| AAG Meta charter（目的 + 要件 = AAG-REQ-\* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `01-principles/aag/meta.md`                                     |
+| AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                                    | `01-principles/aag/strategy.md`                                 |
+| AAG Architecture（5 層構造定義 + 旧 4 層 → 新 5 層 mapping、Layer 1+2）                                | `01-principles/aag/architecture.md`                             |
+| AAG Evolution（進化動学 = Discovery / Accumulation / Evaluation、Layer 1+2）                           | `01-principles/aag/evolution.md`                                |
+| AAG Operational Classification（now / debt / review 運用区分、Layer 2 governance-ops）                 | `01-principles/aag/operational-classification.md`               |
+| AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）                     | `01-principles/aag/source-of-truth.md`                          |
+| AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                                          | `01-principles/aag/layer-map.md`                                |
+| AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                           | `01-principles/aag-5-constitution.md`                           |
+| AAG 5.0 既存ファイル層マッピング（旧、Phase 5.1 で archive 移管済 → aag/layer-map.md）                 | `99-archive/aag-5-layer-map.md`                                 |
+| AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                              | `01-principles/aag-5-source-of-truth-policy.md`                 |
+| Test Signal Integrity — 品質シグナル保全の原則                                                         | `01-principles/test-signal-integrity.md`                        |
+| Test Signal Integrity Advisory 運用ガイド                                                              | `03-guides/test-signal-integrity-advisory.md`                   |
+| Taxonomy v2 Constitution（責務軸 + テスト軸の 7 不可侵原則）                                           | `01-principles/taxonomy-constitution.md`                        |
+| Taxonomy v2 Interlock マトリクス（R ⇔ T 双方向契約）                                                   | `01-principles/taxonomy-interlock.md`                           |
+| Taxonomy v2 Origin Journal（全タグの Why / When / Who / Sunset）                                       | `01-principles/taxonomy-origin-journal.md`                      |
+| Responsibility Taxonomy Schema v2（v2 R:tag vocabulary 仕様正本、子 Phase 1 deliverable）              | `01-principles/responsibility-taxonomy-schema.md`               |
+| Test Taxonomy Schema v2（v2 T:kind vocabulary 仕様正本、子 Phase 1 deliverable）                       | `01-principles/test-taxonomy-schema.md`                         |
+| Taxonomy v2 Review Journal（review window 記録）                                                       | `02-status/taxonomy-review-journal.md`                          |
+| Taxonomy v2 Review Window 運用ガイド（四半期 window 手続き + 判定基準）                                | `03-guides/taxonomy-review-window.md`                           |
+| Responsibility Taxonomy Operations（責務軸 R:\* 運用ガイド、子 Phase 5 deliverable）                   | `03-guides/responsibility-taxonomy-operations.md`               |
+| Test Taxonomy Operations（テスト軸 T:\* 運用ガイド、子 Phase 5 deliverable）                           | `03-guides/test-taxonomy-operations.md`                         |
 
 ## AI 向け索引 — カテゴリ別ファイルマップ
 
@@ -252,47 +253,47 @@
 
 ### AAG（Adaptive Architecture Governance）
 
-| ファイル                                             | 内容                                                                                                            |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `AAG_OVERVIEW.md`                                    | **入口 doc** — AAG 一枚サマリ + 「困った時にどこを見るか」索引（Phase Q.O-1 deliverable）                        |
-| `AAG_CRITICAL_RULES.md`                              | **入口 doc** — Tier 0 一覧（絶対踏んではいけない rule、Phase Q.O-1 + Q.O-2 deliverable）                         |
-| `03-guides/aag-onboarding-path.md`                   | **入口 doc** — 初見者向け最短経路（タスク種別別の minimal reading path、Phase Q.O-1 deliverable）                |
-| `03-guides/guard-failure-playbook.md`                | Repair-style guard message 標準（既存 AagResponse / renderAagResponse 系統の明文化、Phase Q.O-4 deliverable）   |
-| `03-guides/aag-change-impact-template.md`            | AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1 deliverable）                                                |
-| `01-principles/adaptive-architecture-governance.md`  | **AAG 正本** — 構成要素、設計原則、バージョン履歴                                                               |
-| `01-principles/adaptive-governance-evolution.md`     | 進化の設計 — 3 層サイクル（発見→蓄積→評価）                                                                     |
-| `01-principles/design-principles.md`                 | 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                                          |
-| `01-principles/safe-performance-principles.md`       | H カテゴリ（Screen Runtime）の詳細                                                                              |
-| `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                                                |
-| `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                                                    |
-| `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、13 ペア詳細 + selection rule + primitive 候補 + 採用候補リスト) |
-| `03-guides/integrity-domain-architecture.md`         | 整合性 Domain Skeleton 設計 (canonicalization Phase B〜F 完遂、14 primitive + adapter pattern + Phase F coverage 正本)        |
-| `03-guides/canonicalization-checklist.md`            | 整合性ペア追加 / 撤退の標準手順 (canonicalization Phase I 成果物、selection rule + 撤退規律 + 機械検証経路一覧)                |
-| `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                                                            |
-| `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                                                       |
-| `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                                                        |
-| `03-guides/migration-tag-policy.md`                  | 移行タグ運用ポリシー                                                                                            |
-| `03-guides/contract-definition-policy.md`            | 契約定義ポリシー（Phase 3: BIZ/ANA 契約テンプレート + bridge 境界）                                             |
-| `03-guides/current-maintenance-policy.md`            | Current群保守ポリシー（Phase 4: 意味再分類 + 状態制限 + 保守観点）                                              |
-| `03-guides/tier1-business-migration-plan.md`         | Tier 1 Business 移行計画（Phase 5: 候補一覧 + 8ステップ + 判定基準）                                            |
-| `03-guides/analytic-kernel-migration-plan.md`        | Analytic Kernel 移行計画（Phase 6: 候補一覧 + 9ステップ + 不変条件）                                            |
-| `03-guides/guard-consolidation-and-js-retirement.md` | Guard 統合整理 + JS 正本縮退方針（Phase 7: 全マップ + 4段階縮退 + 違反レスポンス）                              |
-| `03-guides/promote-ceremony-template.md`             | Promote Ceremony テンプレート（Phase 8: 昇格提案書 + 実施手順 + 巻き戻し）                                      |
-| `03-guides/guard-test-map.md`                        | ガードテスト対応表                                                                                              |
-| `03-guides/active-debt-refactoring-plan.md`          | Active-Debt リファクタリング計画                                                                                |
-| `03-guides/aag-phase4-6-plan.md`                     | AAG Phase 4-6 実装計画                                                                                          |
-| `03-guides/aag-rule-inventory.md`                    | AAG ルール棚卸し                                                                                                |
-| `03-guides/aag-physical-move-impact-matrix.md`       | AAG 物理移動影響マトリクス                                                                                      |
-| `03-guides/governance-final-placement-plan.md`       | Governance 最終配置方針                                                                                         |
-| `01-principles/architecture-rule-feasibility.md`     | ルール導入の実現可能性評価                                                                                      |
-| `01-principles/aag-four-layer-architecture.md`       | AAG 4 層（Principles/Judgment/Detection/Response）                                                              |
-| `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                                              |
-| `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                                                            |
-| `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                                               |
-| `99-archive/aag-5-layer-map.md`                      | AAG 5.0 — 既存ファイルの層マッピング棚卸し（Phase 5.1 archived → 新 doc: aag/layer-map.md）                     |
-| `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                              |
-| `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                  |
-| `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                |
+| ファイル                                             | 内容                                                                                                                   |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `AAG_OVERVIEW.md`                                    | **入口 doc** — AAG 一枚サマリ + 「困った時にどこを見るか」索引（Phase Q.O-1 deliverable）                              |
+| `AAG_CRITICAL_RULES.md`                              | **入口 doc** — Tier 0 一覧（絶対踏んではいけない rule、Phase Q.O-1 + Q.O-2 deliverable）                               |
+| `03-guides/aag-onboarding-path.md`                   | **入口 doc** — 初見者向け最短経路（タスク種別別の minimal reading path、Phase Q.O-1 deliverable）                      |
+| `03-guides/guard-failure-playbook.md`                | Repair-style guard message 標準（既存 AagResponse / renderAagResponse 系統の明文化、Phase Q.O-4 deliverable）          |
+| `03-guides/aag-change-impact-template.md`            | AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1 deliverable）                                                      |
+| `01-principles/adaptive-architecture-governance.md`  | **AAG 正本** — 構成要素、設計原則、バージョン履歴                                                                      |
+| `01-principles/adaptive-governance-evolution.md`     | 進化の設計 — 3 層サイクル（発見→蓄積→評価）                                                                            |
+| `01-principles/design-principles.md`                 | 設計原則 9 カテゴリ A-I + Q（48 タグ）                                                                                 |
+| `01-principles/safe-performance-principles.md`       | H カテゴリ（Screen Runtime）の詳細                                                                                     |
+| `01-principles/critical-path-safety-map.md`          | Safety Tier 分類                                                                                                       |
+| `03-guides/architecture-rule-system.md`              | Architecture Rule 運用ガイド                                                                                           |
+| `03-guides/integrity-pair-inventory.md`              | 整合性ペア inventory (canonicalization Phase A、13 ペア詳細 + selection rule + primitive 候補 + 採用候補リスト)        |
+| `03-guides/integrity-domain-architecture.md`         | 整合性 Domain Skeleton 設計 (canonicalization Phase B〜F 完遂、14 primitive + adapter pattern + Phase F coverage 正本) |
+| `03-guides/canonicalization-checklist.md`            | 整合性ペア追加 / 撤退の標準手順 (canonicalization Phase I 成果物、selection rule + 撤退規律 + 機械検証経路一覧)        |
+| `03-guides/allowlist-management.md`                  | Allowlist 管理ガイド                                                                                                   |
+| `03-guides/semantic-inventory-procedure.md`          | 意味分類 Inventory 手順書                                                                                              |
+| `03-guides/directory-registry-ownership-policy.md`   | レジストリ所有権ポリシー                                                                                               |
+| `03-guides/migration-tag-policy.md`                  | 移行タグ運用ポリシー                                                                                                   |
+| `03-guides/contract-definition-policy.md`            | 契約定義ポリシー（Phase 3: BIZ/ANA 契約テンプレート + bridge 境界）                                                    |
+| `03-guides/current-maintenance-policy.md`            | Current群保守ポリシー（Phase 4: 意味再分類 + 状態制限 + 保守観点）                                                     |
+| `03-guides/tier1-business-migration-plan.md`         | Tier 1 Business 移行計画（Phase 5: 候補一覧 + 8ステップ + 判定基準）                                                   |
+| `03-guides/analytic-kernel-migration-plan.md`        | Analytic Kernel 移行計画（Phase 6: 候補一覧 + 9ステップ + 不変条件）                                                   |
+| `03-guides/guard-consolidation-and-js-retirement.md` | Guard 統合整理 + JS 正本縮退方針（Phase 7: 全マップ + 4段階縮退 + 違反レスポンス）                                     |
+| `03-guides/promote-ceremony-template.md`             | Promote Ceremony テンプレート（Phase 8: 昇格提案書 + 実施手順 + 巻き戻し）                                             |
+| `03-guides/guard-test-map.md`                        | ガードテスト対応表                                                                                                     |
+| `03-guides/active-debt-refactoring-plan.md`          | Active-Debt リファクタリング計画                                                                                       |
+| `03-guides/aag-phase4-6-plan.md`                     | AAG Phase 4-6 実装計画                                                                                                 |
+| `03-guides/aag-rule-inventory.md`                    | AAG ルール棚卸し                                                                                                       |
+| `03-guides/aag-physical-move-impact-matrix.md`       | AAG 物理移動影響マトリクス                                                                                             |
+| `03-guides/governance-final-placement-plan.md`       | Governance 最終配置方針                                                                                                |
+| `01-principles/architecture-rule-feasibility.md`     | ルール導入の実現可能性評価                                                                                             |
+| `01-principles/aag-four-layer-architecture.md`       | AAG 4 層（Principles/Judgment/Detection/Response）                                                                     |
+| `01-principles/aag-operational-classification.md`    | 運用区分表（即修正/構造負債/観測）                                                                                     |
+| `01-principles/aag-rule-splitting-plan.md`           | ルール分割計画（例外圧 → protected harm ベース分割）                                                                   |
+| `01-principles/aag-5-constitution.md`                | AAG 5.0 — 4層構造定義（Constitution/Schema/Execution/Operations）                                                      |
+| `99-archive/aag-5-layer-map.md`                      | AAG 5.0 — 既存ファイルの層マッピング棚卸し（Phase 5.1 archived → 新 doc: aag/layer-map.md）                            |
+| `01-principles/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                                     |
+| `01-principles/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                         |
+| `03-guides/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                       |
 
 ### 正本化（Canonicalization）
 
@@ -428,15 +429,15 @@
 
 ### WASM 移行
 
-| ファイル                                     | 内容                                                                                                                                                       |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `03-guides/wasm-candidate-eligibility.md`    | WASM 候補適性の事前判定基準                                                                                                                                |
-| `03-guides/data-load-idempotency-plan.md`    | データロード冪等化計画（**正本** — Phase 履歴 + Done 定義）                                                                                                |
-| `03-guides/data-load-idempotency-handoff.md` | idempotent load contract 引き継ぎ書（**要約** — plan のビュー、後任者の入口）                                                                              |
-| `03-guides/read-path-duplicate-audit.md`     | Read-path 重複耐性 Spot Audit（**根拠資料** — FRAGILE/PARTIAL/SAFE 分類）                                                                                  |
-| `03-guides/project-checklist-governance.md`  | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理）                                                       |
-| `03-guides/new-project-bootstrap-guide.md`   | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）          |
-| `03-guides/projectization-policy.md`         | AAG-COA — Projectization Policy（**立ち上げ前の入口判定** — Level 0-4 / required + forbidden artifacts / escalation / project.json metadata / guard 仕様） |
+| ファイル                                     | 内容                                                                                                                                                                                                                                                                              |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `03-guides/wasm-candidate-eligibility.md`    | WASM 候補適性の事前判定基準                                                                                                                                                                                                                                                       |
+| `03-guides/data-load-idempotency-plan.md`    | データロード冪等化計画（**正本** — Phase 履歴 + Done 定義）                                                                                                                                                                                                                       |
+| `03-guides/data-load-idempotency-handoff.md` | idempotent load contract 引き継ぎ書（**要約** — plan のビュー、後任者の入口）                                                                                                                                                                                                     |
+| `03-guides/read-path-duplicate-audit.md`     | Read-path 重複耐性 Spot Audit（**根拠資料** — FRAGILE/PARTIAL/SAFE 分類）                                                                                                                                                                                                         |
+| `03-guides/project-checklist-governance.md`  | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理）                                                                                                                                                                              |
+| `03-guides/new-project-bootstrap-guide.md`   | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）                                                                                                                                 |
+| `03-guides/projectization-policy.md`         | AAG-COA — Projectization Policy（**立ち上げ前の入口判定** — Level 0-4 / required + forbidden artifacts / escalation / project.json metadata / guard 仕様）                                                                                                                        |
 | `03-guides/deferred-decision-pattern.md`     | Deferred Decision Pattern（**途中判断 制度化** — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred、判断基準 + 収集元 + AI/人間判断分離 + decision log + 適用 template、AAG Layer 4A System Operations、project-checklist-governance.md と並列） |
 
 ### 移行・廃止

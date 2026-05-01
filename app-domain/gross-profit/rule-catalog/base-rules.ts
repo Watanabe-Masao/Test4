@@ -415,8 +415,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "インフラ変更時の影響範囲拡大",
       ],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/design-principles.md",
+          problemAddressed:
+            "application/ が infrastructure/ を adapter パターン外で直接 import すると、ドメイン調停層がインフラ詳細に密結合し、インフラ変更時の影響範囲が application 全体に拡大する",
+          resolutionContribution:
+            "本 rule は application → infrastructure の直接 import を gate severity で 0 件固定し、design-principles.md A1 (層境界) を構造的に強制する。許容経路 (DuckDB hooks / QueryHandler / runtime-adapters) は allowlist で個別 articulate",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "application 層と infrastructure 層の境界が adapter パターン外で漏れると、5 層構造の orthogonal 軸が崩れ層境界 mapping が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は application → infrastructure の直接依存を構造的に拒否し、adapter パターンを介した依存方向を保つことで層境界を機械的に維持する",
+        },
+      ],
+    },
   },
 
   {
@@ -910,8 +932,31 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "3. 純粋な計算は *Builders.ts / *Logic.ts に抽出",
       ],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath:
+            "references/03-guides/responsibility-separation-catalog.md",
+          problemAddressed:
+            "useMemo が多い hook ファイルは複数の導出値を抱えており、1 ファイル 1 責務 (C1) の articulate に反する責務混在が累積する",
+          resolutionContribution:
+            "本 rule は useMemo 数を上限 7 で count 検出し、超過時は hook 分割または pure builder への抽出を強制することで、responsibility-separation-catalog.md の articulate する責務分離パターンを構造的に駆動する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-RATCHET-DOWN",
+          problemAddressed:
+            "useMemo 数の baseline が増加方向に動くと、責務混在の累積が逆戻りし、責務分離の改善蓄積が解消される",
+          resolutionContribution:
+            "本 rule の count baseline + heuristic ruleClass 設定により、許可されたケースを allowlists で articulate しつつ全体としては useMemo 数を ratchet-down 方向に固定する",
+        },
+      ],
+    },
   },
 
   {
@@ -1204,8 +1249,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     protectedHarm: {
       prevents: ["売上データの不整合", "旧クエリと新正本の値の乖離"],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/sales-definition.md",
+          problemAddressed:
+            "売上データを旧クエリ (categoryTimeSales / timeSlots / salesFactQueries) で直接取得すると、正本 readSalesFact が articulate する SalesFactReadModel との値の乖離が発生し、複数経路の取得結果が同じ売上値で食い違う",
+          resolutionContribution:
+            "本 rule は presentation 層から旧クエリへの import を gate severity で 0 件固定し、sales-definition.md が articulate する readSalesFact / useWidgetDataOrchestrator 経由の唯一経路を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "売上の正本が複数経路で取得可能な状態は、製本された readSalesFact の正本性が performative (= 形骸化) し、guard で固定した一貫性が canonical doc に裏打ちされない状態に劣化する",
+          resolutionContribution:
+            "本 rule は旧クエリ import を構造的に拒否し、sales 取得経路を readSalesFact 単一に閉じることで sales-definition.md の articulate を実装で機械的に裏打ちする",
+        },
+      ],
+    },
   },
 
   {
@@ -1241,8 +1308,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
         "2. readDiscountFact() 経由に変更",
       ],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/discount-definition.md",
+          problemAddressed:
+            "値引きデータを旧クエリで直接取得すると、discount-definition.md が articulate する readDiscountFact 経由の正本性が崩れ、複数経路で取得した値引き額が食い違う",
+          resolutionContribution:
+            "本 rule は presentation 層から旧 discount クエリへの import を gate severity で 0 件固定し、readDiscountFact / useWidgetDataOrchestrator 経由の唯一経路を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-NON-PERFORMATIVE",
+          problemAddressed:
+            "値引きの正本が複数経路で取得可能な状態は、readDiscountFact の正本性が performative に劣化し、discount-definition.md の articulate が実装で裏打ちされない",
+          resolutionContribution:
+            "本 rule は旧 discount クエリ import を構造的に拒否し、取得経路を readDiscountFact 単一に閉じることで canonical doc の articulate を機械的に裏打ちする",
+        },
+      ],
+    },
   },
 
   {
@@ -1680,8 +1769,30 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: ["1. 直接クエリ入力の構築を AnalysisFrame 経由に変更"],
     },
-    canonicalDocRef: { status: "pending", refs: [] },
-    metaRequirementRefs: { status: "pending", refs: [] },
+    canonicalDocRef: {
+      status: "bound",
+      refs: [
+        {
+          docPath: "references/01-principles/safe-performance-principles.md",
+          problemAddressed:
+            "AnalysisFrame / CalculationFrame を経由しないクエリ入力構築は、キャッシュキーの不整合や期間スコープの矛盾を招き、safe-performance-principles.md が articulate する H1 (Screen Plan 経由のみ) の前提が崩れる",
+          resolutionContribution:
+            "本 rule は presentation 層から直接クエリ入力を組み立てるパターンを custom detection で gate severity 拒否し、AnalysisFrame / CalculationFrame 経由の単一入口を構造的に強制する",
+        },
+      ],
+    },
+    metaRequirementRefs: {
+      status: "bound",
+      refs: [
+        {
+          requirementId: "AAG-REQ-LAYER-SEPARATION",
+          problemAddressed:
+            "クエリ入力構築の入口が複数経路に開いていると、application 層 (frame) と presentation 層 (描画) の責務分離が崩れ、層境界の orthogonal 軸が機械検証不能になる",
+          resolutionContribution:
+            "本 rule は frame 経由を唯一入口として強制し、presentation 層がクエリ入力組立 (= application 責務) に侵入するパターンを構造的に禁止する",
+        },
+      ],
+    },
   },
 
   {
