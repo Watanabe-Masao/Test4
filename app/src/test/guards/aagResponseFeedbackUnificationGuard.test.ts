@@ -38,14 +38,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..')
-const HELPERS_PATH = path.resolve(
-  REPO_ROOT,
-  'app/src/test/architectureRules/helpers.ts',
-)
-const CANONICAL_PATH = path.resolve(
-  REPO_ROOT,
-  'tools/architecture-health/src/aag-response.ts',
-)
+const HELPERS_PATH = path.resolve(REPO_ROOT, 'app/src/test/architectureRules/helpers.ts')
+const CANONICAL_PATH = path.resolve(REPO_ROOT, 'tools/architecture-health/src/aag-response.ts')
 
 describe('AAG Feedback 層単一性 Guard (renderAagResponse 重複検出)', () => {
   it('canonical (tools/aag-response.ts) に renderAagResponse が定義されている', () => {
