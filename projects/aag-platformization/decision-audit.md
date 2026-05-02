@@ -652,6 +652,26 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
   - 推論: charter doc を **先行作成** することは「将来やるかも知れない program」を articulate する dead specification 化 risk。trigger 発生時に PROD-X として独立 program 起動、本 DA-α-007 §3 を参照すれば足る
 - **AI Role Layer charter は post-Pilot deliverable** ('plan.md §3 Phase 3 で既 articulate)、本 Pilot で 3 seam (= `taskClass` field / drawer `_seam` / Phase 3 charter mention) は確保済、Role Layer 自体の articulation は別 program scope
 
+### §4.1 後続 program candidate (articulate のみ、起動は trigger 待ち)
+
+> 本 §4.1 は「後続 program **必要性なし** (§4)」と矛盾しないことを明記。**candidate articulate** = 起動 ≠ commit。trigger (= user 提示 + owner 確定) 発生時に PROD-X として独立起動するときの **再利用可能 pattern 集** であり、Pilot で identify された learning を後続が `aag-platformization/decision-audit.md` を re-derive せず参照できる形で landing。
+
+| candidate ID | name | scope hint (Pilot で identify された pattern) | trigger 例 |
+|---|---|---|---|
+| C-α-001 | **Simulation Harness Template** | 本 Pilot DA-α-006 で確立した **state-based AI simulation pattern** を共通テンプレート化: (a) CT (Concrete Test) として scenario を articulate / (b) 各 CT に **quantitative observation** (read 数 / step 数 / count / 率) を要求 / (c) 各 CT に **反証可能 result** を 1 件以上 (negative test or limitation articulate) / (d) verdict は 3 値 (PASS / partial / FAIL) で graduation 禁止 / (e) calendar 観測なし (= AAG-REQ-NO-DATE-RITUAL 整合) | (1) 新規 project Phase 2 (verification) — Standard 準拠 subsystem の Pilot fill 後 verify / (2) Refactoring 完了時の non-regression verify / (3) Architecture 変更 (層境界 / 契約 / 正本化) 後の effect 観測 / (4) Cross-subsystem 整合 verify (= 横展開 candidate 判定条件 #4 = 8 軸 application 可能性 verify そのものに本 template が応用可能) |
+| C-α-002 | **drawer `_seam` consumer kind 分類体系** | drawer-generator.ts の `classifyConsumerKind` heuristic を **post-Pilot AI Role Layer** が articulate する formal taxonomy に昇華 (Pilot は free-form articulate で 5 kind = authority-auditor / derivation-assembler / binding-auditor / policy-enforcer / unclassified を seam として articulate 済) | AI Role Layer charter program の Phase 1 |
+| C-α-003 | **mapped 率 coverage 改善** | 本 Pilot で identify された F1 partial coverage (= mapped 率 30.2%、120/172 unmapped) の coverage 改善 — heuristic 改善 (例: guard test file の TARGET_PATHS 抽出、responsibilityTags / canonicalDocRef 経由の path 推定) | drawer-coverage 改善 program (DA-α-007 §3.2 展開禁止条件 #2 「Pilot 負債未解消」を解消する trigger 自身) |
+
+**C-α-001 の特に強い articulate** (user articulation 2026-05-02 反映):
+
+- 本 Pilot の DA-α-006 §振り返り でも articulate した 3 装置 (state-based trigger / quantitative observation / 反証可能 result) は **Pilot Application 内部の 1 instance** ではなく **再利用可能 pattern**。`aag/strategy.md` 鉄則 3 (期間 buffer は anti-ritual) と同 lens で、proxy metric (= 経過時間 / レビュー件数 / ファイル数) を **state-based evidence** に置き換える general-purpose mechanism として共通化価値が高い
+- **適用領域 (user 提示)**:
+  - **新規プロジェクト立ち上げ時の検証ツール** — Phase 0 bootstrap 後 / Phase 1 deliverable landing 直後の non-ritual verify (= 「2 週間運用観測」の代替)
+  - **リファクタリング完了時の検証ツール** — 振る舞い保存 (byte-identical / golden test) + 副作用なし観測 + partial coverage を hide しない articulate
+  - **Architecture 変更後の effect 観測** — 層境界 / 契約 / 正本化変更の前後で simulation を実行、効果を quantitative に articulate
+- **本 program scope 外** (重要): C-α-001 の **template 化 + 共通化** は本 Pilot scope 外、後続 program で実施。本 Pilot は instance 1 件 articulation が deliverable であり、template 抽出は trigger 発生時に PROD-X として起動。template 抽出 program 自体も Standard 8 軸 articulate 義務を満たす (= 自己適用 self-dogfood)
+- **trigger 発生条件**: (a) 上記 user 提示適用領域のいずれかで concrete な subsystem / refactoring / architecture 変更が立ち上がる (b) その owner が確定する (c) Pilot learning (本 §4.1 + DA-α-006) を引き継ぐ意思がある
+
 ### §5 archive 移行手順
 
 > 本 §5 は **AI 自律 archive (= 候補 1)** ではなく、**人間承認 gate (`plan.md` 不可侵原則 6 = 唯一の人間 mandatory 点)** での承認後に実行される手順 articulation。
@@ -667,12 +687,12 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 
 ### Commit Lineage
 
-- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- judgementCommit: `6e6acd1` (本 entry を含む Phase 3 全実装 commit)
 - preJudgementCommit: `2d6f874` (前 commit、checklist 全 [x] 反映)
-- judgementTag: `aag-platformization/DA-α-007-judgement` (本 commit に annotated tag landing)
-- rollbackTag: `aag-platformization/DA-α-007-rollback-target` (`2d6f874` に annotated tag landing)
+- judgementTag: `aag-platformization/DA-α-007-judgement` (`6e6acd1` に annotated tag landing 済)
+- rollbackTag: `aag-platformization/DA-α-007-rollback-target` (`2d6f874` に annotated tag landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — DA-α-007 entry + Standard §3.1 System Inventory + recent-changes.md summary
+  - `6e6acd1` — DA-α-007 entry + Standard §3.1 System Inventory + recent-changes.md summary + principles.json $comment + checklist Phase 3 全 [x]
 
 ### 振り返り (本 entry landing 直後)
 
@@ -686,7 +706,7 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
   - **Pilot scope を最後まで honest に守る** ことが Standard 自身の信頼性に直結 (= scope creep を invitation する場面で強い意志で 7 つの不可侵原則を引用して断り続けた、19+ reframes 履歴がその副産物)
   - **横展開判定条件を「方法」のみ articulate する** 設計は dead specification 化を回避する (= 候補 subsystem を仮定列挙すると Standard §9「進度コミットしない」違反 risk が出る)
   - **archive を 1 人間承認 gate に集中** する設計は不可侵原則 6 (人間承認は最終 1 点のみ) を Pilot Application 自身が self-dogfood する形で実現
-- retrospectiveCommit / Tag: `<本 commit sha>` (本 entry と同一 commit、Phase 3 deliverable を retrospective + judgement 同時 landing)
+- retrospectiveCommit / Tag: `6e6acd1` (本 entry と同一 commit、Phase 3 deliverable を retrospective + judgement 同時 landing)
 
 ### Pilot 完了宣言
 
