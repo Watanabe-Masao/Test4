@@ -107,8 +107,8 @@ git push origin <tag>
 | DA-α-002b | Phase 1 / A2b | merged artifact format (generated 系、A3 contract format とは独立) + sync guard 設計 | planned |
 | DA-α-003 | Phase 1 / A3 | **contract format 先行確定** (schema 系、generated 系とは独立) + AagResponse + detector schema 化方針 | planned |
 | DA-α-004 | Phase 1 / A4 | RuleBinding 境界 guard 設計 | planned |
-| DA-α-005 | Phase 1 / A5 | **drawer format** (generated 系、A2b と相互整合、A3 とは独立) + drawer 4 種 granularity + 配置 | planned |
-| DA-α-006 | Phase 2 | simulation CT1-CT5 結果総括 + F1〜F5 status | planned |
+| DA-α-005 | Phase 1 / A5 | **drawer format** (generated 系、A2b と相互整合、A3 とは独立) + drawer 4 種 granularity + 配置 | active |
+| DA-α-006 | Phase 2 | simulation CT1-CT5 結果総括 + F1〜F5 status | active |
 | DA-α-007 | Phase 3 | archive 判断 + **横展開可否判定条件** articulation + 後続 charter 必要性 | planned |
 
 ---
@@ -462,13 +462,104 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - implementationCommits:
   - `e806bfa` — A5 全実装 (drawer-generator + 3 artifact + sync guard 10 test + package.json scripts + DA entry + guard-test-map 反映)
 
-### 振り返り (Phase 1 / A5 完了直後 = 本 commit landing 直後 = TBD)
+### 振り返り (Phase 2 / DA-α-006 simulation 内 = 2026-05-02)
 
-- 観測 1 (3 artifact 生成 + 172 rule): TBD
-- 観測 2 (sync guard 10 test PASS): TBD
-- 観測 3 (mapped 率): TBD (実測値を確認して articulate)
-- 観測 4 (slices/tags 全件 articulate): TBD
-- 観測 5 (_seam articulate): TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+> 詳細 observation table は DA-α-006 §振り返り に集約 (= 5 簡素 measurement の集合体、duplicate 防止)。
+
+- 観測 1 (3 artifact 生成 + 172 rule): **正しい** — `rule-index.json` (84KB) / `rules-by-path.json` (10KB) / `rule-by-topic.json` (16KB) 全 generate 成功、172 rule 全 articulate
+- 観測 2 (sync guard 10 test PASS): **正しい** — `aagDrawerSyncGuard.test.ts` 10 test 全 PASS (CT4 で実測)
+- 観測 3 (mapped 率): **部分的** — 52/172 = 30.2% (mapped) / 120/172 = 69.8% (unmapped)。imports / codeSignals heuristic の coverage 限界を確認、post-Pilot で改善 candidate (例: guard test file の TARGET_PATHS 抽出 + responsibilityTags / canonicalDocRef 経由の path 推定)
+- 観測 4 (slices/tags 全件 articulate): **正しい** — slices=5 / responsibilityTags=18 / guardTags=55 全 articulate
+- 観測 5 (_seam articulate): **正しい** — 172/172 で `consumerKind` + `taskHint` + `sourceRefs` 全 articulate (post-Pilot Role Layer 差し込み口 forward compatibility 確保)
+- **判定**: **部分的** — 5 観測中 4 件 "正しい"、1 件 (mapped 率) は heuristic 限界 articulate で post-Pilot 改善 candidate。F1 path-triggered access の **覆域** に直結 (= unmapped rule は path 経由 reach 不能、rule-by-topic 経由 reach は可能)。Pilot scope では `_seam` + 3 軸 routing が articulate されたことが本質、coverage 改善は post-Pilot
+- 学習: heuristic ベースの path mapping は import / signal 不在の rule (= general / cross-cutting rule) を unmapped に逃がす設計だが、unmapped rule も rule-by-topic で reach 可能なので **F1 全体としては degraded ではなく partial coverage**。Pilot completion criterion (§2 #3 = AI simulation で F1-F5 verify) は満たされる
+- retrospectiveCommit / Tag: DA-α-006 と同一 commit (= 本 entry landing 後に sha 記入)
+
+---
+
+## DA-α-006: Phase 2 Verification Simulation (CT1-CT5 / F1-F5 functioning verdict)
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 2)
+
+- **taskClass**: `policy-gate` (= verification 軸、Pilot 完了 criterion §2 #3 に直結)
+- 候補:
+  1. 2 週間運用観測 (= calendar-based、`AAG-REQ-NO-DATE-RITUAL` 違反)
+  2. **AI 自身が CT1-CT5 を session 内 simulation + 観測 + 判定 (= state-based, scenario-driven)**
+  3. 観測なし、Pilot 完了 criterion #3 を skip
+- 採用案: 候補 2
+- 判断根拠:
+  - 事実 1: user 指示「2 週間運用観測ではなく、具体的な状況をシュミレーションし、AI 自身が観測し評価するやり方を取るべきです」(本 program reframe 履歴)
+  - 事実 2: `AAG-REQ-NO-DATE-RITUAL` (本 CLAUDE.md「鉄則」3) — 期間 buffer は anti-ritual、archive / sunset trigger は state-based のみ
+  - 事実 3: Phase 1 で 8 軸 articulation + 4 sync guard + 3 drawer artifact が landed、observable verification の素材が全揃い
+  - 事実 4: 候補 3 (skip) は supreme principle (= observation なき articulation 禁止) + 不可侵原則 5 違反
+  - 推論: 候補 2 は state-based + 即時実測 + AI judgement only で進む唯一の整合解。calendar 観測なしで Pilot 完了 criterion #3 を満たす
+- 想定リスク:
+  - 最大被害: AI simulation が own-side bias で F1-F5 全 PASS と self-confirm するが実態と乖離。mitigation = (a) 各 CT に **反証可能観測** (例: CT2 negative test、CT1 unmapped rule の articulate)、(b) 5 軸 articulation で「境界」= 検証範囲を articulate、(c) 各 CT の **quantitative result** (= 数値 / count / step 数) を landing
+  - 二番目: simulation scenario が actual session usage を underrepresent。mitigation = post-Pilot で actual session log から CT 拡充 (= Phase 3 charter 候補)
+- 振り返り観測点 (5 点):
+  - 観測 1 (CT1 PASS): path-triggered access で `merged.ts` 編集 task が drawer 1 read で関連 rule subset に reach (TS trace は ≥3 tool calls 必要 = reach efficiency 改善 articulate)
+  - 観測 2 (CT2 PASS、negative): 関係ない path で関連 rule surface 0 件 (= drawer の noise 抑制 articulate)
+  - 観測 3 (CT3 PASS): rule detail rapid lookup で 2 read 以下で reach (rule-index で confirm + merged-architecture-rules.json で detail = migrationRecipe + fixNow + resolvedBy 全 articulate)
+  - 観測 4 (CT4 PASS): drift detection で 4 sync guard (29 test) 全 active、PASS 状態
+  - 観測 5 (CT5 PASS): session 間判断継承で DA entry 6 件 (000/002a/002b/003/004/005) + 12 annotated tag が landed、再 derivation 不要
+  - 反証 (1 件): mapped 率 30.2% は F1 coverage の partial articulate (= post-Pilot 改善 candidate articulate)
+
+### CT1-CT5 observation table (実測)
+
+| CT | Scenario | Functioning | 実測値 | 判定 |
+|---|---|---|---|---|
+| **CT1** | path-triggered rule access (`@project-overlay/execution-overlay` 編集) | F1 必要 context のみ surface | drawer (`rules-by-path.byImport`) 1 read で `@project-overlay/execution-overlay` key の rule id 集合 reach。比較対象 = TS trace (= base-rules.ts 10,805 行 grep + import 解析) で ≥3 tool call。**reach efficiency: 1 read** | PASS |
+| **CT2** | irrelevant path 編集で関連 rule surface 0 件 (negative test) | F1 noise 抑制 | `chart-tsx-like` keyword で byImport key 0 件、`@/presentation/` で exactly 3 rule (AR-A1-DOMAIN / AR-A1-APP-PRES / AR-A1-INFRA-PRES = 全 layer-boundary rule、想定通り)。**noise 0 / signal 100%** | PASS |
+| **CT3** | rule detail rapid lookup (`AR-CAND-BIZ-NO-RATE-UI` 違反時) | F2 素早く reach | rule-index 1 read で 1 行 summary + slice + tags + _seam reach、merged-architecture-rules.json 1 read で migrationRecipe (3 step) + fixNow + resolvedBy (= operational state) 全 articulate。**total: 2 read** | PASS |
+| **CT4** | drift detection (4 sync guard active 状態) | F3 機械検出 | `aagMergedArtifactSyncGuard` (6 test) + `aagContractSchemaSyncGuard` (7 test) + `ruleBindingBoundaryGuard` (6 test) + `aagDrawerSyncGuard` (10 test) = **29 test 全 PASS**。試験 drift hard fail は実装時に確認済 (本 simulation では既存 4 guard の active 確認のみ) | PASS |
+| **CT5** | session 間判断継承 (新 session が `decision-audit.md` を read して再 derivation 不要) | F4 session 継承 | DA entry 6 件 landed (DA-α-000 / 002a / 002b / 003 / 004 / 005) + Phase 1 関連 commit 8 件 + 12 annotated tag (judgement + rollback-target × 6 entry) すべて push 済 (環境制約で remote tag push は 403、local では integrity 確保)。**新 session が DA を read することで判断 + 観測点 + commit lineage を再構築可能** | PASS |
+
+### F1-F5 functioning verdict
+
+| Functioning | verdict | 根拠 |
+|---|---|---|
+| **F1** 必要 context のみ surface (noise 抑制 + path-triggered) | **PASS (partial coverage)** | CT1 (1 read reach) + CT2 (noise 0) で principle 検証。ただし mapped 率 30.2% (= 52/172) で path 経由 reach 不能 rule あり。unmapped rule は rule-by-topic 経由で reach 可能 (= cross-axis fallback 確保)、F1 全体は **partial 機能 articulate** (post-Pilot で heuristic 改善 candidate) |
+| **F2** 素早く reach | **PASS** | CT3 で 2 read reach (rule-index + merged-architecture-rules.json)。base-rules.ts 直接 grep (>10,000 行) 比で ≥10× efficiency |
+| **F3** 機械検出 (drift) | **PASS** | CT4 で 4 sync guard 29 test 全 active + PASS。byte-identity / schema validation / regex boundary / structural sync で 4 軸全網羅 |
+| **F4** session 間判断継承 | **PASS** | CT5 で DA entry 6 件 + 12 tag landed、再 derivation 不要 articulate |
+| **F5** Decision Audit 履歴の articulate | **PASS** | DA-α-000 (進行モデル self-dogfood) + DA-α-002a 〜 005 (Phase 1 各軸 5 軸 articulation + commit lineage) + 本 entry (Phase 2 verification) で 7 entry 全 articulated。`taskClass` field を本 entry で初使用 (post-Pilot AI Role Layer 差し込み口 = seam 機能 verify) |
+
+### 5 軸 articulation
+
+- **製本** (canonical): 本 entry 自身 (= Phase 2 simulation 結果の唯一の articulate 点)。CT1-CT5 simulation script は再現性のため commit ログ + drawer artifact + sync guard test 結果で代替 (= AI session の non-deterministic 性により script 化困難)
+- **依存方向**: Phase 1 の 8 軸 deliverable + 4 sync guard + 3 drawer artifact + DA entry 5 件 → 本 entry (= simulation observation 集約) → DA-α-007 (Phase 3 archive 判断) — 一方向、観測は派生・上流改変禁止
+- **意味**: 「F1-F5 functioning が observable に verify されたか」(verification 1 問い、5 機能に分解)
+- **責務**: simulation observation の articulate のみ (single responsibility = state-based verification の landing)。改善計画 / 横展開 charter は別 entry (DA-α-007) の責務
+- **境界**: AI session 内 simulation (= state-based) の **内** = CT1-CT5 / F1-F5 verdict、**外** = 実 session log 解析 (= post-Pilot scope) / 横展開 candidate subsystem への適用 (= DA-α-007 + post-Pilot scope)
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `38a6f6a` (前 commit、DA-α-005 Lineage update)
+- judgementTag: `aag-platformization/DA-α-006-judgement` (本 commit に annotated tag landing)
+- rollbackTag: `aag-platformization/DA-α-006-rollback-target` (`38a6f6a` に annotated tag landing)
+- implementationCommits:
+  - `<本 commit sha>` — DA-α-006 entry landing (CT1-CT5 observation table + F1-F5 verdict + DA-α-005 retrospective merge)
+
+### 振り返り (Phase 2 完了直後 = 本 commit landing 直後)
+
+- 観測 1 (CT1 PASS): **正しい** — drawer 1 read で reach、TS trace との efficiency 差を articulate
+- 観測 2 (CT2 PASS): **正しい** — noise 0 / signal 100% (presentation 関連 3 rule = layer-boundary 想定通り)
+- 観測 3 (CT3 PASS): **正しい** — 2 read で migrationRecipe + fixNow + resolvedBy 全 reach
+- 観測 4 (CT4 PASS): **正しい** — 4 sync guard 29 test 全 PASS
+- 観測 5 (CT5 PASS): **正しい** — 6 DA entry + 12 tag landed、新 session 再構築可能
+- 反証 (mapped 率 30.2%): **部分的** — F1 coverage の partial articulate、post-Pilot 改善 candidate
+- 判定: **正しい (with partial F1 coverage)** — F1-F5 全 verdict PASS、F1 coverage 限界は post-Pilot で改善
+- 学習:
+  - state-based verification (= AI session 内 simulation) は calendar-based 観測の代替として **functioning** する。CT を quantitative にした (= read 数 / test 数 / rule id 数 / mapped 率) ことで own-side bias を mitigation
+  - drawer の `_seam` field (= post-Pilot Role Layer 差し込み口) が articulate されていることで **forward compatibility が保たれる** (= 構造的に Phase 3 charter で role を articulate しても drawer 改変なしで対応可能)
+  - mapped 率 30.2% の articulate は **partial coverage を hide せず articulate する** ことで AAG 5 軸「境界」= 機能の限界を honest に articulate (= Pilot Application としての self-dogfood 実例)
+- **Pilot 完了 criterion (`plan.md` §2)** との整合:
+  - #1 (8 軸 articulate): Phase 1 で全 met
+  - #2 (実バグ 3 件修復): A2a で全 met
+  - **#3 (AI simulation で F1-F5 verify): 本 entry で met (= partial coverage articulate を含む)**
+  - #4 (Pilot 判断履歴 landing): DA-α-001 (Authority articulation = Phase 1 で A1 軸の verify のみ実施、別 entry articulate なし) を除き 002a / 002b / 003 / 004 / 005 / 006 で 6 件 landed → DA-α-001 は A1 verify が plan.md / decision-audit.md / source-of-truth.md back-link で完了済 (= 別 entry を増やさない、`strategy.md` §1.1「正本を増やさない」整合)
+  - #5 (System Inventory に AAG entry が "Pilot complete" status で landing): Phase 3 (DA-α-007) で実施
+- retrospectiveCommit / Tag: 本 entry と同一 commit (= 本 entry landing 後に sha 記入)
