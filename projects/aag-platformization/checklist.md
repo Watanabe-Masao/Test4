@@ -1,124 +1,100 @@
 # checklist — aag-platformization
 
-> 役割: completion 判定の入力 (機械検証可能な checkbox 集合)。
-> 各 Phase は **observable verification** が完了条件。articulate 完了は条件ではない (supreme principle)。
-> 各 Phase 完了時に DA entry に 5 軸 articulate + 振り返り observation + Commit Lineage を landing。
+> 各 item は **observable verification** が完了条件 (supreme principle)。
+> 各 Phase 完了時に DA entry に articulation + commit lineage + 振り返り observation を landing。
 
 ## Phase 0: Bootstrap
 
-- [x] `_template/` をコピーして `projects/aag-platformization/` を作成した
-- [x] `config/project.json` を実値で埋めた
-- [x] `projectization.md` に AAG-COA 判定 (Level 3) を記録した
-- [x] `AI_CONTEXT.md` / `HANDOFF.md` / `plan.md` / `checklist.md` を埋めた
-- [x] `aag/execution-overlay.ts` を空のまま (本 program は本体 merge に参加しない)
-- [x] `breaking-changes.md` を派生セットから足した
-- [x] `decision-audit.md` を scaffold + DA-α-000 (進行モデル決定) landing 済
-- [x] DA-α-000 entry に Phase 0 全成果物の Q1〜Q5 self-check を埋めた
-- [x] `decision-audit.md` の DA entry テンプレに **5 軸 articulation** 欄追加
-- [x] `plan.md` を supreme principle + F1-F7 + 7 Phase 構造に refactor
-- [ ] `references/02-status/open-issues.md` に `aag-platformization` 行を追加
+- [x] `_template/` から `projects/aag-platformization/` 作成 + 必須セット 6 ファイル
+- [x] `decision-audit.md` scaffold + DA-α-000 (進行モデル) landing
+- [x] `references/01-principles/platformization-standard.md` 新設 (本 project = Pilot Application)
+- [x] plan を 3 Phase + 1 Gate に clean rewrite
+- [ ] `references/02-status/open-issues.md` に `aag-platformization` 行追加
 - [ ] `CURRENT_PROJECT.md` を `aag-platformization` に切替
 - [ ] `cd app && npm run verify:project && npm run test:guards && npm run docs:generate && npm run docs:check && npm run lint && npm run build` 全 PASS
 
-## Phase 1: 5 軸 articulation framework operational 化
+## Phase 1: Pilot Fill (8 軸 × 実バグ修復)
 
-- [ ] DA-α-001 entry を `decision-audit.md` に landing (判断時 + 5 軸 articulate + 振り返り観測点)
-- [ ] DA-α-001 の Commit Lineage (judgementCommit / preJudgementCommit + annotated tag) を記録 + push
-- [ ] 既存 5 軸 articulate (source-of-truth / architecture / meta / strategy / layer-map) を verify した結果を DA entry に articulate
-- [ ] gap が無い ことを確認 (gap があれば既存 doc に追加、新 doc は作らない)
-- [ ] 本 plan.md / decision-audit.md template に 5 軸 articulate 欄が反映されているか verify
-- [ ] **観測**: 本 program 内全 deliverable の 5 軸 articulate 存在 Y/N
-- [ ] DA-α-001 振り返り判定 (正しい / 部分的 / 間違い) を記録
+### A1 Authority
 
-## Phase 2: `rules-by-path` artifact + sync guard
+- [ ] DA-α-001 entry landing (5 軸 articulation + 振り返り観測点 + commit lineage + tag)
+- [ ] 4 layer 正本 articulate を verify (Core 型 / App Domain / Project Overlay / Derived / Facade) + Standard §A1 への back-link 整理
+- [ ] **観測**: 4 layer 正本 articulate 曖昧 0 件 Y/N
 
-- [ ] DA-α-002 entry を landing (判断時 + 5 軸 articulate + 振り返り観測点 + format 選定根拠)
-- [ ] DA-α-002 の Commit Lineage + tag 記録 + push
-- [ ] **format 選定**: JSON / CUE / YAML / TOML / 他から AI が事実根拠で 1 つ採用
-- [ ] `tools/architecture-health/src/aag/rules-by-path-generator.ts` 新設
-- [ ] `docs/generated/aag/rules-by-path.<format>` 生成可
-- [ ] `app/src/test/guards/aagRulesByPathSyncGuard.test.ts` 新設 (drift 検出)
-- [ ] `npm run docs:generate` から呼び出し
-- [ ] **観測 simulation** (本 session 内):
-  - [ ] AI が `merged.ts` 編集 task で artifact 1 read で関連 rule id 集合取得 Y/N
-  - [ ] TS trace 比 tool call 削減率 > 2.0 Y/N
-  - [ ] 試験 drift (canonical 編集 + artifact 未生成) で sync guard hard fail Y/N
-- [ ] DA-α-002 振り返り判定 + Q1〜Q5 self-check
-- [ ] 不機能なら artifact 削除 + revert + DA に "機能しなかった" 記録
-- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
+### A2 Derivation (= 実バグ修復)
 
-## Phase 3: `rule-detail` drawer + `rule-index`
+- [ ] DA-α-002 entry landing (採用案 + format 選定根拠 + 5 軸 + 振り返り観測点 + commit lineage + tag)
+- [ ] `app/src/test/aag-core-types.ts` に `RuleExecutionOverlayEntry` 集約定義
+- [ ] `_template / pure-calculation-reorg / aag-platformization` の overlay type import を集約版に切替 + 冒頭 comment 整合
+- [ ] `app/src/test/architectureRules/merged.ts` に `resolvedBy` field 追加 + bootstrap 修復
+- [ ] `references/03-guides/new-project-bootstrap-guide.md` Step 4 整合
+- [ ] `tools/architecture-health/src/aag/merge-artifact-generator.ts` 新設
+- [ ] `docs/generated/aag/merged-architecture-rules.<format>` 生成可
+- [ ] `app/src/test/guards/aagMergedArtifactSyncGuard.test.ts` 新設
+- [ ] **観測**: 空 `EXECUTION_OVERLAY = {}` で `merged.ts` throw しない / `pure-calculation-reorg` 既存 merge 結果 byte-identical (golden test) / artifact runtime と byte-identical / 試験 drift で sync guard hard fail
+- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
 
-- [ ] DA-α-003 entry を landing (5 軸 + granularity 判断 + 観測点)
-- [ ] DA-α-003 の Commit Lineage + tag
-- [ ] `tools/architecture-health/src/aag/rule-detail-generator.ts` 新設
-- [ ] `docs/generated/aag/rule-index.<format>` 軽量 index 生成
-- [ ] `docs/generated/aag/rule-detail/<id>.<format>` 個別 rule detail 生成
-- [ ] `app/src/test/guards/aagRuleDetailSyncGuard.test.ts` 新設
-- [ ] **観測**:
-  - [ ] AI が rule lookup を rule-index → rule-detail で完了する step 数 (TS trace 比較)
-  - [ ] guard 違反 simulation で AI が rule-detail に reach する step 数
-- [ ] DA-α-003 振り返り判定 + Q1〜Q5 self-check
-- [ ] 不機能なら artifact 削除 + revert
-- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
+### A3 Contract
 
-## Phase 4: 5 軸 audit (既存 AAG + 本 project)
+- [ ] DA-α-003 entry landing (5 軸 + 観測点 + commit lineage + tag)
+- [ ] `docs/contracts/aag/aag-response.<format>` 新設
+- [ ] `docs/contracts/aag/detector-result.<format>` 新設
+- [ ] `tools/architecture-health/src/aag-response.ts` の `AagResponse` 型を schema 駆動化
+- [ ] helpers.ts は schema-backed re-export (既存 `aagResponseFeedbackUnificationGuard` 維持)
+- [ ] `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` 新設
+- [ ] **観測**: schema validation 通過 / 既存 text renderer byte-identical (golden) / `aagResponseFeedbackUnificationGuard` 維持
+- [ ] `cd app && npm run test:guards` PASS
 
-- [ ] DA-α-004 entry を landing (audit scope + 違反検出基準 + 振り返り観測点)
-- [ ] CLAUDE.md / `aag/*` / `references/01-principles/aag/*` を 5 軸 audit
-- [ ] 本 project (`aag-platformization`) を自己 audit (reframe 跡 articulate を含む)
-- [ ] 違反箇所を分類: 製本重複 / 依存逆 / 責務集合 / 境界曖昧 / 意味曖昧
-- [ ] per-violation で restructure 判断 (実施 / 据置 / 後続) を DA entry に articulate
-- [ ] 採用された restructure を実施 (新 doc 増設は禁止、既存 doc 拡張のみ)
-- [ ] **観測**:
-  - [ ] 違反検出件数
-  - [ ] 解消件数
-  - [ ] 本 project 内 articulation 量の変化 (削減量)
-- [ ] DA-α-004 振り返り判定
-- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
+### A4 Binding
 
-## Phase 5: `rule-by-topic` index
+- [ ] DA-α-004 entry landing (5 軸 + 観測点 + commit lineage + tag)
+- [ ] `app/src/test/guards/ruleBindingBoundaryGuard.test.ts` 新設 (許可 5 field / 禁止意味系 7+ field)
+- [ ] policy back-link を `architectureRules/types.ts` の RuleBinding interface コメントに記載 (新 doc 作らず)
+- [ ] **観測**: 違反コード試験で hard fail / 既存 RuleBinding (5 field) は通る
+- [ ] `cd app && npm run test:guards` PASS
 
-- [ ] DA-α-005 entry を landing (manifest.json 拡張 vs 並列 file 判断 + 5 軸)
-- [ ] DA-α-005 の Commit Lineage + tag
-- [ ] `tools/architecture-health/src/aag/rule-by-topic-generator.ts` 新設
+### A5 Generated
+
+- [ ] DA-α-005 entry landing (drawer 4 種 granularity + 配置判断 + 5 軸 + 観測点 + commit lineage + tag)
+- [ ] `tools/architecture-health/src/aag/drawer-generator.ts` 新設
+- [ ] `docs/generated/aag/rules-by-path.<format>` 生成
+- [ ] `docs/generated/aag/rule-index.<format>` 生成
+- [ ] `docs/generated/aag/rule-detail/<id>.<format>` 生成
 - [ ] `docs/generated/aag/rule-by-topic.<format>` 生成
-- [ ] manifest.json 拡張または並列 articulate (採用判断次第)
-- [ ] sync guard 追加
-- [ ] **観測**: AI が topic 起点で rule subset に reach できる Y/N + tool call 削減率
-- [ ] DA-α-005 振り返り判定 + Q1〜Q5 self-check
+- [ ] `app/src/test/guards/aagDrawerSyncGuard.test.ts` 新設
+- [ ] **観測**: AI が `merged.ts` 編集 task で関連 rule subset に 1 read で reach Y/N / 不要 rule surface 0 件 Y/N / 試験 drift で hard fail Y/N
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
 
-## Phase 6: Simulation + 機能 verify
+### A6 Facade / A7 Policy / A8 Gate
 
-- [ ] DA-α-006 entry を landing (simulation suite scope + 観測 protocol)
-- [ ] `tools/aag-simulation/` (or 等価 location) に simulation runner を新設 (Go or Python or shell、Rust 除外)
-- [ ] **CT1〜CT7 を AI 自身が実行** (本 session 内 / state-based、calendar 観測なし):
-  - [ ] CT1 path-triggered rule access (Phase 2 effect)
-  - [ ] CT2 irrelevant context surface しない (negative)
-  - [ ] CT3 rule detail rapid lookup (Phase 3 effect)
-  - [ ] CT4 topic discovery (Phase 5 effect)
-  - [ ] CT5 drift 検出 (Phase 2/3/5 sync guard)
-  - [ ] CT6 session 間判断継承 (decision-audit re-derive 不要)
-  - [ ] CT7 5 軸 articulate なき deliverable は review block (Phase 1 effect)
+- [ ] A6: `architectureRules.ts` の consumer import が変わらない (no-op verify)
+- [ ] A7: 全 deliverable に 5 軸 articulation 存在 (DA entry 内 verify)
+- [ ] A8: 全 sync guard active + 既存 9 integrity guard 維持 + Phase 完了 gate PASS
+
+## Phase 2: Verification (AI simulation)
+
+- [ ] DA-α-006 entry landing (simulation suite scope + observation protocol)
+- [ ] CT1 path-triggered rule access (A5 effect、F1)
+- [ ] CT2 irrelevant context surface しない (negative、F1)
+- [ ] CT3 rule detail rapid lookup (A5 effect、F2)
+- [ ] CT4 drift detection (A2 / A3 / A5 sync guard、F3)
+- [ ] CT5 session 間判断継承 (decision-audit re-derive 不要、F4)
 - [ ] 各 CT 結果を DA-α-006 observation table に landing
-- [ ] F1〜F7 の機能 status を articulate
+- [ ] F1〜F5 の機能 status を articulate
 - [ ] DA-α-006 振り返り判定
 
-## Phase 7: archive + cutover charter
+## Phase 3: Archive + 横展開 charter
 
-- [ ] DA-α-007 entry を landing (archive 判断 + 後続 program charter 必要性)
-- [ ] 不機能と判明した deliverable の revert 完了
-- [ ] Phase 4 audit で identify された負債の削減実施
-- [ ] 後続 program (もし必要なら) charter を 1 doc で articulate (新規 or 既存拡張は判断)
-- [ ] `references/02-status/recent-changes.md` に本 program のサマリ追加
+- [ ] DA-α-007 entry landing (archive + 横展開 charter 必要性判断)
+- [ ] System Inventory (Standard §3) に AAG entry を "Pilot complete" status で landing
+- [ ] 後続 program (もし必要なら) charter を 1 doc articulate (新規 or 既存拡張)
+- [ ] `references/02-status/recent-changes.md` にサマリ追加
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS
 
-## 最終 archive レビュー (人間承認、構造的要請)
+## 最終 archive レビュー (人間承認、唯一の人間 mandatory 点)
 
-> 本 program 唯一の人間承認点 (`plan.md` 不可侵原則 6)。
-> judgement の正しさを担保しない、責任の引受。
+> `plan.md` 不可侵原則 6。judgement の正しさを担保しない、責任の引受。
 
 - [ ] 人間が `decision-audit.md` の全 entry (DA-α-000〜007) を read
-- [ ] 全 F1-F7 の observation 結果を確認
+- [ ] F1〜F5 + Pilot 完了 criterion 5 件 (`plan.md` §2) の observation 結果を確認
 - [ ] archive プロセスへの移行を承認

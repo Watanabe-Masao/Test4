@@ -232,6 +232,7 @@
 | AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）                     | `01-principles/aag/source-of-truth.md`                          |
 | AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                                          | `01-principles/aag/layer-map.md`                                |
 | Display Rule Registry (DFR、Project C Phase 1)                                                         | `01-principles/aag/display-rule-registry.md`                    |
+| Platformization Standard（全 subsystem 共通の 8 軸 articulate template、AAG が Pilot Application）     | `01-principles/platformization-standard.md`                     |
 | AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                           | `01-principles/aag-5-constitution.md`                           |
 | AAG 5.0 既存ファイル層マッピング（旧、Phase 5.1 で archive 移管済 → aag/layer-map.md）                 | `99-archive/aag-5-layer-map.md`                                 |
 | AAG 5.0 正本/派生/運用物ポリシー（旧、Project A Phase 5 で archive 予定）                              | `01-principles/aag-5-source-of-truth-policy.md`                 |

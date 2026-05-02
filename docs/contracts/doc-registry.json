@@ -116,6 +116,10 @@
           "label": "Display Rule Registry (DFR) — Layer 2 製本、AAG bidirectional integrity の最初の concrete instance (Project C Phase 1 deliverable、aag-display-rule-registry project)。DFR-001 chart semantic color (実績=緑/推定=オレンジ) + DFR-002 axis formatter via useAxisFormatter + DFR-003 percent via formatPercent (小数第2位) + DFR-004 currency via formatCurrency (thousands separator 明文化、content-and-voice.md の旧 not enforced 記述を update) + DFR-005 icon via pageRegistry / emoji canonical を articulate。Project B の SemanticTraceBinding schema + 4 meta-guard を utilize し forward / reverse direction 機械検証成立 (Phase 2-4 で landing)"
         },
         {
+          "path": "references/01-principles/platformization-standard.md",
+          "label": "Platformization Standard — 全 subsystem 共通の articulate template。8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate) で全 subsystem を記述する。粒度を揃え、進度は asynchronous。AAG (`projects/aag-platformization/`) が Pilot Application。横展開は docs / App Profile / health 等へ asynchronous (本 program scope 外)"
+        },
+        {
           "path": "references/99-archive/adaptive-architecture-governance.md",
           "label": "[ARCHIVED Project A Phase 5.8] AAG 旧戦略マスター (6 責務同居 = 戦略 + 文化論 + 設計原則 + バージョン履歴 + 旧 4 層 + 関連文書 table) — Phase 5.8 で archive 移管済 (Phase 5 multi-session 最後)。Split 移管先: aag/strategy.md (戦略 + 文化論 + AAG の本質 + AI 対話) + aag/architecture.md §4 (旧 4 層 mapping) + aag/operational-classification.md §6 (Response フロー) + design-principles.md (設計原則 8 件)"
         },
