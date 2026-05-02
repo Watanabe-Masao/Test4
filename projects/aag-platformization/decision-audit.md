@@ -102,12 +102,13 @@ git push origin <tag>
 |---|---|---|---|
 | DA-α-000 | Phase 0 | 本 program の進行モデル (AI-driven judgement + retrospective + commit-bound rollback) | active |
 | DA-α-001 | Phase 1 / A1 | Authority articulation 方針 (4 layer 正本確認 + back-link) | planned |
-| DA-α-002 | Phase 1 / A2 | merge policy 採用案 + format 選定 + 実バグ修復方針 | planned |
-| DA-α-003 | Phase 1 / A3 | AagResponse + detector schema 化方針 | planned |
+| DA-α-002a | Phase 1 / A2a | merge policy canonical 単一点 (`aag/source-of-truth.md` "Merge Policy" section) + 実バグ修復方針 | planned |
+| DA-α-002b | Phase 1 / A2b | merged artifact format (generated 系、A3 contract format とは独立) + sync guard 設計 | planned |
+| DA-α-003 | Phase 1 / A3 | **contract format 先行確定** (schema 系、generated 系とは独立) + AagResponse + detector schema 化方針 | planned |
 | DA-α-004 | Phase 1 / A4 | RuleBinding 境界 guard 設計 | planned |
-| DA-α-005 | Phase 1 / A5 | drawer 4 種 granularity + 配置 | planned |
+| DA-α-005 | Phase 1 / A5 | **drawer format** (generated 系、A2b と相互整合、A3 とは独立) + drawer 4 種 granularity + 配置 | planned |
 | DA-α-006 | Phase 2 | simulation CT1-CT5 結果総括 + F1〜F5 status | planned |
-| DA-α-007 | Phase 3 | archive 判断 + 横展開 charter 必要性 | planned |
+| DA-α-007 | Phase 3 | archive 判断 + **横展開可否判定条件** articulation + 後続 charter 必要性 | planned |
 
 ---
 

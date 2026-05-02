@@ -45,15 +45,22 @@ bootstrap + reframe 履歴は `decision-audit.md` DA-α-000 に集約済。
 | 軸 | Pilot deliverable | 関連 DA | 観測 |
 |---|---|---|---|
 | **A1 Authority** | 4 layer 正本確認 (Core 型 / App Domain / Project Overlay / Derived / Facade) + Standard §A1 への back-link 整理 | DA-α-001 | 4 layer 正本 articulate に曖昧 0 件 |
-| **A2 Derivation** | merge policy 一本化 + `merged-architecture-rules.<format>` 生成 + sync guard。**実バグ 3 件修復**: 三重定義 `RuleExecutionOverlayEntry` を `aag-core-types.ts` 集約 / merged.ts に `resolvedBy` 追加 / 各 overlay comment 整合 / bootstrap-guide Step 4 整合 | DA-α-002 | 空 `EXECUTION_OVERLAY = {}` で `merged.ts` throw しない / `pure-calculation-reorg` 既存 merge 結果 byte-identical / artifact runtime と byte-identical / 試験 drift で sync guard hard fail |
-| **A3 Contract** | `AagResponse` + `detector-result` schema 化 (`docs/contracts/aag/`) + sync guard。helper は schema-backed re-export | DA-α-003 | schema validation 通過 / 既存 text renderer byte-identical / 既存 `aagResponseFeedbackUnificationGuard` 維持 |
+| **A2a Derivation (policy + 実バグ修復)** | **`aag/source-of-truth.md` に "Merge Policy" section 追加 (= merge policy canonical 単一点)**: 解決順序 / reviewPolicy 契約 / `resolvedBy` 必須 articulate。**実バグ 3 件修復**: 三重定義 `RuleExecutionOverlayEntry` を `aag-core-types.ts` 集約 / `merged.ts` bootstrap 修復 + `resolvedBy` field 追加 / 各 overlay comment + bootstrap-guide Step 4 を canonical section に back-link 整合 | DA-α-002a | 空 `EXECUTION_OVERLAY = {}` で `merged.ts` throw しない / `pure-calculation-reorg` 既存 merge 結果 byte-identical (golden test) / merged.ts / defaults.ts / 各 overlay comment が source-of-truth.md "Merge Policy" section に back-link |
+| **A2b Derivation (artifact + sync guard)** | `tools/architecture-health/src/aag/merge-artifact-generator.ts` 新設 + `docs/generated/aag/merged-architecture-rules.<format>` 生成 + `aagMergedArtifactSyncGuard` | DA-α-002b (artifact format = generated 系) | artifact runtime と byte-identical / 試験 drift で sync guard hard fail |
+| **A3 Contract** | **contract format 先行確定** (`AagResponse` / `detector-result` の schema 形式、generated 系とは独立判断) → `docs/contracts/aag/aag-response.<format>` + `docs/contracts/aag/detector-result.<format>` 新設 + sync guard。helper は schema-backed re-export | DA-α-003 (contract format = schema 系) | schema validation 通過 / 既存 text renderer byte-identical / 既存 `aagResponseFeedbackUnificationGuard` 維持 |
 | **A4 Binding** | `ruleBindingBoundaryGuard.test.ts` 新設 (許可 5 field / 禁止意味系) | DA-α-004 | 違反コード試験で hard fail / 既存 RuleBinding pass |
-| **A5 Generated** | drawer 4 種: `rules-by-path` (path → rule id) / `rule-index` (軽量 index) / `rule-detail/<id>` (on-demand) / `rule-by-topic` (manifest discovery 拡張) + 各 sync guard | DA-α-005 | AI が path 編集 task で関連 rule subset に 1 read で reach / 不要 rule surface しない / drift で sync guard hard fail |
+| **A5 Generated** | drawer 4 種: `rules-by-path` / `rule-index` / `rule-detail/<id>` / `rule-by-topic`。**A5 内で独立に format 判断** (A3 contract format と必ずしも一致しない、index / lookup 用途で最適 format を選定) + 各 sync guard | DA-α-005 (drawer format = generated 系、A2b と相互整合判断) | AI が path 編集 task で関連 rule subset に 1 read で reach / 不要 rule surface しない / drift で sync guard hard fail |
 | **A6 Facade** | `architectureRules.ts` 維持 (no-op verify) | - | 既存 consumer import 不変 |
 | **A7 Policy** | 不可侵原則 (本 §1) + DA institution + 5 軸 articulate 要件 (= 既存 articulate verify) | - | 全 deliverable に 5 軸 articulation 存在 |
 | **A8 Gate** | 全 sync guard + 既存 9 integrity guard active + Phase 完了 gate | - | `npm run test:guards && lint && build && docs:check` PASS |
 
-**format 選定** (A2 / A3 / A5 共通): JSON / CUE / YAML / TOML 等から AI 判断 (DA-α-002 内に集約)。
+**format 判断の分離** (改訂): 軸ごとに用途が異なるため format 判断を独立化:
+
+- **A2b artifact format** (DA-α-002b): merged result の generated artifact、TS から re-export 可能性が要件 → JSON 系 / TS-friendly 候補
+- **A3 contract format** (DA-α-003): AagResponse / detector の schema、言語非依存 contract が要件 → JSON Schema / CUE / Protobuf 候補
+- **A5 drawer format** (DA-α-005): AI 直読 + index / lookup 用途、軽量性が要件 → JSON / YAML / TOML 候補 (A2b と相互整合、ただし A3 とは独立で良い)
+
+A2/A3/A5 で format 統一は強制しない。subsystem ごとに最適化。
 
 ### Phase 2: Verification (AI simulation)
 
@@ -69,9 +76,21 @@ bootstrap + reframe 履歴は `decision-audit.md` DA-α-000 に集約済。
 
 5 機能 (F1-F5) status を DA-α-006 observation table に landing。
 
-### Phase 3: Archive + 横展開 charter
+### Phase 3: Archive + 横展開可否判定条件 articulation
 
 - System Inventory (Standard §3) に AAG entry を "Pilot complete" status で landing
+- **横展開可否判定条件を articulate** (= 改訂 4、横展開そのものは scope 外維持、判定条件のみ articulate):
+    - **展開可条件** (全 met なら docs / app / health 等への横展開を別 program で着手可):
+        1. Pilot 完了 criterion (`plan.md` §2) 5 件 全 met
+        2. AAG が System Inventory (Standard §3) に "Pilot complete" status landed
+        3. Standard §9 (does / does NOT) capability boundary 違反 0 件
+        4. 横展開 candidate subsystem が Standard 8 軸 template を **AI 自身が application 可能** (= 8 軸の各々で candidate subsystem を articulate しきれる) と verify
+        5. Pilot 過程の learning (DA-α-001〜006 振り返り) が後続 program に引き継ぎ可能な形で landing
+    - **展開禁止条件** (1 つでも該当なら横展開禁止):
+        - 既存 9 integrity guard / 12 AAG-REQ baseline が緩和されている
+        - Pilot で identify された負債が未解消
+        - Standard 8 軸の中で AAG 自身が articulate しきれていない軸がある (= Pilot 不完全)
+        - 候補 subsystem の owner / 承認構造が unclear
 - 後続 program (もし必要なら) charter を 1 doc で articulate (新規 or 既存拡張、判断 = DA-α-007)
 - `references/02-status/recent-changes.md` にサマリ追加
 
@@ -86,6 +105,15 @@ bootstrap + reframe 履歴は `decision-audit.md` DA-α-000 に集約済。
 ## §4 Decision Audit + 5 軸 lens
 
 - **DA institution**: `decision-audit.md` (entry テンプレ + 必須要件 + commit lineage + 5 軸 articulation 欄 + 振り返り)
+- **planned entries** (Phase / 軸との mapping):
+    - DA-α-001: A1 Authority articulation 方針
+    - **DA-α-002a**: A2a merge policy canonical 単一点 (source-of-truth.md "Merge Policy" section) + 実バグ修復方針
+    - **DA-α-002b**: A2b merged artifact format + sync guard 設計
+    - DA-α-003: A3 contract format (schema) + AagResponse / detector schema 化方針
+    - DA-α-004: A4 RuleBinding 境界 guard 設計
+    - DA-α-005: A5 drawer format (A2b と相互整合、A3 とは独立) + drawer 4 種 granularity
+    - DA-α-006: Phase 2 simulation CT1-CT5 結果総括
+    - DA-α-007: Phase 3 archive + 横展開可否判定条件 articulation 判断
 - **5 軸 lens** (component design): 製本 / 依存方向 / 意味 / 責務 / 境界。既存 articulate 場所:
   - 製本 → `aag/source-of-truth.md`
   - 依存方向 → `aag/architecture.md` + `AAG-REQ-LAYER-SEPARATION`

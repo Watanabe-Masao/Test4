@@ -21,28 +21,42 @@
 - [ ] 4 layer 正本 articulate を verify (Core 型 / App Domain / Project Overlay / Derived / Facade) + Standard §A1 への back-link 整理
 - [ ] **観測**: 4 layer 正本 articulate 曖昧 0 件 Y/N
 
-### A2 Derivation (= 実バグ修復)
+### A2a Derivation (policy 単一点化 + 実バグ修復)
 
-- [ ] DA-α-002 entry landing (採用案 + format 選定根拠 + 5 軸 + 振り返り観測点 + commit lineage + tag)
+- [ ] DA-α-002a entry landing (canonical 配置判断 + 実バグ修復方針 + 5 軸 + 振り返り観測点 + commit lineage + tag)
+- [ ] `references/01-principles/aag/source-of-truth.md` に "Merge Policy" section 追加 (= **merge policy canonical 単一点**、解決順序 / reviewPolicy 契約 / `resolvedBy` 必須 articulate)
 - [ ] `app/src/test/aag-core-types.ts` に `RuleExecutionOverlayEntry` 集約定義
-- [ ] `_template / pure-calculation-reorg / aag-platformization` の overlay type import を集約版に切替 + 冒頭 comment 整合
-- [ ] `app/src/test/architectureRules/merged.ts` に `resolvedBy` field 追加 + bootstrap 修復
-- [ ] `references/03-guides/new-project-bootstrap-guide.md` Step 4 整合
+- [ ] `_template / pure-calculation-reorg / aag-platformization` の overlay type import を集約版に切替 + 冒頭 comment は source-of-truth.md "Merge Policy" section に back-link
+- [ ] `app/src/test/architectureRules/merged.ts` に `resolvedBy` field 追加 + bootstrap 修復 + 冒頭 comment は canonical section に back-link
+- [ ] `app/src/test/architectureRules/defaults.ts` の冒頭 comment を canonical section に back-link
+- [ ] `references/03-guides/new-project-bootstrap-guide.md` Step 4 を canonical section に back-link 整合
+- [ ] **観測 A2a**: 空 `EXECUTION_OVERLAY = {}` で `merged.ts` throw しない / `pure-calculation-reorg` 既存 merge 結果 byte-identical (golden test) / merged.ts / defaults.ts / 各 overlay comment が source-of-truth.md "Merge Policy" を **単一 canonical** として参照
+- [ ] DA-α-002a 振り返り判定 (正しい / 部分的 / 間違い)
+- [ ] `cd app && npm run test:guards && npm run lint && npm run build` PASS
+
+### A2b Derivation (merged artifact + sync guard)
+
+- [ ] DA-α-002b entry landing (artifact format 選定 + sync guard 設計 + 5 軸 + 振り返り観測点 + commit lineage + tag)
+- [ ] **artifact format 選定** (generated 系、A3 contract format とは独立判断): JSON / TS-friendly 候補から AI 採用判断
 - [ ] `tools/architecture-health/src/aag/merge-artifact-generator.ts` 新設
 - [ ] `docs/generated/aag/merged-architecture-rules.<format>` 生成可
 - [ ] `app/src/test/guards/aagMergedArtifactSyncGuard.test.ts` 新設
-- [ ] **観測**: 空 `EXECUTION_OVERLAY = {}` で `merged.ts` throw しない / `pure-calculation-reorg` 既存 merge 結果 byte-identical (golden test) / artifact runtime と byte-identical / 試験 drift で sync guard hard fail
-- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
+- [ ] `npm run docs:generate` から呼び出し
+- [ ] **観測 A2b**: artifact runtime merge と byte-identical / 試験 drift (canonical 編集 + artifact 未生成) で sync guard hard fail / `resolvedBy` field が artifact 内に正しく articulate
+- [ ] DA-α-002b 振り返り判定
+- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
 
 ### A3 Contract
 
-- [ ] DA-α-003 entry landing (5 軸 + 観測点 + commit lineage + tag)
+- [ ] DA-α-003 entry landing (**contract format 先行確定**、generated 系 A2b/A5 とは独立判断 + 5 軸 + 観測点 + commit lineage + tag)
+- [ ] **contract format 選定** (schema 系、言語非依存性が要件): JSON Schema / CUE / Protobuf 等から AI 採用判断
 - [ ] `docs/contracts/aag/aag-response.<format>` 新設
 - [ ] `docs/contracts/aag/detector-result.<format>` 新設
 - [ ] `tools/architecture-health/src/aag-response.ts` の `AagResponse` 型を schema 駆動化
 - [ ] helpers.ts は schema-backed re-export (既存 `aagResponseFeedbackUnificationGuard` 維持)
 - [ ] `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` 新設
 - [ ] **観測**: schema validation 通過 / 既存 text renderer byte-identical (golden) / `aagResponseFeedbackUnificationGuard` 維持
+- [ ] DA-α-003 振り返り判定
 - [ ] `cd app && npm run test:guards` PASS
 
 ### A4 Binding
@@ -55,7 +69,8 @@
 
 ### A5 Generated
 
-- [ ] DA-α-005 entry landing (drawer 4 種 granularity + 配置判断 + 5 軸 + 観測点 + commit lineage + tag)
+- [ ] DA-α-005 entry landing (**drawer format = generated 系、A2b と相互整合、A3 contract format とは独立判断** + drawer 4 種 granularity + 配置判断 + 5 軸 + 観測点 + commit lineage + tag)
+- [ ] **drawer format 選定** (index / lookup 用途、軽量性が要件): JSON / YAML / TOML 等から AI 採用判断 (A2b と相互整合確認)
 - [ ] `tools/architecture-health/src/aag/drawer-generator.ts` 新設
 - [ ] `docs/generated/aag/rules-by-path.<format>` 生成
 - [ ] `docs/generated/aag/rule-index.<format>` 生成
@@ -63,6 +78,7 @@
 - [ ] `docs/generated/aag/rule-by-topic.<format>` 生成
 - [ ] `app/src/test/guards/aagDrawerSyncGuard.test.ts` 新設
 - [ ] **観測**: AI が `merged.ts` 編集 task で関連 rule subset に 1 read で reach Y/N / 不要 rule surface 0 件 Y/N / 試験 drift で hard fail Y/N
+- [ ] DA-α-005 振り返り判定
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards` PASS
 
 ### A6 Facade / A7 Policy / A8 Gate
@@ -83,11 +99,15 @@
 - [ ] F1〜F5 の機能 status を articulate
 - [ ] DA-α-006 振り返り判定
 
-## Phase 3: Archive + 横展開 charter
+## Phase 3: Archive + 横展開可否判定条件 articulation
 
-- [ ] DA-α-007 entry landing (archive + 横展開 charter 必要性判断)
+- [ ] DA-α-007 entry landing (archive + 横展開可否判定条件 + 後続 charter 必要性判断 + 5 軸)
 - [ ] System Inventory (Standard §3) に AAG entry を "Pilot complete" status で landing
-- [ ] 後続 program (もし必要なら) charter を 1 doc articulate (新規 or 既存拡張)
+- [ ] **横展開可否判定条件** (`plan.md` §3 Phase 3) を articulate:
+  - [ ] 展開可条件 5 件 (Pilot 完了 criterion 全 met / Inventory landed / Standard §9 boundary 違反 0 / 候補 subsystem の 8 軸 application 可能性 verify / Pilot learning 引き継ぎ可能) を明文化
+  - [ ] 展開禁止条件 (既存 guard / AAG-REQ baseline 緩和 / Pilot 負債未解消 / 8 軸未 articulate 軸あり / candidate owner unclear) を明文化
+- [ ] 横展開そのものは **本 program scope 外維持** (= 不可侵原則 7、判定条件のみ articulate)
+- [ ] 後続 program (もし必要なら) charter を 1 doc articulate (新規 or 既存拡張、判断 = DA-α-007 内)
 - [ ] `references/02-status/recent-changes.md` にサマリ追加
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS
 
