@@ -1,0 +1,3045 @@
+{
+  "$schemaDescription": "Rule Index — 軽量 overview drawer。AI が rule 全景を 1 read で把握する用途。詳細は merged-architecture-rules.json (A2b) 参照。",
+  "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-02T14:07:15.415Z",
+  "sourceCommit": "e9e4ac8072799a799d6f72e8df308605dcf729e5",
+  "summary": {
+    "totalRules": 172
+  },
+  "rules": [
+    {
+      "id": "AR-001",
+      "what": "退役済みインフラ層 dual-run コードの再導入を禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/safety-first-architecture-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-002",
+      "what": "presentation 層が wasmEngine を直接 import することを禁止する",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "A3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-003",
+      "what": "UnifiedWidgetContext のフィールド数を凍結し shared hub の肥大化を防ぐ",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "C1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/widget-coordination-architecture.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-004",
+      "what": "@deprecated wrapper の新規追加を禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-005",
+      "what": "application/hooks/plans/ の shared plan hook 数を凍結する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "H1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/01-principles/modular-monolith-evolution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-DOMAIN",
+      "what": "domain/ は外部層に依存しない（純粋なビジネスロジック）",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1",
+        "A2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-APP-INFRA",
+      "what": "application/ は infrastructure/ に直接依存しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-APP-PRES",
+      "what": "application/ は presentation/ に依存しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-PRES-INFRA",
+      "what": "presentation/ は infrastructure/ に直接依存しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1",
+        "A3",
+        "A5"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-PRES-USECASE",
+      "what": "presentation/ は application/usecases/ を直接 import しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1",
+        "A3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-INFRA-APP",
+      "what": "infrastructure/ は application/ に依存しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-A1-INFRA-PRES",
+      "what": "infrastructure/ は presentation/ に依存しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G4-INTERNAL",
+      "what": "hooks/ に @internal export を作らない",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G4"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-C3-STORE",
+      "what": "store action 内に業務ロジック（算術式）を埋め込まない",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C3"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G3-SUPPRESS",
+      "what": "コンパイラ警告を黙殺しない（eslint-disable / @ts-ignore 禁止）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G3",
+        "E2"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-E4-TRUTHINESS",
+      "what": "数値フィールドの truthiness チェックを禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "E4"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-C5-SELECTOR",
+      "what": "Zustand store はセレクタ付きで呼ぶ",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C5"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G2-EMPTY-CATCH",
+      "what": "空の catch ブロックでエラーを握り潰さない",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-HOOK-MEMO",
+      "what": "application/hooks/ の useMemo 呼び出しを上限以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-HOOK-STATE",
+      "what": "application/hooks/ の useState 呼び出しを上限以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-HOOK-LINES",
+      "what": "application/hooks/ のファイルを 300 行以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G6-COMPONENT",
+      "what": "presentation/ の .tsx コンポーネントを 600 行以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G6"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-DOMAIN-LINES",
+      "what": "domain/ のファイルを 300 行以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5",
+        "A2"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-INFRA-LINES",
+      "what": "infrastructure/ のファイルを 400 行以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G5-USECASE-LINES",
+      "what": "application/usecases/ のファイルを 400 行以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G5"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-C6-FACADE",
+      "what": "facade ファイルの分岐を 5 以下に保つ（orchestration のみ）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C6"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-SALES",
+      "what": "売上データは readSalesFact / salesFactHandler 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/sales-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-DISCOUNT",
+      "what": "値引きデータは readDiscountFact / discountFactHandler 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/discount-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-GROSS-PROFIT",
+      "what": "粗利計算は calculateGrossProfit 経由でのみ実行する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9",
+        "D1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/gross-profit-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-PURCHASE-COST",
+      "what": "仕入原価は readPurchaseCost 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/purchase-cost-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-CUSTOMER",
+      "what": "客数データは readCustomerFact 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/customer-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-CUSTOMER-GAP",
+      "what": "客数 GAP は calculateCustomerGap 経由でのみ計算する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9",
+        "D1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/customer-gap-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-PI-VALUE",
+      "what": "PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9",
+        "D1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/pi-value-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-FREE-PERIOD",
+      "what": "自由期間分析データは readFreePeriodFact 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/free-period-analysis-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-FREE-PERIOD-BUDGET",
+      "what": "自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/free-period-budget-kpi-contract.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-FREE-PERIOD-DEPT-KPI",
+      "what": "自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/free-period-budget-kpi-contract.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-FACTOR-DECOMPOSITION",
+      "what": "要因分解は calculateFactorDecomposition 経由でのみ実行する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9",
+        "D1",
+        "D2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/authoritative-calculation-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-PATH-GROSS-PROFIT-CONSISTENCY",
+      "what": "粗利計算の一貫性を保証する（全経路で同一値）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F9",
+        "D1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/gross-profit-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-ANALYSIS-FRAME",
+      "what": "AnalysisFrame / CalculationFrame が分析の唯一の入口",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "H3"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-CALC-CANON",
+      "what": "domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "must-include",
+        "sourceRefs": [
+          "references/01-principles/calculation-canonicalization-map.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CANON-ZOD-REQUIRED",
+      "what": "required 分類の domain/calculations/ ファイルは Zod 入出力契約を持つ",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "must-include",
+        "sourceRefs": [
+          "references/01-principles/canonicalization-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CANON-ZOD-REVIEW",
+      "what": "review 分類の Zod 未済ファイルを段階的に解消する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/01-principles/canonicalization-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-CANONICAL-INPUT",
+      "what": "PI値・客数GAPは正本 input builder 経由でのみ計算する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "D1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/canonical-input-sets.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-CANONICALIZATION",
+      "what": "全 readModel と calculation canonical が正本化原則に従っている",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "E3",
+        "F5",
+        "F8"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/canonicalization-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-COMPARISON-SCOPE",
+      "what": "ComparisonScope は buildComparisonScope() のみで生成する",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "H2"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-DATA-INTEGRITY",
+      "what": "既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/invariant-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-DUAL-RUN-EXIT",
+      "what": "WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/safety-first-architecture-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-FALLBACK-METADATA",
+      "what": "クリティカルな readModel は usedFallback フィールドを持つ",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "must-include",
+        "sourceRefs": [
+          "references/03-guides/invariant-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-MIG-OLD-PATH",
+      "what": "features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F4",
+        "F1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/modular-monolith-evolution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-PAGE-META",
+      "what": "PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F10"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "co-change",
+        "sourceRefs": [
+          "references/03-guides/new-page-checklist.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-PRES-ISOLATION",
+      "what": "presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A3",
+        "B2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-PURITY",
+      "what": "domain/ は純粋（副作用なし・async なし）、率は domain で算出",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A2",
+        "B1",
+        "C3",
+        "A6",
+        "B3",
+        "D3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "must-not-coexist",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-QUERY-PATTERN",
+      "what": "クエリは正規化入力・pair/bundle 契約・handler 経由で実行する",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "H2",
+        "H3",
+        "H4",
+        "H5"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-RENDER-SIDE-EFFECT",
+      "what": "presentation/ は localStorage/sessionStorage を直接使用しない",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "A3",
+        "H4"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-STORE-COUPLING",
+      "what": "presentation 層で getState() を直接呼ばない（P2）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-MODULE-STATE",
+      "what": "module-scope let（グローバル変数）を禁止する（P7）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-HOOK-COMPLEXITY",
+      "what": "useMemo + useCallback の合計を上限以下に保つ（P8）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-FEATURE-COMPLEXITY",
+      "what": "features/ の useMemo/useState を上限以下に保つ（P10）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-EXPORT-DENSITY",
+      "what": "domain/models/ の export 数を上限以下に保つ（P12）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-NORMALIZATION",
+      "what": "storeIds 正規化パターンの散在を上限以下に保つ（P17）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-RESP-FALLBACK-SPREAD",
+      "what": "fallback 定数密度を上限以下に保つ（P18）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-STORE-RESULT-INPUT",
+      "what": "StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/customer-definition.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONVENTION-BARREL",
+      "what": "バレルは re-export のみ。ロジック・計算・副作用を含まない",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F1",
+        "F9"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "must-only",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONVENTION-FEATURE-BOUNDARY",
+      "what": "feature 間の直接依存を禁止。shared/ 経由のみ",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F4"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONVENTION-CONTEXT-SINGLE-SOURCE",
+      "what": "ctx 提供データの独自取得を禁止。コンテキストから受け取る",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "F3",
+        "F6"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-TEMPORAL-ROLLING",
+      "what": "ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/temporal-analysis-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-TEMPORAL-SCOPE",
+      "what": "期間スコープの分離ルール（sameDate/sameDow 混在禁止等）",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/temporal-scope-semantics.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-STRUCT-TOPOLOGY",
+      "what": "src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/features/stories/test）",
+      "slice": "layer-boundary",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F4"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/modular-monolith-evolution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-C7-NO-DUAL-API",
+      "what": "同義の API を併存させない（1 つの責務に 1 つの API）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C7"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-C9-HONEST-UNCLASSIFIED",
+      "what": "正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C9"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G7-CACHE-BODY",
+      "what": "キャッシュコードは本体コード以下に保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G7"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/01-principles/cache-responsibility.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-Q3-CHART-NO-DUCKDB",
+      "what": "Chart コンポーネントは DuckDB hook を直接 import しない",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "Q3"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-Q4-ALIGNMENT-HANDLER",
+      "what": "alignment-aware access は handler/resolver に閉じる",
+      "slice": "query-runtime",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "Q4"
+      ],
+      "_seam": {
+        "consumerKind": "derivation-assembler",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-SELECTION-GUIDE",
+      "what": "@responsibility タグはファイルの特徴に基づいて正確に選択する",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "C8",
+        "C9"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-CHART-VIEW",
+      "what": "chart-view は描画に専念する。状態・計算を持ちすぎない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:chart-view"
+      ],
+      "guardTags": [
+        "C8",
+        "G8",
+        "C4",
+        "F7"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-CHART-OPTION",
+      "what": "chart-option は ECharts オプション構築のみ。React hooks を含まない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:chart-option"
+      ],
+      "guardTags": [
+        "C8",
+        "G8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-CALCULATION",
+      "what": "calculation は純粋関数。React hooks を一切含まない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:calculation"
+      ],
+      "guardTags": [
+        "C8",
+        "B1",
+        "C2"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "must-not-coexist",
+        "sourceRefs": [
+          "references/01-principles/engine-boundary-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-TRANSFORM",
+      "what": "transform はデータ変換のみ。状態を持たない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:transform"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-STATE-MACHINE",
+      "what": "state-machine は状態管理に専念する。短く保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:state-machine"
+      ],
+      "guardTags": [
+        "C8",
+        "C3"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-QUERY-PLAN",
+      "what": "query-plan はクエリ入力の組み立てのみ。実行しない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:query-plan"
+      ],
+      "guardTags": [
+        "C8",
+        "H1"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/01-principles/safe-performance-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-QUERY-EXEC",
+      "what": "query-exec はクエリ実行とキャッシュ管理に専念する",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:query-exec"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/runtime-data-path.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-WIDGET",
+      "what": "widget は通知と表示の統合点。過度に状態を持たない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:widget"
+      ],
+      "guardTags": [
+        "C8",
+        "H6"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/widget-coordination-architecture.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-PAGE",
+      "what": "page は統合点。hooks 数は多いが行数は抑える",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:page"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/new-page-checklist.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-FORM",
+      "what": "form は入力処理に専念する",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:form"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-LAYOUT",
+      "what": "layout はレイアウト構造のみ。ビジネスロジックを持たない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:layout"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-ORCHESTRATION",
+      "what": "orchestration は hook の組み立てのみ。状態を直接持たない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:orchestration"
+      ],
+      "guardTags": [
+        "C8",
+        "C6"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/runtime-data-path.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-UTILITY",
+      "what": "utility は純粋関数。React hooks を一切含まない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:utility"
+      ],
+      "guardTags": [
+        "C8",
+        "A2"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "must-not-coexist",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-CONTEXT",
+      "what": "context は値の提供のみ。過度なロジックを持たない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:context"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-PERSISTENCE",
+      "what": "persistence は永続化操作に専念する",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:persistence"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-ADAPTER",
+      "what": "adapter は外部 API との変換のみ。小さく保つ",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:adapter"
+      ],
+      "guardTags": [
+        "C8",
+        "A4"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "count",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-REDUCER",
+      "what": "reducer は純粋な状態遷移関数。hooks を含まない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:reducer"
+      ],
+      "guardTags": [
+        "C8"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "must-not-coexist",
+        "sourceRefs": [
+          "references/03-guides/responsibility-separation-catalog.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAG-BARREL",
+      "what": "barrel は re-export のみ。ロジックを含まない",
+      "slice": "responsibility-separation",
+      "fixNow": null,
+      "responsibilityTags": [
+        "R:barrel"
+      ],
+      "guardTags": [
+        "C8",
+        "F1"
+      ],
+      "_seam": {
+        "consumerKind": "binding-auditor",
+        "taskHint": "must-only",
+        "sourceRefs": [
+          "references/03-guides/coding-conventions.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-DOC-STATIC-NUMBER",
+      "what": "文書中のハードコード数値は generated section か例外リストで管理する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "F8"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/strategy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-SILENT-CATCH",
+      "what": "catch ブロックでエラーを握り潰さない（ログなし catch 禁止）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2",
+        "G3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-FIRE-FORGET",
+      "what": "データ保存 Promise を fire-and-forget しない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-NULLABLE-ASYNC",
+      "what": "非同期データに ?? 0 を使わない（loading/error/empty の区別を消さない）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-VALIDATION-ENFORCE",
+      "what": "バリデーション結果は必ずチェックし、エラー時はデータフローを制御する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-INSERT-VERIFY",
+      "what": "DuckDB INSERT 後に実投入行数を検証する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-PROD-VALIDATION",
+      "what": "Zod バリデーションを本番でも有効にする（DEV 限定にしない）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-WORKER-TIMEOUT",
+      "what": "Worker 通信・ミューテックス取得にタイムアウトを設ける",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SAFETY-STALE-STORE",
+      "what": "データソース変更時に依存する派生状態をクリアする",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-COCHANGE-VALIDATION-SEVERITY",
+      "what": "バリデーション severity を変更したら対応するテストも更新する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "co-change",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-COCHANGE-DUCKDB-MOCK",
+      "what": "DuckDB 関数に conn.query() 呼び出しを追加したら対応テストのモックも更新する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "co-change",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-COCHANGE-READMODEL-PARSE",
+      "what": "readModel の parse 方式を変更したらパスガードのアサーションも更新する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "E1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "co-change",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TERM-AUTHORITATIVE-STANDALONE",
+      "what": "authoritative を単独語で新規使用しない。必ず business-authoritative / analytic-authoritative / candidate-authoritative で修飾する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/semantic-classification-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CANON-SEMANTIC-REQUIRED",
+      "what": "required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2",
+        "I4"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/semantic-classification-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION",
+      "what": "business と analytic の意味責任を棚として分離する。pure であることは棚の決定基準にしない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/semantic-classification-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-CANDIDATE-SEPARATION",
+      "what": "current（保守対象）と candidate（移行対象）を同じ view / KPI / review 導線で扱わない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/semantic-classification-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTRACT-SEMANTIC-REQUIRED",
+      "what": "semanticClass 未設定のまま contractId を追加してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTRACT-BUSINESS-MEANING",
+      "what": "Business Contract (BIZ-XXX) には businessMeaning 相当の reason が必須",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTRACT-ANALYTIC-METHOD",
+      "what": "Analytic Contract (ANA-XXX) には methodFamily が必須",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-BRIDGE-RATE-OWNERSHIP",
+      "what": "率の算出は engine 側の責務。UI / VM / SQL で率を再計算してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-BRIDGE-DIRECT-IMPORT",
+      "what": "bridge を通さない pure 計算の runtime import を新規追加しない（型参照・テスト除く）",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-BRIDGE-CANDIDATE-DEFAULT",
+      "what": "candidate-only を UI の既定経路にする変更を禁止する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/contract-definition-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-NO-CANDIDATE-STATE",
+      "what": "current 群に candidate 状態遷移（proposed/extracted/bridged/dual-run/promotion-ready/retired-js）を追加してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-SEMANTIC-REQUIRED",
+      "what": "current 群の全エントリに semanticClass + authorityKind を必須とする",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-NO-STANDALONE-AUTH",
+      "what": "current 群で authoritative を単独使用しない。必ず business-authoritative / analytic-authoritative で修飾する",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-VIEW-SEPARATION",
+      "what": "current/business と current/analytics の運用 view を混在させない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2",
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-NO-CANDIDATE-MIX",
+      "what": "current 群に candidate 実装を混入してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-NO-DIRECT-IMPORT-GROWTH",
+      "what": "current 群の direct import を新規に増やさない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CURRENT-FACTOR-BUSINESS-LOCK",
+      "what": "factorDecomposition の semanticClass を business から変更する場合は businessMeaning の再定義が必須",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/current-maintenance-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-CONTRACT-REQUIRED",
+      "what": "Business Contract (BIZ-XXX) なしで candidate/business 化してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-CURRENT-MIX",
+      "what": "candidate/business を current/business の registry view に混入してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-ANALYTICS-BRIDGE",
+      "what": "business candidate を analytics bridge に接続してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-RATE-UI",
+      "what": "candidate の率を UI / VM / SQL で再計算してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-DIRECT-IMPORT",
+      "what": "candidate/business の direct import を新規に増やさない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-ROLLBACK-SKIP",
+      "what": "rollback 不可の candidate を追加してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN",
+      "what": "dual-run 未実装で promotion-ready にしてはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/tier1-business-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-CONTRACT-REQUIRED",
+      "what": "Analytic Contract (ANA-XXX) なしで candidate/analytics 化してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-NO-BUSINESS-BRIDGE",
+      "what": "analytic candidate を business bridge に接続してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-METHOD-REQUIRED",
+      "what": "candidate/analytics に methodFamily 未設定は禁止",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-INVARIANT-REQUIRED",
+      "what": "candidate/analytics に invariantSet の定義が必須",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-NO-DIRECT-IMPORT",
+      "what": "candidate/analytics の direct import を新規に増やさない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "import",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-NO-CURRENT-BIZ-MIX",
+      "what": "candidate/analytics を current/business の view・crate・bridge に混入してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2",
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CAND-ANA-NO-FACTOR-DECOMP",
+      "what": "factorDecomposition を analytics 候補として登録してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/analytic-kernel-migration-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-JS-NO-NEW-AUTHORITATIVE",
+      "what": "TS に新規 pure authoritative logic を追加してはならない。先に candidate 登録が必要",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1",
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/guard-consolidation-and-js-retirement.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-JS-NO-REFERENCE-GROWTH",
+      "what": "JS reference（compare/fallback 用）に新規正本ロジックを追加してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I1"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/guard-consolidation-and-js-retirement.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-JS-NO-PRES-HELPER-PROMOTE",
+      "what": "Presentation Helper を candidate/business や candidate/analytics に昇格してはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/guard-consolidation-and-js-retirement.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-REVIEW-NEEDED-BLOCK",
+      "what": "review-needed のまま current 編入・candidate 化・物理移動をしてはならない",
+      "slice": "canonicalization",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I2",
+        "I3"
+      ],
+      "_seam": {
+        "consumerKind": "authority-auditor",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/guard-consolidation-and-js-retirement.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-REGISTRY-SINGLE-MASTER",
+      "what": "calculationCanonRegistry を唯一の master registry とし、derived view の手編集を禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "I4"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/semantic-classification-policy.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-AAG-DERIVED-ONLY-IMPORT",
+      "what": "consumer は ARCHITECTURE_RULES の正本ルートを architectureRules 経由でのみ参照する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F1",
+        "C6"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/governance-final-placement-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT",
+      "what": "consumer が architectureRules/rules（BaseRule 配列）を直接 import することを禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/governance-final-placement-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-AAG-NO-DIRECT-OVERLAY-IMPORT",
+      "what": "consumer が @project-overlay/execution-overlay を直接 import することを禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F1",
+        "C6"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/governance-final-placement-plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-AAG-META-SELF-HOSTING",
+      "what": "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が AR-rule の metaRequirementRefs に bound + 同 rule が aag/meta.md を c…",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "F8"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/aag/meta.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-G3-SUPPRESS-RATIONALE",
+      "what": "allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalCondition: を必須とする",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G3"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/test-signal-integrity.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-SCOPE-AWARE-MUTATION",
+      "what": "is_prev_year 列を持つテーブルへの DELETE/UPDATE で is_prev_year 条件の指定を必須化する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "D3"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/design-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-NO-UNTAGGED",
+      "what": "タグなし状態を禁止する（R:unclassified / T:unclassified は能動タグとして許可）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-constitution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-KNOWN-VOCABULARY",
+      "what": "registry V2 未登録の R:tag / T:kind の使用を禁止する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-constitution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-ONE-TAG-ONE-AXIS",
+      "what": "1 タグ = 1 軸を強制する（責務 × 純粋性 × 層を 1 タグに混在させない）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1",
+        "C1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-constitution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-INTERLOCK",
+      "what": "R:tag に対応する required T:kind を持つ test の存在を強制する（R⇔T 双方向契約）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-interlock.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-ORIGIN-REQUIRED",
+      "what": "全 R:tag / T:kind に Origin metadata（why / when / who / sunsetCondition）を必須化する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-origin-journal.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-COGNITIVE-LOAD",
+      "what": "軸ごとの vocabulary 数を 15 以下に制限する（Cognitive Load Ceiling）",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/taxonomy-constitution.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-TAXONOMY-AI-VOCABULARY-BINDING",
+      "what": "AI による review window 外の新 vocabulary 追加を block する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "CLAUDE.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-EXISTS",
+      "what": "Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に存在する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/widgets/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-FRONTMATTER-SYNC",
+      "what": "WID-NNN.md frontmatter の機械フィールドが source AST から再生成した値と完全一致する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/widgets/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-CO-CHANGE",
+      "what": "registry source の id 行と spec frontmatter の registryLine が一致し lastSourceCommit が記録されている",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/widgets/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT",
+      "what": "全 spec の lastSourceCommit が source file の最新 commit hash と一致する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/widgets/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-LIFECYCLE-FIELDS",
+      "what": "全 spec の lifecycleStatus が enum 値であり、状態に応じた必須 field (replacedBy / sunsetCondition / deadline) が揃っている",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/calculations/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC",
+      "what": "kind=calculation の spec の canonicalRegistration が calculationCanonRegistry.runtimeStatus と完全一致する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/calculations/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY",
+      "what": "replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/03-guides/promote-ceremony-pr-template.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-VISUAL-EVIDENCE",
+      "what": "kind=chart / kind=ui-component の spec に Storybook story または visual regression test が記録されている件数を ratchet-down で管理する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/charts/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-EVIDENCE-LEVEL",
+      "what": "spec body の Behavior Claims セクションの evidenceLevel / riskLevel 整合性を機械検証する (Phase J Evidence Level Enforcement)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "projects/completed/phased-content-specs-rollout/plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-PATH-EXISTENCE",
+      "what": "spec body の Behavior Claims に記載された tests / guards path が repo 内に実在することを機械検証する (Phase J 後続課題 J7 path 実在 guard)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "projects/completed/phased-content-specs-rollout/plan.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CONTENT-SPEC-OWNER",
+      "what": "WID-NNN.md frontmatter に owner field が設定されている",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/05-contents/widgets/README.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-INTEGRITY-NO-RESURRECT",
+      "what": "`adoption-candidates.json` の `rejected[].originalSlot` で永久不採用と決定された primitive 名を `app-domain/integrity/{parsing,detecti…",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/canonicalization-principles.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+      "what": "integrity COVERAGE_MAP の各 pair の `displayName` 末尾 `× N` 表記が `guardFiles.length` と一致する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "app-domain/integrity/APP_DOMAIN_INDEX.md"
+        ]
+      }
+    },
+    {
+      "id": "AR-CI-FETCH-DEPTH",
+      "what": "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する…",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "G1"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "custom",
+        "sourceRefs": [
+          "references/01-principles/aag/strategy.md"
+        ]
+      }
+    },
+    {
+      "id": "DFR-001",
+      "what": "chart の semantic color (実績=緑 / 推定=オレンジ) を hex 直書きでなく theme token 経由で表現する",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "F3"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/display-rule-registry.md"
+        ]
+      }
+    },
+    {
+      "id": "DFR-002",
+      "what": "chart axis の formatter は useAxisFormatter hook 経由のみを許容",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "C7"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/display-rule-registry.md"
+        ]
+      }
+    },
+    {
+      "id": "DFR-003",
+      "what": "percent 表示は formatPercent 関数経由のみを許容 (小数第 2 位)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "C7"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/display-rule-registry.md"
+        ]
+      }
+    },
+    {
+      "id": "DFR-004",
+      "what": "currency (金額) 表示は formatCurrency 関数経由のみを許容 (thousands separator 強制)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "C7"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/display-rule-registry.md"
+        ]
+      }
+    },
+    {
+      "id": "DFR-005",
+      "what": "page identification icon は pageRegistry 経由のみを許容 (emoji canonical / SVG shared component)",
+      "slice": "governance-ops",
+      "fixNow": null,
+      "responsibilityTags": [],
+      "guardTags": [
+        "F2",
+        "F3"
+      ],
+      "_seam": {
+        "consumerKind": "policy-enforcer",
+        "taskHint": "regex",
+        "sourceRefs": [
+          "references/01-principles/aag/display-rule-registry.md"
+        ]
+      }
+    }
+  ]
+}

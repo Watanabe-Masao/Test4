@@ -77,14 +77,21 @@ cp derived/test-plan.md test-plan.md          # 必要なら
 ### Step 4: AAG overlay の初期化
 
 新 project の `aag/execution-overlay.ts` は **空の `EXECUTION_OVERLAY = {}`**
-で動く。全 rule は `app/src/test/architectureRules/defaults.ts` の
-`DEFAULT_EXECUTION_OVERLAY` から自動解決される。
+で動く。全 rule は以下から解決される:
 
-案件固有の override が必要になったら、上書きしたい rule だけを明示的に書く:
+- `fixNow / executionPlan / lifecyclePolicy`: `app/src/test/architectureRules/defaults.ts` の `DEFAULT_EXECUTION_OVERLAY` から補完
+- `reviewPolicy`: `app/src/test/aag-core-types.ts` の `DEFAULT_REVIEW_POLICY_STUB` (owner=`'unassigned'` / lastReviewedAt=`null` / reviewCadenceDays=`90`) から補完
+
+詳細な merge 解決順序 / reviewPolicy 契約 / resolvedBy 追跡は **canonical**:
+[`references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)](../01-principles/aag/source-of-truth.md) を参照。
+
+案件固有の override が必要になったら、上書きしたい rule / field だけを明示的に書く:
 
 ```ts
+import type { ExecutionOverlay } from '@/test/aag-core-types'
+
 export const EXECUTION_OVERLAY: ExecutionOverlay = {
-  'AR-001': { fixNow: 'debt' }, // priority / effort は defaults を使う
+  'AR-001': { fixNow: 'debt' }, // priority / effort / reviewPolicy は default 補完
 }
 ```
 

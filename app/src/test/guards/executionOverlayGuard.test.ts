@@ -67,33 +67,38 @@ describe('Execution Overlay Guard', () => {
     expect(missing.map((r) => r.id)).toEqual([])
   })
 
-  it('overlay の effort が有効値', () => {
+  it('overlay の effort が有効値 (provided 時のみ)', () => {
+    // Pilot A2a: RuleExecutionOverlayEntry 型集約により全 field optional 化。
+    // overlay が executionPlan を提供する場合のみ検証する (= 提供しない rule は
+    // defaults から補完され、defaults 側は defaultOverlayCompletenessGuard で検証済)。
     const validEfforts = new Set(['trivial', 'small', 'medium'])
     const invalid: string[] = []
     for (const [ruleId, entry] of Object.entries(EXECUTION_OVERLAY)) {
-      if (!validEfforts.has(entry.executionPlan.effort)) {
+      if (entry.executionPlan && !validEfforts.has(entry.executionPlan.effort)) {
         invalid.push(`${ruleId}: invalid effort '${entry.executionPlan.effort}'`)
       }
     }
     expect(invalid).toEqual([])
   })
 
-  it('overlay の priority が非負整数', () => {
+  it('overlay の priority が非負整数 (provided 時のみ)', () => {
     const invalid: string[] = []
     for (const [ruleId, entry] of Object.entries(EXECUTION_OVERLAY)) {
-      const p = entry.executionPlan.priority
-      if (!Number.isInteger(p) || p < 0) {
-        invalid.push(`${ruleId}: invalid priority ${p}`)
+      if (entry.executionPlan) {
+        const p = entry.executionPlan.priority
+        if (!Number.isInteger(p) || p < 0) {
+          invalid.push(`${ruleId}: invalid priority ${p}`)
+        }
       }
     }
     expect(invalid).toEqual([])
   })
 
-  it('overlay の fixNow が有効値', () => {
+  it('overlay の fixNow が有効値 (provided 時のみ)', () => {
     const validFixNow = new Set(['now', 'debt', 'review'])
     const invalid: string[] = []
     for (const [ruleId, entry] of Object.entries(EXECUTION_OVERLAY)) {
-      if (!validFixNow.has(entry.fixNow)) {
+      if (entry.fixNow !== undefined && !validFixNow.has(entry.fixNow)) {
         invalid.push(`${ruleId}: invalid fixNow '${entry.fixNow}'`)
       }
     }

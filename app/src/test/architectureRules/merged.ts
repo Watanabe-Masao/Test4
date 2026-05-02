@@ -4,12 +4,21 @@
  * App Domain（rules.ts の BASE_RULES）と Project Overlay（execution-overlay.ts）を
  * ruleId キーで合成して ARCHITECTURE_RULES を生成する。
  *
- * 合成方針:
+ * **canonical merge policy**:
+ *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   = **唯一の canonical**。本 file の合成 logic は §4 に back-link し、
+ *     §4 と矛盾する挙動を持たない。merge policy を変更する場合は §4 を
+ *     先に改訂し、本 file はそれに追従する (逆方向は禁止)。
+ *
+ * 合成方針 (= §4.1〜§4.2 の implementation):
  * - App Domain 側: semantics / governance / detection / binding
  * - Project Overlay 側: fixNow / executionPlan / reviewPolicy / lifecyclePolicy
- * - overlay 未定義のルールは DEFAULT_EXECUTION_OVERLAY（App Domain の defaults）
- *   から値を取る。どちらにもなければ構造エラー。
- * - project overlay は defaults よりも優先される（override）
+ * - 解決順序 (§4.1): project overlay → defaults → 構造エラー
+ * - reviewPolicy 契約 (§4.2): project overlay が未提供時は
+ *   `DEFAULT_REVIEW_POLICY_STUB` (owner='unassigned' / lastReviewedAt=null /
+ *   reviewCadenceDays=90) を補完 (bootstrap path 維持)
+ * - resolvedBy 追跡 (§4.3): runtime には含めず、merged artifact (A2b deliverable)
+ *   側で別途追跡
  *
  * consumer はこのファイル経由の ARCHITECTURE_RULES のみを見る。
  * rules.ts / execution-overlay.ts / defaults.ts を直接参照してはならない。
@@ -18,12 +27,14 @@
  * 参照: projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @responsibility R:unclassified
+ * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
  * @see references/03-guides/governance-final-placement-plan.md
  */
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { EXECUTION_OVERLAY } from '@project-overlay/execution-overlay'
+import { DEFAULT_REVIEW_POLICY_STUB } from '@/test/aag-core-types'
 import { DEFAULT_EXECUTION_OVERLAY } from './defaults'
 import { ARCHITECTURE_RULES as BASE_RULES } from './rules'
 import type { ArchitectureRule } from './types'
@@ -58,14 +69,8 @@ const ACTIVE_OVERLAY_HINT = ACTIVE_PROJECT_ID
 /**
  * derived merge: App Domain（BaseRule）+ Project Overlay（RuleOperationalState）
  *
- * 解決順序:
- *   1. project overlay（EXECUTION_OVERLAY）
- *   2. app-domain defaults（DEFAULT_EXECUTION_OVERLAY）
- *   3. どちらにもなければ構造エラー
- *
- * project overlay は defaults の fixNow / executionPlan / lifecyclePolicy を
- * 個別に上書きできる（reviewPolicy は defaults に存在しないので常に project
- * overlay のものが使われる）。
+ * `source-of-truth.md` §4 (Merge Policy canonical) の implementation。
+ * 詳細は同 §4.1 解決順序 / §4.2 reviewPolicy 契約 を参照。
  */
 function mergeRules(): readonly ArchitectureRule[] {
   return BASE_RULES.map((rule): ArchitectureRule => {
@@ -77,27 +82,19 @@ function mergeRules(): readonly ArchitectureRule[] {
           `Either project overlay (EXECUTION_OVERLAY) or ` +
           `DEFAULT_EXECUTION_OVERLAY must define it.\n` +
           `  → defaults: app/src/test/architectureRules/defaults.ts\n` +
-          `  → project overlay: ${ACTIVE_OVERLAY_HINT}`,
+          `  → project overlay: ${ACTIVE_OVERLAY_HINT}\n` +
+          `  → canonical merge policy: references/01-principles/aag/source-of-truth.md §4`,
       )
     }
-    // project overlay が明示的に定義されていれば各フィールドで優先、
-    // 未定義フィールドは defaults から補完する。
+    // §4.1 解決順序: project overlay 優先、未定義 field は defaults から補完。
     const fixNow = projectOverlay?.fixNow ?? defaultOverlay!.fixNow
     const executionPlan = projectOverlay?.executionPlan ?? defaultOverlay!.executionPlan
     const lifecyclePolicy = projectOverlay?.lifecyclePolicy ?? defaultOverlay?.lifecyclePolicy
-    // ADR-D-001 PR3 (2026-04-24): RuleOperationalState.reviewPolicy は required。
-    // defaults には reviewPolicy が無い（案件固有の時刻フィールドのため）ので、
-    // project overlay が必ず提供する。未提供は構造エラー。
-    const reviewPolicy = projectOverlay?.reviewPolicy
-    if (!reviewPolicy) {
-      throw new Error(
-        `[execution-overlay] Missing reviewPolicy for rule: ${rule.id}. ` +
-          `Project overlay (EXECUTION_OVERLAY) must provide reviewPolicy ` +
-          `(owner / lastReviewedAt / reviewCadenceDays) for all rules.\n` +
-          `  → 修正先: ${ACTIVE_OVERLAY_HINT}\n` +
-          `  → 参考実装: projects/completed/architecture-debt-recovery/aag/execution-overlay.ts`,
-      )
-    }
+    // §4.2 reviewPolicy 契約: project overlay が未提供 → DEFAULT_REVIEW_POLICY_STUB
+    // を補完。bootstrap path (空 EXECUTION_OVERLAY = {}) を維持しつつ、
+    // 長期目標 = overlay 明示率 100% (本 program scope 外、後続 program で達成)。
+    // stub 適用率は merged artifact (A2b) 側 resolvedBy で観測可能 (§4.3)。
+    const reviewPolicy = projectOverlay?.reviewPolicy ?? DEFAULT_REVIEW_POLICY_STUB
     return {
       ...rule,
       fixNow,

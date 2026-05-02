@@ -4,8 +4,18 @@
  * app/src/test/architectureRules.ts の renderAagResponse() と同じ出力契約。
  * tools/ 側（obligation-collector, pre-commit CLI）はこのモジュールを経由する。
  *
+ * **canonical contract**:
+ *   `docs/contracts/aag/aag-response.schema.json` (JSON Schema draft-07)
+ *   = 言語非依存 contract。本 file の `AagResponse` interface は同 schema と
+ *   structurally identical (`aagContractSchemaSyncGuard.test.ts` で機械検証)。
+ *
  * **変更時の注意:** architectureRules.ts 側の renderAagResponse() と
  * 出力フォーマットを一致させること。入口品質テストが drift を検出する。
+ * 加えて、本 interface に field を追加 / 変更する際は schema も同期更新
+ * すること (sync guard hard fail で検出)。
+ *
+ * @see docs/contracts/aag/aag-response.schema.json (canonical contract)
+ * @see app/src/test/guards/aagContractSchemaSyncGuard.test.ts (sync verification)
  */
 
 export type AagSlice =

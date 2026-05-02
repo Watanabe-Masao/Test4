@@ -147,7 +147,21 @@ export type PrincipleId =
  * Core 側の description と Binding 側の imports/codeSignals/example がマージされる。
  * ルール定義データの変更は不要。
  *
+ * **Boundary policy** (aag-platformization Pilot Phase 1 / A4 で機械保証):
+ *
+ * 許可 field (5 件): `doc` / `correctPattern` / `outdatedPattern` /
+ *   `canonicalDocRef` / `metaRequirementRefs` のみ。これら以外を本 interface に
+ *   追加する場合は **意味系 (= what / why / decisionCriteria / migrationRecipe /
+ *   sunsetCondition / fixNow / executionPlan / lifecyclePolicy) の漏れ違反**
+ *   として `ruleBindingBoundaryGuard` が hard fail。意味は別 interface
+ *   (RuleSemantics / RuleGovernance / RuleOperationalState / RuleDetectionSpec)
+ *   に articulate すること。
+ *
+ * 禁止 prefix: `detection*` / `governance*` / `operationalState*` で始まる field 名は
+ *   意味系の漏れと見なし hard fail (例: `detectionExample` / `governanceHint` 等)。
+ *
  * @see aag/core/principles/core-boundary-policy.md — 原則 E: 具体名は後段へ落とす
+ * @see app/src/test/guards/ruleBindingBoundaryGuard.test.ts — 機械検証
  */
 export interface RuleBinding {
   /** 参照ドキュメント（アプリ固有パス） */

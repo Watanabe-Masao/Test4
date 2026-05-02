@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-02T10:21:27.392Z",
+  "timestamp": "2026-05-02T14:07:17.446Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 127,
+      "value": 131,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -265,7 +265,10 @@
         }
       ],
       "implRefs": [
+        "app/src/test/guards/aagContractSchemaSyncGuard.test.ts",
         "app/src/test/guards/aagDerivedOnlyImportGuard.test.ts",
+        "app/src/test/guards/aagDrawerSyncGuard.test.ts",
+        "app/src/test/guards/aagMergedArtifactSyncGuard.test.ts",
         "app/src/test/guards/aagResponseFeedbackUnificationGuard.test.ts",
         "app/src/test/guards/allowlistMetadataGuard.test.ts",
         "app/src/test/guards/analysisFrameGuard.test.ts",
@@ -364,6 +367,7 @@
         "app/src/test/guards/responsibilitySeparationGuard.test.ts",
         "app/src/test/guards/responsibilityTagGuardV2.test.ts",
         "app/src/test/guards/reviewPolicyRequiredGuard.test.ts",
+        "app/src/test/guards/ruleBindingBoundaryGuard.test.ts",
         "app/src/test/guards/salesFactPathGuard.test.ts",
         "app/src/test/guards/sameInterfaceNameGuard.test.ts",
         "app/src/test/guards/scopeAwareMutationGuard.test.ts",
@@ -1039,7 +1043,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 1265,
+      "value": 1282,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

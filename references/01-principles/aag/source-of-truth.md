@@ -93,7 +93,48 @@
 
 **鉄則**: 派生物に現在値を手書きしない。prose に件数を書かない (`docStaticNumberGuard` 適用)。
 
-## §4 運用物一覧 (人間と AI の手順書・進行管理)
+## §4 Merge Policy (派生 ARCHITECTURE_RULES の canonical 単一点)
+
+> **役割**: §3 派生物の `ARCHITECTURE_RULES` を生成する merge 解決順序を **canonical に** articulate する **単一点**。
+> `merged.ts` / `defaults.ts` / 各 project の `aag/execution-overlay.ts` / `references/03-guides/new-project-bootstrap-guide.md` Step 4 はすべて本 section を canonical 参照する (= back-link)。仕様の揺れを「修正対象」ではなく「構造上の単一点」に転換する。
+>
+> **landing**: `projects/aag-platformization/` Phase 1 / A2a (DA-α-002a)、bootstrap path 破綻 (空 overlay → throw) と `RuleExecutionOverlayEntry` 三重定義の修復に同期。
+
+### §4.1 解決順序
+
+各 rule に対して以下の順で merge:
+
+1. **project overlay** (`EXECUTION_OVERLAY[ruleId]`) を field 単位で取得
+2. project overlay が **未定義 fields** → **defaults** (`DEFAULT_EXECUTION_OVERLAY[ruleId]`) から補完
+3. project overlay も defaults も無い → **構造エラー** (両方空は禁止、`defaultOverlayCompletenessGuard` で防ぐ)
+
+### §4.2 reviewPolicy 契約
+
+`reviewPolicy` (owner / lastReviewedAt / reviewCadenceDays) は案件固有の時刻 field のため、defaults に rule 単位の実値は持たせない。bootstrap path 維持のため:
+
+- project overlay が `reviewPolicy` を提供 → その値を使用
+- project overlay が `reviewPolicy` を未提供 → **`DEFAULT_REVIEW_POLICY_STUB`** (owner=`'unassigned'` / lastReviewedAt=`null` / reviewCadenceDays=`90`) を補完
+- 長期目標: overlay 明示率 100% (本 program scope 外、後続 program で達成)
+
+### §4.3 resolvedBy 追跡 (merged artifact 内 transparency)
+
+merged artifact (`docs/generated/aag/merged-architecture-rules.<format>`、Phase 1 / A2b で生成) は各 field の `resolvedBy: 'project-overlay' | 'defaults' | 'stub'` を articulate する。これにより defaults 補完率 / overlay 明示率 / stub 適用率 が機械観測可能。runtime `ARCHITECTURE_RULES` には `resolvedBy` を含めない (artifact 専用)。
+
+### §4.4 canonical 単一点としての義務
+
+本 §4 が **唯一の canonical**。以下は本 section に **back-link** し、本 section と矛盾する記述を持たない:
+
+| file | 義務 |
+|---|---|
+| `app/src/test/architectureRules/merged.ts` | 冒頭 doc-comment が本 §4 へ back-link |
+| `app/src/test/architectureRules/defaults.ts` | 冒頭 doc-comment が本 §4 へ back-link |
+| `app/src/test/aag-core-types.ts` の `RuleExecutionOverlayEntry` 定義 | 本 §4 へ back-link (= 三重定義解消後の集約点) |
+| 各 project の `aag/execution-overlay.ts` 冒頭 comment | 本 §4 へ back-link |
+| `references/03-guides/new-project-bootstrap-guide.md` Step 4 | 本 §4 へ back-link |
+
+merge policy を変更する場合は **本 §4 を改訂** し、上記 file 群はそれに追従するのみ。逆方向 (file 側で policy 改訂、本 §4 が後追い) は禁止。
+
+## §5 運用物一覧 (人間と AI の手順書・進行管理)
 
 | 運用物 | file | 役割 |
 |---|---|---|
@@ -109,7 +150,7 @@
 | open issues | `references/02-status/open-issues.md` | active project 索引 |
 | AI manifest | `.claude/manifest.json` | AI session の単一エントリ (discovery hint) |
 
-## §5 旧 source-of-truth ポリシー → 新 mapping (`§1.5 archive 前 mapping 義務`)
+## §6 旧 source-of-truth ポリシー → 新 mapping (`§1.5 archive 前 mapping 義務`)
 
 旧 `aag-5-source-of-truth-policy.md` (旧 4 層 = Constitution / Schema / Execution / Operations) から新 5 層への mapping:
 
@@ -123,7 +164,7 @@
 
 旧 doc 内 articulate のうち本 doc に inherit しなかった section は [`architecture.md`](./architecture.md) §4 (旧 4 層 → 新 5 層 mapping) に articulate 済。
 
-## §6 obligation map (path → 更新義務)
+## §7 obligation map (path → 更新義務)
 
 正本変更時の連鎖更新義務 (`tools/architecture-health/src/collectors/obligation-collector.ts` の `PATH_TO_REQUIRED_READS`):
 
@@ -138,7 +179,7 @@
 | `references/01-principles/` | principles.json 確認 |
 | `projects/` | project-health 再生成 + checklist format guard 通過 |
 
-## §7 非目的 (Non-goals)
+## §8 非目的 (Non-goals)
 
 本 doc は次を **articulate しない** (= 別 doc の責務):
 
@@ -149,7 +190,7 @@
 - **now / debt / review 運用区分** → [`operational-classification.md`](./operational-classification.md)
 - **件数 / 現在値** (= 派生物に集約) → `references/02-status/generated/architecture-health.md`
 
-## §8 関連 doc
+## §9 関連 doc
 
 | doc | 役割 |
 |---|---|
