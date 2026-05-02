@@ -8,34 +8,33 @@
 
 - `projects/aag-platformization/` を `_template` から bootstrap 済 (commit `36c4868` 以降)
 - 必須セット 6 ファイル + DA-α-000 (進行モデル決定) landing 済
-- 5 reframe を経て plan を **supreme principle (機能させる) + F1-F7 functioning + 7 phase 構造** に refactor (commit `<latest>`)
-- 派生 artifact / sync guard / 5 軸 framework operational 化はすべて未着手 = **Phase 1 から開始**
+- 6 reframe を経て plan を **supreme principle + F1-F7 + Go 実装条件 C1-C4 + 10 Phase (3 segment)** 構造に再構築
+- 派生 artifact / sync guard / merge policy 修復 / 5 軸 framework すべて未着手 = **Phase 1 から開始**
 
-実装作業 0 件。articulation のみ。Phase 1 着手で **「あるべき」を「機能している」に転じる** 。
+実装作業 0 件、articulation のみ。Phase 1 から **「あるべき」を「機能している」に転じる**。
 
-## 2. 次にやること
+## 2. 次にやること (3 segment)
 
-詳細: `checklist.md` / `plan.md` §5。優先度:
+### Segment A: Pre-Go 条件確立 (Phase 1-5、最優先)
 
-### 高優先 (Phase 1)
+Go 実装条件 C1-C4 を固定する。**Go 実装 (Phase 9) 着手前提**。
 
-**5 軸 articulation framework operational 化** — 全後続 deliverable の grounded base。
+- **Phase 1**: Authority 固定 + 5 軸 framework operational 化
+- **Phase 2** (= C1): Merge policy 一本化 (defaults 補完 + resolvedBy + 三重定義解消 + bootstrap 修復)
+- **Phase 3** (= C2): Merged artifact 生成 (`docs/generated/aag/merged-architecture-rules.<format>` + sync guard)
+- **Phase 4** (= C3): Contract independence (AagResponse + detector schema 化)
+- **Phase 5** (= C4): RuleBinding 境界 guard
 
-- 既存 5 軸 articulate (source-of-truth / architecture / meta / strategy / layer-map) が 5 軸を覆っているか verify
-- DA entry テンプレに 5 軸 articulate 欄追加 (本 commit で済)
-- 不足 articulate があれば既存 doc に追加 (新 doc は作らない)
+### Segment B: AI Navigation + Audit (並列着手可)
 
-### 中優先 (Phase 2-3)
+- **Phase 6**: drawer artifact 群 (rules-by-path / rule-index / rule-detail / rule-by-topic)
+- **Phase 7**: 5 軸 audit (既存 AAG + 本 project の reframe 跡)
 
-- **Phase 2**: `rules-by-path` artifact + sync guard (F1 / F3 enable)
-- **Phase 3**: `rule-detail` drawer + `rule-index` (F2 enable)
+### Segment C: Verification + Implementation + Archive
 
-### 低優先 (Phase 4-7)
-
-- **Phase 4**: 5 軸 audit (既存 AAG + 本 project の reframe 跡含む)
-- **Phase 5**: `rule-by-topic` index
-- **Phase 6**: Simulation suite (CT1〜CT7) で F1-F7 verification
-- **Phase 7**: archive + cutover charter (人間承認 1 点)
+- **Phase 8**: Simulation suite (CT1〜CT10) で F1-F7 + Go 条件 verification
+- **Phase 9**: Go 実装 (条件 C1-C4 全 met 時のみ、言語 Go / Python / combo、Rust 除外)
+- **Phase 10**: archive + 後続 program charter (人間承認 1 点)
 
 ## 3. ハマりポイント
 

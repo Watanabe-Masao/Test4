@@ -2,6 +2,8 @@
 
 > **Supreme principle (唯一の禁則)**: AAG を「あるべき」で終わらさず、**observable に機能** させる。
 > articulation without functioning は本 program の最大の violation (`references/01-principles/aag/strategy.md` §2.1「抽象化の過剰」AI 本質的弱点)。
+>
+> **本フェーズの位置づけ**: 「Go 移行を前に進める」ではなく、**「Go 実装を前に進める条件を固定する」**。Go 移行を止める必要はないが、TS の揺れ (merge policy 等) を未解決のまま Go に持ち込むと **二度手間** になる。条件を固定してから Go 実装に入る。
 
 ---
 
@@ -15,6 +17,7 @@
 | 4 | 全 deliverable は **5 軸 design articulation** を持つ (製本 / 依存方向 / 意味 / 責務 / 境界) | scope 外 |
 | 5 | 全 deliverable は **observable verification** を持つ。observation なき articulation は scope 外 | scope 外 |
 | 6 | 判断は AI-driven、人間承認は archive 1 点のみ。各判断は `decision-audit.md` + commit lineage | scope 外 |
+| 7 | **Phase 9 (Go 実装) は Phase 1-5 の Go 実装条件 (4 件) が全 met してからのみ着手**。条件未達で Go 着手は二度手間を招く | Phase 9 着手 block |
 
 ---
 
@@ -24,7 +27,7 @@ supreme principle の operational 形。**F1〜F7 が同時 observable な状態
 
 | # | functioning | observation 方法 |
 |---|---|---|
-| **F1** | AI が **必要 context だけ** 取得し、無関係 context が surface しない | tool call precision (= 該当 / 取得 ratio) |
+| **F1** | AI が **必要 context だけ** 取得し、無関係 context が surface しない | tool call precision |
 | **F2** | AI が **意味のある info に素早く reach** できる | tool call 数 / time-to-meaningful-context |
 | **F3** | doc / 実装 / rule の **drift が機械検出** される | guard の hard fail Y/N |
 | **F4** | session 間で **判断履歴が継承** され、再 derivation 不要 | DA entry の re-build 必要性 |
@@ -34,20 +37,16 @@ supreme principle の operational 形。**F1〜F7 が同時 observable な状態
 
 ---
 
-## §3 技術前提と priority
+## §3 Go 実装条件 (4 件、Phase 9 着手前提)
 
-F1〜F7 を成立させる技術前提。priority は「最も多くの F を enable する」順:
+| # | 条件 | 該当 Phase | 充足判定 |
+|---|---|---|---|
+| C1 | **merge policy が一本化されている** | Phase 2 | bootstrap で空 overlay が動く + 三重定義 `RuleExecutionOverlayEntry` 解消 + merged.ts で resolvedBy 追跡 |
+| C2 | **merged artifact が生成されている** | Phase 3 | `docs/generated/aag/merged-architecture-rules.<format>` 生成 + sync guard active |
+| C3 | **AagResponse / detector result の contract が独立している** | Phase 4 | helper 駆動 → schema 駆動切替 + sync guard active |
+| C4 | **RuleBinding の境界が guard 化されている** | Phase 5 | `ruleBindingBoundaryGuard.test.ts` active + 違反 hard fail |
 
-| priority | 技術前提 | 関連 F | 既存? | 工数目安 |
-|---|---|---|---|---|
-| 1 | 5 軸 articulation framework operational 化 | F5 / F6 | articulate は既存 (`source-of-truth.md` 等)、運用 process 不在 | 1 日 |
-| 2 | `rules-by-path` artifact + sync guard | F1 / F3 | 不在 | 2-3 日 |
-| 3 | `rule-detail` drawer + `rule-index` | F2 / F3 | 不在 (TS trace のみ) | 2-3 日 |
-| 4 | 5 軸 audit (既存 AAG + 本 project) | F5 / F7 | 不在 | 2 日 |
-| 5 | `rule-by-topic` index (manifest.json discovery 拡張) | F1 / F2 | 不在 | 1 日 |
-| 6 | `decision-audit.md` 実運用 (本 program で actual に使う) | F4 | 制度 articulate 済、運用なし | 継続 |
-
-→ 総工数 ~2 週間。各前提は **observable verification** を持つことが Phase 完了条件。
+**4 条件全 met → Phase 9 (Go 実装) 着手可**。1 つでも未達なら Phase 9 は block。
 
 ---
 
@@ -67,161 +66,241 @@ F1〜F7 を成立させる技術前提。priority は「最も多くの F を en
 
 ---
 
-## §5 Phase 構造
+## §5 Phase 構造 (3 segment)
 
-各 Phase は **目的 / やること / 5 軸 articulate / 観測 / 不機能時 rollback** を持つ。
+### Segment A: Pre-Go 条件確立 (Phase 1-5)
 
-### Phase 0: Bootstrap (本 commit で完了)
+Go 実装に進む前に固定すべき構造。**Phase 9 着手の前提**。
+
+#### Phase 0: Bootstrap (本 commit で完了)
 
 `projects/_template` から複写 + 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済。
 
-### Phase 1: 5 軸 articulation framework operational 化
+#### Phase 1: Authority 固定 + 5 軸 framework
 
-**目的**: 全後続 deliverable の grounded base。
+**目的**: 何が正本かを固定 + 5 軸 articulate を全後続 deliverable に要件化。
 
 **やること**:
-- 既存 5 軸 articulate (source-of-truth / architecture / meta / strategy / layer-map) が 5 軸を覆っていることを verify
-- DA entry テンプレに 5 軸 articulation 欄追加 (本 plan + decision-audit.md 修正)
-- 不足 articulate があれば既存 doc に追加 (新 doc は作らない)
+- 各 layer の正本を articulate (既存 doc に back-link、新 doc 作らず):
+  - **Core meaning** の正本: `aag-core-types.ts` の 4 type (RuleSemantics / Governance / OperationalState / DetectionSpec)
+  - **App Profile** の正本: `architectureRules/types.ts` の RuleBinding + PrincipleId
+  - **Project Overlay** の正本: `projects/<id>/aag/execution-overlay.ts`
+  - **Derived result** の正本: `architectureRules/merged.ts` (Phase 3 で artifact 化)
+- 既存 5 軸 articulate (source-of-truth / architecture / meta / strategy / layer-map) に gap 0 か verify
+- DA entry テンプレに 5 軸 articulate 欄追加 (本 commit で済)
 
 **5 軸 articulate** (本 Phase 自身):
-- 製本: `decision-audit.md` の DA entry テンプレが canonical
-- 依存方向: 既存 `aag/source-of-truth.md` 等 → 本 plan/decision-audit が参照 (一方向)
-- 意味: 「全 deliverable に design 軸 articulation を要件化する」
-- 責務: framework operational 化のみ。新規 doc 作成は scope 外
-- 境界: framework 制度内、deliverable 個別 articulate は Phase 2+ の責務
+- 製本: 既存 articulate を verify、本 Phase は articulate しない
+- 依存方向: 既存 doc → 本 plan/decision-audit (一方向参照)
+- 意味: 「正本構造を可視化 + 5 軸 lens を運用化」
+- 責務: 確認 + framework 化のみ。新規 doc 作成しない
+- 境界: 確認範囲は AAG core docs + 本 program 内
 
 **観測**:
-- 本 program 内の deliverable 全件が 5 軸 articulate を持つ Y/N
-- 既存 AAG 5 軸 articulate に gap が 0 か確認
+- 全 deliverable が 5 軸 articulate を持つ Y/N
+- 4 layer の正本 articulate に曖昧 0 件 Y/N
 
-**不機能時 rollback**: 本 Phase は doc 編集のみ。git revert で復帰。
+**不機能時 rollback**: doc 編集のみ、git revert で復帰。
 
-### Phase 2: `rules-by-path` artifact + sync guard
+#### Phase 2: Merge policy 一本化 (= Go 条件 C1)
 
-**目的**: F1 (path-triggered context 制御) + F3 (drift 検出) の最初の AR-rule 拡張。
+**目的**: bootstrap 破綻 (空 overlay → throw) + `RuleExecutionOverlayEntry` 三重定義を解消。`merged.ts` の merge policy を一本化。
+
+**user 推奨採用案**:
+- 当面: **defaults 補完を許す** (現状 merged.ts 実装と整合)
+- ただし: merge result に **`resolvedBy`** field を追加 (project-overlay / defaults / stub の 3 値)
+- 長期: overlay 明示率 100% を目標 (本 program scope 外、後続 program へ)
 
 **やること**:
-- `tools/architecture-health/src/aag/rules-by-path-generator.ts` 新設
-- `docs/generated/aag/rules-by-path.<format>` 生成 (path prefix → AR-rule id 配列)
-- `app/src/test/guards/aagRulesByPathSyncGuard.test.ts` 新設 (canonical ↔ artifact drift 検出)
+- `RuleExecutionOverlayEntry` を `aag-core-types.ts` に集約 (現 _template / pure-calculation-reorg / aag-platformization の 3 重定義)
+- 各 project overlay の type import を集約版に切替
+- `merged.ts` の merge result に `resolvedBy` field 追加
+- 各 overlay file の冒頭 comment を採用案に揃える (特に `pure-calculation-reorg` の "default 補完しない" comment は stale)
+- `references/03-guides/new-project-bootstrap-guide.md` Step 4 を採用案に整合
+- 採用案 + 三重定義解消の根拠を `decision-audit.md` DA-α-002 に articulate
+
+**5 軸 articulate**:
+- 製本: `aag-core-types.ts` を `RuleExecutionOverlayEntry` の唯一正本に固定
+- 依存方向: aag-core-types.ts → architectureRules/types.ts → 各 project overlay (一方向、逆 import 禁止)
+- 意味: 「project overlay は何を必須提供し、何が defaults から補完されるか」
+- 責務: type 集約 + merge policy + resolvedBy 追跡 (各々 single responsibility)
+- 境界: type 集約 = Core / merge logic = App Domain / overlay = Project Overlay
+
+**観測**:
+- 空 `EXECUTION_OVERLAY = {}` で `merged.ts` が throw しない Y/N
+- `pure-calculation-reorg` 既存 merge 結果が変わらない (golden test) Y/N
+- `resolvedBy` field が全 rule で正しく articulate される Y/N
+
+**不機能時 rollback**: revert + DA-α-002 軌道修正。
+
+#### Phase 3: Merged artifact 生成 (= Go 条件 C2)
+
+**目的**: runtime merge を build artifact に変える。Go 実装が「再設計」ではなく「実行基盤置換」になる前提。
+
+**やること**:
+- `tools/architecture-health/src/aag/merge-artifact-generator.ts` 新設
+- `docs/generated/aag/merged-architecture-rules.<format>` 生成 (全 rule の merge 結果 + 各 field の `resolvedBy`)
+- `app/src/test/guards/aagMergedArtifactSyncGuard.test.ts` 新設 (artifact ↔ runtime merge の byte-identity 検証)
 - `npm run docs:generate` から呼び出し
-- **format 選定** (DA-α-002): JSON / CUE / YAML / TOML 等から AI 判断
+- `format` 採用は DA-α-003 (JSON / CUE / YAML / TOML 等から AI 判断)
 
 **5 軸 articulate**:
-- 製本: 派生 (canonical = `app-domain/gross-profit/rule-catalog/base-rules.ts`)
-- 依存方向: base-rules.ts → generator → artifact (一方向、逆参照禁止)
-- 意味: 「path X で関係する AR-rule id 集合は何か」の 1 問い
-- 責務: path → rule id mapping のみ (rule semantics は articulate しない)
-- 境界: 派生 artifact 層、authoring 編集禁止 = guard で hard fail
-
-**観測** (Phase 完了直後 simulation):
-- AI が `merged.ts` 編集 task で artifact 1 read で rule id 集合取得可? Y/N
-- TS trace 比 tool call 削減率 > 2.0?
-- 試験 drift で sync guard が hard fail? Y/N
-
-**不機能時 rollback**: artifact 削除 + commit revert + DA-α-002 軌道修正に "機能しなかった" 記録。
-
-### Phase 3: `rule-detail` drawer + `rule-index`
-
-**目的**: F2 (意味のある info に素早く reach) + F3 (drift 検出)。
-
-**やること**:
-- `docs/generated/aag/rule-index.<format>` (軽量 index: rule id + 1 行 summary + slice)
-- `docs/generated/aag/rule-detail/<id>.<format>` (個別 rule の why / migrationRecipe / fixNow detail、on-demand)
-- 同期 guard (rule-index / rule-detail と canonical の sync)
-
-**5 軸 articulate**:
-- 製本: 全て派生 (canonical = base-rules.ts + execution-overlay.ts + defaults.ts merged)
+- 製本: 派生 (canonical = base-rules.ts + merged.ts logic)
 - 依存方向: canonical → generator → artifact (一方向)
-- 意味: index = 「何があるか」、detail = 「特定 rule の中身」
-- 責務: index = 軽量 lookup、detail = 個別 rule の context provision
-- 境界: 派生層、TS authoring 編集禁止
+- 意味: 「merge 結果が build 時点で何だったか」
+- 責務: merge 結果の materialize のみ
+- 境界: 派生層、authoring 編集禁止 (sync guard で hard fail)
 
 **観測**:
-- rule lookup が TS trace 比で何倍速いか (tool call 数 / token 消費)
-- guard 違反時に AI が rule-detail へ reach する step 数
+- artifact 生成可 Y/N
+- runtime merge と byte-identical Y/N
+- 試験 drift で sync guard hard fail Y/N
 
 **不機能時 rollback**: artifact 削除 + revert。
 
-### Phase 4: 5 軸 audit (既存 AAG + 本 project)
+#### Phase 4: Contract independence (= Go 条件 C3)
+
+**目的**: AagResponse + detector result を helper 駆動から schema 駆動に切り替え、言語非依存の contract として独立。
+
+**やること**:
+- `docs/contracts/aag/aag-response.<format>` 新設 (Phase 3 採用 format に準拠)
+- `tools/architecture-health/src/aag-response.ts` の `AagResponse` 型を schema からの型生成に切替
+- helpers.ts は schema-backed re-export のみ (既存 `aagResponseFeedbackUnificationGuard` 維持)
+- `docs/contracts/aag/detector-result.<format>` 新設 (ruleId / detectionType / sourceFile / evidence / actual / baseline / severity / messageSeed)
+- 既存 guard の violation message 構築箇所を schema 準拠に揃える (最小スコープ、全 detector 統合は後続)
+- sync guard 1 本: contract schema ↔ TS 型
+
+**5 軸 articulate**:
+- 製本: schema を 1 次正本 (TS 型は schema から生成)
+- 依存方向: schema → codegen → TS 型 (一方向)
+- 意味: AagResponse = 「AI への通知 contract」、detector-result = 「検出結果 contract」
+- 責務: 各 contract に single responsibility
+- 境界: contract 層、renderer / detector 実装とは boundary 異なる
+
+**観測**:
+- schema validation が AagResponse / detector output を通す Y/N
+- 既存 text renderer 出力が schema 化前と byte-identical (golden test) Y/N
+- 既存 `aagResponseFeedbackUnificationGuard` が引き続き機能 Y/N
+
+**不機能時 rollback**: schema 削除 + revert。
+
+#### Phase 5: RuleBinding 境界 guard (= Go 条件 C4)
+
+**目的**: `RuleBinding` に意味系 field (what / why / decisionCriteria / migrationRecipe / fixNow / executionPlan / lifecyclePolicy) が漏れないことを機械保証。
+
+**やること**:
+- `app/src/test/guards/ruleBindingBoundaryGuard.test.ts` 新設
+- 許可 5 field: doc / correctPattern / outdatedPattern / canonicalDocRef / metaRequirementRefs
+- 禁止: 上記 7 field + 任意の `detection*` / `governance*` / `operationalState*` プレフィックス
+- policy 内容は `architectureRules/types.ts` の RuleBinding interface コメント (現状 articulate 済) に back-link、新 doc 作らず
+
+**5 軸 articulate**:
+- 製本: `architectureRules/types.ts` の `RuleBinding` interface が 1 次正本
+- 依存方向: aag-core-types.ts (Core 4 type) → architectureRules/types.ts (RuleBinding) (一方向)
+- 意味: 「RuleBinding は app-specific concrete binding に限定される」
+- 責務: 境界の機械保証のみ
+- 境界: App Domain 層、Core / Project Overlay / Derived とは boundary 明示
+
+**観測**:
+- 違反コードを試験的に書くと guard hard fail Y/N
+- 既存 RuleBinding (5 field のみ) は通る Y/N
+
+**不機能時 rollback**: guard 削除 + revert。
+
+---
+
+### Segment B: AI Navigation + Audit (Phase 6-7)
+
+Pre-Go 条件と並列で進めても良い、AI access enhancement と既存負債削減。
+
+#### Phase 6: AI Navigation enhancements
+
+**目的**: F1 (必要 context のみ) + F2 (素早く reach) を supports する drawer / 引き出し機構の追加。
+
+**やること**:
+- `docs/generated/aag/rules-by-path.<format>` (path prefix → AR-rule id 配列)
+- `docs/generated/aag/rule-index.<format>` (軽量 index)
+- `docs/generated/aag/rule-detail/<id>.<format>` (個別 rule on-demand)
+- `docs/generated/aag/rule-by-topic.<format>` (manifest.json discovery 拡張)
+- 各 sync guard
+
+**5 軸 articulate**: 全 派生、canonical = base-rules.ts、一方向、各々 single responsibility (path / index / detail / topic)、派生層境界
+
+**観測**:
+- AI が `merged.ts` 編集 task で関連 rule subset に 1 read で reach Y/N
+- 不要な context が surface しない Y/N
+- guard 違反時に AI が rule-detail へ N step 以下で reach Y/N
+
+**不機能時 rollback**: artifact 削除 + revert。
+
+#### Phase 7: 5 軸 audit (既存 AAG + 本 project)
 
 **目的**: F5 (grounded) + F7 (負債 ratchet-down)。
 
 **やること**:
-- CLAUDE.md / `aag/*` / `references/01-principles/aag/*` / 本 project (`aag-platformization`) を 5 軸で audit
-- 違反箇所を分類: **製本重複 / 依存逆 / 責務集合 / 境界曖昧 / 意味曖昧**
-- 削減 / restructure 提案を articulate (実施判断は DA-α-004)
-- 本 project 内の reframe 跡 (旧 framing 残存) を archive
-- 既存 articulate に gap があれば既存 doc に追加 (新 doc は作らない)
+- CLAUDE.md / `aag/*` / `references/01-principles/aag/*` を 5 軸 audit
+- 本 project (`aag-platformization`) を自己 audit (reframe 跡 articulate を含む)
+- 違反箇所を分類: 製本重複 / 依存逆 / 責務集合 / 境界曖昧 / 意味曖昧
+- per-violation で restructure 判断 (DA-α-007)
+- 採用された restructure 実施 (新 doc 増設禁止、既存 doc 拡張のみ)
 
-**5 軸 articulate** (本 Phase 自身):
-- 製本: 本 Phase は audit 結果の articulate のみ、canonical 化はしない
-- 依存方向: 既存 doc → audit 結果 (一方向)
-- 意味: 「現状の 5 軸 articulate 違反はどこにあるか」
-- 責務: 違反検出と分類のみ。restructure 実施は per-violation の DA judgement
-- 境界: audit 範囲 = 本 program scope 内 + AAG core docs + 本 project 自身
+**観測**: 違反検出件数 / 解消件数 / 本 project 内 articulation 削減量
 
-**観測**:
-- 違反検出件数 + 解消件数
-- 本 project 内 reframe 跡 articulation 削減量
+---
 
-**不機能時**: audit 結果が空 (違反 0) なら Phase は no-op で完了。問題なし。
+### Segment C: Verification + Implementation (Phase 8-10)
 
-### Phase 5: `rule-by-topic` index
+#### Phase 8: Simulation + 機能 verify
 
-**目的**: F1 / F2。manifest.json `discovery.byTopic` の AR-rule 拡張。
+**目的**: F1〜F7 の comprehensive verification。**本 session 内 / state-based / scenario-driven** (calendar 観測なし、`AAG-REQ-NO-DATE-RITUAL` 整合)。
 
-**やること**:
-- `docs/generated/aag/rule-by-topic.<format>` (topic / keyword → rule id)
-- manifest.json の discovery section と並列 articulate (新 file 追加か既存拡張かは DA-α-005 判断)
+**Control Test Scenarios**:
 
-**5 軸 articulate**:
-- 製本: 派生
-- 依存方向: canonical + topic vocab → generator → artifact
-- 意味: 「topic / keyword に対応する rule id 集合」
-- 責務: topic-to-rule-id mapping のみ
-- 境界: 派生層
+| # | scenario | 関連 F |
+|---|---|---|
+| CT1 | path-triggered rule access (Phase 6 effect) | F1 |
+| CT2 | irrelevant context surface しない (negative) | F1 |
+| CT3 | rule detail rapid lookup (Phase 6 effect) | F2 |
+| CT4 | topic discovery (Phase 6 effect) | F1 / F2 |
+| CT5 | 試験 drift で sync guard hard fail (Phase 2-6 effect) | F3 |
+| CT6 | session 間判断継承 (decision-audit re-derive 不要) | F4 |
+| CT7 | 5 軸 articulate なき deliverable は review block (Phase 1 effect) | F5 / F6 |
+| CT8 | merged artifact が runtime merge と byte-identical (Phase 3 effect) | F3 / Go 条件 C2 |
+| CT9 | AagResponse + detector schema validation 通過 (Phase 4 effect) | Go 条件 C3 |
+| CT10 | RuleBinding 違反 hard fail (Phase 5 effect) | Go 条件 C4 |
 
-**観測**: AI が topic 起点で rule subset に reach できるか + tool call 削減率
+**観測** = simulation 結果が DA-α-008 entry の observation table に landing。
 
-**不機能時 rollback**: artifact 削除 + revert。
+#### Phase 9: Go 実装 (conditional on Go 条件 C1-C4 全 met)
 
-### Phase 6: Simulation + 機能 verify
+**目的**: 4 条件 (C1 merge policy unified / C2 merged artifact / C3 contract independent / C4 RuleBinding bounded) が全 met したら Go 実装に着手。
 
-**目的**: F1〜F7 の comprehensive verification。**本 session 内 / 各 Phase 完了直後の AI simulation で測定** (calendar-time 観測なし、`AAG-REQ-NO-DATE-RITUAL` 整合)。
+**着手 gate** (本 Phase は条件未達なら block):
+- [ ] DA-α-002 振り返りが "正しい" (C1 met)
+- [ ] DA-α-003 振り返りが "正しい" (C2 met)
+- [ ] DA-α-004 振り返りが "正しい" (C3 met)
+- [ ] DA-α-005 振り返りが "正しい" (C4 met)
 
-**Control Test Scenarios** (`decision-audit.md` DA-α-006 に observation table landing):
+**やること** (gate 通過後):
+- 言語選定 (DA-α-009): **Go / Python / combo OK、Rust 除外** (本体 WASM/Rust と境界混線、AI が Rust を強く推奨する場合は人間確認 escalation)
+- `tools/aag-{lang}/` 新設 (採用言語に応じて)
+- 最小 PoC: validate (schema validation) + merge (defaults + project overlay merge、TS と byte-identical)
+- CI に組み込まない (本 cutover は後続 program)
 
-| # | scenario | 関連 F | 測定 |
-|---|---|---|---|
-| CT1 | `merged.ts` 編集 → rules-by-path から関連 rule subset を 1 read | F1 | precision + tool call 数 |
-| CT2 | 関係ない path 編集 → 関連 rule が surface しない | F1 (negative) | 無関係 surface 件数 = 0 ? |
-| CT3 | guard 違反 → rule-detail から why/migrationRecipe へ reach | F2 | step 数 / time |
-| CT4 | topic 起点で関連 rule discovery (Phase 5 effect) | F1 / F2 | hit rate |
-| CT5 | 試験 drift → sync guard hard fail | F3 | guard 反応 Y/N |
-| CT6 | 新 session 起動 → DA entry を read して判断継承 (re-derive 不要) | F4 | re-derive 回数 |
-| CT7 | 5 軸 articulate なき deliverable は review block (Phase 1 effect) | F5 / F6 | block / pass |
+**観測**: PoC が手動実行で TS と同一結果を返す Y/N
 
-**観測** = simulation 結果が DA-α-006 entry に landing。
+**不機能時 rollback**: PoC 削除 + revert。
 
-**不機能時**: 該当 functioning に対応する技術前提を rollback / 再 design。
+#### Phase 10: Archive + 後続 program charter
 
-### Phase 7: archive + cutover charter
-
-**目的**: F7。本 program 完了時の articulate。
+**目的**: 本 program 完了 + 後続 program への引き継ぎ。
 
 **やること**:
-- 不機能と判明した deliverable の revert + DA entry に "機能しなかった" 記録
-- Phase 4 audit で identify された負債の削減実施
-- 後続 program (もし必要なら) の charter を 1 doc で articulate (`aag/core/AAG_FOLLOWUP_CHARTER.md` または既存 doc 拡張、判断は DA-α-007)
-- archive 移行 (人間承認 = 最終 1 点)
-
-**5 軸 articulate**: archive 判断時に articulate。
-
-**観測**: 全 F1-F7 が observable に functioning しているか の最終 audit。
-
-**不機能時**: 部分機能なら部分 archive。全不機能なら full revert + 本 program archive (失敗ではなく mechanism が機能した記録)。
+- 不機能と判明した deliverable の revert
+- Phase 7 audit で identify された負債の削減実施
+- 後続 program (もし必要なら) charter を 1 doc で articulate (新規 doc or 既存 doc 拡張、判断は DA-α-010)
+- `references/02-status/recent-changes.md` に本 program のサマリ追加
+- archive 移行 (人間承認 = 唯一の人間 mandatory 点)
 
 ---
 
@@ -233,13 +312,16 @@ F1〜F7 を成立させる技術前提。priority は「最も多くの F を en
 
 | ID | Phase | 判断対象 |
 |---|---|---|
-| DA-α-001 | Phase 1 | 5 軸 framework operational 化方針 |
-| DA-α-002 | Phase 2 | rules-by-path format 選定 + sync guard 設計 |
-| DA-α-003 | Phase 3 | rule-detail / index granularity |
-| DA-α-004 | Phase 4 | audit 違反の restructure 実施判断 (per violation) |
-| DA-α-005 | Phase 5 | rule-by-topic 配置 (manifest 拡張 / 並列 file) |
-| DA-α-006 | Phase 6 | simulation 結果総括 |
-| DA-α-007 | Phase 7 | archive / 後続 program charter 判断 |
+| DA-α-001 | Phase 1 | Authority 固定 + 5 軸 framework operational 化方針 |
+| DA-α-002 | Phase 2 | Merge policy 採用案 (defaults 補完 + resolvedBy + 三重定義解消) |
+| DA-α-003 | Phase 3 | merged artifact format 選定 + sync guard 設計 |
+| DA-α-004 | Phase 4 | AagResponse + detector schema 化方針 |
+| DA-α-005 | Phase 5 | RuleBinding boundary guard 設計 |
+| DA-α-006 | Phase 6 | drawer artifact 群 granularity / 配置 |
+| DA-α-007 | Phase 7 | 5 軸 audit per-violation restructure 判断 |
+| DA-α-008 | Phase 8 | simulation 結果総括 + F1-F7 status |
+| DA-α-009 | Phase 9 | Go 実装条件 met 確認 + 言語選定 (Rust 除外) |
+| DA-α-010 | Phase 10 | archive / 後続 program charter 必要性 |
 
 ---
 
@@ -247,15 +329,16 @@ F1〜F7 を成立させる技術前提。priority は「最も多くの F を en
 
 | 禁止事項 | なぜ |
 |---|---|
+| Phase 1-5 (Go 条件 C1-C4) 未達で Phase 9 (Go 実装) を着手 | TS の揺れを Go に持ち込み二度手間 |
 | 既存 AAG 振る舞い変更 (rule semantics / merge 結果 / response 出力 / detector message) | 不可侵原則 1 |
 | 既存 9 integrity guard / 12 AAG-REQ の baseline 緩和 | 不可侵原則 2 |
 | 派生 artifact 手編集 | 不可侵原則 3 |
 | 5 軸 articulate なき deliverable 追加 | 不可侵原則 4 |
 | observable verification なき articulation | 不可侵原則 5 + supreme principle |
 | 単一 commit で 2 Phase 以上をまとめる | Phase 境界での観測ができなくなる |
-| `base-rules.ts` (10,805 行) の TS authoring を JSON 化 | authoring の rich 表現を毀損 |
+| `base-rules.ts` (10,805 行) の TS authoring を JSON 化 | authoring 価値を毀損 |
 | 新 doc を増やす (gap fill は既存 doc 拡張) | `strategy.md` §1.1「正本を増やさない」整合 |
-| Rust を本 program runtime に使う (本体 WASM/Rust と境界混線) | 言語境界、AI が Rust を強く推奨する場合は人間確認 escalation |
+| Rust を本 program runtime に使う | 本体 WASM/Rust と境界混線、AI 強推奨時は人間確認 escalation |
 
 ---
 
@@ -265,37 +348,45 @@ F1〜F7 を成立させる技術前提。priority は「最も多くの F を en
 
 | パス | 役割 |
 |---|---|
-| `app-domain/gross-profit/rule-catalog/base-rules.ts` | TS authoring canonical (10,805 行) |
+| `app-domain/gross-profit/rule-catalog/base-rules.ts` (10,805 行) | TS authoring canonical |
 | `app/src/test/architectureRules.ts` | consumer facade |
-| `tools/architecture-health/src/aag-response.ts` | AagResponse canonical |
-| `references/01-principles/aag/*` | 9 doc, 1,538 行 |
-| 既存 9 integrity guard | F3 の現役機能 |
-| `manifest.json` | discovery / pathTriggers (本 program で extend) |
+| `tools/architecture-health/src/aag-response.ts` (実装側) | Phase 4 で schema 駆動化、本体 logic 維持 |
+| `references/01-principles/aag/*` (9 doc, 1,538 行) | 整合参照のみ |
+| 既存 9 integrity guard | F3 の現役機能、緩和禁止 |
+| `manifest.json` | discovery / pathTriggers (Phase 6 で extend 可) |
 
-### 追加する (= 派生 artifact + 同期 guard)
+### 修正する (Pre-Go 条件 = Go 実装条件 C1-C4)
 
-| パス | Phase | 5 軸 |
+| パス | Phase | 修正内容 |
 |---|---|---|
-| `tools/architecture-health/src/aag/rules-by-path-generator.ts` | 2 | 派生生成器 |
-| `docs/generated/aag/rules-by-path.<format>` | 2 | 派生 artifact |
-| `app/src/test/guards/aagRulesByPathSyncGuard.test.ts` | 2 | sync 検証 |
-| `tools/architecture-health/src/aag/rule-detail-generator.ts` | 3 | 派生生成器 |
-| `docs/generated/aag/rule-index.<format>` | 3 | 派生 |
-| `docs/generated/aag/rule-detail/<id>.<format>` | 3 | 派生 |
-| `app/src/test/guards/aagRuleDetailSyncGuard.test.ts` | 3 | sync 検証 |
-| `docs/generated/aag/rule-by-topic.<format>` | 5 | 派生 |
+| `app/src/test/aag-core-types.ts` | 2 | `RuleExecutionOverlayEntry` 集約 |
+| `app/src/test/architectureRules/merged.ts` | 2 / 3 | bootstrap 修復 + `resolvedBy` 追加 |
+| `app/src/test/architectureRules/defaults.ts` | 2 | reviewPolicy stub (採用案次第) |
+| `_template/aag/execution-overlay.ts` | 2 | type import 集約版へ + comment 整合 |
+| `pure-calculation-reorg/aag/execution-overlay.ts` | 2 | type import 集約版へ + comment 整合 |
+| `aag-platformization/aag/execution-overlay.ts` | 2 | type import 集約版へ |
+| `references/03-guides/new-project-bootstrap-guide.md` | 2 | Step 4 を採用案に整合 |
 
-### 修正する (既存拡張)
+### 新設する (派生 artifact + sync guard)
 
-| パス | Phase | 何を |
+| パス | Phase | 役割 |
 |---|---|---|
-| `tools/architecture-health/src/collectors/obligation-collector.ts` | 2 | rules-by-path を obligation に組み込む拡張 |
-| `.claude/manifest.json` | 5 | rule-by-topic を discovery に articulate (判断次第) |
+| `tools/architecture-health/src/aag/merge-artifact-generator.ts` | 3 | merged artifact 生成器 |
+| `docs/generated/aag/merged-architecture-rules.<format>` | 3 | merged artifact (resolvedBy 込み) |
+| `app/src/test/guards/aagMergedArtifactSyncGuard.test.ts` | 3 | merged artifact ↔ runtime sync 検証 |
+| `docs/contracts/aag/aag-response.<format>` | 4 | AagResponse contract schema |
+| `docs/contracts/aag/detector-result.<format>` | 4 | detector-result contract schema |
+| `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` | 4 | contract schema ↔ TS 型 sync 検証 |
+| `app/src/test/guards/ruleBindingBoundaryGuard.test.ts` | 5 | RuleBinding 境界 hard fail |
+| `tools/architecture-health/src/aag/rules-by-path-generator.ts` | 6 | drawer 生成器 |
+| `docs/generated/aag/rules-by-path.<format>` | 6 | path → rule id |
+| `docs/generated/aag/rule-index.<format>` | 6 | 軽量 index |
+| `docs/generated/aag/rule-detail/<id>.<format>` | 6 | on-demand drawer |
+| `docs/generated/aag/rule-by-topic.<format>` | 6 | topic discovery |
+| `app/src/test/guards/aag*SyncGuard.test.ts` (Phase 6) | 6 | drawer artifact sync |
 
-### 修正の可能性 (audit 結果次第)
+### conditional 新設 (Phase 9、Go 実装条件 C1-C4 全 met 後)
 
-| パス | Phase | 何を |
+| パス | Phase | 役割 |
 |---|---|---|
-| `CLAUDE.md` | 4 | 製本重複 / 責務集合があれば restructure |
-| `references/01-principles/aag/*` | 4 | 5 軸 articulate に gap があれば追加 |
-| `projects/aag-platformization/*` | 4 | reframe 跡 articulation の archive (本 project の自己 audit) |
+| `tools/aag-{go|python}/` | 9 | reference runtime PoC (採用言語次第、Rust 除外) |

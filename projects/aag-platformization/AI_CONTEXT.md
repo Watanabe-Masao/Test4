@@ -12,9 +12,26 @@ AAG Platformization Program (`aag-platformization`)
 **AAG を「あるべき」で終わらさず、observable に機能させる**。
 articulation without functioning は本 program の最大 violation (`references/01-principles/aag/strategy.md` §2.1「抽象化の過剰」AI 本質的弱点)。
 
+## 本フェーズの位置づけ
+
+「Go 移行を前に進める」ではなく、**「Go 実装を前に進める条件を固定する」**。Go 移行を止める必要はないが、TS の揺れ (merge policy 等) を未解決のまま Go に持ち込むと **二度手間**。条件を固定してから Go 実装に入る。
+
+## Go 実装条件 (C1-C4)
+
+`plan.md` §3。Phase 9 (Go 実装) の前提:
+
+| # | 条件 | 該当 Phase |
+|---|---|---|
+| C1 | merge policy が一本化されている | Phase 2 |
+| C2 | merged artifact が生成されている | Phase 3 |
+| C3 | AagResponse / detector contract が独立 | Phase 4 |
+| C4 | RuleBinding 境界が guard 化されている | Phase 5 |
+
+4 件全 met → Phase 9 着手可。1 つでも未達なら block。
+
 ## Purpose
 
-AAG は AI のための **context provision control system**。`strategy.md` §3.4 で既に「AI が判断基準を理解し、意図に沿った変更を行うためのインターフェース」と articulate 済。本 program は既存 AAG (12/12 `AAG-REQ-*` 達成 + 9 integrity guard) を **触らず**、AI が必要 context に precision よく reach できる **structured access path を追加** する。新概念は導入しない。形式進化のみ。
+AAG は AI のための **context provision control system**。`strategy.md` §3.4 で既に「AI が判断基準を理解し、意図に沿った変更を行うためのインターフェース」と articulate 済。本 program は既存 AAG (12/12 `AAG-REQ-*` 達成 + 9 integrity guard) を **触らず**、(1) **Go 実装条件 C1-C4 を固定** (Phase 1-5) + (2) AI navigation 強化 (Phase 6) + (3) 既存負債削減 (Phase 7) + (4) verification (Phase 8) + (5) Go 実装 conditional (Phase 9) + (6) archive (Phase 10) を行う。新概念は導入しない。形式進化のみ。
 
 ## 守るべき functioning (F1〜F7)
 
