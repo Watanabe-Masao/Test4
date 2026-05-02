@@ -358,3 +358,60 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - 判定: TBD
 - 学習: TBD
 - retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-α-004: RuleBinding Boundary Guard (Go 実装条件 C4、Phase 1 最終)
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 1 / A4)
+
+- **taskClass**: `binding-boundary` (= post-Pilot Binding Auditor role 用 seam)
+- 候補:
+  1. TypeScript 構造解析 (TS Compiler API、ts-morph 等で AST 経由 field 抽出) — 厳密だが複雑
+  2. **regex 経由 + balanced brace tracking で interface body + top-level field 抽出**
+  3. 実 rule instance を runtime 走査で検証 — TS が既に boundary を強制するため重複
+- 採用案: 候補 2
+- 判断根拠:
+  - 事実 1: TS interface 自体が canonical boundary (TS compiler が既に強制)、guard の役目は「TS interface を改変する PR で意味系 field 追加が忍び込まない」を catch すること
+  - 事実 2: regex + brace balancing で `RuleBinding` 単一 interface の top-level field 抽出は十分 robust (nested object literals は depth tracking でskip)
+  - 事実 3: ts-morph 等 AST tool は新規 dep、ROI 低い (本 guard scope = 1 interface)
+  - 推論: 候補 2 が ROI 最高、synthetic violation test (test 5) で regex 健全性を単体検証して drift risk を mitigate
+- 想定リスク:
+  - 最大被害: regex が完璧でなく false negative (= 違反検出漏れ)。mitigation = synthetic violation test で regex 動作を機械検証
+  - 二番目: interface 構造が radically 変わる (= 例: `extends` で別 interface 継承) と regex が body 抽出失敗。mitigation = test 1 (sanity check) で抽出失敗を hard fail
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): 6 test 全 PASS (interface 抽出 + 5 field 限定 + 意味系 8 件未articulate + 禁止 prefix 3 件未articulate + synthetic violation 検出 + 既存 5 field 全揃え)
+  - 観測 2 (反証): synthetic violation 注入で hard fail 確認済 (本 commit pre-landing 検証で確認)
+  - 観測 3 (反証): 既存 RuleBinding 5 field は全 PASS、削除 / 改名で test 6 (既存 field 揃え) が hard fail
+  - 観測 4 (反証): test:guards 全件 PASS (138 file 928 test → 139 file 934 test 想定、+1 file +6 test)
+  - 観測 5 (反証): 既存 12 AAG-REQ baseline 緩和なし
+
+### 5 軸 articulation
+
+- **製本** (canonical): `app/src/test/architectureRules/types.ts` の `RuleBinding` interface 自身が canonical。本 guard はその canonical の boundary を守る (= guard は canonical を articulate しない、enforce する)
+- **依存方向**: types.ts (canonical) → 本 guard (regex 経由参照) — 一方向、guard が canonical を改変しない
+- **意味**: 「RuleBinding interface に意味系 field が漏れていないか」(canonical 1 問い)
+- **責務**: boundary 機械検証のみ (single responsibility = field 集合の正常性)。意味の articulate は別 interface (RuleSemantics / Governance / OperationalState / DetectionSpec) の責務
+- **境界**: guard 層 = 構造検証、内 = field 名検査、外 = 個別 rule instance の semantic 検証 (= 別 guard の責務、例: selfHostingGuard / canonicalDocBackLinkGuard)
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `1328f25` (前 commit、A3 完了 + Lineage update 後)
+- judgementTag: `aag-platformization/DA-α-004-judgement`
+- rollbackTag: `aag-platformization/DA-α-004-rollback-target` (`1328f25` に annotated tag)
+- implementationCommits:
+  - `<本 commit sha>` — A4 全実装 (guard 6 test + types.ts boundary policy comment + DA entry + guard-test-map 反映)
+
+### 振り返り (Phase 1 / A4 完了直後 = 本 commit landing 直後 = TBD)
+
+- 観測 1 (6 test PASS): TBD
+- 観測 2 (synthetic violation hard fail): TBD (本 commit pre-landing で確認済、CI 後追記)
+- 観測 3 (既存 5 field 全揃え): TBD (test 6 PASS で確認予定)
+- 観測 4 (test:guards 全件 PASS): TBD
+- 観測 5 (12 AAG-REQ baseline 維持): TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
