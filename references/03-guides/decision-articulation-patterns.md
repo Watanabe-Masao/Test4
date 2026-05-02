@@ -8,7 +8,7 @@
 > (= AAG が AI に提供する「引き出し」の 1 つ)。
 >
 > **first instance**: 本 doc の各 pattern の Application instances 欄に
-> AAG Pilot (`projects/aag-platformization/`) を **example** として記載。
+> AAG Pilot (`projects/completed/aag-platformization/`) を **example** として記載。
 > 後続で主アプリ改修事例が landing したら append する self-extend 構造。
 
 ## 役割切り分け (= 封じ込め境界)
@@ -65,7 +65,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot (first instance、本 doc landing の trigger): `projects/aag-platformization/decision-audit.md` 内 8 entry の Commit Lineage section + 14 annotated tag
+- AAG Pilot (first instance、本 doc landing の trigger): `projects/completed/aag-platformization/decision-audit.md` 内 8 entry の Commit Lineage section + 14 annotated tag
 - (将来) 主アプリ改修事例 — 各 program landing 時に append
 
 ---
@@ -98,7 +98,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: `projects/aag-platformization/plan.md` §1 (7 件)
+- AAG Pilot: `projects/completed/aag-platformization/plan.md` §1 (7 件)
 - (将来) 主アプリ改修事例 — 各 program plan.md の "やらないこと" section
 
 ---
@@ -129,7 +129,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: 1,710 行 patch → clean rewrite 813 行 (前提 collapse 後の構造再評価、`projects/aag-platformization/plan.md` 履歴)
+- AAG Pilot: 1,710 行 patch → clean rewrite 813 行 (前提 collapse 後の構造再評価、`projects/completed/aag-platformization/plan.md` 履歴)
 - (将来) 主アプリ doc の clean rewrite 事例
 
 ---
@@ -191,7 +191,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: `projects/aag-platformization/checklist.md` Phase 0 の `CURRENT_PROJECT.md` 切替保留 + Phase 1 A1 の DA-α-001 別 entry skip + Phase 1 A5 の drawer rule-detail per-file 化 skip (= 3 件、各々 (a) (b) (c) articulated)
+- AAG Pilot: `projects/completed/aag-platformization/checklist.md` Phase 0 の `CURRENT_PROJECT.md` 切替保留 + Phase 1 A1 の DA-α-001 別 entry skip + Phase 1 A5 の drawer rule-detail per-file 化 skip (= 3 件、各々 (a) (b) (c) articulated)
 - (将来) 主アプリ checklist の意図的 skip 事例
 
 ---

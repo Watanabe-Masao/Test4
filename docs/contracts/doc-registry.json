@@ -117,7 +117,7 @@
         },
         {
           "path": "references/01-principles/platformization-standard.md",
-          "label": "Platformization Standard — 全 subsystem 共通の articulate template。8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate) で全 subsystem を記述する。粒度を揃え、進度は asynchronous。AAG (`projects/aag-platformization/`) が Pilot Application。横展開は docs / App Profile / health 等へ asynchronous (本 program scope 外)"
+          "label": "Platformization Standard — 全 subsystem 共通の articulate template。8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate) で全 subsystem を記述する。粒度を揃え、進度は asynchronous。AAG (`projects/completed/aag-platformization/`、Pilot complete 2026-05-02) が Pilot Application。横展開は docs / App Profile / health 等へ asynchronous (本 program scope 外)"
         },
         {
           "path": "references/99-archive/adaptive-architecture-governance.md",

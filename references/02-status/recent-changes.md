@@ -12,9 +12,9 @@
 
 ### 概要
 
-`projects/aag-platformization/` (= Pilot Application of `references/01-principles/platformization-standard.md`) の Phase 1+2+3 全 deliverable 完了。
+`projects/completed/aag-platformization/` (= Pilot Application of `references/01-principles/platformization-standard.md`) の Phase 1+2+3 全 deliverable 完了。
 AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Operating Gate) すべてで articulate complete + 実バグ 3 件修復 + AI simulation で 5 機能 (F1-F5) verify。
-**残るは人間承認による archive 移行** (= 唯一の人間 mandatory 点、`plan.md` 不可侵原則 6) のみ。
+**人間承認による archive 移行 完遂** (= `plan.md` 不可侵原則 6 の唯一の人間 mandatory 点、2026-05-02 ユーザー承認、`projects/completed/aag-platformization/` に物理 archive 移管)。
 
 ### 主な成果物
 
@@ -32,13 +32,13 @@ AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Gene
 1. `decision-audit.md` 全 entry (DA-α-000 + 002a〜007) read
 2. F1-F5 + Pilot 完了 criterion 5 件 (`plan.md` §2) の observation 結果確認
 3. archive プロセスへの移行を承認
-4. 承認後の機械作業 (AI 実施可): `projects/aag-platformization/` → `projects/completed/aag-platformization/` 移動 / open-issues.md 行 archived 移動 / `CURRENT_PROJECT.md` 切替判断 (= Phase 0 で意図的保留した item) は archive 時に user に escalate
+4. 承認後の機械作業 (AI 実施可): `projects/completed/aag-platformization/` → `projects/completed/aag-platformization/` 移動 / open-issues.md 行 archived 移動 / `CURRENT_PROJECT.md` 切替判断 (= Phase 0 で意図的保留した item) は archive 時に user に escalate
 
 ### 関連 commit + tag
 
 - 8 implementation commit (96a9521 / 226b455 / 74100a7 / eee1de8 / db26556 / e806bfa / 625e55c / `<本 commit>`)
 - 14 annotated tag (judgement + rollback-target × 7 entry)
-- 8 DA entry (`projects/aag-platformization/decision-audit.md` DA-α-000 + 002a〜007)
+- 8 DA entry (`projects/completed/aag-platformization/decision-audit.md` DA-α-000 + 002a〜007)
 
 ---
 

@@ -28,7 +28,7 @@
 
 | doc | 役割 | 状態 |
 |---|---|---|
-| [`../platformization-standard.md`](../platformization-standard.md) | 全 subsystem 共通の 8 軸 articulate template (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate)。AAG (`projects/aag-platformization/`) が Pilot Application、横展開は subsystem 個別判断で asynchronous | landing (2026-05-02) |
+| [`../platformization-standard.md`](../platformization-standard.md) | 全 subsystem 共通の 8 軸 articulate template (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate)。AAG (`projects/completed/aag-platformization/`) が Pilot Application (= Pilot complete 2026-05-02、archive 済み)、横展開は subsystem 個別判断で asynchronous | landing (2026-05-02) |
 
 ## AAG Audit (Layer 4: 検証 = 外部監査)
 

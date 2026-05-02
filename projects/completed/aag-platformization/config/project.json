@@ -1,0 +1,41 @@
+{
+  "$comment": "AAG Platformization Program — AAG をアプリ内サブシステムから authority + artifact + contract + change-policy を持つ独立した品質基盤に昇華する。Go 移行はその最終 runtime 形であって目的ではない。Archived 2026-05-02: Phase 1〜3 全完遂、Pilot 完了 criterion 5 件全 MET、人間承認 archive 完了。Standard §3.1 に AAG = 'Pilot complete' entry landing。PROD-X drawer (references/03-guides/decision-articulation-patterns.md) で Pilot pattern を主アプリ改修向けに general-purpose articulate (self-test 24/24 PASS)。",
+  "projectId": "aag-platformization",
+  "title": "AAG Platformization Program — authority + artifact + contract + change-policy",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-platformization",
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。詳細: projects/completed/aag-platformization/projectization.md。merge policy 揺れ解消・derived artifact 化・contract 化・RuleBinding 境界・defaults transparency など AAG 自体の制度基盤化を含むため Level 3 + architecture-refactor。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "app/src/test/aag-core-types.ts",
+      "app/src/test/architectureRules.ts",
+      "app/src/test/architectureRules/",
+      "app-domain/gross-profit/rule-catalog/base-rules.ts",
+      "projects/_template/aag/execution-overlay.ts",
+      "tools/architecture-health/src/aag-response.ts",
+      "references/01-principles/aag/",
+      "docs/contracts/",
+      "docs/generated/aag/"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "アプリ業務ロジック (gross-profit / sales / forecast 等) の意味変更",
+      "新ガード追加による既存検出範囲の縮退 (緩和方向の baseline 変更)",
+      "Go ランタイムの本実装 (PoC まで。本 cutover は後続 project)",
+      "base-rules.ts の rich TS 表現を一気に JSON 化すること",
+      "外部公開 (本 program は internal platform 化に閉じる)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/completed/aag-platformization/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-platformization/HANDOFF.md",
+    "plan": "projects/completed/aag-platformization/plan.md",
+    "checklist": "projects/completed/aag-platformization/checklist.md",
+    "projectization": "projects/completed/aag-platformization/projectization.md"
+  }
+}

@@ -98,7 +98,7 @@
 > **役割**: §3 派生物の `ARCHITECTURE_RULES` を生成する merge 解決順序を **canonical に** articulate する **単一点**。
 > `merged.ts` / `defaults.ts` / 各 project の `aag/execution-overlay.ts` / `references/03-guides/new-project-bootstrap-guide.md` Step 4 はすべて本 section を canonical 参照する (= back-link)。仕様の揺れを「修正対象」ではなく「構造上の単一点」に転換する。
 >
-> **landing**: `projects/aag-platformization/` Phase 1 / A2a (DA-α-002a)、bootstrap path 破綻 (空 overlay → throw) と `RuleExecutionOverlayEntry` 三重定義の修復に同期。
+> **landing**: `projects/completed/aag-platformization/` Phase 1 / A2a (DA-α-002a、archive 済み 2026-05-02)、bootstrap path 破綻 (空 overlay → throw) と `RuleExecutionOverlayEntry` 三重定義の修復に同期。
 
 ### §4.1 解決順序
 

@@ -108,7 +108,7 @@ describe('AAG Contract Schema Sync Guard', () => {
 
     const sample: AagResponse = buildObligationResponse(
       'Test obligation',
-      'projects/aag-platformization/aag/execution-overlay.ts',
+      'projects/completed/aag-platformization/aag/execution-overlay.ts',
     )
     const valid = validate(sample)
     expect(valid, `schema validation failed: ${JSON.stringify(validate.errors)}`).toBe(true)
