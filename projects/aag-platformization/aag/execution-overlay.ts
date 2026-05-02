@@ -1,42 +1,25 @@
 /**
- * Template Project Overlay — 空 overlay
+ * aag-platformization Pilot Overlay — 空 overlay
  *
- * 新 project は全 rule を DEFAULT_EXECUTION_OVERLAY で動かせる。
- * 案件固有の override が必要な rule だけを明示的に書く。
+ * 本 program (= Standard Pilot) は本体 merge に参加しない (空 overlay 維持)。
+ * 全 rule は DEFAULT_EXECUTION_OVERLAY + DEFAULT_REVIEW_POLICY_STUB から解決。
  *
- * 合成ロジック: app/src/test/architectureRules/merged.ts
- * 解決順序: project overlay → DEFAULT_EXECUTION_OVERLAY → error
+ * **canonical merge policy**:
+ *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   = 唯一の canonical。解決順序 / reviewPolicy 契約 / resolvedBy 追跡は
+ *   §4.1〜§4.3 を参照。
  *
- * 正本区分:
- * - App Domain: decisionCriteria, migrationRecipe, detection, binding, defaults
- * - Project Overlay（本ファイル）: fixNow, executionPlan, reviewPolicy, lifecyclePolicy
- *
- * 参照:
- * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
- * - references/03-guides/governance-final-placement-plan.md
+ * 合成ロジック: app/src/test/architectureRules/merged.ts (§4 implementation)
  *
  * @responsibility R:utility
+ * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
  */
 
-import type {
-  FixNowClassification,
-  ExecutionPlan,
-  ReviewPolicy,
-  LifecyclePolicy,
-} from '@/test/aag-core-types'
+// `RuleExecutionOverlayEntry` / `ExecutionOverlay` 型は
+// `app/src/test/aag-core-types.ts` に集約済 (Pilot A2a で三重定義解消)。
+export type { RuleExecutionOverlayEntry, ExecutionOverlay } from '@/test/aag-core-types'
 
-/** 単一ルールに対する案件運用状態 */
-export interface RuleExecutionOverlayEntry {
-  readonly fixNow?: FixNowClassification
-  readonly executionPlan?: ExecutionPlan
-  readonly reviewPolicy?: ReviewPolicy
-  readonly lifecyclePolicy?: LifecyclePolicy
-}
-
-/** ruleId -> 運用状態のマップ */
-export type ExecutionOverlay = {
-  readonly [ruleId: string]: RuleExecutionOverlayEntry
-}
+import type { ExecutionOverlay } from '@/test/aag-core-types'
 
 /**
  * 新 project 立ち上げ直後は空でよい。

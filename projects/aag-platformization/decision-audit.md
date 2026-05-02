@@ -181,3 +181,62 @@ git push origin <tag>
 判定 (本 reframe 系列に対して): **部分的** — articulation は accumulated patch から clean rewrite に restructure 完了、ただし implementation は 0 件。Phase 1 着手で functioning に転じる。
 
 DA-α-000 自体は active のまま継続、judgement model (AI-driven + retrospective + commit-bound rollback) は不変。
+
+---
+
+## DA-α-002a: Merge Policy canonical 単一点化 + 実バグ 3 件修復
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 1 / A2a)
+
+- 候補:
+  1. `MERGE_POLICY.md` 新設 (新 doc 増設、不可侵原則 4 違反の risk)
+  2. `aag/source-of-truth.md` に Merge Policy section 追加 (既存 doc 拡張)
+  3. `merged.ts` の冒頭 doc-comment を canonical 化 (= code-as-canonical)
+- 採用案: 候補 2
+- 判断根拠:
+  - 事実 1: `references/01-principles/aag/strategy.md` §1.1「正本を増やさない」 — 新 doc 増設は最後手段
+  - 事実 2: `aag/source-of-truth.md` は既に「正本 / 派生 / 運用物 区分ポリシー」を articulate (= merge policy = 派生生成 policy であり性質一致)
+  - 事実 3: 既存 source-of-truth.md §3 派生物一覧の中に `ARCHITECTURE_RULES` を含めるべきだが現状未 articulate (gap)。本機会に gap fill
+  - 事実 4: code-as-canonical (候補 3) は AI が doc 経由で reach する経路を阻害 (= AAG 5 軸「依存方向」逆転)
+  - 推論: doc 拡張案 (候補 2) が最も既存 articulation 構造と整合 + AI navigation を阻害しない
+- 想定リスク:
+  - 最大被害: source-of-truth.md の責務肥大 (§4 追加で C1 違反 risk)。mitigate = §4 は merge policy 単一に絞る、他 derivation policy への拡張はしない
+  - 二番目: §4 番号変更で他 doc の cross-reference 破綻。mitigate = grep で reference 確認、影響なし
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): merged.ts / defaults.ts / 3 overlay / bootstrap-guide すべて §4 に back-link で reach 可能
+  - 観測 2 (肯定): 空 `EXECUTION_OVERLAY = {}` で `merged.ts` が throw せず動く (bootstrap path 修復確認)
+  - 観測 3 (反証): `pure-calculation-reorg` 既存 merge 結果が byte-identical (golden test、振る舞い変更なし不可侵原則 1 遵守)
+  - 観測 4 (反証): 既存 9 integrity guard / 12 AAG-REQ 1 件も緩和されない
+  - 観測 5 (反証): `RuleExecutionOverlayEntry` 型の重複定義が 0 件 (集約完了確認)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `aag/source-of-truth.md` §4 (本判断 deliverable)。merged.ts / defaults.ts / 3 overlay / bootstrap-guide はすべて派生 (back-link)
+- **依存方向**: source-of-truth.md §4 → merged.ts / defaults.ts / overlay / bootstrap-guide (一方向、上位 → 下位、逆参照禁止)
+- **意味**: 「ARCHITECTURE_RULES の merge 解決順序 + reviewPolicy 契約 + resolvedBy 追跡 はどう articulate されるか」(canonical 1 問い)
+- **責務**: merge policy の単一 articulate 点 (single responsibility = 派生生成 policy)。他 derivation policy への拡張禁止
+- **境界**: source-of-truth.md §4 の内 = merge policy / 外 = 個別 rule の operational state (= 各 project overlay の内容)
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `2954e04` (前 commit、4 改訂反映後)
+- judgementTag: `aag-platformization/DA-α-002a-judgement` (本 commit に annotated tag)
+- rollbackTag: `aag-platformization/DA-α-002a-rollback-target` (`2954e04` に annotated tag)
+- implementationCommits:
+  - `<本 commit sha>` — A2a 全実装 (source-of-truth.md §4 + aag-core-types 集約 + merged.ts + defaults.ts + 3 overlay + bootstrap-guide + DA entry)
+
+### 振り返り (Phase 1 / A2a 完了直後 / 本 commit landing 直後 = TBD)
+
+> A2a checklist 全 [x] 完了 + golden test 通過 + 全 guard PASS 後に追記。
+
+- 観測 1 (back-link reach): TBD
+- 観測 2 (空 overlay throw しない): TBD
+- 観測 3 (golden test byte-identical): TBD
+- 観測 4 (既存 guard / AAG-REQ 緩和なし): TBD
+- 観測 5 (型重複定義 0 件): TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD

@@ -192,6 +192,48 @@ export interface RuleOperationalState {
   readonly lifecyclePolicy?: LifecyclePolicy
 }
 
+// ─── Project Overlay 共通型 (Pilot A2a で集約、三重定義解消) ──────────
+//
+// canonical 単一点: references/01-principles/aag/source-of-truth.md §4 (Merge Policy)
+//
+// `RuleExecutionOverlayEntry` はかつて _template / pure-calculation-reorg /
+// aag-platformization の 3 file で個別に重複定義されていた (本 file が
+// canonical 集約点になる前)。aag-platformization Phase 1 / A2a で本 file に
+// 集約、各 project overlay は本 export を import する。
+//
+// 全 field optional: project overlay は必要な field だけ指定し、未指定 field は
+// merged.ts が defaults / DEFAULT_REVIEW_POLICY_STUB から補完する
+// (`source-of-truth.md` §4.1〜§4.2 解決順序)。
+
+/** 単一 rule に対する案件運用状態 (project overlay entry) */
+export interface RuleExecutionOverlayEntry {
+  readonly fixNow?: FixNowClassification
+  readonly executionPlan?: ExecutionPlan
+  readonly reviewPolicy?: ReviewPolicy
+  readonly lifecyclePolicy?: LifecyclePolicy
+}
+
+/** ruleId → 運用状態 の map (project overlay 全体) */
+export type ExecutionOverlay = {
+  readonly [ruleId: string]: RuleExecutionOverlayEntry
+}
+
+/**
+ * `reviewPolicy` の defaults stub。
+ *
+ * `source-of-truth.md` §4.2 reviewPolicy 契約 — defaults には rule 単位の実値を
+ * 持たせない (案件固有の時刻 field のため) が、project overlay が未提供の場合の
+ * fallback として本 stub を merged.ts が補完する。
+ *
+ * 長期目標: overlay 明示率 100% (本 program scope 外)、stub 適用率 を merged
+ * artifact の `resolvedBy` で観測可能 (§4.3)。
+ */
+export const DEFAULT_REVIEW_POLICY_STUB: ReviewPolicy = {
+  owner: 'unassigned',
+  lastReviewedAt: null,
+  reviewCadenceDays: 90,
+} as const
+
 // ─── RuleDetectionSpec — どう見つけるか ──────────────────────
 
 /** 検出設定 */

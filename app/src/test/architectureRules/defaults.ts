@@ -4,17 +4,25 @@
  * BaseRule 全 rule に対するデフォルトの fixNow / executionPlan を定義する。
  * project overlay が明示的に override しない rule は、ここから値を取る。
  *
+ * **canonical merge policy**:
+ *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   = 唯一の canonical。本 file の defaults 役割は §4.1 解決順序 step 2
+ *   (project overlay 未定義 field の補完) を realize する。
+ *
  * 配置ポリシー: App Domain（案件非依存の安定知識）
  * - defaults は「標準的な扱い」であり、project 案件運用状態ではない
  * - project overlay は「この案件ではこう扱う」という override
- * - reviewPolicy（案件固有の時刻フィールド）は defaults に含めない
+ * - reviewPolicy（案件固有の時刻フィールド）は defaults に rule 単位の実値を
+ *   持たせない。代わりに `aag-core-types.ts` の `DEFAULT_REVIEW_POLICY_STUB`
+ *   が merged.ts 内で補完される (§4.2 reviewPolicy 契約)
  *
  * 新 project bootstrap 時は空 EXECUTION_OVERLAY = {} で全 rule がこの
- * defaults から解決される。
+ * defaults + DEFAULT_REVIEW_POLICY_STUB から解決される (bootstrap path 維持)。
  *
  * 完全性は defaultOverlayCompletenessGuard が保証する。
  *
  * @responsibility R:unclassified
+ * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 

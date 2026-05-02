@@ -1,44 +1,36 @@
 /**
- * Execution Overlay — 案件固有の運用状態
+ * Execution Overlay — 案件固有の運用状態 (pure-calculation-reorg)
  *
- * Project Overlay 側の正本。App Domain（architectureRules/rules.ts）の
- * 安定知識（semantics / governance / detection / binding）に対して、
+ * Project Overlay 側の正本。App Domain (`architectureRules/rules.ts`) の
+ * 安定知識 (semantics / governance / detection / binding) に対して、
  * 「今この案件でどう扱うか」を ruleId キーで注入する。
  *
- * 合成ロジック: app/src/test/architectureRules/index.ts
+ * **canonical merge policy**:
+ *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   = 唯一の canonical。解決順序 / reviewPolicy 契約 / resolvedBy 追跡は
+ *   §4.1〜§4.3 を参照。本 file の rule entry は全 field を明示的に提供する
+ *   (overlay 明示率 100% に対する case study)。
  *
- * 正本区分:
- * - App Domain: decisionCriteria, migrationRecipe, sunsetCondition, detection, binding
- * - Project Overlay（本ファイル）: fixNow, executionPlan, reviewPolicy, lifecyclePolicy
- *
- * 参照: references/03-guides/governance-final-placement-plan.md
+ * 合成ロジック: app/src/test/architectureRules/merged.ts (§4 implementation)
  *
  * @responsibility R:utility
+ * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see references/03-guides/governance-final-placement-plan.md
  */
 
-import type {
-  FixNowClassification,
-  ExecutionPlan,
-  ReviewPolicy,
-  LifecyclePolicy,
-} from "@/test/aag-core-types";
+// `RuleExecutionOverlayEntry` / `ExecutionOverlay` 型は
+// `app/src/test/aag-core-types.ts` に集約済 (Pilot A2a で三重定義解消)。
+// 本 file は集約版を使用する (旧 local declaration では fixNow/executionPlan が
+// required だったが、集約版は全 field optional。本 file の rule entry は
+// 引き続き全 field を提供しているため意味的影響なし)。
+export type { RuleExecutionOverlayEntry, ExecutionOverlay } from "@/test/aag-core-types";
 
-/** 単一ルールに対する案件運用状態 */
-export interface RuleExecutionOverlayEntry {
-  readonly fixNow: FixNowClassification;
-  readonly executionPlan: ExecutionPlan;
-  readonly reviewPolicy?: ReviewPolicy;
-  readonly lifecyclePolicy?: LifecyclePolicy;
-}
-
-/** ruleId -> 運用状態のマップ */
-export type ExecutionOverlay = {
-  readonly [ruleId: string]: RuleExecutionOverlayEntry;
-};
+import type { ExecutionOverlay } from "@/test/aag-core-types";
 
 /**
- * 全 140 ルールの案件運用状態。
- * overlay 未定義のルールはエラー（default 補完しない）。
+ * 全 ~140 rule の案件運用状態。
+ * 本 file は全 field を明示的に提供する (overlay 明示率 100% case study)。
+ * defaults / DEFAULT_REVIEW_POLICY_STUB へのフォールバックは発生しない。
  */
 export const EXECUTION_OVERLAY: ExecutionOverlay = {
   "AR-001": {
