@@ -89,15 +89,15 @@
 
 ## Phase 2: Verification (AI simulation)
 
-- [ ] DA-α-006 entry landing (simulation suite scope + observation protocol)
-- [ ] CT1 path-triggered rule access (A5 effect、F1)
-- [ ] CT2 irrelevant context surface しない (negative、F1)
-- [ ] CT3 rule detail rapid lookup (A5 effect、F2)
-- [ ] CT4 drift detection (A2 / A3 / A5 sync guard、F3)
-- [ ] CT5 session 間判断継承 (decision-audit re-derive 不要、F4)
-- [ ] 各 CT 結果を DA-α-006 observation table に landing
-- [ ] F1〜F5 の機能 status を articulate
-- [ ] DA-α-006 振り返り判定
+- [x] DA-α-006 entry landing (simulation suite scope + observation protocol)
+- [x] CT1 path-triggered rule access (A5 effect、F1) — drawer 1 read で reach 確認
+- [x] CT2 irrelevant context surface しない (negative、F1) — chart-tsx 0 件 / presentation 3 件 (想定通り)
+- [x] CT3 rule detail rapid lookup (A5 effect、F2) — 2 read で migrationRecipe + fixNow + resolvedBy reach
+- [x] CT4 drift detection (A2 / A3 / A5 sync guard、F3) — 4 guard 29 test PASS
+- [x] CT5 session 間判断継承 (decision-audit re-derive 不要、F4) — 6 DA entry + 12 tag landed
+- [x] 各 CT 結果を DA-α-006 observation table に landing
+- [x] F1〜F5 の機能 status を articulate (F1=PASS partial / F2-F5=PASS)
+- [x] DA-α-006 振り返り判定 (= 正しい with partial F1 coverage)
 
 ## Phase 3: Archive + 横展開可否判定条件 articulation
 
