@@ -240,3 +240,62 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - 判定: TBD
 - 学習: TBD
 - retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-α-002b: Merged Artifact Generator + Sync Guard (Go 実装条件 C2)
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 1 / A2b)
+
+- 候補:
+  1. artifact format = JSON (TS/Node native、AI 直読、jq queryable、language-agnostic)
+  2. artifact format = YAML (人間可読、comment 可、ただし parser overhead)
+  3. artifact format = TS module (TS consumer 型安全、ただし AI 直読不可、language-agnostic 性失う)
+  4. artifact format = CUE / TOML (overkill for current scope)
+- 採用案: 候補 1 (JSON)
+- 判断根拠:
+  - 事実 1: artifact 用途 = AI 直読 + cross-language consumer (Go / Python 等の reference runtime PoC) + jq による defaults 補完率 / overlay 明示率 観測 → JSON が最適
+  - 事実 2: A2 = generated 系 format、A3 contract = schema 系 format で **独立判断** (DA refactor 4 改訂 #3)
+  - 事実 3: existing `docs/generated/` 配下の他 artifact (architecture-health.json / project-health.json 等) も JSON、整合性 + tooling 共通化
+  - 推論: JSON が generated 系 artifact format として現状最適、現時点で他候補に決定的優位なし
+- 想定リスク:
+  - 最大被害: artifact size 肥大 (172 rule × 詳細 field = ~676KB)。git diff のノイズ + `docs:generate` 時間増加
+  - 二番目: comment が書けないため articulation は別 doc (= source-of-truth.md §4) に依存
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): artifact が runtime ARCHITECTURE_RULES と byte-identical (sync guard で機械検証)
+  - 観測 2 (肯定): 試験 drift で sync guard が hard fail
+  - 観測 3 (反証): pure-calculation-reorg 既存 merge 結果が変わらない (golden test 含む)
+  - 観測 4 (反証): 既存 9 + 新 1 = 10 integrity guard 全件 PASS、12 AAG-REQ baseline 緩和なし
+  - 観測 5 (反証): docs:generate 時間が極端に増加しない (現状 ~30 秒以内維持)
+
+### 5 軸 articulation
+
+- **製本** (canonical / derived): 派生 artifact (canonical = `merged.ts` runtime、本 artifact は同一 merge logic を別 entry point から再実行した結果)
+- **依存方向**: BASE_RULES + EXECUTION_OVERLAY + DEFAULT_EXECUTION_OVERLAY + DEFAULT_REVIEW_POLICY_STUB → generator → artifact (一方向、artifact から canonical への逆向き禁止 = sync guard で hard fail)
+- **意味**: 「現在の merge 結果は何か + 各 field がどこから解決されたか (resolvedBy)」(canonical 1 問い)
+- **責務**: merge 結果の materialize + resolvedBy 統計 (single responsibility = 派生生成 + transparency tracking)
+- **境界**: 派生 artifact 層 (= source-of-truth.md §3 派生物一覧)、authoring 編集禁止、sync guard が境界違反を hard fail で防ぐ
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `226b455` (前 commit、A2a 完了)
+- judgementTag: `aag-platformization/DA-α-002b-judgement` (本 commit に annotated tag)
+- rollbackTag: `aag-platformization/DA-α-002b-rollback-target` (`226b455` に annotated tag)
+- implementationCommits:
+  - `<本 commit sha>` — A2b 全実装 (generator + test wrapper + sync guard + package.json scripts + guard-test-map 反映 + DA entry)
+
+### 振り返り (Phase 1 / A2b 完了直後 = 本 commit landing 直後 = TBD)
+
+> 本 commit landing 直後に追記。
+
+- 観測 1 (byte-identical): TBD (新 sync guard 6 test 全 PASS で確認済予定)
+- 観測 2 (試験 drift hard fail): TBD (sed で artifact 改竄して guard fail 確認)
+- 観測 3 (pure-calc-reorg merge 不変): TBD (既存 test:guards 全 PASS で確認済予定)
+- 観測 4 (12 AAG-REQ baseline 緩和なし): TBD
+- 観測 5 (docs:generate 時間): TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
