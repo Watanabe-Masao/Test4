@@ -473,7 +473,7 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - 観測 5 (_seam articulate): **正しい** — 172/172 で `consumerKind` + `taskHint` + `sourceRefs` 全 articulate (post-Pilot Role Layer 差し込み口 forward compatibility 確保)
 - **判定**: **部分的** — 5 観測中 4 件 "正しい"、1 件 (mapped 率) は heuristic 限界 articulate で post-Pilot 改善 candidate。F1 path-triggered access の **覆域** に直結 (= unmapped rule は path 経由 reach 不能、rule-by-topic 経由 reach は可能)。Pilot scope では `_seam` + 3 軸 routing が articulate されたことが本質、coverage 改善は post-Pilot
 - 学習: heuristic ベースの path mapping は import / signal 不在の rule (= general / cross-cutting rule) を unmapped に逃がす設計だが、unmapped rule も rule-by-topic で reach 可能なので **F1 全体としては degraded ではなく partial coverage**。Pilot completion criterion (§2 #3 = AI simulation で F1-F5 verify) は満たされる
-- retrospectiveCommit / Tag: DA-α-006 と同一 commit (= 本 entry landing 後に sha 記入)
+- retrospectiveCommit / Tag: `625e55c` (DA-α-006 と同一 commit、Phase 2 simulation で実測値 articulate)
 
 ---
 
@@ -536,12 +536,12 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 
 ### Commit Lineage
 
-- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- judgementCommit: `625e55c` (本 entry を含む Phase 2 verification commit)
 - preJudgementCommit: `38a6f6a` (前 commit、DA-α-005 Lineage update)
-- judgementTag: `aag-platformization/DA-α-006-judgement` (本 commit に annotated tag landing)
-- rollbackTag: `aag-platformization/DA-α-006-rollback-target` (`38a6f6a` に annotated tag landing)
+- judgementTag: `aag-platformization/DA-α-006-judgement` (625e55c に annotated tag landing 済)
+- rollbackTag: `aag-platformization/DA-α-006-rollback-target` (`38a6f6a` に annotated tag landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — DA-α-006 entry landing (CT1-CT5 observation table + F1-F5 verdict + DA-α-005 retrospective merge)
+  - `625e55c` — DA-α-006 entry landing (CT1-CT5 observation table + F1-F5 verdict + DA-α-005 retrospective merge + checklist Phase 2 全 [x])
 
 ### 振り返り (Phase 2 完了直後 = 本 commit landing 直後)
 
@@ -562,4 +562,4 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
   - **#3 (AI simulation で F1-F5 verify): 本 entry で met (= partial coverage articulate を含む)**
   - #4 (Pilot 判断履歴 landing): DA-α-001 (Authority articulation = Phase 1 で A1 軸の verify のみ実施、別 entry articulate なし) を除き 002a / 002b / 003 / 004 / 005 / 006 で 6 件 landed → DA-α-001 は A1 verify が plan.md / decision-audit.md / source-of-truth.md back-link で完了済 (= 別 entry を増やさない、`strategy.md` §1.1「正本を増やさない」整合)
   - #5 (System Inventory に AAG entry が "Pilot complete" status で landing): Phase 3 (DA-α-007) で実施
-- retrospectiveCommit / Tag: 本 entry と同一 commit (= 本 entry landing 後に sha 記入)
+- retrospectiveCommit / Tag: `625e55c` (本 entry と同一 commit、Phase 2 simulation を retrospective + judgement 同時 landing)
