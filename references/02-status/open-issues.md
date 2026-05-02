@@ -11,6 +11,7 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
+| `aag-platformization` | project | AAG Platformization Pilot — Standard 8 軸 articulate + 実バグ 3 件修復 + AI simulation で F1-F5 verify (Phase 1+2 完了、Phase 3 archive 待ち) | [`projects/aag-platformization/AI_CONTEXT.md`](../../projects/aag-platformization/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
