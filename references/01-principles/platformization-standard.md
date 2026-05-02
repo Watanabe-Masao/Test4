@@ -4,7 +4,7 @@
 >
 > **進捗は非同期**。粒度を揃え、進度は subsystem ごとに独立。
 >
-> AAG はこの Standard の **Pilot Application**: `projects/aag-platformization/`。
+> AAG はこの Standard の **Pilot Application**: `projects/completed/aag-platformization/`。
 
 ## §1 Why
 
@@ -97,6 +97,26 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 各 table は **subsystem 8 軸 articulation の集約** であり、独立 articulate ではない (= source of truth = subsystem 側)。
 
+### §3.1 System Inventory (Pilot landing 状態)
+
+> Pilot Application = AAG。横展開は asynchronous (= `references/01-principles/platformization-standard.md` §4 採用戦略)。
+> 本 inventory は subsystem 8 軸 articulation の集約 derived view、source of truth は subsystem 個別 articulate に閉じる。
+> 横展開判定条件 = `projects/completed/aag-platformization/decision-audit.md` DA-α-007 §3 を参照。
+
+| subsystem id | owner | layer | 該当 feature | 現在 stage | 目標 stage | 8 軸 articulation source |
+|---|---|---|---|---|---|---|
+| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/completed/aag-platformization/plan.md` + `references/01-principles/aag/source-of-truth.md` + DA-α-002a〜006 (6 entry) |
+
+**Pilot complete の意味**:
+
+- 8 軸 (A1-A8) すべてで articulate complete (= `projects/completed/aag-platformization/plan.md` §2 #1)
+- 実バグ 3 件修復済 (merge policy 揺れ / bootstrap path / RuleExecutionOverlayEntry 三重定義 = #2)
+- AI simulation で 5 機能 (F1-F5) verify 済 (= #3、F1 partial coverage を含む)
+- Pilot 判断履歴 6 entry landed (DA-α-002a〜006 = #4、DA-α-001 は意図的に別 entry 化せず)
+- 本 inventory landing 自身が #5 を満たす
+
+**他 subsystem は未 inventory**: Standard §4「非同期進度」に従い、横展開判定条件 (DA-α-007) を満たす subsystem が現れた時点で本 table に entry 追加。Standard 自身が schedule を強制しない (= §9 Standard does NOT)。
+
 ## §4 採用戦略
 
 - **同じ粒度** — 全 subsystem が 8 軸を articulate する義務
@@ -114,7 +134,7 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 ## §6 Pilot 実装条件 (AAG の場合)
 
-AAG が Pilot として完了するための条件 = `projects/aag-platformization/plan.md` §3 の Go 実装条件 C1-C4:
+AAG が Pilot として完了するための条件 = `projects/completed/aag-platformization/plan.md` §3 の Go 実装条件 C1-C4:
 
 | condition | 8 軸 mapping |
 |---|---|
@@ -129,7 +149,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 
 | パス | 役割 |
 |---|---|
-| `projects/aag-platformization/` | Pilot Application |
+| `projects/completed/aag-platformization/` | Pilot Application |
 | `references/01-principles/aag/source-of-truth.md` | AAG の A1 Authority articulate (Pilot example) |
 | `references/01-principles/aag/architecture.md` | AAG の Layer 構造 (5 layer drill-down) |
 | `aag/core/principles/core-boundary-policy.md` | Core / App Domain / Project Overlay の boundary 原則 (8 軸 A1 / A4 / A6 適用) |
@@ -138,7 +158,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 ## §8 status
 
 - 初版 articulate: 2026-05-01
-- Pilot landing 進行中: AAG (`projects/aag-platformization/`)
+- Pilot landing 進行中: AAG (`projects/completed/aag-platformization/`)
 - 横展開未着手 — 各 subsystem の 8 軸 filling は asynchronous で進める
 
 ## §9 Standard does / does NOT (capability boundary)
@@ -156,7 +176,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 
 ### Standard does NOT (= 本 Standard の non-goal)
 
-- **各 subsystem の具体実装**: subsystem 個別 articulate (例: AAG = `projects/aag-platformization/`、各 subsystem の 8 軸 filling)
+- **各 subsystem の具体実装**: subsystem 個別 articulate (例: AAG = `projects/completed/aag-platformization/`、各 subsystem の 8 軸 filling)
 - **個別判断**: 8 軸 filling 内容 (= what is canonical / what migrates / etc.) は subsystem owner の判断 (Standard は template のみ提供)
 - **Pilot 以外 subsystem の進度コミット**: 横展開は asynchronous、Standard は schedule を articulate しない
 - **業務ロジック articulation**: subsystem 内業務意味は subsystem 側 articulate に閉じる
@@ -172,7 +192,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 | **A1 Authority** | 本 doc が canonical (派生先なし、subsystem 個別 articulate は subsystem 側 canonical) |
 | **A2 Derivation** | 本 doc は手書き、機械生成しない。`docs/contracts/principles.json` への登録のみ機械検証対象 |
 | **A3 Contract** | 8 軸 vocabulary が contract、subsystem 側 articulation はこれに準拠 |
-| **A4 Binding** | 本 doc は具体実装 binding を持たない (Pilot = `projects/aag-platformization/` 側で binding) |
+| **A4 Binding** | 本 doc は具体実装 binding を持たない (Pilot = `projects/completed/aag-platformization/` 側で binding) |
 | **A5 Generated** | 本 doc から派生 artifact を生成しない (subsystem 側で生成) |
 | **A6 Facade** | facade ではない、直接 read される (CLAUDE.md / aag/README.md からの link) |
 | **A7 Policy** | 本 doc 改訂は人間承認 + decision-audit 記録必須 (§4 採用戦略 / §5 critical constraints の改訂は重い変更) |

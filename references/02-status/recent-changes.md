@@ -1,10 +1,46 @@
 # 直近の主要変更（#673-#848+）
 
-> 更新日: 2026-04-13
+> 更新日: 2026-05-02
 >
 > **役割分担:** 本ドキュメントは内部向けの詳細変更記録。
 > リリース単位の要約は `CHANGELOG.md` を参照。
 > 同じ内容を二重管理しないこと。
+
+## AAG Platformization Pilot 完了（2026-05-02、v1.10.0 系）
+
+> 役割: AAG framework 自身を Platformization Standard の Pilot Application として 8 軸 articulate complete + 実バグ修復。アプリ業務ロジックは 1 行も変えていない (= 不可侵原則 1)。次回 release で v1.11.0 候補。
+
+### 概要
+
+`projects/completed/aag-platformization/` (= Pilot Application of `references/01-principles/platformization-standard.md`) の Phase 1+2+3 全 deliverable 完了。
+AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Operating Gate) すべてで articulate complete + 実バグ 3 件修復 + AI simulation で 5 機能 (F1-F5) verify。
+**人間承認による archive 移行 完遂** (= `plan.md` 不可侵原則 6 の唯一の人間 mandatory 点、2026-05-02 ユーザー承認、`projects/completed/aag-platformization/` に物理 archive 移管)。
+
+### 主な成果物
+
+- **Standard 8 軸 articulation** — A1 (source-of-truth.md §1) / A2a (source-of-truth.md §4 Merge Policy 単一点) / A2b (`merged-architecture-rules.json` 676KB / 172 rule + resolvedBy + sync guard 6 test) / A3 (`aag-response.schema.json` + `detector-result.schema.json` JSON Schema draft-07 + sync guard 7 test) / A4 (`ruleBindingBoundaryGuard` 6 test、許可 5 field / 禁止意味系 8 / 禁止 prefix 3) / A5 (3 drawer artifact = `rule-index.json` + `rules-by-path.json` + `rule-by-topic.json` + sync guard 10 test、`_seam` routing metadata で post-Pilot Role Layer forward compatibility) / A6 (`architectureRules.ts` no-op 維持) / A7 (不可侵原則 7 + 5 軸 articulate 要件) / A8 (4 sync guard 29 test + 既存 9 integrity guard active)
+- **実バグ 3 件修復** — merge policy 揺れ (= `aag/source-of-truth.md` §4 で canonical 単一点化) / bootstrap path 破綻 (= `DEFAULT_REVIEW_POLICY_STUB` 追加で空 overlay throw 解消) / `RuleExecutionOverlayEntry` 三重定義 (= `aag-core-types.ts` 集約で単一 canonical)
+- **Decision Audit 制度** — DA-α-000 (進行モデル = AI-driven judgement + retrospective verification + commit-bound rollback) + DA-α-002a/002b/003/004/005/006/007 で 8 entry landed、各 entry が 5 軸 articulation + 振り返り観測点 + Commit Lineage (judgementCommit + preJudgementCommit + judgementTag + rollbackTag) を持つ self-dogfood
+- **AI simulation 5 機能 verify** — F1 (path-triggered 必要 context のみ surface): PASS partial coverage / F2 (素早く reach): PASS / F3 (drift 機械検出): PASS / F4 (session 間判断継承): PASS / F5 (Decision Audit 履歴): PASS。CT1-CT5 = drawer 1 read で reach + presentation 関連 exactly 3 rule (想定通り) + 2 read で migrationRecipe + fixNow + resolvedBy 全 reach + 4 sync guard 29 test PASS + 6 DA entry + 12 annotated tag landed
+- **横展開可否判定条件** — DA-α-007 §3 で 展開可 5 件 + 展開禁止 5 件 articulated。**判定実行 = user 領域**、横展開そのものは本 Pilot scope 外 (= 不可侵原則 7 維持)
+- **System Inventory landing** — Standard §3.1 に AAG = "Pilot complete" status で entry 追加、Pilot reference として永続
+
+### 人間承認待ち項目 (唯一の人間 mandatory 点)
+
+`plan.md` 不可侵原則 6 = AI 単独 archive を禁ず。承認手順:
+
+1. `decision-audit.md` 全 entry (DA-α-000 + 002a〜007) read
+2. F1-F5 + Pilot 完了 criterion 5 件 (`plan.md` §2) の observation 結果確認
+3. archive プロセスへの移行を承認
+4. 承認後の機械作業 (AI 実施可): `projects/completed/aag-platformization/` → `projects/completed/aag-platformization/` 移動 / open-issues.md 行 archived 移動 / `CURRENT_PROJECT.md` 切替判断 (= Phase 0 で意図的保留した item) は archive 時に user に escalate
+
+### 関連 commit + tag
+
+- 8 implementation commit (96a9521 / 226b455 / 74100a7 / eee1de8 / db26556 / e806bfa / 625e55c / `<本 commit>`)
+- 14 annotated tag (judgement + rollback-target × 7 entry)
+- 8 DA entry (`projects/completed/aag-platformization/decision-audit.md` DA-α-000 + 002a〜007)
+
+---
 
 ## v1.10.0 — AAG 5.2 Collector-Governance Symmetry（2026-04-13）
 
