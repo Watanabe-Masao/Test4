@@ -101,15 +101,15 @@
 
 ## Phase 3: Archive + 横展開可否判定条件 articulation
 
-- [ ] DA-α-007 entry landing (archive + 横展開可否判定条件 + 後続 charter 必要性判断 + 5 軸)
-- [ ] System Inventory (Standard §3) に AAG entry を "Pilot complete" status で landing
-- [ ] **横展開可否判定条件** (`plan.md` §3 Phase 3) を articulate:
-  - [ ] 展開可条件 5 件 (Pilot 完了 criterion 全 met / Inventory landed / Standard §9 boundary 違反 0 / 候補 subsystem の 8 軸 application 可能性 verify / Pilot learning 引き継ぎ可能) を明文化
-  - [ ] 展開禁止条件 (既存 guard / AAG-REQ baseline 緩和 / Pilot 負債未解消 / 8 軸未 articulate 軸あり / candidate owner unclear) を明文化
-- [ ] 横展開そのものは **本 program scope 外維持** (= 不可侵原則 7、判定条件のみ articulate)
-- [ ] 後続 program (もし必要なら) charter を 1 doc articulate (新規 or 既存拡張、判断 = DA-α-007 内)
-- [ ] `references/02-status/recent-changes.md` にサマリ追加
-- [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS
+- [x] DA-α-007 entry landing (archive + 横展開可否判定条件 + 後続 charter 必要性判断 + 5 軸)
+- [x] System Inventory (Standard §3.1) に AAG entry を "Pilot complete" status で landing
+- [x] **横展開可否判定条件** (`plan.md` §3 Phase 3) を articulate:
+  - [x] 展開可条件 5 件 (Pilot 完了 criterion 全 met / Inventory landed / Standard §9 boundary 違反 0 / 候補 subsystem の 8 軸 application 可能性 verify / Pilot learning 引き継ぎ可能) を明文化 — DA-α-007 §3.1
+  - [x] 展開禁止条件 5 件 (既存 guard / AAG-REQ baseline 緩和 / Pilot 負債未解消 / 8 軸未 articulate 軸あり / candidate owner unclear / retrofit 強制) を明文化 — DA-α-007 §3.2
+- [x] 横展開そのものは **本 program scope 外維持** (= 不可侵原則 7、判定条件のみ articulate) — DA-α-007 §3 冒頭で articulate
+- [x] 後続 program charter は **判断時点で必要性なし** と articulate (DA-α-007 §4、trigger 発生時に PROD-X 起動 + 本 entry §3 参照、charter 先行作成 anti-pattern)
+- [x] `references/02-status/recent-changes.md` にサマリ追加
+- [x] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS
 
 ## 最終 archive レビュー (人間承認、唯一の人間 mandatory 点)
 

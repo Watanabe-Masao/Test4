@@ -97,6 +97,26 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 各 table は **subsystem 8 軸 articulation の集約** であり、独立 articulate ではない (= source of truth = subsystem 側)。
 
+### §3.1 System Inventory (Pilot landing 状態)
+
+> Pilot Application = AAG。横展開は asynchronous (= `references/01-principles/platformization-standard.md` §4 採用戦略)。
+> 本 inventory は subsystem 8 軸 articulation の集約 derived view、source of truth は subsystem 個別 articulate に閉じる。
+> 横展開判定条件 = `projects/aag-platformization/decision-audit.md` DA-α-007 §3 を参照。
+
+| subsystem id | owner | layer | 該当 feature | 現在 stage | 目標 stage | 8 軸 articulation source |
+|---|---|---|---|---|---|---|
+| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/aag-platformization/plan.md` + `references/01-principles/aag/source-of-truth.md` + DA-α-002a〜006 (6 entry) |
+
+**Pilot complete の意味**:
+
+- 8 軸 (A1-A8) すべてで articulate complete (= `projects/aag-platformization/plan.md` §2 #1)
+- 実バグ 3 件修復済 (merge policy 揺れ / bootstrap path / RuleExecutionOverlayEntry 三重定義 = #2)
+- AI simulation で 5 機能 (F1-F5) verify 済 (= #3、F1 partial coverage を含む)
+- Pilot 判断履歴 6 entry landed (DA-α-002a〜006 = #4、DA-α-001 は意図的に別 entry 化せず)
+- 本 inventory landing 自身が #5 を満たす
+
+**他 subsystem は未 inventory**: Standard §4「非同期進度」に従い、横展開判定条件 (DA-α-007) を満たす subsystem が現れた時点で本 table に entry 追加。Standard 自身が schedule を強制しない (= §9 Standard does NOT)。
+
 ## §4 採用戦略
 
 - **同じ粒度** — 全 subsystem が 8 軸を articulate する義務

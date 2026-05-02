@@ -109,7 +109,7 @@ git push origin <tag>
 | DA-α-004 | Phase 1 / A4 | RuleBinding 境界 guard 設計 | planned |
 | DA-α-005 | Phase 1 / A5 | **drawer format** (generated 系、A2b と相互整合、A3 とは独立) + drawer 4 種 granularity + 配置 | active |
 | DA-α-006 | Phase 2 | simulation CT1-CT5 結果総括 + F1〜F5 status | active |
-| DA-α-007 | Phase 3 | archive 判断 + **横展開可否判定条件** articulation + 後続 charter 必要性 | planned |
+| DA-α-007 | Phase 3 | archive 判断 + **横展開可否判定条件** articulation + 後続 charter 必要性 | active |
 
 ---
 
@@ -563,3 +563,134 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
   - #4 (Pilot 判断履歴 landing): DA-α-001 (Authority articulation = Phase 1 で A1 軸の verify のみ実施、別 entry articulate なし) を除き 002a / 002b / 003 / 004 / 005 / 006 で 6 件 landed → DA-α-001 は A1 verify が plan.md / decision-audit.md / source-of-truth.md back-link で完了済 (= 別 entry を増やさない、`strategy.md` §1.1「正本を増やさない」整合)
   - #5 (System Inventory に AAG entry が "Pilot complete" status で landing): Phase 3 (DA-α-007) で実施
 - retrospectiveCommit / Tag: `625e55c` (本 entry と同一 commit、Phase 2 simulation を retrospective + judgement 同時 landing)
+
+---
+
+## DA-α-007: Phase 3 Archive + 横展開可否判定条件 articulation + 後続 charter 必要性
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 3)
+
+- **taskClass**: `authority-canonical` (= System Inventory canonical landing + 横展開判定条件 articulation = Standard §3 derived view への canonical 寄与)
+- 候補:
+  1. archive せず Pilot を継続 + 横展開を本 program に含める (= 不可侵原則 7 違反、scope creep)
+  2. **archive + 横展開可否判定条件 articulate のみ + 横展開そのものは別 program (= Pilot scope 維持)**
+  3. archive + 横展開判定条件を articulate せず、後続 program で都度判断 (= Pilot 学習を引き継がない)
+  4. archive + 後続 charter を必須化 (= 横展開を強制 commit、不可侵原則 7 違反 + Standard §9 「Pilot 以外 subsystem の進度コミット」しない原則違反)
+- 採用案: 候補 2
+- 判断根拠:
+  - 事実 1: `plan.md` §1 不可侵原則 7「横展開は本 program scope 外、Phase 3 で charter のみ articulate」
+  - 事実 2: `references/01-principles/platformization-standard.md` §4「非同期進度」+ §9「Pilot 以外 subsystem の進度コミットしない」
+  - 事実 3: Pilot 完了 criterion 5 件中 4 件は Phase 1+2 で met、#5 (System Inventory landing) は本 entry で実施可能
+  - 事実 4: 横展開 candidate (docs / app / health) の owner / scope / 8 軸 application は本 Pilot scope 外 (= AI session 内で判断不能、user 領域)
+  - 推論: 候補 2 が Pilot scope を honest に維持しつつ Pilot learning を後続に引き継ぐ最小構造。横展開そのものを deliverable に入れない判断は不可侵原則 7 + Standard §9 + supreme principle (observation なき articulation 禁止) の triple constraint で支えられる
+- 想定リスク:
+  - 最大被害: 横展開判定条件が articulate されたまま使われない (= dead specification、horizontalize ROI 損失)。mitigation = (a) 後続 program 起動時の checklist 化、(b) Standard §3.1 System Inventory landing で Pilot reference として保全
+  - 二番目: archive 後に Pilot 学習 (DA-α-000〜006) が忘却される。mitigation = `references/02-status/recent-changes.md` への summary landing + `references/02-status/open-issues.md` 行 (Phase 3 archive 後は archived projects に移動)
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): System Inventory entry が Standard §3.1 に landed、AAG = "Pilot complete" status articulate
+  - 観測 2 (肯定): 横展開判定条件 (展開可 5 件 + 展開禁止) が本 entry §3 で articulated
+  - 観測 3 (反証): Pilot 完了 criterion 5 件すべて met (Phase 1+2 累積 + 本 entry の Inventory landing)
+  - 観測 4 (反証): 既存 9 integrity guard / 12 AAG-REQ baseline 緩和 0 件
+  - 観測 5 (反証): 後続 program charter は **判断時点で必要性なし** と articulate (= 横展開 trigger は user 領域、AI が単独 commit しない)
+
+### §1 5 軸 articulation
+
+- **製本** (canonical): 本 entry が canonical (= Phase 3 archive 判断 + 横展開判定条件の唯一の articulate 点)。Standard §3.1 System Inventory entry は本 entry を source として derive
+- **依存方向**: DA-α-000〜006 (Pilot 過程 articulation) → 本 entry (Phase 3 archive 判断) → Standard §3.1 (Inventory derived view) + recent-changes.md (history) — 一方向、archive 後の改変禁止
+- **意味**: 「Pilot は完了したか、後続 program 起動条件は何か」(archive judgement 1 問い、3 sub-question = Pilot 完了 verify / 横展開判定条件 / 後続 charter 必要性 に分解)
+- **責務**: archive 判断 + 横展開判定条件 articulate のみ (single responsibility)。横展開そのもの / 個別 subsystem 設計 は別 program の責務
+- **境界**: 本 entry の **内** = AAG Pilot archive 判断 + 横展開可否条件 articulate、**外** = 個別 subsystem (docs / app / health) の 8 軸 application (= 後続 program scope) + AI Role Layer formal articulation (= post-Pilot scope、3 seam = `taskClass` field / drawer `_seam` / Phase 3 charter mention で forward compatibility 確保済)
+
+### §2 Pilot 完了 criterion verification (`plan.md` §2)
+
+| # | criterion | status | 根拠 |
+|---|---|---|---|
+| 1 | AAG が Standard 8 軸 (A1-A8) すべてで articulate complete | **MET** | A1: source-of-truth.md §1 / A2: source-of-truth.md §4 + merged-architecture-rules.json / A3: 2 schema / A4: ruleBindingBoundaryGuard / A5: 3 drawer artifact / A6: architectureRules.ts no-op / A7: 不可侵原則 + 5 軸 articulate 要件 / A8: 4 sync guard 29 test |
+| 2 | 実バグ 3 件修復 | **MET** | merge policy 揺れ (= source-of-truth.md §4 で canonical 単一点化、commit 226b455) / bootstrap path 破綻 (= DEFAULT_REVIEW_POLICY_STUB 追加、同上) / RuleExecutionOverlayEntry 三重定義 (= aag-core-types.ts 集約、同上) |
+| 3 | AI simulation で 5 機能 (F1-F5) verify | **MET (F1 partial coverage articulate を含む)** | DA-α-006 §振り返り、CT1-CT5 全 PASS / F2-F5 PASS / F1 partial (mapped 率 30.2%) |
+| 4 | `decision-audit.md` に Pilot 判断履歴 landing | **MET** | DA-α-002a / 002b / 003 / 004 / 005 / 006 = 6 entry landed (DA-α-001 は意図的に別 entry 化せず、`strategy.md` §1.1「正本を増やさない」整合) |
+| 5 | System Inventory に AAG entry が "Pilot complete" status で landing | **MET (本 entry と同一 commit)** | Standard §3.1 に AAG 行 articulate、source = 本 DA-α-007 + DA-α-002a〜006 の 8 軸 articulation 集約 |
+
+→ **Pilot 5 criterion 全 MET、AAG Pilot Application は archive 可。**
+
+### §3 横展開可否判定条件 articulation
+
+> 本判定条件は **判定方法** のみ articulate する。**判定実行 (= 個別 subsystem への適用判断)** は本 program scope 外、後続 program / user 領域。
+> 横展開そのものは不可侵原則 7 + Standard §9 「Pilot 以外 subsystem の進度コミットしない」原則で本 program から除外。
+
+#### §3.1 展開可条件 (5 件 全 met なら docs / app / health 等への横展開を別 program で着手可)
+
+| # | 条件 | verification 方法 |
+|---|---|---|
+| 1 | **Pilot 完了 criterion 5 件 全 met** | DA-α-007 §2 で確認済 (本 entry landing 時点で MET) |
+| 2 | **AAG が System Inventory (Standard §3.1) に "Pilot complete" status landed** | Standard §3.1 表で AAG 行が "Pilot complete" articulated (本 commit で landed) |
+| 3 | **Standard §9 (does / does NOT) capability boundary 違反 0 件** | 本 program 進行中 (DA-α-000〜006) で Standard が touch されていない (Standard 改訂は Phase 0 で 1 commit のみ、本 entry landing で §3.1 + 本 referencing 1 段)、§9 「個別実装」「個別判断」「進度コミット」「業務ロジック」「Tooling 強制」「retrofit 強制」全 0 件 |
+| 4 | **横展開 candidate subsystem が Standard 8 軸 template を AI 自身が application 可能** と verify | 候補 subsystem ごとに「8 軸の各々で何が canonical / derived / contract / binding / generated / facade / policy / gate か」を articulate しきれるか試行 (= AI session 内 paper exercise)。articulate 不能軸が 1 軸でもあれば本条件 fail (= subsystem を Pilot 化する前段が必要) |
+| 5 | **Pilot 過程の learning (DA-α-000〜006 振り返り) が後続 program に引き継ぎ可能な形で landing** | (a) `references/02-status/recent-changes.md` に Pilot summary landed (b) Standard §3.1 から DA entry へ back-link (c) annotated tag 12 件 (judgement + rollback × 6 entry) で commit lineage trace 可能 |
+
+#### §3.2 展開禁止条件 (1 つでも該当なら横展開禁止)
+
+| # | 条件 | 該当時の判断 |
+|---|---|---|
+| 1 | **既存 9 integrity guard / 12 AAG-REQ baseline が緩和されている** | 横展開禁止、baseline 復元が前段 |
+| 2 | **Pilot で identify された負債が未解消** | 例: F1 mapped 率 30.2% を coverage 改善せず横展開すると、横展開先 subsystem も同 limitation を継承 → 横展開前に Pilot 内で coverage 改善 (= post-Pilot improvement candidate) を一度評価する |
+| 3 | **Standard 8 軸の中で AAG 自身が articulate しきれていない軸がある** | 横展開禁止、Pilot 内で articulate 完了が前段 |
+| 4 | **候補 subsystem の owner / 承認構造が unclear** | 横展開禁止、user / human 領域での owner 確定が前段 (= AI 単独で進められない、不可侵原則 6「人間承認は最終 archive 1 点のみ」の例外) |
+| 5 | **既存 subsystem への retrofit 強制になっている** | Standard §9 違反、retrofit 強制は禁止 (= 新 deliverable / 横展開 trigger 発生時に限定して articulate 適用) |
+
+→ **判定実行 = user 領域**: 本 entry が articulate するのは判定の **方法** であり、個別 subsystem への適用 (= 候補 subsystem 列挙 + 8 軸 application 試行 + 判定実行) は本 program scope 外。
+
+### §4 後続 program charter 必要性判断
+
+- **判断時点 (2026-05-02) で必要性なし** と articulate
+- 根拠:
+  - 事実 1: 横展開そのものは不可侵原則 7 で本 program から除外
+  - 事実 2: 横展開判定条件は本 entry §3 で articulated、後続 program 起動時に **その program の Phase 0** で参照すれば足る (= 別 doc 増設は `strategy.md` §1.1「正本を増やさない」違反 risk)
+  - 事実 3: 後続 program の trigger (= candidate subsystem 提示 + owner 確定) は user 領域、AI 単独で起動しない
+  - 推論: charter doc を **先行作成** することは「将来やるかも知れない program」を articulate する dead specification 化 risk。trigger 発生時に PROD-X として独立 program 起動、本 DA-α-007 §3 を参照すれば足る
+- **AI Role Layer charter は post-Pilot deliverable** ('plan.md §3 Phase 3 で既 articulate)、本 Pilot で 3 seam (= `taskClass` field / drawer `_seam` / Phase 3 charter mention) は確保済、Role Layer 自体の articulation は別 program scope
+
+### §5 archive 移行手順
+
+> 本 §5 は **AI 自律 archive (= 候補 1)** ではなく、**人間承認 gate (`plan.md` 不可侵原則 6 = 唯一の人間 mandatory 点)** での承認後に実行される手順 articulation。
+
+1. 人間が `decision-audit.md` 全 entry (DA-α-000 + 002a〜007) を read
+2. F1-F5 + Pilot 完了 criterion 5 件 (= 本 entry §2) の observation 結果を確認
+3. archive プロセスへの移行を承認
+4. 承認後の機械作業 (AI 実施可):
+   - `projects/aag-platformization/` を `projects/completed/aag-platformization/` に移動
+   - `references/02-status/open-issues.md` の `aag-platformization` 行を archived projects table に移動 (archived at = 承認日)
+   - `CURRENT_PROJECT.md` 切替判断 (= Phase 0 で意図的保留した item) は archive 時に user に escalate (本 program は触らない方針 = 不可侵原則 1)
+   - Standard §3.1 System Inventory entry は archive 後も維持 (= Pilot reference として永続)
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `2d6f874` (前 commit、checklist 全 [x] 反映)
+- judgementTag: `aag-platformization/DA-α-007-judgement` (本 commit に annotated tag landing)
+- rollbackTag: `aag-platformization/DA-α-007-rollback-target` (`2d6f874` に annotated tag landing)
+- implementationCommits:
+  - `<本 commit sha>` — DA-α-007 entry + Standard §3.1 System Inventory + recent-changes.md summary
+
+### 振り返り (本 entry landing 直後)
+
+- 観測 1 (System Inventory landed): **正しい** — Standard §3.1 に AAG = "Pilot complete" articulated
+- 観測 2 (横展開判定条件 articulated): **正しい** — 展開可 5 件 + 展開禁止 5 件で本 entry §3 articulated
+- 観測 3 (Pilot 5 criterion 全 met): **正しい** — 本 entry §2 verification 表で全 MET
+- 観測 4 (baseline 緩和 0 件): **正しい** — 既存 9 integrity guard active + 12 AAG-REQ baseline 維持 (test:guards 944 PASS で確認)
+- 観測 5 (後続 charter 必要性なし): **正しい** — 本 entry §4 で articulated (trigger 発生時に PROD-X 起動、charter 先行作成 anti-pattern)
+- 判定: **正しい** — Phase 3 deliverable 全 met、archive 移行可
+- 学習:
+  - **Pilot scope を最後まで honest に守る** ことが Standard 自身の信頼性に直結 (= scope creep を invitation する場面で強い意志で 7 つの不可侵原則を引用して断り続けた、19+ reframes 履歴がその副産物)
+  - **横展開判定条件を「方法」のみ articulate する** 設計は dead specification 化を回避する (= 候補 subsystem を仮定列挙すると Standard §9「進度コミットしない」違反 risk が出る)
+  - **archive を 1 人間承認 gate に集中** する設計は不可侵原則 6 (人間承認は最終 1 点のみ) を Pilot Application 自身が self-dogfood する形で実現
+- retrospectiveCommit / Tag: `<本 commit sha>` (本 entry と同一 commit、Phase 3 deliverable を retrospective + judgement 同時 landing)
+
+### Pilot 完了宣言
+
+> AAG Platformization Pilot は本 entry landing をもって **Phase 1+2+3 全 deliverable 完了**。
+> 残るは **人間承認による archive 移行** (= 唯一の人間 mandatory 点、`plan.md` 不可侵原則 6) のみ。
+> Phase 0〜3 の 7 DA entry (DA-α-000 / 002a / 002b / 003 / 004 / 005 / 006 / 007) + 14 annotated tag + 8 implementation commit が
+> Pilot Application としての full articulation。後続 program 起動条件 (= 横展開判定条件 §3) を満たす subsystem が現れた時点で、別 program として起動。
