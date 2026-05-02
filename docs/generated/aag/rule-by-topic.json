@@ -1,0 +1,610 @@
+{
+  "$schemaDescription": "Rule-by-Topic — slice / responsibilityTag / guardTag → rule id index。topic discovery 用 (= AI が業務領域 / 責務 / guard 種別から関連 rule に reach する経路)。manifest.json discovery 拡張の seam。",
+  "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts (slice / responsibilityTags / guardTags)",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-02T14:07:15.442Z",
+  "sourceCommit": "e9e4ac8072799a799d6f72e8df308605dcf729e5",
+  "summary": {
+    "totalRules": 172,
+    "slices": 5,
+    "responsibilityTags": 18,
+    "guardTags": 55
+  },
+  "bySlice": {
+    "governance-ops": [
+      "AR-001",
+      "AR-003",
+      "AR-004",
+      "AR-005",
+      "AR-G4-INTERNAL",
+      "AR-C3-STORE",
+      "AR-G3-SUPPRESS",
+      "AR-E4-TRUTHINESS",
+      "AR-C5-SELECTOR",
+      "AR-G2-EMPTY-CATCH",
+      "AR-STRUCT-DATA-INTEGRITY",
+      "AR-STRUCT-DUAL-RUN-EXIT",
+      "AR-MIG-OLD-PATH",
+      "AR-STRUCT-PAGE-META",
+      "AR-CONVENTION-BARREL",
+      "AR-CONVENTION-FEATURE-BOUNDARY",
+      "AR-CONVENTION-CONTEXT-SINGLE-SOURCE",
+      "AR-C7-NO-DUAL-API",
+      "AR-DOC-STATIC-NUMBER",
+      "AR-COCHANGE-VALIDATION-SEVERITY",
+      "AR-COCHANGE-DUCKDB-MOCK",
+      "AR-TERM-AUTHORITATIVE-STANDALONE",
+      "AR-REGISTRY-SINGLE-MASTER",
+      "AR-AAG-DERIVED-ONLY-IMPORT",
+      "AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT",
+      "AR-AAG-NO-DIRECT-OVERLAY-IMPORT",
+      "AR-AAG-META-SELF-HOSTING",
+      "AR-G3-SUPPRESS-RATIONALE",
+      "AR-SCOPE-AWARE-MUTATION",
+      "AR-TAXONOMY-NO-UNTAGGED",
+      "AR-TAXONOMY-KNOWN-VOCABULARY",
+      "AR-TAXONOMY-ONE-TAG-ONE-AXIS",
+      "AR-TAXONOMY-INTERLOCK",
+      "AR-TAXONOMY-ORIGIN-REQUIRED",
+      "AR-TAXONOMY-COGNITIVE-LOAD",
+      "AR-TAXONOMY-AI-VOCABULARY-BINDING",
+      "AR-CONTENT-SPEC-EXISTS",
+      "AR-CONTENT-SPEC-FRONTMATTER-SYNC",
+      "AR-CONTENT-SPEC-CO-CHANGE",
+      "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT",
+      "AR-CONTENT-SPEC-LIFECYCLE-FIELDS",
+      "AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC",
+      "AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY",
+      "AR-CONTENT-SPEC-VISUAL-EVIDENCE",
+      "AR-CONTENT-SPEC-EVIDENCE-LEVEL",
+      "AR-CONTENT-SPEC-PATH-EXISTENCE",
+      "AR-CONTENT-SPEC-OWNER",
+      "AR-INTEGRITY-NO-RESURRECT",
+      "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+      "AR-CI-FETCH-DEPTH",
+      "DFR-001",
+      "DFR-002",
+      "DFR-003",
+      "DFR-004",
+      "DFR-005"
+    ],
+    "layer-boundary": [
+      "AR-002",
+      "AR-A1-DOMAIN",
+      "AR-A1-APP-INFRA",
+      "AR-A1-APP-PRES",
+      "AR-A1-PRES-INFRA",
+      "AR-A1-PRES-USECASE",
+      "AR-A1-INFRA-APP",
+      "AR-A1-INFRA-PRES",
+      "AR-STRUCT-PRES-ISOLATION",
+      "AR-STRUCT-PURITY",
+      "AR-STRUCT-RENDER-SIDE-EFFECT",
+      "AR-STRUCT-TOPOLOGY"
+    ],
+    "responsibility-separation": [
+      "AR-G5-HOOK-MEMO",
+      "AR-G5-HOOK-STATE",
+      "AR-G5-HOOK-LINES",
+      "AR-G6-COMPONENT",
+      "AR-G5-DOMAIN-LINES",
+      "AR-G5-INFRA-LINES",
+      "AR-G5-USECASE-LINES",
+      "AR-C6-FACADE",
+      "AR-RESP-STORE-COUPLING",
+      "AR-RESP-MODULE-STATE",
+      "AR-RESP-HOOK-COMPLEXITY",
+      "AR-RESP-FEATURE-COMPLEXITY",
+      "AR-RESP-EXPORT-DENSITY",
+      "AR-RESP-NORMALIZATION",
+      "AR-RESP-FALLBACK-SPREAD",
+      "AR-C9-HONEST-UNCLASSIFIED",
+      "AR-G7-CACHE-BODY",
+      "AR-TAG-SELECTION-GUIDE",
+      "AR-TAG-CHART-VIEW",
+      "AR-TAG-CHART-OPTION",
+      "AR-TAG-CALCULATION",
+      "AR-TAG-TRANSFORM",
+      "AR-TAG-STATE-MACHINE",
+      "AR-TAG-QUERY-PLAN",
+      "AR-TAG-QUERY-EXEC",
+      "AR-TAG-WIDGET",
+      "AR-TAG-PAGE",
+      "AR-TAG-FORM",
+      "AR-TAG-LAYOUT",
+      "AR-TAG-ORCHESTRATION",
+      "AR-TAG-UTILITY",
+      "AR-TAG-CONTEXT",
+      "AR-TAG-PERSISTENCE",
+      "AR-TAG-ADAPTER",
+      "AR-TAG-REDUCER",
+      "AR-TAG-BARREL"
+    ],
+    "canonicalization": [
+      "AR-PATH-SALES",
+      "AR-PATH-DISCOUNT",
+      "AR-PATH-GROSS-PROFIT",
+      "AR-PATH-PURCHASE-COST",
+      "AR-PATH-CUSTOMER",
+      "AR-PATH-CUSTOMER-GAP",
+      "AR-PATH-PI-VALUE",
+      "AR-PATH-FREE-PERIOD",
+      "AR-PATH-FREE-PERIOD-BUDGET",
+      "AR-PATH-FREE-PERIOD-DEPT-KPI",
+      "AR-PATH-FACTOR-DECOMPOSITION",
+      "AR-PATH-GROSS-PROFIT-CONSISTENCY",
+      "AR-STRUCT-CALC-CANON",
+      "AR-CANON-ZOD-REQUIRED",
+      "AR-CANON-ZOD-REVIEW",
+      "AR-STRUCT-CANONICAL-INPUT",
+      "AR-STRUCT-CANONICALIZATION",
+      "AR-STRUCT-FALLBACK-METADATA",
+      "AR-STRUCT-STORE-RESULT-INPUT",
+      "AR-SAFETY-SILENT-CATCH",
+      "AR-SAFETY-FIRE-FORGET",
+      "AR-SAFETY-NULLABLE-ASYNC",
+      "AR-SAFETY-VALIDATION-ENFORCE",
+      "AR-SAFETY-INSERT-VERIFY",
+      "AR-SAFETY-PROD-VALIDATION",
+      "AR-SAFETY-WORKER-TIMEOUT",
+      "AR-SAFETY-STALE-STORE",
+      "AR-COCHANGE-READMODEL-PARSE",
+      "AR-CANON-SEMANTIC-REQUIRED",
+      "AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION",
+      "AR-CURRENT-CANDIDATE-SEPARATION",
+      "AR-CONTRACT-SEMANTIC-REQUIRED",
+      "AR-CONTRACT-BUSINESS-MEANING",
+      "AR-CONTRACT-ANALYTIC-METHOD",
+      "AR-BRIDGE-RATE-OWNERSHIP",
+      "AR-BRIDGE-DIRECT-IMPORT",
+      "AR-BRIDGE-CANDIDATE-DEFAULT",
+      "AR-CURRENT-NO-CANDIDATE-STATE",
+      "AR-CURRENT-SEMANTIC-REQUIRED",
+      "AR-CURRENT-NO-STANDALONE-AUTH",
+      "AR-CURRENT-VIEW-SEPARATION",
+      "AR-CURRENT-NO-CANDIDATE-MIX",
+      "AR-CURRENT-NO-DIRECT-IMPORT-GROWTH",
+      "AR-CURRENT-FACTOR-BUSINESS-LOCK",
+      "AR-CAND-BIZ-CONTRACT-REQUIRED",
+      "AR-CAND-BIZ-NO-CURRENT-MIX",
+      "AR-CAND-BIZ-NO-ANALYTICS-BRIDGE",
+      "AR-CAND-BIZ-NO-RATE-UI",
+      "AR-CAND-BIZ-NO-DIRECT-IMPORT",
+      "AR-CAND-BIZ-NO-ROLLBACK-SKIP",
+      "AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN",
+      "AR-CAND-ANA-CONTRACT-REQUIRED",
+      "AR-CAND-ANA-NO-BUSINESS-BRIDGE",
+      "AR-CAND-ANA-METHOD-REQUIRED",
+      "AR-CAND-ANA-INVARIANT-REQUIRED",
+      "AR-CAND-ANA-NO-DIRECT-IMPORT",
+      "AR-CAND-ANA-NO-CURRENT-BIZ-MIX",
+      "AR-CAND-ANA-NO-FACTOR-DECOMP",
+      "AR-JS-NO-NEW-AUTHORITATIVE",
+      "AR-JS-NO-REFERENCE-GROWTH",
+      "AR-JS-NO-PRES-HELPER-PROMOTE",
+      "AR-REVIEW-NEEDED-BLOCK"
+    ],
+    "query-runtime": [
+      "AR-STRUCT-ANALYSIS-FRAME",
+      "AR-STRUCT-COMPARISON-SCOPE",
+      "AR-STRUCT-QUERY-PATTERN",
+      "AR-STRUCT-TEMPORAL-ROLLING",
+      "AR-STRUCT-TEMPORAL-SCOPE",
+      "AR-Q3-CHART-NO-DUCKDB",
+      "AR-Q4-ALIGNMENT-HANDLER"
+    ]
+  },
+  "byResponsibilityTag": {
+    "R:chart-view": [
+      "AR-TAG-CHART-VIEW"
+    ],
+    "R:chart-option": [
+      "AR-TAG-CHART-OPTION"
+    ],
+    "R:calculation": [
+      "AR-TAG-CALCULATION"
+    ],
+    "R:transform": [
+      "AR-TAG-TRANSFORM"
+    ],
+    "R:state-machine": [
+      "AR-TAG-STATE-MACHINE"
+    ],
+    "R:query-plan": [
+      "AR-TAG-QUERY-PLAN"
+    ],
+    "R:query-exec": [
+      "AR-TAG-QUERY-EXEC"
+    ],
+    "R:widget": [
+      "AR-TAG-WIDGET"
+    ],
+    "R:page": [
+      "AR-TAG-PAGE"
+    ],
+    "R:form": [
+      "AR-TAG-FORM"
+    ],
+    "R:layout": [
+      "AR-TAG-LAYOUT"
+    ],
+    "R:orchestration": [
+      "AR-TAG-ORCHESTRATION"
+    ],
+    "R:utility": [
+      "AR-TAG-UTILITY"
+    ],
+    "R:context": [
+      "AR-TAG-CONTEXT"
+    ],
+    "R:persistence": [
+      "AR-TAG-PERSISTENCE"
+    ],
+    "R:adapter": [
+      "AR-TAG-ADAPTER"
+    ],
+    "R:reducer": [
+      "AR-TAG-REDUCER"
+    ],
+    "R:barrel": [
+      "AR-TAG-BARREL"
+    ]
+  },
+  "byGuardTag": {
+    "G1": [
+      "AR-001",
+      "AR-002",
+      "AR-003",
+      "AR-004",
+      "AR-005",
+      "AR-STRUCT-CALC-CANON",
+      "AR-CANON-ZOD-REQUIRED",
+      "AR-CANON-ZOD-REVIEW",
+      "AR-STRUCT-CANONICAL-INPUT",
+      "AR-STRUCT-CANONICALIZATION",
+      "AR-STRUCT-DATA-INTEGRITY",
+      "AR-STRUCT-DUAL-RUN-EXIT",
+      "AR-STRUCT-FALLBACK-METADATA",
+      "AR-STRUCT-STORE-RESULT-INPUT",
+      "AR-STRUCT-TEMPORAL-ROLLING",
+      "AR-STRUCT-TEMPORAL-SCOPE",
+      "AR-DOC-STATIC-NUMBER",
+      "AR-COCHANGE-VALIDATION-SEVERITY",
+      "AR-COCHANGE-DUCKDB-MOCK",
+      "AR-COCHANGE-READMODEL-PARSE",
+      "AR-AAG-META-SELF-HOSTING",
+      "AR-SCOPE-AWARE-MUTATION",
+      "AR-TAXONOMY-NO-UNTAGGED",
+      "AR-TAXONOMY-KNOWN-VOCABULARY",
+      "AR-TAXONOMY-ONE-TAG-ONE-AXIS",
+      "AR-TAXONOMY-INTERLOCK",
+      "AR-TAXONOMY-ORIGIN-REQUIRED",
+      "AR-TAXONOMY-COGNITIVE-LOAD",
+      "AR-TAXONOMY-AI-VOCABULARY-BINDING",
+      "AR-CONTENT-SPEC-EXISTS",
+      "AR-CONTENT-SPEC-FRONTMATTER-SYNC",
+      "AR-CONTENT-SPEC-CO-CHANGE",
+      "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT",
+      "AR-CONTENT-SPEC-LIFECYCLE-FIELDS",
+      "AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC",
+      "AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY",
+      "AR-CONTENT-SPEC-VISUAL-EVIDENCE",
+      "AR-CONTENT-SPEC-EVIDENCE-LEVEL",
+      "AR-CONTENT-SPEC-PATH-EXISTENCE",
+      "AR-CONTENT-SPEC-OWNER",
+      "AR-INTEGRITY-NO-RESURRECT",
+      "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+      "AR-CI-FETCH-DEPTH"
+    ],
+    "A3": [
+      "AR-002",
+      "AR-A1-PRES-INFRA",
+      "AR-A1-PRES-USECASE",
+      "AR-STRUCT-PRES-ISOLATION",
+      "AR-STRUCT-RENDER-SIDE-EFFECT"
+    ],
+    "C1": [
+      "AR-003",
+      "AR-TAXONOMY-ONE-TAG-ONE-AXIS"
+    ],
+    "H1": [
+      "AR-005",
+      "AR-TAG-QUERY-PLAN"
+    ],
+    "A1": [
+      "AR-A1-DOMAIN",
+      "AR-A1-APP-INFRA",
+      "AR-A1-APP-PRES",
+      "AR-A1-PRES-INFRA",
+      "AR-A1-PRES-USECASE",
+      "AR-A1-INFRA-APP",
+      "AR-A1-INFRA-PRES"
+    ],
+    "A2": [
+      "AR-A1-DOMAIN",
+      "AR-G5-DOMAIN-LINES",
+      "AR-STRUCT-PURITY",
+      "AR-TAG-UTILITY"
+    ],
+    "A5": [
+      "AR-A1-PRES-INFRA"
+    ],
+    "G4": [
+      "AR-G4-INTERNAL"
+    ],
+    "C3": [
+      "AR-C3-STORE",
+      "AR-STRUCT-PURITY",
+      "AR-TAG-STATE-MACHINE"
+    ],
+    "G3": [
+      "AR-G3-SUPPRESS",
+      "AR-SAFETY-SILENT-CATCH",
+      "AR-G3-SUPPRESS-RATIONALE"
+    ],
+    "E2": [
+      "AR-G3-SUPPRESS"
+    ],
+    "E4": [
+      "AR-E4-TRUTHINESS"
+    ],
+    "C5": [
+      "AR-C5-SELECTOR"
+    ],
+    "G2": [
+      "AR-G2-EMPTY-CATCH",
+      "AR-SAFETY-SILENT-CATCH",
+      "AR-SAFETY-FIRE-FORGET",
+      "AR-SAFETY-NULLABLE-ASYNC",
+      "AR-SAFETY-INSERT-VERIFY",
+      "AR-SAFETY-WORKER-TIMEOUT",
+      "AR-SAFETY-STALE-STORE"
+    ],
+    "G5": [
+      "AR-G5-HOOK-MEMO",
+      "AR-G5-HOOK-STATE",
+      "AR-G5-HOOK-LINES",
+      "AR-G5-DOMAIN-LINES",
+      "AR-G5-INFRA-LINES",
+      "AR-G5-USECASE-LINES"
+    ],
+    "G6": [
+      "AR-G6-COMPONENT"
+    ],
+    "C6": [
+      "AR-C6-FACADE",
+      "AR-TAG-ORCHESTRATION",
+      "AR-AAG-DERIVED-ONLY-IMPORT",
+      "AR-AAG-NO-DIRECT-OVERLAY-IMPORT"
+    ],
+    "F9": [
+      "AR-PATH-SALES",
+      "AR-PATH-DISCOUNT",
+      "AR-PATH-GROSS-PROFIT",
+      "AR-PATH-PURCHASE-COST",
+      "AR-PATH-CUSTOMER",
+      "AR-PATH-CUSTOMER-GAP",
+      "AR-PATH-PI-VALUE",
+      "AR-PATH-FREE-PERIOD",
+      "AR-PATH-FREE-PERIOD-BUDGET",
+      "AR-PATH-FREE-PERIOD-DEPT-KPI",
+      "AR-PATH-FACTOR-DECOMPOSITION",
+      "AR-PATH-GROSS-PROFIT-CONSISTENCY",
+      "AR-CONVENTION-BARREL"
+    ],
+    "D1": [
+      "AR-PATH-GROSS-PROFIT",
+      "AR-PATH-CUSTOMER-GAP",
+      "AR-PATH-PI-VALUE",
+      "AR-PATH-FACTOR-DECOMPOSITION",
+      "AR-PATH-GROSS-PROFIT-CONSISTENCY",
+      "AR-STRUCT-CANONICAL-INPUT"
+    ],
+    "D2": [
+      "AR-PATH-FACTOR-DECOMPOSITION"
+    ],
+    "H3": [
+      "AR-STRUCT-ANALYSIS-FRAME",
+      "AR-STRUCT-QUERY-PATTERN"
+    ],
+    "E1": [
+      "AR-CANON-ZOD-REQUIRED",
+      "AR-CANON-ZOD-REVIEW",
+      "AR-STRUCT-DATA-INTEGRITY",
+      "AR-SAFETY-VALIDATION-ENFORCE",
+      "AR-SAFETY-PROD-VALIDATION",
+      "AR-COCHANGE-READMODEL-PARSE"
+    ],
+    "E3": [
+      "AR-STRUCT-CANONICALIZATION"
+    ],
+    "F5": [
+      "AR-STRUCT-CANONICALIZATION"
+    ],
+    "F8": [
+      "AR-STRUCT-CANONICALIZATION",
+      "AR-DOC-STATIC-NUMBER",
+      "AR-AAG-META-SELF-HOSTING"
+    ],
+    "H2": [
+      "AR-STRUCT-COMPARISON-SCOPE",
+      "AR-STRUCT-QUERY-PATTERN"
+    ],
+    "F4": [
+      "AR-MIG-OLD-PATH",
+      "AR-CONVENTION-FEATURE-BOUNDARY",
+      "AR-STRUCT-TOPOLOGY"
+    ],
+    "F1": [
+      "AR-MIG-OLD-PATH",
+      "AR-CONVENTION-BARREL",
+      "AR-TAG-BARREL",
+      "AR-AAG-DERIVED-ONLY-IMPORT",
+      "AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT",
+      "AR-AAG-NO-DIRECT-OVERLAY-IMPORT"
+    ],
+    "F10": [
+      "AR-STRUCT-PAGE-META"
+    ],
+    "B2": [
+      "AR-STRUCT-PRES-ISOLATION"
+    ],
+    "B1": [
+      "AR-STRUCT-PURITY",
+      "AR-TAG-CALCULATION"
+    ],
+    "A6": [
+      "AR-STRUCT-PURITY"
+    ],
+    "B3": [
+      "AR-STRUCT-PURITY"
+    ],
+    "D3": [
+      "AR-STRUCT-PURITY",
+      "AR-SCOPE-AWARE-MUTATION"
+    ],
+    "H4": [
+      "AR-STRUCT-QUERY-PATTERN",
+      "AR-STRUCT-RENDER-SIDE-EFFECT"
+    ],
+    "H5": [
+      "AR-STRUCT-QUERY-PATTERN"
+    ],
+    "G8": [
+      "AR-RESP-STORE-COUPLING",
+      "AR-RESP-MODULE-STATE",
+      "AR-RESP-HOOK-COMPLEXITY",
+      "AR-RESP-FEATURE-COMPLEXITY",
+      "AR-RESP-EXPORT-DENSITY",
+      "AR-RESP-NORMALIZATION",
+      "AR-RESP-FALLBACK-SPREAD",
+      "AR-TAG-CHART-VIEW",
+      "AR-TAG-CHART-OPTION"
+    ],
+    "F2": [
+      "AR-CONVENTION-CONTEXT-SINGLE-SOURCE",
+      "DFR-001",
+      "DFR-002",
+      "DFR-003",
+      "DFR-004",
+      "DFR-005"
+    ],
+    "F3": [
+      "AR-CONVENTION-CONTEXT-SINGLE-SOURCE",
+      "DFR-001",
+      "DFR-005"
+    ],
+    "F6": [
+      "AR-CONVENTION-CONTEXT-SINGLE-SOURCE"
+    ],
+    "C7": [
+      "AR-C7-NO-DUAL-API",
+      "DFR-002",
+      "DFR-003",
+      "DFR-004"
+    ],
+    "C9": [
+      "AR-C9-HONEST-UNCLASSIFIED",
+      "AR-TAG-SELECTION-GUIDE"
+    ],
+    "G7": [
+      "AR-G7-CACHE-BODY"
+    ],
+    "Q3": [
+      "AR-Q3-CHART-NO-DUCKDB"
+    ],
+    "Q4": [
+      "AR-Q4-ALIGNMENT-HANDLER"
+    ],
+    "C8": [
+      "AR-TAG-SELECTION-GUIDE",
+      "AR-TAG-CHART-VIEW",
+      "AR-TAG-CHART-OPTION",
+      "AR-TAG-CALCULATION",
+      "AR-TAG-TRANSFORM",
+      "AR-TAG-STATE-MACHINE",
+      "AR-TAG-QUERY-PLAN",
+      "AR-TAG-QUERY-EXEC",
+      "AR-TAG-WIDGET",
+      "AR-TAG-PAGE",
+      "AR-TAG-FORM",
+      "AR-TAG-LAYOUT",
+      "AR-TAG-ORCHESTRATION",
+      "AR-TAG-UTILITY",
+      "AR-TAG-CONTEXT",
+      "AR-TAG-PERSISTENCE",
+      "AR-TAG-ADAPTER",
+      "AR-TAG-REDUCER",
+      "AR-TAG-BARREL"
+    ],
+    "C4": [
+      "AR-TAG-CHART-VIEW"
+    ],
+    "F7": [
+      "AR-TAG-CHART-VIEW"
+    ],
+    "C2": [
+      "AR-TAG-CALCULATION"
+    ],
+    "H6": [
+      "AR-TAG-WIDGET"
+    ],
+    "A4": [
+      "AR-TAG-ADAPTER"
+    ],
+    "I1": [
+      "AR-TERM-AUTHORITATIVE-STANDALONE",
+      "AR-CONTRACT-SEMANTIC-REQUIRED",
+      "AR-BRIDGE-RATE-OWNERSHIP",
+      "AR-BRIDGE-DIRECT-IMPORT",
+      "AR-CURRENT-NO-STANDALONE-AUTH",
+      "AR-CURRENT-NO-DIRECT-IMPORT-GROWTH",
+      "AR-CAND-BIZ-NO-RATE-UI",
+      "AR-CAND-BIZ-NO-DIRECT-IMPORT",
+      "AR-CAND-ANA-NO-DIRECT-IMPORT",
+      "AR-JS-NO-NEW-AUTHORITATIVE",
+      "AR-JS-NO-REFERENCE-GROWTH"
+    ],
+    "I2": [
+      "AR-CANON-SEMANTIC-REQUIRED",
+      "AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION",
+      "AR-CONTRACT-SEMANTIC-REQUIRED",
+      "AR-CONTRACT-BUSINESS-MEANING",
+      "AR-CONTRACT-ANALYTIC-METHOD",
+      "AR-BRIDGE-DIRECT-IMPORT",
+      "AR-CURRENT-SEMANTIC-REQUIRED",
+      "AR-CURRENT-VIEW-SEPARATION",
+      "AR-CURRENT-NO-DIRECT-IMPORT-GROWTH",
+      "AR-CURRENT-FACTOR-BUSINESS-LOCK",
+      "AR-CAND-BIZ-CONTRACT-REQUIRED",
+      "AR-CAND-BIZ-NO-ANALYTICS-BRIDGE",
+      "AR-CAND-BIZ-NO-DIRECT-IMPORT",
+      "AR-CAND-ANA-CONTRACT-REQUIRED",
+      "AR-CAND-ANA-NO-BUSINESS-BRIDGE",
+      "AR-CAND-ANA-METHOD-REQUIRED",
+      "AR-CAND-ANA-INVARIANT-REQUIRED",
+      "AR-CAND-ANA-NO-DIRECT-IMPORT",
+      "AR-CAND-ANA-NO-CURRENT-BIZ-MIX",
+      "AR-CAND-ANA-NO-FACTOR-DECOMP",
+      "AR-JS-NO-NEW-AUTHORITATIVE",
+      "AR-JS-NO-PRES-HELPER-PROMOTE",
+      "AR-REVIEW-NEEDED-BLOCK"
+    ],
+    "I4": [
+      "AR-CANON-SEMANTIC-REQUIRED",
+      "AR-REGISTRY-SINGLE-MASTER"
+    ],
+    "I3": [
+      "AR-CURRENT-CANDIDATE-SEPARATION",
+      "AR-BRIDGE-CANDIDATE-DEFAULT",
+      "AR-CURRENT-NO-CANDIDATE-STATE",
+      "AR-CURRENT-VIEW-SEPARATION",
+      "AR-CURRENT-NO-CANDIDATE-MIX",
+      "AR-CAND-BIZ-NO-CURRENT-MIX",
+      "AR-CAND-BIZ-NO-ROLLBACK-SKIP",
+      "AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN",
+      "AR-CAND-ANA-NO-CURRENT-BIZ-MIX",
+      "AR-REVIEW-NEEDED-BLOCK"
+    ]
+  }
+}

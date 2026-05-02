@@ -1,0 +1,403 @@
+{
+  "$schemaDescription": "Rules-by-Path — import / codeSignal → rule id index。path-triggered access 用 (= AI が編集 file の関連 rule subset に reach する経路)。unmapped = imports / signals 不在の rule (= general rule、特定 path に紐付かない)。",
+  "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts (outdatedPattern + correctPattern)",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-02T14:07:15.434Z",
+  "sourceCommit": "e9e4ac8072799a799d6f72e8df308605dcf729e5",
+  "summary": {
+    "totalRules": 172,
+    "mappedRules": 52,
+    "unmappedRules": 120
+  },
+  "byImport": {
+    "wasmEngine": [
+      "AR-002"
+    ],
+    "@/application/": [
+      "AR-A1-DOMAIN",
+      "AR-A1-INFRA-APP"
+    ],
+    "@/infrastructure/": [
+      "AR-A1-DOMAIN",
+      "AR-A1-APP-INFRA",
+      "AR-A1-PRES-INFRA"
+    ],
+    "@/presentation/": [
+      "AR-A1-DOMAIN",
+      "AR-A1-APP-PRES",
+      "AR-A1-INFRA-PRES"
+    ],
+    "@/application/hooks/": [
+      "AR-A1-PRES-INFRA"
+    ],
+    "@/application/usecases/": [
+      "AR-A1-PRES-USECASE"
+    ],
+    "@/infrastructure/duckdb/queries/categoryTimeSales": [
+      "AR-PATH-SALES"
+    ],
+    "@/infrastructure/duckdb/queries/timeSlots": [
+      "AR-PATH-SALES"
+    ],
+    "@/infrastructure/duckdb/queries/salesFactQueries": [
+      "AR-PATH-SALES"
+    ],
+    "@/application/readModels/salesFact/readSalesFact": [
+      "AR-PATH-SALES"
+    ],
+    "@/application/readModels/discountFact/readDiscountFact": [
+      "AR-PATH-DISCOUNT"
+    ],
+    "@/domain/calculations/grossProfit": [
+      "AR-PATH-GROSS-PROFIT"
+    ],
+    "@/application/readModels/purchaseCost/readPurchaseCost": [
+      "AR-PATH-PURCHASE-COST"
+    ],
+    "@/application/readModels/customerFact/readCustomerFact": [
+      "AR-PATH-CUSTOMER"
+    ],
+    "@/domain/calculations/customerGap": [
+      "AR-PATH-CUSTOMER-GAP"
+    ],
+    "@/domain/calculations/piValue": [
+      "AR-PATH-PI-VALUE"
+    ],
+    "@/application/readModels/freePeriod/readFreePeriodFact": [
+      "AR-PATH-FREE-PERIOD"
+    ],
+    "@/application/readModels/freePeriodBudget/readFreePeriodBudgetFact": [
+      "AR-PATH-FREE-PERIOD-BUDGET"
+    ],
+    "@/application/readModels/freePeriodDeptKPI/readFreePeriodDeptKPI": [
+      "AR-PATH-FREE-PERIOD-DEPT-KPI"
+    ],
+    "@/domain/calculations/factorDecomposition": [
+      "AR-PATH-FACTOR-DECOMPOSITION"
+    ],
+    "useDuckDB": [
+      "AR-Q3-CHART-NO-DUCKDB"
+    ],
+    "@/domain/calculations/": [
+      "AR-BRIDGE-DIRECT-IMPORT"
+    ],
+    "architectureRules/rules": [
+      "AR-AAG-NO-BASE-RULES-CONSUMER-IMPORT"
+    ],
+    "@project-overlay/execution-overlay": [
+      "AR-AAG-NO-DIRECT-OVERLAY-IMPORT"
+    ]
+  },
+  "bySignal": {
+    "getExecutionMode": [
+      "AR-001"
+    ],
+    "recordCall": [
+      "AR-001"
+    ],
+    "recordMismatch": [
+      "AR-001"
+    ],
+    "@deprecated": [
+      "AR-004"
+    ],
+    "@internal": [
+      "AR-G4-INTERNAL"
+    ],
+    "eslint-disable": [
+      "AR-G3-SUPPRESS",
+      "AR-G3-SUPPRESS-RATIONALE"
+    ],
+    "@ts-ignore": [
+      "AR-G3-SUPPRESS",
+      "AR-G3-SUPPRESS-RATIONALE"
+    ],
+    "@ts-expect-error": [
+      "AR-G3-SUPPRESS",
+      "AR-G3-SUPPRESS-RATIONALE"
+    ],
+    "!result.": [
+      "AR-E4-TRUTHINESS"
+    ],
+    "!entry.": [
+      "AR-E4-TRUTHINESS"
+    ],
+    "!data.": [
+      "AR-E4-TRUTHINESS"
+    ],
+    "useDataStore()": [
+      "AR-C5-SELECTOR"
+    ],
+    "useSettingsStore()": [
+      "AR-C5-SELECTOR"
+    ],
+    "useUiStore()": [
+      "AR-C5-SELECTOR"
+    ],
+    ".catch(() => {})": [
+      "AR-G2-EMPTY-CATCH"
+    ],
+    "customers.*-.*customers": [
+      "AR-PATH-CUSTOMER-GAP"
+    ],
+    "customerCount.*-": [
+      "AR-PATH-CUSTOMER-GAP"
+    ],
+    "sales.*\\/.*customers": [
+      "AR-PATH-PI-VALUE"
+    ],
+    "amount.*\\/.*count": [
+      "AR-PATH-PI-VALUE"
+    ],
+    "localStorage.": [
+      "AR-STRUCT-RENDER-SIDE-EFFECT"
+    ],
+    "sessionStorage.": [
+      "AR-STRUCT-RENDER-SIDE-EFFECT"
+    ],
+    "ルール": [
+      "AR-DOC-STATIC-NUMBER"
+    ],
+    "テスト": [
+      "AR-DOC-STATIC-NUMBER"
+    ],
+    "ガード": [
+      "AR-DOC-STATIC-NUMBER"
+    ],
+    "KPI": [
+      "AR-DOC-STATIC-NUMBER"
+    ],
+    ".catch(() =>": [
+      "AR-SAFETY-SILENT-CATCH",
+      "AR-SAFETY-FIRE-FORGET"
+    ],
+    "catch {": [
+      "AR-SAFETY-SILENT-CATCH"
+    ],
+    "catch (": [
+      "AR-SAFETY-SILENT-CATCH"
+    ],
+    ".catch((e) =>": [
+      "AR-SAFETY-FIRE-FORGET"
+    ],
+    "?? 0": [
+      "AR-SAFETY-NULLABLE-ASYNC"
+    ],
+    "|| 0": [
+      "AR-SAFETY-NULLABLE-ASYNC"
+    ],
+    "validateImportData": [
+      "AR-SAFETY-VALIDATION-ENFORCE"
+    ],
+    "validationMessages": [
+      "AR-SAFETY-VALIDATION-ENFORCE"
+    ],
+    "return rows.length": [
+      "AR-SAFETY-INSERT-VERIFY"
+    ],
+    "import.meta.env.DEV": [
+      "AR-SAFETY-PROD-VALIDATION"
+    ],
+    "new Promise": [
+      "AR-SAFETY-WORKER-TIMEOUT"
+    ],
+    "addEventListener": [
+      "AR-SAFETY-WORKER-TIMEOUT"
+    ],
+    "setCurrentMonthData": [
+      "AR-SAFETY-STALE-STORE"
+    ],
+    "level: 'error'": [
+      "AR-COCHANGE-VALIDATION-SEVERITY"
+    ],
+    "level: 'warning'": [
+      "AR-COCHANGE-VALIDATION-SEVERITY"
+    ],
+    "conn.query(": [
+      "AR-COCHANGE-DUCKDB-MOCK"
+    ],
+    "await conn.query(": [
+      "AR-COCHANGE-DUCKDB-MOCK"
+    ],
+    ".parse(": [
+      "AR-COCHANGE-READMODEL-PARSE"
+    ],
+    ".safeParse(": [
+      "AR-COCHANGE-READMODEL-PARSE"
+    ],
+    "authoritative": [
+      "AR-TERM-AUTHORITATIVE-STANDALONE"
+    ],
+    "/ cost": [
+      "AR-BRIDGE-RATE-OWNERSHIP"
+    ],
+    "/ sales": [
+      "AR-BRIDGE-RATE-OWNERSHIP"
+    ],
+    "* 100": [
+      "AR-BRIDGE-RATE-OWNERSHIP",
+      "DFR-003"
+    ],
+    "DELETE FROM classified_sales": [
+      "AR-SCOPE-AWARE-MUTATION"
+    ],
+    "DELETE FROM category_time_sales": [
+      "AR-SCOPE-AWARE-MUTATION"
+    ],
+    "DELETE FROM time_slots": [
+      "AR-SCOPE-AWARE-MUTATION"
+    ],
+    "#22c55e": [
+      "DFR-001"
+    ],
+    "#f97316": [
+      "DFR-001"
+    ],
+    "axisLabel: {": [
+      "DFR-002"
+    ],
+    "axisLabel:{": [
+      "DFR-002"
+    ],
+    ".toFixed(": [
+      "DFR-003"
+    ],
+    "'¥' +": [
+      "DFR-004"
+    ],
+    "\"¥\" +": [
+      "DFR-004"
+    ],
+    "📊": [
+      "DFR-005"
+    ],
+    "📈": [
+      "DFR-005"
+    ],
+    "📉": [
+      "DFR-005"
+    ]
+  },
+  "unmapped": [
+    "AR-003",
+    "AR-005",
+    "AR-C3-STORE",
+    "AR-G5-HOOK-MEMO",
+    "AR-G5-HOOK-STATE",
+    "AR-G5-HOOK-LINES",
+    "AR-G6-COMPONENT",
+    "AR-G5-DOMAIN-LINES",
+    "AR-G5-INFRA-LINES",
+    "AR-G5-USECASE-LINES",
+    "AR-C6-FACADE",
+    "AR-PATH-GROSS-PROFIT-CONSISTENCY",
+    "AR-STRUCT-ANALYSIS-FRAME",
+    "AR-STRUCT-CALC-CANON",
+    "AR-CANON-ZOD-REQUIRED",
+    "AR-CANON-ZOD-REVIEW",
+    "AR-STRUCT-CANONICAL-INPUT",
+    "AR-STRUCT-CANONICALIZATION",
+    "AR-STRUCT-COMPARISON-SCOPE",
+    "AR-STRUCT-DATA-INTEGRITY",
+    "AR-STRUCT-DUAL-RUN-EXIT",
+    "AR-STRUCT-FALLBACK-METADATA",
+    "AR-MIG-OLD-PATH",
+    "AR-STRUCT-PAGE-META",
+    "AR-STRUCT-PRES-ISOLATION",
+    "AR-STRUCT-PURITY",
+    "AR-STRUCT-QUERY-PATTERN",
+    "AR-RESP-STORE-COUPLING",
+    "AR-RESP-MODULE-STATE",
+    "AR-RESP-HOOK-COMPLEXITY",
+    "AR-RESP-FEATURE-COMPLEXITY",
+    "AR-RESP-EXPORT-DENSITY",
+    "AR-RESP-NORMALIZATION",
+    "AR-RESP-FALLBACK-SPREAD",
+    "AR-STRUCT-STORE-RESULT-INPUT",
+    "AR-CONVENTION-BARREL",
+    "AR-CONVENTION-FEATURE-BOUNDARY",
+    "AR-CONVENTION-CONTEXT-SINGLE-SOURCE",
+    "AR-STRUCT-TEMPORAL-ROLLING",
+    "AR-STRUCT-TEMPORAL-SCOPE",
+    "AR-STRUCT-TOPOLOGY",
+    "AR-C7-NO-DUAL-API",
+    "AR-C9-HONEST-UNCLASSIFIED",
+    "AR-G7-CACHE-BODY",
+    "AR-Q4-ALIGNMENT-HANDLER",
+    "AR-TAG-SELECTION-GUIDE",
+    "AR-TAG-CHART-VIEW",
+    "AR-TAG-CHART-OPTION",
+    "AR-TAG-CALCULATION",
+    "AR-TAG-TRANSFORM",
+    "AR-TAG-STATE-MACHINE",
+    "AR-TAG-QUERY-PLAN",
+    "AR-TAG-QUERY-EXEC",
+    "AR-TAG-WIDGET",
+    "AR-TAG-PAGE",
+    "AR-TAG-FORM",
+    "AR-TAG-LAYOUT",
+    "AR-TAG-ORCHESTRATION",
+    "AR-TAG-UTILITY",
+    "AR-TAG-CONTEXT",
+    "AR-TAG-PERSISTENCE",
+    "AR-TAG-ADAPTER",
+    "AR-TAG-REDUCER",
+    "AR-TAG-BARREL",
+    "AR-CANON-SEMANTIC-REQUIRED",
+    "AR-SEMANTIC-BUSINESS-ANALYTIC-SEPARATION",
+    "AR-CURRENT-CANDIDATE-SEPARATION",
+    "AR-CONTRACT-SEMANTIC-REQUIRED",
+    "AR-CONTRACT-BUSINESS-MEANING",
+    "AR-CONTRACT-ANALYTIC-METHOD",
+    "AR-BRIDGE-CANDIDATE-DEFAULT",
+    "AR-CURRENT-NO-CANDIDATE-STATE",
+    "AR-CURRENT-SEMANTIC-REQUIRED",
+    "AR-CURRENT-NO-STANDALONE-AUTH",
+    "AR-CURRENT-VIEW-SEPARATION",
+    "AR-CURRENT-NO-CANDIDATE-MIX",
+    "AR-CURRENT-NO-DIRECT-IMPORT-GROWTH",
+    "AR-CURRENT-FACTOR-BUSINESS-LOCK",
+    "AR-CAND-BIZ-CONTRACT-REQUIRED",
+    "AR-CAND-BIZ-NO-CURRENT-MIX",
+    "AR-CAND-BIZ-NO-ANALYTICS-BRIDGE",
+    "AR-CAND-BIZ-NO-RATE-UI",
+    "AR-CAND-BIZ-NO-DIRECT-IMPORT",
+    "AR-CAND-BIZ-NO-ROLLBACK-SKIP",
+    "AR-CAND-BIZ-NO-PROMOTE-WITHOUT-DUALRUN",
+    "AR-CAND-ANA-CONTRACT-REQUIRED",
+    "AR-CAND-ANA-NO-BUSINESS-BRIDGE",
+    "AR-CAND-ANA-METHOD-REQUIRED",
+    "AR-CAND-ANA-INVARIANT-REQUIRED",
+    "AR-CAND-ANA-NO-DIRECT-IMPORT",
+    "AR-CAND-ANA-NO-CURRENT-BIZ-MIX",
+    "AR-CAND-ANA-NO-FACTOR-DECOMP",
+    "AR-JS-NO-NEW-AUTHORITATIVE",
+    "AR-JS-NO-REFERENCE-GROWTH",
+    "AR-JS-NO-PRES-HELPER-PROMOTE",
+    "AR-REVIEW-NEEDED-BLOCK",
+    "AR-REGISTRY-SINGLE-MASTER",
+    "AR-AAG-DERIVED-ONLY-IMPORT",
+    "AR-AAG-META-SELF-HOSTING",
+    "AR-TAXONOMY-NO-UNTAGGED",
+    "AR-TAXONOMY-KNOWN-VOCABULARY",
+    "AR-TAXONOMY-ONE-TAG-ONE-AXIS",
+    "AR-TAXONOMY-INTERLOCK",
+    "AR-TAXONOMY-ORIGIN-REQUIRED",
+    "AR-TAXONOMY-COGNITIVE-LOAD",
+    "AR-TAXONOMY-AI-VOCABULARY-BINDING",
+    "AR-CONTENT-SPEC-EXISTS",
+    "AR-CONTENT-SPEC-FRONTMATTER-SYNC",
+    "AR-CONTENT-SPEC-CO-CHANGE",
+    "AR-CONTENT-SPEC-LAST-SOURCE-COMMIT",
+    "AR-CONTENT-SPEC-LIFECYCLE-FIELDS",
+    "AR-CONTENT-SPEC-CANONICAL-REGISTRATION-SYNC",
+    "AR-CONTENT-SPEC-LIFECYCLE-LINK-SYMMETRY",
+    "AR-CONTENT-SPEC-VISUAL-EVIDENCE",
+    "AR-CONTENT-SPEC-EVIDENCE-LEVEL",
+    "AR-CONTENT-SPEC-PATH-EXISTENCE",
+    "AR-CONTENT-SPEC-OWNER",
+    "AR-INTEGRITY-NO-RESURRECT",
+    "AR-COVERAGE-MAP-DISPLAY-NAME-COUNT",
+    "AR-CI-FETCH-DEPTH"
+  ]
+}

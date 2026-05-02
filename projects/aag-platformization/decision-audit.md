@@ -415,3 +415,60 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - 判定: TBD
 - 学習: TBD
 - retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-α-005: A5 Generated Drawers (rule-index + rules-by-path + rule-by-topic)
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 1 / A5)
+
+- **taskClass**: `discovery-drawer` (= post-Pilot Discovery Curator role 用 seam、A3 で articulate 済 taskClass field を初使用)
+- 候補:
+  1. drawer 4 種 (rule-index / rules-by-path / rule-detail/`<id>` / rule-by-topic) を全実装
+  2. **drawer 3 種 (rule-index / rules-by-path / rule-by-topic) のみ、rule-detail は merged-architecture-rules.json (A2b) で代替**
+  3. drawer 1 種 (rules-by-path のみ) で最小スコープ
+- 採用案: 候補 2
+- 判断根拠:
+  - 事実 1: A2b で生成済 `merged-architecture-rules.json` が既に全 rule の full data + resolvedBy を articulate (= rule-detail/`<id>` の役割を代替可能)
+  - 事実 2: rule-detail/`<id>` を per-rule file 化すると ~172 個の小 file 増加 (= AI が個別 fetch する利点はあるが merged.json で一括取得も同等効率)
+  - 事実 3: 候補 1 はスコープ拡大、候補 3 は F2 (素早く reach) verify 不能
+  - 推論: 候補 2 が ROI 最高、rule-detail の per-file 化は post-Pilot で simulation 観測結果に基づき判断 (= scope 制御原則整合)
+- 想定リスク:
+  - 最大被害: drawer artifact が AI に活用されない (= simulation で F1-F3 verify 失敗)。mitigation = simulation で観測、結果に基づき drawer 設計を refine
+  - 二番目: imports / codeSignals 抽出 heuristic が path coverage で粗い (mapped 率低)。mitigation = unmapped rule を articulate、post-Pilot で coverage 改善 (例: guard test file の TARGET_PATHS 抽出)
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): 3 artifact 全 generation 成功、172 rule articulate
+  - 観測 2 (肯定): aagDrawerSyncGuard 10 test 全 PASS (集合論的整合 + orphan 検出 + _seam articulate + canonical / version 一致)
+  - 観測 3 (反証): rules-by-path mapped 率が極端に低い場合 (< 30%) は heuristic 改善が post-Pilot で必要
+  - 観測 4 (反証): rule-by-topic で slices/responsibilityTags/guardTags のいずれかが 0 件なら data 欠落
+  - 観測 5 (反証): _seam field (post-Pilot Role Layer 差し込み口) が全 rule で articulate されている
+
+### 5 軸 articulation
+
+- **製本** (canonical): BASE_RULES (= base-rules.ts) が canonical、3 drawer artifact は全て派生 (一方向)
+- **依存方向**: BASE_RULES → drawer-generator → 3 artifact → AI consumer (一方向、drawer 編集 → BASE_RULES 逆向き禁止 = sync guard hard fail)
+- **意味**: 「AI が rule subset に最短経路で reach する index は何か」(routing 1 問い、3 軸 = path / topic / overview に分解)
+- **責務**: routing artifact 生成 + sync 維持 (single responsibility = drawer generation、意味 articulate は BASE_RULES の責務)
+- **境界**: 派生 artifact 層、routing-only。意味 articulate / merge logic / contract validation は他軸の責務
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `e9e4ac8` (前 commit、A4 完了 + Lineage update 後)
+- judgementTag: `aag-platformization/DA-α-005-judgement`
+- rollbackTag: `aag-platformization/DA-α-005-rollback-target` (`e9e4ac8` に annotated tag)
+- implementationCommits:
+  - `<本 commit sha>` — A5 全実装 (drawer-generator + 3 artifact + sync guard 10 test + package.json scripts + DA entry + guard-test-map 反映)
+
+### 振り返り (Phase 1 / A5 完了直後 = 本 commit landing 直後 = TBD)
+
+- 観測 1 (3 artifact 生成 + 172 rule): TBD
+- 観測 2 (sync guard 10 test PASS): TBD
+- 観測 3 (mapped 率): TBD (実測値を確認して articulate)
+- 観測 4 (slices/tags 全件 articulate): TBD
+- 観測 5 (_seam articulate): TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
