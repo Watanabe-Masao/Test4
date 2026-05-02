@@ -280,12 +280,12 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 
 ### Commit Lineage
 
-- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- judgementCommit: `74100a7` (本 entry を含む A2b 全実装 commit)
 - preJudgementCommit: `226b455` (前 commit、A2a 完了)
-- judgementTag: `aag-platformization/DA-α-002b-judgement` (本 commit に annotated tag)
-- rollbackTag: `aag-platformization/DA-α-002b-rollback-target` (`226b455` に annotated tag)
+- judgementTag: `aag-platformization/DA-α-002b-judgement` (74100a7 に annotated tag landing 済)
+- rollbackTag: `aag-platformization/DA-α-002b-rollback-target` (226b455 に annotated tag landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — A2b 全実装 (generator + test wrapper + sync guard + package.json scripts + guard-test-map 反映 + DA entry)
+  - `74100a7` — A2b 全実装 (generator + test wrapper + sync guard + package.json scripts + guard-test-map 反映 + DA entry)
 
 ### 振り返り (Phase 1 / A2b 完了直後 = 本 commit landing 直後 = TBD)
 
