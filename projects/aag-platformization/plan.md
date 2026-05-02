@@ -1,9 +1,13 @@
 # plan — aag-platformization
 
+> **本 project の上位**: `references/01-principles/platformization-standard.md` の **Pilot Application**。Standard 8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate) を AAG に最初に適用し、横展開の規範系を確立する。
+>
 > **Supreme principle (唯一の禁則)**: AAG を「あるべき」で終わらさず、**observable に機能** させる。
 > articulation without functioning は本 program の最大の violation (`references/01-principles/aag/strategy.md` §2.1「抽象化の過剰」AI 本質的弱点)。
 >
-> **本フェーズの位置づけ**: 「Go 移行を前に進める」ではなく、**「Go 実装を前に進める条件を固定する」**。Go 移行を止める必要はないが、TS の揺れ (merge policy 等) を未解決のまま Go に持ち込むと **二度手間** になる。条件を固定してから Go 実装に入る。
+> **本フェーズの位置づけ**: 「Go 移行を前に進める」ではなく、**「Go 実装を前に進める条件 (= Standard 8 軸の AAG 充足) を固定する」**。Go 移行を止める必要はないが、TS の揺れ (merge policy 等) を未解決のまま Go に持ち込むと **二度手間** になる。条件を固定してから Go 実装に入る。
+>
+> **横展開**: 本 Pilot 完了後、Standard 8 軸を docs / App Profile / health 等の他 subsystem に asynchronous に展開する。横展開作業は本 project scope 外。
 
 ---
 

@@ -4,11 +4,13 @@
 
 ## 1. 現在地
 
-**Phase 0 (Bootstrap) のみ landed**。
+**Phase 0 (Bootstrap) のみ landed + Platformization Standard articulate 済**。
 
 - `projects/aag-platformization/` を `_template` から bootstrap 済 (commit `36c4868` 以降)
 - 必須セット 6 ファイル + DA-α-000 (進行モデル決定) landing 済
 - 6 reframe を経て plan を **supreme principle + F1-F7 + Go 実装条件 C1-C4 + 10 Phase (3 segment)** 構造に再構築
+- **本 project が `references/01-principles/platformization-standard.md` の Pilot Application であることを articulate (本 commit)**
+- Standard 8 軸 (subsystem-level) と本 plan 5 軸 (component-level) の二段 lens 構造を articulate
 - 派生 artifact / sync guard / merge policy 修復 / 5 軸 framework すべて未着手 = **Phase 1 から開始**
 
 実装作業 0 件、articulation のみ。Phase 1 から **「あるべき」を「機能している」に転じる**。
