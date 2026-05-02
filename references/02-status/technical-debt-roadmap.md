@@ -24,7 +24,7 @@
 ## 現在の健全性サマリー
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -41,7 +41,7 @@
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-02T09:17:38.135Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-05-02T10:21:27.392Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

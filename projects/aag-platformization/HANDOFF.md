@@ -4,87 +4,88 @@
 
 ## 1. 現在地
 
-**Phase 0 (Bootstrap) のみ landed + Platformization Standard articulate 済**。
+**Phase 0 (Bootstrap) のみ landed** + Standard articulate 済。
 
-- `projects/aag-platformization/` を `_template` から bootstrap 済 (commit `36c4868` 以降)
-- 必須セット 6 ファイル + DA-α-000 (進行モデル決定) landing 済
-- 6 reframe を経て plan を **supreme principle + F1-F7 + Go 実装条件 C1-C4 + 10 Phase (3 segment)** 構造に再構築
-- **本 project が `references/01-principles/platformization-standard.md` の Pilot Application であることを articulate (本 commit)**
-- Standard 8 軸 (subsystem-level) と本 plan 5 軸 (component-level) の二段 lens 構造を articulate
-- 派生 artifact / sync guard / merge policy 修復 / 5 軸 framework すべて未着手 = **Phase 1 から開始**
+- 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済
+- `references/01-principles/platformization-standard.md` 新設 (本 project = Pilot)
+- plan を 3 Phase + 1 Gate / 8 軸 deliverable 構造に **clean rewrite** (本 commit)
+- 実装 0 件 → **Phase 1 から「あるべき」を「機能している」に転じる**
 
-実装作業 0 件、articulation のみ。Phase 1 から **「あるべき」を「機能している」に転じる**。
+reframe 履歴 (Go 移行 → platformization → 分離 → drawer → context provision control → Standard Pilot → CLAUDE.md ≠ AAG entry) は `decision-audit.md` DA-α-000 軌道修正に集約済。
 
-## 2. 次にやること (3 segment)
+## 2. 次にやること
 
-### Segment A: Pre-Go 条件確立 (Phase 1-5、最優先)
+詳細: `checklist.md` / `plan.md` §3。
 
-Go 実装条件 C1-C4 を固定する。**Go 実装 (Phase 9) 着手前提**。
+### 高優先 (Phase 1 の最初)
 
-- **Phase 1**: Authority 固定 + 5 軸 framework operational 化
-- **Phase 2** (= C1): Merge policy 一本化 (defaults 補完 + resolvedBy + 三重定義解消 + bootstrap 修復)
-- **Phase 3** (= C2): Merged artifact 生成 (`docs/generated/aag/merged-architecture-rules.<format>` + sync guard)
-- **Phase 4** (= C3): Contract independence (AagResponse + detector schema 化)
-- **Phase 5** (= C4): RuleBinding 境界 guard
+**A2 Derivation = 実バグ 3 件修復 + merged artifact + sync guard**
 
-### Segment B: AI Navigation + Audit (並列着手可)
+- `RuleExecutionOverlayEntry` 三重定義を `aag-core-types.ts` に集約
+- `merged.ts` bootstrap 修復 + `resolvedBy` 追加
+- 各 overlay comment 整合 + bootstrap-guide Step 4 整合
+- `merged-architecture-rules.<format>` artifact + sync guard
 
-- **Phase 6**: drawer artifact 群 (rules-by-path / rule-index / rule-detail / rule-by-topic)
-- **Phase 7**: 5 軸 audit (既存 AAG + 本 project の reframe 跡)
+→ Go 実装条件 C1 + C2 を最初に達成、bootstrap path の物理的破綻を修復。
 
-### Segment C: Verification + Implementation + Archive
+### 中優先 (Phase 1 残り)
 
-- **Phase 8**: Simulation suite (CT1〜CT10) で F1-F7 + Go 条件 verification
-- **Phase 9**: Go 実装 (条件 C1-C4 全 met 時のみ、言語 Go / Python / combo、Rust 除外)
-- **Phase 10**: archive + 後続 program charter (人間承認 1 点)
+- A1 Authority (4 layer 正本確認)
+- A3 Contract (AagResponse + detector schema 化)
+- A4 Binding (RuleBinding boundary guard)
+- A5 Generated (drawer 4 種)
+- A6 Facade / A7 Policy / A8 Gate (verify)
+
+### 低優先 (Phase 2-3 + Gate)
+
+- Phase 2: AI simulation (CT1-CT5)
+- Phase 3: Archive + 横展開 charter
+- Gate: 最終 archive レビュー (人間承認 1 点)
 
 ## 3. ハマりポイント
 
 ### 3.1. supreme principle 違反 (= articulation without functioning) は本 program 最大の risk
 
-`strategy.md` §2.1「抽象化の過剰」AI 本質的弱点を本 program で再現しないこと。Phase 完了 = articulate 完了ではなく **observable verification 通過** が条件。
+`strategy.md` §2.1「抽象化過剰」AI 弱点を本 program で再現しないこと。Phase 完了 = articulate 完了ではなく **observable verification 通過** が条件。
 
-### 3.2. 既存 AAG 振る舞いを変えない (不可侵原則 1)
+### 3.2. 既存 AAG (12/12 AAG-REQ + 9 integrity guard) 振る舞いを変えない
 
-既存 9 integrity guard / 12 AAG-REQ / merge ロジック / AagResponse 出力 / detector message を変えない。修復は **矛盾・潜在バグ** 発見時のみ、必ず DA entry に articulate。
+修復は **実バグ 3 件のみ** (merge policy 揺れ / bootstrap 破綻 / 三重定義)、必ず DA entry に articulate。
 
-### 3.3. 派生 artifact の 5 軸 articulate を skip しない (不可侵原則 4)
+### 3.3. 派生 artifact の 5 軸 + 8 軸 articulate を skip しない
 
-製本 / 依存方向 / 意味 / 責務 / 境界 を articulate していない deliverable は scope 外。Phase 1 で template 確立後、Phase 2+ は必ず articulate して build。
+各 deliverable は 5 軸 (製本 / 依存 / 意味 / 責務 / 境界) + Standard 8 軸 mapping を articulate。articulate なき deliverable は scope 外 (不可侵原則 4)。
 
-### 3.4. observation なき articulation は scope 外 (不可侵原則 5)
+### 3.4. observation なき articulation は scope 外
 
-calendar-time observation (= 「2 週間運用観測」) は **AAG-REQ-NO-DATE-RITUAL 違反**。simulation (state-based / scenario-driven) で代替。Phase 6 が main verification, 各 Phase 完了直後にも mini simulation を走らせる。
+Phase 完了条件は機械検証 (`test:guards` PASS + observation Y/N + golden test 等)。articulate 完了は条件ではない。
 
-### 3.5. judgementCommit を amend / rebase しない
+### 3.5. judgementCommit を amend / rebase / force push しない
 
-DA entry の `judgementCommit` (sha) と `judgementTag` (annotated tag) が rollback target を物理的に指す唯一の手がかり。一度 push したら amend 禁止、rollback tag delete-and-recreate 禁止。**rollback 動作確認は worktree clean 時のみ** (DA-α-000 第一事象で記録済)。
+DA entry の `judgementCommit` (sha) と `judgementTag` (annotated tag) が rollback target。**rollback tag 動作確認は worktree clean 時のみ** (DA-α-000 早期事象で記録済)。
 
 ### 3.6. 言語境界
 
-AAG runtime に **Rust 使用禁止** (本体 WASM/Rust と境界混線)。Go / Python / combo OK。AI が Rust を強く推奨する場合は **人間確認 escalation** (DA entry に articulate)。
+本 program runtime に **Rust 使用禁止** (本体 WASM/Rust と境界混線)。Go / Python / combo OK。AI 強推奨時は人間確認 escalation。
 
-### 3.7. 本 project 自身も audit 対象
+### 3.7. 横展開 (docs / app / health) は本 program scope 外
 
-5 軸 audit (Phase 4) は既存 AAG だけでなく **本 project (`aag-platformization`) の reframe 跡** も対象。1,710 行の articulation は 5 軸 lens で「資産 / 負債 / 両義的」に分類して restructure。
+Phase 3 で charter のみ articulate、実施は別 program。本 program は AAG Pilot 完了が成功条件。
 
-### 3.8. Phase 単位で commit する (やってはいけないことの 1 つ)
+### 3.8. CLAUDE.md は触らない
 
-複数 Phase を 1 commit にまとめると、Phase 境界での observation ができない。**1 Phase = 1+ commit、必ず DA entry の Commit Lineage に紐付ける**。
+CLAUDE.md は「use AAG (capability/limit articulated)」meta-instruction。AAG 入口 (`aag/` + `references/01-principles/aag/`) ではない。本 program で CLAUDE.md edit しない。
 
 ## 4. 関連文書
 
 | ファイル | 役割 |
 |---|---|
 | `AI_CONTEXT.md` | project 文脈の入口 |
-| `plan.md` | supreme principle + 不可侵原則 + F1-F7 + 7 Phase 構造 |
+| `plan.md` | 3 Phase + 1 Gate + 8 軸 deliverable + 不可侵原則 |
 | `checklist.md` | observable verification の機械入力 |
-| `decision-audit.md` | 判断履歴 + 5 軸 articulate + 振り返り |
+| `decision-audit.md` | DA template + 判断履歴 + 振り返り |
 | `projectization.md` | AAG-COA Level 3 判定 |
-| `breaking-changes.md` | 破壊的変更 (BC-AAG-1〜6) と rollback plan |
-| `aag/execution-overlay.ts` | 案件 overlay (本 program は空のまま運用) |
-| `references/01-principles/aag/strategy.md` §3.4 / §2.1 | supreme principle の上位根拠 |
-| `references/01-principles/aag/source-of-truth.md` | 5 軸「製本」articulate |
-| `references/01-principles/aag/architecture.md` | 5 軸「依存方向」articulate |
-| `references/01-principles/aag/meta.md` | 5 軸「意味」articulate (AAG-REQ-*) |
-| `references/01-principles/aag/layer-map.md` | 5 軸「境界」articulate |
+| `breaking-changes.md` | 実バグ修復 + rollback plan |
+| `references/01-principles/platformization-standard.md` | 上位 Standard (本 program = Pilot) |
+| `references/01-principles/aag/*` | 既存 AAG articulate (5 軸 lens の location) |
+| `aag/core/AAG_CORE_INDEX.md` / `aag/core/principles/core-boundary-policy.md` | AAG Core 入口 |

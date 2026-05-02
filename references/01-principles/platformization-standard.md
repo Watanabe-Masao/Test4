@@ -137,6 +137,47 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 
 ## §8 status
 
-- 初版 articulate: 2026-05-01 (本 commit)
+- 初版 articulate: 2026-05-01
 - Pilot landing 進行中: AAG (`projects/aag-platformization/`)
 - 横展開未着手 — 各 subsystem の 8 軸 filling は asynchronous で進める
+
+## §9 Standard does / does NOT (capability boundary)
+
+本 Standard が articulate する範囲を明示。**Standard 自身が capability boundary を articulate する** = `references/01-principles/aag/strategy.md` 鉄則 5 (床保証 articulate) と同 lens の self-application。
+
+### Standard does (= 本 Standard の責務範囲)
+
+- 全 subsystem 共通の **8 軸 articulate template** を提供
+- 横展開時の **vocabulary 統一** (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate)
+- repo-wide tables の **structure** (System Inventory / Authority / Derivation / Contract / Policy Matrix) を articulate
+- adoption strategy の articulate (同じ粒度 / 非同期進度 / Pilot first)
+- critical constraints の articulate (§5、anti-bloat 装置)
+- Pilot 完了 condition の structural articulation (§6、Pilot 個別 program に下流委譲)
+
+### Standard does NOT (= 本 Standard の non-goal)
+
+- **各 subsystem の具体実装**: subsystem 個別 articulate (例: AAG = `projects/aag-platformization/`、各 subsystem の 8 軸 filling)
+- **個別判断**: 8 軸 filling 内容 (= what is canonical / what migrates / etc.) は subsystem owner の判断 (Standard は template のみ提供)
+- **Pilot 以外 subsystem の進度コミット**: 横展開は asynchronous、Standard は schedule を articulate しない
+- **業務ロジック articulation**: subsystem 内業務意味は subsystem 側 articulate に閉じる
+- **Tooling 強制**: 採用 format / generator / runtime は subsystem 個別判断 (Standard 必須事項は articulate 構造のみ)
+- **既存 subsystem の retrofit 強制**: 既存 subsystem は既存形式を維持してよい、Standard 適用は **新 deliverable / 横展開 trigger 発生時** に限定
+
+## §10 Standard 自身の 8 軸 self-host
+
+本 Standard 自身を 8 軸で articulate する (= self-hosting、AAG `selfHostingGuard` 同思想)。
+
+| 軸 | 本 Standard の articulation |
+|---|---|
+| **A1 Authority** | 本 doc が canonical (派生先なし、subsystem 個別 articulate は subsystem 側 canonical) |
+| **A2 Derivation** | 本 doc は手書き、機械生成しない。`docs/contracts/principles.json` への登録のみ機械検証対象 |
+| **A3 Contract** | 8 軸 vocabulary が contract、subsystem 側 articulation はこれに準拠 |
+| **A4 Binding** | 本 doc は具体実装 binding を持たない (Pilot = `projects/aag-platformization/` 側で binding) |
+| **A5 Generated** | 本 doc から派生 artifact を生成しない (subsystem 側で生成) |
+| **A6 Facade** | facade ではない、直接 read される (CLAUDE.md / aag/README.md からの link) |
+| **A7 Policy** | 本 doc 改訂は人間承認 + decision-audit 記録必須 (§4 採用戦略 / §5 critical constraints の改訂は重い変更) |
+| **A8 Gate** | docRegistryGuard で registry 登録 verify、principles.json 登録 verify、obligation-collector で `references/01-principles/` 編集 trigger |
+
+→ Standard が自身の 8 軸を articulate することで、horizontalize 時に **「なぜ Standard を信頼してよいか」** が articulate される (= meta-doc 自身が自分の契約を満たす)。
+
+---

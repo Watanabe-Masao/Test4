@@ -24,6 +24,12 @@
 | [`layer-map.md`](./layer-map.md) | ファイルの 5 層マッピング (旧 `references/99-archive/aag-5-layer-map.md` を Rewrite + Relocate + Rename、Project A Phase 1 で landed、Phase 5.1 で旧 doc archive 移管済) | landing (Project A Phase 1) |
 | [`display-rule-registry.md`](./display-rule-registry.md) | DFR-NNN registry (双方向 integrity の最初の concrete instance、archived `aag-display-rule-registry` で landing) | landing |
 
+## Cross-subsystem Standard
+
+| doc | 役割 | 状態 |
+|---|---|---|
+| [`../platformization-standard.md`](../platformization-standard.md) | 全 subsystem 共通の 8 軸 articulate template (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Gate)。AAG (`projects/aag-platformization/`) が Pilot Application、横展開は subsystem 個別判断で asynchronous | landing (2026-05-02) |
+
 ## AAG Audit (Layer 4: 検証 = 外部監査)
 
 Layer 4 検証は本 README に独立 doc を持たず、`meta.md §3 AAG Core 構成要素 mapping` 内に audit framework として articulate される (§8.10 判断 = A)。5 sub-audit に細分:
