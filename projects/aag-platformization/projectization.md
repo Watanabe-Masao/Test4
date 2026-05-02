@@ -23,12 +23,11 @@
 - **changeType=architecture-refactor** — runtime merge を artifact merge へ、helper 駆動の AagResponse を schema 駆動へ、と AAG 内部の境界を引き直す。複数該当 (governance-hardening も含む) の場合は最も重い type を採用 (policy §2)。
 - **breakingChange=true** — `architectureRules/merged.ts` が runtime merge から generated artifact 読み出しへ変わる。consumer facade からは透明だが、direct import している test / collector のシグネチャに影響する可能性。
 - **requiresLegacyRetirement=false** — 既存 API の物理削除は本 program の scope ではない。Go cutover の本実装が後続 project に分かれるため、本 program では TS facade を残したまま artifact + contract 層を増設する増分。
-- **requiresGuard=true** — 4 種を新設予定:
-  1. `RuleBinding` 境界 guard (binding に意味系フィールドが漏れたら hard fail)
-  2. AAG schema isomorphism guard (TS 型と JSON Schema の同型性検証)
-  3. AagResponse contract guard (helper 経由でも schema 準拠の output になること)
-  4. detector protocol guard (Go / TS 両側で同一 result schema を返すこと)
-- **層別言語の固定** — 本 program は AAG を Core (Go) / Domain (JSON+Go) / 接続部 (TS) の 3 層に物理分離する。本体 (粗利) で使う Zod / Rust とは混ぜない。理由は責務 / 空間 / 意味 / 言語の混線を物理境界で禁じるため (`plan.md` 原則 0)。
+- **requiresGuard=true** — sync guard 数件を新設予定:
+  1. `aagRulesByPathSyncGuard` (Phase 2、artifact ↔ canonical drift 検出)
+  2. `aagRuleDetailSyncGuard` (Phase 3、同上)
+  3. (Phase 5 の rule-by-topic 用 sync guard、判断次第)
+- **言語境界**: 本 program runtime は Go / Python / combo OK。**Rust 除外** (本体 WASM/Rust と境界混線、AI が Rust を強く推奨する場合は人間確認 escalation)。canonical (TS) は不変、AAG runtime はオプショナル (Phase 6 simulation 次第)。
 - **requiresHumanApproval=true** — `references/03-guides/project-checklist-governance.md` §3.1 の構造的要請として、最終 archive 承認 1 点のみ人間 mandatory。**それ以外の判断は AI が事実根拠で行い、`decision-audit.md` に判断時の根拠と振り返り観測点を記録する** (`plan.md` 原則 7)。AI Checkpoint α / β / γ は人間承認 gate ではなく、AI が振り返り観測点を実測して判定する内部手続き。「人間が同意したから正しい」構造を作らない。
 
 ## 3. 必要な文書
@@ -48,14 +47,16 @@
 
 ## 4. やらないこと (nonGoals)
 
-本 program の scope に **絶対に含めない** 作業 (escalation 判定の基準として機能する):
+本 program の scope に **絶対に含めない** 作業:
 
-- アプリ業務ロジック (gross-profit / sales / forecast / customer / discount / pi-value / 等) の意味変更
-- 新ガード追加による既存検出範囲の縮退 (baseline を緩和方向に動かすこと)
-- Go ランタイムの本実装 (Phase 9 の Go Core PoC まで。本 cutover は後続 project)
-- `base-rules.ts` の rich TS 表現を一気に JSON 化すること (authoring 正本としての TS 価値を毀損する)
-- AAG の外部公開 (本 program は internal platform 化に閉じる。reusable quality OS 化はその先)
-- `pure-calculation-reorg` overlay の rule entry 削除 (本 program は overlay の運用方針 = comment / schema を整理する。entry 自体は触らない)
+- アプリ業務ロジック (gross-profit / sales / forecast 等) の意味変更
+- 既存 9 integrity guard / 12 AAG-REQ の baseline 緩和
+- 新 doc を増やす (gap fill は既存 doc 拡張、`strategy.md` §1.1「正本を増やさない」)
+- `base-rules.ts` (10,805 行) の TS authoring を JSON 化 (authoring 価値を毀損)
+- Rust の本 program runtime 使用 (本体境界混線、Go / Python / combo OK)
+- 後続 cutover の本実装 (本 program は前提整備まで)
+- observation なき articulation を deliverable に追加 (supreme principle)
+- `pure-calculation-reorg` overlay の rule entry 削除 (entry 自体は触らない、形式整理に閉じる)
 
 ## 5. Escalation / De-escalation 条件
 

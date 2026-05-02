@@ -43,6 +43,16 @@
   - 観測点 2 (否定検証): 〈この事実を観測したら判断が間違っていた〉
   - 観測点 N: ...
 
+### 5 軸 design articulation (本判断 / 成果物に対する)
+
+`plan.md` §4 lens。観測なき articulation は scope 外 (supreme principle)。
+
+- **製本** (canonical / derived / 何が 1 次正本か): ...
+- **依存方向** (何 → 何、一方向 acyclic): ...
+- **意味** (本判断 / 成果物が答える 1 つの問い): ...
+- **責務** (single responsibility、C1 整合): ...
+- **境界** (何の内 / 何の外、layer-map 整合): ...
+
 ### Commit Lineage
 
 - **judgementCommit**: `<sha>` — 本 entry を landing した commit
@@ -50,7 +60,6 @@
 - **judgementTag**: `aag-platformization/DA-{α|β|γ}-{NNN}-judgement` — judgementCommit に付与
 - **rollbackTag**: `aag-platformization/DA-{α|β|γ}-{NNN}-rollback-target` — preJudgementCommit に付与
 - **implementationCommits**: 本判断に基づく実装 commit (Phase 進行中に追記)
-  - `<sha>` — `<commit message 概要>`
   - `<sha>` — `<commit message 概要>`
 
 ### 振り返り (Phase N 完了時 / YYYY-MM-DD)
@@ -157,32 +166,20 @@ git push origin "aag-platformization/DA-α-002-rollback-applied"
 
 > Phase が進むにつれて以下に entry を追加していく。Phase 完了時には振り返り欄が埋まる。
 
-### Workstream A — Authority
+### Phase 別判断
 
-- (Phase 1 着手時) DA-α-001: Authority Table の 10 concept × 4 列構造の妥当性判断
-- (Phase 2 着手時) DA-α-002: Merge Policy 採用案 (defaults stub / merged null / bootstrap seed の 3 案比較)
-- (Phase 3 着手時) DA-α-003: AAG Domain serialization format 選定 (JSON / YAML / TOML / CUE / protobuf / Dhall / KDL / JSON5 / JSONC を「構造性 / Go 親和性 / TS 親和性 / schema-first / diffable / comments / tooling / federated $id」で比較)
-- (Phase 3 中) DA-α-004: Schema isomorphism の方向性 (TS-from-schema vs schema-from-TS、format 選定後に判断)
-
-### Workstream B — Artifactization
-
-- (Phase 4 着手時) DA-β-001: artifact 生成タイミング (`docs:generate` 内 / `build` 内 / 別 script)
-- (Phase 8 着手時) DA-β-004: overlay JSON の格納先構造 (`docs/generated/aag/overlays/<id>.json` vs `projects/<id>/aag/execution-overlay.json`)
-
-### Workstream C — Contract
-
-- (Phase 5 着手時) DA-β-002: AagResponse schema 駆動化方針 (codegen の方向性 + renderer 4 種分割の粒度)
-- (Phase 6 着手時) DA-β-003: detector protocol の適用範囲 (guard test / collector / pre-commit / 将来 Go)
-- (Phase 7 着手時) DA-β-005: RuleBinding 境界 guard の所属 Workstream (現状 C、A への移動可否)
-
-### Workstream D — Operating System
-
-- (Phase 9 着手時) DA-γ-001: Go PoC scope 決定 (parity check 範囲 / CI 組み込み是非)
-- (Phase 10 着手時) DA-γ-002: cutover charter の後続 project 分離方針 (`aag-go-cutover` の Level 判定)
+- (Phase 0 完了時) **DA-α-000**: 本 program の進行モデル (AI-driven judgement + retrospective + commit-bound rollback) **landing 済**
+- (Phase 1 着手時) **DA-α-001**: 5 軸 articulation framework operational 化方針 (既存 articulate verify + gap fill 方針)
+- (Phase 2 着手時) **DA-α-002**: `rules-by-path` artifact format 選定 (JSON / CUE / YAML / TOML / 他から AI 判断) + sync guard 設計
+- (Phase 3 着手時) **DA-α-003**: `rule-detail` / `rule-index` の granularity (どこまで detail を artifact 化するか / on-demand path)
+- (Phase 4 着手時) **DA-α-004**: 5 軸 audit 結果に対する restructure per-violation 判断 (実施 / 据置 / 後続)
+- (Phase 5 着手時) **DA-α-005**: `rule-by-topic` 配置 (manifest.json discovery 拡張 / 並列 file)
+- (Phase 6 中) **DA-α-006**: simulation suite (CT1〜CT7) の結果総括 + F1〜F7 機能 status
+- (Phase 7 着手時) **DA-α-007**: archive / 後続 program charter 必要性判断
 
 ### Special — Cross-Phase
 
-- (随時) DA-X-NNN: Phase をまたいで発覚した判断 (Phase N の振り返りで Phase M を再構成する場合等)
+- (随時) **DA-X-NNN**: Phase をまたいで発覚した判断 (Phase N の振り返りで Phase M を再構成する場合等)
 
 ---
 
