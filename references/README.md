@@ -8,7 +8,7 @@
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 40         |
 | `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
-| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 71         |
+| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 77         |
 | `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
 | `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 12         |
 
@@ -223,6 +223,7 @@
 | 新規 project bootstrap ガイド（必須セット / 派生セット判定 / overlay defaults / 切替検証）             | `03-guides/new-project-bootstrap-guide.md`                      |
 | AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                                      | `03-guides/projectization-policy.md`                            |
 | Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）                   | `03-guides/deferred-decision-pattern.md`                        |
+| Decision Articulation Patterns（主アプリ改修主軸の change-bearing 作業共通 pattern、AAG 内部不要）     | `03-guides/decision-articulation-patterns.md`                   |
 | AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）               | `01-principles/aag/README.md`                                   |
 | AAG Meta charter（目的 + 要件 = AAG-REQ-\* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `01-principles/aag/meta.md`                                     |
 | AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                                    | `01-principles/aag/strategy.md`                                 |

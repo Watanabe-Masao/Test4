@@ -576,6 +576,10 @@
         {
           "path": "references/03-guides/deferred-decision-pattern.md",
           "label": "Deferred Decision Pattern (途中判断 制度化) — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred する制度。判断基準 + 判断材料の収集元 + AI 自主判断 vs 人間判断の分離 + decision log + 適用 template を articulate。AAG Layer 4A System Operations、project-checklist-governance.md と並列。aag-bidirectional-integrity が最初の application instance"
+        },
+        {
+          "path": "references/03-guides/decision-articulation-patterns.md",
+          "label": "Decision Articulation Patterns — 主アプリ (粗利管理ツール) 改修主軸の change-bearing 作業全般で再利用可能な articulation pattern 集 (commit-bound rollback / scope discipline / clean rewrite / honest limitation / 意図的 skip + rationale / state-based verification harness の 6 pattern)。AAG Pilot で identify された first instance を例に持つが、primary 適用領域 = 主アプリ改修。AAG framework 内部を読まずに引き出せる drawer。抽象化境界 self-test 4 軸で AAG-specific term 0 件を機械検証可能"
         }
       ]
     },

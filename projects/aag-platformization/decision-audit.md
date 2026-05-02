@@ -661,6 +661,16 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 | C-α-001 | **Simulation Harness Template** | 本 Pilot DA-α-006 で確立した **state-based AI simulation pattern** を共通テンプレート化: (a) CT (Concrete Test) として scenario を articulate / (b) 各 CT に **quantitative observation** (read 数 / step 数 / count / 率) を要求 / (c) 各 CT に **反証可能 result** を 1 件以上 (negative test or limitation articulate) / (d) verdict は 3 値 (PASS / partial / FAIL) で graduation 禁止 / (e) calendar 観測なし (= AAG-REQ-NO-DATE-RITUAL 整合) | (1) 新規 project Phase 2 (verification) — Standard 準拠 subsystem の Pilot fill 後 verify / (2) Refactoring 完了時の non-regression verify / (3) Architecture 変更 (層境界 / 契約 / 正本化) 後の effect 観測 / (4) Cross-subsystem 整合 verify (= 横展開 candidate 判定条件 #4 = 8 軸 application 可能性 verify そのものに本 template が応用可能) |
 | C-α-002 | **drawer `_seam` consumer kind 分類体系** | drawer-generator.ts の `classifyConsumerKind` heuristic を **post-Pilot AI Role Layer** が articulate する formal taxonomy に昇華 (Pilot は free-form articulate で 5 kind = authority-auditor / derivation-assembler / binding-auditor / policy-enforcer / unclassified を seam として articulate 済) | AI Role Layer charter program の Phase 1 |
 | C-α-003 | **mapped 率 coverage 改善** | 本 Pilot で identify された F1 partial coverage (= mapped 率 30.2%、120/172 unmapped) の coverage 改善 — heuristic 改善 (例: guard test file の TARGET_PATHS 抽出、responsibilityTags / canonicalDocRef 経由の path 推定) | drawer-coverage 改善 program (DA-α-007 §3.2 展開禁止条件 #2 「Pilot 負債未解消」を解消する trigger 自身) |
+| C-α-004 | **AAG Knowledge Consolidation (= references 純化)** | AAG framework 知識が現在 2 箇所に分裂 (`aag/core/` top-level + `references/01-principles/aag/` 9 doc)。後者は **境界違反** (= 主アプリ改修 AI が読む必要ないのに業務知識と peer 配置)。`references/01-principles/aag/` 9 doc を `aag/principles/` に migrate + 全 inbound update + doc-registry / manifest / guard 改訂で references/ を **主アプリ改修 AI 専用 interface に純化** する。本 PROD-X (drawer landing) で「AAG 内部を読む必要ない」が articulation 上確立されたが、構造的債務は残る | user articulation 2026-05-02 (= 既 articulated)、scope 大 (inbound 数十件 + guard 改訂)、独立 program PROD-Y として起動判断 |
+
+#### §4.1 補足: C-α-001 適用 — 本 session で実施した Pilot Application instance
+
+本 §4.1 で articulate された C-α-001 (= drawer pattern 化) は、user articulation 2026-05-02 を trigger として **PROD-X (= small follow-up program)** で即実施:
+
+- deliverable: `references/03-guides/decision-articulation-patterns.md` (新規 drawer doc、6 pattern × 4 軸 self-test PASS で AAG-specific term 0 件) + `.claude/manifest.json` discovery 5 entry 追加 (byTopic 4 + byExpertise 1)
+- 抽象化境界: 主アプリ改修 AI が **AAG framework 内部を読む必要なし** で適用可能、AAG self-safety / 信頼性 / 境界 / 自己改善性 は AAG 内に **封じ込め** (= drawer に持ち込まない)
+- aag/README.md に link を追加しない判断 (= 主アプリ改修 AI が AAG tree に reach する必要ない integrity と整合、Pattern 5 「意図的 skip + rationale」の self-application instance)
+- AAG Pilot DA-α-007 と independent な commit lineage (= scope 分離、本 entry は articulation のみ、実装は別 commit)
 
 **C-α-001 の特に強い articulate** (user articulation 2026-05-02 反映):
 
