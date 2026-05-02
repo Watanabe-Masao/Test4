@@ -12,6 +12,7 @@
 - 想定リスク (採用案外れ時の最大被害)
 - 振り返り観測点 **最低 3 つ** (1 つ以上は反証可能)
 - **5 軸 articulation** (製本 / 依存方向 / 意味 / 責務 / 境界、`plan.md` §4)
+- **taskClass** (optional、post-Pilot AI Role Layer 差し込み口 = seam): judgement の task 分類例 — `derivation-merge` / `contract-schema` / `binding-boundary` / `discovery-drawer` / `policy-gate` / `authority-canonical`。本 field は free-form (= Phase 3 charter で AI Role Layer が articulate されるまで forward compatibility 用)
 - **Commit Lineage** (judgementCommit / preJudgementCommit + annotated tag)
 - judgementCommit を **amend / rebase / force push 禁止** (sha が rollback target)
 
@@ -296,6 +297,64 @@ DA-α-000 自体は active のまま継続、judgement model (AI-driven + retros
 - 観測 3 (pure-calc-reorg merge 不変): TBD (既存 test:guards 全 PASS で確認済予定)
 - 観測 4 (12 AAG-REQ baseline 緩和なし): TBD
 - 観測 5 (docs:generate 時間): TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-α-003: Contract Schema 化 (AagResponse + DetectorResult、Go 実装条件 C3)
+
+**status**: active
+
+### 判断時 (2026-05-02 / Phase 1 / A3)
+
+- 候補 (contract format = schema 系、generated 系 A2b/A5 とは独立判断 = 4 改訂 #3):
+  1. JSON Schema (draft-07、ajv 利用可能、AI/cross-language consumer に最適)
+  2. CUE (型安全だが niche、codegen 必要)
+  3. Protocol Buffers (binary protocol、AAG response には overkill)
+  4. TypeScript types only (現状維持、言語非依存性なし)
+- 採用案: 候補 1 (JSON Schema draft-07)
+- 判断根拠:
+  - 事実 1: AagResponse は AI / cross-language consumer 向け contract → 言語非依存性が要件
+  - 事実 2: ajv v6.14.0 が node_modules に存在 (透過的に使える、新規 dep 不要)
+  - 事実 3: ajv v6 は draft-07 まで対応 (draft-2020-12 不可)
+  - 事実 4: 既存 `aagResponseFeedbackUnificationGuard` が tools / app 二重実装を防いでいる → schema 化はその上に重畳する形で安全
+  - 推論: draft-07 が現環境で唯一 immediate に動作 + 主要 features (enum / oneOf / required / additionalProperties) に十分
+- 想定リスク:
+  - 最大被害: schema と TS interface の drift (sync guard で機械検証)
+  - 二番目: ajv v8 への upgrade 時 schema syntax 互換性確認が必要
+- 振り返り観測点 (5 点):
+  - 観測 1 (肯定): aag-response.schema.json の required + properties が TS interface 9 fields と一致
+  - 観測 2 (肯定): buildObligationResponse 出力が schema validation を通過
+  - 観測 3 (反証): 不正 instance (required 欠落) が schema で hard fail
+  - 観測 4 (反証): 既存 `aagResponseFeedbackUnificationGuard` が引き続き active
+  - 観測 5 (反証): 既存 text renderer 出力が byte-identical (= TS 側 logic 不変、schema 化のみ)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `docs/contracts/aag/aag-response.schema.json` + `detector-result.schema.json` = canonical contract。TS interface (`AagResponse` in `aag-response.ts`) は schema と structurally identical、sync guard で drift 防止
+- **依存方向**: schema (canonical) → TS interface (sync 維持) / consumer (validation) — 一方向 (TS → schema 逆参照禁止)
+- **意味**: 「AAG が AI に通知する response の structural contract は何か」(AagResponse 1 問い) + 「detector が emit する result の structural contract は何か」(DetectorResult 1 問い、forward-looking)
+- **責務**: AagResponse = consumer 向け通知契約 (single responsibility)、DetectorResult = detector 内部 result 契約 (separate single responsibility)。両者は独立 contract
+- **境界**: contract 層 = canonical schema files、内 = field 定義 + validation、外 = builder / renderer 実装 (= aag-response.ts function 群、本 schema 化は logic に touch しない)
+
+### Commit Lineage
+
+- judgementCommit: `<本 commit sha>` (本 entry landing 後に記入)
+- preJudgementCommit: `22581a9` (前 commit、A2b 完了後)
+- judgementTag: `aag-platformization/DA-α-003-judgement`
+- rollbackTag: `aag-platformization/DA-α-003-rollback-target` (`22581a9` に annotated tag)
+- implementationCommits:
+  - `<本 commit sha>` — A3 全実装 (schema 2 件 + sync guard + aag-response.ts comment + 3 seams + DA entry)
+
+### 振り返り (Phase 1 / A3 完了直後 = 本 commit landing 直後 = TBD)
+
+- 観測 1 (schema fields 一致): TBD (sync guard test 2-3 PASS で確認予定)
+- 観測 2 (validation 通過): TBD (sync guard test 4 PASS で確認予定)
+- 観測 3 (不正 instance fail): TBD (sync guard test 5 + 7 PASS で確認予定)
+- 観測 4 (aagResponseFeedbackUnificationGuard active): TBD (test:guards 全 PASS で確認予定)
+- 観測 5 (renderer byte-identical): TBD (TS logic 不変なので意味不変、test:guards 全 PASS で間接確認)
 - 判定: TBD
 - 学習: TBD
 - retrospectiveCommit / Tag: TBD

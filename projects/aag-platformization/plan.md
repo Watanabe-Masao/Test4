@@ -49,7 +49,7 @@ bootstrap + reframe 履歴は `decision-audit.md` DA-α-000 に集約済。
 | **A2b Derivation (artifact + sync guard)** | `tools/architecture-health/src/aag/merge-artifact-generator.ts` 新設 + `docs/generated/aag/merged-architecture-rules.<format>` 生成 + `aagMergedArtifactSyncGuard` | DA-α-002b (artifact format = generated 系) | artifact runtime と byte-identical / 試験 drift で sync guard hard fail |
 | **A3 Contract** | **contract format 先行確定** (`AagResponse` / `detector-result` の schema 形式、generated 系とは独立判断) → `docs/contracts/aag/aag-response.<format>` + `docs/contracts/aag/detector-result.<format>` 新設 + sync guard。helper は schema-backed re-export | DA-α-003 (contract format = schema 系) | schema validation 通過 / 既存 text renderer byte-identical / 既存 `aagResponseFeedbackUnificationGuard` 維持 |
 | **A4 Binding** | `ruleBindingBoundaryGuard.test.ts` 新設 (許可 5 field / 禁止意味系) | DA-α-004 | 違反コード試験で hard fail / 既存 RuleBinding pass |
-| **A5 Generated** | drawer 4 種: `rules-by-path` / `rule-index` / `rule-detail/<id>` / `rule-by-topic`。**A5 内で独立に format 判断** (A3 contract format と必ずしも一致しない、index / lookup 用途で最適 format を選定) + 各 sync guard | DA-α-005 (drawer format = generated 系、A2b と相互整合判断) | AI が path 編集 task で関連 rule subset に 1 read で reach / 不要 rule surface しない / drift で sync guard hard fail |
+| **A5 Generated** | drawer 4 種: `rules-by-path` / `rule-index` / `rule-detail/<id>` / `rule-by-topic`。**A5 内で独立に format 判断** (A3 contract format と必ずしも一致しない、index / lookup 用途で最適 format を選定) + 各 sync guard。**post-Pilot seam**: 各 drawer artifact entry に最小 routing metadata (`path` / `topic` / `sourceRefs` / `consumerKind` / `taskHint`) を持たせる (= Phase 3 charter で articulate される AI Role Layer の Role-scoped Context Bundle 差し込み口、本 Pilot では未利用だが構造上 forward compatibility) | DA-α-005 (drawer format = generated 系、A2b と相互整合判断) | AI が path 編集 task で関連 rule subset に 1 read で reach / 不要 rule surface しない / drift で sync guard hard fail |
 | **A6 Facade** | `architectureRules.ts` 維持 (no-op verify) | - | 既存 consumer import 不変 |
 | **A7 Policy** | 不可侵原則 (本 §1) + DA institution + 5 軸 articulate 要件 (= 既存 articulate verify) | - | 全 deliverable に 5 軸 articulation 存在 |
 | **A8 Gate** | 全 sync guard + 既存 9 integrity guard active + Phase 完了 gate | - | `npm run test:guards && lint && build && docs:check` PASS |
@@ -92,6 +92,7 @@ A2/A3/A5 で format 統一は強制しない。subsystem ごとに最適化。
         - Standard 8 軸の中で AAG 自身が articulate しきれていない軸がある (= Pilot 不完全)
         - 候補 subsystem の owner / 承認構造が unclear
 - 後続 program (もし必要なら) charter を 1 doc で articulate (新規 or 既存拡張、判断 = DA-α-007)
+- **AI Role Layer = post-Pilot deliverable** を charter に明記 (本 Pilot scope 外、ただし A5 drawer routing metadata + decision-audit `taskClass` field の seam を Pilot 内で残してある)。Role Layer = AI Role Catalog (Authority Auditor / Derivation Assembler / Contract Steward / Binding Auditor / Discovery Curator / Policy Enforcer 等) + Task → Role Routing + Role-scoped Context Bundle の 3 components。Pilot で AI が文脈に到達できることが verify された後、role を articulate する別 program で実施
 - `references/02-status/recent-changes.md` にサマリ追加
 
 ### Gate: 最終 archive レビュー (人間承認、唯一の人間 mandatory 点)

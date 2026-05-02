@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-response-v1.json",
+  "title": "AagResponse",
+  "description": "AAG 統一レスポンス契約。guards / obligations / health / pre-commit の全入口が本 schema に準拠した object を返す。canonical TS implementation: tools/architecture-health/src/aag-response.ts。 sync guard: app/src/test/guards/aagContractSchemaSyncGuard.test.ts。 aag-platformization Pilot Phase 1 / A3 で landing。",
+  "$comment": "format 選定根拠: contract = schema 系 = 言語非依存性が要件 → JSON Schema (draft 2020-12) 採用。generated 系 (A2b merged-architecture-rules / A5 drawer) とは独立判断 (DA-α-003、4 改訂 #3 反映)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "fixNow",
+    "slice",
+    "summary",
+    "reason",
+    "steps",
+    "exceptions",
+    "deepDive",
+    "violations"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": ["guard", "obligation", "health", "pre-commit"],
+      "description": "Response 発生源。AAG が AI に通知する経路の articulate。"
+    },
+    "fixNow": {
+      "type": "string",
+      "enum": ["now", "debt", "review"],
+      "description": "運用区分 (operational-classification.md §6 と同義)。now=即修正、debt=allowlist 管理、review=Discovery Review 対象。"
+    },
+    "slice": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "string",
+          "enum": [
+            "layer-boundary",
+            "canonicalization",
+            "query-runtime",
+            "responsibility-separation",
+            "governance-ops"
+          ]
+        }
+      ],
+      "description": "AAG 5 縦スライス (architecture.md §5)。null = スライス非依存。"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "違反 / イベントの 1 行要約。AI / 人間が最初に読む。"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "なぜそれが問題か。rule の why / decisionCriteria を参照。"
+    },
+    "steps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "修正 (now) / 解消 (debt) 手順の articulate。空配列は手順不要を意味する。"
+    },
+    "exceptions": {
+      "oneOf": [{ "type": "null" }, { "type": "string" }],
+      "description": "例外条件の articulate。null = 例外なし。"
+    },
+    "deepDive": {
+      "oneOf": [{ "type": "null" }, { "type": "string" }],
+      "description": "詳細参照先 (doc path / rule id 等)。null = 詳細不要。"
+    },
+    "violations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "具体違反の articulate (file path:line 等)。空配列は違反なし。"
+    }
+  }
+}

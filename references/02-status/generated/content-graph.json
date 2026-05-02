@@ -1,6 +1,6 @@
 {
   "$comment": "spec 間の依存 graph (Phase A #2 初版)。consumedReadModels / consumedQueryHandlers / children を edge として抽出。to が spec id とは限らない (domain name / component name 経由)、後続 batch で name → spec id mapping 追加予定。",
-  "generatedAt": "2026-05-02T12:28:46.566Z",
+  "generatedAt": "2026-05-02T13:07:38.289Z",
   "nodes": [
     {
       "id": "WID-001",

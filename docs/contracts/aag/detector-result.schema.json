@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/detector-result-v1.json",
+  "title": "DetectorResult",
+  "description": "AAG detector (guard / collector / pre-commit hook) の統一 result 契約。**forward-looking contract**: 個別 detector の output 形式が現状不揃いであるため、本 schema は将来統合先として articulate される (= AagResponse は最終通知契約、本 schema は detector 内部 result 契約)。aag-platformization Pilot Phase 1 / A3 で articulate (forward-looking)、actual integration は post-Pilot で各 detector を本 schema 準拠に揃える別 program に分離。canonical: 本 schema file。 sync guard: app/src/test/guards/aagContractSchemaSyncGuard.test.ts。",
+  "$comment": "format 選定根拠: contract = schema 系 = 言語非依存性が要件 → JSON Schema (draft 2020-12) 採用 (DA-α-003、A2b/A5 generated 系とは独立判断)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ruleId", "detectionType", "sourceFile", "severity"],
+  "properties": {
+    "ruleId": {
+      "type": "string",
+      "description": "AR rule id (例: AR-AAG-DERIVED-ONLY-IMPORT)。base-rules.ts の rule.id に対応。"
+    },
+    "detectionType": {
+      "type": "string",
+      "description": "検出 type (例: layer-boundary / canonicalization / etc.)。BaseRule.detection.type と整合。"
+    },
+    "sourceFile": {
+      "type": "string",
+      "description": "違反検出元の file path (例: app/src/test/architectureRules/merged.ts)。"
+    },
+    "evidence": {
+      "type": "string",
+      "description": "違反の evidence (= 具体 code snippet / regex match 等)。optional。"
+    },
+    "actual": {
+      "type": "number",
+      "description": "ratchet-down 系 guard における現在カウント。optional。"
+    },
+    "baseline": {
+      "type": "number",
+      "description": "ratchet-down 系 guard における baseline 上限。optional。"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["gate", "warn", "block-merge"],
+      "description": "DetectionConfig.severity と同義 (aag-core-types.ts)。gate = CI fail + マージ block / block-merge = CI warn + マージ block / warn = CI warn + マージ allow。"
+    },
+    "messageSeed": {
+      "type": "string",
+      "description": "AagResponse.summary / reason 生成のための seed message。AagResponse builder が本 field を articulate して人間可読 response を生成する。"
+    }
+  }
+}
