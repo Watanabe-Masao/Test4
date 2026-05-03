@@ -124,11 +124,70 @@ R1 と同 pattern (5 doc 移動 + inbound update + guard/collector update + veri
 | guard / test infrastructure | path constants update で対応、外部通知不要 |
 | CI / pre-commit hook | 既存 hook が新 path で動作することを R-phase 完了時に verify |
 
-## 5. 旧 path 残置禁止
+## 5. 旧 path 残置禁止 + transitional period
 
-- 物理 location 移動完了後、**旧 path に file 残置禁止** (= git mv で完全移動)
+### 5.1 旧 path 残置禁止 (= 物理 verify)
+
+- 物理 location 移動完了後、**旧 path に file 残置禁止** (= git mv で完全移動、stub も .gitkeep も置かない)
 - 旧 path への inbound reference 0 件まで update 完了が R-phase landing 条件
-- 例外: `references/99-archive/` に意図的に残置する場合のみ (= immutable archive policy 整合)
+- 例外: `references/99-archive/` 配下 + `projects/completed/` 配下に意図的に残置 (= immutable archive policy 整合、archive-to-archive 旧 path mention は `oldPathReferenceGuard` で許容)
+
+### 5.2 transitional period (= 1 commit に閉じる)
+
+| 状態 | 旧 path | 新 path |
+|---|---|---|
+| R-phase 着手前 | active (= 全 reference 旧 path) | 未存在 |
+| R-phase 進行中 (= 同一 commit 内) | **共存禁止** (= 1 commit で完全 swap、partial migration は禁止) | 全 reference 新 path に update |
+| R-phase 完了後 | **0 件** (= guard で hard fail、= retired) | active |
+
+partial migration を複数 commit に跨いで実施する case は **禁止** (= drawer Pattern 1 不可侵原則 5 と同 lens、rollback 境界 articulate 不能化を防ぐ)。
+
+### 5.3 撤退 verify 3 軸
+
+各 R-phase 完了時:
+
+1. **物理 verify**: 旧 path に file 0 件 (= `find` で 0 件)
+2. **string verify**: 旧 path 文字列 reference 0 件 (= `grep -r` で 0 件、archive-to-archive 例外除く)
+3. **functional verify**: 旧 path 経路で reach 試行 → fail
+
+3 軸全 PASS で撤退完了。
+
+### 5.4 旧 convention / 旧制度の撤退
+
+物理 path だけでなく、旧 convention / 旧制度 も R-phase で完全撤退:
+
+| 旧 convention / 旧制度 | 撤退 phase | 新 articulation |
+|---|---|---|
+| `recent-changes.md` (suffix なし、手書き) | R3 | `recent-changes.generated.md` (機械生成) |
+| `02-status/generated/*.md` (suffix なし、directory のみで articulate) | R3 | `04-tracking/generated/*.generated.md` (= file 名 + directory で 2 重 articulate) |
+| projects/ root に flat active project 配置 | R6 | `projects` 配下 `active/` directory に articulate |
+| `CURRENT_PROJECT.md` inline state articulate | R6 | pointer-only に固定、`projectsStructureGuard` で機械検証 |
+| AAG-related guide が主アプリ実装ガイドと同 directory (= `03-guides/` 内混在) | R2 | `references/05-aag-interface/` 純化 (= reader-別 separation) |
+| aag/ vs references/ boundary 不在 | R0 articulate + R1-R2 物理移動 | structural separation |
+| section-level GENERATED marker のみ (= file 名 hint なし) | R3 (file-level優先 articulate)、R7 (機械検証) | file-level `*.generated.md` で第一優先、section marker は補助 |
+
+### 5.5 旧 mention (= meta-documentation) の撤退
+
+PR template / CLAUDE.md / doc-registry / manifest 内の旧 path mention:
+
+| 対象 | 撤退 phase |
+|---|---|
+| `.github/PULL_REQUEST_TEMPLATE.md` 内 旧 path 参照 (= 約 9 箇所) | R3 (= directory rename と同時) |
+| `CLAUDE.md` 内 旧 section path | R3 |
+| `docs/contracts/doc-registry.json` 内 全 doc entry path | R1 / R2 / R3 (= 移動 phase 毎に update) |
+| `.claude/manifest.json` discovery hint 内 path | R1 / R2 / R3 (= 同上) |
+| guard / collector path constants (138 file) | R1 / R2 / R3 (= 同上) |
+| generator (`tools/architecture-health/src/renderers/`) 出力先 path | R3 |
+| 既存 doc 内 inbound link (1,000+ 件) | R1 / R2 / R3 (= 同上) |
+
+### 5.6 archive 例外 articulate
+
+以下は **撤退対象外** (= 旧 path mention 残置許容):
+
+- `references/99-archive/` 配下の immutable archive doc (= 内容 touch しない、archive-to-archive 旧 path mention は archive 整合のため許容)
+- `projects/completed/` 配下の archived project doc (= immutable archive policy)
+
+これら例外は `oldPathReferenceGuard` で **archive-to-archive whitelist** に登録、検出対象外。
 
 ## 6. rollback 方針
 
