@@ -447,7 +447,93 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 
 ---
 
-## §7 推定 effort + ROI
+## §7 旧経路・旧制度 撤退プラン (= legacy retirement、user articulation 反映)
+
+### §7.1 撤退対象 articulate
+
+「**本 program は内容 100% 維持** (= 不可侵原則 4) で **物理 location 移動のみ**」だが、**旧 location / 旧 convention / 旧 mention** の **完全撤退** は scope 内。AAG-COA の `requiresLegacyRetirement=false` は **「内容削除」の意味**であり、「**旧 path / 旧制度の撤退** は migration の通常範囲」として scope に含まれる。
+
+撤退対象 4 種類:
+
+| 種類 | articulate |
+|---|---|
+| **旧 path (= 物理 location)** | R-phase で `git mv` で完全移動、旧 path には **0 件残置** (= stub も .gitkeep も置かない) |
+| **旧 convention** | `recent-changes.md` (suffix なし) → `recent-changes.generated.md` / `02-status/generated/*.md` (suffix なし) → `04-tracking/generated/*.generated.md` / projects/ root flat (= active subdirectory なし) → `projects` 配下 `active/` directory / CURRENT_PROJECT.md inline state → pointer-only / file-level vs section-level generated 混在 → file-level `*.generated.md` で第一優先、section marker は補助 |
+| **旧制度 / 旧 system** | AAG-related guide が主アプリ実装ガイドと同 directory (= `references/03-guides/` 内混在) → reader-別 separation (= `references/05-aag-interface/` 純化) / aag/ vs references/ boundary 不在 → structural separation / 03-guides 内 framework + main app 混在 → 03-implementation (= main app 純化) + 05-aag-interface (= AAG public interface) で分離 |
+| **旧 mention (= meta-documentation)** | PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照 / CLAUDE.md 内 旧 section / doc-registry.json + manifest.json 内 path entry / guard / collector path constants / generator 出力先 path / 既存 doc 内 inbound link |
+
+### §7.2 撤退 timing per R-phase
+
+各 R-phase で **対応する撤退対象** を完全撤退する (= 部分撤退は禁止、phase 完了 = その phase の撤退対象 0 件):
+
+| Phase | 撤退対象 | 撤退 verify |
+|---|---|---|
+| **R1** | `references/01-principles/aag/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagInternalLocationGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `references/01-principles/aag/` 文字列 0 件 |
+| **R2** | `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagPublicInterfaceLocationGuard` + `referencesAagInterfaceLocationGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
+| **R3** | 旧 5 directory (`01-principles/`, `02-status/`, `03-guides/` 残部, `04-design-system/`, `05-contents/`) 物理 directory + 1,000+ inbound link + 138 guard / collector path constants + doc-registry / manifest entry path + generator 出力先 path + **PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照** + **CLAUDE.md 内 旧 section path** + 旧 naming (`recent-changes.md` suffix なし、`02-status/generated/*.md` suffix なし) | `oldPathReferenceGuard` で旧 path 文字列 0 件、`generatedFileEditGuard` で `*.generated.md` 手編集 0 件 |
+| **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementTaxonomyGuard` で旧 ID prefix 違反 0 件 |
+| **R5** | (= 撤退対象なし、新 articulation を `references/05-aag-interface/protocols/` に landing のみ) | `protocolsLocationGuard` で旧 location 0 件 |
+| **R6** | `projects/` root 直下の各 active project (6 件) → `projects` 配下 `active/` directoryに migrate + 旧 `_template/` (= 旧構造前提) → 新構造 migrate + `CURRENT_PROJECT.md` inline state 残置 → pointer-only | `projectsActiveCompletedGuard` + `currentProjectPointerOnlyGuard` で旧構造 0 件 |
+| **R7** | (= 各 R-phase で撤退済の総合 verify) | `boundaryIntegrityGuard` で全 boundary 違反 0 件 + pre-commit hook で逆戻り早期検出 |
+
+### §7.3 transitional period の articulate
+
+**migration 中** (= R-phase 進行中) の旧 / 新 path 共存 articulate:
+
+| 状態 | 旧 path 扱い | 新 path 扱い |
+|---|---|---|
+| R-phase 着手前 | active (= 全 reference 旧 path) | 未存在 |
+| R-phase 進行中 (= 同一 commit 内) | **共存禁止** (= 1 commit で完全 swap、partial migration は禁止) | 全 reference 新 path に update |
+| R-phase 完了後 | **0 件** (= guard で hard fail、= retired) | active |
+
+= **transitional period は 1 commit の中** に閉じる。複数 commit に跨る partial migration は禁止 (= drawer Pattern 1 不可侵原則 5「単一 commit で 2 phase まとめない」と同 lens の partial migration 禁止)。
+
+### §7.4 archive policy (= 撤退 doc の扱い)
+
+| ケース | 扱い |
+|---|---|
+| 旧 path から新 path に doc 移動 | `git mv` で物理移動、内容保持、旧 path 0 件残置 |
+| 旧 path doc が **削除対象** (= 例外、本 program では発生しない想定) | `requiresLegacyRetirement=false` 整合、削除なし |
+| `references/99-archive/` 内の immutable archive doc | **touch しない** (= archive policy 整合)、archive 内 旧 path mention は **archive-to-archive 例外**として `oldPathReferenceGuard` で許容 |
+| `projects/completed/` 内 archived project doc | **touch しない** (= immutable archive policy)、archive 内 旧 path mention は **archive-to-archive 例外** |
+
+### §7.5 撤退 verify mechanism
+
+各 R-phase 完了時の撤退 verify は **3 軸**:
+
+1. **物理 verify**: 旧 path に file 0 件 (= `find references/01-principles/aag/ -type f` で 0 件等)
+2. **string verify**: 旧 path 文字列 reference 0 件 (= `grep -r "references/01-principles/aag/" .` で 0 件、archive-to-archive 例外除く)
+3. **functional verify**: 旧 path 経路で reach 試行 → fail (= 旧 path 想定の test が必ず fail)
+
+3 軸全 PASS で撤退完了、いずれか fail なら R-phase 未完了。
+
+### §7.6 撤退漏れ防止 guard (= §6 と統合、ratchet-down baseline=0)
+
+- `oldPathReferenceGuard` (R3 landing) — 5 directory rename 時の旧 path 文字列残置検出
+- `generatedFileEditGuard` (R3 landing) — `*.generated.md` 手編集検出 (= 旧 convention で手編集試行)
+- 全 location guard 群 (R1-R6 landing) — 旧 location への新規 file 配置検出 (= 逆戻り防止)
+- `boundaryIntegrityGuard` (R7 統合) — 全撤退対象の集約 verify
+
+### §7.7 PR template / .github/* 撤退 articulate
+
+R3 で `references/03-guides/` rename 時に同時実施:
+
+- `.github/PULL_REQUEST_TEMPLATE.md` 内 path:
+  - `references/03-guides/responsibility-taxonomy-operations.md` (line 32)
+  - `references/03-guides/test-taxonomy-operations.md` (line 32)
+  - `references/02-status/taxonomy-review-journal.md` (line 36)
+  - `references/03-guides/extension-playbook.md` (line 41, 51)
+  - `references/03-guides/metric-id-registry.md` (line 46)
+  - `references/01-principles/engine-responsibility.md` (line 53)
+  - `references/01-principles/**` (line 78)
+  - `references/03-guides/aag-change-impact-template.md` (line 93)
+  - `references/02-status/generated/` (line 108)
+  - `references/01-principles/aag-*` / `AAG_*.md` (line 110)
+- → 全件 R3 で新 path に update、PR template 内 旧 path 0 件まで verify
+
+---
+
+## §8 推定 effort + ROI
 
 - effort: AAG Pilot の 5-10 倍 (= 数 ヶ月-1 年級、phase 別 verify 込み + 14 guard landing 込み)
 - value: AAG self-hosting closure 真の達成 + 主アプリ AI navigation 100% predictable + per-element drill-down + dashboard auto-detect + drawer 中核性 structural articulation + **14 guard で逆戻り防止 + 定着 mechanism**

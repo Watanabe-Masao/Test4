@@ -119,6 +119,7 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 | 2026-05-02 | `element-taxonomy.md` で ID prefix (WID / CHART / ENG / PAGE / FLOW) 正本化 user articulate | forward-fix: plan.md §3 R4 articulate update + R4 deliverable 追加 |
 | 2026-05-02 | `projects/` を active/ + completed/ split + `_template/` 新構造 migrate user articulate | forward-fix: plan.md §3 R6 articulate update + checklist.md R6 checkpoint 追加 |
 | 2026-05-02 | `CURRENT_PROJECT.md` を pointer 限定 + 機械検証 guard 化 user articulate | forward-fix: plan.md §3 R6 articulate update + currentProjectPointerOnlyGuard 追加 |
+| 2026-05-02 | **旧経路 / 旧制度 撤退プラン** を詰める user articulation (= 内容保持で物理 location 移動するが、旧 path / 旧 convention / 旧 mention の完全撤退は migration の通常範囲) | forward-fix: plan.md §7 新設 (= legacy retirement plan、撤退対象 4 種類 + per-R-phase timing + transitional period + archive exception + PR template / .github 撤退 articulate)、breaking-changes.md §5 拡充 (= 5.1-5.6 の 6 sub-section)。R-phase 完了 = その phase の撤退対象 0 件 articulate (= 撤退 verify 3 軸: 物理 / string / functional) |
 
 判定 (= 本 reframe 系列に対して): **部分的** — bootstrap 後の構造案に 1 件 境界矛盾 (= aag/interface/) があり、user 指摘で fix。本 articulation update で構造案 refinement 完了、R-phase 着手は本 commit 後の R0 から。
 
