@@ -2,18 +2,28 @@
 
 > 運用仕様書群。AIと人間が安全に作業するための設計制約・ルール・参照情報を格納する。
 
+## reader 別 routing (= 主アプリ改修 AI / AAG 改修者で読むべき範囲が異なる)
+
+| reader | 必読範囲 | 読まない範囲 |
+|---|---|---|
+| **主アプリ改修 AI / 人間** | `01-principles/` (excl. `aag/`) + `02-status/` + `03-guides/` (= drawer 含む) + `04-design-system/` + `05-contents/` | **`01-principles/aag/` (= AAG framework 内部、主アプリ改修に不要)** |
+| AAG framework 改修者 | `01-principles/aag/` + `aag/core/` + drawer (`03-guides/decision-articulation-patterns.md`) | (主アプリ業務 doc は context 把握のみで深読み不要) |
+
+**主アプリ改修 AI は `01-principles/aag/` を読む必要なし** (= AAG が AI に提供する **引き出し** = drawer は `03-guides/decision-articulation-patterns.md` に articulated 済、AAG 内部は引き出しの実装詳細であり主アプリ改修 AI からは black box)。
+
 ## 構造
 
-| ディレクトリ     | 内容                                                                                                                               | ファイル数 |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義、AAG）                                                             | 40         |
-| `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理）                                                                          | 24         |
-| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離）                                                    | 77         |
-| `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 1          |
-| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | 12         |
+> **honest articulation** (= drawer Pattern 4 self-application): 以下 5 directory は 3 lens (= 文書役割 / 対象領域 / lifecycle 状態) が混在しており、厳密な境界 articulate 統一はされていない (= 構造債務として認識、本 README 内の lens 注釈で navigation 補完)。full reorg は scope 大 (= 1,000+ inbound + 138 guard、drawer 中核性希薄化 risk) のため未着手。
 
-`04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。
-サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外。詳細は下部「Design System v2.1」セクションを参照。
+| ディレクトリ     | 内容 (= 何が articulated されている)                                                                                               | lens                  | reader            | ファイル数 |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------- | ---------- |
+| `01-principles/` | 設計原則・制約・正本定義書（Engine 境界、正本化原則、業務値定義 [= 主アプリ業務知識]、AAG [= framework 内部、主アプリ改修不要]）   | 設計原則 + framework  | 主アプリ + AAG    | 40         |
+| `02-status/`     | 進捗・品質状態（maturity, promotion, 品質監査, 課題管理 [= 動的 state]、recent-changes [= 履歴]、generated/ [= 機械生成 dashboard]） | 動的 state            | 主アプリ + AAG    | 24         |
+| `03-guides/`     | 実装ガイド・リファレンス（API, データモデル, ガードテスト, 不変条件, 責務分離 [= 主アプリ実装]、drawer Pattern 集 [= AAG 派生 protocol、領域 agnostic]、AAG-COA / project-checklist-governance [= AAG 運用 guide]） | 実装ガイド + 運用 guide | 主アプリ + AAG    | 77         |
+| `05-contents/`   | 実装要素の**現状把握台帳**（widget / chart / readModel の振る舞い事実カタログ。改修前提資料。3 軸 drift 防御: 存在 / 構造 / 時間） | 動的 evidence catalog | 主アプリ          | 1          |
+| `99-archive/`    | 旧文書の圧縮要約（現行では参照しない）                                                                                             | immutable archive     | (参照不要)        | 12         |
+
+`04-design-system/` は Design System v2.1（本体 `presentation/theme/` の外部 documentation layer）。サブディレクトリ `docs/` + `preview/` + `ui_kits/` を含む特殊構造のため上記表からは除外、reader = 主アプリ UI 改修者。詳細は下部「Design System v2.1」セクション。
 
 `05-contents/` は phased-content-specs-rollout Phase A〜J で `widgets/`（45 件）+ `read-models/`（10 件）+ `calculations/`（16 件、Lifecycle State Machine + canonicalRegistration sync + 双方向リンク対称性 + Behavior Claims (Phase J Evidence Level) institutionalize）+ `charts/`（5 件、Chart Input Builder Pattern 記録）+ `ui-components/`（5 件、selection rule 通過 UI 部品）の 5 サブカテゴリを保持。今後 `query-handlers/` / `pipelines/` / `projections/` 等の追加を想定（必要になったら増やす方針）。詳細は `05-contents/README.md` 参照。
 

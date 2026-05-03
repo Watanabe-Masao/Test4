@@ -4,8 +4,10 @@
 > change-bearing 作業全般で再利用可能な articulation pattern 集。
 >
 > **primary 適用領域**: 主アプリ改修。各 pattern は **領域 agnostic** に articulate されており、
-> 本 doc を引いた AI / 人間は **AAG framework 内部を読まずに** 適用できる
-> (= AAG が AI に提供する「引き出し」の 1 つ)。
+> 本 doc を引いた AI / 人間は **AAG framework 内部 (= `references/01-principles/aag/` + `aag/core/`) を一切読まずに** 適用できる
+> (= AAG が AI に提供する「引き出し」の core instance、本 doc が AAG への primary entry)。
+>
+> **重要**: 主アプリ改修で AAG framework articulate (= meta.md / strategy.md / architecture.md / etc.) を読みたくなった場合、それは **drawer の articulate 不足**を意味する可能性 (= 該当 Pattern が articulate されていない / 既存 Pattern が application 不足) が高い。drawer 経由で reach 不能な場合のみ AAG sub-tree を consult する (= drawer は `主アプリ AI ↔ AAG framework` の唯一の正規 interface)。
 >
 > **first instance**: 本 doc の各 pattern の Application instances 欄に
 > AAG Pilot (`projects/completed/aag-platformization/`) を **example** として記載。
