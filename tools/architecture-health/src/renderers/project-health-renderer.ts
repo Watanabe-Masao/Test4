@@ -152,7 +152,7 @@ export function renderProjectHealthMdContent(
   lines.push("");
   lines.push("> **役割: 生成された project KPI 正本（生成後手編集禁止）。**");
   lines.push(
-    "> 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)",
+    "> 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)",
   );
   lines.push("");
   lines.push(`> 生成: ${snapshot.timestamp}`);

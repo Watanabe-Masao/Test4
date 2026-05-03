@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T12:46:52.876Z",
+  "timestamp": "2026-05-03T13:00:21.379Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 133,
+      "value": 135,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -329,6 +329,7 @@
         "app/src/test/guards/freePeriodHandlerOnlyGuard.test.ts",
         "app/src/test/guards/freePeriodPathGuard.test.ts",
         "app/src/test/guards/fullCtxPassthroughGuard.test.ts",
+        "app/src/test/guards/generatedFileEditGuard.test.ts",
         "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
         "app/src/test/guards/grossProfitPathGuard.test.ts",
         "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
@@ -346,6 +347,7 @@
         "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
         "app/src/test/guards/noSafeNumberAtImportBoundaryGuard.test.ts",
         "app/src/test/guards/oldPathImportGuard.test.ts",
+        "app/src/test/guards/oldPathReferenceGuard.test.ts",
         "app/src/test/guards/orphanUiComponentGuard.test.ts",
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
@@ -592,7 +594,7 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 2,
       "unit": "count",
       "status": "fail",
       "owner": "documentation-steward",

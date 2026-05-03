@@ -73,7 +73,7 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
     //        WASM module は存在し将来の TS wrapper を anticipate する slot
     //     2. **active candidate** — physical .ts file が存在し dual-run 中
     //
-    //   spec は「物理実装の事実台帳」(05-contents/README.md) なので、planning-only slot は
+    //   spec は「物理実装の事実台帳」(04-tracking/elements/README.md) なので、planning-only slot は
     //   coverage 要件から exempt。physical landing が起きた瞬間、その file は active
     //   candidate 化し本 guard が「+1 over baseline」で hard fail させる (Promote Ceremony
     //   着手の自然な trigger)。

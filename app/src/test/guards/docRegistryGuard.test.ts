@@ -81,11 +81,11 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,
       registryLabel: 'doc-registry',
-      sourceLabel: '01-principles/',
+      sourceLabel: '01-foundation/',
       direction: 'source-to-registry',
     })
     const unregistered = violations
-      .map((v) => v.location.replace(/^01-principles\/: /, ''))
+      .map((v) => v.location.replace(/^01-foundation\/: /, ''))
       .filter((p) => actualFiles.includes(p))
 
     // ratchet baseline は 0 (固定)。動作同一性: 旧経路と同じく count > 0 で fail
@@ -97,7 +97,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       )
     }
     if (unregistered.length > 0) {
-      console.log(`\n[Doc Registry] 01-principles/ の未登録 .md:`)
+      console.log(`\n[Doc Registry] 01-foundation/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
     expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
@@ -115,11 +115,11 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,
       registryLabel: 'doc-registry',
-      sourceLabel: '03-guides/',
+      sourceLabel: '03-implementation/',
       direction: 'source-to-registry',
     })
     const unregistered = violations
-      .map((v) => v.location.replace(/^03-guides\/: /, ''))
+      .map((v) => v.location.replace(/^03-implementation\/: /, ''))
       .filter((p) => actualFiles.includes(p))
 
     const UNREGISTERED_BASELINE = 0
@@ -130,7 +130,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       )
     }
     if (unregistered.length > 0) {
-      console.log(`\n[Doc Registry] 03-guides/ の未登録 .md:`)
+      console.log(`\n[Doc Registry] 03-implementation/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
     expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
