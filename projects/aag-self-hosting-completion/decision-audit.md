@@ -93,12 +93,12 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: `<本 commit sha>` (= bootstrap commit、本 entry landing 後に記入)
-- preJudgementCommit: `<前 commit sha>` (= bootstrap 直前、aa2c62d = light improvement)
-- judgementTag: `aag-self-hosting-completion/DA-α-000-judgement` (本 commit に annotated tag landing)
-- rollbackTag: `aag-self-hosting-completion/DA-α-000-rollback-target` (前 commit に annotated tag landing)
+- judgementCommit: `b19518c` (= bootstrap commit、本 entry を含む実装 commit)
+- preJudgementCommit: `aa2c62d` (= bootstrap 直前、references/ light navigation improvement commit)
+- judgementTag: `aag-self-hosting-completion/DA-α-000-judgement` (`b19518c` に annotated tag landing 済)
+- rollbackTag: `aag-self-hosting-completion/DA-α-000-rollback-target` (`aa2c62d` に annotated tag landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — bootstrap 全実装 (skeleton 6 doc + DA-α-000 + open-issues 行追加 + operational-protocol-system pause articulate + doc-registry update)
+  - `b19518c` — bootstrap 全実装 (skeleton 6 doc + breaking-changes.md + DA-α-000 + open-issues 行追加 + operational-protocol-system pause articulate)
 
 ### 振り返り (本 program archive 直前 / TBD)
 
