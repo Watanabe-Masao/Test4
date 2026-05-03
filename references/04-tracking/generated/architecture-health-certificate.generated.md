@@ -5,9 +5,9 @@
 | 項目 | 値 |
 |---|---|
 | **総合評価** | **Healthy** |
-| 前回比 | Improved |
+| 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-05-03T13:02:57.556Z |
+| 最終更新 | 2026-05-03T13:16:46.781Z |
 
 ## Hard Gate
 
@@ -43,7 +43,10 @@
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| Doc 更新義務違反数 | 2 | 0 | -2 + |
+| Content Spec 総数 (全 kind) | 89 | 84 | -5 + |
+| Content Spec: chart/UIC visual evidence 未整備数 | 6 | 1 | -5 + |
+| Content Graph node 数 (= spec 総数) | 89 | 84 | -5 + |
+| Content Graph orphan 数 (in / out edge ゼロ spec) | 47 | 42 | -5 + |
 
 ## Recommended Actions
 

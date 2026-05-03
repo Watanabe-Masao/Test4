@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T13:02:57.556Z",
+  "timestamp": "2026-05-03T13:16:46.781Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -1354,7 +1354,7 @@
       "id": "contentSpec.total",
       "label": "Content Spec 総数 (全 kind)",
       "category": "docs",
-      "value": 89,
+      "value": 84,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1434,7 +1434,7 @@
       "id": "contentSpec.evidenceUncovered",
       "label": "Content Spec: chart/UIC visual evidence 未整備数",
       "category": "docs",
-      "value": 6,
+      "value": 1,
       "unit": "count",
       "status": "ok",
       "owner": "implementation",
@@ -1554,7 +1554,7 @@
       "id": "contentGraph.nodes.count",
       "label": "Content Graph node 数 (= spec 総数)",
       "category": "guard",
-      "value": 89,
+      "value": 84,
       "unit": "count",
       "status": "ok",
       "owner": "implementation",
@@ -1592,7 +1592,7 @@
       "id": "contentGraph.orphans.count",
       "label": "Content Graph orphan 数 (in / out edge ゼロ spec)",
       "category": "guard",
-      "value": 47,
+      "value": 42,
       "unit": "count",
       "status": "ok",
       "owner": "implementation",

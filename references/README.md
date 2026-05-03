@@ -151,11 +151,11 @@
 
 | 型番           | export                         | 配置                                                              | builders / logic / vm                              |
 | -------------- | ------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------- |
-| `CHART-001.md` | `SalesPurchaseComparisonChart` | `presentation/components/charts/SalesPurchaseComparisonChart.tsx` | builders 有 / 他 -（WID-006 子）                   |
-| `CHART-002.md` | `PerformanceIndexChart`        | `presentation/components/charts/PerformanceIndexChart.tsx`        | builders 有 / 他 -（WID-018 子、PI 値）            |
-| `CHART-003.md` | `BudgetVsActualChart`          | `presentation/components/charts/BudgetVsActualChart.tsx`          | builders + vm（reference 実装）                    |
-| `CHART-004.md` | `CustomerScatterChart`         | `presentation/components/charts/CustomerScatterChart.tsx`         | builders 有 / 他 -（WID-017 子）                   |
-| `CHART-005.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`       | logic 有（chartRenderingStructureGuard reference） |
+| `CHART-001/README.md` | `SalesPurchaseComparisonChart` | `presentation/components/charts/SalesPurchaseComparisonChart.tsx` | builders 有 / 他 -（WID-006 子）                   |
+| `CHART-002/README.md` | `PerformanceIndexChart`        | `presentation/components/charts/PerformanceIndexChart.tsx`        | builders 有 / 他 -（WID-018 子、PI 値）            |
+| `CHART-003/README.md` | `BudgetVsActualChart`          | `presentation/components/charts/BudgetVsActualChart.tsx`          | builders + vm（reference 実装）                    |
+| `CHART-004/README.md` | `CustomerScatterChart`         | `presentation/components/charts/CustomerScatterChart.tsx`         | builders 有 / 他 -（WID-017 子）                   |
+| `CHART-005/README.md` | `GrossProfitAmountChart`       | `presentation/components/charts/GrossProfitAmountChart.tsx`       | logic 有（chartRenderingStructureGuard reference） |
 
 完全割当表は `04-tracking/elements/charts/README.md` §「初期割当表」参照。
 

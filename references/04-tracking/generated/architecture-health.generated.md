@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-03T13:02:57.556Z
+> Generated: 2026-05-03T13:16:46.781Z
 > Schema: v1.0.0
 > 正本: `references/04-tracking/generated/architecture-health.json`
 
@@ -71,9 +71,9 @@
 | integrity.driftBudget | Integrity drift budget (deferred pair 数) | 1 / 2 | OK |
 | integrity.expiredExceptions | Integrity 関連 file の @expiresAt 過去日 markers (Hard Gate) | 0 / 0 | OK |
 | integrity.consolidationProgress | Integrity consolidation progress (migrated / total) | 92.3 / 90 | OK |
-| contentGraph.nodes.count | Content Graph node 数 (= spec 総数) | 89 / 89 | OK |
+| contentGraph.nodes.count | Content Graph node 数 (= spec 総数) | 84 / 89 | OK |
 | contentGraph.edges.count | Content Graph edge 数 (spec 間 reference) | 47 / 0 | OK |
-| contentGraph.orphans.count | Content Graph orphan 数 (in / out edge ゼロ spec) | 47 / 100 | OK |
+| contentGraph.orphans.count | Content Graph orphan 数 (in / out edge ゼロ spec) | 42 / 100 | OK |
 
 ## ドキュメント整合
 
@@ -94,11 +94,11 @@
 | project.checklist.subprojectCount | サブ project 数（parent フィールドあり） | 8 | OK |
 | docs.testContract.declared | CLAUDE.md テスト契約宣言数 | 6 | OK |
 | docs.testContract.violations | CLAUDE.md テスト契約違反数 | 0 | OK |
-| contentSpec.total | Content Spec 総数 (全 kind) | 89 | OK |
+| contentSpec.total | Content Spec 総数 (全 kind) | 84 | OK |
 | contentSpec.missingOwner | Content Spec: owner 未設定数 | 0 | OK |
 | contentSpec.stale | Content Spec: lastReviewedAt cadence 超過数 | 0 | OK |
 | contentSpec.lifecycleViolation | Content Spec: lifecycle 必須 field 違反数 | 0 | OK |
-| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 6 | OK |
+| contentSpec.evidenceUncovered | Content Spec: chart/UIC visual evidence 未整備数 | 1 | OK |
 
 ## バンドル性能
 

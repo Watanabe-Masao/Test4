@@ -1150,23 +1150,23 @@
           "label": "charts 仕様書カタログ — Phase E で導入、Chart Input Builder Pattern (builders / logic / vm / optionBuilder / styles) 三層を frontmatter で記録"
         },
         {
-          "path": "references/04-tracking/elements/charts/CHART-001.md",
+          "path": "references/04-tracking/elements/charts/CHART-001/README.md",
           "label": "CHART-001 売上・仕入 店舗比較 (SalesPurchaseComparisonChart) — WID-006 子、SP-B Phase 6.5-5a で storeDailyLane 経由化、storeDailyLaneSurfaceGuard 準拠"
         },
         {
-          "path": "references/04-tracking/elements/charts/CHART-002.md",
+          "path": "references/04-tracking/elements/charts/CHART-002/README.md",
           "label": "CHART-002 PI 値・偏差値・Z スコア (PerformanceIndexChart) — WID-018 子、CALC-002 計算結果可視化、RM-005 ready/fallback 経路"
         },
         {
-          "path": "references/04-tracking/elements/charts/CHART-003.md",
+          "path": "references/04-tracking/elements/charts/CHART-003/README.md",
           "label": "CHART-003 予算 vs 実績チャート (BudgetVsActualChart) — Chart Input Builder Pattern 完備の reference 実装 (builders + vm)"
         },
         {
-          "path": "references/04-tracking/elements/charts/CHART-004.md",
+          "path": "references/04-tracking/elements/charts/CHART-004/README.md",
           "label": "CHART-004 客数×客単価 効率分析 (CustomerScatterChart) — WID-017 子、当期/前年同期の散布図比較"
         },
         {
-          "path": "references/04-tracking/elements/charts/CHART-005.md",
+          "path": "references/04-tracking/elements/charts/CHART-005/README.md",
           "label": "CHART-005 粗利推移チャート (GrossProfitAmountChart) — WID-003 子、Logic.ts 経由描画 (chartRenderingStructureGuard reference)"
         },
         {

@@ -1,6 +1,6 @@
 {
   "$comment": "spec 間の依存 graph (Phase A #2 初版)。consumedReadModels / consumedQueryHandlers / children を edge として抽出。to が spec id とは限らない (domain name / component name 経由)、後続 batch で name → spec id mapping 追加予定。",
-  "generatedAt": "2026-05-03T13:02:57.555Z",
+  "generatedAt": "2026-05-03T13:16:46.780Z",
   "nodes": [
     {
       "id": "WID-001",
@@ -319,26 +319,6 @@
       "kind": "calculation"
     },
     {
-      "id": "CHART-001",
-      "kind": "chart"
-    },
-    {
-      "id": "CHART-002",
-      "kind": "chart"
-    },
-    {
-      "id": "CHART-003",
-      "kind": "chart"
-    },
-    {
-      "id": "CHART-004",
-      "kind": "chart"
-    },
-    {
-      "id": "CHART-005",
-      "kind": "chart"
-    },
-    {
       "id": "UIC-001",
       "kind": "ui-component"
     },
@@ -597,8 +577,8 @@
     }
   ],
   "stats": {
-    "nodeCount": 89,
+    "nodeCount": 84,
     "edgeCount": 47,
-    "orphanCount": 47
+    "orphanCount": 42
   }
 }
