@@ -11,6 +11,7 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
+| `operational-protocol-system` | project | AAG Operational Protocol System — Task / Session / Complexity 運用制度 (= AAG Pilot 完遂後の post-Pilot 運用層、M1-M5 phase で 4 doc を references/03-guides/ に新設、AAG framework / 主アプリ code には触らない) | [`projects/operational-protocol-system/AI_CONTEXT.md`](../../projects/operational-protocol-system/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |

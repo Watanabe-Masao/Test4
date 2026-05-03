@@ -183,7 +183,6 @@
 | AAG Core doc audit report (Phase 3 deliverable)                                                        | `02-status/aag-doc-audit-report.md`                             |
 | AR-rule binding 品質基準 protocol (Project B Phase 3 batch 1)                                          | `02-status/ar-rule-audit.md`                                    |
 | 直近の主要変更                                                                                         | `02-status/recent-changes.md`                                   |
-| 運用プロトコル制度 charter draft (post-AAG-Pilot、bootstrap 前 articulation)                           | `02-status/operational-protocol-charter-draft.md`               |
 | プロジェクト構成                                                                                       | `02-status/project-structure.md`                                |
 | PI値昇格準備度                                                                                         | `02-status/promotion-readiness-piValue.md`                      |
 | 客数GAP昇格準備度                                                                                      | `02-status/promotion-readiness-customerGap.md`                  |

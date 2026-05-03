@@ -686,10 +686,6 @@
         {
           "path": "references/02-status/generated/architecture-debt-recovery-remediation.md",
           "label": "architecture-debt-recovery Remediation 進捗 (Markdown)"
-        },
-        {
-          "path": "references/02-status/operational-protocol-charter-draft.md",
-          "label": "AAG Operational Protocol System charter draft (post-Pilot 運用制度提案、bootstrap 前 articulation、起動 ≠ commit、user trigger 待ち、M1-M5 phase 構造 + 不可侵原則 6 件 + scope 外 articulate)"
         }
       ]
     },

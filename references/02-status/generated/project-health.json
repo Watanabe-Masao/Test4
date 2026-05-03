@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-02T23:34:58.482Z",
+  "timestamp": "2026-05-03T00:49:24.785Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 37,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1282,
-    "checkedCheckboxes": 1212
+    "totalCheckboxes": 1343,
+    "checkedCheckboxes": 1217
   },
   "projects": [
     {
@@ -378,6 +378,19 @@
       "progress": 0,
       "entrypoint": "projects/integrity-framework-evolution/AI_CONTEXT.md",
       "checklistPath": "projects/integrity-framework-evolution/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "operational-protocol-system",
+      "title": "AAG Operational Protocol System — Task / Session / Complexity 運用制度",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 5,
+      "total": 61,
+      "progress": 0.082,
+      "entrypoint": "projects/operational-protocol-system/AI_CONTEXT.md",
+      "checklistPath": "projects/operational-protocol-system/checklist.md",
       "parent": null
     },
     {
