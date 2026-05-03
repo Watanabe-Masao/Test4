@@ -11,7 +11,8 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `operational-protocol-system` | project | AAG Operational Protocol System — Task / Session / Complexity 運用制度 (= AAG Pilot 完遂後の post-Pilot 運用層、M1-M5 phase で 4 doc を references/03-guides/ に新設、AAG framework / 主アプリ code には触らない) | [`projects/operational-protocol-system/AI_CONTEXT.md`](../../projects/operational-protocol-system/AI_CONTEXT.md) |
+| `aag-self-hosting-completion` | project | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 (= AAG framework の entry navigation level での self-hosting failure を structural reorganization で解消、Level 3 + architecture-refactor、R1-R7 phase) | [`projects/aag-self-hosting-completion/AI_CONTEXT.md`](../../projects/aag-self-hosting-completion/AI_CONTEXT.md) |
+| `operational-protocol-system` | project | **⏸ PAUSED** — AAG Operational Protocol System (Task / Session / Complexity 運用制度)。aag-self-hosting-completion R5 完了で resume + M1 着手予定 (= M1 deliverable は aag/interface/protocols/ に直接 landing する設計) | [`projects/operational-protocol-system/AI_CONTEXT.md`](../../projects/operational-protocol-system/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |

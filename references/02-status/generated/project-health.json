@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T02:51:51.367Z",
+  "timestamp": "2026-05-03T03:25:30.403Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 37,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1343,
-    "checkedCheckboxes": 1217
+    "totalCheckboxes": 1446,
+    "checkedCheckboxes": 1222
   },
   "projects": [
     {
@@ -153,6 +153,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-self-hosting-completion",
+      "title": "AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 5,
+      "total": 103,
+      "progress": 0.049,
+      "entrypoint": "projects/aag-self-hosting-completion/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-self-hosting-completion/checklist.md",
       "parent": null
     },
     {
