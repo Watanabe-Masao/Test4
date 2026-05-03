@@ -50,7 +50,10 @@ import { RESPONSIBILITY_TAG_REGISTRY_V2 } from '../responsibilityTaxonomyRegistr
 import { TEST_TAXONOMY_REGISTRY_V2 } from '../testTaxonomyRegistryV2'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
-const REVIEW_JOURNAL = path.resolve(PROJECT_ROOT, 'references/04-tracking/taxonomy-review-journal.md')
+const REVIEW_JOURNAL = path.resolve(
+  PROJECT_ROOT,
+  'references/04-tracking/taxonomy-review-journal.md',
+)
 
 const VALID_LIFECYCLE = new Set([
   'proposed',

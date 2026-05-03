@@ -459,16 +459,20 @@ describe('Project Completion Consistency Guard', () => {
 
     it('shouldSkipForLinkCheck は CHANGELOG / generated / projects/completed / _template を除外する', () => {
       expect(shouldSkipForLinkCheck('CHANGELOG.md')).toBe(true)
-      expect(shouldSkipForLinkCheck('references/04-tracking/generated/project-health.generated.md')).toBe(true)
+      expect(
+        shouldSkipForLinkCheck('references/04-tracking/generated/project-health.generated.md'),
+      ).toBe(true)
       expect(
         shouldSkipForLinkCheck('projects/completed/docs-and-governance-cohesion/plan.md'),
       ).toBe(true)
       expect(shouldSkipForLinkCheck('projects/_template/AI_CONTEXT.md')).toBe(true)
       // 除外しないケース
       expect(shouldSkipForLinkCheck('CLAUDE.md')).toBe(false)
-      expect(shouldSkipForLinkCheck('references/05-aag-interface/operations/project-checklist-governance.md')).toBe(
-        false,
-      )
+      expect(
+        shouldSkipForLinkCheck(
+          'references/05-aag-interface/operations/project-checklist-governance.md',
+        ),
+      ).toBe(false)
       expect(shouldSkipForLinkCheck('projects/pure-calculation-reorg/AI_CONTEXT.md')).toBe(false)
     })
   })

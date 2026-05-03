@@ -64,8 +64,7 @@ export interface MergedArtifact {
 }
 
 export const ARTIFACT_OUTPUT_PATH = 'docs/generated/aag/merged-architecture-rules.json'
-export const CANONICAL_MERGE_POLICY =
-  'aag/_internal/source-of-truth.md §4 (Merge Policy)'
+export const CANONICAL_MERGE_POLICY = 'aag/_internal/source-of-truth.md §4 (Merge Policy)'
 
 function getRepoRoot(): string {
   return resolve(__dirname, '../../../..')

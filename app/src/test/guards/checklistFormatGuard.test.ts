@@ -213,7 +213,9 @@ function formatViolations(violations: readonly FormatViolation[]): string {
   }
   lines.push('')
   lines.push('修正手順: projects/_template/checklist.md を参照して規格に揃えるか、')
-  lines.push('references/05-aag-interface/operations/project-checklist-governance.md §3 (書き方の規格) を読む。')
+  lines.push(
+    'references/05-aag-interface/operations/project-checklist-governance.md §3 (書き方の規格) を読む。',
+  )
   return lines.join('\n')
 }
 
