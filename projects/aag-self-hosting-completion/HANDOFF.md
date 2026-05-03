@@ -4,30 +4,31 @@
 
 ## 1. 現在地
 
-**Phase 0 (Bootstrap) のみ landed**。AAG Pilot 完遂 + operational-protocol-system bootstrap 後、user articulation で AAG framework の **entry navigation level での self-hosting failure** が articulate されたため、structural reorganization を AAG-REQ-SELF-HOSTING の真の closure 達成 program として bootstrap (本 commit)。
+**Phase 0 (Bootstrap) のみ landed**。AAG Pilot 完遂 + operational-protocol-system bootstrap 後、user articulation で AAG framework の **entry navigation level での self-hosting failure** が articulate され、structural reorganization を bootstrap (commit b19518c / 4d189a1)。本 commit で **構造案 refinement** (= aag/interface/* の境界矛盾を解消、14 guard 体系 + 命名規約 + 定着 mechanism articulate) を反映。
 
-- 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済
+- 必須セット 6 ファイル + breaking-changes.md + DA-α-000 (進行モデル) landing 済
 - AAG-COA Level 3 + architecture-refactor + breakingChange=true で articulate
-- operational-protocol-system project は本 program R5 で再開予定 (= pause articulated in operational-protocol-system HANDOFF.md §3.6)
-- 実装 0 件 → **R1 (AAG sub-tree relocation) から articulation 開始**
+- operational-protocol-system project は本 program R5 で再開予定 (= ⏸ PAUSED articulated)
+- 構造案 refinement: aag/interface/* → references/05-aag-interface/* (境界矛盾解消) + aag/{_internal,_framework}/ 構造 + 14 ratchet-down Hard guard + `*.generated.md` 命名規約 + element-taxonomy + projects active/completed split + CURRENT_PROJECT pointer-only
+- 実装 0 件 → **R0 (境界定義先行) から articulation 開始**
 
 ## 2. 次にやること
 
 詳細: `checklist.md` / `plan.md` §3。
 
-### 高優先 (Phase R1 着手)
+### 高優先 (Phase R0 着手)
 
-**R1: AAG sub-tree relocation** (= 101 inbound update + boundary structural articulation)
+**R0: 境界定義先行** (= 構造変更前に 3 tree (references / aag / projects) 境界を articulate、後続 R-phase で AI / 人間が物理配置から「読む / 読まない」を即判断できる state を確立)
 
-- [ ] DA-α-001 entry landing (= R1 着手判断、5 軸 + 観測点 + Lineage)
-- [ ] `aag/_internal/` 新設 + `references/01-principles/aag/` 9 doc を移動
-- [ ] `aag/interface/` 新設 (= drawer 配置のための skeleton、R2 で fill)
-- [ ] 101 file の inbound link 全 update
-- [ ] guard / collector の path constants 該当箇所 update
-- [ ] doc-registry.json + manifest.json reorganize entry
+- [ ] DA-α-001 entry landing (= R0 着手判断、5 軸 + 観測点 + Lineage)
+- [ ] `references/README.md` update (= 主アプリ改修 AI / 人間の knowledge interface)
+- [ ] `aag/README.md` 新設 (= AAG framework 本体、`_internal/` + `_framework/` skeleton)
+- [ ] projects/ root の README.md update (= 作業単位 lens、active + completed)
+- [ ] `CURRENT_PROJECT.md` update (= active project pointer 限定)
+- [ ] `CLAUDE.md` update (= 3 tree 境界 + reader-別 routing 1 section)
 - [ ] verify 全 PASS (= 944 test + docs:check + lint + build)
 
-R2-R7 詳細は `plan.md` 参照。
+R1-R7 詳細は `plan.md` 参照 (= R1 AAG sub-tree relocation / R2 references/05-aag-interface/ / R3 directory rename + naming / R4 per-element + dashboard + taxonomy / R5 protocols landing / R6 self-hosting closure + projects/ split / R7 統合 guard + verify + archive)。
 
 ## 3. ハマりポイント
 

@@ -11,13 +11,16 @@
 | Phase | 旧 path | 新 path | 影響範囲 |
 |---|---|---|---|
 | R1 | `references/01-principles/aag/<doc>.md` (9 doc) | `aag/_internal/<doc>.md` | 101 inbound link (= 全 file 内 reference) |
-| R2 | `references/03-guides/decision-articulation-patterns.md` | `aag/interface/drawer/decision-articulation-patterns.md` | 該当 inbound 全 update |
-| R2 | `references/03-guides/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | `aag/interface/operations/<doc>.md` | 該当 inbound 全 update |
+| R2 | `references/03-guides/decision-articulation-patterns.md` | **`references/05-aag-interface/drawer/decision-articulation-patterns.md`** | 該当 inbound 全 update |
+| R2 | `references/03-guides/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | **`references/05-aag-interface/operations/<doc>.md`** | 該当 inbound 全 update |
 | R3 | `references/01-principles/<doc>.md` | `references/01-foundation/<doc>.md` | 多数 (= 主アプリ業務 doc 全 reference) |
 | R3 | `references/02-status/<doc>.md` | `references/04-tracking/<doc>.md` | 多数 |
 | R3 | `references/04-design-system/<doc>.md` | `references/02-design-system/<doc>.md` | 22 inbound |
 | R3 | `references/03-guides/<doc>.md` (= AAG-related は R2 で migrate 済) | `references/03-implementation/<doc>.md` | 多数 |
 | R3 | `references/05-contents/<category>/<id>.md` | `references/04-tracking/elements/<category>/<id>.md` (= R4 で directory 化) | 46 inbound |
+| R3 | `references/02-status/recent-changes.md` | `references/04-tracking/recent-changes.generated.md` (= 機械生成化、suffix 付与) | 多数 |
+| R3 | `references/02-status/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= directory 移動 + suffix 付与) | 多数 |
+| R6 | ``projects` 配下 active project directory` (各 active project 6 件) | `projects` 配下 `active/<active-id>` directory | inbound update |
 
 ### 1.2 guard / collector path constants (= 138 file 影響)
 
@@ -58,6 +61,13 @@
 - 外部 reference (= 例: 主アプリ AI が context として読む path) → **migration 期間中の transient broken risk** (= phase 別 verify で mitigation)
 
 ## 3. 移行方針 (= R-phase 別)
+
+### R0 移行方針 (= 境界定義先行、構造変更前)
+
+1. `references/README.md` + `aag/README.md` (新設) + projects/ root の README.md + `CURRENT_PROJECT.md` + `CLAUDE.md` を articulate update (= 物理移動なし、articulate のみ)
+2. 3 tree (references / aag / projects) の境界 articulate (= reader-別 routing)
+3. `*.generated.md` 命名規約予告 articulate (= R3 以降適用)
+4. test:guards で 944 維持 verify (= 構造未変更、breaking なし)
 
 ### R1 移行方針
 

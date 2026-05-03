@@ -40,13 +40,20 @@ operational-protocol-system project は本 program R5 で再開、M1 deliverable
 
 含む:
 
-- AAG framework の **物理 location 移動** (= references/01-principles/aag/ → aag/_internal/ + aag/interface/)
+- **境界定義先行 (R0)** — `references/README.md` + `aag/README.md` (新設) + projects/ root の README.md + `CURRENT_PROJECT.md` + `CLAUDE.md` で 3 tree (= references / aag / projects) の境界を articulate (構造変更前に 物理配置の意味を明確化)
+- AAG framework の **物理 location 移動** (= `references/01-principles/aag/` → `aag/_internal/`、`aag/_framework/` skeleton 新設)
+- **AAG public interface を references/ 配下に移動** (= `aag/interface/*` → `references/05-aag-interface/{drawer,protocols,operations}/`、aag/ は framework 本体に純化)
 - references/ directory rename (= 01-principles → 01-foundation / 02-status → 04-tracking / 04-design-system → 02-design-system / 03-guides → 03-implementation)
-- per-element directory + dashboard layer 新設 (= 04-tracking/elements/ + 04-tracking/dashboards/)
+- per-element directory + dashboard layer 新設 (= `references/04-tracking/elements/` + `references/04-tracking/dashboards/`)
+- **`*.generated.md` 命名規約適用** (= `references/04-tracking/` 配下の機械生成 file は file 名で明示、手編集禁止)
+- **`element-taxonomy.md` articulate** (= ID prefix 正本: WID-* / CHART-* / ENG-* / PAGE-* / FLOW-*)
+- **`projects/` を active/ + completed/ に分離** (= 作業単位 lens 純化)
+- **`CURRENT_PROJECT.md` を pointer 限定** (= 詳細進捗 / 判断は `projects` 配下 `active/<id>`/ に集約、二重管理防止)
 - 全 inbound link migration (= 1,000+ 件)
 - 全 guard / collector path constants update (= 138 件)
 - doc-registry.json + manifest.json reorganize
 - AAG meta.md §2.1 で AAG-REQ-SELF-HOSTING を「完全達成」に articulate update (R6)
+- 新 guard 追加 (= `*.generated.md` 手編集検出 / 境界違反検出 = 5 種類想定、R7)
 
 含まない:
 

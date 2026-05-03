@@ -109,6 +109,29 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 - 学習: TBD
 - retrospectiveCommit / Tag: TBD
 
-### 軌道修正 (判定 "部分的" / "間違い" のみ)
+### 軌道修正 — 構造案 refinement (= 本 session 中 sub-event、forward-fix)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+| date | event | 対応 |
+|---|---|---|
+| 2026-05-02 | bootstrap 直後の構造案で `aag/interface/*` (= drawer / protocols / operations) を articulate、ただし「主アプリ改修者 not read」と articulate した aag/ 配下に「主アプリ改修者も使う」doc を配置 = 境界矛盾 (= 物理配置から AI 誤読 risk) を user 指摘で identify | forward-fix: `aag/interface/*` → `references/05-aag-interface/*` に articulate update、aag/ は framework 本体に純化 (`_internal/` + `_framework/`)。plan.md §3 R2 + §5 関連実装 path table 更新済 (本 commit) |
+| 2026-05-02 | 「逆戻り防止 + 定着 mechanism」を user articulate、各 R-phase で landing する Hard guard を ratchet-down baseline=0 で 体系化 | forward-fix: plan.md §6 新設 (= 定着 mechanism + 逆戻り防止 guard、14 guard 一覧)、checklist.md 各 R-phase に guard checkpoint 追加 |
+| 2026-05-02 | `*.generated.md` 命名規約を user articulate (= 手書き / 機械生成を file 名で明示) | forward-fix: plan.md §3 R3 articulate update、04-tracking/ 配下全 generated file に suffix 適用 (= R3) |
+| 2026-05-02 | `element-taxonomy.md` で ID prefix (WID / CHART / ENG / PAGE / FLOW) 正本化 user articulate | forward-fix: plan.md §3 R4 articulate update + R4 deliverable 追加 |
+| 2026-05-02 | `projects/` を active/ + completed/ split + `_template/` 新構造 migrate user articulate | forward-fix: plan.md §3 R6 articulate update + checklist.md R6 checkpoint 追加 |
+| 2026-05-02 | `CURRENT_PROJECT.md` を pointer 限定 + 機械検証 guard 化 user articulate | forward-fix: plan.md §3 R6 articulate update + currentProjectPointerOnlyGuard 追加 |
+
+判定 (= 本 reframe 系列に対して): **部分的** — bootstrap 後の構造案に 1 件 境界矛盾 (= aag/interface/) があり、user 指摘で fix。本 articulation update で構造案 refinement 完了、R-phase 着手は本 commit 後の R0 から。
+
+DA-α-000 自体は active のまま継続、judgement model (= AI judgement + retrospective + commit-bound rollback) は不変。
+
+### scope 外 articulate — 後続 program candidate (= 本 program に統合しない)
+
+| candidate | 内容 | trigger 条件 | 起動 timing |
+|---|---|---|---|
+| **CHANGELOG management mechanism** | 主アプリ CHANGELOG.md と AAG CHANGELOG.md を **分離** + 各 project (= `projects` 配下 `active/<id>`/) で per-project CHANGELOG を articulate + AAG mechanism (= guard / collector) で更新抜け検出 (= 古くなった CHANGELOG vs recent-changes.generated.md の drift 自動検出) | user articulation (= 本 session 反映)、aag-self-hosting-completion R3 完了で 04-tracking/ 構造確立後が適切 | aag-self-hosting-completion R3 完了後 user 判断で別 program bootstrap (= scope discipline、本 program に統合しない) |
+
+CHANGELOG mechanism は本 program scope **外** (= 不可侵原則 1「主アプリ code touch しない」+ scope discipline = 1 program 1 focus)。本 program は **structural reorganization** に focus、CHANGELOG governance は **04-tracking/ 構造を前提** に別 program で実施するのが論理順序。
+
+本 program 内では:
+- R3 で `recent-changes.md` を `recent-changes.generated.md` に rename (= 機械生成化、CHANGELOG mechanism の前提整備)
+- それ以外の CHANGELOG 関連は touch しない (= scope 外)
