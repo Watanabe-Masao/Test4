@@ -515,12 +515,12 @@ User articulation (= 4 message 連鎖、本 turn):
 
 ### Commit Lineage
 
-- judgementCommit: `<実 sha = 本 DA 実装 commit>`
+- judgementCommit: `5042dcc`
 - preJudgementCommit: `fc53487` (= R3b 完了 + format fix + docs regen 後の最後の clean state)
-- judgementTag: `aag-self-hosting-completion/DA-β-001-judgement` (= 本 commit に landing 予定)
+- judgementTag: `aag-self-hosting-completion/DA-β-001-judgement` (= `5042dcc` に landing 済)
 - rollbackTag: `aag-self-hosting-completion/DA-β-001-rollback-target` (= `fc53487` に landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — DA-β-001 全実装 (= skip-rules.json + pre-push hook 改修 + skipBaseline guard)
+  - `5042dcc` — DA-β-001 全実装 (= skip-rules.json + skip-rules-evaluator.mjs + pre-push hook 改修 + prePushSkipRulesGuard.test.ts + guard-test-map 登録)
 
 ### 振り返り (DA-β-001 完了直後 = TBD)
 
