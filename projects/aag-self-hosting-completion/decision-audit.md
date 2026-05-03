@@ -627,12 +627,12 @@ institute する。
 
 ### Commit Lineage
 
-- judgementCommit: `<実 sha = 本 DA 実装 commit>`
+- judgementCommit: `ff7ec23`
 - preJudgementCommit: `103717c` (= R3c P1 batch 完了 commit)
-- judgementTag: `aag-self-hosting-completion/DA-β-002-judgement` (= 本 commit に landing 予定)
+- judgementTag: `aag-self-hosting-completion/DA-β-002-judgement` (= `ff7ec23` に landing 済)
 - rollbackTag: `aag-self-hosting-completion/DA-β-002-rollback-target` (= `103717c` に landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — DA-β-002 全実装 (= section template + 4+1 checklists + PZ-13 + policy update)
+  - `ff7ec23` — DA-β-002 全実装 (= AI 自己レビュー section template + 5 active project + _template + PZ-13 guard + projectization-policy + project-checklist-governance §3.2 + guard-test-map + regen)
 
 ### 振り返り (DA-β-002 完了直後 = TBD)
 
