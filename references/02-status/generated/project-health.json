@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T06:08:20.770Z",
+  "timestamp": "2026-05-03T09:30:42.131Z",
   "summary": {
     "active": 6,
     "archived": 37,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1479,
+    "totalCheckboxes": 1505,
     "checkedCheckboxes": 1224
   },
   "projects": [
@@ -162,8 +162,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 7,
-      "total": 136,
-      "progress": 0.051,
+      "total": 162,
+      "progress": 0.043,
       "entrypoint": "projects/aag-self-hosting-completion/AI_CONTEXT.md",
       "checklistPath": "projects/aag-self-hosting-completion/checklist.md",
       "parent": null

@@ -161,7 +161,7 @@ partial migration を複数 commit に跨いで実施する case は **禁止** 
 | `recent-changes.md` (suffix なし、手書き) | R3 | `recent-changes.generated.md` (機械生成) |
 | `02-status/generated/*.md` (suffix なし、directory のみで articulate) | R3 | `04-tracking/generated/*.generated.md` (= file 名 + directory で 2 重 articulate) |
 | projects/ root に flat active project 配置 | R6 | `projects` 配下 `active/` directory に articulate |
-| `CURRENT_PROJECT.md` inline state articulate | R6 | pointer-only に固定、`currentProjectPointerOnlyGuard` で機械検証 |
+| `CURRENT_PROJECT.md` inline state articulate | R6 | pointer-only に固定、`projectsStructureGuard` で機械検証 |
 | AAG-related guide が主アプリ実装ガイドと同 directory (= `03-guides/` 内混在) | R2 | `references/05-aag-interface/` 純化 (= reader-別 separation) |
 | aag/ vs references/ boundary 不在 | R0 articulate + R1-R2 物理移動 | structural separation |
 | section-level GENERATED marker のみ (= file 名 hint なし) | R3 (file-level優先 articulate)、R7 (機械検証) | file-level `*.generated.md` で第一優先、section marker は補助 |

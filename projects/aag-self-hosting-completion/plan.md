@@ -6,17 +6,19 @@
 
 ---
 
-## §1 不可侵原則 7 件
+## §1 不可侵原則 8 件
 
 | # | 原則 | 違反時 |
 |---|---|---|
 | 1 | 主アプリ code (`app/src/`, `app-domain/`, `wasm/`) を **touch しない** | revert |
-| 2 | AAG framework articulate **内容** を改変しない (= 物理 location のみ移動、articulate text 不変、ただし R6 で meta.md §2.1 self-hosting closure 部分のみ honest update 例外) | revert |
+| **2a** | AAG framework articulate **内容** (= text / 意味論) を改変しない (= 物理 location のみ移動、articulate text 不変、ただし R6 で meta.md §2.1 self-hosting closure 部分のみ honest update 例外) | revert |
+| **2b** | AAG framework **構造** (= directory layout / sub-directory 追加) は本 program scope 内 (= R1 で `aag/_internal/` + `aag/_framework/` skeleton 新設は scope 内、不可侵原則違反ではない、ただし新 directory が articulate 不要な内容変更を引き起こすことは禁止) | revert |
 | 3 | Standard / drawer / 5 文書 template の articulate 内容を改変しない (= 物理 location 移動のみ) | revert |
 | 4 | 既存 functionality を **100% 維持** (= 内容保持、phase 別 verify で 0 functionality loss) | revert |
-| 5 | 各 R-phase は **judgement commit + rollback tag** で完結 (= drawer Pattern 1 application、1 commit に 2 phase まとめない) | revert |
-| 6 | 各 R-phase に observation 観測点 ≥ 5 件 (= drawer Pattern 6 application、反証可能 ≥ 1) | scope 外 |
+| 5 | 各 R-phase は **judgement commit + rollback tag** で完結 (= drawer Pattern 1 application、R-phase 内では partial migration を **同一 commit 内で完結**、複数 commit 跨ぎ partial migration は禁止)。R-phase は必要なら **sub-phase に分割** (= R3a-R3d 等)、各 sub-phase が独立した judgement commit | revert |
+| 6 | 各 R-phase に observation 観測点 ≥ 5 件 (= drawer Pattern 6 application、反証可能 ≥ 1)。観測点は **machine-verifiable で articulate** (= grep / test command で yes/no)、subjective 観測点は honest skip articulate (= drawer Pattern 4 + 5 application instance) | scope 外 |
 | 7 | 起動・archive 判断は **user 領域**、AI 単独で起動・archive しない | scope 外 |
+| **8** (新設、self-evaluation 反映) | operational-protocol-system project boundary を本 program で侵さない (= R5 は **project resume + skeleton fill のみ**、M1-M5 deliverable の articulate は operational-protocol-system project 内で実施) | revert |
 
 ---
 
@@ -28,7 +30,7 @@
 2. 3 tree (= references / aag / projects) の境界 articulated + 5 README + CURRENT_PROJECT.md + CLAUDE.md で機械可読
 3. 1,000+ inbound link 全 update + broken link 0 件
 4. 138 guard / collector path constants update + 944 test 全 PASS 維持
-5. **14 新 guard 全 active** (= R1-R7 で landing する Hard guard、boundary 違反 ratchet-down baseline=0、§6.2 一覧)
+5. **7 guard active** (= 5 新設 + 1 拡張 + 1 統合 entry、self-evaluation 反映で 14 → 7 集約、§6.2 一覧)
 6. AAG-REQ-SELF-HOSTING を「code-level + entry navigation rigor 完全達成」に articulate update (R6)
 7. AAG framework / Standard / drawer / 5 文書 template / 主アプリ code に **内容変更 0 件** (= 物理 location 移動のみ、R6 例外 = meta.md §2.1)
 8. operational-protocol-system R5 で再開、M1 deliverable が **references/05-aag-interface/protocols/** に landing
@@ -125,7 +127,11 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - R2-4: 944 test 維持
 - R2-5 (反証): aag/ 配下に主アプリ改修者向け doc が 0 件であることを machine 検証 (= synthetic 違反 test で fail)
 
-### Phase R3: references/ directory rename + 命名規約適用
+### Phase R3: references/ directory rename + 命名規約適用 (= sub-phase 化、self-evaluation 反映)
+
+**self-evaluation 反映**: 元 R3 は 5 directory rename + 1,000+ inbound update + 138 guard / collector + naming convention + PR template + decisions/ 新設 = 1 commit に収まらない物理現実。**4 sub-phase に分割**、各 sub-phase = independent judgement commit + rollback tag (= 不可侵原則 5 articulate)。
+
+#### R3a: 5 directory rename + 1,000+ inbound update
 
 **deliverable**:
 
@@ -134,29 +140,74 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - `references/04-design-system/` → `references/02-design-system/`
 - `references/03-guides/` → `references/03-implementation/` (= AAG-related は R2 で references/05-aag-interface/ に migrate 済、残りを rename)
 - `references/05-contents/` → `references/04-tracking/elements/` (= R4 の前提、directory 移動のみ、内部構造化は R4)
-- **`*.generated.md` 命名規約適用**:
-  - `references/04-tracking/recent-changes.md` → `references/04-tracking/recent-changes.generated.md` (= 機械生成化、R3 で名前変更 + R7 で generator 出力先変更)
-  - 既存 `references/02-status/generated/*.md` (= 19 file) は directory 移動 (`→ references/04-tracking/generated/`) + suffix 付与 (`*.generated.md`) で 2 重 articulate
-- 1,000+ inbound link 全 update
-- guard / collector path constants update (= 138 file)
-- doc-registry / manifest update
+- **1,000+ inbound link 全 update を R3a 内で完結** (= partial migration は同一 commit 内で閉じる、不可侵原則 5)
+
+**観測点 (= machine-verifiable refine)**:
+
+- R3a-1: `for d in 01-principles 02-status 04-design-system 03-guides 05-contents; do test ! -d references/$d; done` で 5 directory 不在
+- R3a-2: `grep -rE "references/(01-principles|02-status|04-design-system|03-guides|05-contents)/" --include="*.md" --include="*.ts" --include="*.json" | grep -v "99-archive\|projects/completed" | wc -l` = 0 件 (= broken link 0)
+- R3a-3: `npm run test:guards` で 944 test PASS
+- R3a-4 (反証): synthetic 旧 path link を 1 件追加した状態で test fail (= ratchet-down 動作確認)
+- R3a-5: doc-registry / manifest が新 path で整合 (= `npm run docs:check` PASS)
+
+#### R3b: `*.generated.md` 命名規約適用 + generator 出力先変更
+
+**deliverable**:
+
+- `references/04-tracking/recent-changes.md` → `references/04-tracking/recent-changes.generated.md` (= 機械生成化)
+- 既存 `references/04-tracking/generated/*.md` (= 19 file、R3a で directory 移動済) → `*.generated.md` suffix 付与
 - generator (`tools/architecture-health/src/renderers/`) の出力先 path constants update (= `*.generated.md` suffix 込み)
-- `references/01-foundation/decisions/` 新設 (= 人間判断の置き場、recent-changes 生成化と分離)
-
-**scope 外**:
-
-- per-element directory 化 (= R4 で実施、R3 では `05-contents` → `04-tracking/elements/` の dir 移動のみ)
-- dashboard layer 新設 (= R4 で実施)
-- 内容変更 (= 不可侵原則 2/3)
+- 既存 inbound link を `*.generated.md` に update
 
 **観測点**:
 
-- R3-1: 5 directory rename 完了
-- R3-2: 1,000+ inbound link broken 0
-- R3-3: 138 guard / collector path update + 944 test PASS
-- R3-4: doc-registry / manifest 整合
-- R3-5 (反証): 旧 path reference 試験で test fail
-- R3-6 (反証): `*.generated.md` 手編集試験で guard fail (= R7 で landing する手編集禁止 guard の precursor verify)
+- R3b-1: `find references/04-tracking -name "*.md" -not -name "*.generated.md" -not -name "README.md"` で 手書き対象のみ (= `recent-changes.md` 等の旧 naming 0 件)
+- R3b-2: `find references/04-tracking/generated -name "*.md" | grep -v ".generated.md" | wc -l` = 0 (= 全 generated に suffix)
+- R3b-3: generator 再 run で出力 file が `.generated.md` suffix で生成
+- R3b-4 (反証): synthetic で `*.generated.md` を手編集 → R3 完了後の `generatedFileEditGuard` で fail
+- R3b-5: `npm run docs:check` PASS
+
+#### R3c: 旧 mention 撤退 (= PR template / CLAUDE.md / .github/* update)
+
+**deliverable**:
+
+- `.github/PULL_REQUEST_TEMPLATE.md` 内 旧 path 参照 約 9 箇所を新 path に update (= §7.7 articulated 一覧)
+- `CLAUDE.md` 内 旧 section path 参照を新 path に update
+- `.github/workflows/*.yml` で旧 path に依存する箇所があれば update
+
+**観測点**:
+
+- R3c-1: `grep -nE "references/(01-principles|02-status|04-design-system|03-guides|05-contents)/" .github/ CLAUDE.md` = 0 件
+- R3c-2: PR template 内 9 箇所が articulate 通り update 済 (= grep で旧 path 0 件)
+- R3c-3: `.github/workflows/*.yml` の旧 path 0 件
+- R3c-4 (反証): 旧 path を再追加した PR template で `oldPathReferenceGuard` (R3d で landing) が fail
+- R3c-5: `npm run docs:check` + `npm run lint` PASS
+
+#### R3d: guard / collector path constants update + doc-registry / manifest update + decisions/ 新設 + 新 guard landing
+
+**deliverable**:
+
+- 138 guard / collector の path constants update (= aag-related 以外、aag は R1 で update 済)
+- `docs/contracts/doc-registry.json` 全 entry path update
+- `.claude/manifest.json` `discovery.byTopic` / `byExpertise` 内 path update
+- `references/01-foundation/decisions/` 新設 (= 人間判断置き場、recent-changes 生成化と分離)
+- **新 guard 2 件 landing** (集約後):
+  - `generatedFileEditGuard.test.ts` (= `*.generated.md` 手編集検出、Hard fail、baseline=0)
+  - `oldPathReferenceGuard.test.ts` (= 旧 path reference 残置検出、Hard fail、baseline=0、archive-to-archive 例外 whitelist)
+
+**観測点**:
+
+- R3d-1: 138 guard / collector 全 path update 後 944 test + 新 guard 2 件 PASS
+- R3d-2: doc-registry.json 全 entry path が新 path 整合 (= `node -e 'check'` で 0 broken)
+- R3d-3: manifest.json discovery が新 path 整合
+- R3d-4: `references/01-foundation/decisions/` directory 存在
+- R3d-5 (反証): synthetic 旧 path reference / 手編集試験で 2 新 guard fail
+
+**R3 (R3a-R3d 統合) scope 外**:
+
+- per-element directory 化 (= R4 で実施、R3 では `05-contents` → `04-tracking/elements/` の dir 移動のみ)
+- dashboard layer 新設 (= R4 で実施)
+- 内容変更 (= 不可侵原則 2a/3) (= R7 で landing する手編集禁止 guard の precursor verify)
 
 ### Phase R4: per-element directory + dashboard layer + element taxonomy
 
@@ -188,27 +239,30 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - R4-5: 944 test 維持
 - R4-6 (反証): pilot subset で AI が context 構築する simulation で reach efficiency verify (= 1 element directory 1 read で 4 doc 全 reach)
 
-### Phase R5: operational-protocol-system M1-M5 deliverable landing
+### Phase R5: operational-protocol-system project boundary 維持 + skeleton fill (= self-evaluation 反映で scope 縮小)
 
-**deliverable**:
+**self-evaluation 反映**: 元 R5 は M1-M5 deliverable landing 全部を本 program 内で実施 articulated、ただし operational-protocol-system project boundary を侵す risk (= 不可侵原則 8 違反)。**scope 縮小**: 本 program は `references/05-aag-interface/protocols/` skeleton 用意 + project resume articulation のみ、M1-M5 deliverable の articulate 自体は operational-protocol-system project 内で実施 (= R5 後 user 判断で起動)。
 
-- operational-protocol-system project resume (= HANDOFF.md ⏸ PAUSED articulation 解除)
-- M1 deliverable (= `task-protocol-system.md` / `task-class-catalog.md` / `session-protocol.md` / `complexity-policy.md`) を **`references/05-aag-interface/protocols/`** に landing
-- M2-M5 deliverable も同 location に articulate (= operational-protocol-system project 内で進行)
-- operational-protocol-system project archive 判断は user 承認後
+**deliverable** (= 本 program scope):
 
-**scope 外**:
+- operational-protocol-system project HANDOFF.md ⏸ PAUSED articulation 解除 (= resume articulate)
+- `references/05-aag-interface/protocols/README.md` で **landing 受け入れ structure** を articulate (= "本 directory は operational-protocol-system project の M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) の landing 場所" を articulate)
+- `aagBoundaryGuard` で landing 場所制約を機械検証 (= operational-protocol-system M1-M5 deliverable は本 location 限定)
+- doc-registry.json + manifest.json で protocols/ entry articulate
 
-- operational-protocol-system project 自身の plan / checklist 改変 (= 既存 articulate を維持、location のみ references/05-aag-interface/protocols/)
-- 内容追加 (= operational-protocol-system project 自身の articulate を維持)
+**scope 外** (= 不可侵原則 8 articulate):
+
+- operational-protocol-system project 自身の plan / checklist 改変
+- M1-M5 deliverable の articulate 自体 (= task-protocol-system.md / etc. の content articulate は operational-protocol-system project 内で実施、本 program R5 では skeleton landing 場所 articulate のみ)
+- operational-protocol-system project archive 判断 (= user 承認後、本 program scope 外)
 
 **観測点**:
 
-- R5-1: operational-protocol-system pause 解除
-- R5-2: M1-M5 deliverable が **references/05-aag-interface/protocols/** に landing (= 旧 案 aag/interface/protocols/ ではない、境界矛盾解消反映)
-- R5-3: structural foundation 上に articulation 整合
+- R5-1: operational-protocol-system HANDOFF.md ⏸ PAUSED articulation 解除確認 (= `grep "PAUSED" projects/operational-protocol-system/HANDOFF.md` = 0 件 or "resumed" articulate)
+- R5-2: `references/05-aag-interface/protocols/README.md` が landing 構造 articulate (= "operational-protocol-system M1 deliverable 受け入れ" articulate)
+- R5-3: `aagBoundaryGuard` が active で landing 場所制約検証
 - R5-4: 944 test 維持
-- R5-5 (反証): protocols 配置先が誤って aag/ 配下になった場合 boundary guard で fail (= R2 で landing した guard で逆戻り防止)
+- R5-5 (反証): synthetic で operational-protocol-system M1 deliverable を別 path に articulate 試行 → `aagBoundaryGuard` で fail
 
 ### Phase R6: AAG self-hosting closure articulate update + projects/ split + template migrate
 
@@ -281,15 +335,15 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | dashboard layer の手書き化 | drift detection 機能を破壊、機械生成 mandatory |
 | inbound update を後回しに R-phase landing | broken link 大量発生 risk、各 R-phase で必ず inbound update + verify |
 | **`aag/interface/` を作る** (= 旧案) | 境界矛盾 (= 主アプリ改修者 not read directory に主アプリ改修者向け doc 配置)、軌道修正済 = `references/05-aag-interface/` |
-| `aag/` 配下に主アプリ改修者向け doc 配置 | R2 `aagPublicInterfaceLocationGuard` で Hard fail |
-| `references/` 配下に AAG framework 内部 doc 配置 | R1 `aagInternalLocationGuard` で Hard fail |
+| `aag/` 配下に主アプリ改修者向け doc 配置 | R2 `aagBoundaryGuard` で Hard fail |
+| `references/` 配下に AAG framework 内部 doc 配置 | R1 `aagBoundaryGuard` で Hard fail |
 | `*.generated.md` の手編集 | R3 `generatedFileEditGuard` で Hard fail |
 | 旧 path 参照残置 (= `01-principles/` / `02-status/` / `03-guides/` / `04-design-system/` / `05-contents/`) | R3 `oldPathReferenceGuard` で Hard fail |
-| element ID prefix 違反 (= `WID-*` を `charts/` 等) | R4 `elementTaxonomyGuard` で Hard fail |
-| `references/04-tracking/dashboards/` に手書き file 配置 | R4 `dashboardGeneratedOnlyGuard` で Hard fail |
-| `CURRENT_PROJECT.md` に inline 進捗 / 判断 articulate | R6 `currentProjectPointerOnlyGuard` で Hard fail |
-| `projects` 配下 `active/<id>` directory に正本定義 (= 業務 domain definition) 配置 | R6 `projectsActiveCanonicalDefGuard` で Hard fail (= 正本は references/01-foundation/ に配置) |
-| `projects/` root 直下に新規 project 配置 | R6 `projectsActiveCompletedGuard` で Hard fail (= active/ or completed/ 配下に配置) |
+| element ID prefix 違反 (= `WID-*` を `charts/` 等) | R4 `elementStructureGuard` で Hard fail |
+| `references/04-tracking/dashboards/` に手書き file 配置 | R4 `elementStructureGuard` で Hard fail |
+| `CURRENT_PROJECT.md` に inline 進捗 / 判断 articulate | R6 `projectsStructureGuard` で Hard fail |
+| `projects` 配下 `active/<id>` directory に正本定義 (= 業務 domain definition) 配置 | R6 `projectsStructureGuard` で Hard fail (= 正本は references/01-foundation/ に配置) |
+| `projects/` root 直下に新規 project 配置 | R6 `projectsStructureGuard` で Hard fail (= active/ or completed/ 配下に配置) |
 | pre-commit hook bypass (= `--no-verify`) | AAG framework 既存禁止維持 |
 
 ---
@@ -355,18 +409,18 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 |---|---|---|
 | `aag/_internal/meta.md` §2.1 | R6 | AAG-REQ-SELF-HOSTING を「完全達成」に articulate (R6 例外、不可侵原則 2 articulate) |
 | `app/src/test/guards/selfHostingGuard.test.ts` | R6 | entry navigation rigor 検証項目追加 (= 4 boundary) |
-| `app/src/test/guards/aagInternalLocationGuard.test.ts` | R1 (新設) | aag/_internal/ 外への AAG framework 内部 doc 配置検出 |
-| `app/src/test/guards/aagPublicInterfaceLocationGuard.test.ts` | R2 (新設) | aag/ 配下に主アプリ改修者向け doc 配置検出 |
-| `app/src/test/guards/referencesAagInterfaceLocationGuard.test.ts` | R2 (新設) | references/05-aag-interface/ 外への AAG public interface doc 配置検出 |
+| `app/src/test/guards/aagBoundaryGuard.test.ts` | R1 (新設) | aag/_internal/ 外への AAG framework 内部 doc 配置検出 |
+| `app/src/test/guards/aagBoundaryGuard.test.ts` | R2 (新設) | aag/ 配下に主アプリ改修者向け doc 配置検出 |
+| `app/src/test/guards/aagBoundaryGuard.test.ts` | R2 (新設) | references/05-aag-interface/ 外への AAG public interface doc 配置検出 |
 | `app/src/test/guards/generatedFileEditGuard.test.ts` | R3 (新設) | `*.generated.md` 手編集検出 |
 | `app/src/test/guards/oldPathReferenceGuard.test.ts` | R3 (新設) | 旧 path reference 残置検出 |
-| `app/src/test/guards/elementTaxonomyGuard.test.ts` | R4 (新設) | element ID prefix 違反検出 |
-| `app/src/test/guards/elementDirectoryStructureGuard.test.ts` | R4 (新設) | per-element directory 4 doc 整合 |
-| `app/src/test/guards/dashboardGeneratedOnlyGuard.test.ts` | R4 (新設) | dashboards/ 配下の手書き file 配置検出 |
-| `app/src/test/guards/protocolsLocationGuard.test.ts` | R5 (新設) | references/05-aag-interface/protocols/ 外への M1-M5 deliverable 配置検出 |
-| `app/src/test/guards/projectsActiveCompletedGuard.test.ts` | R6 (新設) | projects/ root 直下の project 配置検出 |
-| `app/src/test/guards/currentProjectPointerOnlyGuard.test.ts` | R6 (新設) | CURRENT_PROJECT.md inline state 検出 |
-| `app/src/test/guards/projectsActiveCanonicalDefGuard.test.ts` | R6 (新設) | `projects` 配下 `active/<id>`/ 内正本定義配置検出 |
+| `app/src/test/guards/elementStructureGuard.test.ts` | R4 (新設) | element ID prefix 違反検出 |
+| `app/src/test/guards/elementStructureGuard.test.ts` | R4 (新設) | per-element directory 4 doc 整合 |
+| `app/src/test/guards/elementStructureGuard.test.ts` | R4 (新設) | dashboards/ 配下の手書き file 配置検出 |
+| `app/src/test/guards/aagBoundaryGuard.test.ts` | R5 (新設) | references/05-aag-interface/protocols/ 外への M1-M5 deliverable 配置検出 |
+| `app/src/test/guards/projectsStructureGuard.test.ts` | R6 (新設) | projects/ root 直下の project 配置検出 |
+| `app/src/test/guards/projectsStructureGuard.test.ts` | R6 (新設) | CURRENT_PROJECT.md inline state 検出 |
+| `app/src/test/guards/projectsStructureGuard.test.ts` | R6 (新設) | `projects` 配下 `active/<id>`/ 内正本定義配置検出 |
 | `app/src/test/guards/boundaryIntegrityGuard.test.ts` | R7 (新設、統合) | 全 boundary 違反集約 entry point |
 | `projects/_template/` | R6 | 新構造前提に migrate (= 新規 bootstrap 強制) |
 | `tools/git-hooks/pre-commit` | R7 | boundaryIntegrityGuard 統合 |
@@ -384,26 +438,30 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | **定着 (= structural integration)** | guard は **pre-commit hook + CI** で常時 run + `_template/` 更新で新規 project bootstrap も新構造強制 + AAG self-hosting closure articulation で boundary を AAG framework 自身が機械検証 |
 | **段階導入** | R7 で全 guard 統合せず、各 R-phase 完了時に該当 guard を即 landing (= R-phase の deliverable に guard 自身が含まれる、ratchet-down で次 phase でも維持) |
 
-### §6.2 guard 一覧 (= R-phase 別、各 ratchet-down baseline=0 で landing)
+### §6.2 guard 一覧 (= R-phase 別、各 ratchet-down baseline=0 で landing、self-evaluation 反映で 14 → 7 件に集約)
 
-| guard | landing phase | 検出対象 | 違反 = |
+**self-evaluation 反映**: 元 14 guard は **同一 invariant の複数 view** で重複 risk (= aagInternal + aagPublicInterface + referencesAagInterface + protocolsLocation は **boundary placement 同一 domain**)。**invariant-based で 7 件に集約**、各 guard が複数 sub-invariant を扱う domain 単位 (= boundary / file / path / element / projects)。
+
+| guard | landing phase | 検出対象 (= sub-invariant 集約) | 違反 = |
 |---|---|---|---|
-| `aagInternalLocationGuard` | R1 | `aag/_internal/` 外への AAG framework 内部 doc 配置 (= meta.md / strategy.md / etc. が他 location に出現) | Hard fail |
-| `aagPublicInterfaceLocationGuard` | R2 | `aag/` 配下に主アプリ改修者向け doc (= drawer / protocols / operations) 配置 | Hard fail |
-| `referencesAagInterfaceLocationGuard` | R2 | `references/05-aag-interface/` 外への AAG public interface doc 配置 | Hard fail |
-| `generatedFileEditGuard` | R3 | `*.generated.md` の **手編集** (= last-edit author が generator commit でない場合) | Hard fail |
-| `oldPathReferenceGuard` | R3 | 旧 path 参照残置 (= `01-principles/` / `02-status/` / `03-guides/` / `04-design-system/` / `05-contents/` 文字列の inbound link) | Hard fail |
-| `elementTaxonomyGuard` | R4 | element ID prefix 違反 (= `WID-*` を `charts/` に配置等) | Hard fail |
-| `elementDirectoryStructureGuard` | R4 | per-element directory に 4 doc 揃わない (= README + implementation-ledger + 2 generated) | Hard fail |
-| `dashboardGeneratedOnlyGuard` | R4 | `references/04-tracking/dashboards/` 配下の手書き file 配置 | Hard fail |
-| `protocolsLocationGuard` | R5 | `references/05-aag-interface/protocols/` 外への operational-protocol-system M1-M5 deliverable 配置 | Hard fail |
-| `selfHostingGuard` 拡張 (= entry navigation rigor 検証 4 boundary) | R6 | aag/ vs references/ 境界違反 + `*.generated.md` 手編集 + element ID prefix 違反 + `projects active` vs completed 違反 | Hard fail |
-| `projectsActiveCompletedGuard` | R6 | `projects/` root 直下に project (= active/ + completed/ 以外) 配置 | Hard fail |
-| `currentProjectPointerOnlyGuard` | R6 | `CURRENT_PROJECT.md` に inline state / 進捗 / 判断 articulate | Hard fail |
-| `projectsActiveCanonicalDefGuard` | R6 | `projects` 配下 `active/<id>` directory 配下に正本定義 (= `definition.md` 等) 配置 | Hard fail |
-| `boundaryIntegrityGuard` (= 統合) | R7 | 上記全 guard の統合 entry point + pre-commit hook 統合 | Hard fail |
+| `aagBoundaryGuard` (= 統合 4 sub-invariant) | R1 (skeleton) → R2 (full) | (a) `aag/_internal/` 外への AAG framework 内部 doc 配置 / (b) `aag/` 配下に主アプリ改修者向け doc 配置 / (c) `references/05-aag-interface/` 外への AAG public interface doc 配置 / (d) `references/05-aag-interface/protocols/` 外への operational-protocol-system M1-M5 deliverable 配置 | Hard fail |
+| `generatedFileEditGuard` | R3d | `*.generated.md` の **手編集** (= last-edit author が generator commit でない場合) | Hard fail |
+| `oldPathReferenceGuard` | R3d | 旧 path 参照残置 (= `01-principles/` / `02-status/` / `03-guides/` / `04-design-system/` / `05-contents/` 文字列の inbound link、archive-to-archive 例外 whitelist) | Hard fail |
+| `elementStructureGuard` (= 統合 3 sub-invariant) | R4 | (a) element ID prefix 違反 (= `WID-*` を `charts/` に配置等) / (b) per-element directory 4 doc 整合 / (c) `references/04-tracking/dashboards/` 配下の手書き file 配置 | Hard fail |
+| `projectsStructureGuard` (= 統合 3 sub-invariant) | R6 | (a) `projects/` root 直下に project (= `active/` + `completed/` + `_template/` 以外) 配置 / (b) `CURRENT_PROJECT.md` に inline state articulate / (c) `projects` 配下 `active/` directory 配下に正本定義 (= `definition.md` 等) 配置 | Hard fail |
+| `selfHostingGuard` 拡張 (= 既存 guard 拡張、新規ではない) | R6 | entry navigation rigor 検証 (= 上記 5 guard の状態を AAG self-hosting closure として articulate) | Hard fail |
+| `boundaryIntegrityGuard` (= 統合 entry) | R7 | 上記 6 guard の統合 entry point + pre-commit hook 統合 | Hard fail |
 
-合計 **14 guard** (= 各 R-phase で immediate landing、R7 で統合)。
+合計 **7 guard** (= 5 新設 + 1 拡張 + 1 統合 entry、14 → 7 で 50% 削減)。
+
+**集約 rationale** (= drawer Pattern 4 + 5 application instance):
+
+- aagBoundaryGuard 4 sub-invariant: 全て **boundary placement** 同一 domain
+- elementStructureGuard 3 sub-invariant: 全て **element 構造** domain
+- projectsStructureGuard 3 sub-invariant: 全て **projects 構造** domain
+- generatedFileEditGuard / oldPathReferenceGuard は別 domain で独立維持
+- selfHostingGuard 拡張は **既存 guard の拡張**、新規 guard ではない
+- boundaryIntegrityGuard (R7) は entry point 統合で pre-commit hook 統合用
 
 ### §6.3 pre-commit hook 統合
 
@@ -437,13 +495,13 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 各 R-phase 完了後の **逆戻り** trigger (= 例):
 
 - 新規 doc を旧 path で作成 → R3 `oldPathReferenceGuard` で fail
-- AAG 内部 doc を references/ に配置 → R1 `aagInternalLocationGuard` で fail
-- 主アプリ向け doc を aag/ に配置 → R2 `aagPublicInterfaceLocationGuard` で fail
+- AAG 内部 doc を references/ に配置 → R1 `aagBoundaryGuard` で fail
+- 主アプリ向け doc を aag/ に配置 → R2 `aagBoundaryGuard` で fail
 - `*.generated.md` を手編集 → R3 `generatedFileEditGuard` で fail
-- element を taxonomy 違反 ID で配置 → R4 `elementTaxonomyGuard` で fail
-- CURRENT_PROJECT.md に進捗 inline → R6 `currentProjectPointerOnlyGuard` で fail
+- element を taxonomy 違反 ID で配置 → R4 `elementStructureGuard` で fail
+- CURRENT_PROJECT.md に進捗 inline → R6 `projectsStructureGuard` で fail
 
-= 14 guard が **全方位 ratchet-down**、AI / 人間が **無意識に** 旧構造に戻る path を全 type 検出。
+= 7 guard が **全方位 ratchet-down**、AI / 人間が **無意識に** 旧構造に戻る path を全 type 検出。
 
 ---
 
@@ -468,12 +526,12 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 
 | Phase | 撤退対象 | 撤退 verify |
 |---|---|---|
-| **R1** | `references/01-principles/aag/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagInternalLocationGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `references/01-principles/aag/` 文字列 0 件 |
-| **R2** | `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagPublicInterfaceLocationGuard` + `referencesAagInterfaceLocationGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
+| **R1** | `references/01-principles/aag/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagBoundaryGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `references/01-principles/aag/` 文字列 0 件 |
+| **R2** | `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
 | **R3** | 旧 5 directory (`01-principles/`, `02-status/`, `03-guides/` 残部, `04-design-system/`, `05-contents/`) 物理 directory + 1,000+ inbound link + 138 guard / collector path constants + doc-registry / manifest entry path + generator 出力先 path + **PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照** + **CLAUDE.md 内 旧 section path** + 旧 naming (`recent-changes.md` suffix なし、`02-status/generated/*.md` suffix なし) | `oldPathReferenceGuard` で旧 path 文字列 0 件、`generatedFileEditGuard` で `*.generated.md` 手編集 0 件 |
-| **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementTaxonomyGuard` で旧 ID prefix 違反 0 件 |
-| **R5** | (= 撤退対象なし、新 articulation を `references/05-aag-interface/protocols/` に landing のみ) | `protocolsLocationGuard` で旧 location 0 件 |
-| **R6** | `projects/` root 直下の各 active project (6 件) → `projects` 配下 `active/` directoryに migrate + 旧 `_template/` (= 旧構造前提) → 新構造 migrate + `CURRENT_PROJECT.md` inline state 残置 → pointer-only | `projectsActiveCompletedGuard` + `currentProjectPointerOnlyGuard` で旧構造 0 件 |
+| **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementStructureGuard` で旧 ID prefix 違反 0 件 |
+| **R5** | (= 撤退対象なし、新 articulation を `references/05-aag-interface/protocols/` に landing のみ) | `aagBoundaryGuard` で旧 location 0 件 |
+| **R6** | `projects/` root 直下の各 active project (6 件) → `projects` 配下 `active/` directoryに migrate + 旧 `_template/` (= 旧構造前提) → 新構造 migrate + `CURRENT_PROJECT.md` inline state 残置 → pointer-only | `projectsStructureGuard` + `projectsStructureGuard` で旧構造 0 件 |
 | **R7** | (= 各 R-phase で撤退済の総合 verify) | `boundaryIntegrityGuard` で全 boundary 違反 0 件 + pre-commit hook で逆戻り早期検出 |
 
 ### §7.3 transitional period の articulate
@@ -535,7 +593,7 @@ R3 で `references/03-guides/` rename 時に同時実施:
 
 ## §8 推定 effort + ROI
 
-- effort: AAG Pilot の 5-10 倍 (= 数 ヶ月-1 年級、phase 別 verify 込み + 14 guard landing 込み)
-- value: AAG self-hosting closure 真の達成 + 主アプリ AI navigation 100% predictable + per-element drill-down + dashboard auto-detect + drawer 中核性 structural articulation + **14 guard で逆戻り防止 + 定着 mechanism**
-- 比較対象: AAG Pilot (= 1 program、174 rule)、本 program は cross-tree restructure (= AAG framework + references + projects + 14 新 guard)
+- effort: AAG Pilot の 5-10 倍 (= 数 ヶ月-1 年級、phase 別 verify 込み + 7 guard landing 込み、R3 sub-phase 化で 4 sub-commit)
+- value: AAG self-hosting closure 真の達成 + 主アプリ AI navigation 100% predictable + per-element drill-down + dashboard auto-detect + drawer 中核性 structural articulation + **7 guard で逆戻り防止 + 定着 mechanism**
+- 比較対象: AAG Pilot (= 1 program、174 rule)、本 program は cross-tree restructure (= AAG framework + references + projects + 7 新 guard)
 - AAG-COA: **Level 3 + architecture-refactor + breakingChange=true + requiresLegacyRetirement=false + requiresGuard=true + requiresHumanApproval=true** (詳細 = `projectization.md`)

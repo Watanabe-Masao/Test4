@@ -39,7 +39,7 @@
 - [ ] 101 inbound link 新 path に全 update
 - [ ] guard / collector path constants 該当箇所 update (= aag-related guard 群)
 - [ ] doc-registry.json + manifest.json reorganize entry
-- [ ] **新 guard 1 件 landing**: `aagInternalLocationGuard.test.ts` (= aag/_internal/ 外への AAG framework 内部 doc 配置検出、Hard fail、baseline=0)
+- [ ] **新 guard 1 件 landing**: `aagBoundaryGuard.test.ts` (= aag/_internal/ 外への AAG framework 内部 doc 配置検出、Hard fail、baseline=0)
 - [ ] **観測** R1-1: 9 doc が aag/_internal/ に物理移動完了
 - [ ] **観測** R1-2: 101 inbound link 新 path 整合 (= broken link 0 件)
 - [ ] **観測** R1-3: guard / collector path 反映後 944 test + 新 guard PASS
@@ -58,8 +58,8 @@
 - [ ] 該当 inbound 全 update + broken 0
 - [ ] doc-registry.json + manifest.json 更新
 - [ ] **新 guard 2 件 landing**:
-  - `aagPublicInterfaceLocationGuard.test.ts` (= aag/ 配下に主アプリ改修者向け doc 配置検出、Hard fail、baseline=0)
-  - `referencesAagInterfaceLocationGuard.test.ts` (= references/05-aag-interface/ 外への AAG public interface doc 配置検出、Hard fail、baseline=0)
+  - `aagBoundaryGuard.test.ts` (= aag/ 配下に主アプリ改修者向け doc 配置検出、Hard fail、baseline=0)
+  - `aagBoundaryGuard.test.ts` (= references/05-aag-interface/ 外への AAG public interface doc 配置検出、Hard fail、baseline=0)
 - [ ] **観測** R2-1: 5 doc が references/05-aag-interface/ 配下に物理移動
 - [ ] **観測** R2-2: inbound 全 update + broken 0
 - [ ] **観測** R2-3: doc-registry / manifest 整合
@@ -67,33 +67,68 @@
 - [ ] **観測** R2-5 (反証): aag/ 配下に主アプリ改修者向け doc 0 件 machine 検証 (= synthetic 違反 test で fail)
 - [ ] DA-α-003 振り返り判定
 
-## Phase R3: references/ directory rename + `*.generated.md` 命名規約適用
+## Phase R3: references/ directory rename + `*.generated.md` 命名規約適用 (= sub-phase 化、self-evaluation 反映)
 
-- [ ] DA-α-004 entry landing
-- [ ] 5 directory rename:
+### R3a: 5 directory rename + 1,000+ inbound update
+
+- [ ] DA-α-004a entry landing
+- [ ] 5 directory rename (`git mv`):
   - `references/01-principles/` → `references/01-foundation/`
   - `references/02-status/` → `references/04-tracking/`
   - `references/04-design-system/` → `references/02-design-system/`
   - `references/03-guides/` → `references/03-implementation/`
-  - `references/05-contents/*` → `references/04-tracking/elements/*`
-- [ ] `*.generated.md` 命名規約適用:
-  - `recent-changes.md` → `recent-changes.generated.md`
-  - 既存 `02-status/generated/*.md` → `04-tracking/generated/*.generated.md`
-- [ ] `references/01-foundation/decisions/` 新設 (= 人間判断置き場、recent-changes 生成化と分離)
-- [ ] 1,000+ inbound link 全 update
-- [ ] guard / collector path constants update (= 138 file)
-- [ ] doc-registry / manifest update
-- [ ] generator (`tools/architecture-health/src/renderers/`) 出力先 path constants update (= `*.generated.md` suffix)
-- [ ] **新 guard 2 件 landing**:
+  - `references/05-contents/` → `references/04-tracking/elements/`
+- [ ] 1,000+ inbound link 全 update (= 同一 commit 内で完結)
+- [ ] **観測** R3a-1: 5 旧 directory 不在 (= machine-verifiable: `for d in 01-principles 02-status 04-design-system 03-guides 05-contents; do test ! -d references/$d; done`)
+- [ ] **観測** R3a-2: broken link 0 (= grep で旧 path 文字列 0 件、archive 例外除く)
+- [ ] **観測** R3a-3: 944 test PASS
+- [ ] **観測** R3a-4 (反証): synthetic 旧 path link 1 件追加で test fail
+- [ ] **観測** R3a-5: docs:check PASS
+- [ ] DA-α-004a 振り返り判定
+
+### R3b: `*.generated.md` 命名規約適用 + generator 出力先変更
+
+- [ ] DA-α-004b entry landing
+- [ ] `recent-changes.md` → `recent-changes.generated.md`
+- [ ] 既存 `04-tracking/generated/*.md` (= 19 file) → `*.generated.md` suffix
+- [ ] generator 出力先 path constants update
+- [ ] inbound link を `*.generated.md` に update
+- [ ] **観測** R3b-1: `find references/04-tracking -name "*.md" -not -name "*.generated.md" -not -name "README.md"` で 手書き対象のみ
+- [ ] **観測** R3b-2: `04-tracking/generated/` 配下全件に suffix
+- [ ] **観測** R3b-3: generator 再 run で出力 file が `.generated.md` で生成
+- [ ] **観測** R3b-4 (反証): synthetic で `*.generated.md` 手編集 → R3d landing 後の `generatedFileEditGuard` で fail
+- [ ] **観測** R3b-5: docs:check PASS
+- [ ] DA-α-004b 振り返り判定
+
+### R3c: 旧 mention 撤退 (= PR template / CLAUDE.md / .github/* update)
+
+- [ ] DA-α-004c entry landing
+- [ ] `.github/PULL_REQUEST_TEMPLATE.md` 内 旧 path 約 9 箇所 update
+- [ ] `CLAUDE.md` 内 旧 section path update
+- [ ] `.github/workflows/*.yml` 旧 path 依存 update (該当ある場合)
+- [ ] **観測** R3c-1: `grep -nE "references/(01-principles|02-status|04-design-system|03-guides|05-contents)/" .github/ CLAUDE.md` = 0 件
+- [ ] **観測** R3c-2: PR template 9 箇所 articulate 通り update
+- [ ] **観測** R3c-3: `.github/workflows/*.yml` 旧 path 0 件
+- [ ] **観測** R3c-4 (反証): 旧 path 再追加で `oldPathReferenceGuard` (R3d) で fail
+- [ ] **観測** R3c-5: docs:check + lint PASS
+- [ ] DA-α-004c 振り返り判定
+
+### R3d: guard / collector path + doc-registry / manifest + decisions/ 新設 + 新 guard landing
+
+- [ ] DA-α-004d entry landing
+- [ ] 138 guard / collector の path constants update
+- [ ] `docs/contracts/doc-registry.json` 全 entry path update
+- [ ] `.claude/manifest.json` discovery 内 path update
+- [ ] `references/01-foundation/decisions/` 新設
+- [ ] **新 guard 2 件 landing** (集約後):
   - `generatedFileEditGuard.test.ts` (= `*.generated.md` 手編集検出、Hard fail、baseline=0)
-  - `oldPathReferenceGuard.test.ts` (= 旧 path reference 残置検出、Hard fail、baseline=0)
-- [ ] **観測** R3-1: 5 directory rename 完了
-- [ ] **観測** R3-2: 1,000+ inbound link broken 0
-- [ ] **観測** R3-3: 138 guard / collector path update + 944 test + 新 guard 2 件 PASS
-- [ ] **観測** R3-4: doc-registry / manifest 整合
-- [ ] **観測** R3-5 (反証): 旧 path reference 試験で test fail
-- [ ] **観測** R3-6 (反証): `*.generated.md` 手編集試験で guard fail
-- [ ] DA-α-004 振り返り判定
+  - `oldPathReferenceGuard.test.ts` (= 旧 path reference 残置検出、Hard fail、baseline=0、archive-to-archive 例外 whitelist)
+- [ ] **観測** R3d-1: 138 guard / collector 全 path update + 944 test + 新 guard 2 件 PASS
+- [ ] **観測** R3d-2: doc-registry.json 全 entry path 整合 (= node script で 0 broken)
+- [ ] **観測** R3d-3: manifest.json discovery 整合
+- [ ] **観測** R3d-4: `references/01-foundation/decisions/` 存在
+- [ ] **観測** R3d-5 (反証): synthetic 旧 path / 手編集試験で 2 新 guard fail
+- [ ] DA-α-004d 振り返り判定
 
 ## Phase R4: per-element directory + dashboard layer + element taxonomy
 
@@ -110,9 +145,9 @@
 - [ ] 既存 single-file spec を per-element directory `README.md` に migrate (= pilot subset 範囲)
 - [ ] quality-status / open-issues 機械生成 mechanism 動作確認
 - [ ] **新 guard 3 件 landing**:
-  - `elementTaxonomyGuard.test.ts` (= element ID prefix 違反検出、Hard fail、baseline=0)
-  - `elementDirectoryStructureGuard.test.ts` (= per-element directory 4 doc 整合、Hard fail、baseline=0)
-  - `dashboardGeneratedOnlyGuard.test.ts` (= dashboards/ 配下の手書き file 配置検出、Hard fail、baseline=0)
+  - `elementStructureGuard.test.ts` (= element ID prefix 違反検出、Hard fail、baseline=0)
+  - `elementStructureGuard.test.ts` (= per-element directory 4 doc 整合、Hard fail、baseline=0)
+  - `elementStructureGuard.test.ts` (= dashboards/ 配下の手書き file 配置検出、Hard fail、baseline=0)
 - [ ] **観測** R4-1: pilot subset (= charts/ 5 element) per-element directory 完成
 - [ ] **観測** R4-2: dashboard layer 4 doc skeleton (= 全 `.generated.md` suffix) landed
 - [ ] **観測** R4-3: 機械生成 mechanism 動作 (= quality-status / open-issues 自動 fill)
@@ -128,7 +163,7 @@
 - [ ] M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) を `references/05-aag-interface/protocols/` に landing
 - [ ] M2-M5 deliverable も同 location に articulate (= operational-protocol-system project 内で進行)
 - [ ] operational-protocol-system project archive 判断は user 承認後
-- [ ] **新 guard 1 件 landing**: `protocolsLocationGuard.test.ts` (= references/05-aag-interface/protocols/ 外への M1-M5 deliverable 配置検出、Hard fail、baseline=0)
+- [ ] **新 guard 1 件 landing**: `aagBoundaryGuard.test.ts` (= references/05-aag-interface/protocols/ 外への M1-M5 deliverable 配置検出、Hard fail、baseline=0)
 - [ ] **観測** R5-1: operational-protocol-system pause 解除
 - [ ] **観測** R5-2: M1-M5 deliverable が **references/05-aag-interface/protocols/** に landing (= 旧案 aag/interface/protocols/ ではない)
 - [ ] **観測** R5-3: structural foundation 上に articulation 整合
@@ -150,9 +185,9 @@
 - [ ] `projects/_template/` 新構造前提に migrate (= 新規 bootstrap 強制)
 - [ ] `CURRENT_PROJECT.md` pointer-only fix (= R0 で articulate 済の機械検証 guard 化)
 - [ ] **新 guard 3 件 landing**:
-  - `projectsActiveCompletedGuard.test.ts` (= projects/ root 直下の project 配置検出、Hard fail、baseline=0)
-  - `currentProjectPointerOnlyGuard.test.ts` (= CURRENT_PROJECT.md inline state 検出、Hard fail、baseline=0)
-  - `projectsActiveCanonicalDefGuard.test.ts` (= `projects` 配下 `active/<id>`/ 内正本定義配置検出、Hard fail、baseline=0)
+  - `projectsStructureGuard.test.ts` (= projects/ root 直下の project 配置検出、Hard fail、baseline=0)
+  - `projectsStructureGuard.test.ts` (= CURRENT_PROJECT.md inline state 検出、Hard fail、baseline=0)
+  - `projectsStructureGuard.test.ts` (= `projects` 配下 `active/<id>`/ 内正本定義配置検出、Hard fail、baseline=0)
 - [ ] **観測** R6-1: meta.md §2.1 articulate update + self-hosting closure 達成根拠 articulated
 - [ ] **観測** R6-2: selfHostingGuard 拡張 (= 4 boundary 検証) + PASS
 - [ ] **観測** R6-3: projects/ split 完了 + 全 active project 物理移動 + inbound update
