@@ -391,8 +391,13 @@ describe('Role protocol bidirectional consistency', () => {
       let match
       while ((match = protocolPattern.exec(section)) !== null) {
         const counterpart = match[1]
-        // 汎用表現・グループ参照はスキップ
-        if (counterpart === '全ロール' || counterpart === '人間' || counterpart.includes('*'))
+        // 汎用表現・グループ参照はスキップ (= aag-self-hosting-completion R3c で「人間」→「user」統一)
+        if (
+          counterpart === '全ロール' ||
+          counterpart === 'user' ||
+          counterpart === '人間' ||
+          counterpart.includes('*')
+        )
           continue
         expect(Object.keys(roleNameToPath)).toContain(counterpart)
       }

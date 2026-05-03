@@ -1,8 +1,8 @@
 # references/05-aag-interface/ — AAG public interface
 
-> **役割**: AAG framework が **主アプリ (粗利管理ツール) 改修 user / 人間** に提供する public interface。AAG framework 内部 (= `aag/_internal/`) を読まずに、本 directory 内 doc のみで AAG が提供する pattern / operations / protocols に reach 可能。
+> **役割**: AAG framework が **主アプリ (粗利管理ツール) 改修 user** に提供する public interface。AAG framework 内部 (= `aag/_internal/`) を読まずに、本 directory 内 doc のみで AAG が提供する pattern / operations / protocols に reach 可能。
 >
-> **reader**: 主アプリ改修 user / 人間。AAG framework 改修者は別途 `aag/_internal/` を read。
+> **reader**: 主アプリ改修 user。AAG framework 改修者は別途 `aag/_internal/` を read。
 >
 > **境界 (= 不可侵原則)**: 本 directory 配下 doc は **AAG framework 内部 (= aag/_internal/) を読む必要なく適用可能**。AAG-specific term (= AAG-REQ-* / 5 軸 / 8 軸 / DA-α-NNN / 不可侵原則 N) を pattern body に持ち込まない (= AAG self-application application instance のみ articulate)。
 
@@ -35,7 +35,7 @@ references/05-aag-interface/
 
 ## 3 tree boundary integration (= aag-self-hosting-completion R0 articulate と整合)
 
-- `references/` (本 tree) = 主アプリ改修 user / 人間の knowledge interface
+- `references/` (本 tree) = 主アプリ改修 userの knowledge interface
 - `aag/` = AAG framework 本体 (= 主アプリ改修 user は通常 not read)
 - `projects/` = 作業単位 lens
 

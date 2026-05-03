@@ -10,7 +10,7 @@
 
 - **守る対象**: コードではなく **判断基準**（rule の `what` / `why` / `decisionCriteria`）
 - **検証方法**: 違反時に統一 response（`renderAagResponse()`）を返し、修理経路を提示する
-- **進化方法**: ratchet-down（baseline は下がる一方）+ Discovery Review（人間判断）
+- **進化方法**: ratchet-down（baseline は下がる一方）+ Discovery Review（user 判断）
 
 ## 4 layer model（North Star）
 
@@ -64,7 +64,7 @@ Layer 4: Human review → irreversible transition を制御（archive / promotio
 5. **block するだけでなく解決する**（pre-commit 自動修復）
 6. **Response は薄く、必要十分にする**
 7. **rule 自身が rule の品質基準を満たす**（dead code 禁止 / DRY / why 必須）
-8. **rule は人間・AI 間のインターフェースである**（変更には説明義務）
+8. **rule はuser・AI 間のインターフェースである**（変更には説明義務）
 
 ## AAG の状態（自動生成）
 

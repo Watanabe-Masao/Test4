@@ -85,11 +85,11 @@
 - [ ] decision-audit.md に Pilot 判断履歴 landing (DA-α-000 + 001-005 = 6 entry)
 - [ ] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS)
 
-## 最終レビュー (人間承認)
+## 最終レビュー (user 承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) をuser がレビューし、archive プロセスへの移行を承認する

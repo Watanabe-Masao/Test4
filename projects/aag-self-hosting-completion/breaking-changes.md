@@ -119,7 +119,7 @@ R1 と同 pattern (5 doc 移動 + inbound update + guard/collector update + veri
 
 | consumer | 通知方針 |
 |---|---|
-| 主アプリ改修 AI / 人間 | references/README.md (R1 で明示) で新 path articulate、context 構築時に新 path から reach |
+| 主アプリ改修 user | references/README.md (R1 で明示) で新 path articulate、context 構築時に新 path から reach |
 | AAG 改修者 | aag/README.md (R1 で新設) で新 internal/interface 構造 articulate |
 | guard / test infrastructure | path constants update で対応、外部通知不要 |
 | CI / pre-commit hook | 既存 hook が新 path で動作することを R-phase 完了時に verify |

@@ -76,7 +76,7 @@ specVersion: 1
 ## 6. Consumers
 
 - `useDuckDB` 起動時の load シーケンス（観測期間の自動評価）
-- データロードエラー UI（warning / error の人間可読化）
+- データロードエラー UI（warning / error のuser-readable化）
 - `WID-014 forecast-tools` の予測信頼度表示
 - `TimeSlot` 系の集計（観測期間が `error` なら集計を保留）
 

@@ -83,7 +83,7 @@ mismatch が検出されても UI への影響はない。緊急性は低い。
 3. `setExecutionMode('ts-only')` で TS に戻す
 4. 原因を調査
 
-**このため、authoritative 昇格は十分な観測と人間の承認を必須とする。**
+**このため、authoritative 昇格は十分な観測とuser の承認を必須とする。**
 
 ---
 

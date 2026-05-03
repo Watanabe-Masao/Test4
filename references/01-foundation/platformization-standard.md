@@ -195,7 +195,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 | **A4 Binding** | 本 doc は具体実装 binding を持たない (Pilot = `projects/completed/aag-platformization/` 側で binding) |
 | **A5 Generated** | 本 doc から派生 artifact を生成しない (subsystem 側で生成) |
 | **A6 Facade** | facade ではない、直接 read される (CLAUDE.md / aag/README.md からの link) |
-| **A7 Policy** | 本 doc 改訂は人間承認 + decision-audit 記録必須 (§4 採用戦略 / §5 critical constraints の改訂は重い変更) |
+| **A7 Policy** | 本 doc 改訂はuser 承認 + decision-audit 記録必須 (§4 採用戦略 / §5 critical constraints の改訂は重い変更) |
 | **A8 Gate** | docRegistryGuard で registry 登録 verify、principles.json 登録 verify、obligation-collector で `references/01-foundation/` 編集 trigger |
 
 → Standard が自身の 8 軸を articulate することで、horizontalize 時に **「なぜ Standard を信頼してよいか」** が articulate される (= meta-doc 自身が自分の契約を満たす)。

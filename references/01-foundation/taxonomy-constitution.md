@@ -28,7 +28,7 @@ Constitution + Taxonomy が **何を保証し、何を保証しないか** を 3
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
 | **State Correctness** — registry と実装ファイルのタグが一致         | registry / inventory / co-change guard                          | **触る**（子 Phase 3 + 6 が保証主体）               |
 | **Constitutional Correctness** — タグが 7 原則と Interlock を満たす | constitutionBootstrapGuard / interlock guard / vocabulary guard | **触る**（本 Constitution + AR-TAXONOMY-\* で確定） |
-| **Decision Correctness** — そのタグ・追加判断・撤退判断が業務上妥当 | review window / Origin Journal / 人間承認                       | **触らない**（review window 経路で別管理）          |
+| **Decision Correctness** — そのタグ・追加判断・撤退判断が業務上妥当 | review window / Origin Journal / user 承認                       | **触らない**（review window 経路で別管理）          |
 
 > **重要**: タグ付けが green でも behavior が正しいとは限らない（State Correctness は behavior を保証しない）。タグが原則に従っていても判断が業務上妥当とは限らない（Constitutional Correctness は Decision を保証しない）。3 層を混同せず、各々の保証経路を別々に評価する。
 
@@ -246,7 +246,7 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 
 ## 9. 制度成立 5 要件
 
-`taxonomy-v2` family（親 + 子 2 件）が archive 可能と判定される条件。**5 要件全てを満たした上で人間レビュー承認**で初めて archive に進む。
+`taxonomy-v2` family（親 + 子 2 件）が archive 可能と判定される条件。**5 要件全てを満たした上でuser レビュー承認**で初めて archive に進む。
 
 1. **両子 Phase 9（Legacy Collection）完了**
    - `projects/completed/responsibility-taxonomy-v2/` archive 済（Phase 0-9 全 [x]）

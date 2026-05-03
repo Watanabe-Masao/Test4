@@ -1,7 +1,7 @@
 # aag/_framework/ — AAG framework 実装 skeleton
 
 > **status**: skeleton (= R1 で landed)、後続 phase で fill 予定。
-> **reader**: AAG framework 改修者のみ。主アプリ改修者は本 sub-tree を読まない。
+> **reader**: AAG framework 改修者のみ。主アプリ改修 userは本 sub-tree を読まない。
 
 ## 役割 (= aag/ tree 第二階層、_internal/ と並列)
 
@@ -37,7 +37,7 @@ aag/_framework/
 - 並列 sub-tree: `aag/_internal/` (= AAG framework 内部 articulation)
 - 本 program: `projects/aag-self-hosting-completion/`
 - 進行中 R-phase 詳細: `projects/aag-self-hosting-completion/plan.md` §3
-- 主アプリ改修者 reach 経路: 本 tree ではなく `references/05-aag-interface/` (R2 で landing 予定)
+- 主アプリ改修 user reach 経路: 本 tree ではなく `references/05-aag-interface/` (R2 で landing 予定)
 
 ## status
 

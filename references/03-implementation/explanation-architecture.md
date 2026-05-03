@@ -10,7 +10,7 @@
 
 | # | 要件 | 問いかけ | 実装 |
 |---|---|---|---|
-| 1 | **式の透明化** | 「この値はどの式で算出？」 | `Explanation.formula` に人間可読な計算式 |
+| 1 | **式の透明化** | 「この値はどの式で算出？」 | `Explanation.formula` にuser-readableな計算式 |
 | 2 | **入力の追跡** | 「どのデータが寄与？」 | `Explanation.inputs[]` で入力パラメータを列挙、`metric` で指標間リンク |
 | 3 | **ドリルダウン** | 「月→日→元データまで辿れるか？」 | `Explanation.breakdown[]` で日別内訳、`evidenceRefs[]` で元データ参照 |
 

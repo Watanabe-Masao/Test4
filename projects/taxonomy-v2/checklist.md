@@ -103,9 +103,9 @@
 - [x] §OCS.7 absorption の段階 2（全 vocabulary 拡大）が両子 Phase 6 で完了済（Phase 6a-2 mass-tagging で R 軸 1041 file + T 軸 708 test に v2 vocabulary 付与、Phase 6c で全 R:tag / T:kind を promotionLevel L5 一斉 bump、Coverage 100% 達成）
 - [x] §OCS.7 absorption の段階 3（Health KPI 接続）が本 Phase 4 で完了済（taxonomy-health.json の 4 KPI が architecture-health.json に feed 済 + retrospective fix B で live count refactor、KPI 接続経路が完成）
 
-## 最終レビュー (人間承認)
+## 最終レビュー (user 承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) をuser がレビューし、archive プロセスへの移行を承認する

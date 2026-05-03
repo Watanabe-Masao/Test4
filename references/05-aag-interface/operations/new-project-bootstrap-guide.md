@@ -1,6 +1,6 @@
 # New Project Bootstrap Guide
 
-> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 userが reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
 
 > 役割: 新しい project を立ち上げる際の手順とチェックリスト。
 > `project-checklist-governance.md` §10 を補完し、派生セット判定・

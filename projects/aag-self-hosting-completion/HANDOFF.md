@@ -18,10 +18,10 @@
 
 ### 高優先 (Phase R0 着手)
 
-**R0: 境界定義先行** (= 構造変更前に 3 tree (references / aag / projects) 境界を articulate、後続 R-phase で AI / 人間が物理配置から「読む / 読まない」を即判断できる state を確立)
+**R0: 境界定義先行** (= 構造変更前に 3 tree (references / aag / projects) 境界を articulate、後続 R-phase で AI / userが物理配置から「読む / 読まない」を即判断できる state を確立)
 
 - [ ] DA-α-001 entry landing (= R0 着手判断、5 軸 + 観測点 + Lineage)
-- [ ] `references/README.md` update (= 主アプリ改修 AI / 人間の knowledge interface)
+- [ ] `references/README.md` update (= 主アプリ改修 userの knowledge interface)
 - [ ] `aag/README.md` 新設 (= AAG framework 本体、`_internal/` + `_framework/` skeleton)
 - [ ] projects/ root の README.md update (= 作業単位 lens、active + completed)
 - [ ] `CURRENT_PROJECT.md` update (= active project pointer 限定)

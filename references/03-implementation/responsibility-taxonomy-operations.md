@@ -163,7 +163,7 @@ npm run taxonomy:impact -- --axis responsibility     # R 軸のみ
 | `missingTKinds`          | `requiredTKinds - foundTKinds`                                |
 | `result`                 | `pass`（missing 空）/ `warn`（optional 不足）/ `fail`（required 不足）|
 
-### 5.3. R 軸出力例（人間可読）
+### 5.3. R 軸出力例（user-readable）
 
 ```
 Changed file:

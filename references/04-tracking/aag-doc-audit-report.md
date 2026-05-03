@@ -42,7 +42,7 @@
 - **書くべきこと (Phase 4 後の `aag/strategy.md`)**:
   - 概要 + AAG Response フロー + 4 層 (Constitution/Schema/Execution/Operations) の operational articulation
   - AAG の本質 (機械検証 + 言語化、AI との対話 interface、AI 弱点の 3 層防御)
-  - 設計原則 8 件 (ルール仮説性 / Detection 交換可能 / 不可逆改善 / 回避はルール疑い / pre-commit 自動修復 / Response 薄さ / 自己品質基準 / 人間 AI 間 interface)
+  - 設計原則 8 件 (ルール仮説性 / Detection 交換可能 / 不可逆改善 / 回避はルール疑い / pre-commit 自動修復 / Response 薄さ / 自己品質基準 / user / AI 間 interface)
   - バージョン履歴 (v0.x〜v4.3.0) — ただし AAG v5.x 以降の articulation は本 audit 後に再構成
 - **書かないこと (= 他 doc / archive に逃がす)**:
   - 旧 4 層 (Principles/Judgment/Detection/Response) section → **即 Archive** (`aag-four-layer-architecture.md` と統合 archive)
@@ -377,6 +377,6 @@ audit findings からは A を正当化する rationale はなく、**B (分割)
 
 **次工程** (§8.14 順序付き 3 段階の第 3 段):
 - Phase 1 §3 fill (cyclic refinement、本 audit findings を `aag/meta.md §3` に反映)
-- Phase 3 完了 hard gate decision (人間判断 = ユーザー review):
+- Phase 3 完了 hard gate decision (user 判断 = ユーザー review):
   - **B (分割) を AI 推奨**: Project A〜D に follow-up 分離
   - **A (単一継続)** を選ぶ場合: §7.3 条件を articulate

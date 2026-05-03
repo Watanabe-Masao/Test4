@@ -14,7 +14,7 @@ doc は本質的に **4 系統** に articulate できる:
 | **ログ** | 状態・現在地・判断履歴・変更履歴 (= 時系列記録) | HANDOFF.md (active project 配下) (現在地) + decision-audit.md (active project 配下) (判断履歴) + `references/04-tracking/recent-changes.generated.md` (変更履歴) |
 | **メトリクス** | 健全性・進捗・品質・境界違反・coverage (= 機械観測 state) | `references/04-tracking/dashboards/*.generated.md` + `references/04-tracking/elements/<id>/quality-status.generated.md` + `references/04-tracking/elements/<id>/open-issues.generated.md` |
 | **手順書** | 目的・scope・phase・実行順序・非目標 (= 計画 + protocol) | plan.md (active project 配下) (per-project) + AI_CONTEXT.md (active project 配下) (per-project) + `references/05-aag-interface/protocols/*.md` (= operational-protocol-system M1-M5 deliverable、共通 protocol) |
-| **チェックリスト** | 完了条件・phase 別観測点・人間承認 (= verification spec) | checklist.md (active project 配下) |
+| **チェックリスト** | 完了条件・phase 別観測点・user 承認 (= verification spec) | checklist.md (active project 配下) |
 
 ### 役割分担の articulate (= 混同禁止)
 
@@ -72,14 +72,14 @@ references/              = 正本・手順 + AI 向け knowledge interface
 
 - **場所**: 全 doc 横断 (= references / aag/_internal / projects / CLAUDE.md)
 - **現状**: 「人間」「人」「user」「reviewer」が混在 (= 同 doc 内でも混在 case あり)
-- **改善**: 「**user**」に統一 (= 「人間承認」→「user 承認」、「人間 mandatory 点」→「user mandatory point」、etc.)
+- **改善**: 「**user**」に統一 (= 「user 承認」→「user 承認」、「user mandatory 点」→「user mandatory point」、etc.)
 - **解消 phase**: R3c (= 旧 mention 撤退時に grep + sed bulk)
 - **影響**: ~150 箇所推定
 
-### P1-2: 「主アプリ改修 AI / 人間」表記の冗長
+### P1-2: 「主アプリ改修 user」表記の冗長
 
 - **場所**: aag/README.md / references/README.md / projects/ root README / CLAUDE.md / 各 plan
-- **現状**: 「主アプリ改修 AI / 人間」が長い、「主アプリ改修者」「主アプリ改修 user」も併存
+- **現状**: 「主アプリ改修 user」が長い、「主アプリ改修 user」「主アプリ改修 user」も併存
 - **改善**: 「**主アプリ改修 user**」に統一 (= 上記 P1-1 と同 lens)
 - **解消 phase**: R3c
 
@@ -102,7 +102,7 @@ references/              = 正本・手順 + AI 向け knowledge interface
 
 - **場所**: aag/_internal/ 9 doc
 - **現状**: 旧 references/01-foundation/aag/ 配置前提で articulate (= aag/_internal/ への移動を反映していない)
-- **改善**: 冒頭で **reader = AAG framework 改修者のみ** + **主アプリ改修者は読まない** boundary 警告 articulate (= aag/README.md と整合)
+- **改善**: 冒頭で **reader = AAG framework 改修者のみ** + **主アプリ改修 userは読まない** boundary 警告 articulate (= aag/README.md と整合)
 - **解消 phase**: R2 もしくは R6 (= self-hosting closure update と同時)
 - **影響**: 9 doc (ただし内容変更は不可侵原則 2a 違反 risk、冒頭注記のみ追加で対応)
 

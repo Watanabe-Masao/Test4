@@ -256,8 +256,8 @@ wasm-only trial から authoritative へ進めるための条件。
 
 ### 判定
 
-必須条件を全て満たし、Authority（人間）が昇格を承認した場合のみ authoritative に遷移する。
-**人間の明示的承認なしに authoritative 昇格を行ってはならない。**
+必須条件を全て満たし、Authority（user）が昇格を承認した場合のみ authoritative に遷移する。
+**user の明示的承認なしに authoritative 昇格を行ってはならない。**
 
 ---
 
@@ -321,7 +321,7 @@ rollback 不全は promotion-candidate 判定で NG とする。
 - **人手確認は例外対応に限定** — fail / warning が出たケースの調査時のみ
 - **mismatch の原因不明は NG** — 原因が特定できない mismatch がある限り次に進まない
 - **rollback は常に可能にしておく** — authoritative 昇格まで TS 参照実装を削除しない
-- **人間が最終判断する** — authoritative 昇格の最終承認は人間が行う
+- **user が最終判断する** — authoritative 昇格の最終承認は userが行う
 
 ---
 

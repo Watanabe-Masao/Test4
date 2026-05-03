@@ -99,7 +99,7 @@ WASM dual-run bridge の削除は `promotion-criteria.md` を正本とする。
 **収束プロセス:**
 1. `promotion-criteria.md` の promotion-candidate 条件を全て満たすことを確認
 2. wasm-only trial を実行し、停止条件に抵触しないことを確認
-3. **人間が authoritative 昇格を承認**（`promotion-criteria.md` §authoritative: 必須）
+3. **user が authoritative 昇格を承認**（`promotion-criteria.md` §authoritative: 必須）
 4. bridge コードを削除し、WASM を authoritative に昇格
 5. frozen-list §3 から当該エントリを削除
 6. `engine-promotion-matrix.md` を更新

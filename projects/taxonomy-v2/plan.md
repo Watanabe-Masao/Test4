@@ -114,7 +114,7 @@
 4. 四半期 review window が 2 回以上記録されている
 5. interlock マトリクスの違反件数 = 0（連続 2 四半期）
 
-**受け入れ条件:** 5 要件全クリア + 人間レビュー承認 → archive。
+**受け入れ条件:** 5 要件全クリア + user レビュー承認 → archive。
 
 ---
 
@@ -156,7 +156,7 @@
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------ |
 | **State Correctness** — registry と実装ファイルのタグが一致         | registry / inventory / co-change guard                          | **触る（子の Phase 3 + 6 が保証主体）**    |
 | **Constitutional Correctness** — タグが 7 原則 + Interlock を満たす | constitutionBootstrapGuard / interlock guard / vocabulary guard | **触る（親 Phase 1 + 子 Phase 3 で確定）** |
-| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当     | review window / Origin Journal / 人間承認                       | 触らない（review window 経路で別管理）     |
+| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当     | review window / Origin Journal / user 承認                       | 触らない（review window 経路で別管理）     |
 
 **運用ルール**: 親 Constitution + 子 Schema + 各 R/T tag spec の冒頭にこの 3 層分離を明記する。
 

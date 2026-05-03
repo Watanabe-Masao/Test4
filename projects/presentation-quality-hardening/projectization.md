@@ -42,7 +42,7 @@ Presentation 層のテストカバレッジ強化・500 行超コンポーネン
 | `legacy-retirement.md`           | forbidden | requiresLegacyRetirement=false |
 | `sub-project-map.md`             | forbidden | 単独 project                   |
 | guard 設計 (plan.md 内)          | forbidden | requiresGuard=false            |
-| 最終レビュー (人間承認) checkbox |  required | requiresHumanApproval=true     |
+| 最終レビュー (user 承認) checkbox |  required | requiresHumanApproval=true     |
 
 ## 4. やらないこと (nonGoals)
 

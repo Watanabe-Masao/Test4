@@ -12,13 +12,13 @@
 
 AAG は **「動くが意図に反するコード」を早期検出し、コードベースの知能ある進化を保証する mechanism** である。
 
-AI / 人間が共同で開発する codebase において、テストが通るコードが必ずしも設計意図に沿っているとは限らない。AAG は次の 3 件を構造的に保証する:
+AI / userが共同で開発する codebase において、テストが通るコードが必ずしも設計意図に沿っているとは限らない。AAG は次の 3 件を構造的に保証する:
 
 1. **意図に反するコードの早期検出** — 機械検証 (rule + guard) で「動くが意図に反する」を即時 fail させる
-2. **過去判断の文脈消失防止** — allowlist の retentionReason / Architecture Rule の why / Discovery Review で判断履歴を蓄積、後任 AI / 人間が文脈を継承可能
+2. **過去判断の文脈消失防止** — allowlist の retentionReason / Architecture Rule の why / Discovery Review で判断履歴を蓄積、後任 AI / userが文脈を継承可能
 3. **改善の不可逆化** — ratchet-down で baseline 増加方向を構造禁止、進化を一方向に維持
 
-Layer 0 は **why の正本** であり、Layer 1 (要件) 以下が realize する。**機械検証不可、人間判断のみで変更**。改訂は Constitution 改訂と同等の慎重さで扱う。
+Layer 0 は **why の正本** であり、Layer 1 (要件) 以下が realize する。**機械検証不可、user 判断のみで変更**。改訂は Constitution 改訂と同等の慎重さで扱う。
 
 ## §2 要件 (Requirements、Layer 1)
 
@@ -43,7 +43,7 @@ AAG が satisfy すべき要件を **不変条件** (Invariants、positive) + **
 | **`AAG-REQ-NON-PERFORMATIVE`**            | performative work 生成禁止 — 製本されていない proxy / 派生 metric を guard 化しない                  | guard が canonical doc に裏打ちされる (canonicalDocRef status='bound' or 'not-applicable' with justification)   | **達成** (Project B Phase 3 で 166 rule 全 canonicalDocRef 'bound' articulation + Phase 4 で canonicalDocRefIntegrityGuard が path 実在を hard fail 検証、2026-05-01) |
 | **`AAG-REQ-NO-DATE-RITUAL`**              | date-based ritual 禁止 — cooling period / 月次 review hook 等を構造禁止                              | aag/ 配下 + project 配下 + checklist で date-based cadence 検出 0 件                                            | **達成** (本 project Phase 0.5 で articulate 済)                                                                                                                      |
 | **`AAG-REQ-NO-PERFECTIONISM`**            | 完璧主義禁止 — 弱さを構造的に受容、意図的に残す弱さを articulate                                     | adaptive-architecture-governance.md §「意図的に残す弱さ」 の articulate 維持                                    | **達成** (既存 articulation)                                                                                                                                          |
-| **`AAG-REQ-NO-AI-HUMAN-SUBSTITUTION`**    | AI / 人間判断の代替禁止 — 機械検証で判定不可能な領域 (戦略 / 業務的妥当性 / 創造性) は人間判断に残す | Layer 0 (目的) を機械検証 condition に変換しない + 物理削除 trigger に人間 deletion approval 必須               | **達成** (本 project で articulate)                                                                                                                                   |
+| **`AAG-REQ-NO-AI-HUMAN-SUBSTITUTION`**    | AI / user判断の代替禁止 — 機械検証で判定不可能な領域 (戦略 / 業務的妥当性 / 創造性) はuser 判断に残す | Layer 0 (目的) を機械検証 condition に変換しない + 物理削除 trigger にuser deletion approval 必須               | **達成** (本 project で articulate)                                                                                                                                   |
 | **`AAG-REQ-NO-BUSINESS-LOGIC-INTRUSION`** | 業務 logic 侵入禁止 — AAG framework は本体アプリ機能に侵入しない                                     | aag/ 配下に業務 pattern 検出 0 件 + AAG framework 拡張時に本体コード touch しない (aag-5-constitution.md §前提) | **達成** (既存 mechanism)                                                                                                                                             |
 
 ### §2.3 期間ベース判断の禁止範囲 (`AAG-REQ-NO-DATE-RITUAL` 詳細、observeForDays 切り分け)
@@ -52,7 +52,7 @@ AAG が satisfy すべき要件を **不変条件** (Invariants、positive) + **
 
 | context                                               | trigger 種別                                                                                                          | 期間 buffer 許容?                                  |
 | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| **legacy doc 削除** (archive 移管 / 物理削除)         | `inbound 0` 機械検証のみ + 人間 deletion approval                                                                     | ❌ 禁止                                            |
+| **legacy doc 削除** (archive 移管 / 物理削除)         | `inbound 0` 機械検証のみ + user deletion approval                                                                     | ❌ 禁止                                            |
 | **rule の deprecated 化** (proxy / performative 撤回) | audit 結果 (state-based 判定、proxy metric の articulate 等)                                                          | ❌ 禁止                                            |
 | **archive 移管 trigger**                              | 旧 path への inbound 0 + migrationRecipe 完備 + 新 doc に mapping table が landed                                     | ❌ 禁止                                            |
 | **experimental rule 昇格 / 撤回観測**                 | 主 trigger は `sunsetCondition` 状態満足、`observeForDays` は **supplementary signal** (= 観測指標、trigger ではない) | ✅ 観測指標として許容、ただし trigger には使わない |
@@ -166,7 +166,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 | 2026-05-01 | `AAG-REQ-BIDIRECTIONAL-INTEGRITY` | 未達成    | 達成                      | Project B Phase 4 で 4 meta-guard landing + Project C Phase 3 (DFR registry が最初の concrete instance、commit `35c2e17` 系 + 本 commit)                     |
 | 2026-05-01 | `AAG-REQ-SELF-HOSTING`            | 未達成    | 達成                      | selfHostingGuard MVP (Phase 1) — `AR-AAG-META-SELF-HOSTING` rule + `app/src/test/guards/selfHostingGuard.test.ts` で self-reference closure を hard fail 検証 (12/12 milestone 到達)                                                |
 
-各 flip は project commit に対応、後任 AI / 人間が trace + revisit 可能。
+各 flip は project commit に対応、後任 AI / userが trace + revisit 可能。
 
 ## 関連 doc
 

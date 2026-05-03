@@ -9,7 +9,7 @@
 
 `promotion-ready` から `current` へ移す正式手順（Phase 8）を経ずに、
 候補を current 群へ編入してはならない。
-承認主体は人間であり、実装 AI は提案のみ。
+承認主体は userであり、実装 AI は提案のみ。
 昇格条件・registry 更新・bridge 切替・失敗時巻き戻しの全てが定義されている（Phase 8 参照）。
 
 ### 原則 2: Guard は定義した Phase で即導入する
@@ -837,13 +837,13 @@ Phase 11 (意味拡張 + UI 進化)      ← Phase 9-10 安定後
 ### Phase 8: Promote Ceremony / Current 編入
 
 **目的**: promotion-ready の候補を正式に current へ編入する儀式。
-**最大の構造的原則**: 実装 AI は promote を提案できるが、自己承認はできない。最終承認は人間。
+**最大の構造的原則**: 実装 AI は promote を提案できるが、自己承認はできない。最終承認は user。
 
 #### 判定主体
 
 - AAG が証拠（dual-run 結果、rollback 実証、guard 通過状況）を揃える
 - 実装 AI が promote 提案書を作成する
-- **人間が最終承認する**
+- **user が最終承認する**
 
 #### 昇格条件チェックリスト
 

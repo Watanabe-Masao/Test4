@@ -32,7 +32,7 @@ architecture refactor。
 - **requiresGuard=true** — Phase 0: `authoritative` 単独使用禁止 guard、
   Phase 3: bridge 未経由禁止 guard、Phase 4: current/candidate 混線禁止 guard、
   Phase 7: 統合整理時の追加 guard
-- **requiresHumanApproval=true** — Phase 8 Promote Ceremony の承認主体は人間
+- **requiresHumanApproval=true** — Phase 8 Promote Ceremony の承認主体は user
   （原則 1）、archive 時レビュー必須
 
 ## 3. 必要な文書
@@ -48,7 +48,7 @@ architecture refactor。
 | `legacy-retirement.md`           |  required | JS 計算群の撤退運用                                                   |
 | `sub-project-map.md`             | forbidden | 単独 project                                                          |
 | guard 設計 (plan.md 内)          |  required | 4 guard の baseline 戦略（Phase 別禁止事項テーブルに記載済み）        |
-| 最終レビュー (人間承認) checkbox |  required | requiresHumanApproval=true                                            |
+| 最終レビュー (user 承認) checkbox |  required | requiresHumanApproval=true                                            |
 
 ## 4. やらないこと (nonGoals)
 
@@ -63,7 +63,7 @@ architecture refactor。
 
 ## 5. Escalation / De-escalation 条件
 
-- Phase 8 Promote Ceremony で人間承認が得られない場合 → Phase 8 に留まる
+- Phase 8 Promote Ceremony でuser 承認が得られない場合 → Phase 8 に留まる
 - Phase 7 の段階削除で新たな bridge が必要と判明 → plan.md §Phase 別禁止事項テーブルに追加
 - scope が複雑化し複数 sub-project に分割必要と判明 → Level 4 に escalate（現状想定外）
 

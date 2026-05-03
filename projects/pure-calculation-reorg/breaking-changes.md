@@ -19,7 +19,7 @@
 - **guard 先行** — Phase 0 で `authoritative` 単独使用禁止 guard、Phase 3 で bridge
   未経由禁止 guard、Phase 7 の段階削除前に統合 guard を有効化
 - **Promote Ceremony 経由**（plan.md §原則 1）— `promotion-ready` → `current` 昇格は
-  Phase 8 の正式手順のみ。実装 AI は提案のみ、承認主体は人間
+  Phase 8 の正式手順のみ。実装 AI は提案のみ、承認主体は user
 - **current ↔ candidate 分離**（plan.md §原則 4）— 同じ registry view に載せない、
   同じ KPI で評価しない、同じ review 導線を使わない
 
@@ -33,7 +33,7 @@
 
 - Phase 7 段階削除: 削除 PR を revert すれば JS 正本が復帰
 - Phase 9 最終削除: 一括削除のため rollback 難度が高い → Phase 8 Promote Ceremony で
-  十分な観測期間を経てから実施（原則 1: 承認主体は人間）
+  十分な観測期間を経てから実施（原則 1: 承認主体は user）
 - rollback 境界は **Phase 単位**
 
 詳細は本 project の `plan.md` §Phase 7, §Phase 8, §Phase 9 を参照。

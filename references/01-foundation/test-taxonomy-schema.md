@@ -156,7 +156,7 @@ v2 = 15 / Ceiling = 15 → **余裕 0**（cap 到達）。
 新 T:kind 追加 / 既存 T:kind retirement / Antibody Pair 組み換え は **review window 経由のみ**:
 
 - 提案: `references/04-tracking/taxonomy-review-journal.md` に entry 追加
-- 裁定: 四半期 review window で人間判断
+- 裁定: 四半期 review window でuser 判断
 - 連動: 対応 R:tag が必要なら responsibility-taxonomy-v2 と同期 review window で同時裁定（原則 4）
 - **新 T:kind は最低 1 件の R:tag に対する検証契約を持つ必要がある**（孤立 T:kind 禁止、interlock §5.2）
 

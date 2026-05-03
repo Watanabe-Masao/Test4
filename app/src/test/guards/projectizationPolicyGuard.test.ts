@@ -361,9 +361,11 @@ function checkPZ10(p: ActiveProject): Violation[] {
   const checklist = path.join(p.absDir, 'checklist.md')
   if (!fs.existsSync(checklist)) return []
   const content = fs.readFileSync(checklist, 'utf-8')
-  // 「最終レビュー」「人間承認」のいずれかを含む section 配下に [ ] checkbox があれば OK
+  // 「最終レビュー」「user 承認」「人間承認」のいずれかを含む section 配下に [ ] checkbox があれば OK
   // 構造的契約のみ検証: bullet style (`*` / `-`) は Prettier に委譲（責務分離）。
-  const hasFinalReviewSection = /最終レビュー|人間承認|Human Approval|Final Review/i.test(content)
+  // aag-self-hosting-completion R3c で「人間」→「user」統一、両表記を許容。
+  const hasFinalReviewSection =
+    /最終レビュー|user 承認|人間承認|Human Approval|Final Review|User Approval/i.test(content)
   const hasCheckbox = /^\s*[*-]\s+\[\s?\]\s+/m.test(content)
   if (!hasFinalReviewSection || !hasCheckbox) {
     return [
@@ -371,11 +373,11 @@ function checkPZ10(p: ActiveProject): Violation[] {
         projectId: p.projectId,
         code: 'PZ-10',
         message:
-          'requiresHumanApproval=true なのに checklist.md に「最終レビュー (人間承認)」 checkbox がありません',
+          'requiresHumanApproval=true なのに checklist.md に「最終レビュー (user 承認)」 checkbox がありません',
         hint:
           'checklist.md の最後に次の section を追加してください:\n' +
-          '    ## 最終レビュー (人間承認)\n' +
-          '    - [ ] 全 Phase の成果物を人間がレビューし archive プロセスへの移行を承認する\n' +
+          '    ## 最終レビュー (user 承認)\n' +
+          '    - [ ] 全 Phase の成果物を user がレビューし archive プロセスへの移行を承認する\n' +
           ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.1 + ' +
           'references/05-aag-interface/operations/projectization-policy.md §8。' +
           '（bullet style は `*` / `-` どちらでも accept、Prettier に委譲）',

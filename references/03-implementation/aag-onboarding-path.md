@@ -1,6 +1,6 @@
 # aag-onboarding-path — 初見者向け最短経路
 
-> **目的**: AAG framework / 設計原則 / 実装規約を初めて触る AI / 人間が **必要最小限の doc を最短時間で読む** ための reading path を提供する。
+> **目的**: AAG framework / 設計原則 / 実装規約を初めて触る AI / userが **必要最小限の doc を最短時間で読む** ための reading path を提供する。
 > **位置づけ**: Phase Q.O-1 deliverable（onboarding cognitive load 削減）。
 > **読者**: 初回 session の AI、新規 contributor、自分自身（記憶なし状態の AI）。
 

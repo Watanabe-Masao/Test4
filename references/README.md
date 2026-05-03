@@ -1,8 +1,8 @@
 # references/ ドキュメントガイド
 
-> **役割 (= 3 tree boundary 第一階層)**: **主アプリ (粗利管理ツール) 改修 AI / 人間の knowledge interface**。
+> **役割 (= 3 tree boundary 第一階層)**: **主アプリ (粗利管理ツール) 改修 AI / userの knowledge interface**。
 >
-> 本 directory に置くもの = 主アプリ業務 domain 知識 + 主アプリ改修向け実装ガイド + 動的 state observation + 主アプリ改修者が使う AAG public interface (= drawer / protocols / operations、`05-aag-interface/` で landing 済 = R2 完了)。
+> 本 directory に置くもの = 主アプリ業務 domain 知識 + 主アプリ改修向け実装ガイド + 動的 state observation + 主アプリ改修 userが使う AAG public interface (= drawer / protocols / operations、`05-aag-interface/` で landing 済 = R2 完了)。
 >
 > 本 directory に置かないもの = AAG framework 内部 articulation (= `aag/` tree、本 program R1 で relocate 済) / 作業単位 lens (= `projects/` tree)。
 >
@@ -10,14 +10,14 @@
 >
 > 命名規約 (= R3b 適用済): 機械生成 file は `*.generated.md` suffix で明示 (= 手編集禁止、`generatedFileEditGuard` で機械検証)。
 >
-> 旧運用仕様書群 articulate 維持: AIと人間が安全に作業するための設計制約・ルール・参照情報を格納する。
+> 旧運用仕様書群 articulate 維持: AI と userが安全に作業するための設計制約・ルール・参照情報を格納する。
 
 ## 3 tree boundary (= references / aag / projects、第一階層 articulate)
 
 | tree | 役割 | reader |
 |---|---|---|
-| **`references/`** (本 tree) | **主アプリ改修 AI / 人間の knowledge interface** | 主アプリ改修 AI / 人間 |
-| **`aag/`** (R1 で fill 予定) | AAG framework 本体 (= 内部 articulation + framework 実装 skeleton) | AAG framework 改修者のみ、**主アプリ改修者は通常 not read** |
+| **`references/`** (本 tree) | **主アプリ改修 userの knowledge interface** | 主アプリ改修 user |
+| **`aag/`** (R1 で fill 予定) | AAG framework 本体 (= 内部 articulation + framework 実装 skeleton) | AAG framework 改修者のみ、**主アプリ改修 userは通常 not read** |
 | **`projects/`** | 作業単位 lens (= active + completed projects)、状態正本でも進捗集約でもない | 全 reader (= 作業 context 把握) |
 
 詳細: `aag/README.md` (= R0 で landing) + projects/ root の README.md。
@@ -26,7 +26,7 @@
 
 | reader | 必読範囲 | 読まない範囲 |
 |---|---|---|
-| **主アプリ改修 AI / 人間** | `01-foundation/` (excl. `aag/`) + `04-tracking/` + `03-implementation/` (= drawer 含む) + `02-design-system/` + `04-tracking/elements/` | **`aag/_internal/` (= AAG framework 内部、主アプリ改修に不要)** |
+| **主アプリ改修 user** | `01-foundation/` (excl. `aag/`) + `04-tracking/` + `03-implementation/` (= drawer 含む) + `02-design-system/` + `04-tracking/elements/` | **`aag/_internal/` (= AAG framework 内部、主アプリ改修に不要)** |
 | AAG framework 改修者 | `aag/_internal/` + `aag/core/` + drawer (`03-implementation/decision-articulation-patterns.md`) | (主アプリ業務 doc は context 把握のみで深読み不要) |
 
 **主アプリ改修 AI は `aag/_internal/` を読む必要なし** (= AAG が AI に提供する **引き出し** = drawer は `03-implementation/decision-articulation-patterns.md` に articulated 済、AAG 内部は引き出しの実装詳細であり主アプリ改修 AI からは black box)。
@@ -471,7 +471,7 @@
 | `03-implementation/project-checklist-governance.md`  | projects/ 運用ルール（**規約の正本** — ドキュメントと課題の分離 / checklist 駆動の completion 管理）                                                                                                                                                                              |
 | `03-implementation/new-project-bootstrap-guide.md`   | 新規 project bootstrap ガイド（aag-format-redesign — 必須セット / 派生セット判定 / overlay defaults / 切替検証順序 / 実行可能粒度チェックリスト）                                                                                                                                 |
 | `03-implementation/projectization-policy.md`         | AAG-COA — Projectization Policy（**立ち上げ前の入口判定** — Level 0-4 / required + forbidden artifacts / escalation / project.json metadata / guard 仕様）                                                                                                                        |
-| `03-implementation/deferred-decision-pattern.md`     | Deferred Decision Pattern（**途中判断 制度化** — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred、判断基準 + 収集元 + AI/人間判断分離 + decision log + 適用 template、AAG Layer 4A System Operations、project-checklist-governance.md と並列） |
+| `03-implementation/deferred-decision-pattern.md`     | Deferred Decision Pattern（**途中判断 制度化** — 計画段階で判断が難しい decision を実装着手時 / 進行中の AI 自主判断として deferred、判断基準 + 収集元 + AI/user判断分離 + decision log + 適用 template、AAG Layer 4A System Operations、project-checklist-governance.md と並列） |
 
 ### 移行・廃止
 

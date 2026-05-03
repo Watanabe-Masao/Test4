@@ -13,7 +13,7 @@
 1. `domain/models/Explanation.ts` の `MetricId` 型に新 ID を追加
 2. `references/03-implementation/metric-id-registry.md` にエントリを追加
 3. `ExplanationService.ts` に生成ロジックを追加:
-   - `formula`: 人間可読な計算式（日本語）
+   - `formula`: user-readableな計算式（日本語）
    - `inputs`: 入力パラメータ（`metric` リンク付き）
    - `breakdown`: 日別内訳
    - `evidenceRefs`: 根拠データ参照

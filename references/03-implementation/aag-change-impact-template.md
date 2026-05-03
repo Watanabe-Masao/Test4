@@ -129,7 +129,7 @@ AAG の 4 layer model（`AAG_OVERVIEW.md` 参照）のどこに入るか。
 
 本 template は **soft enforcement**（PR description checklist）として運用する。**guard で機械検証はしない**。理由:
 
-- AI / 人間が PR を出す前の self-reflection を促すのが本質的価値
+- AI / userが PR を出す前の self-reflection を促すのが本質的価値
 - guard で強制すると形式記入になり質が下がるリスク
 - 1 人 dev project で過剰 ceremony を避ける（Phase Q scope reduction の方針）
 

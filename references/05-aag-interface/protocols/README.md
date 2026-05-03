@@ -2,7 +2,7 @@
 
 > **status**: skeleton (= R2 で landed)、R5 で fill 予定。
 > **役割**: operational-protocol-system project の M1-M5 deliverable (= Task Protocol / Session Protocol / Complexity Policy + Task Class Catalog + 5 Protocol = Planning / Refactor / Bug Fix / New Capability / Handoff) の landing 場所。
-> **reader**: 主アプリ改修 user / 人間 (= AAG が提供する Task / Session / Complexity protocol を引き出して使う)。
+> **reader**: 主アプリ改修 user (= AAG が提供する Task / Session / Complexity protocol を引き出して使う)。
 
 ## 役割 (= layer 3 value mechanism、本 program R5 で resume trigger)
 

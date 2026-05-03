@@ -13,7 +13,7 @@
 > - 親 Phase 4 制度成立 5 要件: **4/6 [x]**（残 2 = 「四半期 review window 2 回以上」+ 「interlock マトリクス違反 0 連続 2 四半期」、forward-looking commitment）
 > - 親 Phase 4 OCS 稼働確認: **5/7 [x]**（残 2 = 「Promotion Gate L6 全タグ到達」+ 「Drift Budget 連続 2 四半期」、いずれも観察フェーズ依存）
 > - 親 Phase 4 Anchor Slice 拡大: **3/3 [x]**（段階 1 / 2 / 3 全完遂）
-> - 親 最終レビュー (人間承認): **[ ] 観察期間後に [x]**（次回 review window 2026-Q3 で 2 件目 entry 確定 + interlock 違反 0 連続 2 四半期到達後）
+> - 親 最終レビュー (user 承認): **[ ] 観察期間後に [x]**（次回 review window 2026-Q3 で 2 件目 entry 確定 + interlock 違反 0 連続 2 四半期到達後）
 
 ### 観察期間中の到達条件 (2026-Q3 review window 想定)
 

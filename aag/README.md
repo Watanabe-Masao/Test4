@@ -2,7 +2,7 @@
 
 > **🚧 reader 別 boundary 警告**:
 >
-> **主アプリ (粗利管理ツール) 改修 AI / 人間は本 tree を通常 not read。**
+> **主アプリ (粗利管理ツール) 改修 AI / userは本 tree を通常 not read。**
 >
 > AAG が AI に提供する **drawer (= 引き出し)** + **protocols** + **operations** は **`references/05-aag-interface/`** (R2 で landing 予定) に articulated。主アプリ改修時は **drawer 経由で必要な Pattern を引き出す** だけで済み、本 tree を読む必要はない。
 >
@@ -20,13 +20,13 @@
 
 | tree | 役割 | reader |
 |---|---|---|
-| `references/` | 主アプリ改修 AI / 人間の knowledge interface | 主アプリ改修 AI / 人間 |
+| `references/` | 主アプリ改修 userの knowledge interface | 主アプリ改修 user |
 | **`aag/`** (本 tree) | **AAG framework 本体** | AAG framework 改修者のみ |
 | `projects/` | 作業単位 lens | 全 reader |
 
-## 主アプリ改修時の reach 経路 (= 主アプリ改修者は本 tree を読まない)
+## 主アプリ改修時の reach 経路 (= 主アプリ改修 userは本 tree を読まない)
 
-主アプリ改修 AI / 人間は以下経路で AAG が提供する pattern / operation を reach:
+主アプリ改修 userは以下経路で AAG が提供する pattern / operation を reach:
 
 | 必要 | reach 先 (= references/ tree 内、`aag/` tree 不要) |
 |---|---|
@@ -34,7 +34,7 @@
 | AAG-COA / project-checklist-governance / new-project-bootstrap-guide / deferred-decision-pattern | `references/05-aag-interface/operations/<doc>.md` (R2 で landing) |
 | Task Protocol / Session Protocol / Complexity Policy (= operational-protocol-system M1-M5 deliverable) | `references/05-aag-interface/protocols/<doc>.md` (R5 完了後 fill 予定) |
 
-= 主アプリ改修者は **`references/05-aag-interface/` のみ** を reach 先とすれば、AAG framework が提供する全 interface に到達可能。本 `aag/` tree を読む必要は通常ない。
+= 主アプリ改修 userは **`references/05-aag-interface/` のみ** を reach 先とすれば、AAG framework が提供する全 interface に到達可能。本 `aag/` tree を読む必要は通常ない。
 
 ## 構造 (= R1 で fill 予定の skeleton)
 
@@ -62,7 +62,7 @@ aag/
     └── AAG_CORE_INDEX.md
 ```
 
-## 関連 (= 主アプリ改修者は読まない、AAG 改修者向け)
+## 関連 (= 主アプリ改修 userは読まない、AAG 改修者向け)
 
 - AAG Pilot 完遂 program: `projects/completed/aag-platformization/`
 - 進行中 structural reorganization: `projects/aag-self-hosting-completion/`

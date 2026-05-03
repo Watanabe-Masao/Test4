@@ -30,7 +30,7 @@
 > ことを確認する。これにより coverage 数値達成のために品質シグナルを歪める
 > 行為（無価値テスト / suppression）が機械的に止まる前提が整う。
 
-- [x] `projects/completed/test-signal-integrity` の Phase 3 完了を確認する（前提条件 — 機能的 Phase 1〜5 完了済、最終人間レビューのみ）
+- [x] `projects/completed/test-signal-integrity` の Phase 3 完了を確認する（前提条件 — 機能的 Phase 1〜5 完了済、最終user レビューのみ）
 - [x] `vitest.config.ts` の coverage include に `presentation/` を追加する
 - [x] Presentation 層の高優先 component（IntegratedSalesChart / DashboardPage / WeatherPage）に component test を追加する
 - [ ] coverage 閾値を `lines: 55` → `lines: 70` に引き上げる
@@ -41,12 +41,12 @@
 - [x] 拡充 spec が `npm run test:e2e` で全て pass することを確認する
   - Step 3-40 (2026-04-20): main 最新 5 CI run が全 success (runs #2039〜#2047)
 
-## 最終レビュー (人間承認)
+## 最終レビュー (user 承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2 +
 > `references/05-aag-interface/operations/projectization-policy.md` §8
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) をuser がレビューし、archive プロセスへの移行を承認する

@@ -19,13 +19,13 @@
 ## Phase R0: 境界定義先行 (= structural change 前の articulation update)
 
 - [ ] DA-α-001 entry landing (= R0 着手判断、5 軸 + 観測点 + Lineage)
-- [ ] `references/README.md` update (= 主アプリ改修 AI / 人間の knowledge interface、3 tree 境界)
+- [ ] `references/README.md` update (= 主アプリ改修 userの knowledge interface、3 tree 境界)
 - [ ] `aag/README.md` 新設 (= AAG framework 本体、`_internal/` + `_framework/` skeleton)
 - [ ] projects/ root の README.md update (= 作業単位 lens、active + completed 境界)
 - [ ] `CURRENT_PROJECT.md` update (= active project pointer 限定)
 - [ ] `CLAUDE.md` update (= 3 tree 境界 + reader-別 routing 1 section)
 - [ ] **観測** R0-1: 5 README + CLAUDE.md で 3 tree 境界 articulated
-- [ ] **観測** R0-2: 「主アプリ改修者 read OK / not read」が file 名 / directory 名から判断可能 articulated
+- [ ] **観測** R0-2: 「主アプリ改修 user read OK / not read」が file 名 / directory 名から判断可能 articulated
 - [ ] **観測** R0-3: `*.generated.md` 命名規約 articulate (= R3 以降適用予告)
 - [ ] **観測** R0-4: 944 test 維持
 - [ ] **観測** R0-5 (反証): 後続 R-phase の物理移動 instruction が R0 articulate と齟齬する場合 verify fail
@@ -58,13 +58,13 @@
 - [ ] 該当 inbound 全 update + broken 0
 - [ ] doc-registry.json + manifest.json 更新
 - [ ] **新 guard 2 件 landing**:
-  - `aagBoundaryGuard.test.ts` (= aag/ 配下に主アプリ改修者向け doc 配置検出、Hard fail、baseline=0)
+  - `aagBoundaryGuard.test.ts` (= aag/ 配下に主アプリ改修 user向け doc 配置検出、Hard fail、baseline=0)
   - `aagBoundaryGuard.test.ts` (= references/05-aag-interface/ 外への AAG public interface doc 配置検出、Hard fail、baseline=0)
 - [ ] **観測** R2-1: 5 doc が references/05-aag-interface/ 配下に物理移動
 - [ ] **観測** R2-2: inbound 全 update + broken 0
 - [ ] **観測** R2-3: doc-registry / manifest 整合
 - [ ] **観測** R2-4: 944 test + 新 guard 2 件 PASS
-- [ ] **観測** R2-5 (反証): aag/ 配下に主アプリ改修者向け doc 0 件 machine 検証 (= synthetic 違反 test で fail)
+- [ ] **観測** R2-5 (反証): aag/ 配下に主アプリ改修 user向け doc 0 件 machine 検証 (= synthetic 違反 test で fail)
 - [ ] DA-α-003 振り返り判定
 
 ## Phase R3: references/ directory rename + `*.generated.md` 命名規約適用 (= sub-phase 化、self-evaluation 反映)
@@ -177,7 +177,7 @@
 - [ ] `aag/_internal/meta.md` §2.1 で AAG-REQ-SELF-HOSTING を「code-level + entry navigation rigor 完全達成」に articulate update
 - [ ] self-hosting closure 達成根拠 articulate (= R1-R5 の structural separation + 各 R-phase guard 一覧)
 - [ ] `selfHostingGuard.test.ts` 拡張 (= entry navigation rigor 検証 4 boundary):
-  - aag/ 配下に主アプリ改修者向け doc 0 件
+  - aag/ 配下に主アプリ改修 user向け doc 0 件
   - references/ 配下に AAG framework 内部 doc 0 件
   - `*.generated.md` 手編集 0 件
   - element ID prefix 違反 0 件
@@ -230,11 +230,11 @@
 - [ ] `CURRENT_PROJECT.md` pointer-only 固定 + 機械検証 guard 動作
 - [ ] pre-commit hook で boundary 違反早期検出 (= R7)
 
-## 最終レビュー (人間承認)
+## 最終レビュー (user 承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact / 14 新 guard) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact / 14 新 guard) をuser がレビューし、archive プロセスへの移行を承認する

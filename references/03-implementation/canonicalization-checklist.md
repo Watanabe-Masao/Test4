@@ -1,7 +1,7 @@
 # canonicalization checklist — 新 registry+guard ペア追加 / 撤退の標準手順
 
 > **canonicalization-domain-consolidation Phase I 成果物** (2026-04-29 起草)。
-> 整合性 (registry+guard) ペアを新規追加 / 撤退する人 (AI / 人間) のための標準手順。
+> 整合性 (registry+guard) ペアを新規追加 / 撤退する人 (AI / user) のための標準手順。
 > Phase A〜H で institutionalize された rule を**実行可能 checklist に圧縮**したもの。
 >
 > **冗長性の方針**: 本 doc は judgment / steps の集約点。判断基準の本文は
@@ -112,7 +112,7 @@
 
 - `AR-INTEGRITY-NO-RESURRECT` (`integrityNoResurrectGuard.test.ts`) が、`rejected[].originalSlot`
   名と `app-domain/integrity/{parsing,detection,reporting}/` 配下 file 名の衝突を hard fail。
-  AI / 人間が `rejected` を確認せずに同名 primitive を再提案するリスクを構造的に防ぐ。
+  AI / userが `rejected` を確認せずに同名 primitive を再提案するリスクを構造的に防ぐ。
 
 ## 4. 機械検証経路一覧
 

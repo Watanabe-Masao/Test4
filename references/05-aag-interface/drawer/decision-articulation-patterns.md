@@ -1,6 +1,6 @@
 # Decision Articulation Patterns
 
-> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/drawer/` 配下に配置 (= 主アプリ改修 user / 人間が reach する **AAG public interface**)。AAG framework 内部 (= `aag/_internal/`) を読む必要なく、本 doc 内 articulate のみで pattern を引き出して使える。
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/drawer/` 配下に配置 (= 主アプリ改修 userが reach する **AAG public interface**)。AAG framework 内部 (= `aag/_internal/`) を読む必要なく、本 doc 内 articulate のみで pattern を引き出して使える。
 >
 > **3 tree boundary integration**: `references/` (= 主アプリ改修 user knowledge interface) 配下、`aag/` (= AAG framework 本体、主アプリ改修 user not read) と structural separation。
 >
@@ -8,7 +8,7 @@
 > change-bearing 作業全般で再利用可能な articulation pattern 集。
 >
 > **primary 適用領域**: 主アプリ改修。各 pattern は **領域 agnostic** に articulate されており、
-> 本 doc を引いた AI / 人間は **AAG framework 内部 (= `aag/_internal/` + `aag/core/`) を一切読まずに** 適用できる
+> 本 doc を引いた AI / userは **AAG framework 内部 (= `aag/_internal/` + `aag/core/`) を一切読まずに** 適用できる
 > (= AAG が AI に提供する「引き出し」の core instance、本 doc が AAG への primary entry)。
 >
 > **重要**: 主アプリ改修で AAG framework articulate (= meta.md / strategy.md / architecture.md / etc.) を読みたくなった場合、それは **drawer の articulate 不足**を意味する可能性 (= 該当 Pattern が articulate されていない / 既存 Pattern が application 不足) が高い。drawer 経由で reach 不能な場合のみ AAG sub-tree を consult する (= drawer は `主アプリ AI ↔ AAG framework` の唯一の正規 interface)。
@@ -51,7 +51,7 @@
 
 - 1 つの判断 (judgement) で複数 commit が landing する change-bearing 作業
 - 後で「やっぱり違った」が起きる可能性がある作業 (= reframe が予想される)
-- AI が自律的に判断を進める / 人間 review が後追いになる作業
+- AI が自律的に判断を進める / user review が後追いになる作業
 
 ### 何をする
 
@@ -87,7 +87,7 @@
 ### 何をする
 
 1. 作業着手前に **「やらないこと」 list** を articulate (典型: 5-7 件)
-2. 各 item に **違反時の動作** を articulate (例: revert / scope 外通知 / 別 program 起動 / 人間 escalation)
+2. 各 item に **違反時の動作** を articulate (例: revert / scope 外通知 / 別 program 起動 / user escalation)
 3. 後で reframe 提案が来た時に **「list の N 番違反」と機械的に断る経路** を確保
 4. list 改訂は **judgement commit** (Pattern 1) で実施 (= articulation 改訂自身も rollback 可能に)
 
@@ -208,7 +208,7 @@
 
 - 「2 週間運用観測」で済ませたくなる時 (= calendar-based observation の anti-pattern、proxy metric)
 - 機能 (functioning) を verify したいが proxy metric (= 経過時間 / レビュー件数 / "やった感") では不足な時
-- AI 自身が verify する責任を持っている時 (= 人間 review が後追い、即時 verify 必要)
+- AI 自身が verify する責任を持っている時 (= user review が後追い、即時 verify 必要)
 - 検証 scenario が articulate 可能な時 (= 抽象 trigger ではなく concrete trigger)
 
 ### 何をする

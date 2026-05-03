@@ -181,7 +181,7 @@ npm run taxonomy:impact -- --axis test               # T 軸のみ
 | `unverifiedTKinds`     | test の T:kind のうち linked src の R:tag が `verifies` 集合に該当しないもの |
 | `result`               | `pass`（missing 空 + unverified 空）/ `warn`（unverified のみ）/ `fail`（missing 有）|
 
-### 5.3. T 軸出力例（人間可読）
+### 5.3. T 軸出力例（user-readable）
 
 ```
 Changed file:

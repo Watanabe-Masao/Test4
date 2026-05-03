@@ -15,7 +15,7 @@
 | Tier 2 | complexity / ergonomics / migration debt | ratchet 管理 |
 | Tier 3 | review-only / observation | report と review 対象 |
 
-> **注**: `tier` field は Q.O-2 で BaseRule schema に追加される。本 doc の Tier 0 一覧は Q.O-2 で `tier: 0` として宣言される rule の **人間可読ビュー**。Q.O-2 完了後は base-rules.ts が正本となり、本 doc は派生（drift は guard で検証）。
+> **注**: `tier` field は Q.O-2 で BaseRule schema に追加される。本 doc の Tier 0 一覧は Q.O-2 で `tier: 0` として宣言される rule の **user-readableビュー**。Q.O-2 完了後は base-rules.ts が正本となり、本 doc は派生（drift は guard で検証）。
 
 ## Tier 0 一覧（初期指定）
 

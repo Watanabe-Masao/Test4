@@ -125,11 +125,11 @@ batch 1+2 で確定した protocol §2 を機械適用。各 rule の `what` / `
 
 **結果**: 全 166 rule が `status: 'bound'` 状態、`pending` 0 件。
 
-### Discovery Review (人間レビュー、follow-up session で実施)
+### Discovery Review (user レビュー、follow-up session で実施)
 
 batch 3 の synthesizer は **protocol §2 機械検証 hard fail criteria** を保証するが、**意味の妥当性**
 (= 適切な AAG-REQ mapping、articulation の質、refs[] の追加) は機械では判定不能。protocol §1 の
-articulation 品質を高めるため、後続 session で人間レビュー (Discovery Review) を実施:
+articulation 品質を高めるため、後続 session でuser レビュー (Discovery Review) を実施:
 
 - 各 rule の AAG-REQ mapping が真に妥当か (heuristic は domain 特化の誤り得る)
 - `problemAddressed` + `resolutionContribution` が rule 固有性を真に articulate しているか

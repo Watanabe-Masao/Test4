@@ -49,12 +49,12 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 ### Phase R0: 境界定義先行 (= structural change 前の articulation update)
 
-**目的**: 構造変更前に **3 tree の境界 articulate** を root README で確立。R1 以降の物理移動が start した後でも、AI / 人間が物理配置を見るだけで「読む / 読まない」を即判断できる state を作る。
+**目的**: 構造変更前に **3 tree の境界 articulate** を root README で確立。R1 以降の物理移動が start した後でも、AI / userが物理配置を見るだけで「読む / 読まない」を即判断できる state を作る。
 
 **deliverable**:
 
-- `references/README.md` update — **「主アプリ改修 AI / 人間の knowledge interface」** と明示、3 tree (references / aag / projects) の境界 articulate
-- `aag/README.md` 新設 — **「AAG framework 本体、主アプリ改修者は通常 not read」** + `aag/_internal/` + `aag/_framework/` 構造の articulate (= R1 で fill する skeleton)
+- `references/README.md` update — **「主アプリ改修 userの knowledge interface」** と明示、3 tree (references / aag / projects) の境界 articulate
+- `aag/README.md` 新設 — **「AAG framework 本体、主アプリ改修 userは通常 not read」** + `aag/_internal/` + `aag/_framework/` 構造の articulate (= R1 で fill する skeleton)
 - projects/ root の README.md update — **「作業単位 lens、状態正本でも進捗集約でもない」** と明示、active + completed の境界 articulate (= R6 で active/ + completed/ split 適用予定)
 - `CURRENT_PROJECT.md` update — **「active project pointer 限定、詳細進捗・判断は `projects` 配下 `active/<id>`/ に集約」** と明示
 - `CLAUDE.md` update — 3 tree の境界 + reader-별 routing を 1 section で articulate (= AAG セクション既存記載との整合維持)
@@ -68,7 +68,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 **観測点** (= drawer Pattern 6):
 
 - R0-1: 5 README + CLAUDE.md で 3 tree の境界 articulated
-- R0-2: 「主アプリ改修者 read OK / not read」が file 名 / directory 名から判断可能 articulated
+- R0-2: 「主アプリ改修 user read OK / not read」が file 名 / directory 名から判断可能 articulated
 - R0-3: `*.generated.md` 命名規約 articulate (= R3 以降で適用予定の予告 articulate)
 - R0-4: 944 test 維持
 - R0-5 (反証): 後続 R-phase の物理移動 instruction が R0 articulate と齟齬する場合 verify fail
@@ -101,7 +101,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 ### Phase R2: AAG public interface を references/05-aag-interface/ に relocate
 
-> **境界 articulate**: AAG framework 自身は `aag/_internal/` (R1) + `aag/_framework/` skeleton (R1) に配置、ただし **主アプリ改修者が読む AAG public interface (= drawer / protocols / operations)** は `references/` 配下に置く (= reader-別 structural separation)。
+> **境界 articulate**: AAG framework 自身は `aag/_internal/` (R1) + `aag/_framework/` skeleton (R1) に配置、ただし **主アプリ改修 userが読む AAG public interface (= drawer / protocols / operations)** は `references/` 配下に置く (= reader-別 structural separation)。
 
 **deliverable**:
 
@@ -117,7 +117,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 - protocols 内 doc の articulate (= R5 で operational-protocol-system M1-M5 deliverable を landing)
 - references/03-implementation/ の他 doc (= 主アプリ実装ガイドは R3 で directory rename のみ、AAG-related のみ references/05-aag-interface/ に migrate)
-- aag/ 内に主アプリ改修者向け doc を残す (= 境界矛盾防止、不可侵原則 4)
+- aag/ 内に主アプリ改修 user向け doc を残す (= 境界矛盾防止、不可侵原則 4)
 
 **観測点**:
 
@@ -125,7 +125,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - R2-2: inbound 全 update + broken 0
 - R2-3: doc-registry / manifest 整合
 - R2-4: 944 test 維持
-- R2-5 (反証): aag/ 配下に主アプリ改修者向け doc が 0 件であることを machine 検証 (= synthetic 違反 test で fail)
+- R2-5 (反証): aag/ 配下に主アプリ改修 user向け doc が 0 件であることを machine 検証 (= synthetic 違反 test で fail)
 
 ### Phase R3: references/ directory rename + 命名規約適用 (= sub-phase 化、self-evaluation 反映)
 
@@ -174,7 +174,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - `.github/PULL_REQUEST_TEMPLATE.md` 内 旧 path 参照 約 9 箇所を新 path に update (= §7.7 articulated 一覧)
 - `CLAUDE.md` 内 旧 section path 参照を新 path に update
 - `.github/workflows/*.yml` で旧 path に依存する箇所があれば update
-- **doc-improvement-backlog.md P1 batch 解消** (= 「人間」→ 「user」grep + sed bulk + 「主アプリ改修者」→ 「主アプリ改修 user」統一、~150 箇所推定、4 系統 lens 違反検出も同 batch で解消)
+- **doc-improvement-backlog.md P1 batch 解消** (= 「人間」→ 「user」grep + sed bulk + 「主アプリ改修 user」→ 「主アプリ改修 user」統一、~150 箇所推定、4 系統 lens 違反検出も同 batch で解消)
 - doc-improvement-backlog.md status update (= P1 完遂 articulate、P2-P3 は post-R7 candidate)
 
 **観測点**:
@@ -192,7 +192,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - 138 guard / collector の path constants update (= aag-related 以外、aag は R1 で update 済)
 - `docs/contracts/doc-registry.json` 全 entry path update
 - `.claude/manifest.json` `discovery.byTopic` / `byExpertise` 内 path update
-- `references/01-foundation/decisions/` 新設 (= 人間判断置き場、recent-changes 生成化と分離)
+- `references/01-foundation/decisions/` 新設 (= user 判断置き場、recent-changes 生成化と分離)
 - **新 guard 2 件 landing** (集約後):
   - `generatedFileEditGuard.test.ts` (= `*.generated.md` 手編集検出、Hard fail、baseline=0)
   - `oldPathReferenceGuard.test.ts` (= 旧 path reference 残置検出、Hard fail、baseline=0、archive-to-archive 例外 whitelist)
@@ -284,7 +284,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - `aag/_internal/meta.md` §2.1 で AAG-REQ-SELF-HOSTING を「code-level + entry navigation rigor 完全達成」に articulate update (= 不可侵原則 2 R6 例外)
 - self-hosting closure 達成根拠を articulate (= R1-R5 の structural separation + reader-domain boundary structural articulation + 各 R-phase で landing した guard 一覧)
 - `selfHostingGuard.test.ts` に **entry navigation rigor 検証項目追加** (= 構造的整合 機械検証):
-  - aag/ 配下に主アプリ改修者向け doc が 0 件 (= R2 guard 統合)
+  - aag/ 配下に主アプリ改修 user向け doc が 0 件 (= R2 guard 統合)
   - references/ 配下に AAG framework 内部 doc が 0 件 (= R1 guard 統合)
   - `*.generated.md` の手編集 0 件 (= R3 guard 統合)
   - element ID prefix 違反 0 件 (= R4 guard 統合)
@@ -347,8 +347,8 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | per-element 全 89 element 一括 full 適用 | drawer Pattern 5 (意図的 skip): pilot subset で value verify 後段階適用 |
 | dashboard layer の手書き化 | drift detection 機能を破壊、機械生成 mandatory |
 | inbound update を後回しに R-phase landing | broken link 大量発生 risk、各 R-phase で必ず inbound update + verify |
-| **`aag/interface/` を作る** (= 旧案) | 境界矛盾 (= 主アプリ改修者 not read directory に主アプリ改修者向け doc 配置)、軌道修正済 = `references/05-aag-interface/` |
-| `aag/` 配下に主アプリ改修者向け doc 配置 | R2 `aagBoundaryGuard` で Hard fail |
+| **`aag/interface/` を作る** (= 旧案) | 境界矛盾 (= 主アプリ改修 user not read directory に主アプリ改修 user向け doc 配置)、軌道修正済 = `references/05-aag-interface/` |
+| `aag/` 配下に主アプリ改修 user向け doc 配置 | R2 `aagBoundaryGuard` で Hard fail |
 | `references/` 配下に AAG framework 内部 doc 配置 | R1 `aagBoundaryGuard` で Hard fail |
 | `*.generated.md` の手編集 | R3 `generatedFileEditGuard` で Hard fail |
 | 旧 path 参照残置 (= `01-principles/` / `02-status/` / `03-guides/` / `04-design-system/` / `05-contents/`) | R3 `oldPathReferenceGuard` で Hard fail |
@@ -376,7 +376,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 | パス | 内容 |
 |---|---|
-| `references/README.md` (update) | 主アプリ改修 AI / 人間の knowledge interface と articulate、3 tree (references / aag / projects) 境界 |
+| `references/README.md` (update) | 主アプリ改修 userの knowledge interface と articulate、3 tree (references / aag / projects) 境界 |
 | `aag/README.md` (新設) | AAG framework 本体と articulate、`_internal/` + `_framework/` skeleton |
 | projects/ root の README.md (update) | 作業単位 lens、active + completed 境界 |
 | `CURRENT_PROJECT.md` (update) | active project pointer 限定、詳細進捗 / 判断は `projects` 配下 `active/<id>`/ |
@@ -406,7 +406,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 | パス | Phase | 内容 |
 |---|---|---|
-| `references/01-foundation/decisions/` | R3 | 人間判断の置き場 (= recent-changes 生成化 と分離) |
+| `references/01-foundation/decisions/` | R3 | user 判断の置き場 (= recent-changes 生成化 と分離) |
 | `references/04-tracking/elements/element-taxonomy.md` | R4 | ID prefix 正本 (WID/CHART/ENG/PAGE/FLOW) |
 | `references/04-tracking/elements/element-index.generated.md` | R4 | 全 element 索引 (機械生成) |
 | `references/04-tracking/dashboards/{quality-dashboard,migration-progress,element-coverage,boundary-health}.generated.md` | R4 | 機械生成 dashboard |
@@ -423,7 +423,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | `aag/_internal/meta.md` §2.1 | R6 | AAG-REQ-SELF-HOSTING を「完全達成」に articulate (R6 例外、不可侵原則 2 articulate) |
 | `app/src/test/guards/selfHostingGuard.test.ts` | R6 | entry navigation rigor 検証項目追加 (= 4 boundary) |
 | `app/src/test/guards/aagBoundaryGuard.test.ts` | R1 (新設) | aag/_internal/ 外への AAG framework 内部 doc 配置検出 |
-| `app/src/test/guards/aagBoundaryGuard.test.ts` | R2 (新設) | aag/ 配下に主アプリ改修者向け doc 配置検出 |
+| `app/src/test/guards/aagBoundaryGuard.test.ts` | R2 (新設) | aag/ 配下に主アプリ改修 user向け doc 配置検出 |
 | `app/src/test/guards/aagBoundaryGuard.test.ts` | R2 (新設) | references/05-aag-interface/ 外への AAG public interface doc 配置検出 |
 | `app/src/test/guards/generatedFileEditGuard.test.ts` | R3 (新設) | `*.generated.md` 手編集検出 |
 | `app/src/test/guards/oldPathReferenceGuard.test.ts` | R3 (新設) | 旧 path reference 残置検出 |
@@ -457,7 +457,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 | guard | landing phase | 検出対象 (= sub-invariant 集約) | 違反 = |
 |---|---|---|---|
-| `aagBoundaryGuard` (= 統合 4 sub-invariant) | R1 (skeleton) → R2 (full) | (a) `aag/_internal/` 外への AAG framework 内部 doc 配置 / (b) `aag/` 配下に主アプリ改修者向け doc 配置 / (c) `references/05-aag-interface/` 外への AAG public interface doc 配置 / (d) `references/05-aag-interface/protocols/` 外への operational-protocol-system M1-M5 deliverable 配置 | Hard fail |
+| `aagBoundaryGuard` (= 統合 4 sub-invariant) | R1 (skeleton) → R2 (full) | (a) `aag/_internal/` 外への AAG framework 内部 doc 配置 / (b) `aag/` 配下に主アプリ改修 user向け doc 配置 / (c) `references/05-aag-interface/` 外への AAG public interface doc 配置 / (d) `references/05-aag-interface/protocols/` 外への operational-protocol-system M1-M5 deliverable 配置 | Hard fail |
 | `generatedFileEditGuard` | R3d | `*.generated.md` の **手編集** (= last-edit author が generator commit でない場合) | Hard fail |
 | `oldPathReferenceGuard` | R3d | 旧 path 参照残置 (= `01-principles/` / `02-status/` / `03-guides/` / `04-design-system/` / `05-contents/` 文字列の inbound link、archive-to-archive 例外 whitelist) | Hard fail |
 | `elementStructureGuard` (= 統合 3 sub-invariant) | R4 | (a) element ID prefix 違反 (= `WID-*` を `charts/` に配置等) / (b) per-element directory 4 doc 整合 / (c) `references/04-tracking/dashboards/` 配下の手書き file 配置 | Hard fail |
@@ -514,7 +514,7 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 - element を taxonomy 違反 ID で配置 → R4 `elementStructureGuard` で fail
 - CURRENT_PROJECT.md に進捗 inline → R6 `projectsStructureGuard` で fail
 
-= 7 guard が **全方位 ratchet-down**、AI / 人間が **無意識に** 旧構造に戻る path を全 type 検出。
+= 7 guard が **全方位 ratchet-down**、AI / userが **無意識に** 旧構造に戻る path を全 type 検出。
 
 ---
 
@@ -540,7 +540,7 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 | Phase | 撤退対象 | 撤退 verify |
 |---|---|---|
 | **R1** | `aag/_internal/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagBoundaryGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `aag/_internal/` 文字列 0 件 |
-| **R2** | `references/03-implementation/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
+| **R2** | `references/03-implementation/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修 user向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
 | **R3** | 旧 5 directory (`01-principles/`, `02-status/`, `03-guides/` 残部, `04-design-system/`, `05-contents/`) 物理 directory + 1,000+ inbound link + 138 guard / collector path constants + doc-registry / manifest entry path + generator 出力先 path + **PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照** + **CLAUDE.md 内 旧 section path** + 旧 naming (`recent-changes.md` suffix なし、`02-status/generated/*.md` suffix なし) | `oldPathReferenceGuard` で旧 path 文字列 0 件、`generatedFileEditGuard` で `*.generated.md` 手編集 0 件 |
 | **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementStructureGuard` で旧 ID prefix 違反 0 件 |
 | **R5** | (= 撤退対象なし、新 articulation を `references/05-aag-interface/protocols/` に landing のみ) | `aagBoundaryGuard` で旧 location 0 件 |

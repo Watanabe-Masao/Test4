@@ -14,7 +14,7 @@
 
 `projects/completed/aag-platformization/` (= Pilot Application of `references/01-foundation/platformization-standard.md`) の Phase 1+2+3 全 deliverable 完了。
 AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Generated / Facade / Policy / Operating Gate) すべてで articulate complete + 実バグ 3 件修復 + AI simulation で 5 機能 (F1-F5) verify。
-**人間承認による archive 移行 完遂** (= `plan.md` 不可侵原則 6 の唯一の人間 mandatory 点、2026-05-02 ユーザー承認、`projects/completed/aag-platformization/` に物理 archive 移管)。
+**user 承認による archive 移行 完遂** (= `plan.md` 不可侵原則 6 の唯一のuser mandatory 点、2026-05-02 ユーザー承認、`projects/completed/aag-platformization/` に物理 archive 移管)。
 
 ### 主な成果物
 
@@ -25,7 +25,7 @@ AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Gene
 - **横展開可否判定条件** — DA-α-007 §3 で 展開可 5 件 + 展開禁止 5 件 articulated。**判定実行 = user 領域**、横展開そのものは本 Pilot scope 外 (= 不可侵原則 7 維持)
 - **System Inventory landing** — Standard §3.1 に AAG = "Pilot complete" status で entry 追加、Pilot reference として永続
 
-### 人間承認待ち項目 (唯一の人間 mandatory 点)
+### user 承認待ち項目 (唯一のuser mandatory 点)
 
 `plan.md` 不可侵原則 6 = AI 単独 archive を禁ず。承認手順:
 

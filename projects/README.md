@@ -10,7 +10,7 @@
 
 | tree | 役割 | reader |
 |---|---|---|
-| `references/` | 主アプリ改修 AI / 人間の knowledge interface | 主アプリ改修 AI / 人間 |
+| `references/` | 主アプリ改修 userの knowledge interface | 主アプリ改修 user |
 | `aag/` | AAG framework 本体 | AAG framework 改修者のみ |
 | **`projects/`** (本 tree) | **作業単位 lens** | 全 reader (= 作業 context 把握) |
 

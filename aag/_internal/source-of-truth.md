@@ -18,7 +18,7 @@
 |---|---|---|---|
 | **正本** (Source of Truth) | 他の情報の導出元になる唯一の情報源 | ✅ 許可 | 連鎖更新義務あり (`docs:generate` 実行 + obligation map に従う) |
 | **派生物** (Derived) | 正本から自動導出される情報 | ❌ **禁止** | `docs:generate` 等で再生成 |
-| **運用物** (Operational) | 人間と AI の手順書・進行管理 | ✅ 許可 | コード truth の後追い (truth より先走らない) |
+| **運用物** (Operational) | user と AI の手順書・進行管理 | ✅ 許可 | コード truth の後追い (truth より先走らない) |
 
 ## §2 正本一覧
 
@@ -26,8 +26,8 @@
 
 | 正本 | file | 変更トリガー |
 |---|---|---|
-| AAG の why | [`meta.md`](./meta.md) §1 | 人間判断のみ、Constitution 改訂と同等の慎重さ |
-| AAG-REQ-* 要件定義 | [`meta.md`](./meta.md) §2 (12 requirement) | 要件の追加 / 修正 / 廃止 (人間承認必須) |
+| AAG の why | [`meta.md`](./meta.md) §1 | user 判断のみ、Constitution 改訂と同等の慎重さ |
+| AAG-REQ-* 要件定義 | [`meta.md`](./meta.md) §2 (12 requirement) | 要件の追加 / 修正 / 廃止 (user 承認必須) |
 
 ### §2.2 Layer 2 の正本 (設計)
 
@@ -134,7 +134,7 @@ merged artifact (`docs/generated/aag/merged-architecture-rules.<format>`、Phase
 
 merge policy を変更する場合は **本 §4 を改訂** し、上記 file 群はそれに追従するのみ。逆方向 (file 側で policy 改訂、本 §4 が後追い) は禁止。
 
-## §5 運用物一覧 (人間と AI の手順書・進行管理)
+## §5 運用物一覧 (user と AI の手順書・進行管理)
 
 | 運用物 | file | 役割 |
 |---|---|---|

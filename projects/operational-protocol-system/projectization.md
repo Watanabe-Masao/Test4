@@ -40,7 +40,7 @@
 | `legacy-retirement.md` | forbidden | requiresLegacyRetirement=false |
 | `sub-project-map.md` | forbidden | sub-project への分割なし |
 | guard 設計 (plan.md 内) | optional | M5 で value vs cost 評価後判断 |
-| 最終レビュー (人間承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾に配置済 |
+| 最終レビュー (user 承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾に配置済 |
 
 ## 4. やらないこと (nonGoals)
 

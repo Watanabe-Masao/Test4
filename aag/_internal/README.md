@@ -1,7 +1,7 @@
 # AAG (Adaptive Architecture Governance) — `aag/` ディレクトリ index
 
 > **🚧 reader 別 boundary 警告**:
-> **主アプリ (粗利管理ツール) 改修 AI / 人間は本 sub-tree を読む必要はない。**
+> **主アプリ (粗利管理ツール) 改修 AI / userは本 sub-tree を読む必要はない。**
 > AAG が AI に提供する「引き出し」は **drawer** ([`references/05-aag-interface/drawer/decision-articulation-patterns.md`](../../03-guides/decision-articulation-patterns.md)) に **領域 agnostic な Pattern 集** として articulate 済。本 sub-tree は AAG framework 内部の articulation であり、主アプリ改修時には **drawer 経由で必要な Pattern を引き出す** だけで済む。
 >
 > 本 sub-tree を読むべき reader = **AAG framework 自身を改修する者** (= AAG core 改修 / Standard 改訂 / drawer Pattern 追加判断 / AAG-REQ 追加判断)。

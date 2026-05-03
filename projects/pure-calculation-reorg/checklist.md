@@ -132,7 +132,7 @@
 ## Phase 8: Promote Ceremony
 
 - [ ] promote 提案書のフォーマットを作成した
-- [ ] 判定主体が「AAG 証拠収集 → AI 提案 → 人間承認」であることを固定した
+- [ ] 判定主体が「AAG 証拠収集 → AI 提案 → user 承認」であることを固定した
 - [ ] dual-run 安定期間を満たした
 - [ ] null / warning / methodUsed / scope 一致を確認した
 - [ ] rollback 実演を確認した

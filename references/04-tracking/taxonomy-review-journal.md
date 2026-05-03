@@ -45,7 +45,7 @@ proposed → active → deprecated → sunsetting → retired → archived
 
 ### 2.1. 提案中（draft）
 
-> AI / 人間 reviewer の提案 entry を集積する場所。開催前に確定 → §3 各セクションへ移動。
+> AI / user reviewer の提案 entry を集積する場所。開催前に確定 → §3 各セクションへ移動。
 
 （現状: 提案 entry なし）
 
@@ -70,7 +70,7 @@ proposed → active → deprecated → sunsetting → retired → archived
 #### 開催情報
 
 - 開催日: 2026-04-27
-- 形式: ad-hoc human review（dialogue-based approval、AI 提案 + 人間判断）
+- 形式: ad-hoc human review（dialogue-based approval、AI 提案 + user 判断）
 - 参加者: user（human reviewer / authority）+ claude（AI）
 - 議事録参照: 本 entry が議事録を兼ねる
 
@@ -126,7 +126,7 @@ proposed → active → deprecated → sunsetting → retired → archived
 | 提案日              | 2026-04-27                                                                                                                         |
 | 種別                | 改訂（Constitution 原則 3 + 関連 review-window §4.2 採択条件）                                                                       |
 | Why                 | 原則 3 の「高コスト儀式」が 90 日 cooling という時間制約として書かれていたが、internal-only codebase（外部 consumer 不在）では儀式的要素のみで実質的保護を持たない。§3.1 で具体的に override 経験を踏まえ、context-aware に再定義する必要がある。 |
-| 改訂案              | 原則 3 を **「人間判断ゲート」を中核**として再定義。cooling 期間は **二次属性**（context dependent: external-facing なら必須、internal-only なら省略可）。具体的には: ① review-journal entry を必須とする「採択イベント」が中核、② cooling 期間は context flag (`projects.context.facing` = "internal" \| "external" \| "hybrid") によって自動算出、③ AR-TAXONOMY-AI-VOCABULARY-BINDING を retirement / lifecycle 改変にも拡張（`taxonomyLifecycleTransitionGuard` で機械検証） |
+| 改訂案              | 原則 3 を **「user 判断ゲート」を中核**として再定義。cooling 期間は **二次属性**（context dependent: external-facing なら必須、internal-only なら省略可）。具体的には: ① review-journal entry を必須とする「採択イベント」が中核、② cooling 期間は context flag (`projects.context.facing` = "internal" \| "external" \| "hybrid") によって自動算出、③ AR-TAXONOMY-AI-VOCABULARY-BINDING を retirement / lifecycle 改変にも拡張（`taxonomyLifecycleTransitionGuard` で機械検証） |
 | 必須対応            | (a) `taxonomy-constitution.md` 原則 3 の rewrite、(b) `taxonomy-review-window.md` §4.2 採択条件から「90 日以上」を context-dependent に、(c) `projects/*/config/project.json` schema に `taxonomyContext` field 追加（推奨値: `internal-only` / `external-facing` / `hybrid`） |
 | Antibody Pair       | —（原則の改訂、新タグ追加なし）                                                                                                      |
 | 推定 promotionLevel | —（原則そのものは vocabulary なし、Constitution の bootstrap invariant として `constitutionBootstrapGuard` B11-B13 が機械検証）       |

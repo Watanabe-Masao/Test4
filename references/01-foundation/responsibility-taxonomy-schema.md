@@ -137,7 +137,7 @@ v2 = 10 / Ceiling = 15 → **5 スロット余裕**。
 新 R:tag 追加 / 既存 R:tag retirement / Antibody Pair 組み換え は **review window 経由のみ**:
 
 - 提案: `references/04-tracking/taxonomy-review-journal.md` に entry 追加
-- 裁定: 四半期 review window で人間判断
+- 裁定: 四半期 review window でuser 判断
 - 連動: 対応 T:kind が必要なら test-taxonomy-v2 と同期 review window で同時裁定（原則 4）
 
 詳細は `references/03-implementation/taxonomy-review-window.md` を参照。

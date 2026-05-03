@@ -463,21 +463,21 @@ allowlist 件数だけでは評価しない。見るべき指標:
 
 ---
 
-## 1人運用モデル: AI 主体 + 人間例外承認
+## 1人運用モデル: AI 主体 + user 例外承認
 
 ### Green / Yellow / Red 判定
 
-AI + 人間 1 名運用において、人間の出番を最小化するための機械判定基準。
+AI + user 1 名運用において、user の出番を最小化するための機械判定基準。
 
-| 判定 | 条件 | AI の行動 | 人間の行動 |
+| 判定 | 条件 | AI の行動 | user の行動 |
 |------|------|-----------|-----------|
 | **Green** | Hard Gate PASS, WARN=0, guard 全 pass | 自動進行 | 不要 |
 | **Yellow** | Hard Gate PASS だが WARN >= 1 | 進行 + 要約通知 | 通知確認のみ |
-| **Red** | Hard Gate FAIL, または以下の Red 条件に該当 | **停止、人間承認待ち** | 判断・承認 |
+| **Red** | Hard Gate FAIL, または以下の Red 条件に該当 | **停止、user 承認待ち** | 判断・承認 |
 
-### Red 条件（人間承認必須）
+### Red 条件（user 承認必須）
 
-以下は AI だけでは進行せず、必ず人間承認を取る:
+以下は AI だけでは進行せず、必ずuser 承認を取る:
 
 - `docs.obligation.violations > 0`（Hard Gate FAIL）
 - principles 変更（`references/01-foundation/` 配下の変更）

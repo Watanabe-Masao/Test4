@@ -38,7 +38,7 @@
 | `legacy-retirement.md` | required / optional / forbidden | |
 | `sub-project-map.md` | required / optional / forbidden | |
 | guard 設計 (plan.md 内) | required / optional / forbidden | |
-| 最終レビュー (人間承認) checkbox | required / optional / forbidden | |
+| 最終レビュー (user 承認) checkbox | required / optional / forbidden | |
 
 ## 4. やらないこと (nonGoals)
 

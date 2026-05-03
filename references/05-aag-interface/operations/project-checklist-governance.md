@@ -1,6 +1,6 @@
 # projects/ 運用ルール — checklist 駆動の completion 管理
 
-> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 userが reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
 
 > **役割:** 残存課題管理と project ライフサイクルの正本ガイド。
 > このガイドは「live な作業項目の正本がどこにあるか」「何をもって project が
@@ -78,7 +78,7 @@ AAG-COA が決めた `projectizationLevel` に応じて、本書が定める che
 - **独立した AI_CONTEXT.md** で文脈の入口を持つ
 - **独立した checklist.md** で進行状態を持つ
 - **独立した HANDOFF.md** で再開時の続きが分かる
-- **collector が動的に completion 判定** するため、人間が「終わったか？」を毎回手で
+- **collector が動的に completion 判定** するため、user が「終わったか？」を毎回手で
   判定しなくて済む
 
 これにより、AI セッションが project A → project B → project A と切り替わっても、
@@ -109,7 +109,7 @@ references/ に live task table を書かない。重複は drift を生む。
 > project の `checklist.md` に書かれた **required checkbox がすべて `[x]`** になった状態。
 
 判定は AAG / `architecture-health` の collector が動的に導出する。
-人間や AI が手動で `status: completed` を書き込むことはしない。collector が
+user や AI が手動で `status: completed` を書き込むことはしない。collector が
 checklist を読んで導出する。
 
 ### archived
@@ -162,33 +162,33 @@ collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制
 * [ ] <達成条件 3>
 ```
 
-### 3.1. 必須構造: 最終レビュー (人間承認) section
+### 3.1. 必須構造: 最終レビュー (user 承認) section
 
-> **全 checklist は、最後の section として「最終レビュー (人間承認)」を持つこと。**
+> **全 checklist は、最後の section として「最終レビュー (user 承認)」を持つこと。**
 
 役割:
 
 - 機能的な Phase がすべて `[x]` になっても、最終レビュー section の checkbox が
   `[ ]` のままなら project は `in_progress` 状態を維持する
-- これにより `derivedStatus = completed` への遷移を **構造的に人間レビュー
+- これにより `derivedStatus = completed` への遷移を **構造的にuser レビュー
   ゲートに通せる**
 - archive obligation (`completedNotArchivedCount > 0`) の暴発を防ぐ
-- 機能完了 (= 作業 AI / pre-push の成果) と archive 承認 (= 人間判断) を
+- 機能完了 (= 作業 AI / pre-push の成果) と archive 承認 (= user 判断) を
   checkbox レベルで分離する
 
 ```markdown
-## 最終レビュー (人間承認)
+## 最終レビュー (user 承認)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 
 * [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を
-      人間がレビューし、archive プロセスへの移行を承認する
+      user がレビューし、archive プロセスへの移行を承認する
 ```
 
 承認の意味:
 
 - 全 Phase の成果物 (commit history / PR / 関連正本 / generated artifact) を
-  人間が読み、品質基準を満たしていることを確認した
+  user が読み、品質基準を満たしていることを確認した
 - 必要なら observation period (実運用観測期間) を経た上での承認
 - 承認後は §6.2 の archive プロセスを実行する
 
@@ -201,9 +201,9 @@ collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制
    ↓
 project は in_progress (33/34 等) で留まる
    ↓
-人間: PR をレビュー、必要なら observation period
+user: PR をレビュー、必要なら observation period
    ↓
-人間: 最終レビュー checkbox を [x] にする (= archive 承認)
+user: 最終レビュー checkbox を [x] にする (= archive 承認)
    ↓
 project は completed → §6.2 archive プロセス実行
 ```
@@ -240,7 +240,7 @@ projects/<id>/
 ```json
 {
   "projectId": "<id>",
-  "title": "<人間可読タイトル>",
+  "title": "<user-readableタイトル>",
   "status": "active",
   "projectRoot": "projects/<id>",
   "entrypoints": {
@@ -252,7 +252,7 @@ projects/<id>/
 }
 ```
 
-`status` は人間が宣言する値（`active` / `paused` / `archived`）であり、
+`status` はuser が宣言する値（`active` / `paused` / `archived`）であり、
 **completion の判定には使わない**。実 status は collector が checklist から導出する。
 
 ## 4.1. 4 doc の役割分離 — なぜ分けるか、何を書くか
@@ -268,7 +268,7 @@ projects/<id>/
 |---|---|---|---|---|---|
 | **AI_CONTEXT.md** | project **意味空間の入口**。「この project は何のためにあるか」 | 数週間〜数ヶ月に 1 回（scope / purpose / 制約の変更時のみ） | 初見の AI（1 回だけ読む） | Purpose, Scope, Read Order, Required References, Project-Specific Constraints | **volatile content**（Current Status / Next Actions / Completed / Phase 進捗 / ハマりポイント） |
 | **HANDOFF.md** | **現在状態の snapshot**。「今どこにいるか / 次に何をするか / どうハマらないか」 | 作業セッションごと（checkbox 進行ごと） | 再開する作業 AI（毎回読む） | 現在地, 完了 Phase, 次にやること, ハマりポイント, 読書順 | 原則の再定義（plan.md 責務）/ live task（checklist.md 責務） |
-| **plan.md** | 原則と構造の正本 | 計画変更時のみ | 設計判断時の AI / 人間 | 不可侵原則, Phase 定義, やってはいけないこと, 関連実装 | 現在値, 達成条件（checkbox） |
+| **plan.md** | 原則と構造の正本 | 計画変更時のみ | 設計判断時の AI / user | 不可侵原則, Phase 定義, やってはいけないこと, 関連実装 | 現在値, 達成条件（checkbox） |
 | **checklist.md** | **completion の唯一の入力** | 作業完了ごと | 作業進行中 AI | required checkbox（達成条件） | 原則, 常時チェック, 最重要項目（§3 参照） |
 
 ### 役割 banner の必須化
@@ -370,8 +370,8 @@ entry: `projects/<id>/AI_CONTEXT.md`
 > consistency guard が completed のまま active 配置されている project を機械検出し、
 > archive プロセスへ進むよう error message で促す。
 >
-> **前提**: §3.1 の「最終レビュー (人間承認)」 checkbox が `[x]` であること。
-> 人間がこの checkbox を tick することが archive プロセスの開始条件である。
+> **前提**: §3.1 の「最終レビュー (user 承認)」 checkbox が `[x]` であること。
+> user がこの checkbox を tick することが archive プロセスの開始条件である。
 
 #### 必須ステップ
 
@@ -408,15 +408,15 @@ archive される project が依存していた references/ 文書は、project 
 
 | ステップ | 行為者 | 検証 |
 |---|---|---|
-| 1. 新課題発生 | 人間 / AI | scope が既存 project に該当しないことを §0 に照らして判断 |
+| 1. 新課題発生 | user / AI | scope が既存 project に該当しないことを §0 に照らして判断 |
 | 2. project 立ち上げ | AI | §10 の bootstrap 手順に従って `projects/<id>/` を作成 |
-| 3. checklist 充填 | AI / 人間 | verified LIVE な未着手項目だけを `* [ ]` で書く |
+| 3. checklist 充填 | AI / user | verified LIVE な未着手項目だけを `* [ ]` で書く |
 | 4. AAG 反映 | docs:generate | collector が project を `in_progress` として認識 |
 | 5. 作業進行 | AI | checklist を `[x]` に更新しながら作業 |
 | 6. 完了判定 | collector | 全 checkbox が `[x]` になると `derivedStatus = completed` |
 | 7. 警告発火 | consistency guard | 「completed なのに active 配置」を error として検出 |
-| 8. archive 実行 | 人間 | §6.2 の必須ステップを 1 commit で実施 |
-| 9. 正本更新 | 人間 | §6.2 の関連正本更新を同 commit で実施 |
+| 8. archive 実行 | user | §6.2 の必須ステップを 1 commit で実施 |
+| 9. 正本更新 | user | §6.2 の関連正本更新を同 commit で実施 |
 | 10. 最終確認 | docs:generate | project が `archived` として project-health に表示される |
 
 ## 7. やってはいけないこと
@@ -440,7 +440,7 @@ archive される project が依存していた references/ 文書は、project 
 | `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | 規約と collector 実装の対称性を検証 (S1/S2/S3)。2026-04-13 追加 |
 | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | derivedStatus と物理配置の整合検証 |
 | `references/04-tracking/generated/project-health.json` | 生成された project KPI 正本 |
-| `references/04-tracking/generated/project-health.generated.md` | 同 view（人間可読） |
+| `references/04-tracking/generated/project-health.generated.md` | 同 view（user-readable） |
 | `projects/_template/` | 新規 project 立ち上げのテンプレート（§10 参照） |
 
 ## 9. live project と判断
@@ -670,7 +670,7 @@ guard は触らずに自動検査される。
 ### 12.3. 新しい同期ペアの追加（運用手順）
 
 1. `app/src/test/versionSyncRegistry.ts` の `VERSION_SYNC_REGISTRY` に 1 entry 追加する
-   - `id`: 人間可読な識別子
+   - `id`: user-readableな識別子
    - `description`: 何の値を同期しているか
    - `source`: `{ file, extract, label }` — 比較元
    - `target`: `{ file, extract, label }` — 比較先（通常は `PROJECT_METADATA_TARGET` を使う）
