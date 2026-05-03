@@ -39,7 +39,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 
 ### Phase M1: Task Protocol System 定義 (= core 制度の articulation)
 
-**deliverable** (4 doc 新設、配置 = `references/03-implementation/`):
+**deliverable** (4 doc 新設、配置 = `references/05-aag-interface/protocols/`、aag-self-hosting-completion R0-R5 で path 確定):
 
 - `task-protocol-system.md` — 上位 doc、M1-M5 全体の index、DA entry articulate
 - `task-class-catalog.md` — Task Class 6 類型 (= Planning / Refactor / Bug Fix / New Capability / Incident Discovery / Handoff)、各々に scope + 標準手順 pointer
@@ -193,12 +193,14 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 
 ### 新設 (Phase M1-M5)
 
+> **新 path articulation (= aag-self-hosting-completion R0-R5 で確定)**: M1-M5 deliverable target = `references/05-aag-interface/protocols/`。R2 で skeleton (= `protocols/README.md`) landed 済、本 project M1-M5 で fill。
+
 | パス | 軸 |
 |---|---|
-| `references/03-implementation/task-protocol-system.md` | M1 上位 doc |
-| `references/03-implementation/task-class-catalog.md` | M1 + M4 (Task Class 6 類型 + 5 protocol) |
-| `references/03-implementation/session-protocol.md` | M1 + M2 (Session 手順 + L1/L2/L3 routing) |
-| `references/03-implementation/complexity-policy.md` | M1 + M3 (L1/L2/L3 articulate + 昇格・降格 trigger) |
+| `references/05-aag-interface/protocols/task-protocol-system.md` | M1 上位 doc |
+| `references/05-aag-interface/protocols/task-class-catalog.md` | M1 + M4 (Task Class 6 類型 + 5 protocol) |
+| `references/05-aag-interface/protocols/session-protocol.md` | M1 + M2 (Session 手順 + L1/L2/L3 routing) |
+| `references/05-aag-interface/protocols/complexity-policy.md` | M1 + M3 (L1/L2/L3 articulate + 昇格・降格 trigger) |
 
 ### 拡張 (既存 mechanism extend)
 

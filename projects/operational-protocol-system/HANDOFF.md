@@ -2,17 +2,25 @@
 
 > 役割: 起点文書。後任者が最初に読む。
 
-> **⏸ PAUSED (2026-05-02)**: 本 project は **`aag-self-hosting-completion` project の R5 完了後 resume** で pause 状態。理由 = aag-self-hosting-completion の R5 で本 project の M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) を `aag/interface/protocols/` に **structural foundation 上に直接 landing** する設計のため、references/03-implementation/ 上で先行 articulate すると後で migrate 必要 = 順序整合性違反。aag-self-hosting-completion の R5 完了で resume + M1-M5 着手予定。詳細: `projects/aag-self-hosting-completion/plan.md` §3 R5 + §1 不可侵原則 5 (= rollback 境界 articulate)。
+> **▶ READY TO RESUME (2026-05-03、aag-self-hosting-completion R5 完遂で trigger satisfied)**: 本 project の resume 条件は **aag-self-hosting-completion R0-R5 完了** で全て satisfied (= 新構造 references/05-aag-interface/protocols/ skeleton landed + plan path refinement 完了)。M1 着手は本 project 内 DA-α-001 起票 + user 判断で起動可能。
+>
+> **新 path articulation (= aag-self-hosting-completion R0-R5 で確定)**: M1-M5 deliverable target = `references/05-aag-interface/protocols/`。`task-protocol-system.md` / `task-class-catalog.md` / `session-protocol.md` / `complexity-policy.md` + 5 protocol 系列を **同 directory** に landing。R2 で skeleton (= protocols/README.md) landed 済、M1 で fill のみ。
+>
+> **resume 着手判断**: 本 project DA-α-001 (= placeholder 済) を articulate して M1 着手判断 + 5 軸 articulation + 観測点 + Lineage を land。詳細: `plan.md` §3 M1。
 
 ## 1. 現在地
 
-**Phase 0 (Bootstrap) のみ landed**、**Phase M1 着手前で pause**。AAG Platformization Pilot 完遂 (2026-05-02 archive) を trigger に、user articulation で post-Pilot 運用制度として独立 project に bootstrap した (commit `8283b4b` / `1a5bb09`)。
+**Phase 0 (Bootstrap) のみ landed、Phase M1 着手前で resume ready (= 2026-05-03、aag-self-hosting-completion R5 完遂で trigger satisfied)**。AAG Platformization Pilot 完遂 (2026-05-02 archive) を trigger に、user articulation で post-Pilot 運用制度として独立 project に bootstrap した (commit `8283b4b` / `1a5bb09`)。
 
-その後 user articulation で AAG framework の entry navigation level での self-hosting failure が articulate され、`aag-self-hosting-completion` project が bootstrap、本 project は R5 完了後 resume となった。
+その後 user articulation で AAG framework の entry navigation level での self-hosting failure が articulate され、`aag-self-hosting-completion` project が bootstrap、本 project は R5 完了後 resume となった。R5 完遂 (= aag-self-hosting-completion DA-α-006、2026-05-03) で resume 条件 satisfied:
+
+- 新構造 `references/05-aag-interface/protocols/` skeleton landed (= R2 完了、`protocols/README.md` 既存)
+- 本 project plan.md / HANDOFF.md / config の path refinement 完了 (= R5 で aag-self-hosting-completion から実施)
+- M1 着手判断 (= DA-α-001) 起票 + user 判断で起動可能 state
 
 - 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済
 - charter draft (`references/04-tracking/operational-protocol-charter-draft.md`) を `plan.md` に migrate (重複 articulate 防止のため charter draft は削除)
-- 実装 0 件 → **pause、aag-self-hosting-completion R5 完了で resume + M1 着手**
+- 実装 0 件 → **resume ready、M1 着手は user 判断で起動**
 
 ## 2. 次にやること
 
