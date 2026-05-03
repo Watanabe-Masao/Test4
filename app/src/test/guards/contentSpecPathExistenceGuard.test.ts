@@ -83,7 +83,7 @@ describe('Content Spec Path Existence Guard (AR-CONTENT-SPEC-PATH-EXISTENCE)', (
     }
     const violations = checkPathExistence(allPaths, existsSync, {
       ruleId: rule.id,
-      registryLabel: 'references/05-contents (Behavior Claims tests/guards)',
+      registryLabel: 'references/04-tracking/elements (Behavior Claims tests/guards)',
     })
     const broken = violations.map((v) => `${v.location}: ${v.actual}`)
     expect(broken, formatViolationMessage(rule, broken)).toEqual([])

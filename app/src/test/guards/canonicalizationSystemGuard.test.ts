@@ -10,7 +10,7 @@
  * (CLAUDE.md token 7) に切替。Types.ts/index.ts/impl trio shape 検査は
  * readModels 専用なので caller side に inline 残置。動作同一性は 5 既存 test で検証済。
  *
- * @see references/01-principles/canonicalization-principles.md
+ * @see references/01-foundation/canonicalization-principles.md
  * ルール定義: architectureRules.ts (AR-STRUCT-CANONICALIZATION)
  *
  * @responsibility R:unclassified
@@ -29,7 +29,7 @@ import {
 
 const SRC_DIR = path.resolve(__dirname, '../..')
 
-const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-principles')
+const REFS_DIR = path.resolve(SRC_DIR, '../../references/01-foundation')
 
 describe('正本化体系 統合ガード', () => {
   const rule = getRuleById('AR-STRUCT-CANONICALIZATION')!

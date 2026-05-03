@@ -14,7 +14,7 @@
  * | application/queries | PrevYearFlag / CompMode / PairedInput | DuckDB クエリの入力 |
  * | features/comparison | MatchStatus / ResolvedComparisonRow | 比較結果の事実 |
  *
- * @see references/03-guides/safety-first-architecture-plan.md Phase 3
+ * @see references/03-implementation/safety-first-architecture-plan.md Phase 3
  *
  * @responsibility R:unclassified
  */

@@ -10,7 +10,7 @@
  * StoreResult.totalSales は既に正本として機能しているが、
  * 販売点数は StoreResult にないため、DuckDB 分析正本として統一する。
  *
- * @see references/01-principles/sales-definition.md
+ * @see references/01-foundation/sales-definition.md
  *
  * @responsibility R:unclassified
  */

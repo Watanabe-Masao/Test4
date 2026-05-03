@@ -4,8 +4,8 @@
  * SP-D ADR-D-005 PR1 — umbrella project の remediation 進捗を generated 文書に出力する。
  *
  * 出力先:
- *  - references/02-status/generated/architecture-debt-recovery-remediation.json （構造化）
- *  - references/02-status/generated/architecture-debt-recovery-remediation.md   （人間可読）
+ *  - references/04-tracking/generated/architecture-debt-recovery-remediation.json （構造化）
+ *  - references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md   （人間可読）
  *
  * 入力:
  *  - projects/architecture-debt-recovery/inquiry/15〜18.md（ADR / BC / LEG / SP の総数）
@@ -185,11 +185,11 @@ export function writeRemediationFiles(
 } {
   const jsonPath = resolve(
     repoRoot,
-    "references/02-status/generated/architecture-debt-recovery-remediation.json",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
   );
   const mdPath = resolve(
     repoRoot,
-    "references/02-status/generated/architecture-debt-recovery-remediation.md",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
   );
   writeFileSync(jsonPath, renderJson(snapshot));
   writeFileSync(mdPath, renderMd(snapshot));

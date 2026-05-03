@@ -16,7 +16,7 @@
 
 - **数学的正確性** > 実装の柔軟性。恒等式が崩れたら全てが無意味
 - **不変条件の網羅性** > テストの実行速度。全パターンを検証する
-- **機械的検証** > 人間のレビュー。ランダムテストで境界ケースを発見する
+- **機械的検証** > user のレビュー。ランダムテストで境界ケースを発見する
 
 ## 判断基準（選択の基準）
 
@@ -127,6 +127,6 @@ invariant-guardian が体現する原則:
 
 ## 参照ドキュメント
 
-- `references/03-guides/invariant-catalog.md` — 全不変条件カタログ（**必読**）
-- `references/03-guides/guard-test-map.md` — ガードテスト対応表
-- `references/01-principles/design-principles.md` — 設計原則（特に D1, D2, D3 が関連）
+- `references/03-implementation/invariant-catalog.md` — 全不変条件カタログ（**必読**）
+- `references/03-implementation/guard-test-map.md` — ガードテスト対応表
+- `references/01-foundation/design-principles.md` — 設計原則（特に D1, D2, D3 が関連）

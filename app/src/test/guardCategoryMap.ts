@@ -14,7 +14,7 @@
  * 正本性: 正本（カテゴリ分類の唯一の定義元）
  *
  * @responsibility R:unclassified
- * @see references/01-principles/aag/architecture.md — 4層構造
+ * @see aag/_internal/architecture.md — 4層構造
  * @see app/src/test/aagSchemas.ts — AagGuardMetadata / GuardCategory / AagLayer 型定義
  */
 

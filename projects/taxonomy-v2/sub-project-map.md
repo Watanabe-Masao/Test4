@@ -66,5 +66,5 @@ taxonomy-v2 (親, Level 4 Umbrella)
 
 - 親の `plan.md` §7 不可侵原則 / §Interlock 仕様 / §8 昇華メカニズム
 - 各子の `AI_CONTEXT.md` / `plan.md`
-- `references/01-principles/taxonomy-origin-journal.md`（計画）
-- `references/02-status/taxonomy-review-journal.md`（計画）
+- `references/01-foundation/taxonomy-origin-journal.md`（計画）
+- `references/04-tracking/taxonomy-review-journal.md`（計画）

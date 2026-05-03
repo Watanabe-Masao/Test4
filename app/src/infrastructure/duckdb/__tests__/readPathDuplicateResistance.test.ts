@@ -2,12 +2,12 @@
  * Read-path 重複耐性 — FRAGILE 6 件の回帰テスト
  *
  * idempotent load contract Phase 3.c の追加防御 (Done 定義 step 1):
- * `references/03-guides/data-load-idempotency-plan.md` §8 を参照。
+ * `references/03-implementation/data-load-idempotency-plan.md` §8 を参照。
  *
  * **目的**
  *
  * Audit で FRAGILE 判定された 6 クエリ
- * (`references/03-guides/read-path-duplicate-audit.md` §FRAGILE) について、
+ * (`references/03-implementation/read-path-duplicate-audit.md` §FRAGILE) について、
  * source テーブルの行重複に対して silent に倍化しないことを構造的に保証する。
  *
  * **検証戦略**
@@ -35,8 +35,8 @@
  * `.fails` で構造的負債を可視化したまま load contract + JSDoc 防御に依存する。
  * 将来 refactor したくなったら `.fails` を外せば検出網として機能する。
  *
- * @see references/03-guides/read-path-duplicate-audit.md
- * @see references/03-guides/data-load-idempotency-plan.md §8 Done 定義
+ * @see references/03-implementation/read-path-duplicate-audit.md
+ * @see references/03-implementation/data-load-idempotency-plan.md §8 Done 定義
  *
  * @taxonomyKind T:unclassified
  */

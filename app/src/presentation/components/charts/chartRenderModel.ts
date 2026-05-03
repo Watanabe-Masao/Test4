@@ -53,7 +53,7 @@
  * )
  * ```
  *
- * @see references/03-guides/chart-rendering-three-stage-pattern.md §残り3件の移行完了条件
+ * @see references/03-implementation/chart-rendering-three-stage-pattern.md §残り3件の移行完了条件
  *
  * @responsibility R:unclassified
  */

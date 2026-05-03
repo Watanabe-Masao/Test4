@@ -9,8 +9,8 @@
  * public API と import path は従来と同一。
  * 技法は Shapley（analytic）だが意味責任は business。
  *
- * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
- * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
+ * @see references/03-implementation/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-foundation/semantic-classification-policy.md — 意味分類ポリシー
  *
  * @responsibility R:unclassified
  */

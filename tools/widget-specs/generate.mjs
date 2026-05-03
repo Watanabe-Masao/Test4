@@ -3,7 +3,7 @@
  * widget-specs frontmatter generator
  *
  * Phase A scope: Anchor Slice 5 件 (WID-002 / 006 / 018 / 033 / 040) の
- * `references/05-contents/widgets/WID-NNN.md` frontmatter を、対応する
+ * `references/04-tracking/elements/widgets/WID-NNN.md` frontmatter を、対応する
  * registry source TSX から再生成する。
  *
  * 機械フィールド（上書き）:
@@ -35,7 +35,7 @@ import { createRequire } from 'node:module'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..', '..')
-const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+const SPECS_BASE = resolve(REPO_ROOT, 'references/04-tracking/elements')
 const SPECS_DIR = resolve(SPECS_BASE, 'widgets') // widget スペックの正本ディレクトリ（後方互換）
 
 // kind → サブディレクトリ
@@ -108,7 +108,7 @@ const PHASE_A_ANCHOR_WIDS = ['WID-002', 'WID-006', 'WID-018', 'WID-033', 'WID-04
 // ---------------------------------------------------------------------------
 
 /**
- * `references/05-contents/widgets/WID-NNN.md` の frontmatter を抽出。
+ * `references/04-tracking/elements/widgets/WID-NNN.md` の frontmatter を抽出。
  * 戻り値: { frontmatter: object, body: string, raw: string }
  */
 function readSpec(specPath) {

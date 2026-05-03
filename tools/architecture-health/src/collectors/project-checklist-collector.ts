@@ -7,7 +7,7 @@
  * `derivedStatus` を「open required checkbox の有無」だけから導出する。
  * project.json の `status` フィールド（人間が宣言した値）には依存しない。
  *
- * 詳細仕様: `references/03-guides/project-checklist-governance.md`
+ * 詳細仕様: `references/05-aag-interface/operations/project-checklist-governance.md`
  */
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -108,7 +108,7 @@ export function collectFromProjectChecklists(repoRoot: string): HealthKpi[] {
   const docRefs = [
     {
       kind: 'definition' as const,
-      path: 'references/03-guides/project-checklist-governance.md',
+      path: 'references/05-aag-interface/operations/project-checklist-governance.md',
     },
   ]
 

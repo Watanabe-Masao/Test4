@@ -32,7 +32,7 @@
 //   - TimeSlotChart (canonical): .vm.ts + OptionBuilder.ts + View.tsx + .tsx
 //   - YoYChart (Phase 5 で揃えた 2 例目): YoYChartLogic.ts + YoYChartOptionBuilder.ts + YoYChart.tsx
 //
-// 詳細: references/03-guides/chart-rendering-three-stage-pattern.md
+// 詳細: references/03-implementation/chart-rendering-three-stage-pattern.md
 
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -114,7 +114,7 @@ describe('Chart Rendering Three-Stage Pattern Guard (unify-period-analysis Phase
             '  1. data builder を *Logic.ts または *.vm.ts に移動',
             '  2. option builder を *OptionBuilder.ts に移動',
             '  3. chart .tsx は import して orchestration + 状態管理のみに薄化',
-            '  4. 詳細: references/03-guides/chart-rendering-three-stage-pattern.md',
+            '  4. 詳細: references/03-implementation/chart-rendering-three-stage-pattern.md',
             '  5. 見本実装: TimeSlotChart (.vm.ts + OptionBuilder.ts + View.tsx) / ' +
               'YoYChart (YoYChartLogic.ts + YoYChartOptionBuilder.ts)',
             '',
@@ -185,7 +185,7 @@ describe('Chart Rendering Three-Stage Pattern Guard (unify-period-analysis Phase
   it('設計ルール文書 (chart-rendering-three-stage-pattern.md) が存在する', () => {
     const docFile = path.resolve(
       SRC_DIR,
-      '../../references/03-guides/chart-rendering-three-stage-pattern.md',
+      '../../references/03-implementation/chart-rendering-three-stage-pattern.md',
     )
     expect(fs.existsSync(docFile), 'chart-rendering-three-stage-pattern.md が存在しない').toBe(true)
     const content = fs.readFileSync(docFile, 'utf-8')

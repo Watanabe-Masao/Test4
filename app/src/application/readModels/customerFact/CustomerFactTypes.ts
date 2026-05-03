@@ -7,8 +7,8 @@
  * この正本から以下を導出:
  *   店舗別客数 / 日別客数 / 月間客数 / PI値入力 / 客数GAP入力
  *
- * @see references/01-principles/customer-definition.md
- * @see references/01-principles/canonical-input-sets.md
+ * @see references/01-foundation/customer-definition.md
+ * @see references/01-foundation/canonical-input-sets.md
  *
  * @responsibility R:unclassified
  */

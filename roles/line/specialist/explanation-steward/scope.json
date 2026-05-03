@@ -4,7 +4,7 @@
   "category": "line/specialist",
   "owns": [
     "app/src/application/usecases/explanation/",
-    "references/03-guides/explanation-architecture.md"
+    "references/03-implementation/explanation-architecture.md"
   ],
   "out_of_scope_warn": [
     "app/src/domain/calculations/",

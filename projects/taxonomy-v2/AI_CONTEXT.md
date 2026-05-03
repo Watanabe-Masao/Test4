@@ -73,9 +73,9 @@
 
 | 文書                                                           | 役割                                           |
 | -------------------------------------------------------------- | ---------------------------------------------- |
-| `references/03-guides/project-checklist-governance.md`         | 本 project の運用ルール（AAG Layer 4A）        |
+| `references/05-aag-interface/operations/project-checklist-governance.md`         | 本 project の運用ルール（AAG Layer 4A）        |
 | `references/99-archive/adaptive-architecture-governance.md` | AAG 5.2 Constitution — 制度化の思想的根拠      |
-| `references/03-guides/responsibility-separation-catalog.md`    | 現行 v1 の 24 パターン（移行対象）             |
+| `references/03-implementation/responsibility-separation-catalog.md`    | 現行 v1 の 24 パターン（移行対象）             |
 | `app/src/test/responsibilityTagRegistry.ts`                    | 現行 v1 の正本（v2 で統合的に拡張）            |
 | `app/src/test/guards/responsibilityTagGuard.test.ts`           | 現行 v1 guard                                  |
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts`         | 現行 TSIG（テスト品質）guard — v2 でタグ認識化 |
@@ -91,4 +91,4 @@
 両子の Phase 0 出力（`responsibility-taxonomy-inventory.yaml` /
 `test-taxonomy-inventory.yaml`）は親 plan.md §Common Inventory Schema の
 **CanonEntry shape** に適合する。同期 review window は親 Phase 2 仕様
-（`references/03-guides/taxonomy-review-window.md`）に従う。
+（`references/03-implementation/taxonomy-review-window.md`）に従う。

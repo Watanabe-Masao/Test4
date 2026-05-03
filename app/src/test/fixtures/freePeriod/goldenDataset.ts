@@ -16,7 +16,7 @@
  * 参照:
  *   - `projects/completed/unify-period-analysis/acceptance-suite.md`
  *   - `projects/completed/unify-period-analysis/test-plan.md` §Phase 0.5
- *   - `references/01-principles/free-period-analysis-definition.md`
+ *   - `references/01-foundation/free-period-analysis-definition.md`
  */
 import type { FreePeriodDailyRow } from '@/application/readModels/freePeriod/FreePeriodTypes'
 import type { DateRange } from '@/domain/models/CalendarDate'

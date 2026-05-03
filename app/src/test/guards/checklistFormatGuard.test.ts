@@ -2,7 +2,7 @@
  * Checklist Format Guard
  *
  * `projects/<id>/checklist.md` の規格適合を機械的に検証する。
- * 規約: `references/03-guides/project-checklist-governance.md` §3。
+ * 規約: `references/05-aag-interface/operations/project-checklist-governance.md` §3。
  *
  * 検出する違反:
  *
@@ -28,7 +28,7 @@
  * / 常時チェック / 最重要項目 を plan.md 等に移動）した結果、FORMAT_EXEMPT は
  * 空集合になった。project: aag-collector-purification で実施。
  *
- * @see references/03-guides/project-checklist-governance.md §3 §10
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §3 §10
  *
  * @taxonomyKind T:meta-guard
  *
@@ -132,7 +132,7 @@ function checkChecklist(info: ProjectInfo): FormatViolation[] {
       code: 'F1',
       message:
         '必須ファイル欠落: config/project.json の entrypoints.checklist が指す checklist.md が存在しない。' +
-        ' projects/_template/checklist.md をコピーするか、references/03-guides/project-checklist-governance.md §10 を参照。',
+        ' projects/_template/checklist.md をコピーするか、references/05-aag-interface/operations/project-checklist-governance.md §10 を参照。',
     })
     return violations
   }
@@ -176,7 +176,7 @@ function checkChecklist(info: ProjectInfo): FormatViolation[] {
         code: 'F2',
         message:
           '形式違反 checkbox: `* [x]` / `* [ ]` 以外の表記を検出。半角スペース 1 個 + ` ` または `x` のみ許可する。' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §3。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3。',
       })
       continue
     }
@@ -194,7 +194,7 @@ function checkChecklist(info: ProjectInfo): FormatViolation[] {
         code: codeMap[suppressSection] ?? 'F3',
         message:
           `「${suppressSection}」セクション内に checkbox があります。completion 判定の入力に混ぜるとぶれるため、` +
-          ' plan.md に書くか、別セクションに移してください。詳細: references/03-guides/project-checklist-governance.md §3。',
+          ' plan.md に書くか、別セクションに移してください。詳細: references/05-aag-interface/operations/project-checklist-governance.md §3。',
       })
     }
   }
@@ -213,7 +213,9 @@ function formatViolations(violations: readonly FormatViolation[]): string {
   }
   lines.push('')
   lines.push('修正手順: projects/_template/checklist.md を参照して規格に揃えるか、')
-  lines.push('references/03-guides/project-checklist-governance.md §3 (書き方の規格) を読む。')
+  lines.push(
+    'references/05-aag-interface/operations/project-checklist-governance.md §3 (書き方の規格) を読む。',
+  )
   return lines.join('\n')
 }
 

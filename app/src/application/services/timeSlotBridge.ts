@@ -8,8 +8,8 @@
  * WASM が ready なら WASM 実装を使用し、未初期化時は TS にフォールバックする。
  * public API と import path は従来と同一。
  *
- * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
- * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
+ * @see references/03-implementation/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-foundation/semantic-classification-policy.md — 意味分類ポリシー
  *
  * @responsibility R:bridge
  */

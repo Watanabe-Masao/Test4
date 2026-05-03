@@ -24,7 +24,7 @@
 ## タスク分解書
 
 ### タスク概要
-（人間からの依頼内容）
+（userからの依頼内容）
 
 ### タスク規模
 Medium / Large
@@ -66,7 +66,7 @@ Small タスクではタスク分解書を簡略化する。
 
 1. review-gate の結果（PASS / FAIL）を確認する
 2. PASS の場合、受入基準の各項目が満たされているか確認する
-3. 全項目 OK → 完了を pm-business から人間に報告
+3. 全項目 OK → 完了を pm-business からuser に報告
 4. 不足がある場合 → implementation に追加作業を連携指示する
 
 ## SKILL-3: タスクへの作業者決定

@@ -1,7 +1,7 @@
 # projectization — operational-protocol-system
 
 > 役割: AAG-COA 判定結果。
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 
 ## 1. 判定結果
 
@@ -9,7 +9,7 @@
 |---|---|
 | `projectizationLevel` | Level 2 |
 | `changeType` | governance-hardening |
-| `implementationScope` | `["references/03-guides/"]` |
+| `implementationScope` | `["references/03-implementation/"]` |
 | `breakingChange` | false |
 | `requiresLegacyRetirement` | false |
 | `requiresGuard` | false (M5 完了後に判断) |
@@ -40,16 +40,16 @@
 | `legacy-retirement.md` | forbidden | requiresLegacyRetirement=false |
 | `sub-project-map.md` | forbidden | sub-project への分割なし |
 | guard 設計 (plan.md 内) | optional | M5 で value vs cost 評価後判断 |
-| 最終レビュー (人間承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾に配置済 |
+| 最終レビュー (user 承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾に配置済 |
 
 ## 4. やらないこと (nonGoals)
 
-- AAG framework (`references/01-principles/aag/` + `aag/core/`) の articulate 内容変更
-- AAG drawer (`references/03-guides/decision-articulation-patterns.md`) の改変
-- Platformization Standard (`references/01-principles/platformization-standard.md`) の改変
+- AAG framework (`aag/_internal/` + `aag/core/`) の articulate 内容変更
+- AAG drawer (`references/05-aag-interface/drawer/decision-articulation-patterns.md`) の改変
+- Platformization Standard (`references/01-foundation/platformization-standard.md`) の改変
 - 5 文書 template (= `projects/_template/`) の schema / 内容変更
 - role identity (`roles/*`) の改変
-- AAG-COA (`references/03-guides/projectization-policy.md`) の articulate 変更
+- AAG-COA (`references/05-aag-interface/operations/projectization-policy.md`) の articulate 変更
 - 主アプリ code (`app/src/`, `app-domain/`, `wasm/`) の touch
 - AI Role Catalog の本実装 (= post-Pilot 別 program scope)
 - 自動昇格判定の機械化 (= AI judgement に委ねる scope)
@@ -70,4 +70,4 @@
 
 | 日付 | 変更 | 理由 |
 |---|---|---|
-| 2026-05-02 | 初期判定 (Level 2 + governance-hardening) | AAG Pilot 完遂後 user articulation を反映、charter draft (= references/02-status/operational-protocol-charter-draft.md、本 commit で plan.md に migrate + 削除) を起点に bootstrap |
+| 2026-05-02 | 初期判定 (Level 2 + governance-hardening) | AAG Pilot 完遂後 user articulation を反映、charter draft (= references/04-tracking/operational-protocol-charter-draft.md、本 commit で plan.md に migrate + 削除) を起点に bootstrap |

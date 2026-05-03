@@ -4,7 +4,7 @@
  * PI値・客数GAP が canonical input builder 経由で計算されることを検証し、
  * presentation 層での独自比率計算を禁止する。
  *
- * @see references/01-principles/canonical-input-sets.md
+ * @see references/01-foundation/canonical-input-sets.md
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-STRUCT-CANONICAL-INPUT)
  *
@@ -62,12 +62,12 @@ describe('canonical input guard', () => {
 
   describe('定義書の相互参照が維持されている', () => {
     it('canonical-input-sets.md が存在する', () => {
-      const defPath = path.join(SRC_DIR, '../../references/01-principles/canonical-input-sets.md')
+      const defPath = path.join(SRC_DIR, '../../references/01-foundation/canonical-input-sets.md')
       expect(fs.existsSync(defPath)).toBe(true)
     })
 
     it('pi-value-definition.md が CustomerFact を参照している', () => {
-      const defPath = path.join(SRC_DIR, '../../references/01-principles/pi-value-definition.md')
+      const defPath = path.join(SRC_DIR, '../../references/01-foundation/pi-value-definition.md')
       const content = fs.readFileSync(defPath, 'utf-8')
       expect(content).toContain('CustomerFact')
     })
@@ -75,7 +75,7 @@ describe('canonical input guard', () => {
     it('customer-gap-definition.md が canonical input set を参照している', () => {
       const defPath = path.join(
         SRC_DIR,
-        '../../references/01-principles/customer-gap-definition.md',
+        '../../references/01-foundation/customer-gap-definition.md',
       )
       const content = fs.readFileSync(defPath, 'utf-8')
       expect(content).toContain('canonical-input-sets')

@@ -5,8 +5,8 @@
  * frozen-list.md §3 に exit criteria が記録されていることを確認し、
  * observation test が不変条件テストとして維持されていることを検証する。
  *
- * @see references/02-status/frozen-list.md §3.1
- * @see references/02-status/engine-promotion-matrix.md
+ * @see references/04-tracking/frozen-list.md §3.1
+ * @see references/04-tracking/engine-promotion-matrix.md
  * ルール定義: architectureRules.ts (AR-STRUCT-DUAL-RUN-EXIT)
  *
  * @responsibility R:unclassified
@@ -34,7 +34,7 @@ describe('dual-run retirement guard', () => {
   const rule = getRuleById('AR-STRUCT-DUAL-RUN-EXIT')!
 
   it('frozen-list.md に WASM exit criteria セクションが存在する', () => {
-    const frozenListPath = path.join(ROOT_DIR, 'references/02-status/frozen-list.md')
+    const frozenListPath = path.join(ROOT_DIR, 'references/04-tracking/frozen-list.md')
     const content = fs.readFileSync(frozenListPath, 'utf-8')
 
     expect(content).toContain('Exit Criteria')
@@ -55,7 +55,7 @@ describe('dual-run retirement guard', () => {
   })
 
   it('frozen-list.md §3 の @deprecated エントリ数が上限（5）を超えない', () => {
-    const frozenListPath = path.join(ROOT_DIR, 'references/02-status/frozen-list.md')
+    const frozenListPath = path.join(ROOT_DIR, 'references/04-tracking/frozen-list.md')
     const content = fs.readFileSync(frozenListPath, 'utf-8')
 
     const section3Match = content.match(/## 3\. 後方互換コードの凍結式管理[\s\S]*?(?=## [34]\.|$)/)
@@ -76,7 +76,7 @@ describe('dual-run retirement guard', () => {
   })
 
   it('engine-promotion-matrix.md に全 5 engine が authoritative と記録されている', () => {
-    const matrixPath = path.join(ROOT_DIR, 'references/02-status/engine-promotion-matrix.md')
+    const matrixPath = path.join(ROOT_DIR, 'references/04-tracking/engine-promotion-matrix.md')
     const content = fs.readFileSync(matrixPath, 'utf-8')
 
     const engines = ['factorDecomposition', 'grossProfit', 'budgetAnalysis', 'forecast', 'timeSlot']

@@ -13,10 +13,10 @@
 
 ## Phase 0: 前提固定・用語スイープ
 
-- [x] `references/01-principles/semantic-classification-policy.md` を作成した
-- [x] `references/01-principles/engine-boundary-policy.md` を business / analytic 用語へ整合させた
+- [x] `references/01-foundation/semantic-classification-policy.md` を作成した
+- [x] `references/01-foundation/engine-boundary-policy.md` を business / analytic 用語へ整合させた
 - [x] `CLAUDE.md` に意味分類方針への参照を追加した
-- [x] `references/02-status/authoritative-term-sweep.md` を作成した
+- [x] `references/04-tracking/authoritative-term-sweep.md` を作成した
 - [x] 既存コード・コメント・テスト・文書内の `authoritative` 単独使用を洗い出した
 - [x] 直せる `authoritative` 単独使用を修正した
 - [x] 直せないものを `legacy-authoritative-usage` として ratchet 管理にした
@@ -27,8 +27,8 @@
 
 ## Phase 1: 意味分類 inventory
 
-- [x] `references/03-guides/semantic-inventory-procedure.md` を作成した
-- [x] `references/02-status/semantic-inventory.yaml` を作成した
+- [x] `references/03-implementation/semantic-inventory-procedure.md` を作成した
+- [x] `references/04-tracking/semantic-inventory.yaml` を作成した
 - [x] domain/calculations 配下 35 ファイルを inventory 化した
 - [x] 各項目に `semanticClass` を付与した
 - [x] 各項目に `authorityKind` / `runtimeStatus` / `migrationTier` を付与した
@@ -59,7 +59,7 @@
 
 ## Phase 3: 契約固定 + bridge 境界
 
-- [x] `references/03-guides/contract-definition-policy.md` を作成した
+- [x] `references/03-implementation/contract-definition-policy.md` を作成した
 - [x] Business Contract テンプレートを定義した
 - [x] Analytic Contract テンプレートを定義した
 - [x] 対象計算に `contractId` を採番した
@@ -82,7 +82,7 @@
 - [x] `Cargo.toml` に semantic metadata を追加した
 - [x] current/business と current/analytics の運用 view を分けた
 - [x] current に candidate 状態遷移を持たせないことを guard 化した
-- [x] current 群の保守ポリシーを作成した (`references/03-guides/current-maintenance-policy.md`)
+- [x] current 群の保守ポリシーを作成した (`references/03-implementation/current-maintenance-policy.md`)
 
 ---
 
@@ -132,7 +132,7 @@
 ## Phase 8: Promote Ceremony
 
 - [ ] promote 提案書のフォーマットを作成した
-- [ ] 判定主体が「AAG 証拠収集 → AI 提案 → 人間承認」であることを固定した
+- [ ] 判定主体が「AAG 証拠収集 → AI 提案 → user 承認」であることを固定した
 - [ ] dual-run 安定期間を満たした
 - [ ] null / warning / methodUsed / scope 一致を確認した
 - [ ] rollback 実演を確認した
@@ -175,3 +175,25 @@
 - [ ] JS 正本縮退が主要対象で完了している
 - [ ] 新しい KPI / 新しい説明指標 / 新しい業務意味の導入仕様を作成した
 - [ ] UI 導入前に contract / registry / AAG への接続を確認した
+
+## AI 自己レビュー (= user 承認の手前)
+
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+> 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
+
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
+## 最終レビュー (user 承認)
+
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
+> 機能的な Phase + AI 自己レビューがすべて [x] になっても、ここが [ ] なら project は
+> `in_progress` のまま留まり、archive obligation は発火しない。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
+
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する

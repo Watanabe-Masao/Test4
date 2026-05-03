@@ -16,7 +16,7 @@
 
 例:
 - `* [ ] (中) app/src/utils/foo.ts: 未使用 export `bar` を削除`
-- `* [ ] (低) references/02-status/recent-changes.md: 2026-04 セクションに最新コミットを追記`
+- `* [ ] (低) references/04-tracking/recent-changes.generated.md: 2026-04 セクションに最新コミットを追記`
 - `* [x] (高) app/src/components/X.tsx: typo "calcuate" を "calculate" に修正`
 
 優先度は `(高) (中) (低)` のいずれか。期限がある場合は `(期限: YYYY-MM-DD)` を追加する。

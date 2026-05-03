@@ -11,8 +11,8 @@
  *
  * Note: calculateAggregateBudget は application 層の集約責務であり bridge に含めない。
  *
- * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
- * @see references/01-principles/semantic-classification-policy.md — 意味分類ポリシー
+ * @see references/03-implementation/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/01-foundation/semantic-classification-policy.md — 意味分類ポリシー
  *
  * @responsibility R:unclassified
  */

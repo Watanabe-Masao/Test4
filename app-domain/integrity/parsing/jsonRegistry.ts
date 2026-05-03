@@ -36,7 +36,7 @@ import type { Registry } from "../types";
  *     },
  *     'docs/contracts/doc-registry.json',
  *   )
- *   // reg.entries.get('references/01-principles/X.md') → { path: '...', label: '...' }
+ *   // reg.entries.get('references/01-foundation/X.md') → { path: '...', label: '...' }
  */
 export function jsonRegistry<TEntry>(
   jsonContent: string,

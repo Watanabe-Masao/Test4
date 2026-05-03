@@ -41,7 +41,7 @@ Phase 4-6: candidate 群への段階移管
   ↓
 Phase 7: 統合整理（bridge 非経由 import = 0 達成）
   ↓
-Phase 8: Promote Ceremony（人間承認）
+Phase 8: Promote Ceremony（user 承認）
   ↓
 Phase 9: JS 正本の最終削除（registry JS entry = 0）
 ```

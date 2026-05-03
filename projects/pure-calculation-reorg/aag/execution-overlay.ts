@@ -6,7 +6,7 @@
  * 「今この案件でどう扱うか」を ruleId キーで注入する。
  *
  * **canonical merge policy**:
- *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   `aag/_internal/source-of-truth.md` §4 (Merge Policy)
  *   = 唯一の canonical。解決順序 / reviewPolicy 契約 / resolvedBy 追跡は
  *   §4.1〜§4.3 を参照。本 file の rule entry は全 field を明示的に提供する
  *   (overlay 明示率 100% に対する case study)。
@@ -14,8 +14,8 @@
  * 合成ロジック: app/src/test/architectureRules/merged.ts (§4 implementation)
  *
  * @responsibility R:utility
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
+ * @see references/03-implementation/governance-final-placement-plan.md
  */
 
 // `RuleExecutionOverlayEntry` / `ExecutionOverlay` 型は
@@ -1386,7 +1386,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     },
   },
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
-  // 上位原則: references/01-principles/test-signal-integrity.md
+  // 上位原則: references/01-foundation/test-signal-integrity.md
   // AR-TSIG-TEST-01 / AR-TSIG-COMP-03 / AR-TSIG-TEST-04 は taxonomy-v2 子 Phase 8 で
   // testSignalIntegrityGuard.test.ts を物理削除した際、本 overlay からも削除済 (2026-04-27)。
   // 置換は v2 T:kind per-test obligation (taxonomyInterlockGuard + testTaxonomyGuardV2)。
@@ -1410,7 +1410,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     },
   },
   // ── AR-TAXONOMY-* (taxonomy-v2 子 Phase 3.5: 共通 infra) ──
-  // 上位原則: references/01-principles/taxonomy-constitution.md
+  // 上位原則: references/01-foundation/taxonomy-constitution.md
   // 7 rule の reviewPolicy 設定（90 日 cadence、solo-maintainer owner）。
   // 実検出は v2 guard test 群（responsibilityTagGuardV2 / testTaxonomyGuardV2 /
   // taxonomyInterlockGuard）が担う。本 entry は Pure Calc Reorg overlay に同梱

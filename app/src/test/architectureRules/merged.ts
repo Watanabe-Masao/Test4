@@ -5,7 +5,7 @@
  * ruleId キーで合成して ARCHITECTURE_RULES を生成する。
  *
  * **canonical merge policy**:
- *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   `aag/_internal/source-of-truth.md` §4 (Merge Policy)
  *   = **唯一の canonical**。本 file の合成 logic は §4 に back-link し、
  *     §4 と矛盾する挙動を持たない。merge policy を変更する場合は §4 を
  *     先に改訂し、本 file はそれに追従する (逆方向は禁止)。
@@ -27,8 +27,8 @@
  * 参照: projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @responsibility R:unclassified
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
+ * @see references/03-implementation/governance-final-placement-plan.md
  */
 
 import { readFileSync } from 'node:fs'
@@ -83,7 +83,7 @@ function mergeRules(): readonly ArchitectureRule[] {
           `DEFAULT_EXECUTION_OVERLAY must define it.\n` +
           `  → defaults: app/src/test/architectureRules/defaults.ts\n` +
           `  → project overlay: ${ACTIVE_OVERLAY_HINT}\n` +
-          `  → canonical merge policy: references/01-principles/aag/source-of-truth.md §4`,
+          `  → canonical merge policy: aag/_internal/source-of-truth.md §4`,
       )
     }
     // §4.1 解決順序: project overlay 優先、未定義 field は defaults から補完。

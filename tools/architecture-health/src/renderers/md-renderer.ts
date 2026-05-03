@@ -51,7 +51,7 @@ export function renderMd(report: HealthReport, repoRoot: string): string {
   lines.push('')
   lines.push(`> Generated: ${report.timestamp}`)
   lines.push(`> Schema: v${report.schemaVersion}`)
-  lines.push(`> 正本: \`references/02-status/generated/architecture-health.json\``)
+  lines.push(`> 正本: \`references/04-tracking/generated/architecture-health.json\``)
   lines.push('')
 
   // Summary
@@ -104,7 +104,7 @@ export function renderMd(report: HealthReport, repoRoot: string): string {
   const content = lines.join('\n')
   const outPath = resolve(
     repoRoot,
-    'references/02-status/generated/architecture-health.md',
+    'references/04-tracking/generated/architecture-health.generated.md',
   )
   mkdirSync(dirname(outPath), { recursive: true })
   writeFileSync(outPath, content, 'utf-8')
@@ -134,7 +134,7 @@ export function renderInlineSection(report: HealthReport): string {
   lines.push('')
   lines.push(`**Hard Gate: ${s.hardGatePass ? 'PASS' : 'FAIL'}** — 合計 ${s.totalKpis} KPI (OK ${s.ok} / WARN ${s.warn} / FAIL ${s.fail})`)
   lines.push('')
-  lines.push(`> 生成日時: ${report.timestamp} — 正本: \`references/02-status/generated/architecture-health.json\``)
+  lines.push(`> 生成日時: ${report.timestamp} — 正本: \`references/04-tracking/generated/architecture-health.json\``)
 
   return lines.join('\n')
 }

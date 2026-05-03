@@ -1,7 +1,7 @@
 # decision-audit — operational-protocol-system
 
 > 役割: 主要判断の articulation + 振り返り observation の記録 artifact。
-> 規約: `plan.md` §1 不可侵原則 + `references/03-guides/decision-articulation-patterns.md` Pattern 1 (Commit-bound Rollback) + Pattern 4 (Honest Articulation)。
+> 規約: `plan.md` §1 不可侵原則 + `references/05-aag-interface/drawer/decision-articulation-patterns.md` Pattern 1 (Commit-bound Rollback) + Pattern 4 (Honest Articulation)。
 > 1 entry = 1 判断 = 1 振り返り。**観測なき articulation を禁ず**。
 
 ## 必須要件
@@ -61,15 +61,15 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 判断時 (2026-05-02 / Phase 0)
 
 - 候補:
-  1. 人間承認 gate モデル (3+ Gate)
+  1. user 承認 gate モデル (3+ Gate)
   2. AI judgement only (履歴なし)
   3. AI judgement + retrospective verification
   4. **AI judgement + retrospective + commit-bound rollback** (= drawer Pattern 1 + AAG Pilot DA institution からの継承)
 - 採用案: 候補 4
 - 判断根拠:
   - 事実 1: AAG Pilot (= `projects/completed/aag-platformization/`) で同 institution が成立、19+ reframes に対し rollback 0 件で機能 verify 済 (= drawer Pattern 1 の application instance が実証)
-  - 事実 2: drawer (= `references/03-guides/decision-articulation-patterns.md`) Pattern 1 が一般 trigger と適用領域を articulate 済 (= 領域 agnostic、本 project でも reuse 可能)
-  - 事実 3: 不可侵原則 6「起動・archive 判断は user 領域、AI 単独で起動・archive しない」と整合 (= AI 単独進行 + 最終 archive 人間承認)
+  - 事実 2: drawer (= `references/05-aag-interface/drawer/decision-articulation-patterns.md`) Pattern 1 が一般 trigger と適用領域を articulate 済 (= 領域 agnostic、本 project でも reuse 可能)
+  - 事実 3: 不可侵原則 6「起動・archive 判断は user 領域、AI 単独で起動・archive しない」と整合 (= AI 単独進行 + 最終 archive user 承認)
 - 想定リスク:
   - 最大被害: judgementCommit / Tag 管理 overhead が Phase 進行を鈍化、rollback tag が dead reference 化。mitigation = AAG Pilot で実証済 (rollback 0 件でも DA institution は psychological safety + scope discipline として機能)
   - 二番目: tag prefix `operational-protocol-system/DA-α-` が AAG Pilot prefix と区別されない混同 risk。mitigation = prefix 完全一致 + repo 内 tag list で区別可能

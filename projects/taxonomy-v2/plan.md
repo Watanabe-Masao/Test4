@@ -52,12 +52,12 @@
 
 | #   | メカニズム                      | 正本                                                  | 何を観測                                |
 | --- | ------------------------------- | ----------------------------------------------------- | --------------------------------------- |
-| 1   | **Origin Journal**              | `references/01-principles/taxonomy-origin-journal.md` | 全タグの Why/When/Who/Sunset            |
+| 1   | **Origin Journal**              | `references/01-foundation/taxonomy-origin-journal.md` | 全タグの Why/When/Who/Sunset            |
 | 2   | **Antibody Pairs**              | `taxonomy-pairs.json`                                 | 対概念タグの相互制約                    |
 | 3   | **Cognitive Load Ceiling**      | health KPI                                            | 語彙総数 ≤ 15（軸ごと）                 |
 | 4   | **Bidirectional Contract**      | `taxonomy-interlock.json`                             | R ⇔ T マトリクス整合                    |
 | 5   | **Entropy Monitoring**          | health KPI                                            | 未分類件数・未分類比率・タグ使用偏り    |
-| 6   | **Review Journal**              | `references/02-status/taxonomy-review-journal.md`     | 各 review window の追加・撤退・却下記録 |
+| 6   | **Review Journal**              | `references/04-tracking/taxonomy-review-journal.md`     | 各 review window の追加・撤退・却下記録 |
 | 7   | **AI Vocabulary Binding**       | `CLAUDE.md` §taxonomy-binding                         | AI が新タグを勝手に作らない制約         |
 | 8   | **Constitution Bootstrap Test** | `constitutionBootstrapGuard.test.ts`                  | 7 原則ファイルの存在・参照整合          |
 
@@ -71,9 +71,9 @@
 
 **成果物:**
 
-- `references/01-principles/taxonomy-constitution.md`（7 原則）
-- `references/01-principles/taxonomy-interlock.md`（R ⇔ T マトリクス仕様）
-- `references/01-principles/taxonomy-origin-journal.md`（初期記入: 現行 v1 の 20 タグ）
+- `references/01-foundation/taxonomy-constitution.md`（7 原則）
+- `references/01-foundation/taxonomy-interlock.md`（R ⇔ T マトリクス仕様）
+- `references/01-foundation/taxonomy-origin-journal.md`（初期記入: 現行 v1 の 20 タグ）
 - `CLAUDE.md` §taxonomy-binding 追記（AI Vocabulary Binding）
 - `constitutionBootstrapGuard.test.ts`（原則文書の存在検証）
 
@@ -85,8 +85,8 @@
 
 **成果物:**
 
-- `references/03-guides/taxonomy-review-window.md`（手続き + 判定基準 + 記録形式）
-- `references/02-status/taxonomy-review-journal.md`（journal skeleton）
+- `references/03-implementation/taxonomy-review-window.md`（手続き + 判定基準 + 記録形式）
+- `references/04-tracking/taxonomy-review-journal.md`（journal skeleton）
 - 同期 window ルール: 両軸の追加・撤退は同一 window で裁定
 
 **受け入れ条件:** 初回 review window の開催手順が記述されている。
@@ -114,7 +114,7 @@
 4. 四半期 review window が 2 回以上記録されている
 5. interlock マトリクスの違反件数 = 0（連続 2 四半期）
 
-**受け入れ条件:** 5 要件全クリア + 人間レビュー承認 → archive。
+**受け入れ条件:** 5 要件全クリア + user レビュー承認 → archive。
 
 ---
 
@@ -156,7 +156,7 @@
 | ------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------ |
 | **State Correctness** — registry と実装ファイルのタグが一致         | registry / inventory / co-change guard                          | **触る（子の Phase 3 + 6 が保証主体）**    |
 | **Constitutional Correctness** — タグが 7 原則 + Interlock を満たす | constitutionBootstrapGuard / interlock guard / vocabulary guard | **触る（親 Phase 1 + 子 Phase 3 で確定）** |
-| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当     | review window / Origin Journal / 人間承認                       | 触らない（review window 経路で別管理）     |
+| **Decision Correctness** — そのタグ・追加・撤退判断が業務上妥当     | review window / Origin Journal / user 承認                       | 触らない（review window 経路で別管理）     |
 
 **運用ルール**: 親 Constitution + 子 Schema + 各 R/T tag spec の冒頭にこの 3 層分離を明記する。
 
@@ -168,8 +168,8 @@
 tag: R:calculation
 evidenceLevel: tested
 evidence:
-  origin: references/01-principles/taxonomy-origin-journal.md#R-calculation
-  interlock: references/01-principles/taxonomy-interlock.md#R-calculation
+  origin: references/01-foundation/taxonomy-origin-journal.md#R-calculation
+  interlock: references/01-foundation/taxonomy-interlock.md#R-calculation
   guards:
     - app/src/test/guards/responsibilityTagGuardV2.test.ts
   tests:
@@ -454,7 +454,7 @@ ratchet-down のみ許可、増加方向に戻さない。
 
 > **位置付け**: 親 plan が schema を確定する。collector 実装は子 Phase 3（Guard 実装）+ 親 Phase 4（health KPI 統合）が担う。
 >
-> 出力先: `references/02-status/generated/taxonomy-health.json`。`architecture-health.json` summary に `taxonomy.*` カテゴリとして反映。
+> 出力先: `references/04-tracking/generated/taxonomy-health.json`。`architecture-health.json` summary に `taxonomy.*` カテゴリとして反映。
 
 ```json
 {
@@ -536,8 +536,8 @@ ratchet-down のみ許可、増加方向に戻さない。
 ## Common Inventory Schema（CanonEntry — 仕様正本）
 
 > **位置付け**: 親 Phase 3 で確定する **両軸共通の CanonEntry 形**。
-> 子 Phase 0 Inventory が出力する `references/02-status/responsibility-taxonomy-inventory.yaml`
-> および `references/02-status/test-taxonomy-inventory.yaml` の各 entry が本 schema に
+> 子 Phase 0 Inventory が出力する `references/04-tracking/responsibility-taxonomy-inventory.yaml`
+> および `references/04-tracking/test-taxonomy-inventory.yaml` の各 entry が本 schema に
 > 適合する。両軸が同じ shape を使うことで、§OCS.7 Anchor Slice 段階 1（保証経路完成）と
 > §OCS.10 Capture Loop（source → registry → inventory → graph）を機械的に接続できる。
 

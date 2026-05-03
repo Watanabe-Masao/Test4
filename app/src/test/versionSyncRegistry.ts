@@ -12,7 +12,7 @@
  * AAG レイヤー: Layer 2 Schema（宣言的契約）。
  * 検出実装は `versionSyncGuard.test.ts` の Layer 3 Execution に閉じる。
  *
- * 参照: `references/03-guides/project-checklist-governance.md`（同様の宣言的設計）
+ * 参照: `references/05-aag-interface/operations/project-checklist-governance.md`（同様の宣言的設計）
  */
 
 export interface VersionSyncPair {
@@ -83,7 +83,7 @@ export const VERSION_SYNC_REGISTRY: readonly VersionSyncPair[] = [
     description:
       'recent-changes.md の最新バージョン見出しと project-metadata.json appVersion の一致',
     source: {
-      file: 'references/02-status/recent-changes.md',
+      file: 'references/04-tracking/recent-changes.generated.md',
       // `## v1.8.0 — ...` 形式の最初の出現を拾う
       extract: (content: string): string | undefined => {
         const match = /^## v([\d.]+)/m.exec(content)

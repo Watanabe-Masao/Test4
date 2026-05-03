@@ -48,7 +48,7 @@
  * 現状の違反件数はベースラインとして凍結される。新規違反は即 fail。
  * ベースラインから減ったら allowlist を縮小する方向にのみ更新する。
  *
- * @see references/01-principles/temporal-scope-semantics.md
+ * @see references/01-foundation/temporal-scope-semantics.md
  * @see app/src/domain/models/comparisonRangeResolver.ts ComparisonResolvedRange
  *
  * @responsibility R:unclassified

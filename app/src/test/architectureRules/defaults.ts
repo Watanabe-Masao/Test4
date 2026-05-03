@@ -5,7 +5,7 @@
  * project overlay が明示的に override しない rule は、ここから値を取る。
  *
  * **canonical merge policy**:
- *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   `aag/_internal/source-of-truth.md` §4 (Merge Policy)
  *   = 唯一の canonical。本 file の defaults 役割は §4.1 解決順序 step 2
  *   (project overlay 未定義 field の補完) を realize する。
  *
@@ -22,7 +22,7 @@
  * 完全性は defaultOverlayCompletenessGuard が保証する。
  *
  * @responsibility R:unclassified
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  */
 

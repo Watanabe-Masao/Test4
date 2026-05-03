@@ -5,7 +5,7 @@
  * 5 pure 関数 × 4 フィクスチャで不変条件を検証する。
  * Date 依存関数は TS 直接委譲（WASM 対象外）。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
+ * @see references/04-tracking/engine-promotion-matrix.md — authoritative
  *
  * @taxonomyKind T:unclassified
  */

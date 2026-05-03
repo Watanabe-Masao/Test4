@@ -102,6 +102,46 @@ if [ -z "$CHANGED_FILES" ]; then
 fi
 
 # ──────────────────────────────────────────────────────────────────────
+# Skip-rules evaluation (= DA-β-001 / negative articulation)
+# ──────────────────────────────────────────────────────────────────────
+#
+# 設計: pre-push hook = 軽量 / 変更箇所 + 影響範囲 / **何を check しないか** で articulate。
+# 全スキャンは CI が AI 不可侵の最終ゲートとして担い、pre-push は影響範囲フォーカス
+# の即時 feedback layer に純化する。
+#
+# manifest: tools/git-hooks/pre-push-skip-rules.json (skip-rules-v1)
+# evaluator: tools/git-hooks/skip-rules-evaluator.mjs (= matchAll 評価 + skip set 出力)
+# baseline: skipRules.length <= skipBaseline (= prePushSkipRulesGuard.test.ts で機械検証)
+#
+# 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-001
+
+SKIP_LIST=""
+SKIP_MATCHED_RULES=""
+
+if [ -f tools/git-hooks/pre-push-skip-rules.json ] && [ -f tools/git-hooks/skip-rules-evaluator.mjs ]; then
+  EVAL_OUTPUT=$(echo "$CHANGED_FILES" | node tools/git-hooks/skip-rules-evaluator.mjs 2>/dev/null || true)
+  if [ -n "$EVAL_OUTPUT" ]; then
+    SKIP_MATCHED_RULES=$(echo "$EVAL_OUTPUT" | head -1 | sed 's/^MATCHED://')
+    SKIP_LIST=$(echo "$EVAL_OUTPUT" | tail -n +2)
+  fi
+fi
+
+if [ -n "$SKIP_MATCHED_RULES" ]; then
+  echo "  pre-push: skip rules matched [$SKIP_MATCHED_RULES]"
+  if [ -n "$SKIP_LIST" ]; then
+    SKIP_DISPLAY=$(echo "$SKIP_LIST" | tr '\n' ' ')
+    echo "  pre-push: skipping checks: $SKIP_DISPLAY"
+  fi
+fi
+
+# should_skip <check_name>
+# skip evaluation 結果に基づいて check を skip するか判定する
+should_skip() {
+  [ -z "$SKIP_LIST" ] && return 1
+  echo "$SKIP_LIST" | grep -qx "$1"
+}
+
+# ──────────────────────────────────────────────────────────────────────
 # Violation registry 層
 # ──────────────────────────────────────────────────────────────────────
 
@@ -552,6 +592,10 @@ CHECK_REGISTRY="
 "
 
 for check in $CHECK_REGISTRY; do
+  if should_skip "$check"; then
+    echo "  pre-push: $check skipped (= skip-rules.json で除外)"
+    continue
+  fi
   $check
 done
 

@@ -39,7 +39,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 
 ### Phase M1: Task Protocol System 定義 (= core 制度の articulation)
 
-**deliverable** (4 doc 新設、配置 = `references/03-guides/`):
+**deliverable** (4 doc 新設、配置 = `references/05-aag-interface/protocols/`、aag-self-hosting-completion R0-R5 で path 確定):
 
 - `task-protocol-system.md` — 上位 doc、M1-M5 全体の index、DA entry articulate
 - `task-class-catalog.md` — Task Class 6 類型 (= Planning / Refactor / Bug Fix / New Capability / Incident Discovery / Handoff)、各々に scope + 標準手順 pointer
@@ -182,30 +182,32 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 
 | パス | 役割 |
 |---|---|
-| `references/01-principles/aag/*` | AAG framework articulate (= 参照のみ、改変禁止 = 不可侵原則 1) |
+| `aag/_internal/*` | AAG framework articulate (= 参照のみ、改変禁止 = 不可侵原則 1) |
 | `aag/core/` | AAG Core (= 同上) |
-| `references/01-principles/platformization-standard.md` | Standard (= 引用のみ) |
-| `references/03-guides/decision-articulation-patterns.md` | drawer (= Pattern 1-6 引用、改変禁止) |
+| `references/01-foundation/platformization-standard.md` | Standard (= 引用のみ) |
+| `references/05-aag-interface/drawer/decision-articulation-patterns.md` | drawer (= Pattern 1-6 引用、改変禁止) |
 | `projects/_template/` | 5 文書 template (= 参照のみ) |
 | `roles/*` | role identity (= 参照のみ、改変禁止) |
-| `references/03-guides/projectization-policy.md` | AAG-COA (= 参照のみ) |
+| `references/05-aag-interface/operations/projectization-policy.md` | AAG-COA (= 参照のみ) |
 | 主アプリ code (`app/src/`, `app-domain/`, `wasm/`) | 業務 logic (= touch 禁止 = 不可侵原則 3) |
 
 ### 新設 (Phase M1-M5)
 
+> **新 path articulation (= aag-self-hosting-completion R0-R5 で確定)**: M1-M5 deliverable target = `references/05-aag-interface/protocols/`。R2 で skeleton (= `protocols/README.md`) landed 済、本 project M1-M5 で fill。
+
 | パス | 軸 |
 |---|---|
-| `references/03-guides/task-protocol-system.md` | M1 上位 doc |
-| `references/03-guides/task-class-catalog.md` | M1 + M4 (Task Class 6 類型 + 5 protocol) |
-| `references/03-guides/session-protocol.md` | M1 + M2 (Session 手順 + L1/L2/L3 routing) |
-| `references/03-guides/complexity-policy.md` | M1 + M3 (L1/L2/L3 articulate + 昇格・降格 trigger) |
+| `references/05-aag-interface/protocols/task-protocol-system.md` | M1 上位 doc |
+| `references/05-aag-interface/protocols/task-class-catalog.md` | M1 + M4 (Task Class 6 類型 + 5 protocol) |
+| `references/05-aag-interface/protocols/session-protocol.md` | M1 + M2 (Session 手順 + L1/L2/L3 routing) |
+| `references/05-aag-interface/protocols/complexity-policy.md` | M1 + M3 (L1/L2/L3 articulate + 昇格・降格 trigger) |
 
 ### 拡張 (既存 mechanism extend)
 
 | パス | 拡張内容 |
 |---|---|
 | `.claude/manifest.json` | discovery に新 doc 追加 (M1 完了後) |
-| `references/02-status/recent-changes.md` | サマリ追加 (= archive 時) |
+| `references/04-tracking/recent-changes.generated.md` | サマリ追加 (= archive 時) |
 
 ---
 

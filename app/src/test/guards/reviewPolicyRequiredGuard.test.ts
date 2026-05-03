@@ -18,7 +18,7 @@
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-001
  *  - projects/architecture-debt-recovery/inquiry/16-breaking-changes.md §BC-6
- *  - references/03-guides/architecture-rule-system.md §Temporal Governance
+ *  - references/03-implementation/architecture-rule-system.md §Temporal Governance
  *
  * @responsibility R:guard
  *

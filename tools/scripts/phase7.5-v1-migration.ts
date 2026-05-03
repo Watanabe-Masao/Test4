@@ -14,9 +14,9 @@
  *   cd app && npx tsx ../tools/scripts/phase7.5-v1-migration.ts
  *
  * 関連:
- * - references/02-status/taxonomy-review-journal.md §3.1（cooling 撤廃の human approval）
+ * - references/04-tracking/taxonomy-review-journal.md §3.1（cooling 撤廃の human approval）
  * - app/src/test/guards/taxonomyV1V2GapGuard.test.ts（GAP-R-1 baseline=259 → 0 目標）
- * - references/03-guides/responsibility-v1-to-v2-migration-map.md §1
+ * - references/03-implementation/responsibility-v1-to-v2-migration-map.md §1
  */
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'

@@ -33,7 +33,7 @@ const APP_SRC = resolve(REPO_ROOT, 'app/src')
 // 子 Phase 0 期間は parallel branch コンフリクト回避のため
 // projects/test-taxonomy-v2/derived/inventory/ に scratchpad 出力していたが、
 // 親 Phase 0 統合 branch (claude/taxonomy-v2-phase0-integration) で本パスに正本配置済。
-const OUTPUT_PATH = resolve(REPO_ROOT, 'references/02-status/test-taxonomy-inventory.yaml')
+const OUTPUT_PATH = resolve(REPO_ROOT, 'references/04-tracking/test-taxonomy-inventory.yaml')
 
 // ---------------------------------------------------------------------------
 // scope: 全 test ファイル (*.test.ts / *.test.tsx)

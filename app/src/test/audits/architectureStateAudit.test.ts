@@ -333,7 +333,7 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
   })
 
   it('スナップショットレポートを生成する', () => {
-    const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
+    const reportDir = path.resolve(__dirname, '../../../../references/04-tracking/generated')
     if (!fs.existsSync(reportDir)) {
       fs.mkdirSync(reportDir, { recursive: true })
     }

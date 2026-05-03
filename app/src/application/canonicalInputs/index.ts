@@ -4,7 +4,7 @@
  * 複合指標の入力を readModel から構築する。
  * 粒度合わせと domain 計算呼び出しを一箇所に閉じ込める。
  *
- * @see references/01-principles/canonical-input-sets.md
+ * @see references/01-foundation/canonical-input-sets.md
  *
  * @responsibility R:unclassified
  */

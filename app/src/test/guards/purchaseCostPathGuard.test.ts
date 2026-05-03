@@ -6,8 +6,8 @@
  * Layer 3: 正本一貫性 — readPurchaseCost の3正本取得・導出値・旧経路不在
  * Layer 4: 手続き保証 — KPI直接構築・変換ヘルパー・facade経由・ページ経由
  *
- * @see references/01-principles/purchase-cost-definition.md
- * @see references/03-guides/purchase-cost-unification-plan.md
+ * @see references/01-foundation/purchase-cost-definition.md
+ * @see references/03-implementation/purchase-cost-unification-plan.md
  * ルール定義: architectureRules.ts (AR-PATH-PURCHASE-COST)
  *
  * @responsibility R:unclassified

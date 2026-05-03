@@ -7,7 +7,7 @@
  * ルール定義: architectureRules.ts (AR-001〜AR-005)
  *
  * @guard G1 テストに書く — 機械的検出手段で再発防止
- * @see references/03-guides/safety-first-architecture-plan.md
+ * @see references/03-implementation/safety-first-architecture-plan.md
  *
  * @responsibility R:unclassified
  *

@@ -25,7 +25,7 @@
  * そのまま受け取るため、scope の resolution と **意味的に等価** であることが
  * 保証される（同じ dowOffset を共有するため）。
  *
- * @see references/01-principles/temporal-scope-semantics.md
+ * @see references/01-foundation/temporal-scope-semantics.md
  * @see app/src/domain/models/ComparisonScope.ts buildComparisonScope
  *
  * @responsibility R:unclassified

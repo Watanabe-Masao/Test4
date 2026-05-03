@@ -5,7 +5,7 @@
  * **設計意図（重要）**
  *
  * 本 helper は read-path 重複耐性 spot audit
- * (`references/03-guides/read-path-duplicate-audit.md`) で FRAGILE 判定された
+ * (`references/03-implementation/read-path-duplicate-audit.md`) で FRAGILE 判定された
  * 6 クエリに「ロード境界が壊れた場合に silent 倍化しない」回帰テストを
  * 横展開するために導入する。1 件ずつ個別に mock を組むと検出粒度が
  * 6 箇所でバラついて将来の保守コストが上がるため、先に共有 helper を
@@ -45,8 +45,8 @@
  * これにより「ロード境界が壊れたら倍化する」という抽象的なリスクが、
  * 「SQL に source 事前集約があるか」という機械的な検査に降りる。
  *
- * @see references/03-guides/read-path-duplicate-audit.md
- * @see references/03-guides/data-load-idempotency-plan.md §8 Done 定義
+ * @see references/03-implementation/read-path-duplicate-audit.md
+ * @see references/03-implementation/data-load-idempotency-plan.md §8 Done 定義
  */
 import { vi } from 'vitest'
 import type { AsyncDuckDBConnection } from '@duckdb/duckdb-wasm'

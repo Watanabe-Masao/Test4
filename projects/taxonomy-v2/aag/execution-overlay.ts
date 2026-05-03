@@ -13,7 +13,7 @@
  *
  * 参照:
  * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
- * - references/03-guides/governance-final-placement-plan.md
+ * - references/03-implementation/governance-final-placement-plan.md
  *
  * @responsibility R:utility
  */

@@ -4,7 +4,7 @@
  * 役割: G3 (eslint-disable / @ts-ignore / @ts-expect-error 抑制禁止) と
  *       Test Signal Integrity 系ガードの **構造化された** 許可リスト。
  *
- * 上位原則: `references/01-principles/test-signal-integrity.md`
+ * 上位原則: `references/01-foundation/test-signal-integrity.md`
  * 関連 project: `projects/test-signal-integrity` Phase 3
  *
  * == 設計方針 ==
@@ -20,7 +20,7 @@
  * == 関連実装 ==
  * - `app/src/test/guards/codePatternGuard.test.ts` G3 ブロック (consumer)
  * - `tools/scripts/test-signal-baseline.ts` (Phase 3 baseline 採取)
- * - `references/02-status/generated/test-signal-baseline.md` (現状件数)
+ * - `references/04-tracking/generated/test-signal-baseline.generated.md` (現状件数)
  */
 import type { AllowlistEntry } from './types'
 

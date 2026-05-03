@@ -4,7 +4,7 @@
  * AAG-COA (Change Operation Assessment) が要求する `projectization` metadata と
  * Level 別 required / forbidden artifacts を機械的に検証する。
  *
- * 規約: `references/03-guides/projectization-policy.md`
+ * 規約: `references/05-aag-interface/operations/projectization-policy.md`
  *
  * ## 検出する違反
  *
@@ -43,7 +43,7 @@
  * その他の検出コードは metadata が存在する project のみが対象のため、
  * 新規に metadata を書く project は完全形を求められる。
  *
- * @see references/03-guides/projectization-policy.md §12
+ * @see references/05-aag-interface/operations/projectization-policy.md §12
  *
  * @responsibility R:unclassified
  *
@@ -152,7 +152,7 @@ function checkPZ2(p: ActiveProject): Violation[] {
         message: `config/project.json の projectization.level が 0〜4 以外です (現値: ${JSON.stringify(level)})`,
         hint:
           '0, 1, 2, 3, 4 のいずれかを指定してください。' +
-          ' 詳細: references/03-guides/projectization-policy.md §3。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3。',
       },
     ]
   }
@@ -178,7 +178,7 @@ function checkPZ3(p: ActiveProject): Violation[] {
         '`projects/quick-fixes/checklist.md` に 1 行追加で対応してください。\n' +
         ' このディレクトリを `projects/quick-fixes/` に移管するか、' +
         '実態に合わせて Level 1+ に escalate してください。\n' +
-        ' 詳細: references/03-guides/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
+        ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
     },
   ]
 }
@@ -200,7 +200,7 @@ function checkPZ4(p: ActiveProject): Violation[] {
         hint:
           'Level 1 は軽量 project 用の level です。full Phase 構造が必要なら Level 3+ に escalate し、\n' +
           ' projectization.md §5 に escalate 理由を記載、config/project.json の projectization.level を更新してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 1。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 1。',
       },
     ]
   }
@@ -220,7 +220,7 @@ function checkPZ5(p: ActiveProject): Violation[] {
         hint:
           'inquiry/ は Level 2 任意 / Level 3+ 必須です。Level 1 では事実棚卸しは不要。\n' +
           ' 棚卸しが必要なら Level 3 に escalate してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §4 早見表。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §4 早見表。',
       },
     ]
   }
@@ -239,7 +239,7 @@ function checkPZ6(p: ActiveProject): Violation[] {
         hint:
           'sub-project-map.md は Level 4 (Umbrella Project) 専用の artifact です。\n' +
           ' Level 2 project で複数 sub-project を spawn する必要があるなら Level 4 に escalate してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 4。',
       },
     ]
   }
@@ -259,7 +259,7 @@ function checkPZ7(p: ActiveProject): Violation[] {
           'breakingChange=true なのに projects/<id>/breaking-changes.md が存在しません（Level 3+）',
         hint:
           'breaking-changes.md を追加し、破壊対象の公開契約 / 型 / API と移行方針を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §5 + §3 Level 3。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §5 + §3 Level 3。',
       },
     ]
   }
@@ -279,7 +279,7 @@ function checkPZ8(p: ActiveProject): Violation[] {
           'requiresLegacyRetirement=true なのに projects/<id>/legacy-retirement.md が存在しません（Level 3+）',
         hint:
           'legacy-retirement.md を追加し、撤退対象 / 呼び出し元 / 移行先 / 撤退順序 / rollback を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §6。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §6。',
       },
     ]
   }
@@ -348,8 +348,8 @@ function checkPZ9(p: ActiveProject): Violation[] {
         '   - baseline 戦略（初期値 / ratchet-down 方針）\n' +
         '   - allowlist 管理（必要なら）\n' +
         '   - fix hints（error message に載せる修正誘導）\n' +
-        ' 詳細: references/03-guides/projectization-policy.md §7 +' +
-        ' references/03-guides/architecture-rule-system.md。',
+        ' 詳細: references/05-aag-interface/operations/projectization-policy.md §7 +' +
+        ' references/03-implementation/architecture-rule-system.md。',
     },
   ]
 }
@@ -361,9 +361,11 @@ function checkPZ10(p: ActiveProject): Violation[] {
   const checklist = path.join(p.absDir, 'checklist.md')
   if (!fs.existsSync(checklist)) return []
   const content = fs.readFileSync(checklist, 'utf-8')
-  // 「最終レビュー」「人間承認」のいずれかを含む section 配下に [ ] checkbox があれば OK
+  // 「最終レビュー」「user 承認」「人間承認」のいずれかを含む section 配下に [ ] checkbox があれば OK
   // 構造的契約のみ検証: bullet style (`*` / `-`) は Prettier に委譲（責務分離）。
-  const hasFinalReviewSection = /最終レビュー|人間承認|Human Approval|Final Review/i.test(content)
+  // aag-self-hosting-completion R3c で「人間」→「user」統一、両表記を許容。
+  const hasFinalReviewSection =
+    /最終レビュー|user 承認|人間承認|Human Approval|Final Review|User Approval/i.test(content)
   const hasCheckbox = /^\s*[*-]\s+\[\s?\]\s+/m.test(content)
   if (!hasFinalReviewSection || !hasCheckbox) {
     return [
@@ -371,13 +373,13 @@ function checkPZ10(p: ActiveProject): Violation[] {
         projectId: p.projectId,
         code: 'PZ-10',
         message:
-          'requiresHumanApproval=true なのに checklist.md に「最終レビュー (人間承認)」 checkbox がありません',
+          'requiresHumanApproval=true なのに checklist.md に「最終レビュー (user 承認)」 checkbox がありません',
         hint:
           'checklist.md の最後に次の section を追加してください:\n' +
-          '    ## 最終レビュー (人間承認)\n' +
-          '    - [ ] 全 Phase の成果物を人間がレビューし archive プロセスへの移行を承認する\n' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §3.1 + ' +
-          'references/03-guides/projectization-policy.md §8。' +
+          '    ## 最終レビュー (user 承認)\n' +
+          '    - [ ] 全 Phase の成果物を user がレビューし archive プロセスへの移行を承認する\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.1 + ' +
+          'references/05-aag-interface/operations/projectization-policy.md §8。' +
           '（bullet style は `*` / `-` どちらでも accept、Prettier に委譲）',
       },
     ]
@@ -396,7 +398,7 @@ function checkPZ11(p: ActiveProject): Violation[] {
         message: 'Level 4 (Umbrella) project に sub-project-map.md が存在しません',
         hint:
           'sub-project-map.md を追加し、sub-project 一覧 + 依存関係を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 4。',
       },
     ]
   }
@@ -415,7 +417,121 @@ function checkPZ12(p: ActiveProject): Violation[] {
         hint:
           'projectization.nonGoals に「この project でやらないこと」を 1 件以上列挙してください。\n' +
           ' scope 逸脱の抑止と escalation 判定の基準として機能します。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §10 + projectization.md §4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §10 + projectization.md §4。',
+      },
+    ]
+  }
+  return []
+}
+
+/**
+ * PZ-13: AI 自己レビュー section が user 承認 section の前に存在する (= DA-β-002 で institute)
+ *
+ * 設計:
+ * - trigger: requiresHumanApproval=true の active project
+ * - 検出 1: `## AI (自己)?レビュー` section が checklist.md に存在しない → fail
+ * - 検出 2: AI レビュー section が `## 最終レビュー` section の **後** にある (= ordering 違反) → fail
+ * - scope: structural のみ (= section 存在 + ordering)、checkbox 内容は不問 (= AI session 責任、機械検証 scope 外)
+ *
+ * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-002
+ */
+function checkPZ13(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (!m.requiresHumanApproval) return []
+  const checklist = path.join(p.absDir, 'checklist.md')
+  if (!fs.existsSync(checklist)) return []
+  const content = fs.readFileSync(checklist, 'utf-8')
+
+  const aiReviewMatch = content.match(/##\s*AI\s*(?:自己)?レビュー/i)
+  const finalReviewMatch = content.match(/##\s*最終レビュー/i)
+
+  if (!aiReviewMatch) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-13',
+        message:
+          'requiresHumanApproval=true なのに checklist.md に「AI 自己レビュー」section がありません',
+        hint:
+          '「最終レビュー (user 承認)」 section の **直前** に次の section を追加してください:\n' +
+          '    ## AI 自己レビュー (= user 承認の手前)\n' +
+          '    - [ ] 総チェック / 歪み検出 / 潜在バグ / ドキュメント抜け漏れ / CHANGELOG + バージョン管理\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2 + ' +
+          'projects/aag-self-hosting-completion/decision-audit.md DA-β-002。',
+      },
+    ]
+  }
+
+  if (finalReviewMatch && aiReviewMatch.index! >= finalReviewMatch.index!) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-13',
+        message:
+          'AI 自己レビュー section は最終レビュー (user 承認) の **前** に配置してください (= ordering 違反)',
+        hint:
+          '正しい順: ## AI 自己レビュー → ## 最終レビュー (user 承認)\n' +
+          ' AI が user 承認の入力を整える 2 段 gate 構造。\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2。',
+      },
+    ]
+  }
+
+  return []
+}
+
+/**
+ * PZ-14: discovery-log.md 必須 (= Level 2+ project、DA-β-003 で institute)
+ *
+ * 設計:
+ * - trigger: Level 2+ active project (= scope 中規模以上、発見蓄積 value 高い)
+ * - 検出 1: discovery-log.md が project ディレクトリに存在しない → fail
+ * - 検出 2: discovery-log.md が schema を満たさない (= `## priority` section + `## 発見済 entry` section) → fail
+ * - scope: file 存在 + schema 軽量 check のみ。entry 内容妥当性は AI session 責任 (= 機械検証 scope 外)
+ *
+ * 設計思想:
+ * - AAG philosophy「製本されないものを guard 化しない」と整合
+ * - 内容検証は機械では不可能、AI session の self-discipline + decision-audit articulation で担保
+ * - 蓄積 value は post-archive review で実証 (= mechanism として institute するのが目的)
+ *
+ * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-003
+ */
+function checkPZ14(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (m.level < 2) return []
+  const discoveryLog = path.join(p.absDir, 'discovery-log.md')
+  if (!fs.existsSync(discoveryLog)) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-14',
+        message: 'Level 2+ project なのに discovery-log.md が存在しません',
+        hint:
+          'projects/<id>/discovery-log.md を作成してください。template:\n' +
+          '    projects/_template/discovery-log.md\n' +
+          '  scope 外発見 / 改善 / 調査要事項を per-project で蓄積する mechanism (= DA-β-003 で institute)。\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3 + ' +
+          'projects/aag-self-hosting-completion/decision-audit.md DA-β-003。',
+      },
+    ]
+  }
+  const content = fs.readFileSync(discoveryLog, 'utf-8')
+  const hasPrioritySection = /^##\s*priority/m.test(content)
+  const hasEntrySection = /^##\s*発見済\s*entry/m.test(content)
+  if (!hasPrioritySection || !hasEntrySection) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-14',
+        message:
+          'discovery-log.md schema 違反: `## priority` または `## 発見済 entry` section が存在しません',
+        hint:
+          'projects/_template/discovery-log.md の schema に揃えてください:\n' +
+          '    ## priority (= P1/P2/P3 articulate table)\n' +
+          '    ## 発見済 entry (= entry 蓄積)\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3。',
       },
     ]
   }
@@ -435,6 +551,8 @@ function checkAllStructural(p: ActiveProject): Violation[] {
     ...checkPZ10(p),
     ...checkPZ11(p),
     ...checkPZ12(p),
+    ...checkPZ13(p),
+    ...checkPZ14(p),
   ]
 }
 
@@ -470,7 +588,7 @@ describe('Projectization Policy Guard (AAG-COA)', () => {
           `(baseline=${PZ1_MISSING_METADATA_BASELINE})。\n` +
           `以下の project に config/project.json へ projectization フィールドを追加してください:\n` +
           missing.map((p) => `  - ${p.projectId}`).join('\n') +
-          `\n詳細: references/03-guides/projectization-policy.md §10。`
+          `\n詳細: references/05-aag-interface/operations/projectization-policy.md §10。`
         : ''
     expect(actual, message).toBeLessThanOrEqual(PZ1_MISSING_METADATA_BASELINE)
   })

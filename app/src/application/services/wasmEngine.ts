@@ -65,8 +65,8 @@ export type WasmCandidateModuleName = (typeof WASM_CANDIDATE_MODULE_NAMES)[numbe
  * WASM モジュールの意味分類メタデータ。
  * Phase 3 で導入。bridge 境界の意味責任を明示する。
  *
- * @see references/03-guides/contract-definition-policy.md
- * @see references/01-principles/semantic-classification-policy.md
+ * @see references/03-implementation/contract-definition-policy.md
+ * @see references/01-foundation/semantic-classification-policy.md
  */
 export interface WasmModuleMetadata {
   readonly semanticClass: 'business' | 'analytic'

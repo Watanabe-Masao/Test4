@@ -19,7 +19,7 @@
  * 設計判断:
  * - parseFrontmatter は content-spec-collector と同等の subset。inline 実装
  *   (tools/ tsconfig 制約 + 重複削減 trade-off は後続で integrity primitive 経由化)
- * - graph 出力 JSON 経路: `references/02-status/generated/content-graph.json`
+ * - graph 出力 JSON 経路: `references/04-tracking/generated/content-graph.json`
  *   (architecture-health.json は KPI のみ集約、content graph 詳細は別 file)
  *
  * @see projects/completed/phased-content-specs-rollout/checklist.md Phase A #2
@@ -138,7 +138,7 @@ const KIND_DIRS: Record<SpecKind, string> = {
 };
 
 function listAllSpecs(repoRoot: string): SpecRelations[] {
-  const base = resolve(repoRoot, "references/05-contents");
+  const base = resolve(repoRoot, "references/04-tracking/elements");
   const out: SpecRelations[] = [];
   for (const [kind, dir] of Object.entries(KIND_DIRS)) {
     const fullDir = join(base, dir);
@@ -238,7 +238,7 @@ function buildGraph(specs: readonly SpecRelations[]): ContentGraph {
 // Output
 // ---------------------------------------------------------------------------
 
-const CONTENT_GRAPH_REL = "references/02-status/generated/content-graph.json";
+const CONTENT_GRAPH_REL = "references/04-tracking/generated/content-graph.json";
 
 export function writeContentGraph(repoRoot: string): ContentGraph {
   const specs = listAllSpecs(repoRoot);

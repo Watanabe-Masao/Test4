@@ -6,7 +6,7 @@
  * 案件固有の override が必要な rule だけを明示的に書く。
  *
  * **canonical merge policy**:
- *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   `aag/_internal/source-of-truth.md` §4 (Merge Policy)
  *   = 唯一の canonical。解決順序 / reviewPolicy 契約 / resolvedBy 追跡は
  *   §4.1〜§4.3 を参照。
  *
@@ -17,9 +17,9 @@
  * - Project Overlay（本ファイル）: fixNow, executionPlan, reviewPolicy, lifecyclePolicy
  *
  * 参照:
- * - references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * - aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * - projects/completed/aag-format-redesign/overlay-bootstrap-design.md
- * - references/03-guides/governance-final-placement-plan.md
+ * - references/03-implementation/governance-final-placement-plan.md
  *
  * @responsibility R:utility
  */

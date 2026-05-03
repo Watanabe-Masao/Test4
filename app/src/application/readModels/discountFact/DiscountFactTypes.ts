@@ -4,7 +4,7 @@
  * 71/72/73/74 の4種別を独立分析軸として管理。
  * 時間帯データは持たない（仕様として固定）。
  *
- * @see references/01-principles/discount-definition.md
+ * @see references/01-foundation/discount-definition.md
  *
  * @responsibility R:unclassified
  */

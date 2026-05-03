@@ -4,7 +4,7 @@
  * preset ごとの p1/p2 ラベルを一元管理する。
  * チャート側で「前年」「前期」「比較」などを独自に付けない。
  *
- * @see references/01-principles/dual-period-definition.md
+ * @see references/01-foundation/dual-period-definition.md
  * @responsibility R:unclassified
  */
 import type { ComparisonPreset } from '@/domain/models/PeriodSelection'

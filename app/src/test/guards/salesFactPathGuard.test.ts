@@ -4,7 +4,7 @@
  * readSalesFact / salesFactHandler が唯一の分析用正本。
  * presentation 層からの旧クエリ直接利用を禁止する。
  *
- * @see references/01-principles/sales-definition.md
+ * @see references/01-foundation/sales-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-SALES)
  *
  * @responsibility R:unclassified
@@ -87,7 +87,7 @@ describe('売上ファクト正本ガード', () => {
   // ── 定義書の存在確認 ──
 
   it('売上の正本定義書が存在する', () => {
-    const defFile = path.resolve(SRC_DIR, '../../references/01-principles/sales-definition.md')
+    const defFile = path.resolve(SRC_DIR, '../../references/01-foundation/sales-definition.md')
     expect(fs.existsSync(defFile)).toBe(true)
   })
 })

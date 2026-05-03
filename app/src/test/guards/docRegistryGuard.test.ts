@@ -13,7 +13,7 @@
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-DOC-STATIC-NUMBER)
  *
- * @see references/03-guides/integrity-domain-architecture.md §5 adapter pattern
+ * @see references/03-implementation/integrity-domain-architecture.md §5 adapter pattern
  *
  * @responsibility R:unclassified
  * @taxonomyKind T:unclassified
@@ -71,21 +71,21 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
-  it('references/01-principles/ の .md がレジストリに登録されている', () => {
-    const dir = path.join(PROJECT_ROOT, 'references/01-principles')
+  it('references/01-foundation/ の .md がレジストリに登録されている', () => {
+    const dir = path.join(PROJECT_ROOT, 'references/01-foundation')
     const actualFiles = fs
       .readdirSync(dir)
       .filter((f) => f.endsWith('.md'))
-      .map((f) => `references/01-principles/${f}`)
+      .map((f) => `references/01-foundation/${f}`)
 
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,
       registryLabel: 'doc-registry',
-      sourceLabel: '01-principles/',
+      sourceLabel: '01-foundation/',
       direction: 'source-to-registry',
     })
     const unregistered = violations
-      .map((v) => v.location.replace(/^01-principles\/: /, ''))
+      .map((v) => v.location.replace(/^01-foundation\/: /, ''))
       .filter((p) => actualFiles.includes(p))
 
     // ratchet baseline は 0 (固定)。動作同一性: 旧経路と同じく count > 0 で fail
@@ -97,7 +97,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       )
     }
     if (unregistered.length > 0) {
-      console.log(`\n[Doc Registry] 01-principles/ の未登録 .md:`)
+      console.log(`\n[Doc Registry] 01-foundation/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
     expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
@@ -105,21 +105,21 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     )
   })
 
-  it('references/03-guides/ の .md がレジストリに登録されている', () => {
-    const dir = path.join(PROJECT_ROOT, 'references/03-guides')
+  it('references/03-implementation/ の .md がレジストリに登録されている', () => {
+    const dir = path.join(PROJECT_ROOT, 'references/03-implementation')
     const actualFiles = fs
       .readdirSync(dir)
       .filter((f) => f.endsWith('.md'))
-      .map((f) => `references/03-guides/${f}`)
+      .map((f) => `references/03-implementation/${f}`)
 
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,
       registryLabel: 'doc-registry',
-      sourceLabel: '03-guides/',
+      sourceLabel: '03-implementation/',
       direction: 'source-to-registry',
     })
     const unregistered = violations
-      .map((v) => v.location.replace(/^03-guides\/: /, ''))
+      .map((v) => v.location.replace(/^03-implementation\/: /, ''))
       .filter((p) => actualFiles.includes(p))
 
     const UNREGISTERED_BASELINE = 0
@@ -130,7 +130,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
       )
     }
     if (unregistered.length > 0) {
-      console.log(`\n[Doc Registry] 03-guides/ の未登録 .md:`)
+      console.log(`\n[Doc Registry] 03-implementation/ の未登録 .md:`)
       for (const f of unregistered) console.log(`  ${f}`)
     }
     expect(unregistered.length, formatViolationMessage(rule, unregistered)).toBeLessThanOrEqual(
@@ -194,7 +194,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
   })
 
   it('AAG 正本文書が参照する子ドキュメントが全て実在する', () => {
-    const aagPath = path.join(PROJECT_ROOT, 'references/01-principles/aag/README.md')
+    const aagPath = path.join(PROJECT_ROOT, 'aag/_internal/README.md')
     const content = fs.readFileSync(aagPath, 'utf-8')
     const refPattern = /`(references\/[^`]+\.(?:md|json))`/g
     const refPaths: RegisteredPath[] = []

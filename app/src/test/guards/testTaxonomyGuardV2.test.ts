@@ -30,9 +30,9 @@
  * - AR-TAXONOMY-* rules が architectureRules.ts に登録されている（統合 branch）
  *
  * @responsibility R:guard
- * @see references/01-principles/test-taxonomy-schema.md
- * @see references/03-guides/test-tsig-to-v2-migration-map.md (Phase 2 deliverable)
- * @see references/02-status/test-taxonomy-inventory.yaml (Phase 0 baseline)
+ * @see references/01-foundation/test-taxonomy-schema.md
+ * @see references/03-implementation/test-tsig-to-v2-migration-map.md (Phase 2 deliverable)
+ * @see references/04-tracking/test-taxonomy-inventory.yaml (Phase 0 baseline)
  * @see app/src/test/testTaxonomyRegistryV2.ts (v2 registry)
  * @see app/src/test/guards/testSignalIntegrityGuard.test.ts (v1 TSIG, 並行運用)
  *
@@ -155,7 +155,7 @@ describe('Test Taxonomy Guard V2 (taxonomy-v2 Phase 3)', () => {
       `v2 untagged test 数: ${untagged.length} (baseline: ${UNTAGGED_BASELINE_V2})\n` +
       `減少方向のみ許可。減ったら本 file の UNTAGGED_BASELINE_V2 を ${untagged.length} に更新してください。\n` +
       `Phase 6 Migration Rollout で v2 T:kind (T:unclassified 含む) を付与して baseline = 0 を目指す。\n` +
-      `詳細: references/03-guides/test-tsig-to-v2-migration-map.md §2 退避方針`
+      `詳細: references/03-implementation/test-tsig-to-v2-migration-map.md §2 退避方針`
     expect(untagged.length, message).toBeLessThanOrEqual(UNTAGGED_BASELINE_V2)
   })
 
@@ -170,7 +170,7 @@ describe('Test Taxonomy Guard V2 (taxonomy-v2 Phase 3)', () => {
     const message =
       `v2 unknown vocabulary 使用 test 数: ${unknownVocab.length} (baseline: ${UNKNOWN_VOCABULARY_BASELINE_V2})\n` +
       `新 T:kind 追加は **review window 経由のみ**（原則 3）+ 既存 retirement とセット必須（Cognitive Load Ceiling 15 cap）。\n` +
-      `詳細: references/01-principles/test-taxonomy-schema.md §6 改訂手続き`
+      `詳細: references/01-foundation/test-taxonomy-schema.md §6 改訂手続き`
     expect(unknownVocab.length, message).toBeLessThanOrEqual(UNKNOWN_VOCABULARY_BASELINE_V2)
   })
 

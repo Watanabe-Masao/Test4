@@ -45,7 +45,7 @@ function preserveFromCommitted(repoRoot: string): HealthKpi[] {
   try {
     const healthPath = resolve(
       repoRoot,
-      'references/02-status/generated/architecture-health.json',
+      'references/04-tracking/generated/architecture-health.json',
     )
     const existing = JSON.parse(readFileSync(healthPath, 'utf-8'))
     const preserved: HealthKpi[] = (existing.kpis ?? []).filter(

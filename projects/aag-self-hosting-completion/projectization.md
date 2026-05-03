@@ -1,7 +1,7 @@
 # projectization — aag-self-hosting-completion
 
 > 役割: AAG-COA 判定結果。
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 
 ## 1. 判定結果
 
@@ -24,7 +24,7 @@
 - **breakingChange=true** — 1,000+ inbound link path 変更 = 既存 doc / code 内 reference の path string が全 update。consumer facade からは透明だが、direct path reference を持つ test / doc / generator に影響
 - **requiresLegacyRetirement=false** — 既存 API / doc 内容の物理削除なし、location 移動のみ。content 100% preservation
 - **requiresGuard=true** — 各 R-phase で boundary 検証 guard が必要 (= aag-related guard 群は path constants update、selfHostingGuard.test.ts は R6 で entry navigation rigor 検証項目追加)
-- **requiresHumanApproval=true** — 大規模 structural change、最終 archive で人間承認必須 (= 不可侵原則 7)
+- **requiresHumanApproval=true** — 大規模 structural change、最終 archive でuser 承認必須 (= 不可侵原則 7)
 
 ## 3. 必要な文書
 
@@ -40,7 +40,7 @@
 | `legacy-retirement.md` | forbidden | requiresLegacyRetirement=false |
 | `sub-project-map.md` | forbidden | sub-project 分割なし |
 | guard 設計 (plan.md 内) | required | requiresGuard=true、§5「物理 location 移動」+ §3「§観測点」内で articulate |
-| 最終レビュー (人間承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾配置 |
+| 最終レビュー (user 承認) checkbox | required | requiresHumanApproval=true、checklist.md 末尾配置 |
 
 ## 4. やらないこと (nonGoals)
 

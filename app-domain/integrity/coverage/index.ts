@@ -21,7 +21,7 @@
  * - typed wrapper を提供する理由: test 側で type narrowing (`PairId` discriminated
  *   union) を保つ。collector 側は値だけ扱うので type narrowing 不要
  *
- * @see references/03-guides/integrity-domain-architecture.md §8
+ * @see references/03-implementation/integrity-domain-architecture.md §8
  * @see app-domain/integrity/coverage/coverage-map.json (正本 data)
  *
  * 不変条件:

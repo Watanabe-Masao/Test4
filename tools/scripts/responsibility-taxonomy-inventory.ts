@@ -4,7 +4,7 @@
  * 親 taxonomy-v2 plan §Common Inventory Schema の CanonEntry shape に従って
  * 責務軸 (R:*) の Phase 0 Inventory YAML を生成する。
  *
- * 出力先: references/02-status/responsibility-taxonomy-inventory.yaml
+ * 出力先: references/04-tracking/responsibility-taxonomy-inventory.yaml
  *
  * 使い方:
  *   cd app && npx tsx ../tools/scripts/responsibility-taxonomy-inventory.ts
@@ -35,7 +35,7 @@ const APP_SRC = resolve(REPO_ROOT, 'app/src')
 // 親 Phase 0 統合 branch (claude/taxonomy-v2-phase0-integration) で本パスに正本配置済。
 const OUTPUT_PATH = resolve(
   REPO_ROOT,
-  'references/02-status/responsibility-taxonomy-inventory.yaml',
+  'references/04-tracking/responsibility-taxonomy-inventory.yaml',
 )
 
 // ---------------------------------------------------------------------------

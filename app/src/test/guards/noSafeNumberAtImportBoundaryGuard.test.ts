@@ -23,7 +23,7 @@
  *   - 2026-04-26 初期: 9 file / 27 call
  *   - 目標: 0 / 0 (専用 parser に置換完了時)
  *
- * @see docs (TBD): `references/01-principles/import-boundary-policy.md`
+ * @see docs (TBD): `references/01-foundation/import-boundary-policy.md`
  * @responsibility R:guard
  *
  * @taxonomyKind T:unclassified

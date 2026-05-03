@@ -1,5 +1,5 @@
 {
-  "$comment": "quick-fixes は単発の小さな fix を集約する collection project。複数 phase の文脈を必要としない作業（typo 修正、ファイル分割、リネーム、軽微な refactor 等）の受け皿。判断基準は references/03-guides/project-checklist-governance.md §11 を参照。",
+  "$comment": "quick-fixes は単発の小さな fix を集約する collection project。複数 phase の文脈を必要としない作業（typo 修正、ファイル分割、リネーム、軽微な refactor 等）の受け皿。判断基準は references/05-aag-interface/operations/project-checklist-governance.md §11 を参照。",
   "projectId": "quick-fixes",
   "title": "Quick Fixes — 文脈を必要としない単発作業の集約",
   "kind": "collection",

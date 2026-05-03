@@ -20,8 +20,8 @@ Presentation 層のテストカバレッジ・E2E 業務フロー・コンポー
 2. `HANDOFF.md`（残作業の優先順位）
 3. `plan.md`（Phase 構造と判断基準）
 4. `checklist.md`（completion 判定の入力）
-5. 必要に応じて `references/03-guides/active-debt-refactoring-plan.md`（背景・Phase H/I/J 詳細）
-6. 必要に応じて `references/02-status/open-issues.md`（active project 索引）
+5. 必要に応じて `references/03-implementation/active-debt-refactoring-plan.md`（背景・Phase H/I/J 詳細）
+6. 必要に応じて `references/04-tracking/open-issues.md`（active project 索引）
 
 ## Why this project exists
 

@@ -31,9 +31,9 @@ const rule = getRuleById('AR-DOC-STATIC-NUMBER')!
 const TARGET_FILES = [
   'CLAUDE.md',
   'CONTRIBUTING.md',
-  'references/01-principles/aag/strategy.md',
-  'references/01-principles/aag/operational-classification.md',
-  'references/03-guides/architecture-rule-system.md',
+  'aag/_internal/strategy.md',
+  'aag/_internal/operational-classification.md',
+  'references/03-implementation/architecture-rule-system.md',
 ]
 
 // ── 検出パターン ──────────────────────────────────────────────

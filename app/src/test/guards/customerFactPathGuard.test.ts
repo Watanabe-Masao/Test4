@@ -4,7 +4,7 @@
  * readCustomerFact() が客数の分析用正本の唯一入口であることを検証する。
  * presentation 層からの infra query 直接 import を禁止する。
  *
- * @see references/01-principles/customer-definition.md
+ * @see references/01-foundation/customer-definition.md
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-PATH-CUSTOMER)
  *
@@ -67,7 +67,7 @@ describe('CustomerFact path guard', () => {
   })
 
   it('定義書が存在する', () => {
-    const defPath = path.join(SRC_DIR, '../../references/01-principles/customer-definition.md')
+    const defPath = path.join(SRC_DIR, '../../references/01-foundation/customer-definition.md')
     expect(fs.existsSync(defPath), 'customer-definition.md が存在しません').toBe(true)
   })
 })

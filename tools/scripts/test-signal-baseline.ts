@@ -5,7 +5,7 @@
  * TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の現状件数を採取し、
  * ratchet-down baseline を決定するための観測データを生成する。
  *
- * 出力先: references/02-status/generated/test-signal-baseline.md
+ * 出力先: references/04-tracking/generated/test-signal-baseline.generated.md
  *
  * 使い方:
  *   cd app && npx tsx ../tools/scripts/test-signal-baseline.ts
@@ -16,7 +16,7 @@
  * - 結果は markdown と JSON の両方に出力（人間 + collector の両方が読める）
  *
  * 関連:
- * - references/01-principles/test-signal-integrity.md (TSIG-TEST / TSIG-COMP の定義)
+ * - references/01-foundation/test-signal-integrity.md (TSIG-TEST / TSIG-COMP の定義)
  * - projects/test-signal-integrity/checklist.md Phase 3 (本 script は最初の checkbox の実行手段)
  */
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
@@ -29,7 +29,7 @@ import { join, relative, resolve } from 'node:path'
 const REPO_ROOT = resolve(__dirname, '../..')
 const APP_SRC = resolve(REPO_ROOT, 'app/src')
 const E2E_DIR = resolve(REPO_ROOT, 'app/e2e')
-const OUTPUT_DIR = resolve(REPO_ROOT, 'references/02-status/generated')
+const OUTPUT_DIR = resolve(REPO_ROOT, 'references/04-tracking/generated')
 const OUTPUT_MD = resolve(OUTPUT_DIR, 'test-signal-baseline.md')
 const OUTPUT_JSON = resolve(OUTPUT_DIR, 'test-signal-baseline.json')
 

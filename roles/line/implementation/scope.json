@@ -8,7 +8,7 @@
     "app/.storybook/"
   ],
   "out_of_scope_warn": [
-    "references/01-principles/",
+    "references/01-foundation/",
     "docs/contracts/",
     "tools/architecture-health/src/config/",
     "roles/"

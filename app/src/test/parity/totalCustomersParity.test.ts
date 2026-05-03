@@ -9,8 +9,8 @@
  * この保証があるからこそ、Presentation 層は StoreResult.totalCustomers の代わりに
  * CustomerFact.grandTotalCustomers を安全に参照できる。
  *
- * @see references/01-principles/canonical-value-ownership.md
- * @see references/01-principles/customer-definition.md
+ * @see references/01-foundation/canonical-value-ownership.md
+ * @see references/01-foundation/customer-definition.md
  *
  * @taxonomyKind T:unclassified
  */

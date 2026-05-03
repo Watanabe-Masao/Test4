@@ -13,7 +13,7 @@
  *
  * 正本区分: App Domain
  * @responsibility R:utility
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see references/03-implementation/governance-final-placement-plan.md
  */
 
 import type { BaseRule } from "@/test/architectureRules/types";
@@ -32,7 +32,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "退役済みインフラ層 dual-run コードの再導入を禁止する",
     why: "Phase 1-2 で解消したインフラ層 dual-run（dualRunObserver / getExecutionMode / recordCall / recordMismatch）は退役済み。bridge 管理下の dual-run-compare 検証（Phase 5-8）は別概念であり本ルールの対象外",
-    doc: "references/03-guides/safety-first-architecture-plan.md",
+    doc: "references/03-implementation/safety-first-architecture-plan.md",
     correctPattern: {
       description:
         "bridge は isWasmReady() で直接 engine を呼ぶ。candidate compare は compareUtils.ts 経由でテスト側のみ",
@@ -65,7 +65,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/safety-first-architecture-plan.md",
+          docPath: "references/03-implementation/safety-first-architecture-plan.md",
           problemAddressed:
             "退役済み dual-run コード (dualRunObserver / getExecutionMode / recordCall / recordMismatch) の再導入により、Phase 1-2 で確立した bridge 単一経路の安全性が逆戻りする",
           resolutionContribution:
@@ -97,7 +97,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "presentation 層が wasmEngine を直接 import することを禁止する",
     why: "presentation は描画専用。engine の詳細は application 層が隠蔽する",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description: "application/hooks 経由で計算結果を受け取る",
     },
@@ -128,7 +128,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "presentation 層が wasmEngine を直接 import すると、A1 (4 層境界) と B1 (Authoritative engine 境界) の両方を逸脱し、描画専用であるべき層に engine 詳細が混入して責務分離が崩れる",
           resolutionContribution:
@@ -157,7 +157,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "C1"],
     epoch: 1,
-    doc: "references/03-guides/widget-coordination-architecture.md",
+    doc: "references/03-implementation/widget-coordination-architecture.md",
     what: "UnifiedWidgetContext のフィールド数を凍結し shared hub の肥大化を防ぐ",
     why: "共有コンテキストが肥大化すると全ウィジェットの結合度が上がり変更コストが増大する",
     correctPattern: {
@@ -197,7 +197,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/widget-coordination-architecture.md",
+          docPath: "references/03-implementation/widget-coordination-architecture.md",
           problemAddressed:
             "widget-coordination-architecture で articulate された前提に対し、UnifiedWidgetContext に readonly フィールドを追加する のパターンが残ると、共有コンテキストが肥大化すると全ウィジェットの結合度が上がり変更コストが増大する という構造的な不整合が発生する",
           resolutionContribution:
@@ -226,7 +226,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "@deprecated wrapper の新規追加を禁止する",
     why: "deprecated wrapper が増えると間接層が膨張し削除可能性の追跡が困難になる",
     correctPattern: {
@@ -258,7 +258,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、application/services/ や domain/ に @deprecated を追加する のパターンが残ると、deprecated wrapper が増えると間接層が膨張し削除可能性の追跡が困難になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -287,7 +287,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "H1"],
     epoch: 1,
-    doc: "references/01-principles/modular-monolith-evolution.md",
+    doc: "references/01-foundation/modular-monolith-evolution.md",
     what: "application/hooks/plans/ の shared plan hook 数を凍結する",
     why: "category/time-slot 等は features/ に移行済み。共有 plan hook の増加は feature slice 原則に反する",
     correctPattern: {
@@ -319,7 +319,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/modular-monolith-evolution.md",
+          docPath: "references/01-foundation/modular-monolith-evolution.md",
           problemAddressed:
             "category / time-slot 等が features/ に移行済の今、application/hooks/plans/ への新規 shared plan hook 追加は feature slice 原則に逆行し、共有ハブの肥大化を招く",
           resolutionContribution:
@@ -351,7 +351,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "domain/ は外部層に依存しない（純粋なビジネスロジック）",
     why: "domain/ がフレームワークやインフラに依存すると、テスト容易性と移植性が失われる",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "domain/ は domain/ 内のみ import する。外部データが必要なら契約（interface）を domain/ に定義する",
@@ -395,7 +395,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "domain/ が外部層 (application/ / infrastructure/ / presentation/) に依存すると、純粋関数性 (A2) が崩れテスト容易性と移植性が失われ、domain で完結すべきビジネスロジック検証にモックが必須化する",
           resolutionContribution:
@@ -426,7 +426,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "application/ は infrastructure/ に直接依存しない",
     why: "application 層はドメインロジックの調停を行う。インフラ詳細は adapter パターンで隠蔽する",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "adapter パターンまたは allowlists/architecture.ts に正当理由を記載する。DuckDB hooks / QueryHandler / runtime-adapters は構造的に許容",
@@ -463,7 +463,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "application/ が infrastructure/ を adapter パターン外で直接 import すると、ドメイン調停層がインフラ詳細に密結合し、インフラ変更時の影響範囲が application 全体に拡大する",
           resolutionContribution:
@@ -494,7 +494,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "application/ は presentation/ に依存しない",
     why: "依存方向は Presentation → Application。逆方向は循環依存を生む",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "application/ から presentation/ への依存を削除し、依存方向を逆転する",
@@ -526,7 +526,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、application/ から presentation/ を import する のパターンが残ると、依存方向は Presentation → Application。逆方向は循環依存を生む という構造的な不整合が発生する",
           resolutionContribution:
@@ -558,7 +558,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "presentation/ は infrastructure/ に直接依存しない",
     why: "presentation は描画専用。データ取得は application 層の hook を経由する",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "application/ の hook 経由でデータを取得する。useQueryWithHandler を推奨",
@@ -600,7 +600,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、presentation/ から infrastructure/ を value import する のパターンが残ると、presentation は描画専用。データ取得は application 層の hook を経由する という構造的な不整合が発生する",
           resolutionContribution:
@@ -629,7 +629,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["A1", "A3"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "presentation/ は application/usecases/ を直接 import しない",
     why: "usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする",
     correctPattern: {
@@ -660,7 +660,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、presentation/ から application/usecases/ を value import する のパターンが残ると、usecase はデータ構築の内部実装。presentation は hook 経由でのみアクセスする という構造的な不整合が発生する",
           resolutionContribution:
@@ -691,7 +691,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "infrastructure/ は application/ に依存しない",
     why: "infrastructure/ は domain/ のみに依存する。application/ への依存は循環を生む",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description: "依存を domain/ 経由の契約（interface）に変更する",
     },
@@ -725,7 +725,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、infrastructure/ から application/ を import する のパターンが残ると、infrastructure/ は domain/ のみに依存する。application/ への依存は循環を生む という構造的な不整合が発生する",
           resolutionContribution:
@@ -756,7 +756,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "infrastructure/ は presentation/ に依存しない",
     why: "infrastructure/ と presentation/ は直接依存しない。application/ を経由する",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description: "infrastructure/ から presentation/ への依存を削除する",
     },
@@ -784,7 +784,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、infrastructure/ から presentation/ を import する のパターンが残ると、infrastructure/ と presentation/ は直接依存しない。application/ を経由する という構造的な不整合が発生する",
           resolutionContribution:
@@ -815,7 +815,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G4"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "hooks/ に @internal export を作らない",
     why: "テスト用 export は本番 API を汚染する。テストは public API 経由で行う",
     correctPattern: {
@@ -843,7 +843,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、@internal コメント付きの export を作成する のパターンが残ると、テスト用 export は本番 API を汚染する。テストは public API 経由で行う という構造的な不整合が発生する",
           resolutionContribution:
@@ -874,7 +874,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "store action 内に業務ロジック（算術式）を埋め込まない",
     why: "store は state の反映のみ。計算は domain 層に委譲する",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "store action は set() で値を反映するだけ。算術計算は domain/calculations/ で行う",
@@ -899,7 +899,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、set() コールバック内で (a) + (b) のような算術代入を行う のパターンが残ると、store は state の反映のみ。計算は domain 層に委譲する という構造的な不整合が発生する",
           resolutionContribution:
@@ -928,7 +928,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G3", "E2"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "コンパイラ警告を黙殺しない（eslint-disable / @ts-ignore 禁止）",
     why: "警告を黙殺すると型安全性やリント規約が形骸化する",
     correctPattern: {
@@ -961,7 +961,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "eslint-disable / @ts-ignore / @ts-expect-error の濫用により、型安全性と lint 規約が形骸化し、警告に隠れたバグが accumulate する",
           resolutionContribution:
@@ -990,7 +990,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["E4"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "数値フィールドの truthiness チェックを禁止する",
     why: "0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う",
     correctPattern: {
@@ -1023,7 +1023,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、!result.numericField のような truthiness チェック のパターンが残ると、0 が有効値のフィールドで !value を使うと欠損扱いされ計算が狂う という構造的な不整合が発生する",
           resolutionContribution:
@@ -1052,7 +1052,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["C5"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "Zustand store はセレクタ付きで呼ぶ",
     why: "セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する",
     correctPattern: {
@@ -1082,7 +1082,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、useDataStore() のようにセレクタなしで呼ぶ のパターンが残ると、セレクタなしの store 呼び出しは全フィールドの変更で再レンダリングが発生する という構造的な不整合が発生する",
           resolutionContribution:
@@ -1111,7 +1111,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G2"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "空の catch ブロックでエラーを握り潰さない",
     why: "エラーを無視するとデバッグ不能な不具合につながる",
     correctPattern: {
@@ -1139,7 +1139,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、.catch(() => {}) のような空のエラーハンドラ のパターンが残ると、エラーを無視するとデバッグ不能な不具合につながる という構造的な不整合が発生する",
           resolutionContribution:
@@ -1170,7 +1170,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "application/hooks/ の useMemo 呼び出しを上限以下に保つ",
     why: "useMemo が多いファイルは複数の導出値を抱えており責務が混在している",
     correctPattern: {
@@ -1200,7 +1200,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "useMemo が多い hook ファイルは複数の導出値を抱えており、1 ファイル 1 責務 (C1) の articulate に反する責務混在が累積する",
           resolutionContribution:
@@ -1229,7 +1229,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "application/hooks/ の useState 呼び出しを上限以下に保つ",
     why: "useState が多いファイルは複数の状態責務を抱えており God Hook の兆候",
     correctPattern: {
@@ -1258,7 +1258,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、1 つの hook に大量の useState を詰め込む のパターンが残ると、useState が多いファイルは複数の状態責務を抱えており God Hook の兆候 という構造的な不整合が発生する",
           resolutionContribution:
@@ -1287,7 +1287,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "application/hooks/ のファイルを 300 行以下に保つ",
     why: "長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する",
     correctPattern: {
@@ -1315,7 +1315,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、1 つの hook ファイルに大量のロジックを詰め込む のパターンが残ると、長い hook ファイルは複数の責務を持つ兆候。分割して単一責務を維持する という構造的な不整合が発生する",
           resolutionContribution:
@@ -1344,7 +1344,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G6"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "presentation/ の .tsx コンポーネントを 600 行以下に保つ",
     why: "大きなコンポーネントは描画・状態・ロジックが混在している兆候",
     correctPattern: {
@@ -1373,7 +1373,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、1 つのコンポーネントファイルに全ての描画ロジックを詰め込む のパターンが残ると、大きなコンポーネントは描画・状態・ロジックが混在している兆候 という構造的な不整合が発生する",
           resolutionContribution:
@@ -1402,7 +1402,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5", "A2"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "domain/ のファイルを 300 行以下に保つ",
     why: "domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する",
     correctPattern: {
@@ -1428,7 +1428,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、1 つの domain ファイルに大量の関数を詰め込む のパターンが残ると、domain/ は純粋関数。短く保つことでテスト容易性と可読性を維持する という構造的な不整合が発生する",
           resolutionContribution:
@@ -1457,7 +1457,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "infrastructure/ のファイルを 400 行以下に保つ",
     why: "インフラ層のファイルが大きくなると外部依存の影響範囲が広がる",
     correctPattern: {
@@ -1483,7 +1483,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、1 つのインフラファイルに大量のクエリや処理を詰め込む のパターンが残ると、インフラ層のファイルが大きくなると外部依存の影響範囲が広がる という構造的な不整合が発生する",
           resolutionContribution:
@@ -1512,7 +1512,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G5"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "application/usecases/ のファイルを 400 行以下に保つ",
     why: "usecase が肥大化するとデータ構築の責務が不明確になる",
     correctPattern: {
@@ -1538,7 +1538,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、1 つの usecase に大量のインデックス構築を詰め込む のパターンが残ると、usecase が肥大化するとデータ構築の責務が不明確になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -1567,7 +1567,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["C6"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "facade ファイルの分岐を 5 以下に保つ（orchestration のみ）",
     why: "facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる",
     correctPattern: {
@@ -1594,7 +1594,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、facade 内で if/switch による条件分岐を多用する のパターンが残ると、facade に分岐ロジックが混入すると単なる委譲ではなくなり責務が曖昧になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -1627,7 +1627,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "売上データは readSalesFact / salesFactHandler 経由でのみ取得する",
     why: "旧クエリの直接利用は正本の一貫性を破壊する",
-    doc: "references/01-principles/sales-definition.md",
+    doc: "references/01-foundation/sales-definition.md",
     correctPattern: {
       description:
         "readSalesFact() または useWidgetDataOrchestrator 経由で取得",
@@ -1670,7 +1670,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/sales-definition.md",
+          docPath: "references/01-foundation/sales-definition.md",
           problemAddressed:
             "売上データを旧クエリ (categoryTimeSales / timeSlots / salesFactQueries) で直接取得すると、正本 readSalesFact が articulate する SalesFactReadModel との値の乖離が発生し、複数経路の取得結果が同じ売上値で食い違う",
           resolutionContribution:
@@ -1701,7 +1701,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "値引きデータは readDiscountFact / discountFactHandler 経由でのみ取得する",
     why: "旧クエリの直接利用は正本の一貫性を破壊する",
-    doc: "references/01-principles/discount-definition.md",
+    doc: "references/01-foundation/discount-definition.md",
     correctPattern: {
       description:
         "readDiscountFact() または useWidgetDataOrchestrator 経由で取得",
@@ -1729,7 +1729,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/discount-definition.md",
+          docPath: "references/01-foundation/discount-definition.md",
           problemAddressed:
             "値引きデータを旧クエリで直接取得すると、discount-definition.md が articulate する readDiscountFact 経由の正本性が崩れ、複数経路で取得した値引き額が食い違う",
           resolutionContribution:
@@ -1761,7 +1761,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "粗利計算は calculateGrossProfit 経由でのみ実行する",
     why: "粗利の計算方法が散在すると不変条件（売上−原価=粗利）が破壊される",
-    doc: "references/01-principles/gross-profit-definition.md",
+    doc: "references/01-foundation/gross-profit-definition.md",
     correctPattern: {
       description: "calculateGrossProfit() で全 4 種の粗利を統一的に計算",
       imports: ["@/domain/calculations/grossProfit"],
@@ -1798,7 +1798,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/gross-profit-definition.md",
+          docPath: "references/01-foundation/gross-profit-definition.md",
           problemAddressed:
             "gross-profit-definition で articulate された前提に対し、独自の粗利計算や旧関数を使用する のパターンが残ると、粗利の計算方法が散在すると不変条件（売上−原価=粗利）が破壊される という構造的な不整合が発生する",
           resolutionContribution:
@@ -1829,7 +1829,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "仕入原価は readPurchaseCost 経由でのみ取得する",
     why: "3 独立正本（通常仕入・売上納品・移動原価）の一貫性を保証する",
-    doc: "references/01-principles/purchase-cost-definition.md",
+    doc: "references/01-foundation/purchase-cost-definition.md",
     correctPattern: {
       description: "readPurchaseCost() / usePurchaseCost() 経由で取得",
       imports: ["@/application/readModels/purchaseCost/readPurchaseCost"],
@@ -1865,7 +1865,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/purchase-cost-definition.md",
+          docPath: "references/01-foundation/purchase-cost-definition.md",
           problemAddressed:
             "purchase-cost-definition で articulate された前提に対し、旧 queryPurchaseTotal 等 7 関数の使用（廃止済み） のパターンが残ると、3 独立正本（通常仕入・売上納品・移動原価）の一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -1896,7 +1896,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "客数データは readCustomerFact 経由でのみ取得する",
     why: "客数の正本が散在すると集計の一貫性が失われる",
-    doc: "references/01-principles/customer-definition.md",
+    doc: "references/01-foundation/customer-definition.md",
     correctPattern: {
       description: "readCustomerFact() 経由で取得",
       imports: ["@/application/readModels/customerFact/readCustomerFact"],
@@ -1927,7 +1927,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/customer-definition.md",
+          docPath: "references/01-foundation/customer-definition.md",
           problemAddressed:
             "customer-definition で articulate された前提に対し、presentation/ から旧客数クエリを直接 import のパターンが残ると、客数の正本が散在すると集計の一貫性が失われる という構造的な不整合が発生する",
           resolutionContribution:
@@ -1958,7 +1958,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "客数 GAP は calculateCustomerGap 経由でのみ計算する",
     why: "インライン計算は GAP の定義（昨対差）との不整合を生む",
-    doc: "references/01-principles/customer-gap-definition.md",
+    doc: "references/01-foundation/customer-gap-definition.md",
     correctPattern: {
       description: "calculateCustomerGap() を使用",
       imports: ["@/domain/calculations/customerGap"],
@@ -1989,7 +1989,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/customer-gap-definition.md",
+          docPath: "references/01-foundation/customer-gap-definition.md",
           problemAddressed:
             "customer-gap-definition で articulate された前提に対し、インラインで客数差を計算する（例: current - previous） のパターンが残ると、インライン計算は GAP の定義（昨対差）との不整合を生む という構造的な不整合が発生する",
           resolutionContribution:
@@ -2020,7 +2020,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "PI 値は calculateQuantityPI / calculateAmountPI 経由でのみ計算する",
     why: "インラインの除算は 0 除算ガードの欠落やフォーマット不統一を招く",
-    doc: "references/01-principles/pi-value-definition.md",
+    doc: "references/01-foundation/pi-value-definition.md",
     correctPattern: {
       description: "calculateQuantityPI() / calculateAmountPI() を使用",
       imports: ["@/domain/calculations/piValue"],
@@ -2051,7 +2051,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/pi-value-definition.md",
+          docPath: "references/01-foundation/pi-value-definition.md",
           problemAddressed:
             "pi-value-definition で articulate された前提に対し、インラインで売上÷客数の除算を行う のパターンが残ると、インラインの除算は 0 除算ガードの欠落やフォーマット不統一を招く という構造的な不整合が発生する",
           resolutionContribution:
@@ -2082,7 +2082,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "自由期間分析データは readFreePeriodFact 経由でのみ取得する",
     why: "自由期間の正本が散在すると期間スコープの一貫性が失われる",
-    doc: "references/01-principles/free-period-analysis-definition.md",
+    doc: "references/01-foundation/free-period-analysis-definition.md",
     correctPattern: {
       description: "readFreePeriodFact() / freePeriodHandler 経由で取得",
       imports: ["@/application/readModels/freePeriod/readFreePeriodFact"],
@@ -2110,7 +2110,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/01-principles/free-period-analysis-definition.md",
+            "references/01-foundation/free-period-analysis-definition.md",
           problemAddressed:
             "free-period-analysis-definition で articulate された前提に対し、presentation/ から旧自由期間クエリを直接 import のパターンが残ると、自由期間の正本が散在すると期間スコープの一貫性が失われる という構造的な不整合が発生する",
           resolutionContribution:
@@ -2141,7 +2141,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "自由期間予算は readFreePeriodBudgetFact 経由でのみ取得する",
     why: "予算データの取得経路を統一し、集計の一貫性を保証する",
-    doc: "references/01-principles/free-period-budget-kpi-contract.md",
+    doc: "references/01-foundation/free-period-budget-kpi-contract.md",
     correctPattern: {
       description: "readFreePeriodBudgetFact() 経由で取得",
       imports: [
@@ -2171,7 +2171,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/01-principles/free-period-budget-kpi-contract.md",
+            "references/01-foundation/free-period-budget-kpi-contract.md",
           problemAddressed:
             "free-period-budget-kpi-contract で articulate された前提に対し、旧予算クエリを直接利用 のパターンが残ると、予算データの取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2202,7 +2202,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "自由期間部門 KPI は readFreePeriodDeptKPI 経由でのみ取得する",
     why: "部門 KPI の取得経路を統一し、集計の一貫性を保証する",
-    doc: "references/01-principles/free-period-budget-kpi-contract.md",
+    doc: "references/01-foundation/free-period-budget-kpi-contract.md",
     correctPattern: {
       description: "readFreePeriodDeptKPI() 経由で取得",
       imports: [
@@ -2232,7 +2232,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/01-principles/free-period-budget-kpi-contract.md",
+            "references/01-foundation/free-period-budget-kpi-contract.md",
           problemAddressed:
             "free-period-budget-kpi-contract で articulate された前提に対し、旧部門 KPI クエリを直接利用 のパターンが残ると、部門 KPI の取得経路を統一し、集計の一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2264,7 +2264,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "要因分解は calculateFactorDecomposition 経由でのみ実行する",
     why: "要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件）",
-    doc: "references/01-principles/authoritative-calculation-definition.md",
+    doc: "references/01-foundation/authoritative-calculation-definition.md",
     correctPattern: {
       description:
         "calculateFactorDecomposition() を使用。WASM ready なら WASM、そうでなければ TS fallback",
@@ -2297,7 +2297,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/01-principles/authoritative-calculation-definition.md",
+            "references/01-foundation/authoritative-calculation-definition.md",
           problemAddressed:
             "authoritative-calculation-definition で articulate された前提に対し、独自の要因分解計算やインラインのシャープリー値計算 のパターンが残ると、要因分解の合計値は実際の売上差に完全一致しなければならない（D1 不変条件） という構造的な不整合が発生する",
           resolutionContribution:
@@ -2328,7 +2328,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "粗利計算の一貫性を保証する（全経路で同一値）",
     why: "異なる経路で粗利を取得すると値の不整合が発生する",
-    doc: "references/01-principles/gross-profit-definition.md",
+    doc: "references/01-foundation/gross-profit-definition.md",
     correctPattern: {
       description:
         "calculateGrossProfit → getEffectiveGrossProfit → grossProfitFromStoreResult の 2 層構造",
@@ -2357,7 +2357,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/gross-profit-definition.md",
+          docPath: "references/01-foundation/gross-profit-definition.md",
           problemAddressed:
             "gross-profit-definition で articulate された前提に対し、独自の粗利取得関数を作成する のパターンが残ると、異なる経路で粗利を取得すると値の不整合が発生する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2388,7 +2388,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["H3"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "AnalysisFrame / CalculationFrame が分析の唯一の入口",
     why: "分析フレームを経由しないクエリはキャッシュキーの不整合や期間スコープの矛盾を招く",
     correctPattern: {
@@ -2414,7 +2414,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "AnalysisFrame / CalculationFrame を経由しないクエリ入力構築は、キャッシュキーの不整合や期間スコープの矛盾を招き、safe-performance-principles.md が articulate する H1 (Screen Plan 経由のみ) の前提が崩れる",
           resolutionContribution:
@@ -2443,7 +2443,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/calculation-canonicalization-map.md",
+    doc: "references/01-foundation/calculation-canonicalization-map.md",
     what: "domain/calculations/ の全ファイルが CALCULATION_CANON_REGISTRY に登録されている",
     why: "未登録ファイルは正本化体系の管理外となり品質保証が及ばない",
     correctPattern: {
@@ -2474,7 +2474,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/01-principles/calculation-canonicalization-map.md",
+            "references/01-foundation/calculation-canonicalization-map.md",
           problemAddressed:
             "calculation-canonicalization-map で articulate された前提に対し、domain/calculations/ にファイルを追加してレジストリに未登録 のパターンが残ると、未登録ファイルは正本化体系の管理外となり品質保証が及ばない という構造的な不整合が発生する",
           resolutionContribution:
@@ -2503,7 +2503,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "E1"],
     epoch: 1,
-    doc: "references/01-principles/canonicalization-principles.md",
+    doc: "references/01-foundation/canonicalization-principles.md",
     what: "required 分類の domain/calculations/ ファイルは Zod 入出力契約を持つ",
     why: "Zod 契約なしの計算は型安全な境界検証が欠落し、実行時エラーを招く",
     correctPattern: {
@@ -2535,7 +2535,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/canonicalization-principles.md",
+          docPath: "references/01-foundation/canonicalization-principles.md",
           problemAddressed:
             "canonicalization-principles で articulate された前提に対し、required 分類なのに Zod parse がないファイル のパターンが残ると、Zod 契約なしの計算は型安全な境界検証が欠落し、実行時エラーを招く という構造的な不整合が発生する",
           resolutionContribution:
@@ -2564,7 +2564,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "E1"],
     epoch: 1,
-    doc: "references/01-principles/canonicalization-principles.md",
+    doc: "references/01-foundation/canonicalization-principles.md",
     what: "review 分類の Zod 未済ファイルを段階的に解消する",
     why: "review 分類の Zod 化が進むと正本化体系の信頼性が向上する",
     correctPattern: {
@@ -2597,7 +2597,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/canonicalization-principles.md",
+          docPath: "references/01-foundation/canonicalization-principles.md",
           problemAddressed:
             "canonicalization-principles で articulate された前提に対し、review 分類で zodAdded: false のまま放置する のパターンが残ると、review 分類の Zod 化が進むと正本化体系の信頼性が向上する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2626,7 +2626,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "D1"],
     epoch: 1,
-    doc: "references/01-principles/canonical-input-sets.md",
+    doc: "references/01-foundation/canonical-input-sets.md",
     what: "PI値・客数GAPは正本 input builder 経由でのみ計算する",
     why: "presentation/ でのインライン計算は不変条件を破壊する",
     correctPattern: {
@@ -2651,7 +2651,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/canonical-input-sets.md",
+          docPath: "references/01-foundation/canonical-input-sets.md",
           problemAddressed:
             "canonical-input-sets で articulate された前提に対し、presentation/ で独自に PI値や GAP を計算する のパターンが残ると、presentation/ でのインライン計算は不変条件を破壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2682,7 +2682,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "全 readModel と calculation canonical が正本化原則に従っている",
     why: "正本化体系の整合性が崩れると、異なる経路で異なる値が計算される",
-    doc: "references/01-principles/canonicalization-principles.md",
+    doc: "references/01-foundation/canonicalization-principles.md",
     correctPattern: {
       description: "readModels/ に配置、Zod 契約、パスガード、定義書を揃える",
     },
@@ -2721,7 +2721,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/canonicalization-principles.md",
+          docPath: "references/01-foundation/canonicalization-principles.md",
           problemAddressed:
             "canonicalization-principles で articulate された前提に対し、正本化手順を省略して readModel を追加する のパターンが残ると、正本化体系の整合性が崩れると、異なる経路で異なる値が計算される という構造的な不整合が発生する",
           resolutionContribution:
@@ -2750,7 +2750,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["H2"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "ComparisonScope は buildComparisonScope() のみで生成する",
     why: "ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する",
     correctPattern: {
@@ -2775,7 +2775,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "safe-performance-principles で articulate された前提に対し、presentation/ で直接 ComparisonScope を構築する のパターンが残ると、ad-hoc な比較スコープ生成はペア/バンドル契約の一貫性を破壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2804,7 +2804,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1", "E1"],
     epoch: 1,
-    doc: "references/03-guides/invariant-catalog.md",
+    doc: "references/03-implementation/invariant-catalog.md",
     what: "既知のバグパターン（二重計上、is_prev_year 不整合、state リセット漏れ）を防止する",
     why: "過去に発生したバグの再発を機械的に防止する",
     correctPattern: {
@@ -2840,7 +2840,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/invariant-catalog.md",
+          docPath: "references/03-implementation/invariant-catalog.md",
           problemAddressed:
             "invariant-catalog で articulate された前提に対し、二重計上、DuckDB is_prev_year の不整合、state リセット漏れ のパターンが残ると、過去に発生したバグの再発を機械的に防止する という構造的な不整合が発生する",
           resolutionContribution:
@@ -2871,7 +2871,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "WASM 全 5 engine が authoritative に昇格済み。インフラ層 dual-run は退役",
     why: "dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の dual-run-compare 検証（Phase 5-8）はインフラ層 dual-run ではなく、本ルールの対象外",
-    doc: "references/03-guides/safety-first-architecture-plan.md",
+    doc: "references/03-implementation/safety-first-architecture-plan.md",
     correctPattern: {
       description:
         "WASM ready なら WASM、そうでなければ TS fallback の 2 モード。candidate compare は compareUtils.ts + テスト側で管理",
@@ -2895,7 +2895,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/safety-first-architecture-plan.md",
+          docPath: "references/03-implementation/safety-first-architecture-plan.md",
           problemAddressed:
             "safety-first-architecture-plan で articulate された前提に対し、dualRunObserver / getExecutionMode / recordCall / recordMismatch の復活 のパターンが残ると、dualRunObserver 等のインフラ層 dual-run は全面退役済み。bridge 管理下の dual-run-compa…",
           resolutionContribution:
@@ -2924,7 +2924,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/03-guides/invariant-catalog.md",
+    doc: "references/03-implementation/invariant-catalog.md",
     what: "クリティカルな readModel は usedFallback フィールドを持つ",
     why: "サイレントフォールバックは計算結果の信頼性を損なう",
     correctPattern: {
@@ -2948,7 +2948,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/invariant-catalog.md",
+          docPath: "references/03-implementation/invariant-catalog.md",
           problemAddressed:
             "invariant-catalog で articulate された前提に対し、フォールバックの発生を隠蔽する のパターンが残ると、サイレントフォールバックは計算結果の信頼性を損なう という構造的な不整合が発生する",
           resolutionContribution:
@@ -2977,7 +2977,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["F4", "F1"],
     epoch: 1,
-    doc: "references/01-principles/modular-monolith-evolution.md",
+    doc: "references/01-foundation/modular-monolith-evolution.md",
     what: "features/ に移行済みのモジュールは旧パス経由の新規 import を受け付けない",
     why: "移行後に旧パスの import が増えると移行が巻き戻る",
     correctPattern: { description: "features/<feature>/ 経由で import する" },
@@ -3002,7 +3002,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/modular-monolith-evolution.md",
+          docPath: "references/01-foundation/modular-monolith-evolution.md",
           problemAddressed:
             "modular-monolith-evolution で articulate された前提に対し、旧パス（application/hooks/ 等）経由で移行済みモジュールを import する のパターンが残ると、移行後に旧パスの import が増えると移行が巻き戻る という構造的な不整合が発生する",
           resolutionContribution:
@@ -3031,7 +3031,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["F10"],
     epoch: 1,
-    doc: "references/03-guides/new-page-checklist.md",
+    doc: "references/03-implementation/new-page-checklist.md",
     what: "PAGE_REGISTRY と PAGE_COMPONENT_MAP が整合している",
     why: "ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く",
     correctPattern: {
@@ -3056,7 +3056,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/new-page-checklist.md",
+          docPath: "references/03-implementation/new-page-checklist.md",
           problemAddressed:
             "new-page-checklist で articulate された前提に対し、PAGE_REGISTRY なしでページを追加する のパターンが残ると、ページメタデータの不整合はナビゲーション・breadcrumb の不具合を招く という構造的な不整合が発生する",
           resolutionContribution:
@@ -3088,7 +3088,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "presentation 層は描画専用。infrastructure 直接アクセスや JS/SQL 二重実装を禁止",
     why: "presentation にデータ取得が混入すると責務が曖昧になりテストが困難になる",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "application/ の hook 経由でデータを取得。SQL は infrastructure 層に閉じる",
@@ -3115,7 +3115,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、presentation/ から DuckDB クエリを直接実行する のパターンが残ると、presentation にデータ取得が混入すると責務が曖昧になりテストが困難になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -3146,7 +3146,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "domain/ は純粋（副作用なし・async なし）、率は domain で算出",
     why: "domain の純粋性はテスト容易性・移植性・正確性の基盤",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     correctPattern: {
       description:
         "domain/ は同期純粋関数のみ。async/副作用は application 層に置く",
@@ -3186,7 +3186,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、domain/ に async 関数や副作用を含む のパターンが残ると、domain の純粋性はテスト容易性・移植性・正確性の基盤 という構造的な不整合が発生する",
           resolutionContribution:
@@ -3215,7 +3215,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["H2", "H3", "H4", "H5"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "クエリは正規化入力・pair/bundle 契約・handler 経由で実行する",
     why: "クエリパターンの統一は保守性とキャッシュの一貫性を保証する",
     correctPattern: {
@@ -3258,7 +3258,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "safe-performance-principles で articulate された前提に対し、コンポーネント内で直接クエリを組み立て実行する のパターンが残ると、クエリパターンの統一は保守性とキャッシュの一貫性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -3287,7 +3287,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["A3", "H4"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "presentation/ は localStorage/sessionStorage を直接使用しない",
     why: "ストレージ操作は副作用であり presentation 層の責務外",
     correctPattern: {
@@ -3319,7 +3319,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、localStorage.getItem / sessionStorage.setItem を直接呼ぶ のパターンが残ると、ストレージ操作は副作用であり presentation 層の責務外 という構造的な不整合が発生する",
           resolutionContribution:
@@ -3352,7 +3352,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "presentation 層で getState() を直接呼ばない（P2）",
     why: "Store への直接結合は描画層の独立性を破壊する",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description: "Zustand selector hook または callback props 経由でアクセス",
     },
@@ -3381,7 +3381,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、useDataStore.getState() / useUiStore.getState() の直接呼び出し のパターンが残ると、Store への直接結合は描画層の独立性を破壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -3412,7 +3412,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "module-scope let（グローバル変数）を禁止する（P7）",
     why: "module-scope の可変状態はテスト困難で副作用の温床",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description: "const object / WeakMap / useRef / Zustand store",
     },
@@ -3440,7 +3440,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、let _cache = null; let _initialized = false; のパターンが残ると、module-scope の可変状態はテスト困難で副作用の温床 という構造的な不整合が発生する",
           resolutionContribution:
@@ -3471,7 +3471,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "useMemo + useCallback の合計を上限以下に保つ（P8）",
     why: "hook の合計数は責務の複雑性を示す。12 を超えたら分割候補",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description: "sub-hook 抽出で合計 ≤12。thin wrapper は plain function 化",
     },
@@ -3500,7 +3500,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、useMemo + useCallback が 12 を超えるコンポーネント/hook のパターンが残ると、hook の合計数は責務の複雑性を示す。12 を超えたら分割候補 という構造的な不整合が発生する",
           resolutionContribution:
@@ -3531,7 +3531,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "features/ の useMemo/useState を上限以下に保つ（P10）",
     why: "feature hook の複雑性を制御し、責務の肥大化を防ぐ",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description:
         "useMemo ≤7 / useState ≤6。超えたら builder 抽出 or useReducer",
@@ -3558,7 +3558,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、features/ 内で useMemo/useState が上限を超えるファイル のパターンが残ると、feature hook の複雑性を制御し、責務の肥大化を防ぐ という構造的な不整合が発生する",
           resolutionContribution:
@@ -3589,7 +3589,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "domain/models/ の export 数を上限以下に保つ（P12）",
     why: "export 過多はモデルの責務混在を示す。型と操作を分離すべき",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description: "export ≤8。超えたら操作関数を別ファイルに分離",
     },
@@ -3616,7 +3616,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、domain/models/ で export が 8 を超えるファイル のパターンが残ると、export 過多はモデルの責務混在を示す。型と操作を分離すべき という構造的な不整合が発生する",
           resolutionContribution:
@@ -3647,7 +3647,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "storeIds 正規化パターンの散在を上限以下に保つ（P17）",
     why: "正規化ロジックの重複はデータ不整合の温床",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: { description: "正規化は集約モジュールで一元管理" },
     outdatedPattern: {
       description: "storeIds 正規化が複数ファイルにコピーされている",
@@ -3666,7 +3666,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、storeIds 正規化が複数ファイルにコピーされている のパターンが残ると、正規化ロジックの重複はデータ不整合の温床 という構造的な不整合が発生する",
           resolutionContribution:
@@ -3697,7 +3697,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "fallback 定数密度を上限以下に保つ（P18）",
     why: "ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description:
         "ファイルあたり ≤7。超えたらローカルエイリアスまたは共通モジュールに集約",
@@ -3727,7 +3727,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、DUMMY_/EMPTY_/ZERO_/IDLE_ が 7 を超えるファイル のパターンが残ると、ZERO_/EMPTY_/IDLE_ 定数の散在は初期値管理の責務分散を示す という構造的な不整合が発生する",
           resolutionContribution:
@@ -3756,7 +3756,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/customer-definition.md",
+    doc: "references/01-foundation/customer-definition.md",
     what: "StoreResult.totalCustomers を分析入力に使わない（CustomerFact を使う）",
     why: "StoreResult の totalCustomers は表示用集計値であり分析精度が異なる",
     correctPattern: {
@@ -3785,7 +3785,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/customer-definition.md",
+          docPath: "references/01-foundation/customer-definition.md",
           problemAddressed:
             "customer-definition で articulate された前提に対し、StoreResult.totalCustomers を分析・計算の入力に使用する のパターンが残ると、StoreResult の totalCustomers は表示用集計値であり分析精度が異なる という構造的な不整合が発生する",
           resolutionContribution:
@@ -3818,7 +3818,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "バレルは re-export のみ。ロジック・計算・副作用を含まない",
     why: "バレルにロジックが混入すると import 解決と tree-shaking が崩壊する",
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     correctPattern: { description: 'export { foo } from "./foo" のみ' },
     outdatedPattern: {
       description: "バレルファイルに関数定義や計算ロジックが含まれている",
@@ -3840,7 +3840,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、バレルファイルに関数定義や計算ロジックが含まれている のパターンが残ると、バレルにロジックが混入すると import 解決と tree-shaking が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -3871,7 +3871,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "feature 間の直接依存を禁止。shared/ 経由のみ",
     why: "feature 間の直接依存は topology を崩壊させ循環依存の温床になる",
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     correctPattern: { description: "features/A → shared/ → features/B" },
     outdatedPattern: {
       description: "features/ 配下が別の features/ を直接 import",
@@ -3893,7 +3893,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、features/ 配下が別の features/ を直接 import のパターンが残ると、feature 間の直接依存は topology を崩壊させ循環依存の温床になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -3924,7 +3924,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "ctx 提供データの独自取得を禁止。コンテキストから受け取る",
     why: "ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる",
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     correctPattern: { description: "ctx.result / ctx.prevYear 等を使う" },
     outdatedPattern: {
       description:
@@ -3947,7 +3947,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、ウィジェットが ctx 提供済みデータの hook を独自に呼び出している のパターンが残ると、ウィジェットが ctx の提供データを独自に取得するとデータの不一致が生じる という構造的な不整合が発生する",
           resolutionContribution:
@@ -3976,7 +3976,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/03-guides/temporal-analysis-policy.md",
+    doc: "references/03-implementation/temporal-analysis-policy.md",
     what: "ローリング計算パスの逆流を禁止（UI/hooks/comparison への逆流なし）",
     why: "temporal ロジックの逆流はデータフローの一方向性を破壊する",
     correctPattern: {
@@ -4001,7 +4001,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/temporal-analysis-policy.md",
+          docPath: "references/03-implementation/temporal-analysis-policy.md",
           problemAddressed:
             "temporal-analysis-policy で articulate された前提に対し、temporal 計算結果を UI や比較ロジックに逆流させる のパターンが残ると、temporal ロジックの逆流はデータフローの一方向性を破壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4032,7 +4032,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "期間スコープの分離ルール（sameDate/sameDow 混在禁止等）",
     why: "期間スコープの混在は比較結果の信頼性を損なう",
-    doc: "references/01-principles/temporal-scope-semantics.md",
+    doc: "references/01-foundation/temporal-scope-semantics.md",
     correctPattern: {
       description:
         "sameDate と sameDow は排他。予算比較に alignment を持ち込まない",
@@ -4059,7 +4059,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/temporal-scope-semantics.md",
+          docPath: "references/01-foundation/temporal-scope-semantics.md",
           problemAddressed:
             "temporal-scope-semantics で articulate された前提に対し、sameDate と sameDow を同一コンテキストで混在使用する のパターンが残ると、期間スコープの混在は比較結果の信頼性を損なう という構造的な不整合が発生する",
           resolutionContribution:
@@ -4088,7 +4088,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["F4"],
     epoch: 1,
-    doc: "references/01-principles/modular-monolith-evolution.md",
+    doc: "references/01-foundation/modular-monolith-evolution.md",
     what: "src/ 直下は承認済みディレクトリのみ（domain/application/infrastructure/presentation/features/stories/test）",
     why: "未承認ディレクトリの追加は層構造の破壊を招く",
     correctPattern: {
@@ -4108,7 +4108,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/modular-monolith-evolution.md",
+          docPath: "references/01-foundation/modular-monolith-evolution.md",
           problemAddressed:
             "modular-monolith-evolution で articulate された前提に対し、src/ 直下に新規ディレクトリを作成する のパターンが残ると、未承認ディレクトリの追加は層構造の破壊を招く という構造的な不整合が発生する",
           resolutionContribution:
@@ -4139,7 +4139,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["C7"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "同義の API を併存させない（1 つの責務に 1 つの API）",
     why: "同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する",
     correctPattern: {
@@ -4167,7 +4167,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、同じ目的の関数を 2 つ export する（例: getData と fetchData） のパターンが残ると、同じことをする 2 つの関数が存在すると、どちらを使うべきか判断コストが発生する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4198,7 +4198,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "正確に分類できないファイルは未分類のまま残す（嘘の分類より正直な未分類）",
     why: "自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれ、信頼性が損なわれる",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description:
         "確信がないファイルには @responsibility を付けない。未分類数を正確に把握する",
@@ -4223,7 +4223,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、分類のカバレッジを上げるために不正確なタグを付ける のパターンが残ると、自動推定で全ファイルにタグを振ると「嘘の単一責務」が生まれ、信頼性が損なわれる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4252,7 +4252,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["G7"],
     epoch: 1,
-    doc: "references/01-principles/cache-responsibility.md",
+    doc: "references/01-foundation/cache-responsibility.md",
     what: "キャッシュコードは本体コード以下に保つ",
     why: "キャッシュ最適化が本体より複雑になると保守コストが逆転する",
     correctPattern: {
@@ -4278,7 +4278,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/cache-responsibility.md",
+          docPath: "references/01-foundation/cache-responsibility.md",
           problemAddressed:
             "cache-responsibility で articulate された前提に対し、キャッシュ制御（invalidation, memo, dedup）が本体より大きい のパターンが残ると、キャッシュ最適化が本体より複雑になると保守コストが逆転する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4307,7 +4307,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["Q3"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "Chart コンポーネントは DuckDB hook を直接 import しない",
     why: "チャートは描画に専念。データ取得は plan/handler 経由で行う",
     correctPattern: {
@@ -4342,7 +4342,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "safe-performance-principles で articulate された前提に対し、Chart コンポーネントから useDuckDB* hook を直接 import する のパターンが残ると、チャートは描画に専念。データ取得は plan/handler 経由で行う という構造的な不整合が発生する",
           resolutionContribution:
@@ -4371,7 +4371,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     guardTags: ["Q4"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "alignment-aware access は handler/resolver に閉じる",
     why: "alignment ロジックが散在すると比較結果の一貫性が失われる",
     correctPattern: {
@@ -4396,7 +4396,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "safe-performance-principles で articulate された前提に対し、コンポーネントや hook で直接 alignment を判定する のパターンが残ると、alignment ロジックが散在すると比較結果の一貫性が失われる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4427,7 +4427,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     guardTags: ["C8", "C9"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "@responsibility タグはファイルの特徴に基づいて正確に選択する",
     why: "不正確なタグは TAG_EXPECTATIONS との不一致を生み、ガードの信頼性を損なう",
     correctPattern: {
@@ -4477,7 +4477,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、ファイルの特徴を確認せずに R:utility を付ける（最も多い誤分類パターン） のパターンが残ると、不正確なタグは TAG_EXPECTATIONS との不一致を生み、ガードの信頼性を損なう という構造的な不整合が発生する",
           resolutionContribution:
@@ -4511,7 +4511,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "chart-view は描画に専念する。状態・計算を持ちすぎない",
     why: "チャート描画と状態管理が混在すると変更理由が 2 つになる",
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     correctPattern: {
       description: "useMemo ≤ 4, useCallback ≤ 4, useState ≤ 2, 400 行以内",
     },
@@ -4538,7 +4538,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、チャートコンポーネント内にデータ取得・状態管理・計算ロジックを混在させる のパターンが残ると、チャート描画と状態管理が混在すると変更理由が 2 つになる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4568,7 +4568,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "G8"],
     responsibilityTags: ["R:chart-option"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "chart-option は ECharts オプション構築のみ。React hooks を含まない",
     why: "オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる",
     correctPattern: {
@@ -4595,7 +4595,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、オプション構築ファイルに useState や useCallback を含む のパターンが残ると、オプション構築は純粋関数であるべき。React 依存を持つと再利用性が下がる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4627,7 +4627,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "calculation は純粋関数。React hooks を一切含まない",
     why: "計算ロジックはフレームワーク非依存。テスト容易性と再利用性を保証する",
-    doc: "references/01-principles/engine-boundary-policy.md",
+    doc: "references/01-foundation/engine-boundary-policy.md",
     correctPattern: {
       description:
         "useMemo = 0, useCallback = 0, useState = 0, 400 行以内。純粋な入力→出力",
@@ -4656,7 +4656,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/engine-boundary-policy.md",
+          docPath: "references/01-foundation/engine-boundary-policy.md",
           problemAddressed:
             "engine-boundary-policy で articulate された前提に対し、計算ファイルに React hooks や副作用を含む のパターンが残ると、計算ロジックはフレームワーク非依存。テスト容易性と再利用性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4686,7 +4686,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:transform"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "transform はデータ変換のみ。状態を持たない",
     why: "データ変換は純粋関数であるべき。状態を持つと副作用が混入する",
     correctPattern: {
@@ -4715,7 +4715,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、変換ファイルに useState や副作用を含む のパターンが残ると、データ変換は純粋関数であるべき。状態を持つと副作用が混入する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4745,7 +4745,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "C3"],
     responsibilityTags: ["R:state-machine"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "state-machine は状態管理に専念する。短く保つ",
     why: "状態管理が肥大化すると状態遷移の追跡が困難になる",
     correctPattern: {
@@ -4771,7 +4771,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、状態管理ファイルに描画ロジックやデータ取得を混在させる のパターンが残ると、状態管理が肥大化すると状態遷移の追跡が困難になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4801,7 +4801,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "H1"],
     responsibilityTags: ["R:query-plan"],
     epoch: 1,
-    doc: "references/01-principles/safe-performance-principles.md",
+    doc: "references/01-foundation/safe-performance-principles.md",
     what: "query-plan はクエリ入力の組み立てのみ。実行しない",
     why: "クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する",
     correctPattern: {
@@ -4828,7 +4828,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/safe-performance-principles.md",
+          docPath: "references/01-foundation/safe-performance-principles.md",
           problemAddressed:
             "safe-performance-principles で articulate された前提に対し、plan ファイル内でクエリを実行する、または状態を持つ のパターンが残ると、クエリの組み立てと実行を分離することで、テスト容易性と再利用性を保証する という構造的な不整合が発生する",
           resolutionContribution:
@@ -4858,7 +4858,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:query-exec"],
     epoch: 1,
-    doc: "references/03-guides/runtime-data-path.md",
+    doc: "references/03-implementation/runtime-data-path.md",
     what: "query-exec はクエリ実行とキャッシュ管理に専念する",
     why: "クエリ実行にビジネスロジックが混入すると責務が不明確になる",
     correctPattern: {
@@ -4885,7 +4885,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/runtime-data-path.md",
+          docPath: "references/03-implementation/runtime-data-path.md",
           problemAddressed:
             "runtime-data-path で articulate された前提に対し、クエリ実行ファイルに計算ロジックや描画を含む のパターンが残ると、クエリ実行にビジネスロジックが混入すると責務が不明確になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4915,7 +4915,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "H6"],
     responsibilityTags: ["R:widget"],
     epoch: 1,
-    doc: "references/03-guides/widget-coordination-architecture.md",
+    doc: "references/03-implementation/widget-coordination-architecture.md",
     what: "widget は通知と表示の統合点。過度に状態を持たない",
     why: "ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる",
     correctPattern: {
@@ -4942,7 +4942,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/widget-coordination-architecture.md",
+          docPath: "references/03-implementation/widget-coordination-architecture.md",
           problemAddressed:
             "widget-coordination-architecture で articulate された前提に対し、ウィジェット内にデータ取得・計算・状態管理を詰め込む のパターンが残ると、ウィジェットが状態を持ちすぎると再利用性が下がり、テストが困難になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -4972,7 +4972,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:page"],
     epoch: 1,
-    doc: "references/03-guides/new-page-checklist.md",
+    doc: "references/03-implementation/new-page-checklist.md",
     what: "page は統合点。hooks 数は多いが行数は抑える",
     why: "ページは子コンポーネントの組み立て。ロジックは hooks に委譲する",
     correctPattern: {
@@ -4999,7 +4999,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/new-page-checklist.md",
+          docPath: "references/03-implementation/new-page-checklist.md",
           problemAddressed:
             "new-page-checklist で articulate された前提に対し、ページ内にインライン計算や長いレンダリングロジックを含む のパターンが残ると、ページは子コンポーネントの組み立て。ロジックは hooks に委譲する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5029,7 +5029,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:form"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "form は入力処理に専念する",
     why: "フォームにビジネスロジックが混入すると変更理由が増える",
     correctPattern: {
@@ -5055,7 +5055,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、フォーム内に計算ロジックやデータ取得を含む のパターンが残ると、フォームにビジネスロジックが混入すると変更理由が増える という構造的な不整合が発生する",
           resolutionContribution:
@@ -5085,7 +5085,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:layout"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "layout はレイアウト構造のみ。ビジネスロジックを持たない",
     why: "レイアウトにロジックが混入すると UI の再構成が困難になる",
     correctPattern: {
@@ -5111,7 +5111,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、レイアウト内にデータ取得や状態管理を含む のパターンが残ると、レイアウトにロジックが混入すると UI の再構成が困難になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5141,7 +5141,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "C6"],
     responsibilityTags: ["R:orchestration"],
     epoch: 1,
-    doc: "references/03-guides/runtime-data-path.md",
+    doc: "references/03-implementation/runtime-data-path.md",
     what: "orchestration は hook の組み立てのみ。状態を直接持たない",
     why: "オーケストレーションが状態を持つと facade が God Object 化する",
     correctPattern: {
@@ -5169,7 +5169,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/runtime-data-path.md",
+          docPath: "references/03-implementation/runtime-data-path.md",
           problemAddressed:
             "runtime-data-path で articulate された前提に対し、オーケストレーション hook 内で useState や副作用を直接管理する のパターンが残ると、オーケストレーションが状態を持つと facade が God Object 化する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5199,7 +5199,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "A2"],
     responsibilityTags: ["R:utility"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "utility は純粋関数。React hooks を一切含まない",
     why: "ユーティリティはフレームワーク非依存。どの層からも安全に呼べる",
     correctPattern: {
@@ -5229,7 +5229,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、ユーティリティに React hooks や副作用を含む のパターンが残ると、ユーティリティはフレームワーク非依存。どの層からも安全に呼べる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5259,7 +5259,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:context"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "context は値の提供のみ。過度なロジックを持たない",
     why: "Context Provider が肥大化すると再レンダリング範囲が広がる",
     correctPattern: {
@@ -5282,7 +5282,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、Context 内にビジネスロジックや複雑な計算を含む のパターンが残ると、Context Provider が肥大化すると再レンダリング範囲が広がる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5312,7 +5312,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:persistence"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "persistence は永続化操作に専念する",
     why: "永続化にビジネスロジックが混入するとデータ層の責務が不明確になる",
     correctPattern: {
@@ -5335,7 +5335,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、永続化ファイルに計算ロジックや UI 制御を含む のパターンが残ると、永続化にビジネスロジックが混入するとデータ層の責務が不明確になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5365,7 +5365,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "A4"],
     responsibilityTags: ["R:adapter"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "adapter は外部 API との変換のみ。小さく保つ",
     why: "アダプタが肥大化すると外部依存の影響範囲が広がる",
     correctPattern: {
@@ -5388,7 +5388,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、アダプタにビジネスロジックや状態管理を含む のパターンが残ると、アダプタが肥大化すると外部依存の影響範囲が広がる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5418,7 +5418,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8"],
     responsibilityTags: ["R:reducer"],
     epoch: 1,
-    doc: "references/03-guides/responsibility-separation-catalog.md",
+    doc: "references/03-implementation/responsibility-separation-catalog.md",
     what: "reducer は純粋な状態遷移関数。hooks を含まない",
     why: "reducer は (state, action) => state の純粋関数であるべき",
     correctPattern: {
@@ -5447,7 +5447,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/responsibility-separation-catalog.md",
+          docPath: "references/03-implementation/responsibility-separation-catalog.md",
           problemAddressed:
             "responsibility-separation-catalog で articulate された前提に対し、reducer に React hooks や副作用を含む のパターンが残ると、reducer は (state, action) => state の純粋関数であるべき という構造的な不整合が発生する",
           resolutionContribution:
@@ -5477,7 +5477,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["C8", "F1"],
     responsibilityTags: ["R:barrel"],
     epoch: 1,
-    doc: "references/03-guides/coding-conventions.md",
+    doc: "references/03-implementation/coding-conventions.md",
     what: "barrel は re-export のみ。ロジックを含まない",
     why: "バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する",
     correctPattern: {
@@ -5507,7 +5507,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/coding-conventions.md",
+          docPath: "references/03-implementation/coding-conventions.md",
           problemAddressed:
             "coding-conventions で articulate された前提に対し、バレルに関数定義や変数宣言を含む のパターンが残ると、バレルにロジックが混入すると import 解決が複雑化し tree-shaking を阻害する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5538,7 +5538,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["G1", "F8"],
     slice: "governance-ops",
     epoch: 1,
-    doc: "references/01-principles/aag/strategy.md",
+    doc: "aag/_internal/strategy.md",
     what: "文書中のハードコード数値は generated section か例外リストで管理する",
     why: "静的数値は code と乖離して嘘になる。drift を機械的に検出する",
     correctPattern: {
@@ -5566,7 +5566,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/strategy.md",
+          docPath: "aag/_internal/strategy.md",
           problemAddressed:
             "strategy で articulate された前提に対し、文書に「N ルール」「N テスト」等をハードコードする のパターンが残ると、静的数値は code と乖離して嘘になる。drift を機械的に検出する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5600,7 +5600,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "catch ブロックでエラーを握り潰さない（ログなし catch 禁止）",
     why: "サイレント catch はエラーを不可視にし、データ不正やUI欠落の原因を追跡不能にする",
     correctPattern: {
@@ -5637,7 +5637,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、エラーを無視する catch: 空 catch、コメントのみ catch、default 値返却のみ のパターンが残ると、サイレント catch はエラーを不可視にし、データ不正やUI欠落の原因を追跡不能にする という構造的な不整合が発生する",
           resolutionContribution:
@@ -5667,7 +5667,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "データ保存 Promise を fire-and-forget しない",
     why: "保存失敗がサイレントだと、ユーザーは保存されたと思い込み次回起動時にデータ消失する",
     correctPattern: {
@@ -5702,7 +5702,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、repo.save().catch(console.warn) のように await なしで Promise を放置 のパターンが残ると、保存失敗がサイレントだと、ユーザーは保存されたと思い込み次回起動時にデータ消失する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5732,7 +5732,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "非同期データに ?? 0 を使わない（loading/error/empty の区別を消さない）",
     why: "?? 0 は「取得中」「失敗」「0件」を区別できず、ユーザーに嘘のデータを見せる",
     correctPattern: {
@@ -5768,7 +5768,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、readModels?.model?.field ?? 0 で非同期の null を 0 に潰す のパターンが残ると、?? 0 は「取得中」「失敗」「0件」を区別できず、ユーザーに嘘のデータを見せる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5798,7 +5798,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "バリデーション結果は必ずチェックし、エラー時はデータフローを制御する",
     why: "バリデーションを呼んでも結果を無視すると、不正データが計算パイプラインに流入する",
     correctPattern: {
@@ -5833,7 +5833,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、validateImportData() を呼ぶが結果を確認せずデータを無条件で保存 のパターンが残ると、バリデーションを呼んでも結果を無視すると、不正データが計算パイプラインに流入する という構造的な不整合が発生する",
           resolutionContribution:
@@ -5863,7 +5863,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "DuckDB INSERT 後に実投入行数を検証する",
     why: "部分 INSERT 失敗がサイレントだと、集計が不正確になり readModel の数値がずれる",
     correctPattern: {
@@ -5889,7 +5889,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、bulkInsert が rows.length を無検証で返す のパターンが残ると、部分 INSERT 失敗がサイレントだと、集計が不正確になり readModel の数値がずれる という構造的な不整合が発生する",
           resolutionContribution:
@@ -5919,7 +5919,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "Zod バリデーションを本番でも有効にする（DEV 限定にしない）",
     why: "本番で型不正データが通過すると、ユーザーに不正な数値が表示されるか UI がクラッシュする",
     correctPattern: {
@@ -5950,7 +5950,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、import.meta.env.DEV でガードし本番では Zod バリデーションをスキップ のパターンが残ると、本番で型不正データが通過すると、ユーザーに不正な数値が表示されるか UI がクラッシュする という構造的な不整合が発生する",
           resolutionContribution:
@@ -5980,7 +5980,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "medium",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "Worker 通信・ミューテックス取得にタイムアウトを設ける",
     why: "タイムアウトなしの Promise は Worker ハングやデッドロックで永久待ちになる",
     correctPattern: {
@@ -6014,7 +6014,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、Worker.postMessage 後にタイムアウトなしで応答を待つ のパターンが残ると、タイムアウトなしの Promise は Worker ハングやデッドロックで永久待ちになる という構造的な不整合が発生する",
           resolutionContribution:
@@ -6044,7 +6044,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "データソース変更時に依存する派生状態をクリアする",
     why: "ソース変更後に派生状態が前月のまま残ると、ユーザーに前月データが表示される",
     correctPattern: {
@@ -6072,7 +6072,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、データソースを更新するが派生状態をクリアしない のパターンが残ると、ソース変更後に派生状態が前月のまま残ると、ユーザーに前月データが表示される という構造的な不整合が発生する",
           resolutionContribution:
@@ -6106,7 +6106,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "バリデーション severity を変更したら対応するテストも更新する",
     why: "severity を warning → error に変えてもテストが warning を探していると CI が通らず、逆に CI が通ったままテストが無意味になる",
     correctPattern: {
@@ -6141,7 +6141,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、severity のみ変更してテスト側を追従させない のパターンが残ると、severity を warning → error に変えてもテストが warning を探していると CI が通らず、逆に CI が通ったままテストが無意味になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -6171,7 +6171,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "DuckDB 関数に conn.query() 呼び出しを追加したら対応テストのモックも更新する",
     why: "テストモックが新しい query 呼び出しに対応しないと undefined.toArray() でクラッシュする",
     correctPattern: {
@@ -6202,7 +6202,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、本番コードに query を追加してテストモックを更新しない のパターンが残ると、テストモックが新しい query 呼び出しに対応しないと undefined.toArray() でクラッシュする という構造的な不整合が発生する",
           resolutionContribution:
@@ -6232,7 +6232,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "readModel の parse 方式を変更したらパスガードのアサーションも更新する",
     why: "パスガードが .parse() の存在を検証しているため、.safeParse() に変えるとガードが失敗する",
     correctPattern: {
@@ -6266,7 +6266,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、parse 方式を変更してパスガードの検証文字列を更新しない のパターンが残ると、パスガードが .parse() の存在を検証しているため、.safeParse() に変えるとガードが失敗する という構造的な不整合が発生する",
           resolutionContribution:
@@ -6298,7 +6298,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/semantic-classification-policy.md",
+    doc: "references/01-foundation/semantic-classification-policy.md",
     what: "authoritative を単独語で新規使用しない。必ず business-authoritative / analytic-authoritative / candidate-authoritative で修飾する",
     why: "AI が business と analytic を混同し、意味空間が混線する。単独 authoritative は意味分類の根拠にならない",
     correctPattern: {
@@ -6337,7 +6337,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/semantic-classification-policy.md",
+          docPath: "references/01-foundation/semantic-classification-policy.md",
           problemAddressed:
             "semantic-classification-policy で articulate された前提に対し、authoritative を修飾なしで使用する のパターンが残ると、AI が business と analytic を混同し、意味空間が混線する。単独 authoritative は意味分類の根拠にならない という構造的な不整合が発生する",
           resolutionContribution:
@@ -6366,7 +6366,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/semantic-classification-policy.md",
+    doc: "references/01-foundation/semantic-classification-policy.md",
     what: "required エントリは semanticClass 必須。意味分類なしでの新規追加をマージレベルで阻止する",
     why: "semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混線する",
     correctPattern: {
@@ -6404,7 +6404,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/semantic-classification-policy.md",
+          docPath: "references/01-foundation/semantic-classification-policy.md",
           problemAddressed:
             "semantic-classification-policy で articulate された前提に対し、tag: 'required' で semanticClass が undefined のまま のパターンが残ると、semanticClass 未設定のまま required に昇格すると business/analytic の棚が曖昧になり意味空間が混線する という構造的な不整合が発生する",
           resolutionContribution:
@@ -6434,7 +6434,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "heuristic",
     confidence: "medium",
     maturity: "experimental",
-    doc: "references/01-principles/semantic-classification-policy.md",
+    doc: "references/01-foundation/semantic-classification-policy.md",
     what: "business と analytic の意味責任を棚として分離する。pure であることは棚の決定基準にしない",
     why: "AI が pure = 同じ棚と誤解し、業務値決定計算と分析基盤計算を混同する",
     correctPattern: {
@@ -6462,7 +6462,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/semantic-classification-policy.md",
+          docPath: "references/01-foundation/semantic-classification-policy.md",
           problemAddressed:
             "semantic-classification-policy で articulate された前提に対し、pure だからという理由だけで同じ registry view に載せる のパターンが残ると、AI が pure = 同じ棚と誤解し、業務値決定計算と分析基盤計算を混同する という構造的な不整合が発生する",
           resolutionContribution:
@@ -6492,7 +6492,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/semantic-classification-policy.md",
+    doc: "references/01-foundation/semantic-classification-policy.md",
     what: "current（保守対象）と candidate（移行対象）を同じ view / KPI / review 導線で扱わない",
     why: "安定運用資産と実験資産を混ぜると、レビュー基準・進捗管理・rollback が全て濁る",
     correctPattern: {
@@ -6520,7 +6520,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/semantic-classification-policy.md",
+          docPath: "references/01-foundation/semantic-classification-policy.md",
           problemAddressed:
             "semantic-classification-policy で articulate された前提に対し、candidate を current registry に直接追加する、または current を staging area として使う のパターンが残ると、安定運用資産と実験資産を混ぜると、レビュー基準・進捗管理・rollback が全て濁る という構造的な不整合が発生する",
           resolutionContribution:
@@ -6552,7 +6552,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "semanticClass 未設定のまま contractId を追加してはならない",
     why: "契約は意味分類の上に成り立つ。semanticClass なしで契約を付けると business/analytic の境界が曖昧になる",
     correctPattern: {
@@ -6589,7 +6589,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、semanticClass が undefined のまま contractId を設定する のパターンが残ると、契約は意味分類の上に成り立つ。semanticClass なしで契約を付けると business/analytic の境界が曖昧になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -6619,7 +6619,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "Business Contract (BIZ-XXX) には businessMeaning 相当の reason が必須",
     why: "業務意味を説明できない計算を business に分類すると意味空間が汚染される",
     correctPattern: {
@@ -6658,7 +6658,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、BIZ-XXX の contractId があるのに reason が空または汎用的すぎる のパターンが残ると、業務意味を説明できない計算を business に分類すると意味空間が汚染される という構造的な不整合が発生する",
           resolutionContribution:
@@ -6688,7 +6688,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "Analytic Contract (ANA-XXX) には methodFamily が必須",
     why: "methodFamily なしの analytic 契約は技法の境界が曖昧になり再利用性が損なわれる",
     correctPattern: {
@@ -6725,7 +6725,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、ANA-XXX の contractId があるのに methodFamily が未設定 のパターンが残ると、methodFamily なしの analytic 契約は技法の境界が曖昧になり再利用性が損なわれる という構造的な不整合が発生する",
           resolutionContribution:
@@ -6755,7 +6755,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "率の算出は engine 側の責務。UI / VM / SQL で率を再計算してはならない",
     why: "率の二重計算は丸め誤差・不整合を生む。engine が算出した率をそのまま使う",
     correctPattern: {
@@ -6793,7 +6793,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、UI / VM / SQL で率を独自計算する（sales / cost で割る等） のパターンが残ると、率の二重計算は丸め誤差・不整合を生む。engine が算出した率をそのまま使う という構造的な不整合が発生する",
           resolutionContribution:
@@ -6823,7 +6823,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "bridge を通さない pure 計算の runtime import を新規追加しない（型参照・テスト除く）",
     why: "direct import が増えると bridge による current/candidate 切替・fallback・dual-run が機能しなくなる",
     correctPattern: {
@@ -6862,7 +6862,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、application / presentation 層から domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge による current/candidate 切替・fallback・dual-run が機能し…",
           resolutionContribution:
@@ -6892,7 +6892,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/contract-definition-policy.md",
+    doc: "references/03-implementation/contract-definition-policy.md",
     what: "candidate-only を UI の既定経路にする変更を禁止する",
     why: "candidate は実験資産。UI の通常運用で candidate を既定にすると安定性が崩壊する",
     correctPattern: {
@@ -6930,7 +6930,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/contract-definition-policy.md",
+          docPath: "references/03-implementation/contract-definition-policy.md",
           problemAddressed:
             "contract-definition-policy で articulate された前提に対し、bridge モードを candidate-only に変更して UI の既定動作にする のパターンが残ると、candidate は実験資産。UI の通常運用で candidate を既定にすると安定性が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -6962,7 +6962,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current 群に candidate 状態遷移（proposed/extracted/bridged/dual-run/promotion-ready/retired-js）を追加してはならない",
     why: "current は保守対象。candidate の状態遷移を混ぜると staging area 化し、保守と移行の境界が崩壊する",
     correctPattern: {
@@ -6998,7 +6998,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、current エントリに dual-run / promotion-ready 等の candidate 状態を付与する のパターンが残ると、current は保守対象。candidate の状態遷移を混ぜると staging area 化し、保守と移行の境界が崩壊する という構造的な不整合が発生…",
           resolutionContribution:
@@ -7028,7 +7028,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current 群の全エントリに semanticClass + authorityKind を必須とする",
     why: "意味分類なしの current は business/analytic の保守観点を適用できない",
     correctPattern: {
@@ -7065,7 +7065,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、runtimeStatus: 'current' で semanticClass が未設定 のパターンが残ると、意味分類なしの current は business/analytic の保守観点を適用できない という構造的な不整合が発生する",
           resolutionContribution:
@@ -7095,7 +7095,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current 群で authoritative を単独使用しない。必ず business-authoritative / analytic-authoritative で修飾する",
     why: "単独 authoritative は business/analytic の保守観点を区別できない",
     correctPattern: {
@@ -7131,7 +7131,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、current エントリのコメントや文書で authoritative を修飾なしで使用する のパターンが残ると、単独 authoritative は business/analytic の保守観点を区別できない という構造的な不整合が発生する",
           resolutionContribution:
@@ -7161,7 +7161,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current/business と current/analytics の運用 view を混在させない",
     why: "保守観点が異なる（business=業務意味、analytics=数学的不変条件）ため同じ view で管理すると保守基準が曖昧になる",
     correctPattern: {
@@ -7196,7 +7196,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、business と analytic の current を同じ一覧で混在管理する のパターンが残ると、保守観点が異なる（business=業務意味、analytics=数学的不変条件）ため同じ view で管理すると保守基準が曖昧になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -7226,7 +7226,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current 群に candidate 実装を混入してはならない",
     why: "保守対象（current）に実験コード（candidate）を混ぜると安定性が崩壊する",
     correctPattern: {
@@ -7265,7 +7265,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、current の WASM crate やブリッジに candidate 用の分岐やコードを追加する のパターンが残ると、保守対象（current）に実験コード（candidate）を混ぜると安定性が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -7295,7 +7295,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "current 群の direct import を新規に増やさない",
     why: "direct import が増えると bridge による一元管理が崩壊し、current/candidate 切替・fallback が機能しなくなる",
     correctPattern: {
@@ -7329,7 +7329,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、WASM exports や domain/calculations を直接 import する箇所を増やす のパターンが残ると、direct import が増えると bridge による一元管理が崩壊し、current/candidate 切替・fallback が機能しなくなる という構造的な…",
           resolutionContribution:
@@ -7359,7 +7359,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/current-maintenance-policy.md",
+    doc: "references/03-implementation/current-maintenance-policy.md",
     what: "factorDecomposition の semanticClass を business から変更する場合は businessMeaning の再定義が必須",
     why: "factorDecomposition は技法が analytic（Shapley）だが意味責任は business。安易な再分類は意味空間を破壊する",
     correctPattern: {
@@ -7395,7 +7395,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/current-maintenance-policy.md",
+          docPath: "references/03-implementation/current-maintenance-policy.md",
           problemAddressed:
             "current-maintenance-policy で articulate された前提に対し、factorDecomposition を semanticClass: analytic に変更する のパターンが残ると、factorDecomposition は技法が analytic（Shapley）だが意味責任は business。安易な再分類は意味空間を破壊する という構造的な不整合が発…",
           resolutionContribution:
@@ -7427,7 +7427,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "Business Contract (BIZ-XXX) なしで candidate/business 化してはならない",
     why: "契約なしの candidate は業務意味の検証ができず、parity 比較の基準がない",
     correctPattern: {
@@ -7464,7 +7464,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、runtimeStatus: 'candidate' で contractId が未設定 のパターンが残ると、契約なしの candidate は業務意味の検証ができず、parity 比較の基準がない という構造的な不整合が発生する",
           resolutionContribution:
@@ -7494,7 +7494,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "candidate/business を current/business の registry view に混入してはならない",
     why: "candidate は実験資産。current view に混ぜるとレビュー基準・進捗管理・rollback が全て濁る",
     correctPattern: {
@@ -7528,7 +7528,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、candidate エントリに runtimeStatus: 'current' を設定する のパターンが残ると、candidate は実験資産。current view に混ぜるとレビュー基準・進捗管理・rollback が全て濁る という構造的な不整合が発生する",
           resolutionContribution:
@@ -7558,7 +7558,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "business candidate を analytics bridge に接続してはならない",
     why: "business 計算を analytics bridge に接続すると意味空間が混線し、保守観点の適用が不可能になる",
     correctPattern: {
@@ -7594,7 +7594,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、business candidate を forecastBridge / timeSlotBridge に接続する のパターンが残ると、business 計算を analytics bridge に接続すると意味空間が混線し、保守観点の適用が不可能になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -7624,7 +7624,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "candidate の率を UI / VM / SQL で再計算してはならない",
     why: "candidate でも rateOwnership は engine。二重計算は parity 比較を不可能にする",
     correctPattern: {
@@ -7656,7 +7656,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、candidate の出力値から UI で率を独自計算する のパターンが残ると、candidate でも rateOwnership は engine。二重計算は parity 比較を不可能にする という構造的な不整合が発生する",
           resolutionContribution:
@@ -7686,7 +7686,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "candidate/business の direct import を新規に増やさない",
     why: "direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる",
     correctPattern: {
@@ -7721,7 +7721,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、candidate の WASM exports や domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる という構造的な不整…",
           resolutionContribution:
@@ -7751,7 +7751,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "rollback 不可の candidate を追加してはならない",
     why: "rollback できない candidate は失敗時にユーザー影響が出る。安全網なしの移行は禁止",
     correctPattern: {
@@ -7785,7 +7785,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、candidate に fallbackPolicy: 'none' を設定する、または rollback 手順を未定義にする のパターンが残ると、rollback できない candidate は失敗時にユーザー影響が出る。安全網なしの移行は禁止 という構造的な不整合が発生する",
           resolutionContribution:
@@ -7815,7 +7815,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/tier1-business-migration-plan.md",
+    doc: "references/03-implementation/tier1-business-migration-plan.md",
     what: "dual-run 未実装で promotion-ready にしてはならない",
     why: "dual-run なしの昇格は parity 未検証。業務値の不整合をユーザーに出すリスクがある",
     correctPattern: {
@@ -7854,7 +7854,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/tier1-business-migration-plan.md",
+          docPath: "references/03-implementation/tier1-business-migration-plan.md",
           problemAddressed:
             "tier1-business-migration-plan で articulate された前提に対し、candidate 実装を追加しただけで dual-run なしに promotion-ready にする のパターンが残ると、dual-run なしの昇格は parity 未検証。業務値の不整合をユーザーに出すリスクがある という構造的な不整合が発生する",
           resolutionContribution:
@@ -7886,7 +7886,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "Analytic Contract (ANA-XXX) なしで candidate/analytics 化してはならない",
     why: "契約なしの analytic candidate は methodFamily / invariantSet の検証ができず parity 比較の基準がない",
     correctPattern: {
@@ -7927,7 +7927,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、runtimeStatus: 'candidate', semanticClass: 'analytic' で contractId が未設定 のパターンが残ると、契約なしの analytic candidate は methodFamily / invariantSet の検証ができず p…",
           resolutionContribution:
@@ -7957,7 +7957,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "analytic candidate を business bridge に接続してはならない",
     why: "analytic 計算を business bridge に接続すると意味空間が混線し、不変条件と業務意味の検証基準が混在する",
     correctPattern: {
@@ -7993,7 +7993,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate を grossProfitBridge / budgetAnalysisBridge に接続する のパターンが残ると、analytic 計算を business bridge に接続すると意味空間が混線し、不変条件と業務意味の検証基準が混在する という構…",
           resolutionContribution:
@@ -8023,7 +8023,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "candidate/analytics に methodFamily 未設定は禁止",
     why: "methodFamily なしの analytic candidate は技法の境界が曖昧になり再利用性・不変条件の検証が不可能",
     correctPattern: {
@@ -8061,7 +8061,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、semanticClass: 'analytic', runtimeStatus: 'candidate' で methodFamily が未設定 のパターンが残ると、methodFamily なしの analytic candidate は技法の境界が曖昧になり再利用性・不変条件の検証が不…",
           resolutionContribution:
@@ -8091,7 +8091,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "candidate/analytics に invariantSet の定義が必須",
     why: "不変条件なしの analytic candidate は数学的正確性の検証ができず promotion 判定が不可能",
     correctPattern: {
@@ -8124,7 +8124,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate に不変条件を定義せずに実装する のパターンが残ると、不変条件なしの analytic candidate は数学的正確性の検証ができず promotion 判定が不可能 という構造的な不整合が発生する",
           resolutionContribution:
@@ -8154,7 +8154,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "default",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "candidate/analytics の direct import を新規に増やさない",
     why: "direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる",
     correctPattern: {
@@ -8189,7 +8189,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、candidate の WASM exports や domain/calculations/ を直接 import する のパターンが残ると、direct import が増えると bridge モード切替が機能せず dual-run / rollback が不可能になる という構造的な不…",
           resolutionContribution:
@@ -8219,7 +8219,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "candidate/analytics を current/business の view・crate・bridge に混入してはならない",
     why: "analytic candidate を business current に混ぜると意味空間と保守基準の両方が崩壊する",
     correctPattern: {
@@ -8256,7 +8256,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、analytic candidate を BUSINESS_SEMANTIC_VIEW に含める、または business bridge に接続する のパターンが残ると、analytic candidate を business current に混ぜると意味空間と保守基準の両方が崩壊する…",
           resolutionContribution:
@@ -8286,7 +8286,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/analytic-kernel-migration-plan.md",
+    doc: "references/03-implementation/analytic-kernel-migration-plan.md",
     what: "factorDecomposition を analytics 候補として登録してはならない",
     why: "factorDecomposition は技法が Shapley（analytic）だが意味責任は business（BIZ-004）。analytics に再分類すると業務 KPI としての出力が分析基盤と混同される",
     correctPattern: {
@@ -8323,7 +8323,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/analytic-kernel-migration-plan.md",
+          docPath: "references/03-implementation/analytic-kernel-migration-plan.md",
           problemAddressed:
             "analytic-kernel-migration-plan で articulate された前提に対し、factorDecomposition を semanticClass: 'analytic' の candidate として登録する のパターンが残ると、factorDecomposition は技法が Shapley（analytic）だが意味責任は business（BIZ-004）…",
           resolutionContribution:
@@ -8355,7 +8355,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/guard-consolidation-and-js-retirement.md",
+    doc: "references/03-implementation/guard-consolidation-and-js-retirement.md",
     what: "TS に新規 pure authoritative logic を追加してはならない。先に candidate 登録が必要",
     why: "JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う",
     correctPattern: {
@@ -8395,7 +8395,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/03-guides/guard-consolidation-and-js-retirement.md",
+            "references/03-implementation/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、domain/calculations/ に新しい authoritative 関数を直接追加する のパターンが残ると、JS に正本ロジックを新規追加すると二重管理になる。候補は candidate として管理し bridge 経由で使う という構造的な不整合が発生する",
           resolutionContribution:
@@ -8425,7 +8425,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/guard-consolidation-and-js-retirement.md",
+    doc: "references/03-implementation/guard-consolidation-and-js-retirement.md",
     what: "JS reference（compare/fallback 用）に新規正本ロジックを追加してはならない",
     why: "JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する",
     correctPattern: {
@@ -8460,7 +8460,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/03-guides/guard-consolidation-and-js-retirement.md",
+            "references/03-implementation/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、既存の TS ファイルに新しい authoritative 計算関数を追加する のパターンが残ると、JS reference は比較基準と fallback のために存在する。増築すると縮退方針が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -8490,7 +8490,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/guard-consolidation-and-js-retirement.md",
+    doc: "references/03-implementation/guard-consolidation-and-js-retirement.md",
     what: "Presentation Helper を candidate/business や candidate/analytics に昇格してはならない",
     why: "presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起きる",
     correctPattern: {
@@ -8525,7 +8525,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/03-guides/guard-consolidation-and-js-retirement.md",
+            "references/03-implementation/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、presentation/ のヘルパーを semanticClass: 'business' / 'analytic' に変更する のパターンが残ると、presentation 層のヘルパーは描画用。authoritative 計算の candidate にすると責務の混線が起…",
           resolutionContribution:
@@ -8555,7 +8555,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/guard-consolidation-and-js-retirement.md",
+    doc: "references/03-implementation/guard-consolidation-and-js-retirement.md",
     what: "review-needed のまま current 編入・candidate 化・物理移動をしてはならない",
     why: "意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる",
     correctPattern: {
@@ -8591,7 +8591,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       refs: [
         {
           docPath:
-            "references/03-guides/guard-consolidation-and-js-retirement.md",
+            "references/03-implementation/guard-consolidation-and-js-retirement.md",
           problemAddressed:
             "guard-consolidation-and-js-retirement で articulate された前提に対し、tag: 'review' のまま runtimeStatus を current や candidate に変更する のパターンが残ると、意味分類が未確定のまま移行すると、後から分類を変更する必要が生じ大規模な修正が必要になる という構造的な不整合が発生する",
           resolutionContribution:
@@ -8621,7 +8621,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "experimental",
-    doc: "references/01-principles/semantic-classification-policy.md",
+    doc: "references/01-foundation/semantic-classification-policy.md",
     what: "calculationCanonRegistry を唯一の master registry とし、derived view の手編集を禁止する",
     why: "二重管理を始めると AI がどの registry を信じるべきか迷い、意味分類が崩壊する",
     correctPattern: {
@@ -8648,7 +8648,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/semantic-classification-policy.md",
+          docPath: "references/01-foundation/semantic-classification-policy.md",
           problemAddressed:
             "semantic-classification-policy で articulate された前提に対し、business / analytic / candidate を別ファイルで独立管理する のパターンが残ると、二重管理を始めると AI がどの registry を信じるべきか迷い、意味分類が崩壊する という構造的な不整合が発生する",
           resolutionContribution:
@@ -8680,7 +8680,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/governance-final-placement-plan.md",
+    doc: "references/03-implementation/governance-final-placement-plan.md",
     what: "consumer は ARCHITECTURE_RULES の正本ルートを architectureRules 経由でのみ参照する",
     why: "merged 以外の direct import を許すと App Domain（BaseRule）と Project Overlay（ExecutionOverlay）を consumer が自前合成することになり、正本ルートが 2 本以上に分岐する。結果として case overlay の交換・案件差し替えが困難になる",
     correctPattern: {
@@ -8723,7 +8723,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/governance-final-placement-plan.md",
+          docPath: "references/03-implementation/governance-final-placement-plan.md",
           problemAddressed:
             "governance-final-placement-plan で articulate された前提に対し、'architectureRules/rules' や '@project-overlay/execution-overlay' を consumer から直… のパターンが残ると、merged 以外の direct import を許すと App Domain（BaseRule）と Pr…",
           resolutionContribution:
@@ -8753,7 +8753,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/governance-final-placement-plan.md",
+    doc: "references/03-implementation/governance-final-placement-plan.md",
     what: "consumer が architectureRules/rules（BaseRule 配列）を直接 import することを禁止する",
     why: "rules.ts は App Domain 側の BaseRule 配列であり、案件運用状態（fixNow / executionPlan 等）は含まれない。consumer が直接参照すると、後段で overlay merge を省いた不完全な ArchitectureRule として誤用される",
     correctPattern: {
@@ -8789,7 +8789,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/governance-final-placement-plan.md",
+          docPath: "references/03-implementation/governance-final-placement-plan.md",
           problemAddressed:
             "governance-final-placement-plan で articulate された前提に対し、from '../architectureRules/rules' で BaseRule 配列を直接 import する のパターンが残ると、rules.ts は App Domain 側の BaseRule 配列であり、案件運用状態（fixNow / executionPlan 等）は含…",
           resolutionContribution:
@@ -8819,7 +8819,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/03-guides/governance-final-placement-plan.md",
+    doc: "references/03-implementation/governance-final-placement-plan.md",
     what: "consumer が @project-overlay/execution-overlay を直接 import することを禁止する",
     why: "Project Overlay（案件運用状態）は derived merge 経由で ArchitectureRule に合成済み。consumer が直接読むと、App Domain と Project Overlay を境界越しに自前合成してしまい、正本ルートが崩れる",
     correctPattern: {
@@ -8856,7 +8856,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/governance-final-placement-plan.md",
+          docPath: "references/03-implementation/governance-final-placement-plan.md",
           problemAddressed:
             "governance-final-placement-plan で articulate された前提に対し、from '@project-overlay/execution-overlay' を consumer から直接 import する のパターンが残ると、Project Overlay（案件運用状態）は derived merge 経由で ArchitectureRule に合成済み。c…",
           resolutionContribution:
@@ -8887,12 +8887,12 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/aag/meta.md",
+    doc: "aag/_internal/meta.md",
     what: "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が AR-rule の metaRequirementRefs に bound + 同 rule が aag/meta.md を canonicalDocRef として指す (self-reference closure)",
     why: "AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked) を構造的に達成する self-reference closure を確立する。本 rule 自身が closure の起点 (= AAG-REQ-SELF-HOSTING を bind しつつ aag/meta.md を canonicalDocRef として参照) であり、selfHostingGuard.test.ts が closure の構造的整合を機械検証する。closure 不在では meta.md が孤立し、framework 自身が AR-rule の保護対象から外れる構造的盲点となる",
     correctPattern: {
       description:
-        "AR-AAG-META-SELF-HOSTING rule が (a) metaRequirementRefs.refs[].requirementId='AAG-REQ-SELF-HOSTING' (b) canonicalDocRef.refs[].docPath='references/01-principles/aag/meta.md' を同時に articulate し、selfHostingGuard.test.ts が両 condition を hard fail で検証",
+        "AR-AAG-META-SELF-HOSTING rule が (a) metaRequirementRefs.refs[].requirementId='AAG-REQ-SELF-HOSTING' (b) canonicalDocRef.refs[].docPath='aag/_internal/meta.md' を同時に articulate し、selfHostingGuard.test.ts が両 condition を hard fail で検証",
     },
     outdatedPattern: {
       description:
@@ -8909,7 +8909,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: [
         "1. 本 rule の metaRequirementRefs.refs[] に { requirementId: 'AAG-REQ-SELF-HOSTING', problemAddressed, resolutionContribution } を articulate",
-        "2. 本 rule の canonicalDocRef.refs[] に { docPath: 'references/01-principles/aag/meta.md', problemAddressed, resolutionContribution } を articulate",
+        "2. 本 rule の canonicalDocRef.refs[] に { docPath: 'aag/_internal/meta.md', problemAddressed, resolutionContribution } を articulate",
         "3. selfHostingGuard.test.ts を実行して closure 構造を hard fail で検証",
       ],
     },
@@ -8926,7 +8926,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/meta.md",
+          docPath: "aag/_internal/meta.md",
           problemAddressed:
             "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked、meta-rule が自分自身を検証) が rule cluster に bound されないと、meta.md が孤立し framework が自己保護対象から外れる構造的盲点となる",
           resolutionContribution:
@@ -8949,7 +8949,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   },
 
   // ── Test Signal Integrity (project: test-signal-integrity Phase 3) ──
-  // 上位原則: references/01-principles/test-signal-integrity.md
+  // 上位原則: references/01-foundation/test-signal-integrity.md
   // 思想: 品質シグナル（test / coverage / compile / lint）が改善の結果を表し、
   //       達成のために歪めてはならない。
 
@@ -8960,7 +8960,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G3"],
     epoch: 1,
-    doc: "references/01-principles/test-signal-integrity.md",
+    doc: "references/01-foundation/test-signal-integrity.md",
     what: "allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalCondition: を必須とする",
     why: "allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を必須化することで、suppression を「黙らせる手段」から「制度化された例外」に格上げする。これは TSIG-COMP-01/02 の実装方針として AR-G3-SUPPRESS の rationale enforcement 拡張で実現する",
     correctPattern: {
@@ -8977,7 +8977,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     decisionCriteria: {
       when: "allowlist (signalIntegrity.ts) に G3 suppress エントリを追加するとき",
       exceptions:
-        "EX-03 (removalCondition 付き一時 suppression) のみ。条件は references/01-principles/test-signal-integrity.md を参照",
+        "EX-03 (removalCondition 付き一時 suppression) のみ。条件は references/01-foundation/test-signal-integrity.md を参照",
       escalation:
         "構造化 rationale が書けないなら、それは恒久例外として正当化されていない。allowlist 登録を諦めて根本修正する",
     },
@@ -9006,7 +9006,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/test-signal-integrity.md",
+          docPath: "references/01-foundation/test-signal-integrity.md",
           problemAddressed:
             "test-signal-integrity で articulate された前提に対し、allowlist 登録された suppression に reason: / removalCondition: が無い、または free-form Eng… のパターンが残ると、allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を…",
           resolutionContribution:
@@ -9036,7 +9036,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1", "D3"],
     epoch: 1,
-    doc: "references/01-principles/design-principles.md",
+    doc: "references/01-foundation/design-principles.md",
     what: "is_prev_year 列を持つテーブルへの DELETE/UPDATE で is_prev_year 条件の指定を必須化する",
     why: "スコープ次元を持つテーブルの行レベル変更でスコープを省略すると、意図しないスコープの行が巻き込まれる（前年データ削除バグの再発防止）",
     correctPattern: {
@@ -9086,7 +9086,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/design-principles.md",
+          docPath: "references/01-foundation/design-principles.md",
           problemAddressed:
             "design-principles で articulate された前提に対し、DELETE FROM classified_sales WHERE year = ? AND month = ? — is_prev_year 条件なし のパターンが残ると、スコープ次元を持つテーブルの行レベル変更でスコープを省略すると、意図しないスコープの行が巻き込まれる（前年データ削除バグの再発防止） という構…",
           resolutionContribution:
@@ -9121,7 +9121,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-constitution.md",
+    doc: "references/01-foundation/taxonomy-constitution.md",
     what: "タグなし状態を禁止する（R:unclassified / T:unclassified は能動タグとして許可）",
     why: "原則 1（未分類は分類である）の機械的強制。タグなしは「責務不明」を放置する状態であり、CI fail で能動的な分類を促す。Phase 6 Migration Rollout で全 file / 全 test に v2 タグを付与し、本 rule の hard fail を到達条件とする",
     correctPattern: {
@@ -9160,7 +9160,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-constitution.md",
+          docPath: "references/01-foundation/taxonomy-constitution.md",
           problemAddressed:
             "taxonomy-constitution で articulate された前提に対し、@responsibility / @taxonomyKind タグなしの production file / test のパターンが残ると、原則 1（未分類は分類である）の機械的強制。タグなしは「責務不明」を放置する状態であり、CI fail で能動的な分類を促す。Phase 6 Migration Rol…",
           resolutionContribution:
@@ -9189,7 +9189,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-constitution.md",
+    doc: "references/01-foundation/taxonomy-constitution.md",
     what: "registry V2 未登録の R:tag / T:kind の使用を禁止する",
     why: "原則 3（語彙生成は高コスト儀式）の機械的強制。registry に存在しない vocabulary を ad-hoc に追加することを禁止し、新タグ追加は review window 経由のみとする",
     correctPattern: {
@@ -9225,7 +9225,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-constitution.md",
+          docPath: "references/01-foundation/taxonomy-constitution.md",
           problemAddressed:
             "taxonomy-constitution で articulate された前提に対し、registry に存在しない R:foo / T:bar の使用 のパターンが残ると、原則 3（語彙生成は高コスト儀式）の機械的強制。registry に存在しない vocabulary を ad-hoc に追加することを禁止し、新タグ追加は review window 経由のみとする という構造的な不整合…",
           resolutionContribution:
@@ -9254,7 +9254,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1", "C1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-constitution.md",
+    doc: "references/01-foundation/taxonomy-constitution.md",
     what: "1 タグ = 1 軸を強制する（責務 × 純粋性 × 層を 1 タグに混在させない）",
     why: "原則 2（1 タグ = 1 軸）の機械的強制。v1 の R:utility のような複数軸混在 tag を禁止し、軸ごとに別 namespace（R: / T:）で管理",
     correctPattern: {
@@ -9289,7 +9289,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-constitution.md",
+          docPath: "references/01-foundation/taxonomy-constitution.md",
           problemAddressed:
             "taxonomy-constitution で articulate された前提に対し、責務 + 純粋性 + 層を 1 タグに押し込む（v1 の R:utility / R:state-machine 等） のパターンが残ると、原則 2（1 タグ = 1 軸）の機械的強制。v1 の R:utility のような複数軸混在 tag を禁止し、軸ごとに別 namespace（R: / T:）で管理…",
           resolutionContribution:
@@ -9318,7 +9318,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-interlock.md",
+    doc: "references/01-foundation/taxonomy-interlock.md",
     what: "R:tag に対応する required T:kind を持つ test の存在を強制する（R⇔T 双方向契約）",
     why: "原則 4（Tag ↔ Test は双方向契約）の機械的強制。R:tag が指定する requiredTKinds を満たす test が存在しなければ tag contract が破綻",
     correctPattern: {
@@ -9356,7 +9356,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-interlock.md",
+          docPath: "references/01-foundation/taxonomy-interlock.md",
           problemAddressed:
             "taxonomy-interlock で articulate された前提に対し、R:calculation を持つ file に T:unit-numerical / T:boundary を持つ test がない（contract 破綻） のパターンが残ると、原則 4（Tag ↔ Test は双方向契約）の機械的強制。R:tag が指定する requiredTKinds を満たす test…",
           resolutionContribution:
@@ -9385,7 +9385,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-origin-journal.md",
+    doc: "references/01-foundation/taxonomy-origin-journal.md",
     what: "全 R:tag / T:kind に Origin metadata（why / when / who / sunsetCondition）を必須化する",
     why: "原則 5（Origin は記録する）の機械的強制。registry V2 entry は ResponsibilityOrigin / TestKindOrigin 型で Origin field を required としており、TypeScript 型システムで構造的強制",
     correctPattern: {
@@ -9420,7 +9420,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-origin-journal.md",
+          docPath: "references/01-foundation/taxonomy-origin-journal.md",
           problemAddressed:
             "taxonomy-origin-journal で articulate された規約から逸脱した実装が累積すると、原則 5（Origin は記録する）の機械的強制。registry V2 entry は ResponsibilityOrigin / TestKindOrigin 型で Origin field… という構造的な不整合が発生し canonical doc が形骸化する",
           resolutionContribution:
@@ -9449,7 +9449,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/taxonomy-constitution.md",
+    doc: "references/01-foundation/taxonomy-constitution.md",
     what: "軸ごとの vocabulary 数を 15 以下に制限する（Cognitive Load Ceiling）",
     why: "原則 7（Cognitive Load Ceiling）の機械的強制。1 人が把握できる vocabulary 量 = 15 を上限とし、超過時は review window で統廃合 or Constitution 変更を裁定",
     correctPattern: {
@@ -9484,7 +9484,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/taxonomy-constitution.md",
+          docPath: "references/01-foundation/taxonomy-constitution.md",
           problemAddressed:
             "taxonomy-constitution で articulate された前提に対し、15 を超える vocabulary 数（例: 責務軸 16 件以上） のパターンが残ると、原則 7（Cognitive Load Ceiling）の機械的強制。1 人が把握できる vocabulary 量 = 15 を上限とし、超過時は review window で統廃合 or Con… という構造的な不…",
           resolutionContribution:
@@ -9579,7 +9579,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
+    doc: "references/04-tracking/elements/widgets/README.md",
     what: "Anchor Slice 5 widget の WID-NNN.md spec が source registry entry と双方向に存在する",
     why: "spec が source と分離した存在では runtime の振る舞いを記述する台帳としての機能を失い、改修者が「どの spec を更新すべきか」を判断できなくなる。registry 登録 entry には @widget-id JSDoc を必須化することで spec ID を source 側から逆引きできる",
     correctPattern: {
@@ -9616,7 +9616,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/widgets/README.md",
+          docPath: "references/04-tracking/elements/widgets/README.md",
           problemAddressed:
             "README で articulate された前提に対し、spec が孤立している（source に対応 entry が無い）／ source に WID JSDoc が無く spec 側からしか紐付けが見えない のパターンが残ると、spec が source と分離した存在では runtime の振る舞いを記述する台帳としての機能を失い、改修者が「どの spec を更新すべきか」を判断できなく…",
           resolutionContribution:
@@ -9645,7 +9645,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
+    doc: "references/04-tracking/elements/widgets/README.md",
     what: "WID-NNN.md frontmatter の機械フィールドが source AST から再生成した値と完全一致する",
     why: "frontmatter は registry source を機械的に再現する canonical view であり、両者の drift は spec の信頼性を毀損する。source 変更時には generator 再実行を必須化することで「読み手は frontmatter を信用してよい」という不変条件を保つ",
     correctPattern: {
@@ -9681,7 +9681,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/widgets/README.md",
+          docPath: "references/04-tracking/elements/widgets/README.md",
           problemAddressed:
             "README で articulate された前提に対し、registry source を変更したのに対応 spec の frontmatter を再生成していない のパターンが残ると、frontmatter は registry source を機械的に再現する canonical view であり、両者の drift は spec の信頼性を毀損する。source 変更時には… という構造…",
           resolutionContribution:
@@ -9710,7 +9710,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
+    doc: "references/04-tracking/elements/widgets/README.md",
     what: "registry source の id 行と spec frontmatter の registryLine が一致し lastSourceCommit が記録されている",
     why: "registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、Phase I で git diff ベースの真の co-change 検査に拡張",
     correctPattern: {
@@ -9744,7 +9744,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/widgets/README.md",
+          docPath: "references/04-tracking/elements/widgets/README.md",
           problemAddressed:
             "README で articulate された前提に対し、registry source を変更したが spec.registryLine が古い のパターンが残ると、registry 変更時に spec の同期更新を機械的に強制することで、co-change 義務（変更が surface する範囲をすべて触る）を運用に組み込む。Phase A は静的検証のみ、P… という構造的な不整合が発生する",
           resolutionContribution:
@@ -9773,7 +9773,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
+    doc: "references/04-tracking/elements/widgets/README.md",
     what: "全 spec の lastSourceCommit が source file の最新 commit hash と一致する",
     why: "date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spec の lastSourceCommit が **完全一致** するかを検証することで、source が動いたが spec が動いていない (stale spec) 状態を直接検出する。co-change が active なため通常は自動 sync、本 rule は co-change が漏らした stale spec を検出する safety net。Project A4 (2026-05-01) で旧名 lastSourceCommit から rename: 旧名は「verified」と claim していたが mechanism は semantic 検証していない構造的不整合 (= Goodhart's Law leak) を解消",
     correctPattern: {
@@ -9813,7 +9813,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/widgets/README.md",
+          docPath: "references/04-tracking/elements/widgets/README.md",
           problemAddressed:
             "README で articulate された前提に対し、lastSourceCommit が source 最新 commit hash と一致しない (stale)、または空欄 のパターンが残ると、date-based cadence (AR-CONTENT-SPEC-FRESHNESS) は儀式的で構造的検証を伴わない。source file の最新 commit hash と spe…",
           resolutionContribution:
@@ -9842,7 +9842,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/calculations/README.md",
+    doc: "references/04-tracking/elements/calculations/README.md",
     what: "全 spec の lifecycleStatus が enum 値であり、状態に応じた必須 field (replacedBy / sunsetCondition / deadline) が揃っている",
     why: "Lifecycle State Machine (proposed → active → deprecated → sunsetting → retired → archived) を機械的に強制することで、deprecated だが replacedBy 未設定 / sunsetting だが deadline 未設定 のような中途半端な状態を構造的に排除する。期限超過は temporal governance で hard fail させ、移行が居残らないようにする",
     correctPattern: {
@@ -9857,7 +9857,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       when: "spec の lifecycle 状態を変更するとき、Promote Ceremony を起動するとき",
       exceptions: "なし",
       escalation:
-        "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
+        "Promote Ceremony PR template (references/03-implementation/promote-ceremony-pr-template.md) に従い、registry / 旧 spec / 新 spec を 1 PR で同期更新",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -9881,7 +9881,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/calculations/README.md",
+          docPath: "references/04-tracking/elements/calculations/README.md",
           problemAddressed:
             "README で articulate された前提に対し、lifecycleStatus が enum 外 / deprecated だが replacedBy 欠落 / sunsetting だが deadline… のパターンが残ると、Lifecycle State Machine (proposed → active → deprecated → sunsetting → retired…",
           resolutionContribution:
@@ -9910,7 +9910,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/calculations/README.md",
+    doc: "references/04-tracking/elements/calculations/README.md",
     what: "kind=calculation の spec の canonicalRegistration が calculationCanonRegistry.runtimeStatus と完全一致する",
     why: "user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec が「candidate」になっていたら、改修者がどちらを信じればよいか判断できない。Promote Ceremony で 1 PR 同期更新を機械的に強制することで構造的に乖離を排除する",
     correctPattern: {
@@ -9926,7 +9926,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       exceptions:
         "registry の candidate slot に対応する physical .ts file が未生成 (planning-only) の場合は spec 不要 (informational counter で別途 drift 検出)",
       escalation:
-        "Promote Ceremony PR template (references/03-guides/promote-ceremony-pr-template.md) で 1 PR 5 同期",
+        "Promote Ceremony PR template (references/03-implementation/promote-ceremony-pr-template.md) で 1 PR 5 同期",
     },
     detection: { type: "custom", severity: "gate", baseline: 0 },
     migrationRecipe: {
@@ -9948,7 +9948,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/calculations/README.md",
+          docPath: "references/04-tracking/elements/calculations/README.md",
           problemAddressed:
             "README で articulate された前提に対し、spec.canonicalRegistration='current' だが registry='candidate' / spec が registry… のパターンが残ると、user 要件「実装の状態と spec が乖離しないこと」の核心。registry が「current」と分類した calc の spec が「candidat…",
           resolutionContribution:
@@ -9977,7 +9977,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/03-guides/promote-ceremony-pr-template.md",
+    doc: "references/03-implementation/promote-ceremony-pr-template.md",
     what: "replacedBy / supersedes の双方向対称性を強制する (片方向リンク禁止 + 自己参照禁止)",
     why: "片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の replacedBy=B なら spec B の supersedes=A を必須化することで、Promote Ceremony が 1 PR で双方を同期更新することを構造的に強制する",
     correctPattern: {
@@ -10012,7 +10012,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/03-guides/promote-ceremony-pr-template.md",
+          docPath: "references/03-implementation/promote-ceremony-pr-template.md",
           problemAddressed:
             "promote-ceremony-pr-template で articulate された前提に対し、spec A.replacedBy=B だが spec B.supersedes が A 以外 / 孤立リンク (参照先 spec が存在しない) / 自己参… のパターンが残ると、片方向リンクは「移行が完結していない / 半移行状態が居残る」典型 anti-pattern。spec A の r…",
           resolutionContribution:
@@ -10041,7 +10041,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/charts/README.md",
+    doc: "references/04-tracking/elements/charts/README.md",
     what: "kind=chart / kind=ui-component の spec に Storybook story または visual regression test が記録されている件数を ratchet-down で管理する",
     why: "chart / UIC は見た目の変更が業務影響を持つ（粗利率の色 / 警告 severity の赤色 / KPI 配置の段差等）。visual evidence なしで silent に変わる drift を構造的に許容しないため、coverage 比率を機械的に管理し増加方向に戻さない",
     correctPattern: {
@@ -10079,7 +10079,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/charts/README.md",
+          docPath: "references/04-tracking/elements/charts/README.md",
           problemAddressed:
             "README で articulate された前提に対し、新規 chart / UIC で stories / visualTests が空 / baseline 増加（既知未 cover の上に新規未 cover… のパターンが残ると、chart / UIC は見た目の変更が業務影響を持つ（粗利率の色 / 警告 severity の赤色 / KPI 配置の段差等）。visual evidenc…",
           resolutionContribution:
@@ -10243,7 +10243,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/05-contents/widgets/README.md",
+    doc: "references/04-tracking/elements/widgets/README.md",
     what: "WID-NNN.md frontmatter に owner field が設定されている",
     why: "owner 不在の spec は責任所在不明であり review / 更新の義務者が決まらない。最小限の governance metadata として owner は必須",
     correctPattern: {
@@ -10271,7 +10271,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/05-contents/widgets/README.md",
+          docPath: "references/04-tracking/elements/widgets/README.md",
           problemAddressed:
             "README で articulate された前提に対し、owner field が存在しない / 空 / null のパターンが残ると、owner 不在の spec は責任所在不明であり review / 更新の義務者が決まらない。最小限の governance metadata として owner は必須 という構造的な不整合が発生する",
           resolutionContribution:
@@ -10303,7 +10303,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/canonicalization-principles.md",
+    doc: "references/01-foundation/canonicalization-principles.md",
     what: "`adoption-candidates.json` の `rejected[].originalSlot` で永久不採用と決定された primitive 名を `app-domain/integrity/{parsing,detection,reporting}/` 配下に新規 file として復活させることを禁止する",
     why: "Phase A inventory のスロット名のうち実装段階で「採用しない」と決定されたもの (shapeSync / tokenInclusion / jsdocTag) は、置換実装が確定済 (例: tokenInclusion → checkInclusionByPredicate)。同名 primitive が再提案されると過去の判断を上書きするリスクがある (AI が記憶を持たないため)。`rejected` archive を機械検証することで「同じ slot を再導入する」ことを構造的に防ぐ",
     correctPattern: {
@@ -10342,7 +10342,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/canonicalization-principles.md",
+          docPath: "references/01-foundation/canonicalization-principles.md",
           problemAddressed:
             "canonicalization-principles で articulate された前提に対し、`adoption-candidates.json` の rejected archive を更新せずに `app-domain/integrity/{par… のパターンが残ると、Phase A inventory のスロット名のうち実装段階で「採用しない」と決定されたもの (shapeSync…",
           resolutionContribution:
@@ -10438,7 +10438,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/aag/strategy.md",
+    doc: "aag/_internal/strategy.md",
     what: "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する (allowlist された job 以外)",
     why: "PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
     correctPattern: {
@@ -10478,7 +10478,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/strategy.md",
+          docPath: "aag/_internal/strategy.md",
           problemAddressed:
             "strategy で articulate された前提に対し、full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定な… のパターンが残ると、PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch…",
           resolutionContribution:
@@ -10511,7 +10511,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "chart の semantic color (実績=緑 / 推定=オレンジ) を hex 直書きでなく theme token 経由で表現する",
     why: "実績と推定の色彩境界が崩れると UI/UX 原則 1 (実績と推定は別世界) の業務的意味が破壊される",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "presentation/theme/tokens.ts の chartSemanticColors.actualCount / .estimatedCount 経由で color を取得",
@@ -10540,7 +10540,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §2 で articulate された前提に対し、chart 内 hex 直書きが残ると UI/UX 原則 1 の semantic 軸 (実績=緑 / 推定=オレンジ) が崩れ、実績と推定の境界が視覚的に消失する",
           resolutionContribution:
@@ -10578,7 +10578,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "chart axis の formatter は useAxisFormatter hook 経由のみを許容",
     why: "axis formatter が散在すると同義 API 併存が発生し、表示規約の単一正本性が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "useAxisFormatter('number' | 'date' | 'percent' | 'currency') を chart component から呼び出して axis label format を取得",
@@ -10606,7 +10606,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §3 で articulate された前提に対し、chart axis formatter が inline 散在すると、useAxisFormatter という単一正本の意味が消失し同義 API 併存が累積する",
           resolutionContribution:
@@ -10637,7 +10637,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "percent 表示は formatPercent 関数経由のみを許容 (小数第 2 位)",
     why: "percent 表示の散在は formatPercent の単一正本性を崩し、丸め桁数の drift を招く",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description: "formatPercent(rate) を import して percent 表示を構築",
     },
@@ -10664,7 +10664,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §4 で articulate された前提に対し、percent 表示の inline 計算が残ると、formatPercent の単一正本性が崩れ丸め桁数の drift が累積する",
           resolutionContribution:
@@ -10695,7 +10695,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "currency (金額) 表示は formatCurrency 関数経由のみを許容 (thousands separator 強制)",
     why: "currency 表示の散在は thousands separator の drift を招き、registry §5 の convention が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "formatCurrency(value) を import して currency 表示を構築 (¥ prefix + thousands separator)",
@@ -10723,7 +10723,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §5 で articulate された前提に対し、currency 表示の inline 構築が残ると thousands separator が drift し、registry が固定した convention が崩れる",
           resolutionContribution:
@@ -10754,7 +10754,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "page identification icon は pageRegistry 経由のみを許容 (emoji canonical / SVG shared component)",
     why: "page icon の複数箇所 alias / fork は registry の意味を消失させ、navigation / breadcrumb / header 間で page identification の整合性が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description: "pageRegistry[pageId].icon を import して page icon を取得",
     },
@@ -10781,7 +10781,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §6 で articulate された前提に対し、page icon が複数箇所で alias / fork されると、navigation / breadcrumb / header 間で page identification の整合性が崩れ registry の意味が消失する",
           resolutionContribution:

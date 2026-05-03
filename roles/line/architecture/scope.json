@@ -3,7 +3,7 @@
   "role": "architecture",
   "category": "line",
   "owns": [
-    "references/01-principles/",
+    "references/01-foundation/",
     "tools/architecture-health/",
     "docs/contracts/principles.json",
     "app-domain/"

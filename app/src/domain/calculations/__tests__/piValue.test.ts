@@ -1,7 +1,7 @@
 /**
  * PI値（Purchase Incidence）計算テスト
  *
- * @see references/01-principles/pi-value-definition.md
+ * @see references/01-foundation/pi-value-definition.md
  *
  * @taxonomyKind T:unclassified
  */

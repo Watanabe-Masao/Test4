@@ -5,7 +5,7 @@
  * sameDate / sameDow / monthlyTotal の混用、予算比較への alignment 値使用、
  * elapsedDays cap の誤用を検出する。
  *
- * @see references/01-principles/temporal-scope-semantics.md
+ * @see references/01-foundation/temporal-scope-semantics.md
  * ルール定義: architectureRules.ts (AR-STRUCT-TEMPORAL-SCOPE)
  *
  * @responsibility R:unclassified

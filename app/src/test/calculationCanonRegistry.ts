@@ -25,7 +25,7 @@
  * @calc-id CALC-001 JSDoc を注入（registry の semantic 分類は不変）。後続 batch で
  * piValue / inventoryCalc / pinIntervals / observationPeriod / remainingBudgetRate /
  * dowGapAnalysis 等に CALC-NNN spec + @calc-id JSDoc を順次付与。Promote Ceremony
- * (current ↔ candidate 昇格) は references/03-guides/promote-ceremony-pr-template.md
+ * (current ↔ candidate 昇格) は references/03-implementation/promote-ceremony-pr-template.md
  * で 1 PR 5 同期化を強制（runtimeStatus / 旧 spec lifecycleStatus / 新 spec lifecycleStatus /
  * sunsetCondition / ADR）。AR-CONTENT-SPEC-LIFECYCLE-FIELDS guard が deadline 超過を hard fail。
  *
@@ -70,13 +70,13 @@
  * 瞬間 active candidate 化し guard が「+1 over baseline」で hard fail させることで
  * Promote Ceremony 着手 PR が spec 同梱を機械強制（1 PR 5 同期）。registry の candidate
  * slot 数 (planning-only 11 件) は別 informational counter で drift 検出。
- * 詳細: references/05-contents/calculations/README.md §「Candidate Slot の二状態モデル」
+ * 詳細: references/04-tracking/elements/calculations/README.md §「Candidate Slot の二状態モデル」
  *
  * 新規ファイルを domain/calculations/ に追加する場合は、
  * 必ずこのレジストリに登録すること。
  *
- * @see references/01-principles/calculation-canonicalization-map.md
- * @see references/01-principles/semantic-classification-policy.md
+ * @see references/01-foundation/calculation-canonicalization-map.md
+ * @see references/01-foundation/semantic-classification-policy.md
  */
 
 export type CanonTag = 'required' | 'review' | 'not-needed'

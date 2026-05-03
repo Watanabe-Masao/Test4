@@ -9,7 +9,7 @@
 - [x] `_template/` から `projects/operational-protocol-system/` 作成 + 必須セット 6 ファイル
 - [x] charter draft 内容を plan.md に migrate + charter draft 削除 (= 重複 articulate 防止)
 - [x] config/project.json を AAG-COA Level 2 + governance-hardening で articulate
-- [x] `references/02-status/open-issues.md` に `operational-protocol-system` 行追加
+- [x] `references/04-tracking/open-issues.md` に `operational-protocol-system` 行追加
 - [x] `references/README.md` + `docs/contracts/doc-registry.json` から charter draft entry 削除 (= 移動済)
 - [ ] DA-α-000 (進行モデル) landing
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS
@@ -85,11 +85,24 @@
 - [ ] decision-audit.md に Pilot 判断履歴 landing (DA-α-000 + 001-005 = 6 entry)
 - [ ] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS)
 
-## 最終レビュー (人間承認)
+## AI 自己レビュー (= user 承認の手前)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+> 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
+
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
+## 最終レビュー (user 承認)
+
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) をuser がレビューし、archive プロセスへの移行を承認する

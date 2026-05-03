@@ -4,7 +4,7 @@
  * 在庫法/推定法の表示名を一元管理する。
  * UI で粗利のラベルを表示する際はこの定数を使用すること。
  *
- * @see references/01-principles/gross-profit-definition.md §8
+ * @see references/01-foundation/gross-profit-definition.md §8
  *
  * @responsibility R:unclassified
  */

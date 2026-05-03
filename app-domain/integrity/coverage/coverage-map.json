@@ -81,7 +81,7 @@
     },
     {
       "pairId": "content-spec",
-      "displayName": "#12 references/05-contents/ ↔ contentSpec*Guard × 11",
+      "displayName": "#12 references/04-tracking/elements/ ↔ contentSpec*Guard × 11",
       "guardFiles": [
         "guards/contentSpecCanonicalRegistrationSyncGuard.test.ts",
         "guards/contentSpecCoChangeGuard.test.ts",

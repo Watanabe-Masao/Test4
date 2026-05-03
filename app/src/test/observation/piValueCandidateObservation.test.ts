@@ -8,7 +8,7 @@
  * @semanticClass business
  * @authorityKind candidate-authoritative
  *
- * @see references/03-guides/tier1-business-migration-plan.md — Step 6, 7
+ * @see references/03-implementation/tier1-business-migration-plan.md — Step 6, 7
  *
  * @taxonomyKind T:unclassified
  */

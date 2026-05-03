@@ -10,7 +10,7 @@
  * で base..HEAD diff ベースの真の co-change 検証に置き換える。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase A / §Phase B / §Phase C,
- * references/05-contents/{widgets,read-models}/README.md §「構造軸」。
+ * references/04-tracking/elements/{widgets,read-models}/README.md §「構造軸」。
  *
  * @taxonomyKind T:meta-guard
  *

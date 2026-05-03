@@ -13,7 +13,7 @@
  * - guards/executionOverlayGuard.test.ts（BaseRule vs overlay 整合検証）
  *
  * @responsibility R:unclassified
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see references/03-implementation/governance-final-placement-plan.md
  * @see app-domain/gross-profit/rule-catalog/base-rules.ts — 物理正本
  */
 

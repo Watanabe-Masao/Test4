@@ -1,7 +1,7 @@
 # projectization — taxonomy-v2
 
 > 役割: AAG-COA 判定結果。
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 
 ## 1. 判定結果
 
@@ -9,7 +9,7 @@
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `projectizationLevel`      | Level 4 (Umbrella)                                                                                                                               |
 | `changeType`               | architecture-refactor                                                                                                                            |
-| `implementationScope`      | `["app/src/test/responsibilityTagRegistry.ts", "app/src/test/guards/", "docs/contracts/", "references/01-principles/", "references/02-status/"]` |
+| `implementationScope`      | `["app/src/test/responsibilityTagRegistry.ts", "app/src/test/guards/", "docs/contracts/", "references/01-foundation/", "references/04-tracking/"]` |
 | `breakingChange`           | true                                                                                                                                             |
 | `requiresLegacyRetirement` | true                                                                                                                                             |
 | `requiresGuard`            | true                                                                                                                                             |
@@ -31,7 +31,7 @@ interlock 仕様を固定し、両軸が相互契約を持つ状態を AAG 第 3
 - **requiresGuard=true** — taxonomyInterlockGuard / taxonomyVocabularyGuard /
   taxonomyEntropyGuard（両軸共通）+ 子 project の Schema / Operations guard
 - **requiresHumanApproval=true** — 7 不可侵原則 + interlock 仕様は Constitution 的性質を
-  持つため archive 前に人間承認必須
+  持つため archive 前にuser 承認必須
 
 ## 3. 必要な文書
 
@@ -46,7 +46,7 @@ interlock 仕様を固定し、両軸が相互契約を持つ状態を AAG 第 3
 | `legacy-retirement.md`           |               required | v1 タグ段階撤退の運用                            |
 | `sub-project-map.md`             | **required (Level 4)** | 2 sub-project + interlock 仕様                   |
 | guard 設計 (plan.md 内)          |               required | 8 昇華メカニズムに含まれる                       |
-| 最終レビュー (人間承認) checkbox |               required | requiresHumanApproval=true                       |
+| 最終レビュー (user 承認) checkbox |               required | requiresHumanApproval=true                       |
 
 ## 4. やらないこと (nonGoals)
 
@@ -61,7 +61,7 @@ interlock 仕様を固定し、両軸が相互契約を持つ状態を AAG 第 3
 ## 5. Escalation / De-escalation 条件
 
 - 7 不可侵原則のうちいずれかを見直す必要が出た場合 → plan.md の Constitution 改訂を
-  人間承認プロセスに戻す
+  user 承認プロセスに戻す
 - 第 3 子 project が必要になった場合（例: 層軸 L:\*） → sub-project-map に追加 +
   Cognitive Load Ceiling の見直し
 - v1 撤退 scope が広がった場合 → review window を延長

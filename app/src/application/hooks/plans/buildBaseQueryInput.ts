@@ -31,7 +31,7 @@
  *
  * ## Chart Input Builder Pattern
  *
- * 本 builder は `references/03-guides/chart-input-builder-pattern.md` で
+ * 本 builder は `references/03-implementation/chart-input-builder-pattern.md` で
  * 定義された Pattern の Phase 5 横展開版。`chartInputBuilderGuard` が
  * presentation/components/charts/ 配下での `dateRangeToKeys` 直接呼び出しを
  * 禁止しているため、chart は本 builder を経由する必要がある。

@@ -3,7 +3,7 @@
  *
  * readFreePeriodDeptKPI が唯一の自由期間部門KPI取得経路。
  *
- * @see references/01-principles/free-period-budget-kpi-contract.md
+ * @see references/01-foundation/free-period-budget-kpi-contract.md
  * ルール定義: architectureRules.ts (AR-PATH-FREE-PERIOD-DEPT-KPI)
  *
  * @responsibility R:unclassified

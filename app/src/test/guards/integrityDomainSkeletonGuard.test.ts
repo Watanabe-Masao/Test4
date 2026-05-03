@@ -17,8 +17,8 @@
  * runtime export は sub-barrel の `export { ... }` を parse して導出する。
  * primitive 追加時に本 guard の hardcode 更新は不要 (Phase E retrospective fix #1 を構造的に解消)。
  *
- * @see references/03-guides/integrity-domain-architecture.md
- * @see references/01-principles/canonicalization-principles.md §P9
+ * @see references/03-implementation/integrity-domain-architecture.md
+ * @see references/01-foundation/canonicalization-principles.md §P9
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard

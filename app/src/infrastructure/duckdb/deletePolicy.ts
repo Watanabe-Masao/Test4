@@ -167,7 +167,7 @@ export async function deletePrevYearRowsAt(
  *   「指定 (year, month) 位置の前年行を消す」と誤解すると 1 年ズレる。Phase 2
  *   初版でこれを踏んで回帰を出した経緯がある。
  *   絶対位置で前年行を消したい場合は必ず {@link deletePrevYearRowsAt} を直接呼ぶ。
- *   詳細: references/03-guides/data-load-idempotency-handoff.md §3.1
+ *   詳細: references/03-implementation/data-load-idempotency-handoff.md §3.1
  */
 export async function deletePrevYearMonth(
   conn: AsyncDuckDBConnection,

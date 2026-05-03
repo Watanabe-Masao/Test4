@@ -2,7 +2,7 @@
  * Taxonomy Collector — taxonomy-v2 子 Phase 3.5: 共通 infra deliverable
  *
  * 役割: responsibility / test 両軸の v2 vocabulary 状態を集計し、
- * `references/02-status/generated/taxonomy-health.json` に出力する。
+ * `references/04-tracking/generated/taxonomy-health.json` に出力する。
  *
  * 親 plan §taxonomy-health.json schema に準拠した出力を生成する。
  * KPI として `taxonomy.responsibility.unknownVocabulary` /
@@ -312,7 +312,7 @@ export function writeTaxonomyHealth(repoRoot: string): TaxonomyHealthOutput {
   const output = collectTaxonomyHealth(repoRoot);
   const outPath = resolve(
     repoRoot,
-    "references/02-status/generated/taxonomy-health.json",
+    "references/04-tracking/generated/taxonomy-health.json",
   );
   const dir = dirname(outPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
@@ -340,7 +340,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
         { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
         {
           kind: "definition",
-          path: "references/01-principles/responsibility-taxonomy-schema.md",
+          path: "references/01-foundation/responsibility-taxonomy-schema.md",
         },
       ],
       implRefs: [
@@ -360,7 +360,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
         { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
         {
           kind: "definition",
-          path: "references/01-principles/test-taxonomy-schema.md",
+          path: "references/01-foundation/test-taxonomy-schema.md",
         },
       ],
       implRefs: [

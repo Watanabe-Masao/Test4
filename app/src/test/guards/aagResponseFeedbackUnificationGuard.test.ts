@@ -27,7 +27,7 @@
  *
  * @see tools/architecture-health/src/aag-response.ts (canonical 正本)
  * @see app/src/test/architectureRules/helpers.ts (re-export consumer)
- * @see references/01-principles/aag/operational-classification.md §6
+ * @see aag/_internal/operational-classification.md §6
  *
  * @responsibility R:guard
  *

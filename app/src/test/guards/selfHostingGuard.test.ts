@@ -35,7 +35,7 @@
  *
  * ### Test 2 (hard fail): self-reference back-link 成立
  *   AAG-REQ-SELF-HOSTING を bind した rule の canonicalDocRef が
- *   `references/01-principles/aag/meta.md` を指していることを検証。
+ *   `aag/_internal/meta.md` を指していることを検証。
  *   これにより rule cluster ↔ meta.md の双方向 closure が機械的に保証される。
  *
  * ### Test 3 (hard fail with ratchet-down baseline): orphan AAG-REQ coverage
@@ -51,8 +51,8 @@
  * @guard F8 正本保護
  * @taxonomyKind T:meta-guard
  * @responsibility R:guard
- * @see references/01-principles/aag/meta.md §2 (AAG-REQ-SELF-HOSTING)
- * @see references/02-status/ar-rule-audit.md §6 (selfHostingGuard scope articulate)
+ * @see aag/_internal/meta.md §2 (AAG-REQ-SELF-HOSTING)
+ * @see references/04-tracking/ar-rule-audit.md §6 (selfHostingGuard scope articulate)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -60,8 +60,8 @@ import * as path from 'path'
 import { ARCHITECTURE_RULES } from '../architectureRules'
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..')
-const META_DOC_PATH = path.resolve(REPO_ROOT, 'references/01-principles/aag/meta.md')
-const META_DOC_REL = 'references/01-principles/aag/meta.md'
+const META_DOC_PATH = path.resolve(REPO_ROOT, 'aag/_internal/meta.md')
+const META_DOC_REL = 'aag/_internal/meta.md'
 
 const SELF_HOSTING_REQ_ID = 'AAG-REQ-SELF-HOSTING'
 

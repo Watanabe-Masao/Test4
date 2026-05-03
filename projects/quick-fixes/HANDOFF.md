@@ -34,4 +34,4 @@ quick-fixes 内の checkbox を進めるうちに「これは複数 phase が必
 
 | ファイル | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | 規約の正本（§11 で large vs small の判断基準） |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 規約の正本（§11 で large vs small の判断基準） |

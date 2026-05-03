@@ -26,7 +26,7 @@
      *
      * `@app-domain/*` は repo 直下 app-domain/ を指す（アプリ固有の意味空間）。
      * BaseRule 正本は app-domain/gross-profit/rule-catalog/base-rules.ts に物理配置。
-     * 参照: references/03-guides/governance-final-placement-plan.md
+     * 参照: references/03-implementation/governance-final-placement-plan.md
      */
     "baseUrl": ".",
     "paths": {

@@ -44,7 +44,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     docRefs: [
       {
         kind: "definition",
-        path: "references/03-guides/architecture-rule-system.md",
+        path: "references/03-implementation/architecture-rule-system.md",
       },
     ],
     implRefs: [overlayRelPath],
@@ -64,7 +64,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     docRefs: [
       {
         kind: "definition",
-        path: "references/01-principles/architecture-rule-feasibility.md",
+        path: "references/01-foundation/architecture-rule-feasibility.md",
       },
     ],
     implRefs: ["app-domain/gross-profit/rule-catalog/base-rules.ts"],
@@ -188,7 +188,7 @@ export function collectFromTemporalGovernance(repoRoot: string): HealthKpi[] {
     docRefs: [
       {
         kind: "definition",
-        path: "references/01-principles/architecture-rule-feasibility.md",
+        path: "references/01-foundation/architecture-rule-feasibility.md",
       },
     ],
     implRefs: ["app-domain/gross-profit/rule-catalog/base-rules.ts"],

@@ -45,7 +45,7 @@
     },
     {
       "id": "RED-02",
-      "trigger": "references/01-principles/ 配下の変更",
+      "trigger": "references/01-foundation/ 配下の変更",
       "reason": "設計原則の変更は不可逆性が高い"
     },
     {
@@ -81,8 +81,8 @@
   },
 
   "relatedDocs": [
-    "references/03-guides/safety-first-architecture-plan.md",
-    "references/02-status/promotion-criteria.md",
+    "references/03-implementation/safety-first-architecture-plan.md",
+    "references/04-tracking/promotion-criteria.md",
     "app/src/test/guards/noNewDebtGuard.test.ts"
   ]
 }

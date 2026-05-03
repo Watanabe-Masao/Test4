@@ -3,7 +3,7 @@
  *
  * readFreePeriodBudgetFact が唯一の自由期間予算取得経路。
  *
- * @see references/01-principles/free-period-budget-kpi-contract.md
+ * @see references/01-foundation/free-period-budget-kpi-contract.md
  * ルール定義: architectureRules.ts (AR-PATH-FREE-PERIOD-BUDGET)
  *
  * @responsibility R:unclassified
@@ -58,7 +58,7 @@ describe('自由期間予算 正本ガード', () => {
   it('粒度契約文書が存在する', () => {
     const file = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/free-period-budget-kpi-contract.md',
+      '../../references/01-foundation/free-period-budget-kpi-contract.md',
     )
     expect(fs.existsSync(file)).toBe(true)
   })

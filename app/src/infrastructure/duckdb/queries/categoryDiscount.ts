@@ -91,7 +91,7 @@ function levelColumns(level: 'department' | 'line' | 'klass'): {
  * 集約するため明細行の自然な多重度は吸収できる。ただし同じ category 内で
  * `classified_sales` 行が重複した場合（ロードバグ時）、SUM は倍化する。
  *
- * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/7
+ * @see references/03-implementation/read-path-duplicate-audit.md §PARTIAL/7
  */
 export async function queryCategoryDiscount(
   conn: AsyncDuckDBConnection,
@@ -132,7 +132,7 @@ export async function queryCategoryDiscount(
  *
  * `queryCategoryDiscount` の daily 版。リスクプロファイルは同じ。
  *
- * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/8
+ * @see references/03-implementation/read-path-duplicate-audit.md §PARTIAL/8
  */
 export async function queryCategoryDiscountDaily(
   conn: AsyncDuckDBConnection,

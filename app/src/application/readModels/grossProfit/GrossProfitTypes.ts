@@ -10,7 +10,7 @@
  *   estimated × before_cost_inclusion = 推定法（COGS に原価算入費内包済み）
  *   estimated × after_cost_inclusion  = 推定法（before と同値、追加控除不要）
  *
- * @see references/01-principles/gross-profit-definition.md
+ * @see references/01-foundation/gross-profit-definition.md
  *
  * @responsibility R:unclassified
  */

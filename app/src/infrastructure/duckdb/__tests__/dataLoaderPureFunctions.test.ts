@@ -492,7 +492,7 @@ describe('loadMonth with isPrevYear=true', () => {
 // Phase 3.b: loadMonth を冪等 API として機械的に固定する。
 // 契約: loadMonth は対象スコープを内部で削除してから INSERT する。
 // 同じ月を何度 loadMonth しても結果は等価である必要がある。
-// 関連: references/03-guides/data-load-idempotency-plan.md, #993, #994
+// 関連: references/03-implementation/data-load-idempotency-plan.md, #993, #994
 
 describe('loadMonth idempotency contract', () => {
   let conn: AsyncDuckDBConnection
@@ -591,7 +591,7 @@ describe('loadMonth idempotency contract', () => {
 // ── 前年 loadMonth の purge 契約 ──
 // Phase 3.a で `purgeLoadTarget` が `deletePrevYearRowsAt` を呼ぶよう修正され、
 // year-shift せずに (year, month) の前年スコープを直接削除するようになった。
-// 関連: references/03-guides/data-load-idempotency-plan.md
+// 関連: references/03-implementation/data-load-idempotency-plan.md
 
 describe('loadMonth prev-year purge', () => {
   let conn: AsyncDuckDBConnection

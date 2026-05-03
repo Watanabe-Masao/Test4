@@ -9,9 +9,9 @@ React + TypeScript + Vite を基盤とし、ブラウザ内で計算・永続化
 詳細な原則・定義・移行方針は以下を参照する。
 
 - ルール全体: `../CLAUDE.md`
-- 設計原則: `../references/01-principles/`
-- 実装ガイド: `../references/03-guides/`
-- 現在の構造状態: `../references/02-status/generated/architecture-state-snapshot.md`
+- 設計原則: `../references/01-foundation/`
+- 実装ガイド: `../references/03-implementation/`
+- 現在の構造状態: `../references/04-tracking/generated/architecture-state-snapshot.generated.md`
 
 ## 初回セットアップ
 
@@ -98,7 +98,7 @@ DI は App.tsx / AppProviders.tsx に集約する。
 
 - `application/queries/*Handler.ts` — infra query
 - `application/readModels/<name>/` — pure builder + Zod 契約
-- 必要なら `references/01-principles/*-definition.md` — 定義書
+- 必要なら `references/01-foundation/*-definition.md` — 定義書
 - `test/guards/*PathGuard.test.ts` — パスガード追加
 
 ### 既存画面に新しい分析系列を追加する

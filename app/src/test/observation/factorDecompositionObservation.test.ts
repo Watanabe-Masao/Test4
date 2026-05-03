@@ -4,7 +4,7 @@
  * factorDecomposition は WASM authoritative に昇格済み。
  * 4 関数 × 4 フィクスチャで数学的不変条件（Shapley 恒等式）を検証する。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
+ * @see references/04-tracking/engine-promotion-matrix.md — authoritative
  *
  * @taxonomyKind T:unclassified
  */

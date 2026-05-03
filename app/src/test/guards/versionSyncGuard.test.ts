@@ -27,7 +27,7 @@
  * - Layer 4A System Operations: governance ガイド §12 (運用ルール)
  *
  * @see app/src/test/versionSyncRegistry.ts
- * @see references/03-guides/project-checklist-governance.md §12
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §12
  *
  * @responsibility R:unclassified
  *

@@ -12,7 +12,7 @@
  *     2. app/src/test/architectureRules/defaults.ts (DEFAULT_EXECUTION_OVERLAY)
  *     3. projects/<active>/aag/execution-overlay.ts (project overlay + reviewPolicy)
  *     4. app/src/test/guardCategoryMap.ts (category / layer / note)
- *     5. references/03-guides/guard-test-map.md (人間可読 catalog)
+ *     5. references/03-implementation/guard-test-map.md (人間可読 catalog)
  *   どれか 1 つ忘れるたびに guard test が hard fail (architectureRuleGuard /
  *   defaultOverlayCompletenessGuard 等)。本 script は以下を行う:
  *     - guard test skeleton ファイルを `app/src/test/guards/` に生成
@@ -146,7 +146,7 @@ const snippets = {
     ruleClass: "invariant",
     guardTags: ["${tag}"],
     epoch: 1,
-    doc: "references/03-guides/guard-test-map.md",
+    doc: "references/03-implementation/guard-test-map.md",
     what: "${args.description}",
     why: "${args.why}",
     correctPattern: { description: "TODO: 正しいパターンを記述" },
@@ -188,7 +188,7 @@ const snippets = {
     note: 'core-rule: ${args.description}',
   },`,
 
-  guardTestMap: `// references/03-guides/guard-test-map.md の guard table 末尾に追加:
+  guardTestMap: `// references/03-implementation/guard-test-map.md の guard table 末尾に追加:
 | \`${guardPath}\` | ${args.owner} | 1件 | ${args.ruleId} を実装。${args.description} ${args.why} |`,
 }
 

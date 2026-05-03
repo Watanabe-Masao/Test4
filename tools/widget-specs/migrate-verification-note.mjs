@@ -3,7 +3,7 @@
  * Phase K Option 2 migration: Behavior Claims table に verificationNote 列を追加。
  *
  * 動作:
- *  1. references/05-contents/{widgets,read-models,calculations,charts,ui-components}/*.md を走査
+ *  1. references/04-tracking/elements/{widgets,read-models,calculations,charts,ui-components}/*.md を走査
  *  2. "Behavior Claims" heading の直下にある markdown table を検出
  *  3. header / separator / data row を 7 列化（既に 7 列なら no-op）
  *  4. 既知の reviewed claim パターンに対して rationale を自動入力
@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const REPO_ROOT = resolve(__dirname, '../..')
-const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+const SPECS_BASE = resolve(REPO_ROOT, 'references/04-tracking/elements')
 
 const SPEC_DIRS = ['widgets', 'read-models', 'calculations', 'charts', 'ui-components']
 

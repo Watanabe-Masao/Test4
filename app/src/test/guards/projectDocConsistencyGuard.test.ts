@@ -27,7 +27,7 @@
  *
  * 対象: `projects/<id>/` 直下の全 active project（archive 済みは除外）。
  *
- * @see references/03-guides/project-checklist-governance.md §3 §6
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §3 §6
  * @see projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-006
  *
  * @responsibility R:unclassified
@@ -248,7 +248,7 @@ function checkConsistency(): Violation[] {
             `checklist では Phase ${maxCompleted} まで完了している`,
           hint:
             'HANDOFF.md §1 を checklist の実態（最大完了 Phase）と整合するよう更新してください。' +
-            ' 規約: references/03-guides/project-checklist-governance.md §3.2',
+            ' 規約: references/05-aag-interface/operations/project-checklist-governance.md §3.2',
         })
       }
     }
@@ -270,7 +270,7 @@ function checkConsistency(): Violation[] {
             hint:
               'Phase N 着手前に Phase N-1 以前の review checkbox を [x] にする必要があります。' +
               ' governance ゲート迂回を禁止（umbrella plan.md §2 不可侵原則）。' +
-              ' 規約: references/03-guides/project-checklist-governance.md §6.2',
+              ' 規約: references/05-aag-interface/operations/project-checklist-governance.md §6.2',
           })
         }
       }
@@ -298,7 +298,7 @@ function checkConsistency(): Violation[] {
               hint:
                 'config/project.json.status を checklist 実態と整合させてください。' +
                 ' draft = checkbox 全て [ ] / active = 一部 [x] / completed = 全 [x] + 最終レビュー [x]。' +
-                ' 規約: references/03-guides/project-checklist-governance.md §6',
+                ' 規約: references/05-aag-interface/operations/project-checklist-governance.md §6',
             })
           }
         }

@@ -41,7 +41,7 @@ import {
 // ── filesystem 定数 (本 file に残置: I/O 依存) ──
 
 export const REPO_ROOT = resolve(__dirname, '../../../..')
-export const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+export const SPECS_BASE = resolve(REPO_ROOT, 'references/04-tracking/elements')
 export const SPECS_WIDGETS_DIR = resolve(SPECS_BASE, 'widgets')
 export const SPECS_READ_MODELS_DIR = resolve(SPECS_BASE, 'read-models')
 export const SPECS_CALCULATIONS_DIR = resolve(SPECS_BASE, 'calculations')

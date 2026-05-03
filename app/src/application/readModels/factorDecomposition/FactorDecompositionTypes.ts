@@ -7,7 +7,7 @@
  * Rust crate (factor-decomposition) が authoritative 計算を担う。
  * この契約は「正しい計算結果を正しい意味で使う」ことを保証する。
  *
- * @see references/01-principles/authoritative-calculation-definition.md
+ * @see references/01-foundation/authoritative-calculation-definition.md
  *
  * @responsibility R:unclassified
  */

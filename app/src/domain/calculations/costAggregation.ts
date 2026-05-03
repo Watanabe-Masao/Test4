@@ -4,8 +4,8 @@
  * 正式な業務確定値を導出する Authoritative 関数。
  * 移動（店間入出・部門間入出）の売価・原価合計を計算する。
  *
- * @see references/01-principles/calculation-canonicalization-map.md — 必須分類
- * @see references/01-principles/purchase-cost-definition.md — 移動原価の性質
+ * @see references/01-foundation/calculation-canonicalization-map.md — 必須分類
+ * @see references/01-foundation/purchase-cost-definition.md — 移動原価の性質
  *
  * @responsibility R:unclassified
  */

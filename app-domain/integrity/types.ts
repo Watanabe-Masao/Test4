@@ -7,8 +7,8 @@
  * 4 抽象型のみで構築できるよう設計されている。具体 primitive の型 signature は
  * Step B-2 以降で順次 landing する。
  *
- * 設計詳細: `references/03-guides/integrity-domain-architecture.md` §3.1
- * Phase A inventory: `references/03-guides/integrity-pair-inventory.md` §3
+ * 設計詳細: `references/03-implementation/integrity-domain-architecture.md` §3.1
+ * Phase A inventory: `references/03-implementation/integrity-pair-inventory.md` §3
  *
  * 不変条件 (domain 純粋性):
  * - 本 file は何にも依存しない (Node API / app/src 不可、自己完結)
@@ -30,7 +30,7 @@
  *   const reg: Registry<{ path: string; label: string }> = {
  *     source: 'docs/contracts/doc-registry.json',
  *     entries: new Map([
- *       ['references/01-principles/X.md', { path: '...', label: '...' }],
+ *       ['references/01-foundation/X.md', { path: '...', label: '...' }],
  *     ]),
  *   }
  */
@@ -74,8 +74,8 @@ export type SyncDirection = "one-way" | "two-way";
  *     ruleId: 'AR-DOC-STATIC-NUMBER',
  *     severity: 'gate',
  *     location: 'docs/contracts/doc-registry.json:91',
- *     expected: 'references/03-guides/integrity-pair-inventory.md (実在)',
- *     actual: 'references/03-guides/integrity-pair-inventory.md (broken)',
+ *     expected: 'references/03-implementation/integrity-pair-inventory.md (実在)',
+ *     actual: 'references/03-implementation/integrity-pair-inventory.md (broken)',
  *     fixHint: 'inventory.md を実在させるか、registry から削除',
  *   }
  */

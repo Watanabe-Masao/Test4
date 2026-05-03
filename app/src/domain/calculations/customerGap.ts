@@ -9,8 +9,8 @@
  * 例: 客数100%、点数95% → 点数客数GAP = ▲5%
  *   「客数は同じだが、1人あたりの買上点数が5%減少した」
  *
- * @see references/01-principles/customer-gap-definition.md
- * @see references/01-principles/calculation-canonicalization-map.md
+ * @see references/01-foundation/customer-gap-definition.md
+ * @see references/01-foundation/calculation-canonicalization-map.md
  *
  * @responsibility R:unclassified
  */

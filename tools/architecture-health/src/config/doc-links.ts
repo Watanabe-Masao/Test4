@@ -14,30 +14,30 @@ type DocLinkEntry = {
 export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
   'allowlist.total': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'totalAllowlistEntries' },
-      { kind: 'definition', path: 'references/03-guides/allowlist-management.md' },
-      { kind: 'roadmap', path: 'references/02-status/technical-debt-roadmap.md' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'totalAllowlistEntries' },
+      { kind: 'definition', path: 'references/03-implementation/allowlist-management.md' },
+      { kind: 'roadmap', path: 'references/04-tracking/technical-debt-roadmap.md' },
     ],
     implRefs: ['app/src/test/allowlists/'],
   },
   'allowlist.frozen.nonZero': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'frozenLists' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'frozenLists' },
       { kind: 'guard', path: 'app/src/test/guards/layerBoundaryGuard.test.ts' },
     ],
     implRefs: ['app/src/test/allowlists/'],
   },
   'allowlist.active.count': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'activeLists' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'activeLists' },
     ],
     implRefs: ['app/src/test/allowlists/'],
   },
   'compat.bridge.count': {
     docRefs: [
-      { kind: 'definition', path: 'references/02-status/technical-debt-roadmap.md', section: '後方互換負債' },
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'activeBridges' },
-      { kind: 'roadmap', path: 'references/02-status/open-issues.md' },
+      { kind: 'definition', path: 'references/04-tracking/technical-debt-roadmap.md', section: '後方互換負債' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'activeBridges' },
+      { kind: 'roadmap', path: 'references/04-tracking/open-issues.md' },
     ],
     implRefs: [
       'app/src/application/services/budgetAnalysisBridge.ts',
@@ -49,26 +49,26 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
   },
   'compat.reexport.count': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'compatReexportCount' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'compatReexportCount' },
     ],
     implRefs: [],
   },
   'complexity.hotspot.count': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'complexityHotspots' },
-      { kind: 'roadmap', path: 'references/02-status/open-issues.md', section: 'R-4' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'complexityHotspots' },
+      { kind: 'roadmap', path: 'references/04-tracking/open-issues.md', section: 'R-4' },
     ],
     implRefs: ['app/src/test/allowlists/complexity.ts'],
   },
   'complexity.nearLimit.count': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'nearLimitFiles' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'nearLimitFiles' },
     ],
     implRefs: ['app/src/test/allowlists/size.ts'],
   },
   'complexity.vm.count': {
     docRefs: [
-      { kind: 'source', path: 'references/02-status/generated/architecture-state-snapshot.json', section: 'vmFileCount' },
+      { kind: 'source', path: 'references/04-tracking/generated/architecture-state-snapshot.json', section: 'vmFileCount' },
     ],
     implRefs: [],
   },
@@ -101,14 +101,14 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
   'boundary.presentationToInfra': {
     docRefs: [
       { kind: 'guard', path: 'app/src/test/guards/layerBoundaryGuard.test.ts' },
-      { kind: 'definition', path: 'references/01-principles/design-principles.md', section: 'A1' },
+      { kind: 'definition', path: 'references/01-foundation/design-principles.md', section: 'A1' },
     ],
     implRefs: ['app/src/test/allowlists/architecture.ts'],
   },
   'boundary.infraToApplication': {
     docRefs: [
       { kind: 'guard', path: 'app/src/test/guards/layerBoundaryGuard.test.ts' },
-      { kind: 'definition', path: 'references/01-principles/design-principles.md', section: 'A1' },
+      { kind: 'definition', path: 'references/01-foundation/design-principles.md', section: 'A1' },
     ],
     implRefs: ['app/src/test/allowlists/architecture.ts'],
   },
@@ -156,29 +156,29 @@ export const DOC_LINKS: Readonly<Record<string, DocLinkEntry>> = {
   // --- Integrity Domain (canonicalization-domain-consolidation Phase G) ---
   'integrity.violations.total': {
     docRefs: [
-      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
-      { kind: 'definition', path: 'references/01-principles/canonicalization-principles.md', section: 'P9' },
+      { kind: 'definition', path: 'references/03-implementation/integrity-domain-architecture.md', section: '8' },
+      { kind: 'definition', path: 'references/01-foundation/canonicalization-principles.md', section: 'P9' },
       { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
     ],
     implRefs: ['app-domain/integrity/index.ts'],
   },
   'integrity.driftBudget': {
     docRefs: [
-      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
+      { kind: 'definition', path: 'references/03-implementation/integrity-domain-architecture.md', section: '8' },
       { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
     ],
     implRefs: ['app-domain/integrity/index.ts'],
   },
   'integrity.expiredExceptions': {
     docRefs: [
-      { kind: 'definition', path: 'references/01-principles/canonicalization-principles.md', section: 'P9' },
+      { kind: 'definition', path: 'references/01-foundation/canonicalization-principles.md', section: 'P9' },
       { kind: 'guard', path: 'app/src/test/guards/integrityDomainCoverageGuard.test.ts' },
     ],
     implRefs: ['app-domain/integrity/'],
   },
   'integrity.consolidationProgress': {
     docRefs: [
-      { kind: 'definition', path: 'references/03-guides/integrity-domain-architecture.md', section: '8' },
+      { kind: 'definition', path: 'references/03-implementation/integrity-domain-architecture.md', section: '8' },
       { kind: 'roadmap', path: 'projects/completed/canonicalization-domain-consolidation/checklist.md' },
     ],
     implRefs: ['app-domain/integrity/index.ts'],

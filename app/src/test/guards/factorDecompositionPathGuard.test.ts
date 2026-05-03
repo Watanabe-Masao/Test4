@@ -5,7 +5,7 @@
  * domain/calculations/factorDecomposition.ts の直接利用を
  * 許可リスト以外で禁止する。
  *
- * @see references/01-principles/authoritative-calculation-definition.md
+ * @see references/01-foundation/authoritative-calculation-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-FACTOR-DECOMPOSITION)
  *
  * @responsibility R:unclassified
@@ -108,7 +108,7 @@ describe('要因分解正本ガード', () => {
   it('authoritative 計算の定義書が存在する', () => {
     const defFile = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/authoritative-calculation-definition.md',
+      '../../references/01-foundation/authoritative-calculation-definition.md',
     )
     expect(fs.existsSync(defFile)).toBe(true)
   })

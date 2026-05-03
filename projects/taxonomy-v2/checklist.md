@@ -3,15 +3,15 @@
 > 役割: completion 判定の入力（required checkbox の集合）。
 > やってはいけないこと / 常時チェック / 恒久ルールは plan.md に書く。
 >
-> 規約: `references/03-guides/project-checklist-governance.md` §3。
+> 規約: `references/05-aag-interface/operations/project-checklist-governance.md` §3。
 
 ## Phase 1: Constitution 起草
 
 ### Constitution 本体
 
-- [x] `references/01-principles/taxonomy-constitution.md` に 7 不可侵原則が landing している
-- [x] `references/01-principles/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
-- [x] `references/01-principles/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている（親 Phase 0 統合 branch 2026-04-26 で §2 v1 20 タグ Origin 一覧として landing）
+- [x] `references/01-foundation/taxonomy-constitution.md` に 7 不可侵原則が landing している
+- [x] `references/01-foundation/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
+- [x] `references/01-foundation/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている（親 Phase 0 統合 branch 2026-04-26 で §2 v1 20 タグ Origin 一覧として landing）
 - [x] `CLAUDE.md` に §taxonomy-binding（AI Vocabulary Binding）が追記されている
 - [x] `app/src/test/guards/constitutionBootstrapGuard.test.ts` が存在し PASS している
 - [x] 制度成立 5 要件が Constitution 内に明文化されている
@@ -44,9 +44,9 @@
 
 ### Review Window 本体
 
-- [x] `references/03-guides/taxonomy-review-window.md` に四半期 window の手続きが記述されている
+- [x] `references/03-implementation/taxonomy-review-window.md` に四半期 window の手続きが記述されている
 - [x] 追加・撤退・却下の判定基準が定義されている
-- [x] `references/02-status/taxonomy-review-journal.md` に journal skeleton が作成されている
+- [x] `references/04-tracking/taxonomy-review-journal.md` に journal skeleton が作成されている
 - [x] 両軸同期 window ルールが明記されている
 
 ### Operational Control System（plan.md §OCS との接続）
@@ -94,7 +94,7 @@
 - [x] §OCS.10 4-Loop Operational Model が稼働している（Capture / Verification / Change / Governance）（Capture: taxonomy-collector / Verification: V2 guard 群 + LCT / Change: review-journal §3.1 ad-hoc + §3.2 提案 / Governance: AR-TAXONOMY-AI-VOCABULARY-BINDING + taxonomyLifecycleTransitionGuard、4-Loop が一通り経験済）
 - [x] `npm run taxonomy:check` が CI で hard fail 条件として組み込まれている（pre-push hook の test:guards に統合、taxonomy:check 23/23 PASS が hard gate）
 - [x] `npm run taxonomy:impact` が PR template の確認項目に組み込まれている（Phase 5 統合 branch で .github/PULL_REQUEST_TEMPLATE.md に「Taxonomy v2 チェック」§4 項目追加済、taxonomy:check + taxonomy:impact + review window 確認 + 新規 file タグ付与）
-- [x] `references/02-status/generated/taxonomy-health.json` が docs:generate で生成されている（Phase 3.5 統合 branch で taxonomy-collector.ts 新設、retrospective fix B で live count に refactor、KPI 4 件 architecture-health.json に feed）
+- [x] `references/04-tracking/generated/taxonomy-health.json` が docs:generate で生成されている（Phase 3.5 統合 branch で taxonomy-collector.ts 新設、retrospective fix B で live count に refactor、KPI 4 件 architecture-health.json に feed）
 - [x] `architecture-health.json` summary に taxonomy カテゴリが反映されている（taxonomy.responsibility.unknownVocabulary / taxonomy.test.unknownVocabulary / taxonomy.vocabulary.{responsibility,test}Count の 4 KPI が KpiCategory 'guard' で feed 済）
 
 ### Anchor Slice → 全 vocabulary 拡大の確認
@@ -103,9 +103,22 @@
 - [x] §OCS.7 absorption の段階 2（全 vocabulary 拡大）が両子 Phase 6 で完了済（Phase 6a-2 mass-tagging で R 軸 1041 file + T 軸 708 test に v2 vocabulary 付与、Phase 6c で全 R:tag / T:kind を promotionLevel L5 一斉 bump、Coverage 100% 達成）
 - [x] §OCS.7 absorption の段階 3（Health KPI 接続）が本 Phase 4 で完了済（taxonomy-health.json の 4 KPI が architecture-health.json に feed 済 + retrospective fix B で live count refactor、KPI 接続経路が完成）
 
-## 最終レビュー (人間承認)
+## AI 自己レビュー (= user 承認の手前)
 
-> このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+> 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
+## 最終レビュー (user 承認)
+
+> このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
+
+- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) をuser がレビューし、archive プロセスへの移行を承認する

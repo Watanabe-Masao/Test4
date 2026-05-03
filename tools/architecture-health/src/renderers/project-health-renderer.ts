@@ -3,10 +3,10 @@
  *
  * `collectProjectChecklists` の出力を JSON / Markdown 2 形態に展開する。
  * 出力先:
- *   - `references/02-status/generated/project-health.json`
- *   - `references/02-status/generated/project-health.md`
+ *   - `references/04-tracking/generated/project-health.json`
+ *   - `references/04-tracking/generated/project-health.generated.md`
  *
- * 詳細仕様: `references/03-guides/project-checklist-governance.md`
+ * 詳細仕様: `references/05-aag-interface/operations/project-checklist-governance.md`
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -77,9 +77,9 @@ export function buildProjectHealthSnapshot(
       r.meta.projectId === "architecture-debt-recovery"
         ? {
             remediationJson:
-              "references/02-status/generated/architecture-debt-recovery-remediation.json",
+              "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
             remediationMd:
-              "references/02-status/generated/architecture-debt-recovery-remediation.md",
+              "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
           }
         : undefined;
     return {
@@ -116,7 +116,7 @@ export function renderProjectHealthJson(
 ): string {
   const outPath = resolve(
     repoRoot,
-    "references/02-status/generated/project-health.json",
+    "references/04-tracking/generated/project-health.json",
   );
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, JSON.stringify(snapshot, null, 2) + "\n", "utf-8");
@@ -132,7 +132,7 @@ export function renderProjectHealthMd(
 ): string {
   const outPath = resolve(
     repoRoot,
-    "references/02-status/generated/project-health.md",
+    "references/04-tracking/generated/project-health.generated.md",
   );
   mkdirSync(dirname(outPath), { recursive: true });
 
@@ -152,7 +152,7 @@ export function renderProjectHealthMdContent(
   lines.push("");
   lines.push("> **役割: 生成された project KPI 正本（生成後手編集禁止）。**");
   lines.push(
-    "> 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)",
+    "> 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)",
   );
   lines.push("");
   lines.push(`> 生成: ${snapshot.timestamp}`);

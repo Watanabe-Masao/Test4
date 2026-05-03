@@ -21,7 +21,7 @@
  * 検証は後続 commit。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
- * references/05-contents/calculations/README.md §「Lifecycle State Machine」.
+ * references/04-tracking/elements/calculations/README.md §「Lifecycle State Machine」.
  *
  * @taxonomyKind T:meta-guard
  *

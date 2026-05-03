@@ -7,7 +7,7 @@
  * 機械保証する sync guard。
  *
  * **canonical merge policy**:
- *   `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)
+ *   `aag/_internal/source-of-truth.md` §4 (Merge Policy)
  *   = 唯一の canonical。本 guard は §4.4「canonical 単一点としての義務」を
  *   realize し、artifact と runtime の drift (canonical → 派生 の一方向違反) を
  *   hard fail で防ぐ。
@@ -23,7 +23,7 @@
  * drift 検出時の修復: `npm run generate:merged-artifact` (or `docs:generate`)。
  *
  * @responsibility R:guard
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * @see app/src/test/architectureRules/merge-artifact-generator.ts
  *
  * @taxonomyKind T:meta-guard

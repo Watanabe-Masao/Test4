@@ -1,5 +1,5 @@
 {
-  "$comment": "AAG Operational Protocol System — AAG Platformization Pilot 完遂後の post-Pilot 運用制度。AAG framework / Standard / drawer / 5 文書 / role / AAG-COA を破壊的変更せず、上に薄く載せる operational layer (Task Protocol / Session Protocol / Complexity Policy)。M1-M5 phase で 4 doc を references/03-guides/ に新設。詳細: projects/operational-protocol-system/projectization.md / plan.md。AAG Pilot archive (2026-05-02) を trigger に bootstrap。",
+  "$comment": "AAG Operational Protocol System — AAG Platformization Pilot 完遂後の post-Pilot 運用制度。AAG framework / Standard / drawer / 5 文書 / role / AAG-COA を破壊的変更せず、上に薄く載せる operational layer (Task Protocol / Session Protocol / Complexity Policy)。M1-M5 phase で 4 doc を references/05-aag-interface/protocols/ に新設 (= aag-self-hosting-completion R0-R5 で path 確定、R2 で skeleton landed)。詳細: projects/operational-protocol-system/projectization.md / plan.md。AAG Pilot archive (2026-05-02) を trigger に bootstrap、aag-self-hosting-completion R5 完遂 (2026-05-03) で resume ready。",
   "projectId": "operational-protocol-system",
   "title": "AAG Operational Protocol System — Task / Session / Complexity 運用制度",
   "status": "active",
@@ -9,15 +9,15 @@
     "level": 2,
     "changeType": "governance-hardening",
     "implementationScope": [
-      "references/03-guides/"
+      "references/03-implementation/"
     ],
     "breakingChange": false,
     "requiresLegacyRetirement": false,
     "requiresGuard": false,
     "requiresHumanApproval": true,
     "nonGoals": [
-      "AAG framework (references/01-principles/aag/ + aag/core/) の articulate 内容変更",
-      "AAG drawer (references/03-guides/decision-articulation-patterns.md) の改変",
+      "AAG framework (aag/_internal/ + aag/core/) の articulate 内容変更",
+      "AAG drawer (references/05-aag-interface/drawer/decision-articulation-patterns.md) の改変",
       "Platformization Standard の改変",
       "5 文書 template (projects/_template/) の schema / 内容変更",
       "role identity (roles/*) の改変",

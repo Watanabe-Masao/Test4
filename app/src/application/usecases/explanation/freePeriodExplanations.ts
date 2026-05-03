@@ -7,8 +7,8 @@
  * 月次 Explanation（ExplanationService）とは別系統。
  * FreePeriodReadModel の値をそのまま使い、再計算しない。
  *
- * @see references/01-principles/free-period-analysis-definition.md
- * @see references/01-principles/free-period-budget-kpi-contract.md
+ * @see references/01-foundation/free-period-analysis-definition.md
+ * @see references/01-foundation/free-period-budget-kpi-contract.md
  *
  * @responsibility R:unclassified
  */

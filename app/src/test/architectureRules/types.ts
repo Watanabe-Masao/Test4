@@ -183,7 +183,7 @@ export interface RuleBinding {
    * Phase 1 では initial value `{ status: 'pending', refs: [] }` で全 rule に装着、
    * Phase 3 で各 rule の `status` を `'bound'` or `'not-applicable'` に flip。
    *
-   * @see references/01-principles/aag/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
+   * @see aag/_internal/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
    */
   readonly canonicalDocRef?: _SemanticTraceBinding<_CanonicalDocTraceRef>
   /**

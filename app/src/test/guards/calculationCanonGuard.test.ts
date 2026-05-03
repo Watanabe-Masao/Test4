@@ -9,8 +9,8 @@
  * inline iteration ロジックを削除し、tsRegistry + checkBidirectionalExistence +
  * checkRatchet 経由に切替。動作同一性は 15 既存 test で検証済。
  *
- * @see references/01-principles/calculation-canonicalization-map.md
- * @see references/01-principles/semantic-classification-policy.md
+ * @see references/01-foundation/calculation-canonicalization-map.md
+ * @see references/01-foundation/semantic-classification-policy.md
  * ルール定義: architectureRules.ts (AR-STRUCT-CALC-CANON)
  * @guard I2 @guard I3 @guard I4
  *

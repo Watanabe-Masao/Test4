@@ -10,7 +10,7 @@
 // ことを機械的に保証する。率 (gpRate / markupRate / discountRate /
 // salesAchievement 等) の計算は必ず JS 側 (pure builder) で行うこと。
 //
-// 根拠: references/01-principles/data-pipeline-integrity.md
+// 根拠: references/01-foundation/data-pipeline-integrity.md
 //   「額で持ち回し、率は使用直前に domain 側で算出」
 //
 // 守る 2 つの invariant:
@@ -110,7 +110,7 @@ function formatViolations(violations: readonly Violation[]): string | undefined 
     '  1. 除算を SQL から剥がし、加重和 (SUM(rate * weight)) のみを返す',
     '  2. alias は Weighted suffix を付ける（例: gpRateBudgetWeighted）',
     '  3. 率への変換は pure builder で weightedAverageRate() を使う',
-    '  4. 根拠: references/01-principles/data-pipeline-integrity.md',
+    '  4. 根拠: references/01-foundation/data-pipeline-integrity.md',
   ]
   return [header, ...details, ...footer].join('\n')
 }

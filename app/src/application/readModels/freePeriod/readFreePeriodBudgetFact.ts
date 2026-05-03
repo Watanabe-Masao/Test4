@@ -9,7 +9,7 @@
  * - budget.daily がなければ total / daysInMonth × 対象日数
  * - 月跨ぎは各月独立に按分し合算
  *
- * @see references/01-principles/free-period-budget-kpi-contract.md
+ * @see references/01-foundation/free-period-budget-kpi-contract.md
  *
  * @responsibility R:unclassified
  */

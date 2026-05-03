@@ -1,7 +1,7 @@
 /**
  * Merged Architecture Rules Artifact Generator
  *
- * `references/01-principles/aag/source-of-truth.md` §4 (Merge Policy) の
+ * `aag/_internal/source-of-truth.md` §4 (Merge Policy) の
  * derived artifact 生成器。§4.3 resolvedBy 追跡を artifact に articulate する。
  *
  * **canonical merge policy**: source-of-truth.md §4 = 唯一の canonical。
@@ -13,7 +13,7 @@
  * `merge-artifact-generator.test.ts` 経由 = vitest runner で alias 解決)
  *
  * @responsibility R:utility
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * @see app/src/test/architectureRules/merged.ts (§4 runtime implementation)
  */
 
@@ -64,8 +64,7 @@ export interface MergedArtifact {
 }
 
 export const ARTIFACT_OUTPUT_PATH = 'docs/generated/aag/merged-architecture-rules.json'
-export const CANONICAL_MERGE_POLICY =
-  'references/01-principles/aag/source-of-truth.md §4 (Merge Policy)'
+export const CANONICAL_MERGE_POLICY = 'aag/_internal/source-of-truth.md §4 (Merge Policy)'
 
 function getRepoRoot(): string {
   return resolve(__dirname, '../../../..')

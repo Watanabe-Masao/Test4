@@ -4,7 +4,7 @@
  * application/readModels/salesFact からの SQL / queryRunner 依存を
  * infrastructure 層に閉じ込める。
  *
- * @see references/01-principles/sales-definition.md
+ * @see references/01-foundation/sales-definition.md
  *
  * @responsibility R:unclassified
  */

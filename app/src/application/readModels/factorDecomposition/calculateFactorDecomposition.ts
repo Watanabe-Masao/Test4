@@ -4,7 +4,7 @@
  * 既存の factorDecomposition.ts（Rust bridge 経由）を内部利用し、
  * Zod 契約 + Shapley 不変条件検証を追加する。
  *
- * @see references/01-principles/authoritative-calculation-definition.md
+ * @see references/01-foundation/authoritative-calculation-definition.md
  *
  * @responsibility R:unclassified
  */

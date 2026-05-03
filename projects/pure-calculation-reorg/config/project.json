@@ -40,8 +40,8 @@
   "requiredCore": [
     "references/99-archive/aag-5-constitution.md",
     "references/99-archive/aag-5-source-of-truth-policy.md",
-    "references/01-principles/semantic-classification-policy.md",
-    "references/01-principles/engine-boundary-policy.md",
+    "references/01-foundation/semantic-classification-policy.md",
+    "references/01-foundation/engine-boundary-policy.md",
     "app/src/test/calculationCanonRegistry.ts",
     "app/src/test/architectureRules.ts",
     "app/src/test/aagSchemas.ts"
