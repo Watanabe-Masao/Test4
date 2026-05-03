@@ -59,6 +59,7 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-008 | Phase R7 | 統合 guard + verify + archive 判断 | planned |
 | DA-β-001 | Operational support (= R3b 中発見) | pre-push hook scope 役割分離 (= 軽量 / 変更箇所 + 影響範囲 / negative articulation = exclusion-driven) | active |
 | DA-β-002 | Operational support (= R3c 中発見) | AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint、_template + active project checklists + PZ-13 guard) | active |
+| DA-β-003 | Operational support (= R3c 中発見) | per-project discovery-log institute (= scope 外発見 / 改善 / 調査要事項の蓄積 mechanism、_template + active projects + PZ-14 guard) | active |
 
 > **stream articulation**: α stream = R-phase 着手判断 (= directory restructure 進行)、β stream = operational support 判断 (= 進行中に発見した velocity 阻害要因への対処)。β stream は α stream を阻害しない補助。本 program の **velocity prerequisite** = R3c-R7 の commit 速度に直接影響する mechanism は β stream で institute する。
 
@@ -637,5 +638,88 @@ institute する。
 ### 振り返り (DA-β-002 完了直後 = TBD)
 
 - 観測 β2-1〜β2-5: TBD
+- 判定: TBD
+- retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-β-003: per-project discovery-log institute (= scope 外発見の蓄積 mechanism)
+
+**status**: active
+
+**stream**: β (= operational support、α stream の R-phase に対する補助 institute)
+
+### 背景 (= 発見契機)
+
+R3c 進行中 user articulation:
+> 発見した scope 外の要改修事項や必要改善項目、詳細調査が必要な項目をメモする
+> ドキュメントを **制度化** し、**蓄積する仕組み** も実装できますか？
+
+= 本 program 内で self-dogfood している `doc-improvement-backlog.md` (= R-phase 進行中の
+P1-P3 改善 candidate を accumulate) を **per-project mechanism** に generalize。
+全 active project が implementation 中に発見した scope 外事項を articulate する場を持ち、
+post-archive で systematic に処理可能にする。
+
+= AAG 4 系統 lens (= ログ / メトリクス / 手順書 / チェックリスト) に **5 系統目: 発見蓄積 (=
+discovery-log)** を articulate。判断履歴 (= decision-audit) と 発見蓄積 (= discovery-log)
+は orthogonal: 前者は **意思決定 lineage**、後者は **scope 外発見 inventory**。
+
+### 判断時 (2026-05-03 / β stream / DA-β-002 完了直後)
+
+- 候補:
+  1. **A. file 名 `discovery-log.md`** + Level 2+ project 必須 + PZ-14 guard
+  2. **B. file 名 `improvement-backlog.md`** (= 本 program 内 doc-improvement-backlog.md と naming 整合)
+  3. **C. doc-only**: policy doc に articulate のみ、guard 化しない
+- 採用案: **A**
+- 判断根拠:
+  - 事実 1: User articulation の核 = "scope 外発見 / 改善 / 調査要事項の **蓄積**" → "improvement" は限定的、"discovery" の方が広く articulate (= 改善以外の "詳細調査要事項" も含意)
+  - 事実 2: 本 program 内 `doc-improvement-backlog.md` は self-dogfood 例だが、generalize 後の per-project 文書は「改善」だけでなく「調査要事項」も含むため、より一般的な naming = `discovery-log.md` が適切
+  - 事実 3: Level 1 (Lightweight Project) は scope 限定 + 短期完了想定で discovery 蓄積 mechanism 不要、Level 2+ は scope 中規模以上で発見蓄積 value 高い
+  - 事実 4: PZ-14 で structural のみ検証 (= file 存在 + schema 軽量 check)、内容妥当性は AI session 責任 (= AAG philosophy「製本されないものを guard 化しない」と整合)
+- 不可侵原則 (= 8 件) 整合:
+  - 1: 主アプリ code touch なし
+  - 2a: AAG operational layer 拡張 (= projectization-policy.md / project-checklist-governance.md update + PZ-14 institute)
+  - 2b: AAG framework 構造変更なし
+  - 3: drawer 内容不変
+  - 4: 既存 functionality 維持 (= discovery-log は新概念、既存 doc に touch なし)
+  - 5: DA-β-003 単独 atomic commit
+  - 6: 観測点 5 件 machine-verifiable
+  - 8: operational-protocol-system project boundary 維持
+
+### 想定リスク
+
+- 最大被害: discovery-log が空のまま放置 → mechanism 形骸化
+  - mitigation: PZ-14 で structural のみ検証 (= AI session の活用判断は self-discipline)、AAG philosophy「製本されないものを guard 化しない」と整合。**蓄積 value は post-archive review で実証**
+- 二番目: 既存 `doc-improvement-backlog.md` (= 本 program 内 self-dogfood) との重複/関係不明確
+  - mitigation: doc-improvement-backlog.md は本 program 限定 self-dogfood 例として残置、各 active project に discovery-log.md を新設 (= naming distinct で区別)。本 program archive 時に doc-improvement-backlog.md → discovery-log.md rename 検討 (= 別 commit、本 DA scope 外)
+
+### 振り返り観測点 (5 点、machine-verifiable)
+
+- β3-1 (machine-verifiable): `_template/discovery-log.md` 存在 + schema 適合 (= priority section + entry section)
+- β3-2 (machine-verifiable): Level 2+ active project 全件に discovery-log.md 存在 (= 5 project が現時点 trigger)
+- β3-3 (machine-verifiable): PZ-14 guard で structural 検証 (= file 存在 + schema 軽量 check) PASS
+- β3-4 (machine-verifiable): `npm run test:guards` 全 PASS (= 既存 + 新 PZ-14)
+- β3-5 (反証 deferred): discovery-log.md を削除 / schema 違反追加 で PZ-14 fail (= guard 動作確認、本 turn では deferred)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `references/05-aag-interface/operations/projectization-policy.md` §AI discovery-log mechanism + `_template/discovery-log.md` schema が canonical
+- **依存方向**: 上位 = AAG 4 系統 lens (= ログ / メトリクス / 手順書 / チェックリスト) + AAG-COA Level、下位 = active project discovery-logs + PZ-14 guard
+- **意味**: 「scope 外発見 / 改善 / 調査要事項の per-project 蓄積 mechanism、判断履歴と orthogonal な inventory artifact」
+- **責務**: schema 制定 + Level 2+ active project 反映 + PZ-14 guard + 規約 update
+- **境界**: 本 DA-β-003 内 = file 存在 + schema 検証、外 = entry 内容妥当性検証 (= AI session 責任、機械検証 scope 外)
+
+### Commit Lineage
+
+- judgementCommit: `<実 sha = 本 DA 実装 commit>`
+- preJudgementCommit: `5d04fe0` (= DA-β-002 Lineage update commit)
+- judgementTag: `aag-self-hosting-completion/DA-β-003-judgement` (= 本 commit に landing 予定)
+- rollbackTag: `aag-self-hosting-completion/DA-β-003-rollback-target` (= `5d04fe0` に landing 済)
+- implementationCommits:
+  - `<本 commit sha>` — DA-β-003 全実装 (= _template + 5 active project discovery-log + PZ-14 + policy update)
+
+### 振り返り (DA-β-003 完了直後 = TBD)
+
+- 観測 β3-1〜β3-5: TBD
 - 判定: TBD
 - retrospectiveCommit / Tag: TBD

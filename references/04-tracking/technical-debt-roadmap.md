@@ -42,7 +42,7 @@
 - Doc 更新義務違反数 を budget 0 以下に修正する
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-03T12:32:15.167Z — 正本: `references/04-tracking/generated/architecture-health.json`
+> 生成: 2026-05-03T12:46:52.876Z — 正本: `references/04-tracking/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

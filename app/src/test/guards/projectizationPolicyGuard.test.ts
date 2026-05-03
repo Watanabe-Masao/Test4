@@ -481,6 +481,63 @@ function checkPZ13(p: ActiveProject): Violation[] {
   return []
 }
 
+/**
+ * PZ-14: discovery-log.md 必須 (= Level 2+ project、DA-β-003 で institute)
+ *
+ * 設計:
+ * - trigger: Level 2+ active project (= scope 中規模以上、発見蓄積 value 高い)
+ * - 検出 1: discovery-log.md が project ディレクトリに存在しない → fail
+ * - 検出 2: discovery-log.md が schema を満たさない (= `## priority` section + `## 発見済 entry` section) → fail
+ * - scope: file 存在 + schema 軽量 check のみ。entry 内容妥当性は AI session 責任 (= 機械検証 scope 外)
+ *
+ * 設計思想:
+ * - AAG philosophy「製本されないものを guard 化しない」と整合
+ * - 内容検証は機械では不可能、AI session の self-discipline + decision-audit articulation で担保
+ * - 蓄積 value は post-archive review で実証 (= mechanism として institute するのが目的)
+ *
+ * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-003
+ */
+function checkPZ14(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (m.level < 2) return []
+  const discoveryLog = path.join(p.absDir, 'discovery-log.md')
+  if (!fs.existsSync(discoveryLog)) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-14',
+        message: 'Level 2+ project なのに discovery-log.md が存在しません',
+        hint:
+          'projects/<id>/discovery-log.md を作成してください。template:\n' +
+          '    projects/_template/discovery-log.md\n' +
+          '  scope 外発見 / 改善 / 調査要事項を per-project で蓄積する mechanism (= DA-β-003 で institute)。\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3 + ' +
+          'projects/aag-self-hosting-completion/decision-audit.md DA-β-003。',
+      },
+    ]
+  }
+  const content = fs.readFileSync(discoveryLog, 'utf-8')
+  const hasPrioritySection = /^##\s*priority/m.test(content)
+  const hasEntrySection = /^##\s*発見済\s*entry/m.test(content)
+  if (!hasPrioritySection || !hasEntrySection) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-14',
+        message:
+          'discovery-log.md schema 違反: `## priority` または `## 発見済 entry` section が存在しません',
+        hint:
+          'projects/_template/discovery-log.md の schema に揃えてください:\n' +
+          '    ## priority (= P1/P2/P3 articulate table)\n' +
+          '    ## 発見済 entry (= entry 蓄積)\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3。',
+      },
+    ]
+  }
+  return []
+}
+
 function checkAllStructural(p: ActiveProject): Violation[] {
   return [
     ...checkPZ2(p),
@@ -495,6 +552,7 @@ function checkAllStructural(p: ActiveProject): Violation[] {
     ...checkPZ11(p),
     ...checkPZ12(p),
     ...checkPZ13(p),
+    ...checkPZ14(p),
   ]
 }
 

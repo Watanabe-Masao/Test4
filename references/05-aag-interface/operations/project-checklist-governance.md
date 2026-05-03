@@ -266,6 +266,68 @@ archive プロセス起動 (= §6.2)
 
 **例外**: `requiresHumanApproval=false` project は本 section 不要 (= PZ-13 trigger 対象外)。
 
+### 3.3. discovery-log.md (= scope 外発見の蓄積 mechanism、DA-β-003 で institute)
+
+**目的**: implementation 中に発見した **scope 外** / **改善必要** / **詳細調査要** 事項を per-project で蓄積する artifact。AAG 4 系統 lens (= ログ / メトリクス / 手順書 / チェックリスト) に直交する **5 系統目: 発見蓄積**。
+
+**役割分担 (= articulation 混同禁止)**:
+
+| doc | 性質 | scope |
+|---|---|---|
+| `decision-audit.md` | 判断履歴 (= ログ系統) | scope 内で行った意思決定の lineage |
+| **`discovery-log.md`** | 発見蓄積 (= 5 系統目) | scope 外で発見した未処理事項の inventory |
+| `checklist.md` | 完了条件 (= チェックリスト系統) | 本 project plan 内の達成条件 |
+| `plan.md` | 計画 (= 手順書系統) | 本 project の目的 / scope / phase / 不可侵原則 |
+
+**schema (= PZ-14 機械検証 boundary)**:
+
+```markdown
+# discovery-log — <PROJECT-ID>
+
+## priority
+
+| priority | 性質 | 解消 timing |
+|---|---|---|
+| P1 (high) | 本 program 内吸収可能 | 該当 phase で batch 解消 |
+| P2 (med) | post-archive 別 program candidate | archive 後、user 判断 |
+| P3 (low) | 揮発 / 不要判定可 | 棚卸 phase で削除判定 |
+
+## 発見済 entry
+
+### <YYYY-MM-DD> <P1|P2|P3>: <短い articulate>
+
+- **場所**: <file path / scope>
+- **現状**: <観測した state>
+- **改善 / 調査内容**: <何をすべきか、何を調べるか>
+- **trigger**: <発見契機>
+- **解消 timing**: <P1 = 該当 phase / P2 = post-archive / P3 = 棚卸>
+- **影響**: <推定 scope>
+```
+
+**機械検証 boundary (= 責務分離)**:
+
+- ✅ **PZ-14 が検証**: file 存在 + `## priority` section + `## 発見済 entry` section (= structural)
+- ❌ **PZ-14 が検証しない**: entry 内容妥当性 / entry 数 / 各 entry の articulate 品質 (= AI session 責任、self-discipline + decision-audit articulation で担保)
+
+**trigger 対象**: Level 2+ active project (= scope 中規模以上、発見蓄積 value 高い)。Level 1 (Lightweight Project) は scope 限定 + 短期完了想定で discovery 蓄積 mechanism 不要。
+
+**運用 flow**:
+
+```
+implementation 中に scope 外発見
+  ↓
+priority 判定 (P1 / P2 / P3) + entry articulate
+  ↓
+discovery-log.md に追記 (= 蓄積)
+  ↓
+各 phase 末 / archive 直前で priority に応じて処理:
+  - P1 → 該当 phase で batch 解消
+  - P2 → archive 後、別 program candidate (= user 判断)
+  - P3 → 棚卸 phase で削除判定
+```
+
+**例外**: Level 0 (Task) / Level 1 (Lightweight Project) / `kind: collection` は本 doc 不要 (= PZ-14 trigger 対象外)。
+
 ## 4. project ディレクトリ構造
 
 ```
