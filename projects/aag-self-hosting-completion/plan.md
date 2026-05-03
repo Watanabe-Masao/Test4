@@ -167,13 +167,15 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - R3b-4 (反証): synthetic で `*.generated.md` を手編集 → R3 完了後の `generatedFileEditGuard` で fail
 - R3b-5: `npm run docs:check` PASS
 
-#### R3c: 旧 mention 撤退 (= PR template / CLAUDE.md / .github/* update)
+#### R3c: 旧 mention 撤退 (= PR template / CLAUDE.md / .github/* update) + doc-improvement-backlog P1 batch 解消
 
 **deliverable**:
 
 - `.github/PULL_REQUEST_TEMPLATE.md` 内 旧 path 参照 約 9 箇所を新 path に update (= §7.7 articulated 一覧)
 - `CLAUDE.md` 内 旧 section path 参照を新 path に update
 - `.github/workflows/*.yml` で旧 path に依存する箇所があれば update
+- **doc-improvement-backlog.md P1 batch 解消** (= 「人間」→ 「user」grep + sed bulk + 「主アプリ改修者」→ 「主アプリ改修 user」統一、~150 箇所推定、4 系統 lens 違反検出も同 batch で解消)
+- doc-improvement-backlog.md status update (= P1 完遂 articulate、P2-P3 は post-R7 candidate)
 
 **観測点**:
 
