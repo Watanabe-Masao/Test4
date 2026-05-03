@@ -4,7 +4,7 @@
  * `collectProjectChecklists` の出力を JSON / Markdown 2 形態に展開する。
  * 出力先:
  *   - `references/04-tracking/generated/project-health.json`
- *   - `references/04-tracking/generated/project-health.md`
+ *   - `references/04-tracking/generated/project-health.generated.md`
  *
  * 詳細仕様: `references/05-aag-interface/operations/project-checklist-governance.md`
  */
@@ -79,7 +79,7 @@ export function buildProjectHealthSnapshot(
             remediationJson:
               "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
             remediationMd:
-              "references/04-tracking/generated/architecture-debt-recovery-remediation.md",
+              "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
           }
         : undefined;
     return {
@@ -132,7 +132,7 @@ export function renderProjectHealthMd(
 ): string {
   const outPath = resolve(
     repoRoot,
-    "references/04-tracking/generated/project-health.md",
+    "references/04-tracking/generated/project-health.generated.md",
   );
   mkdirSync(dirname(outPath), { recursive: true });
 

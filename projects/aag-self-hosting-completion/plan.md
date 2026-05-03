@@ -154,7 +154,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 **deliverable**:
 
-- `references/04-tracking/recent-changes.md` → `references/04-tracking/recent-changes.generated.md` (= 機械生成化)
+- `references/04-tracking/recent-changes.generated.md` → `references/04-tracking/recent-changes.generated.md` (= 機械生成化)
 - 既存 `references/04-tracking/generated/*.md` (= 19 file、R3a で directory 移動済) → `*.generated.md` suffix 付与
 - generator (`tools/architecture-health/src/renderers/`) の出力先 path constants update (= `*.generated.md` suffix 込み)
 - 既存 inbound link を `*.generated.md` に update
@@ -398,7 +398,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | `references/02-design-system/` | `references/02-design-system/` | R3 |
 | `references/03-implementation/` (residual) | `references/03-implementation/` | R3 |
 | `references/04-tracking/elements/*` | `references/04-tracking/elements/*` | R3 |
-| `references/04-tracking/recent-changes.md` (= R3 後 04-tracking/) | `references/04-tracking/recent-changes.generated.md` (= 機械生成化) | R3 |
+| `references/04-tracking/recent-changes.generated.md` (= R3 後 04-tracking/) | `references/04-tracking/recent-changes.generated.md` (= 機械生成化) | R3 |
 | `references/04-tracking/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= 全 suffix 付与) | R3 |
 | ``projects` 配下 active project directory` (各 active project) | `projects` 配下 `active/<active-id>` directory | R6 |
 

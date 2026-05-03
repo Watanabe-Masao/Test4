@@ -459,7 +459,7 @@ describe('Project Completion Consistency Guard', () => {
 
     it('shouldSkipForLinkCheck は CHANGELOG / generated / projects/completed / _template を除外する', () => {
       expect(shouldSkipForLinkCheck('CHANGELOG.md')).toBe(true)
-      expect(shouldSkipForLinkCheck('references/04-tracking/generated/project-health.md')).toBe(true)
+      expect(shouldSkipForLinkCheck('references/04-tracking/generated/project-health.generated.md')).toBe(true)
       expect(
         shouldSkipForLinkCheck('projects/completed/docs-and-governance-cohesion/plan.md'),
       ).toBe(true)

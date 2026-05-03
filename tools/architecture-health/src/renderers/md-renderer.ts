@@ -104,7 +104,7 @@ export function renderMd(report: HealthReport, repoRoot: string): string {
   const content = lines.join('\n')
   const outPath = resolve(
     repoRoot,
-    'references/04-tracking/generated/architecture-health.md',
+    'references/04-tracking/generated/architecture-health.generated.md',
   )
   mkdirSync(dirname(outPath), { recursive: true })
   writeFileSync(outPath, content, 'utf-8')

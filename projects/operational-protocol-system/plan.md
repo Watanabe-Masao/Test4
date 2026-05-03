@@ -205,7 +205,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 | パス | 拡張内容 |
 |---|---|
 | `.claude/manifest.json` | discovery に新 doc 追加 (M1 完了後) |
-| `references/04-tracking/recent-changes.md` | サマリ追加 (= archive 時) |
+| `references/04-tracking/recent-changes.generated.md` | サマリ追加 (= archive 時) |
 
 ---
 

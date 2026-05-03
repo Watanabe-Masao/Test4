@@ -85,4 +85,4 @@
 | — | idempotent load contract | 2026-04 | Phase 0-3 + PR A-E で構造的に冪等化 + FRAGILE 1/2/6 SAFE 化 + FRAGILE 3/4/5 は Option A で永続確定 (2026-04-12, project archive) |
 | R-9 | ロールシステム軽量化の方針 | 2026-04-13 | (c) 現状維持を決定。AAG コア信頼性回復 (v5.2) 完了時点でロール定義が摩擦源になっている観測事実がなく、再検討は具体的な摩擦が観測されたときに行う |
 
-歴史的詳細は `references/04-tracking/recent-changes.md` を参照。
+歴史的詳細は `references/04-tracking/recent-changes.generated.md` を参照。

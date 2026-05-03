@@ -83,7 +83,7 @@ export const VERSION_SYNC_REGISTRY: readonly VersionSyncPair[] = [
     description:
       'recent-changes.md の最新バージョン見出しと project-metadata.json appVersion の一致',
     source: {
-      file: 'references/04-tracking/recent-changes.md',
+      file: 'references/04-tracking/recent-changes.generated.md',
       // `## v1.8.0 — ...` 形式の最初の出現を拾う
       extract: (content: string): string | undefined => {
         const match = /^## v([\d.]+)/m.exec(content)

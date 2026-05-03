@@ -267,7 +267,7 @@ for (const file of SECTION_FILES) {
 // ---------------------------------------------------------------------------
 const certPath = resolve(
   repoRoot,
-  "references/04-tracking/generated/architecture-health-certificate.md",
+  "references/04-tracking/generated/architecture-health-certificate.generated.md",
 );
 if (!existsSync(certPath)) {
   errors.push(
@@ -290,7 +290,7 @@ if (existsSync(umbrellaInquiryPath)) {
   );
   const remMdPath = resolve(
     repoRoot,
-    "references/04-tracking/generated/architecture-debt-recovery-remediation.md",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
   );
   if (!existsSync(remJsonPath)) {
     errors.push(

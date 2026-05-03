@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T11:15:29.626Z",
+  "timestamp": "2026-05-03T11:23:59.965Z",
   "summary": {
     "active": 6,
     "archived": 37,
@@ -195,7 +195,7 @@
       "parent": null,
       "generatedArtifacts": {
         "remediationJson": "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
-        "remediationMd": "references/04-tracking/generated/architecture-debt-recovery-remediation.md"
+        "remediationMd": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md"
       }
     },
     {

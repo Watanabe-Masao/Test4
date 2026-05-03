@@ -45,7 +45,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-05-03T11:15:29.630Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-05-03T11:23:59.969Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -83,7 +83,7 @@ AI が context から導き出す力を信頼する設計。
 - **業務用語 / 専門性**: `.claude/manifest.json` の `discovery.byTopic` / `byExpertise`
 - **AAG 詳細**: [`aag/_internal/`](./aag/_internal/) (戦略 / 構造 / 進化 / 運用区分 / 正本 / layer-map)
 - **設計原則の詳細**: [`references/01-foundation/design-principles.md`](./references/01-foundation/design-principles.md)
-- **過去の判断履歴**: [`references/04-tracking/recent-changes.md`](./references/04-tracking/recent-changes.md)
+- **過去の判断履歴**: [`references/04-tracking/recent-changes.generated.md`](./references/04-tracking/recent-changes.generated.md)
 - **思考の途中経過**: `.claude/manifest.json` の `activeContext.workingNotes` / `openQuestions` に free-form (強制ではない、揮発物は commit されない)
 
 ## ロール・スキルシステム
@@ -520,10 +520,10 @@ CQRS + 契約ハイブリッド設計により、既存4層モデルの内側に
 
 allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は prose ではなく
 `references/04-tracking/generated/architecture-health.json` を正本とする。
-詳細レポート: `references/04-tracking/generated/architecture-health.md`
+詳細レポート: `references/04-tracking/generated/architecture-health.generated.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Flat | Hard Gate: PASS
+**RISK** | 前回比: Regressed | Hard Gate: FAIL
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -538,9 +538,11 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | Project Governance | OK | 6/20 / 5/20 / 0/0 / 37/100 |
 
 **Next:**
+- Doc 更新義務違反数 を budget 0 以下に修正する
+- Doc 更新義務違反数 が悪化（0 → 4）— 原因を調査する
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-03T11:15:29.622Z — 正本: `references/04-tracking/generated/architecture-health.json`
+> 生成: 2026-05-03T11:23:59.961Z — 正本: `references/04-tracking/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）
@@ -577,7 +579,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 
 ## 直近の主要変更
 
-正本: `references/04-tracking/recent-changes.md`（最新 v は当該ファイル冒頭を参照）。
+正本: `references/04-tracking/recent-changes.generated.md`（最新 v は当該ファイル冒頭を参照）。
 CLAUDE.md には changelog を記載しない（L1 = 鉄則・索引、履歴は L2）。
 
 ## Explanation（説明責任）

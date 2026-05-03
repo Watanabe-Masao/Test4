@@ -604,7 +604,7 @@
           "label": "品質監査レポート"
         },
         {
-          "path": "references/04-tracking/recent-changes.md",
+          "path": "references/04-tracking/recent-changes.generated.md",
           "label": "直近の主要変更"
         },
         {
@@ -616,11 +616,11 @@
           "label": "Health KPI 正本"
         },
         {
-          "path": "references/04-tracking/generated/architecture-health.md",
+          "path": "references/04-tracking/generated/architecture-health.generated.md",
           "label": "Health レポート"
         },
         {
-          "path": "references/04-tracking/generated/architecture-health-certificate.md",
+          "path": "references/04-tracking/generated/architecture-health-certificate.generated.md",
           "label": "健康診断書"
         },
         {
@@ -628,7 +628,7 @@
           "label": "Project Health KPI 正本（projects/<id>/checklist.md からの動的導出）"
         },
         {
-          "path": "references/04-tracking/generated/project-health.md",
+          "path": "references/04-tracking/generated/project-health.generated.md",
           "label": "Project Health view（人間可読 — 全 project の derivedStatus + progress 一覧）"
         },
         {
@@ -684,7 +684,7 @@
           "label": "architecture-debt-recovery Remediation 進捗 (JSON)"
         },
         {
-          "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.md",
+          "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
           "label": "architecture-debt-recovery Remediation 進捗 (Markdown)"
         }
       ]

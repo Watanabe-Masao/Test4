@@ -11,7 +11,7 @@ React + TypeScript + Vite を基盤とし、ブラウザ内で計算・永続化
 - ルール全体: `../CLAUDE.md`
 - 設計原則: `../references/01-foundation/`
 - 実装ガイド: `../references/03-implementation/`
-- 現在の構造状態: `../references/04-tracking/generated/architecture-state-snapshot.md`
+- 現在の構造状態: `../references/04-tracking/generated/architecture-state-snapshot.generated.md`
 
 ## 初回セットアップ
 

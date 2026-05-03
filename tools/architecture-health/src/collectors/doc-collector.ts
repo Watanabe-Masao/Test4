@@ -21,7 +21,7 @@ const SCAN_TARGETS = [
   'references/01-foundation/design-principles.md',
   'references/04-tracking/technical-debt-roadmap.md',
   'references/04-tracking/open-issues.md',
-  'references/04-tracking/recent-changes.md',
+  'references/04-tracking/recent-changes.generated.md',
   'references/03-implementation/widget-coordination-architecture.md',
 ] as const
 

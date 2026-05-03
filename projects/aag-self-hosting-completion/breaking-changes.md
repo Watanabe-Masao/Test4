@@ -18,7 +18,7 @@
 | R3 | `references/02-design-system/<doc>.md` | `references/02-design-system/<doc>.md` | 22 inbound |
 | R3 | `references/03-implementation/<doc>.md` (= AAG-related は R2 で migrate 済) | `references/03-implementation/<doc>.md` | 多数 |
 | R3 | `references/04-tracking/elements/<category>/<id>.md` | `references/04-tracking/elements/<category>/<id>.md` (= R4 で directory 化) | 46 inbound |
-| R3 | `references/04-tracking/recent-changes.md` | `references/04-tracking/recent-changes.generated.md` (= 機械生成化、suffix 付与) | 多数 |
+| R3 | `references/04-tracking/recent-changes.generated.md` | `references/04-tracking/recent-changes.generated.md` (= 機械生成化、suffix 付与) | 多数 |
 | R3 | `references/04-tracking/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= directory 移動 + suffix 付与) | 多数 |
 | R6 | ``projects` 配下 active project directory` (各 active project 6 件) | `projects` 配下 `active/<active-id>` directory | inbound update |
 

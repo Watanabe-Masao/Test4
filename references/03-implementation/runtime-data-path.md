@@ -156,6 +156,6 @@ DI はここに集約する（A5）。provider を追加・変更する場合は
 
 prose 内に件数・残数を直書きしない。以下を正本とする:
 
-- `references/04-tracking/generated/architecture-state-snapshot.md` / `.json`
+- `references/04-tracking/generated/architecture-state-snapshot.generated.md` / `.json`
 - `test/allowlists/` — 許可リストの実体
 - `test/guardTagRegistry.ts` — ガードタグの実体

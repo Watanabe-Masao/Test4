@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **Healthy** |
-| 前回比 | Flat |
-| リリース影響 | No |
-| 最終更新 | 2026-05-03T11:15:29.622Z |
+| **総合評価** | **RISK** |
+| 前回比 | Regressed |
+| リリース影響 | Yes |
+| 最終更新 | 2026-05-03T11:23:59.961Z |
 
 ## Hard Gate
 
-**PASS** — 全ゲート通過
+**FAIL**
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- PASS: Doc 更新義務違反数
+- FAIL: Doc 更新義務違反数
 - PASS: Required Reads マップ broken link 数
 - PASS: review overdue ルール数
 - PASS: checklist 完了済みだが archive 未実施の project 数
@@ -39,21 +39,26 @@
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 104 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 6/20 / in_progress な project 数（open required checkbox あり）: 5/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 37/100 |
 
+## Top Risks
+
+**1. Doc 更新義務違反数**
+- 状態: 4 / budget 0（400% 超過）
+- ファイル: `—`
+- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
+
 ## Recent Changes
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| Content Spec 総数 (全 kind) | 0 | 89 | +89 ! |
-| Content Graph node 数 (= spec 総数) | 0 | 89 | +89 ! |
-| Content Graph edge 数 (spec 間 reference) | 0 | 47 | +47 ! |
-| Content Graph orphan 数 (in / out edge ゼロ spec) | 0 | 47 | +47 ! |
-| Content Spec: chart/UIC visual evidence 未整備数 | 0 | 6 | +6 ! |
+| Doc 更新義務違反数 | 0 | 4 | +4 ! |
 
 ## Recommended Actions
 
-1. 上限間近ファイル 1 件を分割検討する
+1. Doc 更新義務違反数 を budget 0 以下に修正する
+2. Doc 更新義務違反数 が悪化（0 → 4）— 原因を調査する
+3. 上限間近ファイル 1 件を分割検討する
 
 ---
 
 *正本: `references/04-tracking/generated/architecture-health.json` — 60 KPIs*
-*詳細: `references/04-tracking/generated/architecture-health.md`*
+*詳細: `references/04-tracking/generated/architecture-health.generated.md`*

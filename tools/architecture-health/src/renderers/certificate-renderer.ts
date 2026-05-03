@@ -162,13 +162,13 @@ export function renderCertificate(input: CertificateInput, repoRoot: string): st
   lines.push('---')
   lines.push('')
   lines.push(`*正本: \`references/04-tracking/generated/architecture-health.json\` — ${input.report.summary.totalKpis} KPIs*`)
-  lines.push(`*詳細: \`references/04-tracking/generated/architecture-health.md\`*`)
+  lines.push(`*詳細: \`references/04-tracking/generated/architecture-health.generated.md\`*`)
   lines.push('')
 
   const content = lines.join('\n')
   const outPath = resolve(
     repoRoot,
-    'references/04-tracking/generated/architecture-health-certificate.md',
+    'references/04-tracking/generated/architecture-health-certificate.generated.md',
   )
   mkdirSync(dirname(outPath), { recursive: true })
   writeFileSync(outPath, content, 'utf-8')

@@ -73,7 +73,7 @@ cd app && npm run test:guards
 npm run health:check
 
 # 3. certificate 確認
-cat ../references/04-tracking/generated/architecture-health-certificate.md
+cat ../references/04-tracking/generated/architecture-health-certificate.generated.md
 
 # 4. heuristic ルールの reviewPolicy 確認
 grep -A2 'lastReviewedAt' src/test/architectureRules.ts | head -30

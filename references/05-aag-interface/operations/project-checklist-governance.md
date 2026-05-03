@@ -375,7 +375,7 @@ entry: `projects/<id>/AI_CONTEXT.md`
 
 #### 必須ステップ
 
-1. `references/04-tracking/generated/project-health.md` で
+1. `references/04-tracking/generated/project-health.generated.md` で
    `derivedStatus = completed` を確認
 2. 対象 project ディレクトリを `projects/<id>/` から `projects/completed/<id>/` に移動
 3. `projects/completed/<id>/config/project.json` の `status` を `archived` に書き換え
@@ -440,7 +440,7 @@ archive される project が依存していた references/ 文書は、project 
 | `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | 規約と collector 実装の対称性を検証 (S1/S2/S3)。2026-04-13 追加 |
 | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | derivedStatus と物理配置の整合検証 |
 | `references/04-tracking/generated/project-health.json` | 生成された project KPI 正本 |
-| `references/04-tracking/generated/project-health.md` | 同 view（人間可読） |
+| `references/04-tracking/generated/project-health.generated.md` | 同 view（人間可読） |
 | `projects/_template/` | 新規 project 立ち上げのテンプレート（§10 参照） |
 
 ## 9. live project と判断
@@ -458,7 +458,7 @@ archive される project が依存していた references/ 文書は、project 
 | `aag-rule-splitting-execution` (archived) | AR-STRUCT-RESP-SEPARATION を 7 AR-RESP-* ルールに分割 (2026-04-13 archive) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-decision-backlog` (archived) | R-9 (c) 現状維持を決定 (2026-04-13 archive) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 
-実時の値は [`references/04-tracking/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
+実時の値は [`references/04-tracking/generated/project-health.generated.md`](../02-status/generated/project-health.md) を正本とする。
 
 ## 10. 新規 project bootstrap 手順（AI 向け）
 
@@ -517,7 +517,7 @@ verified LIVE な未着手項目だけを `* [ ]` で書く。
 cd app && npm run docs:generate
 ```
 
-`references/04-tracking/generated/project-health.md` に新 project が
+`references/04-tracking/generated/project-health.generated.md` に新 project が
 `derivedStatus = in_progress` で現れることを確認する。
 
 ### Step 8: 関連文書を README / doc-registry に登録する（必要時）
@@ -583,7 +583,7 @@ repo には常に 1 つの `quick-fixes` collection project が存在する。
 ## 単発 fix
 
 * [ ] (高) app/src/utils/foo.ts: 未使用 export `bar` を削除
-* [ ] (中) references/04-tracking/recent-changes.md: 2026-04 セクションに最新コミットを追記
+* [ ] (中) references/04-tracking/recent-changes.generated.md: 2026-04 セクションに最新コミットを追記
 * [x] (高) app/src/components/X.tsx: typo "calcuate" を "calculate" に修正
 ```
 
@@ -645,7 +645,7 @@ format: `* [ ] (優先度) <スコープ>: <一文の説明>`
 
 リポジトリには「同じ値が複数の文書に重複して存在する」箇所がある。
 代表例: app version triplet（`app/package.json` の `version` / `docs/contracts/project-metadata.json` の
-`appVersion` / `CHANGELOG.md` の最新 `[v...]` / `references/04-tracking/recent-changes.md` の
+`appVersion` / `CHANGELOG.md` の最新 `[v...]` / `references/04-tracking/recent-changes.generated.md` の
 最新 `## v...` 見出し）。
 
 これらは drift しやすく、過去にも 1.7.0 と 1.8.0 が混在する状態が指摘されている。

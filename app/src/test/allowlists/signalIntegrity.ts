@@ -20,7 +20,7 @@
  * == 関連実装 ==
  * - `app/src/test/guards/codePatternGuard.test.ts` G3 ブロック (consumer)
  * - `tools/scripts/test-signal-baseline.ts` (Phase 3 baseline 採取)
- * - `references/04-tracking/generated/test-signal-baseline.md` (現状件数)
+ * - `references/04-tracking/generated/test-signal-baseline.generated.md` (現状件数)
  */
 import type { AllowlistEntry } from './types'
 

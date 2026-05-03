@@ -146,7 +146,7 @@ Architecture Rule の `what` (何を防ぐか) / `why` (なぜ防ぐか) / `deci
 | 旧 4 層構造定義 | [`architecture.md`](./architecture.md) §1 (新 5 層) + §4.1 (旧 → 新 mapping) |
 | AAG Response フロー (違反時の返答 mechanism) | [`operational-classification.md`](./operational-classification.md) §7 (Project A Phase 2 で migrate) |
 | 設計原則 9 カテゴリ (A-I + Q) 詳細 | `references/01-foundation/design-principles.md` (既存 doc に集約、本 doc では articulate しない) |
-| バージョン履歴 | `references/04-tracking/recent-changes.md` (per-doc 分散、本 doc では articulate しない) |
+| バージョン履歴 | `references/04-tracking/recent-changes.generated.md` (per-doc 分散、本 doc では articulate しない) |
 | 関連文書 table | 本 doc §8 関連 doc + [`README.md`](./README.md) (aag/ ディレクトリ index) |
 
 ## §8 関連 doc

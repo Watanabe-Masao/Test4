@@ -5,7 +5,7 @@
  *
  * 出力先:
  *  - references/04-tracking/generated/architecture-debt-recovery-remediation.json （構造化）
- *  - references/04-tracking/generated/architecture-debt-recovery-remediation.md   （人間可読）
+ *  - references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md   （人間可読）
  *
  * 入力:
  *  - projects/architecture-debt-recovery/inquiry/15〜18.md（ADR / BC / LEG / SP の総数）
@@ -189,7 +189,7 @@ export function writeRemediationFiles(
   );
   const mdPath = resolve(
     repoRoot,
-    "references/04-tracking/generated/architecture-debt-recovery-remediation.md",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
   );
   writeFileSync(jsonPath, renderJson(snapshot));
   writeFileSync(mdPath, renderMd(snapshot));

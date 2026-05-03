@@ -5,7 +5,7 @@
  * TSIG-TEST-01〜03 / TSIG-COMP-01〜03 の現状件数を採取し、
  * ratchet-down baseline を決定するための観測データを生成する。
  *
- * 出力先: references/04-tracking/generated/test-signal-baseline.md
+ * 出力先: references/04-tracking/generated/test-signal-baseline.generated.md
  *
  * 使い方:
  *   cd app && npx tsx ../tools/scripts/test-signal-baseline.ts
