@@ -1,8 +1,18 @@
 # AAG (Adaptive Architecture Governance) — `aag/` ディレクトリ index
 
+> **🚧 reader 別 boundary 警告**:
+> **主アプリ (粗利管理ツール) 改修 AI / 人間は本 sub-tree を読む必要はない。**
+> AAG が AI に提供する「引き出し」は **drawer** ([`references/03-guides/decision-articulation-patterns.md`](../../03-guides/decision-articulation-patterns.md)) に **領域 agnostic な Pattern 集** として articulate 済。本 sub-tree は AAG framework 内部の articulation であり、主アプリ改修時には **drawer 経由で必要な Pattern を引き出す** だけで済む。
+>
+> 本 sub-tree を読むべき reader = **AAG framework 自身を改修する者** (= AAG core 改修 / Standard 改訂 / drawer Pattern 追加判断 / AAG-REQ 追加判断)。
+>
+> ---
+>
 > **役割**: AAG 関連 doc 群の単一エントリ index。CLAUDE.md AAG セクションからの 1 link entry。
 >
 > **位置付け**: AAG architecture pattern の 5 層 × 5 縦スライス matrix における各層の正本 doc が本ディレクトリに集約される。新規書き起こし → 旧 doc 退役の段階パスで `references/01-principles/` flat 構造から階層化された (project: `aag-bidirectional-integrity`、Phase 1〜10)。
+>
+> **構造債務 articulation** (= drawer Pattern 4 self-application): 本 sub-tree は AAG framework 内部だが `references/01-principles/` 内に同階層配置されており、**主アプリ業務 doc (= gross-profit-definition.md 等) と peer 配置** = 境界違反 (= 構造債務)。relocation (= top-level `aag/` への consolidate) は scope 大 (= 101 inbound、AAG Pilot 級) のため未着手、本 README 冒頭の boundary 警告で navigation 補完。
 
 ## AAG Meta (Layer 0 + 1: 目的 + 要件)
 

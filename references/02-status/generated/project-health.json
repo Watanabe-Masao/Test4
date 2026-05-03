@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-02T23:34:58.482Z",
+  "timestamp": "2026-05-03T03:25:30.403Z",
   "summary": {
-    "active": 4,
+    "active": 6,
     "archived": 37,
-    "inProgress": 3,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1282,
-    "checkedCheckboxes": 1212
+    "totalCheckboxes": 1446,
+    "checkedCheckboxes": 1222
   },
   "projects": [
     {
@@ -153,6 +153,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-rule-splitting-execution/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-self-hosting-completion",
+      "title": "AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 5,
+      "total": 103,
+      "progress": 0.049,
+      "entrypoint": "projects/aag-self-hosting-completion/AI_CONTEXT.md",
+      "checklistPath": "projects/aag-self-hosting-completion/checklist.md",
       "parent": null
     },
     {
@@ -378,6 +391,19 @@
       "progress": 0,
       "entrypoint": "projects/integrity-framework-evolution/AI_CONTEXT.md",
       "checklistPath": "projects/integrity-framework-evolution/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "operational-protocol-system",
+      "title": "AAG Operational Protocol System — Task / Session / Complexity 運用制度",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 5,
+      "total": 61,
+      "progress": 0.082,
+      "entrypoint": "projects/operational-protocol-system/AI_CONTEXT.md",
+      "checklistPath": "projects/operational-protocol-system/checklist.md",
       "parent": null
     },
     {
