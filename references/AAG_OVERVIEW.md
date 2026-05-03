@@ -76,7 +76,7 @@ Layer 4: Human review → irreversible transition を制御（archive / promotio
 | Hard Gate | PASS |
 | Total KPIs | 57 / OK 57 / WARN 0 / FAIL 0 |
 
-> 値は `references/02-status/generated/architecture-health.json` が正本。本 doc には書き込まない（drift 防止、第 9 原則）。
+> 値は `references/04-tracking/generated/architecture-health.json` が正本。本 doc には書き込まない（drift 防止、第 9 原則）。
 
 ## 改訂履歴
 

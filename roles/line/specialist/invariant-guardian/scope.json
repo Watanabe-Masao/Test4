@@ -6,7 +6,7 @@
     "app/src/domain/calculations/",
     "app/src/application/readModels/",
     "app/src/test/guards/",
-    "references/03-guides/invariant-catalog.md"
+    "references/03-implementation/invariant-catalog.md"
   ],
   "out_of_scope_warn": [
     "app/src/presentation/",

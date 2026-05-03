@@ -43,7 +43,7 @@
  * (Phase I-equivalent) で実現される。本 guard はその静的部分を担う。
  *
  * @responsibility R:guard
- * @see references/01-principles/taxonomy-constitution.md
+ * @see references/01-foundation/taxonomy-constitution.md
  * @see projects/taxonomy-v2/plan.md §Operational Control System
  *
  * @taxonomyKind T:unclassified
@@ -54,9 +54,9 @@ import * as path from 'path'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
 
-const CONSTITUTION_PATH = 'references/01-principles/taxonomy-constitution.md'
-const INTERLOCK_PATH = 'references/01-principles/taxonomy-interlock.md'
-const ORIGIN_JOURNAL_PATH = 'references/01-principles/taxonomy-origin-journal.md'
+const CONSTITUTION_PATH = 'references/01-foundation/taxonomy-constitution.md'
+const INTERLOCK_PATH = 'references/01-foundation/taxonomy-interlock.md'
+const ORIGIN_JOURNAL_PATH = 'references/01-foundation/taxonomy-origin-journal.md'
 const CLAUDE_MD_PATH = 'CLAUDE.md'
 const PLAN_PATH = 'projects/taxonomy-v2/plan.md'
 
@@ -685,8 +685,8 @@ describe('Constitution Bootstrap Guard', () => {
   // ─────────────────────────────────────────────────────────────────────
 
   it('B11: Lifecycle 6 states (proposed→active→deprecated→sunsetting→retired→archived) が 4 文書で一致', () => {
-    const REVIEW_WINDOW_PATH = 'references/03-guides/taxonomy-review-window.md'
-    const REVIEW_JOURNAL_PATH = 'references/02-status/taxonomy-review-journal.md'
+    const REVIEW_WINDOW_PATH = 'references/03-implementation/taxonomy-review-window.md'
+    const REVIEW_JOURNAL_PATH = 'references/04-tracking/taxonomy-review-journal.md'
 
     const lifecycleStates = [
       'proposed',
@@ -792,7 +792,7 @@ describe('Constitution Bootstrap Guard', () => {
   })
 
   it('B13: Review Window 文書 (§1-§9) の構造完全性', () => {
-    const REVIEW_WINDOW_PATH = 'references/03-guides/taxonomy-review-window.md'
+    const REVIEW_WINDOW_PATH = 'references/03-implementation/taxonomy-review-window.md'
     if (!fileExists(REVIEW_WINDOW_PATH)) {
       // file doesn't exist — Phase 2 deliverable not yet landed
       return
@@ -893,9 +893,9 @@ describe('Constitution Bootstrap Guard', () => {
 
   it('B15: CLAUDE.md §taxonomy-binding と review-window §9 OCS.9 が一貫した AI boundary を記述している', () => {
     if (!fileExists(CLAUDE_MD_PATH)) return
-    if (!fileExists('references/03-guides/taxonomy-review-window.md')) return
+    if (!fileExists('references/03-implementation/taxonomy-review-window.md')) return
     const claudeMd = readFile(CLAUDE_MD_PATH)
-    const reviewWindow = readFile('references/03-guides/taxonomy-review-window.md')
+    const reviewWindow = readFile('references/03-implementation/taxonomy-review-window.md')
     const violations: Violation[] = []
 
     // 両文書で「AI が触ってよいこと」「AI が触ってはいけないこと」が記述されているか
@@ -923,7 +923,7 @@ describe('Constitution Bootstrap Guard', () => {
       if (!r.pattern.test(reviewWindow)) {
         violations.push({
           id: 'B15',
-          file: 'references/03-guides/taxonomy-review-window.md',
+          file: 'references/03-implementation/taxonomy-review-window.md',
           message: `§9 OCS.9 周辺に「${r.name}」記述が欠落 (CLAUDE.md §taxonomy-binding と齟齬)`,
         })
       }
@@ -933,10 +933,10 @@ describe('Constitution Bootstrap Guard', () => {
   })
 
   it('B16: TXE 例外形式 (review-window §4.3 vs review-journal §3) が一致した必須フィールドを定義する', () => {
-    if (!fileExists('references/03-guides/taxonomy-review-window.md')) return
-    if (!fileExists('references/02-status/taxonomy-review-journal.md')) return
-    const reviewWindow = readFile('references/03-guides/taxonomy-review-window.md')
-    const reviewJournal = readFile('references/02-status/taxonomy-review-journal.md')
+    if (!fileExists('references/03-implementation/taxonomy-review-window.md')) return
+    if (!fileExists('references/04-tracking/taxonomy-review-journal.md')) return
+    const reviewWindow = readFile('references/03-implementation/taxonomy-review-window.md')
+    const reviewJournal = readFile('references/04-tracking/taxonomy-review-journal.md')
     const violations: Violation[] = []
 
     // TXE 例外の必須フィールド (親 plan §OCS.8 と同期)
@@ -951,14 +951,14 @@ describe('Constitution Bootstrap Guard', () => {
       if (!reviewWindow.includes(f)) {
         violations.push({
           id: 'B16',
-          file: 'references/03-guides/taxonomy-review-window.md',
+          file: 'references/03-implementation/taxonomy-review-window.md',
           message: `TXE 例外形式の必須要素「${f}」が欠落`,
         })
       }
       if (!reviewJournal.includes(f)) {
         violations.push({
           id: 'B16',
-          file: 'references/02-status/taxonomy-review-journal.md',
+          file: 'references/04-tracking/taxonomy-review-journal.md',
           message: `TXE 例外形式の必須要素「${f}」が欠落 (review-window と齟齬)`,
         })
       }
@@ -1020,11 +1020,11 @@ describe('Constitution Bootstrap Guard', () => {
 
     // doc-registry に登録される taxonomy-* docs (基底 4 件 + 必要に応じて拡張)
     const taxonomyDocs: readonly string[] = [
-      'references/01-principles/taxonomy-constitution.md',
-      'references/01-principles/taxonomy-interlock.md',
-      'references/01-principles/taxonomy-origin-journal.md',
-      'references/03-guides/taxonomy-review-window.md',
-      'references/02-status/taxonomy-review-journal.md',
+      'references/01-foundation/taxonomy-constitution.md',
+      'references/01-foundation/taxonomy-interlock.md',
+      'references/01-foundation/taxonomy-origin-journal.md',
+      'references/03-implementation/taxonomy-review-window.md',
+      'references/04-tracking/taxonomy-review-journal.md',
     ]
 
     for (const doc of taxonomyDocs) {

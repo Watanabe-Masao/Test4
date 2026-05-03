@@ -21,9 +21,9 @@
  *
  * 関連:
  * - projects/taxonomy-v2/plan.md §OCS.3
- * - references/03-guides/responsibility-taxonomy-operations.md §5
- * - references/03-guides/test-taxonomy-operations.md §5
- * - references/01-principles/taxonomy-interlock.md (Interlock マトリクス正本)
+ * - references/03-implementation/responsibility-taxonomy-operations.md §5
+ * - references/03-implementation/test-taxonomy-operations.md §5
+ * - references/01-foundation/taxonomy-interlock.md (Interlock マトリクス正本)
  */
 import { execSync } from 'node:child_process'
 import { readFileSync, existsSync, statSync } from 'node:fs'

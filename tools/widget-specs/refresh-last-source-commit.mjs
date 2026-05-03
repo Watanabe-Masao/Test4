@@ -9,7 +9,7 @@
  * (= Goodhart's Law leak) を解消した。
  *
  * 動作:
- *   1. references/05-contents/{widgets,read-models,calculations,charts,ui-components}/*.md
+ *   1. references/04-tracking/elements/{widgets,read-models,calculations,charts,ui-components}/*.md
  *      を走査
  *   2. 各 spec の `sourceRef` (widget は `registrySource`) を読み取り
  *   3. `git log -1 --format=%H -- <source>` で最新 commit の full SHA を取得
@@ -26,7 +26,7 @@ import { execSync } from 'node:child_process'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const REPO_ROOT = resolve(__dirname, '../..')
-const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+const SPECS_BASE = resolve(REPO_ROOT, 'references/04-tracking/elements')
 const SPEC_DIRS = ['widgets', 'read-models', 'calculations', 'charts', 'ui-components']
 
 function getSourceFromFrontmatter(frontmatter) {

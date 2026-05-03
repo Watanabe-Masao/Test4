@@ -7,7 +7,7 @@
  *   [3] DuckDB 格納が正しいこと — tableInserts が正しいテーブル・カラムに INSERT
  *   [4] 正本化パスが正しいこと — readPurchaseCost が正しいテーブルを参照
  *
- * @see references/01-principles/purchase-cost-definition.md
+ * @see references/01-foundation/purchase-cost-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-PURCHASE-COST)
  *
  * @responsibility R:unclassified

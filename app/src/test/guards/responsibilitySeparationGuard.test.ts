@@ -1,7 +1,7 @@
 /**
  * 責務分離ガードテスト — 「1 文で説明できるか」を機械的に強制
  *
- * 責務分離カタログ（references/03-guides/responsibility-separation-catalog.md）の
+ * 責務分離カタログ（references/03-implementation/responsibility-separation-catalog.md）の
  * 24 パターンのうち、機械的に検出可能なものをガード化する。
  *
  * @guard G8 責務分離（P2/P7/P8/P10/P12/P17/P18）

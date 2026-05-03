@@ -21,7 +21,7 @@ import * as path from 'path'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
-const REFS_DIR = path.join(PROJECT_ROOT, 'references/01-principles')
+const REFS_DIR = path.join(PROJECT_ROOT, 'references/01-foundation')
 const SRC_DIR = path.resolve(__dirname, '../..')
 const rule = getRuleById('AR-DOC-STATIC-NUMBER')!
 

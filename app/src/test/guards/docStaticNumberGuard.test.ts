@@ -33,7 +33,7 @@ const TARGET_FILES = [
   'CONTRIBUTING.md',
   'aag/_internal/strategy.md',
   'aag/_internal/operational-classification.md',
-  'references/03-guides/architecture-rule-system.md',
+  'references/03-implementation/architecture-rule-system.md',
 ]
 
 // ── 検出パターン ──────────────────────────────────────────────

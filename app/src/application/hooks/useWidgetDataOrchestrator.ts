@@ -25,9 +25,9 @@
  * Phase 2: sales / discount 関連 widget を切替
  * Phase 3: 全 widget を切替、自前取得を廃止
  *
- * @see references/03-guides/widget-coordination-architecture.md
- * @see references/01-principles/purchase-cost-definition.md
- * @see references/01-principles/gross-profit-definition.md
+ * @see references/03-implementation/widget-coordination-architecture.md
+ * @see references/01-foundation/purchase-cost-definition.md
+ * @see references/01-foundation/gross-profit-definition.md
  *
  * @responsibility R:unclassified
  */

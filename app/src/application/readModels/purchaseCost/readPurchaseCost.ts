@@ -10,7 +10,7 @@
  *   推定法:   purchase + transfers = inventoryPurchaseCost（売上納品を除外）
  *   仕入分析: grandTotalCost（3つ全部）
  *
- * @see references/01-principles/purchase-cost-definition.md
+ * @see references/01-foundation/purchase-cost-definition.md
  *
  * @responsibility R:unclassified
  */

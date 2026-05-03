@@ -4,7 +4,7 @@
  * 粗利の計算正本は calculateGrossProfit / calculateGrossProfitWithFallback。
  * conditionSummaryUtils の4関数はこの正本経由に統一済み。
  *
- * @see references/01-principles/gross-profit-definition.md
+ * @see references/01-foundation/gross-profit-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-GROSS-PROFIT)
  *
  * @responsibility R:unclassified
@@ -174,7 +174,7 @@ describe('粗利計算正本ガード', () => {
   it('粗利の正本定義書が存在する', () => {
     const defFile = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/gross-profit-definition.md',
+      '../../references/01-foundation/gross-profit-definition.md',
     )
     expect(fs.existsSync(defFile)).toBe(true)
   })

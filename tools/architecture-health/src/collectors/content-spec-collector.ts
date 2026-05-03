@@ -1,7 +1,7 @@
 /**
  * Content Spec Collector — Phase H deliverable
  *
- * 役割: `references/05-contents/` 配下の全 spec (widget / read-model / calculation /
+ * 役割: `references/04-tracking/elements/` 配下の全 spec (widget / read-model / calculation /
  * chart / ui-component) を集計し、`content-spec-health.json` を出力する。
  * KPI として `contentSpec.*` を architecture-health に feed する。
  *
@@ -19,7 +19,7 @@
  *   - byKind 内訳 / lifecycle 状態分布 / evidence カバレッジ詳細
  *
  * @see projects/completed/phased-content-specs-rollout/plan.md §Phase H
- * @see references/05-contents/
+ * @see references/04-tracking/elements/
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { resolve, dirname, join } from 'node:path'
@@ -151,7 +151,7 @@ const KIND_DIRS: Record<SpecFrontmatter['kind'], string> = {
 }
 
 function listAllSpecs(repoRoot: string): SpecFrontmatter[] {
-  const base = resolve(repoRoot, 'references/05-contents')
+  const base = resolve(repoRoot, 'references/04-tracking/elements')
   const out: SpecFrontmatter[] = []
   for (const [kind, dir] of Object.entries(KIND_DIRS)) {
     const fullDir = join(base, dir)
@@ -306,7 +306,7 @@ export function writeContentSpecHealth(repoRoot: string): ContentSpecHealthOutpu
   const output = collectContentSpecHealth(repoRoot)
   const outPath = resolve(
     repoRoot,
-    'references/02-status/generated/content-spec-health.json',
+    'references/04-tracking/generated/content-spec-health.json',
   )
   const dir = dirname(outPath)
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
@@ -331,11 +331,11 @@ export function collectFromContentSpec(repoRoot: string): readonly HealthKpi[] {
       status: 'ok',
       owner: 'documentation-steward',
       docRefs: [
-        { kind: 'definition', path: 'references/05-contents/README.md' },
+        { kind: 'definition', path: 'references/04-tracking/elements/README.md' },
       ],
       implRefs: [
         'tools/architecture-health/src/collectors/content-spec-collector.ts',
-        'references/02-status/generated/content-spec-health.json',
+        'references/04-tracking/generated/content-spec-health.json',
       ],
     },
     {
@@ -377,7 +377,7 @@ export function collectFromContentSpec(repoRoot: string): readonly HealthKpi[] {
       owner: 'architecture',
       docRefs: [
         { kind: 'definition', path: 'app-domain/gross-profit/rule-catalog/base-rules.ts', section: 'AR-CONTENT-SPEC-LIFECYCLE-FIELDS' },
-        { kind: 'definition', path: 'references/03-guides/promote-ceremony-pr-template.md' },
+        { kind: 'definition', path: 'references/03-implementation/promote-ceremony-pr-template.md' },
       ],
       implRefs: ['app/src/test/guards/contentSpecLifecycleGuard.test.ts'],
     },

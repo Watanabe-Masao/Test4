@@ -18,16 +18,16 @@ const SCAN_TARGETS = [
   'CONTRIBUTING.md',
   'app/README.md',
   'references/README.md',
-  'references/01-principles/design-principles.md',
-  'references/02-status/technical-debt-roadmap.md',
-  'references/02-status/open-issues.md',
-  'references/02-status/recent-changes.md',
-  'references/03-guides/widget-coordination-architecture.md',
+  'references/01-foundation/design-principles.md',
+  'references/04-tracking/technical-debt-roadmap.md',
+  'references/04-tracking/open-issues.md',
+  'references/04-tracking/recent-changes.md',
+  'references/03-implementation/widget-coordination-architecture.md',
 ] as const
 
 const GENERATED_SECTION_FILES = [
   'CLAUDE.md',
-  'references/02-status/technical-debt-roadmap.md',
+  'references/04-tracking/technical-debt-roadmap.md',
 ] as const
 
 export function collectFromDocs(repoRoot: string): HealthKpi[] {

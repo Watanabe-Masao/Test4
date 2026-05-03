@@ -115,7 +115,7 @@ implementation が日常的に適用する原則（architecture が管理する1
 
 ## 参照ドキュメント
 
-- `references/01-principles/design-principles.md` — 設計原則 A1-G7（**必読**）
-- `references/03-guides/invariant-catalog.md` — 不変条件カタログ
-- `references/03-guides/data-models.md` — 型定義
-- `references/03-guides/api.md` — DuckDB クエリ関数一覧
+- `references/01-foundation/design-principles.md` — 設計原則 A1-G7（**必読**）
+- `references/03-implementation/invariant-catalog.md` — 不変条件カタログ
+- `references/03-implementation/data-models.md` — 型定義
+- `references/03-implementation/api.md` — DuckDB クエリ関数一覧

@@ -4,7 +4,7 @@
  * calculateCustomerGap が唯一の客数GAP計算経路。
  * 独自計算や旧 helper 経由を禁止する。
  *
- * @see references/01-principles/customer-gap-definition.md
+ * @see references/01-foundation/customer-gap-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-CUSTOMER-GAP)
  *
  * @responsibility R:unclassified

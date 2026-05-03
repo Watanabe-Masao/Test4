@@ -116,7 +116,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 **scope 外**:
 
 - protocols 内 doc の articulate (= R5 で operational-protocol-system M1-M5 deliverable を landing)
-- references/03-guides/ の他 doc (= 主アプリ実装ガイドは R3 で directory rename のみ、AAG-related のみ references/05-aag-interface/ に migrate)
+- references/03-implementation/ の他 doc (= 主アプリ実装ガイドは R3 で directory rename のみ、AAG-related のみ references/05-aag-interface/ に migrate)
 - aag/ 内に主アプリ改修者向け doc を残す (= 境界矛盾防止、不可侵原則 4)
 
 **観測点**:
@@ -135,11 +135,11 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 **deliverable**:
 
-- `references/01-principles/` → `references/01-foundation/` (= AAG sub-tree は R1 で relocate 済、残りを rename)
-- `references/02-status/` → `references/04-tracking/`
-- `references/04-design-system/` → `references/02-design-system/`
-- `references/03-guides/` → `references/03-implementation/` (= AAG-related は R2 で references/05-aag-interface/ に migrate 済、残りを rename)
-- `references/05-contents/` → `references/04-tracking/elements/` (= R4 の前提、directory 移動のみ、内部構造化は R4)
+- `references/01-foundation/` → `references/01-foundation/` (= AAG sub-tree は R1 で relocate 済、残りを rename)
+- `references/04-tracking/` → `references/04-tracking/`
+- `references/02-design-system/` → `references/02-design-system/`
+- `references/03-implementation/` → `references/03-implementation/` (= AAG-related は R2 で references/05-aag-interface/ に migrate 済、残りを rename)
+- `references/04-tracking/elements/` → `references/04-tracking/elements/` (= R4 の前提、directory 移動のみ、内部構造化は R4)
 - **1,000+ inbound link 全 update を R3a 内で完結** (= partial migration は同一 commit 内で閉じる、不可侵原則 5)
 
 **観測点 (= machine-verifiable refine)**:
@@ -265,7 +265,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 1. 本 program R0-R7 完遂 (= structural foundation + 7 guard active + AAG self-hosting closure 完成)
 2. R5 trigger で operational-protocol-system project resume (= ⏸ PAUSED 解除)
-3. operational-protocol-system project 内で **plan refinement** (= M1-M5 deliverable を `references/05-aag-interface/protocols/` 配置前提に refine、現 plan は `references/03-guides/` 想定で articulated だが新構造前提に書き換え)
+3. operational-protocol-system project 内で **plan refinement** (= M1-M5 deliverable を `references/05-aag-interface/protocols/` 配置前提に refine、現 plan は `references/03-implementation/` 想定で articulated だが新構造前提に書き換え)
 4. operational-protocol-system project 内で M1-M5 実装 + archive
 
 **観測点**:
@@ -393,13 +393,13 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 | `references/05-aag-interface/operations/project-checklist-governance.md` | `references/05-aag-interface/operations/project-checklist-governance.md` | R2 |
 | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | R2 |
 | `references/05-aag-interface/operations/deferred-decision-pattern.md` | `references/05-aag-interface/operations/deferred-decision-pattern.md` | R2 |
-| `references/01-principles/` (residual) | `references/01-foundation/` | R3 |
-| `references/02-status/` | `references/04-tracking/` | R3 |
-| `references/04-design-system/` | `references/02-design-system/` | R3 |
-| `references/03-guides/` (residual) | `references/03-implementation/` | R3 |
-| `references/05-contents/*` | `references/04-tracking/elements/*` | R3 |
-| `references/02-status/recent-changes.md` (= R3 後 04-tracking/) | `references/04-tracking/recent-changes.generated.md` (= 機械生成化) | R3 |
-| `references/02-status/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= 全 suffix 付与) | R3 |
+| `references/01-foundation/` (residual) | `references/01-foundation/` | R3 |
+| `references/04-tracking/` | `references/04-tracking/` | R3 |
+| `references/02-design-system/` | `references/02-design-system/` | R3 |
+| `references/03-implementation/` (residual) | `references/03-implementation/` | R3 |
+| `references/04-tracking/elements/*` | `references/04-tracking/elements/*` | R3 |
+| `references/04-tracking/recent-changes.md` (= R3 後 04-tracking/) | `references/04-tracking/recent-changes.generated.md` (= 機械生成化) | R3 |
+| `references/04-tracking/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= 全 suffix 付与) | R3 |
 | ``projects` 配下 active project directory` (各 active project) | `projects` 配下 `active/<active-id>` directory | R6 |
 
 ### 新設 (R3-R5)
@@ -530,7 +530,7 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 |---|---|
 | **旧 path (= 物理 location)** | R-phase で `git mv` で完全移動、旧 path には **0 件残置** (= stub も .gitkeep も置かない) |
 | **旧 convention** | `recent-changes.md` (suffix なし) → `recent-changes.generated.md` / `02-status/generated/*.md` (suffix なし) → `04-tracking/generated/*.generated.md` / projects/ root flat (= active subdirectory なし) → `projects` 配下 `active/` directory / CURRENT_PROJECT.md inline state → pointer-only / file-level vs section-level generated 混在 → file-level `*.generated.md` で第一優先、section marker は補助 |
-| **旧制度 / 旧 system** | AAG-related guide が主アプリ実装ガイドと同 directory (= `references/03-guides/` 内混在) → reader-別 separation (= `references/05-aag-interface/` 純化) / aag/ vs references/ boundary 不在 → structural separation / 03-guides 内 framework + main app 混在 → 03-implementation (= main app 純化) + 05-aag-interface (= AAG public interface) で分離 |
+| **旧制度 / 旧 system** | AAG-related guide が主アプリ実装ガイドと同 directory (= `references/03-implementation/` 内混在) → reader-別 separation (= `references/05-aag-interface/` 純化) / aag/ vs references/ boundary 不在 → structural separation / 03-guides 内 framework + main app 混在 → 03-implementation (= main app 純化) + 05-aag-interface (= AAG public interface) で分離 |
 | **旧 mention (= meta-documentation)** | PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照 / CLAUDE.md 内 旧 section / doc-registry.json + manifest.json 内 path entry / guard / collector path constants / generator 出力先 path / 既存 doc 内 inbound link |
 
 ### §7.2 撤退 timing per R-phase
@@ -540,7 +540,7 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 | Phase | 撤退対象 | 撤退 verify |
 |---|---|---|
 | **R1** | `aag/_internal/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagBoundaryGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `aag/_internal/` 文字列 0 件 |
-| **R2** | `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
+| **R2** | `references/03-implementation/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
 | **R3** | 旧 5 directory (`01-principles/`, `02-status/`, `03-guides/` 残部, `04-design-system/`, `05-contents/`) 物理 directory + 1,000+ inbound link + 138 guard / collector path constants + doc-registry / manifest entry path + generator 出力先 path + **PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照** + **CLAUDE.md 内 旧 section path** + 旧 naming (`recent-changes.md` suffix なし、`02-status/generated/*.md` suffix なし) | `oldPathReferenceGuard` で旧 path 文字列 0 件、`generatedFileEditGuard` で `*.generated.md` 手編集 0 件 |
 | **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementStructureGuard` で旧 ID prefix 違反 0 件 |
 | **R5** | (= 撤退対象なし、新 articulation を `references/05-aag-interface/protocols/` に landing のみ) | `aagBoundaryGuard` で旧 location 0 件 |
@@ -587,19 +587,19 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 
 ### §7.7 PR template / .github/* 撤退 articulate
 
-R3 で `references/03-guides/` rename 時に同時実施:
+R3 で `references/03-implementation/` rename 時に同時実施:
 
 - `.github/PULL_REQUEST_TEMPLATE.md` 内 path:
-  - `references/03-guides/responsibility-taxonomy-operations.md` (line 32)
-  - `references/03-guides/test-taxonomy-operations.md` (line 32)
-  - `references/02-status/taxonomy-review-journal.md` (line 36)
-  - `references/03-guides/extension-playbook.md` (line 41, 51)
-  - `references/03-guides/metric-id-registry.md` (line 46)
-  - `references/01-principles/engine-responsibility.md` (line 53)
-  - `references/01-principles/**` (line 78)
-  - `references/03-guides/aag-change-impact-template.md` (line 93)
-  - `references/02-status/generated/` (line 108)
-  - `references/01-principles/aag-*` / `AAG_*.md` (line 110)
+  - `references/03-implementation/responsibility-taxonomy-operations.md` (line 32)
+  - `references/03-implementation/test-taxonomy-operations.md` (line 32)
+  - `references/04-tracking/taxonomy-review-journal.md` (line 36)
+  - `references/03-implementation/extension-playbook.md` (line 41, 51)
+  - `references/03-implementation/metric-id-registry.md` (line 46)
+  - `references/01-foundation/engine-responsibility.md` (line 53)
+  - `references/01-foundation/**` (line 78)
+  - `references/03-implementation/aag-change-impact-template.md` (line 93)
+  - `references/04-tracking/generated/` (line 108)
+  - `references/01-foundation/aag-*` / `AAG_*.md` (line 110)
 - → 全件 R3 で新 path に update、PR template 内 旧 path 0 件まで verify
 
 ---

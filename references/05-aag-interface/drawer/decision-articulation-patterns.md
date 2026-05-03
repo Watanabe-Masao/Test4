@@ -25,7 +25,7 @@
 | 領域 | 配置先 | 性質 |
 |---|---|---|
 | AAG framework 自身の安全性 / 信頼性 / 境界 / 自己改善性 | `aag/_internal/` | AAG 内部 invariant、本 drawer に持ち込まない |
-| 本アプリの business logic / 業務知識 (粗利計算 / シャープリー / DuckDB 等) | `references/01-principles/` 業務系 doc | 業務固有 |
+| 本アプリの business logic / 業務知識 (粗利計算 / シャープリー / DuckDB 等) | `references/01-foundation/` 業務系 doc | 業務固有 |
 | 個別 program の Phase 構造 | each program の `plan.md` | program 固有 |
 
 **本 drawer 利用時に AAG framework 内部を読む必要はない**。AAG 内部 invariant を本 drawer に持ち込んだ pattern は **抽象化境界違反** (= §抽象化境界 self-test 参照)。
@@ -259,7 +259,7 @@ self-test 違反が検出された場合は **抽象化境界違反**、当該 p
 ## 関連 doc (任意参照)
 
 - AAG framework 自身の articulation: `aag/_internal/README.md` (本 drawer は AAG が提供する「引き出し」の 1 instance、AAG 内部の articulation は本 drawer 利用 AI が読む必要なし)
-- 設計原則 (A-I+Q): `references/01-principles/design-principles.md`
-- リファクタリング判断: `references/01-principles/canonicalization-principles.md`
+- 設計原則 (A-I+Q): `references/01-foundation/design-principles.md`
+- リファクタリング判断: `references/01-foundation/canonicalization-principles.md`
 - AAG-COA (project 立ち上げ前判定): `references/05-aag-interface/operations/projectization-policy.md`
 - deferred decision pattern (sibling): `references/05-aag-interface/operations/deferred-decision-pattern.md`

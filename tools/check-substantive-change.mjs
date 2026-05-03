@@ -15,7 +15,7 @@
  *     2 = 取得失敗 (新規ファイル等、安全側で 1 と同等扱いを推奨)
  *
  * 例:
- *   node tools/check-substantive-change.mjs references/01-principles/foo.md HEAD~1..HEAD
+ *   node tools/check-substantive-change.mjs references/01-foundation/foo.md HEAD~1..HEAD
  *
  * 共有 logic:
  *   tools/architecture-health/src/collectors/obligation-collector.ts の

@@ -12,7 +12,7 @@
  * lifecycleStatus='proposed' は source 不在を許容（candidate 計画段階）。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase A〜D,
- * references/05-contents/{widgets,read-models,calculations}/README.md §「存在軸」。
+ * references/04-tracking/elements/{widgets,read-models,calculations}/README.md §「存在軸」。
  *
  * @taxonomyKind T:meta-guard
  *

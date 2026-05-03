@@ -83,7 +83,7 @@ app-domain/integrity/
 
 ### 既存 13 ペア (Phase B-E migration、priority 順)
 
-1. `references/05-contents/` ↔ `contentSpec*Guard × 12` (priority 1, Phase B reference) — Phase K Option 1 で contentSpecLastSourceCommitGuard 追加
+1. `references/04-tracking/elements/` ↔ `contentSpec*Guard × 12` (priority 1, Phase B reference) — Phase K Option 1 で contentSpecLastSourceCommitGuard 追加
 2. `docs/contracts/doc-registry.json` ↔ `docRegistryGuard` (priority 2, Phase C lowest risk)
 3. `app/src/test/calculationCanonRegistry.ts` ↔ `calculationCanonGuard` (Phase D-W1)
 4. `app/src/application/readModels/<dir>/` ↔ `canonicalizationSystemGuard` (Phase D-W1)
@@ -95,7 +95,7 @@ app-domain/integrity/
 10. `app/src/test/allowlists/*.ts` ↔ `allowlistMetadataGuard` (Phase D-W3)
 11. `projects/<id>/checklist.md` ↔ `checklistFormat` / `GovernanceSymmetryGuard` (Phase D-W3)
 12. `OBLIGATION_MAP` ↔ `obligation-collector` / `architectureRuleGuard` (Phase D-W3)
-13. `references/03-guides/invariant-catalog.md` ↔ invariant test 群 (Phase D-W3)
+13. `references/03-implementation/invariant-catalog.md` ↔ invariant test 群 (Phase D-W3)
 
 ### 横展開候補 tier1 (Phase H、4 件)
 
@@ -108,9 +108,9 @@ app-domain/integrity/
 
 | パス                                                                              | 役割                                                              |
 | --------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `references/03-guides/integrity-domain-architecture.md`                           | Phase B 設計 doc (本 domain の構造 + 不変条件 + 実装順)           |
-| `references/03-guides/integrity-pair-inventory.md`                                | Phase A inventory (13 ペア詳細 + selection rule + primitive 候補) |
-| `references/01-principles/canonicalization-principles.md §P8`                     | selection rule 拡張版 (3 ゲート + 3 tie-breaker)                  |
+| `references/03-implementation/integrity-domain-architecture.md`                           | Phase B 設計 doc (本 domain の構造 + 不変条件 + 実装順)           |
+| `references/03-implementation/integrity-pair-inventory.md`                                | Phase A inventory (13 ペア詳細 + selection rule + primitive 候補) |
+| `references/01-foundation/canonicalization-principles.md §P8`                     | selection rule 拡張版 (3 ゲート + 3 tie-breaker)                  |
 | `projects/canonicalization-domain-consolidation/derived/adoption-candidates.json` | 採用候補リスト machine-readable                                   |
 | `app/src/test/guards/contentSpecHelpers.ts`                                       | Phase B reference 実装の供給元 (Phase J 完遂、312 行)             |
 | `app-domain/gross-profit/APP_DOMAIN_INDEX.md`                                     | 既存 app-domain pattern (本 domain の対称配置 reference)          |
@@ -118,7 +118,7 @@ app-domain/integrity/
 ## 読み順
 
 1. 本ファイル (App Domain entry point)
-2. `references/03-guides/integrity-domain-architecture.md` — domain 設計 doc
-3. `references/03-guides/integrity-pair-inventory.md` — 13 ペア + horizontal candidates inventory
-4. `references/01-principles/canonicalization-principles.md` — P1〜P8 (P8 が selection rule)
+2. `references/03-implementation/integrity-domain-architecture.md` — domain 設計 doc
+3. `references/03-implementation/integrity-pair-inventory.md` — 13 ペア + horizontal candidates inventory
+4. `references/01-foundation/canonicalization-principles.md` — P1〜P8 (P8 が selection rule)
 5. 必要に応じて `types.ts` + `index.ts`

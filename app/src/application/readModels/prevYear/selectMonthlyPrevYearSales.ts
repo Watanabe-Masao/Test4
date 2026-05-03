@@ -46,7 +46,7 @@
  * - `presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced` — 月間前年売上
  * - `features/budget/application/useFullMonthLyDaily` — 予算シミュレーター前年合計
  *
- * @see references/01-principles/temporal-scope-semantics.md
+ * @see references/01-foundation/temporal-scope-semantics.md
  * @see features/comparison/application/comparisonTypes.ts `PrevYearMonthlyTotal`
  *
  * @responsibility R:unclassified

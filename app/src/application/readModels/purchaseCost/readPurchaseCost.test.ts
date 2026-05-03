@@ -9,7 +9,7 @@
  *   5. 呼び出し元が正しいこと（ページ→facade→handler→正本のチェーン）
  *   6. 正しい値が表示されること（変換ヘルパーが値を変えない）
  *
- * @see references/01-principles/purchase-cost-definition.md
+ * @see references/01-foundation/purchase-cost-definition.md
  *
  * @taxonomyKind T:unclassified
  */

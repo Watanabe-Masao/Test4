@@ -4,7 +4,7 @@
  * readDiscountFact / discountFactHandler が唯一の分析用正本。
  * presentation 層からの旧クエリ直接利用を禁止する。
  *
- * @see references/01-principles/discount-definition.md
+ * @see references/01-foundation/discount-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-DISCOUNT)
  *
  * @responsibility R:unclassified
@@ -87,7 +87,7 @@ describe('値引きファクト正本ガード', () => {
   // ── 定義書の存在確認 ──
 
   it('値引きの正本定義書が存在する', () => {
-    const defFile = path.resolve(SRC_DIR, '../../references/01-principles/discount-definition.md')
+    const defFile = path.resolve(SRC_DIR, '../../references/01-foundation/discount-definition.md')
     expect(fs.existsSync(defFile)).toBe(true)
   })
 })

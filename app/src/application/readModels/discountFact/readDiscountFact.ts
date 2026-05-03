@@ -4,7 +4,7 @@
  * classified_sales から 71/72/73/74 を store × day × dept/line/klass 粒度で取得。
  * 時間帯データは持たない（仕様）。
  *
- * @see references/01-principles/discount-definition.md
+ * @see references/01-foundation/discount-definition.md
  *
  * @responsibility R:unclassified
  */

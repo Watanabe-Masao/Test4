@@ -31,9 +31,9 @@
  * - AR-TAXONOMY-* rules が architectureRules.ts に登録されている（統合 branch）
  *
  * @responsibility R:guard
- * @see references/01-principles/responsibility-taxonomy-schema.md
- * @see references/01-principles/responsibility-v1-to-v2-migration-map.md (Phase 2 deliverable)
- * @see references/02-status/responsibility-taxonomy-inventory.yaml (Phase 0 baseline)
+ * @see references/01-foundation/responsibility-taxonomy-schema.md
+ * @see references/01-foundation/responsibility-v1-to-v2-migration-map.md (Phase 2 deliverable)
+ * @see references/04-tracking/responsibility-taxonomy-inventory.yaml (Phase 0 baseline)
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts (v2 registry)
  * @see app/src/test/guards/responsibilityTagGuard.test.ts (v1 guard, 並行運用)
  *
@@ -188,7 +188,7 @@ describe('Responsibility Tag Guard V2 (taxonomy-v2 Phase 3)', () => {
       `v2 untagged file 数: ${untagged.length} (baseline: ${UNTAGGED_BASELINE_V2})\n` +
       `減少方向のみ許可。減ったら本 file の UNTAGGED_BASELINE_V2 を ${untagged.length} に更新してください。\n` +
       `Phase 6 Migration Rollout で v2 R:tag (R:unclassified 含む) を付与して baseline = 0 を目指す。\n` +
-      `詳細: references/03-guides/responsibility-v1-to-v2-migration-map.md §2 退避方針`
+      `詳細: references/03-implementation/responsibility-v1-to-v2-migration-map.md §2 退避方針`
     expect(untagged.length, message).toBeLessThanOrEqual(UNTAGGED_BASELINE_V2)
   })
 
@@ -205,7 +205,7 @@ describe('Responsibility Tag Guard V2 (taxonomy-v2 Phase 3)', () => {
       `v2 unknown vocabulary 使用 file 数: ${unknownVocab.length} (baseline: ${UNKNOWN_VOCABULARY_BASELINE_V2})\n` +
       `v1 vocabulary は v2 では unknown として検出される（v1 guard と並行運用、Phase 8 で v1 retirement）。\n` +
       `減少方向のみ許可。Phase 6 Migration Rollout で v1 → v2 一括変換し baseline = 0 を目指す。\n` +
-      `詳細: references/03-guides/responsibility-v1-to-v2-migration-map.md §1 mapping table`
+      `詳細: references/03-implementation/responsibility-v1-to-v2-migration-map.md §1 mapping table`
     expect(unknownVocab.length, message).toBeLessThanOrEqual(UNKNOWN_VOCABULARY_BASELINE_V2)
   })
 

@@ -15,7 +15,7 @@
  * defaults の完全性は defaultOverlayCompletenessGuard が別途検証する。
  *
  * @responsibility R:unclassified
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see references/03-implementation/governance-final-placement-plan.md
  * @see projects/completed/aag-format-redesign/overlay-bootstrap-design.md
  *
  * @taxonomyKind T:unclassified

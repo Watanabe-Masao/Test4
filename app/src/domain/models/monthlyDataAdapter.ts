@@ -5,7 +5,7 @@
  * 新規コードは MonthlyData / AppData を正本とし、
  * ImportedData が必要な箇所はこの adapter 経由でのみ変換する。
  *
- * @see references/01-principles/monthly-data-architecture.md
+ * @see references/01-foundation/monthly-data-architecture.md
  *
  * @responsibility R:unclassified
  */

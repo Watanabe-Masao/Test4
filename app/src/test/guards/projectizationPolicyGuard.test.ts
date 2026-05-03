@@ -349,7 +349,7 @@ function checkPZ9(p: ActiveProject): Violation[] {
         '   - allowlist 管理（必要なら）\n' +
         '   - fix hints（error message に載せる修正誘導）\n' +
         ' 詳細: references/05-aag-interface/operations/projectization-policy.md §7 +' +
-        ' references/03-guides/architecture-rule-system.md。',
+        ' references/03-implementation/architecture-rule-system.md。',
     },
   ]
 }

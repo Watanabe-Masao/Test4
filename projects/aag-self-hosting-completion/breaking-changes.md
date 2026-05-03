@@ -12,14 +12,14 @@
 |---|---|---|---|
 | R1 | `aag/_internal/<doc>.md` (9 doc) | `aag/_internal/<doc>.md` | 101 inbound link (= 全 file 内 reference) |
 | R2 | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | **`references/05-aag-interface/drawer/decision-articulation-patterns.md`** | 該当 inbound 全 update |
-| R2 | `references/03-guides/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | **`references/05-aag-interface/operations/<doc>.md`** | 該当 inbound 全 update |
-| R3 | `references/01-principles/<doc>.md` | `references/01-foundation/<doc>.md` | 多数 (= 主アプリ業務 doc 全 reference) |
-| R3 | `references/02-status/<doc>.md` | `references/04-tracking/<doc>.md` | 多数 |
-| R3 | `references/04-design-system/<doc>.md` | `references/02-design-system/<doc>.md` | 22 inbound |
-| R3 | `references/03-guides/<doc>.md` (= AAG-related は R2 で migrate 済) | `references/03-implementation/<doc>.md` | 多数 |
-| R3 | `references/05-contents/<category>/<id>.md` | `references/04-tracking/elements/<category>/<id>.md` (= R4 で directory 化) | 46 inbound |
-| R3 | `references/02-status/recent-changes.md` | `references/04-tracking/recent-changes.generated.md` (= 機械生成化、suffix 付与) | 多数 |
-| R3 | `references/02-status/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= directory 移動 + suffix 付与) | 多数 |
+| R2 | `references/03-implementation/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | **`references/05-aag-interface/operations/<doc>.md`** | 該当 inbound 全 update |
+| R3 | `references/01-foundation/<doc>.md` | `references/01-foundation/<doc>.md` | 多数 (= 主アプリ業務 doc 全 reference) |
+| R3 | `references/04-tracking/<doc>.md` | `references/04-tracking/<doc>.md` | 多数 |
+| R3 | `references/02-design-system/<doc>.md` | `references/02-design-system/<doc>.md` | 22 inbound |
+| R3 | `references/03-implementation/<doc>.md` (= AAG-related は R2 で migrate 済) | `references/03-implementation/<doc>.md` | 多数 |
+| R3 | `references/04-tracking/elements/<category>/<id>.md` | `references/04-tracking/elements/<category>/<id>.md` (= R4 で directory 化) | 46 inbound |
+| R3 | `references/04-tracking/recent-changes.md` | `references/04-tracking/recent-changes.generated.md` (= 機械生成化、suffix 付与) | 多数 |
+| R3 | `references/04-tracking/generated/*.md` (19 file) | `references/04-tracking/generated/*.generated.md` (= directory 移動 + suffix 付与) | 多数 |
 | R6 | ``projects` 配下 active project directory` (各 active project 6 件) | `projects` 配下 `active/<active-id>` directory | inbound update |
 
 ### 1.2 guard / collector path constants (= 138 file 影響)
@@ -41,7 +41,7 @@
 
 | 種別 | 影響 | 移行方針 |
 |---|---|---|
-| `references/02-status/generated/*.{json,md}` | 旧 path → R3 で → `references/04-tracking/generated/` | R3 で物理 location 変更 + collector 設定 update |
+| `references/04-tracking/generated/*.{json,md}` | 旧 path → R3 で → `references/04-tracking/generated/` | R3 で物理 location 変更 + collector 設定 update |
 | `docs/generated/aag/*.json` | 内容 (= AAG rule 関連) は不変、ただし内部の path reference (= canonicalSource 等) は R1 で update | R1 完了後再生成で整合 |
 
 ## 2. 公開契約 / 型 / API への影響
@@ -92,7 +92,7 @@ R1 と同 pattern (5 doc 移動 + inbound update + guard/collector update + veri
 
 ### R4 移行方針
 
-- `04-tracking/elements/` 新設 + `references/05-contents/*` を merge (= R3 で先行 rename 済の場合は内部 rearrange)
+- `04-tracking/elements/` 新設 + `references/04-tracking/elements/*` を merge (= R3 で先行 rename 済の場合は内部 rearrange)
 - per-element directory 化は **pilot subset (= charts/ 5 element) で start**、value verify 後段階適用
 - dashboard layer 4 件は機械生成 mechanism 実装後に landing
 - 既存 single-file spec を per-element README.md に migrate

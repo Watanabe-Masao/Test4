@@ -52,7 +52,7 @@
  * @taxonomyKind T:meta-guard
  * @responsibility R:guard
  * @see aag/_internal/meta.md §2 (AAG-REQ-SELF-HOSTING)
- * @see references/02-status/ar-rule-audit.md §6 (selfHostingGuard scope articulate)
+ * @see references/04-tracking/ar-rule-audit.md §6 (selfHostingGuard scope articulate)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

@@ -56,7 +56,7 @@ export function getPrevYearDailySales(
  *
  * PrevYearData.totalCustomers は同曜日 alignment 済みの比較用客数。
  * このヘルパーを通すことで、消費側に `.totalCustomers` が現れない。
- * @see references/01-principles/customer-definition.md
+ * @see references/01-foundation/customer-definition.md
  */
 export function extractPrevYearCustomerCount(prevYear: PrevYearData): number {
   return prevYear.totalCustomers

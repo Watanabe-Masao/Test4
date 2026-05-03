@@ -23,9 +23,9 @@
  * - 本 guard が PASS している
  *
  * @responsibility R:guard
- * @see references/01-principles/taxonomy-interlock.md (R⇔T 完全マトリクス)
- * @see references/01-principles/responsibility-taxonomy-schema.md
- * @see references/01-principles/test-taxonomy-schema.md
+ * @see references/01-foundation/taxonomy-interlock.md (R⇔T 完全マトリクス)
+ * @see references/01-foundation/responsibility-taxonomy-schema.md
+ * @see references/01-foundation/test-taxonomy-schema.md
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts
  * @see app/src/test/testTaxonomyRegistryV2.ts
  *

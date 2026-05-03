@@ -64,7 +64,7 @@ projects/
 
 ## active project 一覧
 
-詳細: `references/02-status/open-issues.md` (R3 後 `references/04-tracking/open-issues.generated.md`)。
+詳細: `references/04-tracking/open-issues.md` (R3 後 `references/04-tracking/open-issues.generated.md`)。
 
 active project の active project pointer は repo root の `CURRENT_PROJECT.md` で articulate (= pointer 限定、詳細進捗・判断は per-project HANDOFF / decision-audit に集約)。
 

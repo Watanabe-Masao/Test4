@@ -54,7 +54,7 @@ AAG は 3 層に分離されている。AI はこの順で読む:
 
 **project 切替点**: `CURRENT_PROJECT.md` の `active: <project-id>` 1 行 + `projects/<id>/config/project.json` の `overlayRoot` フィールド。vite / vitest / tools は `resolve-project-overlay.mjs` / `project-resolver.ts` 経由で解決する。
 
-詳細: `references/03-guides/governance-final-placement-plan.md`
+詳細: `references/03-implementation/governance-final-placement-plan.md`
 
 ## Required Core References
 
@@ -82,9 +82,9 @@ AAG Core の共通ルール・思想。案件作業中に必ず参照する。
 | `app/src/test/architectureRules/merged.ts` | Derived merge（BaseRule + ExecutionOverlay 合成点） |
 | `app/src/test/architectureRules/README.md` | ディレクトリ役割マップ |
 | `app/src/test/guardCategoryMap.ts` | 全ルールのカテゴリマップ |
-| `references/01-principles/semantic-classification-policy.md` | 意味分類ポリシー |
-| `references/01-principles/engine-boundary-policy.md` | 3エンジン境界 |
-| `references/03-guides/governance-final-placement-plan.md` | Governance 3 分割の現行正本文書 |
+| `references/01-foundation/semantic-classification-policy.md` | 意味分類ポリシー |
+| `references/01-foundation/engine-boundary-policy.md` | 3エンジン境界 |
+| `references/03-implementation/governance-final-placement-plan.md` | Governance 3 分割の現行正本文書 |
 
 ## Project-Specific Constraints
 

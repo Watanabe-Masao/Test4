@@ -5,7 +5,7 @@
  * 6 numeric 関数は WASM 経由、2 CalculationResult 関数は TS authoritative。
  * 4 フィクスチャで不変条件を検証する。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
+ * @see references/04-tracking/engine-promotion-matrix.md — authoritative
  *
  * @taxonomyKind T:unclassified
  */

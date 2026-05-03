@@ -61,5 +61,5 @@ AAG framework の改変ではなく、**運用層** の articulate が独立 pro
 | `references/05-aag-interface/operations/projectization-policy.md` | AAG-COA (= bootstrap 前判定、本 project = Level 2 + governance-hardening) |
 | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | bootstrap 手順 (= 本 project の bootstrap で適用) |
 | `aag/_internal/README.md` | AAG framework articulate (= 本 project は touch しない、参照のみ) |
-| `references/01-principles/platformization-standard.md` | Standard (= 本 project は引用、改変しない) |
+| `references/01-foundation/platformization-standard.md` | Standard (= 本 project は引用、改変しない) |
 | `projects/completed/aag-platformization/` | AAG Pilot (= 本 project の trigger source、Pilot 過程で identify された pattern を運用層として articulate) |

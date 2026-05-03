@@ -90,7 +90,7 @@ console.log("[docs:check] Semantic diff against committed health.json...");
 
 const healthJsonPath = resolve(
   repoRoot,
-  "references/02-status/generated/architecture-health.json",
+  "references/04-tracking/generated/architecture-health.json",
 );
 
 if (!existsSync(healthJsonPath)) {
@@ -179,7 +179,7 @@ console.log("[docs:check] Checking generated sections...");
 
 const SECTION_FILES = [
   "CLAUDE.md",
-  "references/02-status/technical-debt-roadmap.md",
+  "references/04-tracking/technical-debt-roadmap.md",
 ] as const;
 
 const SECTION_ID = "architecture-health-summary";
@@ -267,7 +267,7 @@ for (const file of SECTION_FILES) {
 // ---------------------------------------------------------------------------
 const certPath = resolve(
   repoRoot,
-  "references/02-status/generated/architecture-health-certificate.md",
+  "references/04-tracking/generated/architecture-health-certificate.md",
 );
 if (!existsSync(certPath)) {
   errors.push(
@@ -286,11 +286,11 @@ if (existsSync(umbrellaInquiryPath)) {
   // umbrella が active なら remediation 生成物も存在する必要がある
   const remJsonPath = resolve(
     repoRoot,
-    "references/02-status/generated/architecture-debt-recovery-remediation.json",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
   );
   const remMdPath = resolve(
     repoRoot,
-    "references/02-status/generated/architecture-debt-recovery-remediation.md",
+    "references/04-tracking/generated/architecture-debt-recovery-remediation.md",
   );
   if (!existsSync(remJsonPath)) {
     errors.push(

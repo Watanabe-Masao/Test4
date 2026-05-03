@@ -6,7 +6,7 @@
 >
 > **drill-down pointer**:
 > - 上位 (back-pointer): [`meta.md`](./meta.md) §1 (目的 = AAG の why)
-> - 下位 (drill-down): [`architecture.md`](./architecture.md) (5 層構造定義) / [`evolution.md`](./evolution.md) (進化動学) / `references/01-principles/design-principles.md` (設計原則 9 カテゴリ)
+> - 下位 (drill-down): [`architecture.md`](./architecture.md) (5 層構造定義) / [`evolution.md`](./evolution.md) (進化動学) / `references/01-foundation/design-principles.md` (設計原則 9 カテゴリ)
 >
 > **5 層位置付け** (本 doc 自身): Layer 0+1 (目的 + 要件、戦略 articulate)
 >
@@ -129,7 +129,7 @@ Architecture Rule の `what` (何を防ぐか) / `why` (なぜ防ぐか) / `deci
 - **ファイル別 5 層マッピング** → [`layer-map.md`](./layer-map.md)
 - **正本 / 派生物 / 運用物 区分ポリシー** → [`source-of-truth.md`](./source-of-truth.md)
 - **now / debt / review 運用区分** → [`operational-classification.md`](./operational-classification.md)
-- **設計原則 9 カテゴリ詳細** → `references/01-principles/design-principles.md`
+- **設計原則 9 カテゴリ詳細** → `references/01-foundation/design-principles.md`
 - **AAG Layer 1 要件 12 件 (AAG-REQ-*) 詳細** → [`meta.md`](./meta.md) §2
 
 ## §7 旧 戦略マスター → 新 戦略 mapping (`§1.5 archive 前 mapping 義務`)
@@ -145,8 +145,8 @@ Architecture Rule の `what` (何を防ぐか) / `why` (なぜ防ぐか) / `deci
 | 戦略の進化方針 | 本 doc §5 + [`evolution.md`](./evolution.md) |
 | 旧 4 層構造定義 | [`architecture.md`](./architecture.md) §1 (新 5 層) + §4.1 (旧 → 新 mapping) |
 | AAG Response フロー (違反時の返答 mechanism) | [`operational-classification.md`](./operational-classification.md) §7 (Project A Phase 2 で migrate) |
-| 設計原則 9 カテゴリ (A-I + Q) 詳細 | `references/01-principles/design-principles.md` (既存 doc に集約、本 doc では articulate しない) |
-| バージョン履歴 | `references/02-status/recent-changes.md` (per-doc 分散、本 doc では articulate しない) |
+| 設計原則 9 カテゴリ (A-I + Q) 詳細 | `references/01-foundation/design-principles.md` (既存 doc に集約、本 doc では articulate しない) |
+| バージョン履歴 | `references/04-tracking/recent-changes.md` (per-doc 分散、本 doc では articulate しない) |
 | 関連文書 table | 本 doc §8 関連 doc + [`README.md`](./README.md) (aag/ ディレクトリ index) |
 
 ## §8 関連 doc
@@ -157,7 +157,7 @@ Architecture Rule の `what` (何を防ぐか) / `why` (なぜ防ぐか) / `deci
 | [`architecture.md`](./architecture.md) | 5 層構造定義 + 旧 4 層 → 新 5 層 mapping (Layer 1+2) — 本 doc の sibling |
 | [`evolution.md`](./evolution.md) | 進化動学 (Layer 1+2) — 戦略の進化を realize する mechanism |
 | [`README.md`](./README.md) | aag/ ディレクトリ index |
-| `references/01-principles/design-principles.md` | 設計原則 9 カテゴリ (A-I + Q) — 本 doc が articulate しない設計原則の詳細 |
-| `references/01-principles/uiux-principles.md` | UI/UX 4 原則 — 本体アプリ側の戦略 (out-of-scope) |
+| `references/01-foundation/design-principles.md` | 設計原則 9 カテゴリ (A-I + Q) — 本 doc が articulate しない設計原則の詳細 |
+| `references/01-foundation/uiux-principles.md` | UI/UX 4 原則 — 本体アプリ側の戦略 (out-of-scope) |
 | `projects/completed/aag-bidirectional-integrity/plan.md` | 親 project の正本 |
 | `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |

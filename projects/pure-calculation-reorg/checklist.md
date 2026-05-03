@@ -13,10 +13,10 @@
 
 ## Phase 0: 前提固定・用語スイープ
 
-- [x] `references/01-principles/semantic-classification-policy.md` を作成した
-- [x] `references/01-principles/engine-boundary-policy.md` を business / analytic 用語へ整合させた
+- [x] `references/01-foundation/semantic-classification-policy.md` を作成した
+- [x] `references/01-foundation/engine-boundary-policy.md` を business / analytic 用語へ整合させた
 - [x] `CLAUDE.md` に意味分類方針への参照を追加した
-- [x] `references/02-status/authoritative-term-sweep.md` を作成した
+- [x] `references/04-tracking/authoritative-term-sweep.md` を作成した
 - [x] 既存コード・コメント・テスト・文書内の `authoritative` 単独使用を洗い出した
 - [x] 直せる `authoritative` 単独使用を修正した
 - [x] 直せないものを `legacy-authoritative-usage` として ratchet 管理にした
@@ -27,8 +27,8 @@
 
 ## Phase 1: 意味分類 inventory
 
-- [x] `references/03-guides/semantic-inventory-procedure.md` を作成した
-- [x] `references/02-status/semantic-inventory.yaml` を作成した
+- [x] `references/03-implementation/semantic-inventory-procedure.md` を作成した
+- [x] `references/04-tracking/semantic-inventory.yaml` を作成した
 - [x] domain/calculations 配下 35 ファイルを inventory 化した
 - [x] 各項目に `semanticClass` を付与した
 - [x] 各項目に `authorityKind` / `runtimeStatus` / `migrationTier` を付与した
@@ -59,7 +59,7 @@
 
 ## Phase 3: 契約固定 + bridge 境界
 
-- [x] `references/03-guides/contract-definition-policy.md` を作成した
+- [x] `references/03-implementation/contract-definition-policy.md` を作成した
 - [x] Business Contract テンプレートを定義した
 - [x] Analytic Contract テンプレートを定義した
 - [x] 対象計算に `contractId` を採番した
@@ -82,7 +82,7 @@
 - [x] `Cargo.toml` に semantic metadata を追加した
 - [x] current/business と current/analytics の運用 view を分けた
 - [x] current に candidate 状態遷移を持たせないことを guard 化した
-- [x] current 群の保守ポリシーを作成した (`references/03-guides/current-maintenance-policy.md`)
+- [x] current 群の保守ポリシーを作成した (`references/03-implementation/current-maintenance-policy.md`)
 
 ---
 

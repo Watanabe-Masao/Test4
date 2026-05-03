@@ -121,7 +121,7 @@ export function buildObligationResponse(
     reason: `${triggerPath} の変更が検出されたため、関連ドキュメントの更新が必要`,
     steps: [
       '1. cd app && npm run docs:generate',
-      '2. git add references/02-status/generated/ CLAUDE.md',
+      '2. git add references/04-tracking/generated/ CLAUDE.md',
     ],
     exceptions: null,
     deepDive: 'tools/architecture-health/src/collectors/obligation-collector.ts',

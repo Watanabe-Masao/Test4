@@ -9,9 +9,9 @@
 
 ### Constitution 本体
 
-- [x] `references/01-principles/taxonomy-constitution.md` に 7 不可侵原則が landing している
-- [x] `references/01-principles/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
-- [x] `references/01-principles/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている（親 Phase 0 統合 branch 2026-04-26 で §2 v1 20 タグ Origin 一覧として landing）
+- [x] `references/01-foundation/taxonomy-constitution.md` に 7 不可侵原則が landing している
+- [x] `references/01-foundation/taxonomy-interlock.md` に R ⇔ T マトリクスが定義されている
+- [x] `references/01-foundation/taxonomy-origin-journal.md` に現行 v1 の 20 タグの Origin が記入されている（親 Phase 0 統合 branch 2026-04-26 で §2 v1 20 タグ Origin 一覧として landing）
 - [x] `CLAUDE.md` に §taxonomy-binding（AI Vocabulary Binding）が追記されている
 - [x] `app/src/test/guards/constitutionBootstrapGuard.test.ts` が存在し PASS している
 - [x] 制度成立 5 要件が Constitution 内に明文化されている
@@ -44,9 +44,9 @@
 
 ### Review Window 本体
 
-- [x] `references/03-guides/taxonomy-review-window.md` に四半期 window の手続きが記述されている
+- [x] `references/03-implementation/taxonomy-review-window.md` に四半期 window の手続きが記述されている
 - [x] 追加・撤退・却下の判定基準が定義されている
-- [x] `references/02-status/taxonomy-review-journal.md` に journal skeleton が作成されている
+- [x] `references/04-tracking/taxonomy-review-journal.md` に journal skeleton が作成されている
 - [x] 両軸同期 window ルールが明記されている
 
 ### Operational Control System（plan.md §OCS との接続）
@@ -94,7 +94,7 @@
 - [x] §OCS.10 4-Loop Operational Model が稼働している（Capture / Verification / Change / Governance）（Capture: taxonomy-collector / Verification: V2 guard 群 + LCT / Change: review-journal §3.1 ad-hoc + §3.2 提案 / Governance: AR-TAXONOMY-AI-VOCABULARY-BINDING + taxonomyLifecycleTransitionGuard、4-Loop が一通り経験済）
 - [x] `npm run taxonomy:check` が CI で hard fail 条件として組み込まれている（pre-push hook の test:guards に統合、taxonomy:check 23/23 PASS が hard gate）
 - [x] `npm run taxonomy:impact` が PR template の確認項目に組み込まれている（Phase 5 統合 branch で .github/PULL_REQUEST_TEMPLATE.md に「Taxonomy v2 チェック」§4 項目追加済、taxonomy:check + taxonomy:impact + review window 確認 + 新規 file タグ付与）
-- [x] `references/02-status/generated/taxonomy-health.json` が docs:generate で生成されている（Phase 3.5 統合 branch で taxonomy-collector.ts 新設、retrospective fix B で live count に refactor、KPI 4 件 architecture-health.json に feed）
+- [x] `references/04-tracking/generated/taxonomy-health.json` が docs:generate で生成されている（Phase 3.5 統合 branch で taxonomy-collector.ts 新設、retrospective fix B で live count に refactor、KPI 4 件 architecture-health.json に feed）
 - [x] `architecture-health.json` summary に taxonomy カテゴリが反映されている（taxonomy.responsibility.unknownVocabulary / taxonomy.test.unknownVocabulary / taxonomy.vocabulary.{responsibility,test}Count の 4 KPI が KpiCategory 'guard' で feed 済）
 
 ### Anchor Slice → 全 vocabulary 拡大の確認

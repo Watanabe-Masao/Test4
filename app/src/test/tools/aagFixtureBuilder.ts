@@ -5,7 +5,7 @@
  * 大規模 fixture repo を避け、各テストが必要最小限の構造を tmpdir に
  * 組み立てて collector に渡す方式を使う。
  *
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see references/03-implementation/governance-final-placement-plan.md
  * @responsibility R:unclassified
  */
 import * as fs from 'node:fs'

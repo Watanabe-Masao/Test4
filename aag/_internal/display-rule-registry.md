@@ -225,8 +225,8 @@ page identification icon は **`pageRegistry` 経由のみ** を許容:
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `aag/meta.md` §2                                     | `AAG-REQ-NON-PERFORMATIVE` + `AAG-REQ-BIDIRECTIONAL-INTEGRITY` 要件の articulate (本 registry が application instance)                      |
 | `uiux-principles.md`                                 | UI/UX 4 原則 (Layer 1 source、本 registry は §1 「実績と推定は『別世界』」を Layer 2 に articulate)                                         |
-| `references/02-status/ar-rule-audit.md`              | AR-rule binding 品質基準 protocol (Project B Phase 3 deliverable、本 registry の rule entry も protocol §2 を満たす必要がある)              |
+| `references/04-tracking/ar-rule-audit.md`              | AR-rule binding 品質基準 protocol (Project B Phase 3 deliverable、本 registry の rule entry も protocol §2 を満たす必要がある)              |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | DFR-001〜005 rule entry の物理正本 (Phase 2 で landing)                                                                                     |
 | `app/src/test/guards/displayRuleGuard.test.ts`       | DFR baseline 固定 + 新規 drift 拒否 (Phase 3 で landing)                                                                                    |
-| `references/03-guides/content-and-voice.md`          | thousands separator convention の articulate 起点 (本 §5 で convention を Layer 2 に固定、旧 "not enforced" 記述は本 doc landing で update) |
+| `references/03-implementation/content-and-voice.md`          | thousands separator convention の articulate 起点 (本 §5 で convention を Layer 2 に固定、旧 "not enforced" 記述は本 doc landing で update) |
 | `projects/completed/aag-rule-schema-meta-guard/`     | Project B (本 registry が utilize する schema + meta-guard の正本)                                                                          |

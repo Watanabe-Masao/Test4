@@ -183,7 +183,7 @@ export function calculateCoreSales(
  *
  * NOTE(pragmatic): 数式 discount / (sales + discount) は定義上正しいが、
  * 入力データの品質（負値、異常値）に対する厳密な検証は呼び出し元に依存する。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateDiscountRate(salesAmount: number, discountAmount: number): number {
   return safeDivide(discountAmount, salesAmount + discountAmount, 0)

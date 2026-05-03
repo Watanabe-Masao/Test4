@@ -353,7 +353,7 @@ LEFT JOIN (
   -- cost/price は金額（SUM で合算）、customers は件数（MAX で重複排除 — SUM だと二重計上）
   -- @defense customers=MAX: ロード境界が壊れたときの暴発（過去 1.56e+17 事件）を
   --   塞ぐ defense-in-depth。SUM に戻さないこと。
-  --   詳細: references/03-guides/data-load-idempotency-handoff.md §3.2
+  --   詳細: references/03-implementation/data-load-idempotency-handoff.md §3.2
   SELECT year, month, store_id, day,
     SUM(cost) AS cost, SUM(price) AS price, MAX(customers) AS customers
   FROM special_sales WHERE type = 'flowers'

@@ -221,7 +221,7 @@ describe('Build Parity Audit — CI と正本ビルド手順の一致検証', ()
   })
 
   it('ビルドパリティレポートを生成する', () => {
-    const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
+    const reportDir = path.resolve(__dirname, '../../../../references/04-tracking/generated')
     if (!fs.existsSync(reportDir)) {
       fs.mkdirSync(reportDir, { recursive: true })
     }

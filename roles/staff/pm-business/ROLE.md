@@ -148,7 +148,7 @@ pm-business は人間（Authority）に対してタスク全体の結果を**チ
 
 ## 参照ドキュメント
 
-- `references/03-guides/metric-id-registry.md` — MetricId 一覧（50定義/42実装済み）
-- `references/01-principles/design-principles.md` — 設計原則 A1-G7（正本: CLAUDE.md）
-- `references/02-status/open-issues.md` — 課題管理（現在の課題・将来のリスク・解決済み）
+- `references/03-implementation/metric-id-registry.md` — MetricId 一覧（50定義/42実装済み）
+- `references/01-foundation/design-principles.md` — 設計原則 A1-G7（正本: CLAUDE.md）
+- `references/04-tracking/open-issues.md` — 課題管理（現在の課題・将来のリスク・解決済み）
 - CLAUDE.md §ルーティング表 — 作業→ロールの対応

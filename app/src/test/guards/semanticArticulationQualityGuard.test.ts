@@ -12,7 +12,7 @@
  * @guard F2 文字列カタログ
  * @guard F3 全パターン同一
  * @guard G8 責務分離ガード
- * @see references/02-status/ar-rule-audit.md §2.1 / §2.2 / §2.3 (`AAG-REQ-SEMANTIC-ARTICULATION` + `AAG-REQ-ANTI-DUPLICATION` の機械検証)
+ * @see references/04-tracking/ar-rule-audit.md §2.1 / §2.2 / §2.3 (`AAG-REQ-SEMANTIC-ARTICULATION` + `AAG-REQ-ANTI-DUPLICATION` の機械検証)
  *
  * @responsibility R:unclassified
  *

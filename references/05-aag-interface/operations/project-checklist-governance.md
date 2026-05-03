@@ -25,7 +25,7 @@
 > | collector | `tools/architecture-health/src/collectors/project-checklist-collector.ts` | 3 Execution |
 > | format guard | `app/src/test/guards/checklistFormatGuard.test.ts` | 3 Execution |
 > | consistency guard | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | 3 Execution |
-> | generated KPI | `references/02-status/generated/project-health.json` / `.md` | 3 Execution（派生物） |
+> | generated KPI | `references/04-tracking/generated/project-health.json` / `.md` | 3 Execution（派生物） |
 > | live project | `projects/<id>/` | 4B Project Operations |
 
 ## 0. 基本思想
@@ -95,9 +95,9 @@ repo の残存課題を以下の体制に統一する。
 | `projects/<id>/plan.md` | 構造・原則・Phase 定義 | 計画変更時のみ |
 | `projects/<id>/HANDOFF.md` | 後任者の入口（完了済みの全景 + 次にやること） | コード truth 変更後 |
 | `projects/<id>/AI_CONTEXT.md` | AI が最初に読む文脈（project の意味 + read order） | プロジェクト立ち上げ時 |
-| `references/02-status/open-issues.md` | active project の **索引** のみ | live task 表は持たない |
-| `references/02-status/technical-debt-roadmap.md` | 判断理由・優先順位・歴史 | live task 表は持たない |
-| `references/03-guides/*.md` | 背景・契約・監査結果・原則 | live task 表は持たない |
+| `references/04-tracking/open-issues.md` | active project の **索引** のみ | live task 表は持たない |
+| `references/04-tracking/technical-debt-roadmap.md` | 判断理由・優先順位・歴史 | live task 表は持たない |
+| `references/03-implementation/*.md` | 背景・契約・監査結果・原則 | live task 表は持たない |
 
 **鉄則:** live な作業項目（やることリスト）の正本は **`projects/<id>/checklist.md` のみ**。
 references/ に live task table を書かない。重複は drift を生む。
@@ -138,7 +138,7 @@ archive 手順は §6 を参照。
 |---|---|
 | やってはいけないこと | `plan.md` の「不可侵原則」セクション |
 | 常時チェック (lint / build / format) | `plan.md` または CONTRIBUTING.md |
-| 恒久的な運用ルール | 該当する `references/03-guides/*.md` |
+| 恒久的な運用ルール | 該当する `references/03-implementation/*.md` |
 | AAG が継続監視する invariants | guard test として実装（`plan.md` から参照） |
 | 将来 Phase の未着手構想 | `plan.md` の Phase 定義 |
 | optional な「やったほうがよい」項目 | `plan.md` の Notes |
@@ -375,13 +375,13 @@ entry: `projects/<id>/AI_CONTEXT.md`
 
 #### 必須ステップ
 
-1. `references/02-status/generated/project-health.md` で
+1. `references/04-tracking/generated/project-health.md` で
    `derivedStatus = completed` を確認
 2. 対象 project ディレクトリを `projects/<id>/` から `projects/completed/<id>/` に移動
 3. `projects/completed/<id>/config/project.json` の `status` を `archived` に書き換え
 4. `CURRENT_PROJECT.md` の `active` が当該 project を指していないことを確認
    （指していたら別 project に切替）
-5. `references/02-status/open-issues.md` の active project index から外し、
+5. `references/04-tracking/open-issues.md` の active project index から外し、
    「解決済みの課題」テーブルに 1 行追加する
 6. completed project の HANDOFF.md 末尾に `Archived: YYYY-MM-DD` 行を追加
 7. `cd app && npm run docs:generate` を実行（project-health に反映）
@@ -394,9 +394,9 @@ archive される project が依存していた references/ 文書は、project 
 
 | project の種類 | 更新が必要な正本 |
 |---|---|
-| 計画系 plan を持つ project | 関連 `references/03-guides/<plan-name>.md` を「歴史的計画書」マークに更新（既に live task が剥がされていれば追加変更不要） |
-| 設計判断を確定した project | 関連 `references/01-principles/<principle>.md` に決定内容を追記 |
-| 新機能を追加した project | `references/01-principles/` の機能定義書を最新状態に同期 |
+| 計画系 plan を持つ project | 関連 `references/03-implementation/<plan-name>.md` を「歴史的計画書」マークに更新（既に live task が剥がされていれば追加変更不要） |
+| 設計判断を確定した project | 関連 `references/01-foundation/<principle>.md` に決定内容を追記 |
+| 新機能を追加した project | `references/01-foundation/` の機能定義書を最新状態に同期 |
 | 共通インフラを変更した project | `CLAUDE.md` の関連セクションを更新 |
 | バージョン bump を含む project | `app/package.json` / `docs/contracts/project-metadata.json` / `CHANGELOG.md` |
 
@@ -439,8 +439,8 @@ archive される project が依存していた references/ 文書は、project 
 | `app/src/test/guards/checklistFormatGuard.test.ts` | checklist.md の規格適合を検証 (F1-F5) |
 | `app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts` | 規約と collector 実装の対称性を検証 (S1/S2/S3)。2026-04-13 追加 |
 | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | derivedStatus と物理配置の整合検証 |
-| `references/02-status/generated/project-health.json` | 生成された project KPI 正本 |
-| `references/02-status/generated/project-health.md` | 同 view（人間可読） |
+| `references/04-tracking/generated/project-health.json` | 生成された project KPI 正本 |
+| `references/04-tracking/generated/project-health.md` | 同 view（人間可読） |
 | `projects/_template/` | 新規 project 立ち上げのテンプレート（§10 参照） |
 
 ## 9. live project と判断
@@ -458,7 +458,7 @@ archive される project が依存していた references/ 文書は、project 
 | `aag-rule-splitting-execution` (archived) | AR-STRUCT-RESP-SEPARATION を 7 AR-RESP-* ルールに分割 (2026-04-13 archive) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `architecture-decision-backlog` (archived) | R-9 (c) 現状維持を決定 (2026-04-13 archive) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
 
-実時の値は [`references/02-status/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
+実時の値は [`references/04-tracking/generated/project-health.md`](../02-status/generated/project-health.md) を正本とする。
 
 ## 10. 新規 project bootstrap 手順（AI 向け）
 
@@ -517,7 +517,7 @@ verified LIVE な未着手項目だけを `* [ ]` で書く。
 cd app && npm run docs:generate
 ```
 
-`references/02-status/generated/project-health.md` に新 project が
+`references/04-tracking/generated/project-health.md` に新 project が
 `derivedStatus = in_progress` で現れることを確認する。
 
 ### Step 8: 関連文書を README / doc-registry に登録する（必要時）
@@ -529,7 +529,7 @@ references/ ドキュメントを作った場合は doc-registry.json と README
 
 ### Step 9: open-issues.md の active project 索引に追加する
 
-`references/02-status/open-issues.md` の `## active projects` テーブルに
+`references/04-tracking/open-issues.md` の `## active projects` テーブルに
 新 project の行を追加する。
 
 ### Step 10: format guard / consistency guard が PASS することを確認する
@@ -583,7 +583,7 @@ repo には常に 1 つの `quick-fixes` collection project が存在する。
 ## 単発 fix
 
 * [ ] (高) app/src/utils/foo.ts: 未使用 export `bar` を削除
-* [ ] (中) references/02-status/recent-changes.md: 2026-04 セクションに最新コミットを追記
+* [ ] (中) references/04-tracking/recent-changes.md: 2026-04 セクションに最新コミットを追記
 * [x] (高) app/src/components/X.tsx: typo "calcuate" を "calculate" に修正
 ```
 
@@ -645,7 +645,7 @@ format: `* [ ] (優先度) <スコープ>: <一文の説明>`
 
 リポジトリには「同じ値が複数の文書に重複して存在する」箇所がある。
 代表例: app version triplet（`app/package.json` の `version` / `docs/contracts/project-metadata.json` の
-`appVersion` / `CHANGELOG.md` の最新 `[v...]` / `references/02-status/recent-changes.md` の
+`appVersion` / `CHANGELOG.md` の最新 `[v...]` / `references/04-tracking/recent-changes.md` の
 最新 `## v...` 見出し）。
 
 これらは drift しやすく、過去にも 1.7.0 と 1.8.0 が混在する状態が指摘されている。

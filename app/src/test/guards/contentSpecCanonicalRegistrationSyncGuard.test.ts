@@ -15,7 +15,7 @@
  *   同期更新することを **本 guard が強制** する。片方だけ更新したら hard fail。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
- * references/03-guides/promote-ceremony-pr-template.md.
+ * references/03-implementation/promote-ceremony-pr-template.md.
  *
  * @taxonomyKind T:meta-guard
  *
@@ -57,7 +57,7 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
       if (expected !== actual) {
         violations.push(
           `${spec.id}: canonicalRegistration drift — spec='${actual}', registry='${expected}' (${registryKey}). ` +
-            `Promote Ceremony PR (references/03-guides/promote-ceremony-pr-template.md) で 1 PR 同期更新すること`,
+            `Promote Ceremony PR (references/03-implementation/promote-ceremony-pr-template.md) で 1 PR 同期更新すること`,
         )
       }
     }

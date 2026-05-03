@@ -4,8 +4,8 @@
  * store_day_summary.customers（flowers JOIN 済み）を構築・runtime 検証する。
  * infra query への依存はない（handler 側で取得済みのデータを渡す）。
  *
- * @see references/01-principles/customer-definition.md
- * @see references/01-principles/canonical-input-sets.md
+ * @see references/01-foundation/customer-definition.md
+ * @see references/01-foundation/canonical-input-sets.md
  *
  * @responsibility R:unclassified
  */

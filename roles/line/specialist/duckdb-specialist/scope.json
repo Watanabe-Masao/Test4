@@ -5,7 +5,7 @@
   "owns": [
     "app/src/infrastructure/duckdb/",
     "app/src/application/queries/",
-    "references/03-guides/duckdb-architecture.md"
+    "references/03-implementation/duckdb-architecture.md"
   ],
   "out_of_scope_warn": [
     "app/src/presentation/",

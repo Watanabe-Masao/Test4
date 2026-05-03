@@ -5,7 +5,7 @@
  * isPrevYear フラグによる単発取得を段階的に置換する。
  *
  * @invariant INV-RUN-02 Comparison Integrity
- * @see references/01-principles/safe-performance-principles.md
+ * @see references/01-foundation/safe-performance-principles.md
  *
  * @responsibility R:unclassified
  */

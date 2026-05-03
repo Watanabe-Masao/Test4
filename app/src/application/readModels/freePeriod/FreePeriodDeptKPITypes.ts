@@ -4,7 +4,7 @@
  * department_kpi テーブルから対象期間の部門別 KPI を集約する。
  * 月次データを対象期間で絞り込み、複数月分を合算。
  *
- * @see references/01-principles/free-period-budget-kpi-contract.md
+ * @see references/01-foundation/free-period-budget-kpi-contract.md
  *
  * @responsibility R:unclassified
  */

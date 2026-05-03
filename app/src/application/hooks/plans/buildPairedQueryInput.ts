@@ -39,7 +39,7 @@
 //
 // ## Chart Input Builder Pattern
 //
-// 本 builder は references/03-guides/chart-input-builder-pattern.md で定義
+// 本 builder は references/03-implementation/chart-input-builder-pattern.md で定義
 // された Pattern の 2 range 拡張版。chartInputBuilderGuard が presentation
 // 配下での dateRangeToKeys 直接呼び出しを禁止しているため、PairedInput を
 // 作る chart/hook は本 builder を経由する必要がある。

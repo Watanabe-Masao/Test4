@@ -8,7 +8,7 @@
  * Phase 5 で rolling sum / cumulative / trend に汎化予定。
  * hook 名は API 安定性のため変更しない。
  *
- * @see references/03-guides/temporal-analysis-policy.md
+ * @see references/03-implementation/temporal-analysis-policy.md
  *
  * @responsibility R:unclassified
  */

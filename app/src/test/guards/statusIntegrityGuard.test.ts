@@ -12,7 +12,7 @@
  *
  * @guard G8 責務分離ガード
  * @guard F3 全パターン同一
- * @see references/02-status/ar-rule-audit.md §2.4 (`AAG-REQ-SEMANTIC-ARTICULATION` の機械検証)
+ * @see references/04-tracking/ar-rule-audit.md §2.4 (`AAG-REQ-SEMANTIC-ARTICULATION` の機械検証)
  *
  * @responsibility R:unclassified
  *

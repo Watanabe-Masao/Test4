@@ -15,8 +15,8 @@
  *
  * 対象: 3 business candidate 関数（calculateQuantityPI, calculateAmountPI, calculatePIValues）
  *
- * @see references/03-guides/tier1-business-migration-plan.md — 8ステップ移行プロセス
- * @see references/03-guides/contract-definition-policy.md — 契約定義ポリシー
+ * @see references/03-implementation/tier1-business-migration-plan.md — 8ステップ移行プロセス
+ * @see references/03-implementation/contract-definition-policy.md — 契約定義ポリシー
  *
  * @responsibility R:unclassified
  */

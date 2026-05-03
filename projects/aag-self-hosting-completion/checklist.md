@@ -9,7 +9,7 @@
 
 - [x] `_template/` から `projects/aag-self-hosting-completion/` 作成 + 必須セット 6 ファイル
 - [x] config/project.json を AAG-COA Level 3 + architecture-refactor で articulate
-- [x] `references/02-status/open-issues.md` に `aag-self-hosting-completion` 行追加
+- [x] `references/04-tracking/open-issues.md` に `aag-self-hosting-completion` 行追加
 - [x] operational-protocol-system HANDOFF.md に ⏸ PAUSED articulation 追加 (= R5 完了で resume)
 - [x] DA-α-000 (進行モデル) landing
 - [x] breaking-changes.md landing (= breakingChange=true 必須、PZ-7 整合)
@@ -73,11 +73,11 @@
 
 - [ ] DA-α-004a entry landing
 - [ ] 5 directory rename (`git mv`):
-  - `references/01-principles/` → `references/01-foundation/`
-  - `references/02-status/` → `references/04-tracking/`
-  - `references/04-design-system/` → `references/02-design-system/`
-  - `references/03-guides/` → `references/03-implementation/`
-  - `references/05-contents/` → `references/04-tracking/elements/`
+  - `references/01-foundation/` → `references/01-foundation/`
+  - `references/04-tracking/` → `references/04-tracking/`
+  - `references/02-design-system/` → `references/02-design-system/`
+  - `references/03-implementation/` → `references/03-implementation/`
+  - `references/04-tracking/elements/` → `references/04-tracking/elements/`
 - [ ] 1,000+ inbound link 全 update (= 同一 commit 内で完結)
 - [ ] **観測** R3a-1: 5 旧 directory 不在 (= machine-verifiable: `for d in 01-principles 02-status 04-design-system 03-guides 05-contents; do test ! -d references/$d; done`)
 - [ ] **観測** R3a-2: broken link 0 (= grep で旧 path 文字列 0 件、archive 例外除く)

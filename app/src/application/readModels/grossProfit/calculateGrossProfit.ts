@@ -4,7 +4,7 @@
  * 在庫法 / 推定法 × 原価算入費前 / 後 の4種を統一的に計算する。
  * 既存の invMethod.ts / estMethod.ts を内部利用する wrapper。
  *
- * @see references/01-principles/gross-profit-definition.md
+ * @see references/01-foundation/gross-profit-definition.md
  *
  * @responsibility R:read-model
  */

@@ -140,7 +140,7 @@ export async function executeLoadMonth(
  * **用途:** 「不要になった月データを除去する」こと。`loadMonth` の前処理として
  * 呼ぶべきではない（`loadMonth` は replace セマンティクスで内部削除を完結
  * するため、前処理 delete は冗長になる）。詳細は `dataLoader.ts::loadMonth` の
- * JSDoc と `references/03-guides/data-load-idempotency-plan.md` を参照。
+ * JSDoc と `references/03-implementation/data-load-idempotency-plan.md` を参照。
  *
  * **スコープ:** 当年スコープ（(year, month) 全行）と前年スコープ
  * （(year-1, month) に格納される分）の両方を消す必要があるため、

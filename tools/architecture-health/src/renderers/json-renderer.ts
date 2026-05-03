@@ -8,7 +8,7 @@ import type { HealthReport } from '../types.js'
 export function renderJson(report: HealthReport, repoRoot: string): string {
   const outPath = resolve(
     repoRoot,
-    'references/02-status/generated/architecture-health.json',
+    'references/04-tracking/generated/architecture-health.json',
   )
   mkdirSync(dirname(outPath), { recursive: true })
   const json = JSON.stringify(report, null, 2) + '\n'

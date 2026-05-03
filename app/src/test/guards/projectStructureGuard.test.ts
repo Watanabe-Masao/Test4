@@ -1,7 +1,7 @@
 /**
  * Project Structure Guard — プロジェクト構成文書とファイルシステムの整合性検証
  *
- * references/02-status/project-structure.md に記載されたディレクトリ構成が
+ * references/04-tracking/project-structure.md に記載されたディレクトリ構成が
  * 実際のファイルシステムと一致していることを機械的に検証する。
  *
  * ドキュメント品質層のガード。
@@ -99,7 +99,7 @@ describe('Project Structure Guard: プロジェクト構成の整合性', () => 
       .filter((f) => f.endsWith('.test.ts'))
       .sort()
 
-    const structureDoc = path.join(PROJECT_ROOT, 'references/02-status/project-structure.md')
+    const structureDoc = path.join(PROJECT_ROOT, 'references/04-tracking/project-structure.md')
     const content = fs.readFileSync(structureDoc, 'utf-8')
 
     // guards/ に存在するが project-structure.md の generated section に

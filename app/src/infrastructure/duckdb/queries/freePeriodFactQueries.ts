@@ -4,7 +4,7 @@
  * application/readModels/freePeriod からの SQL / queryRunner 依存を
  * infrastructure 層に閉じ込める。
  *
- * @see references/01-principles/free-period-analysis-definition.md
+ * @see references/01-foundation/free-period-analysis-definition.md
  *
  * @responsibility R:unclassified
  */
@@ -91,7 +91,7 @@ const DAILY_SQL = (where: string) => `
  *
  * **重複耐性:** `classified_sales` (cs) 側 / `purchase` (p) 側ともに subquery で
  * 事前集約してから LEFT JOIN する（schemas.ts の day-summary VIEW と同じ pre-aggregate パターン）。
- * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/6
+ * 詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/6
  */
 export async function queryFreePeriodDaily(
   conn: AsyncDuckDBConnection,

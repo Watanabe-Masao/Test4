@@ -26,14 +26,14 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 **ドキュメント更新が必要かどうか**を判断する。pm-business は判断しない。
 
 **更新する:**
-- 設計原則が追加・変更された → CLAUDE.md + references/01-principles/design-principles.md
+- 設計原則が追加・変更された → CLAUDE.md + references/01-foundation/design-principles.md
 - 設計判断が行われた（architecture が設計判断書を出した）→ references/ に ADR 追加
 - ロールの判断基準・責務に変更が生じた → 該当 ROLE.md / SKILL.md
 - ルーティング表に影響する変更（新しい作業種別、パス変更）→ CLAUDE.md §ルーティング表
-- 新しい MetricId が追加された → references/03-guides/metric-id-registry.md
-- ガードテストが追加・変更された → references/03-guides/guard-test-map.md + references/03-guides/invariant-catalog.md
+- 新しい MetricId が追加された → references/03-implementation/metric-id-registry.md
+- ガードテストが追加・変更された → references/03-implementation/guard-test-map.md + references/03-implementation/invariant-catalog.md
 - review-gate が構造的 FAIL を出し、再発防止策が決まった → フィードバックスパイラルに従い該当文書
-- 作業者から課題・リスクが報告された → references/02-status/open-issues.md（C-*/R-* に分類して記録）
+- 作業者から課題・リスクが報告された → references/04-tracking/open-issues.md（C-*/R-* に分類して記録）
 
 **更新しない:**
 - 既存パターンに従った実装のみの変更（コードだけで完結する）
@@ -58,9 +58,9 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 
 ### 課題の分類
 
-- コードの実態と矛盾 → 即修正（`references/02-status/open-issues.md` の現在の課題 C-*）
-- 将来リスク → `references/02-status/open-issues.md` のリスク R-* に記録
-- 解決済み → `references/02-status/open-issues.md` のアーカイブ S-* に移動
+- コードの実態と矛盾 → 即修正（`references/04-tracking/open-issues.md` の現在の課題 C-*）
+- 将来リスク → `references/04-tracking/open-issues.md` のリスク R-* に記録
+- 解決済み → `references/04-tracking/open-issues.md` のアーカイブ S-* に移動
 
 ## Scope
 
@@ -69,7 +69,7 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 - references/ 配下の参照資料の更新
 - ADR（Architecture Decision Record）の作成（`references/99-archive/`）
 - ドキュメントとコードベースの整合性監査
-- `references/02-status/open-issues.md` の課題管理（3分類: 現在の課題 / 将来のリスク / 解決済み）
+- `references/04-tracking/open-issues.md` の課題管理（3分類: 現在の課題 / 将来のリスク / 解決済み）
 
 ## Boundary（やらないこと）
 
@@ -106,4 +106,4 @@ pm-business からタスク完了の報告を受けたとき、documentation-ste
 - CLAUDE.md — プロジェクトのルール・設計思想（**必読**）
 - 全 ROLE.md — 連携関係の把握用
 - `references/` 全ファイル — 整合性監査対象
-- `references/02-status/open-issues.md` — 課題管理
+- `references/04-tracking/open-issues.md` — 課題管理

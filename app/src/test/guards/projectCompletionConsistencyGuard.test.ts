@@ -27,7 +27,7 @@
  *   prefix が誤り
  *
  * L1/L2/L3 は CLAUDE.md / references/ / projects/（active）をスキャンする。
- * CHANGELOG.md / references/02-status/generated/ / projects/completed/ /
+ * CHANGELOG.md / references/04-tracking/generated/ / projects/completed/ /
  * projects/_template/ は除外対象（歴史的文書 or 自動生成）。
  * fenced code block（```/~~~）内は移行手順例として出現するためスキャン対象外。
  *
@@ -165,7 +165,7 @@ const LINK_SKIP_FILES: ReadonlySet<string> = new Set([
 ])
 
 const LINK_SKIP_PATH_PREFIXES: readonly string[] = [
-  'references/02-status/generated/', // 自動生成
+  'references/04-tracking/generated/', // 自動生成
   'projects/completed/', // archived — 内容は凍結
   'projects/_template/', // placeholder
 ]
@@ -304,9 +304,9 @@ function checkConsistency(): ConsistencyViolation[] {
           `  1. mv ${path.relative(PROJECT_ROOT, p.entryDir)} projects/completed/${p.projectId}\n` +
           `  2. projects/completed/${p.projectId}/config/project.json の status を "archived" に書き換える\n` +
           '  3. CURRENT_PROJECT.md が当 project を指していないことを確認する\n' +
-          '  4. references/02-status/open-issues.md の active 索引から外し、解決済みテーブルに追加する\n' +
+          '  4. references/04-tracking/open-issues.md の active 索引から外し、解決済みテーブルに追加する\n' +
           `  5. HANDOFF.md 末尾に \`Archived: ${new Date().toISOString().slice(0, 10)}\` を追加する\n` +
-          '  6. 関連正本（references/03-guides/* 等）の状態更新が必要なら同 commit で対応する\n' +
+          '  6. 関連正本（references/03-implementation/* 等）の状態更新が必要なら同 commit で対応する\n' +
           '  7. cd app && npm run docs:generate で project-health に反映する\n' +
           '  詳細: references/05-aag-interface/operations/project-checklist-governance.md §6.2',
       })
@@ -459,7 +459,7 @@ describe('Project Completion Consistency Guard', () => {
 
     it('shouldSkipForLinkCheck は CHANGELOG / generated / projects/completed / _template を除外する', () => {
       expect(shouldSkipForLinkCheck('CHANGELOG.md')).toBe(true)
-      expect(shouldSkipForLinkCheck('references/02-status/generated/project-health.md')).toBe(true)
+      expect(shouldSkipForLinkCheck('references/04-tracking/generated/project-health.md')).toBe(true)
       expect(
         shouldSkipForLinkCheck('projects/completed/docs-and-governance-cohesion/plan.md'),
       ).toBe(true)

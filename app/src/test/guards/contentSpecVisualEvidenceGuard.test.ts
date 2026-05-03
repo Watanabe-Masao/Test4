@@ -21,7 +21,7 @@
  *   構造的に許容しない。ratchet-down は増加方向に戻さない。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §Phase G,
- * references/05-contents/{charts,ui-components}/README.md §「Visual Evidence」.
+ * references/04-tracking/elements/{charts,ui-components}/README.md §「Visual Evidence」.
  *
  * @taxonomyKind T:meta-guard
  *

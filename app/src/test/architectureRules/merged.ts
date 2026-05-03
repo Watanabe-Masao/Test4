@@ -28,7 +28,7 @@
  *
  * @responsibility R:unclassified
  * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
- * @see references/03-guides/governance-final-placement-plan.md
+ * @see references/03-implementation/governance-final-placement-plan.md
  */
 
 import { readFileSync } from 'node:fs'

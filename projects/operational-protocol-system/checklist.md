@@ -9,7 +9,7 @@
 - [x] `_template/` から `projects/operational-protocol-system/` 作成 + 必須セット 6 ファイル
 - [x] charter draft 内容を plan.md に migrate + charter draft 削除 (= 重複 articulate 防止)
 - [x] config/project.json を AAG-COA Level 2 + governance-hardening で articulate
-- [x] `references/02-status/open-issues.md` に `operational-protocol-system` 行追加
+- [x] `references/04-tracking/open-issues.md` に `operational-protocol-system` 行追加
 - [x] `references/README.md` + `docs/contracts/doc-registry.json` から charter draft entry 削除 (= 移動済)
 - [ ] DA-α-000 (進行モデル) landing
 - [ ] `cd app && npm run docs:generate && npm run docs:check && npm run test:guards && npm run lint && npm run build` 全 PASS

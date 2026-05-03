@@ -13,7 +13,7 @@
  *   構造的に排除し、Promote Ceremony が 1 PR で双方を同期更新することを強制する。
  *
  * 詳細: projects/completed/phased-content-specs-rollout/plan.md §5.4 Lifecycle State Machine,
- * references/03-guides/promote-ceremony-pr-template.md §「状態遷移の規則」.
+ * references/03-implementation/promote-ceremony-pr-template.md §「状態遷移の規則」.
  *
  * @taxonomyKind T:meta-guard
  *

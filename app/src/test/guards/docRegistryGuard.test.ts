@@ -13,7 +13,7 @@
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-DOC-STATIC-NUMBER)
  *
- * @see references/03-guides/integrity-domain-architecture.md §5 adapter pattern
+ * @see references/03-implementation/integrity-domain-architecture.md §5 adapter pattern
  *
  * @responsibility R:unclassified
  * @taxonomyKind T:unclassified
@@ -71,12 +71,12 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     expect(missing, formatViolationMessage(rule, missing)).toEqual([])
   })
 
-  it('references/01-principles/ の .md がレジストリに登録されている', () => {
-    const dir = path.join(PROJECT_ROOT, 'references/01-principles')
+  it('references/01-foundation/ の .md がレジストリに登録されている', () => {
+    const dir = path.join(PROJECT_ROOT, 'references/01-foundation')
     const actualFiles = fs
       .readdirSync(dir)
       .filter((f) => f.endsWith('.md'))
-      .map((f) => `references/01-principles/${f}`)
+      .map((f) => `references/01-foundation/${f}`)
 
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,
@@ -105,12 +105,12 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
     )
   })
 
-  it('references/03-guides/ の .md がレジストリに登録されている', () => {
-    const dir = path.join(PROJECT_ROOT, 'references/03-guides')
+  it('references/03-implementation/ の .md がレジストリに登録されている', () => {
+    const dir = path.join(PROJECT_ROOT, 'references/03-implementation')
     const actualFiles = fs
       .readdirSync(dir)
       .filter((f) => f.endsWith('.md'))
-      .map((f) => `references/03-guides/${f}`)
+      .map((f) => `references/03-implementation/${f}`)
 
     const violations = checkBidirectionalExistence(allRegisteredPaths, new Set(actualFiles), {
       ruleId: rule.id,

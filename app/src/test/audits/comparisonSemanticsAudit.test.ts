@@ -172,7 +172,7 @@ describe('Comparison Semantics Audit — 比較意味論の散逸検出', () => 
 
   // ── 8. レポート生成 ──
   it('比較意味論レポートを生成する', () => {
-    const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
+    const reportDir = path.resolve(__dirname, '../../../../references/04-tracking/generated')
     if (!fs.existsSync(reportDir)) {
       fs.mkdirSync(reportDir, { recursive: true })
     }

@@ -4,7 +4,7 @@
  * budgetAnalysis は WASM authoritative に昇格済み。
  * 2 関数 × 4 フィクスチャで不変条件を検証する。
  *
- * @see references/02-status/engine-promotion-matrix.md — authoritative
+ * @see references/04-tracking/engine-promotion-matrix.md — authoritative
  *
  * @taxonomyKind T:unclassified
  */

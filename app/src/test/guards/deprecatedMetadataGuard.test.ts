@@ -36,7 +36,7 @@
  * 参照:
  *  - projects/architecture-debt-recovery/inquiry/15-remediation-plan.md §ADR-D-004
  *  - projects/aag-temporal-governance-hardening/plan.md §ADR-D-004
- *  - references/03-guides/architecture-rule-system.md（temporal governance）
+ *  - references/03-implementation/architecture-rule-system.md（temporal governance）
  *
  * @responsibility R:guard
  *

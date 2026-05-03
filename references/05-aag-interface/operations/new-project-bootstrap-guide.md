@@ -136,7 +136,7 @@ npm run build               # 6. tsc + vite build
 
 ### Step 8: open-issues.md の索引に追加
 
-`references/02-status/open-issues.md` の `## active projects` テーブルに
+`references/04-tracking/open-issues.md` の `## active projects` テーブルに
 新 project の行を追加する。
 
 ---

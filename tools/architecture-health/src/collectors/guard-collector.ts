@@ -61,7 +61,7 @@ export function collectFromGuards(repoRoot: string): HealthKpi[] {
     unit: 'count',
     status: 'ok',
     owner: 'architecture',
-    docRefs: [{ kind: 'definition', path: 'references/03-guides/architecture-rule-system.md' }],
+    docRefs: [{ kind: 'definition', path: 'references/03-implementation/architecture-rule-system.md' }],
     implRefs: ['app-domain/gross-profit/rule-catalog/base-rules.ts'],
   })
 

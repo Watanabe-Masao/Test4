@@ -4,8 +4,8 @@
  * 当期・前年の SalesFactReadModel + CustomerFactReadModel から
  * 客数GAP 計算に必要な入力を構築する。
  *
- * @see references/01-principles/canonical-input-sets.md
- * @see references/01-principles/customer-gap-definition.md
+ * @see references/01-foundation/canonical-input-sets.md
+ * @see references/01-foundation/customer-gap-definition.md
  *
  * @responsibility R:unclassified
  */

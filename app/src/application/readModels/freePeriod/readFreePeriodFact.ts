@@ -4,7 +4,7 @@
  * DuckDB から日別×店舗の売上/仕入/客数/売変を取得し、
  * JS で期間サマリーを導出して FreePeriodReadModel を返す。
  *
- * @see references/01-principles/free-period-analysis-definition.md (予定)
+ * @see references/01-foundation/free-period-analysis-definition.md (予定)
  *
  * @responsibility R:unclassified
  */

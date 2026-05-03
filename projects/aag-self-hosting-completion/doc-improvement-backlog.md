@@ -92,8 +92,8 @@ references/              = 正本・手順 + AI 向け knowledge interface
 
 ### P1-4: drawer doc + AAG operations 4 doc の冒頭 reader articulate refine
 
-- **場所**: `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md`
-- **現状**: 旧構造 (= references/01-principles/aag/ への back-link articulated、sed で path は update 済だが意味文脈は旧前提)
+- **場所**: `references/03-implementation/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md`
+- **現状**: 旧構造 (= references/01-foundation/aag/ への back-link articulated、sed で path は update 済だが意味文脈は旧前提)
 - **改善**: R2 で `references/05-aag-interface/` に移動時に冒頭で **reader = 主アプリ改修 user** + **新 3 tree boundary** 文脈を refine
 - **解消 phase**: R2 (= relocate と同時)
 - **影響**: 5 doc
@@ -101,14 +101,14 @@ references/              = 正本・手順 + AI 向け knowledge interface
 ### P1-5: aag/_internal/{meta,strategy,architecture}.md の冒頭 reader articulate refine
 
 - **場所**: aag/_internal/ 9 doc
-- **現状**: 旧 references/01-principles/aag/ 配置前提で articulate (= aag/_internal/ への移動を反映していない)
+- **現状**: 旧 references/01-foundation/aag/ 配置前提で articulate (= aag/_internal/ への移動を反映していない)
 - **改善**: 冒頭で **reader = AAG framework 改修者のみ** + **主アプリ改修者は読まない** boundary 警告 articulate (= aag/README.md と整合)
 - **解消 phase**: R2 もしくは R6 (= self-hosting closure update と同時)
 - **影響**: 9 doc (ただし内容変更は不可侵原則 2a 違反 risk、冒頭注記のみ追加で対応)
 
 ### P2-1: 構造化 (= AI parse 容易な table / ID 化)
 
-- **場所**: `references/03-guides/coding-conventions.md` / `invariant-catalog.md` / 各業務 doc
+- **場所**: `references/03-implementation/coding-conventions.md` / `invariant-catalog.md` / 各業務 doc
 - **現状**: prose 形式で規約 / 不変条件が articulate
 - **改善**: **規約 ID** (= `CC-001`...) で table 化、grep-able + cross-reference 容易
 - **解消 phase**: post-R7、別 program candidate

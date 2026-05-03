@@ -1,7 +1,7 @@
 /**
  * 前年比客数GAP テスト
  *
- * @see references/01-principles/customer-gap-definition.md
+ * @see references/01-foundation/customer-gap-definition.md
  *
  * @taxonomyKind T:unclassified
  */

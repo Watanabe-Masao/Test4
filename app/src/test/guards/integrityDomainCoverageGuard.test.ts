@@ -18,8 +18,8 @@
  * (Phase F 完了時点で未 migration)。Phase H 完了時に「Phase H 採用候補を含む形」
  * へ昇格する (`projects/completed/canonicalization-domain-consolidation/checklist.md` Phase H)。
  *
- * @see references/01-principles/canonicalization-principles.md §P9
- * @see references/03-guides/integrity-domain-architecture.md
+ * @see references/01-foundation/canonicalization-principles.md §P9
+ * @see references/03-implementation/integrity-domain-architecture.md
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard

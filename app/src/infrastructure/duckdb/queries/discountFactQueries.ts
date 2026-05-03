@@ -4,7 +4,7 @@
  * application/readModels/discountFact からの SQL / queryRunner 依存を
  * infrastructure 層に閉じ込める。
  *
- * @see references/01-principles/discount-definition.md
+ * @see references/01-foundation/discount-definition.md
  *
  * @responsibility R:unclassified
  */
@@ -42,7 +42,7 @@ export interface RawDiscountFactRow {
  * 構造ではここが一意になるため SUM は事実上 1:1。同じキーが 2 行存在する
  * ロードバグ時にのみ倍化する（FRAGILE 群より発火条件は狭い）。
  *
- * @see references/03-guides/read-path-duplicate-audit.md §PARTIAL/9
+ * @see references/03-implementation/read-path-duplicate-audit.md §PARTIAL/9
  */
 export async function queryDiscountFact(
   conn: AsyncDuckDBConnection,

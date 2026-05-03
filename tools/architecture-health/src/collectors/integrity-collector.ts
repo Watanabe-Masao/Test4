@@ -17,7 +17,7 @@
  * 脆弱だった。COVERAGE_MAP を JSON 正本に集約し、test/collector 双方が `JSON.parse` 経由で
  * 構造化 read する形に統一。drift risk 解消 (傾向 1 解消)。
  *
- * @see references/03-guides/integrity-domain-architecture.md §8
+ * @see references/03-implementation/integrity-domain-architecture.md §8
  * @see app-domain/integrity/coverage/coverage-map.json (正本 data)
  * @see app-domain/integrity/coverage/index.ts (test 側 typed wrapper)
  */

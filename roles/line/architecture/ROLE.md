@@ -83,7 +83,7 @@
 
 ## 設計思想19原則（本ロールが管理）
 
-全ロールの判断基準となる普遍的原則。詳細は `references/01-principles/design-principles.md` を参照。
+全ロールの判断基準となる普遍的原則。詳細は `references/01-foundation/design-principles.md` を参照。
 
 1. **機械で守る** — ルールはテストに書く。文書だけでは守られない
 2. **境界で検証** — 外部入力は Branded Type で検証済みを型保証
@@ -104,8 +104,8 @@
 
 ## 参照ドキュメント
 
-- `references/01-principles/design-principles.md` — 設計思想19原則 詳細と適用例（**本ロールが管理**）
-- `references/01-principles/data-flow.md` — データフローアーキテクチャ（**本ロールが管理**）
-- `references/03-guides/guard-test-map.md` — ガードテスト一覧
-- `references/01-principles/engine-responsibility.md` — JS vs DuckDB 責務マトリクス
-- `references/03-guides/invariant-catalog.md` — 不変条件カタログ
+- `references/01-foundation/design-principles.md` — 設計思想19原則 詳細と適用例（**本ロールが管理**）
+- `references/01-foundation/data-flow.md` — データフローアーキテクチャ（**本ロールが管理**）
+- `references/03-implementation/guard-test-map.md` — ガードテスト一覧
+- `references/01-foundation/engine-responsibility.md` — JS vs DuckDB 責務マトリクス
+- `references/03-implementation/invariant-catalog.md` — 不変条件カタログ

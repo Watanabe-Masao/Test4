@@ -9,7 +9,7 @@
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `projectizationLevel`      | Level 4 (Umbrella)                                                                                                                               |
 | `changeType`               | architecture-refactor                                                                                                                            |
-| `implementationScope`      | `["app/src/test/responsibilityTagRegistry.ts", "app/src/test/guards/", "docs/contracts/", "references/01-principles/", "references/02-status/"]` |
+| `implementationScope`      | `["app/src/test/responsibilityTagRegistry.ts", "app/src/test/guards/", "docs/contracts/", "references/01-foundation/", "references/04-tracking/"]` |
 | `breakingChange`           | true                                                                                                                                             |
 | `requiresLegacyRetirement` | true                                                                                                                                             |
 | `requiresGuard`            | true                                                                                                                                             |

@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..', '..')
-const SPECS_BASE = resolve(REPO_ROOT, 'references/05-contents')
+const SPECS_BASE = resolve(REPO_ROOT, 'references/04-tracking/elements')
 
 const KIND_DIRS = {
   widget: 'widgets',
@@ -350,7 +350,7 @@ function renderMarkdown(report) {
   lines.push('- [ ] 各 affected spec の prose (1 文概要 / Invariants / Co-Change Impact) が現状と整合するかレビュー')
   if (report.riskCounts.high > 0) {
     lines.push(
-      '- [ ] **HIGH risk spec** は Promote Ceremony PR template (`references/03-guides/promote-ceremony-pr-template.md`) の手順に従い 1 PR 5 同期で更新',
+      '- [ ] **HIGH risk spec** は Promote Ceremony PR template (`references/03-implementation/promote-ceremony-pr-template.md`) の手順に従い 1 PR 5 同期で更新',
     )
   }
   if (report.riskCounts.medium > 0) {

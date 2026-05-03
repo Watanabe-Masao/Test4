@@ -130,8 +130,8 @@ duckdb-specialist が適用する原則:
 
 ## 参照ドキュメント
 
-- `references/01-principles/engine-responsibility.md` — JS vs DuckDB 責務マトリクス（**必読**）
-- `references/03-guides/duckdb-architecture.md` — DuckDB 詳細アーキテクチャ
+- `references/01-foundation/engine-responsibility.md` — JS vs DuckDB 責務マトリクス（**必読**）
+- `references/03-implementation/duckdb-architecture.md` — DuckDB 詳細アーキテクチャ
 - `infrastructure/duckdb/schemas.ts` — テーブル DDL
 - `infrastructure/duckdb/queries/` — SQL クエリモジュール群
 - `application/hooks/duckdb/` — クエリフック群

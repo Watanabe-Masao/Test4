@@ -257,7 +257,7 @@ describe('Query Access Audit — クエリアクセス経路棚卸し', () => {
   })
 
   it('経路レポートを生成する', () => {
-    const reportDir = path.resolve(__dirname, '../../../../references/02-status/generated')
+    const reportDir = path.resolve(__dirname, '../../../../references/04-tracking/generated')
     if (!fs.existsSync(reportDir)) {
       fs.mkdirSync(reportDir, { recursive: true })
     }

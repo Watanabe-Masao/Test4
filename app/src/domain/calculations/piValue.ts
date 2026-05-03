@@ -9,8 +9,8 @@
  *
  * 不変条件: 客単価 = (点数PI値 / 1,000) × 点単価
  *
- * @see references/01-principles/pi-value-definition.md
- * @see references/01-principles/calculation-canonicalization-map.md
+ * @see references/01-foundation/pi-value-definition.md
+ * @see references/01-foundation/calculation-canonicalization-map.md
  *
  * @responsibility R:unclassified
  */

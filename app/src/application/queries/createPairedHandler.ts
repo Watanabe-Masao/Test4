@@ -5,7 +5,7 @@
  * （日付アライメント、累計比較等）は専用 pair handler を書くこと。
  *
  * @invariant INV-RUN-02 Comparison Integrity
- * @see references/01-principles/safe-performance-principles.md
+ * @see references/01-foundation/safe-performance-principles.md
  *
  * @responsibility R:unclassified
  */

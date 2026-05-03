@@ -5,8 +5,8 @@
  * 分析入力（PI値、客数GAP等）としては CustomerFact を使用すべき。
  * 既存利用は allowlist で一時許可し、新規利用を禁止する ratchet guard。
  *
- * @see references/01-principles/customer-definition.md
- * @see references/01-principles/canonical-input-sets.md
+ * @see references/01-foundation/customer-definition.md
+ * @see references/01-foundation/canonical-input-sets.md
  * @guard G1 テストに書く
  * ルール定義: architectureRules.ts (AR-STRUCT-STORE-RESULT-INPUT)
  *

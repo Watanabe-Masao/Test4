@@ -107,7 +107,7 @@ export const StoreCostPriceRowSchema = z.object({
  * これにより JOIN/UNION 後の集約が source 行重複に対して構造的に防御される
  * （pre-aggregate 層）。ロード境界の replace 契約と二重に守る defense-in-depth。
  *
- * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/1
+ * 詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/1
  */
 export async function queryStoreCostPrice(
   conn: AsyncDuckDBConnection,
@@ -161,7 +161,7 @@ export const StoreDailyMarkupRateRowSchema = z.object({
  *
  * **重複耐性:** `queryStoreCostPrice` と同パターンで各 source を subquery で
  * `(year, month, store_id, day)` 粒度に事前集約してから UNION する。
- * 詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/2
+ * 詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/2
  */
 export async function queryStoreDailyMarkupRate(
   conn: AsyncDuckDBConnection,
@@ -303,7 +303,7 @@ export const CategoryDailyRowSchema = z.object({
  *   `special_sales` を直接 SUM。`(store_id, day, type)` 粒度で重複行が混入すると
  *   cost/price が倍化する（is_prev_year 列なし → 当年/前年混線はないが、ロード
  *   境界由来の重複には無防備）。
- *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/3
+ *   詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/3
  */
 export async function querySpecialSalesDaily(
   conn: AsyncDuckDBConnection,
@@ -333,7 +333,7 @@ export async function querySpecialSalesDaily(
  *
  * @risk FRAGILE @depends-on loadMonth-replace-semantics
  *   `querySpecialSalesDaily` と同構造（対象 `transfers` / キー `direction`）。
- *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/4
+ *   詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/4
  */
 export async function queryTransfersDaily(
   conn: AsyncDuckDBConnection,
@@ -374,7 +374,7 @@ export const SalesTotalRowSchema = z.object({
  *   `is_prev_year` フィルタで当年/前年混線は防げるが、単一レーン内の明細行重複
  *   には無防備。明細粒度が長く重複検出が難しいためロード境界の正しさに強く
  *   依存する。
- *   詳細: references/03-guides/read-path-duplicate-audit.md §FRAGILE/5
+ *   詳細: references/03-implementation/read-path-duplicate-audit.md §FRAGILE/5
  */
 export async function querySalesTotal(
   conn: AsyncDuckDBConnection,

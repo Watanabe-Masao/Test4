@@ -8,7 +8,7 @@
  *   推定法:   通常仕入 + 移動原価（売上納品を除外）
  *   仕入分析: 通常仕入 + 売上納品 + 移動原価（3つ全部）
  *
- * 正本定義の根拠: references/01-principles/purchase-cost-definition.md
+ * 正本定義の根拠: references/01-foundation/purchase-cost-definition.md
  *
  * parse 方針:
  *   正本 read model 生成時は DEV/PROD とも .parse() — fail fast

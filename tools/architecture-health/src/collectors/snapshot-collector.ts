@@ -8,7 +8,7 @@ import type { ArchitectureSnapshot, HealthKpi } from '../types.js'
 export function collectFromSnapshot(repoRoot: string): HealthKpi[] {
   const snapshotPath = resolve(
     repoRoot,
-    'references/02-status/generated/architecture-state-snapshot.json',
+    'references/04-tracking/generated/architecture-state-snapshot.json',
   )
   const raw = readFileSync(snapshotPath, 'utf-8')
   const snapshot: ArchitectureSnapshot = JSON.parse(raw)

@@ -10,8 +10,8 @@ import { okResult, invalidResult } from '@/domain/models/CalculationResult'
 /**
  * 売変影響分析
  *
- * @see references/01-principles/calculation-canonicalization-map.md — 必須分類
- * @see references/01-principles/discount-definition.md — 値引きの正本定義
+ * @see references/01-foundation/calculation-canonicalization-map.md — 必須分類
+ * @see references/01-foundation/discount-definition.md — 値引きの正本定義
  */
 
 /** 売変影響の入力パラメータ */

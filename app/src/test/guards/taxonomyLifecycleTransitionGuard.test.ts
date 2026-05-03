@@ -39,8 +39,8 @@
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard
- * @see references/01-principles/taxonomy-constitution.md (原則 3 / 原則 4)
- * @see references/02-status/taxonomy-review-journal.md (lifecycle 遷移の human approval 記録)
+ * @see references/01-foundation/taxonomy-constitution.md (原則 3 / 原則 4)
+ * @see references/04-tracking/taxonomy-review-journal.md (lifecycle 遷移の human approval 記録)
  * @see CLAUDE.md §taxonomy-binding (AI Vocabulary Binding rule、本 guard の根拠)
  */
 import { describe, it, expect } from 'vitest'
@@ -50,7 +50,7 @@ import { RESPONSIBILITY_TAG_REGISTRY_V2 } from '../responsibilityTaxonomyRegistr
 import { TEST_TAXONOMY_REGISTRY_V2 } from '../testTaxonomyRegistryV2'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../..')
-const REVIEW_JOURNAL = path.resolve(PROJECT_ROOT, 'references/02-status/taxonomy-review-journal.md')
+const REVIEW_JOURNAL = path.resolve(PROJECT_ROOT, 'references/04-tracking/taxonomy-review-journal.md')
 
 const VALID_LIFECYCLE = new Set([
   'proposed',

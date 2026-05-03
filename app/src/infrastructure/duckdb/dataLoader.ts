@@ -80,7 +80,7 @@ async function purgeLoadTarget(
  * **失敗時:** INSERT 途中で例外が発生した場合、同じ削除を再実行してから例外を再送出する。
  * これにより partial な月が残存しない。
  *
- * 関連: `references/03-guides/data-load-idempotency-plan.md`
+ * 関連: `references/03-implementation/data-load-idempotency-plan.md`
  */
 export async function loadMonth(
   conn: AsyncDuckDBConnection,

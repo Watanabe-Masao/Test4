@@ -81,7 +81,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "../../..");
 const healthJsonPath = resolve(
   repoRoot,
-  "references/02-status/generated/architecture-health.json",
+  "references/04-tracking/generated/architecture-health.json",
 );
 
 // ---------------------------------------------------------------------------
@@ -235,7 +235,7 @@ if (!isCheck) {
       content: inlineContent,
     },
     {
-      filePath: "references/02-status/technical-debt-roadmap.md",
+      filePath: "references/04-tracking/technical-debt-roadmap.md",
       sectionId: "architecture-health-summary",
       content: inlineContent,
     },
@@ -267,12 +267,12 @@ if (!isCheck) {
 
   const structureResults = updateGeneratedSections(repoRoot, [
     {
-      filePath: "references/02-status/project-structure.md",
+      filePath: "references/04-tracking/project-structure.md",
       sectionId: "features-list",
       content: featuresContent,
     },
     {
-      filePath: "references/02-status/project-structure.md",
+      filePath: "references/04-tracking/project-structure.md",
       sectionId: "guard-files-list",
       content: guardsContent,
     },

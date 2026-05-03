@@ -371,7 +371,7 @@ describe('G3: ソースコードに eslint-disable / @ts-ignore がない', () =
   // 正当な例外（ライブラリ制約・非標準 API 対応）
   // 2026-04-13: signalIntegrity.ts に切り出し済み（reason / removalCondition 構造化）
   // 詳細: app/src/test/allowlists/signalIntegrity.ts
-  // 上位原則: references/01-principles/test-signal-integrity.md
+  // 上位原則: references/01-foundation/test-signal-integrity.md
   const G3_ALLOWLIST = G3_SUPPRESS_PATH_SET
 
   it('eslint-disable コメントが存在しない（許可リスト除く）', () => {

@@ -313,7 +313,7 @@ true の場合、`projects/<id>/legacy-retirement.md` を必須にする。
 4. allowlist 管理（必要なら）
 5. fix hints（error message に載せる修正誘導）
 
-詳細: `references/03-guides/architecture-rule-system.md`
+詳細: `references/03-implementation/architecture-rule-system.md`
 
 ## 8. Human Approval 判定
 

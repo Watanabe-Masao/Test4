@@ -2,7 +2,7 @@
  * CategoryDiscountPairHandler — カテゴリ別値引きの pair 化版
  *
  * @invariant INV-RUN-02 Comparison Integrity
- * @see references/01-principles/safe-performance-principles.md
+ * @see references/01-foundation/safe-performance-principles.md
  *
  * @responsibility R:unclassified
  */

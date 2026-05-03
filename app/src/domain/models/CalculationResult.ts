@@ -4,7 +4,7 @@
  * 0 / null / 計算不能 / 推定値 / 異常値 の境界を明示する。
  * safeDivide(..., 0) による意味潰しを防ぎ、UI が warning を拾えるようにする。
  *
- * 参照: references/01-principles/observation-period-spec.md (status 定義)
+ * 参照: references/01-foundation/observation-period-spec.md (status 定義)
  *
  * @responsibility R:unclassified
  */

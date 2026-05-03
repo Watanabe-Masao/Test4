@@ -135,7 +135,7 @@ describe('co-change: 変更の影響範囲チェック', () => {
     // ── 3. guard/allowlist 変更 → docs:generate ──
 
     const guardsDir = path.join(SRC_DIR, 'test/guards')
-    const structureFile = path.resolve(SRC_DIR, '../../references/02-status/project-structure.md')
+    const structureFile = path.resolve(SRC_DIR, '../../references/04-tracking/project-structure.md')
     if (fs.existsSync(guardsDir) && fs.existsSync(structureFile)) {
       const guardFiles = fs
         .readdirSync(guardsDir)

@@ -28,7 +28,7 @@ export function safeDivide(numerator: number, denominator: number, fallback = 0)
  *
  * NOTE(pragmatic): 数学的に厳密な不変条件（シャープリー恒等式等）を持たない
  * 実用プリミティブ。変数名 `_pragmatic` 接尾辞は正規の数学的定義ではないことを示す。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateAchievementRate(actual: number, target: number): number {
   return safeDivide(actual, target, 0)
@@ -46,7 +46,7 @@ export function calculateAchievementRate(actual: number, target: number): number
  *
  * NOTE(pragmatic): calculateAchievementRate と数式は同一だが意味が異なる。
  * 達成率は「目標に対する進捗」、前年比は「前年に対する変化」。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateYoYRatio(current: number, previous: number): number {
   return safeDivide(current, previous, 0)
@@ -65,7 +65,7 @@ export function calculateYoYRatio(current: number, previous: number): number {
  *
  * NOTE(pragmatic): 数式は達成率と同一だが、値域制約と合計制約が異なる。
  * 構成比は [0,1] に収まり、全パーツの合計が 1 になるべき。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateShare(part: number, whole: number): number {
   return safeDivide(part, whole, 0)
@@ -84,7 +84,7 @@ export function calculateShare(part: number, whole: number): number {
  *
  * NOTE(pragmatic): 在庫法・推定法で算出方法が異なるため、
  * この関数は算出済み粗利額と売上額の比率のみを計算する。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateGrossProfitRate(grossProfit: number, sales: number): number {
   return safeDivide(grossProfit, sales, 0)
@@ -103,7 +103,7 @@ export function calculateGrossProfitRate(grossProfit: number, sales: number): nu
  *
  * NOTE(pragmatic): 単品レベルの計算。カテゴリ集計の値入率は
  * calculateMarkupRates() を使用する。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateMarkupRate(grossProfit: number, salesPrice: number): number {
   return safeDivide(grossProfit, salesPrice, 0)
@@ -122,7 +122,7 @@ export function calculateMarkupRate(grossProfit: number, salesPrice: number): nu
  *
  * NOTE(pragmatic): calculateYoYRatio (current/previous) とは異なる。
  * YoY比=1.2 は成長率=0.2（20%増）に対応する。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateGrowthRate(current: number, previous: number): number {
   return safeDivide(current - previous, previous, 0)
@@ -140,7 +140,7 @@ export function calculateGrowthRate(current: number, previous: number): number {
  * @invariant |TV × customers - sales| ≤ customers × 0.5（丸め誤差範囲）
  *
  * NOTE(pragmatic): Math.round による整数化のため、再構成時に丸め誤差が生じる。
- * 参照: references/01-principles/domain-ratio-primitives.md
+ * 参照: references/01-foundation/domain-ratio-primitives.md
  */
 export function calculateTransactionValue(sales: number, customers: number): number {
   return Math.round(safeDivide(sales, customers, 0))

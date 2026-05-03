@@ -145,7 +145,7 @@
 | `CALC-023.md` | `analyzeTrend`                 | `domain/calculations/algorithms/trendAnalysis.ts`      | active / current（temporal_pattern、ANA-004、MoM/YoY/MA/季節性）                  |
 | `CALC-024.md` | `computeMovingAverage`         | `domain/calculations/temporal/computeMovingAverage.ts` | active / current（time_series、ANA-009、strict/partial missingness）              |
 
-完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-guides/promote-ceremony-pr-template.md` 参照。
+完全割当表は `05-contents/calculations/README.md` §「初期割当表」参照。Lifecycle State Machine + Promote Ceremony は `references/03-implementation/promote-ceremony-pr-template.md` 参照。
 
 ### 05-contents/charts/ 個別 spec（Phase E 着手）
 

@@ -405,12 +405,12 @@ Step 5 で見つかった候補は **すぐ全部 hard gate にしない**。実
 
 | ファイル | 役割 |
 |---|---|
-| `references/01-principles/test-signal-integrity.md` | TSIG-TEST/COMP family + Protected Harm 定義 |
-| `references/03-guides/test-signal-integrity-advisory.md` | Advisory レーン運用 / Self-check 6 項目 / 昇格条件 §5 |
-| `references/03-guides/coding-conventions.md` | TS suppression directive の書き方 (PR #1019 で追加) |
-| `references/03-guides/active-debt-refactoring-plan.md` | Phase H/I/J 詳細（背景） |
-| `references/02-status/open-issues.md` | active project 索引 |
-| `references/02-status/technical-debt-roadmap.md` | 判断理由（背景） |
+| `references/01-foundation/test-signal-integrity.md` | TSIG-TEST/COMP family + Protected Harm 定義 |
+| `references/03-implementation/test-signal-integrity-advisory.md` | Advisory レーン運用 / Self-check 6 項目 / 昇格条件 §5 |
+| `references/03-implementation/coding-conventions.md` | TS suppression directive の書き方 (PR #1019 で追加) |
+| `references/03-implementation/active-debt-refactoring-plan.md` | Phase H/I/J 詳細（背景） |
+| `references/04-tracking/open-issues.md` | active project 索引 |
+| `references/04-tracking/technical-debt-roadmap.md` | 判断理由（背景） |
 | `references/05-aag-interface/operations/project-checklist-governance.md` | 本 project の運用ルール / §3.1 最終レビュー section |
 | `projects/completed/test-signal-integrity/HANDOFF.md` | 観測ログの記録先 |
 | `projects/completed/test-signal-integrity/checklist.md` | 観測完了で最終レビュー [x] にする対象 |

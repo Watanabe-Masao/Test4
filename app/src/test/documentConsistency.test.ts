@@ -67,7 +67,7 @@ function listDir(relativePath: string): string[] {
 describe('MetricId registry consistency', () => {
   it('metric-id-registry.md covers all MetricIds defined in Explanation.ts', () => {
     const explanationTs = readFile('app/src/domain/models/Explanation.ts')
-    const registry = readFile('references/03-guides/metric-id-registry.md')
+    const registry = readFile('references/03-implementation/metric-id-registry.md')
 
     // Explanation.ts から MetricId 型定義ブロックだけを抽出
     const metricIdBlockMatch = explanationTs.match(/export type MetricId =\n([\s\S]*?)(?:\n\n|$)/)
@@ -147,7 +147,7 @@ describe('Role directory consistency', () => {
 
 describe('Guard test map consistency', () => {
   it('guard-test-map.md references existing test files', () => {
-    const guardTestMap = readFile('references/03-guides/guard-test-map.md')
+    const guardTestMap = readFile('references/03-implementation/guard-test-map.md')
     const testFilePattern = /`([^`]*\.test\.ts[x]?)`/g
     const referencedFiles: string[] = []
     let match
@@ -226,9 +226,9 @@ describe('Design principle consistency', () => {
 
 describe('Safety-first architecture document consistency', () => {
   const safetyDocs = [
-    'references/03-guides/safety-first-architecture-plan.md',
-    'references/01-principles/critical-path-safety-map.md',
-    'references/01-principles/modular-monolith-evolution.md',
+    'references/03-implementation/safety-first-architecture-plan.md',
+    'references/01-foundation/critical-path-safety-map.md',
+    'references/01-foundation/modular-monolith-evolution.md',
   ] as const
 
   it('all safety-first architecture documents exist', () => {
@@ -247,8 +247,8 @@ describe('Safety-first architecture document consistency', () => {
 
 describe('Invariant catalog ↔ guard test map consistency', () => {
   it('all INV-* IDs in invariant-catalog.md appear in guard-test-map.md', () => {
-    const catalog = readFile('references/03-guides/invariant-catalog.md')
-    const guardMap = readFile('references/03-guides/guard-test-map.md')
+    const catalog = readFile('references/03-implementation/invariant-catalog.md')
+    const guardMap = readFile('references/03-implementation/guard-test-map.md')
 
     // Phase D Wave 3: scanMarkdownIds で id を抽出 + checkInclusionByPredicate で包含検査
     const catalogReg = scanMarkdownIds(catalog, 'invariant-catalog.md', {
@@ -270,8 +270,8 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
   })
 
   it('all INV-* IDs in guard-test-map.md appear in invariant-catalog.md', () => {
-    const catalog = readFile('references/03-guides/invariant-catalog.md')
-    const guardMap = readFile('references/03-guides/guard-test-map.md')
+    const catalog = readFile('references/03-implementation/invariant-catalog.md')
+    const guardMap = readFile('references/03-implementation/guard-test-map.md')
 
     // guard-test-map は heading でなく inline でも id 出現するため、global regex で集約
     const invPattern = /INV-[A-Z]+-\d+/g
@@ -297,7 +297,7 @@ describe('Invariant catalog ↔ guard test map consistency', () => {
 
 describe('Engine responsibility ↔ code consistency', () => {
   it('JS modules listed in engine-responsibility.md exist in domain/calculations/', () => {
-    const doc = readFile('references/01-principles/engine-responsibility.md')
+    const doc = readFile('references/01-foundation/engine-responsibility.md')
 
     // JS テーブルからモジュール名を抽出（`module.ts` or `subdir/module.ts` パターン）
     const jsSection = doc.split('### DuckDB')[0]
@@ -324,7 +324,7 @@ describe('Engine responsibility ↔ code consistency', () => {
   })
 
   it('DuckDB modules listed in engine-responsibility.md exist in infrastructure/duckdb/queries/', () => {
-    const doc = readFile('references/01-principles/engine-responsibility.md')
+    const doc = readFile('references/01-foundation/engine-responsibility.md')
 
     // DuckDB テーブルからモジュール名を抽出
     const duckSection = doc.split('### DuckDB')[1]?.split('### 両エンジン')[0] ?? ''
@@ -759,7 +759,7 @@ describe('Structured source consistency (docs/contracts/)', () => {
       'CLAUDE.md',
       'CONTRIBUTING.md',
       'references/README.md',
-      'references/01-principles/design-principles.md',
+      'references/01-foundation/design-principles.md',
     ]
     const obsoleteTerms = new Set(principlesEnvelope.obsoleteTerms)
     const violations: string[] = []
@@ -847,7 +847,7 @@ describe('Structured source consistency (docs/contracts/)', () => {
 describe('Generated section integrity', () => {
   const GENERATED_SECTION_FILES = [
     'CLAUDE.md',
-    'references/02-status/technical-debt-roadmap.md',
+    'references/04-tracking/technical-debt-roadmap.md',
   ] as const
 
   it('generated section のマーカーが正しく対になっている', () => {
@@ -868,7 +868,7 @@ describe('Generated section integrity', () => {
   })
 
   it('architecture-health.json が存在し有効な JSON である', () => {
-    const healthJson = readFile('references/02-status/generated/architecture-health.json')
+    const healthJson = readFile('references/04-tracking/generated/architecture-health.json')
     expect(healthJson, 'architecture-health.json が存在しない').toBeTruthy()
     const parsed = JSON.parse(healthJson)
     expect(parsed.schemaVersion).toBe('1.0.0')
@@ -899,7 +899,7 @@ describe('Generated section integrity', () => {
 
 describe('open-issues.md state consistency', () => {
   it('解決済み ID が現在の課題セクションに重複していない', () => {
-    const content = readFile('references/02-status/open-issues.md')
+    const content = readFile('references/04-tracking/open-issues.md')
     if (!content) return
 
     // 解決済みセクションから ID を抽出

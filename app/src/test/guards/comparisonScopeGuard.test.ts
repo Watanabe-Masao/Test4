@@ -4,7 +4,7 @@
  * buildComparisonScope() が比較解決の唯一入口。
  * presentation 層での独自比較計算を禁止する。
  *
- * @see references/01-principles/free-period-analysis-definition.md
+ * @see references/01-foundation/free-period-analysis-definition.md
  * @see temporal-scope-semantics.md
  * ルール定義: architectureRules.ts (AR-STRUCT-COMPARISON-SCOPE)
  *

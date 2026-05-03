@@ -11,7 +11,7 @@
 ### 方法論（手順）
 
 1. 変更対象のファイルを特定する
-2. `references/03-guides/invariant-catalog.md` で関連する不変条件 ID を確認
+2. `references/03-implementation/invariant-catalog.md` で関連する不変条件 ID を確認
 3. 対応するガードテストを実行:
    ```bash
    cd app && npx vitest run src/presentation/pages/Dashboard/widgets/__tests__/factorDecomposition.test.ts
@@ -53,8 +53,8 @@
 1. 不変条件を数式または構造ルールとして定義する
 2. 対応する既存テストファイルにテストケースを追加する（新ファイル作成は最終手段）
 3. パラメトリックテスト（複数シナリオ）で頑健性を確認
-4. `references/03-guides/invariant-catalog.md` に新しい不変条件 ID を追加
-5. `references/03-guides/guard-test-map.md` を更新
+4. `references/03-implementation/invariant-catalog.md` に新しい不変条件 ID を追加
+5. `references/03-implementation/guard-test-map.md` を更新
 
 ### ガードテスト追加の判断基準
 

@@ -29,28 +29,28 @@
 
 ## Taxonomy v2 チェック（責務軸 R:\* + テスト軸 T:\*）
 
-> 詳細: 親 plan §OCS.3 / `references/03-guides/responsibility-taxonomy-operations.md` §6 / `references/03-guides/test-taxonomy-operations.md` §6
+> 詳細: 親 plan §OCS.3 / `references/03-implementation/responsibility-taxonomy-operations.md` §6 / `references/03-implementation/test-taxonomy-operations.md` §6
 
 - [ ] `npm run taxonomy:check` — PASS（registry / interlock / cognitive load / origin / known vocabulary 全 hard fail 条件クリア）
 - [ ] `npm run taxonomy:impact -- --base main --head HEAD` — affected R:tag / T:kind を確認（fail file が無い）
-- [ ] high-risk タグ（新 R:tag / T:kind 追加 / 撤退 / Antibody Pair 変更 / Interlock 改訂）は review window で承認済（`references/02-status/taxonomy-review-journal.md` に対応 entry あり）
+- [ ] high-risk タグ（新 R:tag / T:kind 追加 / 撤退 / Antibody Pair 変更 / Interlock 改訂）は review window で承認済（`references/04-tracking/taxonomy-review-journal.md` に対応 entry あり）
 - [ ] 新規 file には `@responsibility R:*` + 対応 test に `@taxonomyKind T:*` が付与済（タグなし禁止）
 
 ## KPI 追加の場合（該当時のみ）
 
-> 詳細: [references/extension-playbook.md](../references/03-guides/extension-playbook.md) セクション A
+> 詳細: [references/extension-playbook.md](../references/03-implementation/extension-playbook.md) セクション A
 
 - [ ] `domain/calculations/` に計算関数を追加
 - [ ] MetricId / MetricMeta を登録
 - [ ] Explanation（L1/L2/L3）を実装
-- [ ] `references/03-guides/metric-id-registry.md` を更新
+- [ ] `references/03-implementation/metric-id-registry.md` を更新
 - [ ] 不変条件テストを追加
 
 ## DuckDB クエリ追加の場合（該当時のみ）
 
-> 詳細: [references/extension-playbook.md](../references/03-guides/extension-playbook.md) セクション B
+> 詳細: [references/extension-playbook.md](../references/03-implementation/extension-playbook.md) セクション B
 
-- [ ] `references/01-principles/engine-responsibility.md` で責務重複がないことを確認
+- [ ] `references/01-foundation/engine-responsibility.md` で責務重複がないことを確認
 - [ ] SQL / Runner を実装
 - [ ] チャートコンポーネントを追加
 - [ ] パフォーマンス計測を実施
@@ -75,7 +75,7 @@
 |---|---|
 | `.github/workflows/**` | CLAUDE.md CI セクション, CONTRIBUTING.md CI セクション |
 | `roles/**` | CLAUDE.md ルーティング表 |
-| `references/01-principles/**` | docs/contracts/principles.json |
+| `references/01-foundation/**` | docs/contracts/principles.json |
 | `app/package.json` (version) | docs/contracts/project-metadata.json, CHANGELOG.md |
 | `wasm/**` | README.md, CONTRIBUTING.md（WASM ��提） |
 
@@ -90,7 +90,7 @@
 ## AAG Change Impact（AAG 変更時のみ）
 
 > 変更が AAG framework（rule / guard / KPI / health collector / architecture-rules.ts / app-domain/integrity / aag-* doc / projectization policy 等）に touch する場合は本 section を埋める。
-> 対象範囲・記入要領: [`references/03-guides/aag-change-impact-template.md`](../references/03-guides/aag-change-impact-template.md)（Phase Q.M-1 deliverable）。
+> 対象範囲・記入要領: [`references/03-implementation/aag-change-impact-template.md`](../references/03-implementation/aag-change-impact-template.md)（Phase Q.M-1 deliverable）。
 >
 > AAG 変更でない場合は「該当なし」とだけ記載してこの section を畳んでください。
 
@@ -105,9 +105,9 @@
 - [ ] `app-domain/gross-profit/rule-catalog/base-rules.ts`（rule 定義）
 - [ ] `app/src/test/guards/`（guard test）
 - [ ] `tools/architecture-health/`（health metrics / collector）
-- [ ] `references/02-status/generated/`（generated docs）
+- [ ] `references/04-tracking/generated/`（generated docs）
 - [ ] `app-domain/integrity/`（整合性 domain primitives）
-- [ ] `references/01-principles/aag-*` / `AAG_*.md`（AAG 正本 / 入口 doc）
+- [ ] `references/01-foundation/aag-*` / `AAG_*.md`（AAG 正本 / 入口 doc）
 - [ ] `docs/contracts/*.json`（doc-registry / principles / project-metadata 等の構造化正本）
 - [ ] taxonomy（responsibility / test taxonomy registry）
 

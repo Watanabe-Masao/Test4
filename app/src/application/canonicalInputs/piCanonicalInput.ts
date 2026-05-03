@@ -4,8 +4,8 @@
  * SalesFactReadModel と CustomerFactReadModel から PI 値計算に必要な
  * 入力を構築する。粒度合わせまでここで完了させる。
  *
- * @see references/01-principles/canonical-input-sets.md
- * @see references/01-principles/pi-value-definition.md
+ * @see references/01-foundation/canonical-input-sets.md
+ * @see references/01-foundation/pi-value-definition.md
  *
  * @responsibility R:unclassified
  */

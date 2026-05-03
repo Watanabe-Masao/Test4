@@ -12,7 +12,7 @@
 ### Phase 1: WeatherPage の hook 抽出（active-debt 残）
 
 `useWeatherDaySelection` を抽出し WeatherPage の combined hook 数を default
-以下に下げる。詳細: `references/03-guides/active-debt-refactoring-plan.md` Phase H。
+以下に下げる。詳細: `references/03-implementation/active-debt-refactoring-plan.md` Phase H。
 
 ### Phase 2: 500 行超コンポーネントの `.vm.ts` 抽出
 

@@ -53,7 +53,7 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     pathPattern: 'app/src/application/readModels/',
     obligationId: 'obligation.readModel.definition',
     label: 'readModel 変更時は定義書リンク確認が必要',
-    check: { type: 'file_modified', file: 'references/02-status/generated/architecture-health.json' },
+    check: { type: 'file_modified', file: 'references/04-tracking/generated/architecture-health.json' },
   },
   // --- guard 変更 → health regeneration ---
   {
@@ -88,11 +88,11 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     pathPattern: 'wasm/',
     obligationId: 'obligation.wasm.invariants',
     label: 'WASM invariant テスト追加・変更時は invariant-catalog.md への登録が必要',
-    check: { type: 'file_modified', file: 'references/03-guides/invariant-catalog.md' },
+    check: { type: 'file_modified', file: 'references/03-implementation/invariant-catalog.md' },
   },
   // --- principles 変更 → contracts 確認 ---
   {
-    pathPattern: 'references/01-principles/',
+    pathPattern: 'references/01-foundation/',
     obligationId: 'obligation.principles.contracts',
     label: '設計原則変更時は principles.json 確認が必要',
     check: { type: 'file_modified', file: 'docs/contracts/principles.json' },
@@ -109,28 +109,28 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
     pathPattern: 'app/src/application/runtime-adapters/useDuckDB.ts',
     obligationId: 'obligation.duckdb-loading.doc',
     label: 'DuckDB ロード順序変更時はデータロード順序図の更新が必要',
-    check: { type: 'file_modified', file: 'references/03-guides/duckdb-data-loading-sequence.md' },
+    check: { type: 'file_modified', file: 'references/03-implementation/duckdb-data-loading-sequence.md' },
   },
   // --- チャートデータフロー変更 → マップ更新必須 ---
   {
     pathPattern: 'app/src/application/hooks/plans/',
     obligationId: 'obligation.chart-plan.doc',
     label: 'Screen Plan 変更時はチャートデータフローマップの更新が必要',
-    check: { type: 'file_modified', file: 'references/03-guides/chart-data-flow-map.md' },
+    check: { type: 'file_modified', file: 'references/03-implementation/chart-data-flow-map.md' },
   },
   // --- ページレジストリ変更 → チェックリスト確認 ---
   {
     pathPattern: 'app/src/application/navigation/pageRegistry.ts',
     obligationId: 'obligation.page-registry.doc',
     label: 'ページレジストリ変更時は新規ページチェックリストの確認が必要',
-    check: { type: 'file_modified', file: 'references/03-guides/new-page-checklist.md' },
+    check: { type: 'file_modified', file: 'references/03-implementation/new-page-checklist.md' },
   },
   // --- DuckDB スキーマ変更 → 型境界契約確認 ---
   {
     pathPattern: 'app/src/infrastructure/duckdb/schemas.ts',
     obligationId: 'obligation.duckdb-schema.doc',
     label: 'DuckDB スキーマ変更時は型境界契約の確認が必要',
-    check: { type: 'file_modified', file: 'references/03-guides/duckdb-type-boundary-contract.md' },
+    check: { type: 'file_modified', file: 'references/03-implementation/duckdb-type-boundary-contract.md' },
   },
   // Hook の責務分離は obligation ではなくガードテストで強制する
   // → responsibilitySeparationGuard.test.ts (G8: useMemo+useCallback 合計上限)
@@ -143,7 +143,7 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
   },
   // --- generated/** の手編集禁止 ---
   {
-    pathPattern: 'references/02-status/generated/',
+    pathPattern: 'references/04-tracking/generated/',
     obligationId: 'obligation.generated.no-manual-edit',
     label: 'Generated ファイルは手編集禁止（docs:generate で再生成すること）',
     check: { type: 'health_regenerated' },
@@ -152,7 +152,7 @@ export const OBLIGATION_MAP: readonly ObligationRule[] = [
   // triggerOnAdded: true で新規 .md 追加のみを trigger 対象にする (既存ファイル
   // modification は registry 既登録済のため obligation 不要、Phase K F 改善)。
   {
-    pathPattern: 'references/03-guides/',
+    pathPattern: 'references/03-implementation/',
     obligationId: 'obligation.guides.registry',
     label: '実装ガイド追加時は doc-registry.json にも登録が必要',
     check: { type: 'file_modified', file: 'docs/contracts/doc-registry.json' },
@@ -201,52 +201,52 @@ export interface RequiredReadsRule {
 export const PATH_TO_REQUIRED_READS: readonly RequiredReadsRule[] = [
   {
     pathPrefix: 'app/src/application/readModels/grossProfit/',
-    requiredReads: ['references/01-principles/gross-profit-definition.md'],
+    requiredReads: ['references/01-foundation/gross-profit-definition.md'],
     rationale: '粗利 readModel 変更時は粗利定義書を必読（4種の粗利の意味と計算式）',
   },
   {
     pathPrefix: 'app/src/application/readModels/purchaseCost/',
-    requiredReads: ['references/01-principles/purchase-cost-definition.md'],
+    requiredReads: ['references/01-foundation/purchase-cost-definition.md'],
     rationale: '仕入原価 readModel 変更時は仕入原価定義書を必読（3独立正本の統合契約）',
   },
   {
     pathPrefix: 'app/src/application/readModels/salesFact/',
-    requiredReads: ['references/01-principles/sales-definition.md'],
+    requiredReads: ['references/01-foundation/sales-definition.md'],
     rationale: '売上 readModel 変更時は売上定義書を必読',
   },
   {
     pathPrefix: 'app/src/application/readModels/discountFact/',
-    requiredReads: ['references/01-principles/discount-definition.md'],
+    requiredReads: ['references/01-foundation/discount-definition.md'],
     rationale: '値引き readModel 変更時は値引き定義書を必読',
   },
   {
     pathPrefix: 'app/src/application/readModels/customerFact/',
-    requiredReads: ['references/01-principles/customer-definition.md'],
+    requiredReads: ['references/01-foundation/customer-definition.md'],
     rationale: '客数 readModel 変更時は客数定義書を必読',
   },
   {
     pathPrefix: 'app/src/application/readModels/factorDecomposition/',
-    requiredReads: ['references/01-principles/authoritative-calculation-definition.md'],
+    requiredReads: ['references/01-foundation/authoritative-calculation-definition.md'],
     rationale: '要因分解 readModel 変更時は authoritative 計算定義書を必読',
   },
   {
     pathPrefix: 'app/src/domain/calculations/',
-    requiredReads: ['references/03-guides/invariant-catalog.md'],
+    requiredReads: ['references/03-implementation/invariant-catalog.md'],
     rationale: 'ドメイン計算変更時は不変条件カタログを必読（D1/D2/D3 の数学的不変条件）',
   },
   {
     pathPrefix: 'app/src/infrastructure/duckdb/',
-    requiredReads: ['references/03-guides/duckdb-architecture.md'],
+    requiredReads: ['references/03-implementation/duckdb-architecture.md'],
     rationale: 'DuckDB infrastructure 変更時は DuckDB アーキテクチャガイドを必読',
   },
   {
     pathPrefix: 'app/src/application/usecases/explanation/',
-    requiredReads: ['references/03-guides/explanation-architecture.md'],
+    requiredReads: ['references/03-implementation/explanation-architecture.md'],
     rationale: 'Explanation usecase 変更時は説明責任アーキテクチャを必読（L1→L2→L3 3段階）',
   },
   {
     pathPrefix: 'app/src/presentation/components/charts/',
-    requiredReads: ['references/05-contents/charts/'],
+    requiredReads: ['references/04-tracking/elements/charts/'],
     rationale:
       'Chart component 変更時は対応 CHART-NNN.md frontmatter (lastSourceCommit 同期) の確認が必要 — `node tools/widget-specs/refresh-last-source-commit.mjs` で全 spec を一括再計算。本 entry は 2026-05-01 audit (CHART-004 incident) で identify した Type B cascade gap への対処',
   },
@@ -311,7 +311,7 @@ function getAddedFiles(repoRoot: string, base?: string): string[] {
 }
 
 function isHealthJsonFresh(_repoRoot: string, changedFiles: string[]): boolean {
-  return changedFiles.includes('references/02-status/generated/architecture-health.json')
+  return changedFiles.includes('references/04-tracking/generated/architecture-health.json')
 }
 
 /**

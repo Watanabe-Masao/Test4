@@ -4,7 +4,7 @@
  * readFreePeriodFact / freePeriodHandler が唯一の分析用正本。
  * presentation 層からの独自取得経路を禁止する。
  *
- * @see references/01-principles/free-period-analysis-definition.md
+ * @see references/01-foundation/free-period-analysis-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-FREE-PERIOD)
  *
  * @responsibility R:unclassified
@@ -115,7 +115,7 @@ describe('自由期間分析正本ガード', () => {
   it('定義文書が存在する', () => {
     const defFile = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/free-period-analysis-definition.md',
+      '../../references/01-foundation/free-period-analysis-definition.md',
     )
     expect(fs.existsSync(defFile), 'free-period-analysis-definition.md が存在しない').toBe(true)
   })
@@ -123,7 +123,7 @@ describe('自由期間分析正本ガード', () => {
   it('粒度契約文書が存在する', () => {
     const contractFile = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/free-period-budget-kpi-contract.md',
+      '../../references/01-foundation/free-period-budget-kpi-contract.md',
     )
     expect(fs.existsSync(contractFile), 'free-period-budget-kpi-contract.md が存在しない').toBe(
       true,

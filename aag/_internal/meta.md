@@ -66,7 +66,7 @@ AAG が satisfy すべき要件を **不変条件** (Invariants、positive) + **
 >
 > Phase 3 audit findings で各セル content が確定 (現状は枠組み + 既知 entry を pre-fill、Phase 1 と Phase 3 の同期方針 = B 順序付き 3 段階で update)。
 >
-> **Phase 3 audit findings reflect 完了** (2026-04-30、§8.14 順序付き 3 段階の第 3 段 cyclic refinement): `references/02-status/aag-doc-audit-report.md` §0〜§7 で 8 AAG doc + CLAUDE.md AAG section の articulation 完遂 (operation 22 件 = Create 7 + Split 1 + Rewrite 6 + Archive 8、5 縦スライス reshape 不要、Layer 3-4 混在 guard 5 件 identify、新 5 層 ↔ 旧 4 層 mapping 確定)。本 §3 は audit findings を反映した状態。Phase 3 hard gate decision (default B = follow-up project 分割) はユーザー判断 gate (project A〜D 分割案、audit report §7 articulate)。
+> **Phase 3 audit findings reflect 完了** (2026-04-30、§8.14 順序付き 3 段階の第 3 段 cyclic refinement): `references/04-tracking/aag-doc-audit-report.md` §0〜§7 で 8 AAG doc + CLAUDE.md AAG section の articulation 完遂 (operation 22 件 = Create 7 + Split 1 + Rewrite 6 + Archive 8、5 縦スライス reshape 不要、Layer 3-4 混在 guard 5 件 identify、新 5 層 ↔ 旧 4 層 mapping 確定)。本 §3 は audit findings を反映した状態。Phase 3 hard gate decision (default B = follow-up project 分割) はユーザー判断 gate (project A〜D 分割案、audit report §7 articulate)。
 
 ### §3.1 5 層 × 5 縦スライス matrix
 
@@ -100,7 +100,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 
 ### §3.3 旧 AAG doc → 新 5 層 mapping (Phase 4 で各 doc に articulate)
 
-> **Phase 3 audit findings 反映**: 詳細 articulation は `references/02-status/aag-doc-audit-report.md §1.1〜§1.9` 各 doc 7 項目 (5 層位置付け / 責務 / write/non-write / drill-down / operation / 影響範囲 / migration order) を参照。本 §3.3 は要約 mapping。
+> **Phase 3 audit findings 反映**: 詳細 articulation は `references/04-tracking/aag-doc-audit-report.md §1.1〜§1.9` 各 doc 7 項目 (5 層位置付け / 責務 / write/non-write / drill-down / operation / 影響範囲 / migration order) を参照。本 §3.3 は要約 mapping。
 
 | 旧 doc                                                          | 新 path (Phase 4 予定)                             | 5 層位置付け                                                                        | operation                                | inbound 数 | audit ref |
 | --------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------- | ---------: | --------- |

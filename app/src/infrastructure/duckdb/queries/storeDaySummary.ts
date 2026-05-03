@@ -158,7 +158,7 @@ export interface CustomerDailyRow {
  * store_day_summary.customers は flowers JOIN 済みの値。
  * customers > 0 の行のみ返す（0 は導出側で補完）。
  *
- * @see references/01-principles/customer-definition.md
+ * @see references/01-foundation/customer-definition.md
  */
 export async function queryCustomerDaily(
   conn: AsyncDuckDBConnection,

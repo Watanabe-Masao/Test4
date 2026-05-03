@@ -3,7 +3,7 @@
  *
  * Phase B Step B-2〜B-5 完遂時点での export 一式。
  *
- * 設計詳細: `references/03-guides/integrity-domain-architecture.md`
+ * 設計詳細: `references/03-implementation/integrity-domain-architecture.md`
  *
  * 不変条件: 本 barrel は re-export のみ (一切の logic を持たない、F1 後方互換維持)。
  */

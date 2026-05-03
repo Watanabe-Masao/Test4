@@ -28,7 +28,7 @@
 // 「query input を作る責務」を封じる。両者合わせて chart 薄化を強制する。
 //
 // 見本実装: YoYChart.tsx + buildYoyDailyInput.ts
-// 詳細: references/03-guides/chart-input-builder-pattern.md
+// 詳細: references/03-implementation/chart-input-builder-pattern.md
 
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
@@ -109,7 +109,7 @@ describe('Chart Input Builder Pattern Guard (unify-period-analysis Phase 5)', ()
             '  1. application/hooks/plans/build<Name>Input.ts に pure builder を作る',
             '  2. chart は builder を useMemo で呼ぶだけにする',
             '  3. dateRangeToKeys 呼び出しは builder 内に移す',
-            '  4. 詳細: references/03-guides/chart-input-builder-pattern.md',
+            '  4. 詳細: references/03-implementation/chart-input-builder-pattern.md',
             '  5. 見本実装: buildYoyDailyInput.ts + YoYChart.tsx',
             '',
             'どうしても移行できない正当理由があれば ALLOWLIST に reason を添えて追加。',
@@ -170,7 +170,7 @@ describe('Chart Input Builder Pattern Guard (unify-period-analysis Phase 5)', ()
   it('設計ルール文書 (chart-input-builder-pattern.md) が存在する', () => {
     const docFile = path.resolve(
       SRC_DIR,
-      '../../references/03-guides/chart-input-builder-pattern.md',
+      '../../references/03-implementation/chart-input-builder-pattern.md',
     )
     expect(fs.existsSync(docFile), 'chart-input-builder-pattern.md が存在しない').toBe(true)
     const content = fs.readFileSync(docFile, 'utf-8')

@@ -4,7 +4,7 @@
  * calculateQuantityPI / calculateAmountPI が唯一の PI 値計算経路。
  * 独自計算や旧 helper 経由を禁止する。
  *
- * @see references/01-principles/pi-value-definition.md
+ * @see references/01-foundation/pi-value-definition.md
  * ルール定義: architectureRules.ts (AR-PATH-PI-VALUE)
  *
  * @responsibility R:unclassified

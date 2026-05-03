@@ -143,7 +143,7 @@ Layer 2 (設計) + Layer 3 (実装) は 5 縦スライスで責務を articulate
 | [`layer-map.md`](./layer-map.md) | ファイル別 5 層マッピング (Layer 2 reference) — 本 doc 5 層を具体 file に展開 |
 | [`source-of-truth.md`](./source-of-truth.md) | 正本/派生物/運用物 (Layer 2) — Layer 2 + 3 配下の正本ポリシー |
 | [`operational-classification.md`](./operational-classification.md) | now/debt/review 区分 (Layer 2) — orthogonal axis での運用区分 |
-| `references/02-status/aag-doc-audit-report.md` | Phase 3 audit findings (本 doc の 5 縦スライス reshape 判定 + 旧 doc operation 判定の根拠) |
+| `references/04-tracking/aag-doc-audit-report.md` | Phase 3 audit findings (本 doc の 5 縦スライス reshape 判定 + 旧 doc operation 判定の根拠) |
 | `projects/completed/aag-bidirectional-integrity/plan.md` | 親 project の正本 (5 層 articulation の元) |
 | `projects/completed/aag-core-doc-refactor/plan.md` | 本 doc を landing する project の plan |
 

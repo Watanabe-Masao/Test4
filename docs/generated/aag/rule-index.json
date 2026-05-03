@@ -2,8 +2,8 @@
   "$schemaDescription": "Rule Index — 軽量 overview drawer。AI が rule 全景を 1 read で把握する用途。詳細は merged-architecture-rules.json (A2b) 参照。",
   "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-03T11:00:22.867Z",
-  "sourceCommit": "c9f60b8e2af363502d15aef29e71f999e8ae0c9d",
+  "generatedAt": "2026-05-03T11:15:27.506Z",
+  "sourceCommit": "21bd4adbe2403c989858ee32b4d821ee738e117d",
   "summary": {
     "totalRules": 172
   },
@@ -21,7 +21,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/safety-first-architecture-plan.md"
+          "references/03-implementation/safety-first-architecture-plan.md"
         ]
       }
     },
@@ -39,7 +39,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -57,7 +57,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/widget-coordination-architecture.md"
+          "references/03-implementation/widget-coordination-architecture.md"
         ]
       }
     },
@@ -74,7 +74,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -92,7 +92,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "count",
         "sourceRefs": [
-          "references/01-principles/modular-monolith-evolution.md"
+          "references/01-foundation/modular-monolith-evolution.md"
         ]
       }
     },
@@ -110,7 +110,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -127,7 +127,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -144,7 +144,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -163,7 +163,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -181,7 +181,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -198,7 +198,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -215,7 +215,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -232,7 +232,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -249,7 +249,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -267,7 +267,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -284,7 +284,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -301,7 +301,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -318,7 +318,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -335,7 +335,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -352,7 +352,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -369,7 +369,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -386,7 +386,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -404,7 +404,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -421,7 +421,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -438,7 +438,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -455,7 +455,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -472,7 +472,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/sales-definition.md"
+          "references/01-foundation/sales-definition.md"
         ]
       }
     },
@@ -489,7 +489,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/discount-definition.md"
+          "references/01-foundation/discount-definition.md"
         ]
       }
     },
@@ -507,7 +507,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/gross-profit-definition.md"
+          "references/01-foundation/gross-profit-definition.md"
         ]
       }
     },
@@ -524,7 +524,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/purchase-cost-definition.md"
+          "references/01-foundation/purchase-cost-definition.md"
         ]
       }
     },
@@ -541,7 +541,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/customer-definition.md"
+          "references/01-foundation/customer-definition.md"
         ]
       }
     },
@@ -559,7 +559,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/customer-gap-definition.md"
+          "references/01-foundation/customer-gap-definition.md"
         ]
       }
     },
@@ -577,7 +577,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/pi-value-definition.md"
+          "references/01-foundation/pi-value-definition.md"
         ]
       }
     },
@@ -594,7 +594,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/free-period-analysis-definition.md"
+          "references/01-foundation/free-period-analysis-definition.md"
         ]
       }
     },
@@ -611,7 +611,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/free-period-budget-kpi-contract.md"
+          "references/01-foundation/free-period-budget-kpi-contract.md"
         ]
       }
     },
@@ -628,7 +628,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/free-period-budget-kpi-contract.md"
+          "references/01-foundation/free-period-budget-kpi-contract.md"
         ]
       }
     },
@@ -647,7 +647,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/authoritative-calculation-definition.md"
+          "references/01-foundation/authoritative-calculation-definition.md"
         ]
       }
     },
@@ -665,7 +665,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/gross-profit-definition.md"
+          "references/01-foundation/gross-profit-definition.md"
         ]
       }
     },
@@ -682,7 +682,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -699,7 +699,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "must-include",
         "sourceRefs": [
-          "references/01-principles/calculation-canonicalization-map.md"
+          "references/01-foundation/calculation-canonicalization-map.md"
         ]
       }
     },
@@ -717,7 +717,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "must-include",
         "sourceRefs": [
-          "references/01-principles/canonicalization-principles.md"
+          "references/01-foundation/canonicalization-principles.md"
         ]
       }
     },
@@ -735,7 +735,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/01-principles/canonicalization-principles.md"
+          "references/01-foundation/canonicalization-principles.md"
         ]
       }
     },
@@ -753,7 +753,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/canonical-input-sets.md"
+          "references/01-foundation/canonical-input-sets.md"
         ]
       }
     },
@@ -773,7 +773,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/canonicalization-principles.md"
+          "references/01-foundation/canonicalization-principles.md"
         ]
       }
     },
@@ -790,7 +790,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -808,7 +808,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/invariant-catalog.md"
+          "references/03-implementation/invariant-catalog.md"
         ]
       }
     },
@@ -825,7 +825,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/safety-first-architecture-plan.md"
+          "references/03-implementation/safety-first-architecture-plan.md"
         ]
       }
     },
@@ -842,7 +842,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "must-include",
         "sourceRefs": [
-          "references/03-guides/invariant-catalog.md"
+          "references/03-implementation/invariant-catalog.md"
         ]
       }
     },
@@ -860,7 +860,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/modular-monolith-evolution.md"
+          "references/01-foundation/modular-monolith-evolution.md"
         ]
       }
     },
@@ -877,7 +877,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "co-change",
         "sourceRefs": [
-          "references/03-guides/new-page-checklist.md"
+          "references/03-implementation/new-page-checklist.md"
         ]
       }
     },
@@ -895,7 +895,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -917,7 +917,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "must-not-coexist",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -937,7 +937,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -955,7 +955,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -972,7 +972,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -989,7 +989,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1006,7 +1006,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1023,7 +1023,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1040,7 +1040,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1057,7 +1057,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1074,7 +1074,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1091,7 +1091,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/customer-definition.md"
+          "references/01-foundation/customer-definition.md"
         ]
       }
     },
@@ -1109,7 +1109,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "must-only",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -1126,7 +1126,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -1145,7 +1145,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -1162,7 +1162,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/temporal-analysis-policy.md"
+          "references/03-implementation/temporal-analysis-policy.md"
         ]
       }
     },
@@ -1179,7 +1179,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/temporal-scope-semantics.md"
+          "references/01-foundation/temporal-scope-semantics.md"
         ]
       }
     },
@@ -1196,7 +1196,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/modular-monolith-evolution.md"
+          "references/01-foundation/modular-monolith-evolution.md"
         ]
       }
     },
@@ -1213,7 +1213,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1230,7 +1230,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1247,7 +1247,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/01-principles/cache-responsibility.md"
+          "references/01-foundation/cache-responsibility.md"
         ]
       }
     },
@@ -1264,7 +1264,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "import",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -1281,7 +1281,7 @@
         "consumerKind": "derivation-assembler",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -1299,7 +1299,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1321,7 +1321,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1341,7 +1341,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1362,7 +1362,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "must-not-coexist",
         "sourceRefs": [
-          "references/01-principles/engine-boundary-policy.md"
+          "references/01-foundation/engine-boundary-policy.md"
         ]
       }
     },
@@ -1381,7 +1381,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1401,7 +1401,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1421,7 +1421,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/01-principles/safe-performance-principles.md"
+          "references/01-foundation/safe-performance-principles.md"
         ]
       }
     },
@@ -1440,7 +1440,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/runtime-data-path.md"
+          "references/03-implementation/runtime-data-path.md"
         ]
       }
     },
@@ -1460,7 +1460,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/widget-coordination-architecture.md"
+          "references/03-implementation/widget-coordination-architecture.md"
         ]
       }
     },
@@ -1479,7 +1479,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/new-page-checklist.md"
+          "references/03-implementation/new-page-checklist.md"
         ]
       }
     },
@@ -1498,7 +1498,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1517,7 +1517,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1537,7 +1537,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/runtime-data-path.md"
+          "references/03-implementation/runtime-data-path.md"
         ]
       }
     },
@@ -1557,7 +1557,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "must-not-coexist",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -1576,7 +1576,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1595,7 +1595,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1615,7 +1615,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "count",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1634,7 +1634,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "must-not-coexist",
         "sourceRefs": [
-          "references/03-guides/responsibility-separation-catalog.md"
+          "references/03-implementation/responsibility-separation-catalog.md"
         ]
       }
     },
@@ -1654,7 +1654,7 @@
         "consumerKind": "binding-auditor",
         "taskHint": "must-only",
         "sourceRefs": [
-          "references/03-guides/coding-conventions.md"
+          "references/03-implementation/coding-conventions.md"
         ]
       }
     },
@@ -1690,7 +1690,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1707,7 +1707,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1724,7 +1724,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1741,7 +1741,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1758,7 +1758,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1775,7 +1775,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1792,7 +1792,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1809,7 +1809,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1826,7 +1826,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "co-change",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1843,7 +1843,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "co-change",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1861,7 +1861,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "co-change",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -1878,7 +1878,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/semantic-classification-policy.md"
+          "references/01-foundation/semantic-classification-policy.md"
         ]
       }
     },
@@ -1896,7 +1896,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/semantic-classification-policy.md"
+          "references/01-foundation/semantic-classification-policy.md"
         ]
       }
     },
@@ -1913,7 +1913,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/semantic-classification-policy.md"
+          "references/01-foundation/semantic-classification-policy.md"
         ]
       }
     },
@@ -1930,7 +1930,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/semantic-classification-policy.md"
+          "references/01-foundation/semantic-classification-policy.md"
         ]
       }
     },
@@ -1948,7 +1948,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -1965,7 +1965,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -1982,7 +1982,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -1999,7 +1999,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -2017,7 +2017,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -2034,7 +2034,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/contract-definition-policy.md"
+          "references/03-implementation/contract-definition-policy.md"
         ]
       }
     },
@@ -2051,7 +2051,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2068,7 +2068,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2085,7 +2085,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2103,7 +2103,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2120,7 +2120,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2138,7 +2138,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2155,7 +2155,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/current-maintenance-policy.md"
+          "references/03-implementation/current-maintenance-policy.md"
         ]
       }
     },
@@ -2172,7 +2172,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2189,7 +2189,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2206,7 +2206,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2223,7 +2223,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2241,7 +2241,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2258,7 +2258,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2275,7 +2275,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/tier1-business-migration-plan.md"
+          "references/03-implementation/tier1-business-migration-plan.md"
         ]
       }
     },
@@ -2292,7 +2292,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2309,7 +2309,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2326,7 +2326,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2343,7 +2343,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2361,7 +2361,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "import",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2379,7 +2379,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2396,7 +2396,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/analytic-kernel-migration-plan.md"
+          "references/03-implementation/analytic-kernel-migration-plan.md"
         ]
       }
     },
@@ -2414,7 +2414,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/guard-consolidation-and-js-retirement.md"
+          "references/03-implementation/guard-consolidation-and-js-retirement.md"
         ]
       }
     },
@@ -2431,7 +2431,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/guard-consolidation-and-js-retirement.md"
+          "references/03-implementation/guard-consolidation-and-js-retirement.md"
         ]
       }
     },
@@ -2448,7 +2448,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/guard-consolidation-and-js-retirement.md"
+          "references/03-implementation/guard-consolidation-and-js-retirement.md"
         ]
       }
     },
@@ -2466,7 +2466,7 @@
         "consumerKind": "authority-auditor",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/guard-consolidation-and-js-retirement.md"
+          "references/03-implementation/guard-consolidation-and-js-retirement.md"
         ]
       }
     },
@@ -2483,7 +2483,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/semantic-classification-policy.md"
+          "references/01-foundation/semantic-classification-policy.md"
         ]
       }
     },
@@ -2501,7 +2501,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/governance-final-placement-plan.md"
+          "references/03-implementation/governance-final-placement-plan.md"
         ]
       }
     },
@@ -2518,7 +2518,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/governance-final-placement-plan.md"
+          "references/03-implementation/governance-final-placement-plan.md"
         ]
       }
     },
@@ -2536,7 +2536,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/governance-final-placement-plan.md"
+          "references/03-implementation/governance-final-placement-plan.md"
         ]
       }
     },
@@ -2571,7 +2571,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/test-signal-integrity.md"
+          "references/01-foundation/test-signal-integrity.md"
         ]
       }
     },
@@ -2589,7 +2589,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "regex",
         "sourceRefs": [
-          "references/01-principles/design-principles.md"
+          "references/01-foundation/design-principles.md"
         ]
       }
     },
@@ -2606,7 +2606,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-constitution.md"
+          "references/01-foundation/taxonomy-constitution.md"
         ]
       }
     },
@@ -2623,7 +2623,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-constitution.md"
+          "references/01-foundation/taxonomy-constitution.md"
         ]
       }
     },
@@ -2641,7 +2641,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-constitution.md"
+          "references/01-foundation/taxonomy-constitution.md"
         ]
       }
     },
@@ -2658,7 +2658,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-interlock.md"
+          "references/01-foundation/taxonomy-interlock.md"
         ]
       }
     },
@@ -2675,7 +2675,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-origin-journal.md"
+          "references/01-foundation/taxonomy-origin-journal.md"
         ]
       }
     },
@@ -2692,7 +2692,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/taxonomy-constitution.md"
+          "references/01-foundation/taxonomy-constitution.md"
         ]
       }
     },
@@ -2726,7 +2726,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/widgets/README.md"
+          "references/04-tracking/elements/widgets/README.md"
         ]
       }
     },
@@ -2743,7 +2743,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/widgets/README.md"
+          "references/04-tracking/elements/widgets/README.md"
         ]
       }
     },
@@ -2760,7 +2760,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/widgets/README.md"
+          "references/04-tracking/elements/widgets/README.md"
         ]
       }
     },
@@ -2777,7 +2777,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/widgets/README.md"
+          "references/04-tracking/elements/widgets/README.md"
         ]
       }
     },
@@ -2794,7 +2794,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/calculations/README.md"
+          "references/04-tracking/elements/calculations/README.md"
         ]
       }
     },
@@ -2811,7 +2811,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/calculations/README.md"
+          "references/04-tracking/elements/calculations/README.md"
         ]
       }
     },
@@ -2828,7 +2828,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/03-guides/promote-ceremony-pr-template.md"
+          "references/03-implementation/promote-ceremony-pr-template.md"
         ]
       }
     },
@@ -2845,7 +2845,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/charts/README.md"
+          "references/04-tracking/elements/charts/README.md"
         ]
       }
     },
@@ -2896,7 +2896,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/05-contents/widgets/README.md"
+          "references/04-tracking/elements/widgets/README.md"
         ]
       }
     },
@@ -2913,7 +2913,7 @@
         "consumerKind": "policy-enforcer",
         "taskHint": "custom",
         "sourceRefs": [
-          "references/01-principles/canonicalization-principles.md"
+          "references/01-foundation/canonicalization-principles.md"
         ]
       }
     },

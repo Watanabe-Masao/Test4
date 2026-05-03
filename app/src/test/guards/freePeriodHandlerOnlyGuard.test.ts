@@ -28,8 +28,8 @@
  * 再分散する。presentation は `FreePeriodReadModel`（= ctx.freePeriodLane.
  * bundle.fact）経由でのみ自由期間データに触れる。
  *
- * @see references/01-principles/free-period-analysis-definition.md §唯一経路ルール
- * @see references/03-guides/runtime-data-path.md §自由期間ファクト
+ * @see references/01-foundation/free-period-analysis-definition.md §唯一経路ルール
+ * @see references/03-implementation/runtime-data-path.md §自由期間ファクト
  *
  * @responsibility R:unclassified
  *
@@ -183,7 +183,7 @@ describe('freePeriodHandlerOnly Guard (unify-period-analysis Phase 3)', () => {
   it('自由期間分析の定義書が存在し、唯一経路ルールを記載している', () => {
     const defFile = path.resolve(
       SRC_DIR,
-      '../../references/01-principles/free-period-analysis-definition.md',
+      '../../references/01-foundation/free-period-analysis-definition.md',
     )
     expect(fs.existsSync(defFile), 'free-period-analysis-definition.md が存在しない').toBe(true)
     const content = fs.readFileSync(defFile, 'utf-8')
@@ -194,7 +194,7 @@ describe('freePeriodHandlerOnly Guard (unify-period-analysis Phase 3)', () => {
   })
 
   it('runtime-data-path.md に自由期間ファクトの経路が記載されている', () => {
-    const docFile = path.resolve(SRC_DIR, '../../references/03-guides/runtime-data-path.md')
+    const docFile = path.resolve(SRC_DIR, '../../references/03-implementation/runtime-data-path.md')
     expect(fs.existsSync(docFile), 'runtime-data-path.md が存在しない').toBe(true)
     const content = fs.readFileSync(docFile, 'utf-8')
     expect(content).toContain('自由期間ファクト')

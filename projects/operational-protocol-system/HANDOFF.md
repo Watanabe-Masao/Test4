@@ -2,7 +2,7 @@
 
 > 役割: 起点文書。後任者が最初に読む。
 
-> **⏸ PAUSED (2026-05-02)**: 本 project は **`aag-self-hosting-completion` project の R5 完了後 resume** で pause 状態。理由 = aag-self-hosting-completion の R5 で本 project の M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) を `aag/interface/protocols/` に **structural foundation 上に直接 landing** する設計のため、references/03-guides/ 上で先行 articulate すると後で migrate 必要 = 順序整合性違反。aag-self-hosting-completion の R5 完了で resume + M1-M5 着手予定。詳細: `projects/aag-self-hosting-completion/plan.md` §3 R5 + §1 不可侵原則 5 (= rollback 境界 articulate)。
+> **⏸ PAUSED (2026-05-02)**: 本 project は **`aag-self-hosting-completion` project の R5 完了後 resume** で pause 状態。理由 = aag-self-hosting-completion の R5 で本 project の M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) を `aag/interface/protocols/` に **structural foundation 上に直接 landing** する設計のため、references/03-implementation/ 上で先行 articulate すると後で migrate 必要 = 順序整合性違反。aag-self-hosting-completion の R5 完了で resume + M1-M5 着手予定。詳細: `projects/aag-self-hosting-completion/plan.md` §3 R5 + §1 不可侵原則 5 (= rollback 境界 articulate)。
 
 ## 1. 現在地
 
@@ -11,7 +11,7 @@
 その後 user articulation で AAG framework の entry navigation level での self-hosting failure が articulate され、`aag-self-hosting-completion` project が bootstrap、本 project は R5 完了後 resume となった。
 
 - 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済
-- charter draft (`references/02-status/operational-protocol-charter-draft.md`) を `plan.md` に migrate (重複 articulate 防止のため charter draft は削除)
+- charter draft (`references/04-tracking/operational-protocol-charter-draft.md`) を `plan.md` に migrate (重複 articulate 防止のため charter draft は削除)
 - 実装 0 件 → **pause、aag-self-hosting-completion R5 完了で resume + M1 着手**
 
 ## 2. 次にやること

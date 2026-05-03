@@ -21,12 +21,12 @@
 
 | 変更の種類 | 更新先 |
 |---|---|
-| 設計原則の追加・変更 | CLAUDE.md + `references/01-principles/design-principles.md` |
-| ガードテストの追加 | `references/03-guides/guard-test-map.md` + 対応 ROLE.md |
+| 設計原則の追加・変更 | CLAUDE.md + `references/01-foundation/design-principles.md` |
+| ガードテストの追加 | `references/03-implementation/guard-test-map.md` + 対応 ROLE.md |
 | 新ロールの追加 | CLAUDE.md ルーティング表 + `roles/` に ROLE.md + SKILL.md |
-| 不変条件の追加 | `references/03-guides/invariant-catalog.md` + 対応 ROLE.md |
-| MetricId の追加 | `references/03-guides/metric-id-registry.md` |
-| エンジン責務の変更 | `references/01-principles/engine-responsibility.md` |
+| 不変条件の追加 | `references/03-implementation/invariant-catalog.md` + 対応 ROLE.md |
+| MetricId の追加 | `references/03-implementation/metric-id-registry.md` |
+| エンジン責務の変更 | `references/01-foundation/engine-responsibility.md` |
 
 ## SKILL-2: ADR 作成
 
@@ -75,11 +75,11 @@
 ### 方法論（手順）
 
 1. CLAUDE.md のルーティング表と `roles/` ディレクトリを照合
-2. `references/03-guides/guard-test-map.md` に記載のテストファイルが実在するか確認
-3. `references/03-guides/metric-id-registry.md` と `domain/models/Explanation.ts` の MetricId を照合
-4. `references/03-guides/invariant-catalog.md` の不変条件 ID がテストコードに存在するか確認
+2. `references/03-implementation/guard-test-map.md` に記載のテストファイルが実在するか確認
+3. `references/03-implementation/metric-id-registry.md` と `domain/models/Explanation.ts` の MetricId を照合
+4. `references/03-implementation/invariant-catalog.md` の不変条件 ID がテストコードに存在するか確認
 5. 各 ROLE.md の参照ドキュメントパスが実在するか確認
-6. `references/02-status/open-issues.md` の課題ステータスがコードの実態と一致するか確認
+6. `references/04-tracking/open-issues.md` の課題ステータスがコードの実態と一致するか確認
 7. 乖離があればリストアップし、修正を実施する
 
 ### 出力テンプレート
