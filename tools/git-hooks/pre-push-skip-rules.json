@@ -1,0 +1,25 @@
+{
+  "$schema": "skip-rules-v1",
+  "_articulation": "Pre-push hook 役割分離 mechanism (= DA-β-001)。何を check するかではなく、何を check しないかを negative articulation する。CI が AI 不可侵の最終ゲート (全スキャン)、pre-push は変更箇所 + 影響範囲の即時 feedback layer。skipRules は exclusion 列挙、default = full check (safe fallback)。skipBaseline で ratchet-down (= AI 単独追加禁止、増加要求は review window 経由)。",
+  "skipBaseline": 3,
+  "skipRules": [
+    {
+      "name": "doc-only-commit",
+      "matchAll": "^(references|projects|aag|docs|\\.github)/.*\\.md$|^[A-Z_]+\\.md$|^CHANGELOG\\.md$",
+      "skip": ["check_tsc", "check_lint", "check_test_guards"],
+      "rationale": "doc-only 変更は code 影響なし → CI に集約。docs:check は KPI drift 検出のため実行維持 (= generated section 同期検証)"
+    },
+    {
+      "name": "test-additions-only",
+      "matchAll": "^app/src/.+\\.test\\.tsx?$|^app/src/.+/__tests__/.+\\.tsx?$|^app/e2e/.+\\.spec\\.ts$",
+      "skip": ["check_docs_drift"],
+      "rationale": "test 追加・修正は KPI に直接影響しない。test:guards で test 自身の正当性を検証するため check_test_guards は実行維持"
+    },
+    {
+      "name": "generated-only-commit",
+      "matchAll": "^references/04-tracking/generated/.*\\.(generated\\.md|json)$|^docs/generated/.*\\.json$",
+      "skip": ["check_tsc", "check_lint", "check_test_guards", "check_docs_drift"],
+      "rationale": "機械生成 artifact のみの commit (= docs:generate 出力反映) は前段 commit の verify を継承。check 重複を回避"
+    }
+  ]
+}

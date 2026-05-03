@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T11:48:48.199Z",
+  "timestamp": "2026-05-03T12:04:50.203Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 132,
+      "value": 133,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -350,6 +350,7 @@
         "app/src/test/guards/pageMetaGuard.test.ts",
         "app/src/test/guards/piValuePathGuard.test.ts",
         "app/src/test/guards/pipelineSafetyGuard.test.ts",
+        "app/src/test/guards/prePushSkipRulesGuard.test.ts",
         "app/src/test/guards/presentationComparisonMathGuard.test.ts",
         "app/src/test/guards/presentationIsolationGuard.test.ts",
         "app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts",
@@ -591,9 +592,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -1607,9 +1608,9 @@
   ],
   "summary": {
     "totalKpis": 60,
-    "ok": 59,
+    "ok": 60,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }

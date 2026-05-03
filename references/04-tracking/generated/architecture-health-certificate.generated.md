@@ -4,21 +4,21 @@
 
 | 項目 | 値 |
 |---|---|
-| **総合評価** | **RISK** |
-| 前回比 | Flat |
-| リリース影響 | Yes |
-| 最終更新 | 2026-05-03T11:48:48.199Z |
+| **総合評価** | **Healthy** |
+| 前回比 | Improved |
+| リリース影響 | No |
+| 最終更新 | 2026-05-03T12:04:50.203Z |
 
 ## Hard Gate
 
-**FAIL**
+**PASS** — 全ゲート通過
 
 - PASS: Frozen リスト非ゼロ
 - PASS: 廃止用語残存数
 - PASS: Generated section 未更新
 - PASS: Presentation→Infrastructure 違反
 - PASS: Infrastructure→Application 違反
-- FAIL: Doc 更新義務違反数
+- PASS: Doc 更新義務違反数
 - PASS: Required Reads マップ broken link 数
 - PASS: review overdue ルール数
 - PASS: checklist 完了済みだが archive 未実施の project 数
@@ -33,29 +33,22 @@
 | **後方互換負債** | OK | Active Bridge 数: 0/3 / 後方互換 re-export 数: 0/3 |
 | **複雑性圧** | OK | 上限間近ファイル数: 1/5 / 複雑性ホットスポット数: 10/10 / ViewModel ファイル数: 25/30 |
 | **境界健全性** | OK | Presentation→Infrastructure 違反: 0/0 / Infrastructure→Application 違反: 0/0 |
-| **ガード強度** | OK | ガードテストファイル数: 132/30 / レビュー専用タグ数: 0/5 |
+| **ガード強度** | OK | ガードテストファイル数: 133/30 (+1) / レビュー専用タグ数: 0/5 |
 | **性能** | OK | JS バンドル合計サイズ: 6601/7000 / メインバンドルサイズ: 2386/2500 / ECharts バンドルサイズ: 919/1000 |
 | **Temporal Governance** | OK | review overdue ルール数: 0/0 / heuristic + gate ルール数: 0/32 / active-debt 例外数: 2/12 / reviewPolicy 設定済みルール数: 172/92 / sunsetCondition 設定済みルール数: 36/9 / active-debt で createdAt 設定済み: 2/1 |
 | **Rule Efficacy** | OK | protectedHarm 設定済みルール数: 104 / 高例外圧ルール数（≥10 件）: 0/3 / renewalCount 合計: 0/10 |
 | **Project Governance** | OK | active project 数（archive 未実施を含む）: 6/20 / in_progress な project 数（open required checkbox あり）: 5/20 / checklist 完了済みだが archive 未実施の project 数: 0/0 / archived project 数（projects/completed/ 配下）: 37/100 |
 
-## Top Risks
-
-**1. Doc 更新義務違反数**
-- 状態: 1 / budget 0（100% 超過）
-- ファイル: `—`
-- 定義書: `tools/architecture-health/src/collectors/obligation-collector.ts`
-
 ## Recent Changes
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| Doc 更新義務違反数 | 4 | 1 | -3 + |
+| ガードテストファイル数 | 132 | 133 | +1 + |
+| Doc 更新義務違反数 | 1 | 0 | -1 + |
 
 ## Recommended Actions
 
-1. Doc 更新義務違反数 を budget 0 以下に修正する
-2. 上限間近ファイル 1 件を分割検討する
+1. 上限間近ファイル 1 件を分割検討する
 
 ---
 
