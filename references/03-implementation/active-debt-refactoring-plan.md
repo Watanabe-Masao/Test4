@@ -8,7 +8,7 @@
 >
 > **live な作業項目は本文書に書かない。**
 > 残作業の正本は
-> [`projects/presentation-quality-hardening/checklist.md`](../../projects/presentation-quality-hardening/checklist.md)
+> [`projects/active/presentation-quality-hardening/checklist.md`](../../projects/active/presentation-quality-hardening/checklist.md)
 > を参照。WeatherPage の `useWeatherDaySelection` 抽出 (Phase H-1 相当) のみが
 > verified LIVE として残っている。
 

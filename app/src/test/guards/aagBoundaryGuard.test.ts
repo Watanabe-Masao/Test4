@@ -17,7 +17,7 @@
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard
- * @see projects/aag-self-hosting-completion/plan.md §6.2 (= guard 一覧)
+ * @see projects/active/aag-self-hosting-completion/plan.md §6.2 (= guard 一覧)
  * @see aag/README.md (= boundary 警告)
  */
 

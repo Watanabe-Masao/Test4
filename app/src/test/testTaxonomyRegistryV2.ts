@@ -14,7 +14,7 @@
  * @see references/01-foundation/test-taxonomy-schema.md (schema 仕様正本)
  * @see references/01-foundation/taxonomy-interlock.md (R⇔T 完全マトリクス)
  * @see references/01-foundation/taxonomy-origin-journal.md §3 (T:* Origin、§v2 T:kind Origin で v2 詳細)
- * @see projects/taxonomy-v2/plan.md §OCS.2 / §OCS.4 / §OCS.5 (frontmatter 仕様)
+ * @see projects/active/taxonomy-v2/plan.md §OCS.2 / §OCS.4 / §OCS.5 (frontmatter 仕様)
  *
  * @responsibility R:registry
  */

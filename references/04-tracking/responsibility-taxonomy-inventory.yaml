@@ -30,7 +30,7 @@
 
 summary:
   schemaVersion: '1.0'
-  schemaSource: 'projects/taxonomy-v2/plan.md §Common Inventory Schema'
+  schemaSource: 'projects/active/taxonomy-v2/plan.md §Common Inventory Schema'
   generatedAt: '2026-04-26T18:23:48.947Z'
   generator: tools/scripts/responsibility-taxonomy-inventory.ts
   axis: responsibility

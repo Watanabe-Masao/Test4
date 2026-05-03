@@ -44,7 +44,7 @@
  *
  * @responsibility R:guard
  * @see references/01-foundation/taxonomy-constitution.md
- * @see projects/taxonomy-v2/plan.md §Operational Control System
+ * @see projects/active/taxonomy-v2/plan.md §Operational Control System
  *
  * @taxonomyKind T:unclassified
  */
@@ -58,7 +58,7 @@ const CONSTITUTION_PATH = 'references/01-foundation/taxonomy-constitution.md'
 const INTERLOCK_PATH = 'references/01-foundation/taxonomy-interlock.md'
 const ORIGIN_JOURNAL_PATH = 'references/01-foundation/taxonomy-origin-journal.md'
 const CLAUDE_MD_PATH = 'CLAUDE.md'
-const PLAN_PATH = 'projects/taxonomy-v2/plan.md'
+const PLAN_PATH = 'projects/active/taxonomy-v2/plan.md'
 
 const DELIVERABLES = [
   CONSTITUTION_PATH,
@@ -92,7 +92,7 @@ function formatViolations(violations: readonly Violation[]): string {
     '  - Phase 1 Constitution 5 deliverables を完成させる',
     '  - 各文書の必須セクションを landing する',
     '  - 相互参照（canonical source へのリンク）を維持する',
-    '  詳細: projects/taxonomy-v2/plan.md §Operational Control System',
+    '  詳細: projects/active/taxonomy-v2/plan.md §Operational Control System',
   ].join('\n')
 }
 
@@ -242,7 +242,7 @@ describe('Constitution Bootstrap Guard', () => {
       const refs = [
         { name: 'Interlock マトリクス参照', pattern: /taxonomy-interlock\.md/ },
         { name: 'Origin Journal 参照', pattern: /taxonomy-origin-journal\.md/ },
-        { name: '親 plan 参照', pattern: /projects\/taxonomy-v2\/plan\.md/ },
+        { name: '親 plan 参照', pattern: /projects\/active\/taxonomy-v2\/plan\.md/ },
         { name: 'constitutionBootstrapGuard 参照', pattern: /constitutionBootstrapGuard/ },
       ]
       for (const r of refs) {
@@ -262,7 +262,7 @@ describe('Constitution Bootstrap Guard', () => {
       const refs = [
         { name: 'Constitution 参照', pattern: /taxonomy-constitution\.md/ },
         { name: 'Origin Journal 参照', pattern: /taxonomy-origin-journal\.md/ },
-        { name: '親 plan 参照', pattern: /projects\/taxonomy-v2\/plan\.md/ },
+        { name: '親 plan 参照', pattern: /projects\/active\/taxonomy-v2\/plan\.md/ },
       ]
       for (const r of refs) {
         if (!r.pattern.test(c)) {
@@ -281,7 +281,7 @@ describe('Constitution Bootstrap Guard', () => {
       const refs = [
         { name: 'Constitution 参照', pattern: /taxonomy-constitution\.md/ },
         { name: 'Interlock 参照', pattern: /taxonomy-interlock\.md/ },
-        { name: '親 plan 参照', pattern: /projects\/taxonomy-v2\/plan\.md/ },
+        { name: '親 plan 参照', pattern: /projects\/active\/taxonomy-v2\/plan\.md/ },
         { name: '子 responsibility plan 参照', pattern: /responsibility-taxonomy-v2/ },
         { name: '子 test plan 参照', pattern: /test-taxonomy-v2/ },
       ]
@@ -310,7 +310,7 @@ describe('Constitution Bootstrap Guard', () => {
         { name: 'Constitution 参照', pattern: /taxonomy-constitution\.md/ },
         { name: 'Interlock 参照', pattern: /taxonomy-interlock\.md/ },
         { name: 'Origin Journal 参照', pattern: /taxonomy-origin-journal\.md/ },
-        { name: '親 plan 参照', pattern: /projects\/taxonomy-v2\/plan\.md/ },
+        { name: '親 plan 参照', pattern: /projects\/active\/taxonomy-v2\/plan\.md/ },
       ]
       for (const r of refs) {
         if (section && !r.pattern.test(section)) {

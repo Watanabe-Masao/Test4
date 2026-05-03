@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T21:31:21.491Z",
+  "timestamp": "2026-05-03T21:55:35.932Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -594,9 +594,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 1,
+      "value": 0,
       "unit": "count",
-      "status": "fail",
+      "status": "ok",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -657,7 +657,7 @@
         }
       ],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/active/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 92
     },
@@ -690,7 +690,7 @@
       "owner": "architecture",
       "docRefs": [],
       "implRefs": [
-        "projects/pure-calculation-reorg/aag/execution-overlay.ts"
+        "projects/active/pure-calculation-reorg/aag/execution-overlay.ts"
       ],
       "budget": 0
     },
@@ -816,7 +816,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -834,15 +834,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -895,7 +895,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -913,15 +913,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -955,7 +955,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -973,15 +973,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -1016,7 +1016,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -1034,15 +1034,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -1077,7 +1077,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -1095,15 +1095,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -1137,7 +1137,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -1155,15 +1155,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -1197,7 +1197,7 @@
         "projects/completed/aag-platformization/checklist.md",
         "projects/completed/aag-rule-schema-meta-guard/checklist.md",
         "projects/completed/aag-rule-splitting-execution/checklist.md",
-        "projects/aag-self-hosting-completion/checklist.md",
+        "projects/active/aag-self-hosting-completion/checklist.md",
         "projects/completed/aag-temporal-governance-hardening/checklist.md",
         "projects/completed/architecture-debt-recovery/checklist.md",
         "projects/completed/architecture-decision-backlog/checklist.md",
@@ -1215,15 +1215,15 @@
         "projects/completed/docs-and-governance-cohesion/checklist.md",
         "projects/completed/duplicate-orphan-retirement/checklist.md",
         "projects/integrity-framework-evolution/checklist.md",
-        "projects/operational-protocol-system/checklist.md",
+        "projects/active/operational-protocol-system/checklist.md",
         "projects/completed/phase-6-optional-comparison-projection/checklist.md",
         "projects/completed/phased-content-specs-rollout/checklist.md",
         "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
-        "projects/presentation-quality-hardening/checklist.md",
-        "projects/pure-calculation-reorg/checklist.md",
-        "projects/quick-fixes/checklist.md",
+        "projects/active/presentation-quality-hardening/checklist.md",
+        "projects/active/pure-calculation-reorg/checklist.md",
+        "projects/active/quick-fixes/checklist.md",
         "projects/responsibility-taxonomy-v2/checklist.md",
-        "projects/taxonomy-v2/checklist.md",
+        "projects/active/taxonomy-v2/checklist.md",
         "projects/completed/test-signal-integrity/checklist.md",
         "projects/test-taxonomy-v2/checklist.md",
         "projects/completed/unify-period-analysis/checklist.md",
@@ -1279,7 +1279,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "projects/taxonomy-v2/plan.md"
+          "path": "projects/active/taxonomy-v2/plan.md"
         },
         {
           "kind": "definition",
@@ -1302,7 +1302,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "projects/taxonomy-v2/plan.md"
+          "path": "projects/active/taxonomy-v2/plan.md"
         },
         {
           "kind": "definition",
@@ -1325,7 +1325,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "projects/taxonomy-v2/plan.md"
+          "path": "projects/active/taxonomy-v2/plan.md"
         }
       ],
       "implRefs": [
@@ -1343,7 +1343,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "projects/taxonomy-v2/plan.md"
+          "path": "projects/active/taxonomy-v2/plan.md"
         }
       ],
       "implRefs": [
@@ -1610,9 +1610,9 @@
   ],
   "summary": {
     "totalKpis": 60,
-    "ok": 59,
+    "ok": 60,
     "warn": 0,
-    "fail": 1,
-    "hardGatePass": false
+    "fail": 0,
+    "hardGatePass": true
   }
 }

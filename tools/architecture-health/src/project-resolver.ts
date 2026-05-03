@@ -13,15 +13,15 @@
  *
  * @responsibility R:utility
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 export interface ActiveProject {
   /** プロジェクト識別子（例: "pure-calculation-reorg"） */
   readonly projectId: string
-  /** repo root からの相対パス（例: "projects/pure-calculation-reorg"） */
+  /** repo root からの相対パス（例: "projects/active/pure-calculation-reorg"） */
   readonly projectRoot: string
-  /** overlay ルート（例: "projects/pure-calculation-reorg/aag"） */
+  /** overlay ルート（例: "projects/active/pure-calculation-reorg/aag"） */
   readonly overlayRoot: string
   /** execution overlay ファイルの相対パス */
   readonly overlayEntry: string
@@ -63,7 +63,18 @@ function readActiveProjectId(repoRoot: string): string {
  * project.json を読み取り、manifest を返す。
  */
 function readProjectManifest(repoRoot: string, projectId: string): ProjectManifest {
-  const manifestPath = resolve(repoRoot, 'projects', projectId, 'config', 'project.json')
+  // R6b (DA-α-007b、2026-05-03): projects/ active+completed split。
+  // `projects/active/<id>/` を優先 lookup、なければ旧 `projects/<id>/` (backward compat)。
+  const activeManifestPath = resolve(
+    repoRoot,
+    'projects',
+    'active',
+    projectId,
+    'config',
+    'project.json',
+  )
+  const legacyManifestPath = resolve(repoRoot, 'projects', projectId, 'config', 'project.json')
+  const manifestPath = existsSync(activeManifestPath) ? activeManifestPath : legacyManifestPath
   const raw = readFileSync(manifestPath, 'utf-8')
   const parsed = JSON.parse(raw) as ProjectManifest
   if (parsed.projectId !== projectId) {
@@ -79,7 +90,7 @@ function readProjectManifest(repoRoot: string, projectId: string): ProjectManife
  * active project の参照情報を取得する。
  *
  * collectors / health ツールはこの関数経由で overlay 位置を取得すること。
- * 直接 `projects/pure-calculation-reorg/...` を書いてはならない。
+ * 直接 `projects/active/pure-calculation-reorg/...` を書いてはならない。
  */
 export function resolveActiveProject(repoRoot: string): ActiveProject {
   const projectId = readActiveProjectId(repoRoot)

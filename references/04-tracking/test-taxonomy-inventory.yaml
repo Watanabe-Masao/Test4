@@ -25,7 +25,7 @@
 
 summary:
   schemaVersion: '1.0'
-  schemaSource: 'projects/taxonomy-v2/plan.md §Common Inventory Schema'
+  schemaSource: 'projects/active/taxonomy-v2/plan.md §Common Inventory Schema'
   generatedAt: '2026-04-26T18:33:28.545Z'
   generator: tools/scripts/test-taxonomy-inventory.ts
   axis: test

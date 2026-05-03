@@ -53,10 +53,15 @@ interface ActiveProject {
 function listActiveProjects(): ActiveProject[] {
   if (!fs.existsSync(PROJECTS_DIR)) return []
   const out: ActiveProject[] = []
-  for (const entry of fs.readdirSync(PROJECTS_DIR)) {
+  // R6b (DA-α-007b、2026-05-03): projects/ active+completed split。`projects/active/`
+  // が存在する場合はそこから列挙、無い場合は projects/ 直下を walk する旧 behavior を維持。
+  const activeDir = path.join(PROJECTS_DIR, 'active')
+  const scanDir = fs.existsSync(activeDir) ? activeDir : PROJECTS_DIR
+  for (const entry of fs.readdirSync(scanDir)) {
     if (entry.startsWith('_')) continue
     if (entry === 'completed') continue
-    const entryPath = path.join(PROJECTS_DIR, entry)
+    if (entry === 'active') continue // 新 layout の親 dir (= R6b 後) を skip
+    const entryPath = path.join(scanDir, entry)
     if (!fs.statSync(entryPath).isDirectory()) continue
     const handoff = path.join(entryPath, 'HANDOFF.md')
     const checklist = path.join(entryPath, 'checklist.md')

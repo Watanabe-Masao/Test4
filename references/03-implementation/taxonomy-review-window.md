@@ -307,5 +307,5 @@ AI 提案を受け取った reviewer は:
 | `references/01-foundation/taxonomy-interlock.md`      | Interlock マトリクス（改訂手続き §3 と本ガイド §4.4 が対応）        |
 | `references/01-foundation/taxonomy-origin-journal.md` | Origin 形式（採択 entry が本 journal の Origin に転記される）       |
 | `references/04-tracking/taxonomy-review-journal.md`     | 提案 / 採択 / 却下 / 例外の journal（本ガイドが定義する形式の運用） |
-| `projects/taxonomy-v2/plan.md`                        | 親 plan §OCS.4 / §OCS.8 / §OCS.9 の正本                             |
+| `projects/active/taxonomy-v2/plan.md`                        | 親 plan §OCS.4 / §OCS.8 / §OCS.9 の正本                             |
 | `CLAUDE.md` §taxonomy-binding                         | AI Vocabulary Binding（本ガイド §7 の根拠）                         |

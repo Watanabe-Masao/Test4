@@ -153,4 +153,4 @@ v2 = 10 / Ceiling = 15 → **5 スロット余裕**。
 | `app/src/test/responsibilityTagRegistry.ts`                     | 現行 v1 正本（子 Phase 8 で retirement 予定）                    |
 | `references/04-tracking/responsibility-taxonomy-inventory.yaml`   | Phase 0 baseline（CanonEntry 1370 entry / Anchor 299）           |
 | `references/03-implementation/responsibility-v1-to-v2-migration-map.md` | v1→v2 移行詳細（子 Phase 2 で landing）                          |
-| `projects/taxonomy-v2/plan.md` §AR-TAXONOMY-\*                  | rule 仕様正本（子 Phase 3 で active 化）                         |
+| `projects/active/taxonomy-v2/plan.md` §AR-TAXONOMY-\*                  | rule 仕様正本（子 Phase 3 で active 化）                         |

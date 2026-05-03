@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-03T21:31:21.491Z
+> Generated: 2026-05-03T21:55:35.932Z
 > Schema: v1.0.0
 > 正本: `references/04-tracking/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 60 |
-| OK | 59 |
+| OK | 60 |
 | WARN | 0 |
-| FAIL | 1 |
-| Hard Gate | FAIL |
+| FAIL | 0 |
+| Hard Gate | PASS |
 
 ## 許可リスト
 
@@ -81,7 +81,7 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 1 / 0 | FAIL |
+| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
 | docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 10 | OK |
 | docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 6 / 20 | OK |
@@ -160,12 +160,12 @@
 | project.checklist.subprojectCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
 | docs.testContract.declared | definition | docs/contracts/test-contract.json |
 | docs.testContract.violations | definition | docs/contracts/test-contract.json |
-| taxonomy.responsibility.unknownVocabulary | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.responsibility.unknownVocabulary | definition | projects/active/taxonomy-v2/plan.md |
 | taxonomy.responsibility.unknownVocabulary | definition | references/01-foundation/responsibility-taxonomy-schema.md |
-| taxonomy.test.unknownVocabulary | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.test.unknownVocabulary | definition | projects/active/taxonomy-v2/plan.md |
 | taxonomy.test.unknownVocabulary | definition | references/01-foundation/test-taxonomy-schema.md |
-| taxonomy.vocabulary.responsibilityCount | definition | projects/taxonomy-v2/plan.md |
-| taxonomy.vocabulary.testCount | definition | projects/taxonomy-v2/plan.md |
+| taxonomy.vocabulary.responsibilityCount | definition | projects/active/taxonomy-v2/plan.md |
+| taxonomy.vocabulary.testCount | definition | projects/active/taxonomy-v2/plan.md |
 | contentSpec.total | definition | references/04-tracking/elements/README.md |
 | contentSpec.missingOwner | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-OWNER |
 | contentSpec.stale | definition | app-domain/gross-profit/rule-catalog/base-rules.ts #AR-CONTENT-SPEC-FRESHNESS |

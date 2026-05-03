@@ -33,7 +33,7 @@
  * - `projects/<id>/checklist.md`（該当 check で必要時）
  * - **除外**: `projects/completed/**`（archive 済みに retroactive 適用しない）
  * - **除外**: `projects/_template/**`（schema 検証は別 test の対象）
- * - **除外**: `kind: "collection"` の project（例: `projects/quick-fixes/`）
+ * - **除外**: `kind: "collection"` の project（例: `projects/active/quick-fixes/`）
  *
  * ## baseline 運用
  *
@@ -104,11 +104,18 @@ function listActiveProjects(): ActiveProject[] {
   const out: ActiveProject[] = []
   if (!fs.existsSync(PROJECTS_DIR)) return out
 
-  for (const entry of fs.readdirSync(PROJECTS_DIR, { withFileTypes: true })) {
+  // R6b (DA-α-007b、2026-05-03): projects/ active+completed split。`projects/active/`
+  // が存在する場合 (= R6b 後) はそこから列挙、無い場合 (= R6b 前) は projects/ 直下を
+  // walk する旧 behavior を維持 (= backward compatible)。
+  const activeDir = path.join(PROJECTS_DIR, 'active')
+  const scanDir = fs.existsSync(activeDir) ? activeDir : PROJECTS_DIR
+
+  for (const entry of fs.readdirSync(scanDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue
     if (entry.name === 'completed') continue
     if (entry.name === '_template') continue
-    const absDir = path.join(PROJECTS_DIR, entry.name)
+    if (entry.name === 'active') continue // 新 layout の親 dir (= R6b 後) を skip
+    const absDir = path.join(scanDir, entry.name)
     const relDir = path.relative(PROJECT_ROOT, absDir).replace(/\\/g, '/')
     const configPath = path.join(absDir, 'config/project.json')
     if (!fs.existsSync(configPath)) continue
@@ -175,8 +182,8 @@ function checkPZ3(p: ActiveProject): Violation[] {
         'projectization.level=0 が宣言されていますが projects/<id>/ ディレクトリが存在します（過剰 project 化）',
       hint:
         'Level 0 相当の作業は projects/<id>/ を作らず ' +
-        '`projects/quick-fixes/checklist.md` に 1 行追加で対応してください。\n' +
-        ' このディレクトリを `projects/quick-fixes/` に移管するか、' +
+        '`projects/active/quick-fixes/checklist.md` に 1 行追加で対応してください。\n' +
+        ' このディレクトリを `projects/active/quick-fixes/` に移管するか、' +
         '実態に合わせて Level 1+ に escalate してください。\n' +
         ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
     },
@@ -433,7 +440,7 @@ function checkPZ12(p: ActiveProject): Violation[] {
  * - 検出 2: AI レビュー section が `## 最終レビュー` section の **後** にある (= ordering 違反) → fail
  * - scope: structural のみ (= section 存在 + ordering)、checkbox 内容は不問 (= AI session 責任、機械検証 scope 外)
  *
- * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-002
+ * 詳細: projects/active/aag-self-hosting-completion/decision-audit.md DA-β-002
  */
 function checkPZ13(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
@@ -458,7 +465,7 @@ function checkPZ13(p: ActiveProject): Violation[] {
           '    ## AI 自己レビュー (= user 承認の手前)\n' +
           '    - [ ] 総チェック / 歪み検出 / 潜在バグ / ドキュメント抜け漏れ / CHANGELOG + バージョン管理\n' +
           ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2 + ' +
-          'projects/aag-self-hosting-completion/decision-audit.md DA-β-002。',
+          'projects/active/aag-self-hosting-completion/decision-audit.md DA-β-002。',
       },
     ]
   }
@@ -495,7 +502,7 @@ function checkPZ13(p: ActiveProject): Violation[] {
  * - 内容検証は機械では不可能、AI session の self-discipline + decision-audit articulation で担保
  * - 蓄積 value は post-archive review で実証 (= mechanism として institute するのが目的)
  *
- * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-003
+ * 詳細: projects/active/aag-self-hosting-completion/decision-audit.md DA-β-003
  */
 function checkPZ14(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
@@ -513,7 +520,7 @@ function checkPZ14(p: ActiveProject): Violation[] {
           '    projects/_template/discovery-log.md\n' +
           '  scope 外発見 / 改善 / 調査要事項を per-project で蓄積する mechanism (= DA-β-003 で institute)。\n' +
           ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3 + ' +
-          'projects/aag-self-hosting-completion/decision-audit.md DA-β-003。',
+          'projects/active/aag-self-hosting-completion/decision-audit.md DA-β-003。',
       },
     ]
   }

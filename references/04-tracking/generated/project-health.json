@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T21:31:21.494Z",
+  "timestamp": "2026-05-03T21:55:35.935Z",
   "summary": {
     "active": 6,
     "archived": 37,
@@ -164,8 +164,8 @@
       "checked": 7,
       "total": 167,
       "progress": 0.042,
-      "entrypoint": "projects/aag-self-hosting-completion/AI_CONTEXT.md",
-      "checklistPath": "projects/aag-self-hosting-completion/checklist.md",
+      "entrypoint": "projects/active/aag-self-hosting-completion/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-self-hosting-completion/checklist.md",
       "parent": null
     },
     {
@@ -402,8 +402,8 @@
       "checked": 5,
       "total": 66,
       "progress": 0.076,
-      "entrypoint": "projects/operational-protocol-system/AI_CONTEXT.md",
-      "checklistPath": "projects/operational-protocol-system/checklist.md",
+      "entrypoint": "projects/active/operational-protocol-system/AI_CONTEXT.md",
+      "checklistPath": "projects/active/operational-protocol-system/checklist.md",
       "parent": null
     },
     {
@@ -454,8 +454,8 @@
       "checked": 13,
       "total": 21,
       "progress": 0.619,
-      "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
-      "checklistPath": "projects/presentation-quality-hardening/checklist.md",
+      "entrypoint": "projects/active/presentation-quality-hardening/AI_CONTEXT.md",
+      "checklistPath": "projects/active/presentation-quality-hardening/checklist.md",
       "parent": null
     },
     {
@@ -467,8 +467,8 @@
       "checked": 84,
       "total": 119,
       "progress": 0.706,
-      "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
-      "checklistPath": "projects/pure-calculation-reorg/checklist.md",
+      "entrypoint": "projects/active/pure-calculation-reorg/AI_CONTEXT.md",
+      "checklistPath": "projects/active/pure-calculation-reorg/checklist.md",
       "parent": null
     },
     {
@@ -480,8 +480,8 @@
       "checked": 12,
       "total": 13,
       "progress": 0.923,
-      "entrypoint": "projects/quick-fixes/AI_CONTEXT.md",
-      "checklistPath": "projects/quick-fixes/checklist.md",
+      "entrypoint": "projects/active/quick-fixes/AI_CONTEXT.md",
+      "checklistPath": "projects/active/quick-fixes/checklist.md",
       "parent": null
     },
     {
@@ -506,8 +506,8 @@
       "checked": 50,
       "total": 60,
       "progress": 0.833,
-      "entrypoint": "projects/taxonomy-v2/AI_CONTEXT.md",
-      "checklistPath": "projects/taxonomy-v2/checklist.md",
+      "entrypoint": "projects/active/taxonomy-v2/AI_CONTEXT.md",
+      "checklistPath": "projects/active/taxonomy-v2/checklist.md",
       "parent": null
     },
     {

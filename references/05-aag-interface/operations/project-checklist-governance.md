@@ -556,9 +556,9 @@ archive される project が依存していた references/ 文書は、project 
 
 | projectId | scope | 入口 |
 |---|---|---|
-| `presentation-quality-hardening` | active-debt + 500 行超 + coverage + E2E | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `pure-calculation-reorg` | Pure 計算責務再編（Phase 8〜） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `quick-fixes` | 単発 fix collection (continuous) | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
+| `presentation-quality-hardening` | active-debt + 500 行超 + coverage + E2E | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
+| `pure-calculation-reorg` | Pure 計算責務再編（Phase 8〜） | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
+| `quick-fixes` | 単発 fix collection (continuous) | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../projects/active/quick-fixes/AI_CONTEXT.md) |
 | `data-load-idempotency-hardening` (archived) | idempotent load contract 残存防御 (2026-04-12 archive, Phase F Option A 確定) | [`projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md`](../../projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md) |
 | `docs-and-governance-cohesion` (archived) | live task 集約 + AAG 統合 (2026-04-12 archive) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `aag-collector-purification` (archived) | collector heading 抑制削除 + 規約/実装の対称性回復 (2026-04-13 archive) | [`projects/completed/aag-collector-purification/AI_CONTEXT.md`](../../projects/completed/aag-collector-purification/AI_CONTEXT.md) |
@@ -570,7 +570,7 @@ archive される project が依存していた references/ 文書は、project 
 ## 10. 新規 project bootstrap 手順（AI 向け）
 
 > **小さな fix の場合（数時間以内）:**
-> bootstrap は不要。`projects/quick-fixes/checklist.md` に
+> bootstrap は不要。`projects/active/quick-fixes/checklist.md` に
 > `* [ ] (優先度) <スコープ>: <一文の説明>` を 1 行追加するだけ。
 > 詳細は §11.2 を参照。
 >
@@ -681,7 +681,7 @@ cd app && npm run test:guards
 4. 不可侵原則を独自に持つか？ → Yes なら大きな project
 5. 数時間以内に終わるか？ → Yes なら小さな fix
 
-### 11.2. 小さな fix の置き場 (`projects/quick-fixes/`)
+### 11.2. 小さな fix の置き場 (`projects/active/quick-fixes/`)
 
 repo には常に 1 つの `quick-fixes` collection project が存在する。
 全ての小さな fix はその checklist に追記する。
@@ -698,7 +698,7 @@ format: `* [ ] (優先度) <スコープ>: <一文の説明>`
 
 ### 11.3. collection の特徴
 
-`projects/quick-fixes/config/project.json` には `kind: "collection"` が設定されている。
+`projects/active/quick-fixes/config/project.json` には `kind: "collection"` が設定されている。
 これにより:
 
 - collector の `derivedStatus` は `collection` 固定（completed にならない）

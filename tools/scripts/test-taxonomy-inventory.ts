@@ -16,7 +16,7 @@
  * - 既存 TSIG-* rule（global obligation）は test entry と独立に記録
  *
  * 関連:
- * - projects/taxonomy-v2/plan.md §Common Inventory Schema
+ * - projects/active/taxonomy-v2/plan.md §Common Inventory Schema
  * - projects/test-taxonomy-v2/plan.md Phase 0
  * - app/src/test/guards/testSignalIntegrityGuard.test.ts (TSIG global rules)
  */
@@ -381,7 +381,7 @@ const main = (): void => {
   const summaryYaml = [
     'summary:',
     `  schemaVersion: '1.0'`,
-    `  schemaSource: ${yamlEscape('projects/taxonomy-v2/plan.md §Common Inventory Schema')}`,
+    `  schemaSource: ${yamlEscape('projects/active/taxonomy-v2/plan.md §Common Inventory Schema')}`,
     `  generatedAt: ${yamlEscape(new Date().toISOString())}`,
     `  generator: ${yamlEscape('tools/scripts/test-taxonomy-inventory.ts')}`,
     `  axis: test`,

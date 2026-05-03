@@ -31,7 +31,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@project-overlay/*": ["../projects/pure-calculation-reorg/aag/*"],
+      "@project-overlay/*": ["../projects/active/pure-calculation-reorg/aag/*"],
       "@app-domain/*": ["../app-domain/*"],
       "@tools/architecture-health/*": ["../tools/architecture-health/src/*"]
     },
@@ -46,7 +46,7 @@
   },
   "include": [
     "src",
-    "../projects/pure-calculation-reorg/aag/**/*.ts",
+    "../projects/active/pure-calculation-reorg/aag/**/*.ts",
     "../app-domain/gross-profit/rule-catalog/**/*.ts",
     "../tools/architecture-health/src/**/*.ts"
   ]

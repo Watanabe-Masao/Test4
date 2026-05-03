@@ -109,7 +109,7 @@ project-checklist-governance が **その level に応じた重さの checklist*
 - `inquiry/` ディレクトリ作成
 - Phase 制の導入
 
-> 小さな fix は `projects/quick-fixes/checklist.md` に 1 行追加するだけ
+> 小さな fix は `projects/active/quick-fixes/checklist.md` に 1 行追加するだけ
 > （`project-checklist-governance.md` §11.2）。
 
 ### Level 1: Lightweight Project
@@ -450,7 +450,7 @@ AAG-COA の判定は **何度でも更新してよい**。
 ### kind との関係
 
 `config/project.json` には既に `kind: "collection"` フィールドが存在する
-（`projects/quick-fixes/` 用）。`projectization` フィールドとの関係は:
+（`projects/active/quick-fixes/` 用）。`projectization` フィールドとの関係は:
 
 - `kind: "collection"` の project は `projectization` を持たなくてよい
 - `kind` が未指定 or `kind: "project"` の場合は `projectization` が必須
@@ -501,7 +501,7 @@ template は `projects/_template/projectization.md`。
 
 - `projects/completed/**`（archive 済み project は retroactive 適用しない）
 - `projects/_template/**`（template 自体の schema 検証は別 test）
-- `kind: "collection"` の project（例: `projects/quick-fixes/`）
+- `kind: "collection"` の project（例: `projects/active/quick-fixes/`）
 
 ### baseline / ratchet
 

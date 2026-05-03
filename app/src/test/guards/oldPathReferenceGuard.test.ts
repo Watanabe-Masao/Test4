@@ -29,8 +29,8 @@
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard
- * @see projects/aag-self-hosting-completion/decision-audit.md DA-α-004d
- * @see projects/aag-self-hosting-completion/plan.md §6.2
+ * @see projects/active/aag-self-hosting-completion/decision-audit.md DA-α-004d
+ * @see projects/active/aag-self-hosting-completion/plan.md §6.2
  */
 
 import path from 'path'
@@ -59,14 +59,14 @@ const SKIP_DIRS = ['node_modules', '.git', 'dist', 'build', 'coverage', 'target'
 
 const WHITELIST_FILES = new Set([
   // 旧 path migration を articulate する meta-doc (= 意図的な historical reference)
-  'projects/aag-self-hosting-completion/plan.md',
-  'projects/aag-self-hosting-completion/checklist.md',
-  'projects/aag-self-hosting-completion/breaking-changes.md',
-  'projects/aag-self-hosting-completion/decision-audit.md',
-  'projects/aag-self-hosting-completion/HANDOFF.md',
-  'projects/aag-self-hosting-completion/AI_CONTEXT.md',
-  'projects/aag-self-hosting-completion/doc-improvement-backlog.md',
-  'projects/aag-self-hosting-completion/discovery-log.md',
+  'projects/active/aag-self-hosting-completion/plan.md',
+  'projects/active/aag-self-hosting-completion/checklist.md',
+  'projects/active/aag-self-hosting-completion/breaking-changes.md',
+  'projects/active/aag-self-hosting-completion/decision-audit.md',
+  'projects/active/aag-self-hosting-completion/HANDOFF.md',
+  'projects/active/aag-self-hosting-completion/AI_CONTEXT.md',
+  'projects/active/aag-self-hosting-completion/doc-improvement-backlog.md',
+  'projects/active/aag-self-hosting-completion/discovery-log.md',
   // README.md は migration mapping を articulate
   'references/README.md',
   // doc-registry.json は $comment 内に historical changelog
@@ -150,7 +150,7 @@ function formatViolations(violations: string[]): string {
     '  1. WHITELIST_FILES に file path 追加 (= articulation 自身が migration を語る場合)',
     '  2. WHITELIST_PATH_PREFIXES に prefix 追加 (= archive directory)',
     '',
-    '詳細: projects/aag-self-hosting-completion/plan.md §6.2 + DA-α-004d',
+    '詳細: projects/active/aag-self-hosting-completion/plan.md §6.2 + DA-α-004d',
   ]
     .filter(Boolean)
     .join('\n')

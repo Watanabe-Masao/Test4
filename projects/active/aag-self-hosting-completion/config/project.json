@@ -1,0 +1,48 @@
+{
+  "$comment": "AAG Self-Hosting Completion — AAG framework が articulate rigor (= 意味 / 境界 / 依存関係) を要求する framework であるにも関わらず、entry navigation level でその rigor を満たしていない self-contradiction を解消する structural reorganization。R0 (境界定義先行 / READMEs + CURRENT_PROJECT.md + CLAUDE.md update) → R1 (AAG sub-tree relocation / aag/_internal/ + _framework/ skeleton) → R2 (AAG public interface relocate / references/05-aag-interface/) → R3 (references/ directory rename + *.generated.md 命名規約) → R4 (per-element directory + dashboard + element-taxonomy) → R5 (operational-protocol-system M1-M5 / references/05-aag-interface/protocols/) → R6 (AAG self-hosting closure articulate + projects/ split + template migrate) → R7 (統合 guard + verify + archive)。1,000+ inbound update + 138 guard / collector path 変更 + 14 新 guard (Hard / ratchet-down baseline=0 / pre-commit hook) を伴う、AAG Pilot の 5-10 倍 scope。詳細: projects/active/aag-self-hosting-completion/projectization.md / plan.md。",
+  "projectId": "aag-self-hosting-completion",
+  "title": "AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成",
+  "status": "active",
+  "projectRoot": "projects/active/aag-self-hosting-completion",
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。詳細: projects/active/aag-self-hosting-completion/projectization.md。Level 3 + architecture-refactor + breakingChange=true。1,000+ inbound update + 138 guard path 変更を含む cross-tree restructure。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "references/",
+      "aag/",
+      "projects/active/operational-protocol-system/",
+      "projects/_template/",
+      "docs/contracts/",
+      "app/src/test/guards/",
+      "tools/architecture-health/src/renderers/",
+      "tools/git-hooks/",
+      "CLAUDE.md",
+      "CURRENT_PROJECT.md"
+    ],
+    "breakingChange": true,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "主アプリ code (app/src/, app-domain/, wasm/) の touch",
+      "AAG framework articulate 内容の改変 (= 物理 location のみ移動、R6 例外を除く)",
+      "Standard / drawer / 5 文書 template の articulate 内容改変 (= 物理 location 移動のみ)",
+      "機能 loss を伴う migration (= 内容 100% 維持)",
+      "単一 commit で 2 R-phase まとめる (= rollback 境界 articulate 不能化)",
+      "観測点 < 5 件 / 反証可能 0 件 で R-phase landing",
+      "AI 単独 archive",
+      "AI Role Catalog 本実装 (= post-Pilot 別 program scope)",
+      "per-element 全 89 element 一括 full 適用 (= R4 は pilot subset で start)",
+      "dashboard layer の手書き化 (= 機械生成 mandatory)",
+      "inbound update を後回しに R-phase landing"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-self-hosting-completion/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-self-hosting-completion/HANDOFF.md",
+    "plan": "projects/active/aag-self-hosting-completion/plan.md",
+    "checklist": "projects/active/aag-self-hosting-completion/checklist.md",
+    "projectization": "projects/active/aag-self-hosting-completion/projectization.md"
+  }
+}

@@ -8,7 +8,7 @@
  * 注: buildDailyDecomp は domain/calculations/factorDecomposition の
  * decompose2 / decompose3 に依存する。本関数自体は presentation だが、
  * 「日別要因分解の合成」は業務概念なので将来 domain に昇格する候補。
- * 詳細: projects/presentation-quality-hardening/HANDOFF.md §1.5
+ * 詳細: projects/active/presentation-quality-hardening/HANDOFF.md §1.5
  *
  * @taxonomyKind T:unclassified
  */

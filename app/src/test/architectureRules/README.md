@@ -91,5 +91,5 @@ project 名の直書きは上記 resolver にのみ許容される。
 ## 参照
 
 - 配置方針（現行正本）: `references/03-implementation/governance-final-placement-plan.md`
-- AI 向け案件入口: `projects/pure-calculation-reorg/AI_CONTEXT.md`
+- AI 向け案件入口: `projects/active/pure-calculation-reorg/AI_CONTEXT.md`
 - 保証レイヤー: `app/src/test/tools/` の collector / resolver 契約テスト群

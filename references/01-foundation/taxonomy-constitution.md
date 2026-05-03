@@ -2,7 +2,7 @@
 
 > **役割**: `taxonomy-v2` family（責務軸 + テスト軸）の **7 不可侵原則** + **Operational Control System** + **制度成立 5 要件** の Constitution。
 >
-> **位置付け**: 設計原則（規範）。`projects/taxonomy-v2/plan.md` の §不可侵原則 / §Interlock / §OCS は本文書を canonical source として参照する。
+> **位置付け**: 設計原則（規範）。`projects/active/taxonomy-v2/plan.md` の §不可侵原則 / §Interlock / §OCS は本文書を canonical source として参照する。
 >
 > **改訂規律**: 本文書は **review window 経由でのみ改訂**可能（原則 3 + AR-TAXONOMY-AI-VOCABULARY-BINDING）。AI が単独で原則を書き換えることは禁止。
 >
@@ -203,12 +203,12 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 
 この 4 ループが回ると、taxonomy-v2 は「制度文書」から **継続稼働する運用制御システム** に昇華する。
 
-各ループの実装は子 Phase 0〜9 + 親 Phase 4（制度成立確認）で段階的に稼働する。詳細は `projects/taxonomy-v2/plan.md` §OCS.10 / §OCS.11 を参照。
+各ループの実装は子 Phase 0〜9 + 親 Phase 4（制度成立確認）で段階的に稼働する。詳細は `projects/active/taxonomy-v2/plan.md` §OCS.10 / §OCS.11 を参照。
 
 ## 8. AR-TAXONOMY-\* rule（仕様正本へのリンク）
 
 7 件の Architecture Rule で **6 つの不可侵原則** + Interlock + OCS の各契約を機械検証する（残る 1 つの原則 6 Antibody Pair は別経路 = registry-level consistency で enforce、§8.1 を参照）。
-**rule の詳細仕様 + 受け入れ条件は `projects/taxonomy-v2/plan.md` §AR-TAXONOMY-\* を canonical source とする**。本節は原則との対応 map のみ。
+**rule の詳細仕様 + 受け入れ条件は `projects/active/taxonomy-v2/plan.md` §AR-TAXONOMY-\* を canonical source とする**。本節は原則との対応 map のみ。
 
 | AR rule ID                          | 対応原則 / OCS               | 一行要約                                                   |
 | ----------------------------------- | ---------------------------- | ---------------------------------------------------------- |
@@ -232,7 +232,7 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 
 | 軸                         | 仕組み                                         | 正本                                                                              |
 | -------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
-| Pair 構造の存在            | `taxonomy-pairs.json` の 8 昇華メカニズム #2   | `projects/taxonomy-v2/plan.md` §8 #2                                              |
+| Pair 構造の存在            | `taxonomy-pairs.json` の 8 昇華メカニズム #2   | `projects/active/taxonomy-v2/plan.md` §8 #2                                              |
 | Pair 整合性検証            | registry consistency check (子 Phase 3 で実装) | `responsibility-taxonomy-v2/plan.md` Phase 3 + `test-taxonomy-v2/plan.md` Phase 3 |
 | Pair の review window 改訂 | 原則 6 + Constitution §3                       | `references/03-implementation/taxonomy-review-window.md` §4.1                             |
 
@@ -285,7 +285,7 @@ Constitution が **継続的に正しく使われる** ためには、以下の 
 | -------------------------------------------------------------- | ---------------------------------------------------------------- |
 | `references/01-foundation/taxonomy-interlock.md`               | R ⇔ T マトリクス（本 Constitution §4 の詳細）                    |
 | `references/01-foundation/taxonomy-origin-journal.md`          | 全タグの Why/When/Who/Sunset（本 Constitution §3 原則 5 の正本） |
-| `projects/taxonomy-v2/plan.md`                                 | 親 plan（本 Constitution を canonical source として参照）        |
+| `projects/active/taxonomy-v2/plan.md`                                 | 親 plan（本 Constitution を canonical source として参照）        |
 | `projects/completed/responsibility-taxonomy-v2/plan.md`                  | 子: 責務軸の Phase 0-9                                           |
 | `projects/completed/test-taxonomy-v2/plan.md`                            | 子: テスト軸の Phase 0-9                                         |
 | `app/src/test/guards/constitutionBootstrapGuard.test.ts`       | 本 Constitution + 関連 4 ファイルの存在検証                      |

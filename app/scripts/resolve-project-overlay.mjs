@@ -14,7 +14,7 @@
  *   import { resolveProjectOverlayRoot } from './scripts/resolve-project-overlay.mjs'
  *   const overlayRoot = resolveProjectOverlayRoot(__dirname)
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 /**
@@ -42,9 +42,13 @@ function readActiveProjectId(repoRoot) {
 export function resolveProjectOverlayRoot(appDir) {
   const repoRoot = resolve(appDir, '..')
   const projectId = readActiveProjectId(repoRoot)
-  const manifestPath = resolve(repoRoot, 'projects', projectId, 'config', 'project.json')
+  // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応。
+  // active/ 配下を優先 lookup、なければ旧 projects/<id>/ (backward compat)。
+  const activeManifestPath = resolve(repoRoot, 'projects', 'active', projectId, 'config', 'project.json')
+  const legacyManifestPath = resolve(repoRoot, 'projects', projectId, 'config', 'project.json')
+  const manifestPath = existsSync(activeManifestPath) ? activeManifestPath : legacyManifestPath
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-  const overlayRoot = manifest.overlayRoot ?? `projects/${projectId}/aag`
+  const overlayRoot = manifest.overlayRoot ?? `projects/active/${projectId}/aag`
   return resolve(repoRoot, overlayRoot)
 }
 

@@ -7,7 +7,7 @@
  *
  * 注: buildSalesVsCostData の cumulative + costToSalesRatio は業務指標
  * （原価率の累積分析）。将来 domain/calculations に昇格する候補。
- * 詳細: projects/presentation-quality-hardening/HANDOFF.md §1.5
+ * 詳細: projects/active/presentation-quality-hardening/HANDOFF.md §1.5
  *
  * @taxonomyKind T:unclassified
  */

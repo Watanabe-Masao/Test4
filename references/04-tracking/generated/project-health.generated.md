@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-03T21:31:21.494Z
+> 生成: 2026-05-03T21:55:35.935Z
 
 ## サマリー
 
@@ -33,7 +33,7 @@
 | `aag-platformization` | AAG Platformization Program — authority + artifact + contract + change-policy | **archived** | — | 75/79 (95%) | [`projects/completed/aag-platformization/AI_CONTEXT.md`](../../../projects/completed/aag-platformization/AI_CONTEXT.md) |
 | `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **archived** | — | 34/42 (81%) | [`projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
-| `aag-self-hosting-completion` | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 | **in_progress** | — | 7/167 (4%) | [`projects/aag-self-hosting-completion/AI_CONTEXT.md`](../../../projects/aag-self-hosting-completion/AI_CONTEXT.md) |
+| `aag-self-hosting-completion` | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 | **in_progress** | — | 7/167 (4%) | [`projects/active/aag-self-hosting-completion/AI_CONTEXT.md`](../../../projects/active/aag-self-hosting-completion/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 30/30 (100%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **archived** | — | 73/73 (100%) | [`projects/completed/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/completed/architecture-debt-recovery/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |
@@ -51,15 +51,15 @@
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **archived** | `architecture-debt-recovery` | 26/26 (100%) | [`projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md) |
 | `integrity-framework-evolution` | 整合性 framework 進化 — Reset + Horizontal Expansion | **archived** | — | — | [`projects/integrity-framework-evolution/AI_CONTEXT.md`](../../../projects/integrity-framework-evolution/AI_CONTEXT.md) |
-| `operational-protocol-system` | AAG Operational Protocol System — Task / Session / Complexity 運用制度 | **in_progress** | — | 5/66 (8%) | [`projects/operational-protocol-system/AI_CONTEXT.md`](../../../projects/operational-protocol-system/AI_CONTEXT.md) |
+| `operational-protocol-system` | AAG Operational Protocol System — Task / Session / Complexity 運用制度 | **in_progress** | — | 5/66 (8%) | [`projects/active/operational-protocol-system/AI_CONTEXT.md`](../../../projects/active/operational-protocol-system/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
 | `phased-content-specs-rollout` | Content Spec System 段階展開計画 | **archived** | — | 72/72 (100%) | [`projects/completed/phased-content-specs-rollout/AI_CONTEXT.md`](../../../projects/completed/phased-content-specs-rollout/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
-| `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/21 (62%) | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/119 (71%) | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
-| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 12/13 (92%) | [`projects/quick-fixes/AI_CONTEXT.md`](../../../projects/quick-fixes/AI_CONTEXT.md) |
+| `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/21 (62%) | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
+| `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/119 (71%) | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
+| `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 12/13 (92%) | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../../projects/active/quick-fixes/AI_CONTEXT.md) |
 | `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **archived** | `taxonomy-v2` | — | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
-| `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 50/60 (83%) | [`projects/taxonomy-v2/AI_CONTEXT.md`](../../../projects/taxonomy-v2/AI_CONTEXT.md) |
+| `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 50/60 (83%) | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../../projects/active/taxonomy-v2/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
 | `test-taxonomy-v2` | テスト分類 v2（子: テスト軸の Schema / Guard / Operations / Legacy 撤退） | **archived** | `taxonomy-v2` | — | [`projects/test-taxonomy-v2/AI_CONTEXT.md`](../../../projects/test-taxonomy-v2/AI_CONTEXT.md) |
 | `unify-period-analysis` | 期間分析統合（固定期間を自由期間プリセットに） | **archived** | — | 57/57 (100%) | [`projects/completed/unify-period-analysis/AI_CONTEXT.md`](../../../projects/completed/unify-period-analysis/AI_CONTEXT.md) |

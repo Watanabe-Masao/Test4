@@ -236,6 +236,20 @@ function listProjectDirectories(projectsDir: string): ProjectLocation[] {
       continue
     }
 
+    // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応。
+    // active/ 配下の project も列挙する (= completed と同じ再帰 walk)。
+    if (entry === 'active') {
+      for (const sub of readdirSync(entryPath)) {
+        const subPath = resolve(entryPath, sub)
+        if (!statSync(subPath).isDirectory()) continue
+        const config = resolve(subPath, 'config/project.json')
+        if (existsSync(config)) {
+          out.push({ configPath: config, isArchived: false })
+        }
+      }
+      continue
+    }
+
     const config = resolve(entryPath, 'config/project.json')
     if (existsSync(config)) {
       out.push({ configPath: config, isArchived: false })

@@ -136,4 +136,4 @@ Machine 不要、step 5 直接到達が default)。
 - `app/src/test/calculationCanonRegistry.ts` — runtimeStatus / authorityKind / migrationTier
 - `references/01-foundation/canonicalization-principles.md` — current / candidate 分離原則 (§P1-P7) + 整合性ペア selection rule (§P8) + 撤退規律 default (§P9)
 - `references/03-implementation/canonicalization-checklist.md` — 整合性ペア追加 / 撤退の標準手順 (Phase I 成果物)
-- `projects/pure-calculation-reorg/plan.md` — Promote Ceremony の運用主体（active project）
+- `projects/active/pure-calculation-reorg/plan.md` — Promote Ceremony の運用主体（active project）
