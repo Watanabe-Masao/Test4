@@ -90,12 +90,12 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: `<本 commit sha>` (= bootstrap commit、本 entry landing 後に記入)
-- preJudgementCommit: `<前 commit sha>` (= bootstrap 直前、charter draft commit)
-- judgementTag: `operational-protocol-system/DA-α-000-judgement` (本 commit に annotated tag landing)
-- rollbackTag: `operational-protocol-system/DA-α-000-rollback-target` (前 commit に annotated tag landing)
+- judgementCommit: `8283b4b` (= bootstrap commit、本 entry を含む実装 commit)
+- preJudgementCommit: `653882b` (= bootstrap 直前、charter draft commit + references/README + doc-registry index 反映)
+- judgementTag: `operational-protocol-system/DA-α-000-judgement` (`8283b4b` に annotated tag landing 済)
+- rollbackTag: `operational-protocol-system/DA-α-000-rollback-target` (`653882b` に annotated tag landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — bootstrap 全実装 (skeleton 6 doc + DA-α-000 + open-issues 行追加 + charter draft 削除 + doc-registry / README 更新)
+  - `8283b4b` — bootstrap 全実装 (skeleton 6 doc + DA-α-000 + open-issues 行追加 + charter draft 削除 + doc-registry / README 更新)
 
 ### 振り返り (本 program archive 直前 / TBD)
 
