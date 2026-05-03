@@ -57,7 +57,7 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-006 | Phase R5 | operational-protocol-system project resume + skeleton fill 判断 (= scope 縮小 articulated) | active |
 | DA-α-007a | Phase R6a | AAG self-hosting closure articulate update + selfHostingGuard expansion 判断 | active |
 | DA-α-007b | Phase R6b | projects/ active+completed split + _template migrate + CURRENT_PROJECT.md guard 判断 | active |
-| DA-α-008 | Phase R7 | 統合 guard + verify + archive 判断 | planned |
+| DA-α-008 | Phase R7 | 統合 guard + verify + archive 判断 | active |
 | DA-β-001 | Operational support (= R3b 中発見) | pre-push hook scope 役割分離 (= 軽量 / 変更箇所 + 影響範囲 / negative articulation = exclusion-driven) | active |
 | DA-β-002 | Operational support (= R3c 中発見) | AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint、_template + active project checklists + PZ-13 guard) | active |
 | DA-β-003 | Operational support (= R3c 中発見) | per-project discovery-log institute (= scope 外発見 / 改善 / 調査要事項の蓄積 mechanism、_template + active projects + PZ-14 guard) | active |
@@ -1055,5 +1055,105 @@ R6a (= self-hosting closure articulate + selfHostingGuard expansion) 完了で *
 ### 振り返り (R6b 完了直後 = TBD)
 
 - 観測 R6b-1〜R6b-5: TBD
+- 判定: TBD
+- retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-α-008: R7 統合 guard + verify + archive 着手判断
+
+**status**: active
+
+### 判断時 (2026-05-03 / Phase R7、本 program 最終 phase)
+
+R0-R6 完了で structural separation + entry navigation rigor + 5 系統 lens articulation
+すべて landing。R7 は **完成 verify + archive 移行** で本 program を完遂する。
+
+候補:
+1. **A**. 統合 guard (boundaryIntegrityGuard) を新設 + 既存 5 guard 集約
+2. **B**. 既存 5 guard を維持、統合 guard は articulate のみ (= meta-pointer)
+
+採用案: **B**
+判断根拠:
+- 事実 1: R1-R6 で landing した既存 guard 5 件 (= aagBoundaryGuard / oldPathReferenceGuard / generatedFileEditGuard / selfHostingGuard / projectizationPolicyGuard PZ-13/PZ-14) はそれぞれ独立 articulation で機械検証済
+- 事実 2: 集約 guard は logic 重複 (= 既存 guard 内 logic を再実装) で AAG philosophy「製本されないものを guard 化しない」+ AR-RESP-MODULE-STATE「重複検証回避」と整合しない
+- 事実 3: 既存 selfHostingGuard Test 4 (= R6a で landing) が既に 4 boundary guard delegation を articulate 済 = boundary integrity の集約 articulation は既に機械検証 active
+- 推論: 候補 B で十分 (= 既存 5 guard + selfHostingGuard Test 4 の delegation で boundary integrity 担保)
+
+### deliverable (= 候補 B)
+
+**1. verify command 全 PASS 確認**:
+- `npm run test:guards` 全 PASS
+- `npm run lint` 0 error
+- `npm run build` 0 type error
+- `npm run docs:check` Hard Gate PASS
+
+**2. broken link 0 件 verify**:
+- `oldPathReferenceGuard` baseline=0 維持 (= 旧 path reference 0)
+- inbound link 整合 (= projects/<id>/ vs projects/active/<id>/ 残置 0)
+
+**3. AAG self-hosting at entry level の self-test PASS**:
+- `selfHostingGuard.test.ts` 6 tests 全 PASS (= Test 0a/0b/1/2/3/4)
+- aagBoundaryGuard / generatedFileEditGuard / oldPathReferenceGuard ratchet-down baseline=0 維持
+
+**4. 機能 loss 0 件 verify** (= 主アプリ動作確認):
+- 主アプリ code touch なし (= 不可侵原則 1) で functionality 不変
+- guard test 959/959 PASS = 全 architecture 制約満足
+
+**5. recent-changes.generated.md に R0-R7 サマリ landing**:
+- 機械生成なので docs:generate で auto-fill
+- 本 program の completion を articulate
+
+**6. archive 移行 trigger 準備** (= user 承認後実施、不可侵原則 7):
+- AI が archive 移行を実施しない (= user 領域)
+- user 承認時の手順を articulate
+
+### 不可侵原則 (8 件) 整合
+
+- 1: 主アプリ code touch なし (= verify only)
+- 2a: AAG framework articulate 内容不変
+- 2b: AAG framework 構造変更なし
+- 3: drawer 内容不変
+- 4: 既存 functionality 100% 維持
+- 5: R7 単独 atomic commit (= verify + 内部 articulation のみ、archive 移行は別)
+- 6: 観測点 5 件 machine-verifiable
+- 7: archive 移行は user 領域 (= AI 単独で archive しない)
+- 8: operational-protocol-system project boundary 維持
+
+### 想定リスク
+
+- 最大被害: verify で残存違反検出 → R7 内で fix する場合 scope creep risk
+  - mitigation: 検出された違反は scope 内で fix (= 不可侵原則 4 維持)、間に合わない場合は discovery-log で defer
+- 二番目: archive 移行を AI が単独実施 → 不可侵原則 7 違反
+  - mitigation: 本 R7 では archive 移行 trigger 準備のみ articulate、実 archive は user 承認 commit で実施
+
+### 観測点 (5 件、machine-verifiable)
+
+- R7-1: `npm run test:guards` 全 PASS (= 959+ test)
+- R7-2: `npm run docs:check` Hard Gate PASS
+- R7-3: oldPathReferenceGuard / generatedFileEditGuard / aagBoundaryGuard baseline=0 維持
+- R7-4: selfHostingGuard 6 tests 全 PASS (= entry navigation rigor delegation 成立)
+- R7-5: recent-changes.generated.md に R0-R7 完成 articulate landing
+
+### 5 軸 articulation
+
+- **製本** (canonical): 本 R7 で新 canonical landing なし (= verify + 既存 articulate の trigger 化のみ)
+- **依存方向**: 上位 = R0-R6 完了、下位 = archive 移行 (= post-R7 user 承認)
+- **意味**: 「本 program 完了 verify + archive trigger 準備」
+- **責務**: 全 verify command 実行 + 内部 articulation 整合確認 + recent-changes summary
+- **境界**: 本 R7 内 = verify + summary、外 = archive 移行 (= user 領域、不可侵原則 7)
+
+### Commit Lineage
+
+- judgementCommit: `<実 sha = 本 R7 実装 commit>`
+- preJudgementCommit: `906e137` (= R6b Lineage update)
+- judgementTag: `aag-self-hosting-completion/DA-α-008-judgement` (= 本 commit に landing 予定)
+- rollbackTag: `aag-self-hosting-completion/DA-α-008-rollback-target` (= `906e137` に landing 済)
+- implementationCommits:
+  - `<本 commit sha>` — R7 全実装
+
+### 振り返り (R7 完了直後 = TBD)
+
+- 観測 R7-1〜R7-5: TBD
 - 判定: TBD
 - retrospectiveCommit / Tag: TBD
