@@ -103,6 +103,19 @@
 - [x] §OCS.7 absorption の段階 2（全 vocabulary 拡大）が両子 Phase 6 で完了済（Phase 6a-2 mass-tagging で R 軸 1041 file + T 軸 708 test に v2 vocabulary 付与、Phase 6c で全 R:tag / T:kind を promotionLevel L5 一斉 bump、Coverage 100% 達成）
 - [x] §OCS.7 absorption の段階 3（Health KPI 接続）が本 Phase 4 で完了済（taxonomy-health.json の 4 KPI が architecture-health.json に feed 済 + retrospective fix B で live count refactor、KPI 接続経路が完成）
 
+## AI 自己レビュー (= user 承認の手前)
+
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+> 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
+
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
 ## 最終レビュー (user 承認)
 
 > このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。

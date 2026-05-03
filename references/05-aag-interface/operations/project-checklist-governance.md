@@ -162,21 +162,32 @@ collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制
 * [ ] <達成条件 3>
 ```
 
-### 3.1. 必須構造: 最終レビュー (user 承認) section
+### 3.1. 必須構造: AI 自己レビュー + 最終レビュー (user 承認) の 2 段 gate
 
-> **全 checklist は、最後の section として「最終レビュー (user 承認)」を持つこと。**
+> **全 checklist は、最後の 2 section として `## AI 自己レビュー (= user 承認の手前)` →
+> `## 最終レビュー (user 承認)` の順で持つこと。**
 
-役割:
+役割 (= 2 段 gate):
 
-- 機能的な Phase がすべて `[x]` になっても、最終レビュー section の checkbox が
-  `[ ]` のままなら project は `in_progress` 状態を維持する
-- これにより `derivedStatus = completed` への遷移を **構造的にuser レビュー
-  ゲートに通せる**
+- 機能的な Phase がすべて `[x]` になっても、AI 自己レビュー section に `[ ]` が残れば user 承認に進めない (= 1 段目 gate)
+- AI 自己レビューが `[x]` になっても 最終レビュー section が `[ ]` なら project は `in_progress` を維持 (= 2 段目 gate)
+- これにより `derivedStatus = completed` への遷移を **AI 自己 review → user レビュー** の 2 段で構造的に articulate
 - archive obligation (`completedNotArchivedCount > 0`) の暴発を防ぐ
-- 機能完了 (= 作業 AI / pre-push の成果) と archive 承認 (= user 判断) を
-  checkbox レベルで分離する
+- 機能完了 (= 作業 AI 進行中) / 自己 review (= AI 完了前 self-check) / 承認 (= user 判断) を checkbox レベルで articulate
 
 ```markdown
+## AI 自己レビュー (= user 承認の手前)
+
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+> 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
+
+* [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+* [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+* [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+* [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+* [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
 ## 最終レビュー (user 承認)
 
 > このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
@@ -214,12 +225,46 @@ template から複製して開始するため、自動的に最終レビュー s
 
 - checkbox の先頭は `- [x]` または `- [ ]`（半角スペース）。Prettier 標準形式に従う
 - bullet style (`*` / `-`) は **Prettier に委譲**（責務分離 — guard は構造、Prettier は表面）
-  - guard は `[*-]` 両方を accept（`checklistFormatGuard` F2 / `projectizationPolicyGuard` PZ-10）
+  - guard は `[*-]` 両方を accept（`checklistFormatGuard` F2 / `projectizationPolicyGuard` PZ-10 / PZ-13）
   - Prettier は `-` に正規化（ecosystem 標準）
   - 既存 `* [x]` は merge 時 / Prettier 実行時に自動的に `- [x]` に変換される
 - ネスト不可（フラットなフラグメントで機械検出を単純に保つ）
 - 各 checkbox は 1 文 1 達成条件
 - Phase 跨ぎでも全 checkbox は完了対象に算入される
+
+### 3.2. AI 自己レビュー section の意味と運用 (= DA-β-002 で institute)
+
+**目的**: AI が user 承認の入力を整える self-review checkpoint。機能的 Phase 完了 → user 承認の間に **AI による品質再点検** を mechanism として institute する。
+
+**5 軸 articulate (= user articulation 反映)**:
+
+| 軸 | 検証内容 | 観測点 |
+|---|---|---|
+| **総チェック** | 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review | scope 内 / 内容妥当 / 不可侵原則違反 0 |
+| **歪み検出** | 実装中に発生した scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 の不在確認 | 不可侵原則 1-8 整合 |
+| **潜在バグ確認** | edge case / null 取扱 / 型 assertion / race condition / fail-safe paths の点検 | 既存 test PASS + 想定可能な失敗 path articulate |
+| **ドキュメント抜け漏れ確認** | 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新確認 | obligation map の全 path 達成 |
+| **CHANGELOG.md 更新 + バージョン管理** | 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 | versionSyncRegistry 検証 PASS |
+
+**機械検証 boundary (= 責務分離)**:
+
+- **PZ-13 が検証**: AI 自己レビュー section の **存在** + 最終レビュー section の **前にある** こと (= structural)
+- **PZ-13 が検証しない**: 各 checkbox の内容が妥当か / 実際に AI が確認したか (= AI session 責任、機械検証 scope 外)
+- 理由: AAG philosophy「製本されないものを guard 化しない」と整合。内容検証は機械では不可能、AI session の self-discipline + decision-audit articulation で担保。
+
+**運用 flow**:
+
+```
+機能的 Phase 全 [x]
+  ↓
+AI 自己レビュー section に着手 (= AI が自分で 5 checkbox を再点検)
+  ↓ (5 checkbox 全 [x] = 1 段目 gate 通過)
+user に最終レビュー依頼 (= ここで初めて user に「承認」依頼)
+  ↓ (最終レビュー [x] = 2 段目 gate 通過)
+archive プロセス起動 (= §6.2)
+```
+
+**例外**: `requiresHumanApproval=false` project は本 section 不要 (= PZ-13 trigger 対象外)。
 
 ## 4. project ディレクトリ構造
 

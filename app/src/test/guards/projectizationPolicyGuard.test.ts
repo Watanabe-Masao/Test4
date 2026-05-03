@@ -424,6 +424,63 @@ function checkPZ12(p: ActiveProject): Violation[] {
   return []
 }
 
+/**
+ * PZ-13: AI 自己レビュー section が user 承認 section の前に存在する (= DA-β-002 で institute)
+ *
+ * 設計:
+ * - trigger: requiresHumanApproval=true の active project
+ * - 検出 1: `## AI (自己)?レビュー` section が checklist.md に存在しない → fail
+ * - 検出 2: AI レビュー section が `## 最終レビュー` section の **後** にある (= ordering 違反) → fail
+ * - scope: structural のみ (= section 存在 + ordering)、checkbox 内容は不問 (= AI session 責任、機械検証 scope 外)
+ *
+ * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-002
+ */
+function checkPZ13(p: ActiveProject): Violation[] {
+  const m = p.config?.projectization
+  if (!m) return []
+  if (!m.requiresHumanApproval) return []
+  const checklist = path.join(p.absDir, 'checklist.md')
+  if (!fs.existsSync(checklist)) return []
+  const content = fs.readFileSync(checklist, 'utf-8')
+
+  const aiReviewMatch = content.match(/##\s*AI\s*(?:自己)?レビュー/i)
+  const finalReviewMatch = content.match(/##\s*最終レビュー/i)
+
+  if (!aiReviewMatch) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-13',
+        message:
+          'requiresHumanApproval=true なのに checklist.md に「AI 自己レビュー」section がありません',
+        hint:
+          '「最終レビュー (user 承認)」 section の **直前** に次の section を追加してください:\n' +
+          '    ## AI 自己レビュー (= user 承認の手前)\n' +
+          '    - [ ] 総チェック / 歪み検出 / 潜在バグ / ドキュメント抜け漏れ / CHANGELOG + バージョン管理\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2 + ' +
+          'projects/aag-self-hosting-completion/decision-audit.md DA-β-002。',
+      },
+    ]
+  }
+
+  if (finalReviewMatch && aiReviewMatch.index! >= finalReviewMatch.index!) {
+    return [
+      {
+        projectId: p.projectId,
+        code: 'PZ-13',
+        message:
+          'AI 自己レビュー section は最終レビュー (user 承認) の **前** に配置してください (= ordering 違反)',
+        hint:
+          '正しい順: ## AI 自己レビュー → ## 最終レビュー (user 承認)\n' +
+          ' AI が user 承認の入力を整える 2 段 gate 構造。\n' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2。',
+      },
+    ]
+  }
+
+  return []
+}
+
 function checkAllStructural(p: ActiveProject): Violation[] {
   return [
     ...checkPZ2(p),
@@ -437,6 +494,7 @@ function checkAllStructural(p: ActiveProject): Violation[] {
     ...checkPZ10(p),
     ...checkPZ11(p),
     ...checkPZ12(p),
+    ...checkPZ13(p),
   ]
 }
 

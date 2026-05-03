@@ -58,6 +58,7 @@ git tag -a "aag-self-hosting-completion/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-007 | Phase R6 | AAG self-hosting closure articulate update + projects/ split + template migrate 判断 | planned |
 | DA-α-008 | Phase R7 | 統合 guard + verify + archive 判断 | planned |
 | DA-β-001 | Operational support (= R3b 中発見) | pre-push hook scope 役割分離 (= 軽量 / 変更箇所 + 影響範囲 / negative articulation = exclusion-driven) | active |
+| DA-β-002 | Operational support (= R3c 中発見) | AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint、_template + active project checklists + PZ-13 guard) | active |
 
 > **stream articulation**: α stream = R-phase 着手判断 (= directory restructure 進行)、β stream = operational support 判断 (= 進行中に発見した velocity 阻害要因への対処)。β stream は α stream を阻害しない補助。本 program の **velocity prerequisite** = R3c-R7 の commit 速度に直接影響する mechanism は β stream で institute する。
 
@@ -525,5 +526,116 @@ User articulation (= 4 message 連鎖、本 turn):
 ### 振り返り (DA-β-001 完了直後 = TBD)
 
 - 観測 β1〜β5: TBD
+- 判定: TBD
+- retrospectiveCommit / Tag: TBD
+
+---
+
+## DA-β-002: AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint)
+
+**status**: active
+
+**stream**: β (= operational support、α stream の R-phase に対する補助 institute)
+
+### 背景 (= 発見契機)
+
+R3c 進行中に user articulation:
+> 最終レビュー項目に user 承認の手前に、AI レビュー項目を仕組みとして取り入れてください。
+> AI レビューは最終実装後の総チェック、実装中に発生した歪みがないか？潜在的バグがないか？
+> 実装変更に伴うドキュメント修正に抜け漏れは無いか？CHANGELOG.md の更新と適切なバージョン管理。
+
+= **AAG 4 系統 lens** (= ログ / メトリクス / 手順書 / **チェックリスト**) のうち **チェックリスト
+layer 強化**。AI が user 承認の入力を整える前段の **self-review checkpoint** を mechanism として
+institute する。
+
+### 判断時 (2026-05-03 / β stream / R3c 完了直後)
+
+- 候補:
+  1. **A. 既存 PZ-10 拡張**: PZ-10 (= 最終レビュー section 必須) に AI レビュー section 必須 を追加
+  2. **B. PZ-13 新設**: AI レビュー section + ordering (= user 承認の前) を 別 rule として institute
+  3. **C. doc-only**: projectization-policy.md / project-checklist-governance.md 文書化のみ、guard 化しない
+- 採用案: **B. PZ-13 新設**
+- 判断根拠:
+  - 事実 1: AAG philosophy「製本されないものを guard 化しない」+「mechanism として institute」=
+    新概念は新 rule で articulate (= PZ-10 拡張は責務混在 risk、AAG-REQ-NON-PERFORMATIVE と整合)
+  - 事実 2: ordering 検証 (= AI レビューが user 承認の前にあること) は構造的不変条件、文書 only では drift 不可避
+  - 事実 3: 5 active project (`aag-self-hosting-completion` / `operational-protocol-system` /
+    `presentation-quality-hardening` / `taxonomy-v2` + `_template`) で適用、scope 限定 (=
+    requiresHumanApproval=true project のみ)、guard 化 cost 低
+  - 推論: 候補 B が「articulate + 機械検証 + 適用範囲明確」を全て満たす
+- 不可侵原則 (= 8 件) 整合:
+  - 1: 主アプリ code touch なし (= app/ 配下は guard 1 件 update のみ)
+  - 2a: AAG framework articulate 内容追加 (= AI 自己レビュー mechanism は新 institution、AAG operational
+    layer 拡張、本 program 不可侵原則 2a 例外領域 = projectization-policy.md update 許容)
+  - 2b: AAG framework 構造変更なし
+  - 3: drawer 内容不変
+  - 4: 既存 functionality 維持 (= AI レビュー section が空でも check は ratchet-down baseline、
+    既存 4 project の checklist.md に section 追加のみ、内容は initial state では `[ ]` のまま)
+  - 5: DA-β-002 単独 atomic commit
+  - 6: 観測点 5 件 machine-verifiable
+  - 8: operational-protocol-system project boundary 維持
+
+### AI 自己レビュー section 仕様
+
+**配置**: `## 最終レビュー (user 承認)` section の **直前**。
+
+**項目** (= user articulation 5 軸):
+
+```markdown
+## AI 自己レビュー (= user 承認の手前)
+
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project
+> 完了前に自分自身で品質 review を実施し、user 承認の入力を整える mechanism。
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
+
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+```
+
+### PZ-13 guard 仕様
+
+- **trigger**: `requiresHumanApproval=true` の active project
+- **検出 1**: `## AI (自己)?レビュー` section が checklist.md に存在しない → PZ-13 violation
+- **検出 2**: AI レビュー section が `## 最終レビュー` section の **後** にある (= ordering 違反) → PZ-13 violation
+- **scope**: structural のみ (= section 存在 + ordering)、checkbox 内容は不問 (= AI session の判断責任)
+
+### 想定リスク
+
+- 最大被害: AI レビュー checkbox を skip して user 承認に進む (= mechanism 形骸化)
+  - mitigation: PZ-13 で section 存在 + ordering を構造検証、checkbox 内容は AI session の責任。AAG philosophy「製本されないものを guard 化しない」と整合 (= 内容検証は機械では不可能)
+- 二番目: 既存 5 project の checklist.md に section 追加で merge conflict
+  - mitigation: section 追加は 「最終レビュー」 section の直前に挿入のみ、既存 checkbox は touch なし
+
+### 振り返り観測点 (5 点、machine-verifiable)
+
+- β2-1 (machine-verifiable): `_template/checklist.md` に AI 自己レビュー section 存在 (= 5 checkbox)
+- β2-2 (machine-verifiable): 4 active project (requiresHumanApproval=true) checklist.md に AI 自己レビュー section 存在
+- β2-3 (machine-verifiable): PZ-13 guard で AI レビュー section 存在 + ordering 検証 (= 4 PASS / `_template` PASS)
+- β2-4 (machine-verifiable): `npm run test:guards` 全 PASS (= 既存 + 新 PZ-13)
+- β2-5 (反証 deferred): AI 自己レビュー section を削除した checklist で PZ-13 fail (= guard 動作確認、本 turn では deferred)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `references/05-aag-interface/operations/projectization-policy.md` §AI 自己レビュー mechanism + `_template/checklist.md` AI 自己レビュー section が canonical
+- **依存方向**: 上位 = AAG ratchet-down 文化 + AAG-COA Level (= projectization)、下位 = active project checklists + PZ-13 guard
+- **意味**: 「AI が user 承認の入力を整える self-review checkpoint を mechanism として institute」
+- **責務**: section template 制定 + 4+1 checklist 反映 + PZ-13 guard + 規約 update
+- **境界**: 本 DA-β-002 内 = AI 自己レビュー section + PZ-13、外 = AI レビュー checkbox 内容の妥当性検証 (= AI session 責任、機械検証 scope 外)
+
+### Commit Lineage
+
+- judgementCommit: `<実 sha = 本 DA 実装 commit>`
+- preJudgementCommit: `103717c` (= R3c P1 batch 完了 commit)
+- judgementTag: `aag-self-hosting-completion/DA-β-002-judgement` (= 本 commit に landing 予定)
+- rollbackTag: `aag-self-hosting-completion/DA-β-002-rollback-target` (= `103717c` に landing 済)
+- implementationCommits:
+  - `<本 commit sha>` — DA-β-002 全実装 (= section template + 4+1 checklists + PZ-13 + policy update)
+
+### 振り返り (DA-β-002 完了直後 = TBD)
+
+- 観測 β2-1〜β2-5: TBD
 - 判定: TBD
 - retrospectiveCommit / Tag: TBD

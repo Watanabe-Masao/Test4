@@ -326,10 +326,23 @@ true の場合、`projects/<id>/legacy-retirement.md` を必須にする。
 - 原則 / invariant / guard の新設
 - 複数 project に影響する
 
-true の場合、`checklist.md` の最終レビュー (user 承認) section に
-以下の形式で checkbox を持つ:
+true の場合、`checklist.md` は **2 段 gate 構造** を持つ (= DA-β-002 で institute):
+
+1. **AI 自己レビュー section** (= 1 段目 gate、user 承認の手前 mandatory checkpoint)
+2. **最終レビュー (user 承認) section** (= 2 段目 gate)
 
 ```markdown
+## AI 自己レビュー (= user 承認の手前)
+
+> 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
+> 自分自身で品質 review を実施し、user 承認の入力を整える mechanism (= DA-β-002 で institute)。
+
+- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+
 ## 最終レビュー (user 承認)
 
 > このセクションは **必ず最後** に置き、user レビュー前は [ ] のままにする。
@@ -338,7 +351,9 @@ true の場合、`checklist.md` の最終レビュー (user 承認) section に
       user がレビューし、archive プロセスへの移行を承認する
 ```
 
-詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1
+機械検証: PZ-10 (= 最終レビュー section 必須) + **PZ-13** (= AI 自己レビュー section 必須 + ordering = user 承認 section の前)。
+
+詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 + §3.2
 
 ## 9. Escalation / De-escalation
 
@@ -471,6 +486,7 @@ template は `projects/_template/projectization.md`。
 | PZ-10 | `requiresHumanApproval=true` なのに checklist に最終レビュー (user 承認) checkbox が無い | implemented (hard fail) |
 | PZ-11 | Level 4 なのに `sub-project-map.md` が無い | implemented (hard fail) |
 | PZ-12 | Level 2+ なのに `nonGoals` が未定義または空 | implemented (hard fail) |
+| PZ-13 | `requiresHumanApproval=true` なのに checklist に AI 自己レビュー section が無い、または最終レビュー section の後にある (= ordering 違反) | implemented (hard fail、DA-β-002 で institute) |
 
 ### 対象
 

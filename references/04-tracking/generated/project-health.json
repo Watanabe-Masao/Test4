@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T12:07:36.101Z",
+  "timestamp": "2026-05-03T12:32:15.170Z",
   "summary": {
     "active": 6,
     "archived": 37,
@@ -8,7 +8,7 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1505,
+    "totalCheckboxes": 1531,
     "checkedCheckboxes": 1224
   },
   "projects": [
@@ -162,8 +162,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 7,
-      "total": 162,
-      "progress": 0.043,
+      "total": 167,
+      "progress": 0.042,
       "entrypoint": "projects/aag-self-hosting-completion/AI_CONTEXT.md",
       "checklistPath": "projects/aag-self-hosting-completion/checklist.md",
       "parent": null
@@ -400,8 +400,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 5,
-      "total": 61,
-      "progress": 0.082,
+      "total": 66,
+      "progress": 0.076,
       "entrypoint": "projects/operational-protocol-system/AI_CONTEXT.md",
       "checklistPath": "projects/operational-protocol-system/checklist.md",
       "parent": null
@@ -452,8 +452,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 13,
-      "total": 16,
-      "progress": 0.813,
+      "total": 21,
+      "progress": 0.619,
       "entrypoint": "projects/presentation-quality-hardening/AI_CONTEXT.md",
       "checklistPath": "projects/presentation-quality-hardening/checklist.md",
       "parent": null
@@ -465,8 +465,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 84,
-      "total": 113,
-      "progress": 0.743,
+      "total": 119,
+      "progress": 0.706,
       "entrypoint": "projects/pure-calculation-reorg/AI_CONTEXT.md",
       "checklistPath": "projects/pure-calculation-reorg/checklist.md",
       "parent": null
@@ -504,8 +504,8 @@
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
       "checked": 50,
-      "total": 55,
-      "progress": 0.909,
+      "total": 60,
+      "progress": 0.833,
       "entrypoint": "projects/taxonomy-v2/AI_CONTEXT.md",
       "checklistPath": "projects/taxonomy-v2/checklist.md",
       "parent": null
