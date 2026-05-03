@@ -4,7 +4,7 @@
  * AAG-COA (Change Operation Assessment) が要求する `projectization` metadata と
  * Level 別 required / forbidden artifacts を機械的に検証する。
  *
- * 規約: `references/03-guides/projectization-policy.md`
+ * 規約: `references/05-aag-interface/operations/projectization-policy.md`
  *
  * ## 検出する違反
  *
@@ -43,7 +43,7 @@
  * その他の検出コードは metadata が存在する project のみが対象のため、
  * 新規に metadata を書く project は完全形を求められる。
  *
- * @see references/03-guides/projectization-policy.md §12
+ * @see references/05-aag-interface/operations/projectization-policy.md §12
  *
  * @responsibility R:unclassified
  *
@@ -152,7 +152,7 @@ function checkPZ2(p: ActiveProject): Violation[] {
         message: `config/project.json の projectization.level が 0〜4 以外です (現値: ${JSON.stringify(level)})`,
         hint:
           '0, 1, 2, 3, 4 のいずれかを指定してください。' +
-          ' 詳細: references/03-guides/projectization-policy.md §3。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3。',
       },
     ]
   }
@@ -178,7 +178,7 @@ function checkPZ3(p: ActiveProject): Violation[] {
         '`projects/quick-fixes/checklist.md` に 1 行追加で対応してください。\n' +
         ' このディレクトリを `projects/quick-fixes/` に移管するか、' +
         '実態に合わせて Level 1+ に escalate してください。\n' +
-        ' 詳細: references/03-guides/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
+        ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 0 + §14 やってはいけないこと。',
     },
   ]
 }
@@ -200,7 +200,7 @@ function checkPZ4(p: ActiveProject): Violation[] {
         hint:
           'Level 1 は軽量 project 用の level です。full Phase 構造が必要なら Level 3+ に escalate し、\n' +
           ' projectization.md §5 に escalate 理由を記載、config/project.json の projectization.level を更新してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 1。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 1。',
       },
     ]
   }
@@ -220,7 +220,7 @@ function checkPZ5(p: ActiveProject): Violation[] {
         hint:
           'inquiry/ は Level 2 任意 / Level 3+ 必須です。Level 1 では事実棚卸しは不要。\n' +
           ' 棚卸しが必要なら Level 3 に escalate してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §4 早見表。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §4 早見表。',
       },
     ]
   }
@@ -239,7 +239,7 @@ function checkPZ6(p: ActiveProject): Violation[] {
         hint:
           'sub-project-map.md は Level 4 (Umbrella Project) 専用の artifact です。\n' +
           ' Level 2 project で複数 sub-project を spawn する必要があるなら Level 4 に escalate してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 4。',
       },
     ]
   }
@@ -259,7 +259,7 @@ function checkPZ7(p: ActiveProject): Violation[] {
           'breakingChange=true なのに projects/<id>/breaking-changes.md が存在しません（Level 3+）',
         hint:
           'breaking-changes.md を追加し、破壊対象の公開契約 / 型 / API と移行方針を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §5 + §3 Level 3。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §5 + §3 Level 3。',
       },
     ]
   }
@@ -279,7 +279,7 @@ function checkPZ8(p: ActiveProject): Violation[] {
           'requiresLegacyRetirement=true なのに projects/<id>/legacy-retirement.md が存在しません（Level 3+）',
         hint:
           'legacy-retirement.md を追加し、撤退対象 / 呼び出し元 / 移行先 / 撤退順序 / rollback を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §6。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §6。',
       },
     ]
   }
@@ -348,7 +348,7 @@ function checkPZ9(p: ActiveProject): Violation[] {
         '   - baseline 戦略（初期値 / ratchet-down 方針）\n' +
         '   - allowlist 管理（必要なら）\n' +
         '   - fix hints（error message に載せる修正誘導）\n' +
-        ' 詳細: references/03-guides/projectization-policy.md §7 +' +
+        ' 詳細: references/05-aag-interface/operations/projectization-policy.md §7 +' +
         ' references/03-guides/architecture-rule-system.md。',
     },
   ]
@@ -376,8 +376,8 @@ function checkPZ10(p: ActiveProject): Violation[] {
           'checklist.md の最後に次の section を追加してください:\n' +
           '    ## 最終レビュー (人間承認)\n' +
           '    - [ ] 全 Phase の成果物を人間がレビューし archive プロセスへの移行を承認する\n' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §3.1 + ' +
-          'references/03-guides/projectization-policy.md §8。' +
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.1 + ' +
+          'references/05-aag-interface/operations/projectization-policy.md §8。' +
           '（bullet style は `*` / `-` どちらでも accept、Prettier に委譲）',
       },
     ]
@@ -396,7 +396,7 @@ function checkPZ11(p: ActiveProject): Violation[] {
         message: 'Level 4 (Umbrella) project に sub-project-map.md が存在しません',
         hint:
           'sub-project-map.md を追加し、sub-project 一覧 + 依存関係を記載してください。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §3 Level 4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §3 Level 4。',
       },
     ]
   }
@@ -415,7 +415,7 @@ function checkPZ12(p: ActiveProject): Violation[] {
         hint:
           'projectization.nonGoals に「この project でやらないこと」を 1 件以上列挙してください。\n' +
           ' scope 逸脱の抑止と escalation 判定の基準として機能します。\n' +
-          ' 詳細: references/03-guides/projectization-policy.md §10 + projectization.md §4。',
+          ' 詳細: references/05-aag-interface/operations/projectization-policy.md §10 + projectization.md §4。',
       },
     ]
   }
@@ -470,7 +470,7 @@ describe('Projectization Policy Guard (AAG-COA)', () => {
           `(baseline=${PZ1_MISSING_METADATA_BASELINE})。\n` +
           `以下の project に config/project.json へ projectization フィールドを追加してください:\n` +
           missing.map((p) => `  - ${p.projectId}`).join('\n') +
-          `\n詳細: references/03-guides/projectization-policy.md §10。`
+          `\n詳細: references/05-aag-interface/operations/projectization-policy.md §10。`
         : ''
     expect(actual, message).toBeLessThanOrEqual(PZ1_MISSING_METADATA_BASELINE)
   })

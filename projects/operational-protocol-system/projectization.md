@@ -1,7 +1,7 @@
 # projectization — operational-protocol-system
 
 > 役割: AAG-COA 判定結果。
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 
 ## 1. 判定結果
 
@@ -45,11 +45,11 @@
 ## 4. やらないこと (nonGoals)
 
 - AAG framework (`aag/_internal/` + `aag/core/`) の articulate 内容変更
-- AAG drawer (`references/03-guides/decision-articulation-patterns.md`) の改変
+- AAG drawer (`references/05-aag-interface/drawer/decision-articulation-patterns.md`) の改変
 - Platformization Standard (`references/01-principles/platformization-standard.md`) の改変
 - 5 文書 template (= `projects/_template/`) の schema / 内容変更
 - role identity (`roles/*`) の改変
-- AAG-COA (`references/03-guides/projectization-policy.md`) の articulate 変更
+- AAG-COA (`references/05-aag-interface/operations/projectization-policy.md`) の articulate 変更
 - 主アプリ code (`app/src/`, `app-domain/`, `wasm/`) の touch
 - AI Role Catalog の本実装 (= post-Pilot 別 program scope)
 - 自動昇格判定の機械化 (= AI judgement に委ねる scope)

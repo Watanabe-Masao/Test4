@@ -6,7 +6,7 @@
  *   - `references/02-status/generated/project-health.json`
  *   - `references/02-status/generated/project-health.md`
  *
- * 詳細仕様: `references/03-guides/project-checklist-governance.md`
+ * 詳細仕様: `references/05-aag-interface/operations/project-checklist-governance.md`
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
@@ -152,7 +152,7 @@ export function renderProjectHealthMdContent(
   lines.push("");
   lines.push("> **役割: 生成された project KPI 正本（生成後手編集禁止）。**");
   lines.push(
-    "> 規約: [`references/03-guides/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)",
+    "> 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../03-guides/project-checklist-governance.md)",
   );
   lines.push("");
   lines.push(`> 生成: ${snapshot.timestamp}`);

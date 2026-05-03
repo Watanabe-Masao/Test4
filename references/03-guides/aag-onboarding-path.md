@@ -53,9 +53,9 @@
 
 | 順 | doc | 所要 |
 |---|---|---|
-| 1 | `references/03-guides/projectization-policy.md` | 5 分 — Level 0-4 判定 + required artifacts |
-| 2 | `references/03-guides/new-project-bootstrap-guide.md` | 必要時 — bootstrap 手順 |
-| 3 | `references/03-guides/project-checklist-governance.md` | 必要時 — checklist 運用ルール |
+| 1 | `references/05-aag-interface/operations/projectization-policy.md` | 5 分 — Level 0-4 判定 + required artifacts |
+| 2 | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | 必要時 — bootstrap 手順 |
+| 3 | `references/05-aag-interface/operations/project-checklist-governance.md` | 必要時 — checklist 運用ルール |
 
 ### F. DuckDB クエリ / 計算エンジンを触る
 

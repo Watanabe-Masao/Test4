@@ -46,7 +46,7 @@
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2 +
-> `references/03-guides/projectization-policy.md` §8
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2 +
+> `references/05-aag-interface/operations/projectization-policy.md` §8
 
 - [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

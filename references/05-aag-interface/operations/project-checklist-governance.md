@@ -1,5 +1,7 @@
 # projects/ 運用ルール — checklist 駆動の completion 管理
 
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
+
 > **役割:** 残存課題管理と project ライフサイクルの正本ガイド。
 > このガイドは「live な作業項目の正本がどこにあるか」「何をもって project が
 > 完了したと見なすか」「completed になった project はどう archive するか」を定義する。
@@ -18,8 +20,8 @@
 >
 > | コンポーネント | 配置 | レイヤー |
 > |---|---|---|
-> | 規約（本書） | `references/03-guides/project-checklist-governance.md` | 4A System Operations |
-> | 入口判定（AAG-COA） | `references/03-guides/projectization-policy.md` | 4A System Operations |
+> | 規約（本書） | `references/05-aag-interface/operations/project-checklist-governance.md` | 4A System Operations |
+> | 入口判定（AAG-COA） | `references/05-aag-interface/operations/projectization-policy.md` | 4A System Operations |
 > | collector | `tools/architecture-health/src/collectors/project-checklist-collector.ts` | 3 Execution |
 > | format guard | `app/src/test/guards/checklistFormatGuard.test.ts` | 3 Execution |
 > | consistency guard | `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` | 3 Execution |
@@ -55,7 +57,7 @@
 
 本ガイドは project が**立ち上がった後**の completion 管理を扱う。
 project を**立ち上げる前**の「そもそもこの作業は project 化すべきか、どの重さで
-立ち上げるか」は姉妹ガイド `references/03-guides/projectization-policy.md`
+立ち上げるか」は姉妹ガイド `references/05-aag-interface/operations/projectization-policy.md`
 （AAG-COA — Change Operation Assessment）が扱う。
 
 | 概念 | 担当 | 対象タイミング |

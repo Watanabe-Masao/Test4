@@ -3,7 +3,7 @@
 > 役割: AAG-COA 判定結果。作業文脈に応じて、必要な project 化の重さと
 > 不要な手続きを明示する。
 >
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 >
 > **テンプレートの使い方:** bootstrap 時にこのファイルをコピー後、
 > 下記の `<...>` プレースホルダを実値で置換する。判定は作業開始前に行い、

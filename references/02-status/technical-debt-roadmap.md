@@ -16,7 +16,7 @@
 >
 > 本文書に残っている P1〜P5 等の改善 project は **完了済みの履歴記録** であり、
 > live task list ではない。新規 project 立ち上げ時は
-> [`references/03-guides/project-checklist-governance.md`](../03-guides/project-checklist-governance.md)
+> [`references/05-aag-interface/operations/project-checklist-governance.md`](../03-guides/project-checklist-governance.md)
 > の規約に従って `projects/<id>/` に作成すること。
 
 ---
@@ -41,7 +41,7 @@
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-03T10:33:25.310Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-05-03T11:00:25.824Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット

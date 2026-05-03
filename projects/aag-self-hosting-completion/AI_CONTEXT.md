@@ -21,7 +21,7 @@ structural reorganization により references/ + aag/ + projects/ の boundary 
 4. `checklist.md`（completion 判定 + 観測点）
 5. `decision-audit.md`（重判断 institution + DA-α-000）
 6. `projectization.md`（AAG-COA 判定 = Level 3 + architecture-refactor）
-7. 関連: `references/03-guides/decision-articulation-patterns.md` (drawer Pattern 1-6 application instance source)
+7. 関連: `references/05-aag-interface/drawer/decision-articulation-patterns.md` (drawer Pattern 1-6 application instance source)
 
 ## Why this project exists
 
@@ -68,10 +68,10 @@ operational-protocol-system project は本 program R5 で再開、M1 deliverable
 
 | 文書 | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
-| `references/03-guides/projectization-policy.md` | AAG-COA (= Level 3 + architecture-refactor 判定) |
-| `references/03-guides/new-project-bootstrap-guide.md` | bootstrap 手順 (= 本 project bootstrap で適用) |
-| `references/03-guides/decision-articulation-patterns.md` | drawer (= Pattern 1-6 application instance source) |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
+| `references/05-aag-interface/operations/projectization-policy.md` | AAG-COA (= Level 3 + architecture-refactor 判定) |
+| `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | bootstrap 手順 (= 本 project bootstrap で適用) |
+| `references/05-aag-interface/drawer/decision-articulation-patterns.md` | drawer (= Pattern 1-6 application instance source) |
 | `aag/_internal/meta.md` | AAG-REQ-SELF-HOSTING articulate (R6 で update 対象) |
 | `projects/operational-protocol-system/` | R5 完了後再開、M1 deliverable は aag/interface/protocols/ に landing |
 | `projects/completed/aag-platformization/` | AAG Pilot (= 本 program の motivation source) |

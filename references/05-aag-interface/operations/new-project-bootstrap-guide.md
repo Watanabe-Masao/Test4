@@ -1,5 +1,7 @@
 # New Project Bootstrap Guide
 
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
+
 > 役割: 新しい project を立ち上げる際の手順とチェックリスト。
 > `project-checklist-governance.md` §10 を補完し、派生セット判定・
 > overlay defaults・切替検証の順序を実行可能な粒度で定義する。
@@ -209,7 +211,7 @@ project 切替と branch 切替の連動ルールはない。**推奨**:
 
 | 文書 | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | §10 の bootstrap 原典 / checklist 運用規約 |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | §10 の bootstrap 原典 / checklist 運用規約 |
 | `projects/_template/DERIVED.md` | 派生セットの判断基準 |
 | `projects/_template/derived/README.md` | 派生テンプレート集 |
 | `projects/completed/aag-format-redesign/new-format-design.md` | 新フォーマット設計の根拠 |

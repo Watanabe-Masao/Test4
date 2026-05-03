@@ -2,7 +2,7 @@
  * Project Completion Consistency Guard
  *
  * project の derivedStatus と物理配置・参照状態の整合を機械的に検証する。
- * 規約: `references/03-guides/project-checklist-governance.md` §6 (lifecycle)。
+ * 規約: `references/05-aag-interface/operations/project-checklist-governance.md` §6 (lifecycle)。
  *
  * 検出する違反:
  *
@@ -31,7 +31,7 @@
  * projects/_template/ は除外対象（歴史的文書 or 自動生成）。
  * fenced code block（```/~~~）内は移行手順例として出現するためスキャン対象外。
  *
- * @see references/03-guides/project-checklist-governance.md §6 §10 §4
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §6 §10 §4
  *
  * @responsibility R:unclassified
  *
@@ -308,7 +308,7 @@ function checkConsistency(): ConsistencyViolation[] {
           `  5. HANDOFF.md 末尾に \`Archived: ${new Date().toISOString().slice(0, 10)}\` を追加する\n` +
           '  6. 関連正本（references/03-guides/* 等）の状態更新が必要なら同 commit で対応する\n' +
           '  7. cd app && npm run docs:generate で project-health に反映する\n' +
-          '  詳細: references/03-guides/project-checklist-governance.md §6.2',
+          '  詳細: references/05-aag-interface/operations/project-checklist-governance.md §6.2',
       })
     }
   }
@@ -322,7 +322,7 @@ function checkConsistency(): ConsistencyViolation[] {
         message: `CURRENT_PROJECT.md の active='${active}' は実在 project を指していない`,
         hint:
           'CURRENT_PROJECT.md を編集して実在する projectId を指すか、project を新規作成してください。' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §5。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §5。',
       })
     } else if (archivedIds.has(active)) {
       violations.push({
@@ -362,7 +362,7 @@ function checkConsistency(): ConsistencyViolation[] {
         hint:
           '典型原因: typo / 未作成 / rename 漏れ。' +
           ' 正しい projectId に書き換えるか、project を新規作成してください。' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §10。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §10。',
       })
       continue
     }
@@ -380,7 +380,7 @@ function checkConsistency(): ConsistencyViolation[] {
         hint:
           `'${link.literal}' → '${correctLiteral}' に置換してください。` +
           ` project '${link.projectId}' は archive 済みで projects/completed/ 配下にあります。` +
-          ' 詳細: references/03-guides/project-checklist-governance.md §6.2。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §6.2。',
       })
       continue
     }
@@ -466,7 +466,7 @@ describe('Project Completion Consistency Guard', () => {
       expect(shouldSkipForLinkCheck('projects/_template/AI_CONTEXT.md')).toBe(true)
       // 除外しないケース
       expect(shouldSkipForLinkCheck('CLAUDE.md')).toBe(false)
-      expect(shouldSkipForLinkCheck('references/03-guides/project-checklist-governance.md')).toBe(
+      expect(shouldSkipForLinkCheck('references/05-aag-interface/operations/project-checklist-governance.md')).toBe(
         false,
       )
       expect(shouldSkipForLinkCheck('projects/pure-calculation-reorg/AI_CONTEXT.md')).toBe(false)

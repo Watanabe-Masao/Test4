@@ -1,5 +1,7 @@
 # Deferred Decision Pattern (途中判断 制度化)
 
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で reach 可能。
+
 > **役割**: 計画段階で判断が難しい decision を、実装着手時 / 進行中の **AI 自主判断** として
 > deferred する制度。AAG 全 project で再利用可能な lifecycle 補助規約。
 >
@@ -168,10 +170,10 @@ decision log は **後任 AI / 人間が trace + revisit 可能** な形で proj
 
 | パス | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | project lifecycle 規約 (本 doc と並列) |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | project lifecycle 規約 (本 doc と並列) |
 | `projects/<id>/checklist.md` 末尾 | 各 project の decision gates section (本 doc の application instance) |
 | `aag-bidirectional-integrity` の `checklist.md` | 本 doc の最初の application instance (Phase 1 / 3 / 4 / 5 / 6 / 8 で 16 entry) |
-| `references/03-guides/projectization-policy.md` | AAG-COA 判定 (本 doc は projectization Level 3+ で推奨適用) |
+| `references/05-aag-interface/operations/projectization-policy.md` | AAG-COA 判定 (本 doc は projectization Level 3+ で推奨適用) |
 
 ## 9. 不可侵原則
 

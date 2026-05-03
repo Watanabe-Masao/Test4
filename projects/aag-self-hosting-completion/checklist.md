@@ -235,6 +235,6 @@
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
 > 機能的な Phase がすべて [x] になっても、ここが [ ] なら project は
 > `in_progress` のまま留まり、archive obligation は発火しない。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
 - [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact / 14 新 guard) を人間がレビューし、archive プロセスへの移行を承認する

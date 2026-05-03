@@ -185,10 +185,10 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 | `aag/_internal/*` | AAG framework articulate (= 参照のみ、改変禁止 = 不可侵原則 1) |
 | `aag/core/` | AAG Core (= 同上) |
 | `references/01-principles/platformization-standard.md` | Standard (= 引用のみ) |
-| `references/03-guides/decision-articulation-patterns.md` | drawer (= Pattern 1-6 引用、改変禁止) |
+| `references/05-aag-interface/drawer/decision-articulation-patterns.md` | drawer (= Pattern 1-6 引用、改変禁止) |
 | `projects/_template/` | 5 文書 template (= 参照のみ) |
 | `roles/*` | role identity (= 参照のみ、改変禁止) |
-| `references/03-guides/projectization-policy.md` | AAG-COA (= 参照のみ) |
+| `references/05-aag-interface/operations/projectization-policy.md` | AAG-COA (= 参照のみ) |
 | 主アプリ code (`app/src/`, `app-domain/`, `wasm/`) | 業務 logic (= touch 禁止 = 不可侵原則 3) |
 
 ### 新設 (Phase M1-M5)

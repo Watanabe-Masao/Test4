@@ -411,6 +411,6 @@ Step 5 で見つかった候補は **すぐ全部 hard gate にしない**。実
 | `references/03-guides/active-debt-refactoring-plan.md` | Phase H/I/J 詳細（背景） |
 | `references/02-status/open-issues.md` | active project 索引 |
 | `references/02-status/technical-debt-roadmap.md` | 判断理由（背景） |
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール / §3.1 最終レビュー section |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 本 project の運用ルール / §3.1 最終レビュー section |
 | `projects/completed/test-signal-integrity/HANDOFF.md` | 観測ログの記録先 |
 | `projects/completed/test-signal-integrity/checklist.md` | 観測完了で最終レビュー [x] にする対象 |

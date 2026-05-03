@@ -1,7 +1,7 @@
 /**
  * Checklist Governance Symmetry Guard
  *
- * 規約（`references/03-guides/project-checklist-governance.md` §3）と実装
+ * 規約（`references/05-aag-interface/operations/project-checklist-governance.md` §3）と実装
  * (`tools/architecture-health/src/collectors/project-checklist-collector.ts`)
  * の**対称性**を機械検証する。
  *
@@ -24,7 +24,7 @@
  * - `_template` は placeholder
  * - `completed` は archive 済み
  *
- * @see references/03-guides/project-checklist-governance.md §3 §8
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §3 §8
  * @see tools/architecture-health/src/collectors/project-checklist-collector.ts
  * @see app/src/test/guards/checklistFormatGuard.test.ts (F3/F4/F5)
  *
@@ -134,7 +134,7 @@ function checkChecklist(info: ProjectInfo): SymmetryViolation[] {
           message:
             `checklist.md に「${forbidden.label}」見出しが存在します。` +
             `completion 判定の入力に混ぜるとぶれるため、${forbidden.moveTo} に移動してください。` +
-            ' 詳細: references/03-guides/project-checklist-governance.md §3。',
+            ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3。',
         })
       }
     }

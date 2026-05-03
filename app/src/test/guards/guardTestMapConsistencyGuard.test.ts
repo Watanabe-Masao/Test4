@@ -29,7 +29,7 @@
  * 最終目標は `MISSING_BASELINE = 0` (全 guard が map に登録された状態)。
  *
  * @see references/03-guides/guard-test-map.md
- * @see references/03-guides/project-checklist-governance.md §4.1
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §4.1
  *
  * @responsibility R:unclassified
  *

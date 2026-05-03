@@ -161,7 +161,7 @@
 | 検出パターン     | (Format) F1 必須 file 欠落 / F2 形式違反 checkbox / F3〜F5 「やってはいけない」「常時チェック」「最重要項目」セクション内 checkbox 禁止 (Governance Symmetry) S1〜S3 禁止 heading 自体の存在を検出（規約と collector 実装の対称性保証） |
 | ratchet-down     | あり: `FORMAT_EXEMPT_PROJECT_IDS` (現在は空集合、増加禁止 = ratchet 方向 0 のみ)                                                                                                                                                        |
 | 不変条件         | live project の checklist は format 規約に従う / collector の集計範囲 = format guard の通過範囲 (対称性) / `_template` `completed/` は対象外                                                                                            |
-| 関連             | `references/03-guides/project-checklist-governance.md §3 §8 §10` / `tools/architecture-health/.../project-checklist-collector.ts` / G8                                                                                                  |
+| 関連             | `references/05-aag-interface/operations/project-checklist-governance.md §3 §8 §10` / `tools/architecture-health/.../project-checklist-collector.ts` / G8                                                                                                  |
 | Phase B 抽出候補 | `parsing/projectListing.ts` (live project 列挙 + `_` / `completed` 除外) / `parsing/markdownStructure.ts` (heading / checkbox 走査) / `detection/sectionForbidden.ts` (禁止 heading + その配下の構造)                                   |
 
 ### §1.11 — OBLIGATION_MAP ↔ obligation-collector / architectureRuleGuard

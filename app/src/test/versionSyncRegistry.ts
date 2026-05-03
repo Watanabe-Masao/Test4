@@ -12,7 +12,7 @@
  * AAG レイヤー: Layer 2 Schema（宣言的契約）。
  * 検出実装は `versionSyncGuard.test.ts` の Layer 3 Execution に閉じる。
  *
- * 参照: `references/03-guides/project-checklist-governance.md`（同様の宣言的設計）
+ * 参照: `references/05-aag-interface/operations/project-checklist-governance.md`（同様の宣言的設計）
  */
 
 export interface VersionSyncPair {

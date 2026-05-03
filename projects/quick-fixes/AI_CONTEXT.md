@@ -17,7 +17,7 @@ collection project。typo 修正、ファイル分割、リネーム、軽微な
 全てここに入れる。逆に「複数 phase が必要」「独自の不可侵原則がある」「他の
 作業者に context を引き継ぐ必要がある」ものは独立 project にする。
 
-判断基準は `references/03-guides/project-checklist-governance.md` §11 を参照。
+判断基準は `references/05-aag-interface/operations/project-checklist-governance.md` §11 を参照。
 
 ## kind = collection
 
@@ -42,4 +42,4 @@ active であり続ける。
 
 | 文書 | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | 規約の正本（§11 で large vs small の判断基準） |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 規約の正本（§11 で large vs small の判断基準） |

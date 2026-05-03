@@ -92,7 +92,7 @@ AAG framework の Layer 4A System Operations として一括導入する。
 
 ### 主な成果物
 
-- **規約の正本** (`references/03-guides/project-checklist-governance.md`): §0-12 で
+- **規約の正本** (`references/05-aag-interface/operations/project-checklist-governance.md`): §0-12 で
   基本思想 / role 表 / completed 定義 / 書き方規格 / 構造 / CURRENT_PROJECT.md /
   archive lifecycle / 関連実装 / live project 一覧 / bootstrap 手順 /
   large vs small 分離 / version sync registry を全て明文化

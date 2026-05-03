@@ -45,7 +45,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-05-03T10:33:25.317Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-05-03T11:00:25.831Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -297,7 +297,7 @@ CI は `wasm-build` → `fast-gate` → (`docs-health` + `test-coverage` + `e2e`
 > とノイズになる。**live な作業項目（やることリスト）の正本は
 > `projects/<id>/checklist.md` のみ。** references/ / CLAUDE.md / roles/ には
 > live task table を一切書かない。詳細:
-> [`references/03-guides/project-checklist-governance.md`](./references/03-guides/project-checklist-governance.md)
+> [`references/05-aag-interface/operations/project-checklist-governance.md`](./references/05-aag-interface/operations/project-checklist-governance.md)
 > （AAG Layer 4A System Operations）。
 
 ### 3層分離
@@ -540,7 +540,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-03T10:33:25.310Z — 正本: `references/02-status/generated/architecture-health.json`
+> 生成: 2026-05-03T11:00:25.824Z — 正本: `references/02-status/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

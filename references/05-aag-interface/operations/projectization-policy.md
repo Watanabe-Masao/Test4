@@ -1,5 +1,7 @@
 # AAG-COA — Projectization Policy
 
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/operations/` 配下 (= 主アプリ改修 user / 人間が reach する AAG public interface)。AAG framework 内部 (= `aag/_internal/`) を読まずに本 doc で AAG-COA 判定可能。
+>
 > **役割:** 変更内容に応じて project 化の重さを決める AAG Layer 4A System Operations。
 > 目的は project 化を増やすことではなく、**必要な governance と不要な governance を分離する**こと。
 >
@@ -14,7 +16,7 @@
 >
 > | コンポーネント | 配置 | レイヤー |
 > |---|---|---|
-> | 規約（本書） | `references/03-guides/projectization-policy.md` | 4A System Operations |
+> | 規約（本書） | `references/05-aag-interface/operations/projectization-policy.md` | 4A System Operations |
 > | metadata schema | `projects/<id>/config/project.json` の `projectization` フィールド | 2 Schema |
 > | 判定記録 | `projects/<id>/projectization.md` | 4B Project Operations |
 > | guard | `app/src/test/guards/projectizationPolicyGuard.test.ts` | 3 Execution |
@@ -336,7 +338,7 @@ true の場合、`checklist.md` の最終レビュー (人間承認) section に
       人間がレビューし、archive プロセスへの移行を承認する
 ```
 
-詳細: `references/03-guides/project-checklist-governance.md` §3.1
+詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1
 
 ## 9. Escalation / De-escalation
 
@@ -591,6 +593,6 @@ template は `projects/_template/projectization.md`。
 | `projects/_template/projectization.md` | 判定結果 template |
 | `projects/_template/config/project.json` | metadata schema template |
 | `app/src/test/guards/projectizationPolicyGuard.test.ts` | 機械検証 |
-| `references/03-guides/project-checklist-governance.md` | 立ち上げ後の completion 管理 |
-| `references/03-guides/new-project-bootstrap-guide.md` | bootstrap 手順（AAG-COA 判定が入口） |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 立ち上げ後の completion 管理 |
+| `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | bootstrap 手順（AAG-COA 判定が入口） |
 | `aag/_internal/layer-map.md` | Layer 4A 登録 (Project A Phase 1 で `aag-5-layer-map.md` から Rewrite + Relocate + Rename) |

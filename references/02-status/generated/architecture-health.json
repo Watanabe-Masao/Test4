@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T10:33:25.310Z",
+  "timestamp": "2026-05-03T11:00:25.824Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -798,7 +798,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -859,7 +859,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [],
@@ -877,7 +877,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -937,7 +937,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -998,7 +998,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -1059,7 +1059,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -1119,7 +1119,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [
@@ -1179,7 +1179,7 @@
       "docRefs": [
         {
           "kind": "definition",
-          "path": "references/03-guides/project-checklist-governance.md"
+          "path": "references/05-aag-interface/operations/project-checklist-governance.md"
         }
       ],
       "implRefs": [

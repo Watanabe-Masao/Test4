@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-03T10:33:25.310Z
+> Generated: 2026-05-03T11:00:25.824Z
 > Schema: v1.0.0
 > 正本: `references/02-status/generated/architecture-health.json`
 
@@ -150,14 +150,14 @@
 | temporal.rules.reviewPolicy.count | definition | references/03-guides/architecture-rule-system.md |
 | temporal.rules.sunsetCondition.count | definition | references/01-principles/architecture-rule-feasibility.md |
 | efficacy.rules.withProtectedHarm.count | definition | references/01-principles/architecture-rule-feasibility.md |
-| project.checklist.activeCount | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.archivedCount | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.completedNotArchivedCount | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.inProgressCount | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.emptyCount | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.totalCheckboxes | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.checkedCheckboxes | definition | references/03-guides/project-checklist-governance.md |
-| project.checklist.subprojectCount | definition | references/03-guides/project-checklist-governance.md |
+| project.checklist.activeCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.archivedCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.completedNotArchivedCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.inProgressCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.emptyCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.totalCheckboxes | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.checkedCheckboxes | definition | references/05-aag-interface/operations/project-checklist-governance.md |
+| project.checklist.subprojectCount | definition | references/05-aag-interface/operations/project-checklist-governance.md |
 | docs.testContract.declared | definition | docs/contracts/test-contract.json |
 | docs.testContract.violations | definition | docs/contracts/test-contract.json |
 | taxonomy.responsibility.unknownVocabulary | definition | projects/taxonomy-v2/plan.md |

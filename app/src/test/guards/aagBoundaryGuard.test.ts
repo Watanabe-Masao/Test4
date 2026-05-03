@@ -124,5 +124,82 @@ describe('aagBoundaryGuard — AAG framework boundary 機械検証', () => {
     })
   })
 
-  // sub-invariant (b), (c), (d) は R2 / R5 で active 化予定 (= 本 R1 では skeleton のみ)
+  describe('sub-invariant (b): aag/ 配下に主アプリ改修者向け doc 配置 0 件 (= R2 で active)', () => {
+    /**
+     * AAG public interface 5 doc canonical names (= references/05-aag-interface/ 配下にのみ存在すべき)
+     */
+    const AAG_PUBLIC_INTERFACE_DOCS = [
+      'decision-articulation-patterns.md',
+      'projectization-policy.md',
+      'project-checklist-governance.md',
+      'new-project-bootstrap-guide.md',
+      'deferred-decision-pattern.md',
+    ]
+
+    function findPublicInterfaceDocsInAag(): string[] {
+      const matches: string[] = []
+      function walk(dir: string, relBase: string) {
+        let entries: import('node:fs').Dirent[]
+        try {
+          entries = readdirSync(dir, { withFileTypes: true })
+        } catch {
+          return
+        }
+        for (const entry of entries) {
+          const abs = join(dir, entry.name)
+          const rel = relBase ? `${relBase}/${entry.name}` : entry.name
+          if (entry.isDirectory()) {
+            if (entry.name === 'node_modules' || entry.name === '.git') continue
+            walk(abs, rel)
+          } else if (entry.isFile() && AAG_PUBLIC_INTERFACE_DOCS.includes(entry.name)) {
+            matches.push(rel)
+          }
+        }
+      }
+      walk(join(REPO_ROOT, 'aag'), 'aag')
+      return matches
+    }
+
+    it('aag/ 配下に AAG public interface doc が 0 件', () => {
+      const violations = findPublicInterfaceDocsInAag()
+      expect(
+        violations,
+        `aag/ 配下に主アプリ改修者向け doc 発見: ${violations.join(', ')}\n` +
+          `references/05-aag-interface/ にのみ存在すべき (= reader-別 structural separation)。`,
+      ).toEqual([])
+    })
+  })
+
+  describe('sub-invariant (c): references/05-aag-interface/ 配下に AAG public interface doc 全件存在 (= R2 で active)', () => {
+    const AAG_INTERFACE_BASE = 'references/05-aag-interface'
+
+    it('drawer/decision-articulation-patterns.md 存在', () => {
+      expect(
+        existsSync(join(REPO_ROOT, AAG_INTERFACE_BASE, 'drawer/decision-articulation-patterns.md')),
+        'drawer/decision-articulation-patterns.md 不在',
+      ).toBe(true)
+    })
+
+    it('operations/ 4 doc 全件存在', () => {
+      const operationsDocs = [
+        'projectization-policy.md',
+        'project-checklist-governance.md',
+        'new-project-bootstrap-guide.md',
+        'deferred-decision-pattern.md',
+      ]
+      const missing = operationsDocs.filter(
+        (name) => !existsSync(join(REPO_ROOT, AAG_INTERFACE_BASE, 'operations', name)),
+      )
+      expect(missing, `operations/ 配下欠落: ${missing.join(', ')}`).toEqual([])
+    })
+
+    it('protocols/ skeleton (= README) 存在', () => {
+      expect(
+        existsSync(join(REPO_ROOT, AAG_INTERFACE_BASE, 'protocols/README.md')),
+        'protocols/README.md 不在 (= R2 で skeleton landing 必要)',
+      ).toBe(true)
+    })
+  })
+
+  // sub-invariant (d) は R5 で active 化予定 (= operational-protocol-system M1-M5 deliverable landing と同時)
 })

@@ -1,5 +1,9 @@
 # Decision Articulation Patterns
 
+> **位置付け (= aag-self-hosting-completion R2 で update)**: 本 doc は `references/05-aag-interface/drawer/` 配下に配置 (= 主アプリ改修 user / 人間が reach する **AAG public interface**)。AAG framework 内部 (= `aag/_internal/`) を読む必要なく、本 doc 内 articulate のみで pattern を引き出して使える。
+>
+> **3 tree boundary integration**: `references/` (= 主アプリ改修 user knowledge interface) 配下、`aag/` (= AAG framework 本体、主アプリ改修 user not read) と structural separation。
+>
 > **役割**: 本アプリ (粗利管理ツール) の改修 / refactoring / 新機能 / architecture 変更 等、
 > change-bearing 作業全般で再利用可能な articulation pattern 集。
 >
@@ -257,5 +261,5 @@ self-test 違反が検出された場合は **抽象化境界違反**、当該 p
 - AAG framework 自身の articulation: `aag/_internal/README.md` (本 drawer は AAG が提供する「引き出し」の 1 instance、AAG 内部の articulation は本 drawer 利用 AI が読む必要なし)
 - 設計原則 (A-I+Q): `references/01-principles/design-principles.md`
 - リファクタリング判断: `references/01-principles/canonicalization-principles.md`
-- AAG-COA (project 立ち上げ前判定): `references/03-guides/projectization-policy.md`
-- deferred decision pattern (sibling): `references/03-guides/deferred-decision-pattern.md`
+- AAG-COA (project 立ち上げ前判定): `references/05-aag-interface/operations/projectization-policy.md`
+- deferred decision pattern (sibling): `references/05-aag-interface/operations/deferred-decision-pattern.md`

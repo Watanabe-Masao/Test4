@@ -6,7 +6,7 @@
 > **テンプレートの使い方:**
 > 1. `projects/_template/` を `projects/<新 project id>/` にコピーする
 > 2. 各ファイルの `<PROJECT-ID>` / `<TITLE>` / `<...>` プレースホルダを実値で置換する
-> 3. `references/03-guides/project-checklist-governance.md` §10 (新規 project bootstrap) に従う
+> 3. `references/05-aag-interface/operations/project-checklist-governance.md` §10 (新規 project bootstrap) に従う
 > 4. `cd app && npm run docs:generate` を実行し、project-health に新 project が現れることを確認する
 > 5. 本コメントブロックを削除する
 
@@ -30,7 +30,7 @@
 
 &lt;なぜ独立した project として立ち上げるのか。既存 project と scope が
 混ざらない理由。複数の動線・コンテキストを混ぜない原則
-(`references/03-guides/project-checklist-governance.md` §0) の根拠。&gt;
+(`references/05-aag-interface/operations/project-checklist-governance.md` §0) の根拠。&gt;
 
 ## Scope
 
@@ -44,5 +44,5 @@
 
 | 文書 | 役割 |
 |---|---|
-| `references/03-guides/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | 本 project の運用ルール（AAG Layer 4A） |
 | &lt;関連 reference 文書&gt; | &lt;役割&gt; |

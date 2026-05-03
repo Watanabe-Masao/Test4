@@ -96,7 +96,7 @@
 ## §4 Merge Policy (派生 ARCHITECTURE_RULES の canonical 単一点)
 
 > **役割**: §3 派生物の `ARCHITECTURE_RULES` を生成する merge 解決順序を **canonical に** articulate する **単一点**。
-> `merged.ts` / `defaults.ts` / 各 project の `aag/execution-overlay.ts` / `references/03-guides/new-project-bootstrap-guide.md` Step 4 はすべて本 section を canonical 参照する (= back-link)。仕様の揺れを「修正対象」ではなく「構造上の単一点」に転換する。
+> `merged.ts` / `defaults.ts` / 各 project の `aag/execution-overlay.ts` / `references/05-aag-interface/operations/new-project-bootstrap-guide.md` Step 4 はすべて本 section を canonical 参照する (= back-link)。仕様の揺れを「修正対象」ではなく「構造上の単一点」に転換する。
 >
 > **landing**: `projects/completed/aag-platformization/` Phase 1 / A2a (DA-α-002a、archive 済み 2026-05-02)、bootstrap path 破綻 (空 overlay → throw) と `RuleExecutionOverlayEntry` 三重定義の修復に同期。
 
@@ -130,7 +130,7 @@ merged artifact (`docs/generated/aag/merged-architecture-rules.<format>`、Phase
 | `app/src/test/architectureRules/defaults.ts` | 冒頭 doc-comment が本 §4 へ back-link |
 | `app/src/test/aag-core-types.ts` の `RuleExecutionOverlayEntry` 定義 | 本 §4 へ back-link (= 三重定義解消後の集約点) |
 | 各 project の `aag/execution-overlay.ts` 冒頭 comment | 本 §4 へ back-link |
-| `references/03-guides/new-project-bootstrap-guide.md` Step 4 | 本 §4 へ back-link |
+| `references/05-aag-interface/operations/new-project-bootstrap-guide.md` Step 4 | 本 §4 へ back-link |
 
 merge policy を変更する場合は **本 §4 を改訂** し、上記 file 群はそれに追従するのみ。逆方向 (file 側で policy 改訂、本 §4 が後追い) は禁止。
 

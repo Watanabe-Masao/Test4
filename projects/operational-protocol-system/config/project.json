@@ -17,7 +17,7 @@
     "requiresHumanApproval": true,
     "nonGoals": [
       "AAG framework (aag/_internal/ + aag/core/) の articulate 内容変更",
-      "AAG drawer (references/03-guides/decision-articulation-patterns.md) の改変",
+      "AAG drawer (references/05-aag-interface/drawer/decision-articulation-patterns.md) の改変",
       "Platformization Standard の改変",
       "5 文書 template (projects/_template/) の schema / 内容変更",
       "role identity (roles/*) の改変",

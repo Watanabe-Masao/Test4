@@ -3,7 +3,7 @@
 > 役割: completion 判定の入力（required checkbox の集合）。
 > やってはいけないこと / 常時チェック / 恒久ルールは plan.md に書く。
 >
-> 規約: `references/03-guides/project-checklist-governance.md` §3。
+> 規約: `references/05-aag-interface/operations/project-checklist-governance.md` §3。
 
 ## Phase 1: Constitution 起草
 
@@ -106,6 +106,6 @@
 ## 最終レビュー (人間承認)
 
 > このセクションは **必ず最後** に置き、人間レビュー前は [ ] のままにする。
-> 詳細: `references/03-guides/project-checklist-governance.md` §3.1 / §6.2
+> 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
 - [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を人間がレビューし、archive プロセスへの移行を承認する

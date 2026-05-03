@@ -1,7 +1,7 @@
 # projectization — taxonomy-v2
 
 > 役割: AAG-COA 判定結果。
-> 規約: `references/03-guides/projectization-policy.md`
+> 規約: `references/05-aag-interface/operations/projectization-policy.md`
 
 ## 1. 判定結果
 

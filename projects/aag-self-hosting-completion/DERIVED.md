@@ -82,6 +82,6 @@ cp derived/test-plan.md test-plan.md
 
 ## 関連
 
-- `references/03-guides/new-project-bootstrap-guide.md` — bootstrap 手順全体
-- `references/03-guides/project-checklist-governance.md` §10 — 必須セット bootstrap
+- `references/05-aag-interface/operations/new-project-bootstrap-guide.md` — bootstrap 手順全体
+- `references/05-aag-interface/operations/project-checklist-governance.md` §10 — 必須セット bootstrap
 - `projects/completed/aag-format-redesign/new-format-design.md` — 派生セット設計の根拠

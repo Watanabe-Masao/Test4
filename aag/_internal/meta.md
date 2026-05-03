@@ -173,7 +173,7 @@ Layer 4 検証は **5 sub-audit** に細分 (initial set、extensible):
 | パス                                                   | 役割                                                                                    |
 | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | [`README.md`](./README.md)                             | aag/ ディレクトリ index、CLAUDE.md からの 1 link entry                                  |
-| `references/03-guides/deferred-decision-pattern.md`    | 途中判断制度 (本 doc の §2 / §3 / §4 の articulation を継続的 update する mechanism)    |
-| `references/03-guides/project-checklist-governance.md` | project lifecycle 規約                                                                  |
+| `references/05-aag-interface/operations/deferred-decision-pattern.md`    | 途中判断制度 (本 doc の §2 / §3 / §4 の articulation を継続的 update する mechanism)    |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | project lifecycle 規約                                                                  |
 | `projects/completed/aag-bidirectional-integrity/plan.md`         | 本 doc を landing する project の canonical 計画 doc                                    |
 | `projects/completed/aag-bidirectional-integrity/checklist.md`    | Phase 1〜10 + 途中判断 checklist (decision gates、本 doc の最初の application instance) |

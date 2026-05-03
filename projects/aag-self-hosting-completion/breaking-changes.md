@@ -1,7 +1,7 @@
 # breaking-changes — aag-self-hosting-completion
 
 > 役割: breakingChange=true (= AAG-COA Level 3 + architecture-refactor) における破壊対象 + 移行方針を articulate。
-> 規約: `references/03-guides/projectization-policy.md` §5 + §3 Level 3。
+> 規約: `references/05-aag-interface/operations/projectization-policy.md` §5 + §3 Level 3。
 > **本 project は内容 100% 維持 (= 不可侵原則 4)**、breaking は **path のみ**。
 
 ## 1. 破壊対象 (= path 変更で影響する範囲)
@@ -11,7 +11,7 @@
 | Phase | 旧 path | 新 path | 影響範囲 |
 |---|---|---|---|
 | R1 | `aag/_internal/<doc>.md` (9 doc) | `aag/_internal/<doc>.md` | 101 inbound link (= 全 file 内 reference) |
-| R2 | `references/03-guides/decision-articulation-patterns.md` | **`references/05-aag-interface/drawer/decision-articulation-patterns.md`** | 該当 inbound 全 update |
+| R2 | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | **`references/05-aag-interface/drawer/decision-articulation-patterns.md`** | 該当 inbound 全 update |
 | R2 | `references/03-guides/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | **`references/05-aag-interface/operations/<doc>.md`** | 該当 inbound 全 update |
 | R3 | `references/01-principles/<doc>.md` | `references/01-foundation/<doc>.md` | 多数 (= 主アプリ業務 doc 全 reference) |
 | R3 | `references/02-status/<doc>.md` | `references/04-tracking/<doc>.md` | 多数 |

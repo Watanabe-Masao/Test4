@@ -106,7 +106,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 **deliverable**:
 
 - `references/05-aag-interface/` 新設 + sub-directory: `drawer/` + `protocols/` + `operations/` + `README.md`
-- `references/05-aag-interface/drawer/` に `references/03-guides/decision-articulation-patterns.md` 移動
+- `references/05-aag-interface/drawer/` に `references/05-aag-interface/drawer/decision-articulation-patterns.md` 移動
 - `references/05-aag-interface/operations/` に AAG 運用 guide 4 doc 移動 (= projectization-policy.md / project-checklist-governance.md / new-project-bootstrap-guide.md / deferred-decision-pattern.md)
 - `references/05-aag-interface/protocols/` skeleton (= R5 で fill する空 directory + README)
 - aag/ 側に **stub なし**: `aag/interface/` ディレクトリは作らない (= 境界矛盾防止)
@@ -388,11 +388,11 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 |---|---|---|
 | `aag/_internal/*` (9 doc) | `aag/_internal/*` | R1 |
 | `aag/_framework/{rules,collectors,generators,schemas,fixtures}/` (skeleton) | (新設、AAG framework 実装の物理移動は別 program、本 R1 では skeleton のみ) | R1 |
-| `references/03-guides/decision-articulation-patterns.md` | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | R2 |
-| `references/03-guides/projectization-policy.md` | `references/05-aag-interface/operations/projectization-policy.md` | R2 |
-| `references/03-guides/project-checklist-governance.md` | `references/05-aag-interface/operations/project-checklist-governance.md` | R2 |
-| `references/03-guides/new-project-bootstrap-guide.md` | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | R2 |
-| `references/03-guides/deferred-decision-pattern.md` | `references/05-aag-interface/operations/deferred-decision-pattern.md` | R2 |
+| `references/05-aag-interface/drawer/decision-articulation-patterns.md` | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | R2 |
+| `references/05-aag-interface/operations/projectization-policy.md` | `references/05-aag-interface/operations/projectization-policy.md` | R2 |
+| `references/05-aag-interface/operations/project-checklist-governance.md` | `references/05-aag-interface/operations/project-checklist-governance.md` | R2 |
+| `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | `references/05-aag-interface/operations/new-project-bootstrap-guide.md` | R2 |
+| `references/05-aag-interface/operations/deferred-decision-pattern.md` | `references/05-aag-interface/operations/deferred-decision-pattern.md` | R2 |
 | `references/01-principles/` (residual) | `references/01-foundation/` | R3 |
 | `references/02-status/` | `references/04-tracking/` | R3 |
 | `references/04-design-system/` | `references/02-design-system/` | R3 |

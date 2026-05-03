@@ -4,7 +4,7 @@
  * projects/<id>/ の 4-doc + config 構造が揃っていること、および各 doc が
  * 自分の**役割範囲**に閉じていることを機械的に検証する。
  *
- * 規約: `references/03-guides/project-checklist-governance.md` §4 (ディレクトリ構造) §4.1 (役割分離)。
+ * 規約: `references/05-aag-interface/operations/project-checklist-governance.md` §4 (ディレクトリ構造) §4.1 (役割分離)。
  *
  * 検出する違反:
  *
@@ -39,7 +39,7 @@
  * - projects/completed/ は archive 済み（凍結）なので検査対象外
  * - collection kind（例: quick-fixes）も構造は要求される
  *
- * @see references/03-guides/project-checklist-governance.md §4 §4.1
+ * @see references/05-aag-interface/operations/project-checklist-governance.md §4 §4.1
  *
  * @responsibility R:unclassified
  *
@@ -140,7 +140,7 @@ function checkProjectDir(project: ProjectDir): StructureViolation[] {
         message: `必須ファイル '${rel}' が欠落しています`,
         hint:
           'projects/_template/ を参考に不足ファイルを追加してください。' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §4 §10。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §4 §10。',
       })
     }
   }
@@ -162,7 +162,7 @@ function checkProjectDir(project: ProjectDir): StructureViolation[] {
           `ファイル先頭（title 直後）に次の形式で役割 banner を追加してください:\n` +
           `    > 役割: <この文書が何のためにあるか 1 文>\n` +
           ' これにより読み手は「この文書を開けばよいか」を即判断できます。' +
-          ' 詳細: references/03-guides/project-checklist-governance.md §4.1。',
+          ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §4.1。',
       })
     }
   }
@@ -198,7 +198,7 @@ function checkProjectDir(project: ProjectDir): StructureViolation[] {
               ' AI_CONTEXT.md は stable content (Purpose / Scope / Read Order / Required References / Constraints) のみを持ちます。\n' +
               ' 理由: AI_CONTEXT.md は数週間に 1 回だけ更新される「意味空間の入口」として設計されており、\n' +
               ' session ごとの状態変化（Current Status / Next Actions 等）を持つと HANDOFF.md と drift します。\n' +
-              ' 詳細: references/03-guides/project-checklist-governance.md §4.1。',
+              ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §4.1。',
           })
           break // 同じ行で複数 regex にヒットしても 1 件のみ
         }
