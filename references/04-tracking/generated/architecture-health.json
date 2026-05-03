@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T13:35:32.121Z",
+  "timestamp": "2026-05-03T21:31:21.491Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -594,9 +594,9 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 0,
+      "value": 1,
       "unit": "count",
-      "status": "ok",
+      "status": "fail",
       "owner": "documentation-steward",
       "docRefs": [
         {
@@ -1610,9 +1610,9 @@
   ],
   "summary": {
     "totalKpis": 60,
-    "ok": 60,
+    "ok": 59,
     "warn": 0,
-    "fail": 0,
-    "hardGatePass": true
+    "fail": 1,
+    "hardGatePass": false
   }
 }
