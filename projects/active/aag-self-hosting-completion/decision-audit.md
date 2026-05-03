@@ -1145,12 +1145,12 @@ R0-R6 完了で structural separation + entry navigation rigor + 5 系統 lens a
 
 ### Commit Lineage
 
-- judgementCommit: `<実 sha = 本 R7 実装 commit>`
+- judgementCommit: `0f5f226`
 - preJudgementCommit: `906e137` (= R6b Lineage update)
-- judgementTag: `aag-self-hosting-completion/DA-α-008-judgement` (= 本 commit に landing 予定)
+- judgementTag: `aag-self-hosting-completion/DA-α-008-judgement` (= `0f5f226` に landing 済)
 - rollbackTag: `aag-self-hosting-completion/DA-α-008-rollback-target` (= `906e137` に landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — R7 全実装
+  - `0f5f226` — R7 全実装 (= verify 全 PASS + Lineage 更新 + archive trigger 準備 articulate)
 
 ### 振り返り (R7 完了直後 = TBD)
 
