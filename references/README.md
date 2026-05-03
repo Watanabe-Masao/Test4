@@ -1,6 +1,26 @@
 # references/ ドキュメントガイド
 
-> 運用仕様書群。AIと人間が安全に作業するための設計制約・ルール・参照情報を格納する。
+> **役割 (= 3 tree boundary 第一階層)**: **主アプリ (粗利管理ツール) 改修 AI / 人間の knowledge interface**。
+>
+> 本 directory に置くもの = 主アプリ業務 domain 知識 + 主アプリ改修向け実装ガイド + 動的 state observation + 主アプリ改修者が使う AAG public interface (= drawer / protocols / operations、`05-aag-interface/` で landing 予定 R2)。
+>
+> 本 directory に置かないもの = AAG framework 内部 articulation (= `aag/` tree、本 program R1 で relocate 予定) / 作業単位 lens (= `projects/` tree)。
+>
+> 進行中の structural reorganization は `projects/aag-self-hosting-completion/plan.md` 参照。R3 で directory rename (= 01-principles → 01-foundation / 02-status → 04-tracking / 04-design-system → 02-design-system / 03-guides → 03-implementation / 05-contents → 04-tracking/elements) 予定。
+>
+> 命名規約 (= R3 以降適用予告): 機械生成 file は `*.generated.md` suffix で明示 (= 手編集禁止、`generatedFileEditGuard` で機械検証)。
+>
+> 旧運用仕様書群 articulate 維持: AIと人間が安全に作業するための設計制約・ルール・参照情報を格納する。
+
+## 3 tree boundary (= references / aag / projects、第一階層 articulate)
+
+| tree | 役割 | reader |
+|---|---|---|
+| **`references/`** (本 tree) | **主アプリ改修 AI / 人間の knowledge interface** | 主アプリ改修 AI / 人間 |
+| **`aag/`** (R1 で fill 予定) | AAG framework 本体 (= 内部 articulation + framework 実装 skeleton) | AAG framework 改修者のみ、**主アプリ改修者は通常 not read** |
+| **`projects/`** | 作業単位 lens (= active + completed projects)、状態正本でも進捗集約でもない | 全 reader (= 作業 context 把握) |
+
+詳細: `aag/README.md` (= R0 で landing) + projects/ root の README.md。
 
 ## reader 別 routing (= 主アプリ改修 AI / AAG 改修者で読むべき範囲が異なる)
 

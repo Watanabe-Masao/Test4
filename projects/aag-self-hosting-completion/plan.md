@@ -239,9 +239,11 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - R4-5: 944 test 維持
 - R4-6 (反証): pilot subset で AI が context 構築する simulation で reach efficiency verify (= 1 element directory 1 read で 4 doc 全 reach)
 
-### Phase R5: operational-protocol-system project boundary 維持 + skeleton fill (= self-evaluation 反映で scope 縮小)
+### Phase R5: operational-protocol-system project resume + 新構造前提 plan refinement trigger (= self-evaluation 反映で scope 縮小、user articulation で flow 確定)
 
-**self-evaluation 反映**: 元 R5 は M1-M5 deliverable landing 全部を本 program 内で実施 articulated、ただし operational-protocol-system project boundary を侵す risk (= 不可侵原則 8 違反)。**scope 縮小**: 本 program は `references/05-aag-interface/protocols/` skeleton 用意 + project resume articulation のみ、M1-M5 deliverable の articulate 自体は operational-protocol-system project 内で実施 (= R5 後 user 判断で起動)。
+**self-evaluation 反映**: 元 R5 は M1-M5 deliverable landing 全部を本 program 内で実施 articulated、ただし operational-protocol-system project boundary を侵す risk (= 不可侵原則 8 違反)。**scope 縮小**: 本 program は project resume + skeleton fill + plan refinement trigger のみ、operational-protocol-system project 内で **新構造前提 plan refinement** + M1-M5 deliverable 実装 (= R5 完了後 user 判断で起動)。
+
+**user articulation 反映 (本 session)**: aag-self-hosting-completion R7 まで先行完了 → operational-protocol-system project が新構造前提に **plan 修正** + M1-M5 実装、という flow を確定。本 R5 は **plan 修正 trigger** として機能 (= 本 program が articulate trigger、refine 自体は operational-protocol-system project 内、不可侵原則 8 整合)。
 
 **deliverable** (= 本 program scope):
 
@@ -249,20 +251,29 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 - `references/05-aag-interface/protocols/README.md` で **landing 受け入れ structure** を articulate (= "本 directory は operational-protocol-system project の M1 deliverable (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy) の landing 場所" を articulate)
 - `aagBoundaryGuard` で landing 場所制約を機械検証 (= operational-protocol-system M1-M5 deliverable は本 location 限定)
 - doc-registry.json + manifest.json で protocols/ entry articulate
+- **plan refinement trigger articulate**: operational-protocol-system project resume 後、自身の plan を **新構造前提に refine** する task が articulate される (= 本 program は trigger のみ、refine 自体は operational-protocol-system project 内、不可侵原則 8 整合)
 
 **scope 外** (= 不可侵原則 8 articulate):
 
-- operational-protocol-system project 自身の plan / checklist 改変
+- operational-protocol-system project 自身の plan / checklist 改変 (= 本 program は trigger only、refine 自体は別 project 内)
 - M1-M5 deliverable の articulate 自体 (= task-protocol-system.md / etc. の content articulate は operational-protocol-system project 内で実施、本 program R5 では skeleton landing 場所 articulate のみ)
 - operational-protocol-system project archive 判断 (= user 承認後、本 program scope 外)
+
+**flow articulation (= user articulation 反映)**:
+
+1. 本 program R0-R7 完遂 (= structural foundation + 7 guard active + AAG self-hosting closure 完成)
+2. R5 trigger で operational-protocol-system project resume (= ⏸ PAUSED 解除)
+3. operational-protocol-system project 内で **plan refinement** (= M1-M5 deliverable を `references/05-aag-interface/protocols/` 配置前提に refine、現 plan は `references/03-guides/` 想定で articulated だが新構造前提に書き換え)
+4. operational-protocol-system project 内で M1-M5 実装 + archive
 
 **観測点**:
 
 - R5-1: operational-protocol-system HANDOFF.md ⏸ PAUSED articulation 解除確認 (= `grep "PAUSED" projects/operational-protocol-system/HANDOFF.md` = 0 件 or "resumed" articulate)
 - R5-2: `references/05-aag-interface/protocols/README.md` が landing 構造 articulate (= "operational-protocol-system M1 deliverable 受け入れ" articulate)
 - R5-3: `aagBoundaryGuard` が active で landing 場所制約検証
-- R5-4: 944 test 維持
-- R5-5 (反証): synthetic で operational-protocol-system M1 deliverable を別 path に articulate 試行 → `aagBoundaryGuard` で fail
+- R5-4: operational-protocol-system project HANDOFF.md に「**新構造前提 plan refinement task**」が articulate (= grep で plan refinement keyword ≥ 1 mention)
+- R5-5: 944 test 維持
+- R5-6 (反証): synthetic で operational-protocol-system M1 deliverable を別 path に articulate 試行 → `aagBoundaryGuard` で fail
 
 ### Phase R6: AAG self-hosting closure articulate update + projects/ split + template migrate
 

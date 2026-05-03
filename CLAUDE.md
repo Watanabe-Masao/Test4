@@ -5,6 +5,24 @@
 仕入荒利管理システム（shiire-arari）。小売業の仕入・売上・在庫データから粗利計算・
 予算分析・売上要因分解・需要予測を行うSPA。
 
+## 3 tree boundary (= reader-別 routing、第一階層)
+
+> **R0 (境界定義先行) で articulate**: 本 repo は 3 tree (= references / aag / projects) で構造化。各 tree は **reader 別 + 役割別** に articulate されており、AI / 人間が物理配置を見て「読む / 読まない」を即判断可能。
+
+| tree | 役割 | reader |
+|---|---|---|
+| **`references/`** | 主アプリ (粗利管理ツール) 改修 AI / 人間の **knowledge interface** (= 業務 domain knowledge + 主アプリ実装ガイド + 動的 state observation + 主アプリ改修者が使う AAG public interface) | 主アプリ改修 AI / 人間 |
+| **`aag/`** | **AAG framework 本体** (= 内部 articulation + framework 実装 skeleton)。主アプリ改修者は通常 not read | AAG framework 改修者のみ |
+| **`projects/`** | **作業単位 lens** (= active + completed projects)、状態正本でも進捗集約でもない | 全 reader (= 作業 context 把握) |
+
+**主アプリ改修 AI が AAG framework 内部 (= `aag/`) を読む必要はない**。AAG が AI に提供する drawer / protocols / operations は `references/05-aag-interface/` (R2 で landing 予定) に articulate される。
+
+詳細: `references/README.md` + `aag/README.md` + projects/ root の README.md。進行中 structural reorganization は `projects/aag-self-hosting-completion/plan.md` 参照。
+
+`CURRENT_PROJECT.md` は **active project pointer 限定** (= 詳細進捗 / 判断 inline 記載禁止、二重管理防止)。
+
+命名規約予告 (= R3 以降適用): 機械生成 file は `*.generated.md` suffix で明示 (= 手編集禁止、`generatedFileEditGuard` で機械検証予定)。
+
 ## CLAUDE.md Test Contract
 
 本ファイルは複数の guard が要求する暗黙のテスト依存を持つ。
