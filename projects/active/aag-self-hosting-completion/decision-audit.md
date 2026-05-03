@@ -1045,12 +1045,12 @@ R6a (= self-hosting closure articulate + selfHostingGuard expansion) 完了で *
 
 ### Commit Lineage
 
-- judgementCommit: `<実 sha = 本 R6b 実装 commit>`
+- judgementCommit: `aa00734`
 - preJudgementCommit: `71d710d` (= R6a Lineage update)
-- judgementTag: `aag-self-hosting-completion/DA-α-007b-judgement` (= 本 commit に landing 予定)
+- judgementTag: `aag-self-hosting-completion/DA-α-007b-judgement` (= `aa00734` に landing 済)
 - rollbackTag: `aag-self-hosting-completion/DA-α-007b-rollback-target` (= `71d710d` に landing 済)
 - implementationCommits:
-  - `<本 commit sha>` — R6b 全実装
+  - `aa00734` — R6b 全実装 (= 6 project git mv + 75 inbound update + 8 file discovery 関数 update + projectRoot field update + regen)
 
 ### 振り返り (R6b 完了直後 = TBD)
 
