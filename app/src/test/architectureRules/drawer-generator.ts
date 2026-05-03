@@ -23,7 +23,7 @@
  *   (= rule 全 field を含む single canonical artifact)、本 A5 では生成しない。
  *
  * @responsibility R:utility
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * @see app/src/test/architectureRules/merge-artifact-generator.ts (A2b、本 generator の sibling)
  */
 

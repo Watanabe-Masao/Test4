@@ -7,7 +7,7 @@
  *
  * 検証:
  * - 各 rule で metaRequirementRefs.status='bound' の場合、refs[].requirementId が
- *   `references/01-principles/aag/meta.md` 内で `AAG-REQ-*` として articulate されていること
+ *   `aag/_internal/meta.md` 内で `AAG-REQ-*` として articulate されていること
  * - aag/meta.md §2 で articulate された AAG-REQ-* で、どの rule の metaRequirementRefs にも
  *   bound されていない orphan requirementId は warning level (本 MVP は warn のみ、
  *   hard fail は forward direction の path 実在のみ)
@@ -26,7 +26,7 @@ import * as path from 'path'
 import { ARCHITECTURE_RULES } from '../architectureRules'
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..')
-const META_DOC_PATH = path.resolve(REPO_ROOT, 'references/01-principles/aag/meta.md')
+const META_DOC_PATH = path.resolve(REPO_ROOT, 'aag/_internal/meta.md')
 
 function loadKnownRequirementIds(): Set<string> {
   if (!fs.existsSync(META_DOC_PATH)) {

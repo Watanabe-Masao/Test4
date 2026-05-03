@@ -10,7 +10,7 @@
 
 | Phase | 旧 path | 新 path | 影響範囲 |
 |---|---|---|---|
-| R1 | `references/01-principles/aag/<doc>.md` (9 doc) | `aag/_internal/<doc>.md` | 101 inbound link (= 全 file 内 reference) |
+| R1 | `aag/_internal/<doc>.md` (9 doc) | `aag/_internal/<doc>.md` | 101 inbound link (= 全 file 内 reference) |
 | R2 | `references/03-guides/decision-articulation-patterns.md` | **`references/05-aag-interface/drawer/decision-articulation-patterns.md`** | 該当 inbound 全 update |
 | R2 | `references/03-guides/{projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` (4 doc) | **`references/05-aag-interface/operations/<doc>.md`** | 該当 inbound 全 update |
 | R3 | `references/01-principles/<doc>.md` | `references/01-foundation/<doc>.md` | 多数 (= 主アプリ業務 doc 全 reference) |
@@ -71,7 +71,7 @@
 
 ### R1 移行方針
 
-1. `aag/_internal/` 新設 + `references/01-principles/aag/` 9 doc を `git mv` で物理移動 (= git history 保持)
+1. `aag/_internal/` 新設 + `aag/_internal/` 9 doc を `git mv` で物理移動 (= git history 保持)
 2. 移動直後に grep で 101 inbound link 抽出
 3. inbound link を新 path (= aag/_internal/) に sed で全 update (= bulk rewrite)
 4. guard / collector の path constants 該当箇所を grep + update

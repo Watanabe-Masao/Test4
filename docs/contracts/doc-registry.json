@@ -80,39 +80,39 @@
           "label": "AAG 変更 PR の Impact Section 記入要領（Phase Q.M-1）"
         },
         {
-          "path": "references/01-principles/aag/README.md",
+          "path": "aag/_internal/README.md",
           "label": "AAG ディレクトリ index — Layer 0+1 (Meta) / Layer 2+3 (Core) / Layer 4 (Audit) の単一エントリ。CLAUDE.md AAG セクションからの 1 link entry"
         },
         {
-          "path": "references/01-principles/aag/meta.md",
+          "path": "aag/_internal/meta.md",
           "label": "AAG Meta charter — Layer 0 (目的) + Layer 1 (要件、AAG-REQ-* namespace 12 件 = 不変条件 7 + 禁則 5) + §3 AAG Core 構成要素 mapping (5 層 × 5 縦スライス matrix + Layer 4 audit framework) + §4 達成判定総括。要件定義 + audit framework + AR-rule binding hub の 3 機能融合 mechanism doc"
         },
         {
-          "path": "references/01-principles/aag/strategy.md",
+          "path": "aag/_internal/strategy.md",
           "label": "AAG Strategy — 戦略マスター + 文化論 + 意図的に残す弱さ (Layer 0+1)。旧 adaptive-architecture-governance.md の戦略 + 文化論 part を Split + Rewrite (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/architecture.md",
+          "path": "aag/_internal/architecture.md",
           "label": "AAG Architecture — 5 層構造定義 + 旧 4 層 → 新 5 層 mapping (Layer 1+2、AAG-REQ-LAYER-SEPARATION 達成 trigger)。旧 aag-5-constitution.md を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/evolution.md",
+          "path": "aag/_internal/evolution.md",
           "label": "AAG Evolution — 進化動学 = Discovery / Accumulation / Evaluation (Layer 1+2)。旧 adaptive-governance-evolution.md を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/operational-classification.md",
+          "path": "aag/_internal/operational-classification.md",
           "label": "AAG Operational Classification — now / debt / review 運用区分 (Layer 2 governance-ops)。旧 aag-operational-classification.md を Rewrite + Relocate (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/source-of-truth.md",
+          "path": "aag/_internal/source-of-truth.md",
           "label": "AAG Source of Truth — 正本 / 派生物 / 運用物 区分ポリシー (Layer 2 governance-ops)。旧 aag-5-source-of-truth-policy.md を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/layer-map.md",
+          "path": "aag/_internal/layer-map.md",
           "label": "AAG Layer Map — ファイル別 5 層マッピング (Layer 2 reference)。旧 references/99-archive/aag-5-layer-map.md (Phase 5.1 archived) を Rewrite + Relocate + Rename (Project A Phase 1)"
         },
         {
-          "path": "references/01-principles/aag/display-rule-registry.md",
+          "path": "aag/_internal/display-rule-registry.md",
           "label": "Display Rule Registry (DFR) — Layer 2 製本、AAG bidirectional integrity の最初の concrete instance (Project C Phase 1 deliverable、aag-display-rule-registry project)。DFR-001 chart semantic color (実績=緑/推定=オレンジ) + DFR-002 axis formatter via useAxisFormatter + DFR-003 percent via formatPercent (小数第2位) + DFR-004 currency via formatCurrency (thousands separator 明文化、content-and-voice.md の旧 not enforced 記述を update) + DFR-005 icon via pageRegistry / emoji canonical を articulate。Project B の SemanticTraceBinding schema + 4 meta-guard を utilize し forward / reverse direction 機械検証成立 (Phase 2-4 で landing)"
         },
         {

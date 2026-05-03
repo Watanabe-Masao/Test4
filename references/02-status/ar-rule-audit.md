@@ -66,7 +66,7 @@
 ### §2.5 path 実在 (forward direction の参照健全性)
 
 - `canonicalDocRef.refs[].docPath` が指す path は repository 内に **実在 file** であること (deleted file は hard fail)
-- `metaRequirementRefs.refs[].requirementId` は `references/01-principles/aag/meta.md` §2 の `AAG-REQ-*` namespace に存在すること (Phase 4 の `canonicalDocBackLinkGuard` が逆引きで検証)
+- `metaRequirementRefs.refs[].requirementId` は `aag/_internal/meta.md` §2 の `AAG-REQ-*` namespace に存在すること (Phase 4 の `canonicalDocBackLinkGuard` が逆引きで検証)
 
 > **rationale**: 参照健全性が壊れた状態で `bound` を articulate すると、forward direction の trace が無効化される。`semanticArticulationQualityGuard` が path 実在を機械検証することで、refactor / archive 時の参照壊れを即座に gate severity で拒否する。
 
@@ -204,7 +204,7 @@ semanticArticulationQuality / statusIntegrity)。親 plan §3.1.5 で articulate
 | doc                                                  | 役割                                                                            |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `projects/completed/aag-bidirectional-integrity/plan.md` §3.4  | SemanticTraceBinding 設計の正本 (型 schema 含む)                                |
-| `references/01-principles/aag/meta.md` §2            | `AAG-REQ-*` requirement 12 件の供給元                                           |
+| `aag/_internal/meta.md` §2            | `AAG-REQ-*` requirement 12 件の供給元                                           |
 | `app/src/test/aag-core-types.ts`                     | 型実装 (Project B Phase 1 で landing)                                           |
 | `app-domain/gross-profit/rule-catalog/base-rules.ts` | binding 物理正本 (Project B Phase 2 で initial value 装着、Phase 3 で順次 flip) |
 | `projects/completed/aag-rule-schema-meta-guard/`               | Project B 本体                                                                  |

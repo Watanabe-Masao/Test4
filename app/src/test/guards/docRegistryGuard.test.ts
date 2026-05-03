@@ -194,7 +194,7 @@ describe('Doc Registry Guard: ドキュメントレジストリの整合性', ()
   })
 
   it('AAG 正本文書が参照する子ドキュメントが全て実在する', () => {
-    const aagPath = path.join(PROJECT_ROOT, 'references/01-principles/aag/README.md')
+    const aagPath = path.join(PROJECT_ROOT, 'aag/_internal/README.md')
     const content = fs.readFileSync(aagPath, 'utf-8')
     const refPattern = /`(references\/[^`]+\.(?:md|json))`/g
     const refPaths: RegisteredPath[] = []

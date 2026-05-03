@@ -68,14 +68,14 @@
       "Explanation L1-L3": ["references/03-guides/explanation-architecture.md"],
       "設計原則": ["references/01-principles/design-principles.md"],
       "AAG": [
-        "references/01-principles/aag/README.md",
-        "references/01-principles/aag/meta.md",
-        "references/01-principles/aag/strategy.md",
-        "references/01-principles/aag/architecture.md",
-        "references/01-principles/aag/evolution.md",
-        "references/01-principles/aag/operational-classification.md",
-        "references/01-principles/aag/source-of-truth.md",
-        "references/01-principles/aag/layer-map.md"
+        "aag/_internal/README.md",
+        "aag/_internal/meta.md",
+        "aag/_internal/strategy.md",
+        "aag/_internal/architecture.md",
+        "aag/_internal/evolution.md",
+        "aag/_internal/operational-classification.md",
+        "aag/_internal/source-of-truth.md",
+        "aag/_internal/layer-map.md"
       ],
       "コーディング規約": ["references/03-guides/coding-conventions.md"],
       "リファクタリング判断": [

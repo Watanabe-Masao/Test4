@@ -13,7 +13,7 @@
  *
  * 出力: `docs/generated/aag/merged-architecture-rules.json`
  *
- * @see references/01-principles/aag/source-of-truth.md §4 (Merge Policy canonical)
+ * @see aag/_internal/source-of-truth.md §4 (Merge Policy canonical)
  * @see ./merge-artifact-generator.ts (generator core)
  *
  * @taxonomyKind T:unclassified

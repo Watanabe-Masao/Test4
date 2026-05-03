@@ -105,7 +105,7 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 | subsystem id | owner | layer | 該当 feature | 現在 stage | 目標 stage | 8 軸 articulation source |
 |---|---|---|---|---|---|---|
-| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/completed/aag-platformization/plan.md` + `references/01-principles/aag/source-of-truth.md` + DA-α-002a〜006 (6 entry) |
+| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/completed/aag-platformization/plan.md` + `aag/_internal/source-of-truth.md` + DA-α-002a〜006 (6 entry) |
 
 **Pilot complete の意味**:
 
@@ -130,7 +130,7 @@ facade は consumer が変わらないことを保証するためだけに存在
 2. **facade は権限を持たせない** — `architectureRules.ts` のような facade は維持、ただし merge / policy / 意味は持たせない
 3. **merge policy を曖昧にしない** — 各 subsystem に merge policy を A2 で明示、comment と挙動を一致させる
 4. **generated は派生に閉じる** — canonical 側に逆流させない
-5. **新概念を追加しない** — 既存 articulate の枠で gap を埋める (`references/01-principles/aag/strategy.md` §1.1「正本を増やさない」)
+5. **新概念を追加しない** — 既存 articulate の枠で gap を埋める (`aag/_internal/strategy.md` §1.1「正本を増やさない」)
 
 ## §6 Pilot 実装条件 (AAG の場合)
 
@@ -150,10 +150,10 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 | パス | 役割 |
 |---|---|
 | `projects/completed/aag-platformization/` | Pilot Application |
-| `references/01-principles/aag/source-of-truth.md` | AAG の A1 Authority articulate (Pilot example) |
-| `references/01-principles/aag/architecture.md` | AAG の Layer 構造 (5 layer drill-down) |
+| `aag/_internal/source-of-truth.md` | AAG の A1 Authority articulate (Pilot example) |
+| `aag/_internal/architecture.md` | AAG の Layer 構造 (5 layer drill-down) |
 | `aag/core/principles/core-boundary-policy.md` | Core / App Domain / Project Overlay の boundary 原則 (8 軸 A1 / A4 / A6 適用) |
-| `references/01-principles/aag/operational-classification.md` | AAG の A7 Policy + A8 Gate articulate |
+| `aag/_internal/operational-classification.md` | AAG の A7 Policy + A8 Gate articulate |
 
 ## §8 status
 
@@ -163,7 +163,7 @@ C1-C4 全 met → AAG が Pilot として完成、Go 実装条件成立、横展
 
 ## §9 Standard does / does NOT (capability boundary)
 
-本 Standard が articulate する範囲を明示。**Standard 自身が capability boundary を articulate する** = `references/01-principles/aag/strategy.md` 鉄則 5 (床保証 articulate) と同 lens の self-application。
+本 Standard が articulate する範囲を明示。**Standard 自身が capability boundary を articulate する** = `aag/_internal/strategy.md` 鉄則 5 (床保証 articulate) と同 lens の self-application。
 
 ### Standard does (= 本 Standard の責務範囲)
 

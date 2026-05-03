@@ -210,7 +210,7 @@ page identification icon は **`pageRegistry` 経由のみ** を許容:
 
 ## §7 implementation 接続 (Phase 2 + Phase 3 で landing)
 
-本 §1〜§6 で articulate された DFR-001〜005 は、Project C Phase 2 で `app-domain/gross-profit/rule-catalog/base-rules.ts` の `ARCHITECTURE_RULES` に rule entry として登録される (`canonicalDocRef.refs[].docPath = 'references/01-principles/aag/display-rule-registry.md'`)。Phase 3 で `app/src/test/guards/displayRuleGuard.test.ts` が landing し、observed drift を baseline 化した状態で Layer 3 検証が稼働する。
+本 §1〜§6 で articulate された DFR-001〜005 は、Project C Phase 2 で `app-domain/gross-profit/rule-catalog/base-rules.ts` の `ARCHITECTURE_RULES` に rule entry として登録される (`canonicalDocRef.refs[].docPath = 'aag/_internal/display-rule-registry.md'`)。Phase 3 で `app/src/test/guards/displayRuleGuard.test.ts` が landing し、observed drift を baseline 化した状態で Layer 3 検証が稼働する。
 
 完了状態 (Phase 4 後):
 

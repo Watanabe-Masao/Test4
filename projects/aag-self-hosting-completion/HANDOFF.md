@@ -80,6 +80,6 @@ R3 で `references/03-guides/` rename 時に同時実施。`.github/PULL_REQUEST
 | `decision-audit.md` | 重判断 institution + DA-α-000 |
 | `projectization.md` | AAG-COA 判定 (Level 3 + architecture-refactor) |
 | `references/03-guides/decision-articulation-patterns.md` | drawer Pattern 1-6 application source |
-| `references/01-principles/aag/meta.md` | AAG-REQ-SELF-HOSTING (R6 update 対象) |
+| `aag/_internal/meta.md` | AAG-REQ-SELF-HOSTING (R6 update 対象) |
 | `projects/operational-protocol-system/HANDOFF.md` §3.6 | R5 完了後再開 articulated |
 | `projects/completed/aag-platformization/` | AAG Pilot (= motivation source) |

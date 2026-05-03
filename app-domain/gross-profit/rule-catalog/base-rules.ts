@@ -5538,7 +5538,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     guardTags: ["G1", "F8"],
     slice: "governance-ops",
     epoch: 1,
-    doc: "references/01-principles/aag/strategy.md",
+    doc: "aag/_internal/strategy.md",
     what: "文書中のハードコード数値は generated section か例外リストで管理する",
     why: "静的数値は code と乖離して嘘になる。drift を機械的に検出する",
     correctPattern: {
@@ -5566,7 +5566,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/strategy.md",
+          docPath: "aag/_internal/strategy.md",
           problemAddressed:
             "strategy で articulate された前提に対し、文書に「N ルール」「N テスト」等をハードコードする のパターンが残ると、静的数値は code と乖離して嘘になる。drift を機械的に検出する という構造的な不整合が発生する",
           resolutionContribution:
@@ -8887,12 +8887,12 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     confidence: "high",
     maturity: "stable",
-    doc: "references/01-principles/aag/meta.md",
+    doc: "aag/_internal/meta.md",
     what: "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING が AR-rule の metaRequirementRefs に bound + 同 rule が aag/meta.md を canonicalDocRef として指す (self-reference closure)",
     why: "AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked) を構造的に達成する self-reference closure を確立する。本 rule 自身が closure の起点 (= AAG-REQ-SELF-HOSTING を bind しつつ aag/meta.md を canonicalDocRef として参照) であり、selfHostingGuard.test.ts が closure の構造的整合を機械検証する。closure 不在では meta.md が孤立し、framework 自身が AR-rule の保護対象から外れる構造的盲点となる",
     correctPattern: {
       description:
-        "AR-AAG-META-SELF-HOSTING rule が (a) metaRequirementRefs.refs[].requirementId='AAG-REQ-SELF-HOSTING' (b) canonicalDocRef.refs[].docPath='references/01-principles/aag/meta.md' を同時に articulate し、selfHostingGuard.test.ts が両 condition を hard fail で検証",
+        "AR-AAG-META-SELF-HOSTING rule が (a) metaRequirementRefs.refs[].requirementId='AAG-REQ-SELF-HOSTING' (b) canonicalDocRef.refs[].docPath='aag/_internal/meta.md' を同時に articulate し、selfHostingGuard.test.ts が両 condition を hard fail で検証",
     },
     outdatedPattern: {
       description:
@@ -8909,7 +8909,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     migrationRecipe: {
       steps: [
         "1. 本 rule の metaRequirementRefs.refs[] に { requirementId: 'AAG-REQ-SELF-HOSTING', problemAddressed, resolutionContribution } を articulate",
-        "2. 本 rule の canonicalDocRef.refs[] に { docPath: 'references/01-principles/aag/meta.md', problemAddressed, resolutionContribution } を articulate",
+        "2. 本 rule の canonicalDocRef.refs[] に { docPath: 'aag/_internal/meta.md', problemAddressed, resolutionContribution } を articulate",
         "3. selfHostingGuard.test.ts を実行して closure 構造を hard fail で検証",
       ],
     },
@@ -8926,7 +8926,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/meta.md",
+          docPath: "aag/_internal/meta.md",
           problemAddressed:
             "aag/meta.md §2 で articulate された AAG-REQ-SELF-HOSTING (= AAG が AAG を守る、aag/meta.md 自身が AR-rule に linked、meta-rule が自分自身を検証) が rule cluster に bound されないと、meta.md が孤立し framework が自己保護対象から外れる構造的盲点となる",
           resolutionContribution:
@@ -10438,7 +10438,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     ruleClass: "invariant",
     guardTags: ["G1"],
     epoch: 1,
-    doc: "references/01-principles/aag/strategy.md",
+    doc: "aag/_internal/strategy.md",
     what: "`.github/workflows/*.yml` の `actions/checkout@*` step に対して、full git history が必要な job では `with: fetch-depth: 0` の指定を強制する (allowlist された job 以外)",
     why: "PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch-depth: 1`) で false-positive 一括 fail を起こす事故が発生。fast-gate / docs-health / test-coverage / content-specs-impact の checkout に明示 `fetch-depth: 0` を追加して解決したが、新 workflow / 新 job 追加時に同種事故が再発する構造的リスクが残る。本 rule は workflow YAML を機械検証して『git log を読む test を含む job は fetch-depth: 0 必須』を hard fail で強制する",
     correctPattern: {
@@ -10478,7 +10478,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/strategy.md",
+          docPath: "aag/_internal/strategy.md",
           problemAddressed:
             "strategy で articulate された前提に対し、full history を必要とする job (test:guards 等を実行) で actions/checkout に fetch-depth 指定な… のパターンが残ると、PR #1205 で contentSpecLastSourceCommitGuard が shallow clone (default `fetch…",
           resolutionContribution:
@@ -10511,7 +10511,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "chart の semantic color (実績=緑 / 推定=オレンジ) を hex 直書きでなく theme token 経由で表現する",
     why: "実績と推定の色彩境界が崩れると UI/UX 原則 1 (実績と推定は別世界) の業務的意味が破壊される",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "presentation/theme/tokens.ts の chartSemanticColors.actualCount / .estimatedCount 経由で color を取得",
@@ -10540,7 +10540,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §2 で articulate された前提に対し、chart 内 hex 直書きが残ると UI/UX 原則 1 の semantic 軸 (実績=緑 / 推定=オレンジ) が崩れ、実績と推定の境界が視覚的に消失する",
           resolutionContribution:
@@ -10578,7 +10578,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "chart axis の formatter は useAxisFormatter hook 経由のみを許容",
     why: "axis formatter が散在すると同義 API 併存が発生し、表示規約の単一正本性が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "useAxisFormatter('number' | 'date' | 'percent' | 'currency') を chart component から呼び出して axis label format を取得",
@@ -10606,7 +10606,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §3 で articulate された前提に対し、chart axis formatter が inline 散在すると、useAxisFormatter という単一正本の意味が消失し同義 API 併存が累積する",
           resolutionContribution:
@@ -10637,7 +10637,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "percent 表示は formatPercent 関数経由のみを許容 (小数第 2 位)",
     why: "percent 表示の散在は formatPercent の単一正本性を崩し、丸め桁数の drift を招く",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description: "formatPercent(rate) を import して percent 表示を構築",
     },
@@ -10664,7 +10664,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §4 で articulate された前提に対し、percent 表示の inline 計算が残ると、formatPercent の単一正本性が崩れ丸め桁数の drift が累積する",
           resolutionContribution:
@@ -10695,7 +10695,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "currency (金額) 表示は formatCurrency 関数経由のみを許容 (thousands separator 強制)",
     why: "currency 表示の散在は thousands separator の drift を招き、registry §5 の convention が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description:
         "formatCurrency(value) を import して currency 表示を構築 (¥ prefix + thousands separator)",
@@ -10723,7 +10723,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §5 で articulate された前提に対し、currency 表示の inline 構築が残ると thousands separator が drift し、registry が固定した convention が崩れる",
           resolutionContribution:
@@ -10754,7 +10754,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
     epoch: 1,
     what: "page identification icon は pageRegistry 経由のみを許容 (emoji canonical / SVG shared component)",
     why: "page icon の複数箇所 alias / fork は registry の意味を消失させ、navigation / breadcrumb / header 間で page identification の整合性が崩れる",
-    doc: "references/01-principles/aag/display-rule-registry.md",
+    doc: "aag/_internal/display-rule-registry.md",
     correctPattern: {
       description: "pageRegistry[pageId].icon を import して page icon を取得",
     },
@@ -10781,7 +10781,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
       status: "bound",
       refs: [
         {
-          docPath: "references/01-principles/aag/display-rule-registry.md",
+          docPath: "aag/_internal/display-rule-registry.md",
           problemAddressed:
             "display-rule-registry §6 で articulate された前提に対し、page icon が複数箇所で alias / fork されると、navigation / breadcrumb / header 間で page identification の整合性が崩れ registry の意味が消失する",
           resolutionContribution:

@@ -19,8 +19,8 @@
  *
  * @responsibility R:unclassified
  * @see aag/core/AAG_CORE_INDEX.md — Core 入口
- * @see references/01-principles/aag/architecture.md — 4層構造定義
- * @see references/01-principles/aag/source-of-truth.md — 正本ポリシー
+ * @see aag/_internal/architecture.md — 4層構造定義
+ * @see aag/_internal/source-of-truth.md — 正本ポリシー
  */
 
 import type { SemanticClass, AuthorityKind, RuntimeStatus } from './calculationCanonRegistry'

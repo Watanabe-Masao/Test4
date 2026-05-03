@@ -4,7 +4,7 @@
 > change-bearing 作業全般で再利用可能な articulation pattern 集。
 >
 > **primary 適用領域**: 主アプリ改修。各 pattern は **領域 agnostic** に articulate されており、
-> 本 doc を引いた AI / 人間は **AAG framework 内部 (= `references/01-principles/aag/` + `aag/core/`) を一切読まずに** 適用できる
+> 本 doc を引いた AI / 人間は **AAG framework 内部 (= `aag/_internal/` + `aag/core/`) を一切読まずに** 適用できる
 > (= AAG が AI に提供する「引き出し」の core instance、本 doc が AAG への primary entry)。
 >
 > **重要**: 主アプリ改修で AAG framework articulate (= meta.md / strategy.md / architecture.md / etc.) を読みたくなった場合、それは **drawer の articulate 不足**を意味する可能性 (= 該当 Pattern が articulate されていない / 既存 Pattern が application 不足) が高い。drawer 経由で reach 不能な場合のみ AAG sub-tree を consult する (= drawer は `主アプリ AI ↔ AAG framework` の唯一の正規 interface)。
@@ -20,7 +20,7 @@
 
 | 領域 | 配置先 | 性質 |
 |---|---|---|
-| AAG framework 自身の安全性 / 信頼性 / 境界 / 自己改善性 | `references/01-principles/aag/` | AAG 内部 invariant、本 drawer に持ち込まない |
+| AAG framework 自身の安全性 / 信頼性 / 境界 / 自己改善性 | `aag/_internal/` | AAG 内部 invariant、本 drawer に持ち込まない |
 | 本アプリの business logic / 業務知識 (粗利計算 / シャープリー / DuckDB 等) | `references/01-principles/` 業務系 doc | 業務固有 |
 | 個別 program の Phase 構造 | each program の `plan.md` | program 固有 |
 
@@ -250,11 +250,11 @@ self-test 違反が検出された場合は **抽象化境界違反**、当該 p
 
 - AI session 開始時に `.claude/manifest.json` の `discovery` 経由で reach 可能 (= byTopic / byExpertise)
 - 各 pattern の "Application instances" は **複数想定**: 後続で主アプリ改修事例 / framework 改修事例が landing したら append (= drawer の self-extend、各事例 owner が責任 articulate)
-- 本 drawer 利用時に **AAG framework 内部 (= `references/01-principles/aag/`) を読む必要はない**
+- 本 drawer 利用時に **AAG framework 内部 (= `aag/_internal/`) を読む必要はない**
 
 ## 関連 doc (任意参照)
 
-- AAG framework 自身の articulation: `references/01-principles/aag/README.md` (本 drawer は AAG が提供する「引き出し」の 1 instance、AAG 内部の articulation は本 drawer 利用 AI が読む必要なし)
+- AAG framework 自身の articulation: `aag/_internal/README.md` (本 drawer は AAG が提供する「引き出し」の 1 instance、AAG 内部の articulation は本 drawer 利用 AI が読む必要なし)
 - 設計原則 (A-I+Q): `references/01-principles/design-principles.md`
 - リファクタリング判断: `references/01-principles/canonicalization-principles.md`
 - AAG-COA (project 立ち上げ前判定): `references/03-guides/projectization-policy.md`

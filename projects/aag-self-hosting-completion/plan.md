@@ -77,7 +77,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 **deliverable**:
 
-- `aag/_internal/` 新設 + `references/01-principles/aag/` 9 doc を移動 (= meta.md / strategy.md / architecture.md / evolution.md / source-of-truth.md / operational-classification.md / layer-map.md / display-rule-registry.md / README.md)
+- `aag/_internal/` 新設 + `aag/_internal/` 9 doc を移動 (= meta.md / strategy.md / architecture.md / evolution.md / source-of-truth.md / operational-classification.md / layer-map.md / display-rule-registry.md / README.md)
 - `aag/_framework/` skeleton 新設 (= rules / collectors / generators / schemas / fixtures の subdirectory + README、後続 phase で AAG framework 実装の物理移動を準備、本 R1 では skeleton のみ)
 - 101 inbound link を新 path (= aag/_internal/) に全 update
 - guard / collector の path constants 該当箇所 update (= aag-related guard 群)
@@ -384,7 +384,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。本 commit (b19518
 
 | 現 path | 新 path | Phase |
 |---|---|---|
-| `references/01-principles/aag/*` (9 doc) | `aag/_internal/*` | R1 |
+| `aag/_internal/*` (9 doc) | `aag/_internal/*` | R1 |
 | `aag/_framework/{rules,collectors,generators,schemas,fixtures}/` (skeleton) | (新設、AAG framework 実装の物理移動は別 program、本 R1 では skeleton のみ) | R1 |
 | `references/03-guides/decision-articulation-patterns.md` | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | R2 |
 | `references/03-guides/projectization-policy.md` | `references/05-aag-interface/operations/projectization-policy.md` | R2 |
@@ -537,7 +537,7 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 
 | Phase | 撤退対象 | 撤退 verify |
 |---|---|---|
-| **R1** | `references/01-principles/aag/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagBoundaryGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `references/01-principles/aag/` 文字列 0 件 |
+| **R1** | `aag/_internal/` 9 doc 物理 file + 旧 path への inbound link 101 件 + aag-related guard / collector の旧 path constants | `aagBoundaryGuard` で aag/_internal/ 外への AAG framework 内部 doc 配置 0 件、grep で `aag/_internal/` 文字列 0 件 |
 | **R2** | `references/03-guides/{decision-articulation-patterns,projectization-policy,project-checklist-governance,new-project-bootstrap-guide,deferred-decision-pattern}.md` 物理 file + inbound link + guard / collector path | `aagBoundaryGuard` + `aagBoundaryGuard` で aag/ 配下に主アプリ改修者向け doc 0 件 + references/05-aag-interface/ 外への AAG public interface doc 0 件 |
 | **R3** | 旧 5 directory (`01-principles/`, `02-status/`, `03-guides/` 残部, `04-design-system/`, `05-contents/`) 物理 directory + 1,000+ inbound link + 138 guard / collector path constants + doc-registry / manifest entry path + generator 出力先 path + **PR template (`.github/PULL_REQUEST_TEMPLATE.md`) 内 旧 path 参照** + **CLAUDE.md 内 旧 section path** + 旧 naming (`recent-changes.md` suffix なし、`02-status/generated/*.md` suffix なし) | `oldPathReferenceGuard` で旧 path 文字列 0 件、`generatedFileEditGuard` で `*.generated.md` 手編集 0 件 |
 | **R4** | (= R3 で撤退済の延長、新 element 構造移行) | `elementStructureGuard` で旧 ID prefix 違反 0 件 |
@@ -570,8 +570,8 @@ R6 で `aag/_internal/meta.md` §2.1 articulate 拡張:
 
 各 R-phase 完了時の撤退 verify は **3 軸**:
 
-1. **物理 verify**: 旧 path に file 0 件 (= `find references/01-principles/aag/ -type f` で 0 件等)
-2. **string verify**: 旧 path 文字列 reference 0 件 (= `grep -r "references/01-principles/aag/" .` で 0 件、archive-to-archive 例外除く)
+1. **物理 verify**: 旧 path に file 0 件 (= `find aag/_internal/ -type f` で 0 件等)
+2. **string verify**: 旧 path 文字列 reference 0 件 (= `grep -r "aag/_internal/" .` で 0 件、archive-to-archive 例外除く)
 3. **functional verify**: 旧 path 経路で reach 試行 → fail (= 旧 path 想定の test が必ず fail)
 
 3 軸全 PASS で撤退完了、いずれか fail なら R-phase 未完了。

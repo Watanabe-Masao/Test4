@@ -84,7 +84,7 @@ export function checkRatchetDown(
  * 4. 例外がありうるか（decisionCriteria.exceptions）
  * 5. 深掘り先（doc）
  *
- * @see references/01-principles/aag/architecture.md
+ * @see aag/_internal/architecture.md
  */
 export function formatViolationMessage(
   rule: ArchitectureRule,

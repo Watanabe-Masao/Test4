@@ -83,7 +83,7 @@ cp derived/test-plan.md test-plan.md          # 必要なら
 - `reviewPolicy`: `app/src/test/aag-core-types.ts` の `DEFAULT_REVIEW_POLICY_STUB` (owner=`'unassigned'` / lastReviewedAt=`null` / reviewCadenceDays=`90`) から補完
 
 詳細な merge 解決順序 / reviewPolicy 契約 / resolvedBy 追跡は **canonical**:
-[`references/01-principles/aag/source-of-truth.md` §4 (Merge Policy)](../01-principles/aag/source-of-truth.md) を参照。
+[`aag/_internal/source-of-truth.md` §4 (Merge Policy)](../01-principles/aag/source-of-truth.md) を参照。
 
 案件固有の override が必要になったら、上書きしたい rule / field だけを明示的に書く:
 

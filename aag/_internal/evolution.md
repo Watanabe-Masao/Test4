@@ -80,7 +80,7 @@ AI / 人間が新パターン (responsibility 混在 / 重複 articulation / pro
 | **AR-rule 仕様** (`what` / `why` / `correctPattern` / `outdatedPattern`) | `app-domain/gross-profit/rule-catalog/base-rules.ts` (BaseRule 物理正本) | `architectureRuleGuard` |
 | **検出実装** (手続的 logic) | `app/src/test/guards/<rule-name>.test.ts` | `test:guards` |
 | **allowlist baseline** (例外管理) | `app/src/test/allowlists/*.ts` | `health-rules.ts` ratchet-down |
-| **canonical doc 製本** (rule の supports doc) | `references/01-principles/aag/<doc>.md` 等 | `docRegistryGuard` / `canonicalDocRefIntegrityGuard` (Phase 8 MVP) |
+| **canonical doc 製本** (rule の supports doc) | `aag/_internal/<doc>.md` 等 | `docRegistryGuard` / `canonicalDocRefIntegrityGuard` (Phase 8 MVP) |
 | **semantic binding** (AR-rule → canonical doc / requirement) | `base-rules.ts` の `canonicalDocRef` + `metaRequirementRefs` (Project B Phase 1〜2) | `semanticArticulationQualityGuard` (Phase 8 MVP) |
 
 ### §3.3 蓄積の段階

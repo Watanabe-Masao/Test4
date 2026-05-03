@@ -34,7 +34,7 @@
 ## Phase R1: AAG sub-tree relocation
 
 - [ ] DA-α-002 entry landing
-- [ ] `aag/_internal/` 新設 + `references/01-principles/aag/` 9 doc 物理移動
+- [ ] `aag/_internal/` 新設 + `aag/_internal/` 9 doc 物理移動
 - [ ] `aag/_framework/` skeleton 新設 (= rules / collectors / generators / schemas / fixtures + README)
 - [ ] 101 inbound link 新 path に全 update
 - [ ] guard / collector path constants 該当箇所 update (= aag-related guard 群)

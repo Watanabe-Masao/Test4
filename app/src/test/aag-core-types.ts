@@ -194,7 +194,7 @@ export interface RuleOperationalState {
 
 // ─── Project Overlay 共通型 (Pilot A2a で集約、三重定義解消) ──────────
 //
-// canonical 単一点: references/01-principles/aag/source-of-truth.md §4 (Merge Policy)
+// canonical 単一点: aag/_internal/source-of-truth.md §4 (Merge Policy)
 //
 // `RuleExecutionOverlayEntry` はかつて _template / pure-calculation-reorg /
 // aag-platformization の 3 file で個別に重複定義されていた (本 file が
@@ -296,7 +296,7 @@ export interface RuleDetectionSpec {
  *
  * 空配列との明示的差別化: 「未対応」と「該当しない」を構造的に区別する。
  *
- * @see references/01-principles/aag/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
+ * @see aag/_internal/meta.md §AAG-REQ-SEMANTIC-ARTICULATION
  */
 export type TraceBindingStatus = 'pending' | 'not-applicable' | 'bound'
 

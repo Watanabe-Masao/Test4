@@ -28,7 +28,7 @@ structural reorganization により references/ + aag/ + projects/ の boundary 
 本 project は **AAG framework の品質完成** を目的とする:
 
 - AAG が「意味 / 境界 / 依存関係」を articulate する framework であるにも関わらず、entry navigation level でその articulate rigor を満たしていない self-contradiction
-- 主アプリ改修 AI が AAG 内部 (= references/01-principles/aag/) を読まずに作業できる state を articulate (= 構造的 boundary)
+- 主アプリ改修 AI が AAG 内部 (= aag/_internal/) を読まずに作業できる state を articulate (= 構造的 boundary)
 - references/ の 3 軸混在 (= 文書役割 / 対象領域 / lifecycle) を 1 lens (= reader-domain) で再構築
 - per-element drill-down predictability (= 04-tracking/elements/ standardized structure)
 - dashboard layer の機械生成化 (= drift 自動検出)
@@ -41,7 +41,7 @@ operational-protocol-system project は本 program R5 で再開、M1 deliverable
 含む:
 
 - **境界定義先行 (R0)** — `references/README.md` + `aag/README.md` (新設) + projects/ root の README.md + `CURRENT_PROJECT.md` + `CLAUDE.md` で 3 tree (= references / aag / projects) の境界を articulate (構造変更前に 物理配置の意味を明確化)
-- AAG framework の **物理 location 移動** (= `references/01-principles/aag/` → `aag/_internal/`、`aag/_framework/` skeleton 新設)
+- AAG framework の **物理 location 移動** (= `aag/_internal/` → `aag/_internal/`、`aag/_framework/` skeleton 新設)
 - **AAG public interface を references/ 配下に移動** (= `aag/interface/*` → `references/05-aag-interface/{drawer,protocols,operations}/`、aag/ は framework 本体に純化)
 - references/ directory rename (= 01-principles → 01-foundation / 02-status → 04-tracking / 04-design-system → 02-design-system / 03-guides → 03-implementation)
 - per-element directory + dashboard layer 新設 (= `references/04-tracking/elements/` + `references/04-tracking/dashboards/`)
@@ -72,6 +72,6 @@ operational-protocol-system project は本 program R5 で再開、M1 deliverable
 | `references/03-guides/projectization-policy.md` | AAG-COA (= Level 3 + architecture-refactor 判定) |
 | `references/03-guides/new-project-bootstrap-guide.md` | bootstrap 手順 (= 本 project bootstrap で適用) |
 | `references/03-guides/decision-articulation-patterns.md` | drawer (= Pattern 1-6 application instance source) |
-| `references/01-principles/aag/meta.md` | AAG-REQ-SELF-HOSTING articulate (R6 で update 対象) |
+| `aag/_internal/meta.md` | AAG-REQ-SELF-HOSTING articulate (R6 で update 対象) |
 | `projects/operational-protocol-system/` | R5 完了後再開、M1 deliverable は aag/interface/protocols/ に landing |
 | `projects/completed/aag-platformization/` | AAG Pilot (= 本 program の motivation source) |

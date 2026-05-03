@@ -182,7 +182,7 @@ bootstrap 履歴は `decision-audit.md` DA-α-000 に集約。
 
 | パス | 役割 |
 |---|---|
-| `references/01-principles/aag/*` | AAG framework articulate (= 参照のみ、改変禁止 = 不可侵原則 1) |
+| `aag/_internal/*` | AAG framework articulate (= 参照のみ、改変禁止 = 不可侵原則 1) |
 | `aag/core/` | AAG Core (= 同上) |
 | `references/01-principles/platformization-standard.md` | Standard (= 引用のみ) |
 | `references/03-guides/decision-articulation-patterns.md` | drawer (= Pattern 1-6 引用、改変禁止) |

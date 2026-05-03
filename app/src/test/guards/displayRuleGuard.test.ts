@@ -2,7 +2,7 @@
  * Display Rule Guard — Project C Phase 3 deliverable
  *
  * DFR-001〜005 (Display-Focused Rules) の bypass pattern を機械検証する。
- * `references/01-principles/aag/display-rule-registry.md` を canonical doc として、
+ * `aag/_internal/display-rule-registry.md` を canonical doc として、
  * 各 DFR の bypass pattern が presentation 層で発生していないことを baseline=0 で確認。
  *
  * 検証する DFR:
@@ -17,7 +17,7 @@
  *
  * @guard F2 文字列カタログ
  * @guard F3 全パターン同一
- * @see references/01-principles/aag/display-rule-registry.md
+ * @see aag/_internal/display-rule-registry.md
  *
  * @responsibility R:unclassified
  *

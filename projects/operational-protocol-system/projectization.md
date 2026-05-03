@@ -44,7 +44,7 @@
 
 ## 4. やらないこと (nonGoals)
 
-- AAG framework (`references/01-principles/aag/` + `aag/core/`) の articulate 内容変更
+- AAG framework (`aag/_internal/` + `aag/core/`) の articulate 内容変更
 - AAG drawer (`references/03-guides/decision-articulation-patterns.md`) の改変
 - Platformization Standard (`references/01-principles/platformization-standard.md`) の改変
 - 5 文書 template (= `projects/_template/`) の schema / 内容変更
