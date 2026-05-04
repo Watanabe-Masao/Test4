@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-04T14:24:53.919Z
+> 生成: 2026-05-04T14:30:23.584Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1260 |
-| 全 project の checked checkbox 総数 | 1144 |
+| 全 project の checked checkbox 総数 | 1147 |
 
 ## projects
 
@@ -28,7 +28,7 @@
 | `aag-decision-traceability` | AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective | **archived** | — | 2/2 (100%) | [`projects/completed/aag-decision-traceability/AI_CONTEXT.md`](../../../projects/completed/aag-decision-traceability/AI_CONTEXT.md) |
 | `aag-display-rule-registry` | Display-Focused Rule registry + display rule guards | **archived** | — | 30/38 (79%) | [`projects/completed/aag-display-rule-registry/AI_CONTEXT.md`](../../../projects/completed/aag-display-rule-registry/AI_CONTEXT.md) |
 | `aag-doc-responsibility-separation` | AAG Doc Responsibility Separation — AAG docs の正本 / audit / status / future work 分離 | **archived** | — | 11/11 (100%) | [`projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md`](../../../projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md) |
-| `aag-engine-readiness-refactor` | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 | **in_progress** | — | 4/41 (10%) | [`projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md`](../../../projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md) |
+| `aag-engine-readiness-refactor` | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 | **in_progress** | — | 7/41 (17%) | [`projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md`](../../../projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
 | `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **archived** | — | 28/28 (100%) | [`projects/completed/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/completed/aag-legacy-retirement/AI_CONTEXT.md) |
 | `aag-platformization` | AAG Platformization Program — authority + artifact + contract + change-policy | **archived** | — | — | [`projects/completed/aag-platformization/AI_CONTEXT.md`](../../../projects/completed/aag-platformization/AI_CONTEXT.md) |
