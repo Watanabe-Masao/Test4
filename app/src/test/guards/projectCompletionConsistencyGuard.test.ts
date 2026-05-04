@@ -252,11 +252,7 @@ function collectAllProjectLinks(): ProjectLinkMatch[] {
         const projectId = m[2]
         const subPath = m[3] ?? ''
         // 特殊 directory: _template / bare 'completed' / 'active' / 汎用語
-        if (
-          projectId === '_template' ||
-          projectId === 'completed' ||
-          projectId === 'active'
-        )
+        if (projectId === '_template' || projectId === 'completed' || projectId === 'active')
           continue
         out.push({
           file: relPath.replace(/\\/g, '/'),
@@ -491,7 +487,9 @@ describe('Project Completion Consistency Guard', () => {
           'references/05-aag-interface/operations/project-checklist-governance.md',
         ),
       ).toBe(false)
-      expect(shouldSkipForLinkCheck('projects/active/pure-calculation-reorg/AI_CONTEXT.md')).toBe(false)
+      expect(shouldSkipForLinkCheck('projects/active/pure-calculation-reorg/AI_CONTEXT.md')).toBe(
+        false,
+      )
     })
   })
 })
