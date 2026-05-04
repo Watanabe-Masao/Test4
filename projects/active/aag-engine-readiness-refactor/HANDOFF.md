@@ -5,48 +5,60 @@
 
 ## 1. 現在地
 
-**Phase 0 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 1 AAG Input Inventory。
+**Phase 1 landing 完了 (= 本 commit landing 後)**。次は Phase 1 wrap-up commit。
 
-Phase 0 lineage:
+Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
 - regen commit `61a3b1b`: §13.3 Post-flip regen pattern application (= project.checklist.* KPI sync)
 - L1 fix commit `1f40057`: bootstrap 中に発見した 2 件 template / policy gap を session 内で別 commit fix
-- wrap-up commit (本 commit): DA-α-000 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 残 3 checkbox flip + HANDOFF §1 update
+- wrap-up commit `fe66b18`: DA-α-000 Lineage 実 sha update + 振り返り判定 "正しい"
+- regen commit `1c8ae86`: §13.3 Post-flip regen pattern application (= checkedCheckboxes KPI sync)
 
-DA-α-000 振り返り判定: **正しい** (= 観測点 5 件中 3 件達成 + 2 件は後続 Phase で継続検証、§13.1 / §13.3 を Phase 0 で実適用済、§13.2 は Phase 1 で実証予定)。詳細は `decision-audit.md` DA-α-000 §振り返り判定 参照。
+DA-α-000 振り返り判定: **正しい** (= Phase 0 段階達成、§13.1 / §13.3 を Phase 0 で実適用済)。詳細は `decision-audit.md` DA-α-000 §振り返り判定 参照。
 
-derivedStatus: in_progress / 7 of 50 (Phase 0 完遂、Phase 1 着手待ち)。完了基準は checklist Phase 1〜7 + AI 自己レビュー 5 件 + 最終レビュー (user 承認) 1 件の全 [x]。
+Phase 1 lineage (= landing 段階):
+- landing commit (本 commit): `references/03-implementation/aag-engine-readiness-inventory.md` 新設 + §13.2 atomic update (= doc-registry.json + README index + DA-α-001 articulate + HANDOFF + checklist flip)
+
+§13.2 atomic dependent update commit pattern application status:
+- ✅ inventory doc 本体 (= references/03-implementation/aag-engine-readiness-inventory.md)
+- ✅ doc-registry.json AAG category 末尾に entry 追加
+- ✅ references/README.md AAG 索引 section 末尾に行追加
+- ✅ CLAUDE.md link 追加判断: 不採用 (= DA-α-001 §rationale 参照)
+- ✅ 既存 doc から新 inventory への inbound 追加判断: 不採用 (= DA-α-001 §rationale 参照)
+- ✅ DA-α-001 articulate (Lineage 仮 sha)
+- ✅ checklist Phase 1 checkbox 3 件 [x] flip
+- ✅ HANDOFF §1 update
+
+derivedStatus: in_progress / 10 of 50 (Phase 1 landing 段階達成、wrap-up 待ち)。完了基準は checklist Phase 1〜7 + AI 自己レビュー 5 件 + 最終レビュー (user 承認) 1 件の全 [x]。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（直近 = Phase 0 wrap-up）
+### 高優先（直近 = Phase 1 wrap-up）
 
-- **Phase 0 wrap-up commit** (= §13.1 適用):
-  - decision-audit.md DA-α-000 Lineage 実 sha update (= 本 landing commit SHA を articulate)
-  - decision-audit.md DA-α-000 振り返り判定 articulate
-  - checklist Phase 0 振り返り判定 checkbox を [x] flip
-  - 本 HANDOFF §1 を Phase 0 完遂状態に update
 - **(該当時) docs:generate 反映 commit** (= §13.3 適用):
-  - flip commit 後に `cd app && npm run docs:generate` で project-health 等 KPI sync
-  - 別 commit で push
+  - 本 landing commit に checkbox 3 件 flip が含まれるため `project.checklist.checkedCheckboxes` KPI drift 発生想定
+  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push (= amend 不採用、AAG-REQ-NO-AMEND 整合)
+- **Phase 1 wrap-up commit** (= §13.1 適用):
+  - decision-audit.md DA-α-001 Lineage 実 sha update (= 本 landing commit SHA を articulate)
+  - decision-audit.md DA-α-001 振り返り判定 articulate (= 観測点 1〜5 達成状況 + 学習)
+  - checklist Phase 1 4 件目 (= DA-α-001 振り返り判定) checkbox を [x] flip
+  - 本 HANDOFF §1 を Phase 1 完遂状態に update
 
-### 中優先（次 PR = Phase 1）
+### 中優先（次 PR = Phase 2）
 
-- **Phase 1 AAG Input Inventory landing commit**:
-  - `references/03-implementation/aag-engine-readiness-inventory.md` 新設
-  - 5 分類 (contracts / generated / project lifecycle / rule source / guard source) で input 棚卸し
-  - §13.2 適用: 同 commit で `docs/contracts/doc-registry.json` + `references/README.md` 索引 + 必要な inbound link を統合
-  - DA-α-001 entry articulate (= 5 軸 + 観測点 + Lineage 仮 sha)
-  - checklist Phase 1 該当 checkbox flip
-- **Phase 1 wrap-up commit**:
-  - DA-α-001 Lineage 実 sha + 振り返り判定
-  - checklist Phase 1 振り返り判定 checkbox flip
+- **Phase 2 DetectorResult / AagResponse Normalization landing commit**:
+  - `tools/architecture-health/src/` 配下に DetectorResult schema + helper を新設
+  - project lifecycle / archive manifest / doc registry / generated artifact metadata / schema validation の 5 系統で DetectorResult output を使用開始
+  - human-readable renderer と DetectorResult[] machine output を分離
+  - DA-α-002 entry articulate
+  - checklist Phase 2 該当 checkbox flip
+- **Phase 2 wrap-up commit**:
+  - DA-α-002 Lineage 実 sha + 振り返り判定
 
-### 低優先（Phase 2 以降、後続 PR）
+### 低優先（Phase 3 以降、後続 PR）
 
-- Phase 2: DetectorResult / AagResponse Normalization
 - Phase 3: Collector / Detector / Renderer 分離
 - Phase 4: Path Normalization / RepoFileIndex
 - Phase 5: Archive v2 / Project Lifecycle Fixture Corpus

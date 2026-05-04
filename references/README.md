@@ -336,6 +336,7 @@
 | `01-foundation/aag-5-source-of-truth-policy.md`      | AAG 5.0 — 正本/派生/運用物ポリシー                                                                                     |
 | `01-foundation/test-signal-integrity.md`             | Test Signal Integrity — 品質シグナル保全の原則 (H1-H4 / TSIG-TEST / TSIG-COMP)                                         |
 | `03-implementation/test-signal-integrity-advisory.md`        | Test Signal Integrity Advisory 運用ガイド (trigger / 文面 / 自己点検 / 昇格条件)                                       |
+| `03-implementation/aag-engine-readiness-inventory.md`        | AAG Engine Readiness Inventory — Go / Rust 等への engine 部分移行に備えた input 棚卸し (5 分類 + 3 状態問題、`aag-engine-readiness-refactor` Phase 1 deliverable) |
 
 ### 正本化（Canonicalization）
 

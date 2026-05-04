@@ -88,4 +88,76 @@ L3 重変更 routing (= `complexity-policy.md` §3.4) では DA institute が必
 
 ---
 
-> 後続 DA entry (DA-α-001 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-001: Phase 1 AAG Input Inventory landing 判断 (= 永続 doc + §13.2 atomic dependent update)
+
+### status
+
+- 着手判断: **open** (Phase 1 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 1 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 1 は engine が将来 input として読む必要がある artifact を 5 分類で棚卸しする
+phase。本 inventory の **物理配置** (= projects/ 内に閉じるか / references/ 配下に
+永続 landing するか) と **§13.2 atomic dependent update commit pattern の適用範囲**
+について判断が必要。
+
+`plan.md` Phase 1 § 完了条件:
+
+- engine input 候補が 5 分類で articulate 済み
+- active / completed / Archive v2 の 3 状態すべてで engine が input を読める articulation
+- completed project に plan.md / checklist.md が存在する前提を排除
+
+### decision
+
+以下を採用する:
+
+1. **物理配置 = `references/03-implementation/aag-engine-readiness-inventory.md`** (= 永続 doc、project archive 後も engine 実装 project が reach 可能)
+2. **§13.2 atomic dependent update 適用**: 本 landing commit に以下を統合:
+    - `references/03-implementation/aag-engine-readiness-inventory.md` (= 新 doc 本体)
+    - `docs/contracts/doc-registry.json` (= AAG category 末尾に entry 追加)
+    - `references/README.md` (= AAG 索引 section 末尾に行追加)
+    - `projects/active/aag-engine-readiness-refactor/decision-audit.md` (= 本 entry articulate)
+    - `projects/active/aag-engine-readiness-refactor/checklist.md` (= Phase 1 checkbox 3 件 [x] flip)
+    - `projects/active/aag-engine-readiness-refactor/HANDOFF.md` (= §1 現在地 update)
+3. **CLAUDE.md link 追加なし**: 本 inventory は project-scoped 永続 doc であり、daily AI session が直接 read する hot doc ではない (= doc-registry + README 索引から reach で十分)
+4. **既存 doc から新 inventory への inbound 追加なし**: 本 inventory が他 doc の child / pointer ではなく、後続 engine 実装 project の正本参照という独立 root の役割を持つため
+
+### rationale
+
+- **永続 doc 採用**: project 内 (`projects/active/<id>/inventory.md`) に閉じると Archive v2 圧縮で物理消滅し、engine 実装 project (= 本 project archive 後) からの reach が `restoreAllCommand` 経由になる。post-archive reader navigation で大きな摩擦になる。
+- **§13.2 適用判断**: references/ 配下に新 .md doc を追加する PR は §13.2 適用対象 (= L1-L3 不問、`project-checklist-governance.md` §13.2 適用対象)。pre-flight check list を本判断時に実行済 (= doc-registry / README 索引 / CLAUDE.md 判断 / inbound 判断 / 同 commit 統合)。
+- **CLAUDE.md link 不採用**: CLAUDE.md L1 鉄則に「機能を説明する doc」を載せる原則だが、本 inventory は engine 実装 project に向けた **scoped reference** であり、daily AI が読む必要なし (= L2 / L3 routing で reach すれば十分)。CLAUDE.md 行追加は CLAUDE.md test contract に obligation を作る (= reference-link-existence) ため、cost も発生。
+- **inbound 追加不採用**: inventory は engine implementation project への forward-pointer であり、既存 doc が child として持つ意味的な親が存在しない。AAG-REQ-ANTI-DUPLICATION + AAG-REQ-SEMANTIC-ARTICULATION の両原則と照合し、不要な inbound 追加は noise になる。
+
+### alternatives
+
+- (a) **project 内に inventory.md を置いて閉じる** (= project-scoped、仮想 path = `projects/active/<id>/inventory.md` に相当): post-archive engine 実装 project が `restoreAllCommand` または `archive.manifest.json` の `compressedFiles[].summary` 経由で reach する必要があり、reader navigation cost が高い。**不採用**。
+- (b) **docs/contracts/ 配下に JSON で置く** (= 仮想 path = `docs/contracts/aag-engine-readiness-inventory.json` に相当): contracts は structured 正本専用 (= prose を含む input 棚卸しは適合しない)。**不採用**。
+- (c) **CLAUDE.md AAG セクションから link 追加**: §13.2 atomic update + CLAUDE.md test contract の reference-link-existence に新 obligation を作る cost。inventory は daily AI が読む対象ではないため過剰。**不採用** (= 上記 rationale §3)。
+- (d) **`aag/_internal/` 配下に置く**: 主アプリ改修 user は AAG framework 内部を read しない方針 (CLAUDE.md 「AAG を背景にした思考」セクション)。inventory は engine 実装 project (= 後続 separate project) が読む reference であり、AAG framework 内部 doc ではない。**不採用**。
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. inventory が **5 分類** (contracts / generated artifacts / project lifecycle / rule source / guard source) で articulate されている
+2. **3 状態問題** (active / completed v1 / completed v2 圧縮) すべてで engine が input を読める read 経路が articulate されている (= §1 + §4 で table 化)
+3. §13.2 atomic dependent update が成立 (= landing commit 1 件に inventory + doc-registry + README + DA articulation + HANDOFF + checklist flip が統合、push fail 0 件)
+4. doc-registry / README index に entry 追加後、`docRegistryGuard` が PASS (= path existence + registry-README symmetry)
+5. completed v2 圧縮済 project (= aag-self-hosting-completion / aag-platformization / operational-protocol-system) で `plan.md` / `checklist.md` 等が物理存在しないこと、engine がそれを前提にした read を **してはならない** ことが inventory §4.3 で articulate されている
+
+### Lineage
+
+- **preJudgementCommit**: `1c8ae86` (= Phase 0 wrap-up 後 regen commit、本 Phase 1 landing 直前の HEAD)
+- **judgementCommit**: 本 Phase 1 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= checkbox flip による project.checklist.* KPI drift が検出されたら別 regen commit で sync)
+- **retrospectiveCommit**: 本 Phase 1 wrap-up commit (= Lineage 実 sha update + 振り返り判定 articulate)
+- **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
+- **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `1c8ae86` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 1 wrap-up commit で articulate 予定。観測点 1〜5 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-002 〜 007) は各 Phase landing commit 時に articulate 追加。
