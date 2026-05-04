@@ -1,0 +1,239 @@
+{
+  "$comment": "Archive v2 manifest for operational-protocol-system. Schema: docs/contracts/project-archive.schema.json. self-dogfood 3 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 に続く)。preCompressionCommit は本 commit 直前 = L1 軽修正 batch HEAD (`abbb65673`)。config/project.json は AAG identification key として残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。protocols/ 配下 9 doc は永続維持 (= 圧縮対象外、archive 後も active doc として運用)。",
+  "archiveVersion": 2,
+  "projectId": "operational-protocol-system",
+  "title": "AAG Operational Protocol System — Task / Session / Complexity 運用制度 (M1-M5 全 Phase 完遂)",
+  "archivedAt": "2026-05-04",
+  "preCompressionCommit": "abbb65673f9d0a3c5389e71651765635c8075b12",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/operational-protocol-system/AI_CONTEXT.md",
+    "projects/completed/operational-protocol-system/HANDOFF.md",
+    "projects/completed/operational-protocol-system/plan.md",
+    "projects/completed/operational-protocol-system/checklist.md",
+    "projects/completed/operational-protocol-system/decision-audit.md",
+    "projects/completed/operational-protocol-system/discovery-log.md",
+    "projects/completed/operational-protocol-system/projectization.md",
+    "projects/completed/operational-protocol-system/DERIVED.md",
+    "projects/completed/operational-protocol-system/aag/execution-overlay.ts",
+    "projects/completed/operational-protocol-system/derived/README.md",
+    "projects/completed/operational-protocol-system/derived/acceptance-suite.md",
+    "projects/completed/operational-protocol-system/derived/pr-breakdown.md",
+    "projects/completed/operational-protocol-system/derived/review-checklist.md",
+    "projects/completed/operational-protocol-system/derived/test-plan.md",
+    "projects/completed/operational-protocol-system/derived/inventory/README.md",
+    "projects/completed/operational-protocol-system/derived/inventory/00-example.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/operational-protocol-system/AI_CONTEXT.md",
+      "lineCount": 65,
+      "summary": "AI 入口 (= why / scope / read order、AAG framework を日常作業で使う側の運用制度 articulate)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/HANDOFF.md",
+      "lineCount": 133,
+      "summary": "後任者の入口 (= 完了済み全景 + 次にやること、archive 直前は M1-M5 完遂 + Pilot verify + AI 自己レビュー全達成 articulate)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/plan.md",
+      "lineCount": 219,
+      "summary": "計画正本 (= 不可侵原則 6 件 + Pilot 完了 criterion 5 件 + Phase M1-M5 構造 + scope 外 articulate)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/checklist.md",
+      "lineCount": 108,
+      "summary": "completion 判定 (= Phase 0-M5 達成条件 + AI 自己レビュー + 最終レビュー、66/66 [x] 完遂)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/decision-audit.md",
+      "lineCount": 438,
+      "summary": "重判断 institution (= 6 DA entry: DA-α-000 進行モデル + DA-α-001〜005 各 Phase 着手判断、5 件すべて 振り返り判定 ' 正しい'、各 entry に 5 軸 + 観測点 + Lineage 実 sha articulate)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/discovery-log.md",
+      "lineCount": 93,
+      "summary": "scope 外発見蓄積 (= P3 × 2 件 後続 program 適用 candidate pattern + P2 × 3 件 別 program candidate)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/projectization.md",
+      "lineCount": 73,
+      "summary": "AAG-COA judgment (= Level 2 + governance-hardening、breakingChange=false、requiresGuard=false)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/DERIVED.md",
+      "lineCount": 87,
+      "summary": "derived doc index (= acceptance-suite / pr-breakdown / review-checklist / test-plan / inventory への pointer)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/aag/execution-overlay.ts",
+      "lineCount": 44,
+      "summary": "project 固有 execution overlay (= AAG rule の project-scoped tuning、empty if 不要)"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/README.md",
+      "lineCount": 38,
+      "summary": "derived/ directory の役割 articulate"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/acceptance-suite.md",
+      "lineCount": 51,
+      "summary": "acceptance criteria 集約"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/pr-breakdown.md",
+      "lineCount": 47,
+      "summary": "PR 分割計画"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/review-checklist.md",
+      "lineCount": 62,
+      "summary": "review-gate 用 checklist"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/test-plan.md",
+      "lineCount": 65,
+      "summary": "test plan"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/inventory/README.md",
+      "lineCount": 54,
+      "summary": "inventory directory の役割 articulate"
+    },
+    {
+      "path": "projects/completed/operational-protocol-system/derived/inventory/00-example.md",
+      "lineCount": 20,
+      "summary": "inventory entry example template"
+    }
+  ],
+  "restoreAllCommand": "git checkout abbb65673f9d0a3c5389e71651765635c8075b12 -- projects/completed/operational-protocol-system/AI_CONTEXT.md projects/completed/operational-protocol-system/HANDOFF.md projects/completed/operational-protocol-system/plan.md projects/completed/operational-protocol-system/checklist.md projects/completed/operational-protocol-system/decision-audit.md projects/completed/operational-protocol-system/discovery-log.md projects/completed/operational-protocol-system/projectization.md projects/completed/operational-protocol-system/DERIVED.md projects/completed/operational-protocol-system/aag/execution-overlay.ts projects/completed/operational-protocol-system/derived/README.md projects/completed/operational-protocol-system/derived/acceptance-suite.md projects/completed/operational-protocol-system/derived/pr-breakdown.md projects/completed/operational-protocol-system/derived/review-checklist.md projects/completed/operational-protocol-system/derived/test-plan.md projects/completed/operational-protocol-system/derived/inventory/README.md projects/completed/operational-protocol-system/derived/inventory/00-example.md",
+  "decisionEntries": [
+    {
+      "id": "DA-α-000",
+      "title": "本 program の進行モデル決定 (= AI judgement + retrospective + commit-bound rollback、AAG Pilot DA institution からの継承)",
+      "commitSha": "8283b4b794192f0fa0f8951f0aa7f86487e957f3"
+    },
+    {
+      "id": "DA-α-001",
+      "title": "M1 Task Protocol System 着手判断 (= 4 protocol doc 一括 landing、相互参照前提、archive-v2 program PR 6 で完遂)",
+      "commitSha": "9d106564649fac499cc96285cf8c08d64d8315eb"
+    },
+    {
+      "id": "DA-α-002",
+      "title": "M2 既存 5 文書 routing 固定方針 (= session-protocol.md 単独拡張、新 doc 追加なし)",
+      "commitSha": "8c041ecf99f9869fd0148e24e06e67f13f15ac00"
+    },
+    {
+      "id": "DA-α-003",
+      "title": "M3 動的昇格・降格ルール articulate 方針 (= complexity-policy.md 単独拡張、AI judgement 範囲明示)",
+      "commitSha": "2a5033f983a6e2dc9efb53229061b89b5ce34747"
+    },
+    {
+      "id": "DA-α-004",
+      "title": "M4 Task Class 5 protocol articulate 方針 (= 4 sub-doc 別 file 化、TC-5 scope 外、TC-6 既存活用)",
+      "commitSha": "9217401671fc3e9095d7ee5c0ccdb81d2636fbcf"
+    },
+    {
+      "id": "DA-α-005",
+      "title": "M5 drawer `_seam` 最小統合 + guard 化判断 (= seam-integration.md 新設、AAG drawer 改変なし、guard 化 No 結論)",
+      "commitSha": "f4012786072d79bff420c7533251bb4efff2de85"
+    }
+  ],
+  "commitLineage": [
+    {
+      "phase": "bootstrap (Phase 0)",
+      "commitSha": "8283b4b794192f0fa0f8951f0aa7f86487e957f3",
+      "subject": "operational-protocol-system bootstrap (= DA-α-000 進行モデル institute + 必須セット 6 file landing)"
+    },
+    {
+      "phase": "M1 landing",
+      "commitSha": "9d106564649fac499cc96285cf8c08d64d8315eb",
+      "subject": "feat(operational-protocol-system M1): Archive v2 PR 6 — Task Protocol System 4 doc landing"
+    },
+    {
+      "phase": "M1 wrap-up",
+      "commitSha": "a5ad485acf175878cd71d12f944ea4e79ebd0eb6",
+      "subject": "docs(operational-protocol-system M1): wrap-up — DA-α-001 Lineage + 振り返り + final verify"
+    },
+    {
+      "phase": "M2 landing",
+      "commitSha": "8c041ecf99f9869fd0148e24e06e67f13f15ac00",
+      "subject": "feat(operational-protocol-system M2): 既存 5 文書 routing 固定 (= session-protocol.md 拡張)"
+    },
+    {
+      "phase": "M2 wrap-up",
+      "commitSha": "b619a505ed81ccffce555cc00933f4b270948857",
+      "subject": "docs(operational-protocol-system M2): wrap-up — DA-α-002 振り返り判定 + Lineage 実 sha"
+    },
+    {
+      "phase": "M3 landing",
+      "commitSha": "2a5033f983a6e2dc9efb53229061b89b5ce34747",
+      "subject": "feat(operational-protocol-system M3): 動的昇格・降格ルール articulate (= complexity-policy.md 拡張)"
+    },
+    {
+      "phase": "M3 wrap-up",
+      "commitSha": "27a444bf438a5d1f3e1fa971add284ccc7c39a81",
+      "subject": "docs(operational-protocol-system M3): wrap-up — DA-α-003 振り返り判定 + Lineage 実 sha"
+    },
+    {
+      "phase": "M4 landing",
+      "commitSha": "9217401671fc3e9095d7ee5c0ccdb81d2636fbcf",
+      "subject": "feat(operational-protocol-system M4): Task Class 5 protocol — 4 sub-doc + Handoff session 統合"
+    },
+    {
+      "phase": "M4 wrap-up",
+      "commitSha": "2c53f73cd1e9707c613b9490eaa0dee39af66cc7",
+      "subject": "docs(operational-protocol-system M4): wrap-up — DA-α-004 振り返り判定 + Lineage 実 sha"
+    },
+    {
+      "phase": "M5 landing",
+      "commitSha": "f4012786072d79bff420c7533251bb4efff2de85",
+      "subject": "feat(operational-protocol-system M5): drawer `_seam` 最小統合 (= seam-integration.md 新設)"
+    },
+    {
+      "phase": "M5 wrap-up",
+      "commitSha": "5cf5c8f89ec2340e5b0bc7a59003e02c2a4dcadf",
+      "subject": "docs(operational-protocol-system M5): wrap-up — DA-α-005 振り返り判定 + Lineage 実 sha"
+    },
+    {
+      "phase": "Pilot verify",
+      "commitSha": "da3b7fdd5389db2fb902e975b4ec3f7603621743",
+      "subject": "docs(operational-protocol-system): Pilot 完遂 verify + AI 自己レビュー全達成 — 最終レビュー (user 承認) 待ち state"
+    },
+    {
+      "phase": "L1 軽修正 batch (post-completion)",
+      "commitSha": "abbb65673f9d0a3c5389e71651765635c8075b12",
+      "subject": "docs(operational-protocol-system): 課題評価 + L1 軽修正 batch (= numbering 重複 + discovery-log 学習化)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "parent",
+      "projectId": "aag-platformization",
+      "rationale": "AAG Platformization Pilot 完遂 (= 2026-05-02 archive) を trigger に bootstrap、本 program は post-Pilot 運用制度として継承"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-self-hosting-completion",
+      "rationale": "並行 program (= 2026-05-04 archive)、本 program R5 (= aag-self-hosting-completion R5) で resume trigger を articulate"
+    },
+    {
+      "kind": "child",
+      "projectId": "TC-5-incident-discovery-protocol",
+      "rationale": "後続 candidate (= 独立 protocol doc 化、再起動 trigger 観察待ち、discovery-log P2 articulated)"
+    },
+    {
+      "kind": "child",
+      "projectId": "seam-integration-guard-revisit",
+      "rationale": "後続 candidate (= GP-1〜GP-4 guard 化再評価、再起動 trigger 3 件 articulated、discovery-log P2)"
+    },
+    {
+      "kind": "child",
+      "projectId": "ai-role-catalog",
+      "rationale": "後続 candidate (= post-Pilot AI Role Layer charter、Task Class lens で articulate 後の Role identity 整理、discovery-log P2)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 16 file (= 1,597 line) を ARCHIVE.md (summary) + archive.manifest.json (recovery metadata) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (38 line) は AAG project-checklist-collector の identification key として参照されるため例外的に残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。protocols/ 配下 9 doc (= task-protocol-system / task-class-catalog / session-protocol / complexity-policy / planning-protocol / refactor-protocol / bug-fix-protocol / new-capability-protocol / seam-integration) は本 program archive 後も **永続維持** (= 圧縮対象外、active doc として運用継続)。restore は restoreAllCommand 1 行で 16 file 復元可能。本圧縮は self-dogfood 3 件目 (= aag-self-hosting-completion = 1, aag-platformization = 2 に続く)、Archive v2 schema が 3 project 横断で動作確認済の状態に到達。"
+}
