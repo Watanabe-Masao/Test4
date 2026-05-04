@@ -101,15 +101,15 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 > Pilot Application = AAG。横展開は asynchronous (= `references/01-foundation/platformization-standard.md` §4 採用戦略)。
 > 本 inventory は subsystem 8 軸 articulation の集約 derived view、source of truth は subsystem 個別 articulate に閉じる。
-> 横展開判定条件 = `projects/completed/aag-platformization/decision-audit.md` DA-α-007 §3 を参照。
+> 横展開判定条件 = `projects/completed/aag-platformization/ARCHIVE.md` §「Pilot 完了 criterion」+ archive.manifest.json の decisionEntries DA-α-007 を参照 (= archive 前 decision-audit.md §3 は Archive v2 圧縮済、`archive.manifest.json` の restoreAllCommand 経由で復元可)。
 
 | subsystem id | owner | layer | 該当 feature | 現在 stage | 目標 stage | 8 軸 articulation source |
 |---|---|---|---|---|---|---|
-| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/completed/aag-platformization/plan.md` + `aag/_internal/source-of-truth.md` + DA-α-002a〜006 (6 entry) |
+| **AAG** | architecture role (`roles/line/architecture/`) | quality OS / cross-cutting | rule catalog + project overlay merge + AAG response + drawer routing | **Pilot complete** (2026-05-02) | maintained as Pilot reference | `projects/completed/aag-platformization/ARCHIVE.md` + `aag/_internal/source-of-truth.md` + archive.manifest.json の decisionEntries DA-α-002a〜006 (6 entry、archive 前 plan.md は Archive v2 圧縮済) |
 
 **Pilot complete の意味**:
 
-- 8 軸 (A1-A8) すべてで articulate complete (= `projects/completed/aag-platformization/plan.md` §2 #1)
+- 8 軸 (A1-A8) すべてで articulate complete (= `projects/completed/aag-platformization/ARCHIVE.md` §「Pilot 完了 criterion」#1、archive 前 plan.md §2 は Archive v2 圧縮済)
 - 実バグ 3 件修復済 (merge policy 揺れ / bootstrap path / RuleExecutionOverlayEntry 三重定義 = #2)
 - AI simulation で 5 機能 (F1-F5) verify 済 (= #3、F1 partial coverage を含む)
 - Pilot 判断履歴 6 entry landed (DA-α-002a〜006 = #4、DA-α-001 は意図的に別 entry 化せず)
@@ -134,7 +134,7 @@ facade は consumer が変わらないことを保証するためだけに存在
 
 ## §6 Pilot 実装条件 (AAG の場合)
 
-AAG が Pilot として完了するための条件 = `projects/completed/aag-platformization/plan.md` §3 の Go 実装条件 C1-C4:
+AAG が Pilot として完了するための条件 = `projects/completed/aag-platformization/ARCHIVE.md` で articulate される Go 実装条件 C1-C4 (= archive 前 plan.md §3 は Archive v2 圧縮済、`archive.manifest.json` の commitLineage で Phase 1 / A2a〜A4 commit 復元可):
 
 | condition | 8 軸 mapping |
 |---|---|

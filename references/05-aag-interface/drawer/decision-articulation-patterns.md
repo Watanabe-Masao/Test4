@@ -71,7 +71,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot (first instance、本 doc landing の trigger): `projects/completed/aag-platformization/decision-audit.md` 内 8 entry の Commit Lineage section + 14 annotated tag
+- AAG Pilot (first instance、本 doc landing の trigger): `projects/completed/aag-platformization/archive.manifest.json` の `commitLineage` (= 14 entry) + `decisionEntries` (= 8 entry、Commit Lineage section と annotated tag を articulate、Archive v2 圧縮済)
 - (将来) 主アプリ改修事例 — 各 program landing 時に append
 
 ---
@@ -104,7 +104,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: `projects/completed/aag-platformization/plan.md` §1 (7 件)
+- AAG Pilot: `projects/completed/aag-platformization/ARCHIVE.md` §「Pilot 完了 criterion」(= archive 前 plan.md §1 の 7 件 articulate、Archive v2 圧縮済)
 - (将来) 主アプリ改修事例 — 各 program plan.md の "やらないこと" section
 
 ---
@@ -135,7 +135,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: 1,710 行 patch → clean rewrite 813 行 (前提 collapse 後の構造再評価、`projects/completed/aag-platformization/plan.md` 履歴)
+- AAG Pilot: 1,710 行 patch → clean rewrite 813 行 (前提 collapse 後の構造再評価、`projects/completed/aag-platformization/archive.manifest.json` の commitLineage 経由で git history 復元可、Archive v2 圧縮済)
 - (将来) 主アプリ doc の clean rewrite 事例
 
 ---
@@ -197,7 +197,7 @@
 
 ### Application instances (= example、複数想定)
 
-- AAG Pilot: `projects/completed/aag-platformization/checklist.md` Phase 0 の `CURRENT_PROJECT.md` 切替保留 + Phase 1 A1 の DA-α-001 別 entry skip + Phase 1 A5 の drawer rule-detail per-file 化 skip (= 3 件、各々 (a) (b) (c) articulated)
+- AAG Pilot: `projects/completed/aag-platformization/ARCHIVE.md` で articulate される checklist Phase 0 の `CURRENT_PROJECT.md` 切替保留 + Phase 1 A1 の DA-α-001 別 entry skip + Phase 1 A5 の drawer rule-detail per-file 化 skip (= 3 件、各々 (a) (b) (c)、archive 前 checklist.md は Archive v2 圧縮済)
 - (将来) 主アプリ checklist の意図的 skip 事例
 
 ---
