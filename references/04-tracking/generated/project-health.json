@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T13:07:17.423Z",
+  "timestamp": "2026-05-04T14:24:53.919Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 39,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1219,
-    "checkedCheckboxes": 1140
+    "totalCheckboxes": 1260,
+    "checkedCheckboxes": 1144
   },
   "projects": [
     {
@@ -88,6 +88,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-doc-responsibility-separation/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-engine-readiness-refactor",
+      "title": "AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 4,
+      "total": 41,
+      "progress": 0.098,
+      "entrypoint": "projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-engine-readiness-refactor/checklist.md",
       "parent": null
     },
     {
