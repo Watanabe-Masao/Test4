@@ -1,6 +1,7 @@
-# Session Protocol — 開始 / 実行中 / 終了 / 引き継ぎ (= operational-protocol-system M1 fill)
+# Session Protocol — 開始 / 実行中 / 終了 / 引き継ぎ (= operational-protocol-system M1 + M2)
 
 > **landed**: 2026-05-04 (= operational-protocol-system M1)
+> **refined**: 2026-05-04 (= M2 で L1/L2/L3 別 read order + Session 終了 protocol + 引き継ぎ protocol 双方向 を articulate)
 >
 > **役割**: AI session の lifecycle 4 phase (= 開始 / 実行中 / 終了 / 引き継ぎ) で **何を articulate するか** の prescriptive 手順。現 ad-hoc な session 開始 / 終了を制度化、handoff の lose を防ぐ。
 >
@@ -8,16 +9,28 @@
 
 ## 1. Session 開始 (= context 復元 + Task 判定)
 
-### 1.1 context 復元 (= 全 level 共通)
+### 1.1 context 復元 — L 別 read order (= M2 で固定)
+
+| level | read order | rationale |
+|---|---|---|
+| **L1** 軽修正 | `HANDOFF.md` → 対象 `AI_CONTEXT.md` の scope 部分のみ → 対象 `checklist.md` | 軽修正は scope が小、context 全読は over-cost |
+| **L2** 通常変更 | `AI_CONTEXT.md` → `HANDOFF.md` → 対象 Phase の `plan.md` → `checklist.md` | Phase 単位の理解が必要、plan.md で不可侵原則 + Phase 構造を把握 |
+| **L3** 重変更 | `AI_CONTEXT.md` → `HANDOFF.md` → `plan.md` → `decision-audit.md` (= 既 entry の振り返り) → `checklist.md` | 重判断は過去 DA の lineage + 振り返りを継承、再発見 cost を回避 |
+
+**全 level 共通 prefix** (= 上記 L 別 read order の手前に必ず実施):
 
 ```
-1. CLAUDE.md (= repo root) 通読 (= 鉄則 + 知識の3層分類)
-2. CURRENT_PROJECT.md 読 (= active project pointer)
-3. active project の AI_CONTEXT.md → HANDOFF.md 読 (= why + 現在地)
-4. 必要に応じて discovery-log.md 読 (= scope 外発見 + 後続 candidate)
+0a. CLAUDE.md (= repo root) 通読 (= 鉄則 + 知識の3層分類、初回 session のみ完全通読、継続 session は鉄則 5 件 + 関連 section のみ)
+0b. CURRENT_PROJECT.md 読 (= active project pointer)
 ```
 
-= 4 step で AI が「いま何の作業をしているか」「直前の session で何が landed したか」を把握。
+= L 別 read order は CLAUDE.md + CURRENT_PROJECT.md で active project が確定した **後** に適用。
+
+### 1.2 旧 §1.1 (= 4 step) との関係
+
+旧 articulate (= M1 landing 時の §1.1) は L 識別なしの全 level 共通手順だった。**M2 で L 別に refine** = L1 で AI_CONTEXT を全読しない / L3 で decision-audit を必ず読む等、level 別の読書 cost を articulate。
+
+discovery-log.md は **必要時** 読 (= L 不問、scope 外発見の continuity が必要な session でのみ)。
 
 ### 1.2 Task Class 判定 (= `task-class-catalog.md` §8 flow 適用)
 
@@ -107,43 +120,76 @@ session 開始時に以下を user に短く articulate (= 1-2 文):
 
 ## 4. Session 終了 / 引き継ぎ (= TC-6 Handoff、ad-hoc 解消)
 
-### 4.1 Session 終了 articulation (= 全 level 共通)
+### 4.1 Session 終了 protocol — L 別 required artifacts (= M2 で固定)
 
-session 終了時に以下を articulate:
+session 終了時に **必ず update する artifact** が level 別に異なる。各 level で **1 つでも skip すると ad-hoc handoff の温床** になる。
+
+| level | 必須 update artifact | optional | rationale |
+|---|---|---|---|
+| **L1** 軽修正 | `checklist.md` (= 当該 checkbox [x]) + push 完了確認 | `HANDOFF.md` §現在地 (= 次 session が同 project を継続する場合のみ) | 軽修正は 1 commit / 1 session 完結が原則、HANDOFF update は continuity 不要なら skip |
+| **L2** 通常変更 | `checklist.md` + `HANDOFF.md` §現在地 + §次の作業 + push 完了確認 | `HANDOFF.md` §ハマりポイント / `discovery-log.md` (= scope 外発見時) | Phase 単位の継続が必要、次 session が即着手可能な action articulate |
+| **L3** 重変更 | `checklist.md` + `HANDOFF.md` §現在地 + §次の作業 + §ハマりポイント + `decision-audit.md` (= DA Lineage 実 sha update + sub-events) + push 完了確認 | `discovery-log.md` (= scope 外発見時) | DA institute が必須、Lineage 継承で次 session が判断履歴を再発見せず継続可能 |
+
+### 4.2 全 level 共通 — Session 終了 articulation (= user 向け 1-3 文 summary)
+
+L1/L2/L3 すべてで session 終了時に user に articulate (= 1-3 文):
 
 ```
-1. 本 session で landed した内容 (= 1-3 文 summary)
-2. 次の作業 (= HANDOFF.md §次の作業 update)
-3. ハマりポイント / 注意 (= HANDOFF.md §ハマりポイント update、該当時)
-4. 未解消の scope 外発見 (= discovery-log.md 追記、該当時)
-5. push 完了確認
+1. 本 session で landed した内容 (= deliverable summary)
+2. 次の作業 (= HANDOFF.md §次の作業 への pointer or 完遂 articulate)
+3. push 完了確認 + branch 状態 (= ahead/behind/clean)
 ```
 
 = 次 session の AI が読んで即継続可能な状態を作る。
 
-### 4.2 引き継ぎ specific (= TC-6 Handoff、別 person / 別 AI 移管時)
+### 4.3 引き継ぎ protocol — 双方向 articulate (= TC-6 Handoff、別 person / 別 AI 移管時)
 
-`HANDOFF.md` §1 現在地 + §次の作業 を以下のレベルで update:
+#### 4.3.1 引き継ぐ側 (= 現 session が次 session に渡す)
+
+`HANDOFF.md` §1 現在地 + §次の作業 + §ハマりポイント を以下のレベルで update:
 
 | field | 内容 |
 |---|---|
-| 現在地 | landed milestone + 残作業 + ratio (例: 84/113 完遂) |
-| 次の作業 | 次 session が即着手可能な action item (= command level) |
-| ハマりポイント | 既知の罠 + 回避策 (= 暗黙知の articulate) |
+| **現在地** | landed milestone + 残作業 + ratio (例: 84/113 完遂)、最新 commit SHA を articulate |
+| **次の作業** | 次 session が即着手可能な action item (= command level、「考える」ではなく具体 command + 検証点) |
+| **ハマりポイント** | 既知の罠 + 回避策 (= 暗黙知の articulate、L3 必須 / L2 推奨) |
 
-引き継ぎ時の **必須 check**:
+引き継ぐ側の **必須 check**:
 
-- [ ] HANDOFF.md §1 現在地 が最新 commit 状態と整合
-- [ ] §次の作業 が実行可能な粒度 (= 「考える」ではなく command + 検証点)
-- [ ] discovery-log.md に scope 外発見が articulate 済
-- [ ] 全 commit が push 済 (= origin と同期)
+- [ ] HANDOFF.md §1 現在地 が最新 commit 状態と整合 (= SHA + branch 状態)
+- [ ] §次の作業 が実行可能な粒度 (= command + 検証点 articulate)
+- [ ] discovery-log.md に scope 外発見が articulate 済 (= 該当時、該当しないなら "なし" articulate)
+- [ ] 全 commit が push 済 (= origin と同期、`git status` clean)
+- [ ] L3 のみ: decision-audit.md DA Lineage 実 sha update 済 (= judgement / preJudgement / implementation commits)
 
-### 4.3 Session 終了の antipattern
+#### 4.3.2 引き継がれる側 (= 次 session が現状を読み取る)
 
-- HANDOFF.md update なしで終了 (= next session が context 復元不能)
-- 「次 session に任せる」発言のみで具体 action なし (= ad-hoc handoff)
-- discovery-log entry skip (= scope 外発見 lose)
-- push 未完了で session 終了 (= 次 session が working tree 同期不能)
+引き継がれる側の **読書順序** (= L 別 read order §1.1 を適用、加えて handoff 特有 check):
+
+| level | handoff 特有 read item | 確認事項 |
+|---|---|---|
+| **L1** | HANDOFF §次の作業のみ | 1 task 単位の action item を確認、scope 外なら user に escalate |
+| **L2** | HANDOFF §現在地 + §次の作業 + Phase plan の該当 section | Phase 進捗 + 次 Phase 着手条件を確認 |
+| **L3** | HANDOFF §現在地 + §次の作業 + §ハマりポイント + decision-audit DA Lineage + 振り返り判定 | 過去 DA の判断モデル + 振り返り (正しい/部分的/間違い) を継承、軌道修正記録があれば必読 |
+
+引き継がれる側の **必須 check**:
+
+- [ ] CLAUDE.md 鉄則 5 件を再確認 (= 継続 session でも違反しない確認)
+- [ ] HANDOFF §現在地 の commit SHA が `git log` HEAD と一致 (= 物理状態の整合)
+- [ ] L 判定 (= `complexity-policy.md` §3 適用) で current task の重さを再判定
+- [ ] L3 のみ: decision-audit DA で active な判断 (= status: active) を全件 review
+
+### 4.4 Session 終了の antipattern
+
+- L 不問 antipattern:
+  - HANDOFF.md update なしで終了 (= L2/L3 で next session が context 復元不能)
+  - 「次 session に任せる」発言のみで具体 action なし (= ad-hoc handoff)
+  - discovery-log entry skip (= scope 外発見 lose)
+  - push 未完了で session 終了 (= 次 session が working tree 同期不能)
+- L 別 antipattern:
+  - L1 で HANDOFF.md を毎回 update (= over-ritual、軽修正で continuity 不要なら skip 可)
+  - L2 で plan.md status update を skip (= Phase 進捗が漂流)
+  - L3 で DA Lineage 実 sha update を skip (= 後続 session が rollback 経路を再発見できない)
 
 ## 5. Session 内の Task 切替 (= 同 session 中に class 変更)
 

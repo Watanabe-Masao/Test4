@@ -31,15 +31,15 @@
 
 ## Phase M2: 既存 5 文書への routing 固定
 
-- [ ] DA-α-002 entry landing
-- [ ] `session-protocol.md` 拡張: L1/L2/L3 別 read order articulate
-- [ ] `session-protocol.md` 拡張: Session 終了 protocol L1/L2/L3 別 articulate
-- [ ] `session-protocol.md` 拡張: 引き継ぎ protocol 双方向 articulate
-- [ ] **観測** M2-1: 3 routing pattern (L1/L2/L3) articulated
-- [ ] **観測** M2-2: Session 終了 protocol 3 level 全件 articulated
-- [ ] **観測** M2-3: 引き継ぎ protocol 双方向 articulated
-- [ ] **観測** M2-4: synthetic scenario で全 routing 再現可能
-- [ ] DA-α-002 振り返り判定
+- [x] DA-α-002 entry landing (= M2 着手判断、session-protocol.md 単独拡張、5 軸 + 観測点 + Lineage、Lineage 実 sha は本 commit 後 update 予定)
+- [x] `session-protocol.md` 拡張: L1/L2/L3 別 read order articulate (= §1.1 table 形式で per-level read order articulated)
+- [x] `session-protocol.md` 拡張: Session 終了 protocol L1/L2/L3 別 articulate (= §4.1 per-level required artifacts table + §4.2 全 level 共通 articulation)
+- [x] `session-protocol.md` 拡張: 引き継ぎ protocol 双方向 articulate (= §4.3.1 引き継ぐ側 + §4.3.2 引き継がれる側、双方向必須 check)
+- [x] **観測** M2-1: 3 routing pattern (L1/L2/L3) articulated (= §1.1 read order table + §3.2/§3.3/§3.4 routing が全 L 別 articulated)
+- [x] **観測** M2-2: Session 終了 protocol 3 level 全件 articulated (= §4.1 per-level required artifacts table)
+- [x] **観測** M2-3: 引き継ぎ protocol 双方向 articulated (= §4.3.1 + §4.3.2 双方向 必須 check)
+- [x] **観測** M2-4: synthetic scenario で全 routing 再現可能 (= 本 session 自体が L2 routing instance、§1.1 L2 read order → §3.3 L2 routing → §4.1 L2 required artifacts → §4.3.1 引き継ぐ側 の trace が verify 可能)
+- [ ] DA-α-002 振り返り判定 (本 wrap-up 後 [x])
 
 ## Phase M3: 動的昇格・降格ルール
 

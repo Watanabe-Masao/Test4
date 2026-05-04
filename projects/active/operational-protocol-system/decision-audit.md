@@ -47,7 +47,7 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 |---|---|---|---|
 | DA-α-000 | Phase 0 | 本 program の進行モデル (drawer Pattern 1 application instance + AAG Pilot DA institution からの継承判断) | active |
 | DA-α-001 | Phase M1 | M1 Task Protocol System 着手判断 (新 doc 4 件配置 + articulate 順序) | active |
-| DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | planned |
+| DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | active |
 | DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | planned |
 | DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | planned |
 | DA-α-005 | Phase M5 | M5 drawer `_seam` 統合 + guard 化判断 | planned |
@@ -180,3 +180,60 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
 - (本 entry 判定 = "正しい" のため軌道修正なし、本 PR 6 単独 + push fix follow-up で完遂)
+
+---
+
+## DA-α-002: M2 既存 5 文書 routing 固定方針
+
+**status**: active
+
+### 判断時 (2026-05-04 / Phase M2)
+
+- 候補:
+  1. session-protocol.md 単独拡張 (= 既存 doc に M2 deliverable を articulate refine)
+  2. 新 doc 追加 (= per-level routing を別 doc 化、e.g. `routing-policy.md`)
+  3. 既存 5 文書 (= AI_CONTEXT / HANDOFF / plan / checklist / decision-audit) 自体に articulate 追加
+- **採用案: 候補 1** (= session-protocol.md 単独拡張)
+- 判断根拠:
+  - 事実 1: M1 で session-protocol.md §3 (実行中) + §4 (終了・引き継ぎ) + §7 (5 文書 routing) を既に articulate 済 (= L1/L2/L3 別の skeleton landed)。M2 は **既存 articulate を refine** する scope であり、新 doc 追加は AAG-REQ-ANTI-DUPLICATION 違反 risk
+  - 事実 2: M2 plan §scope 外で「各 file の articulate 内容そのものは改変しない (= 既存内容維持、使い方だけ articulate)」と明示。既存 5 文書自体を改変する候補 3 は scope 違反
+  - 事実 3: 候補 2 (新 doc) は M2 plan の deliverable list (= session-protocol.md 拡張のみ) と整合せず、M2 scope を超える
+  - 事実 4: M1 の self-application observation で「session-protocol.md が L1/L2/L3 routing の canonical」と確立済 (= drawer Pattern 4 honest articulation)
+- 想定リスク:
+  - 最大被害: session-protocol.md が肥大化し reader (= AI session) が必要 section に reach できない。mitigation = §1-§8 の structure を維持、L 別 routing は §3 既存 + §4 既存 を refine、新 section 追加は最小化
+  - 二番目: Session 終了 / 引き継ぎ protocol の L 別 articulate が冗長で読みにくい。mitigation = table 形式で per-level required artifacts を articulate (= 散文より dense)
+- 振り返り観測点 (4 点 = M2 観測点 4 件と同期):
+  - 1 (M2-1 肯定): 3 routing pattern (L1/L2/L3) が articulate されている (= session-protocol.md §1.1 + §3.2/§3.3/§3.4 で table 形式)
+  - 2 (M2-2 肯定): Session 終了 protocol が 3 level 全件 articulate されている (= §4.1 が L 別 required artifacts table)
+  - 3 (M2-3 肯定): 引き継ぎ protocol が双方向 articulate されている (= §4.2 引き継ぐ側 + §4.4 引き継がれる側)
+  - 4 (M2-4 反証): synthetic scenario で全 routing が再現可能 (= M1-5 と同様 self-application、本 session 自体が L2 routing instance)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `session-protocol.md` が canonical (= 既存 doc の refine、新 doc 追加なし)
+- **依存方向**: 上位 = M1 で landed した protocol family (task-protocol-system / task-class-catalog / complexity-policy)、下位 = 主アプリ改修 user の day-to-day session lifecycle
+- **意味**: 「既存 5 文書 (= AI_CONTEXT / HANDOFF / plan / checklist / decision-audit) を level 別にどう使うか の prescriptive routing articulate」
+- **責務**: 既存 5 文書の **使い方** articulate のみ、各文書の articulate 内容は触らない (= M2 plan §scope 外整合)
+- **境界**: M2 は session-protocol.md 拡張のみ、M3 (= 動的昇格・降格) / M4 (= 5 protocol) / M5 (= drawer `_seam`) は別 Phase
+
+### Commit Lineage
+
+- judgementCommit: TBD (= M2 landing commit、commit 後に実 sha update)
+- preJudgementCommit: TBD (= M1 wrap-up regen の HEAD = `f1286ace4`)
+- judgementTag: `operational-protocol-system/DA-α-002-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- rollbackTag: `operational-protocol-system/DA-α-002-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
+- implementationCommits:
+  - TBD — M2 全実装 (= session-protocol.md 拡張 + DA-α-002 entry + checklist update + HANDOFF update)
+
+### 振り返り (Phase M2 完了 / TBD)
+
+> Phase M2 完了直前に追記、observation 4 件すべて実測。
+
+- 観測点 1〜4: TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+### 軌道修正 (判定 "部分的" / "間違い" のみ)
+
+- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)

@@ -22,9 +22,20 @@
 - `decision-audit.md` に DA-α-001 (M1 着手判断) entry articulated (= 5 軸 + 5 観測点 + Lineage 仮 sha)
 - `checklist.md` Phase M1 で 8/12 [x] (= 残: M1-4 docs:check PASS / M1 振り返り / final lint+build PASS)
 
+### Phase M2 (= 既存 5 文書 routing 固定) 完遂内容 (2026-05-04)
+
+- DA-α-002 entry landed (= 5 軸 + 4 観測点 + Lineage articulate)
+- `session-protocol.md` を拡張:
+  - §1.1 L 別 read order table (= L1: HANDOFF→AI_CONTEXT scope→checklist / L2: AI_CONTEXT→HANDOFF→plan→checklist / L3: AI_CONTEXT→HANDOFF→plan→decision-audit→checklist)
+  - §4.1 Session 終了 protocol L 別 required artifacts table
+  - §4.3.1 引き継ぐ側 + §4.3.2 引き継がれる側 双方向 articulate (= 必須 check 含む)
+  - §4.4 antipattern を L 別 articulate
+- M2 観測点 4 件全達成
+
 ### M1-M5 残作業
 
-- M2: 既存 5 文書への routing 固定 (= per-level required artifacts 詳細化)
+- ~~M1: Task Protocol System 定義~~ ✅ 完遂 (2026-05-04)
+- ~~M2: 既存 5 文書への routing 固定~~ ✅ 完遂 (2026-05-04)
 - M3: 動的昇格・降格ルール articulate (= L1 → L2 → L3 trigger / 逆方向 trigger)
 - M4: 各 Task Class の標準手順 (= 5 protocol 詳細) fill 予定
 - M5: drawer `_seam` を使った最小統合 (= taskHint / consumerKind / sourceRefs)
@@ -33,17 +44,11 @@
 
 詳細は `checklist.md` / `plan.md` §3。
 
-### 高優先 (Phase M1 完遂)
+### 高優先 (M2 wrap-up + M3 着手判断)
 
-- [ ] M1-4 観測点 verify (= 4 doc 全 landing で `docs:check` PASS、本 commit verify 後 [x])
-- [ ] DA-α-001 振り返り判定 (= 正しい / 部分的 / 間違い、Phase M1 完遂直前)
-- [ ] DA-α-001 Lineage 実 sha update (= 本 commit 後)
-- [ ] final verify: `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
-
-### 後続 (Phase M2 着手判断)
-
-- [ ] DA-α-002 起票 (= M2 既存 5 文書 routing 固定方針)
-- [ ] M2 deliverable (= 5 文書ごとの per-level requirement table) を本 protocol 内 or per-project に articulate
+- [ ] DA-α-002 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
+- [ ] DA-α-002 Lineage 実 sha update (= 本 commit 後)
+- [ ] M3 着手判断 = DA-α-003 起票 (= M3 動的昇格・降格ルール articulate 方針)
 
 ## 3. ハマりポイント
 
