@@ -412,22 +412,27 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: TBD (= M5 landing commit)
-- preJudgementCommit: TBD (= M4 wrap-up commit、M5 直前 HEAD)
-- judgementTag: `operational-protocol-system/DA-α-005-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- judgementCommit: `f40127860` (= M5 landing commit、seam-integration.md 新設 + task-protocol-system §7 refine + doc-registry + README index update を atomic 1 commit で完遂)
+- preJudgementCommit: `2c53f73cd1e9707c613b9490eaa0dee39af66cc7` (= M4 wrap-up commit、M5 直前 HEAD)
+- judgementTag: `operational-protocol-system/DA-α-005-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照)
 - rollbackTag: `operational-protocol-system/DA-α-005-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
 - implementationCommits:
-  - TBD — M5 全実装 (= seam-integration.md 新設 + doc-registry + README index update + task-protocol-system.md §7 pointer + DA-α-005 entry + checklist + HANDOFF update)
+  - `f40127860` — M5 landing (= seam-integration.md 新設 + task-protocol-system §7 refine + doc-registry + README + DA-α-005 entry + checklist + HANDOFF update を atomic 1 commit で完遂)
 
-### 振り返り (Phase M5 完了 / TBD)
+### 振り返り (Phase M5 完了 / 2026-05-04)
 
-> Phase M5 完了直前に追記、observation 3 件すべて実測。
-
-- 観測点 1〜3: TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+- 観測点 1 (M5-1 肯定): ✅ **達成**。`seam-integration.md` §1 で taskHint (8 値) / consumerKind (4 値) / sourceRefs (array) を Task Class lens で articulate。AAG drawer 既 articulate を改変せず再 articulate (= 不可侵原則 1 整合)
+- 観測点 2 (M5-2 肯定): ✅ **達成**。§2 で 6 Task Class × 主 read / 副 read / rationale の routing matrix articulate (= 18 cell)、§3 で consumerKind × Task Class crossover (= reader 別 reverse-index、4 consumerKind × 主 reader / 二次 reader)
+- 観測点 3 (M5-3 肯定): ✅ **達成**。§4 で guard 化判断 articulate = **No 結論** (= 4 候補 GP-1〜GP-4 すべて value < cost、drawer Pattern 4 honest articulation 適用)、§4.3 で再起動 trigger 3 件 articulate (= drawer Pattern 5 意図的 skip + rationale)
+- **判定**: **正しい** (= 3 観測点すべて達成、scope 拡大なし、新 doc 1 件追加で完遂、AAG drawer 改変なし (= 不可侵原則 1 整合)、guard 化判断は drawer Pattern 4 + Pattern 5 application instance として成立)
+- 学習:
+  - **AAG framework 不可侵境界の再確認**: M5 で「AAG drawer 改変 candidate」が 4 件 articulate されたが (= GP-1〜GP-4)、すべて value < cost で **No 結論**。本 articulation 自体が不可侵原則 1 (= AAG framework 改変禁止) の application instance、guard 化を simulate して **意図的 skip + 再起動 trigger** の articulate pattern が成立
+  - **既存 articulate の lens 再 articulate**: AAG drawer の `_seam` は既 articulate 済の値 (8/4/array)、本 M5 では「改変せず Task Class lens で再 articulate」する scope。これは AAG-REQ-ANTI-DUPLICATION 整合 + AI session の reader navigation 強化 (= 既存値の semantic 拡張なしに use-case bridge を articulate)
+  - **guard 化 No の articulation pattern**: drawer Pattern 4 (= value > cost honest 判定) + drawer Pattern 5 (= 意図的 skip + 再起動 trigger) の組合わせが、「機械化されない判断を articulate で記録」する pattern として成立。後続 program でも同 pattern 適用候補 (= AAG framework の自動化 vs articulation のみ判断)
+  - **self-application が五度目機能 (M1/M2/M3/M4 学習の確認)**: 本 M5 articulate 自体が seam-integration.md §5 の reader navigation 手順 (= Task Class lens → routing matrix → AAG drawer reach) を retroactively trace 可能 (= 本 PR の DA-α-005 articulate が TC-4 New Capability で完遂、Step 1 構想 → Step 2 調査 (= AAG drawer rule-index.json read) → Step 3 比較検討 → Step 4 実装 → §4 関連 doc update が application instance として成立)
+- retrospectiveCommit: 本 wrap-up commit (= DA-α-005 振り返り articulation を含む follow-up commit)
+- retrospectiveTag: `operational-protocol-system/DA-α-005-retrospective` (= 同 infrastructure 制約で未 landing、SHA 直接参照)
 
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+- (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)

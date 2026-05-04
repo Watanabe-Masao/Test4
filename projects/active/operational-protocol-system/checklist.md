@@ -75,7 +75,7 @@
 - [x] **観測** M5-1: taskHint / consumerKind / sourceRefs 意味 articulated (= seam-integration.md §1.1 + §1.2 + §1.3)
 - [x] **観測** M5-2: 5 Task Class × drawer 軸 routing matrix articulated (= seam-integration.md §2 routing matrix + §3 reverse-index)
 - [x] **観測** M5-3: guard 化判断 articulated (= seam-integration.md §4、Yes/No + rationale + 再起動 trigger 3 件)
-- [ ] DA-α-005 振り返り判定 (本 wrap-up 後 [x])
+- [x] DA-α-005 振り返り判定 (= **正しい**、3 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-005 §「振り返り (Phase M5 完了 / 2026-05-04)」参照)
 
 ## Phase 完了 verify (= Pilot 完了 criterion 5 件 — `plan.md` §2)
 
