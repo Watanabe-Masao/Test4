@@ -84,6 +84,17 @@ function listAllProjects(): ProjectInfo[] {
       continue
     }
 
+    // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応。
+    if (entry === 'active') {
+      for (const sub of fs.readdirSync(entryPath)) {
+        const subPath = path.join(entryPath, sub)
+        if (!fs.statSync(subPath).isDirectory()) continue
+        const meta = readProjectInfo(subPath, false)
+        if (meta) out.push(meta)
+      }
+      continue
+    }
+
     const meta = readProjectInfo(entryPath, false)
     if (meta) out.push(meta)
   }
@@ -186,15 +197,16 @@ function shouldSkipForLinkCheck(relPath: string): boolean {
  * checklist 行が L3 偽陽性になる。
  */
 function hasMigrationPair(line: string): boolean {
-  const matches = Array.from(line.matchAll(/projects\/(completed\/)?([\w-]+)\b/g))
+  // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応 (= active/ prefix も認識)
+  const matches = Array.from(line.matchAll(/projects\/(completed\/|active\/)?([\w-]+)\b/g))
   if (matches.length < 2) return false
   const activeIds = new Set<string>()
   const archivedIds = new Set<string>()
   for (const m of matches) {
     const id = m[2]
-    if (id === '_template' || id === 'completed') continue
-    if (m[1]) archivedIds.add(id)
-    else activeIds.add(id)
+    if (id === '_template' || id === 'completed' || id === 'active') continue
+    if (m[1] === 'completed/') archivedIds.add(id)
+    else activeIds.add(id) // active/ prefix or no prefix → active として扱う
   }
   for (const id of activeIds) {
     if (archivedIds.has(id)) return true
@@ -205,7 +217,8 @@ function hasMigrationPair(line: string): boolean {
 function collectAllProjectLinks(): ProjectLinkMatch[] {
   const out: ProjectLinkMatch[] = []
   // `projects/[completed/]<id>[/<subpath>]` を拾う
-  const re = /projects\/(completed\/)?([\w-]+)(\/[\w./-]+)?/g
+  // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応 (= active/ prefix も capture)
+  const re = /projects\/(completed\/|active\/)?([\w-]+)(\/[\w./-]+)?/g
 
   const scanFile = (absFile: string): void => {
     const relPath = path.relative(PROJECT_ROOT, absFile)
@@ -235,11 +248,16 @@ function collectAllProjectLinks(): ProjectLinkMatch[] {
       re.lastIndex = 0
       let m: RegExpExecArray | null
       while ((m = re.exec(raw)) !== null) {
-        const archivePrefix = Boolean(m[1])
+        const archivePrefix = m[1] === 'completed/'
         const projectId = m[2]
         const subPath = m[3] ?? ''
-        // 特殊 directory: _template / bare 'completed' / 汎用語
-        if (projectId === '_template' || projectId === 'completed') continue
+        // 特殊 directory: _template / bare 'completed' / 'active' / 汎用語
+        if (
+          projectId === '_template' ||
+          projectId === 'completed' ||
+          projectId === 'active'
+        )
+          continue
         out.push({
           file: relPath.replace(/\\/g, '/'),
           line: i + 1,
@@ -473,7 +491,7 @@ describe('Project Completion Consistency Guard', () => {
           'references/05-aag-interface/operations/project-checklist-governance.md',
         ),
       ).toBe(false)
-      expect(shouldSkipForLinkCheck('projects/pure-calculation-reorg/AI_CONTEXT.md')).toBe(false)
+      expect(shouldSkipForLinkCheck('projects/active/pure-calculation-reorg/AI_CONTEXT.md')).toBe(false)
     })
   })
 })

@@ -19,7 +19,7 @@
  * Phase 4 制度成立確認時に full health KPI 統合（per-tag promotion level / lifecycle /
  * exception policy 等）を parent project 統合 branch で完成予定。
  *
- * @see projects/taxonomy-v2/plan.md §taxonomy-health.json schema
+ * @see projects/active/taxonomy-v2/plan.md §taxonomy-health.json schema
  * @see app/src/test/responsibilityTaxonomyRegistryV2.ts
  * @see app/src/test/testTaxonomyRegistryV2.ts
  */
@@ -272,7 +272,7 @@ export function collectTaxonomyHealth(repoRoot: string): TaxonomyHealthOutput {
 
   return {
     schemaVersion: "1.0",
-    schemaSource: "projects/taxonomy-v2/plan.md §taxonomy-health.json schema",
+    schemaSource: "projects/active/taxonomy-v2/plan.md §taxonomy-health.json schema",
     generatedAt: new Date().toISOString(),
     generator: "tools/architecture-health/src/collectors/taxonomy-collector.ts",
     taxonomy: {
@@ -337,7 +337,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
       status: "ok",
       owner: "documentation-steward",
       docRefs: [
-        { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
+        { kind: "definition", path: "projects/active/taxonomy-v2/plan.md" },
         {
           kind: "definition",
           path: "references/01-foundation/responsibility-taxonomy-schema.md",
@@ -357,7 +357,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
       status: "ok",
       owner: "documentation-steward",
       docRefs: [
-        { kind: "definition", path: "projects/taxonomy-v2/plan.md" },
+        { kind: "definition", path: "projects/active/taxonomy-v2/plan.md" },
         {
           kind: "definition",
           path: "references/01-foundation/test-taxonomy-schema.md",
@@ -379,7 +379,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
         : "ok",
       budget: COGNITIVE_LOAD_CEILING,
       owner: "documentation-steward",
-      docRefs: [{ kind: "definition", path: "projects/taxonomy-v2/plan.md" }],
+      docRefs: [{ kind: "definition", path: "projects/active/taxonomy-v2/plan.md" }],
       implRefs: ["app/src/test/responsibilityTaxonomyRegistryV2.ts"],
     },
     {
@@ -391,7 +391,7 @@ export function collectFromTaxonomy(repoRoot: string): readonly HealthKpi[] {
       status: output.taxonomy.vocabulary.testOverCeiling ? "fail" : "ok",
       budget: COGNITIVE_LOAD_CEILING,
       owner: "documentation-steward",
-      docRefs: [{ kind: "definition", path: "projects/taxonomy-v2/plan.md" }],
+      docRefs: [{ kind: "definition", path: "projects/active/taxonomy-v2/plan.md" }],
       implRefs: ["app/src/test/testTaxonomyRegistryV2.ts"],
     },
     // Phase 6b 追加 + Phase 8 retirement で v1 vocabulary が消滅したため、本 KPI は

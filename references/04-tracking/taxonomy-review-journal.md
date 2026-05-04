@@ -274,6 +274,6 @@ exceptions:
 | `references/01-foundation/taxonomy-interlock.md`      | Interlock マトリクス（追加 / 撤退で同期改訂）                                     |
 | `references/01-foundation/taxonomy-origin-journal.md` | Origin Journal（採択で Origin entry 追加）                                        |
 | `references/03-implementation/taxonomy-review-window.md`      | **window 手続き + 判定基準 + 形式の正本**                                         |
-| `projects/taxonomy-v2/plan.md`                        | 親 plan §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary |
-| `projects/taxonomy-v2/checklist.md` Phase 2           | 本 journal の本格 landing 完了条件                                                |
+| `projects/active/taxonomy-v2/plan.md`                        | 親 plan §OCS.4 Lifecycle / §OCS.8 Exception Policy / §OCS.9 Human Review Boundary |
+| `projects/active/taxonomy-v2/checklist.md` Phase 2           | 本 journal の本格 landing 完了条件                                                |
 | `CLAUDE.md` §taxonomy-binding                         | AI が review window 経路でのみ提案できる制約の正本                                |

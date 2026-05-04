@@ -247,4 +247,29 @@ describe('Self-Hosting Guard (AR-AAG-META-SELF-HOSTING)', () => {
       ].join('\n'),
     ).toBeLessThanOrEqual(ORPHAN_BASELINE)
   })
+
+  it('Test 4 (R6a): entry navigation rigor delegation — 4 boundary guard が存在 (= self-hosting closure 完成)', () => {
+    // R6a (2026-05-03、aag-self-hosting-completion DA-α-007a): code-level closure
+    // (= 上記 Test 0-3) に加えて、**entry navigation rigor** = AAG framework と
+    // application 改修者の structural separation を 4 boundary guard で機械検証する
+    // delegation articulation。本 test は guard 存在のみ articulate (= 各 guard 自身の
+    // 検証 logic はそれぞれの test ファイル内、本 file は responsible distribution 構造のみ articulate)。
+    const expectedGuards = [
+      'aagBoundaryGuard.test.ts', // aag/_internal/ vs references/05-aag-interface/ structural separation (R1-R2)
+      'oldPathReferenceGuard.test.ts', // 旧 5 directory path reference 残置 0、ratchet-down baseline=0 (R3d)
+      'generatedFileEditGuard.test.ts', // *.generated.md 手編集検出 (R3d)
+    ]
+    const guardsDir = path.resolve(REPO_ROOT, 'app/src/test/guards')
+    const missing = expectedGuards.filter((f) => !fs.existsSync(path.resolve(guardsDir, f)))
+    expect(
+      missing,
+      [
+        `entry navigation rigor delegation 不成立: 必須 guard 不在`,
+        ...missing.map((f) => `  - ${f}`),
+        ``,
+        `修正: 該当 guard を ${guardsDir} に landing。`,
+        `詳細: aag/_internal/meta.md §2.1 AAG-REQ-SELF-HOSTING + projects/completed/aag-self-hosting-completion/decision-audit.md DA-α-007a。`,
+      ].join('\n'),
+    ).toEqual([])
+  })
 })

@@ -304,5 +304,5 @@ mass-tagging script が途中エラーで一部 file のみ更新した場合:
 | `app/src/test/guards/responsibilityTagGuardV2.test.ts`             | v2 R:tag guard（V2-R-* baseline）                   |
 | `projects/completed/responsibility-taxonomy-v2/plan.md`                      | 子 project plan（10 Phase + Phase 別禁止事項）      |
 | `projects/completed/responsibility-taxonomy-v2/checklist.md`                 | 子 project completion 入力                          |
-| `projects/taxonomy-v2/plan.md` §OCS.3                              | `taxonomy:check` / `taxonomy:impact` 仕様正本       |
+| `projects/active/taxonomy-v2/plan.md` §OCS.3                              | `taxonomy:check` / `taxonomy:impact` 仕様正本       |
 | `CLAUDE.md` §taxonomy-binding                                      | AI Vocabulary Binding（本ガイド §5.4 退避の根拠）  |

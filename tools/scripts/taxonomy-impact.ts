@@ -20,7 +20,7 @@
  * - 結果は人間可読 + exit code（fail -> exit 1）
  *
  * 関連:
- * - projects/taxonomy-v2/plan.md §OCS.3
+ * - projects/active/taxonomy-v2/plan.md §OCS.3
  * - references/03-implementation/responsibility-taxonomy-operations.md §5
  * - references/03-implementation/test-taxonomy-operations.md §5
  * - references/01-foundation/taxonomy-interlock.md (Interlock マトリクス正本)

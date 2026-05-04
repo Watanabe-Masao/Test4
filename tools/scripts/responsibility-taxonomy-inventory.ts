@@ -16,7 +16,7 @@
  * - Origin は不明なら "legacy, origin unknown" を記録（原則 5: Origin は記録する）
  *
  * 関連:
- * - projects/taxonomy-v2/plan.md §Common Inventory Schema
+ * - projects/active/taxonomy-v2/plan.md §Common Inventory Schema
  * - projects/responsibility-taxonomy-v2/plan.md Phase 0
  * - app/src/test/responsibilityTagRegistry.ts (v1 vocabulary)
  */
@@ -429,7 +429,7 @@ const main = (): void => {
 
   const summary = {
     schemaVersion: '1.0',
-    schemaSource: 'projects/taxonomy-v2/plan.md §Common Inventory Schema',
+    schemaSource: 'projects/active/taxonomy-v2/plan.md §Common Inventory Schema',
     generatedAt: new Date().toISOString(),
     generator: 'tools/scripts/responsibility-taxonomy-inventory.ts',
     axis: 'responsibility',

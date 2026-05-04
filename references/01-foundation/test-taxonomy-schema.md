@@ -173,4 +173,4 @@ v2 = 15 / Ceiling = 15 → **余裕 0**（cap 到達）。
 | `app/src/test/guards/testSignalIntegrityGuard.test.ts`  | 現行 TSIG global rule（子 Phase 8 で T:kind ベースに置換）          |
 | `references/04-tracking/test-taxonomy-inventory.yaml`     | Phase 0 baseline（CanonEntry 728 entry / Anchor 206）               |
 | `references/03-implementation/test-tsig-to-v2-migration-map.md` | TSIG→v2 移行詳細（子 Phase 2 で landing）                           |
-| `projects/taxonomy-v2/plan.md` §AR-TAXONOMY-\*          | rule 仕様正本（子 Phase 3 で active 化）                            |
+| `projects/active/taxonomy-v2/plan.md` §AR-TAXONOMY-\*          | rule 仕様正本（子 Phase 3 で active 化）                            |

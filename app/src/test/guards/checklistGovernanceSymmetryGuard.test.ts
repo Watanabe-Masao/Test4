@@ -55,9 +55,12 @@ interface ProjectInfo {
 function listLiveProjects(): ProjectInfo[] {
   const out: ProjectInfo[] = []
   if (!fs.existsSync(PROJECTS_DIR)) return out
-  for (const entry of fs.readdirSync(PROJECTS_DIR)) {
-    if (entry === 'completed' || entry.startsWith('_')) continue
-    const entryPath = path.join(PROJECTS_DIR, entry)
+  // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応。
+  const activeDir = path.join(PROJECTS_DIR, 'active')
+  const scanDir = fs.existsSync(activeDir) ? activeDir : PROJECTS_DIR
+  for (const entry of fs.readdirSync(scanDir)) {
+    if (entry === 'completed' || entry === 'active' || entry.startsWith('_')) continue
+    const entryPath = path.join(scanDir, entry)
     if (!fs.statSync(entryPath).isDirectory()) continue
     const configPath = path.join(entryPath, 'config/project.json')
     if (!fs.existsSync(configPath)) continue

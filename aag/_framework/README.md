@@ -35,8 +35,8 @@ aag/_framework/
 ## 関連
 
 - 並列 sub-tree: `aag/_internal/` (= AAG framework 内部 articulation)
-- 本 program: `projects/aag-self-hosting-completion/`
-- 進行中 R-phase 詳細: `projects/aag-self-hosting-completion/plan.md` §3
+- 本 program: `projects/completed/aag-self-hosting-completion/`
+- 進行中 R-phase 詳細: `projects/completed/aag-self-hosting-completion/plan.md` §3
 - 主アプリ改修 user reach 経路: 本 tree ではなく `references/05-aag-interface/` (R2 で landing 予定)
 
 ## status

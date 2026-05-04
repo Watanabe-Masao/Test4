@@ -66,7 +66,7 @@ collector (`project-checklist-collector.ts`) と governance §3 の規約の間�
 - `app/src/test/guards/versionSyncGuard.test.ts`
 - `app/src/test/guards/checklistFormatGuard.test.ts`
 - `app/src/test/guards/projectCompletionConsistencyGuard.test.ts`
-- `projects/_template/`, `projects/quick-fixes/`, `projects/completed/`
+- `projects/_template/`, `projects/active/quick-fixes/`, `projects/completed/`
 - `projects/data-load-idempotency-hardening/`, `presentation-quality-hardening/`, `architecture-decision-backlog/`, `aag-rule-splitting-execution/`
 
 ### Read-path 重複耐性 (Pre-1.9.0 — branch 内で先行 merged)

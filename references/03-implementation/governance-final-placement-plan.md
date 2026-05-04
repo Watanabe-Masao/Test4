@@ -10,7 +10,7 @@
 |---|---|---|---|
 | **BaseRule 配列** | `app-domain/gross-profit/rule-catalog/base-rules.ts` | semantics + governance + detection + binding + migrationRecipe | **App Domain 正本** |
 | BaseRule 旧位置（re-export facade） | `app/src/test/architectureRules/rules.ts` | `@app-domain/...` からの thin re-export（後方互換） | Facade |
-| **ExecutionOverlay** | `projects/pure-calculation-reorg/aag/execution-overlay.ts` | ruleId → fixNow / executionPlan / reviewPolicy / lifecyclePolicy | **Project Overlay 正本** |
+| **ExecutionOverlay** | `projects/active/pure-calculation-reorg/aag/execution-overlay.ts` | ruleId → fixNow / executionPlan / reviewPolicy / lifecyclePolicy | **Project Overlay 正本** |
 | **Derived merge** | `app/src/test/architectureRules/merged.ts` | BaseRule + ExecutionOverlay を ruleId キーで合成 | **Derived Artifact** |
 | **Consumer facade** | `app/src/test/architectureRules/index.ts` + `app/src/test/architectureRules.ts` | consumer が触る唯一の入口 | **Single Entry** |
 | 整合検証 | `app/src/test/guards/executionOverlayGuard.test.ts` | BaseRule ↔ Overlay の欠損・orphan 検出 | Guard |

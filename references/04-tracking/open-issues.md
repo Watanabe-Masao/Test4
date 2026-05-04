@@ -11,12 +11,12 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `aag-self-hosting-completion` | project | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 (= AAG framework の entry navigation level での self-hosting failure を structural reorganization で解消、Level 3 + architecture-refactor、R1-R7 phase) | [`projects/aag-self-hosting-completion/AI_CONTEXT.md`](../../projects/aag-self-hosting-completion/AI_CONTEXT.md) |
-| `operational-protocol-system` | project | **⏸ PAUSED** — AAG Operational Protocol System (Task / Session / Complexity 運用制度)。aag-self-hosting-completion R5 完了で resume + M1 着手予定 (= M1 deliverable は aag/interface/protocols/ に直接 landing する設計) | [`projects/operational-protocol-system/AI_CONTEXT.md`](../../projects/operational-protocol-system/AI_CONTEXT.md) |
-| `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/presentation-quality-hardening/AI_CONTEXT.md) |
-| `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/pure-calculation-reorg/AI_CONTEXT.md) |
+| `aag-self-hosting-completion` | project | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 (= AAG framework の entry navigation level での self-hosting failure を structural reorganization で解消、Level 3 + architecture-refactor、R1-R7 phase) | [`projects/completed/aag-self-hosting-completion/AI_CONTEXT.md`](../../projects/completed/aag-self-hosting-completion/AI_CONTEXT.md) |
+| `operational-protocol-system` | project | **⏸ PAUSED** — AAG Operational Protocol System (Task / Session / Complexity 運用制度)。aag-self-hosting-completion R5 完了で resume + M1 着手予定 (= M1 deliverable は aag/interface/protocols/ に直接 landing する設計) | [`projects/active/operational-protocol-system/AI_CONTEXT.md`](../../projects/active/operational-protocol-system/AI_CONTEXT.md) |
+| `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
+| `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
 | `test-signal-integrity` | project | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
-| `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/quick-fixes/AI_CONTEXT.md`](../../projects/quick-fixes/AI_CONTEXT.md) |
+| `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../projects/active/quick-fixes/AI_CONTEXT.md) |
 
 ## archived projects
 
@@ -81,7 +81,7 @@
 | R-10 | DualPeriodSlider 個別管理 | 2026-03 | 全 11 チャートから内蔵 Slider 削除、ページレベル統合 |
 | — | WASM 全 5 engine authoritative 昇格 | 2026-04-05 | bridge 簡素化（計 1,426→431 行）、dual-run infrastructure 全面退役（~5,500 行削減） |
 | — | ComparisonWindow 契約型 | 2026-04-05 | useTimeSlotPlan / useClipExportPlan に provenance 導入 |
-| — | active-debt 33→1 (verified 2026-04-12) | 2026-04 | features/ 移動と allowlist 卒業で 32 件削減（残 1 件は `projects/presentation-quality-hardening` Phase 1） |
+| — | active-debt 33→1 (verified 2026-04-12) | 2026-04 | features/ 移動と allowlist 卒業で 32 件削減（残 1 件は `projects/active/presentation-quality-hardening` Phase 1） |
 | — | idempotent load contract | 2026-04 | Phase 0-3 + PR A-E で構造的に冪等化 + FRAGILE 1/2/6 SAFE 化 + FRAGILE 3/4/5 は Option A で永続確定 (2026-04-12, project archive) |
 | R-9 | ロールシステム軽量化の方針 | 2026-04-13 | (c) 現状維持を決定。AAG コア信頼性回復 (v5.2) 完了時点でロール定義が摩擦源になっている観測事実がなく、再検討は具体的な摩擦が観測されたときに行う |
 

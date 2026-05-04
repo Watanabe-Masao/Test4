@@ -95,7 +95,7 @@ export default defineConfig({
         //    conditionSummaryDailyBuilders の 5 builder を新規カバー。
         //    coverage 49.14 → 49.73 (+0.59 pt)、margin 1.73 pt の安全 ratchet up)
         // - 目標: 70 (Phase 3 完了時)
-        // - 詳細: projects/presentation-quality-hardening/HANDOFF.md §2 Step 4
+        // - 詳細: projects/active/presentation-quality-hardening/HANDOFF.md §2 Step 4
         // - 不可侵原則 #1: 機械的引き上げ禁止 = test 追加と並行する
         lines: 48,
         'src/domain/calculations/**': {

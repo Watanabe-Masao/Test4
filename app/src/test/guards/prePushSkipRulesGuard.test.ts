@@ -17,7 +17,7 @@
  * - **S3: 全 rule に rationale フィールド存在** (= human-readable why we don't check)
  * - **S4: matchAll が valid regex として parse 可能**
  *
- * 詳細: projects/aag-self-hosting-completion/decision-audit.md DA-β-001
+ * 詳細: projects/completed/aag-self-hosting-completion/decision-audit.md DA-β-001
  *
  * @responsibility R:guard
  * @taxonomyKind T:meta-guard

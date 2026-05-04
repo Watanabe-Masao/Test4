@@ -407,7 +407,7 @@ Allowed exceptions
 - `references/03-implementation/discovery-review-checklist.md` — グレーパターンの逃がし先
 - `references/03-implementation/coding-conventions.md` — TypeScript / lint 規約（rationale 形式の正本）
 - `projects/completed/test-signal-integrity/plan.md` — 本原則の実装計画と Phase 構造
-- `projects/presentation-quality-hardening/checklist.md` — 本原則の Phase 3 完了を coverage 70 引き上げの前提条件として参照する application-side project
+- `projects/active/presentation-quality-hardening/checklist.md` — 本原則の Phase 3 完了を coverage 70 引き上げの前提条件として参照する application-side project
 
 ## 実装ルール ID リファレンス
 

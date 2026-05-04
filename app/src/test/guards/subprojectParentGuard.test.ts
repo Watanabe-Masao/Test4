@@ -50,6 +50,11 @@ function listAllProjects(): ProjectEntry[] {
         collectFromDir(path.join(dir, 'completed'), true)
         continue
       }
+      // R6b (DA-α-007b、2026-05-03): projects/active/<id>/ split に対応。
+      if (!isArchived && entry.name === 'active') {
+        collectFromDir(path.join(dir, 'active'), false)
+        continue
+      }
       const configPath = path.join(dir, entry.name, 'config/project.json')
       if (!fs.existsSync(configPath)) continue
       try {

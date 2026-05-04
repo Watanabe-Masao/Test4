@@ -9112,7 +9112,7 @@ export const ARCHITECTURE_RULES: readonly BaseRule[] = [
   // 7 rule の metadata 登録。実装検出は v2 guard test 群（責務軸 / テスト軸 /
   // interlock）が担う。本 entry は AAG framework との橋渡し（getRuleById /
   // executionOverlay の整合性保証）として機能する。
-  // 詳細: projects/taxonomy-v2/plan.md §AR-TAXONOMY-* 仕様正本
+  // 詳細: projects/active/taxonomy-v2/plan.md §AR-TAXONOMY-* 仕様正本
 
   {
     slice: "governance-ops",
