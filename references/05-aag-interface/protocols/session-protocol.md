@@ -26,11 +26,7 @@
 
 = L 別 read order は CLAUDE.md + CURRENT_PROJECT.md で active project が確定した **後** に適用。
 
-### 1.2 旧 §1.1 (= 4 step) との関係
-
-旧 articulate (= M1 landing 時の §1.1) は L 識別なしの全 level 共通手順だった。**M2 で L 別に refine** = L1 で AI_CONTEXT を全読しない / L3 で decision-audit を必ず読む等、level 別の読書 cost を articulate。
-
-discovery-log.md は **必要時** 読 (= L 不問、scope 外発見の continuity が必要な session でのみ)。
+> **M1 → M2 refine note**: 旧 §1.1 (= M1 landing 時の 4 step) は L 識別なしの全 level 共通手順だった。M2 で L 別に refine = L1 で AI_CONTEXT を全読しない / L3 で decision-audit を必ず読む等、level 別の読書 cost を articulate。discovery-log.md は **必要時** 読 (= L 不問、scope 外発見の continuity が必要な session でのみ)。
 
 ### 1.2 Task Class 判定 (= `task-class-catalog.md` §8 flow 適用)
 
