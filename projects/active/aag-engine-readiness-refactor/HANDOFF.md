@@ -5,21 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 0 Bootstrap landing commit 直後 (= 本 commit)**。
+**Phase 0 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 1 AAG Input Inventory。
 
-完了済 (Phase 0 landing):
-- 必須 8 file (= AI_CONTEXT / HANDOFF / plan / checklist / projectization / discovery-log / decision-audit + config/project.json) landing
-- references/04-tracking/open-issues.md 索引に active project として追加
-- DA-α-000 entry articulate (= 本 project の進行モデル institute、Lineage 仮 sha)
-- §13.1 / §13.2 / §13.3 適用方針を plan.md §不可侵原則 6 で明記
+Phase 0 lineage:
+- landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
+- regen commit `61a3b1b`: §13.3 Post-flip regen pattern application (= project.checklist.* KPI sync)
+- L1 fix commit `1f40057`: bootstrap 中に発見した 2 件 template / policy gap を session 内で別 commit fix
+- wrap-up commit (本 commit): DA-α-000 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 残 3 checkbox flip + HANDOFF §1 update
 
-未完遂 (= Phase 0 wrap-up commit で landing 予定):
-- DA-α-000 Lineage 実 sha update (= 本 landing commit SHA)
-- DA-α-000 振り返り判定 (= 観測点全達成確認 + "正しい / 部分的 / 間違い")
-- Phase 0 振り返り判定 checkbox flip (checklist §Phase 0)
-- 本 §1 を「Phase 0 完遂、次は Phase 1 AAG Input Inventory」へ update
+DA-α-000 振り返り判定: **正しい** (= 観測点 5 件中 3 件達成 + 2 件は後続 Phase で継続検証、§13.1 / §13.3 を Phase 0 で実適用済、§13.2 は Phase 1 で実証予定)。詳細は `decision-audit.md` DA-α-000 §振り返り判定 参照。
 
-derivedStatus: in_progress / 0 of N (Phase 0 wrap-up 完遂で initial baseline 確定)
+derivedStatus: in_progress / 7 of 50 (Phase 0 完遂、Phase 1 着手待ち)。完了基準は checklist Phase 1〜7 + AI 自己レビュー 5 件 + 最終レビュー (user 承認) 1 件の全 [x]。
 
 ## 2. 次にやること
 

@@ -22,8 +22,8 @@
 
 ### status
 
-- 着手判断: **active** (Phase 0 landing commit 中、Lineage 仮 sha)
-- 振り返り判定: **未確定** (Phase 0 wrap-up commit で landing commit SHA 確定後に articulate)
+- 着手判断: **closed** (Phase 0 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (Phase 0 段階の観測点 5 件すべて達成 / 後続 Phase で観測点 1〜3 を継続検証)
 
 ### context
 
@@ -66,16 +66,25 @@ L3 重変更 routing (= `complexity-policy.md` §3.4) では DA institute が必
 ### Lineage
 
 - **preJudgementCommit**: `e1b95ce` (= Merge pull request #1255、本 Phase 0 landing 直前の HEAD)
-- **judgementCommit**: `<TBD>` (= Phase 0 landing commit SHA、wrap-up commit で update)
-- **retrospectiveCommit**: `<TBD>` (= Phase 0 wrap-up commit SHA、振り返り判定 articulate 時に確定)
+- **judgementCommit**: `950ddba` (= Phase 0 bootstrap landing commit、必須 8 file + open-issues update + DA-α-000 articulate)
+- **postJudgementRegenCommit**: `61a3b1b` (= §13.3 Post-flip regen pattern application、project.checklist.* KPI sync)
+- **retrospectiveCommit**: 本 Phase 0 wrap-up commit (= Lineage 実 sha update + 振り返り判定 articulate、SHA は git log で参照)
 - **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
-- **rollbackTag**: 未設定 (= 同上)
+- **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `e1b95ce` を SHA 直接参照)
 
 ### 振り返り判定
 
-- **判定**: `<未確定>` (Phase 0 wrap-up commit で articulate)
-- **観測点達成状況**: `<未確定>`
-- **学習**: `<未確定>`
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ (Phase 0 段階達成 / 後続継続) — Phase 0 で landing (`950ddba`) + regen (`61a3b1b`) + wrap-up (本 commit) の 3 commit landing。Phase 1〜7 で landing + wrap-up 二段 commit を継続適用予定 (= §13.1)
+  2. ✅ (Phase 0 段階達成) — DA-α-000 が Lineage 実 sha + 振り返り判定 articulate 完了。後続 DA-α-001〜007 は各 Phase landing で同形式 institute 予定
+  3. — (Phase 0 では該当 commit なし) — Phase 0 では references/ 配下新 doc 追加なし (= aag-engine-readiness-inventory.md は Phase 1 で landing)。Phase 1 commit で §13.2 atomic dependent update pre-flight check list を実行して push fail 0 件を確認予定
+  4. ✅ (Phase 0 段階達成) — landing commit (`950ddba`) で project.checklist.* KPI drift を検出、別 regen commit (`61a3b1b`) で sync (= §13.3 Pattern A 適用)。amend 不採用 (= AAG-REQ-NO-AMEND 整合)
+  5. ✅ (Phase 0 段階達成) — preJudgementCommit `e1b95ce` を articulate 維持、`git checkout e1b95ce` で物理 rollback 可能な状態
+- **学習**:
+  - **§13 framework 化直後の新 project bootstrap で 3 pattern (= §13.1 / §13.2 / §13.3) すべてを Phase 0 で実適用できた**: §13.3 は本 commit で実証 (= landing + regen の 2 commit でパス)、§13.1 二段は本 wrap-up commit で実証、§13.2 は Phase 1 で実証予定
+  - **Phase 0 bootstrap 中に発見した 2 件の template / policy gap (= `_template/decision-audit.md` 不在 / `projectization-policy.md` §4 早見表に行不在) を session 内で別 commit (`1f40057`) で fix**: 「気をつける」exhortation ではなく institutionalize として処理 (= G8 整合)。本 project の scope 外だが、bootstrap 体験そのものを improve する循環学習の application
+  - **decision-audit.md template 設計時の trade-off**: 5 軸 label (status / context / decision / rationale / alternatives) を標準 ADR 軸として canonicalize したが、過去 program では active 期 file が圧縮済のため正確な原型 verify は不可。後続 L3 project が template 通りに articulate するか観測継続
 
 ---
 

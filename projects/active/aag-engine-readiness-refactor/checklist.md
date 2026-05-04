@@ -13,9 +13,9 @@
 * [x] `references/04-tracking/open-issues.md` の active project 索引に本 project 行を追加する
 * [x] DA-α-000 entry を decision-audit.md に articulate する (= 5 軸 + 観測点 + Lineage 仮 sha)
 * [x] §13.1 / §13.2 / §13.3 適用方針を plan.md §不可侵原則 6 に明記する
-* [ ] DA-α-000 Lineage 実 sha update + 振り返り判定 (= wrap-up commit で flip)
-* [ ] checklistFormatGuard / projectCompletionConsistencyGuard / projectizationPolicyGuard が本 project に対して PASS する
-* [ ] docs:check が PASS する (= project-health.json に本 project が `derivedStatus = in_progress` で出現)
+* [x] DA-α-000 Lineage 実 sha update + 振り返り判定 (= wrap-up commit で flip)
+* [x] checklistFormatGuard / projectCompletionConsistencyGuard / projectizationPolicyGuard が本 project に対して PASS する
+* [x] docs:check が PASS する (= project-health.json に本 project が `derivedStatus = in_progress` で出現)
 
 ## Phase 1: AAG Input Inventory
 
