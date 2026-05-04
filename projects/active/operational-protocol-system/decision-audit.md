@@ -281,22 +281,28 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: TBD (= M3 landing commit、commit 後に実 sha update)
-- preJudgementCommit: TBD (= M2 wrap-up regen の HEAD = `b619a505e`)
-- judgementTag: `operational-protocol-system/DA-α-003-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- judgementCommit: `2a5033f98` (= M3 landing commit、complexity-policy.md 拡張 + DA-α-003 entry + checklist + HANDOFF update)
+- preJudgementCommit: `b619a505ed81ccffce555cc00933f4b270948857` (= M2 wrap-up commit、M3 直前 HEAD)
+- judgementTag: `operational-protocol-system/DA-α-003-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照)
 - rollbackTag: `operational-protocol-system/DA-α-003-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
 - implementationCommits:
-  - TBD — M3 全実装 (= complexity-policy.md 拡張 + DA-α-003 entry + checklist update + HANDOFF update)
+  - `2a5033f98` — M3 landing (= complexity-policy.md §4 全面 refine + DA-α-003 entry)
 
-### 振り返り (Phase M3 完了 / TBD)
+### 振り返り (Phase M3 完了 / 2026-05-04)
 
-> Phase M3 完了直前に追記、observation 4 件すべて実測。
-
-- 観測点 1〜4: TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+- 観測点 1 (M3-1 肯定): ✅ **達成**。`complexity-policy.md` §4.1 で 10 件昇格 trigger articulated (= ≥ 6 件 を 4 件超過、各 trigger に P-番号 + 性質 + level 移行 + 該当例)
+- 観測点 2 (M3-2 肯定): ✅ **達成**。§4.2 で 7 件降格 trigger articulated (= ≥ 4 件 を 3 件超過、各 trigger に D-番号)
+- 観測点 3 (M3-3 肯定): ✅ **達成**。§4.3 (昇格時手順 = L1→L2 / L2→L3 / L1→L3 直接) + §4.4 (降格時手順) + §4.5 (articulation template) + §4.6 (AI judgement 範囲) で 3 transition path + AI judgement 境界 articulate
+- 観測点 4 (M3-4 反証): ✅ **達成**。本 session の M2 → M3 着手で「L2 継続維持」判定が articulate されている (= 本 wrap-up 全体が L2 通常変更 で完遂、trigger §4.1 P5/P6 (multi-axis 拡張 / checklist 局所外) が観察されたが「同 protocol family 内」の articulate refine で吸収可能と判定 → L2 継続)。self-application instance として trace 可能
+- **判定**: **正しい** (= 4 観測点すべて達成、scope 拡大なし、新 doc 追加なし、complexity-policy.md 単独拡張で完遂、drawer Pattern 5 scope discipline 整合、AAG-REQ-NON-PERFORMATIVE (= AI judgement に委ねる) 整合)
+- 学習:
+  - **trigger ID 化の有効性**: P1-P10 / D1-D7 の ID articulate により、user escalate 時の articulation template (§4.5) で「P5 trigger により L2 → L3 切替」のような precise reference が可能化 (= drawer Pattern 4 honest articulation 強化)
+  - **昇格 / 降格の非対称性 articulate**: 昇格は新 artifact 起票必須 (= L2 で plan.md / L3 で decision-audit.md)、降格は既起票 artifact retire 不要 (= 既起票 = fact、削除すると lose)。M3 で初めて articulated、後続 M4-M5 でも同種非対称性 pattern 適用候補
+  - **AI judgement 範囲 articulate の必要性**: 「自動判定 OK / NG」境界を §4.6 で明示することで、reader (= AI session) が AAG-REQ-NO-AI-HUMAN-SUBSTITUTION 違反 risk を事前 articulate (= guard なしでも protocol 自体が boundary 機械化)
+  - **self-application が再々度機能 (M1/M2 学習の確認)**: 本 session が L2 routing instance として M3 trigger を能動的に観察 (P5/P6) + 「L2 継続維持」判定 articulate に成立、後続 M4-M5 でも同様 self-test pattern 活用可
+- retrospectiveCommit: 本 wrap-up commit (= DA-α-003 振り返り articulation を含む follow-up commit)
+- retrospectiveTag: `operational-protocol-system/DA-α-003-retrospective` (= 同 infrastructure 制約で未 landing、SHA 直接参照)
 
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+- (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)

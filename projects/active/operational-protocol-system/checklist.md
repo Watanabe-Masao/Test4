@@ -51,7 +51,7 @@
 - [x] **観測** M3-2: 降格 trigger ≥ 4 件 articulated (= 7 件で 3 件超過達成)
 - [x] **観測** M3-3: 昇格時手順 articulated (= §4.3 + §4.4 + §4.5 で 3 transition path articulate)
 - [x] **観測** M3-4: 反証 — synthetic task で trigger 該当 → 手順実行が verify 可能 (= 本 session の M2 → M3 着手で「L2 継続維持」判定が trigger §4.1 P5/P6 観点で trace 可能、self-application instance)
-- [ ] DA-α-003 振り返り判定 (本 wrap-up 後 [x])
+- [x] DA-α-003 振り返り判定 (= **正しい**、4 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-003 §「振り返り (Phase M3 完了 / 2026-05-04)」参照)
 
 ## Phase M4: Task Class ごとの標準手順 (= 5 protocol)
 
