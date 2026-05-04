@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-04T03:00:27.001Z
+> 生成: 2026-05-04T08:14:37.781Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1531 |
-| 全 project の checked checkbox 総数 | 1224 |
+| 全 project の checked checkbox 総数 | 1227 |
 
 ## projects
 
@@ -56,7 +56,7 @@
 | `phased-content-specs-rollout` | Content Spec System 段階展開計画 | **archived** | — | 72/72 (100%) | [`projects/completed/phased-content-specs-rollout/AI_CONTEXT.md`](../../../projects/completed/phased-content-specs-rollout/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/21 (62%) | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
-| `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 84/119 (71%) | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
+| `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 87/119 (73%) | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 12/13 (92%) | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../../projects/active/quick-fixes/AI_CONTEXT.md) |
 | `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **archived** | `taxonomy-v2` | — | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
 | `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 50/60 (83%) | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../../projects/active/taxonomy-v2/AI_CONTEXT.md) |

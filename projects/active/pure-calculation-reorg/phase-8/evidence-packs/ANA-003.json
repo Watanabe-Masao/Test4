@@ -1,0 +1,37 @@
+{
+  "targetId": "ANA-003",
+  "targetFile": "candidate/algorithms/sensitivity.ts",
+  "semanticClass": "analytic",
+  "authorityKind": "candidate-authoritative",
+  "track": "candidate",
+  "registryDiff": {
+    "fromStatus": "candidate",
+    "toStatus": "current",
+    "fromAuthority": "candidate-authoritative",
+    "toAuthority": "analytic-authoritative"
+  },
+  "bridgeMode": "dual-run-compare",
+  "parityResult": {
+    "valueMatch": false,
+    "nullMatch": false,
+    "warningMatch": false,
+    "methodUsedMatch": false,
+    "scopeMatch": false,
+    "criticalDiffCount": -1,
+    "observationDays": 0
+  },
+  "rollbackEvidence": {
+    "tested": false,
+    "canRevertToCurrentOnly": false,
+    "testedAt": null
+  },
+  "guardStatus": {
+    "hardGatePass": false,
+    "failedRules": [
+      "__PLACEHOLDER__"
+    ],
+    "checkedAt": "2026-05-04T08:08:36.016Z"
+  },
+  "collectedAt": "2026-05-04T08:08:36.016Z",
+  "reviewerSummary": null
+}

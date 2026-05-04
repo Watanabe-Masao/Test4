@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/active/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-05-04T03:00:26.968Z",
+  "generatedAt": "2026-05-04T08:14:37.762Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {

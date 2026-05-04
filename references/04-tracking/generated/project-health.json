@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T03:00:27.001Z",
+  "timestamp": "2026-05-04T08:14:37.781Z",
   "summary": {
     "active": 5,
     "archived": 38,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1531,
-    "checkedCheckboxes": 1224
+    "checkedCheckboxes": 1227
   },
   "projects": [
     {
@@ -464,9 +464,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 84,
+      "checked": 87,
       "total": 119,
-      "progress": 0.706,
+      "progress": 0.731,
       "entrypoint": "projects/active/pure-calculation-reorg/AI_CONTEXT.md",
       "checklistPath": "projects/active/pure-calculation-reorg/checklist.md",
       "parent": null
