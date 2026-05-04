@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 2 landing 完了 (= 本 commit landing 後)**。次は Phase 2 wrap-up commit。
+**Phase 2 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 3 Collector / Detector / Renderer 分離。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
@@ -22,38 +22,31 @@ Phase 1 lineage (= 完遂済):
 - wrap-up commit `6613d54`: DA-α-001 Lineage 実 sha + 振り返り判定 "正しい"
 - regen commit `2cc8fa9`: §13.3 Pattern A application
 
-Phase 2 lineage (= landing 段階):
-- landing commit (本 commit): `tools/architecture-health/src/detector-result.ts` 新設 + `tools/architecture-health/src/detectors/project-lifecycle-detector.ts` (= 1 系統 demonstration) + `app/src/test/guards/detectorResultModuleGuard.test.ts` (= 20 unit test) + `aagContractSchemaSyncGuard.test.ts` extension (= 3 新 test) + guard-test-map.md 更新 (= 新 guard 登録 + extended sync guard 件数 update) + DA-α-002 articulate (Lineage 仮 sha) + checklist Phase 2 3 件 flip
+Phase 2 lineage (= 完遂済):
+- landing commit `75257d7`: detector-result.ts + detectors/project-lifecycle-detector.ts + detectorResultModuleGuard.test.ts (20 test) + aagContractSchemaSyncGuard 拡張 (3 新 test) + guard-test-map.md update + DA-α-002 articulate (Lineage 仮 sha) + checklist Phase 2 3 件 flip
+- regen commit `1949db8`: §13.3 Pattern A application (= project-structure.md generated section + 14 KPI/generated artifact sync)
+- wrap-up commit (本 commit): DA-α-002 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 4 件目 [x] flip + HANDOFF §1 update
 
-Phase 2 重要発見 (= DA-α-002 §context):
+DA-α-002 振り返り判定: **正しい** (= 観測点 7 件すべて達成)。詳細は `decision-audit.md` DA-α-002 §振り返り判定 参照。
+
+Phase 2 重要発見 (= DA-α-002 §context、後続 Phase で活かす学習):
 - `docs/contracts/aag/detector-result.schema.json` が **既存** (= aag-platformization Pilot Phase 1 / A3 で landed、forward-looking)
 - TS implementation は不在、5 系統での adoption は post-Pilot に分離されていた
 - Phase 2 の意義 = aag-platformization が forward-looking で残した integration を engine readiness の foundation として継承
-- scope 候補 B 採用 (= Foundation + 1 系統 demonstration、5 系統全 adoption は Phase 3 統合 routing)
+- **plan.md sketch と canonical contract で差異がある場合は canonical contract 優先** という pattern を学習 (= Phase 3 以降で活用)
 
-§13 commit pattern 累積 application (= Phase 0〜2 landing 時点):
-- §13.1 二段 commit: 5 instance (= Phase 0 + 1 + 2 landing/wrap-up、Phase 2 wrap-up は本 commit 後の次 commit で landing 予定)
+§13 commit pattern 累積 application (= Phase 0〜2 完遂時点):
+- §13.1 二段 commit: 6 instance (= Phase 0 + 1 + 2 各 landing/wrap-up)
 - §13.2 atomic dependent update: 1 instance (= Phase 1 landing)
-- §13.3 post-flip regen: 2 instance (= Phase 0 後 + Phase 1 後 × 2、Phase 2 後の regen は次 commit)
+- §13.3 post-flip regen: 4 instance (= Phase 0 後 + Phase 1 landing/wrap-up 後 + Phase 2 landing 後)
 
-derivedStatus: in_progress / 14 of 50 (Phase 2 landing 段階達成、wrap-up 待ち)。
+derivedStatus: in_progress / 15 of 50 (Phase 2 完遂、Phase 3 着手待ち)。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（直近 = Phase 2 wrap-up）
-
-- **(該当時) docs:generate 反映 commit** (= §13.3 適用):
-  - 本 landing commit に新 guard test file 追加 + checkbox 3 件 flip が含まれるため、project-structure.md generated section + project.checklist.checkedCheckboxes KPI drift 発生想定
-  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push
-- **Phase 2 wrap-up commit** (= §13.1 適用):
-  - decision-audit.md DA-α-002 Lineage 実 sha update
-  - decision-audit.md DA-α-002 振り返り判定 articulate (= 観測点 1〜7 達成状況 + 学習)
-  - checklist Phase 2 4 件目 (= DA-α-002 振り返り判定) checkbox を [x] flip
-  - 本 HANDOFF §1 を Phase 2 完遂状態に update
-
-### 中優先（次 PR = Phase 3）
+### 高優先（次 PR = Phase 3）
 
 - **Phase 3 Collector / Detector / Renderer 分離 landing commit**:
   - `tools/architecture-health/` 配下のフローを collector → detector → evaluator → renderer に分離

@@ -175,8 +175,8 @@ phase。本 inventory の **物理配置** (= projects/ 内に閉じるか / ref
 
 ### status
 
-- 着手判断: **open** (Phase 2 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 2 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 2 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 7 件すべて達成)
 
 ### context
 
@@ -232,15 +232,28 @@ Phase 2 進入時の重要発見:
 ### Lineage
 
 - **preJudgementCommit**: `2cc8fa9` (= Phase 1 wrap-up 後 regen commit、本 Phase 2 landing 直前の HEAD)
-- **judgementCommit**: 本 Phase 2 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= 新 guard test 追加で project-structure.md generated section drift + 後続 checkbox flip による project.checklist.* drift)
-- **retrospectiveCommit**: 本 Phase 2 wrap-up commit
+- **judgementCommit**: `75257d7` (= Phase 2 landing commit、DetectorResult TS implementation + 1 系統 demonstration + sync guard extension)
+- **postJudgementRegenCommit**: `1949db8` (= §13.3 Pattern A application、project-structure.md generated section + 14 KPI/generated artifact sync)
+- **retrospectiveCommit**: 本 Phase 2 wrap-up commit (= Lineage 実 sha update + 振り返り判定 articulate、SHA は git log で参照)
 - **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
 - **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `2cc8fa9` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 2 wrap-up commit で articulate 予定。観測点 1〜7 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `tools/architecture-health/src/detector-result.ts` の TS interface field set (= ruleId / detectionType / sourceFile / severity required + evidence / actual / baseline / messageSeed optional) が canonical schema と structurally identical (= aagContractSchemaSyncGuard 新 3 test で機械検証済)
+  2. ✅ `createDetectorResult` factory validation hard fail (= ruleId / detectionType / sourceFile / messageSeed 空文字 throw、evidence 空文字 throw、severity enum、4 throw test + 1 frozen test PASS)
+  3. ✅ `aggregateDetectorResults` severity 集約 articulate (= gate / block-merge → fixNow=now、全件 warn → fixNow=debt、3 test PASS)
+  4. ✅ `renderDetectorResultsAsJson` deterministic ordering (= severity → ruleId → sourceFile、3 test PASS = sort + empty + indent)
+  5. ✅ `detectProjectLifecycleViolations` が既存 `projectCompletionConsistencyGuard` の C1 と意味的に等価 (= 4 test PASS = completed-not-archived emit / in_progress 等は emit せず / 複数 violation all detect / 空 array で 0 件)
+  6. ✅ 既存 production guard `projectCompletionConsistencyGuard.test.ts` は **変更されていない** (= git show 75257d7 --stat で対象 file が file list に存在しないことを確認、demonstration detector が parallel implementation として並存)
+  7. ✅ 全 guard test PASS (= 147 file / 992 test、既存 969 + detectorResultModuleGuard 20 + aagContractSchemaSyncGuard 拡張 3)
+- **学習**:
+  - **plan.md は draft、canonical schema が真の正本という learning**: Phase 2 進入時に detector-result.schema.json が既存 forward-looking として landed されていることを発見 (= aag-platformization Pilot Phase 1 / A3 での deliverable)。plan.md の DetectorResult 構造 sketch は draft であり、canonical schema (= sync guard で機械検証済) を踏襲する判断が正しかった。後続 Phase でも plan.md sketch と canonical contract で差異がある場合は **canonical contract 優先** という pattern を articulate
+  - **scope 候補 B (= Foundation + 1 系統 demonstration) の wisdom**: 候補 A (= 5 系統全 adoption) を Phase 2 単独で完遂すると ~10-15 file / ~500-800 line PR となり、§13.1 二段 commit pattern が weight 過多になる。候補 B では Phase 2 (= foundation 8 file / ~985 line) と Phase 3 (= 残り 4 系統 adoption + collector / detector / renderer 分離) で role を分担、各 Phase の commit pattern が natural なサイズで進行可能
+  - **demonstration detector の parallel implementation pattern**: 既存 production guard を変更せず、新 detector を **同じ violation 経路** で parallel に articulate することで、不可侵原則 2 (= 既存 guard 意味不変) と Phase 2 完了条件 (= 5 系統で使用開始) を両立。後続 Phase 3 で他 4 系統に展開する際の base pattern として institutionalize
+  - **guard test 新規追加の 3 経路 co-change**: 新 guard test file 追加には (a) guard-test-map.md 登録 (= ratchet-down baseline 維持) (b) project-structure.md generated section regen (= guards-files-list update) (c) KPI baseline 維持 (= 件数 advisory) の 3 経路 co-change が必要。これを landing commit (= guard-test-map manual + 新 file) + §13.3 regen commit (= project-structure.md generated section + KPI sync) の 2 commit に articulate するのが pattern。Phase 3 で 4 系統分の guard 追加が予定されているため、本 pattern を repeating template として後続適用
 
 ---
 

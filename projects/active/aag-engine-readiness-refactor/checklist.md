@@ -29,7 +29,7 @@
 * [x] `tools/architecture-health/src/` 配下に DetectorResult schema + helper を新設する (= `detector-result.ts` + `detectors/project-lifecycle-detector.ts` + `aagContractSchemaSyncGuard` extension)
 * [x] project lifecycle / archive manifest / doc registry / generated artifact metadata / schema validation の 5 系統で DetectorResult output を使用開始する (= 解釈: 1 系統 demonstration + 残り 4 系統は Phase 3 統合 routing で adoption、DA-α-002 §decision)
 * [x] human-readable renderer と DetectorResult[] machine output を分離する (= `aggregateDetectorResults` / `detectorResultToAagResponse` / `renderDetectorResultsAsJson` の 3 経路で articulate)
-* [ ] DA-α-002 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-002 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 3: Collector / Detector / Renderer 分離
 
