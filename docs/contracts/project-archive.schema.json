@@ -1,0 +1,176 @@
+{
+  "$comment": "Project Archive v2 schema — completed → archived 移行時に project ディレクトリを 2 file (ARCHIVE.md + archive.manifest.json) に圧縮する形式の正本契約。Archive v2 PR 2 (2026-05-04) で landing。実 pilot は PR 3 (aag-self-hosting-completion 圧縮) で実施。検証 guard は PR 4 で `archiveVersion: 2` の project だけを対象に追加予定。v1 (= 旧 path、ディレクトリ全体保持) と v2 (= 圧縮形式) は並存可能。",
+  "version": "1.0.0",
+  "owner": "documentation-steward",
+  "rationale": "completed project は archive 後にほぼ read-only になるが、ディレクトリ全体 (HANDOFF.md / plan.md / checklist.md / decision-audit.md / projectization.md / discovery-log.md / DERIVED.md / config/ / aag/ / etc.) を維持し続けると repo 体積と doc 探索コストが増大する。Archive v2 では ARCHIVE.md (= human-readable summary) + archive.manifest.json (= machine-checkable recovery metadata) の 2 file に圧縮し、restore 必要時は manifest 内の `restoreAllCommand` で git checkout 可能な状態を維持する。",
+  "policy": {
+    "scope": "completed → archived 移行時にのみ適用。active project には適用しない (= 圧縮対象外)。",
+    "v1Compatibility": "既存 archived project (= ディレクトリ全体維持形式) は v1 として許容。本 schema 検証は `archive.manifest.json` の `archiveVersion: 2` を持つ project に限定 (= migration ではなく additive)。",
+    "compressionTrigger": "archive プロセス §6.2 完了後、user 承認のもとで圧縮を実施。緊急圧縮 / 自動圧縮は禁止 (= drawer Pattern 4 honest articulation 整合、project の institution-level memory を意図的に retain する判断は人間判断)。",
+    "restorePolicy": "manifest 内 `restoreAllCommand` を実行することで preCompressionCommit 時点の全 file を git checkout 可能。restore 後 archived 配下に書き戻す operation は git の checkout 機能のみ使用 (= 別途 restore script 不要)。"
+  },
+  "structure": {
+    "compressedDirectory": "projects/completed/<id>/",
+    "requiredFiles": [
+      {
+        "path": "ARCHIVE.md",
+        "role": "human-readable summary (= 機能 / 完遂内容 / archive 経緯 / restore 手順を 1 file に集約)",
+        "minimumSections": [
+          "# <projectId>",
+          "## 完遂内容 (= 達成 milestone summary)",
+          "## archive 経緯 (= 完了判定 + user 承認 lineage)",
+          "## restore 手順 (= manifest 内 restoreAllCommand への pointer)",
+          "## 関連 (= references / 後続 program / 親 program 等の cross-link)"
+        ]
+      },
+      {
+        "path": "archive.manifest.json",
+        "role": "machine-checkable recovery metadata",
+        "schemaSee": "本 file §manifestSchema"
+      }
+    ],
+    "deletedFiles": "AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / config/ / aag/ / derived/ など、active 期に institution に必要だった全 file (= manifest `compressedFiles` array に articulate)。これらは git history に残るため commit history 経由で参照可能。"
+  },
+  "manifestSchema": {
+    "archiveVersion": {
+      "type": "integer",
+      "fixed": 2,
+      "rationale": "v1 (= ディレクトリ全体保持) と区別する識別子。v2 schema 検証 guard は本 field=2 を gate にする。"
+    },
+    "projectId": {
+      "type": "string",
+      "rationale": "compressedDirectory basename と一致。"
+    },
+    "title": {
+      "type": "string",
+      "rationale": "open-issues.md archived table title と一致。"
+    },
+    "archivedAt": {
+      "type": "string",
+      "format": "YYYY-MM-DD",
+      "rationale": "archive 移行 commit の date。"
+    },
+    "preCompressionCommit": {
+      "type": "string",
+      "format": "git SHA (40 char)",
+      "rationale": "圧縮直前の commit SHA。restore の起点。"
+    },
+    "preCompressionTag": {
+      "type": "string",
+      "format": "tag name | null",
+      "rationale": "圧縮直前に annotated tag を作成した場合の tag 名。tag 不可環境 (= AI session で過去観測された GitHub HTTP 403) では null 許容、SHA だけで restore 可能。"
+    },
+    "compressionTag": {
+      "type": "string",
+      "format": "tag name | null",
+      "rationale": "圧縮実施 commit に annotated tag を作成した場合の tag 名。任意。"
+    },
+    "compressionCommit": {
+      "type": "string",
+      "format": "git SHA (40 char) | null",
+      "rationale": "圧縮実施 commit の SHA。本 manifest を含む commit。manifest write 時点では未確定なので post-commit に追記、または null のまま git log で参照する運用も許容。"
+    },
+    "deletedPaths": {
+      "type": "array<string>",
+      "rationale": "本圧縮で削除した path を articulate (= compressedDirectory 配下の relative path)。restore 時に何が復活するかの予告 list。"
+    },
+    "compressedFiles": {
+      "type": "array<object>",
+      "itemShape": {
+        "path": "string (= deletedPaths と同じ entry)",
+        "lineCount": "integer (= 圧縮前の file 行数、参考情報)",
+        "summary": "string (= file の役割 1 文 articulate、ARCHIVE.md への要約集約 hint)"
+      },
+      "rationale": "deletedPaths を richer に articulate。ARCHIVE.md 生成時に summary を集約する hint としても使う。"
+    },
+    "restoreAllCommand": {
+      "type": "string",
+      "format": "shell command",
+      "rationale": "preCompressionCommit から compressedDirectory 配下の全 deletedPaths を checkout する命令。例: `git checkout <preCompressionCommit> -- projects/completed/<id>/AI_CONTEXT.md projects/completed/<id>/HANDOFF.md ...`。AI が読んでそのまま実行可能な状態にする。"
+    },
+    "decisionEntries": {
+      "type": "array<object>",
+      "itemShape": {
+        "id": "string (= DA-α-NNN / DA-β-NNN 等の decision audit ID)",
+        "title": "string (= 1 文 articulate)",
+        "commitSha": "string (= decision を institute した commit、Lineage の起点)"
+      },
+      "rationale": "active 期 decision-audit.md を圧縮するため、decision の identity (id + title + commit SHA) を manifest に articulate。検証 guard が DA ID 重複 / DA SHA 不在を機械検出可能にする。"
+    },
+    "commitLineage": {
+      "type": "array<object>",
+      "itemShape": {
+        "phase": "string (= R1 / R2 / Phase 1 等の articulate identifier)",
+        "commitSha": "string (= phase 完遂 commit)",
+        "subject": "string (= commit subject 1 文)"
+      },
+      "rationale": "active 期の R-phase / Phase 別の commit lineage を articulate。git log で原 commit を探すための hint として保存。"
+    },
+    "relatedPrograms": {
+      "type": "array<object>",
+      "itemShape": {
+        "kind": "string (= parent | child | successor | sibling)",
+        "projectId": "string",
+        "rationale": "string"
+      },
+      "rationale": "親 program / 子 program / 後続 program / 並行 program との cross-link を articulate。restore 時に cross-link 対象の存在性を確認可能にする。"
+    },
+    "compressionRationale": {
+      "type": "string",
+      "rationale": "本圧縮を実施した理由を 1-3 文で articulate (= AAG-REQ-NON-PERFORMATIVE 整合、機械的圧縮の対偶判断)。"
+    }
+  },
+  "exampleManifest": {
+    "$comment": "本 example は schema illustrate のみ、実 project 値ではない。",
+    "archiveVersion": 2,
+    "projectId": "<example-project-id>",
+    "title": "<example title>",
+    "archivedAt": "2026-05-04",
+    "preCompressionCommit": "<40-char SHA>",
+    "preCompressionTag": null,
+    "compressionTag": null,
+    "compressionCommit": null,
+    "deletedPaths": [
+      "projects/completed/<example-project-id>/AI_CONTEXT.md",
+      "projects/completed/<example-project-id>/HANDOFF.md",
+      "projects/completed/<example-project-id>/plan.md",
+      "projects/completed/<example-project-id>/checklist.md",
+      "projects/completed/<example-project-id>/decision-audit.md"
+    ],
+    "compressedFiles": [
+      {
+        "path": "projects/completed/<example-project-id>/HANDOFF.md",
+        "lineCount": 314,
+        "summary": "後任者の入口 (= 完了済み全景 + 次にやること、active 期に live state articulate)"
+      }
+    ],
+    "restoreAllCommand": "git checkout <preCompressionCommit> -- projects/completed/<example-project-id>/AI_CONTEXT.md projects/completed/<example-project-id>/HANDOFF.md projects/completed/<example-project-id>/plan.md projects/completed/<example-project-id>/checklist.md projects/completed/<example-project-id>/decision-audit.md",
+    "decisionEntries": [
+      {
+        "id": "DA-α-001",
+        "title": "<example decision title>",
+        "commitSha": "<40-char SHA>"
+      }
+    ],
+    "commitLineage": [
+      {
+        "phase": "R1",
+        "commitSha": "<40-char SHA>",
+        "subject": "feat(R1): <example phase commit subject>"
+      }
+    ],
+    "relatedPrograms": [
+      {
+        "kind": "successor",
+        "projectId": "<successor-project-id>",
+        "rationale": "本 program archive 後に同じ scope を引き継ぐ"
+      }
+    ],
+    "compressionRationale": "active 期の institution document はすべて git history で取得可能であり、archive 後の reading cost を低減するため。restore は restoreAllCommand 1 行で復元可能。"
+  },
+  "verification": {
+    "currentLanding": "PR 2 (2026-05-04) で本 schema landing。実 pilot は PR 3 (aag-self-hosting-completion 圧縮) で実施。",
+    "guardLanding": "PR 4 で archiveVersion: 2 を持つ project に対する schema 整合 guard を追加予定。v1 archived project は本 guard scope 外 (= migration ではなく additive)。",
+    "scope": "本 schema は contract のみ。実 manifest 生成 tool / restore tool は本 schema landing 段階では作成しない (= drawer Pattern 4 honest articulation、必要に応じて後続 PR で institute)。"
+  }
+}

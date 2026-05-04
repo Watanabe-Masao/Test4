@@ -526,6 +526,88 @@ archive される project が依存していた references/ 文書は、project 
 | 9. 正本更新 | user | §6.2 の関連正本更新を同 commit で実施 |
 | 10. 最終確認 | docs:generate | project が `archived` として project-health に表示される |
 
+### 6.4. Archive v2 — 圧縮形式（optional、completed → archived 後に適用）
+
+> **位置付け**: §6.2 の archive プロセス完了後の **追加 step (= optional)**。compressed 形式で保存することで repo 体積と doc 探索コストを下げる。
+>
+> **landing**: 2026-05-04 (= Archive v2 PR 2)。schema 正本 = `docs/contracts/project-archive.schema.json`。
+>
+> **scope**: completed → archived 移行 **後** にのみ適用。active project には適用しない。
+>
+> **v1 / v2 並存**: 既存 archived project (= ディレクトリ全体維持形式) は **v1 として許容**。本 schema 検証は `archive.manifest.json` の `archiveVersion: 2` を持つ project に **限定** (= migration ではなく additive)。
+
+#### v2 圧縮形式
+
+```
+projects/completed/<id>/
+├── ARCHIVE.md                # human-readable summary
+└── archive.manifest.json     # machine-checkable recovery metadata
+```
+
+**削除対象**:
+- AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / config/ / aag/ / derived/
+- これらは **git history に残る**ため、commit history 経由で参照可能。`archive.manifest.json` の `restoreAllCommand` で 1 行 checkout 可能
+
+#### archive.manifest.json の必須 field
+
+詳細は `docs/contracts/project-archive.schema.json` §manifestSchema を参照。要約:
+
+| field | 役割 |
+|---|---|
+| `archiveVersion: 2` | v1 と区別する識別子 |
+| `projectId` / `title` / `archivedAt` | identification |
+| `preCompressionCommit` | 圧縮直前 SHA (= restore 起点) |
+| `preCompressionTag` / `compressionTag` | annotated tag (= 任意、不可環境では null) |
+| `compressionCommit` | 圧縮 commit SHA |
+| `deletedPaths` | 削除した relative path list |
+| `compressedFiles` | path + lineCount + 1 文 summary |
+| `restoreAllCommand` | git checkout 1 行 (= AI が読んで実行可能) |
+| `decisionEntries` | 圧縮前 decision-audit.md の id + title + commitSha |
+| `commitLineage` | phase + commitSha + subject (= R-phase / Phase 別 commit lineage) |
+| `relatedPrograms` | parent / child / successor / sibling cross-link |
+| `compressionRationale` | 1-3 文 articulate (= AAG-REQ-NON-PERFORMATIVE 整合) |
+
+#### v2 適用手順
+
+§6.2 archive プロセス完了 (= step 1-8 完了 + commit / push 済) 後:
+
+1. 圧縮直前の commit SHA を `preCompressionCommit` として記録
+2. 圧縮対象 file (= AI_CONTEXT.md / HANDOFF.md / plan.md / 等) を git rm
+3. `ARCHIVE.md` を新規作成 (= summary 集約、minimum sections は schema §structure 参照)
+4. `archive.manifest.json` を新規作成 (= field は schema §manifestSchema 準拠)
+5. atomic commit (= 圧縮 commit、commit SHA を `compressionCommit` field に追記する case は post-commit edit)
+6. (任意) annotated tag を作成し `compressionTag` field を更新
+7. push
+
+#### restore 手順
+
+archived project の **active 期 file が必要になった**場合:
+
+```bash
+# manifest 内 restoreAllCommand を実行
+$(jq -r '.restoreAllCommand' projects/completed/<id>/archive.manifest.json)
+```
+
+= preCompressionCommit 時点の全 file が working tree に復活。検査 / 参照後、必要に応じて再 archive (= git restore で working tree を archived 状態に戻す)。
+
+#### 不可侵原則
+
+1. v2 圧縮は **user 承認後にのみ実施** (= AAG-REQ-NON-PERFORMATIVE、自動圧縮禁止)
+2. v1 archived project への migration は **強制しない** (= 必要に応じて opt-in、案件単位で判断)
+3. 圧縮 commit には **必ず restoreAllCommand を含む** (= drawer Pattern 4 honest articulation、復元経路確保)
+4. 圧縮 rationale を `compressionRationale` field に **1-3 文 articulate** (= 機械的圧縮の対偶判断)
+
+#### 検証 guard (= 後続 PR で landing 予定)
+
+- `archiveVersion: 2` の project に対して以下を機械検証:
+  - 必須 field 全揃い
+  - `preCompressionCommit` が valid 40-char SHA
+  - `restoreAllCommand` が `git checkout <preCompressionCommit> --` で始まる
+  - `decisionEntries` の `commitSha` が SHA format
+
+v1 archived project は本 guard scope 外。
+
+
 ## 7. やってはいけないこと
 
 - checklist に「常時チェック」「やってはいけないこと」項を混ぜる（completion がぶれる）
