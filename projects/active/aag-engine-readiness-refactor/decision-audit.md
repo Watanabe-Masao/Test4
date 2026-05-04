@@ -92,8 +92,8 @@ L3 重変更 routing (= `complexity-policy.md` §3.4) では DA institute が必
 
 ### status
 
-- 着手判断: **open** (Phase 1 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 1 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 1 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 5 件すべて達成)
 
 ### context
 
@@ -148,15 +148,26 @@ phase。本 inventory の **物理配置** (= projects/ 内に閉じるか / ref
 ### Lineage
 
 - **preJudgementCommit**: `1c8ae86` (= Phase 0 wrap-up 後 regen commit、本 Phase 1 landing 直前の HEAD)
-- **judgementCommit**: 本 Phase 1 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= checkbox flip による project.checklist.* KPI drift が検出されたら別 regen commit で sync)
-- **retrospectiveCommit**: 本 Phase 1 wrap-up commit (= Lineage 実 sha update + 振り返り判定 articulate)
+- **judgementCommit**: `745a927` (= Phase 1 landing commit、§13.2 atomic dependent update 適用 = inventory doc 本体 + doc-registry / README index + DA-α-001 articulate + checklist flip + HANDOFF update を 1 commit に統合)
+- **postJudgementRegenCommit**: `ea1b3e3` (= §13.3 Pattern A 適用、project.checklist.checkedCheckboxes + 14 KPI/generated artifact sync)
+- **retrospectiveCommit**: 本 Phase 1 wrap-up commit (= Lineage 実 sha update + 振り返り判定 articulate、SHA は git log で参照)
 - **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
 - **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `1c8ae86` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 1 wrap-up commit で articulate 予定。観測点 1〜5 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ inventory が 5 分類 (= contracts / generated artifacts / project lifecycle / rule source / guard source) で articulate された (= §2〜§6 の 5 sections + §1 overview table)
+  2. ✅ 3 状態問題 (= active / completed v1 / completed v2 圧縮) の engine read 経路が §1 + §4.1〜4.3 で table 化された (= 圧縮済 v2 では `plan.md` / `checklist.md` が物理存在しない前提排除を §4.3 で明示、archive.manifest.json の 13 field を engine input 観点で articulate)
+  3. ✅ §13.2 atomic dependent update が成立 (= 1 landing commit `745a927` に inventory 本体 + doc-registry / README / DA articulation / checklist flip / HANDOFF update を統合、push fail 0 件 = wrap-up commit push 時に検証予定だが pre-push hook の範囲では成立)
+  4. ✅ docRegistryGuard / projectizationPolicyGuard / checklistFormatGuard / projectCompletionConsistencyGuard / projectDocStructureGuard / projectDocConsistencyGuard 全 PASS (= landing 前 verify で 146 file / 969 test PASS)
+  5. ✅ completed v2 圧縮済 project (= aag-self-hosting-completion / aag-platformization / operational-protocol-system) で `plan.md` / `checklist.md` 等が物理存在しないこと、engine が前提にした read を **してはならない** ことが §4.3 + §4.4 で articulate された (= §4.4 で 3 件名指しで articulate、§4.3 で `restoreAllCommand` 復元はせず manifest を直接 read する設計が default)
+- **学習**:
+  - **§13.2 pre-flight check list 5 件をすべて articulate して 1 atomic commit で通過**: doc-registry entry 追加 / README 索引追加 / CLAUDE.md link 追加判断 (= 不採用) / 既存 doc から inbound 追加判断 (= 不採用) / 同 commit 統合 の 5 項目を DA-α-001 §rationale + §decision で articulate、push fail 0 件達成。M1 で push fail × 2 した operational-protocol-system 学習が反映された
+  - **guard 修正 1 件発生 (= projectCompletionConsistencyGuard の path 言及検出)**: decision-audit.md alternatives (a)/(b) で **不採用候補の path** を backtick code 形式で書くと、guard が実 path reference と誤検出して hard fail。修正は仮想 path であることを prose で明示する形式に変更。**学習**: 後続 DA entry の alternatives section で「採用しなかった選択肢」を articulate する際、path 文字列は backtick で囲わず prose 形式で記述する institutional pattern が必要。本 session 内では single instance のため discovery-log.md に P3 として articulate 候補
+  - **inventory 配置判断 (= references/03-implementation/) が正解だった**: post-archive engine 実装 project からの reach を考えると、project 内 (`projects/active/<id>/inventory.md`) に閉じる選択肢は退行的。永続 doc 採用で reader navigation cost を最小化、§13.2 atomic update のコストは pre-flight check list の institutionalization で吸収できる
+  - **§13.1 / §13.2 / §13.3 の 3 pattern を Phase 0 + Phase 1 で全 application 達成**: §13.1 は Phase 0 + Phase 1 で計 4 commit (landing + wrap-up × 2)、§13.2 は Phase 1 landing で実証、§13.3 は Phase 0 + Phase 1 で計 2 regen commit。framework 化された 3 pattern が後続 Phase 2〜7 でも 同パターンで適用継続可能であることを 2 Phase 連続で実証
 
 ---
 

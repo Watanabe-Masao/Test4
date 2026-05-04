@@ -22,7 +22,7 @@
 * [x] `references/03-implementation/aag-engine-readiness-inventory.md` を新設し、5 分類 (contracts / generated / project lifecycle / rule source / guard source) で input を articulate する
 * [x] §13.2 適用: 同 commit に `docs/contracts/doc-registry.json` + `references/README.md` 索引 + 必要な inbound link を統合する
 * [x] active / completed / Archive v2 圧縮済 project の 3 状態すべてで engine が input を読めることを inventory 上で articulate する
-* [ ] DA-α-001 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-001 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 2: DetectorResult / AagResponse Normalization
 
