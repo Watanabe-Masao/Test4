@@ -1,6 +1,7 @@
-# Task Class Catalog — 6 類型 (= operational-protocol-system M1 fill)
+# Task Class Catalog — 6 類型 (= operational-protocol-system M1 + M4)
 
 > **landed**: 2026-05-04 (= operational-protocol-system M1)
+> **refined**: 2026-05-04 (= M4 で 4 sub-doc pointer + TC-5 scope 外 articulate)
 >
 > **役割**: 「いま自分は何の作業をしているか」の分類 catalog。6 Task Class 類型 + 各々の scope / typical complexity / 出口条件 / 標準手順 pointer を articulate。
 >
@@ -8,14 +9,14 @@
 
 ## 1. catalog summary
 
-| ID | class | 性質 | typical complexity | 標準手順 (= M4 fill 予定) |
+| ID | class | 性質 | typical complexity | 標準手順 (= M4 で landing) |
 |---|---|---|---|---|
-| TC-1 | **Planning** | 計画策定 / 設計判断 (= 実装前の articulate) | L2-L3 | `planning-protocol.md` (= M4) |
-| TC-2 | **Refactor** | 既存 behavior 不変な構造改善 | L1-L3 | `refactor-protocol.md` (= M4) |
-| TC-3 | **Bug Fix** | 観測された defect の修正 | L1-L2 | `bug-fix-protocol.md` (= M4) |
-| TC-4 | **New Capability** | 新機能 / 新 KPI / 新 protocol 追加 | L2-L3 | `new-capability-protocol.md` (= M4) |
-| TC-5 | **Incident Discovery** | 観測された incident の root cause 究明 + 修正 | L1-L3 | `incident-discovery-protocol.md` (= M4) |
-| TC-6 | **Handoff** | session 引き継ぎ / context transfer | L1 | `session-protocol.md` §4 (= 既 landing) |
+| TC-1 | **Planning** | 計画策定 / 設計判断 (= 実装前の articulate) | L2-L3 | [`planning-protocol.md`](./planning-protocol.md) ✅ |
+| TC-2 | **Refactor** | 既存 behavior 不変な構造改善 | L1-L3 | [`refactor-protocol.md`](./refactor-protocol.md) ✅ |
+| TC-3 | **Bug Fix** | 観測された defect の修正 | L1-L2 | [`bug-fix-protocol.md`](./bug-fix-protocol.md) ✅ |
+| TC-4 | **New Capability** | 新機能 / 新 KPI / 新 protocol 追加 | L2-L3 | [`new-capability-protocol.md`](./new-capability-protocol.md) ✅ |
+| TC-5 | **Incident Discovery** | 観測された incident の root cause 究明 + 修正 | L1-L3 | (本 doc §6 のみ、独立 sub-doc なし — drawer Pattern 5 意図的 skip + rationale articulate) |
+| TC-6 | **Handoff** | session 引き継ぎ / context transfer | L1 | [`session-protocol.md`](./session-protocol.md) §4 ✅ |
 
 ## 2. TC-1 Planning
 
@@ -142,6 +143,12 @@
 - speculative pre-build (= AAG-REQ-NO-PERFECTIONISM 違反)
 
 ## 6. TC-5 Incident Discovery
+
+> **M4 articulation**: TC-5 は **独立 sub-doc を持たない** (= drawer Pattern 5 意図的 skip + rationale)。
+>
+> **rationale**: TC-5 は task として完結せず、root cause 究明後に **TC-3 Bug Fix / TC-2 Refactor / TC-4 New Capability** へ分岐する task。本 catalog §6 で scope + 入口/出口条件を articulate すれば十分、独立 protocol doc は AAG-REQ-ANTI-DUPLICATION 違反 risk。
+>
+> **再起動 trigger**: TC-5 専用 sub-doc が必要になる pattern (= 究明 phase 自体が複数 session に渡る + 既存 catalog articulate で reach 不能と判明) が観測されたら、独立 `incident-discovery-protocol.md` を起動判断 (= AAG-COA + AI-COA 適用)。
 
 ### scope
 

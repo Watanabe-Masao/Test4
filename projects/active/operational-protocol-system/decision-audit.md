@@ -49,7 +49,7 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-001 | Phase M1 | M1 Task Protocol System 着手判断 (新 doc 4 件配置 + articulate 順序) | active |
 | DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | active |
 | DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | active |
-| DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | planned |
+| DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | active |
 | DA-α-005 | Phase M5 | M5 drawer `_seam` 統合 + guard 化判断 | planned |
 
 ---
@@ -306,3 +306,66 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
 - (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)
+
+---
+
+## DA-α-004: M4 Task Class 5 protocol articulate 方針
+
+**status**: active
+
+### 判断時 (2026-05-04 / Phase M4)
+
+- 候補:
+  1. task-class-catalog.md 単独拡張 (= M2/M3 と同 pattern、catalog 内に 5 protocol section 追加)
+  2. **5 sub-doc 別 file 化** (= `protocols/<class>-protocol.md` 5 file 新設、catalog は index)
+  3. session-protocol.md 拡張 (= 5 protocol を session lifecycle 内に articulate)
+- **採用案: 候補 2** (= 5 sub-doc 別 file 化、ただし TC-5 Incident Discovery は scope 外、TC-6 Handoff は session-protocol.md §4 で代替)
+- 判断根拠:
+  - 事実 1: M4 plan §deliverable で「各 sub-doc」が articulate hint 済 (= 「`task-class-catalog.md` 配下 or 各 sub-doc」と articulate、後者を採用)
+  - 事実 2: 5 protocol は **Task Class 別の独立 concern** (= Planning ≠ Refactor ≠ Bug Fix ≠ New Capability ≠ Handoff)。catalog 単独拡張は doc が 800+ 行に肥大化 risk + reader navigation cost (= drawer Pattern 4 honest articulation)
+  - 事実 3: M1 precedent (= 4 別 doc 新設) と整合。protocols/ directory が 4 doc → 8 doc へ articulate refine、index = task-class-catalog.md は維持
+  - 事実 4: 候補 3 (session-protocol.md 拡張) は scope mixing (= session lifecycle vs task class) で reader 困惑 risk
+  - 事実 5: TC-6 Handoff は既 session-protocol.md §4 で articulate 済、別 file 不要 (= AAG-REQ-ANTI-DUPLICATION 整合)。**4 protocol を新 file 化**、Handoff は session-protocol.md §4 を refine。TC-5 Incident Discovery は drawer Pattern 5 (意図的 skip + rationale): incident discovery は TC-3/TC-2/TC-4 への分岐 task で独立 protocol 不要
+- 想定リスク:
+  - 最大被害: 4 新 file 追加で doc-registry / README index update 漏れ (= M1 で発生した push fail と同種)。mitigation = M1 学習 (= doc-registry 事前確認) を活用、本 PR で 4 file landing と doc-registry update を 1 commit に統合
+  - 二番目: 各 protocol が浅く articulate されて self-application instance hint が不足。mitigation = 各 protocol §4 で drawer Pattern 1-6 application instance hint + §5 で Complexity Policy (M3) との対応 articulate
+- 振り返り観測点 (3 点 = M4 観測点 3 件と同期):
+  - 1 (M4-1 肯定): 4 protocol articulated (= planning / refactor / bug-fix / new-capability) + Handoff Protocol が session-protocol.md §4 articulate で代替確認、計 5 protocol articulate
+  - 2 (M4-2 肯定): 各 protocol に drawer Pattern 1-6 application instance hint articulated
+  - 3 (M4-3 肯定): 各 protocol に Complexity Policy (M3) との対応 (= 該当 P-trigger / D-trigger / typical complexity range) articulated
+
+### 5 軸 articulation
+
+- **製本** (canonical):
+  - `references/05-aag-interface/protocols/planning-protocol.md` (= TC-1 canonical)
+  - `references/05-aag-interface/protocols/refactor-protocol.md` (= TC-2 canonical)
+  - `references/05-aag-interface/protocols/bug-fix-protocol.md` (= TC-3 canonical)
+  - `references/05-aag-interface/protocols/new-capability-protocol.md` (= TC-4 canonical)
+  - TC-6 Handoff = `session-protocol.md` §4 (= 既 canonical)
+  - TC-5 Incident Discovery = task-class-catalog.md §6 のみ (= drawer Pattern 5 意図的 skip + rationale)
+- **依存方向**: 上位 = M1/M2/M3 で landed した protocol family + drawer Pattern 1-6、下位 = 主アプリ改修 user の day-to-day task execution
+- **意味**: 「Task Class 別の standardized 手順 articulate、catalog から sub-doc に深掘り経路を提供」
+- **責務**: 4 sub-doc + Handoff section refine、TC-5 Incident Discovery は scope 外明示
+- **境界**: M4 は 4 protocol sub-doc + Handoff refine のみ、M5 (= drawer `_seam`) は別 Phase
+
+### Commit Lineage
+
+- judgementCommit: TBD (= M4 landing commit)
+- preJudgementCommit: TBD (= M3 wrap-up commit `27a444bf4` の実 sha)
+- judgementTag: `operational-protocol-system/DA-α-004-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- rollbackTag: `operational-protocol-system/DA-α-004-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
+- implementationCommits:
+  - TBD — M4 全実装 (= 4 sub-doc 新設 + session-protocol.md §4 refine + task-class-catalog.md sub-doc pointer + DA-α-004 entry + checklist update + HANDOFF update + doc-registry update + README index update)
+
+### 振り返り (Phase M4 完了 / TBD)
+
+> Phase M4 完了直前に追記、observation 3 件すべて実測。
+
+- 観測点 1〜3: TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+### 軌道修正 (判定 "部分的" / "間違い" のみ)
+
+- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)

@@ -34,33 +34,42 @@
 
 ### Phase M3 (= 動的昇格・降格ルール) 完遂内容 (2026-05-04)
 
-- DA-α-003 entry landed (= 5 軸 + 4 観測点 + Lineage articulate)
-- `complexity-policy.md` を拡張:
-  - §4.1 昇格 trigger 10 件 articulate (P1-P10、≥ 6 件 観測点を 4 件超過)
-  - §4.2 降格 trigger 7 件 articulate (D1-D7、≥ 4 件 観測点を 3 件超過)
-  - §4.3 昇格時手順 (L1→L2 / L2→L3 / L1→L3 直接昇格)
-  - §4.4 降格時手順 (= 既起票 artifact retire 不要)
-  - §4.5 articulation template (= drawer Pattern 4 self-application)
-  - §4.6 AI judgement 範囲 articulate (= 自動判定可 / 不可)
+- DA-α-003 entry landed + 振り返り判定 = "正しい"
+- `complexity-policy.md` §4.1 (昇格 10 件 P1-P10) + §4.2 (降格 7 件 D1-D7) + §4.3 (3 transition path) + §4.4 (降格時手順) + §4.5 (template) + §4.6 (AI judgement 範囲)
 - M3 観測点 4 件全達成
+
+### Phase M4 (= Task Class 5 protocol) 完遂内容 (2026-05-04)
+
+- DA-α-004 entry landed (= 4 sub-doc 別 file 化採用、TC-5 scope 外 articulate、TC-6 既 session-protocol §4 で代替)
+- `references/05-aag-interface/protocols/` 配下に 4 sub-doc landed:
+  - `planning-protocol.md` (= TC-1、6 step 構想→調査→比較検討→妥当性判断→ドキュメント化→自己評価)
+  - `refactor-protocol.md` (= TC-2、4 step 挙動不変確認→範囲確定→実装→parity/drift/regression)
+  - `bug-fix-protocol.md` (= TC-3、5 step 再現→原因調査→最小修正→regression→再発防止 guard 検討)
+  - `new-capability-protocol.md` (= TC-4、4 step Standard 8 軸判断→実装→compatibility→関連 doc update)
+- 各 protocol に §3 drawer Pattern 1-6 application instance hint + §4 complexity-policy (M3) 対応 articulate
+- TC-5 Incident Discovery は drawer Pattern 5 (意図的 skip + rationale) で task-class-catalog.md §6 に articulate 済
+- TC-6 Handoff は session-protocol.md §4 で M2 articulate 済 (= 双方向)
+- task-class-catalog.md §1 summary table に sub-doc pointer + TC-5 scope 外 articulate
+- doc-registry.json + references/README.md に 4 新 doc entry 追加 (= M1 学習適用、push fail 事前回避)
+- M4 観測点 3 件全達成
 
 ### M1-M5 残作業
 
 - ~~M1: Task Protocol System 定義~~ ✅ 完遂 (2026-05-04)
 - ~~M2: 既存 5 文書への routing 固定~~ ✅ 完遂 (2026-05-04)
 - ~~M3: 動的昇格・降格ルール articulate~~ ✅ 完遂 (2026-05-04)
-- M4: 各 Task Class の標準手順 (= 5 protocol 詳細) fill 予定
+- ~~M4: 各 Task Class の標準手順~~ ✅ 完遂 (2026-05-04)
 - M5: drawer `_seam` を使った最小統合 (= taskHint / consumerKind / sourceRefs)
 
 ## 2. 次にやること
 
 詳細は `checklist.md` / `plan.md` §3。
 
-### 高優先 (M3 wrap-up + M4 着手判断)
+### 高優先 (M4 wrap-up + M5 着手判断)
 
-- [ ] DA-α-003 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
-- [ ] DA-α-003 Lineage 実 sha update (= 本 commit 後)
-- [ ] M4 着手判断 = DA-α-004 起票 (= M4 Task Class 5 protocol articulate 方針)
+- [ ] DA-α-004 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
+- [ ] DA-α-004 Lineage 実 sha update (= 本 commit 後)
+- [ ] M5 着手判断 = DA-α-005 起票 (= M5 drawer `_seam` 最小統合 + guard 化判断 方針)
 
 ## 3. ハマりポイント
 

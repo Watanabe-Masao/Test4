@@ -257,7 +257,11 @@
 | Task Protocol System（operational-protocol-system M1 — Task / Session / Complexity 軸 + Task Class catalog の 4 doc 統合 index、reader 別 routing）           | `05-aag-interface/protocols/task-protocol-system.md`                    |
 | Task Class Catalog（6 類型 = TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff、各々に scope + antipattern）  | `05-aag-interface/protocols/task-class-catalog.md`                      |
 | Session Protocol（Session lifecycle 4 phase = 開始 / 実行中 / 終了 / 引き継ぎ + L1/L2/L3 別 routing + drawer Pattern 1-6 適用）                                | `05-aag-interface/protocols/session-protocol.md`                        |
-| Complexity Policy（L1 軽修正 / L2 通常変更 / L3 重変更 + AAG-COA との関係 + 既存 5 文書 use-case mapping + 動的昇格・降格 trigger）                            | `05-aag-interface/protocols/complexity-policy.md`                       |
+| Complexity Policy（L1 軽修正 / L2 通常変更 / L3 重変更 + AAG-COA との関係 + 既存 5 文書 use-case mapping + 動的昇格・降格 trigger 10+7 件 + 3 transition path）  | `05-aag-interface/protocols/complexity-policy.md`                       |
+| Planning Protocol — TC-1（計画策定 / 設計判断 6 step + drawer Pattern 1-6 + complexity (M3) 対応）                                                              | `05-aag-interface/protocols/planning-protocol.md`                       |
+| Refactor Protocol — TC-2（挙動不変な構造改善 4 step + drawer Pattern 1-6 + complexity (M3) 対応）                                                               | `05-aag-interface/protocols/refactor-protocol.md`                       |
+| Bug Fix Protocol — TC-3（観測された defect の修正 5 step + 再発防止 guard 検討 + drawer Pattern 1-6 + complexity (M3) 対応）                                    | `05-aag-interface/protocols/bug-fix-protocol.md`                        |
+| New Capability Protocol — TC-4（新機能 / 新 KPI / 新 protocol 追加 4 step + Standard 8 軸 articulate 判断 + drawer Pattern 1-6 + complexity (M3) 対応）         | `05-aag-interface/protocols/new-capability-protocol.md`                 |
 | AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）               | `aag/_internal/README.md`                                   |
 | AAG Meta charter（目的 + 要件 = AAG-REQ-\* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `aag/_internal/meta.md`                                     |
 | AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                                    | `aag/_internal/strategy.md`                                 |

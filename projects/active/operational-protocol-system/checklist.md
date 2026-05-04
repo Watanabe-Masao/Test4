@@ -55,16 +55,16 @@
 
 ## Phase M4: Task Class ごとの標準手順 (= 5 protocol)
 
-- [ ] DA-α-004 entry landing
-- [ ] **Planning Protocol** articulate (= 構想 → 調査 → 比較検討 → 妥当性判断 → ドキュメント化 → 自己評価)
-- [ ] **Refactor Protocol** articulate (= 挙動不変確認 → 範囲確定 → 実装 → parity / drift / regression 確認)
-- [ ] **Bug Fix Protocol** articulate (= 再現 → 原因調査 → 最小修正 → regression → 再発防止 guard 検討)
-- [ ] **New Capability Protocol** articulate (= authority/contract/generated 追加要否 → 実装 → compatibility 確認)
-- [ ] **Handoff Protocol** articulate (= 現在地 / 次アクション / 未確定判断 / ハマりポイント の更新)
-- [ ] **観測** M4-1: 5 protocol articulated
-- [ ] **観測** M4-2: 各 protocol に drawer Pattern 1-6 application instance hint
-- [ ] **観測** M4-3: 各 protocol に Complexity Policy (M3) との対応 articulated
-- [ ] DA-α-004 振り返り判定
+- [x] DA-α-004 entry landing (= M4 着手判断、4 sub-doc 別 file 化採用、5 軸 + 観測点 + Lineage)
+- [x] **Planning Protocol** articulate (= [planning-protocol.md](../../references/05-aag-interface/protocols/planning-protocol.md)、6 step 構想/調査/比較検討/妥当性判断/ドキュメント化/自己評価)
+- [x] **Refactor Protocol** articulate (= [refactor-protocol.md](../../references/05-aag-interface/protocols/refactor-protocol.md)、4 step 挙動不変確認/範囲確定/実装/parity-drift-regression 確認)
+- [x] **Bug Fix Protocol** articulate (= [bug-fix-protocol.md](../../references/05-aag-interface/protocols/bug-fix-protocol.md)、5 step 再現/原因調査/最小修正/regression/再発防止 guard 検討)
+- [x] **New Capability Protocol** articulate (= [new-capability-protocol.md](../../references/05-aag-interface/protocols/new-capability-protocol.md)、4 step Standard 8 軸 articulate 判断/実装/compatibility/関連 doc update)
+- [x] **Handoff Protocol** articulate (= session-protocol.md §4 で既 articulate 済、M2 で双方向 articulate refine 完了、本 M4 で別 file 化せず session-protocol §4 を canonical 維持)
+- [x] **観測** M4-1: 5 protocol articulated (= 4 sub-doc + Handoff section)
+- [x] **観測** M4-2: 各 protocol に drawer Pattern 1-6 application instance hint (= 各 protocol §3 table)
+- [x] **観測** M4-3: 各 protocol に Complexity Policy (M3) との対応 articulated (= 各 protocol §4 table、該当 P-trigger / D-trigger / typical complexity range)
+- [ ] DA-α-004 振り返り判定 (本 wrap-up 後 [x])
 
 ## Phase M5: drawer `_seam` を使った最小統合
 
