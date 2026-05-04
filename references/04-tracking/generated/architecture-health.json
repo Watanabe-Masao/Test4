@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T21:36:01.308Z",
+  "timestamp": "2026-05-04T21:57:26.142Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 136,
+      "value": 137,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -315,6 +315,7 @@
         "app/src/test/guards/dataIntegrityGuard.test.ts",
         "app/src/test/guards/defaultOverlayCompletenessGuard.test.ts",
         "app/src/test/guards/deprecatedMetadataGuard.test.ts",
+        "app/src/test/guards/detectorResultModuleGuard.test.ts",
         "app/src/test/guards/discountFactPathGuard.test.ts",
         "app/src/test/guards/displayRuleGuard.test.ts",
         "app/src/test/guards/docCodeConsistencyGuard.test.ts",
