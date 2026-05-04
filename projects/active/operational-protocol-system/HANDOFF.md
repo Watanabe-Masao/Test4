@@ -67,20 +67,23 @@
 - ~~M3: 動的昇格・降格ルール articulate~~ ✅ 完遂 (2026-05-04)
 - ~~M4: 各 Task Class の標準手順~~ ✅ 完遂 (2026-05-04)
 - ~~M5: drawer `_seam` を使った最小統合~~ ✅ 完遂 (2026-05-04)
+- ~~Pilot 完了 verify~~ ✅ 5/5 達成 (2026-05-04)
+- ~~AI 自己レビュー~~ ✅ 5/5 [x] 達成 (2026-05-04)
 
-= **operational-protocol-system Pilot 完了 criterion 全達成**、最終レビュー (user 承認) 待ち state。
+= **operational-protocol-system 完遂、最終レビュー (user 承認) 待ち state**。
 
 ## 2. 次にやること
 
-詳細は `checklist.md` / `plan.md` §3。
+### user 領域 (= AI 単独で実行不可)
 
-### 高優先 (M5 wrap-up + Pilot 完遂 verify)
+- **最終レビュー (user 承認)**: `checklist.md` §「最終レビュー (user 承認)」の checkbox を user が tick すると、本 project は `archived` 状態に遷移、archive プロセス §6.2 起動可
+- **archive 移行判断**: user 承認後、Archive v2 形式 (= ARCHIVE.md + archive.manifest.json、`docs/contracts/project-archive.schema.json` 準拠) で圧縮するか、v1 形式 (= ディレクトリ全体維持) で archive するかを user 判断 (= drawer Pattern 5 意図的 skip 適用可)
 
-- [ ] DA-α-005 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
-- [ ] DA-α-005 Lineage 実 sha update (= 本 commit 後)
-- [ ] Pilot 完了 criterion 5 件全達成確認 (`plan.md` §2)
-- [ ] AI 自己レビュー section (= user 承認 手前 mandatory checkpoint、PZ-13 guard 整合)
-- [ ] 最終レビュー user 承認待ち state articulate
+### 残 articulation (= 任意、user 判断後に実施)
+
+- CURRENT_PROJECT.md 切替 (= operational-protocol-system → 次 active project pointer、user 領域)
+- open-issues.md archive 化 + active table から削除
+- 後続 program candidate articulate (= drawer-generator.ts 改変判断 / AI Role Catalog institute / etc.、`decision-audit.md` 内 follow-up section に追記候補)
 
 ## 3. ハマりポイント
 

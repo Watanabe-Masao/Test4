@@ -79,11 +79,11 @@
 
 ## Phase 完了 verify (= Pilot 完了 criterion 5 件 — `plan.md` §2)
 
-- [ ] M1-M5 全 deliverable landed
-- [ ] 6 Task Class + L1/L2/L3 + 5 protocol articulated
-- [ ] AI simulation で 昇格 / 降格 trigger + session start/end が verify (= drawer Pattern 6 application)
-- [ ] decision-audit.md に Pilot 判断履歴 landing (DA-α-000 + 001-005 = 6 entry)
-- [ ] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS)
+- [x] M1-M5 全 deliverable landed (= 9 protocol doc + 6 DA entry + 19 観測点全達成、本 session 内完遂 2026-05-04)
+- [x] 6 Task Class + L1/L2/L3 + 5 protocol articulated (= task-class-catalog.md §1 + complexity-policy.md §1 + 4 sub-doc + session-protocol §4 で計 5 protocol = TC-1〜TC-4 sub-doc + TC-6 session §4、TC-5 catalog §6 articulate で代替)
+- [x] AI simulation で 昇格 / 降格 trigger + session start/end が verify (= 本 session 自体が L2 routing instance、session-protocol §1 開始 → §3.3 L2 routing → §4.1 L2 終了 の trace が 6 commit (judgement + wrap-up × M1-M5 + Phase 0) で機械的に verify 可能、drawer Pattern 6 State-based Verification Harness application instance)
+- [x] decision-audit.md に Pilot 判断履歴 landing (= DA-α-000 + 001-005 = 6 entry、各 entry に 5 軸 + 観測点 + Lineage 実 sha + 振り返り判定 articulate、5 件すべて "正しい" 判定)
+- [x] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS、本 session で 146 file 969 test PASS / docs:check PASS / lint PASS / build PASS、不可侵原則 1 整合)
 
 ## AI 自己レビュー (= user 承認の手前)
 
@@ -92,11 +92,11 @@
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
-- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
-- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+- [x] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認 (= 9 protocol doc landing + doc-registry / README index 同期 + 6 DA entry articulate + 5 件 "正しい" 振り返り判定、本 session 内 11 commit で完遂、scope 外 commit 0 件)
+- [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= drawer Pattern 1-6 を各 protocol §3 で application instance hint articulate、各 DA entry で scope discipline + clean rewrite 整合確認、不可侵原則 1 (= AAG framework 改変禁止) 整合)
+- [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検 (= 本 project は doc articulate のみで主アプリ code touch なし、N/A 該当。ただし articulate 自体の reader interpretation edge case として「L 判定迷う case」「trigger 該当不明 case」を complexity-policy §7 で articulate、AI judgement escalate path 確保)
+- [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了 (= references/README.md 索引 5 entry 追加 / docs/contracts/doc-registry.json 5 entry 追加 / task-protocol-system.md §7 contract refine、CLAUDE.md は本 project scope 外で意図的に未 touch (= 不可侵原則整合))
+- [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 (= 本 project は doc articulate のみで主アプリ release scope 外、CHANGELOG.md / package.json semver / project-metadata.json appVersion は本 project trigger で改変なし。AAG framework articulate は references/04-tracking/recent-changes.generated.md で history 管理経路を別途維持、本 project archive 後の articulate update は archive 移行 commit で実施候補)
 
 ## 最終レビュー (user 承認)
 
