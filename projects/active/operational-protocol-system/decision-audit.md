@@ -350,22 +350,27 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: TBD (= M4 landing commit)
-- preJudgementCommit: TBD (= M3 wrap-up commit `27a444bf4` の実 sha)
-- judgementTag: `operational-protocol-system/DA-α-004-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- judgementCommit: `921740167` (= M4 landing commit、4 sub-doc + catalog refine + doc-registry/README index update)
+- preJudgementCommit: `27a444bf438a5d1f3e1fa971add284ccc7c39a81` (= M3 wrap-up commit、M4 直前 HEAD)
+- judgementTag: `operational-protocol-system/DA-α-004-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照)
 - rollbackTag: `operational-protocol-system/DA-α-004-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
 - implementationCommits:
-  - TBD — M4 全実装 (= 4 sub-doc 新設 + session-protocol.md §4 refine + task-class-catalog.md sub-doc pointer + DA-α-004 entry + checklist update + HANDOFF update + doc-registry update + README index update)
+  - `921740167` — M4 landing (= 4 sub-doc 新設 + task-class-catalog refine + doc-registry + README index + DA-α-004 entry + checklist + HANDOFF update を atomic 1 commit で完遂)
 
-### 振り返り (Phase M4 完了 / TBD)
+### 振り返り (Phase M4 完了 / 2026-05-04)
 
-> Phase M4 完了直前に追記、observation 3 件すべて実測。
-
-- 観測点 1〜3: TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+- 観測点 1 (M4-1 肯定): ✅ **達成**。4 sub-doc landed (planning / refactor / bug-fix / new-capability) + TC-6 Handoff = session-protocol.md §4 既 articulate 確認、計 5 protocol articulate。TC-5 Incident Discovery は drawer Pattern 5 (意図的 skip + rationale) で task-class-catalog §6 articulate
+- 観測点 2 (M4-2 肯定): ✅ **達成**。各 protocol §3 で drawer Pattern 1-6 application instance hint articulated (= table 形式、6 pattern × 4 protocol = 24 application hint)
+- 観測点 3 (M4-3 肯定): ✅ **達成**。各 protocol §4 で complexity-policy (M3) との対応 articulated (= 該当 P-trigger / D-trigger / typical complexity range、4 protocol × 3 sub-section = 12 articulation)
+- **判定**: **正しい** (= 3 観測点すべて達成、scope 拡大なし、4 sub-doc 別 file 化 + TC-5 scope 外 articulate + TC-6 既存活用 で完遂、drawer Pattern 2/4/5 整合、AAG-REQ-ANTI-DUPLICATION 整合)
+- 学習:
+  - **M1 学習の適用成功**: doc-registry + README index update を **本 commit に統合** することで、M1 で発生した push fail × 2 を回避。pre-flight check (= 新 references/ doc 追加時に doc-registry / README 同 commit 内 update) が pattern として成立
+  - **TC 別の独立 doc 化基準**: 5 protocol のうち 4 は独立 sub-doc が妥当、1 (TC-5) は task-class-catalog §6 内 articulate で十分と判定。判定基準 = 「task として完結するか、別 task に分岐するか」(= 後者は独立 doc 不要)
+  - **既存 articulate との重複回避**: TC-6 Handoff は M2 で session-protocol §4 articulate 済、別 file 化は AAG-REQ-ANTI-DUPLICATION 違反 risk と判定。本 PR では既存 articulate を canonical 維持、catalog §1 + §7 で pointer のみ articulate
+  - **self-application が四度目機能 (M1/M2/M3 学習の確認)**: 本 session が L2 routing instance として、Step 1-4 (構想 → 調査 → 比較検討 → 採用) を session 内で trace 可能 (= TC-1 Planning protocol § 2 を本 PR の DA-α-004 articulate 自体が application instance、再帰的 self-application 成立)
+- retrospectiveCommit: 本 wrap-up commit (= DA-α-004 振り返り articulation を含む follow-up commit)
+- retrospectiveTag: `operational-protocol-system/DA-α-004-retrospective` (= 同 infrastructure 制約で未 landing、SHA 直接参照)
 
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+- (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)

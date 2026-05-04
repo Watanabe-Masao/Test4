@@ -64,7 +64,7 @@
 - [x] **観測** M4-1: 5 protocol articulated (= 4 sub-doc + Handoff section)
 - [x] **観測** M4-2: 各 protocol に drawer Pattern 1-6 application instance hint (= 各 protocol §3 table)
 - [x] **観測** M4-3: 各 protocol に Complexity Policy (M3) との対応 articulated (= 各 protocol §4 table、該当 P-trigger / D-trigger / typical complexity range)
-- [ ] DA-α-004 振り返り判定 (本 wrap-up 後 [x])
+- [x] DA-α-004 振り返り判定 (= **正しい**、3 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-004 §「振り返り (Phase M4 完了 / 2026-05-04)」参照)
 
 ## Phase M5: drawer `_seam` を使った最小統合
 
