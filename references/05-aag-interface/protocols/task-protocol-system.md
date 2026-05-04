@@ -83,6 +83,7 @@ AAG Platformization Pilot (`projects/completed/aag-platformization/`) で AAG fr
 | AAG drawer Pattern 1-6 | `references/05-aag-interface/drawer/decision-articulation-patterns.md` | 領域 agnostic decision articulation pattern |
 | AAG-COA (= projectization-policy) | `references/05-aag-interface/operations/projectization-policy.md` | 立ち上げ前判定 (= L0-L4 + required + forbidden artifacts) |
 | AAG project-checklist-governance | `references/05-aag-interface/operations/project-checklist-governance.md` | 立ち上げ後 completion 管理 + Archive v2 |
+| AAG drawer `_seam` (= rule routing metadata) | `docs/generated/aag/rule-index.json` + `merged-architecture-rules.json` | Task Class lens で再 articulate = [`seam-integration.md`](./seam-integration.md) (= M5) |
 | 5 文書 (AI_CONTEXT / HANDOFF / plan / checklist / decision-audit) | `projects/active/<id>/` | per-project institution の正本 |
 
 ## 8. landing context

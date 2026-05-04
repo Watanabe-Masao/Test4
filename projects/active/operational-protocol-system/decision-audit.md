@@ -50,7 +50,7 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | active |
 | DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | active |
 | DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | active |
-| DA-α-005 | Phase M5 | M5 drawer `_seam` 統合 + guard 化判断 | planned |
+| DA-α-005 | Phase M5 | M5 drawer `_seam` 統合 + guard 化判断 | active |
 
 ---
 
@@ -374,3 +374,60 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
 - (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)
+
+---
+
+## DA-α-005: M5 drawer `_seam` 最小統合 + guard 化判断 方針
+
+**status**: active
+
+### 判断時 (2026-05-04 / Phase M5)
+
+- 候補:
+  1. **新 doc `seam-integration.md` 化** (= taskHint / consumerKind / sourceRefs articulate + Task Class × drawer routing matrix + guard 化判断 を独立 doc 化)
+  2. task-protocol-system.md 拡張 (= 上位 index doc 内に section 追加)
+  3. 4 protocol sub-doc に分散 articulate (= 各 sub-doc に該当 drawer routing 追記)
+- **採用案: 候補 1** (= 新 doc `seam-integration.md` 化)
+- 判断根拠:
+  - 事実 1: M5 deliverable 3 件 (= seam articulate / routing matrix / guard 化判断) は **cross-cutting concern** (= 複数 Task Class × drawer 軸の交差)、独立 doc が reader navigation 整合
+  - 事実 2: 候補 2 (task-protocol-system.md 拡張) は上位 index の責務範囲を超える (= index は pointer 役割、cross-cutting 詳細は別 doc に分離)
+  - 事実 3: 候補 3 (4 protocol 分散) は同 articulate を 4 doc に重複 risk (= AAG-REQ-ANTI-DUPLICATION 違反)
+  - 事実 4: M4 で TC-5 を独立 doc 化せず drawer Pattern 5 (skip + rationale) で catalog §6 articulate 済の precedent あり、本 M5 でも drawer Pattern 5 を guard 化判断 articulate に適用可能
+  - 事実 5: AAG drawer (= `docs/generated/aag/rule-index.json`) で `_seam` の 3 field (taskHint / consumerKind / sourceRefs) は既 articulate 済、本 M5 は **既存 articulate を Task Class lens で再 articulate** する scope (= 不可侵原則 1 整合、AAG framework 改変なし)
+- 想定リスク:
+  - 最大被害: routing matrix の articulate が空疎 (= 「Refactor → byImport drawer 優先」程度の薄い articulate)。mitigation = 各 routing entry に **rationale + use-case example** を articulate (= drawer Pattern 4)
+  - 二番目: guard 化判断が「TBD」articulate のままで未確定。mitigation = §4 で **value > cost 評価 + Yes/No 結論 + 再起動 trigger** を articulate (= drawer Pattern 4 + Pattern 5)
+- 振り返り観測点 (3 点 = M5 観測点 3 件と同期):
+  - 1 (M5-1 肯定): taskHint / consumerKind / sourceRefs の意味が articulate されている (= 既存 8/4/array 値を Task Class lens で articulate)
+  - 2 (M5-2 肯定): 5 Task Class × drawer 軸 (= taskHint × consumerKind の crossover) routing matrix articulated
+  - 3 (M5-3 肯定): guard 化判断が articulated (Yes/No + rationale、drawer Pattern 4 適用)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `references/05-aag-interface/protocols/seam-integration.md` (= 新 doc canonical)
+- **依存方向**: 上位 = AAG drawer `_seam` (= 既 articulate 済、改変なし) + M1-M4 で landed した protocol family、下位 = 主アプリ改修 user の day-to-day drawer reach
+- **意味**: 「AAG drawer `_seam` を Task / Session / Complexity protocol lens で再 articulate、reader が Task Class から drawer reach する経路 articulate」
+- **責務**: routing matrix articulate + guard 化判断、AAG drawer 自身の改変なし (= 不可侵原則 1)
+- **境界**: M5 は seam-integration.md 単独 + task-protocol-system.md §7 pointer のみ、AAG drawer 改変は scope 外
+
+### Commit Lineage
+
+- judgementCommit: TBD (= M5 landing commit)
+- preJudgementCommit: TBD (= M4 wrap-up commit、M5 直前 HEAD)
+- judgementTag: `operational-protocol-system/DA-α-005-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- rollbackTag: `operational-protocol-system/DA-α-005-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
+- implementationCommits:
+  - TBD — M5 全実装 (= seam-integration.md 新設 + doc-registry + README index update + task-protocol-system.md §7 pointer + DA-α-005 entry + checklist + HANDOFF update)
+
+### 振り返り (Phase M5 完了 / TBD)
+
+> Phase M5 完了直前に追記、observation 3 件すべて実測。
+
+- 観測点 1〜3: TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+### 軌道修正 (判定 "部分的" / "間違い" のみ)
+
+- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)

@@ -262,6 +262,7 @@
 | Refactor Protocol — TC-2（挙動不変な構造改善 4 step + drawer Pattern 1-6 + complexity (M3) 対応）                                                               | `05-aag-interface/protocols/refactor-protocol.md`                       |
 | Bug Fix Protocol — TC-3（観測された defect の修正 5 step + 再発防止 guard 検討 + drawer Pattern 1-6 + complexity (M3) 対応）                                    | `05-aag-interface/protocols/bug-fix-protocol.md`                        |
 | New Capability Protocol — TC-4（新機能 / 新 KPI / 新 protocol 追加 4 step + Standard 8 軸 articulate 判断 + drawer Pattern 1-6 + complexity (M3) 対応）         | `05-aag-interface/protocols/new-capability-protocol.md`                 |
+| Seam Integration（AAG drawer `_seam` を Task Protocol lens で再 articulate + 5 Task Class × drawer 軸 routing matrix + guard 化判断 4 候補すべて No 結論 + 再起動 trigger）  | `05-aag-interface/protocols/seam-integration.md`                        |
 | AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）               | `aag/_internal/README.md`                                   |
 | AAG Meta charter（目的 + 要件 = AAG-REQ-\* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `aag/_internal/meta.md`                                     |
 | AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                                    | `aag/_internal/strategy.md`                                 |

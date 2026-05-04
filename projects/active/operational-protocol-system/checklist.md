@@ -68,14 +68,14 @@
 
 ## Phase M5: drawer `_seam` を使った最小統合
 
-- [ ] DA-α-005 entry landing
-- [ ] `taskHint` / `consumerKind` / `sourceRefs` の意味 articulate (= AAG drawer-generator.ts 既 articulate を Task Class lens で再 articulate)
-- [ ] Task Class × drawer 軸 routing matrix articulate
-- [ ] guard 化判断 (= value > cost 評価、drawer Pattern 4 適用)
-- [ ] **観測** M5-1: taskHint / consumerKind / sourceRefs 意味 articulated
-- [ ] **観測** M5-2: 5 Task Class × drawer 軸 routing matrix articulated
-- [ ] **観測** M5-3: guard 化判断 articulated (Yes/No + rationale)
-- [ ] DA-α-005 振り返り判定
+- [x] DA-α-005 entry landing (= M5 着手判断、新 doc seam-integration.md 化採用、5 軸 + 観測点 + Lineage 仮 sha)
+- [x] `taskHint` / `consumerKind` / `sourceRefs` の意味 articulate (= [seam-integration.md](../../references/05-aag-interface/protocols/seam-integration.md) §1 で 8 値 / 4 値 / array articulate、AAG drawer 既 articulate を Task Class lens で再 articulate)
+- [x] Task Class × drawer 軸 routing matrix articulate (= seam-integration.md §2、6 Task Class × 主 read / 副 read / rationale)
+- [x] guard 化判断 (= seam-integration.md §4、4 候補 GP-1〜GP-4 すべて value < cost で **No 結論**、drawer Pattern 4 適用)
+- [x] **観測** M5-1: taskHint / consumerKind / sourceRefs 意味 articulated (= seam-integration.md §1.1 + §1.2 + §1.3)
+- [x] **観測** M5-2: 5 Task Class × drawer 軸 routing matrix articulated (= seam-integration.md §2 routing matrix + §3 reverse-index)
+- [x] **観測** M5-3: guard 化判断 articulated (= seam-integration.md §4、Yes/No + rationale + 再起動 trigger 3 件)
+- [ ] DA-α-005 振り返り判定 (本 wrap-up 後 [x])
 
 ## Phase 完了 verify (= Pilot 完了 criterion 5 件 — `plan.md` §2)
 

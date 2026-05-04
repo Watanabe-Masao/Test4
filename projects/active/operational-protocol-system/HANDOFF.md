@@ -40,36 +40,47 @@
 
 ### Phase M4 (= Task Class 5 protocol) 完遂内容 (2026-05-04)
 
-- DA-α-004 entry landed (= 4 sub-doc 別 file 化採用、TC-5 scope 外 articulate、TC-6 既 session-protocol §4 で代替)
-- `references/05-aag-interface/protocols/` 配下に 4 sub-doc landed:
-  - `planning-protocol.md` (= TC-1、6 step 構想→調査→比較検討→妥当性判断→ドキュメント化→自己評価)
-  - `refactor-protocol.md` (= TC-2、4 step 挙動不変確認→範囲確定→実装→parity/drift/regression)
-  - `bug-fix-protocol.md` (= TC-3、5 step 再現→原因調査→最小修正→regression→再発防止 guard 検討)
-  - `new-capability-protocol.md` (= TC-4、4 step Standard 8 軸判断→実装→compatibility→関連 doc update)
-- 各 protocol に §3 drawer Pattern 1-6 application instance hint + §4 complexity-policy (M3) 対応 articulate
-- TC-5 Incident Discovery は drawer Pattern 5 (意図的 skip + rationale) で task-class-catalog.md §6 に articulate 済
-- TC-6 Handoff は session-protocol.md §4 で M2 articulate 済 (= 双方向)
-- task-class-catalog.md §1 summary table に sub-doc pointer + TC-5 scope 外 articulate
-- doc-registry.json + references/README.md に 4 新 doc entry 追加 (= M1 学習適用、push fail 事前回避)
+- DA-α-004 entry landed + 振り返り判定 = "正しい"
+- 4 sub-doc landed: planning-protocol.md / refactor-protocol.md / bug-fix-protocol.md / new-capability-protocol.md
+- 各 protocol に §3 drawer Pattern 1-6 application instance hint + §4 complexity-policy (M3) 対応
+- TC-5 Incident Discovery = drawer Pattern 5 (意図的 skip) で catalog §6 articulate / TC-6 Handoff = session-protocol §4 既 articulate
 - M4 観測点 3 件全達成
 
-### M1-M5 残作業
+### Phase M5 (= drawer `_seam` 最小統合) 完遂内容 (2026-05-04)
+
+- DA-α-005 entry landed (= 5 軸 + 3 観測点 + Lineage articulate)
+- `references/05-aag-interface/protocols/seam-integration.md` 新設:
+  - §1 AAG drawer `_seam` 現状 articulate (= taskHint 8 値 / consumerKind 4 値 / sourceRefs)、本 M5 では改変なし (= 不可侵原則 1)
+  - §2 Task Class × drawer 軸 routing matrix (= 6 Task Class × 主 read / 副 read / rationale)
+  - §3 Task Class × consumerKind crossover (= reader 別深掘り、reverse-index)
+  - §4 guard 化判断: GP-1〜GP-4 全 4 候補 value < cost で **No 結論** (= drawer Pattern 4) + 再起動 trigger 3 件 (= drawer Pattern 5)
+  - §5 reader navigation (= Task Class lens から drawer reach する手順)
+  - §6 AAG drawer 改変判断 (= scope 外明示、不可侵原則 1)
+- task-protocol-system.md §7 に AAG drawer `_seam` row 追加 + seam-integration.md pointer
+- doc-registry.json + references/README.md に entry 追加
+- M5 観測点 3 件全達成
+
+### M1-M5 完遂状態
 
 - ~~M1: Task Protocol System 定義~~ ✅ 完遂 (2026-05-04)
 - ~~M2: 既存 5 文書への routing 固定~~ ✅ 完遂 (2026-05-04)
 - ~~M3: 動的昇格・降格ルール articulate~~ ✅ 完遂 (2026-05-04)
 - ~~M4: 各 Task Class の標準手順~~ ✅ 完遂 (2026-05-04)
-- M5: drawer `_seam` を使った最小統合 (= taskHint / consumerKind / sourceRefs)
+- ~~M5: drawer `_seam` を使った最小統合~~ ✅ 完遂 (2026-05-04)
+
+= **operational-protocol-system Pilot 完了 criterion 全達成**、最終レビュー (user 承認) 待ち state。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` / `plan.md` §3。
 
-### 高優先 (M4 wrap-up + M5 着手判断)
+### 高優先 (M5 wrap-up + Pilot 完遂 verify)
 
-- [ ] DA-α-004 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
-- [ ] DA-α-004 Lineage 実 sha update (= 本 commit 後)
-- [ ] M5 着手判断 = DA-α-005 起票 (= M5 drawer `_seam` 最小統合 + guard 化判断 方針)
+- [ ] DA-α-005 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
+- [ ] DA-α-005 Lineage 実 sha update (= 本 commit 後)
+- [ ] Pilot 完了 criterion 5 件全達成確認 (`plan.md` §2)
+- [ ] AI 自己レビュー section (= user 承認 手前 mandatory checkpoint、PZ-13 guard 整合)
+- [ ] 最終レビュー user 承認待ち state articulate
 
 ## 3. ハマりポイント
 
