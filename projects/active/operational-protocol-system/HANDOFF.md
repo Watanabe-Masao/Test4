@@ -24,19 +24,31 @@
 
 ### Phase M2 (= 既存 5 文書 routing 固定) 完遂内容 (2026-05-04)
 
-- DA-α-002 entry landed (= 5 軸 + 4 観測点 + Lineage articulate)
+- DA-α-002 entry landed + 振り返り判定 = "正しい"
 - `session-protocol.md` を拡張:
-  - §1.1 L 別 read order table (= L1: HANDOFF→AI_CONTEXT scope→checklist / L2: AI_CONTEXT→HANDOFF→plan→checklist / L3: AI_CONTEXT→HANDOFF→plan→decision-audit→checklist)
+  - §1.1 L 別 read order table
   - §4.1 Session 終了 protocol L 別 required artifacts table
-  - §4.3.1 引き継ぐ側 + §4.3.2 引き継がれる側 双方向 articulate (= 必須 check 含む)
+  - §4.3.1 引き継ぐ側 + §4.3.2 引き継がれる側 双方向 articulate
   - §4.4 antipattern を L 別 articulate
 - M2 観測点 4 件全達成
+
+### Phase M3 (= 動的昇格・降格ルール) 完遂内容 (2026-05-04)
+
+- DA-α-003 entry landed (= 5 軸 + 4 観測点 + Lineage articulate)
+- `complexity-policy.md` を拡張:
+  - §4.1 昇格 trigger 10 件 articulate (P1-P10、≥ 6 件 観測点を 4 件超過)
+  - §4.2 降格 trigger 7 件 articulate (D1-D7、≥ 4 件 観測点を 3 件超過)
+  - §4.3 昇格時手順 (L1→L2 / L2→L3 / L1→L3 直接昇格)
+  - §4.4 降格時手順 (= 既起票 artifact retire 不要)
+  - §4.5 articulation template (= drawer Pattern 4 self-application)
+  - §4.6 AI judgement 範囲 articulate (= 自動判定可 / 不可)
+- M3 観測点 4 件全達成
 
 ### M1-M5 残作業
 
 - ~~M1: Task Protocol System 定義~~ ✅ 完遂 (2026-05-04)
 - ~~M2: 既存 5 文書への routing 固定~~ ✅ 完遂 (2026-05-04)
-- M3: 動的昇格・降格ルール articulate (= L1 → L2 → L3 trigger / 逆方向 trigger)
+- ~~M3: 動的昇格・降格ルール articulate~~ ✅ 完遂 (2026-05-04)
 - M4: 各 Task Class の標準手順 (= 5 protocol 詳細) fill 予定
 - M5: drawer `_seam` を使った最小統合 (= taskHint / consumerKind / sourceRefs)
 
@@ -44,11 +56,11 @@
 
 詳細は `checklist.md` / `plan.md` §3。
 
-### 高優先 (M2 wrap-up + M3 着手判断)
+### 高優先 (M3 wrap-up + M4 着手判断)
 
-- [ ] DA-α-002 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
-- [ ] DA-α-002 Lineage 実 sha update (= 本 commit 後)
-- [ ] M3 着手判断 = DA-α-003 起票 (= M3 動的昇格・降格ルール articulate 方針)
+- [ ] DA-α-003 振り返り判定 (= 正しい / 部分的 / 間違い、本 wrap-up commit で articulated)
+- [ ] DA-α-003 Lineage 実 sha update (= 本 commit 後)
+- [ ] M4 着手判断 = DA-α-004 起票 (= M4 Task Class 5 protocol articulate 方針)
 
 ## 3. ハマりポイント
 

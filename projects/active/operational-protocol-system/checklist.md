@@ -43,15 +43,15 @@
 
 ## Phase M3: 動的昇格・降格ルール
 
-- [ ] DA-α-003 entry landing
-- [ ] `complexity-policy.md` 拡張: 昇格 trigger ≥ 6 件 articulate
-- [ ] `complexity-policy.md` 拡張: 降格 trigger ≥ 4 件 articulate
-- [ ] `complexity-policy.md` 拡張: 昇格時手順 articulate
-- [ ] **観測** M3-1: 昇格 trigger ≥ 6 件 articulated
-- [ ] **観測** M3-2: 降格 trigger ≥ 4 件 articulated
-- [ ] **観測** M3-3: 昇格時手順 articulated
-- [ ] **観測** M3-4: 反証 — synthetic task で trigger 該当 → 手順実行が verify 可能
-- [ ] DA-α-003 振り返り判定
+- [x] DA-α-003 entry landing (= M3 着手判断、complexity-policy.md 単独拡張、5 軸 + 観測点 + Lineage 仮 sha)
+- [x] `complexity-policy.md` 拡張: 昇格 trigger ≥ 6 件 articulate (= §4.1 で 10 件 list、各々 P1-P10 ID + 該当例 + level 移行)
+- [x] `complexity-policy.md` 拡張: 降格 trigger ≥ 4 件 articulate (= §4.2 で 7 件 list、各々 D1-D7 ID + 該当例 + level 移行)
+- [x] `complexity-policy.md` 拡張: 昇格時手順 articulate (= §4.3 で L1→L2 / L2→L3 / L1→L3 直接昇格 の 3 手順 + §4.4 降格時手順 + §4.5 articulation template + §4.6 AI judgement 範囲)
+- [x] **観測** M3-1: 昇格 trigger ≥ 6 件 articulated (= 10 件で 4 件超過達成)
+- [x] **観測** M3-2: 降格 trigger ≥ 4 件 articulated (= 7 件で 3 件超過達成)
+- [x] **観測** M3-3: 昇格時手順 articulated (= §4.3 + §4.4 + §4.5 で 3 transition path articulate)
+- [x] **観測** M3-4: 反証 — synthetic task で trigger 該当 → 手順実行が verify 可能 (= 本 session の M2 → M3 着手で「L2 継続維持」判定が trigger §4.1 P5/P6 観点で trace 可能、self-application instance)
+- [ ] DA-α-003 振り返り判定 (本 wrap-up 後 [x])
 
 ## Phase M4: Task Class ごとの標準手順 (= 5 protocol)
 

@@ -48,7 +48,7 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 | DA-α-000 | Phase 0 | 本 program の進行モデル (drawer Pattern 1 application instance + AAG Pilot DA institution からの継承判断) | active |
 | DA-α-001 | Phase M1 | M1 Task Protocol System 着手判断 (新 doc 4 件配置 + articulate 順序) | active |
 | DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | active |
-| DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | planned |
+| DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | active |
 | DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | planned |
 | DA-α-005 | Phase M5 | M5 drawer `_seam` 統合 + guard 化判断 | planned |
 
@@ -243,3 +243,60 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
 - (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)
+
+---
+
+## DA-α-003: M3 動的昇格・降格ルール articulate 方針
+
+**status**: active
+
+### 判断時 (2026-05-04 / Phase M3)
+
+- 候補:
+  1. complexity-policy.md 単独拡張 (= 既存 §4 を refine、昇格・降格 trigger + 手順を complexity-policy 内に articulate)
+  2. session-protocol.md と complexity-policy.md 両方拡張 (= 昇格手順を session lifecycle に組み込む)
+  3. 新 doc 追加 (= `level-transition-policy.md` 等の dynamic transition 専門 doc)
+- **採用案: 候補 1** (= complexity-policy.md 単独拡張)
+- 判断根拠:
+  - 事実 1: M2 で session-protocol.md を拡張する pattern が成功 (= 既存 doc refine、新 doc 追加なし、AAG-REQ-ANTI-DUPLICATION 整合)。M3 でも同 pattern を適用 = complexity-policy.md 単独拡張
+  - 事実 2: 昇格・降格 trigger は **complexity の判定軸** に直接 belong (= L1/L2/L3 transition が complexity-policy の核心 scope)。session-protocol に置くと「何をするか」と「どの重さか」が混在 risk
+  - 事実 3: M3 plan §scope 外で「自動昇格判定 (= AI が機械的に昇格判断) は本 Phase scope 外、AI judgement に委ねる」と明示。articulate のみが scope、guard 化 / 自動化は M5 以降の judgement
+  - 事実 4: 候補 3 (新 doc) は AAG-REQ-ANTI-DUPLICATION 違反 risk + drawer Pattern 5 (意図的 skip + rationale) を articulate せず追加することは scope discipline 違反
+- 想定リスク:
+  - 最大被害: complexity-policy.md §4 が肥大化し reader が trigger 一覧に reach できない。mitigation = 昇格 / 降格 / 手順を §4.1/§4.2/§4.3 に分節、table 形式で articulate
+  - 二番目: trigger の自動判定 expectation が読み手に発生 (= AI が機械判定すると誤読)。mitigation = 各 trigger に「AI judgement」articulate + scope 外明示
+- 振り返り観測点 (4 点 = M3 観測点 4 件と同期):
+  - 1 (M3-1 肯定): 昇格 trigger ≥ 6 件 articulate (= complexity-policy.md §4.1 で 6+ 件 list、各々の trigger 例 + 該当 level 移行の articulate)
+  - 2 (M3-2 肯定): 降格 trigger ≥ 4 件 articulate (= §4.2 で 4+ 件 list、各々の trigger 例 + 該当 level 移行)
+  - 3 (M3-3 肯定): 昇格時手順 articulate (= §4.3 で「途中で plan.md / decision-audit を起こす経路」を step 化)
+  - 4 (M3-4 反証): synthetic task で trigger 該当 → 手順実行が verify 可能 (= 本 session の M2 → M3 着手時に L2 を継続維持の判定が trigger 観点で trace 可能、self-application instance)
+
+### 5 軸 articulation
+
+- **製本** (canonical): `complexity-policy.md` が canonical (= 既存 doc refine、新 doc 追加なし)
+- **依存方向**: 上位 = M1/M2 で landed した protocol family、下位 = 主アプリ改修 user の level transition 判断
+- **意味**: 「complexity level が **session 中に変わる** ことを institutionalize、昇格 / 降格 trigger + 昇格手順 articulate」
+- **責務**: trigger articulate + 手順 articulate のみ、自動判定 / guard 化は scope 外 (= M3 plan §scope 外整合、AI judgement)
+- **境界**: M3 は complexity-policy.md 拡張のみ、M4 (= 5 protocol) / M5 (= drawer `_seam`) は別 Phase
+
+### Commit Lineage
+
+- judgementCommit: TBD (= M3 landing commit、commit 後に実 sha update)
+- preJudgementCommit: TBD (= M2 wrap-up regen の HEAD = `b619a505e`)
+- judgementTag: `operational-protocol-system/DA-α-003-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
+- rollbackTag: `operational-protocol-system/DA-α-003-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
+- implementationCommits:
+  - TBD — M3 全実装 (= complexity-policy.md 拡張 + DA-α-003 entry + checklist update + HANDOFF update)
+
+### 振り返り (Phase M3 完了 / TBD)
+
+> Phase M3 完了直前に追記、observation 4 件すべて実測。
+
+- 観測点 1〜4: TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+### 軌道修正 (判定 "部分的" / "間違い" のみ)
+
+- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
