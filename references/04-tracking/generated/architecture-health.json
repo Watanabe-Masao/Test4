@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T03:00:26.995Z",
+  "timestamp": "2026-05-04T12:45:59.267Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 135,
+      "value": 136,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -275,6 +275,7 @@
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/architectureRuleGuard.test.ts",
         "app/src/test/guards/architectureRulesMergeSmokeGuard.test.ts",
+        "app/src/test/guards/archiveV2SchemaGuard.test.ts",
         "app/src/test/guards/barrelReexportMetadataGuard.test.ts",
         "app/src/test/guards/calculationCanonGuard.test.ts",
         "app/src/test/guards/canonicalDocBackLinkGuard.test.ts",
@@ -1055,7 +1056,7 @@
       "id": "project.checklist.totalCheckboxes",
       "label": "全 project の required checkbox 総数",
       "category": "docs",
-      "value": 1531,
+      "value": 1285,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",
@@ -1115,7 +1116,7 @@
       "id": "project.checklist.checkedCheckboxes",
       "label": "全 project の checked checkbox 総数",
       "category": "docs",
-      "value": 1224,
+      "value": 1203,
       "unit": "count",
       "status": "ok",
       "owner": "documentation-steward",

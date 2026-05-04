@@ -131,16 +131,16 @@
 
 ## Phase 8: Promote Ceremony
 
-- [ ] promote 提案書のフォーマットを作成した
-- [ ] 判定主体が「AAG 証拠収集 → AI 提案 → user 承認」であることを固定した
-- [ ] dual-run 安定期間を満たした
-- [ ] null / warning / methodUsed / scope 一致を確認した
-- [ ] rollback 実演を確認した
+- [x] promote 提案書のフォーマットを作成した (= 2026-05-04 A2 scope、`phase-8/proposals/` に 4 通 landing)
+- [x] 判定主体が「AAG 証拠収集 → AI 提案 → user 承認」であることを固定した (= `phase-8/README.md` §responsibility 配分)
+- [ ] dual-run 安定期間を満たした (= user side、`phase-8/promotion-readiness-table.md` exit criteria 参照)
+- [ ] null / warning / methodUsed / scope 一致を確認した (= 各 proposal 「証拠」section)
+- [ ] rollback 実演を確認した (= 各 proposal §「失敗時の巻き戻し手順」)
 - [ ] direct import 逸脱がないことを確認した
 - [ ] AAG hard guard 全通過を確認した
-- [ ] registry / contract / bridge metadata 更新準備を完了した
-- [ ] promote 実施手順を実行した
-- [ ] promote 失敗時の巻き戻し手順を準備した
+- [ ] registry / contract / bridge metadata 更新準備を完了した (= 各 proposal §5「registry 更新準備」)
+- [ ] promote 実施手順を実行した (= `references/03-implementation/promote-ceremony-template.md` §3 準拠)
+- [x] promote 失敗時の巻き戻し手順を準備した (= 各 proposal §「失敗時の巻き戻し手順」)
 
 ---
 

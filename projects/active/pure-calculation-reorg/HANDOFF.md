@@ -19,9 +19,26 @@
 Phase 0-7 の構造基盤が完了。AAG 5.0.0 Phase A1-A5 完了。Core / Project Overlay 分離済み。
 **Phase C（Governance 配置完成）+ Phase 6（AAG 保証強化）完了**（2026-04-12）。
 **AAG 5.2 Collector-Governance Symmetry 完了**（2026-04-13, 別プロジェクトで実施）。
+**Phase 8 entry artifacts landing 完了**（2026-05-04, A2 scope = AI 提案 scaffold）。
 
 本体: **v1.10.0**。AAG: **5.2.0**。Hard Gate: **PASS** (39/39 KPI OK)。
 進捗: **84/113 (74.3%)** — Phase 0-7 の達成条件は全て `[x]`、Phase 8-11 が残件。
+
+### 2026-05-04 Phase 8 entry artifacts landing (= A2 scope)
+
+`projects/active/pure-calculation-reorg/phase-8/` に以下を landing:
+
+- `README.md` — scope + workflow + responsibility 配分 (= AI 提案 / user 承認 articulate)
+- `promotion-readiness-table.md` — 4 ANA candidate (003/004/007/009) の readiness 個別評価 + observation entry/exit criteria
+- `proposals/ANA-{003,004,007,009}.md` — 4 通の Promote 提案書 (= 観測前 draft、user 承認 form)
+- `evidence-packs/ANA-{003,004,007,009}.json` — `generateEvidencePack` で生成した raw scaffold (= 観測値 placeholder)
+
+**user 側残作業** (= 本 session 後):
+1. `cargo install wasm-pack` + `cd app && npm run build:wasm` (= 18 crate fresh build)
+2. DEV server で 4 candidate の dual-run 観測 (推奨順序: ANA-009 → 003 → 004 → 007)
+3. 安定期間 ≥3 日 (ANA-007 のみ ≥7 日推奨) で parity 全項目 ✅
+4. proposal 内「証拠」section 値埋め
+5. registry promotion + atomic commit + 1 週間 fallback-to-current 運用
 
 ### 2026-04-13 の状態変化（別プロジェクトで実施済み、本 project への影響あり）
 

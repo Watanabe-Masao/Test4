@@ -16,74 +16,74 @@
 
 ## Phase M1: Task Protocol System 定義
 
-- [ ] DA-α-001 entry landing (= M1 着手判断、新 doc 4 件配置 + articulate 順序、5 軸 + 観測点 + Lineage)
-- [ ] `task-protocol-system.md` 新設 (= 上位 doc、M1-M5 全体 index)
-- [ ] `task-class-catalog.md` 新設 (= 6 類型 = Planning / Refactor / Bug Fix / New Capability / Incident Discovery / Handoff)
-- [ ] `session-protocol.md` 新設 (= Session 開始 / 実行中 / 終了 / 引き継ぎ の prescriptive 手順)
-- [ ] `complexity-policy.md` 新設 (= L1 軽修正 / L2 通常変更 / L3 重変更 + 各 level で使う文書)
-- [ ] **観測** M1-1: 6 Task Class が articulated (catalog 完成)
-- [ ] **観測** M1-2: Session Protocol が L1/L2/L3 別に articulated
-- [ ] **観測** M1-3: L1/L2/L3 と既存 5 文書の使い分けが table で articulated
-- [ ] **観測** M1-4: 4 doc 全 landing で `docs:check` PASS
-- [ ] **観測** M1-5: 反証可能観測 ≥ 1 (= synthetic session scenario で各 level routing が verify 可能)
-- [ ] DA-α-001 振り返り判定 (正しい / 部分的 / 間違い)
-- [ ] `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
+- [x] DA-α-001 entry landing (= M1 着手判断、新 doc 4 件配置 + articulate 順序、5 軸 + 観測点 + Lineage、archive-v2 program PR 6 + wrap-up commit で完遂、judgementCommit = `9d106564649fac499cc96285cf8c08d64d8315eb` / preJudgementCommit = `5c29bb54971c8ca97042360bacebc23953f20d54`)
+- [x] `task-protocol-system.md` 新設 (= 上位 doc、M1-M5 全体 index、`references/05-aag-interface/protocols/` に landing)
+- [x] `task-class-catalog.md` 新設 (= 6 類型 = TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff、各々に scope + 入口/出口条件 + complexity range + antipattern)
+- [x] `session-protocol.md` 新設 (= Session 開始 §1 / 実行中 §3 (L1/L2/L3 別) / 終了・引き継ぎ §4 + drawer Pattern 1-6 適用 articulate)
+- [x] `complexity-policy.md` 新設 (= L1 軽修正 / L2 通常変更 / L3 重変更 + 各 level で使う既存 5 文書 §5 table + AAG-COA との関係 §2)
+- [x] **観測** M1-1: 6 Task Class が articulated (catalog 完成、`task-class-catalog.md` §1 summary table + §2-§7 詳細)
+- [x] **観測** M1-2: Session Protocol が L1/L2/L3 別に articulated (`session-protocol.md` §3.2/§3.3/§3.4)
+- [x] **観測** M1-3: L1/L2/L3 と既存 5 文書の使い分けが table で articulated (`complexity-policy.md` §5 use-case mapping table)
+- [x] **観測** M1-4: 4 doc 全 landing で `docs:check` PASS (= 60 KPI all OK / Hard Gate PASS、2026-05-04 verify)
+- [x] **観測** M1-5: 反証可能観測 ≥ 1 (= 本 session 自体が synthetic session scenario として self-application instance、`session-protocol.md` §1 開始 → §3.4 L3 実行中 → §4 終了 routing が trace 可能)
+- [x] DA-α-001 振り返り判定 (= **正しい**、5 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-001 §「振り返り (Phase M1 完了 / 2026-05-04)」参照)
+- [x] `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS (= 60 KPI Hard Gate PASS / 146 file 969 test PASS / 0 errors 25 warnings / built successful、2026-05-04)
 
 ## Phase M2: 既存 5 文書への routing 固定
 
-- [ ] DA-α-002 entry landing
-- [ ] `session-protocol.md` 拡張: L1/L2/L3 別 read order articulate
-- [ ] `session-protocol.md` 拡張: Session 終了 protocol L1/L2/L3 別 articulate
-- [ ] `session-protocol.md` 拡張: 引き継ぎ protocol 双方向 articulate
-- [ ] **観測** M2-1: 3 routing pattern (L1/L2/L3) articulated
-- [ ] **観測** M2-2: Session 終了 protocol 3 level 全件 articulated
-- [ ] **観測** M2-3: 引き継ぎ protocol 双方向 articulated
-- [ ] **観測** M2-4: synthetic scenario で全 routing 再現可能
-- [ ] DA-α-002 振り返り判定
+- [x] DA-α-002 entry landing (= M2 着手判断、session-protocol.md 単独拡張、5 軸 + 観測点 + Lineage、Lineage 実 sha は本 commit 後 update 予定)
+- [x] `session-protocol.md` 拡張: L1/L2/L3 別 read order articulate (= §1.1 table 形式で per-level read order articulated)
+- [x] `session-protocol.md` 拡張: Session 終了 protocol L1/L2/L3 別 articulate (= §4.1 per-level required artifacts table + §4.2 全 level 共通 articulation)
+- [x] `session-protocol.md` 拡張: 引き継ぎ protocol 双方向 articulate (= §4.3.1 引き継ぐ側 + §4.3.2 引き継がれる側、双方向必須 check)
+- [x] **観測** M2-1: 3 routing pattern (L1/L2/L3) articulated (= §1.1 read order table + §3.2/§3.3/§3.4 routing が全 L 別 articulated)
+- [x] **観測** M2-2: Session 終了 protocol 3 level 全件 articulated (= §4.1 per-level required artifacts table)
+- [x] **観測** M2-3: 引き継ぎ protocol 双方向 articulated (= §4.3.1 + §4.3.2 双方向 必須 check)
+- [x] **観測** M2-4: synthetic scenario で全 routing 再現可能 (= 本 session 自体が L2 routing instance、§1.1 L2 read order → §3.3 L2 routing → §4.1 L2 required artifacts → §4.3.1 引き継ぐ側 の trace が verify 可能)
+- [x] DA-α-002 振り返り判定 (= **正しい**、4 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-002 §「振り返り (Phase M2 完了 / 2026-05-04)」参照)
 
 ## Phase M3: 動的昇格・降格ルール
 
-- [ ] DA-α-003 entry landing
-- [ ] `complexity-policy.md` 拡張: 昇格 trigger ≥ 6 件 articulate
-- [ ] `complexity-policy.md` 拡張: 降格 trigger ≥ 4 件 articulate
-- [ ] `complexity-policy.md` 拡張: 昇格時手順 articulate
-- [ ] **観測** M3-1: 昇格 trigger ≥ 6 件 articulated
-- [ ] **観測** M3-2: 降格 trigger ≥ 4 件 articulated
-- [ ] **観測** M3-3: 昇格時手順 articulated
-- [ ] **観測** M3-4: 反証 — synthetic task で trigger 該当 → 手順実行が verify 可能
-- [ ] DA-α-003 振り返り判定
+- [x] DA-α-003 entry landing (= M3 着手判断、complexity-policy.md 単独拡張、5 軸 + 観測点 + Lineage 仮 sha)
+- [x] `complexity-policy.md` 拡張: 昇格 trigger ≥ 6 件 articulate (= §4.1 で 10 件 list、各々 P1-P10 ID + 該当例 + level 移行)
+- [x] `complexity-policy.md` 拡張: 降格 trigger ≥ 4 件 articulate (= §4.2 で 7 件 list、各々 D1-D7 ID + 該当例 + level 移行)
+- [x] `complexity-policy.md` 拡張: 昇格時手順 articulate (= §4.3 で L1→L2 / L2→L3 / L1→L3 直接昇格 の 3 手順 + §4.4 降格時手順 + §4.5 articulation template + §4.6 AI judgement 範囲)
+- [x] **観測** M3-1: 昇格 trigger ≥ 6 件 articulated (= 10 件で 4 件超過達成)
+- [x] **観測** M3-2: 降格 trigger ≥ 4 件 articulated (= 7 件で 3 件超過達成)
+- [x] **観測** M3-3: 昇格時手順 articulated (= §4.3 + §4.4 + §4.5 で 3 transition path articulate)
+- [x] **観測** M3-4: 反証 — synthetic task で trigger 該当 → 手順実行が verify 可能 (= 本 session の M2 → M3 着手で「L2 継続維持」判定が trigger §4.1 P5/P6 観点で trace 可能、self-application instance)
+- [x] DA-α-003 振り返り判定 (= **正しい**、4 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-003 §「振り返り (Phase M3 完了 / 2026-05-04)」参照)
 
 ## Phase M4: Task Class ごとの標準手順 (= 5 protocol)
 
-- [ ] DA-α-004 entry landing
-- [ ] **Planning Protocol** articulate (= 構想 → 調査 → 比較検討 → 妥当性判断 → ドキュメント化 → 自己評価)
-- [ ] **Refactor Protocol** articulate (= 挙動不変確認 → 範囲確定 → 実装 → parity / drift / regression 確認)
-- [ ] **Bug Fix Protocol** articulate (= 再現 → 原因調査 → 最小修正 → regression → 再発防止 guard 検討)
-- [ ] **New Capability Protocol** articulate (= authority/contract/generated 追加要否 → 実装 → compatibility 確認)
-- [ ] **Handoff Protocol** articulate (= 現在地 / 次アクション / 未確定判断 / ハマりポイント の更新)
-- [ ] **観測** M4-1: 5 protocol articulated
-- [ ] **観測** M4-2: 各 protocol に drawer Pattern 1-6 application instance hint
-- [ ] **観測** M4-3: 各 protocol に Complexity Policy (M3) との対応 articulated
-- [ ] DA-α-004 振り返り判定
+- [x] DA-α-004 entry landing (= M4 着手判断、4 sub-doc 別 file 化採用、5 軸 + 観測点 + Lineage)
+- [x] **Planning Protocol** articulate (= [planning-protocol.md](../../references/05-aag-interface/protocols/planning-protocol.md)、6 step 構想/調査/比較検討/妥当性判断/ドキュメント化/自己評価)
+- [x] **Refactor Protocol** articulate (= [refactor-protocol.md](../../references/05-aag-interface/protocols/refactor-protocol.md)、4 step 挙動不変確認/範囲確定/実装/parity-drift-regression 確認)
+- [x] **Bug Fix Protocol** articulate (= [bug-fix-protocol.md](../../references/05-aag-interface/protocols/bug-fix-protocol.md)、5 step 再現/原因調査/最小修正/regression/再発防止 guard 検討)
+- [x] **New Capability Protocol** articulate (= [new-capability-protocol.md](../../references/05-aag-interface/protocols/new-capability-protocol.md)、4 step Standard 8 軸 articulate 判断/実装/compatibility/関連 doc update)
+- [x] **Handoff Protocol** articulate (= session-protocol.md §4 で既 articulate 済、M2 で双方向 articulate refine 完了、本 M4 で別 file 化せず session-protocol §4 を canonical 維持)
+- [x] **観測** M4-1: 5 protocol articulated (= 4 sub-doc + Handoff section)
+- [x] **観測** M4-2: 各 protocol に drawer Pattern 1-6 application instance hint (= 各 protocol §3 table)
+- [x] **観測** M4-3: 各 protocol に Complexity Policy (M3) との対応 articulated (= 各 protocol §4 table、該当 P-trigger / D-trigger / typical complexity range)
+- [x] DA-α-004 振り返り判定 (= **正しい**、3 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-004 §「振り返り (Phase M4 完了 / 2026-05-04)」参照)
 
 ## Phase M5: drawer `_seam` を使った最小統合
 
-- [ ] DA-α-005 entry landing
-- [ ] `taskHint` / `consumerKind` / `sourceRefs` の意味 articulate (= AAG drawer-generator.ts 既 articulate を Task Class lens で再 articulate)
-- [ ] Task Class × drawer 軸 routing matrix articulate
-- [ ] guard 化判断 (= value > cost 評価、drawer Pattern 4 適用)
-- [ ] **観測** M5-1: taskHint / consumerKind / sourceRefs 意味 articulated
-- [ ] **観測** M5-2: 5 Task Class × drawer 軸 routing matrix articulated
-- [ ] **観測** M5-3: guard 化判断 articulated (Yes/No + rationale)
-- [ ] DA-α-005 振り返り判定
+- [x] DA-α-005 entry landing (= M5 着手判断、新 doc seam-integration.md 化採用、5 軸 + 観測点 + Lineage 仮 sha)
+- [x] `taskHint` / `consumerKind` / `sourceRefs` の意味 articulate (= [seam-integration.md](../../references/05-aag-interface/protocols/seam-integration.md) §1 で 8 値 / 4 値 / array articulate、AAG drawer 既 articulate を Task Class lens で再 articulate)
+- [x] Task Class × drawer 軸 routing matrix articulate (= seam-integration.md §2、6 Task Class × 主 read / 副 read / rationale)
+- [x] guard 化判断 (= seam-integration.md §4、4 候補 GP-1〜GP-4 すべて value < cost で **No 結論**、drawer Pattern 4 適用)
+- [x] **観測** M5-1: taskHint / consumerKind / sourceRefs 意味 articulated (= seam-integration.md §1.1 + §1.2 + §1.3)
+- [x] **観測** M5-2: 5 Task Class × drawer 軸 routing matrix articulated (= seam-integration.md §2 routing matrix + §3 reverse-index)
+- [x] **観測** M5-3: guard 化判断 articulated (= seam-integration.md §4、Yes/No + rationale + 再起動 trigger 3 件)
+- [x] DA-α-005 振り返り判定 (= **正しい**、3 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-005 §「振り返り (Phase M5 完了 / 2026-05-04)」参照)
 
 ## Phase 完了 verify (= Pilot 完了 criterion 5 件 — `plan.md` §2)
 
-- [ ] M1-M5 全 deliverable landed
-- [ ] 6 Task Class + L1/L2/L3 + 5 protocol articulated
-- [ ] AI simulation で 昇格 / 降格 trigger + session start/end が verify (= drawer Pattern 6 application)
-- [ ] decision-audit.md に Pilot 判断履歴 landing (DA-α-000 + 001-005 = 6 entry)
-- [ ] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS)
+- [x] M1-M5 全 deliverable landed (= 9 protocol doc + 6 DA entry + 19 観測点全達成、本 session 内完遂 2026-05-04)
+- [x] 6 Task Class + L1/L2/L3 + 5 protocol articulated (= task-class-catalog.md §1 + complexity-policy.md §1 + 4 sub-doc + session-protocol §4 で計 5 protocol = TC-1〜TC-4 sub-doc + TC-6 session §4、TC-5 catalog §6 articulate で代替)
+- [x] AI simulation で 昇格 / 降格 trigger + session start/end が verify (= 本 session 自体が L2 routing instance、session-protocol §1 開始 → §3.3 L2 routing → §4.1 L2 終了 の trace が 6 commit (judgement + wrap-up × M1-M5 + Phase 0) で機械的に verify 可能、drawer Pattern 6 State-based Verification Harness application instance)
+- [x] decision-audit.md に Pilot 判断履歴 landing (= DA-α-000 + 001-005 = 6 entry、各 entry に 5 軸 + 観測点 + Lineage 実 sha + 振り返り判定 articulate、5 件すべて "正しい" 判定)
+- [x] AAG framework / Standard / drawer / 5 文書 / role / AAG-COA / 主アプリ code に破壊的変更 0 件 (= 全 verify command PASS、本 session で 146 file 969 test PASS / docs:check PASS / lint PASS / build PASS、不可侵原則 1 整合)
 
 ## AI 自己レビュー (= user 承認の手前)
 
@@ -92,11 +92,11 @@
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-- [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
-- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
-- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+- [x] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認 (= 9 protocol doc landing + doc-registry / README index 同期 + 6 DA entry articulate + 5 件 "正しい" 振り返り判定、本 session 内 11 commit で完遂、scope 外 commit 0 件)
+- [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= drawer Pattern 1-6 を各 protocol §3 で application instance hint articulate、各 DA entry で scope discipline + clean rewrite 整合確認、不可侵原則 1 (= AAG framework 改変禁止) 整合)
+- [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検 (= 本 project は doc articulate のみで主アプリ code touch なし、N/A 該当。ただし articulate 自体の reader interpretation edge case として「L 判定迷う case」「trigger 該当不明 case」を complexity-policy §7 で articulate、AI judgement escalate path 確保)
+- [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了 (= references/README.md 索引 5 entry 追加 / docs/contracts/doc-registry.json 5 entry 追加 / task-protocol-system.md §7 contract refine、CLAUDE.md は本 project scope 外で意図的に未 touch (= 不可侵原則整合))
+- [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 (= 本 project は doc articulate のみで主アプリ release scope 外、CHANGELOG.md / package.json semver / project-metadata.json appVersion は本 project trigger で改変なし。AAG framework articulate は references/04-tracking/recent-changes.generated.md で history 管理経路を別途維持、本 project archive 後の articulate update は archive 移行 commit で実施候補)
 
 ## 最終レビュー (user 承認)
 

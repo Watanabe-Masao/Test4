@@ -580,6 +580,42 @@
         {
           "path": "references/05-aag-interface/drawer/decision-articulation-patterns.md",
           "label": "Decision Articulation Patterns — 主アプリ (粗利管理ツール) 改修主軸の change-bearing 作業全般で再利用可能な articulation pattern 集 (commit-bound rollback / scope discipline / clean rewrite / honest limitation / 意図的 skip + rationale / state-based verification harness の 6 pattern)。AAG Pilot で identify された first instance を例に持つが、primary 適用領域 = 主アプリ改修。AAG framework 内部を読まずに引き出せる drawer。抽象化境界 self-test 4 軸で AAG-specific term 0 件を機械検証可能"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/task-protocol-system.md",
+          "label": "Task Protocol System (= operational-protocol-system M1) — AAG framework を日常作業で使う側の運用プロトコル集の上位 index。Task 軸 / Session 軸 / Complexity 軸 + Task Class catalog の 4 doc を統合 articulate、reader 別 routing で「いま何の作業をしているか」「どの protocol で進めるか」を即判断可能。AAG framework は input として参照、改変しない (= 不可侵原則 1 整合)。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/task-class-catalog.md",
+          "label": "Task Class Catalog (= operational-protocol-system M1) — 6 Task Class 類型 (TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff) + 各々の scope + 入口/出口条件 + typical complexity + antipattern + class 判定 flow。task-protocol-system.md §4 で referenced、本 doc が canonical 詳細。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/session-protocol.md",
+          "label": "Session Protocol (= operational-protocol-system M1) — AI session lifecycle 4 phase (= 開始 / 実行中 / 終了 / 引き継ぎ) で何を articulate するかの prescriptive 手順。L1/L2/L3 別の routing + drawer Pattern 1-6 適用 + Session 内 Task 切替 + 既存 5 文書との routing。現 ad-hoc な session 開始 / 終了を制度化、handoff の lose を防ぐ。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/complexity-policy.md",
+          "label": "Complexity Policy (= operational-protocol-system M1 + M3) — 3 level (L1 軽修正 / L2 通常変更 / L3 重変更) policy。各 level で使う既存 5 文書 + AAG-COA との関係 (= 立ち上げ前 vs 立ち上げ後 + 1 task 単位) + 既存 5 文書 use-case mapping + AAG-REQ との整合 + 判定迷う case の handling。M3 で §4 動的昇格・降格 (= 昇格 trigger 10 件 P1-P10 + 降格 trigger 7 件 D1-D7 + 3 transition path 手順 + AI judgement 範囲) を articulate refine。task-protocol-system.md §5 で referenced、本 doc が canonical 詳細。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/planning-protocol.md",
+          "label": "Planning Protocol — TC-1 (= operational-protocol-system M4) — 計画策定 / 設計判断 / Phase 構造 articulate を含む実装前 articulate task の prescriptive flow。6 step (構想 → 調査 → 比較検討 → 妥当性判断 → ドキュメント化 → 自己評価) + drawer Pattern 1-6 application instance hint + complexity-policy (M3) との対応 (= P1/P2/P5/P6 trigger + D1/D5)。typical complexity = L2-L3。task-class-catalog.md §2 で referenced。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/refactor-protocol.md",
+          "label": "Refactor Protocol — TC-2 (= operational-protocol-system M4) — 既存 behavior 不変な構造改善 (抽出 / 移動 / 重複削除 / interface boundary 整理) の prescriptive flow。4 step (挙動不変確認 → 範囲確定 → 実装 → parity/drift/regression 確認) + drawer Pattern 1-6 application instance hint + complexity-policy (M3) との対応 (= P3/P7/P8/P9 trigger + D5/D6/D7)。typical complexity = L1-L3。task-class-catalog.md §3 で referenced。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/bug-fix-protocol.md",
+          "label": "Bug Fix Protocol — TC-3 (= operational-protocol-system M4) — 観測された defect の修正 (incident report / test failure / regression が起点) の prescriptive flow。5 step (再現 → 原因調査 → 最小修正 → regression 確認 → 再発防止 guard 検討) + drawer Pattern 1-6 application instance hint + complexity-policy (M3) との対応 (= P3/P5/P7/P10 trigger + D6/D7)。typical complexity = L1-L2。task-class-catalog.md §4 で referenced。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/new-capability-protocol.md",
+          "label": "New Capability Protocol — TC-4 (= operational-protocol-system M4) — 新機能 / 新 KPI / 新 protocol / 新 doc / 新 guard の追加 task の prescriptive flow。4 step (Standard 8 軸 articulate 追加要否 → 実装 → compatibility 確認 → 関連 doc update) + drawer Pattern 1-6 application instance hint + complexity-policy (M3) との対応 (= P1/P3/P4/P5/P10 trigger + D1/D2)。typical complexity = L2-L3。task-class-catalog.md §5 で referenced。"
+        },
+        {
+          "path": "references/05-aag-interface/protocols/seam-integration.md",
+          "label": "Seam Integration (= operational-protocol-system M5) — AAG drawer `_seam` (taskHint / consumerKind / sourceRefs) を Task Class / Session Protocol / Complexity Policy lens で再 articulate。5 Task Class × drawer 軸 routing matrix + Task Class × consumerKind crossover (= reader 別深掘り) + guard 化判断 (= 4 候補 GP-1〜GP-4 すべて value < cost で No 結論、3 trigger で再起動条件 articulate) + AAG drawer 改変判断は scope 外明示。AAG drawer 自身の articulate / 実装は不可侵 (= 不可侵原則 1)、本 doc は読み手側の routing articulate のみ。"
         }
       ]
     },

@@ -38,7 +38,7 @@ AAG 自身を Standard 8 軸 (Authority / Derivation / Contract / Binding / Gene
 
 - 8 implementation commit (96a9521 / 226b455 / 74100a7 / eee1de8 / db26556 / e806bfa / 625e55c / `<本 commit>`)
 - 14 annotated tag (judgement + rollback-target × 7 entry)
-- 8 DA entry (`projects/completed/aag-platformization/decision-audit.md` DA-α-000 + 002a〜007)
+- 8 DA entry (`projects/completed/aag-platformization/archive.manifest.json` `decisionEntries` DA-α-000 + 002a〜007、archive 前 decision-audit.md は Archive v2 圧縮済)
 
 ---
 

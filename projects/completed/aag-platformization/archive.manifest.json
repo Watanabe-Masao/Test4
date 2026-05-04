@@ -1,0 +1,259 @@
+{
+  "$comment": "Archive v2 manifest for aag-platformization. Schema: docs/contracts/project-archive.schema.json. PR 5 (= self-dogfood 2 件目、aag-self-hosting-completion (PR 3) に続く Pilot 検証)。preCompressionCommit は本 commit 直前 = PR 4 + regen lineage の HEAD。config/project.json は AAG project-checklist-collector の identification key として参照されるため v2 圧縮対象から除外 (= 残置)、aag-self-hosting-completion PR 3 で institute された design 整合。",
+  "archiveVersion": 2,
+  "projectId": "aag-platformization",
+  "title": "AAG Platformization Pilot — Standard 8 軸 articulate complete + 実バグ 3 件修復 + AI simulation で機能 verify (= F1-F5)",
+  "archivedAt": "2026-05-02",
+  "preCompressionCommit": "a3513af4f7ed39780548f0f58ef317f66e02fde4",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-platformization/AI_CONTEXT.md",
+    "projects/completed/aag-platformization/HANDOFF.md",
+    "projects/completed/aag-platformization/plan.md",
+    "projects/completed/aag-platformization/checklist.md",
+    "projects/completed/aag-platformization/decision-audit.md",
+    "projects/completed/aag-platformization/projectization.md",
+    "projects/completed/aag-platformization/DERIVED.md",
+    "projects/completed/aag-platformization/breaking-changes.md",
+    "projects/completed/aag-platformization/aag/execution-overlay.ts",
+    "projects/completed/aag-platformization/derived/README.md",
+    "projects/completed/aag-platformization/derived/acceptance-suite.md",
+    "projects/completed/aag-platformization/derived/pr-breakdown.md",
+    "projects/completed/aag-platformization/derived/review-checklist.md",
+    "projects/completed/aag-platformization/derived/test-plan.md",
+    "projects/completed/aag-platformization/derived/inventory/README.md",
+    "projects/completed/aag-platformization/derived/inventory/00-example.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-platformization/AI_CONTEXT.md",
+      "lineCount": 72,
+      "summary": "AI 入口 (= why / scope / read order、Standard 8 軸 Pilot Application articulate)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/HANDOFF.md",
+      "lineCount": 119,
+      "summary": "後任者の入口 (= 完了済み全景 + 次にやること、archive 直前は Pilot 完了 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/plan.md",
+      "lineCount": 190,
+      "summary": "計画正本 (= 不可侵原則 + Phase 0-3 + Pilot 完了 criterion 5 件)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/checklist.md",
+      "lineCount": 120,
+      "summary": "completion 判定 (= 機械的 Phase 達成 checkbox + 意図的 skip 2 件 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/decision-audit.md",
+      "lineCount": 726,
+      "summary": "重判断 institution (= 8 DA entry: α-000/001/002a/002b/003/004/005/006/007、001 は planned のみ + bootstrap)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/projectization.md",
+      "lineCount": 75,
+      "summary": "AAG-COA judgment (= projectizationLevel + escalation criteria articulate)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/DERIVED.md",
+      "lineCount": 87,
+      "summary": "derived doc index (= acceptance-suite / pr-breakdown / review-checklist / test-plan / inventory への pointer)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/breaking-changes.md",
+      "lineCount": 45,
+      "summary": "本 program で institute される breaking changes 列挙 (= Standard articulate + 実バグ修復影響範囲)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/aag/execution-overlay.ts",
+      "lineCount": 34,
+      "summary": "project 固有 execution overlay (= AAG rule の project-scoped tuning、empty if 不要)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/README.md",
+      "lineCount": 38,
+      "summary": "derived/ directory の役割 articulate"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/acceptance-suite.md",
+      "lineCount": 51,
+      "summary": "acceptance criteria 集約 (= Phase 0-3 観測点列挙)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/pr-breakdown.md",
+      "lineCount": 47,
+      "summary": "PR 分割計画 (= Phase 別 PR scope articulate)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/review-checklist.md",
+      "lineCount": 62,
+      "summary": "review-gate 用 checklist (= phase 別レビュー観点)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/test-plan.md",
+      "lineCount": 65,
+      "summary": "test plan (= AI simulation CT1-CT5 + F1-F5 verify 観点)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/inventory/README.md",
+      "lineCount": 54,
+      "summary": "inventory directory の役割 articulate (= per-element inventory の placeholder)"
+    },
+    {
+      "path": "projects/completed/aag-platformization/derived/inventory/00-example.md",
+      "lineCount": 20,
+      "summary": "inventory entry の example template"
+    }
+  ],
+  "restoreAllCommand": "git checkout a3513af4f7ed39780548f0f58ef317f66e02fde4 -- projects/completed/aag-platformization/AI_CONTEXT.md projects/completed/aag-platformization/HANDOFF.md projects/completed/aag-platformization/plan.md projects/completed/aag-platformization/checklist.md projects/completed/aag-platformization/decision-audit.md projects/completed/aag-platformization/projectization.md projects/completed/aag-platformization/DERIVED.md projects/completed/aag-platformization/breaking-changes.md projects/completed/aag-platformization/aag/execution-overlay.ts projects/completed/aag-platformization/derived/README.md projects/completed/aag-platformization/derived/acceptance-suite.md projects/completed/aag-platformization/derived/pr-breakdown.md projects/completed/aag-platformization/derived/review-checklist.md projects/completed/aag-platformization/derived/test-plan.md projects/completed/aag-platformization/derived/inventory/README.md projects/completed/aag-platformization/derived/inventory/00-example.md",
+  "decisionEntries": [
+    {
+      "id": "DA-α-000",
+      "title": "本 program の進行モデル決定 (= AI-driven judgement + retrospective + commit-bound rollback)",
+      "commitSha": "36c486824015e54ead226e53c804fceb524fd7b6"
+    },
+    {
+      "id": "DA-α-001",
+      "title": "Authority articulation 方針 (= 4 layer 正本確認 + back-link、bootstrap 内に吸収、planned only)",
+      "commitSha": null
+    },
+    {
+      "id": "DA-α-002a",
+      "title": "Merge Policy canonical 単一点化 (= aag/source-of-truth.md \"Merge Policy\" section) + 実バグ 3 件修復",
+      "commitSha": "226b4554d8aac1f42b361abaa121ab5bb63c5af8"
+    },
+    {
+      "id": "DA-α-002b",
+      "title": "Merged Artifact Generator + Sync Guard (= Go 実装条件 C2 met)",
+      "commitSha": "74100a7b3eb1f0e78c04555db1249c4898e91ea6"
+    },
+    {
+      "id": "DA-α-003",
+      "title": "Contract Schema 化 (= AagResponse + DetectorResult、Go 実装条件 C3 met) + 3 seams",
+      "commitSha": "eee1de87e6ed93664532ed99fdcd8e8f0774949e"
+    },
+    {
+      "id": "DA-α-004",
+      "title": "RuleBinding Boundary Guard (= Go 実装条件 C4 met、Phase 1 完了)",
+      "commitSha": "db26556e0af85226d015a3d27f20d1f415baf568"
+    },
+    {
+      "id": "DA-α-005",
+      "title": "A5 Generated Drawers (= rule-index + rules-by-path + rule-by-topic)",
+      "commitSha": "e806bfac322187aee53d08e35f591af262659f7a"
+    },
+    {
+      "id": "DA-α-006",
+      "title": "Phase 2 Verification Simulation (= CT1-CT5 / F1-F5 functioning verdict)",
+      "commitSha": "625e55c1dd1585cdbf7e5f39d8aad1258b823da6"
+    },
+    {
+      "id": "DA-α-007",
+      "title": "Phase 3 Archive 判断 + 横展開可否判定条件 articulation + 後続 charter 必要性",
+      "commitSha": "6e6acd1ed3b4754bddc39d8224bfd91f3c2d2d95"
+    }
+  ],
+  "commitLineage": [
+    {
+      "phase": "bootstrap",
+      "commitSha": "36c486824015e54ead226e53c804fceb524fd7b6",
+      "subject": "docs(projects): aag-platformization bootstrap (authority + artifact + contract + change-policy)"
+    },
+    {
+      "phase": "bootstrap-followup",
+      "commitSha": "d0b079f68697973adfac7bb4b16ef85de3d6de1d",
+      "subject": "docs(projects): aag-platformization に breaking-changes.md 追加 + path 整理"
+    },
+    {
+      "phase": "bootstrap-judgement-model",
+      "commitSha": "96a9521c544ed680c0b1fdb08788ade9cd8a357f",
+      "subject": "docs(projects): aag-platformization 判断モデル更新 (AI-driven + commit-bound rollback)"
+    },
+    {
+      "phase": "DA-α-000",
+      "commitSha": "a6967d4a73d78ff2dfea936e9fcff12b07f940e3",
+      "subject": "docs(decision): DA-α-000 entry self-dogfood + rollback tag worktree clean 禁則"
+    },
+    {
+      "phase": "Standard-relocate",
+      "commitSha": "8ae624667cae1b29fa5063400d6e84d7d4d99915",
+      "subject": "docs(principles): Platformization Standard 新設 + aag-platformization を Pilot に再配置"
+    },
+    {
+      "phase": "Phase 1 / A2a",
+      "commitSha": "226b4554d8aac1f42b361abaa121ab5bb63c5af8",
+      "subject": "fix(aag): Phase 1 / A2a — merge policy canonical 単一点化 + 実バグ 3 件修復"
+    },
+    {
+      "phase": "Phase 1 / A2b",
+      "commitSha": "74100a7b3eb1f0e78c04555db1249c4898e91ea6",
+      "subject": "feat(aag): Phase 1 / A2b — merged artifact generator + sync guard (Go 条件 C2 met)"
+    },
+    {
+      "phase": "Phase 1 / A3",
+      "commitSha": "eee1de87e6ed93664532ed99fdcd8e8f0774949e",
+      "subject": "feat(aag): Phase 1 / A3 — contract schema 化 + 3 seams (Go 条件 C3 met)"
+    },
+    {
+      "phase": "Phase 1 / A4",
+      "commitSha": "db26556e0af85226d015a3d27f20d1f415baf568",
+      "subject": "feat(aag): Phase 1 / A4 — RuleBinding boundary guard (Go 条件 C4 met、Phase 1 完了)"
+    },
+    {
+      "phase": "Phase 1 / A5",
+      "commitSha": "e806bfac322187aee53d08e35f591af262659f7a",
+      "subject": "feat(aag): Phase 1 / A5 — generated drawers (rule-index + rules-by-path + rule-by-topic)"
+    },
+    {
+      "phase": "Phase 2",
+      "commitSha": "625e55c1dd1585cdbf7e5f39d8aad1258b823da6",
+      "subject": "Decision: DA-α-006 (judgement) — Phase 2 verification simulation 完了"
+    },
+    {
+      "phase": "Phase 3",
+      "commitSha": "6e6acd1ed3b4754bddc39d8224bfd91f3c2d2d95",
+      "subject": "Decision: DA-α-007 (judgement) — Phase 3 archive 判断 + 横展開可否判定条件 articulation"
+    },
+    {
+      "phase": "checklist-finalize",
+      "commitSha": "2d6f874751ba5eee16643cef0427fed5383512cc",
+      "subject": "docs(checklist): aag-platformization checklist 全 [x] 反映 + 意図的 skip 2 件 articulate"
+    },
+    {
+      "phase": "archive-transition",
+      "commitSha": "4e5c69017f2e6a15725029eb9ba48080ef76a8b4",
+      "subject": "docs(archive): aag-platformization Pilot 完遂 archive (2026-05-02、人間承認 archive 完了)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "successor",
+      "projectId": "aag-self-hosting-completion",
+      "rationale": "本 Pilot の後継 stream (= AAG framework の self-hosting closure 完遂)、2026-05-04 archive、Archive v2 PR 3 で初の v2 圧縮 pilot"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-bidirectional-integrity",
+      "rationale": "並行系統 (= AAG framework MVP scope 完遂、2026-05-01 archive)"
+    },
+    {
+      "kind": "child",
+      "projectId": "C-α-001-simulation-harness-template",
+      "rationale": "後続 candidate (= AI simulation の reusable harness 化、起動 ≠ commit、trigger 待ち)"
+    },
+    {
+      "kind": "child",
+      "projectId": "C-α-002-seam-taxonomy",
+      "rationale": "後続 candidate (= contract schema 化の seam pattern articulate、起動 ≠ commit、trigger 待ち)"
+    },
+    {
+      "kind": "child",
+      "projectId": "C-α-003-mapped-coverage-improvement",
+      "rationale": "後続 candidate (= F1 partial coverage の本格化、起動 ≠ commit、trigger 待ち)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 16 file (= 1,805 line) を ARCHIVE.md (summary) + archive.manifest.json (recovery metadata) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (41 line) は AAG project-checklist-collector の identification key として参照されるため例外的に残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。restore は restoreAllCommand 1 行で 16 file 復元可能。本圧縮は Archive v2 program PR 5 の **self-dogfood 2 件目** (= PR 3 aag-self-hosting-completion に続く Pilot 検証)、後続 PR 6 で operational-protocol-system M1 着手前の最終整理。"
+}

@@ -1,0 +1,311 @@
+{
+  "$comment": "Archive v2 manifest for aag-self-hosting-completion. Schema: docs/contracts/project-archive.schema.json. PR 3 pilot of Archive v2 program (= 2026-05-04). preCompressionCommit は本 commit 直前 = PR 2 commit (Archive v2 schema landing)。注: config/project.json は AAG project-checklist-collector の identification key として参照されるため v2 圧縮対象から除外 (= 残置)。schema §structure.deletedFiles の base list に対する例外 articulation。",
+  "archiveVersion": 2,
+  "projectId": "aag-self-hosting-completion",
+  "title": "AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成",
+  "archivedAt": "2026-05-04",
+  "preCompressionCommit": "2197e02ee8f432f5c784e39e7168c33f4e85c12a",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-self-hosting-completion/AI_CONTEXT.md",
+    "projects/completed/aag-self-hosting-completion/HANDOFF.md",
+    "projects/completed/aag-self-hosting-completion/plan.md",
+    "projects/completed/aag-self-hosting-completion/checklist.md",
+    "projects/completed/aag-self-hosting-completion/decision-audit.md",
+    "projects/completed/aag-self-hosting-completion/discovery-log.md",
+    "projects/completed/aag-self-hosting-completion/projectization.md",
+    "projects/completed/aag-self-hosting-completion/DERIVED.md",
+    "projects/completed/aag-self-hosting-completion/breaking-changes.md",
+    "projects/completed/aag-self-hosting-completion/doc-improvement-backlog.md",
+    "projects/completed/aag-self-hosting-completion/aag/execution-overlay.ts",
+    "projects/completed/aag-self-hosting-completion/derived/README.md",
+    "projects/completed/aag-self-hosting-completion/derived/acceptance-suite.md",
+    "projects/completed/aag-self-hosting-completion/derived/pr-breakdown.md",
+    "projects/completed/aag-self-hosting-completion/derived/review-checklist.md",
+    "projects/completed/aag-self-hosting-completion/derived/test-plan.md",
+    "projects/completed/aag-self-hosting-completion/derived/inventory/README.md",
+    "projects/completed/aag-self-hosting-completion/derived/inventory/00-example.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-self-hosting-completion/AI_CONTEXT.md",
+      "lineCount": 77,
+      "summary": "AI 入口 (= why / scope / read order、3 tree 構造再編 program の意味空間 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/HANDOFF.md",
+      "lineCount": 85,
+      "summary": "後任者の入口 (= 完了済み全景 + 次にやること、archive 直前は archived state articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/plan.md",
+      "lineCount": 612,
+      "summary": "計画正本 (= 不可侵原則 + R0-R7 phase 定義 + scope 外 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/checklist.md",
+      "lineCount": 253,
+      "summary": "completion 判定 (= R0-R7 達成条件 + AI 自己レビュー + 最終レビュー user 承認 checkbox)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/decision-audit.md",
+      "lineCount": 1159,
+      "summary": "重判断 institution (= 14 DA entry: α stream 12 + β stream 3、各 entry に judgement / Lineage commit + tag articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/discovery-log.md",
+      "lineCount": 48,
+      "summary": "scope 外発見 / 改善 / 調査要事項蓄積 (= DA-β-003 retroactive bootstrap)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/projectization.md",
+      "lineCount": 74,
+      "summary": "AAG-COA judgment (= projectizationLevel + escalation criteria articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/DERIVED.md",
+      "lineCount": 87,
+      "summary": "derived doc index (= acceptance-suite / pr-breakdown / review-checklist / test-plan / inventory への pointer)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/breaking-changes.md",
+      "lineCount": 200,
+      "summary": "本 program で institute される breaking changes 列挙 (= 構造再編による inbound update 影響範囲)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/doc-improvement-backlog.md",
+      "lineCount": 160,
+      "summary": "本 program 内 P1 batch tracking (= self-dogfood、後続 discovery-log institution 整合)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/aag/execution-overlay.ts",
+      "lineCount": 44,
+      "summary": "project 固有 execution overlay (= AAG rule の project-scoped tuning、empty if 不要)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/README.md",
+      "lineCount": 38,
+      "summary": "derived/ directory の役割 articulate (= acceptance-suite / pr-breakdown 等の 5 derived doc index)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/acceptance-suite.md",
+      "lineCount": 51,
+      "summary": "acceptance criteria 集約 (= R0-R7 観測点列挙)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/pr-breakdown.md",
+      "lineCount": 47,
+      "summary": "PR 分割計画 (= R-phase 別 PR scope articulate)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/review-checklist.md",
+      "lineCount": 62,
+      "summary": "review-gate 用 checklist (= phase 別レビュー観点)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/test-plan.md",
+      "lineCount": 65,
+      "summary": "test plan (= 新 guard 12 件 + selfHostingGuard expansion + verification 観点)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/inventory/README.md",
+      "lineCount": 54,
+      "summary": "inventory directory の役割 articulate (= per-element inventory の placeholder)"
+    },
+    {
+      "path": "projects/completed/aag-self-hosting-completion/derived/inventory/00-example.md",
+      "lineCount": 20,
+      "summary": "inventory entry の example template"
+    }
+  ],
+  "restoreAllCommand": "git checkout 2197e02ee8f432f5c784e39e7168c33f4e85c12a -- projects/completed/aag-self-hosting-completion/AI_CONTEXT.md projects/completed/aag-self-hosting-completion/HANDOFF.md projects/completed/aag-self-hosting-completion/plan.md projects/completed/aag-self-hosting-completion/checklist.md projects/completed/aag-self-hosting-completion/decision-audit.md projects/completed/aag-self-hosting-completion/discovery-log.md projects/completed/aag-self-hosting-completion/projectization.md projects/completed/aag-self-hosting-completion/DERIVED.md projects/completed/aag-self-hosting-completion/breaking-changes.md projects/completed/aag-self-hosting-completion/doc-improvement-backlog.md projects/completed/aag-self-hosting-completion/aag/execution-overlay.ts projects/completed/aag-self-hosting-completion/derived/README.md projects/completed/aag-self-hosting-completion/derived/acceptance-suite.md projects/completed/aag-self-hosting-completion/derived/pr-breakdown.md projects/completed/aag-self-hosting-completion/derived/review-checklist.md projects/completed/aag-self-hosting-completion/derived/test-plan.md projects/completed/aag-self-hosting-completion/derived/inventory/README.md projects/completed/aag-self-hosting-completion/derived/inventory/00-example.md",
+  "decisionEntries": [
+    {
+      "id": "DA-α-000",
+      "title": "本 program の進行モデル決定 (= AI judgement + retrospective + commit-bound rollback)",
+      "commitSha": "b19518c6726a902ebe2385d0c6c9b46a4a3d52af"
+    },
+    {
+      "id": "DA-α-001",
+      "title": "R0 境界定義先行 着手判断 (= references / aag / projects 3 tree boundary articulate)",
+      "commitSha": "45753b8cd30191b4c422a4002591ff3451af64f1"
+    },
+    {
+      "id": "DA-α-002",
+      "title": "R1 AAG sub-tree relocation 着手判断 (= 9 doc 物理移動 + 101 inbound update)",
+      "commitSha": "32a1ea3c026a8b4b09afefd8dbb04000ab0e8382"
+    },
+    {
+      "id": "DA-α-003",
+      "title": "R2 AAG public interface relocate 着手判断 (= references/05-aag-interface/ migrate)",
+      "commitSha": "c408dbc17acf36b9ae5218bff561ea8fc96a2233"
+    },
+    {
+      "id": "DA-α-004a",
+      "title": "R3a 5 directory rename + 1,000+ inbound update 着手判断",
+      "commitSha": "c544ff5b09de38edc46d21c410c4819eed822a5b"
+    },
+    {
+      "id": "DA-α-004b",
+      "title": "R3b *.generated.md 命名規約適用 + generator 出力先変更 着手判断",
+      "commitSha": "204022815fa9e57649be7de3a5297995b8507aaf"
+    },
+    {
+      "id": "DA-α-004c",
+      "title": "R3c 旧 mention 撤退 (= planned, not instituted、bulk sed で吸収済)",
+      "commitSha": null
+    },
+    {
+      "id": "DA-α-004d",
+      "title": "R3d guard / collector path + decisions/ 新設 + 新 guard 2 件 (oldPathReferenceGuard / generatedFileEditGuard) landing 着手判断",
+      "commitSha": "ee41603db263f692f26e68f4bec0db3e02ee2d8e"
+    },
+    {
+      "id": "DA-α-005",
+      "title": "R4 per-element directory + dashboard layer + element taxonomy 着手判断",
+      "commitSha": "a1703a8616c5d7c624181b1c7945d2caa5e5a13c"
+    },
+    {
+      "id": "DA-α-006",
+      "title": "R5 operational-protocol-system project resume + plan refinement trigger 着手判断",
+      "commitSha": "4b346a096b8e2f721e9d8e6b4ea9dcf8d6c6d1d9"
+    },
+    {
+      "id": "DA-α-007a",
+      "title": "R6a AAG self-hosting closure articulate update + selfHostingGuard expansion 着手判断",
+      "commitSha": "cd76e1d09824ace7e4088ecfaa761122dca4a1e1"
+    },
+    {
+      "id": "DA-α-007b",
+      "title": "R6b projects/ active+completed split + 75 inbound update + discovery 関数 update 着手判断",
+      "commitSha": "aa007345217574e30ac93b5efd628ecae48065cd"
+    },
+    {
+      "id": "DA-α-008",
+      "title": "R7 統合 guard + verify + archive 着手判断",
+      "commitSha": "0f5f22653040d15ce1426bfcb788804952721d4a"
+    },
+    {
+      "id": "DA-β-001",
+      "title": "pre-push hook 役割分離 (= 軽量 / 変更箇所 + 影響範囲 / negative articulation = exclusion-driven)",
+      "commitSha": "5042dcc68fd165bf1f816f8dedfb35dac7941076"
+    },
+    {
+      "id": "DA-β-002",
+      "title": "AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint)",
+      "commitSha": "ff7ec23cf6f12d2a24935095137c3c96fc8acb41"
+    },
+    {
+      "id": "DA-β-003",
+      "title": "per-project discovery-log institute (= scope 外発見 / 改善 / 調査要事項の蓄積 mechanism)",
+      "commitSha": "58d157729c7f0f4168e3beb4723eb4b157ecb57e"
+    }
+  ],
+  "commitLineage": [
+    {
+      "phase": "bootstrap",
+      "commitSha": "b19518c6726a902ebe2385d0c6c9b46a4a3d52af",
+      "subject": "feat(project): aag-self-hosting-completion bootstrap (= references + aag + projects 構造再編 program)"
+    },
+    {
+      "phase": "R0",
+      "commitSha": "45753b8cd30191b4c422a4002591ff3451af64f1",
+      "subject": "feat(R0): 境界定義先行 — references / aag / projects 3 tree boundary articulate (= aag-self-hosting-completion R0)"
+    },
+    {
+      "phase": "R1",
+      "commitSha": "32a1ea3c026a8b4b09afefd8dbb04000ab0e8382",
+      "subject": "feat(R1): AAG sub-tree relocation — references/01-principles/aag/ → aag/_internal/ (= aag-self-hosting-completion R1)"
+    },
+    {
+      "phase": "R2",
+      "commitSha": "c408dbc17acf36b9ae5218bff561ea8fc96a2233",
+      "subject": "feat(R2): AAG public interface relocate — references/03-guides/{drawer + 4 ops} → references/05-aag-interface/"
+    },
+    {
+      "phase": "R3a",
+      "commitSha": "c544ff5b09de38edc46d21c410c4819eed822a5b",
+      "subject": "feat(R3a): references/ 5 directory rename + 全 inbound update — aag-self-hosting-completion R3a"
+    },
+    {
+      "phase": "R3b",
+      "commitSha": "204022815fa9e57649be7de3a5297995b8507aaf",
+      "subject": "feat(R3b): *.generated.md naming convention adoption — aag-self-hosting-completion R3b"
+    },
+    {
+      "phase": "R3d",
+      "commitSha": "ee41603db263f692f26e68f4bec0db3e02ee2d8e",
+      "subject": "feat(R3d): guard / collector path update + decisions/ 新設 + 新 guard 2 件 landing — aag-self-hosting-completion R3d"
+    },
+    {
+      "phase": "DA-β-001",
+      "commitSha": "5042dcc68fd165bf1f816f8dedfb35dac7941076",
+      "subject": "feat(DA-β-001): pre-push hook 役割分離 (= 軽量 / 変更箇所 + 影響範囲 / negative articulation)"
+    },
+    {
+      "phase": "DA-β-002",
+      "commitSha": "ff7ec23cf6f12d2a24935095137c3c96fc8acb41",
+      "subject": "feat(DA-β-002): AI 自己レビュー section institute (= user 承認 手前 mandatory checkpoint)"
+    },
+    {
+      "phase": "DA-β-003",
+      "commitSha": "58d157729c7f0f4168e3beb4723eb4b157ecb57e",
+      "subject": "feat(DA-β-003): per-project discovery-log institute (= scope 外発見の蓄積 mechanism)"
+    },
+    {
+      "phase": "R4",
+      "commitSha": "a1703a8616c5d7c624181b1c7945d2caa5e5a13c",
+      "subject": "feat(R4): per-element directory + dashboard layer + element taxonomy — aag-self-hosting-completion R4"
+    },
+    {
+      "phase": "R5",
+      "commitSha": "4b346a096b8e2f721e9d8e6b4ea9dcf8d6c6d1d9",
+      "subject": "feat(R5): operational-protocol-system project resume ready + plan path refinement — aag-self-hosting-completion R5"
+    },
+    {
+      "phase": "R6a",
+      "commitSha": "cd76e1d09824ace7e4088ecfaa761122dca4a1e1",
+      "subject": "feat(R6a): AAG self-hosting closure articulate update + selfHostingGuard expansion — DA-α-007a"
+    },
+    {
+      "phase": "R6b",
+      "commitSha": "aa007345217574e30ac93b5efd628ecae48065cd",
+      "subject": "feat(R6b): projects/ active+completed split + 75 inbound update + discovery 関数 update — DA-α-007b"
+    },
+    {
+      "phase": "R7",
+      "commitSha": "0f5f22653040d15ce1426bfcb788804952721d4a",
+      "subject": "feat(R7): 完了 verify + archive trigger 準備 — DA-α-008"
+    },
+    {
+      "phase": "archive-transition",
+      "commitSha": "286969817a42a252b8417f5f21b07a011a80695c",
+      "subject": "archive: aag-self-hosting-completion program 完遂 archive 移行 (= user 承認後)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "successor",
+      "projectId": "operational-protocol-system",
+      "rationale": "本 program R5 で resume ready articulate、本 program R6 で `projects/active/operational-protocol-system/` に migrate。M1 着手は Archive v2 program 完遂後に予定"
+    },
+    {
+      "kind": "successor",
+      "projectId": "archive-v2",
+      "rationale": "本 program archive 後 self-dogfood で institute される圧縮形式 program。本 manifest はその初の pilot product"
+    },
+    {
+      "kind": "parent",
+      "projectId": "aag-platformization",
+      "rationale": "AAG framework Pilot 親系統。本 program は AAG framework の self-hosting closure を完遂する後続 stream"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-bidirectional-integrity",
+      "rationale": "並行系統 (= AAG framework MVP scope 完遂)、本 program と AAG-REQ-SELF-HOSTING flip を共有"
+    }
+  ],
+  "compressionRationale": "active 期 institution 18 file (= 3,136 line) を ARCHIVE.md (summary) + archive.manifest.json (recovery metadata) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (48 line) は AAG project-checklist-collector の identification key として参照されるため例外的に残置 (= schema §structure.deletedFiles の base list に対する pilot articulation)。restore は restoreAllCommand 1 行で 18 file 復元可能。本圧縮は Archive v2 program PR 3 の pilot で、後続 PR 4 で archiveVersion: 2 限定 schema 整合 guard を landing 予定。"
+}
