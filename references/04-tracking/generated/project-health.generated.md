@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-04T11:54:17.708Z
+> 生成: 2026-05-04T12:10:08.275Z
 
 ## サマリー
 
@@ -16,7 +16,7 @@
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
 | 全 project の required checkbox 総数 | 1285 |
-| 全 project の checked checkbox 総数 | 1155 |
+| 全 project の checked checkbox 総数 | 1157 |
 
 ## projects
 
@@ -51,7 +51,7 @@
 | `docs-and-governance-cohesion` | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | **archived** | — | 85/85 (100%) | [`projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md`](../../../projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md) |
 | `duplicate-orphan-retirement` | 複製 / orphan 撤退（SP-C） | **archived** | `architecture-debt-recovery` | 26/26 (100%) | [`projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md`](../../../projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md) |
 | `integrity-framework-evolution` | 整合性 framework 進化 — Reset + Horizontal Expansion | **archived** | — | — | [`projects/integrity-framework-evolution/AI_CONTEXT.md`](../../../projects/integrity-framework-evolution/AI_CONTEXT.md) |
-| `operational-protocol-system` | AAG Operational Protocol System — Task / Session / Complexity 運用制度 | **in_progress** | — | 15/66 (23%) | [`projects/active/operational-protocol-system/AI_CONTEXT.md`](../../../projects/active/operational-protocol-system/AI_CONTEXT.md) |
+| `operational-protocol-system` | AAG Operational Protocol System — Task / Session / Complexity 運用制度 | **in_progress** | — | 17/66 (26%) | [`projects/active/operational-protocol-system/AI_CONTEXT.md`](../../../projects/active/operational-protocol-system/AI_CONTEXT.md) |
 | `phase-6-optional-comparison-projection` | Phase 6 optional — comparison subsystem projection context | **archived** | `unify-period-analysis` | 40/40 (100%) | [`projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md`](../../../projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md) |
 | `phased-content-specs-rollout` | Content Spec System 段階展開計画 | **archived** | — | 72/72 (100%) | [`projects/completed/phased-content-specs-rollout/AI_CONTEXT.md`](../../../projects/completed/phased-content-specs-rollout/AI_CONTEXT.md) |
 | `presentation-cts-surface-ratchetdown` | presentation 層の CategoryTimeSalesRecord 直接 import を 23→0 に ratchet-down | **archived** | — | 18/18 (100%) | [`projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md`](../../../projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md) |
