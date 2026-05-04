@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T11:15:25.695Z",
+  "timestamp": "2026-05-04T11:22:54.982Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 135,
+      "value": 136,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -275,6 +275,7 @@
         "app/src/test/guards/analysisFrameGuard.test.ts",
         "app/src/test/guards/architectureRuleGuard.test.ts",
         "app/src/test/guards/architectureRulesMergeSmokeGuard.test.ts",
+        "app/src/test/guards/archiveV2SchemaGuard.test.ts",
         "app/src/test/guards/barrelReexportMetadataGuard.test.ts",
         "app/src/test/guards/calculationCanonGuard.test.ts",
         "app/src/test/guards/canonicalDocBackLinkGuard.test.ts",
