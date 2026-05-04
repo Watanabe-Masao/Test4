@@ -29,7 +29,8 @@
         "schemaSee": "本 file §manifestSchema"
       }
     ],
-    "deletedFiles": "AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / config/ / aag/ / derived/ など、active 期に institution に必要だった全 file (= manifest `compressedFiles` array に articulate)。これらは git history に残るため commit history 経由で参照可能。"
+    "deletedFiles": "AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / aag/ / derived/ など、active 期に institution に必要だった file (= manifest `compressedFiles` array に articulate)。これらは git history に残るため commit history 経由で参照可能。",
+    "deletedFilesException": "`config/project.json` は AAG project-checklist-collector + projectCompletionConsistencyGuard が project identification key として参照する。v2 圧縮対象から **例外的に残置** (= 削除すると project が AAG framework に invisible になる)。本例外は PR 3 pilot (aag-self-hosting-completion) で articulated、後続 PR 4 guard でも本残置を前提に検証する。"
   },
   "manifestSchema": {
     "archiveVersion": {

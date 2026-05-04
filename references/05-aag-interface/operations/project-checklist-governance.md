@@ -545,8 +545,11 @@ projects/completed/<id>/
 ```
 
 **削除対象**:
-- AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / config/ / aag/ / derived/
+- AI_CONTEXT.md / HANDOFF.md / plan.md / checklist.md / decision-audit.md / discovery-log.md / projectization.md / DERIVED.md / breaking-changes.md / legacy-retirement.md / aag/ / derived/
 - これらは **git history に残る**ため、commit history 経由で参照可能。`archive.manifest.json` の `restoreAllCommand` で 1 行 checkout 可能
+
+**削除対象外 (= 例外的に残置)**:
+- `config/project.json` — AAG project-checklist-collector + projectCompletionConsistencyGuard が project identification key として参照するため、v2 圧縮対象から例外的に残置。削除すると project が AAG framework に invisible になる
 
 #### archive.manifest.json の必須 field
 

@@ -6,7 +6,7 @@
 >
 > 本 directory に置かないもの = AAG framework 内部 articulation (= `aag/` tree、本 program R1 で relocate 済) / 作業単位 lens (= `projects/` tree)。
 >
-> 進行中の structural reorganization は `projects/completed/aag-self-hosting-completion/plan.md` 参照。R3a で directory rename 完了 (= 01-principles → 01-foundation / 02-status → 04-tracking / 04-design-system → 02-design-system / 03-guides → 03-implementation / 05-contents → 04-tracking/elements)。
+> 進行中の structural reorganization は `projects/completed/aag-self-hosting-completion/ARCHIVE.md` 参照 (= Archive v2 形式、本 program は 2026-05-04 完遂 archive 移行)。R3a で directory rename 完了 (= 01-principles → 01-foundation / 02-status → 04-tracking / 04-design-system → 02-design-system / 03-guides → 03-implementation / 05-contents → 04-tracking/elements)。
 >
 > 命名規約 (= R3b 適用済): 機械生成 file は `*.generated.md` suffix で明示 (= 手編集禁止、`generatedFileEditGuard` で機械検証)。
 >
