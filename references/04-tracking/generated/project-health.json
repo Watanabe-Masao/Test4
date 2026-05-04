@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-04T11:51:55.337Z",
+  "timestamp": "2026-05-04T11:54:17.708Z",
   "summary": {
     "active": 5,
     "archived": 38,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1285,
-    "checkedCheckboxes": 1154
+    "checkedCheckboxes": 1155
   },
   "projects": [
     {
@@ -399,9 +399,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 14,
+      "checked": 15,
       "total": 66,
-      "progress": 0.212,
+      "progress": 0.227,
       "entrypoint": "projects/active/operational-protocol-system/AI_CONTEXT.md",
       "checklistPath": "projects/active/operational-protocol-system/checklist.md",
       "parent": null
