@@ -218,22 +218,28 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: TBD (= M2 landing commit、commit 後に実 sha update)
-- preJudgementCommit: TBD (= M1 wrap-up regen の HEAD = `f1286ace4`)
+- judgementCommit: `8c041ecf9` (= M2 landing commit、session-protocol.md 拡張 + DA-α-002 entry + checklist + HANDOFF update)
+- preJudgementCommit: `f1286ace4b83fff79cc84e2bd34e1c551182971d` (= M1 wrap-up regen、M2 直前 HEAD)
 - judgementTag: `operational-protocol-system/DA-α-002-judgement` (= AI session infrastructure 制約で未 landing、SHA 直接参照で代替)
 - rollbackTag: `operational-protocol-system/DA-α-002-rollback-target` (= 同上、preJudgementCommit SHA で rollback 経路確保)
 - implementationCommits:
-  - TBD — M2 全実装 (= session-protocol.md 拡張 + DA-α-002 entry + checklist update + HANDOFF update)
+  - `8c041ecf9` — M2 landing (= session-protocol.md §1.1 + §1.2 + §4.1 + §4.2 + §4.3 + §4.4 拡張、DA-α-002 entry、checklist + HANDOFF update)
 
-### 振り返り (Phase M2 完了 / TBD)
+### 振り返り (Phase M2 完了 / 2026-05-04)
 
-> Phase M2 完了直前に追記、observation 4 件すべて実測。
-
-- 観測点 1〜4: TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+- 観測点 1 (M2-1 肯定): ✅ **達成**。`session-protocol.md` §1.1 で L1/L2/L3 別 read order が table 形式で articulate (= 各 level の rationale 含む)、§3.2/§3.3/§3.4 で routing 詳細
+- 観測点 2 (M2-2 肯定): ✅ **達成**。§4.1 で L 別 required artifacts table articulated (= L1: checklist+push / L2: +HANDOFF / L3: +decision-audit + DA Lineage update)
+- 観測点 3 (M2-3 肯定): ✅ **達成**。§4.3.1 (引き継ぐ側 = HANDOFF 3 fields + 必須 check 5 件) + §4.3.2 (引き継がれる側 = L 別 read item table + 必須 check 4 件) で双方向 articulated
+- 観測点 4 (M2-4 反証): ✅ **達成**。本 session 自体が L2 routing instance の synthetic scenario として self-applicable (= TC-4 New Capability + L2 通常変更 で session-protocol §1.1 L2 read → §3.3 L2 routing → §4.1 L2 required artifacts → §4.3.1 引き継ぐ側 の trace を実 commit lineage で verify 可能)
+- **判定**: **正しい** (= 4 観測点すべて達成、scope 拡大なし、新 doc 追加なし、session-protocol.md 単独拡張で完遂、drawer Pattern 5 scope discipline 整合)
+- 学習:
+  - **既存 doc refine の有効性**: M1 で landed した session-protocol.md を refine する pattern が AAG-REQ-ANTI-DUPLICATION 整合 + reader cognitive load 抑制で機能 (= 候補 1 採用根拠の retroactive verification)
+  - **per-level required artifacts の table 化**: L 別の articulate を散文ではなく table で articulate することで「読み比べ」が容易化、reader (= AI session) が own level に reach しやすい
+  - **双方向 articulate の必要性**: 引き継ぐ側だけでなく **引き継がれる側** の必須 check を articulate することで、handoff の lose を「次 session 側の責任」としても articulate 可能 (= ad-hoc handoff 解消の本質的 mechanism)
+  - **self-application が retroactively 機能 (M1 学習の確認)**: 本 session が L2 routing instance として synthetic test に成り、後続 M3-M5 でも同様の self-test pattern 活用可
+- retrospectiveCommit: 本 wrap-up commit (= DA-α-002 振り返り articulation を含む follow-up commit)
+- retrospectiveTag: `operational-protocol-system/DA-α-002-retrospective` (= 同 infrastructure 制約で未 landing、SHA 直接参照で articulate)
 
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+- (本 entry 判定 = "正しい" のため軌道修正なし、本 commit 単独で完遂)

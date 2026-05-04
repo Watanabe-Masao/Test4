@@ -39,7 +39,7 @@
 - [x] **観測** M2-2: Session 終了 protocol 3 level 全件 articulated (= §4.1 per-level required artifacts table)
 - [x] **観測** M2-3: 引き継ぎ protocol 双方向 articulated (= §4.3.1 + §4.3.2 双方向 必須 check)
 - [x] **観測** M2-4: synthetic scenario で全 routing 再現可能 (= 本 session 自体が L2 routing instance、§1.1 L2 read order → §3.3 L2 routing → §4.1 L2 required artifacts → §4.3.1 引き継ぐ側 の trace が verify 可能)
-- [ ] DA-α-002 振り返り判定 (本 wrap-up 後 [x])
+- [x] DA-α-002 振り返り判定 (= **正しい**、4 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-002 §「振り返り (Phase M2 完了 / 2026-05-04)」参照)
 
 ## Phase M3: 動的昇格・降格ルール
 
