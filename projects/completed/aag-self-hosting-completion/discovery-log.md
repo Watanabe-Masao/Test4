@@ -22,7 +22,7 @@
 
 ### 2026-05-03 P1: doc-improvement-backlog.md と discovery-log.md の重複 (= self-dogfood 整合)
 
-- **場所**: `projects/active/aag-self-hosting-completion/doc-improvement-backlog.md` + 本 `discovery-log.md`
+- **場所**: `projects/completed/aag-self-hosting-completion/doc-improvement-backlog.md` + 本 `discovery-log.md`
 - **現状**: 本 program で **doc-improvement-backlog.md** を self-dogfood で先行運用 (= P1-1 + P1-2 batch tracking)、後続 user articulation で **discovery-log.md** を per-project mechanism として institute (= DA-β-003)。同 program 内に類似 doc が 2 件並存。
 - **改善 / 調査内容**: 本 program archive 時に 2 doc を merge (= doc-improvement-backlog 内 entry を discovery-log に migrate + 旧 doc retire)、または rename (= doc-improvement-backlog → discovery-log で 1 本化)。post-archive で別 program candidate にする判断は不要 (= 本 program 内 self-dogfood 整合 task)。
 - **trigger**: DA-β-003 institute 時 (= 2026-05-03)
@@ -31,7 +31,7 @@
 
 ### 2026-05-03 P2: AAG 4 系統 lens → 5 系統 lens への articulate update (= ログ / メトリクス / 手順書 / チェックリスト + 発見蓄積)
 
-- **場所**: `projects/active/aag-self-hosting-completion/doc-improvement-backlog.md` (4 系統 lens articulate) + 関連 doc (`references/05-aag-interface/operations/projectization-policy.md` / `project-checklist-governance.md`)
+- **場所**: `projects/completed/aag-self-hosting-completion/doc-improvement-backlog.md` (4 系統 lens articulate) + 関連 doc (`references/05-aag-interface/operations/projectization-policy.md` / `project-checklist-governance.md`)
 - **現状**: 本 program は **4 系統 lens** (= ログ / メトリクス / 手順書 / チェックリスト) で articulate。DA-β-003 で discovery-log を新設 = 5 系統目 articulation 必要。
 - **改善 / 調査内容**: 4 系統 lens → 5 系統 lens (= + 発見蓄積) への articulate update を policy doc 全件で実施。各 active project の doc-improvement-backlog や AI_CONTEXT.md にも反映。
 - **trigger**: DA-β-003 institute 時

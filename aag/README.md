@@ -65,10 +65,10 @@ aag/
 ## 関連 (= 主アプリ改修 userは読まない、AAG 改修者向け)
 
 - AAG Pilot 完遂 program: `projects/completed/aag-platformization/`
-- 進行中 structural reorganization: `projects/active/aag-self-hosting-completion/`
+- 進行中 structural reorganization: `projects/completed/aag-self-hosting-completion/`
 - AAG self-hosting closure 達成は本 program R6 で AAG-REQ-SELF-HOSTING を「code-level + entry navigation rigor 完全達成」に articulate 予定
 
 ## status
 
 - 2026-05-02: 本 README landing (= R0 境界定義先行)、`_internal/` + `_framework/` skeleton は R1 で fill 予定
-- R1-R7 進行は `projects/active/aag-self-hosting-completion/plan.md` §3 参照
+- R1-R7 進行は `projects/completed/aag-self-hosting-completion/plan.md` §3 参照

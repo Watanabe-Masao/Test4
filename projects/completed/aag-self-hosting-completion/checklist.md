@@ -7,7 +7,7 @@
 
 ## Phase 0: Bootstrap
 
-- [x] `_template/` から `projects/active/aag-self-hosting-completion/` 作成 + 必須セット 6 ファイル
+- [x] `_template/` から `projects/completed/aag-self-hosting-completion/` 作成 + 必須セット 6 ファイル
 - [x] config/project.json を AAG-COA Level 3 + architecture-refactor で articulate
 - [x] `references/04-tracking/open-issues.md` に `aag-self-hosting-completion` 行追加
 - [x] operational-protocol-system HANDOFF.md に ⏸ PAUSED articulation 追加 (= R5 完了で resume)

@@ -79,7 +79,7 @@ projects/
     └── <archived-id>/
 ```
 
-詳細: `projects/active/aag-self-hosting-completion/plan.md` §3 R6。
+詳細: `projects/completed/aag-self-hosting-completion/plan.md` §3 R6。
 
 ## status
 

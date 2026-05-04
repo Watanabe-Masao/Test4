@@ -17,7 +17,7 @@
 
 **主アプリ改修 AI が AAG framework 内部 (= `aag/`) を読む必要はない**。AAG が AI に提供する drawer / protocols / operations は `references/05-aag-interface/` (R2 で landing 予定) に articulate される。
 
-詳細: `references/README.md` + `aag/README.md` + projects/ root の README.md。進行中 structural reorganization は `projects/active/aag-self-hosting-completion/plan.md` 参照。
+詳細: `references/README.md` + `aag/README.md` + projects/ root の README.md。進行中 structural reorganization は `projects/completed/aag-self-hosting-completion/plan.md` 参照。
 
 `CURRENT_PROJECT.md` は **active project pointer 限定** (= 詳細進捗 / 判断 inline 記載禁止、二重管理防止)。
 
@@ -45,7 +45,7 @@
 | `reference-link-existence` | `docRegistryGuard.test.ts` | CLAUDE.md 内の references 配下 .md および docs/contracts 配下 .json パスが全て実在ファイルを指すこと（動的検証、列挙不要） | OK |
 | `no-static-numbers` | `docStaticNumberGuard.test.ts` | 現在形の静的数値（N ルール / N テスト / N ガード / N KPI / N 原則 / N ファイル）が generated section / バージョン履歴 / 直近の主要変更 セクション以外の prose に出現しないこと（BASELINE=0） | OK |
 
-> 生成: 2026-05-03T21:55:35.939Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
+> 生成: 2026-05-04T00:29:20.778Z — 正本: `docs/contracts/test-contract.json` — 6/6 契約満足
 <!-- GENERATED:END test-contract -->
 
 ## AI Single Entry Manifest
@@ -523,7 +523,7 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 詳細レポート: `references/04-tracking/generated/architecture-health.generated.md`
 
 <!-- GENERATED:START architecture-health-summary -->
-**Healthy** | 前回比: Improved | Hard Gate: PASS
+**Healthy** | 前回比: Flat | Hard Gate: PASS
 
 | 指標 | 状態 | 詳細 |
 |---|---|---|
@@ -535,12 +535,12 @@ allowlist 件数、bridge 残数、複雑度 hotspot などの「現在値」は
 | 性能 | OK | 6601/7000 / 2386/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 172/92 / 36/9 / 2/1 |
 | Rule Efficacy | OK | 104 / 0/3 / 0/10 |
-| Project Governance | OK | 6/20 / 5/20 / 0/0 / 37/100 |
+| Project Governance | OK | 5/20(-1) / 4/20(-1) / 0/0 / 38/100(+1) |
 
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-03T21:55:35.932Z — 正本: `references/04-tracking/generated/architecture-health.json`
+> 生成: 2026-05-04T00:29:20.771Z — 正本: `references/04-tracking/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 正本化体系（readModels）

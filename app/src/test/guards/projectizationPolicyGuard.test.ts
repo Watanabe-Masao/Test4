@@ -440,7 +440,7 @@ function checkPZ12(p: ActiveProject): Violation[] {
  * - 検出 2: AI レビュー section が `## 最終レビュー` section の **後** にある (= ordering 違反) → fail
  * - scope: structural のみ (= section 存在 + ordering)、checkbox 内容は不問 (= AI session 責任、機械検証 scope 外)
  *
- * 詳細: projects/active/aag-self-hosting-completion/decision-audit.md DA-β-002
+ * 詳細: projects/completed/aag-self-hosting-completion/decision-audit.md DA-β-002
  */
 function checkPZ13(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
@@ -465,7 +465,7 @@ function checkPZ13(p: ActiveProject): Violation[] {
           '    ## AI 自己レビュー (= user 承認の手前)\n' +
           '    - [ ] 総チェック / 歪み検出 / 潜在バグ / ドキュメント抜け漏れ / CHANGELOG + バージョン管理\n' +
           ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.2 + ' +
-          'projects/active/aag-self-hosting-completion/decision-audit.md DA-β-002。',
+          'projects/completed/aag-self-hosting-completion/decision-audit.md DA-β-002。',
       },
     ]
   }
@@ -502,7 +502,7 @@ function checkPZ13(p: ActiveProject): Violation[] {
  * - 内容検証は機械では不可能、AI session の self-discipline + decision-audit articulation で担保
  * - 蓄積 value は post-archive review で実証 (= mechanism として institute するのが目的)
  *
- * 詳細: projects/active/aag-self-hosting-completion/decision-audit.md DA-β-003
+ * 詳細: projects/completed/aag-self-hosting-completion/decision-audit.md DA-β-003
  */
 function checkPZ14(p: ActiveProject): Violation[] {
   const m = p.config?.projectization
@@ -520,7 +520,7 @@ function checkPZ14(p: ActiveProject): Violation[] {
           '    projects/_template/discovery-log.md\n' +
           '  scope 外発見 / 改善 / 調査要事項を per-project で蓄積する mechanism (= DA-β-003 で institute)。\n' +
           ' 詳細: references/05-aag-interface/operations/project-checklist-governance.md §3.3 + ' +
-          'projects/active/aag-self-hosting-completion/decision-audit.md DA-β-003。',
+          'projects/completed/aag-self-hosting-completion/decision-audit.md DA-β-003。',
       },
     ]
   }

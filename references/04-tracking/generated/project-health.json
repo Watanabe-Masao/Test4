@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-03T21:55:35.935Z",
+  "timestamp": "2026-05-04T00:29:20.774Z",
   "summary": {
-    "active": 6,
-    "archived": 37,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 38,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
@@ -159,13 +159,13 @@
       "projectId": "aag-self-hosting-completion",
       "title": "AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
       "checked": 7,
       "total": 167,
       "progress": 0.042,
-      "entrypoint": "projects/active/aag-self-hosting-completion/AI_CONTEXT.md",
-      "checklistPath": "projects/active/aag-self-hosting-completion/checklist.md",
+      "entrypoint": "projects/completed/aag-self-hosting-completion/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-self-hosting-completion/checklist.md",
       "parent": null
     },
     {

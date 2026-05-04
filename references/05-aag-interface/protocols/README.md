@@ -36,7 +36,7 @@
 ## 関連
 
 - 親 directory: `references/05-aag-interface/` (= AAG public interface root)
-- 上位 program: `projects/active/aag-self-hosting-completion/` (= 本 protocols/ landing 場所を articulate する program)
+- 上位 program: `projects/completed/aag-self-hosting-completion/` (= 本 protocols/ landing 場所を articulate する program)
 - M1-M5 deliverable 実装 program: `projects/active/operational-protocol-system/` (= 本 program R5 resume 後 user 判断で起動)
 
 ## status

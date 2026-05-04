@@ -20,7 +20,7 @@
  * @taxonomyKind T:meta-guard
  * @see references/04-tracking/generated/
  * @see tools/architecture-health/
- * @see projects/active/aag-self-hosting-completion/decision-audit.md DA-α-004d
+ * @see projects/completed/aag-self-hosting-completion/decision-audit.md DA-α-004d
  */
 
 import path from 'path'

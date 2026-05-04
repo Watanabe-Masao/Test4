@@ -268,7 +268,7 @@ describe('Self-Hosting Guard (AR-AAG-META-SELF-HOSTING)', () => {
         ...missing.map((f) => `  - ${f}`),
         ``,
         `修正: 該当 guard を ${guardsDir} に landing。`,
-        `詳細: aag/_internal/meta.md §2.1 AAG-REQ-SELF-HOSTING + projects/active/aag-self-hosting-completion/decision-audit.md DA-α-007a。`,
+        `詳細: aag/_internal/meta.md §2.1 AAG-REQ-SELF-HOSTING + projects/completed/aag-self-hosting-completion/decision-audit.md DA-α-007a。`,
       ].join('\n'),
     ).toEqual([])
   })

@@ -11,7 +11,7 @@
 
 | projectId | kind | title | entrypoint |
 |---|---|---|---|
-| `aag-self-hosting-completion` | project | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 (= AAG framework の entry navigation level での self-hosting failure を structural reorganization で解消、Level 3 + architecture-refactor、R1-R7 phase) | [`projects/active/aag-self-hosting-completion/AI_CONTEXT.md`](../../projects/active/aag-self-hosting-completion/AI_CONTEXT.md) |
+| `aag-self-hosting-completion` | project | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 (= AAG framework の entry navigation level での self-hosting failure を structural reorganization で解消、Level 3 + architecture-refactor、R1-R7 phase) | [`projects/completed/aag-self-hosting-completion/AI_CONTEXT.md`](../../projects/completed/aag-self-hosting-completion/AI_CONTEXT.md) |
 | `operational-protocol-system` | project | **⏸ PAUSED** — AAG Operational Protocol System (Task / Session / Complexity 運用制度)。aag-self-hosting-completion R5 完了で resume + M1 着手予定 (= M1 deliverable は aag/interface/protocols/ に直接 landing する設計) | [`projects/active/operational-protocol-system/AI_CONTEXT.md`](../../projects/active/operational-protocol-system/AI_CONTEXT.md) |
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編（Phase 8 以降） | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
