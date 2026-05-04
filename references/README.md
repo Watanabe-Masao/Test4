@@ -254,6 +254,10 @@
 | AAG-COA Projectization Policy（立ち上げ前の入口判定 / Level 0-4）                                      | `03-implementation/projectization-policy.md`                            |
 | Deferred Decision Pattern（途中判断 制度化 / AI 自主判断 + judgement criteria 集約）                   | `03-implementation/deferred-decision-pattern.md`                        |
 | Decision Articulation Patterns（主アプリ改修主軸の change-bearing 作業共通 pattern、AAG 内部不要）     | `03-implementation/decision-articulation-patterns.md`                   |
+| Task Protocol System（operational-protocol-system M1 — Task / Session / Complexity 軸 + Task Class catalog の 4 doc 統合 index、reader 別 routing）           | `05-aag-interface/protocols/task-protocol-system.md`                    |
+| Task Class Catalog（6 類型 = TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff、各々に scope + antipattern）  | `05-aag-interface/protocols/task-class-catalog.md`                      |
+| Session Protocol（Session lifecycle 4 phase = 開始 / 実行中 / 終了 / 引き継ぎ + L1/L2/L3 別 routing + drawer Pattern 1-6 適用）                                | `05-aag-interface/protocols/session-protocol.md`                        |
+| Complexity Policy（L1 軽修正 / L2 通常変更 / L3 重変更 + AAG-COA との関係 + 既存 5 文書 use-case mapping + 動的昇格・降格 trigger）                            | `05-aag-interface/protocols/complexity-policy.md`                       |
 | AAG ディレクトリ index（Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit の単一エントリ）               | `aag/_internal/README.md`                                   |
 | AAG Meta charter（目的 + 要件 = AAG-REQ-\* namespace + 5 層 × 5 縦スライス mapping + audit framework） | `aag/_internal/meta.md`                                     |
 | AAG Strategy（戦略マスター + 文化論 + 意図的に残す弱さ、Layer 0+1）                                    | `aag/_internal/strategy.md`                                 |

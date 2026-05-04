@@ -153,22 +153,30 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 
 ### Commit Lineage
 
-- judgementCommit: TBD (= 本 entry を含む M1 landing commit、commit 後に実 sha を update)
-- preJudgementCommit: TBD (= M1 landing 直前 commit、commit 後に実 sha を update)
-- judgementTag: `operational-protocol-system/DA-α-001-judgement` (= TBD commit に annotated tag landing)
-- rollbackTag: `operational-protocol-system/DA-α-001-rollback-target` (= TBD commit に annotated tag landing)
+- judgementCommit: `9d106564649fac499cc96285cf8c08d64d8315eb` (= M1 landing commit、4 doc 新設 + DA-α-001 entry + checklist update + HANDOFF update を含む)
+- preJudgementCommit: `5c29bb54971c8ca97042360bacebc23953f20d54` (= M1 直前 = archive-v2 PR 5 = aag-platformization Pilot 圧縮 commit)
+- judgementTag: `operational-protocol-system/DA-α-001-judgement` (= **未 landing**、AI session infrastructure (= localhost git proxy) で新規 tag 作成が HTTP 403 で阻止される既知制約。aag-self-hosting-completion DA-α-007/008 でも同様、SHA 直接参照で代替 articulate 済)
+- rollbackTag: `operational-protocol-system/DA-α-001-rollback-target` (= 同上、未 landing。preJudgementCommit SHA 直接参照で rollback 経路確保)
 - implementationCommits:
-  - TBD — M1 全実装 (= 4 doc 新設 + DA-α-001 entry + checklist update + HANDOFF update)
+  - `9d106564649fac499cc96285cf8c08d64d8315eb` — M1 全実装 (= 4 doc 新設 + DA-α-001 entry + checklist update + HANDOFF update)
+  - `d6935e2150e4e8f0cb38299d384eede749777bce` — M1 後 docs:generate 反映 (= M1-4 [x] flip 反映 + KPI sync)
+  - `f4acd1ac7` — doc-registry.json 4 doc entry 追加 (= push fix follow-up)
 
-### 振り返り (Phase M1 完了 / TBD)
+### 振り返り (Phase M1 完了 / 2026-05-04)
 
-> Phase M1 完了直前に追記、observation 5 件すべて実測。
-
-- 観測点 1〜5: TBD
-- 判定: TBD
-- 学習: TBD
-- retrospectiveCommit / Tag: TBD
+- 観測点 1 (M1-1 肯定): ✅ **達成**。`task-class-catalog.md` で 6 Task Class (TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff) を §1 summary table + §2-§7 詳細で articulate。各 class に scope + 入口/出口条件 + typical complexity range + 主な antipattern を articulate
+- 観測点 2 (M1-2 肯定): ✅ **達成**。`session-protocol.md` §3.2 (L1 軽修正 routing) / §3.3 (L2 通常変更 routing) / §3.4 (L3 重変更 routing) で L 別 articulate 完成
+- 観測点 3 (M1-3 肯定): ✅ **達成**。`complexity-policy.md` §1 summary table + §5 use-case mapping table で L1/L2/L3 と既存 5 文書の使い分けを articulate (= 各文書の触る/触らない/update articulation)
+- 観測点 4 (M1-4 反証): ✅ **達成**。4 doc 全 landing 後 `docs:check` PASS (= 60 KPI all OK / Hard Gate PASS、本 commit 後 verify)
+- 観測点 5 (M1-5 反証): ✅ **達成**。本 session 自体が synthetic session scenario の 1 instance (= self-application)。session-protocol.md §1 開始 (= context 復元 + Task Class TC-4 New Capability 判定 + Complexity L2 通常変更 判定) → §3.3 L2 routing → §4 終了 articulation の trace が verify 可能。drawer Pattern 1 (Commit-bound Rollback) + Pattern 2 (Scope Discipline) + Pattern 4 (Honest Articulation) を本 PR 6 全体で application instance として articulate
+- **判定**: **正しい** (= 5 観測点すべて達成、scope 拡大なし、PR 6 単独 commit + 1 push fix follow-up commit で完遂)
+- 学習:
+  - **doc-registry obligation の事前確認**: 新 references/ doc を追加する PR では doc-registry.json update を pre-flight check に articulate 必要 (= 本 PR で push fail → fix commit が follow-up したが、事前 check で 1 commit に統合可能だった)
+  - **4 doc 一括 landing の判断は正しかった**: 相互参照が必須な protocol family は逐次 landing で broken link risk があり、一括 landing が最適 (= 候補 1 採用根拠の retroactive verification)
+  - **self-application の possibility**: 本 session が session-protocol の synthetic test scenario として機能 (= M1-5 観測点が retroactively self-applicable な構造、後続 M2-M5 でも同様の self-test 可能)
+- retrospectiveCommit: 本 wrap-up commit (= 振り返り articulation を含む follow-up commit)
+- retrospectiveTag: `operational-protocol-system/DA-α-001-retrospective` (= 同 infrastructure 制約で未 landing、SHA 直接参照で articulate)
 
 ### 軌道修正 (判定 "部分的" / "間違い" のみ)
 
-- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+- (本 entry 判定 = "正しい" のため軌道修正なし、本 PR 6 単独 + push fix follow-up で完遂)

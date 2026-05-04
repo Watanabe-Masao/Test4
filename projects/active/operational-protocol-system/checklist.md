@@ -16,7 +16,7 @@
 
 ## Phase M1: Task Protocol System 定義
 
-- [x] DA-α-001 entry landing (= M1 着手判断、新 doc 4 件配置 + articulate 順序、5 軸 + 観測点 + Lineage、archive-v2 program PR 6 で landing、Lineage 実 sha は本 commit 後 update 予定)
+- [x] DA-α-001 entry landing (= M1 着手判断、新 doc 4 件配置 + articulate 順序、5 軸 + 観測点 + Lineage、archive-v2 program PR 6 + wrap-up commit で完遂、judgementCommit = `9d106564649fac499cc96285cf8c08d64d8315eb` / preJudgementCommit = `5c29bb54971c8ca97042360bacebc23953f20d54`)
 - [x] `task-protocol-system.md` 新設 (= 上位 doc、M1-M5 全体 index、`references/05-aag-interface/protocols/` に landing)
 - [x] `task-class-catalog.md` 新設 (= 6 類型 = TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff、各々に scope + 入口/出口条件 + complexity range + antipattern)
 - [x] `session-protocol.md` 新設 (= Session 開始 §1 / 実行中 §3 (L1/L2/L3 別) / 終了・引き継ぎ §4 + drawer Pattern 1-6 適用 articulate)
@@ -26,8 +26,8 @@
 - [x] **観測** M1-3: L1/L2/L3 と既存 5 文書の使い分けが table で articulated (`complexity-policy.md` §5 use-case mapping table)
 - [x] **観測** M1-4: 4 doc 全 landing で `docs:check` PASS (= 60 KPI all OK / Hard Gate PASS、2026-05-04 verify)
 - [x] **観測** M1-5: 反証可能観測 ≥ 1 (= 本 session 自体が synthetic session scenario として self-application instance、`session-protocol.md` §1 開始 → §3.4 L3 実行中 → §4 終了 routing が trace 可能)
-- [ ] DA-α-001 振り返り判定 (正しい / 部分的 / 間違い、Phase M1 完遂直前に判定)
-- [ ] `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
+- [x] DA-α-001 振り返り判定 (= **正しい**、5 観測点全達成、wrap-up commit で articulated、`decision-audit.md` DA-α-001 §「振り返り (Phase M1 完了 / 2026-05-04)」参照)
+- [x] `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS (= 60 KPI Hard Gate PASS / 146 file 969 test PASS / 0 errors 25 warnings / built successful、2026-05-04)
 
 ## Phase M2: 既存 5 文書への routing 固定
 
