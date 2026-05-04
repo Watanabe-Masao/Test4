@@ -171,4 +171,77 @@ phase。本 inventory の **物理配置** (= projects/ 内に閉じるか / ref
 
 ---
 
-> 後続 DA entry (DA-α-002 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-002: Phase 2 DetectorResult / AagResponse Normalization scope 判断 (= forward-looking schema 継承 + 1 系統 demonstration)
+
+### status
+
+- 着手判断: **open** (Phase 2 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 2 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 2 進入時の重要発見:
+
+1. `docs/contracts/aag/detector-result.schema.json` が **既存** (= aag-platformization Pilot Phase 1 / A3 で landed、forward-looking として明示 articulate)
+2. `aagContractSchemaSyncGuard.test.ts` が **既に DetectorResult schema validity を検証** (= 6 test、最後 2 test で sample valid + required field 欠落 reject)
+3. **TS implementation は不在** (= grep で `DetectorResult` がほぼヒットしない、5 系統での adoption は post-Pilot に分離されていた)
+4. Plan.md Phase 2 の DetectorResult 構造 sketch (= `{ detectorId, ruleId, severity: 'error'|'warn'|'info', path, message, evidence: { expected, actual } }`) と canonical schema (= `{ ruleId, detectionType, sourceFile, severity: 'gate'|'warn'|'block-merge', evidence?, actual?, baseline?, messageSeed? }`) で field 名 / severity enum / evidence type が異なる
+
+これは Phase 2 の意義を **「新規 DetectorResult 設計」から「aag-platformization が forward-looking で残した integration を engine readiness の foundation として継承」に再定義** する判断点。
+
+### decision
+
+以下を採用する:
+
+1. **canonical schema 踏襲**: `docs/contracts/aag/detector-result.schema.json` を canonical contract として TS implementation を整備。plan.md sketch の構造案は canonical schema に合わせて articulate を修正 (= field 名 / severity enum / evidence type は schema 通り)
+2. **scope 候補 B 採用 (= Foundation + 1 系統 demonstration)**: Phase 2 では foundation (= TS implementation + helper + renderer 分離 + sync guard extension) + 1 系統 (= project lifecycle) demonstration を完遂、残り 4 系統 (= archive manifest / doc registry / generated metadata / schema validation) adoption は Phase 3 (Collector / Detector / Renderer 分離) と統合 routing
+3. **既存 production guard を変更しない**: `projectCompletionConsistencyGuard.test.ts` の `checkConsistency()` (= violation 集合 emit) は維持。新 detector (`detectProjectLifecycleViolations`) は parallel implementation (= 同じ C1 violation 経路を DetectorResult[] で emit、demonstration 用)
+4. **TS implementation 物理配置**:
+    - `tools/architecture-health/src/detector-result.ts` (= type + factory + renderer separation helpers)
+    - `tools/architecture-health/src/detectors/project-lifecycle-detector.ts` (= 1 系統 demonstration)
+    - `app/src/test/guards/detectorResultModuleGuard.test.ts` (= 動作 contract の unit test、20 test)
+5. **sync guard extension**: `aagContractSchemaSyncGuard.test.ts` に DetectorResult TS interface ↔ schema sync test 3 件追加 (= 既存 AagResponse pattern の mirror、required + properties + 実 instance validation)
+6. **scope 候補 C (= plan.md 改訂) 不採用**: plan.md Phase 2 完了条件「5 系統で使用開始」を「使用開始 = adoption 経路が articulate された (= 1 系統 demonstration + 残り 4 系統は Phase 3 で完遂する articulation)」と解釈、plan.md 改訂は不要
+
+### rationale
+
+- **canonical schema 踏襲**: 不可侵原則 2 (= 既存 guard の意味は変えない) 整合。schema は既に sync guard で機械検証済 + AAG Pilot で landing 済の canonical。plan.md sketch は draft であり、**真の正本は schema** (= aag-platformization Pilot で landing 時に articulate 済)。schema 再設計は退行的
+- **scope 候補 B 採用**: 候補 A (= 5 系統全 adoption) は単一 Phase が大きくなりすぎ、§13.1 二段 commit pattern が weight 過多 (= landing + wrap-up が両方とも複数 hours レビュー対象)。候補 B では Phase 2 = foundation、Phase 3 = 5 系統への systematic adoption + 分離、と役割分担が明確。Phase 3 の「Collector / Detector / Renderer 分離」は本来 5 系統への構造変更を含むため、DetectorResult adoption と同 phase で進める方が natural
+- **既存 production guard 不変**: 不可侵原則 2 の strict adherence。既存 guard の violation 検出条件は **parity check できる状態** で残す (= demonstration detector は同じ C1 を emit、test で意味的 等価性 articulate)
+- **物理配置**: `tools/architecture-health/src/` は engine readiness scope の中心 (= 親 project plan.md 不可侵原則 5 で「app-specific TS guard を engine 化対象に含めない」と明示、本 path は engine 化対象側)。`detectors/` subdirectory は Phase 3 で 5 系統 detector が並ぶ予定の物理配置 articulation
+- **sync guard extension**: AagResponse / DetectorResult の TS ↔ schema 整合は **同じ sync guard で扱う方が duplication を避ける** (= 別 guard 新設は AAG-REQ-ANTI-DUPLICATION 違反候補)
+- **plan.md 改訂不要**: plan.md の Phase 2 完了条件は文字通り解釈すると「5 系統 adoption」だが、context (= Phase 3 で 5 系統への systematic 構造変更が予定されている) を踏まえると「使用開始 = adoption 経路 articulation」と解釈する方が plan の責務分割と整合
+
+### alternatives
+
+- (a) **scope 候補 A (= 5 系統全 adoption を Phase 2 で完遂)**: 規模 ~10-15 file / ~500-800 line、§13.1 二段 commit 重量化、Phase 3 との責務 overlap、不採用
+- (b) **scope 候補 C (= plan.md 改訂)**: Phase 2 / 3 の責務分割を update する判断 = plan.md 改訂を伴うので別判断 (= L3 で plan.md 改変は authority 軸 trigger)。本 candidate B では plan.md 表現を維持できるため不要、不採用
+- (c) **canonical schema 再設計** (= plan.md sketch 通りに schema を修正): aag-platformization Pilot で landed 済の canonical contract を後続 project が再設計するのは退行的、不可侵原則 2 違反、不採用
+- (d) **既存 production guard を直接置換** (= projectCompletionConsistencyGuard を pure detector に書き換える): 不可侵原則 2 違反 (= 既存 violation 検出条件を変える可能性)、規模も大きい、不採用。**parallel implementation** (= demonstration detector が既存 guard と並存) で代替
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `tools/architecture-health/src/detector-result.ts` が canonical schema (`docs/contracts/aag/detector-result.schema.json`) と structurally identical (= sync guard 3 新 test で機械検証)
+2. `createDetectorResult` factory が field validation (= ruleId / detectionType / sourceFile / messageSeed が空文字なら throw、severity enum) を hard fail で enforce
+3. `aggregateDetectorResults` の severity 集約が articulate (= gate / block-merge → fixNow=now、全件 warn → fixNow=debt)
+4. `renderDetectorResultsAsJson` が deterministic ordering (= severity → ruleId → sourceFile)
+5. demonstration detector (`detectProjectLifecycleViolations`) が **既存 production guard `projectCompletionConsistencyGuard` の C1 と意味的に等価** (= 同じ project に対して同じ violation 集合を emit、test で parity 検証)
+6. 既存 production guard (`projectCompletionConsistencyGuard.test.ts`) は **変更されていない** (= git diff で `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` が touch されていない)
+7. 既存 全 guard test PASS (= 992 test、新 detectorResultModuleGuard 20 test + 既存 aagContractSchemaSyncGuard 3 test 拡張で 989 → 992)
+
+### Lineage
+
+- **preJudgementCommit**: `2cc8fa9` (= Phase 1 wrap-up 後 regen commit、本 Phase 2 landing 直前の HEAD)
+- **judgementCommit**: 本 Phase 2 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= 新 guard test 追加で project-structure.md generated section drift + 後続 checkbox flip による project.checklist.* drift)
+- **retrospectiveCommit**: 本 Phase 2 wrap-up commit
+- **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
+- **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `2cc8fa9` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 2 wrap-up commit で articulate 予定。観測点 1〜7 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-003 〜 007) は各 Phase landing commit 時に articulate 追加。

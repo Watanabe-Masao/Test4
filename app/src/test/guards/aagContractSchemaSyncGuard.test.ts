@@ -35,6 +35,10 @@ import { resolve } from 'node:path'
 import Ajv from 'ajv'
 import { buildObligationResponse } from '@tools/architecture-health/aag-response'
 import type { AagResponse } from '@tools/architecture-health/aag-response'
+import {
+  createDetectorResult,
+  type DetectorResult,
+} from '@tools/architecture-health/detector-result'
 
 const REPO_ROOT = resolve(__dirname, '../../../..')
 const RESPONSE_SCHEMA_PATH = resolve(REPO_ROOT, 'docs/contracts/aag/aag-response.schema.json')
@@ -64,6 +68,22 @@ const AAG_RESPONSE_TS_FIELDS = [
   'exceptions',
   'deepDive',
   'violations',
+] as const
+
+// DetectorResult の TS field set (canonical from detector-result.ts interface)
+// schema の required + properties 並び順と一致させる (= aag-engine-readiness-refactor Phase 2 articulate)
+const DETECTOR_RESULT_TS_REQUIRED_FIELDS = [
+  'ruleId',
+  'detectionType',
+  'sourceFile',
+  'severity',
+] as const
+
+const DETECTOR_RESULT_TS_OPTIONAL_FIELDS = [
+  'evidence',
+  'actual',
+  'baseline',
+  'messageSeed',
 ] as const
 
 describe('AAG Contract Schema Sync Guard', () => {
@@ -132,7 +152,7 @@ describe('AAG Contract Schema Sync Guard', () => {
     const schema = loadSchema(DETECTOR_SCHEMA_PATH)
     const validate = ajv.compile(schema)
 
-    // 最低限の DetectorResult sample (forward-looking、actual integration は post-Pilot)
+    // 最低限の DetectorResult sample (= aag-engine-readiness-refactor Phase 2 で TS implementation 整備済)
     const sample = {
       ruleId: 'AR-EXAMPLE',
       detectionType: 'layer-boundary',
@@ -154,5 +174,65 @@ describe('AAG Contract Schema Sync Guard', () => {
     const invalid = { ruleId: 'AR-EXAMPLE' /* detectionType / sourceFile / severity 欠落 */ }
     const valid = validate(invalid)
     expect(valid, `不正 DetectorResult が誤って valid 判定された`).toBe(false)
+  })
+
+  // ─────────────────────────────────────────────────────────────────
+  // DetectorResult TS interface ↔ schema sync (aag-engine-readiness-refactor Phase 2 で extend)
+  // ─────────────────────────────────────────────────────────────────
+
+  it('DetectorResult schema の required fields が TS interface の required field と一致', () => {
+    const schema = loadSchema(DETECTOR_SCHEMA_PATH)
+    const schemaRequired: ReadonlySet<string> = new Set(schema.required ?? [])
+    const tsRequired: ReadonlySet<string> = new Set(DETECTOR_RESULT_TS_REQUIRED_FIELDS)
+
+    const missingInSchema = [...tsRequired].filter((f) => !schemaRequired.has(f))
+    const extraInSchema = [...schemaRequired].filter((f) => !tsRequired.has(f))
+
+    expect(
+      missingInSchema,
+      'TS DetectorResult の required field が schema required に未articulate',
+    ).toEqual([])
+    expect(
+      extraInSchema,
+      'schema required に articulate されているが TS DetectorResult に無い',
+    ).toEqual([])
+  })
+
+  it('DetectorResult schema の properties が TS interface field (required + optional) と一致', () => {
+    const schema = loadSchema(DETECTOR_SCHEMA_PATH)
+    const schemaProps: ReadonlySet<string> = new Set(Object.keys(schema.properties ?? {}))
+    const tsAllFields: ReadonlySet<string> = new Set([
+      ...DETECTOR_RESULT_TS_REQUIRED_FIELDS,
+      ...DETECTOR_RESULT_TS_OPTIONAL_FIELDS,
+    ])
+
+    const missingInSchema = [...tsAllFields].filter((f) => !schemaProps.has(f))
+    const extraInSchema = [...schemaProps].filter((f) => !tsAllFields.has(f))
+
+    expect(missingInSchema, 'TS DetectorResult field が schema properties に未articulate').toEqual(
+      [],
+    )
+    expect(
+      extraInSchema,
+      'schema properties に articulate されているが TS DetectorResult に無い',
+    ).toEqual([])
+  })
+
+  it('実 DetectorResult instance (createDetectorResult 出力) が schema validation を通る', () => {
+    const ajv = new Ajv({ allErrors: true })
+    const schema = loadSchema(DETECTOR_SCHEMA_PATH)
+    const validate = ajv.compile(schema)
+
+    const sample: DetectorResult = createDetectorResult({
+      ruleId: 'AR-PROJECT-LIFECYCLE-C1',
+      detectionType: 'governance-ops',
+      sourceFile: 'projects/active/example/',
+      severity: 'gate',
+      actual: 5,
+      baseline: 5,
+      messageSeed: 'completed but not archived',
+    })
+    const valid = validate(sample)
+    expect(valid, `schema validation failed: ${JSON.stringify(validate.errors)}`).toBe(true)
   })
 })
