@@ -125,28 +125,6 @@ export function createDetectorResult(input: DetectorResult): DetectorResult {
 // ───────────────────────────────────────────────────────────────────────
 
 /**
- * `DetectorSeverity` → `AagResponse.fixNow` mapping。
- *
- *   - `gate`        → `'now'` (= 即修正、CI fail)
- *   - `block-merge` → `'now'` (= 即修正、マージ block)
- *   - `warn`        → `'debt'` (= allowlist 管理 / 計画的返済)
- *
- * `'review'` (= Discovery Review 対象) は detector severity から自動導出しない (=
- * Discovery Review 判断は人間判断、`AagResponse` builder で明示的に articulate
- * すべき)。
- */
-function severityToFixNow(severity: DetectorSeverity): FixNow {
-  switch (severity) {
-    case 'gate':
-      return 'now'
-    case 'block-merge':
-      return 'now'
-    case 'warn':
-      return 'debt'
-  }
-}
-
-/**
  * 1 件の `DetectorResult` を 1 件の violation 文字列に articulate (= AagResponse.violations
  * の要素形式)。renderer 経由で human-readable に展開される。
  */
