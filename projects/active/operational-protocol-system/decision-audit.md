@@ -46,7 +46,7 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 | ID | Phase / 軸 | 判断対象 | status |
 |---|---|---|---|
 | DA-α-000 | Phase 0 | 本 program の進行モデル (drawer Pattern 1 application instance + AAG Pilot DA institution からの継承判断) | active |
-| DA-α-001 | Phase M1 | M1 Task Protocol System 着手判断 (新 doc 4 件配置 + articulate 順序) | planned |
+| DA-α-001 | Phase M1 | M1 Task Protocol System 着手判断 (新 doc 4 件配置 + articulate 順序) | active |
 | DA-α-002 | Phase M2 | M2 既存 5 文書 routing 固定方針 | planned |
 | DA-α-003 | Phase M3 | M3 動的昇格・降格ルール articulate 方針 | planned |
 | DA-α-004 | Phase M4 | M4 Task Class 5 protocol articulate 方針 | planned |
@@ -100,6 +100,69 @@ git tag -a "operational-protocol-system/DA-α-NNN-retrospective"  -m "retrospect
 ### 振り返り (本 program archive 直前 / TBD)
 
 > Phase M1-M5 完了 + 最終レビュー直前に追記、observation 5 件すべて実測。
+
+- 観測点 1〜5: TBD
+- 判定: TBD
+- 学習: TBD
+- retrospectiveCommit / Tag: TBD
+
+### 軌道修正 (判定 "部分的" / "間違い" のみ)
+
+- (本 entry 起票時点で軌道修正なし、Phase 進行中に sub-events articulate 必要時に追記)
+
+---
+
+## DA-α-001: M1 Task Protocol System 着手判断
+
+**status**: active
+
+### 判断時 (2026-05-04 / Phase M1)
+
+- 候補:
+  1. 4 doc 一括 landing (= 1 commit で 4 doc + DA + checklist update)
+  2. doc 別 PR 分割 (= 4 commit で 4 doc を逐次 landing)
+  3. doc 一括 + DA / checklist update 別 PR
+- **採用案: 候補 1** (= 4 doc 一括 landing)
+- 判断根拠:
+  - 事実 1: 4 doc は **相互参照** が必須 (= task-protocol-system は他 3 doc を index、catalog ↔ session-protocol ↔ complexity-policy で cross-link)。逐次 landing だと中間状態で broken link が発生
+  - 事実 2: M1 観測点 (= 4 doc 全 landing で `docs:check` PASS) は 4 doc 同時 landing を前提
+  - 事実 3: archive-v2 program PR 6 / 6 として scope discipline 整合 (= drawer Pattern 2、本 PR を逸脱しない)
+  - 事実 4: AAG Pilot DA-α-005 で同種「複数 generated drawer 一括 landing」が成立済 (= precedent)
+- 想定リスク:
+  - 最大被害: 4 doc の articulate quality に drift がある場合、後続 M2-M5 で全 doc を再 update する rework 発生。mitigation = M1 scope は articulate のみ、M2-M5 で routing / 動的ルール / 5 protocol / drawer `_seam` の各層で順次 refine する pattern を articulate 済 (= drawer Pattern 4 honest articulation で「完成度を分割段階で漸進」)
+  - 二番目: docs:check が KPI drift で fail し commit blocked。mitigation = 4 doc landing 後に `docs:generate` 実行、generated section + KPI drift 解消
+- 振り返り観測点 (5 点 = M1 観測点 5 件と同期):
+  - 1 (M1-1 肯定): 6 Task Class が `task-class-catalog.md` で articulate されている (= TC-1〜TC-6、各々に scope + 入口/出口条件 + complexity range + antipattern)
+  - 2 (M1-2 肯定): Session Protocol が L1/L2/L3 別に `session-protocol.md` §3.2/§3.3/§3.4 で articulate されている
+  - 3 (M1-3 肯定): L1/L2/L3 と既存 5 文書の使い分けが `complexity-policy.md` §1 + §5 table で articulate されている
+  - 4 (M1-4 反証): 4 doc 全 landing で `docs:check` PASS (= 機械検証可能観測)
+  - 5 (M1-5 反証): synthetic session scenario で各 level の routing が verify 可能 (= `session-protocol.md` §3.2/§3.3/§3.4 を読んで AI が即 routing 可能、本 session が初の self-application instance)
+
+### 5 軸 articulation
+
+- **製本** (canonical):
+  - `references/05-aag-interface/protocols/task-protocol-system.md` (= 上位 index、canonical)
+  - `references/05-aag-interface/protocols/task-class-catalog.md` (= Task 軸 canonical)
+  - `references/05-aag-interface/protocols/session-protocol.md` (= Session 軸 canonical)
+  - `references/05-aag-interface/protocols/complexity-policy.md` (= Complexity 軸 canonical)
+  - 派生先なし (= 5 文書 / drawer / AAG-COA は本 protocol の **input** として参照、派生関係なし)
+- **依存方向**: 上位 = AAG framework (= aag/_internal/ + drawer + AAG-COA、改変しない)、下位 = 主アプリ改修 user の day-to-day workflow。一方向参照
+- **意味**: 「AAG framework を使う側の操作 protocol articulate」(= over-ritual / under-ritual 回避 + session ad-hoc 解消 + AI context 最短到達)
+- **責務**: 運用 layer の articulate のみ、AAG framework / 主アプリ code は touch しない (= 不可侵原則 1)
+- **境界**: M1 は 4 doc articulate のみ、M2 (= routing 固定) / M3 (= 動的ルール) / M4 (= 5 protocol) / M5 (= drawer `_seam`) は別 Phase
+
+### Commit Lineage
+
+- judgementCommit: TBD (= 本 entry を含む M1 landing commit、commit 後に実 sha を update)
+- preJudgementCommit: TBD (= M1 landing 直前 commit、commit 後に実 sha を update)
+- judgementTag: `operational-protocol-system/DA-α-001-judgement` (= TBD commit に annotated tag landing)
+- rollbackTag: `operational-protocol-system/DA-α-001-rollback-target` (= TBD commit に annotated tag landing)
+- implementationCommits:
+  - TBD — M1 全実装 (= 4 doc 新設 + DA-α-001 entry + checklist update + HANDOFF update)
+
+### 振り返り (Phase M1 完了 / TBD)
+
+> Phase M1 完了直前に追記、observation 5 件すべて実測。
 
 - 観測点 1〜5: TBD
 - 判定: TBD

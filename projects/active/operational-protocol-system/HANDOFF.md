@@ -10,36 +10,40 @@
 
 ## 1. 現在地
 
-**Phase 0 (Bootstrap) のみ landed、Phase M1 着手前で resume ready (= 2026-05-03、aag-self-hosting-completion R5 完遂で trigger satisfied)**。AAG Platformization Pilot 完遂 (2026-05-02 archive) を trigger に、user articulation で post-Pilot 運用制度として独立 project に bootstrap した (commit `8283b4b` / `1a5bb09`)。
+**Phase M1 (Task Protocol System 定義) landing 完了 (= 2026-05-04、archive-v2 program PR 6 で実施)**。AAG Platformization Pilot 完遂 (2026-05-02 archive) + aag-self-hosting-completion 完遂 (2026-05-04 archive) + Archive v2 program PR 1-5 完遂を経て、M1 着手 trigger satisfied。
 
-その後 user articulation で AAG framework の entry navigation level での self-hosting failure が articulate され、`aag-self-hosting-completion` project が bootstrap、本 project は R5 完了後 resume となった。R5 完遂 (= aag-self-hosting-completion DA-α-006、2026-05-03) で resume 条件 satisfied:
+### 2026-05-04 M1 landing 内容
 
-- 新構造 `references/05-aag-interface/protocols/` skeleton landed (= R2 完了、`protocols/README.md` 既存)
-- 本 project plan.md / HANDOFF.md / config の path refinement 完了 (= R5 で aag-self-hosting-completion から実施)
-- M1 着手判断 (= DA-α-001) 起票 + user 判断で起動可能 state
+- `references/05-aag-interface/protocols/` 配下に 4 doc landed (= 全 articulate 完了):
+  - `task-protocol-system.md` (= 上位 index、M1-M5 全体)
+  - `task-class-catalog.md` (= 6 Task Class、TC-1 Planning / TC-2 Refactor / TC-3 Bug Fix / TC-4 New Capability / TC-5 Incident Discovery / TC-6 Handoff)
+  - `session-protocol.md` (= Session 開始 / 実行中 §3.2-§3.4 (L1/L2/L3) / 終了・引き継ぎ §4)
+  - `complexity-policy.md` (= L1 軽修正 / L2 通常変更 / L3 重変更 + AAG-COA との関係 + 既存 5 文書 use-case mapping)
+- `decision-audit.md` に DA-α-001 (M1 着手判断) entry articulated (= 5 軸 + 5 観測点 + Lineage 仮 sha)
+- `checklist.md` Phase M1 で 8/12 [x] (= 残: M1-4 docs:check PASS / M1 振り返り / final lint+build PASS)
 
-- 必須セット 6 ファイル + DA-α-000 (進行モデル) landing 済
-- charter draft (`references/04-tracking/operational-protocol-charter-draft.md`) を `plan.md` に migrate (重複 articulate 防止のため charter draft は削除)
-- 実装 0 件 → **resume ready、M1 着手は user 判断で起動**
+### M1-M5 残作業
+
+- M2: 既存 5 文書への routing 固定 (= per-level required artifacts 詳細化)
+- M3: 動的昇格・降格ルール articulate (= L1 → L2 → L3 trigger / 逆方向 trigger)
+- M4: 各 Task Class の標準手順 (= 5 protocol 詳細) fill 予定
+- M5: drawer `_seam` を使った最小統合 (= taskHint / consumerKind / sourceRefs)
 
 ## 2. 次にやること
 
 詳細は `checklist.md` / `plan.md` §3。
 
-### 高優先 (Phase M1 の最初)
+### 高優先 (Phase M1 完遂)
 
-**M1 Task Protocol System 定義**
+- [ ] M1-4 観測点 verify (= 4 doc 全 landing で `docs:check` PASS、本 commit verify 後 [x])
+- [ ] DA-α-001 振り返り判定 (= 正しい / 部分的 / 間違い、Phase M1 完遂直前)
+- [ ] DA-α-001 Lineage 実 sha update (= 本 commit 後)
+- [ ] final verify: `cd app && npm run docs:check && npm run test:guards && npm run lint && npm run build` PASS
 
-- [ ] `task-protocol-system.md` 新設 (上位 doc、M1-M5 全体の index)
-- [ ] `task-class-catalog.md` 新設 (= Task Class 6 類型 = Planning / Refactor / Bug Fix / New Capability / Incident Discovery / Handoff)
-- [ ] `session-protocol.md` 新設 (= Session 開始 / 実行中 / 終了 / 引き継ぎ の prescriptive 手順)
-- [ ] `complexity-policy.md` 新設 (= L1 軽修正 / L2 通常変更 / L3 重変更 + 各 level で使う文書)
+### 後続 (Phase M2 着手判断)
 
-各 doc は drawer Pattern 1 (Commit-bound Rollback) + Pattern 2 (Scope Discipline) + Pattern 5 (意図的 Skip rationale) を application instance として articulate する (= self-dogfood)。
-
-### 着手前判断
-
-DA-α-001 を起こす (= M1 着手判断、新 doc 4 件配置と articulate 順序、5 軸 articulation + 観測点 + Lineage)。
+- [ ] DA-α-002 起票 (= M2 既存 5 文書 routing 固定方針)
+- [ ] M2 deliverable (= 5 文書ごとの per-level requirement table) を本 protocol 内 or per-project に articulate
 
 ## 3. ハマりポイント
 
