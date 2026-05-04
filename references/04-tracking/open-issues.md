@@ -14,6 +14,7 @@
 | `presentation-quality-hardening` | project | Presentation 品質強化 — テスト・E2E・active-debt 解消 | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | project | Pure 計算責務再編 — Phase 0-7 完遂、**Phase 8 entry artifacts landing 完了** (2026-05-04、`projects/active/pure-calculation-reorg/phase-8/` に readiness table + 4 ANA proposals)。実 WASM build + DEV dual-run 観測 + user 承認は本 session 後 | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
 | `taxonomy-v2` | project | Taxonomy v2 (責務軸 R:* + テスト軸 T:*) — v1 撤退完遂、運用 phase | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../projects/active/taxonomy-v2/AI_CONTEXT.md) |
+| `aag-engine-readiness-refactor` | project | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 (= Phase 0〜7、L3 architecture-refactor) | [`projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md`](../../projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../projects/active/quick-fixes/AI_CONTEXT.md) |
 
 ## archived projects

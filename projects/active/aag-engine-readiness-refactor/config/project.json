@@ -1,0 +1,39 @@
+{
+  "$comment": "AAG Engine Readiness Refactor — Go/Rust engine 実装に入る前の TS 構造事前整備 project。projectization は projectization.md と一致。L3 (architecture-refactor) だが breakingChange / requiresLegacyRetirement / requiresGuard はいずれも false (= 意味は変えず構造だけ engine 移行可能な形に寄せる)。requiresHumanApproval=true (= L3 必須)。",
+  "projectId": "aag-engine-readiness-refactor",
+  "title": "AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備",
+  "status": "active",
+  "projectRoot": "projects/active/aag-engine-readiness-refactor",
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projectization.md §1 と一致。L3 = engine 移行可能性に直接関わる構造変更を含むが、意味変更は不可侵原則 1 で禁止。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "tools/architecture-health/",
+      "app/src/test/guards/",
+      "references/03-implementation/aag-engine-readiness-inventory.md",
+      "fixtures/aag/"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "Go engine の実装",
+      "Rust engine の実装",
+      "aag generate の他言語への移管",
+      "既存 guard の意味変更 (= 検出条件 / hard gate / KPI 閾値の変更)",
+      "新 hard gate の追加 (= 例外的に必要な場合のみ別 project で起票)",
+      "rule semantics を TS と別言語に複製する",
+      "app-specific TS guard (= calculation / presentation / domain) を engine 化対象に含める",
+      "実装 AI による自己承認 (= 最終レビュー user 承認は必須)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-engine-readiness-refactor/HANDOFF.md",
+    "plan": "projects/active/aag-engine-readiness-refactor/plan.md",
+    "checklist": "projects/active/aag-engine-readiness-refactor/checklist.md",
+    "projectization": "projects/active/aag-engine-readiness-refactor/projectization.md"
+  }
+}
