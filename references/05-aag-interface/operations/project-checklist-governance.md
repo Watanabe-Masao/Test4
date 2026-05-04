@@ -877,6 +877,128 @@ guard は触らずに自動検査される。
 - registry の `extract` 関数で副作用（fs アクセス等）を行う → pure function 原則
 - 「気をつける」運用ルールに依存する → AAG 管理下に置く意味がなくなる
 
+## 13. Phase 進行中 articulation patterns (= operational learning)
+
+> **landed**: 2026-05-04 (= operational-protocol-system program retrospective からの transfer、aag-self-hosting-completion / aag-platformization / operational-protocol-system の 3 program で複数 instance 観測されたものを後続 program に伝承)。
+>
+> **scope**: project の Phase 進行中に AI session が **必ず適用すべき commit pattern**。reader navigation 補助として全 active project AI session が事前 read 推奨。
+>
+> **位置付け**: §6 ライフサイクル + §10 bootstrap 手順 を補完、Phase 進行中の commit construction pattern を articulate。
+
+### 13.1. Phase landing + wrap-up 二段 commit pattern
+
+**観測**: operational-protocol-system M1-M5 で 5 instance、aag-self-hosting-completion / aag-platformization でも同 pattern 観測。drawer Pattern 1 (Commit-bound Rollback) の application sub-pattern。
+
+**pattern**: 各 Phase を **2 commit** で landing する:
+
+```
+1. **landing commit** (= deliverable + DA articulate + checklist + HANDOFF):
+   - 新 doc 新設 / 既存 doc refine
+   - DA-α-N entry を decision-audit.md に landing (= 5 軸 + 観測点 + Lineage 仮 sha)
+   - checklist の該当 Phase checkbox を実装に応じて [x] flip
+   - HANDOFF.md 現在地 + 次の作業 update
+   - (該当時) doc-registry / README index update を **同 atomic commit** に統合
+
+2. **wrap-up commit** (= 振り返り判定 + Lineage 実 sha + final flip):
+   - DA-α-N の Lineage 実 sha を update (= judgementCommit = landing commit SHA)
+   - DA-α-N の振り返り articulate (= 観測点全達成確認 + 判定 "正しい/部分的/間違い" + 学習)
+   - checklist の振り返り判定 checkbox を [x] flip
+   - HANDOFF.md 完遂状態 articulate
+```
+
+**rationale**:
+- **drawer Pattern 1 整合**: landing commit = judgement commit、wrap-up commit = retrospective commit。各 commit が独立 rollback unit
+- **学習の articulate location**: 振り返り articulate が Phase 完遂時点で確実に landing される (= 後続 Phase で前 Phase の学習を継承可能)
+- **Lineage 実 sha**: judgement commit が landing 完了で SHA 確定後に wrap-up commit が SHA を articulate。同 commit 内で SHA を pre-articulate するのは無理 (= chicken-and-egg 回避)
+
+**antipattern** (= 失敗 pattern):
+- 1 commit に landing + wrap-up を統合 (= judgement / retrospective の articulation が混在、rollback 不可) → drawer Pattern 1 違反
+- wrap-up commit を skip (= 振り返り不在、後続 session で Phase 完遂判断が trace 不能) → drawer Pattern 4 違反
+- Lineage 実 sha を amend で landing commit に書き戻す (= rollback unit 破壊) → AAG-REQ-NO-AMEND 違反
+
+**適用対象**: 全 Level 2+ project の Phase 進行 (= L1 軽修正は Phase 構造を持たないため適用外)。
+
+### 13.2. Atomic dependent update commit pattern
+
+**観測**: operational-protocol-system M1 で push fail × 2 発生 (= 2026-05-04)、M4 で学習適用、M5 でも同 pattern 適用、再発 0 件。
+
+**pattern**: `references/` 配下に新 .md doc を追加する PR では、以下を **同 atomic commit に統合**:
+
+```
+1. 新 doc 本体 (= references/<path>/<new-doc>.md)
+2. docs/contracts/doc-registry.json に entry 追加 (= 適切な category 選択)
+3. references/README.md 索引 section に entry 追加 (= docRegistryGuard 整合)
+4. (該当時) CLAUDE.md から該当 doc への link 追加
+5. (該当時) 関連 inbound reference update (= 既存 doc から新 doc への参照追加)
+6. (該当時) DA / checklist / HANDOFF update
+7. (該当時) docs:generate 反映 (= 別 commit 推奨、§13.3 参照)
+```
+
+**rationale**:
+- **push fail 事前回避**: pre-push hook が doc-registry / README index 漏れを hard fail で検出。同 commit 統合で fail 0 件
+- **drawer Pattern 2 (Scope Discipline) 整合**: 新 doc 関連 update を 1 commit に limit、scope 拡大なし
+- **reader navigation 整合**: 新 doc が landing した瞬間に doc-registry / README から reach 可能、incomplete state 回避
+
+**pre-flight check list** (= 新 doc 追加時に AI session が事前 verify):
+
+- [ ] doc-registry.json 該当 category に entry 追加 articulate (= path + label)
+- [ ] references/README.md 索引 section に entry 追加 articulate
+- [ ] (該当時) CLAUDE.md link 追加判断
+- [ ] (該当時) 既存 doc から新 doc への inbound 追加判断
+- [ ] すべて **本 commit に統合** (= 別 commit 化禁止、push fail で follow-up が必要になる)
+
+**antipattern**:
+- 新 doc landing → push fail → doc-registry 追加で follow-up commit (= ad-hoc fix、本 pattern 不在) → drawer Pattern 4 違反
+- doc-registry.json に entry 追加し忘れ (= docRegistryGuard hard fail)
+- README index update skip (= 構造的に reach 不能、reader navigation 破綻)
+
+**適用対象**: 全 references/ 配下 .md 新 doc 追加 PR (= L1-L3 不問)。
+
+### 13.3. Post-flip regen pattern (= KPI drift after [x] flip)
+
+**観測**: operational-protocol-system M1-M5 で 4 instance、aag-self-hosting-completion で複数 instance。
+
+**pattern**: checkbox `[x]` flip を含む commit の後、**docs:generate regen を別 commit で landing**:
+
+```
+1. **flip commit** (= checkbox flip 含む landing or wrap-up commit):
+   - checkbox `[x]` flip
+   - 関連 articulate (= DA / HANDOFF / 等) update
+   - commit + push
+
+2. **regen commit** (= docs:generate 反映):
+   - cd app && npm run docs:generate
+   - generated section + KPI 更新 (= committed health.json と live recalc 同期)
+   - commit + push
+```
+
+**rationale**:
+- **drawer Pattern 1 整合**: flip commit と regen commit が独立 rollback unit、KPI drift を機械的に同期
+- **AAG-REQ-NO-AMEND 整合**: flip commit を amend で regen 統合は rollback unit 破壊、不採用
+- **事前回避不可**: flip 前の docs:generate は flip 前提で計算不能 (= chicken-and-egg)、post-flip regen が唯一の合理的経路
+
+**不採用 pattern**:
+- **Pattern A (= 採用)**: `commit (= flip 含む) → docs:generate → 別 regen commit → push` ✅
+- **Pattern B (= 不採用)**: `flip 前に docs:generate → flip + 同 commit → push` (= 計算順序不能)
+- **Pattern C (= 不採用)**: `flip + commit + amend で regen 統合 → push` (= drawer Pattern 1 違反、AAG-REQ-NO-AMEND 違反)
+
+**push fail 検出 hint** (= pre-push hook で発生):
+```
+[docs:check] FAIL — 1 error(s):
+  ✗ KPI drift: project.checklist.checkedCheckboxes — committed: <N>, live: <N+M>
+```
+
+→ `cd app && npm run docs:generate && git add -A && git commit -m "chore(docs): docs:generate 反映 (= [x] flip 後 KPI sync)"` で解消。
+
+**適用対象**: checkbox flip を含む全 commit (= Phase wrap-up commit / 振り返り commit / 等)。事前回避不能なため、push fail 後の follow-up commit pattern として institutionalize。
+
+### 13.4. 関連
+
+- drawer Pattern 1-6: `references/05-aag-interface/drawer/decision-articulation-patterns.md` (= 領域 agnostic、本 §13 は project lifecycle 専門の sub-pattern)
+- AAG-REQ articulate: `aag/_internal/meta.md` §2 (= 不可侵原則 + Tier 0 不変条件)
+- session-protocol: `references/05-aag-interface/protocols/session-protocol.md` §3 (= L 別実行中 routing) + §4 (= 終了 + 引き継ぎ)
+- 学習 transfer source: `projects/completed/operational-protocol-system/archive.manifest.json` (= retrospective 集約)、`projects/completed/aag-self-hosting-completion/archive.manifest.json` (= 同 pattern 観測 instance)
+
 ## 9. このガイド自体の正本
 
 本ガイドが定義する規格を変更する場合は、関連する 4 ガード / collector / generated artifact
