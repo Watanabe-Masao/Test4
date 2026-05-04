@@ -89,9 +89,9 @@ AAG Platformization Pilot (`projects/completed/aag-platformization/`) で AAG fr
 ## 8. landing context
 
 - **trigger source**: aag-platformization Pilot complete (= 2026-05-02 archive、`projects/completed/aag-platformization/ARCHIVE.md` 参照)
-- **bootstrap**: operational-protocol-system project (= AAG-COA Level 2 + governance-hardening、`projects/active/operational-protocol-system/`)
-- **DA**: `projects/active/operational-protocol-system/decision-audit.md` DA-α-001 (= M1 着手判断、本 doc landing trigger)
-- **後続**: M2-M5 で routing / 動的昇格・降格 / Task Class 5 protocol / drawer `_seam` 統合 を articulate
+- **bootstrap**: operational-protocol-system project (= AAG-COA Level 2 + governance-hardening、`projects/completed/operational-protocol-system/`)
+- **DA**: `projects/completed/operational-protocol-system/archive.manifest.json` の decisionEntries DA-α-001 (= M1 着手判断、本 doc landing trigger、archive 前 decision-audit.md は Archive v2 圧縮済)
+- **後続**: M2-M5 完遂済 (= 2026-05-04 full archive)、後続 candidate は archive.manifest.json relatedPrograms 参照
 
 ## 9. status
 
@@ -102,5 +102,5 @@ AAG Platformization Pilot (`projects/completed/aag-platformization/`) で AAG fr
 ## 関連
 
 - 親 directory: `references/05-aag-interface/protocols/README.md` (= landing 受け入れ structure)
-- 上位 program: `projects/active/operational-protocol-system/` (= 本 protocol の implementation program)
+- 上位 program: `projects/completed/operational-protocol-system/` (= 本 protocol の implementation program)
 - 出口 program (= operational-protocol-system 完遂時): Archive v2 圧縮形式 (`docs/contracts/project-archive.schema.json` + `references/05-aag-interface/operations/project-checklist-governance.md` §6.4)
