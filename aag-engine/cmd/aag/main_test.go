@@ -16,9 +16,23 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
+
+// repoRootForTest returns the repo root absolute path (= aag-engine の親 directory)。
+func repoRootForTest(t *testing.T) string {
+	t.Helper()
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	// thisFile = aag-engine/cmd/aag/main_test.go
+	// repoRoot = ../../../
+	return filepath.Join(filepath.Dir(thisFile), "..", "..", "..")
+}
 
 // 引数なしは usage 表示 + ExitError。
 func TestRun_NoArgs(t *testing.T) {
@@ -121,10 +135,15 @@ func TestRun_Validate_UnsupportedFormat(t *testing.T) {
 	}
 }
 
-// fixtures は note 付きで空 DetectorResult[] を返し ExitPass。
+// fixtures は fixture catalog を返し ExitPass (= Phase 3 deliverable)。
+//
+// Phase 3 で fixture runner が wired up、`aag fixtures --repo .` は repo の 8 fixture を
+// discover し、各 fixture の name + expectedCount を fixtureSummary field に articulate。
 func TestRun_Fixtures(t *testing.T) {
+	repoRoot := repoRootForTest(t)
+
 	var stdout, stderr bytes.Buffer
-	code := run([]string{"fixtures"}, &stdout, &stderr)
+	code := run([]string{"fixtures", "--repo", repoRoot}, &stdout, &stderr)
 	if code != ExitPass {
 		t.Errorf("expected ExitPass (0), got %d (stderr=%q)", code, stderr.String())
 	}
@@ -134,10 +153,43 @@ func TestRun_Fixtures(t *testing.T) {
 		t.Fatalf("stdout should be valid JSON, got err=%v", err)
 	}
 
-	// Phase 1 skeleton では note field で「Phase 3 で landing 予定」 を articulate
+	// fixtureSummary field articulate
+	summary, ok := result["fixtureSummary"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("fixtureSummary should be object, got %T: %v", result["fixtureSummary"], result["fixtureSummary"])
+	}
+	total, ok := summary["total"].(float64)
+	if !ok {
+		t.Fatalf("fixtureSummary.total should be number")
+	}
+	if int(total) != 8 {
+		t.Errorf("expected 8 fixtures, got %d", int(total))
+	}
+
+	fixturesArr, ok := summary["fixtures"].([]interface{})
+	if !ok {
+		t.Fatalf("fixtureSummary.fixtures should be array")
+	}
+	if len(fixturesArr) != 8 {
+		t.Errorf("fixtures array should have 8 entries, got %d", len(fixturesArr))
+	}
+
+	// Phase 3 note articulate
 	note, _ := result["note"].(string)
 	if !strings.Contains(note, "Phase 3") {
-		t.Errorf("fixtures should articulate Phase 3 plan in note, got note=%q", note)
+		t.Errorf("fixtures should articulate Phase 3 in note, got note=%q", note)
+	}
+}
+
+// fixtures が nonexistent repo で ExitError。
+func TestRun_Fixtures_NonexistentRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"fixtures", "--repo", "/tmp/nonexistent-aag-engine-test-root"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "failed to load fixtures") {
+		t.Errorf("stderr should articulate fixture load error, got: %q", stderr.String())
 	}
 }
 

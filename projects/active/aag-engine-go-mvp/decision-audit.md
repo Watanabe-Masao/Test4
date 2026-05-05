@@ -367,4 +367,93 @@ scope 進入時の発見:
 
 ---
 
-> 後続 DA entry (DA-α-003 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-003: Phase 3 Fixture Runner scope 判断 (= internal/fixture/ + Compare primitive + CLI catalog 出力)
+
+### status
+
+- 着手判断: **open** (Phase 3 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 3 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 3 plan.md の作業項目:
+- 実 repo ではなく fixture で parity を取る土台を作る (= primary success metric の input)
+- fixture `input.json` を読める / `expected.json` と actual を deep equality 比較できる / 差分を machine-readable に出せる
+- DA-α-003 entry articulate
+
+scope 判断点:
+1. **fixture loader の placement**: cmd/aag/ 内 inline vs internal/fixture/ 別 package
+2. **InputRaw の handling**: parse して specific facts type に hand off vs raw bytes として保持
+3. **Compare の equality semantics**: deep equality (= 順序 + 要素一致) vs set equality (= 順序無視)
+4. **CLI integration**: `aag fixtures` を catalog 出力に migrate vs Phase 4-8 まで note のみ
+5. **RunResult schema 拡張**: FixtureSummary を追加 vs 別 output type
+
+### decision
+
+以下を採用する:
+
+1. **internal/fixture/ 別 package** (= 4 層 layered model 準拠):
+   - 各 detector が同 fixture loader を import 可能
+   - cmd/aag/ は CLI orchestration のみ、parsing logic は internal/ に閉じる
+2. **InputRaw を json.RawMessage で保持** (= detector ごとに facts shape が異なるため):
+   - 各 detector が自身の facts type に Unmarshal する
+   - loader 段階で parse すると detector-specific 知識が fixture package に漏れる (= layered model violation)
+3. **Compare は deep equality + set-based diagnostics** (= dual mode):
+   - Match 判定は reflect.DeepEqual (= 要素 + 順序 完全一致)
+   - Match=false の場合は Missing / Extra (= set-based) で原因切り分け
+   - 順序維持を要求するのは TS 側 renderDetectorResultsAsJson (= severity → ruleId → sourceFile sort) と同 deterministic ordering を Go 側 detector も再現する前提
+4. **CLI を catalog 出力に migrate** (= Phase 3 で useful output に articulate):
+   - `aag fixtures --repo .` で 8 fixture の name + expectedCount を JSON 出力
+   - Phase 4-8 で各 detector が wired up された後、`--compare` flag 等で actual との parity を比較する拡張余地を残す
+5. **RunResult.FixtureSummary を optional field 追加** (= Phase 1 RunResult schema を拡張):
+   - 他 subcommand では nil → JSON omitempty で field 不在
+   - 別 output type 化すると CLI 出力 shape が subcommand ごとに分岐し render path が複雑化
+
+### rationale
+
+- **internal/fixture/ 別 package**: aag-engine-readiness-refactor で確立した 4 層 layered model (= collector / detector / evaluator / renderer) の Go mirror。fixture loader は collector 層に相当、各 detector が同 loader を共有
+- **InputRaw を raw bytes**: fixture package が detector-specific 知識 (= ProjectChecklistResult / ArchiveManifestFacts 等) を持たない方針。各 detector が「自身の facts shape を知っている」 という SRP に整合
+- **Compare deep equality + set diagnostics**: TS 側 detectorResultModuleGuard の fixture parity test は exact equality を要求 (= renderDetectorResultsAsJson の deterministic ordering 前提)。Go 側も同 strict 比較を default に、Match=false 時は原因究明用に set-based diff を提供 (= 単独の bool 結果より debug 可能性が高い)
+- **CLI catalog 出力**: Phase 3 deliverable を visible に articulate、user が `aag fixtures` で discover 状況を即時確認可能。Phase 1 では note のみだったが、Phase 3 で実 useful な output に migrate
+- **RunResult schema 拡張 (FixtureSummary optional)**: 後方互換、`aag validate` の output には影響なし (= omitempty)。run-result-v1 schema は MVP 期間中固定の articulation だが、optional field 追加は破壊的変更ではない (= 不可侵原則 9 の「Go engine が source of truth にならない」 と整合、TS 側 renderDetectorResultsAsJson は同 schema を要求しないため)
+
+### alternatives
+
+- (a-alt) **fixture loader を cmd/aag/ inline**: 各 detector が cmd/aag を import する dep loop、不採用
+- (b-alt) **InputRaw を parse して specific facts type で保持**: detector-specific 知識が fixture package に漏れる、不採用
+- (c-alt) **Compare set-based のみ (= 順序無視)**: TS 側 detector parity test と articulation 不一致 (= 順序も articulation の一部)、不採用
+- (d-alt) **`aag fixtures` を Phase 3 では note のみ維持**: deliverable visibility 低い、user が fixture loader 動作確認に他経路 (= go test 実行) を要する、不採用
+- (e-alt) **別 output type (= FixtureSummaryResult vs RunResult)**: subcommand ごとに output shape 分岐で render path 複雑化、不採用 (= optional field 追加で代替)
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. ✅ `internal/fixture/fixture.go` 新設 (= Fixture struct + LoadAll + Compare + ParitySummary articulate)
+2. ✅ `internal/fixture/fixture_test.go` 新設 (= 14 test、real repo の 8 fixture を全 discover 検証含む)
+3. ✅ LoadAll が `fixtures/aag/` 配下 8 fixture を全 discover (= TestLoadAll_DiscoverAll PASS)
+4. ✅ 各 fixture の ExpectedCount が plan / fixtures/aag/README.md と一致 (= 0+1+3+0+1+1+1+1=8)
+5. ✅ LoadAll の sort order が deterministic (= Name で safe)
+6. ✅ Compare が deep equality で Match を判定、set-based Missing / Extra を articulate
+7. ✅ RunResult.FixtureSummary optional field が JSON omitempty で動作 (= validate 時は field 不在)
+8. ✅ `aag fixtures --repo .` が 8 fixture catalog を JSON で articulate
+9. ✅ `aag fixtures --repo /nonexistent` が ExitError + load error message
+10. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 14 + report 8 = 計 48 想定)
+11. ✅ TS guard 1057 test PASS (= aag-engine/ 変更で TS baseline 維持)
+
+### Lineage
+
+- **preJudgementCommit**: `21dc655` (= Phase 2 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 3 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 3 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `21dc655` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 3 wrap-up commit で articulate 予定。観測点 1〜11 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-004 〜 012) は各 Phase landing commit 時に articulate 追加。

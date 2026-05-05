@@ -29,6 +29,8 @@ const RunResultSchemaVersion = "aag-engine-run-result-v1"
 // RunResult は AAG Engine の run-result top-level shape。
 //
 // Phase 2 から DetectorResults は contract.DetectorResult slice (= canonical schema 整合)。
+// Phase 3 から FixtureSummary を optional articulate (= `aag fixtures` で使用、他 subcommand
+// では nil → JSON omitempty)。
 type RunResult struct {
 	// SchemaVersion は run-result schema の version (= "aag-engine-run-result-v1" 固定)。
 	SchemaVersion string `json:"schemaVersion"`
@@ -43,8 +45,30 @@ type RunResult struct {
 	// canonical schema = docs/contracts/aag/detector-result.schema.json。
 	DetectorResults []contract.DetectorResult `json:"detectorResults"`
 
+	// FixtureSummary は `aag fixtures` subcommand 時のみ articulate (= optional、Phase 3 で追加)。
+	// 他 subcommand では nil → JSON output で field 不在 (omitempty)。
+	FixtureSummary *FixtureSummary `json:"fixtureSummary,omitempty"`
+
 	// Note は engine 実装段階の articulate (= optional、Phase 1-3 skeleton で活用)。
 	Note string `json:"note,omitempty"`
+}
+
+// FixtureSummary は `aag fixtures` の出力 (= fixtures/aag/ 配下 catalog)。
+type FixtureSummary struct {
+	// Total は discover された fixture 件数 (= readiness refactor Phase 5 deliverable で 8 件想定)。
+	Total int `json:"total"`
+
+	// Fixtures は per-fixture catalog entry。
+	Fixtures []FixtureSummaryEntry `json:"fixtures"`
+}
+
+// FixtureSummaryEntry は単一 fixture の summary。
+type FixtureSummaryEntry struct {
+	// Name は fixture identifier (= "archive-v2/pass-minimal" 等、POSIX separator)。
+	Name string `json:"name"`
+
+	// ExpectedCount は expected.json 内の DetectorResult 件数。
+	ExpectedCount int `json:"expectedCount"`
 }
 
 // NewEmptyRunResult は空 DetectorResult[] の RunResult を生成 (= Phase 1 skeleton 経路)。

@@ -5,25 +5,20 @@
 
 ## 1. 現在地
 
-**Phase 2 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 3 Fixture Runner。
+**Phase 3 landing 完了 (= 本 commit landing 後)**。次は Phase 3 wrap-up commit。
 
-Phase 0 lineage (= 完遂済):
-- landing `cc6e824` + regen `ed348eb` + wrap-up `be51eaf` + regen `2ba85dd`
-- DA-α-000 振り返り判定: **正しい**
+Phase 0+1+2 lineage (= 完遂済):
+- Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
+- Phase 1: `2172c25` + `3e3f143` + `e526af2` + `62844c3` (DA-α-001 = 正しい)
+- Phase 2: `87643f4` + `2a618d8` + `a001112` + `5e7ce9f` + `21dc655` (DA-α-002 = 正しい)
 
-Phase 1 lineage (= 完遂済):
-- landing `2172c25` + regen `3e3f143` + wrap-up `e526af2` + regen `62844c3`
-- DA-α-001 振り返り判定: **正しい**
+Phase 3 lineage (= landing 段階):
+- landing commit (本 commit): `internal/fixture/fixture.go` 新設 (= Fixture + LoadAll + Compare + ParitySummary) + `internal/fixture/fixture_test.go` 14 test + `internal/report/report.go` に FixtureSummary optional field 追加 + `cmd/aag/main.go` runFixtures を catalog 出力に migrate + DA-α-003 articulate (Lineage 仮 sha) + checklist Phase 3 3 件 flip
 
-Phase 2 lineage (= 完遂済):
-- landing `87643f4` + regen `2a618d8` + post-landing fix `a001112` + wrap-up (本 commit)
-- DA-α-002 振り返り判定: **正しい** (= 観測点 14 件すべて達成)
-
-Phase 2 deliverable (= cumulative):
-- aag-engine/ Go module (= go.mod / cmd/aag/main.go / internal/contract/detector_result.go / internal/report/report.go)
-- 33 Go test PASS (= cmd/aag 11 + contract 14 + report 8)
-- canonical schema mirror (= 8 field DetectorResult + Severity 3-enum + factory + 5 sync test)
-- 2 subcommand (= validate / fixtures、+ --help meta flag) + JSON output + exit code contract + positional args hard fail
+Phase 3 deliverable (= cumulative):
+- aag-engine/ Go module (= 4 internal package = contract / fixture / report / cmd)
+- 50 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8)
+- 2 subcommand: `aag validate` (= empty DetectorResult[]) / `aag fixtures` (= 8 fixture catalog 出力)
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
