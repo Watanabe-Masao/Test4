@@ -175,16 +175,18 @@ func TestRun_Fixtures(t *testing.T) {
 	if !ok {
 		t.Fatalf("fixtureSummary.total should be number")
 	}
-	if int(total) != 8 {
-		t.Errorf("expected 8 fixtures, got %d", int(total))
+	// 既存 fixture 8 件 (= readiness refactor Phase 5 deliverable) を minimum baseline
+	// として articulate。新 fixture 追加は forward-compat (= 削除のみ regression 検出)。
+	if int(total) < 8 {
+		t.Errorf("expected at least 8 fixtures, got %d", int(total))
 	}
 
 	fixturesArr, ok := summary["fixtures"].([]interface{})
 	if !ok {
 		t.Fatalf("fixtureSummary.fixtures should be array")
 	}
-	if len(fixturesArr) != 8 {
-		t.Errorf("fixtures array should have 8 entries, got %d", len(fixturesArr))
+	if len(fixturesArr) < 8 {
+		t.Errorf("fixtures array should have at least 8 entries, got %d", len(fixturesArr))
 	}
 
 	// Phase 3 note articulate
