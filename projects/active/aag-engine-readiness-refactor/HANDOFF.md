@@ -5,14 +5,15 @@
 
 ## 1. 現在地
 
-**Phase 6 landing 完了 (= 本 commit landing 後)**。次は Phase 6 wrap-up commit。
+**Phase 6 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 7 Engine Readiness Report。
 
-Phase 5 lineage (= 完遂済):
-- landing `32c458c` + regen `a731264` + wrap-up `d454154` + regen `f857e55`
-- DA-α-005 振り返り判定: **正しい** (= 観測点 6 件すべて達成)
+Phase 5+6 lineage (= 完遂済):
+- Phase 5: landing `32c458c` + regen `a731264` + wrap-up `d454154` + regen `f857e55`
+- Phase 6: landing `f05bcba` + regen `f0bb4c0` + wrap-up (本 commit)
 
-Phase 6 lineage (= landing 段階):
-- landing commit (本 commit): generated-metadata + schema-validation 2 detector path-helpers adoption + detectors/README.md に Logic Boundary Reference section + Vitest wrapper thin 化 reference articulate + 3 新 test (= +3、82 → 85) + DA-α-006 articulate (Lineage 仮 sha) + checklist Phase 6 3 件 flip
+DA-α-006 振り返り判定: **正しい** (= 観測点 6 件すべて達成)。
+全 5 detector が path-helpers adoption 済、Logic Boundary Reference articulate 完成。
+Phase 7 readiness report の入力 boundary が full coverage で articulate 完成。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)

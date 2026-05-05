@@ -537,8 +537,8 @@ Phase 5 plan.md は 7 fixture を例示。但し `archive-v2/fail-deleted-paths-
 
 ### status
 
-- 着手判断: **open** (Phase 6 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 6 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 6 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 6 件すべて達成)
 
 ### context
 
@@ -589,10 +589,25 @@ scope 候補:
 ### Lineage
 
 - preJudgementCommit: `f857e55` (= Phase 5 wrap-up regen 後 HEAD)
-- judgementCommit: 本 Phase 6 landing commit (= wrap-up commit で SHA articulate)
-- postJudgementRegenCommit: §13.3 適用予定
+- judgementCommit: `f05bcba` (= Phase 6 landing commit、2 detector adoption + Logic Boundary Reference)
+- postJudgementRegenCommit: `f0bb4c0` (= §13.3 Pattern A application)
 - retrospectiveCommit: 本 Phase 6 wrap-up commit
 - judgementTag / rollbackTag: 未設定
+
+### 振り返り判定
+
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ generated-metadata + schema-validation の 2 detector が `toRepoPath()` adoption
+  2. ✅ detectors/README.md「Logic Boundary Reference」 section が 5 detector それぞれ articulate (= input facts shape / 判定 logic / output / engine 再実装 boundary)
+  3. ✅ detectors/README.md「Vitest wrapper thin 化 reference」 section が before/after pattern articulate
+  4. ✅ 全 5 detector adoption 済 sanity test PASS
+  5. ✅ 既存 production guard 不変 (= git show f05bcba --stat で確認)
+  6. ✅ 全 guard test PASS (= 147 file / 1054 → 1057 test、+3 Phase 6 test)
+- **学習**:
+  - **不可侵原則 2 strict adherence の保守判断 wisdom**: production guard refactor (= Vitest wrapper thin 化) は schema/検出条件/hard gate 不変前提でも wrapper 内部 logic を実質置換するため別 program 所掌と articulate。本 project では「reference pattern を articulate するに留める」 という保守判断が、不可侵原則 2 と Phase 6 完了条件の両立を成立させる
+  - **Logic Boundary Reference の per-detector articulation 効果**: 5 detector それぞれの input facts / 判定 logic / output / engine 再実装 boundary を分解 articulate することで、Phase 7 readiness report の per-detector 「engine MVP 移植可否」 判定の入力が完成。Phase 7 で再 articulate するコストを Phase 6 で先取り
+  - **Phase 4 deferral の clean-up wisdom**: Phase 4 で 3 detector adoption に scope 縮小したのは正しかった (= Phase 4 wrap-up を controllable に維持)、Phase 6 で残り 2 detector を clean-up することで「全 5 detector adoption 済」 の clean state を Phase 7 までに articulate 完成
 
 ---
 

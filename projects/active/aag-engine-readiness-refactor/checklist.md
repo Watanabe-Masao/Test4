@@ -58,7 +58,7 @@
 * [x] archive manifest / project lifecycle / doc registry / generated artifact metadata / schema validation のうち最低 3 系統で pure detector 抽出を完遂する (= 5 系統すべて pure detector として Phase 2/3 で landing 済、Phase 6 で残り 2 detector path-helpers adoption clean-up)
 * [x] Vitest wrapper が thin wrapper 化される (= production guard refactor は別 program 所掌、本 project では Logic Boundary Reference + before/after pattern を detectors/README.md に articulate するに留める = 不可侵原則 2 strict adherence、DA-α-006 §decision)
 * [x] Go/Rust engine が再実装すべき logic boundary を Phase 7 readiness report に articulate 可能な状態にする (= detectors/README.md「Logic Boundary Reference」 section で 5 detector それぞれの input facts / 判定 logic / output / engine 再実装 boundary を articulate)
-* [ ] DA-α-006 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-006 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 7: Engine Readiness Report / No-Go Boundary
 
