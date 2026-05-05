@@ -5,7 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 6 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 7 Project Lifecycle Detector。
+**Phase 7 landing 完了 (= 本 commit landing 後)**。次は Phase 7 wrap-up commit。
+
+Phase 7 lineage (= landing 段階):
+- landing commit (本 commit): `internal/detectors/project_lifecycle.go` 新設 (= ProjectKind / DerivedStatus typed enum + ProjectMeta / ProjectChecklistResult / ProjectLifecycleFacts struct + DetectProjectLifecycleViolations function) + `internal/detectors/project_lifecycle_test.go` 7 test (= 5 unit + 2 fixture parity) + DA-α-007 articulate (Lineage 仮 sha) + checklist Phase 7 4 件 flip
+
+Phase 7 deliverable (= cumulative):
+- aag-engine/ Go module (= 5 internal package、unchanged)
+- 78 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 28)
+- 5 detector のうち 4 (= archive-manifest + doc-registry + schema-validation + project-lifecycle) が wired up、7 fixture parity 100% 達成
+
+(以下 Phase 0〜6 lineage は wrap-up commit 後に summary 更新)
 
 Phase 0〜5 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 6 lineage (= 完遂済):

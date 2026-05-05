@@ -773,4 +773,82 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-007 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-007: Phase 7 Project Lifecycle Detector scope 判断 (= 3 状態 routing は collector 責務 + 2 fixture parity)
+
+### status
+
+- 着手判断: **open** (Phase 7 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 7 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 7 plan.md の作業項目:
+- 5 detector 移植優先順位の **4 番目** (= ProjectChecklistResult 構造体再現必要、scope 中)
+- AR-PROJECT-LIFECYCLE-C1 (= completed but not archived) 検出
+- 2 project-lifecycle fixture (= pass-active / fail-completed-not-archived) で parity 検証
+- 3 状態 (= active / completed v1 / completed v2 圧縮) routing を articulate
+
+scope 判断点:
+1. **3 状態 routing の Go 側責務**: detector で routing するか、collector の責務に閉じるか
+2. **ProjectMeta full mirror vs 必要 field のみ**: TS の 10 field を全 mirror するか detector 使用 4 field のみ
+3. **kind / derivedStatus enum 型化**: typed const vs raw string
+
+### decision
+
+以下を採用する:
+
+1. **3 状態 routing は collector 責務、detector は state-agnostic** (= readiness refactor SRP 継承):
+   - detector は `ProjectChecklistResult` を受け取って判定のみ
+   - active / completed v1 / completed v2 圧縮済 のいずれの project でも collector が標準化された ProjectChecklistResult を articulate
+   - Phase 9 shadow mode で実 repo 状態 routing を verify する場合は collector 拡張で対応 (= detector 不変)
+2. **ProjectMeta full mirror** (= 10 field):
+   - TS interface との structural identity を維持、collector 経由の JSON unmarshal が 完全 cover
+   - Parent (= optional) は `*string` で nil articulate
+   - 他 detector / collector 拡張時に同 struct を共有可能
+3. **kind / derivedStatus を typed const enum** (= type safety):
+   - `ProjectKind` (= "project" / "collection")
+   - `DerivedStatus` (= "completed" / "in_progress" / "empty" / "archived" / "collection")
+   - 比較が type-safe + IDE 補完 + typo 検出
+
+### rationale
+
+- **3 状態 routing collector 責務**: readiness refactor SRP (= collector が repo 状態を読み込み、detector が判定する) を Go 側でも維持。Phase 9 shadow mode で実 repo 状態を読む collector を実装する別 program で routing 担う、本 detector は state-agnostic に保つ。これは fixture parity test と整合 (= fixture は collector output を mock して直接 detector に流す pattern)
+- **ProjectMeta full mirror**: TS interface との 1:1 mirror で structural drift を防ぐ。本 detector が使わない field (= title / status / aiContextPath 等) も struct 上に articulate、Phase 9 shadow report や後続 detector で参照候補
+- **typed const enum**: Severity / Severity 同様の Go 慣用 pattern。文字列比較の typo を type system で検出可能
+
+### alternatives
+
+- (a-alt) **3 状態 routing を detector で**: SRP 違反、fixture parity test では routing logic が hit しない、不採用
+- (b-alt) **ProjectMeta は 4 field のみ**: TS との structural drift risk、後続 detector 拡張時に re-articulate 必要、不採用
+- (c-alt) **kind / derivedStatus を raw string**: type safety なし、文字列比較 typo で silent fail、不採用
+
+### 観測点
+
+1. ✅ `internal/detectors/project_lifecycle.go` 新設 (= ProjectKind + DerivedStatus typed enum + ProjectMeta + ProjectChecklistResult + ProjectLifecycleFacts struct + DetectProjectLifecycleViolations function)
+2. ✅ `internal/detectors/project_lifecycle_test.go` 新設 (= 5 unit + 2 fixture parity = 7 test)
+3. ✅ in_progress / archived / collection / empty すべて 0 violation (= TestDetectProjectLifecycleViolations_NonCompletedSkipped PASS)
+4. ✅ completed + project kind → 1 violation、actual=checked / baseline=total
+5. ✅ completed + collection kind → skip (= continuous collection 整合)
+6. ✅ project-lifecycle/pass-active fixture parity (= active / archived / collection mix で 0 violation) Match=true
+7. ✅ project-lifecycle/fail-completed-not-archived fixture parity (= 1 violation) Match=true
+8. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 28 = 計 78)
+9. ✅ TS guard 1057 test PASS
+
+### Lineage
+
+- **preJudgementCommit**: `b1cff57` (= Phase 6 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 7 landing commit (= SHA は wrap-up commit で update)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 7 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `b1cff57` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 7 wrap-up commit で articulate 予定。観測点 1〜9 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-008 〜 012) は各 Phase landing commit 時に articulate 追加。
