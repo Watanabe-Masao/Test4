@@ -156,18 +156,18 @@ fixtures/aag/schema-validation/fail-level-out-of-range
 
 ### Phase 8: Generated Metadata Detector (advisory)
 
-**目的**: generated artifact の metadata drift を **advisory** として検出。
+**目的**: generated artifact の metadata drift を **CI advisory layer** で検出 (= detector 出力 severity と CI 扱いを区別、DA-α-008 §decision-1/2)。
 
 **扱い**:
-- severity: `warn` (= advisory only、`gate` / `block-merge` は MVP scope 外)
-- hard gate: **no**
+- DetectorResult.severity: `gate` (= TS / fixture / readiness report と一致、不可侵原則 10 fixture parity 優先、DA-α-008 §decision-1)
+- CI hard gate 化: **MVP では no** (= advisory non-blocking、Phase 10 CI Advisory + Phase 11 Partial Hard Gate Promotion で別 layer 判断、DA-α-008 §decision-2)
 
-**理由**: sourceCommit / generatedAt / shallow clone / regen timing による false positive 余地があるため、初期は advisory に留める。
+**理由**: sourceCommit / generatedAt / shallow clone / regen timing による false positive 余地があるため、CI 扱いは初期 advisory に留める。detector severity 自体は TS / fixture parity に整合した `gate` を維持 (= layer 区別を transparent articulate)。
 
 **完了条件**:
 - stale metadata fixture を検出
-- advisory severity で出力
-- CI hard fail にはしない (= Phase 10 CI advisory でも non-blocking)
+- DetectorResult.severity = `gate` で出力 (= TS / fixture parity 一致)
+- CI hard fail にはしない (= Phase 10 CI advisory でも non-blocking、CI 扱い articulation は別 layer)
 - DA-α-008 entry articulate
 
 ### Phase 9: Shadow Mode

@@ -86,7 +86,7 @@
 * [x] 5 detector × 8 fixture = 40 parity 検証点で TS と Go が同 DetectorResult[] を返すことを検証 (= shadow.Run + 9 unit test PASS、AllMatched()=true)
 * [x] TS detector と Go detector の差分 report を生成 (= shadow.Summary + per-fixture FixtureResult、`aag shadow` で JSON 出力、新 generated artifact 追加なし、project-local report として articulate)
 * [x] false positive / false negative を観測する mechanism (= shadow.Summary.Mismatched + Skipped + per-FixtureResult.Missing/Extra で機械検証可能、Phase 10 CI advisory で実運用観測 articulate 予定)
-* [ ] DA-α-009 entry を articulate する
+* [x] DA-α-009 entry を articulate する
 
 ## Phase 10: CI Advisory
 

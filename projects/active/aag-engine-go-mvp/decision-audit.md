@@ -966,8 +966,8 @@ scope 進入時の重要発見:
 
 ### status
 
-- 着手判断: **open** (Phase 9 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 9 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 9 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
 
 ### context
 
@@ -1043,15 +1043,33 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `00029a6` (= Phase 8 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 9 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `56d8b66` (= Phase 9 landing commit、shadow.go + shadow_test.go + report ShadowSummaryRaw + main.go runShadow + 3 main_test test、shadow runner で 5 detector × 8 fixture 集約)
+- **postJudgementRegenCommit**: `c1064a5` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 9 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `00029a6` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 9 wrap-up commit で articulate 予定。観測点 1〜11 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `internal/shadow/shadow.go` 新設 (= FixtureResult + Summary struct + Run + dispatch + 5 run* per-detector function、~180 line)
+  2. ✅ `internal/shadow/shadow_test.go` 新設 (= 9 test = 1 fixture parity + 1 coverage + 4 AllMatched edge + 1 nonexistent + 1 dispatch mapping + 1 counts)
+  3. ✅ Run が real repo の 8 fixture を全 dispatch、Match=8 / Mismatched=0 / Skipped=0 (= AllMatched()=true)
+  4. ✅ 5 detector すべてが少なくとも 1 fixture を route (= TestRun_AllDetectorsCovered で coverage 検証 PASS)
+  5. ✅ AllMatched が edge case を articulate (= empty=false / partial=false / skipped=false / all-matched=true の 4 test PASS)
+  6. ✅ `aag shadow --repo .` が ShadowSummary を JSON 出力、status="pass" / total=8 / matched=8
+  7. ✅ `aag shadow --repo /nonexistent` が ExitError + load error message (= TestRun_Shadow_NonexistentRepo PASS)
+  8. ✅ `aag shadow /tmp/oops` (= positional arg) が ExitError + hint (= TestRun_Shadow_UnexpectedPositionalArg PASS、Phase 1 deliverable bug fix pattern を shadow に拡張)
+  9. ✅ RunResult.ShadowSummaryRaw が `json.RawMessage` で 循環依存 回避 (= shadow → contract / fixture import、report → shadow 直接 import 不要、JSON marshal 経由で embed)
+  10. ✅ Go test 全 PASS (= cmd/aag 15 + contract 14 + fixture 16 + report 8 + detectors 35 + shadow 9 = 計 97)
+  11. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **fixture parity 100% 集約 達成 = primary success metric の clearance**: 不可侵原則 10 (= fixture parity 必須) が Phase 4〜8 で per-detector 達成、Phase 9 で集約 runner が一回の `aag shadow` invocation で 40 parity 検証点 (= 5 detector × 8 fixture) を articulate。これは AAG Engine MVP の primary success metric であり、Phase 11 hard gate 昇格条件の前提
+  - **`json.RawMessage` 循環依存回避 pattern の institutional knowledge 化**: report package が shadow 結果を embed する際、direct shadow import は循環依存 risk (= shadow が contract / fixture を import、report も同)。`json.RawMessage` 経由で CLI 側 (= main.go) で marshal → embed する pattern は、Go の package layering で集約 layer を embed する典型的解、後続 program で同 pattern が articulate される候補
+  - **fixture name prefix routing の forward-compatibility**: dispatch logic を fixture name prefix で articulate (= `archive-v2/` → archive-manifest 等) することで、新 fixture 追加時に shadow runner 修正不要。想定外 prefix は Skipped articulate で graceful degradation。これは readiness refactor で articulate された fixtures/aag/<system>/<scenario>/ 構造の design intent そのもの
+  - **TS 直接実行を scope 外に articulate した judgement 妥当性**: shadow mode 主軸を fixture parity (= TS captured output) に置く judgement は、scope 過剰回避 + deterministic parity 検証 + node binary 環境依存回避の 3 観点で正解。実 TS detector を Go から exec する program は別 articulate 候補 (= aag-engine-shadow-mode-runner-impl 等) であり、本 MVP scope 外
+  - **Phase 4-8 institutional pattern の Phase 9 適応 (= 集約 layer)**: Phase 4-8 は detector layer (= 1 file=1 detector + factory error propagation + typed enums)、Phase 9 は集約 layer (= 1 package = shadow runner + per-detector run* function)。pattern は scope (= layer) に応じて adapt するが、SRP / 1 file=1 責務 / typed const enum / table-driven test の 4 軸は共通維持
 
 ---
 

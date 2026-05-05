@@ -5,58 +5,41 @@
 
 ## 1. 現在地
 
-**Phase 9 landing 完了 (= 本 commit landing 後)**。次は Phase 9 wrap-up commit。
+**Phase 9 完遂**。次は Phase 10 (= CI Advisory) 着手待ち。
 
-Phase 9 lineage (= landing 段階):
-- landing commit (本 commit): `internal/shadow/shadow.go` 新設 (= Summary + FixtureResult struct + Run + dispatch + 5 run* per-detector function) + `internal/shadow/shadow_test.go` 9 test + `internal/report/report.go` に ShadowSummaryRaw `json.RawMessage` field 追加 (= 循環依存回避) + `cmd/aag/main.go` に `aag shadow` subcommand 追加 + `cmd/aag/main_test.go` 3 test 追加 + DA-α-009 articulate (Lineage 仮 sha) + checklist Phase 9 3 件 flip
+Phase 9 lineage (= 完遂済):
+- landing `56d8b66` + regen `c1064a5` + wrap-up (本 commit)
+- DA-α-009 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
 
 Phase 9 deliverable (= cumulative):
 - aag-engine/ Go module (= 6 internal package = contract / detectors / fixture / report / shadow + cmd)
 - 97 Go test PASS (= cmd/aag 15 + contract 14 + fixture 16 + report 8 + detectors 35 + shadow 9)
 - 3 subcommand: `aag validate` / `aag fixtures` / `aag shadow` (= 全 detector × 全 fixture parity 集約)
 - shadow runner で 5 detector × 8 fixture = 40 parity 検証点を 1 回で集約、AllMatched()=true 達成
+- RunResult.ShadowSummaryRaw `json.RawMessage` field articulate (= 循環依存回避 institutional pattern)
 
-(以下 Phase 0〜8 lineage は wrap-up commit 後に summary 更新)
+Phase 9 重要 distinction (= DA-α-009 articulate、後続 Phase で institutional knowledge):
+- **fixture parity 集約 達成 = primary success metric clearance** (= 不可侵原則 10 strict adherence、Phase 11 hard gate 昇格条件の前提)
+- **TS 直接実行は scope 外** (= fixture expected.json を「TS captured output」 と articulate、別 program 候補 = aag-engine-shadow-mode-runner-impl)
+- **fixture name prefix routing = forward-compatible dispatch** (= 新 fixture 追加時 shadow runner 修正不要、想定外 prefix は Skipped articulate)
+- **`json.RawMessage` 循環依存回避 pattern** (= 集約 layer を report に embed する Go 慣用、後続 program 候補)
 
-Phase 0〜7 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 8 lineage (= 完遂済):
-- landing `7ae46cf` + regen `936c467` + wrap-up (本 commit)
+- landing `7ae46cf` + regen `936c467` + wrap-up `0725941` + regen `00029a6`
 - DA-α-008 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
+- 重要 distinction: DetectorResult.severity = "gate" + CI hard gate 化は別 layer (= Phase 10/11 で articulate)
 
-Phase 8 deliverable (= cumulative):
-- aag-engine/ Go module (= 5 internal package、unchanged)
-- 85 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 35)
-- **5 detector 移植完了** (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
-- **8 fixture parity 100% 達成** (= readiness refactor Phase 5 deliverable と完全一致):
-  - archive-v2/{pass-minimal, fail-missing-restore-command, fail-missing-multiple-fields}
-  - doc-registry/fail-missing-path
-  - generated/fail-stale-metadata
-  - project-lifecycle/{pass-active, fail-completed-not-archived}
-  - schema-validation/fail-level-out-of-range
-
-Phase 8 重要 distinction (= DA-α-008 articulate、後続 Phase で institutional knowledge):
-- **DetectorResult.severity = "gate"** (= TS / fixture / readiness report 一致、不可侵原則 10 fixture parity 優先)
-- **CI hard gate 化 = advisory** (= Phase 10/11 別 layer 判断、readiness report §7 「MVP advisory」 整合)
-
-Phase 0〜6 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 7 lineage (= 完遂済):
-- landing `aef3291` + regen `003af40` + wrap-up (本 commit)
+- landing `aef3291` + regen `003af40` + wrap-up `d23a2aa` + regen `38729fe`
 - DA-α-007 振り返り判定: **正しい** (= 観測点 9 件すべて達成)
 
-Phase 7 deliverable (= cumulative):
-- aag-engine/ Go module (= 5 internal package、unchanged)
-- 78 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 28)
-- 5 detector のうち 4 (= archive-manifest + doc-registry + schema-validation + project-lifecycle) が wired up、7 fixture parity 100% 達成 (= 残 1 fixture = generated/fail-stale-metadata は Phase 8 で wired up 予定)
-
-Phase 0〜5 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 6 lineage (= 完遂済):
-- landing `f2d5fae` + regen `6bc10fa` + wrap-up (本 commit)
+- landing `f2d5fae` + regen `6bc10fa` + wrap-up + regen
 - DA-α-006 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
-Phase 6 deliverable (= cumulative):
-- aag-engine/ Go module (= 5 internal package、unchanged)
-- 71 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 21)
-- 5 detector のうち 3 (= archive-manifest + doc-registry + schema-validation) が wired up、5 fixture parity 100% 達成
+Phase 5 lineage (= 完遂済):
+- landing `674e6df` + regen `4b8904f` + wrap-up + regen
+- DA-α-005 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
 Phase 0〜4 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
@@ -65,25 +48,26 @@ Phase 0〜4 lineage (= 完遂済):
 - Phase 3: `8fbed60` + `b40ea77` + `3497733` + `d6bfc8e` (DA-α-003 = 正しい)
 - Phase 4: `f6b514a` + `f0818e8` + `8c288f8` + `998a920` (DA-α-004 = 正しい)
 
-Phase 5 lineage (= 完遂済):
-- landing `674e6df` + regen `4b8904f` + wrap-up (本 commit)
-- DA-α-005 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
-
-Phase 5 deliverable (= cumulative):
-- aag-engine/ Go module (= 5 internal package、unchanged)
-- 63 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 13)
-- 5 detector のうち 2 (= archive-manifest + doc-registry) が wired up、4 fixture parity 100% 達成
+Phase 8 deliverable (= 5 detector 移植完了):
+- 5 detector wired up (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
+- 8 fixture parity 100% 達成 (= readiness refactor Phase 5 deliverable と完全一致):
+  - archive-v2/{pass-minimal, fail-missing-restore-command, fail-missing-multiple-fields}
+  - doc-registry/fail-missing-path
+  - generated/fail-stale-metadata
+  - project-lifecycle/{pass-active, fail-completed-not-archived}
+  - schema-validation/fail-level-out-of-range
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
-4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
-Phase 0 では bootstrap / scope lock / required reads / DA-α-000 を完遂。
+4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、Phase
+0 で bootstrap / scope lock / required reads / DA-α-000 を完遂、Phase 1〜9 で
+5 detector 移植 + fixture parity 100% 集約 達成。
 
-§13 commit pattern application 累積 (= Phase 0〜5 完遂時点):
-- §13.1 二段 commit: 6 instance (= Phase 0+1+2+3+4+5)
-- §13.2 atomic dependent update: 0 instance (= Phase 0〜5 で発生せず、Phase 7 で project-lifecycle 走査時に候補)
-- §13.3 post-flip regen: 12 instance
+§13 commit pattern application 累積 (= Phase 0〜9 完遂時点):
+- §13.1 二段 commit: 10 instance (= Phase 0+1+2+3+4+5+6+7+8+9)
+- §13.2 atomic dependent update: 0 instance (= Phase 0〜9 で発生せず、Phase 12 closure で候補)
+- §13.3 post-flip regen: 20 instance
 
-derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
+derivedStatus: in_progress / Phase 0〜9 完遂、Phase 10 (CI Advisory) 着手待ち。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
 (user 承認) 1 件 = 全 [x]。
 
@@ -91,24 +75,24 @@ derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 9）
+### 高優先（次 PR = Phase 10）
 
-- **Phase 9 Shadow Mode landing commit**:
-  - shadow report の articulate (= 5 detector × 8 fixture = 40 parity 検証点を集約)
-  - TS detector 出力との差分 report (= TS 側 detectorResultModuleGuard.test.ts 実行結果との比較)
-  - false positive / false negative の observation log articulate
-  - DA-α-009 entry articulate
-- **Phase 9 wrap-up commit**:
-  - DA-α-009 Lineage 実 sha + 振り返り判定
+- **Phase 10 CI Advisory landing commit**:
+  - `.github/workflows/` に Go engine job を non-blocking で追加
+  - go test + `aag fixtures` + `aag validate` + `aag shadow` を fast-gate に impact しない形で wire up
+  - 既存 fast-gate (= lint / build / test:guards) との並列性 articulate
+  - DA-α-010 entry articulate
+- **Phase 10 wrap-up commit**:
+  - 5 連続 success 確認 + 実行時間 articulate
+  - false positive 観測 log を discovery-log.md に articulate
+  - DA-α-010 Lineage 実 sha + 振り返り判定
 
-### 低優先（Phase 7 以降、後続 PR）
+### 低優先（Phase 11 以降、後続 PR）
 
-- Phase 7: Project Lifecycle Detector
-- Phase 8: Generated Metadata Detector (advisory)
-- Phase 9: Shadow Mode
-- Phase 10: CI Advisory
-- Phase 11: Partial Hard Gate Promotion
-- Phase 12: Closure / Next Architecture Decision
+- Phase 11: Partial Hard Gate Promotion (= archive-manifest 推奨、TS guard 並走維持)
+- Phase 12: Closure / Next Architecture Decision (= A-E judgement、後続 program 起票候補)
+- AI 自己レビュー 5 件
+- 最終レビュー (user 承認)
 
 ## 3. ハマりポイント
 
