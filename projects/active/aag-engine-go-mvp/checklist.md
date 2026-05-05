@@ -79,7 +79,7 @@
 * [x] `generated/fail-stale-metadata` fixture で AR-GENERATED-METADATA-G2 を 1 件 emit (= severity="gate" を TS 一致で emit、CI 扱いは advisory non-blocking、Phase 10 で articulate、DA-α-008 §decision-1/2)
 * [x] severity = "gate" (= TS source / fixture / readiness report と一致)、CI hard gate 化は Phase 10/11 別判断 (= distinction を DA-α-008 で transparent articulate、不可侵原則 10 fixture parity 優先)
 * [x] CI hard fail を引き起こさない (= Phase 10 で advisory non-blocking として articulate 予定、本 detector 出力 severity とは別 layer)
-* [ ] DA-α-008 entry を articulate する
+* [x] DA-α-008 entry を articulate する
 
 ## Phase 9: Shadow Mode
 

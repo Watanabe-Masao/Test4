@@ -5,23 +5,27 @@
 
 ## 1. 現在地
 
-**Phase 8 landing 完了 (= 本 commit landing 後)**。次は Phase 8 wrap-up commit。
+**Phase 8 完遂 (= 本 wrap-up commit landing 後)**。**5 detector 移植完了 + 8 fixture parity 100%**。次は Phase 9 Shadow Mode。
 
-Phase 8 lineage (= landing 段階):
-- landing commit (本 commit): `internal/detectors/generated_metadata.go` 新設 (= GeneratedMetadataFile + GeneratedMetadataFacts struct + DetectGeneratedMetadataViolations function + 2 regex const) + `internal/detectors/generated_metadata_test.go` 8 test (= 7 unit + 1 fixture parity) + DA-α-008 articulate (Lineage 仮 sha) + checklist Phase 8 3 件 flip
+Phase 0〜7 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
+Phase 8 lineage (= 完遂済):
+- landing `7ae46cf` + regen `936c467` + wrap-up (本 commit)
+- DA-α-008 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 Phase 8 deliverable (= cumulative):
 - aag-engine/ Go module (= 5 internal package、unchanged)
 - 85 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 35)
 - **5 detector 移植完了** (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
-- **8 fixture parity 100% 達成** (= readiness refactor Phase 5 deliverable と完全一致)
+- **8 fixture parity 100% 達成** (= readiness refactor Phase 5 deliverable と完全一致):
+  - archive-v2/{pass-minimal, fail-missing-restore-command, fail-missing-multiple-fields}
+  - doc-registry/fail-missing-path
+  - generated/fail-stale-metadata
+  - project-lifecycle/{pass-active, fail-completed-not-archived}
+  - schema-validation/fail-level-out-of-range
 
-Phase 8 重要 distinction (= DA-α-008 articulate):
+Phase 8 重要 distinction (= DA-α-008 articulate、後続 Phase で institutional knowledge):
 - **DetectorResult.severity = "gate"** (= TS / fixture / readiness report 一致、不可侵原則 10 fixture parity 優先)
 - **CI hard gate 化 = advisory** (= Phase 10/11 別 layer 判断、readiness report §7 「MVP advisory」 整合)
-- distinction を transparent articulate することで後続 Phase の confusion 防止
-
-(以下 Phase 0〜7 lineage は wrap-up commit 後に summary 更新)
 
 Phase 0〜6 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 7 lineage (= 完遂済):
@@ -76,16 +80,15 @@ derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 8）
+### 高優先（次 PR = Phase 9）
 
-- **Phase 8 Generated Metadata Detector (advisory) landing commit**:
-  - `aag-engine/internal/detectors/generated_metadata.go` 新設 (= AR-GENERATED-METADATA-G2 = GENERATED marker / ISO timestamp 欠落)
-  - severity = warn (= advisory only、CI hard fail を引き起こさない)
-  - `generated/fail-stale-metadata` fixture で parity 検証
-  - 5 detector 移植完了、Phase 9 shadow mode への入口
-  - DA-α-008 entry articulate
-- **Phase 8 wrap-up commit**:
-  - DA-α-008 Lineage 実 sha + 振り返り判定
+- **Phase 9 Shadow Mode landing commit**:
+  - shadow report の articulate (= 5 detector × 8 fixture = 40 parity 検証点を集約)
+  - TS detector 出力との差分 report (= TS 側 detectorResultModuleGuard.test.ts 実行結果との比較)
+  - false positive / false negative の observation log articulate
+  - DA-α-009 entry articulate
+- **Phase 9 wrap-up commit**:
+  - DA-α-009 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 7 以降、後続 PR）
 

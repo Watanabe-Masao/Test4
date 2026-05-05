@@ -872,8 +872,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 8 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 8 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 8 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 ### context
 
@@ -932,15 +932,31 @@ scope 進入時の重要発見:
 ### Lineage
 
 - **preJudgementCommit**: `38729fe` (= Phase 7 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 8 landing commit (= SHA は wrap-up commit で update)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `7ae46cf` (= Phase 8 landing commit、generated_metadata detector + 8 test、5 detector 移植完了)
+- **postJudgementRegenCommit**: `936c467` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 8 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `38729fe` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 8 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `generated_metadata.go` 新設 (= struct + factory + 2 regex const、~95 line)
+  2. ✅ `generated_metadata_test.go` 新設 (= 8 test = 7 unit + 1 fixture parity)
+  3. ✅ regex pattern が TS source と literal 一致 (= GENERATED_MARKER 3 形式 + ISO_TIMESTAMP)
+  4. ✅ marker のみ / timestamp のみ / 両方 で 0 violation (= 4 marker variant test PASS)
+  5. ✅ 両方欠落で 1 violation、severity="gate" 一致 (= TS / fixture / readiness report 整合)
+  6. ✅ generated/fail-stale-metadata fixture parity Match=true
+  7. ✅ **5 detector 移植完了** (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
+  8. ✅ **8 fixture parity 100% 達成** (= 全 fixture coverage、readiness refactor Phase 5 deliverable と完全一致)
+  9. ✅ Go test 全 85 PASS
+  10. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **detector severity と CI 扱いの distinction が institutional knowledge として articulate される必要**: plan §8 が「severity: advisory」 と articulate していたが TS / fixture / readiness report は "gate"。この confusion は plan の不正確な articulate (= 2 layer を conflate) が原因、本 DA-α-008 で transparent articulate することで Phase 10/11 で同 confusion を防止
+  - **fixture parity 優先 (= 不可侵原則 10) が plan §8 の「advisory」 表記より優先順位上**: plan は draft、canonical は schema + fixture + readiness report。canonical 整合を取るのが正しい
+  - **regex literal の検出 surface 定義 vs business logic 複製の distinction**: 不可侵原則 4 「rule semantics を別言語に複製しない」 は business logic (= 「level >= 0」 等の判断条件) を念頭に置く articulate。regex pattern は検出 surface (= 何を文字列として look するか) であり、TS / Go で同 literal を articulate するのは scope 内、本 distinction も institutional knowledge として transparent 化
+  - **Phase 4-7 institutional pattern の 5 連続 mechanical 再適用**: Phase 8 でも scope creep ゼロで完遂、5 detector 全移植完了。残 Phase 9-12 は detector 追加ではなく shadow mode / CI / hard gate / closure 系、Phase 4-8 とは異なる scope
 
 ---
 
