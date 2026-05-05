@@ -1,0 +1,75 @@
+# AAG Engine Go MVP — advisory CI workflow (Phase 10 deliverable)
+#
+# 役割:
+#   - aag-engine/ Go module の test + 3 subcommand (= validate / fixtures / shadow) を CI 上で走らせる
+#   - 既存 ci.yml (= app の fast-gate / docs-health / test-coverage / e2e) とは **完全独立**
+#   - branch protection の required checks に登録しない限り **non-blocking advisory**
+#
+# 不可侵原則整合 (= projects/active/aag-engine-go-mvp/plan.md §不可侵原則):
+#   - 5 (= MVP では CI hard gate を即置換しない) → 本 workflow は advisory only
+#   - 10 (= fixture parity を必須にする) → aag shadow 実行で 5 detector × 8 fixture = 40 parity 検証
+#
+# Phase 10 articulation:
+#   - 本 workflow の job 失敗は existing ci.yml に影響しない (= 別 workflow file、依存なし)
+#   - Phase 11 (Partial Hard Gate Promotion) で per-detector 昇格判定時に
+#     branch protection への登録を別 layer 判断
+#
+# 詳細: projects/active/aag-engine-go-mvp/plan.md §Phase 10 + decision-audit.md DA-α-010
+
+name: AAG Engine (advisory)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: aag-engine-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ── advisory: Go engine test + 3 subcommand 実行 ──────────
+  # 失敗しても他 workflow (= ci.yml) には影響しない (= 完全独立、advisory only)。
+  # branch protection の required checks に登録しない限り PR merge は block されない。
+  aag-engine-advisory:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aag-engine
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: aag-engine/go.sum
+
+      # Go test (= unit + parity 検証、~100 test、< 1 秒想定)
+      - name: Go test
+        run: go test ./...
+
+      # aag binary build (= 後続 subcommand 実行のため)
+      - name: Build aag binary
+        run: go build -o /tmp/aag ./cmd/aag
+
+      # subcommand 1: aag fixtures (= fixture catalog 出力)
+      - name: aag fixtures --repo .
+        working-directory: ${{ github.workspace }}
+        run: /tmp/aag fixtures --repo .
+
+      # subcommand 2: aag validate (= Phase 1 skeleton、empty DetectorResult[] 想定)
+      - name: aag validate --repo .
+        working-directory: ${{ github.workspace }}
+        run: /tmp/aag validate --repo .
+
+      # subcommand 3: aag shadow (= 5 detector × 8 fixture parity 集約、Phase 9 deliverable)
+      # AllMatched()=true (= primary success metric clearance) で ExitPass、
+      # parity drift があれば ExitFail だが advisory のため CI fail にしない判断は
+      # Phase 11 で別 articulate (= 本 step は default fail-on-error で信号維持)。
+      - name: aag shadow --repo .
+        working-directory: ${{ github.workspace }}
+        run: /tmp/aag shadow --repo .

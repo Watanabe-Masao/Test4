@@ -1073,4 +1073,99 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-010 〜 012) は各 Phase landing commit 時に articulate 追加。
+## DA-α-010: Phase 10 CI Advisory scope 判断 (= 別 workflow file 配置 + advisory non-blocking + 既存 ci.yml 完全独立)
+
+### status
+
+- 着手判断: **open** (Phase 10 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 10 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 10 plan.md の作業項目:
+- `.github/workflows/` に Go engine job を non-blocking で追加
+- CI 上で安定実行 (= flake 0 件、最低 5 連続 success)
+- 実行時間が許容範囲 (= 既存 fast-gate に圧迫を与えない、+30 秒以下推奨)
+- 2〜4週間 false positive を観測 (= 観測 log を `discovery-log.md` に articulate)
+- DA-α-010 entry articulate
+
+scope 判断点:
+1. **新 workflow file vs 既存 ci.yml 拡張**: 別 file articulate vs ci.yml に job 追加
+2. **advisory non-blocking の articulate 手段**: continue-on-error / branch protection 非登録 / 別 workflow file の中から選択
+3. **fast-gate 圧迫回避**: 既存 fast-gate (= wasm-build / fast-gate / docs-health / e2e) との並列性
+4. **project-metadata.json の ciJobs 更新有無**: ciJobs は ci.yml 限定 enumeration、別 workflow への影響
+5. **5 連続 success / 2〜4 週間観測の実装 AI scope**: 不可侵原則 8 (= 実装 AI が最終レビューを [x] にしない) との整合
+
+### decision
+
+以下を採用する:
+
+1. **新 workflow file `.github/workflows/aag-engine.yml`** (= 既存 ci.yml と完全独立):
+   - Go engine は app と異なる runtime (= Go 1.24 vs Node)、別 workflow が semantic に明確
+   - ci.yml の dependency graph (= wasm-build → fast-gate → others) に組み込まない (= advisory layer 維持)
+   - branch protection の required checks に登録しない限り **non-blocking by isolation**
+2. **advisory non-blocking = workflow file 分離 + branch protection 非登録**:
+   - `continue-on-error: true` は subsequent job 影響制御のみ、workflow status 自体は失敗扱い
+   - 完全 isolation のほうが「advisory」 の articulate が transparent (= ci.yml status と分離表示)
+   - branch protection 登録判断は Phase 11 (Partial Hard Gate Promotion) で per-detector layer 別判断
+3. **既存 fast-gate には影響なし** (= 別 workflow + 並列実行):
+   - aag-engine.yml は ci.yml と並列に走る (= concurrency group 別、`aag-engine-${{ github.ref }}`)
+   - ci.yml の fast-gate / docs-health / test-coverage / e2e に dependencies 追加せず
+4. **ciJobs list 変更不要** (= documentConsistency.test.ts ciJobs 検証は ci.yml 限定):
+   - test 実装 (`it('ci.yml のジョブ名が project-metadata.json と一致する')`) は ci.yml のみ scan
+   - aag-engine.yml は別 workflow file のため ciJobs に含めない (= scope 整合)
+   - project-metadata.json $comment にのみ articulate (= obligation map: .github/workflows/ → project-metadata.json 確認 履行)
+5. **5 連続 success / 2〜4 週間観測 = operational deferred**:
+   - 不可侵原則 8 整合、AI session 内で「5 連続 success 観測」 「2〜4 週間 false positive 観測」 を [x] flip しない
+   - landing commit では checkbox 1 (job 追加) + 5 (DA-α-010 articulate) のみ flip
+   - 実行時間 articulate (checkbox 3) は CI 1 回目実行後の wrap-up で flip 候補
+   - checkbox 2 (5 連続) + 4 (2〜4 週間) は user 判断 / Phase 11 closure で flip
+
+### rationale
+
+- **別 workflow file**: app CI (= Node + WASM build + Pages deploy) と Go engine governance は **責務が異なる**。1 ファイル統合は SRP 違反、Go 関連の workflow 修正で app CI を破壊する risk あり
+- **isolation による advisory**: GitHub Actions の `continue-on-error` は次 job への影響制御のみ、workflow status は失敗扱い。advisory 化の最も transparent な articulate は workflow file を分離 + branch protection に登録しない (= operational layer)。Phase 11 で hard gate 化する場合は branch protection 登録という明確な flip point を articulate
+- **並列実行による fast-gate 影響回避**: ci.yml と aag-engine.yml は GitHub Actions の workflow 単位で並列 dispatch。fast-gate の wall time に圧迫を与えない (= +0 秒、別 runner で並列消費)。実行時間 budget 「+30 秒以下推奨」 は **advisory 単独 workflow の wall time** を articulate、locally 測定で 30 秒以下確認済 (= go test 0.18s + build 0.08s + 3 subcommand each <0.01s、setup-go cold は ~10-20s 想定)
+- **ciJobs 更新不要**: ciJobs validation は ci.yml 限定の機械検証。aag-engine.yml は別 workflow のため ciJobs に追加すると false positive (= test 失敗) を招く。`$comment` に articulate するのは documentation steward 義務、ciJobs list の semantic は維持
+- **operational deferred の articulate**: 5 連続 success + 2〜4 週間観測は **AI session の reach 外**。不可侵原則 8 「AI が最終レビューを [x] にしない」 整合、operational verification は user / Phase 11 closure 判断で flip。Phase 9 では fixture parity が同 session で機械検証可能だったが、Phase 10 は operational 観測で時間軸が異なる
+
+### alternatives
+
+- (a-alt) **ci.yml に job 追加 + continue-on-error**: workflow status は失敗扱い、advisory 表示が ambiguous、ciJobs 更新も必要、不採用
+- (b-alt) **GitHub Actions reusable workflow (`workflow_call`)**: scope 過剰、単一 advisory job に reusable は overengineering、不採用
+- (c-alt) **continue-on-error: true on each step**: step 失敗を mask、parity drift 検出が不可視化、不採用
+- (d-alt) **ciJobs に aag-engine-advisory 追加**: documentConsistency test (= ci.yml only scan) が false positive、不採用
+- (e-alt) **landing commit で checkbox 2 + 4 も [x] flip**: 不可侵原則 8 違反 (= 観測未達で AI 自己 approval)、不採用
+
+### 観測点
+
+1. ⏳ `.github/workflows/aag-engine.yml` 新設 (= advisory non-blocking workflow、go test + 3 subcommand)
+2. ⏳ workflow file が ci.yml dependency graph と独立 (= ci.yml `needs:` に登録なし、別 concurrency group)
+3. ⏳ project-metadata.json `$comment` に Phase 10 workflow 追加を articulate (= obligation map 履行)
+4. ⏳ ciJobs list 変更なし (= ci.yml 限定 enumeration semantic 維持)
+5. ⏳ documentConsistency test PASS (= ciJobs check が false positive 起こさない)
+6. ⏳ locally Go engine 4 step (= go test + build + fixtures + validate + shadow) すべて pass、shadow AllMatched()=true
+7. ⏳ Go test + 3 subcommand の wall time 合計 < 30 秒 (= setup-go 除外、engine 部分のみ)
+8. ⏳ Go test 全 PASS (= 97 test、Phase 9 deliverable と同) + TS guard 1057 PASS
+9. 🔁 CI 1 回目 success 観測 (= wrap-up commit で flip 候補)
+10. 🔁 5 連続 success 観測 (= operational deferred、user / Phase 11 closure で flip)
+11. 🔁 2〜4 週間 false positive 観測 (= operational deferred、user / Phase 11 closure で flip、`discovery-log.md` に articulate)
+
+凡例: ⏳ landing commit で達成、🔁 operational deferred (= 不可侵原則 8 整合、AI session 内 [x] flip しない)。
+
+### Lineage
+
+- **preJudgementCommit**: `593271b` (= Phase 9 wrap-up + polish 後 HEAD)
+- **judgementCommit**: 本 Phase 10 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 10 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `593271b` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 10 wrap-up commit で articulate 予定。観測点 1〜8 (= landing 必須) の達成状況 + 9 (= 1 回目 CI success) + 10/11 (= operational deferred 維持) の articulate を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-011 〜 012) は各 Phase landing commit 時に articulate 追加。
