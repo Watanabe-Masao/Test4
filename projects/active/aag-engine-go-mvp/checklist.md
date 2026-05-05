@@ -21,11 +21,11 @@
 
 ## Phase 1: Go CLI Skeleton
 
-* [ ] `aag-engine/go.mod` + `cmd/aag/main.go` + `internal/contract/` + `internal/report/` を新設する
-* [ ] `aag validate --repo .` / `aag validate --format json` / `aag fixtures --repo .` の 3 サブコマンドが起動する
-* [ ] repo を書き換えない (= read-only verify、go test で write 操作 0 件確認)
-* [ ] JSON output (= 空 DetectorResult[]) を返せる
-* [ ] exit code contract (= 0 = pass / 1 = fail / 2 = error) が articulate
+* [x] `aag-engine/go.mod` + `cmd/aag/main.go` + `internal/contract/` + `internal/report/` を新設する
+* [x] `aag validate --repo .` / `aag validate --format json` / `aag fixtures --repo .` の 3 サブコマンドが起動する
+* [x] repo を書き換えない (= read-only verify、go test で write 操作 0 件確認)
+* [x] JSON output (= 空 DetectorResult[]) を返せる
+* [x] exit code contract (= 0 = pass / 1 = fail / 2 = error) が articulate
 * [ ] DA-α-001 entry を articulate する
 
 ## Phase 2: DetectorResult Contract Binding

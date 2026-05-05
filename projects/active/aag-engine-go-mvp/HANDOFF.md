@@ -5,14 +5,14 @@
 
 ## 1. 現在地
 
-**Phase 0 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 1 Go CLI Skeleton。
+**Phase 1 landing 完了 (= 本 commit landing 後)**。次は Phase 1 wrap-up commit。
 
 Phase 0 lineage (= 完遂済):
-- landing commit `cc6e824`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha) + checklist Phase 0 5 件 flip
-- regen commit `ed348eb`: §13.3 Pattern A application (= project-structure.md generated section + 14 KPI/generated artifact sync)
-- wrap-up commit (本 commit): DA-α-000 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 6 件目 [x] flip + HANDOFF §1 update
+- landing `cc6e824` + regen `ed348eb` + wrap-up `be51eaf` + regen `2ba85dd`
+- DA-α-000 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
-DA-α-000 振り返り判定: **正しい** (= 観測点 10 件すべて達成)。詳細は `decision-audit.md` DA-α-000 §振り返り判定 参照。
+Phase 1 lineage (= landing 段階):
+- landing commit (本 commit): aag-engine/ Go module 新設 (= go.mod + cmd/aag/main.go + internal/contract/contract.go + internal/report/report.go) + Go test (= main_test.go 8 test + report_test.go 3 test) + DA-α-001 articulate (Lineage 仮 sha) + checklist Phase 1 5 件 flip
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
