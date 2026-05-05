@@ -5,7 +5,28 @@
 
 ## 1. 現在地
 
-**Phase 10 完遂 (= AI session reach 範囲)**。次は Phase 11 (= Partial Hard Gate Promotion) 着手待ち。operational deferred 2 件 (= 5 連続 success + 2〜4 週間 false positive 観測) は user / Phase 11 closure 判断。
+**Phase 11 landing 完了 (= 本 commit landing 後、AI session reach 範囲)**。次は user approval + branch protection 登録 (= operational change) → Phase 11 wrap-up commit。
+
+Phase 11 lineage (= landing 段階):
+- landing commit (本 commit): `.github/workflows/aag-engine-archive-manifest-hardgate.yml` 新設 (= archive-manifest detector hard gate 候補 workflow) + `docs/contracts/project-metadata.json` $comment articulate (= obligation map 履行) + DA-α-011 articulate (= 提案 + 5 detector per-detector judgement table、user approval 待ち) + checklist Phase 11 4 件 [x] flip (= 2/3/5/6、AI articulate 範囲) + 2 件 [ ] 維持 (= 1/4、user 判断必須)
+
+Phase 11 deliverable (= cumulative):
+- aag-engine/ Go module (= 6 internal package、unchanged)
+- 97 Go test PASS (= unchanged from Phase 9) + TS guard 1057 PASS
+- 2 CI workflow: `aag-engine.yml` (advisory all-detector) + `aag-engine-archive-manifest-hardgate.yml` (hard gate 候補、user approval 待ち)
+- archive-manifest detector の fixture parity 100% + shadow drift 0 + TS 差分 0 を DA-α-011 で集約 articulate
+- 5 detector per-detector judgement table articulate (= archive-manifest 昇格 / doc-registry & schema-validation & project-lifecycle 見送り / generated-metadata 永続 advisory)
+
+Phase 11 重要 distinction (= DA-α-011 articulate、後続 Phase / program で institutional knowledge):
+- **archive-manifest が最 deterministic な hard gate 候補** (= 12 required field 単純判定、regex / 動的状態 / file system race 依存なし)
+- **rollback path = TS guard 並存維持** (= 不可侵原則 5 + 2 strict adherence、drift 観測時は branch protection 外しで rollback)
+- **per-detector judgement table** (= 一括判断ではなく detector-by-detector、後続 program で rollback / 追加 hard gate 化判定が per-detector 履行可能)
+- **AI session reach boundary = structural prep のみ** (= 不可侵原則 8 整合、operational change = branch protection 登録は user 判断)
+
+Phase 10 完遂状態 (= AI session reach 範囲):
+- landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up `8714435` + regen `8bc952d`
+- DA-α-010 振り返り判定: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件は不可侵原則 8 整合維持)
+- CI 1 回目 success 観測達成 (= GitHub Actions run 25382855354)
 
 Phase 10 lineage (= 完遂済):
 - landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up (本 commit)
@@ -81,12 +102,12 @@ Phase 8 deliverable (= 5 detector 移植完了):
 0 で bootstrap / scope lock / required reads / DA-α-000 を完遂、Phase 1〜9 で
 5 detector 移植 + fixture parity 100% 集約 達成。
 
-§13 commit pattern application 累積 (= Phase 0〜10 完遂時点):
-- §13.1 二段 commit: 11 instance (= Phase 0+1+2+3+4+5+6+7+8+9+10 完遂、Phase 10 は +2 follow-up commit 含む 5 commit chain)
-- §13.2 atomic dependent update: 1 instance (= Phase 10 で `aag-engine.yml` 新設に伴う `project-metadata.json` $comment update を同 commit に統合、obligation map 履行)
-- §13.3 post-flip regen: 21 instance (= Phase 10 landing 後 regen + wrap-up 後 regen)
+§13 commit pattern application 累積 (= Phase 0〜10 完遂 + Phase 11 landing 時点):
+- §13.1 二段 commit: 11 instance 完遂 + 1 instance landing 段階 (= Phase 0+1+2+3+4+5+6+7+8+9+10 完遂 + Phase 11 landing)
+- §13.2 atomic dependent update: 2 instance (= Phase 10 で aag-engine.yml + project-metadata.json $comment + Phase 11 で aag-engine-archive-manifest-hardgate.yml + project-metadata.json $comment、obligation map 履行)
+- §13.3 post-flip regen: 22 instance
 
-derivedStatus: in_progress / Phase 0〜10 完遂 (= AI session reach 範囲)、Phase 11/12 + AI 自己レビュー + 最終レビュー残、operational deferred 2 件 = user / Phase 11 closure 判断。
+derivedStatus: in_progress / Phase 0〜10 完遂 + Phase 11 landing 段階 (= AI session reach 範囲)、Phase 11 wrap-up + Phase 12 + AI 自己レビュー + 最終レビュー残、user approval 必須項目 = checkbox 1 + 4 (Phase 11) + 2 + 4 (Phase 10 operational deferred)。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
 (user 承認) 1 件 = 全 [x]。
 
@@ -94,14 +115,18 @@ derivedStatus: in_progress / Phase 0〜10 完遂 (= AI session reach 範囲)、P
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 11 = Partial Hard Gate Promotion）
+### 高優先（次 = user approval + operational change）
 
-- **archive-manifest detector 推奨** (= 最 deterministic、false positive risk 最低):
-  - branch protection の required checks に `aag-engine-advisory` を追加 (= operational change、user 判断必須)
-  - hard gate 化 detector の fixture parity 100% / shadow mode 期間 false positive 0 確認
-  - rollback path 確保 (= TS guard が hard gate を引き続き保持、Go は補完)
-  - user approval を decision-audit.md で articulate
-  - DA-α-011 entry articulate
+- **DA-α-011 §user-approval section に user 直接編集** (= AI 自動 flip 禁止):
+  - approval template が DA-α-011 §user-approval に articulate 済
+  - approver / approvedAt / approvedScope / branch-protection-action / rollback-procedure を user 記入
+- **branch protection 登録** (= operational change、user 判断):
+  - GitHub Settings → Branches → main → required checks に `aag-engine-archive-manifest-hardgate` を追加
+  - 登録後 CI 1 回目 success 観測で hard gate 効果 articulate
+- **Phase 11 wrap-up commit** (= user approval + operational change 後):
+  - DA-α-011 status open → closed、振り返り判定 articulate
+  - checklist Phase 11 checkbox 1 + 4 を user / wrap-up で flip
+  - DA-α-011 Lineage 実 sha + retrospective articulate
 
 ### 中優先（Phase 12 = Closure / Next Architecture Decision）
 
@@ -123,6 +148,8 @@ derivedStatus: in_progress / Phase 0〜10 完遂 (= AI session reach 範囲)、P
 
 - Phase 10 checkbox 2: CI 5 連続 success 観測 (= 現在 1 回目 success、user / Phase 11 closure 判断)
 - Phase 10 checkbox 4: 2〜4 週間 false positive 観測 (= discovery-log.md に articulate、user / Phase 11 closure 判断)
+- Phase 11 checkbox 1: archive-manifest hard gate 化 (= branch protection 登録、user 判断)
+- Phase 11 checkbox 4: user approval entry (= DA-α-011 §user-approval、user 判断)
 
 ## 3. ハマりポイント
 

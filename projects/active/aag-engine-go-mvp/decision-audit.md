@@ -1187,4 +1187,128 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-011 〜 012) は各 Phase landing commit 時に articulate 追加。
+## DA-α-011: Phase 11 Partial Hard Gate Promotion 提案 (= archive-manifest hard gate scaffold + 残 4 detector per-detector judgement + user approval 待ち)
+
+### status
+
+- 着手判断: **open / pending user approval** (= AI session reach 範囲で structural prep + 提案 articulate 完遂、checkbox 1 = hard gate 化 (operational change) + checkbox 4 = user approval entry は user 判断必須)
+- 振り返り判定: **未** (= user approval + branch protection 登録後の wrap-up commit で articulate 予定)
+
+### context
+
+Phase 11 plan.md / checklist の作業項目:
+- 最低 1 detector (= archive manifest 推奨) が hard gate 化
+- 昇格 detector の fixture parity 100% / shadow mode 期間 false positive 0 / TS 差分 0 を articulate
+- rollback path 確保 (= TS guard が hard gate を引き続き保持、Go は補完)
+- user approval を `decision-audit.md` で articulate
+- 残り detector の hard gate 化判定 (= 昇格 / 見送り) が per-detector articulate
+- DA-α-011 entry articulate
+
+scope 判断点:
+1. **どの detector を最初に hard gate 化するか**: 5 detector (= archive-manifest / doc-registry / schema-validation / project-lifecycle / generated-metadata) のうち最 deterministic な候補
+2. **hard gate 化の structural mechanism**: 既存 aag-engine.yml advisory に組み込む vs 別 workflow file 分離
+3. **AI session reach の boundary**: structural prep (= AI doable) vs operational change (= branch protection 登録、user 判断)
+4. **rollback path の articulate**: TS guard 並存維持の institutional knowledge 化
+5. **残り 4 detector の judgement**: 昇格 vs 見送りの per-detector articulate
+6. **不可侵原則 8 (= AI が最終レビューを [x] にしない) との整合**: user approval 待ち項目を transparent 化
+
+### decision (= 提案、user approval 待ち)
+
+以下を提案する (= user 承認後に Phase 11 wrap-up で確定):
+
+1. **archive-manifest detector を最初の hard gate 候補として articulate**:
+   - rationale: 5 detector の中で最 deterministic (= 12 required field 単純判定、regex / 動的状態 / timestamp / file system race 依存なし)
+   - fixture parity 100% 達成 (= Phase 4 で archive-v2 3 fixture すべて Match=true、Phase 9 shadow runner 集約で drift 0 観測)
+   - TS 側にも同 rule に対応する archive v2 schema guard が hard gate 維持 (= rollback path 自動確保)
+2. **structural mechanism = 別 workflow file `.github/workflows/aag-engine-archive-manifest-hardgate.yml`**:
+   - aag-engine.yml (= advisory all-detector) と完全分離
+   - 1 job (= aag-engine-archive-manifest-hardgate) で archive-manifest unit + fixture parity + shadow runner integration を verify
+   - branch protection 未登録 = 現在は advisory、user 承認 + branch protection 登録で hard gate 効果 articulate
+3. **AI session reach boundary = structural prep のみ articulate**:
+   - 不可侵原則 8 整合、AI session で operational change (= branch protection 登録) は実行しない
+   - user approval entry (= DA-α-011 §user-approval section) + branch protection 登録は user 判断
+   - landing commit でフリップする checkbox は 2 (parity articulate) + 3 (rollback articulate) + 5 (per-detector judgement articulate) + 6 (DA-α-011 articulate) のみ
+4. **rollback path = TS guard 並存維持 strict adherence**:
+   - readiness refactor 不可侵原則 5 + 本 MVP 不可侵原則 2 整合
+   - Go hard gate 化後も TS 側 archive v2 schema guard を削除しない (= dual gate 状態を maintain)
+   - drift 発生時の rollback = branch protection から `aag-engine-archive-manifest-hardgate` を外すだけ (= TS guard が単独で hard gate 維持)
+5. **残り 4 detector の per-detector judgement (= 提案)**:
+
+| detector | 提案 | 根拠 |
+|---|---|---|
+| archive-manifest | **昇格 (= Phase 11 first)** | 最 deterministic、TS schema guard 並存、fixture parity 100% / shadow drift 0 観測済 |
+| doc-registry | **見送り (= Phase 12 closure で再評価)** | path normalization 規約依存 + repo 内 path 動的変化、Go と TS の path resolution 微妙な drift risk あり |
+| schema-validation | **見送り (= Phase 12 closure で再評価)** | level integer 判定は単純だが、projectization.json schema 拡張時に Go / TS 両側で同期義務発生、advisory 期間延長で drift 観測価値高 |
+| project-lifecycle | **見送り (= Phase 12 closure で再評価)** | 3 状態 routing は collector 責務、本 detector state-agnostic だが collector 側の Archive v2 圧縮済 project read 経路が institutional に not yet articulate |
+| generated-metadata | **永続 advisory** | sourceCommit / generatedAt / shallow clone / regen timing による false positive 余地あり、Phase 8 で institutional articulate 済、CI hard gate 化は plan §8 articulate と整合せず |
+
+6. **user approval 待ち = checkbox 1 + 4 を `[ ]` 維持**:
+   - checkbox 1 (hard gate 化) = branch protection 登録 = user operational action
+   - checkbox 4 (user approval entry) = user による DA-α-011 §user-approval 追記 = user 判断
+   - 本 landing commit で AI が articulate する DA-α-011 は **提案** であり user approval ではない
+
+### rationale
+
+- **archive-manifest 最初昇格の妥当性**: 5 detector 中 archive-v2 schema guard と 1:1 対応する最 deterministic rule。fixture parity 100% は Phase 4 で達成、shadow drift 0 は Phase 9 で観測、CI 1 回目 success は Phase 10 で確認。Hard gate 化に必要な 3 件 evidence すべて articulate 済
+- **別 workflow file 分離の institutional 整合**: Phase 10 で articulate した「isolation による advisory」 institutional knowledge と整合。hard gate 候補 workflow も「isolation による hard gate readiness」 として branch protection 登録 = 単一 operational flip point articulate
+- **AI session reach boundary の strict adherence**: 不可侵原則 8 が「実装 AI が最終レビューを [x] にしない」 を要求。Phase 11 は最終レビュー手前の hard gate promotion であり、user approval 必須項目を [x] flip すると不可侵原則 8 違反 + readiness refactor で institute された AI 自己 approval 禁止 institutional knowledge 違反
+- **per-detector judgement table の transparent 化**: 5 detector 個別判定により、後続 Phase / program で rollback / 追加 hard gate 化判定が per-detector 履行可能 (= 一括判断ではなく detector-by-detector の institutional knowledge transfer)
+- **rollback path = TS guard 並存維持**: readiness refactor 不可侵原則 5「TS guard を全廃しない」 が本 MVP 不可侵原則 2 として継承。drift 発生時 = `aag-engine-archive-manifest-hardgate` を branch protection から外すだけで TS guard が単独 hard gate 維持、Go 削除や revert 不要 = operational rollback path 確保
+
+### alternatives
+
+- (a-alt) **doc-registry を最初昇格**: path normalization 規約依存 + repo 内 path 動的変化、archive-manifest より drift risk 高、不採用
+- (b-alt) **schema-validation を最初昇格**: level integer 判定は単純だが MVP scope 内で fixture も 1 件のみ、archive-manifest の 3 fixture coverage より articulate 不足、不採用
+- (c-alt) **5 detector 一括 hard gate 化**: 不可侵原則 5 違反 (= MVP では即置換しない)、false positive risk 集中、rollback 単位が粗い、不採用
+- (d-alt) **既存 aag-engine.yml に hard gate job 追加**: advisory と hard gate semantics の混在、branch protection UI で job 単位選択は可能だが workflow file 単位 isolation のほうが institutional knowledge transfer 効率高、不採用
+- (e-alt) **AI session で branch protection 登録**: operational change を AI が代行、不可侵原則 8 違反 + 後続 user 判断機会の喪失、不採用
+- (f-alt) **landing commit で checkbox 1 + 4 も AI 単独 flip**: 不可侵原則 8 strict adherence 違反、operational verification を AI 自己 approve、不採用
+
+### 観測点
+
+1. ⏳ `.github/workflows/aag-engine-archive-manifest-hardgate.yml` 新設 (= hard gate 候補 workflow、archive-manifest unit + fixture parity + shadow integration)
+2. ⏳ workflow が aag-engine.yml と完全独立 (= 別 concurrency group "aag-engine-archive-manifest-${{ github.ref }}")
+3. ⏳ project-metadata.json `$comment` に Phase 11 workflow 追加を articulate (= obligation map 履行)
+4. ⏳ archive-manifest unit + fixture parity test (= 5 + 3 = 8 test) すべて PASS
+5. ⏳ shadow runner integration test (= 9 test) すべて PASS
+6. ⏳ rollback path 確保 articulate (= TS 側 archive v2 schema guard 並存維持 + branch protection 外しで rollback、本 DA §rationale)
+7. ⏳ per-detector judgement table articulate (= 5 detector × 昇格/見送り/永続 advisory、本 DA §decision-5)
+8. ⏳ fixture parity 100% / shadow drift 0 / TS 差分 0 articulate (= Phase 4/9/10 の cumulative observation を本 DA で集約)
+9. ⏳ Go test 全 PASS (= 97 test、Phase 9 deliverable と同) + TS guard 1057 PASS
+10. 🔁 user approval entry 追記 (= DA-α-011 §user-approval section、user 判断、checkbox 4 flip 候補)
+11. 🔁 branch protection に `aag-engine-archive-manifest-hardgate` 登録 (= operational change、user 判断、checkbox 1 flip 候補)
+12. 🔁 hard gate 化後の CI 1 回目 success 観測 (= user 操作後、wrap-up commit で flip 候補)
+
+凡例: ⏳ AI session 内達成、🔁 user / operational change 待ち。
+
+### user-approval (= 本 section は user が直接編集して articulate)
+
+> **本 section は user が approval 後に直接編集する**。AI 自動 flip 禁止 (= 不可侵原則 8 strict adherence)。
+>
+> approval entry template:
+> ```
+> - approver: <username>
+> - approvedAt: <YYYY-MM-DD>
+> - approvedScope: archive-manifest detector を partial hard gate に昇格、TS guard 並存維持、その他 4 detector は §decision-5 提案通り
+> - branch-protection-action: GitHub Settings → Branches → main → required checks に `aag-engine-archive-manifest-hardgate` を追加
+> - rollback-procedure: drift 観測時は branch protection から `aag-engine-archive-manifest-hardgate` を外す (= TS guard が単独で hard gate 維持)
+> ```
+
+(本 entry は user approval 待ち、未記入)
+
+### Lineage
+
+- **preJudgementCommit**: `8bc952d` (= Phase 10 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 11 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 11 wrap-up commit (= user approval 後、operational change 後)
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `8bc952d` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 11 wrap-up commit で user approval + operational change 後に articulate 予定。観測点 1〜9 (= AI session reach 達成) + 10/11/12 (= user / operational 待ち) の articulate を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-012) は Phase 12 landing commit 時に articulate 追加。

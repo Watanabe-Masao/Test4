@@ -98,12 +98,12 @@
 
 ## Phase 11: Partial Hard Gate Promotion
 
-* [ ] 最低 1 detector (= archive manifest 推奨) が hard gate 化
-* [ ] 昇格 detector の fixture parity 100% / shadow mode 期間 false positive 0 / TS 差分 0 を articulate
-* [ ] rollback path 確保 (= TS guard が hard gate を引き続き保持、Go は補完)
-* [ ] user approval を `decision-audit.md` で articulate
-* [ ] 残り detector の hard gate 化判定 (= 昇格 / 見送り) が per-detector articulate
-* [ ] DA-α-011 entry を articulate する
+* [ ] 最低 1 detector (= archive manifest 推奨) が hard gate 化 — operational deferred (= user による branch protection 登録待ち、不可侵原則 8 整合、AI session 内 flip しない、DA-α-011 §decision-3/§観測点 11)
+* [x] 昇格 detector の fixture parity 100% / shadow mode 期間 false positive 0 / TS 差分 0 を articulate (= Phase 4 archive-v2 3 fixture Match=true + Phase 9 shadow drift 0 + Phase 10 CI 1 回目 success の cumulative observation を DA-α-011 §観測点 8 に articulate)
+* [x] rollback path 確保 (= TS guard が hard gate を引き続き保持、Go は補完) — TS 側 archive v2 schema guard 並存維持 + branch protection 外しで rollback、DA-α-011 §rationale articulate
+* [ ] user approval を `decision-audit.md` で articulate — operational deferred (= user 判断必須、DA-α-011 §user-approval section に user 直接編集、不可侵原則 8 整合)
+* [x] 残り detector の hard gate 化判定 (= 昇格 / 見送り) が per-detector articulate (= DA-α-011 §decision-5 で 5 detector × 昇格/見送り/永続 advisory table 形式で articulate)
+* [x] DA-α-011 entry を articulate する
 
 ## Phase 12: Closure / Next Architecture Decision
 
