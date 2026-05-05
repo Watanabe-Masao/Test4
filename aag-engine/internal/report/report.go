@@ -49,6 +49,11 @@ type RunResult struct {
 	// 他 subcommand では nil → JSON output で field 不在 (omitempty)。
 	FixtureSummary *FixtureSummary `json:"fixtureSummary,omitempty"`
 
+	// ShadowSummaryRaw は `aag shadow` subcommand 時のみ articulate (= optional、Phase 9 で追加)。
+	// raw JSON で持つことで shadow package との循環依存を回避 (= report が shadow を import せず、
+	// CLI 側で shadow.Summary を marshal して RunResult に embed)。
+	ShadowSummaryRaw json.RawMessage `json:"shadowSummary,omitempty"`
+
 	// Note は engine 実装段階の articulate (= optional、Phase 1-3 skeleton で活用)。
 	Note string `json:"note,omitempty"`
 }

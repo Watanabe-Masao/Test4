@@ -22,6 +22,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -29,6 +30,7 @@ import (
 
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/report"
+	"aag-engine/internal/shadow"
 )
 
 // ExitCode は engine の exit code contract。
@@ -50,8 +52,9 @@ USAGE:
   aag <command> [flags]
 
 COMMANDS:
-  validate    repo を read-only で検証し DetectorResult[] を出力
-  fixtures    fixtures/aag/ 配下を読み expected と actual の parity を検証
+  validate    repo を read-only で検証し DetectorResult[] を出力 (= Phase 1 skeleton)
+  fixtures    fixtures/aag/ 配下を discover し catalog を出力 (= Phase 3 deliverable)
+  shadow      5 detector × 8 fixture を全 dispatch、parity summary を出力 (= Phase 9 deliverable)
 
 FLAGS:
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -59,13 +62,14 @@ FLAGS:
   --help            本 help を表示
 
 EXIT CODE:
-  0    pass (= violation 0 件)
-  1    fail (= violation ≥ 1 件)
+  0    pass (= violation 0 件 / parity all match)
+  1    fail (= violation ≥ 1 件 / parity mismatch)
   2    error (= 引数 / config 不正、内部 error)
 
-PHASE 1 STATUS:
-  本 skeleton は **空の DetectorResult[] JSON** を返すのみ。
-  実 detection logic は Phase 4-8 で landing 予定 (= 5 detector × 8 fixture)。
+PHASE 9 STATUS:
+  shadow subcommand が 5 detector 全 dispatch + 8 fixture parity 集約を articulate。
+  validate subcommand は Phase 1 skeleton のまま (= empty DetectorResult[]、Phase
+  10/11 で実 repo 走査追加候補)。
 `
 
 func main() {
@@ -87,6 +91,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runValidate(args[1:], stdout, stderr)
 	case "fixtures":
 		return runFixtures(args[1:], stdout, stderr)
+	case "shadow":
+		return runShadow(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -132,6 +138,63 @@ func runValidate(args []string, stdout, stderr io.Writer) ExitCode {
 
 	// violation status から exit code を articulate
 	if result.Status == "pass" {
+		return ExitPass
+	}
+	return ExitFail
+}
+
+// runShadow は `aag shadow` サブコマンドの本体 (= Phase 9 deliverable)。
+//
+// 5 detector × 8 fixture = 40 parity 検証点を全 dispatch、shadow.Summary を JSON で出力。
+// fixture parity 100% (= AllMatched) なら ExitPass、mismatch / skipped があれば ExitFail。
+//
+// CI advisory (= Phase 10) で本 subcommand を non-blocking 実行する base。
+func runShadow(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("shadow", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "検証対象 repo root の path")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag shadow: unexpected positional argument(s): %v\n", fs.Args())
+		fmt.Fprintln(stderr, "hint: --repo flag を使用してください (= aag shadow --repo /path/to/repo)")
+		return ExitError
+	}
+
+	summary, err := shadow.Run(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag shadow: failed to run shadow mode: %v\n", err)
+		return ExitError
+	}
+
+	// shadow.Summary を JSON RawMessage に marshal して RunResult に embed
+	summaryRaw, err := json.MarshalIndent(summary, "  ", "  ")
+	if err != nil {
+		fmt.Fprintf(stderr, "aag shadow: shadow summary marshal error: %v\n", err)
+		return ExitError
+	}
+
+	result := report.NewEmptyRunResult(*repo)
+	result.ShadowSummaryRaw = summaryRaw
+	if summary.AllMatched() {
+		result.Status = "pass"
+		result.Note = "Phase 9 shadow mode: 5 detector × 8 fixture parity 100% (= primary success metric 達成)"
+	} else {
+		result.Status = "fail"
+		result.Note = fmt.Sprintf("Phase 9 shadow mode: parity mismatch (= matched %d / total %d、skipped %d)",
+			summary.Matched, summary.Total, summary.Skipped)
+	}
+
+	out, err := report.RenderJSON(result)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag shadow: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+
+	fmt.Fprintln(stdout, string(out))
+
+	if summary.AllMatched() {
 		return ExitPass
 	}
 	return ExitFail

@@ -960,4 +960,99 @@ scope 進入時の重要発見:
 
 ---
 
-> 後続 DA entry (DA-α-009 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-009: Phase 9 Shadow Mode scope 判断 (= 5 detector × 8 fixture 集約 + RunResult schema 拡張 + CLI shadow subcommand)
+
+### status
+
+- 着手判断: **open** (Phase 9 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 9 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 9 plan.md の作業項目:
+- Go engine と既存 TS AAG を並走、parity / drift report
+- 5 detector × 8 fixture = 40 parity 検証点で TS と Go が同 DetectorResult[] を返すことを集約検証
+- TS detector との差分 report
+- false positive / false negative 記録
+- DA-α-009 entry articulate
+
+scope 判断点:
+1. **shadow runner の package 配置**: `internal/shadow/` 別 package vs `internal/fixture/` 拡張
+2. **TS との差分 report の手段**: TS を Go から実行 vs fixture expected (= TS 出力 captured) との比較
+3. **CLI integration 形式**: 新 subcommand `aag shadow` vs `aag fixtures` 拡張
+4. **RunResult schema 拡張**: ShadowSummary をどう embed するか
+5. **dispatch logic**: 各 fixture を appropriate detector に route する mechanism
+
+### decision
+
+以下を採用する:
+
+1. **`internal/shadow/` 別 package** (= Phase 4 institutional pattern 継承):
+   - shadow runner は detector + fixture を combine する layer、別 package で SRP 整合
+   - 4 層 layered model の延長 (= shadow = 集約 evaluator + report 統合)
+2. **fixture parity を主軸、TS 直接実行は scope 外**:
+   - TS detector を Go から exec する scope 過剰 (= node binary 実行 + JSON 出力 capture が必要)
+   - fixture expected.json を「TS detector の captured output」 と articulate (= readiness refactor Phase 5 で articulate 済 design)
+   - 不可侵原則 10 (= fixture parity 必須) 整合、primary success metric は fixture parity 100%
+3. **CLI 新 subcommand `aag shadow`**:
+   - validate / fixtures は responsibility が明確、shadow を embed すると意味的 conflate
+   - shadow は parity 集約専用 subcommand として articulate
+4. **RunResult.ShadowSummaryRaw = `json.RawMessage`** (= 循環依存回避):
+   - `report` package が `shadow` package を import すると循環依存 risk (= shadow が contract / fixture を import、report も同)
+   - raw JSON で持つことで CLI 側で `json.Marshal(summary)` → embed の clean 経路
+5. **dispatch logic = fixture name prefix routing**:
+   - `archive-v2/` → archive-manifest detector
+   - `doc-registry/` → doc-registry detector
+   - `generated/` → generated-metadata detector
+   - `project-lifecycle/` → project-lifecycle detector
+   - `schema-validation/` → schema-validation detector
+   - 想定外 prefix → Skipped articulate (= forward-compatible)
+
+### rationale
+
+- **別 package**: Phase 4-8 で確立した「1 layer = 1 package」 pattern。shadow は detector layer の上の集約 layer、別 package が natural
+- **fixture parity 主軸**: readiness refactor Phase 5 で fixture corpus を articulate した目的そのもの (= TS と Go の parity 主軸 metric)。実 TS 実行は別 program (= aag-engine-shadow-mode-runner-impl 等) で articulate 候補
+- **`aag shadow` 新 subcommand**: validate / fixtures / shadow が意味的に明確分離、CLI usage が transparent
+- **`json.RawMessage` で循環依存回避**: shadow → report 依存 + report → shadow 依存の dual import を避ける Go 慣用 pattern
+- **prefix routing**: fixture directory 構造 (= fixtures/aag/<system>/<scenario>/) と 1:1 対応、追加 fixture も自動 dispatch
+
+### alternatives
+
+- (a-alt) **shadow logic を fixture package に embed**: SRP 違反、Phase 5 fixture package は loader / Compare primitive 専用、不採用
+- (b-alt) **TS detector を Go から exec**: scope 過剰 (= node + npm + 各種環境依存)、fixture parity で代替可能、不採用
+- (c-alt) **`aag fixtures --shadow` flag**: subcommand 内 flag で behavior 切替は ambiguity 増加、不採用
+- (d-alt) **RunResult に shadow.Summary 直接 embed**: 循環依存、不採用 (= json.RawMessage で代替)
+- (e-alt) **dispatch を detector 側で articulate** (= 各 detector が「自身が処理可能な fixture」 を判定): logic 分散、shadow runner で集約 dispatch のほうが SRP 整合、不採用
+
+### 観測点
+
+1. ✅ `internal/shadow/shadow.go` 新設 (= FixtureResult + Summary struct + Run + dispatch + 5 run* function)
+2. ✅ `internal/shadow/shadow_test.go` 新設 (= 9 test、real repo 8 fixture を全 dispatch 検証含む)
+3. ✅ Run が real repo の 8 fixture を全 dispatch、Match=8 / Mismatched=0 / Skipped=0
+4. ✅ 5 detector すべてが少なくとも 1 fixture を route (= coverage 検証)
+5. ✅ AllMatched が edge case (= empty / partial / skipped) を articulate
+6. ✅ `aag shadow --repo .` が ShadowSummary を JSON 出力、status="pass" / total=8 / matched=8
+7. ✅ `aag shadow --repo /nonexistent` が ExitError + load error message
+8. ✅ `aag shadow /tmp/oops` (= positional arg) が ExitError + hint
+9. ✅ RunResult.ShadowSummaryRaw が `json.RawMessage` で 循環依存 回避
+10. ✅ Go test 全 PASS (= cmd/aag 15 + contract 14 + fixture 16 + report 8 + detectors 35 + shadow 9 = 計 97)
+11. ✅ TS guard 1057 test PASS
+
+### Lineage
+
+- **preJudgementCommit**: `00029a6` (= Phase 8 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 9 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 9 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `00029a6` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 9 wrap-up commit で articulate 予定。観測点 1〜11 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-010 〜 012) は各 Phase landing commit 時に articulate 追加。

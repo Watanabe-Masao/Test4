@@ -194,6 +194,73 @@ func TestRun_Fixtures(t *testing.T) {
 	}
 }
 
+// shadow は repo 全 fixture を dispatch、parity summary を返し ExitPass (= Phase 9 deliverable)。
+func TestRun_Shadow(t *testing.T) {
+	repoRoot := repoRootForTest(t)
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"shadow", "--repo", repoRoot}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0、= 8 fixture parity 100%%), got %d (stderr=%q)", code, stderr.String())
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatalf("stdout should be valid JSON, got err=%v", err)
+	}
+
+	if result["status"] != "pass" {
+		t.Errorf("status should be 'pass' (= primary success metric)、got %v", result["status"])
+	}
+
+	// shadowSummary field articulate
+	summary, ok := result["shadowSummary"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("shadowSummary should be object, got %T: %v", result["shadowSummary"], result["shadowSummary"])
+	}
+	total, _ := summary["total"].(float64)
+	matched, _ := summary["matched"].(float64)
+	if int(total) != 8 {
+		t.Errorf("total should be 8, got %d", int(total))
+	}
+	if int(matched) != 8 {
+		t.Errorf("matched should be 8 (= parity 100%%), got %d", int(matched))
+	}
+
+	// note articulate
+	note, _ := result["note"].(string)
+	if !strings.Contains(note, "Phase 9") {
+		t.Errorf("note should articulate Phase 9, got %q", note)
+	}
+	if !strings.Contains(note, "100%") {
+		t.Errorf("note should articulate parity 100%%, got %q", note)
+	}
+}
+
+// shadow が nonexistent repo で ExitError。
+func TestRun_Shadow_NonexistentRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"shadow", "--repo", "/tmp/nonexistent-shadow-test"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "failed to run shadow mode") {
+		t.Errorf("stderr should articulate shadow run error, got: %q", stderr.String())
+	}
+}
+
+// shadow の予期しない位置引数は ExitError (= validate / fixtures と同 pattern)。
+func TestRun_Shadow_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"shadow", "/tmp/oops"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "unexpected positional argument") {
+		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
+	}
+}
+
 // fixtures が nonexistent repo で ExitError。
 func TestRun_Fixtures_NonexistentRepo(t *testing.T) {
 	var stdout, stderr bytes.Buffer

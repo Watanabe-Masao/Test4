@@ -5,7 +5,18 @@
 
 ## 1. 現在地
 
-**Phase 8 完遂 (= 本 wrap-up commit landing 後)**。**5 detector 移植完了 + 8 fixture parity 100%**。次は Phase 9 Shadow Mode。
+**Phase 9 landing 完了 (= 本 commit landing 後)**。次は Phase 9 wrap-up commit。
+
+Phase 9 lineage (= landing 段階):
+- landing commit (本 commit): `internal/shadow/shadow.go` 新設 (= Summary + FixtureResult struct + Run + dispatch + 5 run* per-detector function) + `internal/shadow/shadow_test.go` 9 test + `internal/report/report.go` に ShadowSummaryRaw `json.RawMessage` field 追加 (= 循環依存回避) + `cmd/aag/main.go` に `aag shadow` subcommand 追加 + `cmd/aag/main_test.go` 3 test 追加 + DA-α-009 articulate (Lineage 仮 sha) + checklist Phase 9 3 件 flip
+
+Phase 9 deliverable (= cumulative):
+- aag-engine/ Go module (= 6 internal package = contract / detectors / fixture / report / shadow + cmd)
+- 97 Go test PASS (= cmd/aag 15 + contract 14 + fixture 16 + report 8 + detectors 35 + shadow 9)
+- 3 subcommand: `aag validate` / `aag fixtures` / `aag shadow` (= 全 detector × 全 fixture parity 集約)
+- shadow runner で 5 detector × 8 fixture = 40 parity 検証点を 1 回で集約、AllMatched()=true 達成
+
+(以下 Phase 0〜8 lineage は wrap-up commit 後に summary 更新)
 
 Phase 0〜7 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 8 lineage (= 完遂済):
