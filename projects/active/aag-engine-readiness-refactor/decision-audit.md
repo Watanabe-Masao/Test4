@@ -463,8 +463,8 @@ Phase 2 / 3 で確立した detector 5 件の `sourceFile` field は現状 `stri
 
 ### status
 
-- 着手判断: **open** (Phase 5 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 5 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 5 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 6 件すべて達成)
 
 ### context
 
@@ -511,10 +511,25 @@ Phase 5 plan.md は 7 fixture を例示。但し `archive-v2/fail-deleted-paths-
 ### Lineage
 
 - preJudgementCommit: `6cb71d4` (= Phase 4 wrap-up regen 後 HEAD)
-- judgementCommit: 本 Phase 5 landing commit (= wrap-up commit で SHA articulate)
-- postJudgementRegenCommit: §13.3 適用予定
+- judgementCommit: `32c458c` (= Phase 5 landing commit、8 fixture + parity test 9 件)
+- postJudgementRegenCommit: `a731264` (= §13.3 Pattern A application)
 - retrospectiveCommit: 本 Phase 5 wrap-up commit
 - judgementTag / rollbackTag: 未設定 (= SHA 直接参照)
+
+### 振り返り判定
+
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `fixtures/aag/` 配下 8 fixture 整備 (= 5 系統 coverage)
+  2. ✅ 各 fixture に input.json + expected.json articulate
+  3. ✅ parity test 9 件 PASS
+  4. ✅ 既存 production guard 不変 (= git show 32c458c --stat で確認)
+  5. ✅ 全 guard test PASS (= 147 file / 1054 test、Phase 4 後の 1045 + 9 新 test)
+  6. ✅ fixtures/aag/README.md が articulate 完了
+- **学習**:
+  - **plan.md sketch と現実の detector scope の整合**: plan.md 「fail-deleted-paths-empty」 / 「fail-missing-readme-index」 は detector の violation rule (= A2 / D1) との対応が緩い articulation。現 detector の検出論理に整合する命名 ("fail-missing-multiple-fields" / "fail-missing-path") に再構成することで、fixture 名 = 検出 violation の意図 が一致 (= G8 整合 = 「気をつける」を mechanism 化)
+  - **input/expected 2 file pattern の wisdom**: detector layer は facts → DetectorResult[] という pure mapping。fixture もこの shape で articulate することで、Go / Rust engine が同 JSON を読んで同 output を返すか直接比較可能。fact builder logic を test 側に置く必要がない (= alternative (b) を退ける根拠)
+  - **schema-validation を 5 系統 coverage に追加**: plan.md 例示 7 fixture は 4 系統のみだったが、Phase 5 で 5 系統 coverage 完成させたことで Phase 7 readiness report で「5 系統すべて fixture 化済」 を articulate 可能、後続 engine 実装 project の base case が full coverage で揃う
 
 ---
 

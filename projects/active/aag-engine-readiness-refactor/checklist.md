@@ -51,7 +51,7 @@
 * [x] 各 fixture に expected DetectorResult を定義する (= input.json + expected.json の 2 file pattern)
 * [x] TypeScript detector が fixture で検証できる test を追加する (= detectorResultModuleGuard.test.ts に Phase 5 group +9 test)
 * [x] 既存 guard と pure detector が同じ DetectorResult を返す parity test が PASS する (= 各 fixture で expected と detector output の deep equality assert)
-* [ ] DA-α-005 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-005 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 6: Pure Detector Extraction
 
