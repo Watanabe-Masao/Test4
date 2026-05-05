@@ -5,35 +5,33 @@
 
 ## 1. 現在地
 
-**Phase 0 landing 完了 (= 本 commit landing 後)**。次は Phase 0 wrap-up commit。
+**Phase 0 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 1 Go CLI Skeleton。
 
-Phase 0 lineage (= landing 段階):
-- landing commit (本 commit): 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha) + checklist Phase 0 5 件 flip
+Phase 0 lineage (= 完遂済):
+- landing commit `cc6e824`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha) + checklist Phase 0 5 件 flip
+- regen commit `ed348eb`: §13.3 Pattern A application (= project-structure.md generated section + 14 KPI/generated artifact sync)
+- wrap-up commit (本 commit): DA-α-000 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 6 件目 [x] flip + HANDOFF §1 update
+
+DA-α-000 振り返り判定: **正しい** (= 観測点 10 件すべて達成)。詳細は `decision-audit.md` DA-α-000 §振り返り判定 参照。
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
-Phase 0 では bootstrap / scope lock / required reads / DA-α-000 のみ articulate。
+Phase 0 では bootstrap / scope lock / required reads / DA-α-000 を完遂。
 
-derivedStatus: in_progress / 5 of 67 (Phase 0 landing 段階達成、wrap-up 待ち)。
+§13 commit pattern application 累積 (= Phase 0 完遂時点):
+- §13.1 二段 commit: 1 instance (= Phase 0 landing/wrap-up)
+- §13.2 atomic dependent update: 0 instance (= Phase 0 では新 references/ doc なし、Phase 5 で発生候補)
+- §13.3 post-flip regen: 1 instance (= Phase 0 後 regen)
+
+derivedStatus: in_progress / 6 of 67 (Phase 0 完遂、Phase 1 着手待ち)。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
-(user 承認) 1 件 + Phase 1〜12 各 DA-α entry の振り返り判定 = 全 [x]。
+(user 承認) 1 件 = 全 [x]。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（直近 = Phase 0 wrap-up）
-
-- **(該当時) docs:generate 反映 commit** (= §13.3 適用):
-  - 本 landing commit に新 file 8 + open-issues update + checkbox 5 件 flip が含まれるため、project-structure.md generated section + project.checklist.checkedCheckboxes KPI drift 発生想定
-  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push
-- **Phase 0 wrap-up commit** (= §13.1 適用):
-  - decision-audit.md DA-α-000 Lineage 実 sha update (= 本 landing commit SHA を articulate)
-  - decision-audit.md DA-α-000 振り返り判定 articulate (= 観測点 1〜10 達成状況 + 学習)
-  - checklist Phase 0 6 件目 (= DA-α-000 Lineage 実 sha update + 振り返り判定) checkbox を [x] flip
-  - 本 HANDOFF §1 を Phase 0 完遂状態に update
-
-### 中優先（次 PR = Phase 1）
+### 高優先（次 PR = Phase 1）
 
 - **Phase 1 Go CLI Skeleton landing commit**:
   - `aag-engine/` Go module 新設 (= go.mod + cmd/aag/main.go + internal/contract/ + internal/report/)

@@ -14,7 +14,7 @@
 * [x] DA-α-000 entry を decision-audit.md に articulate する (= 5 軸 + 観測点 + Lineage 仮 sha)
 * [x] §13.1 / §13.2 / §13.3 適用方針を plan.md §不可侵原則 6 に明記する
 * [x] readiness refactor deliverable を required reads として AI_CONTEXT.md に明示列挙する (= 17 file、§Required reads section)
-* [ ] DA-α-000 Lineage 実 sha update + 振り返り判定 (= wrap-up commit で flip)
+* [x] DA-α-000 Lineage 実 sha update + 振り返り判定 (= wrap-up commit で flip)
 * [x] checklistFormatGuard / projectCompletionConsistencyGuard / projectizationPolicyGuard / archiveV2SchemaGuard が本 project に対して PASS する
 * [x] docs:check が PASS する (= project-health.json に本 project が `derivedStatus = in_progress` で出現)
 * [x] **Go 実装にはまだ入っていない** (= aag-engine/ directory 不在を確認、Phase 1 着手まで scope lock 維持)
