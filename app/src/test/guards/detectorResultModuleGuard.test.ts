@@ -1085,13 +1085,12 @@ describe('Detector Result Module Guard', () => {
     }
 
     it('archive-v2/pass-minimal: detector 0 件 emit', () => {
-      const { input, expected } =
-        loadFixture<
-          ReadonlyArray<{
-            readonly manifestPath: string
-            readonly manifest: Record<string, unknown>
-          }>
-        >('archive-v2/pass-minimal')
+      const { input, expected } = loadFixture<
+        ReadonlyArray<{
+          readonly manifestPath: string
+          readonly manifest: Record<string, unknown>
+        }>
+      >('archive-v2/pass-minimal')
       const results = detectArchiveManifestViolations(input.facts)
       // factory は frozen を返すが、JSON parse 結果は plain object のため shape のみ比較
       expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
