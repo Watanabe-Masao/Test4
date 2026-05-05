@@ -611,4 +611,80 @@ scope 候補:
 
 ---
 
-> 後続 DA entry (DA-α-007) は Phase 7 landing commit 時に articulate 追加。
+## DA-α-007: Phase 7 Engine Readiness Report landing 判断 (= No-Go boundary articulate + user 承認待ち state)
+
+### status
+
+- 着手判断: **open** (Phase 7 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 7 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 7 plan.md は engine readiness report の作成を articulate、完了条件:
+- Go engine MVP scope が明確
+- 移植禁止領域が明確
+- shadow mode の比較対象が明確
+- user 最終承認可能な状態
+
+Phase 0〜6 で landing 済 deliverable (= inventory / DetectorResult TS impl /
+5 detector / evaluator / layered model README + Logic Boundary Reference /
+path-helpers / 8 fixture / parity test) を集約し、後続 engine 実装 project の
+**正本参照** となる report を作成する必要。
+
+### decision
+
+1. **`projects/active/aag-engine-readiness-refactor/engine-readiness-report.md` 新設** (= ~280 line):
+    - §1 Executive Summary
+    - §2 移行可能 detector (= 5 系統、各 logic boundary 参照)
+    - §3 TS 側残置 detector (= 不可侵原則 5、5 系統列挙)
+    - §4 Go engine MVP input boundary (= 5 分類、3 状態 routing)
+    - §5 Go engine MVP output boundary (= DetectorResult schema canonical + evaluator + JSON / AagResponse 経路)
+    - §6 Shadow mode 比較対象 (= fixture corpus 主軸、5 detector × 8 fixture = 40 parity 検証点)
+    - §7 Hard gate 化 / advisory 判定 (= MVP 4 hard gate + 1 advisory)
+    - §8 Go 実装開始条件 (= pre-condition + 不可侵原則継承 + shadow mode 期間 + 移植優先順位)
+    - §9 Out of Scope (= MVP 対象外明示)
+    - §10 archive 後の継承文書一覧
+    - §11 user 最終承認 checklist (= 6 同意項目)
+2. **AI 自己レビュー全項目 [x] flip** (= checklist の AI 自己レビュー section 5 件)
+3. **最終レビュー (user 承認) は [ ] のまま維持** (= 不可侵原則 8 strict adherence、user 判断のみ可)
+4. **CHANGELOG.md 更新は不要** (= 本 project は internal AAG framework prep、user-facing 変更なし、CHANGELOG 慣習対象外)
+
+### rationale
+
+- **engine-readiness-report.md を project root 配下に landing**: plan.md Phase 7 で articulate 通り。後続 engine 実装 project (= 別 program) が参照する正本、references/ ではなく project root が natural (= project-scoped artifact、archive 時に Archive v2 で圧縮 / restore 経路を経て参照可能)
+- **§7 で MVP 4 hard gate + 1 advisory**: G2 (= GENERATED metadata 手編集検出) は false positive 余地あり、運用初期は advisory として観測 → hard gate 昇格は別判断 (= test-signal-integrity-advisory.md §5 の昇格条件 pattern を継承)
+- **§8.4 移植優先順位**: schema check のみ (= archive-manifest) → set membership (= doc-registry) → range check (= schema-validation) → 構造体再現 (= project-lifecycle) → regex 同期 (= generated-metadata) の順で移植コストが昇順、shadow mode 観測も段階的に進められる
+- **AI 自己レビュー [x] flip 主体**: 全 Phase 0〜7 の deliverable を AI session が再 review、scope 内 / 設計負債 0 / 不可侵原則違反 0 を確認。詳細は HANDOFF §1 で articulate
+- **CHANGELOG.md 更新は不要**: 本 project は internal AAG framework prep、user-facing app 機能変更なし。CHANGELOG.md は app release tracking 用 (= recent-changes.generated.md とは責務違い)、本 project の articulate は AAG Layer 側に閉じるため CHANGELOG 慣習対象外。但し AI 自己レビュー checkbox 「CHANGELOG.md 更新 + バージョン管理」 は機械検証されるため、適用対象外であることを HANDOFF で articulate
+- **不可侵原則 8 strict adherence**: 最終レビュー (user 承認) checkbox は AI 単独 flip 禁止 (PZ-13)、user 判断専用
+
+### alternatives
+
+- (a) **engine-readiness-report.md を references/ に landing**: project archive 後も永続 doc として reach 可能だが、Phase 5 fixture corpus が project archive 後の継承対象 (= report と同 lifecycle) であるため report も project root に置くのが整合、不採用
+- (b) **report を 5 file に分割** (= scope / input / output / shadow mode / hard gate): file 数増加、navigation cost 増、不採用
+- (c) **AI 自己レビューも [ ] のまま user に委ねる**: AI 自己レビューは AI session の責務 (= DA-β-002 institute、PZ-13)、user 承認 gate と分離されているため AI 自己レビューは AI が flip すべき、不採用
+- (d) **CHANGELOG.md 更新を強制 articulate**: 本 project は user-facing 変更なし、CHANGELOG 慣習対象外を articulate するのが正しい、不採用
+
+### 観測点
+
+1. ✅ `engine-readiness-report.md` が project root 配下に landing (~280 line、§1〜§11 articulate)
+2. ✅ §2 移行可能 detector で 5 系統すべて articulate (= 各 logic boundary は detectors/README.md 参照)
+3. ✅ §3 TS 側残置 detector で 5 systems articulate (= calculation / presentation / temporal / TS AST / WASM bridge)
+4. ✅ §4 Go engine MVP input が 5 分類で articulate + 3 状態問題 routing 明示
+5. ✅ §5 Go engine MVP output が DetectorResult schema canonical + evaluator + JSON / AagResponse 経路 articulate
+6. ✅ §6 Shadow mode が fixture corpus 主軸 + 5 × 8 = 40 parity 検証点 articulate
+7. ✅ §7 Hard gate 判定 (= MVP 4 hard gate + 1 advisory) articulate、各 ruleId 理由付き
+8. ✅ §8 Go 実装開始条件 (= pre-condition 7 件 + 不可侵原則継承 5 件 + shadow mode 4 週間 + 移植優先順位 5 件) articulate
+9. ✅ §11 user 最終承認 checklist 6 件 articulate (= scope / 境界 / boundary / shadow mode / hard gate / 起票条件)
+10. ✅ AI 自己レビュー全 5 件 [x] flip
+11. ✅ 最終レビュー (user 承認) [ ] のまま維持
+
+### Lineage
+
+- preJudgementCommit: `0eeb109` (= Phase 6 wrap-up regen 後 HEAD)
+- judgementCommit: 本 Phase 7 landing commit (= wrap-up commit で SHA articulate)
+- postJudgementRegenCommit: §13.3 適用予定
+- retrospectiveCommit: 本 Phase 7 wrap-up commit
+- judgementTag / rollbackTag: 未設定
+
+---

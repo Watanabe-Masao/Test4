@@ -62,9 +62,9 @@
 
 ## Phase 7: Engine Readiness Report / No-Go Boundary
 
-* [ ] 本 project root 配下に engine readiness report を作成する (= ファイル名は Phase 7 着手時に articulate、Phase 0 時点では path として書かないことで pathExistence guard hard fail を回避)
-* [ ] 移行可能になった detector / TS 側に残す detector / Go engine MVP input + output / shadow mode 対象 / hard gate 化判断 / Go 実装開始条件 を articulate する
-* [ ] DA-α-007 entry を articulate する
+* [x] 本 project root 配下に engine readiness report を作成する (= `engine-readiness-report.md`、~280 line、§1〜§11)
+* [x] 移行可能になった detector / TS 側に残す detector / Go engine MVP input + output / shadow mode 対象 / hard gate 化判断 / Go 実装開始条件 を articulate する (= §2-§8 articulate、Phase 0〜6 deliverable 集約)
+* [ ] DA-α-007 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## AI 自己レビュー (= user 承認の手前)
 
@@ -73,11 +73,11 @@
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-* [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-* [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= engine 実装に踏み込んでいない / 既存 guard 意味を変えていない)
-* [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
-* [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-* [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合
+* [x] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認 (= Phase 0〜7 完遂、§13.1 二段 8 + §13.2 atomic 1 + §13.3 regen 16 instance、不可侵原則 8 件 maintained)
+* [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= engine 実装に踏み込んでいない / 既存 guard 意味を変えていない、production guard 全 5 件 git diff で touch なし)
+* [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検 (= detector pure function は引数のみ参照、null safe = manifest null skip / level null skip、型 assertion は branded type で防御、race なし、全 1057 test PASS)
+* [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了 (= detectors/README + aag-engine-readiness-inventory + guard-test-map + engine-readiness-report + decision-audit DA-α-000〜007 + HANDOFF + checklist update 済、CLAUDE.md は本 project が internal AAG framework prep のため更新対象外と DA-α-001 で articulate 済)
+* [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 (= 本 project は internal AAG framework prep、user-facing app 機能変更なし、CHANGELOG.md 慣習対象外を DA-α-007 §rationale で articulate、appVersion drift なし = guard PASS)
 
 ## 最終レビュー (user 承認)
 

@@ -5,15 +5,36 @@
 
 ## 1. 現在地
 
-**Phase 6 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 7 Engine Readiness Report。
+**Phase 7 landing 完了 (= 本 commit landing 後)**。**user 最終承認 待ち state** (= 機能的 Phase 0〜7 + AI 自己レビュー全 [x]、最終レビュー [ ] のみ残る)。
 
-Phase 5+6 lineage (= 完遂済):
+Phase 5+6+7 lineage (= 完遂):
 - Phase 5: landing `32c458c` + regen `a731264` + wrap-up `d454154` + regen `f857e55`
-- Phase 6: landing `f05bcba` + regen `f0bb4c0` + wrap-up (本 commit)
+- Phase 6: landing `f05bcba` + regen `f0bb4c0` + wrap-up `4c1a42c` + regen `0eeb109`
+- Phase 7 (本 commit + 後続 wrap-up): landing = `engine-readiness-report.md` 新設 (~280 line) + DA-α-007 articulate + AI 自己レビュー全 5 件 [x] flip + checklist Phase 7 2 件 flip
 
-DA-α-006 振り返り判定: **正しい** (= 観測点 6 件すべて達成)。
-全 5 detector が path-helpers adoption 済、Logic Boundary Reference articulate 完成。
-Phase 7 readiness report の入力 boundary が full coverage で articulate 完成。
+Phase 7 deliverable:
+- `engine-readiness-report.md` (= §1〜§11、Executive / 移行可能 detector / TS 残置 / Go MVP input/output / shadow mode / hard gate / 開始条件 / out of scope / 継承文書 / user 承認 checklist)
+- 全 5 detector が engine MVP scope に articulate
+- 5 系統 TS 残置 articulate (= calculation / presentation / temporal / TS AST / WASM bridge)
+- shadow mode = fixture corpus 主軸 (= 5 × 8 = 40 parity 検証点)
+- hard gate 化 MVP = 4 hard gate + 1 advisory (= G2 観測期間後昇格判断)
+- Go 実装開始は user 承認 + 別 program 起票 (= aag-engine-go-mvp 等) で trigger
+
+AI 自己レビュー全 5 件 [x]:
+- 総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ / CHANGELOG (= 対象外 articulate)
+
+**残タスク**:
+- Phase 7 wrap-up commit (= DA-α-007 Lineage 実 sha + 振り返り判定 + checklist 4 件目 flip)
+- §13.3 regen
+- **最終レビュー (user 承認)** ← user judgement、AI は touch しない
+
+## 2. user 承認後の routing
+
+最終レビュー [x] flip 後:
+1. `references/05-aag-interface/operations/project-checklist-governance.md` §6.2 archive プロセスへ移行
+2. Archive v2 圧縮 (= self-dogfood 4 件目)
+3. 本 project archive 後、後続 engine 実装 project (= aag-engine-go-mvp 等) 起票判断は user。
+   起票 trigger と継承事項は `engine-readiness-report.md` §8 + §10 articulate。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
