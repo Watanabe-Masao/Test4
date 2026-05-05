@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-05T05:30:59.748Z",
+  "timestamp": "2026-05-05T07:40:41.779Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -596,7 +596,7 @@
       "id": "docs.obligation.violations",
       "label": "Doc 更新義務違反数",
       "category": "docs",
-      "value": 2,
+      "value": 1,
       "unit": "count",
       "status": "fail",
       "owner": "documentation-steward",
