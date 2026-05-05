@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 4 landing 完了 (= 本 commit landing 後)**。次は Phase 4 wrap-up commit。
+**Phase 4 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 5 Archive v2 / Project Lifecycle Fixture Corpus。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
@@ -30,38 +30,32 @@ Phase 3 lineage (= 完遂済):
 - landing `c9b0bed` + regen `3de426e` + wrap-up `56d98fa` + regen `72872c8`
 - DA-α-003 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
-Phase 4 lineage (= landing 段階):
-- landing commit (本 commit): `path-helpers.ts` 新設 (= ~155 line、`RepoPath` branded type + `RepoFileEntry` + 5 helper function) + 3 detector adoption (= project-lifecycle / archive-manifest / doc-registry が `toRepoPath()` で sourceFile boundary validate) + `detectorResultModuleGuard.test.ts` +27 test (46 → 73) + `detectors/README.md` 更新 (= path-helpers section + 4 規約 + adoption pattern code 例) + guard-test-map.md update + DA-α-004 articulate (Lineage 仮 sha) + checklist Phase 4 3 件 flip
+Phase 4 lineage (= 完遂済):
+- landing commit `fc909cb`: path-helpers.ts 新設 + 3 detector adoption + 27 新 test + README update + DA-α-004 articulate + checklist 3 件 flip
+- regen commit `4c4beba`: §13.3 Pattern A application
+- wrap-up commit (本 commit): DA-α-004 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 4 件目 [x] flip + HANDOFF §1 update
 
-Phase 4 重要決定 (= DA-α-004 §decision):
-- path-helpers foundation 新設 (= 4 規約: POSIX separator / repo-relative / non-traversal / non-empty)
-- 3 detector adoption (= plan.md 完了条件「project / archive / doc registry validator が共通 path helper を使う」に対応)
-- 残り 2 detector (generated-metadata / schema-validation) は Phase 6 adoption に deferral
-- 既存 production guard 不変 (= 不可侵原則 2 strict adherence)
+DA-α-004 振り返り判定: **正しい** (= 観測点 8 件すべて達成)。
 
-§13 commit pattern 累積 application (= Phase 0〜4 landing 時点):
-- §13.1 二段 commit: 8 instance + Phase 4 landing/wrap-up = 10 instance (Phase 4 wrap-up は本 commit 後の次 commit)
+Phase 4 学習 (= DA-α-004 §振り返り判定 §学習、後続 Phase で活かす):
+- **branded type の wisdom**: `RepoPath = string & { __brand }` で TS type level path 規約遵守を保証可能。但し JSON Schema は branded を articulate できないため `DetectorResult.sourceFile` は `string` 維持 + boundary validation の trade-off を articulate
+- **boundary validation の minimal cost / maximum effect**: detector boundary で `toRepoPath()` を呼ぶ pattern が最小コストで最大検証効果。collector layer まで遡る systematic validation は Phase 6 routing で deferral
+- **forward-looking type articulate**: `RepoFileEntry` を Phase 4 で landing し Phase 5/6 で実 adoption 予定。aag-platformization Pilot の forward-looking schema pattern を Phase 4 で再適用、後続 Phase の base type を pre-landing する pattern が institutionalize
+- **3 detector adoption の choice の wisdom**: plan.md 完了条件で名指しされた 3 系統に scope を絞ることで wrap-up commit を controllable に維持。残り 2 detector は Phase 6 と統合 routing
+- **guard 修正 0 件達成 (= 連続 2 Phase)**: 同 test file への describe block 追加 pattern が co-change 義務を最小化
+
+§13 commit pattern 累積 application (= Phase 0〜4 完遂時点):
+- §13.1 二段 commit: 10 instance (= 各 Phase landing/wrap-up)
 - §13.2 atomic dependent update: 1 instance (= Phase 1 landing)
-- §13.3 post-flip regen: 9 instance + Phase 4 後 regen = 10 instance (Phase 4 regen は本 commit 後)
+- §13.3 post-flip regen: 11 instance (= 各 flip 後の sync)
 
-derivedStatus: in_progress / 22 of 50 (Phase 4 landing 段階達成、wrap-up 待ち)。
+derivedStatus: in_progress / 23 of 50 (Phase 4 完遂、Phase 5 着手待ち)。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（直近 = Phase 4 wrap-up）
-
-- **(該当時) docs:generate 反映 commit** (= §13.3 適用):
-  - 本 landing commit に新 file (path-helpers.ts) + 3 detector touch + checkbox 3 件 flip が含まれるため、obligation + project-structure.md + KPI drift 発生想定
-  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push
-- **Phase 4 wrap-up commit** (= §13.1 適用):
-  - decision-audit.md DA-α-004 Lineage 実 sha update
-  - decision-audit.md DA-α-004 振り返り判定 articulate (= 観測点 1〜8 達成状況 + 学習)
-  - checklist Phase 4 4 件目 (= DA-α-004 振り返り判定) checkbox を [x] flip
-  - 本 HANDOFF §1 を Phase 4 完遂状態に update
-
-### 中優先（次 PR = Phase 5）
+### 高優先（次 PR = Phase 5）
 
 - **Phase 5 Archive v2 / Project Lifecycle Fixture Corpus landing commit**:
   - `fixtures/aag/` 配下に pass / fail fixture を整備

@@ -357,8 +357,8 @@ Phase 3 とは role が異なる:
 
 ### status
 
-- 着手判断: **open** (Phase 4 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 4 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 4 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
 ### context
 
@@ -432,15 +432,30 @@ Phase 2 / 3 で確立した detector 5 件の `sourceFile` field は現状 `stri
 ### Lineage
 
 - **preJudgementCommit**: `72872c8` (= Phase 3 wrap-up 後 regen commit、本 Phase 4 landing 直前の HEAD)
-- **judgementCommit**: 本 Phase 4 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `fc909cb` (= Phase 4 landing commit、path-helpers foundation + 3 detector adoption)
+- **postJudgementRegenCommit**: `4c4beba` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 4 wrap-up commit
 - **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
 - **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `72872c8` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 4 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `tools/architecture-health/src/path-helpers.ts` 新設 (~155 line)、`RepoPath` / `RepoFileKind` / `RepoFileEntry` + 5 helper function (`isRepoPath` / `toRepoPath` / `assertRepoPath` / `inferRepoFileKind` / `createRepoFileEntry`) を export
+  2. ✅ 4 path 規約すべての positive / negative test PASS (= POSIX separator / repo-relative / non-traversal / non-empty、計 ~15 test)
+  3. ✅ `createRepoFileEntry` factory が path 規約 + sizeBytes integer + sha256 hex format を hard fail で validate (= 6 test PASS)
+  4. ✅ 3 detector (= project-lifecycle / archive-manifest / doc-registry) が `toRepoPath()` で `sourceFile` を boundary validate (= 各 detector の `createDetectorResult` 呼び出し直前で validation)
+  5. ✅ 不正 path (= absolute / Windows separator / traversal) を facts に渡した場合 3 detector すべてが hard fail で throw (= 3 detector adoption test PASS)
+  6. ✅ 既存 valid path 動作は regression なし (= 全 1018 (Phase 3) → 1045 (Phase 4) test PASS、+27 test 追加で既存 PASS 件数は不変)
+  7. ✅ 既存 production guard 全 5 件 (= projectCompletionConsistencyGuard / archiveV2SchemaGuard / docRegistryGuard / generatedFileEditGuard / projectizationPolicyGuard) は変更されていない (= git show fc909cb --stat で対象 file が file list に存在しないことを確認)
+  8. ✅ 全 guard test PASS (= 147 file / 1045 test、Phase 3 後の 1018 + 27 新 test = 1045)
+- **学習**:
+  - **branded type の wisdom**: `RepoPath = string & { __brand }` により、`toRepoPath()` 経由しない値が detector に渡されることを **TS type level で防止可能**。runtime validation だけでは「うっかり raw string を渡す」 regression が起きうるが、branded type で CI build 時点で検出可能。但し JSON Schema は branded を articulate できないため、`DetectorResult.sourceFile` は `string` のままで boundary validation で対処する trade-off も articulate
+  - **boundary validation の minimal cost / maximum effect**: detector input facts (= collector layer から articulate) まで遡って validate するのは scope 大。detector boundary (= `createDetectorResult` 直前) で `toRepoPath()` を呼ぶ pattern が **最小コストで最大検証効果** を articulate。collector layer 側の Facts schema 改訂は Phase 6 (= production guard refactor) の責務として deferral
+  - **forward-looking type の articulate (= `RepoFileEntry`)**: 現 Phase で **使用は義務付けない** が、Phase 5 fixture corpus + Phase 6 pure detector extraction で facts 入力 type として使用予定。aag-platformization Pilot で `detector-result.schema.json` を forward-looking として landed した pattern を Phase 4 で再適用 (= 後続 Phase の base type を pre-landing する pattern が institutionalize)
+  - **3 detector adoption の choice (= 5 detector 全 adoption と choices)**: plan.md 完了条件「project / archive / doc registry validator が共通 path helper を使う」が **明示的に 3 系統名指し**。残り 2 detector (generated-metadata / schema-validation) は Facts interface に複数 path field があり systematic validation には Facts schema 改訂が必要、Phase 6 production guard refactor と統合 routing する scope 縮小判断が wisdom
+  - **guard 修正 0 件達成 (= 連続 2 Phase)**: Phase 3 で確立した「同 test file への describe block 追加」 pattern を Phase 4 で継続適用、guardTestMapConsistencyGuard baseline 不変 + projectStructureGuard generated section 自動更新で完結。同 test file への集約 pattern は Phase 5 / 6 / 7 でも継続適用候補
 
 ---
 
