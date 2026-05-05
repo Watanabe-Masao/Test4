@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 3 landing 完了 (= 本 commit landing 後)**。次は Phase 3 wrap-up commit。
+**Phase 3 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 4 Path Normalization / RepoFileIndex。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
@@ -26,39 +26,32 @@ Phase 2 lineage (= 完遂済):
 - landing `75257d7` + regen `1949db8` + wrap-up `3d7378a` + regen `5b71722` + L1 fix `495e740` + regen `de62efc`
 - DA-α-002 振り返り判定: **正しい** (= 観測点 7 件すべて達成)
 
-Phase 3 lineage (= landing 段階):
-- landing commit (本 commit): 4 detector file 新設 (= archive-manifest / doc-registry / generated-metadata / schema-validation) + `detector-result.ts` に `evaluateDetectorResults` evaluator 追加 + `detectors/README.md` 新設 (= 4 層 layered model articulate) + `detectorResultModuleGuard.test.ts` extension (= +26 test、20 → 46) + guard-test-map.md update (= 件数 20 → 46) + DA-α-003 articulate (Lineage 仮 sha) + checklist Phase 3 3 件 flip
+Phase 3 lineage (= 完遂済):
+- landing commit `c9b0bed`: 4 detector file 新設 (= archive-manifest / doc-registry / generated-metadata / schema-validation) + `detector-result.ts` に `evaluateDetectorResults` evaluator 追加 + `detectors/README.md` 新設 (= 4 層 layered model articulate) + `detectorResultModuleGuard.test.ts` +26 test (20 → 46) + guard-test-map.md update + DA-α-003 articulate (Lineage 仮 sha) + checklist Phase 3 3 件 flip
+- regen commit `3de426e`: §13.3 Pattern A application (= obligation + project-structure.md + 14 KPI/generated artifact sync)
+- wrap-up commit (本 commit): DA-α-003 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 4 件目 [x] flip + HANDOFF §1 update
 
-Phase 3 重要決定 (= DA-α-003 §decision):
-- 4 系統 systematic adoption (= Phase 2 demonstration の 1 系統 → Phase 3 で 5 系統 揃う)
-- evaluator layer 確立 (= `evaluateDetectorResults` で 4 層 layered model 完成)
-- layered model README で navigation cost 最小化
-- 既存 production guard 不変 (= 不可侵原則 2 strict adherence、Phase 2 と同 pattern)
-- renderer 分離 parity test で plan.md 完了条件「renderer 変更で detector logic が変わらない」を test 化 (= G8 整合)
+DA-α-003 振り返り判定: **正しい** (= 観測点 8 件すべて達成)。
 
-§13 commit pattern 累積 application (= Phase 0〜3 landing 時点):
-- §13.1 二段 commit: 6 instance + Phase 3 landing/wrap-up = 8 instance (Phase 3 wrap-up は本 commit 後の次 commit で landing 予定)
+Phase 3 学習 (= DA-α-003 §振り返り判定 §学習、後続 Phase で活かす):
+- **demonstration pattern の institutionalization 効果**: Phase 2 で 1 系統で確立した pattern を Phase 3 で 4 系統に mechanical に展開可能だった (= scope candidate B での 2 段 Phase 設計が wisdom)
+- **layered model README の navigation 効果**: 4 層 model + 5 detector 一覧 + 追加手順を 1 file に articulate、後続 navigation cost 大幅低下
+- **evaluator layer で 4 層 layered model 完成**: plan.md mention の分離 model が reference implementation として揃った (= 後続 engine 実装 project の base case)
+- **renderer 分離 parity test の G8 整合**: plan.md 完了条件 hand-wave を test 化 (= 「気をつける」 exhortation を mechanism に転化)
+- **guard 修正 0 件達成**: 同 test file への describe block 追加 pattern が co-change 義務を最小化
+
+§13 commit pattern 累積 application (= Phase 0〜3 完遂時点):
+- §13.1 二段 commit: 8 instance (= Phase 0 + 1 + 2 + 3 各 landing/wrap-up)
 - §13.2 atomic dependent update: 1 instance (= Phase 1 landing)
-- §13.3 post-flip regen: 6 instance + Phase 3 後 regen = 7 instance (Phase 3 regen は本 commit 後)
+- §13.3 post-flip regen: 8 instance (= Phase 0 後 + Phase 1 × 2 + Phase 2 × 3 + Phase 3 × 2)
 
-derivedStatus: in_progress / 18 of 50 (Phase 3 landing 段階達成、wrap-up 待ち)。
+derivedStatus: in_progress / 19 of 50 (Phase 3 完遂、Phase 4 着手待ち)。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（直近 = Phase 3 wrap-up）
-
-- **(該当時) docs:generate 反映 commit** (= §13.3 適用):
-  - 本 landing commit に新 detector file 4 + README + guard-test-map update + checkbox 3 件 flip が含まれるため、project-structure.md generated section + project.checklist.checkedCheckboxes KPI drift 発生想定
-  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push
-- **Phase 3 wrap-up commit** (= §13.1 適用):
-  - decision-audit.md DA-α-003 Lineage 実 sha update
-  - decision-audit.md DA-α-003 振り返り判定 articulate (= 観測点 1〜8 達成状況 + 学習)
-  - checklist Phase 3 4 件目 (= DA-α-003 振り返り判定) checkbox を [x] flip
-  - 本 HANDOFF §1 を Phase 3 完遂状態に update
-
-### 中優先（次 PR = Phase 4）
+### 高優先（次 PR = Phase 4）
 
 - **Phase 4 Path Normalization / RepoFileIndex landing commit**:
   - repo-relative POSIX path を標準化、絶対 path を artifact に入れない

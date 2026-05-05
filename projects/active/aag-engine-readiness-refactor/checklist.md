@@ -36,7 +36,7 @@
 * [x] `tools/architecture-health/` 配下のフローを collector → detector → evaluator → renderer に分離する (= `detectors/` directory + README articulate + `evaluateDetectorResults` evaluator helper)
 * [x] detector が fs / glob に直接依存しない箇所を増やす (= 5 系統 detector を pure function で articulate、Phase 2 demonstration の 1 系統 → Phase 3 で 5 系統)
 * [x] renderer 変更で detector logic が変わらないことを test で保証する (= layered model parity test、JSON / AagResponse / evaluator summary が同 DetectorResult[] から独立に articulate される)
-* [ ] DA-α-003 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-003 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 4: Path Normalization / RepoFileIndex
 

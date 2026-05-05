@@ -261,8 +261,8 @@ Phase 2 進入時の重要発見:
 
 ### status
 
-- 着手判断: **open** (Phase 3 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 3 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 3 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
 ### context
 
@@ -326,15 +326,30 @@ Phase 3 とは role が異なる:
 ### Lineage
 
 - **preJudgementCommit**: `de62efc` (= Phase 2 fix 後 regen commit、本 Phase 3 landing 直前の HEAD)
-- **judgementCommit**: 本 Phase 3 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= 新 detector file 追加で project-structure.md 変動なし、checkbox flip による project.checklist.* drift)
+- **judgementCommit**: `c9b0bed` (= Phase 3 landing commit、4 detector + evaluator + layered model README)
+- **postJudgementRegenCommit**: `3de426e` (= §13.3 Pattern A application、obligation + project-structure.md + 14 KPI/generated artifact sync)
 - **retrospectiveCommit**: 本 Phase 3 wrap-up commit
 - **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
 - **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `de62efc` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 3 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ 4 detector file (= archive-manifest / doc-registry / generated-metadata / schema-validation) が `tools/architecture-health/src/detectors/` 配下に存在 (= git ls-files で確認済、各 ~75-110 line)
+  2. ✅ 各 detector は pure function (= signature `detect*Violations(facts) → DetectorResult[]`、fs / glob 直接依存なし、引数 facts のみ参照、import 文で fs / path / glob を import していないことを確認)
+  3. ✅ `evaluateDetectorResults(results) → DetectorEvaluationSummary` が `detector-result.ts` に articulate (= +50 line、Object.freeze で immutable、6 unit test PASS)
+  4. ✅ `tools/architecture-health/src/detectors/README.md` が 4 層 layered model + 5 detector 一覧 + 7 step 新 detector 追加手順 を articulate (= ~85 line)
+  5. ✅ layered model parity test 2 件 PASS (= 「同 DetectorResult[] から JSON / AagResponse / evaluator summary が独立 articulate」 + 「detector output は renderer 選択に依存しない」)
+  6. ✅ 既存 production guard 全 5 件は **変更されていない** (= git show c9b0bed --stat で archiveV2SchemaGuard / docRegistryGuard / generatedFileEditGuard / projectizationPolicyGuard / projectCompletionConsistencyGuard すべて file list に存在しないことを確認、parallel implementation として並存)
+  7. ✅ 全 guard test PASS (= 147 file / 1018 test、Phase 2 後の 992 + 26 新 test = 1018)
+  8. ✅ Phase 3 完了条件 3 件すべて達成: (a) detector が fs / glob に直接依存しない箇所が増える (= 1 → 5 系統) / (b) test wrapper と detection logic が分離される (= detector はすべて pure function、test は thin wrapper) / (c) renderer 変更で detector logic が変わらない (= layered model parity test で機械検証)
+- **学習**:
+  - **demonstration pattern の institutionalization 効果**: Phase 2 で 1 系統 demonstration pattern (= parallel implementation + ruleId 1:1 整合 + pure function) を確立、Phase 3 で 4 系統に展開する際は **同じ pattern を mechanical に適用するだけ** で進行可能だった。各 detector ~75-110 line、test ~50-80 line、計 ~600 line 追加で Phase 3 完遂 (= scope candidate B での Foundation + 1 系統 → systematic adoption の 2 段 Phase 設計が wisdom)
+  - **layered model README の navigation 効果**: README が 4 層 model を table 化 + 5 detector 一覧 + 新 detector 追加手順を 1 file に articulate することで、後続 detector 追加時の navigation cost が大幅に下がる。AAG-REQ-ANTI-DUPLICATION 整合 (= plan.md は分離 model articulate / README は reference implementation = reader が異なる)。Phase 6 (= production guard refactor) の reference として機能する見込み
+  - **evaluator layer の wisdom**: plan.md Phase 3 分離モデルで evaluator が unimplemented だったが、`evaluateDetectorResults` を追加することで 4 層 layered model が **完全な reference implementation** として完成。後続 engine 実装 project が 4 層をすべて Go / Rust に移植可能か articulate するための base case が揃った
+  - **renderer 分離 parity test の G8 整合**: 「renderer 変更で detector logic が変わらない」は plan.md で hand-wave articulate されていたが、test 化することで **「気をつける」 exhortation を mechanism に転化** (= G8)。同 DetectorResult[] から JSON / AagResponse / evaluator が独立に articulate される property は、後続 detector 追加時も継続維持される invariant
+  - **guard 修正 0 件達成**: Phase 2 では guard 修正 1 件 (= guardTestMapConsistencyGuard baseline + projectStructureGuard generated section) が発生したが、Phase 3 では **同 test file への describe block 追加 + guard-test-map 件数 update のみ** で完結 (= 新 test file 追加なし、guardTestMapConsistencyGuard baseline 不変)。学習: 同 module の test は同 file に集約する pattern が co-change 義務を最小化
 
 ---
 
