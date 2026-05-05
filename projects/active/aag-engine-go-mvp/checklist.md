@@ -22,7 +22,7 @@
 ## Phase 1: Go CLI Skeleton
 
 * [x] `aag-engine/go.mod` + `cmd/aag/main.go` + `internal/contract/` + `internal/report/` を新設する
-* [x] `aag validate --repo .` / `aag validate --format json` / `aag fixtures --repo .` の 3 サブコマンドが起動する
+* [x] `validate` (= 2 invocation patterns: `aag validate --repo .` / `aag validate --format json`) と `fixtures` (= `aag fixtures --repo .`) の 2 サブコマンドが起動する
 * [x] repo を書き換えない (= read-only verify、go test で write 操作 0 件確認)
 * [x] JSON output (= 空 DetectorResult[]) を返せる
 * [x] exit code contract (= 0 = pass / 1 = fail / 2 = error) が articulate
@@ -30,9 +30,10 @@
 
 ## Phase 2: DetectorResult Contract Binding
 
-* [ ] `internal/contract/detector_result.go` の Go struct が canonical schema (= `docs/contracts/aag/detector-result.schema.json`) と structurally identical
-* [ ] JSON serialization が `expected.json` と field-level 比較可能 (= field name / order / type 一致)
-* [ ] schemaVersion / detectorId / ruleId / severity / sourceFile / evidence / actual / baseline / messageSeed の 9 field を保持
+* [x] `internal/contract/detector_result.go` の Go struct が canonical schema (= `docs/contracts/aag/detector-result.schema.json`) と structurally identical
+* [x] JSON serialization が `expected.json` と field-level 比較可能 (= field name / order / type 一致)
+* [x] canonical schema 8 field (= 4 required + 4 optional = ruleId / detectionType / sourceFile / severity + evidence / actual / baseline / messageSeed) を保持 (= plan.md の field 列挙誤りを canonical 準拠に修正、DA-α-002 §context-1)
+* [x] (Phase 1 deliverable bug fix) `aag validate /tmp/repo` の positional argument silent ignore を hard fail で検出 + hint 付き ExitError を返す (= user feedback 由来、DA-α-002 §context-2)
 * [ ] DA-α-002 entry を articulate する
 
 ## Phase 3: Fixture Runner

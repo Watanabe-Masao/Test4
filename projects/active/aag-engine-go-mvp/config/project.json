@@ -17,7 +17,7 @@
     "requiresGuard": false,
     "requiresHumanApproval": true,
     "nonGoals": [
-      "Rust engine の実装 (= Phase 10 で必要性再評価、本 MVP scope 外)",
+      "Rust engine の実装 (= Phase 12 で必要性再評価、本 MVP scope 外)",
       "generated artifact の生成機能 (= MVP は validator のみ、generator ではない)",
       "docs:generate を Go に移管 (= TS 維持)",
       "TypeScript guard を削除 (= 本 MVP は parallel implementation、TS 不変)",

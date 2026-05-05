@@ -1,7 +1,8 @@
 // Package main is the AAG Engine Go MVP CLI entry point.
 //
 // Phase 1 (= Go CLI Skeleton) で landing する skeleton。Go binary が起動し、
-// 3 サブコマンド (= validate / fixtures) で空の DetectorResult[] JSON を返す。
+// 2 サブコマンド (= validate / fixtures、+ --help / -h / help meta flag) で空の
+// DetectorResult[] JSON を返す。
 //
 // Phase 2 以降で:
 //   - DetectorResult contract binding (= internal/contract/)
@@ -104,6 +105,11 @@ func runValidate(args []string, stdout, stderr io.Writer) ExitCode {
 	if err := fs.Parse(args); err != nil {
 		return ExitError
 	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag validate: unexpected positional argument(s): %v\n", fs.Args())
+		fmt.Fprintln(stderr, "hint: --repo flag を使用してください (= aag validate --repo /path/to/repo)")
+		return ExitError
+	}
 
 	if *format != "json" {
 		fmt.Fprintf(stderr, "aag validate: unsupported format %q (= 'json' のみ対応)\n", *format)
@@ -111,12 +117,9 @@ func runValidate(args []string, stdout, stderr io.Writer) ExitCode {
 	}
 
 	// Phase 1 skeleton: empty DetectorResult[] を返す
-	result := report.RunResult{
-		SchemaVersion:   "aag-engine-run-result-v1",
-		Status:          "pass",
-		Repo:            *repo,
-		DetectorResults: []report.DetectorResult{},
-	}
+	// Phase 2 から report.NewEmptyRunResult() + report.DeriveStatus() に migrate
+	result := report.NewEmptyRunResult(*repo)
+	result.Status = report.DeriveStatus(result.DetectorResults)
 
 	out, err := report.RenderJSON(result)
 	if err != nil {
@@ -126,8 +129,8 @@ func runValidate(args []string, stdout, stderr io.Writer) ExitCode {
 
 	fmt.Fprintln(stdout, string(out))
 
-	// violation が 0 件なら pass
-	if len(result.DetectorResults) == 0 {
+	// violation status から exit code を articulate
+	if result.Status == "pass" {
 		return ExitPass
 	}
 	return ExitFail
@@ -144,15 +147,15 @@ func runFixtures(args []string, stdout, stderr io.Writer) ExitCode {
 	if err := fs.Parse(args); err != nil {
 		return ExitError
 	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag fixtures: unexpected positional argument(s): %v\n", fs.Args())
+		fmt.Fprintln(stderr, "hint: --repo flag を使用してください (= aag fixtures --repo /path/to/repo)")
+		return ExitError
+	}
 
 	// Phase 1 skeleton: fixture runner は Phase 3 で landing
-	result := report.RunResult{
-		SchemaVersion:   "aag-engine-run-result-v1",
-		Status:          "pass",
-		Repo:            *repo,
-		DetectorResults: []report.DetectorResult{},
-		Note:            "Phase 1 skeleton: fixture runner は Phase 3 で landing 予定",
-	}
+	result := report.NewEmptyRunResult(*repo)
+	result.Note = "Phase 1 skeleton: fixture runner は Phase 3 で landing 予定"
 
 	out, err := report.RenderJSON(result)
 	if err != nil {

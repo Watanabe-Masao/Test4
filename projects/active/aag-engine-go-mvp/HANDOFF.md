@@ -5,20 +5,23 @@
 
 ## 1. 現在地
 
-**Phase 1 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 2 DetectorResult Contract Binding。
+**Phase 2 landing 完了 (= 本 commit landing 後)**。次は Phase 2 wrap-up commit。
 
 Phase 0 lineage (= 完遂済):
 - landing `cc6e824` + regen `ed348eb` + wrap-up `be51eaf` + regen `2ba85dd`
 - DA-α-000 振り返り判定: **正しい**
 
 Phase 1 lineage (= 完遂済):
-- landing `2172c25` + regen `3e3f143` + wrap-up (本 commit)
+- landing `2172c25` + regen `3e3f143` + wrap-up `e526af2` + regen `62844c3`
 - DA-α-001 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
-Phase 1 deliverable:
-- aag-engine/ Go module (= go.mod / cmd/aag/main.go / internal/contract/contract.go / internal/report/report.go)
-- 11 Go test PASS (= cmd/aag 8 test + internal/report 3 test)
-- 3 サブコマンド (= validate / fixtures / help) + JSON output 経路 + exit code contract
+Phase 2 lineage (= landing 段階):
+- landing commit (本 commit): `internal/contract/detector_result.go` 新設 (= canonical schema 8 field mirror + Severity 3-enum + factory + helper) + schema sync test 5 件 + factory test 6 件 + JSON marshal test 2 件 + report package を contract.DetectorResult 経由に migrate + Phase 1 placeholder contract.go 削除 + (Phase 1 deliverable bug fix) positional args silent ignore を hard fail に articulate (= validate / fixtures 両 subcommand) + DA-α-002 articulate (Lineage 仮 sha) + checklist Phase 2 4 件 flip
+
+Phase 1 deliverable (= cumulative):
+- aag-engine/ Go module (= go.mod / cmd/aag/main.go / internal/contract/detector_result.go / internal/report/report.go)
+- 33 Go test PASS (= cmd/aag 11 + contract 14 + report 8)
+- 2 subcommand (= validate / fixtures、+ --help meta flag) + JSON output + exit code contract + canonical schema mirror
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本

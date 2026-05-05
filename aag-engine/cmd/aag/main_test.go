@@ -149,3 +149,44 @@ func TestRun_Validate_InvalidFlag(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// validate の予期しない位置引数は ExitError (= silent ignore 防止)。
+//
+// regression: `aag validate /tmp/repo` を実行すると positional arg が無視されて
+// repo="." が使われ、user が想定とは違う directory を validate する状況になる。
+// これは silent な user 期待違いを引き起こすため、positional arg があれば
+// hint 付きで hard fail させる。
+func TestRun_Validate_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"validate", "/tmp/repo"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2) for positional arg, got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "unexpected positional argument") {
+		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "--repo") {
+		t.Errorf("stderr should hint --repo flag, got: %q", stderr.String())
+	}
+}
+
+// validate で flag + positional の混在も ExitError。
+func TestRun_Validate_MixedFlagAndPositional(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"validate", "--repo", "/tmp/a", "/tmp/b"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2) for mixed flag + positional, got %d", code)
+	}
+}
+
+// fixtures の予期しない位置引数も ExitError (= validate と同 pattern)。
+func TestRun_Fixtures_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"fixtures", "/tmp/repo"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2) for positional arg, got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "unexpected positional argument") {
+		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
+	}
+}

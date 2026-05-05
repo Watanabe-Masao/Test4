@@ -249,4 +249,99 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-002 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-002: Phase 2 DetectorResult Contract Binding scope 判断 (= canonical schema mirror + Phase 1 positional args fix 統合)
+
+### status
+
+- 着手判断: **open** (Phase 2 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 2 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 2 plan.md の作業項目:
+- `aag-engine/internal/contract/detector_result.go` に canonical schema (= `docs/contracts/aag/detector-result.schema.json`) 整合 Go struct を populate
+- JSON serialization が `expected.json` と field-level 比較可能
+- schema sync test (= TS 側 aagContractSchemaSyncGuard と同 articulate)
+
+scope 進入時の発見:
+1. **plan.md checklist の field 列挙が canonical schema と乖離**: plan.md は「schemaVersion / detectorId / ruleId / severity / sourceFile / evidence / actual / baseline / messageSeed」 と articulate していたが、canonical schema には schemaVersion / detectorId は **存在しない** (= ruleId / detectionType / sourceFile / severity / evidence? / actual? / baseline? / messageSeed? の 8 field)。canonical 優先 (= readiness refactor DA-α-002 学習 = plan.md sketch より canonical 優先)
+2. **Phase 1 deliverable bug の発見** (= user feedback): `aag validate /tmp/repo` のような positional argument が silent ignore される。`fs.NArg()` check 不在で repo flag が默秘的に "." 維持、user が想定 path と異なる directory を validate する状況。user 期待違いを silent に発生させるため hard fail にすべき
+
+### decision
+
+以下を採用する:
+
+1. **canonical schema を strict mirror** (= readiness refactor DA-α-002 学習継承):
+   - 8 field (= 4 required + 4 optional) を Go struct に articulate
+   - severity enum 3 値 (= gate / block-merge / warn) を Go const として articulate
+   - plan.md の field 列挙誤りは checklist articulate 時点で canonical 準拠に修正
+2. **Optional field は pointer 型** (= TS の `?` 接尾辞 mirror):
+   - `*string` / `*float64` で nil / non-nil を articulate
+   - `omitempty` json tag で nil 時は JSON output から field 不在
+3. **factory + validation pattern** (= TS createDetectorResult mirror):
+   - `CreateDetectorResult(input) (DetectorResult, error)` で required 空文字 / 不正 enum / optional 空文字を hard fail
+4. **schema sync test を 5 件 articulate**:
+   - $id 一致 / required 一致 / properties 一致 / struct json tag 一致 / severity enum 一致
+   - reflection で Go struct field set を抽出 (= 静的 list を AllJSONFields として export)
+5. **placeholder contract.go を削除** (= contract package の唯一 file は detector_result.go):
+   - PackageVersion redeclaration を回避
+   - placeholder は Phase 1 articulate のみに使用、Phase 2 で正規 binding に移行
+6. **Phase 1 positional args fix を Phase 2 landing に統合** (= user feedback 由来):
+   - 物理的に main.go を両方 (= Phase 2 work + fix) が touch するため別 commit 分割は scope 過剰
+   - 不可侵原則 1 整合 (= silent ignore による user 期待違いを hard fail で防ぐ)
+   - validate / fixtures 両 subcommand に `fs.NArg() > 0` check 追加、hint message 付き ExitError 返す
+   - test 3 件追加 (= validate positional / mixed flag+positional / fixtures positional)
+
+### rationale
+
+- **canonical 優先**: readiness refactor DA-α-002 で確立した「plan.md sketch と canonical contract で差異がある場合は canonical contract 優先」 pattern を本 MVP でも継承。plan.md の field 誤りは不可侵原則 9 (= Go engine が source of truth にならない) 整合で canonical schema が正本
+- **pointer 型 optional**: Go の慣用的 pattern。値型 + omitempty では「articulate された 0」 と「未 articulate」 を区別できない (= `actual: 0` は意味がある). Pointer + nil で 2 状態を articulate
+- **factory pattern**: TS createDetectorResult と field-level parity を確保、Phase 4-8 で各 detector が同 factory 経由した instance を返す統一 pattern を articulate
+- **schema sync test 5 件**: TS 側 aagContractSchemaSyncGuard が 3 sync test を articulate、Go 側は同等 + reflection-based struct tag check + severity enum coverage を加えた 5 test。schema drift 検出を 5 軸で機械検証
+- **placeholder 削除**: 内部一貫性。Phase 2 で正規 binding が landing したため Phase 1 placeholder の存在意義は消滅。残置すると PackageVersion 重複 + 未使用 placeholder の保守コスト
+- **positional args fix 統合**: user feedback で Phase 1 deliverable bug が判明、main.go が Phase 2 work と物理 conflict するため atomic commit が natural。silent な user 期待違いは不可侵原則 1 (= MVP は validator として trust 可能であるべき) と整合する hard fail に articulate
+
+### alternatives
+
+- (a-alt) **schemaVersion / detectorId field を Go 側で articulate** (= plan.md sketch 通り): canonical schema にない field を Go 側で勝手に追加、不可侵原則 9 違反、schema sync test fail、不採用
+- (b-alt) **Optional field を値型 + omitempty**: `actual: 0` / `baseline: 0` の articulate を JSON output から落とすため意味的に間違い (= 0 は valid count)、不採用
+- (c-alt) **factory なし、struct literal 直接 articulate**: 各 detector が個別に validation 実装、duplication + 不整合 risk、不採用
+- (d-alt) **schema sync を runtime JSON Schema validator (= santhosh-tekuri/jsonschema 等) で実装**: 外部依存追加、Phase 2 skeleton には過剰 (= reflection ベース sync test で field-level 検証は十分)、不採用
+- (e-alt) **positional args fix を別 commit に分割**: main.go が Phase 2 work と物理 conflict、分割 cost が articulate 価値より大きい、不採用 (= atomic commit + DA で articulate)
+- (f-alt) **positional args を warning にとどめる** (= silent fix で repo を positional から取る): user 期待違いを silent に発生させ続ける、不採用 (= hard fail で正しい)
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. ✅ `internal/contract/detector_result.go` が 8 field DetectorResult struct + Severity 3-enum + factory + helper を articulate
+2. ✅ canonical schema $id (= `https://aag.local/schemas/detector-result-v1.json`) と Go const CanonicalSchemaID が一致
+3. ✅ schema required (= 4 field) と Go RequiredFields が一致
+4. ✅ schema properties (= 8 field) と Go AllJSONFields が一致
+5. ✅ schema severity enum (= 3 値) と Go AllSeverities が一致
+6. ✅ Go struct json tag 集合が AllJSONFields と一致 (= reflection で機械検証)
+7. ✅ CreateDetectorResult factory が required 空文字 / 不正 severity / optional 空文字を hard fail
+8. ✅ JSON marshal が canonical schema 準拠 shape (= field name camelCase + omitempty)
+9. ✅ internal/report が contract.DetectorResult を import、placeholder DetectorResult は削除済
+10. ✅ Phase 1 placeholder `internal/contract/contract.go` は削除済 (= PackageVersion 重複なし)
+11. ✅ `aag validate /tmp/repo` が ExitError + hint message を返す (= positional args fix)
+12. ✅ `aag fixtures /tmp/repo` も同 pattern (= 両 subcommand 一貫)
+13. ✅ Go test 33 件 PASS (= Phase 1 の 11 + Phase 2 contract 14 + report 8 件追加)
+14. ✅ TS guard 1057 test PASS (= aag-engine/ 変更で TS baseline 維持)
+
+### Lineage
+
+- **preJudgementCommit**: `62844c3` (= Phase 1 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 2 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 2 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `62844c3` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 2 wrap-up commit で articulate 予定。観測点 1〜14 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-003 〜 012) は各 Phase landing commit 時に articulate 追加。
