@@ -36,12 +36,12 @@
 | 性能 | OK | 6601/7000 / 2386/2500 / 919/1000 |
 | Temporal Governance | OK | 0/0 / 0/32 / 2/12 / 172/92 / 36/9 / 2/1 |
 | Rule Efficacy | OK | 104 / 0/3 / 0/10 |
-| Project Governance | OK | 4/20(-1) / 3/20(-1) / 0/0 / 40/100(+1) |
+| Project Governance | OK | 4/20 / 3/20 / 0/0 / 40/100 |
 
 **Next:**
 - 上限間近ファイル 1 件を分割検討する
 
-> 生成: 2026-05-05T05:16:35.796Z — 正本: `references/04-tracking/generated/architecture-health.json`
+> 生成: 2026-05-05T05:17:43.510Z — 正本: `references/04-tracking/generated/architecture-health.json`
 <!-- GENERATED:END architecture-health-summary -->
 
 ## 現状スナップショット
