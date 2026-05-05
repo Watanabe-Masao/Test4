@@ -211,7 +211,7 @@ scope 判断点:
 2. ✅ `cmd/aag/main.go` (= run() 関数 inject pattern) が landing、3 サブコマンド (= validate / fixtures / help) ルーティング動作
 3. ✅ `internal/contract/contract.go` placeholder landing (= Phase 2 populate target)
 4. ✅ `internal/report/report.go` (= RunResult struct + RenderJSON) landing
-5. ✅ Go test 全 PASS (= cmd/aag/main_test.go + internal/report/report_test.go、計 9 test 想定)
+5. ✅ Go test 全 PASS (= cmd/aag/main_test.go + internal/report/report_test.go、計 11 test = cmd/aag 8 + internal/report 3)
 6. ✅ `go build ./...` が clean (= warning 0)
 7. ✅ CLI 動作確認 (= `aag validate` / `aag fixtures` / `aag --help` がすべて期待 JSON / usage を返す)
 8. ✅ exit code contract: 0 = pass / 1 = fail / 2 = error が test で機械検証

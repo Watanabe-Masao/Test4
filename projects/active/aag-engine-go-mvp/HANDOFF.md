@@ -32,7 +32,7 @@ Phase 0 では bootstrap / scope lock / required reads / DA-α-000 を完遂。
 - §13.2 atomic dependent update: 0 instance (= Phase 0 では新 references/ doc なし、Phase 5 で発生候補)
 - §13.3 post-flip regen: 1 instance (= Phase 0 後 regen)
 
-derivedStatus: in_progress / 6 of 67 (Phase 0 完遂、Phase 1 着手待ち)。
+derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase 2 wrap-up 待ち。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
 (user 承認) 1 件 = 全 [x]。
 

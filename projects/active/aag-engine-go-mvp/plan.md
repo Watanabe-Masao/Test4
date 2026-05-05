@@ -44,7 +44,7 @@ inbound link を **同 atomic commit** に統合する。
 
 **想定構造**:
 
-```
+```text
 aag-engine/
   go.mod
   cmd/aag/main.go
@@ -88,7 +88,7 @@ aag fixtures --repo .
 
 **対象**: `fixtures/aag/` 配下 8 fixture (= readiness refactor Phase 5 deliverable):
 
-```
+```text
 fixtures/aag/archive-v2/{pass-minimal, fail-missing-restore-command, fail-missing-multiple-fields}
 fixtures/aag/doc-registry/fail-missing-path
 fixtures/aag/generated/fail-stale-metadata
@@ -176,7 +176,7 @@ fixtures/aag/schema-validation/fail-level-out-of-range
 
 **初期運用**:
 
-```
+```text
 Go engine: advisory only (= report 出力)
 TypeScript AAG: 現行 hard gate 維持
 ```
@@ -279,7 +279,7 @@ aag validate --repo . --format json
 
 最終形は AAG を **2 layer** に articulate:
 
-```
+```text
 AAG Core Engine (= Go、本 MVP で MVP 化)
   - contract validation
   - archive validation
