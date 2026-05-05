@@ -47,15 +47,15 @@ existing AagResponse 経路で動作継続、detector は engine 化対象とし
 既存 production guard `projectCompletionConsistencyGuard.test.ts` の C1 と同じ
 violation を articulate するため、parity test で 意味的等価性 を機械検証可能。
 
-## 現在の detector 一覧 (= Phase 4 完遂時点、5 系統)
+## 現在の detector 一覧 (= Phase 6 完遂時点、5 系統 / 全 path-helpers adoption 済)
 
 | 系統 | detector file | ruleId pattern | 既存 production guard | demonstration scope | path-helpers adoption |
 |---|---|---|---|---|---|
 | project lifecycle | `project-lifecycle-detector.ts` | `AR-PROJECT-LIFECYCLE-C1` | `projectCompletionConsistencyGuard.test.ts` | C1 (= completed but not archived) | ✅ Phase 4 |
 | archive manifest | `archive-manifest-detector.ts` | `AR-ARCHIVE-MANIFEST-A2` | `archiveV2SchemaGuard.test.ts` | A2 (= top-level required field 欠落) | ✅ Phase 4 |
 | doc registry | `doc-registry-detector.ts` | `AR-DOC-REGISTRY-D1` | `docRegistryGuard.test.ts` | D1 (= registered path が file system に存在しない) | ✅ Phase 4 |
-| generated metadata | `generated-metadata-detector.ts` | `AR-GENERATED-METADATA-G2` | `generatedFileEditGuard.test.ts` | G2 (= GENERATED marker / ISO timestamp 欠落) | Phase 6 予定 |
-| schema validation | `schema-validation-detector.ts` | `AR-SCHEMA-VALIDATION-PZ2` | `projectizationPolicyGuard.test.ts` | PZ-2 (= level が 0〜4 範囲外) | Phase 6 予定 |
+| generated metadata | `generated-metadata-detector.ts` | `AR-GENERATED-METADATA-G2` | `generatedFileEditGuard.test.ts` | G2 (= GENERATED marker / ISO timestamp 欠落) | ✅ Phase 6 |
+| schema validation | `schema-validation-detector.ts` | `AR-SCHEMA-VALIDATION-PZ2` | `projectizationPolicyGuard.test.ts` | PZ-2 (= level が 0〜4 範囲外) | ✅ Phase 6 |
 
 各 detector は **1 violation rule の demonstration** に scope を絞っている。残り
 violation rule (= 各 production guard の 5〜13 rule) は Phase 6 で systematic 抽出。
@@ -117,9 +117,88 @@ results.push(
 6. `references/03-implementation/guard-test-map.md` の test 件数を update
 7. 本 README の「現在の detector 一覧」table に row 追加
 
+## Logic Boundary Reference (= Phase 6 articulation、engine 移行可能性 articulate)
+
+> **位置付け**: 後続 engine 実装 project (= Go / Rust 等の engine MVP) が
+> **再実装すべき pure logic boundary** を per-detector で articulate。
+> 各 detector の input facts shape + violation 判定 logic + DetectorResult 出力
+> shape の 3 軸を明示することで、engine が同じ pure mapping を再現できることを保証。
+
+### project-lifecycle-detector
+
+- **Input facts shape**: `{ checklistResults: ProjectChecklistResult[] }` (= collector layer から articulate された ProjectChecklistResult、`derivedStatus` / `meta.kind` / `checked` / `total` を参照)
+- **判定 logic (= C1)**: `derivedStatus === 'completed' && meta.kind !== 'collection'` で violation emit
+- **Output**: `AR-PROJECT-LIFECYCLE-C1` (severity=gate、actual=checked、baseline=total、sourceFile=projectRoot)
+- **engine 再実装 boundary**: `derivedStatus` 計算 logic は collector 側にあり、本 detector は **判定のみ** を担う
+
+### archive-manifest-detector
+
+- **Input facts shape**: `Array<{ manifestPath: string; manifest: object | null }>` (= 複数 archived project の manifest を一括検証)
+- **判定 logic (= A2)**: 12 required top-level field それぞれについて `field in manifest` を test、欠落で violation emit
+- **Output**: 1 violation per missing field (= `evidence: "missing required field: <name>"`)
+- **engine 再実装 boundary**: `REQUIRED_TOP_LEVEL_FIELDS` array は schema (`docs/contracts/aag/project-archive.schema.json`) と同期、engine は schema を canonical input にすることで drift 回避
+
+### doc-registry-detector
+
+- **Input facts shape**: `{ entries: Array<{ path; label }>; existingPaths: ReadonlySet<string> }`
+- **判定 logic (= D1)**: 各 entry について `existingPaths.has(entry.path) === false` で violation emit
+- **Output**: 1 violation per non-existent path (= `evidence: "registered label: <label>"`)
+- **engine 再実装 boundary**: `existingPaths` は collector layer (= filesystem read) で構築、本 detector は **set membership 判定のみ**
+
+### generated-metadata-detector
+
+- **Input facts shape**: `{ files: Array<{ path; content }> }`
+- **判定 logic (= G2)**: 2 regex pattern (`/(>\s*生成:|<!--\s*GENERATED|GENERATED:START)/` + `/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/`) で content match、両方欠落で violation emit
+- **Output**: 1 violation per file missing both markers
+- **engine 再実装 boundary**: regex pattern は detector 内部 constant、engine 側で同 pattern を articulate (= regex literal の同期義務)
+
+### schema-validation-detector
+
+- **Input facts shape**: `{ projects: Array<{ projectId; configPath; level: number | null }> }`
+- **判定 logic (= PZ-2)**: `level !== null && (!Number.isInteger(level) || level < 0 || level > 4)` で violation emit
+- **Output**: 1 violation per out-of-range level (= `actual: <level>`、`evidence: "level=<n> is not in [0, 1, 2, 3, 4]"`)
+- **engine 再実装 boundary**: `[0, 4]` 範囲は AAG-COA Level 定義 (= `references/05-aag-interface/operations/projectization-policy.md` §3) に由来、engine は同 doc を canonical reference として 0-4 を articulate
+
+### 共通 boundary (= 全 detector 共通)
+
+- **path validation**: 各 detector が `createDetectorResult` 直前で `toRepoPath()` を呼び、`sourceFile` を repo-relative POSIX path として boundary validate
+- **DetectorResult schema 整合**: 全 detector 出力は `docs/contracts/aag/detector-result.schema.json` に準拠 (= aagContractSchemaSyncGuard で機械検証)
+- **immutability**: 全 detector 出力は `Object.freeze()` 済 (= consumer が誤って mutate できない)
+- **deterministic**: 同 facts に対して常に同 DetectorResult[] を return (= test fixture corpus で機械検証、Phase 5 で landing)
+
+### Vitest wrapper thin 化 reference (= production guard refactor 時の pattern)
+
+production guard が pure detector を呼ぶ refactor pattern (= Phase 6 で理論 articulate、実 production guard 改変は別 program 所掌):
+
+```ts
+// before (= 既存 production guard、混合 pattern)
+test('archive manifest is valid', () => {
+  const files = readdirSync(...)
+  for (const file of files) {
+    const manifest = JSON.parse(readFileSync(file))
+    expect(manifest).toHaveProperty('restoreAllCommand')  // 検出 logic + assertion 同居
+    // ... 9 件の assertion
+  }
+})
+
+// after (= pure detector + thin wrapper)
+test('archive manifest is valid', () => {
+  // collector layer (= fs read)
+  const facts = collectArchiveManifestFacts(...)
+  // detector layer (= pure)
+  const violations = detectArchiveManifestViolations(facts)
+  // wrapper layer (= 同 input/output、thin assertion)
+  expect(violations).toEqual([])
+})
+```
+
+= production guard refactor は別 program で行うが、本 README は **その時の reference pattern** を articulate (= 不可侵原則 2 整合 = 既存 guard 意味不変、refactor は schema-preserving のみ)。
+
 ## 関連
 
 - `tools/architecture-health/src/detector-result.ts` — DetectorResult TS contract + evaluator
+- `tools/architecture-health/src/path-helpers.ts` — RepoPath / RepoFileEntry (= Phase 4)
+- `fixtures/aag/` — Phase 5 fixture corpus (= 8 fixture / 5 系統 coverage)
 - `docs/contracts/aag/detector-result.schema.json` — canonical schema (= JSON Schema draft-07)
 - `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` — schema ↔ TS sync 機械検証
 - `app/src/test/guards/detectorResultModuleGuard.test.ts` — detector module 動作 contract

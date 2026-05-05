@@ -19,6 +19,7 @@
  */
 
 import { createDetectorResult, type DetectorResult } from '../detector-result.js'
+import { toRepoPath } from '../path-helpers.js'
 
 // ───────────────────────────────────────────────────────────────────────
 // public API
@@ -65,7 +66,9 @@ export function detectGeneratedMetadataViolations(
         createDetectorResult({
           ruleId: 'AR-GENERATED-METADATA-G2',
           detectionType: 'governance-ops',
-          sourceFile: file.path,
+          // path-helpers.toRepoPath() で sourceFile を boundary validate
+          // (= aag-engine-readiness-refactor Phase 6 adoption、Phase 4 で deferred 分)
+          sourceFile: toRepoPath(file.path),
           severity: 'gate',
           evidence: 'no GENERATED marker AND no ISO timestamp',
           messageSeed: `*.generated.md '${file.path}' が GENERATED marker / ISO timestamp を含まない (= 手編集の疑い)`,

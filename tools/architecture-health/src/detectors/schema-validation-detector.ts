@@ -20,6 +20,7 @@
  */
 
 import { createDetectorResult, type DetectorResult } from '../detector-result.js'
+import { toRepoPath } from '../path-helpers.js'
 
 // ───────────────────────────────────────────────────────────────────────
 // public API
@@ -71,7 +72,9 @@ export function detectSchemaValidationViolations(
         createDetectorResult({
           ruleId: 'AR-SCHEMA-VALIDATION-PZ2',
           detectionType: 'governance-ops',
-          sourceFile: project.configPath,
+          // path-helpers.toRepoPath() で sourceFile を boundary validate
+          // (= aag-engine-readiness-refactor Phase 6 adoption、Phase 4 で deferred 分)
+          sourceFile: toRepoPath(project.configPath),
           severity: 'gate',
           actual: project.level,
           evidence: `level=${project.level} is not in [0, 1, 2, 3, 4]`,

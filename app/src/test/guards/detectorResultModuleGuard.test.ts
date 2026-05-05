@@ -1161,6 +1161,83 @@ describe('Detector Result Module Guard', () => {
       expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
     })
 
+    // ─────────────────────────────────────────────────────────────────
+    // 15. Phase 6 — 残り 2 detector path-helpers adoption
+    // ─────────────────────────────────────────────────────────────────
+
+    it('generated-metadata-detector: invalid file path で throw (= Phase 6 adoption)', () => {
+      const facts = {
+        files: [
+          {
+            path: '/absolute/path.generated.md',
+            content: '# Body without markers',
+          },
+        ],
+      }
+      expect(() => detectGeneratedMetadataViolations(facts)).toThrow(/RepoPath 規約違反/)
+    })
+
+    it('schema-validation-detector: invalid configPath で throw (= Phase 6 adoption)', () => {
+      const facts = {
+        projects: [{ projectId: 'p', configPath: 'C:\\windows', level: 5 }],
+      }
+      expect(() => detectSchemaValidationViolations(facts)).toThrow(/RepoPath 規約違反/)
+    })
+
+    it('全 5 detector が path-helpers adoption 済 (= Phase 4 で 3 + Phase 6 で 2)', () => {
+      // 5 detector すべてが invalid path で hard fail することを sanity check
+      const invalidPath = '../escape'
+      // 1. project-lifecycle (= Phase 4)
+      expect(() =>
+        detectProjectLifecycleViolations({
+          checklistResults: [
+            {
+              meta: {
+                projectId: 'p',
+                title: 'P',
+                status: 'active',
+                kind: 'project' as const,
+                parent: undefined,
+                projectRoot: invalidPath,
+                checklistPath: 'projects/active/p/checklist.md',
+                aiContextPath: 'projects/active/p/AI_CONTEXT.md',
+                handoffPath: 'projects/active/p/HANDOFF.md',
+                planPath: 'projects/active/p/plan.md',
+              },
+              checked: 1,
+              total: 1,
+              derivedStatus: 'completed' as const,
+            },
+          ],
+        }),
+      ).toThrow(/RepoPath 規約違反/)
+      // 2. archive-manifest (= Phase 4)
+      expect(() =>
+        detectArchiveManifestViolations([
+          { manifestPath: invalidPath, manifest: { archiveVersion: 2 } },
+        ]),
+      ).toThrow(/RepoPath 規約違反/)
+      // 3. doc-registry (= Phase 4)
+      expect(() =>
+        detectDocRegistryViolations({
+          entries: [{ path: invalidPath, label: 'X' }],
+          existingPaths: new Set(),
+        }),
+      ).toThrow(/RepoPath 規約違反/)
+      // 4. generated-metadata (= Phase 6)
+      expect(() =>
+        detectGeneratedMetadataViolations({
+          files: [{ path: invalidPath, content: '' }],
+        }),
+      ).toThrow(/RepoPath 規約違反/)
+      // 5. schema-validation (= Phase 6)
+      expect(() =>
+        detectSchemaValidationViolations({
+          projects: [{ projectId: 'p', configPath: invalidPath, level: 5 }],
+        }),
+      ).toThrow(/RepoPath 規約違反/)
+    })
+
     it('全 8 fixture 通しで 8 expected DetectorResult[] 件数 (= 0 + 1 + 3 + 0 + 1 + 1 + 1 + 1 = 8) と一致', () => {
       const fixtures: readonly {
         readonly path: string

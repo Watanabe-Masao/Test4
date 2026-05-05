@@ -5,11 +5,14 @@
 
 ## 1. 現在地
 
-**Phase 5 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 6 Pure Detector Extraction。
+**Phase 6 landing 完了 (= 本 commit landing 後)**。次は Phase 6 wrap-up commit。
 
 Phase 5 lineage (= 完遂済):
-- landing `32c458c` + regen `a731264` + wrap-up (本 commit)
+- landing `32c458c` + regen `a731264` + wrap-up `d454154` + regen `f857e55`
 - DA-α-005 振り返り判定: **正しい** (= 観測点 6 件すべて達成)
+
+Phase 6 lineage (= landing 段階):
+- landing commit (本 commit): generated-metadata + schema-validation 2 detector path-helpers adoption + detectors/README.md に Logic Boundary Reference section + Vitest wrapper thin 化 reference articulate + 3 新 test (= +3、82 → 85) + DA-α-006 articulate (Lineage 仮 sha) + checklist Phase 6 3 件 flip
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)

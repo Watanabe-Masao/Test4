@@ -533,4 +533,67 @@ Phase 5 plan.md は 7 fixture を例示。但し `archive-v2/fail-deleted-paths-
 
 ---
 
-> 後続 DA entry (DA-α-006 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-006: Phase 6 Pure Detector Extraction scope 判断 (= 残り 2 detector adoption + Logic Boundary Reference articulate)
+
+### status
+
+- 着手判断: **open** (Phase 6 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 6 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 6 plan.md は「Vitest や CLI に密着した guard から pure detector を切り出す」と articulate、
+完了条件「pure detector が最低 3 系統存在 / Vitest wrapper は thin wrapper 化されている /
+Go/Rust engine が再実装すべき logic boundary が明確になる」。
+
+現状 (= Phase 5 完遂時点):
+- pure detector 5 系統存在 (= 完了条件 1 既達成、Phase 2/3 で landing)
+- Vitest wrapper の thin 化は **production guard refactor** が必要 (= 別 program 所掌、不可侵原則 2 で本 project では touch しない)
+- logic boundary は detectors/README.md に部分 articulate されているが per-detector の articulation は未
+
+scope 候補:
+- (A) production guard 内部を refactor し Vitest wrapper を thin 化 → 不可侵原則 2 違反、scope 大
+- (B) 残り 2 detector path-helpers adoption + Logic Boundary Reference per-detector articulate → small / safe / 完了条件 3 達成
+- (C) 何もしない (= 既 5 detector で完了条件 1 達成済み) → 完了条件 3 未達
+
+### decision
+
+**scope 候補 B 採用**:
+
+1. 残り 2 detector (= generated-metadata-detector + schema-validation-detector) も `toRepoPath()` adoption (= Phase 4 で deferred 分の clean-up)
+2. detectors/README.md に **Logic Boundary Reference** section 追加 (= 5 detector それぞれの input facts / 判定 logic / output / engine 再実装 boundary を articulate)
+3. detectors/README.md に **Vitest wrapper thin 化 reference** section 追加 (= production guard refactor 時の before/after pattern を articulate、本 project では実適用しない)
+4. unit test +3 (= 2 detector adoption test + 全 5 detector adoption sanity)
+5. 既存 production guard 不変 (= 不可侵原則 2 strict adherence、Phase 2-5 と同 pattern)
+
+### rationale
+
+- **不可侵原則 2 strict adherence**: production guard refactor は schema 不変 / 検出条件不変 / hard gate 不変が前提だが、wrapper を thin 化する変更は guard 内部 logic を実質的に置き換える。本 project scope では「wrapper thin 化の reference pattern を articulate」 までに留め、実適用は別 program に委ねる
+- **Logic Boundary Reference の wisdom**: Phase 7 readiness report で「engine MVP scope」 を articulate するための入力として、各 detector の logic boundary を per-detector に分解しておく必要。README に集約することで navigation cost 最小化
+- **残り 2 detector adoption の clean-up**: Phase 4 で 3 detector adoption、5 detector のうち 2 detector が未 adoption だと「path-helpers が partial adoption」 と articulate されるが、Phase 6 で完成させることで「全 5 detector adoption 済」 を Phase 7 で articulate 可能
+
+### alternatives
+
+- (a) production guard refactor: 不可侵原則 2 違反、scope 大、不採用
+- (c) 何もしない: 完了条件 3 未達、不採用
+
+### 観測点
+
+1. ✅ generated-metadata-detector + schema-validation-detector が `toRepoPath()` adoption
+2. ✅ detectors/README.md「Logic Boundary Reference」 section が 5 detector それぞれを articulate (= input facts / 判定 logic / output / engine boundary)
+3. ✅ detectors/README.md「Vitest wrapper thin 化 reference」 section が before/after pattern を articulate
+4. ✅ 全 5 detector が path-helpers adoption 済 (= Phase 4 = 3 + Phase 6 = 2)、sanity test PASS
+5. ✅ 既存 production guard 不変 (= git diff で確認)
+6. ✅ 全 guard test PASS (= 147 file / 1054 → 1057 test、+3 Phase 6 test)
+
+### Lineage
+
+- preJudgementCommit: `f857e55` (= Phase 5 wrap-up regen 後 HEAD)
+- judgementCommit: 本 Phase 6 landing commit (= wrap-up commit で SHA articulate)
+- postJudgementRegenCommit: §13.3 適用予定
+- retrospectiveCommit: 本 Phase 6 wrap-up commit
+- judgementTag / rollbackTag: 未設定
+
+---
+
+> 後続 DA entry (DA-α-007) は Phase 7 landing commit 時に articulate 追加。
