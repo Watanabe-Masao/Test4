@@ -1,0 +1,10 @@
+{
+  "$comment": "Doc registry fixture (= 1 path が file system に存在しない、D1 violation 1 件想定)。",
+  "facts": {
+    "entries": [
+      { "path": "references/01-foundation/exists.md", "label": "Exists Doc" },
+      { "path": "references/03-implementation/missing-doc.md", "label": "Missing Doc" }
+    ],
+    "existingPaths": ["references/01-foundation/exists.md"]
+  }
+}

@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-04T13:07:17.420Z
+> Generated: 2026-05-05T05:30:59.748Z
 > Schema: v1.0.0
 > 正本: `references/04-tracking/generated/architecture-health.json`
 
@@ -9,10 +9,10 @@
 | 指標 | 値 |
 |---|---|
 | Total KPIs | 60 |
-| OK | 60 |
+| OK | 59 |
 | WARN | 0 |
-| FAIL | 0 |
-| Hard Gate | PASS |
+| FAIL | 1 |
+| Hard Gate | FAIL |
 
 ## 許可リスト
 
@@ -51,7 +51,7 @@
 
 | ID | 指標 | 値 | 状態 |
 |---|---|---|---|
-| guard.files.count | ガードテストファイル数 | 136 / 30 | OK |
+| guard.files.count | ガードテストファイル数 | 137 / 30 | OK |
 | guard.reviewOnlyTags.count | レビュー専用タグ数 | 0 / 5 | OK |
 | guard.rules.total | 総 Architecture Rule 数 | 167 | OK |
 | guard.rules.fixNow.now | fixNow=now ルール数（即修正） | 89 | OK |
@@ -81,11 +81,11 @@
 |---|---|---|---|
 | docs.obsoleteTerms.count | 廃止用語残存数 | 0 / 0 | OK |
 | docs.generatedSections.stale | Generated section 未更新 | 0 / 0 | OK |
-| docs.obligation.violations | Doc 更新義務違反数 | 0 / 0 | OK |
+| docs.obligation.violations | Doc 更新義務違反数 | 2 / 0 | FAIL |
 | docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 10 | OK |
 | docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 4 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 39 / 100 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 40 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 3 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |

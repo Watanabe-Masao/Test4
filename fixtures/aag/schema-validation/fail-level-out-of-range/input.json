@@ -1,0 +1,12 @@
+{
+  "$comment": "Schema validation fixture (= projectization.level=5 が 0〜4 範囲外、PZ-2 violation 1 件想定)。",
+  "facts": {
+    "projects": [
+      {
+        "projectId": "out-of-range-level",
+        "configPath": "projects/active/out-of-range-level/config/project.json",
+        "level": 5
+      }
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$comment": "Project lifecycle fixture (= active / in_progress project のみ、C1 violation 0 件想定)。",
+  "facts": {
+    "checklistResults": [
+      {
+        "meta": {
+          "projectId": "active-sample-1",
+          "title": "Active Sample 1",
+          "status": "active",
+          "kind": "project",
+          "projectRoot": "projects/active/active-sample-1",
+          "checklistPath": "projects/active/active-sample-1/checklist.md",
+          "aiContextPath": "projects/active/active-sample-1/AI_CONTEXT.md",
+          "handoffPath": "projects/active/active-sample-1/HANDOFF.md",
+          "planPath": "projects/active/active-sample-1/plan.md"
+        },
+        "checked": 3,
+        "total": 5,
+        "derivedStatus": "in_progress"
+      },
+      {
+        "meta": {
+          "projectId": "already-archived",
+          "title": "Already Archived",
+          "status": "archived",
+          "kind": "project",
+          "projectRoot": "projects/completed/already-archived",
+          "checklistPath": "projects/completed/already-archived/checklist.md",
+          "aiContextPath": "projects/completed/already-archived/AI_CONTEXT.md",
+          "handoffPath": "projects/completed/already-archived/HANDOFF.md",
+          "planPath": "projects/completed/already-archived/plan.md"
+        },
+        "checked": 5,
+        "total": 5,
+        "derivedStatus": "archived"
+      },
+      {
+        "meta": {
+          "projectId": "quick-fixes-collection",
+          "title": "Quick Fixes Collection",
+          "status": "active",
+          "kind": "collection",
+          "projectRoot": "projects/active/quick-fixes-collection",
+          "checklistPath": "projects/active/quick-fixes-collection/checklist.md",
+          "aiContextPath": "projects/active/quick-fixes-collection/AI_CONTEXT.md",
+          "handoffPath": "projects/active/quick-fixes-collection/HANDOFF.md",
+          "planPath": "projects/active/quick-fixes-collection/plan.md"
+        },
+        "checked": 0,
+        "total": 0,
+        "derivedStatus": "collection"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "ruleId": "AR-DOC-REGISTRY-D1",
+    "detectionType": "governance-ops",
+    "sourceFile": "references/03-implementation/missing-doc.md",
+    "severity": "gate",
+    "evidence": "registered label: Missing Doc",
+    "messageSeed": "doc registry に登録された path 'references/03-implementation/missing-doc.md' が file system に存在しない"
+  }
+]

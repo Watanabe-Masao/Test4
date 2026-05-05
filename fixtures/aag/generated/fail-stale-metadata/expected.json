@@ -1,0 +1,10 @@
+[
+  {
+    "ruleId": "AR-GENERATED-METADATA-G2",
+    "detectionType": "governance-ops",
+    "sourceFile": "references/04-tracking/generated/orphan-without-marker.generated.md",
+    "severity": "gate",
+    "evidence": "no GENERATED marker AND no ISO timestamp",
+    "messageSeed": "*.generated.md 'references/04-tracking/generated/orphan-without-marker.generated.md' が GENERATED marker / ISO timestamp を含まない (= 手編集の疑い)"
+  }
+]

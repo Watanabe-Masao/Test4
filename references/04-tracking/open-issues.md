@@ -20,6 +20,7 @@
 
 | projectId | archived at | title | location |
 |---|---|---|---|
+| `aag-engine-readiness-refactor` | 2026-05-05 | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 (= Phase 0〜7 完遂、L3 architecture-refactor、Archive v2 圧縮済 = self-dogfood 4 件目) | [`projects/completed/aag-engine-readiness-refactor/`](../../projects/completed/aag-engine-readiness-refactor/) |
 | `docs-and-governance-cohesion` | 2026-04-12 | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | [`projects/completed/docs-and-governance-cohesion/`](../../projects/completed/docs-and-governance-cohesion/) |
 | `data-load-idempotency-hardening` | 2026-04-12 | データロード冪等化 — 残存防御の固定化 | [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/) |
 | `aag-collector-purification` | 2026-04-13 | AAG collector 純化 — 規約と実装の対称性回復 | [`projects/completed/aag-collector-purification/`](../../projects/completed/aag-collector-purification/) |

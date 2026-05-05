@@ -1,0 +1,11 @@
+[
+  {
+    "ruleId": "AR-SCHEMA-VALIDATION-PZ2",
+    "detectionType": "governance-ops",
+    "sourceFile": "projects/active/out-of-range-level/config/project.json",
+    "severity": "gate",
+    "actual": 5,
+    "evidence": "level=5 is not in [0, 1, 2, 3, 4]",
+    "messageSeed": "project 'out-of-range-level' の projectization.level (5) が AAG-COA Level 範囲 [0, 4] 外"
+  }
+]

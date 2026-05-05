@@ -1,0 +1,26 @@
+[
+  {
+    "ruleId": "AR-ARCHIVE-MANIFEST-A2",
+    "detectionType": "governance-ops",
+    "sourceFile": "fixtures/aag/archive-v2/fail-missing-multiple-fields/archive.manifest.json",
+    "severity": "gate",
+    "evidence": "missing required field: restoreAllCommand",
+    "messageSeed": "Archive v2 manifest が required top-level field 'restoreAllCommand' を持たない"
+  },
+  {
+    "ruleId": "AR-ARCHIVE-MANIFEST-A2",
+    "detectionType": "governance-ops",
+    "sourceFile": "fixtures/aag/archive-v2/fail-missing-multiple-fields/archive.manifest.json",
+    "severity": "gate",
+    "evidence": "missing required field: decisionEntries",
+    "messageSeed": "Archive v2 manifest が required top-level field 'decisionEntries' を持たない"
+  },
+  {
+    "ruleId": "AR-ARCHIVE-MANIFEST-A2",
+    "detectionType": "governance-ops",
+    "sourceFile": "fixtures/aag/archive-v2/fail-missing-multiple-fields/archive.manifest.json",
+    "severity": "gate",
+    "evidence": "missing required field: commitLineage",
+    "messageSeed": "Archive v2 manifest が required top-level field 'commitLineage' を持たない"
+  }
+]

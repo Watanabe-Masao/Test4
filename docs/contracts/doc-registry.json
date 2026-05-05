@@ -298,6 +298,10 @@
         {
           "path": "references/03-implementation/test-taxonomy-operations.md",
           "label": "test-taxonomy-v2 子 Phase 5: テスト軸 (T:*) 別運用ガイド（提案 / 撤退テンプレ + 同期手順 + impact CLI T 軸出力 + PR レビュー観点）"
+        },
+        {
+          "path": "references/03-implementation/aag-engine-readiness-inventory.md",
+          "label": "AAG Engine Readiness Inventory — Go / Rust 等への engine 部分移行を将来検討する場合に engine が input として読む必要がある artifact を 5 分類 (contracts / generated / project lifecycle / rule source / guard source) で棚卸し。3 状態問題 (active / completed v1 / completed v2 圧縮) を含む engine MVP scope candidate を articulate (`aag-engine-readiness-refactor` Phase 1 deliverable、後続 engine 実装 project の正本参照)"
         }
       ]
     },

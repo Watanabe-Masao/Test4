@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-28T23:09:46.235Z",
+  "timestamp": "2026-05-05T05:14:18.547Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
@@ -41,6 +41,9 @@
     "health",
     "health:check",
     "health:pr-comment",
+    "generate:merged-artifact",
+    "generate:drawers",
+    "generate:aag-artifacts",
     "docs:generate",
     "docs:check",
     "taxonomy:check",
