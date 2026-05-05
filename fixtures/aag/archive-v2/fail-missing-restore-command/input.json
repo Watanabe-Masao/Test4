@@ -1,0 +1,21 @@
+{
+  "$comment": "Archive v2 manifest fixture (= restoreAllCommand のみ欠落、A2 violation 1 件想定)。",
+  "facts": [
+    {
+      "manifestPath": "fixtures/aag/archive-v2/fail-missing-restore-command/archive.manifest.json",
+      "manifest": {
+        "archiveVersion": 2,
+        "projectId": "broken-archive",
+        "title": "Broken Archive Project",
+        "archivedAt": "2026-05-04",
+        "preCompressionCommit": "0123456789abcdef0123456789abcdef01234567",
+        "deletedPaths": [],
+        "compressedFiles": [],
+        "decisionEntries": [],
+        "commitLineage": [],
+        "relatedPrograms": [],
+        "compressionRationale": "missing restoreAllCommand for parity test"
+      }
+    }
+  ]
+}

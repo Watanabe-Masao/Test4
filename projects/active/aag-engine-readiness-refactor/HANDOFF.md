@@ -5,7 +5,10 @@
 
 ## 1. 現在地
 
-**Phase 4 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 5 Archive v2 / Project Lifecycle Fixture Corpus。
+**Phase 5 landing 完了 (= 本 commit landing 後)**。次は Phase 5 wrap-up commit。
+
+Phase 5 lineage (= landing 段階):
+- landing commit (本 commit): `fixtures/aag/` 配下 8 fixture 整備 + `fixtures/aag/README.md` + parity test 9 件 (= detectorResultModuleGuard +9 test、73 → 82) + guard-test-map.md update + DA-α-005 articulate (Lineage 仮 sha) + checklist Phase 5 4 件 flip
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)

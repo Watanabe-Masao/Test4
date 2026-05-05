@@ -1,0 +1,11 @@
+{
+  "$comment": "Generated metadata fixture (= GENERATED marker / ISO timestamp 両方欠落、G2 violation 1 件想定)。",
+  "facts": {
+    "files": [
+      {
+        "path": "references/04-tracking/generated/orphan-without-marker.generated.md",
+        "content": "# Orphan File\n\nThis file has no GENERATED marker and no ISO timestamp.\nIt should be flagged as G2 violation.\n"
+      }
+    ]
+  }
+}

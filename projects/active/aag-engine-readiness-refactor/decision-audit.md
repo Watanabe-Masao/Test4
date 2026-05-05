@@ -459,4 +459,63 @@ Phase 2 / 3 で確立した detector 5 件の `sourceFile` field は現状 `stri
 
 ---
 
-> 後続 DA entry (DA-α-005 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-005: Phase 5 Archive v2 / Project Lifecycle Fixture Corpus scope 判断 (= 8 fixture + parity test)
+
+### status
+
+- 着手判断: **open** (Phase 5 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 5 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 5 plan.md は 7 fixture を例示。但し `archive-v2/fail-deleted-paths-empty`
+(= 空 deletedPaths) は現 detector (= A2 top-level field 欠落) の scope 外 (=
+空 array は valid)。fixture 名と detector 検出 scope の整合が必要。
+
+### decision
+
+1. **8 fixture 整備** (= plan.md 7 を base、現 detector scope 整合で再構成):
+    - archive-v2: pass-minimal / fail-missing-restore-command / fail-missing-multiple-fields (= "fail-deleted-paths-empty" rename)
+    - project-lifecycle: pass-active / fail-completed-not-archived
+    - doc-registry: fail-missing-path (= "fail-missing-readme-index" rename for generality)
+    - generated: fail-stale-metadata
+    - schema-validation: fail-level-out-of-range (= plan.md 未列挙だが 5 系統 coverage 完成のため追加)
+2. **fixture 構造**: `input.json` (facts) + `expected.json` (DetectorResult[]) の 2 file pattern
+3. **fixtures/aag/README.md**: 8 fixture 一覧 + parity test 経路 + 不可侵原則 articulate
+4. **parity test**: 同 test file (= detectorResultModuleGuard.test.ts) に Phase 5 group +9 test
+5. **既存 production guard 不変** (= Phase 2/3/4 と同 pattern)
+
+### rationale
+
+- **8 fixture 採用**: plan.md 「6〜8 件」 の上限を達成、5 系統すべて coverage、pass / fail 両方を articulate
+- **schema-validation 追加**: plan.md 例示 7 fixture は 4 系統のみ。schema-validation を追加することで 5 系統 揃い、Phase 7 readiness report で「5 系統すべて fixture 化済」 と articulate 可能
+- **fixture 命名 rename**: plan.md sketch (= "fail-deleted-paths-empty" / "fail-missing-readme-index") は detector scope 外 / 過度に specific。現 detector の violation rule に整合する命名に再構成 (= "fail-missing-multiple-fields" / "fail-missing-path")
+- **input/expected 2 file pattern**: detector layer は facts → DetectorResult[]。fixture もこの shape に合わせるのが natural、Go / Rust engine が同じ JSON を読んで同じ output を返せば parity 成立
+- **既存 production guard 不変**: 不可侵原則 2 strict adherence 継承
+
+### alternatives
+
+- (a) plan.md 7 fixture をそのまま実装: detector scope 外 fixture (= "fail-deleted-paths-empty") を作ると expected.json が [] となり misleading、不採用
+- (b) fixture を実 manifest / 実 file 形式で配置 (= input.json なし): test 側で fact builder logic が必要、scope 拡大、不採用
+- (c) parity test を別 test file 化: 同 test file 集約 pattern (= Phase 3/4 で確立) を継続、新 test file 追加で guard-test-map / projectStructureGuard co-change 義務を発生させない、不採用
+
+### 観測点
+
+1. ✅ `fixtures/aag/` 配下 8 fixture が landing (= 5 系統 coverage)
+2. ✅ 各 fixture に input.json + expected.json articulate
+3. ✅ parity test 9 件 PASS (= 各 fixture 1 test + 全 fixture 件数 sanity 1 test)
+4. ✅ 既存 production guard 不変 (= git diff で確認)
+5. ✅ 全 guard test PASS (= 147 file / 1045 → 1054 test、+9 fixture parity test)
+6. ✅ fixtures/aag/README.md が 8 fixture 一覧 + parity test 経路 + 不可侵原則を articulate
+
+### Lineage
+
+- preJudgementCommit: `6cb71d4` (= Phase 4 wrap-up regen 後 HEAD)
+- judgementCommit: 本 Phase 5 landing commit (= wrap-up commit で SHA articulate)
+- postJudgementRegenCommit: §13.3 適用予定
+- retrospectiveCommit: 本 Phase 5 wrap-up commit
+- judgementTag / rollbackTag: 未設定 (= SHA 直接参照)
+
+---
+
+> 後続 DA entry (DA-α-006 〜 007) は各 Phase landing commit 時に articulate 追加。

@@ -29,6 +29,8 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import {
   createDetectorResult,
   aggregateDetectorResults,
@@ -1063,6 +1065,125 @@ describe('Detector Result Module Guard', () => {
       const results = detectProjectLifecycleViolations(facts)
       expect(results).toHaveLength(1)
       expect(results[0].sourceFile).toBe('projects/active/sample')
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────────────
+  // 14. fixture corpus parity — Phase 5 deliverable
+  // ─────────────────────────────────────────────────────────────────
+
+  describe('fixture corpus parity (= Phase 5、`fixtures/aag/` の 8 fixture を全 detector に通して expected と一致を機械検証)', () => {
+    const REPO_ROOT = resolve(__dirname, '../../../..')
+
+    function loadFixture<TFacts>(
+      relativeDir: string,
+    ): { input: { facts: TFacts }; expected: readonly DetectorResult[] } {
+      const inputPath = resolve(REPO_ROOT, 'fixtures/aag', relativeDir, 'input.json')
+      const expectedPath = resolve(REPO_ROOT, 'fixtures/aag', relativeDir, 'expected.json')
+      const input = JSON.parse(readFileSync(inputPath, 'utf-8')) as { facts: TFacts }
+      const expected = JSON.parse(readFileSync(expectedPath, 'utf-8')) as readonly DetectorResult[]
+      return { input, expected }
+    }
+
+    it('archive-v2/pass-minimal: detector 0 件 emit', () => {
+      const { input, expected } = loadFixture<
+        ReadonlyArray<{ readonly manifestPath: string; readonly manifest: Record<string, unknown> }>
+      >('archive-v2/pass-minimal')
+      const results = detectArchiveManifestViolations(input.facts)
+      // factory は frozen を返すが、JSON parse 結果は plain object のため shape のみ比較
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('archive-v2/fail-missing-restore-command: A2 1 件 emit', () => {
+      const { input, expected } = loadFixture<
+        ReadonlyArray<{ readonly manifestPath: string; readonly manifest: Record<string, unknown> }>
+      >('archive-v2/fail-missing-restore-command')
+      const results = detectArchiveManifestViolations(input.facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('archive-v2/fail-missing-multiple-fields: A2 3 件 emit (= 順序維持)', () => {
+      const { input, expected } = loadFixture<
+        ReadonlyArray<{ readonly manifestPath: string; readonly manifest: Record<string, unknown> }>
+      >('archive-v2/fail-missing-multiple-fields')
+      const results = detectArchiveManifestViolations(input.facts)
+      expect(results).toHaveLength(3)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('project-lifecycle/pass-active: detector 0 件 emit', () => {
+      const { input, expected } = loadFixture<{
+        readonly checklistResults: readonly ProjectChecklistResult[]
+      }>('project-lifecycle/pass-active')
+      const results = detectProjectLifecycleViolations(input.facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('project-lifecycle/fail-completed-not-archived: C1 1 件 emit', () => {
+      const { input, expected } = loadFixture<{
+        readonly checklistResults: readonly ProjectChecklistResult[]
+      }>('project-lifecycle/fail-completed-not-archived')
+      const results = detectProjectLifecycleViolations(input.facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('doc-registry/fail-missing-path: D1 1 件 emit', () => {
+      const fixture = loadFixture<{
+        readonly entries: readonly { readonly path: string; readonly label: string }[]
+        readonly existingPaths: readonly string[]
+      }>('doc-registry/fail-missing-path')
+      // existingPaths は JSON 上は array、detector は ReadonlySet を要求
+      const facts = {
+        entries: fixture.input.facts.entries,
+        existingPaths: new Set(fixture.input.facts.existingPaths),
+      }
+      const results = detectDocRegistryViolations(facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(fixture.expected.map((r) => ({ ...r })))
+    })
+
+    it('generated/fail-stale-metadata: G2 1 件 emit', () => {
+      const { input, expected } = loadFixture<{
+        readonly files: readonly { readonly path: string; readonly content: string }[]
+      }>('generated/fail-stale-metadata')
+      const results = detectGeneratedMetadataViolations(input.facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('schema-validation/fail-level-out-of-range: PZ-2 1 件 emit', () => {
+      const { input, expected } = loadFixture<{
+        readonly projects: readonly {
+          readonly projectId: string
+          readonly configPath: string
+          readonly level: number | null
+        }[]
+      }>('schema-validation/fail-level-out-of-range')
+      const results = detectSchemaValidationViolations(input.facts)
+      expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
+    })
+
+    it('全 8 fixture 通しで 8 expected DetectorResult[] 件数 (= 0 + 1 + 3 + 0 + 1 + 1 + 1 + 1 = 8) と一致', () => {
+      const fixtures: readonly {
+        readonly path: string
+        readonly expectedCount: number
+      }[] = [
+        { path: 'archive-v2/pass-minimal', expectedCount: 0 },
+        { path: 'archive-v2/fail-missing-restore-command', expectedCount: 1 },
+        { path: 'archive-v2/fail-missing-multiple-fields', expectedCount: 3 },
+        { path: 'project-lifecycle/pass-active', expectedCount: 0 },
+        { path: 'project-lifecycle/fail-completed-not-archived', expectedCount: 1 },
+        { path: 'doc-registry/fail-missing-path', expectedCount: 1 },
+        { path: 'generated/fail-stale-metadata', expectedCount: 1 },
+        { path: 'schema-validation/fail-level-out-of-range', expectedCount: 1 },
+      ]
+
+      let totalExpected = 0
+      for (const f of fixtures) {
+        const expectedPath = resolve(REPO_ROOT, 'fixtures/aag', f.path, 'expected.json')
+        const expected = JSON.parse(readFileSync(expectedPath, 'utf-8')) as readonly unknown[]
+        expect(expected.length, `${f.path} expected count`).toBe(f.expectedCount)
+        totalExpected += expected.length
+      }
+      expect(totalExpected).toBe(8)
     })
   })
 })

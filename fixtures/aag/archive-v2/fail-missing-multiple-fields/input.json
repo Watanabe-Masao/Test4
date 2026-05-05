@@ -1,0 +1,19 @@
+{
+  "$comment": "Archive v2 manifest fixture (= 3 field 欠落、A2 violation 3 件想定)。complex case の articulation。",
+  "facts": [
+    {
+      "manifestPath": "fixtures/aag/archive-v2/fail-missing-multiple-fields/archive.manifest.json",
+      "manifest": {
+        "archiveVersion": 2,
+        "projectId": "very-broken-archive",
+        "title": "Very Broken Archive",
+        "archivedAt": "2026-05-04",
+        "preCompressionCommit": "0123456789abcdef0123456789abcdef01234567",
+        "deletedPaths": [],
+        "compressedFiles": [],
+        "relatedPrograms": [],
+        "compressionRationale": "missing 3 fields for parity test"
+      }
+    }
+  ]
+}

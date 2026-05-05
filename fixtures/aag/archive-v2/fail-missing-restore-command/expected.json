@@ -1,0 +1,10 @@
+[
+  {
+    "ruleId": "AR-ARCHIVE-MANIFEST-A2",
+    "detectionType": "governance-ops",
+    "sourceFile": "fixtures/aag/archive-v2/fail-missing-restore-command/archive.manifest.json",
+    "severity": "gate",
+    "evidence": "missing required field: restoreAllCommand",
+    "messageSeed": "Archive v2 manifest が required top-level field 'restoreAllCommand' を持たない"
+  }
+]

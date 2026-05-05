@@ -47,11 +47,11 @@
 
 ## Phase 5: Archive v2 / Project Lifecycle Fixture Corpus
 
-* [ ] `fixtures/aag/` 配下に pass / fail fixture を最低 6 件 landing する (= archive-v2 / project-lifecycle / doc-registry / generated 系)
-* [ ] 各 fixture に expected DetectorResult を定義する
-* [ ] TypeScript detector が fixture で検証できる test を追加する
-* [ ] 既存 guard と pure detector が同じ DetectorResult を返す parity test が PASS する
-* [ ] DA-α-005 entry を articulate する
+* [x] `fixtures/aag/` 配下に pass / fail fixture を最低 6 件 landing する (= 8 fixture、5 系統 coverage = archive-v2 × 3 + project-lifecycle × 2 + doc-registry × 1 + generated × 1 + schema-validation × 1)
+* [x] 各 fixture に expected DetectorResult を定義する (= input.json + expected.json の 2 file pattern)
+* [x] TypeScript detector が fixture で検証できる test を追加する (= detectorResultModuleGuard.test.ts に Phase 5 group +9 test)
+* [x] 既存 guard と pure detector が同じ DetectorResult を返す parity test が PASS する (= 各 fixture で expected と detector output の deep equality assert)
+* [ ] DA-α-005 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 6: Pure Detector Extraction
 

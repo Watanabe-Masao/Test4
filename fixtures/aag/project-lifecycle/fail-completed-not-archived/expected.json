@@ -1,0 +1,11 @@
+[
+  {
+    "ruleId": "AR-PROJECT-LIFECYCLE-C1",
+    "detectionType": "governance-ops",
+    "sourceFile": "projects/active/completed-not-archived-sample",
+    "severity": "gate",
+    "actual": 7,
+    "baseline": 7,
+    "messageSeed": "project 'completed-not-archived-sample' は checklist 100% 完了 (7/7) ですが projects/completed/ に移されていません"
+  }
+]

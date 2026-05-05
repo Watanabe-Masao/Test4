@@ -1,0 +1,23 @@
+{
+  "$comment": "Project lifecycle fixture (= completed but not archived、C1 violation 1 件想定)。",
+  "facts": {
+    "checklistResults": [
+      {
+        "meta": {
+          "projectId": "completed-not-archived-sample",
+          "title": "Completed but Not Archived",
+          "status": "active",
+          "kind": "project",
+          "projectRoot": "projects/active/completed-not-archived-sample",
+          "checklistPath": "projects/active/completed-not-archived-sample/checklist.md",
+          "aiContextPath": "projects/active/completed-not-archived-sample/AI_CONTEXT.md",
+          "handoffPath": "projects/active/completed-not-archived-sample/HANDOFF.md",
+          "planPath": "projects/active/completed-not-archived-sample/plan.md"
+        },
+        "checked": 7,
+        "total": 7,
+        "derivedStatus": "completed"
+      }
+    ]
+  }
+}
