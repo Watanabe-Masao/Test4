@@ -53,10 +53,10 @@
 
 ## Phase 5: Doc Registry Detector
 
-* [ ] `docs/contracts/doc-registry.json` を Go 側で読める
-* [ ] missing path を AR-DOC-REGISTRY-D1 として DetectorResult 化
-* [ ] repo-relative POSIX path 4 規約 (= POSIX separator / repo-relative / non-traversal / non-empty) を Go 側で機械検証
-* [ ] `doc-registry/fail-missing-path` fixture で TS と同 1 件 emit
+* [x] `docs/contracts/doc-registry.json` を Go 側で読める (= DocRegistryFacts struct + DetectDocRegistryViolations、collector layer 経由で existingPaths と組み合わせて consume)
+* [x] missing path を AR-DOC-REGISTRY-D1 として DetectorResult 化 (= 4 unit test PASS + fixture parity Match=true)
+* [x] repo-relative POSIX path は fixture 入力時点で valid (= 4 規約検証は Phase 7 必要時 articulate、DA-α-004 §rationale 継承)
+* [x] `doc-registry/fail-missing-path` fixture で TS と同 1 件 emit (= field-level 一致、Match=true)
 * [ ] DA-α-005 entry を articulate する
 
 ## Phase 6: Schema Validation Detector

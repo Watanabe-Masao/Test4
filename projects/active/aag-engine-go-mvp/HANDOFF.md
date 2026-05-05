@@ -5,22 +5,22 @@
 
 ## 1. 現在地
 
-**Phase 4 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 5 Doc Registry Detector。
+**Phase 5 landing 完了 (= 本 commit landing 後)**。次は Phase 5 wrap-up commit。
 
-Phase 0〜3 lineage (= 完遂済):
+Phase 0〜4 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
 - Phase 1: `2172c25` + `3e3f143` + `e526af2` + `62844c3` (DA-α-001 = 正しい)
 - Phase 2: `87643f4` + `2a618d8` + `a001112` + `5e7ce9f` + `21dc655` (DA-α-002 = 正しい)
 - Phase 3: `8fbed60` + `b40ea77` + `3497733` + `d6bfc8e` (DA-α-003 = 正しい)
+- Phase 4: `f6b514a` + `f0818e8` + `8c288f8` + `998a920` (DA-α-004 = 正しい)
 
-Phase 4 lineage (= 完遂済):
-- landing `f6b514a` + regen `f0818e8` + wrap-up (本 commit)
-- DA-α-004 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
+Phase 5 lineage (= landing 段階):
+- landing commit (本 commit): `internal/detectors/doc_registry.go` 新設 (= DocRegistryEntry / DocRegistryFacts + DetectDocRegistryViolations) + `internal/detectors/doc_registry_test.go` 5 test (= 4 unit + 1 fixture parity) + DA-α-005 articulate (Lineage 仮 sha) + checklist Phase 5 4 件 flip
 
-Phase 4 deliverable (= cumulative):
-- aag-engine/ Go module (= 5 internal package = contract / detectors / fixture / report / cmd)
-- 58 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 8)
-- 5 detector のうち最初の 1 (= archive-manifest) が wired up、3 archive-v2 fixture parity 100% 達成
+Phase 5 deliverable (= cumulative):
+- aag-engine/ Go module (= 5 internal package、unchanged)
+- 63 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 13)
+- 5 detector のうち 2 (= archive-manifest + doc-registry) が wired up、4 fixture parity 100% 達成
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
@@ -39,14 +39,14 @@ derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 5）
+### 高優先（次 PR = Phase 6）
 
-- **Phase 5 Doc Registry Detector landing commit**:
-  - `aag-engine/internal/detectors/doc_registry.go` 新設 (= AR-DOC-REGISTRY-D1 = registered path が file system に存在しない)
-  - `doc-registry/fail-missing-path` fixture で parity 検証
-  - DA-α-005 entry articulate
-- **Phase 5 wrap-up commit**:
-  - DA-α-005 Lineage 実 sha + 振り返り判定
+- **Phase 6 Schema Validation Detector landing commit**:
+  - `aag-engine/internal/detectors/schema_validation.go` 新設 (= AR-SCHEMA-VALIDATION-PZ2 = projectization.level が 0〜4 範囲外)
+  - `schema-validation/fail-level-out-of-range` fixture で parity 検証
+  - DA-α-006 entry articulate
+- **Phase 6 wrap-up commit**:
+  - DA-α-006 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 2 以降、後続 PR）
 

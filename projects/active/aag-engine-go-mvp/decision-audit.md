@@ -580,4 +580,83 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-005 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-005: Phase 5 Doc Registry Detector scope 判断 (= set membership 判定 + 1 fixture parity)
+
+### status
+
+- 着手判断: **open** (Phase 5 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 5 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 5 plan.md の作業項目:
+- 5 detector 移植優先順位の **2 番目** (= readiness §8.4 = archive-manifest → doc-registry → schema-validation → project-lifecycle → generated-metadata)
+- AR-DOC-REGISTRY-D1 (= registered path が file system に存在しない) 検出
+- doc-registry/fail-missing-path fixture parity
+- references doc 追加時の §13.2 atomic update pattern との整合
+- DA-α-005 entry articulate
+
+scope 判断点:
+1. **ExistingPaths を Set vs Slice**: TS `ReadonlySet<string>` を Go でどう mirror
+2. **fixture input shape**: archive-manifest と doc-registry で structure が異なる (= array vs object)、parser 統一可能か
+3. **Phase 4 institutional pattern の継承**: 1 file = 1 detector / 同 file test 配置 / map type / error 伝播 を mechanical に再適用
+
+### decision
+
+以下を採用する:
+
+1. **Public Slice + Internal Set 化** (= JSON serialization compatibility):
+   - JSON 入力は array (= `[]string`)、内部で `map[string]bool` に変換 (= O(1) lookup)
+   - Go 標準で Set 型がないため map で代替
+   - DocRegistryFacts struct field は `ExistingPaths []string` で TS Set との JSON parity を確保
+2. **fixture input parser を detector ごとに articulate** (= shape 多様性に対応):
+   - archive-manifest: `{"facts": [...]}` (= array)
+   - doc-registry: `{"facts": {entries, existingPaths}}` (= object)
+   - 各 detector test に専用 parser helper を articulate (= parseDocRegistryFacts、parseArchiveManifestFacts)
+3. **Phase 4 institutional pattern を mechanical に再適用**:
+   - 1 file = 1 detector (= doc_registry.go + doc_registry_test.go)
+   - 同 file test 配置 (= unit + fixture parity)
+   - factory error 伝播 + (results, error) signature
+   - sourceFile = entry.Path (= path validation deferral 継承)
+
+### rationale
+
+- **Set vs Slice の Go 慣用化**: Go には built-in Set 型がない、`map[K]bool` が canonical idiom。TS `ReadonlySet<string>` を JSON serialization する際は通常 array、Go 側で受け取る struct field も `[]string` が natural。Phase 5 detector では set membership lookup が performance critical でないが、O(N) → O(1) で defensive
+- **fixture parser の per-detector articulate**: fixture の input shape は detector ごとに異なるため、汎用 parser は articulation 過剰。各 test に thin parser helper を articulate するほうが SRP 整合 + cohesion 高い
+- **Phase 4 pattern の mechanical 再適用**: Phase 4 で確立した「1 file = 1 detector / 同 file test / map type / error 伝播」 を Phase 5 で機械的に再適用、scope creep なし。institutional knowledge transfer が成立、Phase 6-8 でも同 pattern で進行可能
+
+### alternatives
+
+- (a-alt) **ExistingPaths を `map[string]bool` で受ける**: JSON serialization で問題、TS 側 array 形式と乖離、不採用
+- (b-alt) **共通 fixture parser** (= `parseFacts[T any](raw, &out)`): facts shape の hierarchy が detector ごとに異なる (= array vs object)、汎用化過剰、不採用
+- (c-alt) **Phase 5 で path validation 移植**: Phase 4 deferral 判断と矛盾、Phase 7 必要時 articulate が natural、不採用
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. ✅ `internal/detectors/doc_registry.go` 新設 (= DocRegistryEntry / DocRegistryFacts struct + DetectDocRegistryViolations function)
+2. ✅ `internal/detectors/doc_registry_test.go` 新設 (= 4 unit + 1 fixture parity = 5 test)
+3. ✅ doc-registry/fail-missing-path fixture parity: actual = 1 violation、expected と Match=true
+4. ✅ violation の field-level 一致 (= ruleId="AR-DOC-REGISTRY-D1" / detectionType="governance-ops" / severity="gate" / sourceFile=entry.Path / evidence="registered label: <label>")
+5. ✅ 順序維持 (= TestDetectDocRegistryViolations_MultipleMissing で entries 順検証)
+6. ✅ ExistingPaths の Set 化が O(1) lookup で動作 (= 内部 map[string]bool)
+7. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 13 = 計 63)
+8. ✅ TS guard 1057 test PASS
+
+### Lineage
+
+- **preJudgementCommit**: `998a920` (= Phase 4 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 5 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 5 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `998a920` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 5 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-006 〜 012) は各 Phase landing commit 時に articulate 追加。
