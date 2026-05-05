@@ -57,4 +57,4 @@ expected update の co-change が必要。本 fixture corpus は detector の **
 - `tools/architecture-health/src/detector-result.ts` — DetectorResult contract + evaluator
 - `tools/architecture-health/src/path-helpers.ts` — path 規約 + RepoFileEntry (= Phase 4)
 - `app/src/test/guards/detectorResultModuleGuard.test.ts` — parity test
-- `projects/active/aag-engine-readiness-refactor/plan.md` — 親 project plan
+- `projects/completed/aag-engine-readiness-refactor/ARCHIVE.md` — 親 project archive (= Phase 0〜7 完遂、Archive v2 圧縮済、self-dogfood 4 件目)

@@ -1,9 +1,9 @@
 {
-  "$comment": "AAG Engine Readiness Refactor — Go/Rust engine 実装に入る前の TS 構造事前整備 project。projectization は projectization.md と一致。L3 (architecture-refactor) だが breakingChange / requiresLegacyRetirement / requiresGuard はいずれも false (= 意味は変えず構造だけ engine 移行可能な形に寄せる)。requiresHumanApproval=true (= L3 必須)。",
+  "$comment": "AAG Engine Readiness Refactor — Go/Rust engine 実装に入る前の TS 構造事前整備 project。projectization は projectization.md と一致。L3 (architecture-refactor) だが breakingChange / requiresLegacyRetirement / requiresGuard はいずれも false (= 意味は変えず構造だけ engine 移行可能な形に寄せる)。requiresHumanApproval=true (= L3 必須)。**status: archived (= 2026-05-05、user 代行 delegation で最終承認 + archive transition)**。",
   "projectId": "aag-engine-readiness-refactor",
   "title": "AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備",
-  "status": "active",
-  "projectRoot": "projects/active/aag-engine-readiness-refactor",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-engine-readiness-refactor",
   "projectization": {
     "$comment": "AAG-COA 判定結果。projectization.md §1 と一致。L3 = engine 移行可能性に直接関わる構造変更を含むが、意味変更は不可侵原則 1 で禁止。",
     "level": 3,
@@ -30,10 +30,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md",
-    "handoff": "projects/active/aag-engine-readiness-refactor/HANDOFF.md",
-    "plan": "projects/active/aag-engine-readiness-refactor/plan.md",
-    "checklist": "projects/active/aag-engine-readiness-refactor/checklist.md",
-    "projectization": "projects/active/aag-engine-readiness-refactor/projectization.md"
+    "aiContext": "projects/completed/aag-engine-readiness-refactor/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-engine-readiness-refactor/HANDOFF.md",
+    "plan": "projects/completed/aag-engine-readiness-refactor/plan.md",
+    "checklist": "projects/completed/aag-engine-readiness-refactor/checklist.md",
+    "projectization": "projects/completed/aag-engine-readiness-refactor/projectization.md"
   }
 }

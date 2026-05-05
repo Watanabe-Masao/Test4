@@ -203,4 +203,4 @@ test('archive manifest is valid', () => {
 - `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` — schema ↔ TS sync 機械検証
 - `app/src/test/guards/detectorResultModuleGuard.test.ts` — detector module 動作 contract
 - `references/03-implementation/aag-engine-readiness-inventory.md` §6.1 — 5 系統 articulate
-- `projects/active/aag-engine-readiness-refactor/plan.md` — 親 project plan (= Phase 0〜7)
+- `projects/completed/aag-engine-readiness-refactor/ARCHIVE.md` — 親 project archive (= Phase 0〜7 完遂、Archive v2 圧縮済、self-dogfood 4 件目)

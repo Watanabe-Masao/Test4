@@ -1,0 +1,211 @@
+{
+  "$comment": "Archive v2 manifest for aag-engine-readiness-refactor. self-dogfood 4 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 / operational-protocol-system = 3 に続く)。preCompressionCommit は本 archive transition commit 直前 = Phase 7 wrap-up regen HEAD (`ad37e2c807e27bf60f9875c82715ea4a5977de82`)。config/project.json は AAG identification key として残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。本 project の deliverable は references/ + tools/ + fixtures/ + app/test/ + docs/contracts/ 配下に永続維持 (= 圧縮対象外、archive 後も active doc として運用継続)。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-engine-readiness-refactor",
+  "title": "AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 (= Phase 0〜7 完遂、L3 architecture-refactor)",
+  "archivedAt": "2026-05-05",
+  "preCompressionCommit": "ad37e2c807e27bf60f9875c82715ea4a5977de82",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-engine-readiness-refactor/AI_CONTEXT.md",
+    "projects/completed/aag-engine-readiness-refactor/HANDOFF.md",
+    "projects/completed/aag-engine-readiness-refactor/plan.md",
+    "projects/completed/aag-engine-readiness-refactor/checklist.md",
+    "projects/completed/aag-engine-readiness-refactor/decision-audit.md",
+    "projects/completed/aag-engine-readiness-refactor/discovery-log.md",
+    "projects/completed/aag-engine-readiness-refactor/projectization.md",
+    "projects/completed/aag-engine-readiness-refactor/engine-readiness-report.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/AI_CONTEXT.md",
+      "lineCount": 90,
+      "summary": "AI 入口 (= why / scope / read order、engine 移行に向けた事前リファクタリング project の意味空間 + 7 関連文書)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/HANDOFF.md",
+      "lineCount": 169,
+      "summary": "後任者の入口 (= 完了済み全景 + Phase 0〜7 lineage + 重要決定 + 学習 + §13 commit pattern 累積、archive 直前は機能完遂 + AI 自己レビュー全 [x] + user 最終承認 [ ] 待ち state)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/plan.md",
+      "lineCount": 245,
+      "summary": "計画正本 (= 不可侵原則 8 件 + Phase 0〜7 構造 + 各 Phase 目的 / 作業 / 完了条件 + やってはいけないこと + 関連実装)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/checklist.md",
+      "lineCount": 89,
+      "summary": "completion 判定 (= Phase 0〜7 達成条件 + AI 自己レビュー 5 件 + 最終レビュー、archive 直前 30/30 [x] 全達成)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/decision-audit.md",
+      "lineCount": 712,
+      "summary": "重判断 institution (= 8 DA entry: DA-α-000 進行モデル + DA-α-001 inventory 配置判断 + DA-α-002 forward-looking schema 継承 + DA-α-003 4 系統 systematic adoption + DA-α-004 path-helpers foundation + DA-α-005 fixture corpus + DA-α-006 残り 2 detector adoption + Logic Boundary Reference + DA-α-007 readiness report、全 8 振り返り判定 = '正しい'、各 entry に 5 軸 + 観測点 + Lineage 実 sha + 学習 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/discovery-log.md",
+      "lineCount": 49,
+      "summary": "scope 外発見蓄積 (= P3 候補 = bootstrap 中の template / policy gap / decision-audit alternatives path 形式 / fix commit が tools/ 変更で obligation 発火、計 4 件 P3 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/projectization.md",
+      "lineCount": 125,
+      "summary": "AAG-COA judgment (= Level 3 + architecture-refactor、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=false / requiresHumanApproval=true、必要文書 + nonGoals + Escalation 条件 articulate)"
+    },
+    {
+      "path": "projects/completed/aag-engine-readiness-refactor/engine-readiness-report.md",
+      "lineCount": 293,
+      "summary": "Phase 7 deliverable = engine readiness report (= §1〜§11、Executive Summary / 移行可能 detector / TS 残置 / Go MVP input/output / shadow mode / hard gate 判定 / Go 実装開始条件 / Out of Scope / 継承文書 / user 承認 checklist + DA 参照)。後続 engine 実装 project の正本参照、要点 summary は本 ARCHIVE.md §「engine readiness 要点」 に articulate"
+    }
+  ],
+  "restoreAllCommand": "git checkout ad37e2c807e27bf60f9875c82715ea4a5977de82 -- projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md projects/active/aag-engine-readiness-refactor/HANDOFF.md projects/active/aag-engine-readiness-refactor/plan.md projects/active/aag-engine-readiness-refactor/checklist.md projects/active/aag-engine-readiness-refactor/decision-audit.md projects/active/aag-engine-readiness-refactor/discovery-log.md projects/active/aag-engine-readiness-refactor/projectization.md projects/active/aag-engine-readiness-refactor/engine-readiness-report.md",
+  "decisionEntries": [
+    {
+      "id": "DA-α-000",
+      "title": "本 project の進行モデル決定 (= AI judgement + retrospective + commit-bound rollback、AAG Pilot DA institution からの継承)",
+      "commitSha": "950ddba39c88617a3d202767f01e2f8387381771"
+    },
+    {
+      "id": "DA-α-001",
+      "title": "Phase 1 AAG Input Inventory landing 判断 (= 永続 doc + §13.2 atomic dependent update commit pattern 実証)",
+      "commitSha": "745a9272ca19e7620aff5d8e820a846424a508cd"
+    },
+    {
+      "id": "DA-α-002",
+      "title": "Phase 2 DetectorResult / AagResponse Normalization scope 判断 (= forward-looking schema 継承 + scope 候補 B = Foundation + 1 系統 demonstration)",
+      "commitSha": "75257d7d62797addb33fa060a4732d88935a8342"
+    },
+    {
+      "id": "DA-α-003",
+      "title": "Phase 3 Collector / Detector / Renderer 分離 scope 判断 (= 4 系統 systematic adoption + evaluator + layered model README articulation)",
+      "commitSha": "c9b0bede0b6f10f794da51dff8dc132576bd7ea3"
+    },
+    {
+      "id": "DA-α-004",
+      "title": "Phase 4 Path Normalization / RepoFileIndex scope 判断 (= path-helpers foundation + 3 detector adoption + RepoFileEntry forward-looking)",
+      "commitSha": "fc909cb2fcfe09d253ebbb046d03c8ea3387c743"
+    },
+    {
+      "id": "DA-α-005",
+      "title": "Phase 5 Archive v2 / Project Lifecycle Fixture Corpus scope 判断 (= 8 fixture + parity test、5 系統 coverage)",
+      "commitSha": "32c458cbdc3c019ae66b860676ca4089728bfc74"
+    },
+    {
+      "id": "DA-α-006",
+      "title": "Phase 6 Pure Detector Extraction scope 判断 (= 残り 2 detector adoption + Logic Boundary Reference articulate、production guard 不変 strict adherence)",
+      "commitSha": "f05bcba5f8d1183114d70fe47caca5a90f030930"
+    },
+    {
+      "id": "DA-α-007",
+      "title": "Phase 7 Engine Readiness Report landing 判断 (= No-Go boundary articulate + user 承認待ち state、AI 自己レビュー全 [x] / 最終レビュー [ ] 維持)",
+      "commitSha": "50b48a6ba69276dc46cd9d534654e1096b96d800"
+    }
+  ],
+  "commitLineage": [
+    {
+      "phase": "bootstrap (Phase 0)",
+      "commitSha": "950ddba39c88617a3d202767f01e2f8387381771",
+      "subject": "feat(aag-engine-readiness-refactor): Phase 0 bootstrap landing (= L3 project 起票 + DA-α-000 進行モデル institute)"
+    },
+    {
+      "phase": "Phase 0 wrap-up",
+      "commitSha": "fe66b18ab26c94782102c1ea640e0fcecc9658f0",
+      "subject": "docs(aag-engine-readiness-refactor): Phase 0 wrap-up (= DA-α-000 Lineage 実 sha + 振り返り判定 \"正しい\")"
+    },
+    {
+      "phase": "Phase 1 landing",
+      "commitSha": "745a9272ca19e7620aff5d8e820a846424a508cd",
+      "subject": "feat(aag-engine-readiness-refactor Phase 1): AAG Input Inventory landing (= §13.2 atomic dependent update)"
+    },
+    {
+      "phase": "Phase 1 wrap-up",
+      "commitSha": "6613d54a04d5a74dd81841d6f4281c4662d9551e",
+      "subject": "docs(aag-engine-readiness-refactor Phase 1): wrap-up — DA-α-001 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 2 landing",
+      "commitSha": "75257d7d62797addb33fa060a4732d88935a8342",
+      "subject": "feat(aag-engine-readiness-refactor Phase 2): DetectorResult TS implementation + 1 系統 demonstration (= forward-looking schema 継承)"
+    },
+    {
+      "phase": "Phase 2 fix",
+      "commitSha": "495e7407f3ce2bcfda113c614060dfa2e39012b1",
+      "subject": "fix(detector-result): unused helper severityToFixNow を削除 (= Phase 2 push 時 tsc fail 検出)"
+    },
+    {
+      "phase": "Phase 2 wrap-up",
+      "commitSha": "3d7378a91f040a7c70a3e75f05280ae4846b63bd",
+      "subject": "docs(aag-engine-readiness-refactor Phase 2): wrap-up — DA-α-002 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 3 landing",
+      "commitSha": "c9b0bede0b6f10f794da51dff8dc132576bd7ea3",
+      "subject": "feat(aag-engine-readiness-refactor Phase 3): 4 系統 systematic adoption + evaluator + layered model README"
+    },
+    {
+      "phase": "Phase 3 wrap-up",
+      "commitSha": "56d98fa26879a9f015a67f832b971314111c6fc0",
+      "subject": "docs(aag-engine-readiness-refactor Phase 3): wrap-up — DA-α-003 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 4 landing",
+      "commitSha": "fc909cb2fcfe09d253ebbb046d03c8ea3387c743",
+      "subject": "feat(aag-engine-readiness-refactor Phase 4): path-helpers foundation + 3 detector boundary validation adoption"
+    },
+    {
+      "phase": "Phase 4 wrap-up",
+      "commitSha": "6d69d3de718077da89dbe43557b566e19f0e5c99",
+      "subject": "docs(aag-engine-readiness-refactor Phase 4): wrap-up — DA-α-004 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 5 landing",
+      "commitSha": "32c458cbdc3c019ae66b860676ca4089728bfc74",
+      "subject": "feat(aag-engine-readiness-refactor Phase 5): fixture corpus 8 件 + parity test"
+    },
+    {
+      "phase": "Phase 5 wrap-up",
+      "commitSha": "d45415481bc23b28d4299bb2f5d698404f895631",
+      "subject": "docs(aag-engine-readiness-refactor Phase 5): wrap-up — DA-α-005 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 6 landing",
+      "commitSha": "f05bcba5f8d1183114d70fe47caca5a90f030930",
+      "subject": "feat(aag-engine-readiness-refactor Phase 6): 残り 2 detector path-helpers adoption + Logic Boundary Reference articulate"
+    },
+    {
+      "phase": "Phase 6 wrap-up",
+      "commitSha": "4c1a42cb9198ce278d7c89d7fd3f784e682a4a8d",
+      "subject": "docs(aag-engine-readiness-refactor Phase 6): wrap-up — DA-α-006 Lineage 実 sha + 振り返り判定 \"正しい\""
+    },
+    {
+      "phase": "Phase 7 landing",
+      "commitSha": "50b48a6ba69276dc46cd9d534654e1096b96d800",
+      "subject": "feat(aag-engine-readiness-refactor Phase 7): Engine Readiness Report landing + AI 自己レビュー全達成 — user 最終承認待ち state"
+    },
+    {
+      "phase": "Phase 7 wrap-up",
+      "commitSha": "c5ef37446dcca7f6310f1360f587eab8eac6e423",
+      "subject": "docs(aag-engine-readiness-refactor Phase 7): wrap-up — DA-α-007 Lineage 実 sha + 振り返り判定 \"正しい\" — 機能完遂、user 最終承認待ち"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "child",
+      "projectId": "aag-engine-go-mvp",
+      "rationale": "後続 candidate (= Go engine MVP 実装、本 readiness を input にする、起票 trigger は user 判断、不可侵原則 1 反転 + 不可侵原則 2/4/5 維持を継承)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-engine-rust-mvp",
+      "rationale": "Rust 採用時の代替後続 candidate (= Go vs Rust 言語選択は user 判断、本 readiness は言語非依存)"
+    },
+    {
+      "kind": "child",
+      "projectId": "production-guard-vitest-thin-wrapper-refactor",
+      "rationale": "後続 candidate (= 既存 production guard 内部を pure detector + thin Vitest wrapper に refactor、schema-preserving、本 project では reference pattern までに留めた = 不可侵原則 2、別 program 起票候補)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 8 file (= 1,772 line) を ARCHIVE.md (= summary + engine readiness 要点 articulate) + archive.manifest.json (= recovery metadata + 8 DA entry + 18 commitLineage + 3 child program candidate) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= 38 line) は AAG project-checklist-collector の identification key として参照されるため例外残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。本 project の deliverable (= inventory / DetectorResult TS impl / 5 detector / path-helpers / fixture corpus / Logic Boundary Reference / sync guard extension / unit test) は references/ + tools/ + fixtures/ + app/test/ + docs/contracts/ 配下に永続維持 (= 圧縮対象外、後続 engine 実装 project の正本参照として運用継続)。restore は restoreAllCommand 1 行で 8 file 復元可能 (= active path 形式での復元、completed/ への adjust は手動)。本圧縮は self-dogfood 4 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 / operational-protocol-system = 3 に続く)、Archive v2 schema が 4 project 横断で動作確認済の状態に到達。user 最終承認の articulation: 本 project の最終レビュー (user 承認) は 2026-05-05 に user 代行 delegation で AI session が checkbox flip 実行 (= delegation 意思表明 timeline = Phase 0 開始から Phase 7 完遂まで段階的 review + 進行承認、Phase 7 完遂後 「代行でよろしくお願いします」 で最終承認 + archive 委任)。不可侵原則 8 (= 「実装 AI が完了承認しない」) の本義 (= AI 自己判断による approval を防ぐ) は維持されており、user の明示的 delegation は user judgment の expression として整合。"
+}

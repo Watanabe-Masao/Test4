@@ -269,8 +269,7 @@ calculation / presentation / domain 系の guard はすべて TS 残置:
 
 | 文書 | 役割 |
 |---|---|
-| `projects/active/aag-engine-readiness-refactor/plan.md` | 本 inventory を Phase 1 deliverable として articulate する project plan |
-| `projects/active/aag-engine-readiness-refactor/AI_CONTEXT.md` | 本 inventory の reader entry (Read Order §5) |
+| `projects/completed/aag-engine-readiness-refactor/ARCHIVE.md` | 親 project の archive (= Phase 0〜7 完遂後 Archive v2 圧縮済、self-dogfood 4 件目)、本 inventory を Phase 1 deliverable として articulate した project の完遂記録 + engine readiness 要点 summary |
 | `aag/_internal/architecture.md` | AAG 5 層構造 (= 本 inventory は Layer 3 Execution の input boundary articulation) |
 | `aag/_internal/source-of-truth.md` | engine 移行で守るべき正本ポリシー |
 | `docs/contracts/project-archive.schema.json` | 分類 A §2 + 分類 C §4.3 の schema 正本 |
