@@ -64,7 +64,7 @@
 
 * [x] 本 project root 配下に engine readiness report を作成する (= `engine-readiness-report.md`、~280 line、§1〜§11)
 * [x] 移行可能になった detector / TS 側に残す detector / Go engine MVP input + output / shadow mode 対象 / hard gate 化判断 / Go 実装開始条件 を articulate する (= §2-§8 articulate、Phase 0〜6 deliverable 集約)
-* [ ] DA-α-007 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
+* [x] DA-α-007 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## AI 自己レビュー (= user 承認の手前)
 

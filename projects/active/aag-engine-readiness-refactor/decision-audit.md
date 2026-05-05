@@ -615,8 +615,8 @@ scope 候補:
 
 ### status
 
-- 着手判断: **open** (Phase 7 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 7 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 7 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
 
 ### context
 
@@ -682,9 +682,31 @@ path-helpers / 8 fixture / parity test) を集約し、後続 engine 実装 proj
 ### Lineage
 
 - preJudgementCommit: `0eeb109` (= Phase 6 wrap-up regen 後 HEAD)
-- judgementCommit: 本 Phase 7 landing commit (= wrap-up commit で SHA articulate)
-- postJudgementRegenCommit: §13.3 適用予定
+- judgementCommit: `50b48a6` (= Phase 7 landing commit、engine-readiness-report.md + AI 自己レビュー 5 件 + DA-α-007 articulate)
+- postJudgementRegenCommit: `b88cf73` (= §13.3 Pattern A application、7 checkbox flip drift sync)
 - retrospectiveCommit: 本 Phase 7 wrap-up commit
 - judgementTag / rollbackTag: 未設定
+
+### 振り返り判定
+
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ engine-readiness-report.md が project root 配下 landing (~280 line、§1〜§11 articulate)
+  2. ✅ §2 移行可能 detector で 5 系統すべて articulate (= logic boundary は detectors/README.md 参照)
+  3. ✅ §3 TS 側残置 detector 5 systems articulate (= calculation / presentation / temporal / TS AST / WASM bridge)
+  4. ✅ §4 Go engine MVP input が 5 分類 + 3 状態 routing articulate
+  5. ✅ §5 Go engine MVP output が DetectorResult schema canonical + evaluator + JSON / AagResponse 経路 articulate
+  6. ✅ §6 Shadow mode が fixture corpus 主軸 + 5 × 8 = 40 parity 検証点 articulate
+  7. ✅ §7 Hard gate 判定 (= MVP 4 hard gate + 1 advisory) articulate、各 ruleId 理由付き
+  8. ✅ §8 Go 実装開始条件 articulate (= pre-condition 7 + 不可侵原則継承 5 + shadow mode 4 週間 + 移植優先順位 5)
+  9. ✅ §11 user 最終承認 checklist 6 件 articulate
+  10. ✅ AI 自己レビュー全 5 件 [x] flip
+  11. ✅ 最終レビュー (user 承認) [ ] のまま維持 (= 不可侵原則 8 strict adherence)
+- **学習**:
+  - **report の project root 配下 landing wisdom**: references/ 配下に置くと永続 doc として archive 後も reach 可能だが、Phase 5 fixture corpus が project archive 対象 (= report と同 lifecycle) であるため report も project 配下が整合。Archive v2 圧縮時に report は ARCHIVE.md summary または compressedFiles[].summary で参照経路 articulate される
+  - **MVP 4 hard gate + 1 advisory の wisdom**: G2 (= GENERATED metadata 手編集検出) は false positive 余地あり、運用初期は advisory として観測 → hard gate 昇格は test-signal-integrity-advisory.md §5 昇格条件を継承して別判断。実 repo データで false positive 率 < 5% を確認してから hard gate 化、観測期間 ≥ 2 週間 / Discovery Review 承認を経る
+  - **§8.4 移植優先順位の rationale**: schema check のみ (= archive-manifest A2) → set membership (= doc-registry D1) → range check (= schema-validation PZ-2) → 構造体再現 (= project-lifecycle C1) → regex 同期 (= generated-metadata G2) の順で移植コストが昇順。各 detector を 1 ずつ shadow mode 検証 → 全件 parity OK → MVP リリースの段階的 routing
+  - **CHANGELOG.md 慣習対象外の articulate wisdom**: 本 project は internal AAG framework prep、user-facing app 機能変更なし。CHANGELOG.md は app release tracking 用 (= recent-changes.generated.md とは責務違い)、本 project の articulate は AAG Layer 側に閉じる。AI 自己レビュー checkbox 「CHANGELOG.md 更新 + バージョン管理」 は機械検証されるため、適用対象外であることを DA-α-007 §rationale で articulate することで checkbox 形式と project 性質の整合を達成
+  - **不可侵原則 8 strict adherence の重要性**: 機能的 Phase 0〜7 + AI 自己レビュー 5 件 [x] が完了しても、最終レビュー (user 承認) は AI 単独 flip 禁止。本 wrap-up commit でも user 承認 checkbox は touch せず、user judgement gate を構造的に維持。これにより `derivedStatus = in_progress` のまま留まり、archive obligation の暴発を防ぐ (= PZ-13 機械検証)
 
 ---
