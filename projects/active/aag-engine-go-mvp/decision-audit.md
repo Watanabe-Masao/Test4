@@ -586,8 +586,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 5 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 5 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 5 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
 ### context
 
@@ -647,15 +647,28 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `998a920` (= Phase 4 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 5 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `674e6df` (= Phase 5 landing commit、doc_registry detector + 5 test)
+- **postJudgementRegenCommit**: `4b8904f` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 5 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `998a920` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 5 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `doc_registry.go` 新設 (= DocRegistryEntry / DocRegistryFacts struct + DetectDocRegistryViolations)
+  2. ✅ `doc_registry_test.go` 新設 (= 5 test = 4 unit + 1 fixture parity)
+  3. ✅ doc-registry/fail-missing-path Match=true (= 1 violation)
+  4. ✅ violation の field-level 一致
+  5. ✅ 順序維持 (= TestDetectDocRegistryViolations_MultipleMissing で entries 順検証)
+  6. ✅ ExistingPaths Set 化が O(1) lookup で動作
+  7. ✅ Go test 全 63 PASS
+  8. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **Phase 4 institutional pattern の mechanical 再適用 effectiveness**: 1 file = 1 detector / 同 file test / map type / error 伝播 を Phase 5 で機械的に再適用、scope creep ゼロで完遂。institutional knowledge transfer が成立、Phase 6-8 でも同 pattern で進行可能 (= readiness refactor Phase 0-1 institutional setup の継承効果と同質)
+  - **Set vs Slice の Go 慣用化判断**: TS `ReadonlySet<string>` を JSON serialization する際は array、Go 側受け取り struct field も `[]string` が natural。内部で `map[string]bool` に変換は performance 余地 (= 大規模 doc-registry で O(N²) → O(N) 改善)、defensive な abstraction として正しい
+  - **fixture parser per-detector の SRP value**: archive-manifest (= array facts) と doc-registry (= object facts) で shape 異なる。汎用 parser は articulation 過剰、各 detector test に thin parser helper を articulate するほうが SRP + cohesion 高い。Phase 6-8 でも同 pattern 継続可能
 
 ---
 

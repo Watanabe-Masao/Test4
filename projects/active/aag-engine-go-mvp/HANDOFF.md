@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 5 landing 完了 (= 本 commit landing 後)**。次は Phase 5 wrap-up commit。
+**Phase 5 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 6 Schema Validation Detector。
 
 Phase 0〜4 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
@@ -14,8 +14,9 @@ Phase 0〜4 lineage (= 完遂済):
 - Phase 3: `8fbed60` + `b40ea77` + `3497733` + `d6bfc8e` (DA-α-003 = 正しい)
 - Phase 4: `f6b514a` + `f0818e8` + `8c288f8` + `998a920` (DA-α-004 = 正しい)
 
-Phase 5 lineage (= landing 段階):
-- landing commit (本 commit): `internal/detectors/doc_registry.go` 新設 (= DocRegistryEntry / DocRegistryFacts + DetectDocRegistryViolations) + `internal/detectors/doc_registry_test.go` 5 test (= 4 unit + 1 fixture parity) + DA-α-005 articulate (Lineage 仮 sha) + checklist Phase 5 4 件 flip
+Phase 5 lineage (= 完遂済):
+- landing `674e6df` + regen `4b8904f` + wrap-up (本 commit)
+- DA-α-005 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
 Phase 5 deliverable (= cumulative):
 - aag-engine/ Go module (= 5 internal package、unchanged)
