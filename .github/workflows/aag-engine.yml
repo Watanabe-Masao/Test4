@@ -42,6 +42,12 @@ jobs:
         working-directory: aag-engine
     steps:
       - uses: actions/checkout@v4
+        with:
+          # AR-CI-FETCH-DEPTH default 整合 (= ciFetchDepthGuard)。Go engine subcommand
+          # は現時点 git log 依存なし (= shadow / fixtures / validate は repo file 走査のみ)
+          # だが、Phase 11 hard gate 昇格時に project-lifecycle 検出等で last-modified 解析
+          # 拡張余地あり、default の full history を articulate して将来的 drift を防止。
+          fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:
