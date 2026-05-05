@@ -153,6 +153,19 @@ func TestRun_Fixtures(t *testing.T) {
 		t.Fatalf("stdout should be valid JSON, got err=%v", err)
 	}
 
+	// Phase 1 contract lock: status="pass" + detectorResults=[] (= validator のみ、
+	// generator ではない strict adherence、coderabbit review feedback)
+	if result["status"] != "pass" {
+		t.Errorf("status should be 'pass' (= no violations in fixture catalog mode), got %v", result["status"])
+	}
+	detectorResults, ok := result["detectorResults"].([]interface{})
+	if !ok {
+		t.Fatalf("detectorResults should be array, got %T: %v", result["detectorResults"], result["detectorResults"])
+	}
+	if len(detectorResults) != 0 {
+		t.Errorf("detectorResults should be empty (= fixtures subcommand emit catalog only、Phase 4-8 で detector 走査追加候補), got %d items", len(detectorResults))
+	}
+
 	// fixtureSummary field articulate
 	summary, ok := result["fixtureSummary"].(map[string]interface{})
 	if !ok {

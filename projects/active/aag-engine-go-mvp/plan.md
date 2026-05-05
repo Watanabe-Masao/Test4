@@ -79,7 +79,7 @@ aag fixtures --repo .
 **完了条件**:
 - Go struct (= `internal/contract/detector_result.go`) が DetectorResult schema と一致
 - JSON serialization が `expected.json` と比較可能 (= field name / order / type 一致)
-- schemaVersion / detectorId / ruleId / severity / sourceFile / evidence / actual / baseline / messageSeed を保持
+- canonical schema 8 field を保持 (= 4 required = ruleId / detectionType / sourceFile / severity + 4 optional = evidence? / actual? / baseline? / messageSeed?、schemaVersion / detectorId は canonical schema に存在しないため articulate しない、DA-α-002 §context-1)
 - DA-α-002 entry articulate
 
 ### Phase 3: Fixture Runner

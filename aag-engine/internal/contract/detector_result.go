@@ -42,15 +42,21 @@ const (
 	SeverityWarn       Severity = "warn"
 )
 
-// AllSeverities は Severity enum の articulate 全 3 値 (= test / validation で使用)。
+// AllSeverities は Severity enum の articulate 全 3 値 (= test / schema sync で使用)。
+//
+// Note: 本 var は exported だが mutable。IsValid() は本 slice に依存せず constant
+// 直接 switch するため、外部から AllSeverities への append は IsValid() 動作に
+// 影響しない (= validation の独立性確保、coderabbit review feedback)。
 var AllSeverities = []Severity{SeverityGate, SeverityBlockMerge, SeverityWarn}
 
 // IsValid は Severity enum 値の妥当性を articulate。
+//
+// 直接 constant に対する switch (= AllSeverities 非依存) で validation を articulate。
+// AllSeverities が外部 append で拡張されても本 method の判定は変わらない。
 func (s Severity) IsValid() bool {
-	for _, v := range AllSeverities {
-		if s == v {
-			return true
-		}
+	switch s {
+	case SeverityGate, SeverityBlockMerge, SeverityWarn:
+		return true
 	}
 	return false
 }

@@ -176,21 +176,15 @@ func Compare(fixture Fixture, actual []contract.DetectorResult) Diff {
 	d.Match = false
 
 	// Set-based diff (= 順序無視で missing / extra を articulate)
-	expectedSet := make([]contract.DetectorResult, len(fixture.Expected))
-	copy(expectedSet, fixture.Expected)
-	actualSet := make([]contract.DetectorResult, len(actual))
-	copy(actualSet, actual)
-
-	// expected にあって actual にないもの
+	// containsResult は read-only なので fixture.Expected / actual を直接 scan で十分
+	// (= 防御的 copy は不要、不要な allocation 回避)。
 	for _, e := range fixture.Expected {
-		if !containsResult(actualSet, e) {
+		if !containsResult(actual, e) {
 			d.Missing = append(d.Missing, e)
 		}
 	}
-
-	// actual にあって expected にないもの
 	for _, a := range actual {
-		if !containsResult(expectedSet, a) {
+		if !containsResult(fixture.Expected, a) {
 			d.Extra = append(d.Extra, a)
 		}
 	}

@@ -27,12 +27,12 @@ Phase 5 deliverable (= cumulative):
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
 Phase 0 では bootstrap / scope lock / required reads / DA-α-000 を完遂。
 
-§13 commit pattern application 累積 (= Phase 0 完遂時点):
-- §13.1 二段 commit: 1 instance (= Phase 0 landing/wrap-up)
-- §13.2 atomic dependent update: 0 instance (= Phase 0 では新 references/ doc なし、Phase 5 で発生候補)
-- §13.3 post-flip regen: 1 instance (= Phase 0 後 regen)
+§13 commit pattern application 累積 (= Phase 0〜5 完遂時点):
+- §13.1 二段 commit: 6 instance (= Phase 0+1+2+3+4+5)
+- §13.2 atomic dependent update: 0 instance (= Phase 0〜5 で発生せず、Phase 7 で project-lifecycle 走査時に候補)
+- §13.3 post-flip regen: 12 instance
 
-derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase 2 wrap-up 待ち。
+derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
 (user 承認) 1 件 = 全 [x]。
 
@@ -49,13 +49,8 @@ derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase
 - **Phase 6 wrap-up commit**:
   - DA-α-006 Lineage 実 sha + 振り返り判定
 
-### 低優先（Phase 2 以降、後続 PR）
+### 低優先（Phase 7 以降、後続 PR）
 
-- Phase 2: DetectorResult Contract Binding
-- Phase 3: Fixture Runner
-- Phase 4: Archive Manifest Detector
-- Phase 5: Doc Registry Detector
-- Phase 6: Schema Validation Detector
 - Phase 7: Project Lifecycle Detector
 - Phase 8: Generated Metadata Detector (advisory)
 - Phase 9: Shadow Mode
