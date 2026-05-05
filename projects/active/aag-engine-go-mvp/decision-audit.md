@@ -255,8 +255,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 2 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 2 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 2 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 14 件すべて達成)
 
 ### context
 
@@ -332,15 +332,38 @@ scope 進入時の発見:
 ### Lineage
 
 - **preJudgementCommit**: `62844c3` (= Phase 1 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 2 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `87643f4` (= Phase 2 landing commit、DetectorResult contract binding + Phase 1 positional args fix 統合)
+- **postJudgementRegenCommit**: `2a618d8` (= §13.3 Pattern A application、aag-engine/ 変更 + checkbox 4 件 flip drift sync)
+- **postLandingFixCommit**: `a001112` (= user review feedback による articulation 修正 = 9→11 test count / HANDOFF stale snapshot / plan.md MD040 fenced block language)
 - **retrospectiveCommit**: 本 Phase 2 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `62844c3` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 2 wrap-up commit で articulate 予定。観測点 1〜14 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `internal/contract/detector_result.go` 8 field DetectorResult struct + Severity 3-enum + factory + helper を articulate (~150 line)
+  2. ✅ canonical schema $id (= `https://aag.local/schemas/detector-result-v1.json`) と Go const CanonicalSchemaID 一致 (= TestSchemaSync_SchemaID PASS)
+  3. ✅ schema required (= 4 field) と Go RequiredFields 一致 (= TestSchemaSync_RequiredFields PASS)
+  4. ✅ schema properties (= 8 field) と Go AllJSONFields 一致 (= TestSchemaSync_PropertyFields PASS)
+  5. ✅ schema severity enum (= 3 値) と Go AllSeverities 一致 (= TestSchemaSync_SeverityEnum PASS)
+  6. ✅ Go struct json tag 集合が AllJSONFields と reflection 経由で一致 (= TestSchemaSync_StructTags PASS)
+  7. ✅ CreateDetectorResult factory が required 空文字 / 不正 severity / optional 空文字を hard fail (= 6 validation case PASS)
+  8. ✅ JSON marshal が canonical schema 準拠 shape (= field name camelCase + omitempty、TestDetectorResult_JSONMarshal_RequiredOnly / AllFields PASS)
+  9. ✅ internal/report が contract.DetectorResult を import、placeholder DetectorResult 削除済
+  10. ✅ Phase 1 placeholder `internal/contract/contract.go` 削除済 (= PackageVersion 重複なし)
+  11. ✅ `aag validate /tmp/repo` が ExitError + hint message を返す (= TestRun_Validate_UnexpectedPositionalArg PASS)
+  12. ✅ `aag fixtures /tmp/repo` も同 pattern (= TestRun_Fixtures_UnexpectedPositionalArg PASS)
+  13. ✅ Go test 33 件 PASS (= cmd/aag 11 + contract 14 + report 8)
+  14. ✅ TS guard 1057 test PASS (= aag-engine/ 変更で TS baseline 維持)
+- **学習**:
+  - **canonical 優先 pattern の continuity**: readiness refactor DA-α-002 で確立した「plan.md sketch と canonical contract で差異がある場合は canonical contract 優先」 を本 MVP Phase 2 でも適用、plan.md の 9-field 列挙を canonical 8-field に修正できた。institutional knowledge transfer が機能、後続 Phase でも 同 pattern で plan.md と実装の drift を検出可能
+  - **pointer optional + factory pattern の Go 慣用化**: TS の `?` 接尾辞を Go の pointer 型 + omitempty で mirror、`actual: 0` の articulate 区別を維持。Phase 4-8 detector で各 violation の actual / baseline を articulate する際の base pattern 確立
+  - **schema sync test 5 軸の coverage value**: TS aagContractSchemaSyncGuard 3 sync test に対して Go 側 5 sync test (= +reflection struct tag + severity enum coverage) を articulate。schema drift 検出を多軸で機械検証、Phase 7 hard gate 昇格判定の入力として活用可能
+  - **placeholder 削除の wisdom**: Phase 1 で意図的に placeholder package を articulate し、Phase 2 で正規 binding に置換した時点で削除する pattern。残置すると PackageVersion 重複 + 保守コスト発生、Phase 進行とともに articulation を refactor する institutional habit を確立
+  - **user feedback 由来 fix の atomic commit 統合の wisdom**: Phase 1 deliverable bug (= positional args silent ignore) を Phase 2 landing と物理 conflict する main.go で fix、別 commit 分割 cost > atomic commit cost の trade-off で統合判断。DA §context-2 + §observation-11/12 で fix を transparent に articulate。AAG-REQ-NO-AMEND 整合 (= 後続 fix も別 commit として articulate)
+  - **post-landing review feedback の handling pattern**: Phase 2 landing 後 user code review で 3 articulation issue を発見、新 fix commit (`a001112`) として landing。AAG-REQ-NO-AMEND 整合 + AI が「気づいたら直す」 culture との整合を実現。Phase 0 institutional setup から続く iterative refinement pattern
 
 ---
 

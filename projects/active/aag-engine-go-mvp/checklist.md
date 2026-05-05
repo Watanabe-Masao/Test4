@@ -34,7 +34,7 @@
 * [x] JSON serialization が `expected.json` と field-level 比較可能 (= field name / order / type 一致)
 * [x] canonical schema 8 field (= 4 required + 4 optional = ruleId / detectionType / sourceFile / severity + evidence / actual / baseline / messageSeed) を保持 (= plan.md の field 列挙誤りを canonical 準拠に修正、DA-α-002 §context-1)
 * [x] (Phase 1 deliverable bug fix) `aag validate /tmp/repo` の positional argument silent ignore を hard fail で検出 + hint 付き ExitError を返す (= user feedback 由来、DA-α-002 §context-2)
-* [ ] DA-α-002 entry を articulate する
+* [x] DA-α-002 entry を articulate する
 
 ## Phase 3: Fixture Runner
 

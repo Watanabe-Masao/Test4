@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 2 landing 完了 (= 本 commit landing 後)**。次は Phase 2 wrap-up commit。
+**Phase 2 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 3 Fixture Runner。
 
 Phase 0 lineage (= 完遂済):
 - landing `cc6e824` + regen `ed348eb` + wrap-up `be51eaf` + regen `2ba85dd`
@@ -13,15 +13,17 @@ Phase 0 lineage (= 完遂済):
 
 Phase 1 lineage (= 完遂済):
 - landing `2172c25` + regen `3e3f143` + wrap-up `e526af2` + regen `62844c3`
-- DA-α-001 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
+- DA-α-001 振り返り判定: **正しい**
 
-Phase 2 lineage (= landing 段階):
-- landing commit (本 commit): `internal/contract/detector_result.go` 新設 (= canonical schema 8 field mirror + Severity 3-enum + factory + helper) + schema sync test 5 件 + factory test 6 件 + JSON marshal test 2 件 + report package を contract.DetectorResult 経由に migrate + Phase 1 placeholder contract.go 削除 + (Phase 1 deliverable bug fix) positional args silent ignore を hard fail に articulate (= validate / fixtures 両 subcommand) + DA-α-002 articulate (Lineage 仮 sha) + checklist Phase 2 4 件 flip
+Phase 2 lineage (= 完遂済):
+- landing `87643f4` + regen `2a618d8` + post-landing fix `a001112` + wrap-up (本 commit)
+- DA-α-002 振り返り判定: **正しい** (= 観測点 14 件すべて達成)
 
-Phase 1 deliverable (= cumulative):
+Phase 2 deliverable (= cumulative):
 - aag-engine/ Go module (= go.mod / cmd/aag/main.go / internal/contract/detector_result.go / internal/report/report.go)
 - 33 Go test PASS (= cmd/aag 11 + contract 14 + report 8)
-- 2 subcommand (= validate / fixtures、+ --help meta flag) + JSON output + exit code contract + canonical schema mirror
+- canonical schema mirror (= 8 field DetectorResult + Severity 3-enum + factory + 5 sync test)
+- 2 subcommand (= validate / fixtures、+ --help meta flag) + JSON output + exit code contract + positional args hard fail
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
@@ -40,14 +42,14 @@ derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 2）
+### 高優先（次 PR = Phase 3）
 
-- **Phase 2 DetectorResult Contract Binding landing commit**:
-  - `aag-engine/internal/contract/detector_result.go` を populate (= canonical schema 整合 Go struct)
-  - schema loader / sync helper の articulate
-  - DA-α-002 entry articulate
-- **Phase 2 wrap-up commit**:
-  - DA-α-002 Lineage 実 sha + 振り返り判定
+- **Phase 3 Fixture Runner landing commit**:
+  - `aag-engine/internal/fixture/` 新設 (= fixtures/aag/ 配下 8 fixture を Go 側で読む runner)
+  - input.json 読込 + expected.json 比較 + parity 差分 machine-readable 出力
+  - DA-α-003 entry articulate
+- **Phase 3 wrap-up commit**:
+  - DA-α-003 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 2 以降、後続 PR）
 
