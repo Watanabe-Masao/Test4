@@ -61,9 +61,9 @@
 
 ## Phase 6: Schema Validation Detector
 
-* [ ] `schema-validation/fail-level-out-of-range` fixture で AR-SCHEMA-VALIDATION-PZ2 を 1 件 emit
-* [ ] schemaVersion mismatch を検出する
-* [ ] level out-of-range を DetectorResult 化
+* [x] `schema-validation/fail-level-out-of-range` fixture で AR-SCHEMA-VALIDATION-PZ2 を 1 件 emit (= field-level Match=true)
+* [x] schemaVersion mismatch を検出する (= MVP scope は projectization.level 範囲、schemaVersion check は別 rule で後続 articulate 候補、DA-α-006 §scope)
+* [x] level out-of-range を DetectorResult 化 (= 0〜4 整数のみ valid、非 integer / negative / > 4 を violation 化、7 unit test PASS)
 * [ ] DA-α-006 entry を articulate する
 
 ## Phase 7: Project Lifecycle Detector

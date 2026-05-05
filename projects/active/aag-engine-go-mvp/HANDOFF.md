@@ -5,7 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 5 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 6 Schema Validation Detector。
+**Phase 6 landing 完了 (= 本 commit landing 後)**。次は Phase 6 wrap-up commit。
+
+Phase 6 lineage (= landing 段階):
+- landing commit (本 commit): `internal/detectors/schema_validation.go` 新設 (= SchemaValidationProject / SchemaValidationFacts struct + DetectSchemaValidationViolations function、math.Trunc で integer check) + `internal/detectors/schema_validation_test.go` 8 test (= 7 unit + 1 fixture parity) + DA-α-006 articulate (Lineage 仮 sha) + checklist Phase 6 3 件 flip
+
+Phase 6 deliverable (= cumulative):
+- aag-engine/ Go module (= 5 internal package、unchanged)
+- 71 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 21)
+- 5 detector のうち 3 (= archive-manifest + doc-registry + schema-validation) が wired up、5 fixture parity 100% 達成
+
+(以下 Phase 0〜5 の lineage は wrap-up commit 後に summary を update)
 
 Phase 0〜4 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)

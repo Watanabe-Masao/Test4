@@ -672,4 +672,90 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-006 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-006: Phase 6 Schema Validation Detector scope 判断 (= projectization.level 範囲検証 + 1 fixture parity)
+
+### status
+
+- 着手判断: **open** (Phase 6 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 6 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 6 plan.md の作業項目:
+- 5 detector 移植優先順位の **3 番目** (= range check のみ、Phase 4-5 と同 institutional pattern)
+- AR-SCHEMA-VALIDATION-PZ2 (= projectization.level が 0〜4 範囲外) 検出
+- schema-validation/fail-level-out-of-range fixture parity
+- DA-α-006 entry articulate
+
+scope 判断点:
+1. **Level 型 (= TS `number | null`) の Go mirror**: pointer `*float64` で nil/non-nil articulate
+2. **Number.isInteger の Go 等価実装**: `math.Trunc(x) == x` で float64 が integer か判定
+3. **`%v` formatting parity**: TS `${5}` → "5" / `${2.5}` → "2.5" を Go `%v` で再現可能か
+4. **Phase 4-5 institutional pattern の継承**: 1 file = 1 detector / 同 file test / map-or-pointer per facts shape / fixture parser per-detector / error 伝播
+
+### decision
+
+以下を採用する:
+
+1. **Level = `*float64`** (= JSON null = nil で articulate):
+   - JSON null は Go `*float64` に nil として unmarshal 可能
+   - JSON 数値 (= integer / float) は float64 として受け取り、内部で integer check
+2. **isInteger 判定 = `math.Trunc(x) == x`** (= JS Number.isInteger 等価):
+   - `5.0 == math.Trunc(5.0)` → true (= integer)
+   - `2.5 == math.Trunc(2.5)` (= 2.5 == 2.0) → false (= 非 integer)
+   - `-1.0 == math.Trunc(-1.0)` → true (= integer、range check で reject)
+3. **`fmt.Sprintf("%v", float64)` で formatting parity**:
+   - Go `%v` for float64 は `%g` format を使用、5.0 → "5" / 2.5 → "2.5" / -1.0 → "-1"
+   - TS template literal `${number}` と一致 (= JSON output で整数値が "5" として serialize される pattern と整合)
+4. **Phase 4-5 institutional pattern 継承**:
+   - 1 file = 1 detector (= schema_validation.go + schema_validation_test.go)
+   - 同 file test 配置 (= 7 unit + 1 fixture parity)
+   - facts shape は object (= doc-registry と同、archive-manifest の array とは異なる)
+   - fixture parser per-detector (= parseSchemaValidationFacts)
+   - factory error 伝播
+
+### rationale
+
+- **Level pointer 型**: TS `number | null` を Go で表現する canonical pattern。値型 + sentinel (= -1 = null 等) は意味不明、pointer + nil が最も clean
+- **math.Trunc**: `Number.isInteger` の Go 等価実装、float64 で fractional part が 0 か判定。`%` 演算子は float64 で使えないため `math.Trunc` 経由が必要 (= alternative `math.Mod(x, 1) == 0` も等価)
+- **`%v` formatting**: Go の default float formatting は `%g` (= significant digit 必要分のみ)、5.0 → "5" / 2.5 → "2.5" で TS template literal と一致。fixture expected.json の `evidence: "level=5 is not in [0, 1, 2, 3, 4]"` (= "5" not "5.0") と field-level 一致
+- **institutional pattern 継承**: Phase 4-5 で確立した pattern を Phase 6 で機械的再適用、scope creep ゼロで完遂可能
+
+### alternatives
+
+- (a-alt) **Level = `float64` + sentinel (= -1 = null)**: 意味不明 + sentinel との range overlap、不採用
+- (b-alt) **`math.Mod(x, 1) == 0` で integer check**: `math.Trunc(x) == x` と等価だが意図が読みにくい、不採用
+- (c-alt) **`fmt.Sprintf("%g", float64)`**: `%v` の default も `%g` で結果同じ、明示する必要なし、不採用
+- (d-alt) **Level は `int` で受ける**: JSON 数値が non-integer (= 2.5) の場合 unmarshal error で 検出ロジックが detector 外に漏れる、不採用
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. ✅ `internal/detectors/schema_validation.go` 新設 (= SchemaValidationProject + SchemaValidationFacts struct + DetectSchemaValidationViolations function)
+2. ✅ `internal/detectors/schema_validation_test.go` 新設 (= 7 unit + 1 fixture parity = 8 test)
+3. ✅ AAG-COA Level 0〜4 すべて valid (= TestDetectSchemaValidationViolations_AllValidLevels PASS)
+4. ✅ level=5 → 1 violation (= upper out)、actual=5 / evidence="level=5 is not in [0, 1, 2, 3, 4]" / messageSeed="(5)"
+5. ✅ level=-1 → 1 violation (= lower out)
+6. ✅ level=2.5 → 1 violation (= 非 integer)
+7. ✅ level=nil → skip (= 別 rule、本 detector scope 外)
+8. ✅ schema-validation/fail-level-out-of-range fixture parity Match=true (= field-level 一致)
+9. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 21 = 計 71)
+10. ✅ TS guard 1057 test PASS
+
+### Lineage
+
+- **preJudgementCommit**: `ff17b2b` (= coderabbit-review fix regen 後 HEAD)
+- **judgementCommit**: 本 Phase 6 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 6 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `ff17b2b` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 6 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-007 〜 012) は各 Phase landing commit 時に articulate 追加。
