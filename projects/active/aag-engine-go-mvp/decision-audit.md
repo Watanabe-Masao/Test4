@@ -779,8 +779,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 7 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 7 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 7 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 9 件すべて達成)
 
 ### context
 
@@ -839,15 +839,30 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `b1cff57` (= Phase 6 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 7 landing commit (= SHA は wrap-up commit で update)
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `aef3291` (= Phase 7 landing commit、project_lifecycle detector + 7 test)
+- **postJudgementRegenCommit**: `003af40` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 7 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `b1cff57` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 7 wrap-up commit で articulate 予定。観測点 1〜9 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `project_lifecycle.go` 新設 (= ProjectKind / DerivedStatus typed enum + 3 struct + DetectProjectLifecycleViolations)
+  2. ✅ `project_lifecycle_test.go` 新設 (= 7 test = 5 unit + 2 fixture parity)
+  3. ✅ in_progress / archived / collection / empty すべて 0 violation
+  4. ✅ completed + project kind violation: actual=7 / baseline=7 / messageSeed field-level 一致
+  5. ✅ collection kind の completed は skip
+  6. ✅ project-lifecycle/pass-active fixture parity Match=true (= active/archived/collection mix で 0 violation、3 状態 articulate)
+  7. ✅ project-lifecycle/fail-completed-not-archived fixture parity Match=true
+  8. ✅ Go test 全 78 PASS
+  9. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **3 状態 routing は collector 責務 SRP の wisdom**: detector は state-agnostic な判定のみ articulate、3 状態 routing (= active / completed v1 / completed v2 圧縮) を collector に閉じることで detector が test 可能 + 再利用可能。fixture parity test は collector mock の役割を果たす
+  - **typed const enum の type safety value**: ProjectKind / DerivedStatus を const articulate することで文字列比較 typo を type system で検出。Severity と同 pattern、Phase 8 generated-metadata でも同候補
+  - **ProjectMeta full mirror の forward-looking value**: detector が使わない field (= title / status / aiContextPath 等) も struct 上に articulate、Phase 9 shadow report や後続 detector 拡張時に re-articulate 不要
+  - **Phase 4-6 institutional pattern の 4 連続 mechanical 再適用**: Phase 7 でも scope creep ゼロで完遂、4 連続成功 (= Phase 4/5/6/7)。残 Phase 8 (= generated-metadata advisory) も同 pattern で進行可能
 
 ---
 

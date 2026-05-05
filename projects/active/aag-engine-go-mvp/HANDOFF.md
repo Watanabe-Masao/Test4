@@ -5,17 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 7 landing 完了 (= 本 commit landing 後)**。次は Phase 7 wrap-up commit。
+**Phase 7 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 8 Generated Metadata Detector (advisory)。
 
-Phase 7 lineage (= landing 段階):
-- landing commit (本 commit): `internal/detectors/project_lifecycle.go` 新設 (= ProjectKind / DerivedStatus typed enum + ProjectMeta / ProjectChecklistResult / ProjectLifecycleFacts struct + DetectProjectLifecycleViolations function) + `internal/detectors/project_lifecycle_test.go` 7 test (= 5 unit + 2 fixture parity) + DA-α-007 articulate (Lineage 仮 sha) + checklist Phase 7 4 件 flip
+Phase 0〜6 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
+Phase 7 lineage (= 完遂済):
+- landing `aef3291` + regen `003af40` + wrap-up (本 commit)
+- DA-α-007 振り返り判定: **正しい** (= 観測点 9 件すべて達成)
 
 Phase 7 deliverable (= cumulative):
 - aag-engine/ Go module (= 5 internal package、unchanged)
 - 78 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 28)
-- 5 detector のうち 4 (= archive-manifest + doc-registry + schema-validation + project-lifecycle) が wired up、7 fixture parity 100% 達成
-
-(以下 Phase 0〜6 lineage は wrap-up commit 後に summary 更新)
+- 5 detector のうち 4 (= archive-manifest + doc-registry + schema-validation + project-lifecycle) が wired up、7 fixture parity 100% 達成 (= 残 1 fixture = generated/fail-stale-metadata は Phase 8 で wired up 予定)
 
 Phase 0〜5 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 6 lineage (= 完遂済):
@@ -60,15 +60,16 @@ derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 7）
+### 高優先（次 PR = Phase 8）
 
-- **Phase 7 Project Lifecycle Detector landing commit**:
-  - `aag-engine/internal/detectors/project_lifecycle.go` 新設 (= AR-PROJECT-LIFECYCLE-C1 = completed but not archived)
-  - 2 project-lifecycle fixture (= pass-active / fail-completed-not-archived) で parity 検証
-  - 3 状態 routing (= active / completed v1 / completed v2 圧縮) を articulate
-  - DA-α-007 entry articulate
-- **Phase 7 wrap-up commit**:
-  - DA-α-007 Lineage 実 sha + 振り返り判定
+- **Phase 8 Generated Metadata Detector (advisory) landing commit**:
+  - `aag-engine/internal/detectors/generated_metadata.go` 新設 (= AR-GENERATED-METADATA-G2 = GENERATED marker / ISO timestamp 欠落)
+  - severity = warn (= advisory only、CI hard fail を引き起こさない)
+  - `generated/fail-stale-metadata` fixture で parity 検証
+  - 5 detector 移植完了、Phase 9 shadow mode への入口
+  - DA-α-008 entry articulate
+- **Phase 8 wrap-up commit**:
+  - DA-α-008 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 7 以降、後続 PR）
 

@@ -72,7 +72,7 @@
 * [x] `project-lifecycle/fail-completed-not-archived` fixture で AR-PROJECT-LIFECYCLE-C1 を 1 件 emit (= field-level Match=true)
 * [x] active / completed v1 / completed v2 圧縮済 の 3 状態すべてで read 経路が動作 (= 3 状態 routing は collector 責務、本 detector は state-agnostic な判定のみ articulate、DA-α-007 §decision-1)
 * [x] Archive v2 圧縮済 project に対して `plan.md` / `checklist.md` 等の物理存在を前提にした read を行わない (= 本 detector は ProjectChecklistResult を input として受け取るのみ、physical read を行わないため前提 0 件)
-* [ ] DA-α-007 entry を articulate する
+* [x] DA-α-007 entry を articulate する
 
 ## Phase 8: Generated Metadata Detector (advisory)
 
