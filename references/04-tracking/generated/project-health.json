@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-05T12:22:16.501Z",
+  "timestamp": "2026-05-05T12:34:47.947Z",
   "summary": {
     "active": 5,
     "archived": 40,
@@ -9,7 +9,7 @@
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 1291,
-    "checkedCheckboxes": 1169
+    "checkedCheckboxes": 1173
   },
   "projects": [
     {
@@ -96,9 +96,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 29,
+      "checked": 33,
       "total": 72,
-      "progress": 0.403,
+      "progress": 0.458,
       "entrypoint": "projects/active/aag-engine-go-mvp/AI_CONTEXT.md",
       "checklistPath": "projects/active/aag-engine-go-mvp/checklist.md",
       "parent": null
