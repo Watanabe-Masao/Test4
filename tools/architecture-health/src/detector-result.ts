@@ -247,3 +247,62 @@ export function renderDetectorResultsAsJson(
 
   return JSON.stringify(sorted, null, options.indent ?? 2)
 }
+
+// ───────────────────────────────────────────────────────────────────────
+// evaluator (= aag-engine-readiness-refactor Phase 3 で追加、layered model 確立)
+// ───────────────────────────────────────────────────────────────────────
+
+/**
+ * `DetectorResult[]` の評価 summary。layered model の **evaluator** 層が emit する。
+ *
+ * - `gate` severity の有無で `hardGatePass` を articulate (= CI hard fail 判定)
+ * - severity 別件数で gradient 把握 (= advisory / warn の分布)
+ * - rule 別件数で violation 集中先を articulate
+ */
+export interface DetectorEvaluationSummary {
+  readonly totalCount: number
+  readonly countBySeverity: Readonly<Record<DetectorSeverity, number>>
+  readonly countByRuleId: ReadonlyMap<string, number>
+  /** `gate` severity の violation が 1 件もない場合 true (= CI hard fail を回避) */
+  readonly hardGatePass: boolean
+  /** `block-merge` severity の violation が 1 件もない場合 true (= マージ block を回避) */
+  readonly mergeBlockPass: boolean
+}
+
+/**
+ * `DetectorResult[]` を評価し summary を articulate する pure function。
+ * collector → detector → **evaluator** → renderer の layered model における
+ * evaluator 層の reference implementation。
+ *
+ * **layered model articulation**:
+ *   - **collector**: repo から facts を集める (= fs / glob 依存可、本 module 外)
+ *   - **detector**: facts から DetectorResult[] を作る (= pure、`detectors/*.ts`)
+ *   - **evaluator**: DetectorResult[] から hard gate / KPI 判定を行う (= pure、本 function)
+ *   - **renderer**: DetectorResult[] / summary から output を生成 (= json / markdown / AagResponse)
+ *
+ * @param results detector layer から emit された違反集合
+ * @returns 評価 summary (= 件数 + hard gate 判定)
+ */
+export function evaluateDetectorResults(
+  results: readonly DetectorResult[],
+): DetectorEvaluationSummary {
+  const countBySeverity: Record<DetectorSeverity, number> = {
+    gate: 0,
+    'block-merge': 0,
+    warn: 0,
+  }
+  const countByRuleId = new Map<string, number>()
+
+  for (const r of results) {
+    countBySeverity[r.severity] += 1
+    countByRuleId.set(r.ruleId, (countByRuleId.get(r.ruleId) ?? 0) + 1)
+  }
+
+  return Object.freeze({
+    totalCount: results.length,
+    countBySeverity: Object.freeze(countBySeverity),
+    countByRuleId,
+    hardGatePass: countBySeverity.gate === 0,
+    mergeBlockPass: countBySeverity['block-merge'] === 0,
+  })
+}

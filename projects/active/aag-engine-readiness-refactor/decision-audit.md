@@ -257,4 +257,85 @@ Phase 2 進入時の重要発見:
 
 ---
 
-> 後続 DA entry (DA-α-003 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-003: Phase 3 Collector / Detector / Renderer 分離 scope 判断 (= 4 系統 systematic adoption + layered model articulation)
+
+### status
+
+- 着手判断: **open** (Phase 3 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 3 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 2 で foundation (= DetectorResult TS implementation + evaluator helper の足場) +
+1 系統 (= project lifecycle) demonstration を landing 済 (= DA-α-002 §decision)。
+Phase 3 は plan.md で「Collector / Detector / Renderer 分離」と articulate されているが、
+具体的な scope は以下 2 軸で判断必要:
+
+1. **detector layer 拡張**: 残り 4 系統 (= archive manifest / doc registry / generated metadata / schema validation) を pure detector として articulate するか
+2. **layered model 確立**: collector / detector / **evaluator** / renderer の 4 層を明示的に articulate するか (= plan.md は分離モデルとして mention するが、evaluator 層の reference implementation は未 landing)
+
+Phase 6 (Pure Detector Extraction) は別 Phase で「Vitest や CLI に密着した guard
+から pure detector を切り出す」と articulate (= production guard の **置換**)、
+Phase 3 とは role が異なる:
+
+- Phase 3 = 新 detector を **追加** (= parallel implementation、production guard 不変)
+- Phase 6 = production guard 内部を **refactor** (= Vitest wrapper を thin 化)
+
+### decision
+
+以下を採用する:
+
+1. **4 系統 systematic adoption**: 残り 4 系統 すべてに 1 violation rule の demonstration detector を新設
+    - `archive-manifest-detector.ts` (= AR-ARCHIVE-MANIFEST-A2 = top-level required field 欠落)
+    - `doc-registry-detector.ts` (= AR-DOC-REGISTRY-D1 = registered path が存在しない)
+    - `generated-metadata-detector.ts` (= AR-GENERATED-METADATA-G2 = GENERATED marker / ISO timestamp 欠落)
+    - `schema-validation-detector.ts` (= AR-SCHEMA-VALIDATION-PZ2 = level が 0〜4 範囲外)
+2. **evaluator layer 確立**: `detector-result.ts` に `evaluateDetectorResults(results) → DetectorEvaluationSummary` を追加 (= pure function、severity 集計 + hardGatePass / mergeBlockPass 判定)
+3. **layered model README**: `tools/architecture-health/src/detectors/README.md` を新設し、collector / detector / evaluator / renderer の 4 層を table + 設計原則で articulate
+4. **既存 production guard を変更しない (= Phase 2 と同 pattern)**: 全 detector は parallel implementation、ruleId / sourceFile / severity は既存 guard と 1:1 整合
+5. **renderer 分離 parity test**: 同じ `DetectorResult[]` から JSON / AagResponse / evaluator summary の 3 経路が独立して articulate されることを test で機械検証 (= 「renderer 変更で detector logic が変わらない」 plan.md 完了条件)
+6. **新 test file は作らない**: Phase 2 で landing 済の `detectorResultModuleGuard.test.ts` に describe block を追加 (= 4 detector + evaluator + layered model parity の test)、guard-test-map 件数 20 → 46 に update
+
+### rationale
+
+- **4 系統 systematic adoption**: Phase 2 で 1 系統 demonstration を landing 済、pattern は institutionalize 済。Phase 3 で残り 4 系統に展開すると 5 系統 全 demonstration が揃い、Phase 6 (= production guard refactor) の base reference として機能する。各 detector は ~50-80 line + test ~80-150 line で controllable な規模
+- **evaluator layer 確立**: plan.md Phase 3 分離モデル (= collector / detector / evaluator / renderer) のうち evaluator が unimplemented だった。`evaluateDetectorResults` を追加することで 4 層 layered model の reference implementation が完成、後続 Phase / engine 実装 project が pattern を継承可能
+- **layered model README**: 4 層 model + 設計原則 + 5 detector 一覧 + 新 detector 追加手順 を 1 file に articulate することで、後続 detector 追加時の navigation cost を最小化。AAG-REQ-ANTI-DUPLICATION 整合 (= plan.md の分離 model articulate + README の reference implementation で reader が異なる)
+- **既存 production guard 不変 (= 不可侵原則 2 strict adherence)**: Phase 2 で確立した parallel implementation pattern を継承。production guard は existing AagResponse 経路で動作継続、detector layer は engine 化対象として独立進化。Phase 6 で必要があれば production guard 内部から detector を呼ぶ refactor を別 program で行う
+- **renderer 分離 parity test**: plan.md Phase 3 完了条件 「renderer 変更で detector logic が変わらない」 を **test 化** することで、layered model の構造的健全性を機械検証。既存 hand-wave articulation を test 化する pattern (= G8 整合 = 「気をつける」を mechanism に転化)
+- **新 test file 不要**: 同 module の test を 1 file に集約することで、guard-test-map 登録 cost (= 1 entry update) と guardTestMapConsistencyGuard baseline cost (= 0 件追加) を最小化。test file 数増加は別の co-change 義務を生む (= projectStructureGuard / guardTestMapConsistencyGuard 等)
+
+### alternatives
+
+- (a) **Phase 3 = layered model README のみ + evaluator + 1 系統追加** (= scope 縮小): Phase 6 で 4 系統全部を refactor 形式で行う案。但し Phase 6 は production guard refactor (= 別 task class)、Phase 3 で demonstration detector を 5 系統揃えておくと Phase 6 の reference として有用、不採用
+- (b) **Phase 3 = 既存 production guard 内部を refactor (= Phase 6 と統合)**: 単一 Phase で「Phase 3 + Phase 6」を完遂する案。但し production guard refactor は scope 大 (= violation rule 数 5 系統合計 ~40+ rule、production guard 全変更)、Phase 3 単独の wrap-up に収まらない、不採用
+- (c) **layered model 文書化を CLAUDE.md / references/ に追加**: doc-registry / README index update が necessary (= §13.2 atomic update 増加コスト)。本 README は detectors/ directory 内に閉じる方が navigation 自然 (= directory 内 README は repo 慣習)、不採用
+- (d) **新 test file を 5 個に分割** (= 1 detector につき 1 test file): test file 数増加で guard-test-map / projectStructureGuard 登録 cost が増加。同 module の test は同 file に集約する方が cohesion 高い、不採用
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. 4 detector file (= archive-manifest-detector / doc-registry-detector / generated-metadata-detector / schema-validation-detector) が `tools/architecture-health/src/detectors/` 配下に存在
+2. 各 detector は pure function (= fs / glob 直接依存なし、引数 facts のみ参照) で articulate
+3. `evaluateDetectorResults(results) → DetectorEvaluationSummary` が `detector-result.ts` に articulate、hardGatePass + mergeBlockPass + countBySeverity + countByRuleId を pure に compute
+4. `tools/architecture-health/src/detectors/README.md` が 4 層 layered model + 5 detector 一覧 + 新 detector 追加手順 を articulate
+5. layered model parity test (= 「同じ DetectorResult[] から JSON / AagResponse / evaluator summary が独立に articulate される」) が PASS
+6. 既存 production guard (= projectCompletionConsistencyGuard / archiveV2SchemaGuard / docRegistryGuard / generatedFileEditGuard / projectizationPolicyGuard) は **変更されていない** (= git show <landing commit> --stat で対象 file 不在を確認)
+7. 全 guard test PASS (= 147 file / +26 test from Phase 2 = 1018 test、46 detectorResultModuleGuard 全 PASS)
+8. Phase 3 完了条件 (= plan.md): detector が fs / glob に直接依存しない箇所が増える / test wrapper と detection logic が分離される / renderer 変更で detector logic が変わらない の 3 件すべてが達成されている
+
+### Lineage
+
+- **preJudgementCommit**: `de62efc` (= Phase 2 fix 後 regen commit、本 Phase 3 landing 直前の HEAD)
+- **judgementCommit**: 本 Phase 3 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用 (= 新 detector file 追加で project-structure.md 変動なし、checkbox flip による project.checklist.* drift)
+- **retrospectiveCommit**: 本 Phase 3 wrap-up commit
+- **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
+- **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `de62efc` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 3 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-004 〜 007) は各 Phase landing commit 時に articulate 追加。

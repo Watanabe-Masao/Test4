@@ -1,0 +1,80 @@
+# detectors/ — pure violation detection layer
+
+> **位置付け**: `aag-engine-readiness-refactor` project Phase 2〜3 deliverable。
+> 将来 Go / Rust engine への部分移行を想定した layered model の **detector 層**。
+
+## 4 層 layered model
+
+```
+collector  →  detector  →  evaluator  →  renderer
+   ↓            ↓             ↓            ↓
+repo facts  DetectorResult  summary    json/md/AagResponse
+(fs ok)      (pure)         (pure)      (renderer ok)
+```
+
+| 層 | 責務 | 物理 location | 純粋性 |
+|---|---|---|---|
+| **collector** | repo / 外部 system から facts を集める | `tools/architecture-health/src/collectors/*.ts` | fs / glob 依存可 |
+| **detector** | facts から `DetectorResult[]` を作る | `tools/architecture-health/src/detectors/*.ts` (= 本 directory) | **pure** (= fs / glob 直接依存禁止、引数 facts のみ参照) |
+| **evaluator** | `DetectorResult[]` から hard gate / KPI 判定を行う | `tools/architecture-health/src/detector-result.ts` の `evaluateDetectorResults()` | **pure** |
+| **renderer** | `DetectorResult[]` / summary から output を生成 | `tools/architecture-health/src/detector-result.ts` の `aggregateDetectorResults` / `renderDetectorResultsAsJson` 等 | output 形式に依存 (= human-readable / json / AagResponse) |
+
+## 設計原則
+
+### 1. detector は pure function
+
+`detect*Violations(facts) → DetectorResult[]` という signature を持つ。
+fs / glob を直接呼ばず、collector layer から articulate された facts を引数として
+受け取る。これにより:
+
+- **engine 移行可能性**: Go / Rust に同じ pure logic を移植可能
+- **fixture testing**: Phase 5 で landing する fixture corpus で parity test 可能
+- **deterministic**: 同じ input は常に同じ output
+
+### 2. 既存 production guard を置換しない (= parallel implementation)
+
+各 detector は既存 production guard (`app/src/test/guards/*.test.ts`) と **同じ
+violation 経路を pure function で articulate** する。production guard は
+existing AagResponse 経路で動作継続、detector は engine 化対象として並存。
+
+これは `aag-engine-readiness-refactor` plan.md 不可侵原則 2 (= 既存 guard の意味
+は変えない) の strict adherence。Phase 6 (Pure Detector Extraction) で必要に
+応じて production guard 内で detector を呼ぶ refactor を別 program で行う。
+
+### 3. ruleId は production guard と 1:1 整合
+
+例: project lifecycle C1 violation = `AR-PROJECT-LIFECYCLE-C1`。
+既存 production guard `projectCompletionConsistencyGuard.test.ts` の C1 と同じ
+violation を articulate するため、parity test で 意味的等価性 を機械検証可能。
+
+## 現在の detector 一覧 (= Phase 3 完遂時点、5 系統)
+
+| 系統 | detector file | ruleId pattern | 既存 production guard | demonstration scope |
+|---|---|---|---|---|
+| project lifecycle | `project-lifecycle-detector.ts` | `AR-PROJECT-LIFECYCLE-C1` | `projectCompletionConsistencyGuard.test.ts` | C1 (= completed but not archived) |
+| archive manifest | `archive-manifest-detector.ts` | `AR-ARCHIVE-MANIFEST-A2` | `archiveV2SchemaGuard.test.ts` | A2 (= top-level required field 欠落) |
+| doc registry | `doc-registry-detector.ts` | `AR-DOC-REGISTRY-D1` | `docRegistryGuard.test.ts` | D1 (= registered path が file system に存在しない) |
+| generated metadata | `generated-metadata-detector.ts` | `AR-GENERATED-METADATA-G2` | `generatedFileEditGuard.test.ts` | G2 (= GENERATED marker / ISO timestamp 欠落) |
+| schema validation | `schema-validation-detector.ts` | `AR-SCHEMA-VALIDATION-PZ2` | `projectizationPolicyGuard.test.ts` | PZ-2 (= level が 0〜4 範囲外) |
+
+各 detector は **1 violation rule の demonstration** に scope を絞っている。残り
+violation rule (= 各 production guard の 5〜13 rule) は Phase 6 で systematic 抽出。
+
+## 新 detector 追加手順
+
+1. `tools/architecture-health/src/detectors/<system>-detector.ts` を作成
+2. `Facts` interface 定義 (= collector layer から渡される input)
+3. `detect*Violations(facts) → DetectorResult[]` pure function を export
+4. ruleId は `AR-<SYSTEM>-<RULE>` 形式 (= 既存 production guard との 1:1 整合)
+5. unit test を `app/src/test/guards/detectorResultModuleGuard.test.ts` に追加
+6. `references/03-implementation/guard-test-map.md` の test 件数を update
+7. 本 README の「現在の detector 一覧」table に row 追加
+
+## 関連
+
+- `tools/architecture-health/src/detector-result.ts` — DetectorResult TS contract + evaluator
+- `docs/contracts/aag/detector-result.schema.json` — canonical schema (= JSON Schema draft-07)
+- `app/src/test/guards/aagContractSchemaSyncGuard.test.ts` — schema ↔ TS sync 機械検証
+- `app/src/test/guards/detectorResultModuleGuard.test.ts` — detector module 動作 contract
+- `references/03-implementation/aag-engine-readiness-inventory.md` §6.1 — 5 系統 articulate
+- `projects/active/aag-engine-readiness-refactor/plan.md` — 親 project plan (= Phase 0〜7)
