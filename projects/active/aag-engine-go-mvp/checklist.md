@@ -26,7 +26,7 @@
 * [x] repo を書き換えない (= read-only verify、go test で write 操作 0 件確認)
 * [x] JSON output (= 空 DetectorResult[]) を返せる
 * [x] exit code contract (= 0 = pass / 1 = fail / 2 = error) が articulate
-* [ ] DA-α-001 entry を articulate する
+* [x] DA-α-001 entry を articulate する
 
 ## Phase 2: DetectorResult Contract Binding
 

@@ -5,14 +5,20 @@
 
 ## 1. 現在地
 
-**Phase 1 landing 完了 (= 本 commit landing 後)**。次は Phase 1 wrap-up commit。
+**Phase 1 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 2 DetectorResult Contract Binding。
 
 Phase 0 lineage (= 完遂済):
 - landing `cc6e824` + regen `ed348eb` + wrap-up `be51eaf` + regen `2ba85dd`
-- DA-α-000 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
+- DA-α-000 振り返り判定: **正しい**
 
-Phase 1 lineage (= landing 段階):
-- landing commit (本 commit): aag-engine/ Go module 新設 (= go.mod + cmd/aag/main.go + internal/contract/contract.go + internal/report/report.go) + Go test (= main_test.go 8 test + report_test.go 3 test) + DA-α-001 articulate (Lineage 仮 sha) + checklist Phase 1 5 件 flip
+Phase 1 lineage (= 完遂済):
+- landing `2172c25` + regen `3e3f143` + wrap-up (本 commit)
+- DA-α-001 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
+
+Phase 1 deliverable:
+- aag-engine/ Go module (= go.mod / cmd/aag/main.go / internal/contract/contract.go / internal/report/report.go)
+- 11 Go test PASS (= cmd/aag 8 test + internal/report 3 test)
+- 3 サブコマンド (= validate / fixtures / help) + JSON output 経路 + exit code contract
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
@@ -31,15 +37,14 @@ derivedStatus: in_progress / 6 of 67 (Phase 0 完遂、Phase 1 着手待ち)。
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 1）
+### 高優先（次 PR = Phase 2）
 
-- **Phase 1 Go CLI Skeleton landing commit**:
-  - `aag-engine/` Go module 新設 (= go.mod + cmd/aag/main.go + internal/contract/ + internal/report/)
-  - CLI 3 サブコマンド (= validate / fixtures) + JSON output 経路 + exit code contract
-  - DA-α-001 entry articulate
-  - checklist Phase 1 該当 checkbox flip
-- **Phase 1 wrap-up commit**:
-  - DA-α-001 Lineage 実 sha + 振り返り判定
+- **Phase 2 DetectorResult Contract Binding landing commit**:
+  - `aag-engine/internal/contract/detector_result.go` を populate (= canonical schema 整合 Go struct)
+  - schema loader / sync helper の articulate
+  - DA-α-002 entry articulate
+- **Phase 2 wrap-up commit**:
+  - DA-α-002 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 2 以降、後続 PR）
 
