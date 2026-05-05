@@ -41,7 +41,7 @@
 * [x] `fixtures/aag/` 配下 8 fixture の `input.json` を Go 側で読める (= LoadAll で discover、TestLoadAll_DiscoverAll / ExpectedCounts PASS)
 * [x] `expected.json` と actual DetectorResult[] を deep equality で比較できる (= Compare で reflect.DeepEqual + set-based Missing / Extra)
 * [x] pass / fail fixture の差分を machine-readable に出力できる (= Diff / ParitySummary JSON serializable + `aag fixtures` で fixtureSummary catalog 出力)
-* [ ] DA-α-003 entry を articulate する
+* [x] DA-α-003 entry を articulate する
 
 ## Phase 4: Archive Manifest Detector
 

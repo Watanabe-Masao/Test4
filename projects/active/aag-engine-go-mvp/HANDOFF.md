@@ -5,15 +5,16 @@
 
 ## 1. 現在地
 
-**Phase 3 landing 完了 (= 本 commit landing 後)**。次は Phase 3 wrap-up commit。
+**Phase 3 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 4 Archive Manifest Detector。
 
 Phase 0+1+2 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
 - Phase 1: `2172c25` + `3e3f143` + `e526af2` + `62844c3` (DA-α-001 = 正しい)
 - Phase 2: `87643f4` + `2a618d8` + `a001112` + `5e7ce9f` + `21dc655` (DA-α-002 = 正しい)
 
-Phase 3 lineage (= landing 段階):
-- landing commit (本 commit): `internal/fixture/fixture.go` 新設 (= Fixture + LoadAll + Compare + ParitySummary) + `internal/fixture/fixture_test.go` 14 test + `internal/report/report.go` に FixtureSummary optional field 追加 + `cmd/aag/main.go` runFixtures を catalog 出力に migrate + DA-α-003 articulate (Lineage 仮 sha) + checklist Phase 3 3 件 flip
+Phase 3 lineage (= 完遂済):
+- landing `8fbed60` + regen `b40ea77` + wrap-up (本 commit)
+- DA-α-003 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
 
 Phase 3 deliverable (= cumulative):
 - aag-engine/ Go module (= 4 internal package = contract / fixture / report / cmd)
@@ -37,14 +38,14 @@ derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 3）
+### 高優先（次 PR = Phase 4）
 
-- **Phase 3 Fixture Runner landing commit**:
-  - `aag-engine/internal/fixture/` 新設 (= fixtures/aag/ 配下 8 fixture を Go 側で読む runner)
-  - input.json 読込 + expected.json 比較 + parity 差分 machine-readable 出力
-  - DA-α-003 entry articulate
-- **Phase 3 wrap-up commit**:
-  - DA-α-003 Lineage 実 sha + 振り返り判定
+- **Phase 4 Archive Manifest Detector landing commit**:
+  - `aag-engine/internal/detectors/archive_manifest.go` 新設 (= AR-ARCHIVE-MANIFEST-A2 = top-level required field 欠落 detector)
+  - 3 archive-v2 fixture (= pass-minimal / fail-missing-restore-command / fail-missing-multiple-fields) で parity 検証
+  - DA-α-004 entry articulate
+- **Phase 4 wrap-up commit**:
+  - DA-α-004 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 2 以降、後続 PR）
 

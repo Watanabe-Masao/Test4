@@ -373,8 +373,8 @@ scope 進入時の発見:
 
 ### status
 
-- 着手判断: **open** (Phase 3 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 3 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 3 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
 
 ### context
 
@@ -444,15 +444,33 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `21dc655` (= Phase 2 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 3 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `8fbed60` (= Phase 3 landing commit、internal/fixture/ + Compare primitive + CLI catalog migrate)
+- **postJudgementRegenCommit**: `b40ea77` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 3 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `21dc655` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 3 wrap-up commit で articulate 予定。観測点 1〜11 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `internal/fixture/fixture.go` (~165 line) 新設 — Fixture struct + LoadAll + Compare + ParitySummary articulate
+  2. ✅ `internal/fixture/fixture_test.go` (= 14 + 2 = 16 test) 新設 — real repo の 8 fixture を全 discover 検証含む
+  3. ✅ LoadAll が 8 fixture 全 discover (= TestLoadAll_DiscoverAll PASS)
+  4. ✅ ExpectedCount が plan / fixtures/aag/README.md と一致 (= 0+1+3+0+1+1+1+1=8、TestLoadAll_ExpectedCounts PASS)
+  5. ✅ sort order が deterministic (= TestLoadAll_SortDeterministic PASS)
+  6. ✅ Compare が deep equality + set-based Missing/Extra を articulate (= TestCompare_* 7 test PASS)
+  7. ✅ RunResult.FixtureSummary optional field (= validate 時は omitempty で field 不在を JSON 検証)
+  8. ✅ `aag fixtures --repo .` が 8 fixture catalog を JSON で articulate (= TestRun_Fixtures PASS)
+  9. ✅ `aag fixtures --repo /nonexistent` が ExitError + load error (= TestRun_Fixtures_NonexistentRepo PASS)
+  10. ✅ Go test 全 50 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8、想定 48 を上回る = OrderMismatch / PreservesFixtureName / PointerFieldEquality / fixturesCatalog のような edge case 含む)
+  11. ✅ TS guard 1057 test PASS (= aag-engine/ 変更で TS baseline 維持)
+- **学習**:
+  - **internal/fixture/ 別 package の wisdom**: 4 層 layered model の Go mirror。fixture loader を cmd/aag/ inline に置くと各 detector が cmd/aag/ を import する dep loop 発生候補。internal/fixture/ で各 detector 共有 import を articulate、Phase 4-8 で各 detector が import する pattern が確立
+  - **InputRaw json.RawMessage の SRP value**: detector ごとに facts shape が異なる現状で、loader が specific knowledge を持たない方針。各 detector が「自身の facts shape を知っている」 という SRP は readiness refactor Phase 3 の collector / detector 分離 pattern を Go 側で再現
+  - **Compare deep equality + set diagnostics の dual mode**: bool 結果のみだと parity fail 時の debug が困難。Match=false 時に Missing / Extra で原因切り分け可能。TS 側 detectorResultModuleGuard の fixture parity test も exact equality を default にしているが、Go 側で diagnostic 強化を articulate
+  - **CLI catalog 出力の useful articulation**: Phase 1 では `aag fixtures` は note のみで動作確認価値が低かった。Phase 3 で fixture catalog (= 8 fixture name + expectedCount) を JSON 出力に migrate、user が即時 fixture discovery を確認可能。Phase 8 (= generated metadata advisory) や Phase 9 (= shadow mode) で更に rich な output に進化する base
+  - **RunResult schema 拡張の non-breaking pattern**: optional field 追加 (= FixtureSummary) で既存 validate output に影響なし、aag-platformization Pilot で確立した「forward-looking optional field articulate」 pattern を Go 側で再適用
 
 ---
 
