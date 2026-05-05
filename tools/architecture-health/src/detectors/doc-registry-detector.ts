@@ -20,6 +20,7 @@
  */
 
 import { createDetectorResult, type DetectorResult } from '../detector-result.js'
+import { toRepoPath } from '../path-helpers.js'
 
 // ───────────────────────────────────────────────────────────────────────
 // public API
@@ -55,7 +56,9 @@ export function detectDocRegistryViolations(
         createDetectorResult({
           ruleId: 'AR-DOC-REGISTRY-D1',
           detectionType: 'governance-ops',
-          sourceFile: entry.path,
+          // path-helpers.toRepoPath() で sourceFile を boundary validate
+          // (= aag-engine-readiness-refactor Phase 4 adoption)
+          sourceFile: toRepoPath(entry.path),
           severity: 'gate',
           evidence: `registered label: ${entry.label}`,
           messageSeed: `doc registry に登録された path '${entry.path}' が file system に存在しない`,

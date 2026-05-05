@@ -40,10 +40,10 @@
 
 ## Phase 4: Path Normalization / RepoFileIndex
 
-* [ ] repo-relative POSIX path を標準化し、絶対 path を artifact に入れない
-* [ ] `RepoFileEntry` 型を導入し、project / archive / doc registry validator が共通 path helper を使う状態にする
-* [ ] path 正規化処理が各 detector に散らばっていないことを review で確認する
-* [ ] DA-α-004 entry を articulate する
+* [x] repo-relative POSIX path を標準化し、絶対 path を artifact に入れない (= `path-helpers.ts` で 4 規約を機械検証、`isRepoPath` / `toRepoPath` / `assertRepoPath` で hard fail)
+* [x] `RepoFileEntry` 型を導入し、project / archive / doc registry validator が共通 path helper を使う状態にする (= 3 detector が `toRepoPath()` で sourceFile boundary validate)
+* [x] path 正規化処理が各 detector に散らばっていないことを review で確認する (= 全 path 規約は path-helpers.ts に集約、detector は import して使用するのみ、detectors/README.md adoption pattern section で articulate)
+* [ ] DA-α-004 entry を articulate する (= 5 軸 + 観測点 + Lineage 仮 sha → 実 sha + 振り返り判定)
 
 ## Phase 5: Archive v2 / Project Lifecycle Fixture Corpus
 

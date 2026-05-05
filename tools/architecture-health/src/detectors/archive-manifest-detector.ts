@@ -21,6 +21,7 @@
  */
 
 import { createDetectorResult, type DetectorResult } from '../detector-result.js'
+import { toRepoPath } from '../path-helpers.js'
 
 // ───────────────────────────────────────────────────────────────────────
 // public API
@@ -80,13 +81,17 @@ export function detectArchiveManifestViolations(
       continue
     }
 
+    // path-helpers.toRepoPath() で sourceFile を boundary validate
+    // (= aag-engine-readiness-refactor Phase 4 adoption)
+    const sourceFile = toRepoPath(fact.manifestPath)
+
     for (const field of REQUIRED_TOP_LEVEL_FIELDS) {
       if (!(field in fact.manifest)) {
         results.push(
           createDetectorResult({
             ruleId: 'AR-ARCHIVE-MANIFEST-A2',
             detectionType: 'governance-ops',
-            sourceFile: fact.manifestPath,
+            sourceFile,
             severity: 'gate',
             evidence: `missing required field: ${field}`,
             messageSeed: `Archive v2 manifest が required top-level field '${field}' を持たない`,

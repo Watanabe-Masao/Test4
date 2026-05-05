@@ -42,6 +42,13 @@ import { detectArchiveManifestViolations } from '@tools/architecture-health/dete
 import { detectDocRegistryViolations } from '@tools/architecture-health/detectors/doc-registry-detector'
 import { detectGeneratedMetadataViolations } from '@tools/architecture-health/detectors/generated-metadata-detector'
 import { detectSchemaValidationViolations } from '@tools/architecture-health/detectors/schema-validation-detector'
+import {
+  isRepoPath,
+  toRepoPath,
+  assertRepoPath,
+  inferRepoFileKind,
+  createRepoFileEntry,
+} from '@tools/architecture-health/path-helpers'
 import type { ProjectChecklistResult } from '@tools/architecture-health/collectors/project-checklist-collector'
 
 describe('Detector Result Module Guard', () => {
@@ -815,6 +822,247 @@ describe('Detector Result Module Guard', () => {
       expect(aag.violations).toHaveLength(2)
       expect(summary.totalCount).toBe(2)
       expect(summary.hardGatePass).toBe(false)
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────────────
+  // 12. path-helpers — Phase 4 path normalization foundation
+  // ─────────────────────────────────────────────────────────────────
+
+  describe('path-helpers (= Phase 4、repo-relative POSIX path 標準化)', () => {
+    describe('isRepoPath', () => {
+      it('valid POSIX repo-relative path は true', () => {
+        expect(isRepoPath('app/src/example.ts')).toBe(true)
+        expect(isRepoPath('references/01-foundation/x.md')).toBe(true)
+        expect(isRepoPath('a.ts')).toBe(true)
+        expect(isRepoPath('projects/active/sample/checklist.md')).toBe(true)
+      })
+
+      it('空文字列は false', () => {
+        expect(isRepoPath('')).toBe(false)
+      })
+
+      it('Windows separator (= backslash) を含む path は false', () => {
+        expect(isRepoPath('app\\src\\x.ts')).toBe(false)
+        expect(isRepoPath('a/b\\c')).toBe(false)
+      })
+
+      it('絶対 path (= leading slash) は false', () => {
+        expect(isRepoPath('/app/src/x.ts')).toBe(false)
+        expect(isRepoPath('/')).toBe(false)
+      })
+
+      it('Windows drive letter は false', () => {
+        expect(isRepoPath('C:/app/src/x.ts')).toBe(false)
+        expect(isRepoPath('D:foo')).toBe(false)
+      })
+
+      it('".." segment を含む path は false', () => {
+        expect(isRepoPath('../app/src/x.ts')).toBe(false)
+        expect(isRepoPath('app/../src/x.ts')).toBe(false)
+        expect(isRepoPath('a/b/..')).toBe(false)
+      })
+
+      it('"..foo" のような prefix は許容 (= path segment ではない)', () => {
+        expect(isRepoPath('app/..foo/x.ts')).toBe(true)
+      })
+    })
+
+    describe('toRepoPath', () => {
+      it('valid path を branded RepoPath として返す', () => {
+        const result = toRepoPath('app/src/x.ts')
+        expect(result).toBe('app/src/x.ts')
+      })
+
+      it('invalid path は throw', () => {
+        expect(() => toRepoPath('')).toThrow(/RepoPath 規約違反/)
+        expect(() => toRepoPath('/abs')).toThrow(/RepoPath 規約違反/)
+        expect(() => toRepoPath('a\\b')).toThrow(/RepoPath 規約違反/)
+        expect(() => toRepoPath('../escape')).toThrow(/RepoPath 規約違反/)
+        expect(() => toRepoPath('C:foo')).toThrow(/RepoPath 規約違反/)
+      })
+    })
+
+    describe('assertRepoPath', () => {
+      it('valid path は throw しない', () => {
+        expect(() => assertRepoPath('app/src/x.ts')).not.toThrow()
+      })
+
+      it('invalid path は throw', () => {
+        expect(() => assertRepoPath('')).toThrow(/RepoPath 規約違反/)
+        expect(() => assertRepoPath('/abs')).toThrow(/RepoPath 規約違反/)
+      })
+    })
+
+    describe('inferRepoFileKind', () => {
+      it('.json → "json"', () => {
+        expect(inferRepoFileKind(toRepoPath('a.json'))).toBe('json')
+        expect(inferRepoFileKind(toRepoPath('docs/contracts/x.json'))).toBe('json')
+      })
+
+      it('.md → "markdown"', () => {
+        expect(inferRepoFileKind(toRepoPath('README.md'))).toBe('markdown')
+        expect(inferRepoFileKind(toRepoPath('references/foo.md'))).toBe('markdown')
+      })
+
+      it('.ts / .tsx → "typescript"', () => {
+        expect(inferRepoFileKind(toRepoPath('app/src/x.ts'))).toBe('typescript')
+        expect(inferRepoFileKind(toRepoPath('app/src/y.tsx'))).toBe('typescript')
+      })
+
+      it('上記以外 → "other"', () => {
+        expect(inferRepoFileKind(toRepoPath('image.png'))).toBe('other')
+        expect(inferRepoFileKind(toRepoPath('script.sh'))).toBe('other')
+        expect(inferRepoFileKind(toRepoPath('Makefile'))).toBe('other')
+      })
+    })
+
+    describe('createRepoFileEntry', () => {
+      it('valid input から frozen RepoFileEntry を生成', () => {
+        const entry = createRepoFileEntry({
+          path: 'app/src/x.ts',
+          sizeBytes: 1024,
+        })
+        expect(entry.path).toBe('app/src/x.ts')
+        expect(entry.kind).toBe('typescript')
+        expect(entry.sizeBytes).toBe(1024)
+        expect(entry.sha256).toBeUndefined()
+        expect(Object.isFrozen(entry)).toBe(true)
+      })
+
+      it('kind 省略時は拡張子から推定', () => {
+        expect(createRepoFileEntry({ path: 'a.json', sizeBytes: 0 }).kind).toBe('json')
+        expect(createRepoFileEntry({ path: 'a.md', sizeBytes: 0 }).kind).toBe('markdown')
+        expect(createRepoFileEntry({ path: 'a.ts', sizeBytes: 0 }).kind).toBe('typescript')
+        expect(createRepoFileEntry({ path: 'a.png', sizeBytes: 0 }).kind).toBe('other')
+      })
+
+      it('kind 明示指定は override', () => {
+        const entry = createRepoFileEntry({
+          path: 'a.ts',
+          sizeBytes: 0,
+          kind: 'other',
+        })
+        expect(entry.kind).toBe('other')
+      })
+
+      it('valid sha256 を articulate', () => {
+        const sha = 'a'.repeat(64)
+        const entry = createRepoFileEntry({
+          path: 'a.ts',
+          sizeBytes: 100,
+          sha256: sha,
+        })
+        expect(entry.sha256).toBe(sha)
+      })
+
+      it('invalid path は throw', () => {
+        expect(() =>
+          createRepoFileEntry({ path: '/abs', sizeBytes: 0 }),
+        ).toThrow(/RepoPath 規約違反/)
+      })
+
+      it('負 sizeBytes は throw', () => {
+        expect(() =>
+          createRepoFileEntry({ path: 'a.ts', sizeBytes: -1 }),
+        ).toThrow(/non-negative integer/)
+      })
+
+      it('非 integer sizeBytes は throw', () => {
+        expect(() =>
+          createRepoFileEntry({ path: 'a.ts', sizeBytes: 1.5 }),
+        ).toThrow(/non-negative integer/)
+      })
+
+      it('invalid sha256 (= 64 char hex でない) は throw', () => {
+        expect(() =>
+          createRepoFileEntry({ path: 'a.ts', sizeBytes: 0, sha256: 'short' }),
+        ).toThrow(/64-char lowercase hex/)
+        expect(() =>
+          createRepoFileEntry({
+            path: 'a.ts',
+            sizeBytes: 0,
+            sha256: 'X'.repeat(64), // uppercase hex
+          }),
+        ).toThrow(/64-char lowercase hex/)
+      })
+    })
+  })
+
+  // ─────────────────────────────────────────────────────────────────
+  // 13. detector adoption — Phase 4 で 3 detector が path-helpers を使用
+  // ─────────────────────────────────────────────────────────────────
+
+  describe('detector path-helpers adoption (= Phase 4、3 detector boundary validation)', () => {
+    it('project-lifecycle-detector: invalid projectRoot で throw', () => {
+      const facts = {
+        checklistResults: [
+          {
+            meta: {
+              projectId: 'sample',
+              title: 'Sample',
+              status: 'active',
+              kind: 'project' as const,
+              parent: undefined,
+              projectRoot: '/absolute/path/should/throw',
+              checklistPath: 'projects/active/sample/checklist.md',
+              aiContextPath: 'projects/active/sample/AI_CONTEXT.md',
+              handoffPath: 'projects/active/sample/HANDOFF.md',
+              planPath: 'projects/active/sample/plan.md',
+            },
+            checked: 5,
+            total: 5,
+            derivedStatus: 'completed' as const,
+          },
+        ],
+      }
+      expect(() => detectProjectLifecycleViolations(facts)).toThrow(/RepoPath 規約違反/)
+    })
+
+    it('archive-manifest-detector: invalid manifestPath で throw', () => {
+      const facts = [
+        {
+          manifestPath: 'C:\\windows\\path',
+          manifest: { archiveVersion: 2 } as Record<string, unknown>,
+        },
+      ]
+      expect(() => detectArchiveManifestViolations(facts)).toThrow(/RepoPath 規約違反/)
+    })
+
+    it('doc-registry-detector: invalid entry path で throw', () => {
+      const facts = {
+        entries: [{ path: '../escape', label: 'Escape' }],
+        existingPaths: new Set<string>(),
+      }
+      expect(() => detectDocRegistryViolations(facts)).toThrow(/RepoPath 規約違反/)
+    })
+
+    it('valid path での既存 detector 動作は変わらない (= regression check)', () => {
+      // project-lifecycle: completed-but-not-archived は依然として 1 件 emit
+      const facts = {
+        checklistResults: [
+          {
+            meta: {
+              projectId: 'sample',
+              title: 'Sample',
+              status: 'active',
+              kind: 'project' as const,
+              parent: undefined,
+              projectRoot: 'projects/active/sample',
+              checklistPath: 'projects/active/sample/checklist.md',
+              aiContextPath: 'projects/active/sample/AI_CONTEXT.md',
+              handoffPath: 'projects/active/sample/HANDOFF.md',
+              planPath: 'projects/active/sample/plan.md',
+            },
+            checked: 5,
+            total: 5,
+            derivedStatus: 'completed' as const,
+          },
+        ],
+      }
+      const results = detectProjectLifecycleViolations(facts)
+      expect(results).toHaveLength(1)
+      expect(results[0].sourceFile).toBe('projects/active/sample')
     })
   })
 })

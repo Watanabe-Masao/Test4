@@ -33,6 +33,7 @@
  */
 
 import { createDetectorResult, type DetectorResult } from '../detector-result.js'
+import { toRepoPath } from '../path-helpers.js'
 import type { ProjectChecklistResult } from '../collectors/project-checklist-collector.js'
 
 // ───────────────────────────────────────────────────────────────────────
@@ -79,7 +80,9 @@ export function detectProjectLifecycleViolations(
         createDetectorResult({
           ruleId: 'AR-PROJECT-LIFECYCLE-C1',
           detectionType: 'governance-ops',
-          sourceFile: project.meta.projectRoot,
+          // path-helpers.toRepoPath() で sourceFile を boundary validate
+          // (= aag-engine-readiness-refactor Phase 4 adoption、不正 path で hard fail)
+          sourceFile: toRepoPath(project.meta.projectRoot),
           severity: 'gate',
           actual: project.checked,
           baseline: project.total,

@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 3 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 4 Path Normalization / RepoFileIndex。
+**Phase 4 landing 完了 (= 本 commit landing 後)**。次は Phase 4 wrap-up commit。
 
 Phase 0 lineage (= 完遂済):
 - landing commit `950ddba`: 必須 8 file landing + open-issues update + DA-α-000 articulate (Lineage 仮 sha)
@@ -27,41 +27,50 @@ Phase 2 lineage (= 完遂済):
 - DA-α-002 振り返り判定: **正しい** (= 観測点 7 件すべて達成)
 
 Phase 3 lineage (= 完遂済):
-- landing commit `c9b0bed`: 4 detector file 新設 (= archive-manifest / doc-registry / generated-metadata / schema-validation) + `detector-result.ts` に `evaluateDetectorResults` evaluator 追加 + `detectors/README.md` 新設 (= 4 層 layered model articulate) + `detectorResultModuleGuard.test.ts` +26 test (20 → 46) + guard-test-map.md update + DA-α-003 articulate (Lineage 仮 sha) + checklist Phase 3 3 件 flip
-- regen commit `3de426e`: §13.3 Pattern A application (= obligation + project-structure.md + 14 KPI/generated artifact sync)
-- wrap-up commit (本 commit): DA-α-003 Lineage 実 sha update + 振り返り判定 "正しい" + checklist 4 件目 [x] flip + HANDOFF §1 update
+- landing `c9b0bed` + regen `3de426e` + wrap-up `56d98fa` + regen `72872c8`
+- DA-α-003 振り返り判定: **正しい** (= 観測点 8 件すべて達成)
 
-DA-α-003 振り返り判定: **正しい** (= 観測点 8 件すべて達成)。
+Phase 4 lineage (= landing 段階):
+- landing commit (本 commit): `path-helpers.ts` 新設 (= ~155 line、`RepoPath` branded type + `RepoFileEntry` + 5 helper function) + 3 detector adoption (= project-lifecycle / archive-manifest / doc-registry が `toRepoPath()` で sourceFile boundary validate) + `detectorResultModuleGuard.test.ts` +27 test (46 → 73) + `detectors/README.md` 更新 (= path-helpers section + 4 規約 + adoption pattern code 例) + guard-test-map.md update + DA-α-004 articulate (Lineage 仮 sha) + checklist Phase 4 3 件 flip
 
-Phase 3 学習 (= DA-α-003 §振り返り判定 §学習、後続 Phase で活かす):
-- **demonstration pattern の institutionalization 効果**: Phase 2 で 1 系統で確立した pattern を Phase 3 で 4 系統に mechanical に展開可能だった (= scope candidate B での 2 段 Phase 設計が wisdom)
-- **layered model README の navigation 効果**: 4 層 model + 5 detector 一覧 + 追加手順を 1 file に articulate、後続 navigation cost 大幅低下
-- **evaluator layer で 4 層 layered model 完成**: plan.md mention の分離 model が reference implementation として揃った (= 後続 engine 実装 project の base case)
-- **renderer 分離 parity test の G8 整合**: plan.md 完了条件 hand-wave を test 化 (= 「気をつける」 exhortation を mechanism に転化)
-- **guard 修正 0 件達成**: 同 test file への describe block 追加 pattern が co-change 義務を最小化
+Phase 4 重要決定 (= DA-α-004 §decision):
+- path-helpers foundation 新設 (= 4 規約: POSIX separator / repo-relative / non-traversal / non-empty)
+- 3 detector adoption (= plan.md 完了条件「project / archive / doc registry validator が共通 path helper を使う」に対応)
+- 残り 2 detector (generated-metadata / schema-validation) は Phase 6 adoption に deferral
+- 既存 production guard 不変 (= 不可侵原則 2 strict adherence)
 
-§13 commit pattern 累積 application (= Phase 0〜3 完遂時点):
-- §13.1 二段 commit: 8 instance (= Phase 0 + 1 + 2 + 3 各 landing/wrap-up)
+§13 commit pattern 累積 application (= Phase 0〜4 landing 時点):
+- §13.1 二段 commit: 8 instance + Phase 4 landing/wrap-up = 10 instance (Phase 4 wrap-up は本 commit 後の次 commit)
 - §13.2 atomic dependent update: 1 instance (= Phase 1 landing)
-- §13.3 post-flip regen: 8 instance (= Phase 0 後 + Phase 1 × 2 + Phase 2 × 3 + Phase 3 × 2)
+- §13.3 post-flip regen: 9 instance + Phase 4 後 regen = 10 instance (Phase 4 regen は本 commit 後)
 
-derivedStatus: in_progress / 19 of 50 (Phase 3 完遂、Phase 4 着手待ち)。
+derivedStatus: in_progress / 22 of 50 (Phase 4 landing 段階達成、wrap-up 待ち)。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 4）
+### 高優先（直近 = Phase 4 wrap-up）
 
-- **Phase 4 Path Normalization / RepoFileIndex landing commit**:
-  - repo-relative POSIX path を標準化、絶対 path を artifact に入れない
-  - `RepoFileEntry` 型を導入し共通 path helper 整備
-  - DA-α-004 entry articulate
+- **(該当時) docs:generate 反映 commit** (= §13.3 適用):
+  - 本 landing commit に新 file (path-helpers.ts) + 3 detector touch + checkbox 3 件 flip が含まれるため、obligation + project-structure.md + KPI drift 発生想定
+  - flip commit 後に `cd app && npm run docs:generate` で sync、別 commit で push
+- **Phase 4 wrap-up commit** (= §13.1 適用):
+  - decision-audit.md DA-α-004 Lineage 実 sha update
+  - decision-audit.md DA-α-004 振り返り判定 articulate (= 観測点 1〜8 達成状況 + 学習)
+  - checklist Phase 4 4 件目 (= DA-α-004 振り返り判定) checkbox を [x] flip
+  - 本 HANDOFF §1 を Phase 4 完遂状態に update
 
-### 低優先（Phase 5 以降、後続 PR）
+### 中優先（次 PR = Phase 5）
 
-- Phase 5: Archive v2 / Project Lifecycle Fixture Corpus
-- Phase 6: Pure Detector Extraction
+- **Phase 5 Archive v2 / Project Lifecycle Fixture Corpus landing commit**:
+  - `fixtures/aag/` 配下に pass / fail fixture を整備
+  - 各 fixture に expected DetectorResult を定義
+  - DA-α-005 entry articulate
+
+### 低優先（Phase 6 以降、後続 PR）
+
+- Phase 6: Pure Detector Extraction (= 残り 2 detector の path-helpers adoption も含む)
 - Phase 7: Engine Readiness Report / No-Go Boundary
 
 ## 3. ハマりポイント

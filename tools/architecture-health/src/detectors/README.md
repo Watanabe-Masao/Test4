@@ -47,18 +47,65 @@ existing AagResponse 経路で動作継続、detector は engine 化対象とし
 既存 production guard `projectCompletionConsistencyGuard.test.ts` の C1 と同じ
 violation を articulate するため、parity test で 意味的等価性 を機械検証可能。
 
-## 現在の detector 一覧 (= Phase 3 完遂時点、5 系統)
+## 現在の detector 一覧 (= Phase 4 完遂時点、5 系統)
 
-| 系統 | detector file | ruleId pattern | 既存 production guard | demonstration scope |
-|---|---|---|---|---|
-| project lifecycle | `project-lifecycle-detector.ts` | `AR-PROJECT-LIFECYCLE-C1` | `projectCompletionConsistencyGuard.test.ts` | C1 (= completed but not archived) |
-| archive manifest | `archive-manifest-detector.ts` | `AR-ARCHIVE-MANIFEST-A2` | `archiveV2SchemaGuard.test.ts` | A2 (= top-level required field 欠落) |
-| doc registry | `doc-registry-detector.ts` | `AR-DOC-REGISTRY-D1` | `docRegistryGuard.test.ts` | D1 (= registered path が file system に存在しない) |
-| generated metadata | `generated-metadata-detector.ts` | `AR-GENERATED-METADATA-G2` | `generatedFileEditGuard.test.ts` | G2 (= GENERATED marker / ISO timestamp 欠落) |
-| schema validation | `schema-validation-detector.ts` | `AR-SCHEMA-VALIDATION-PZ2` | `projectizationPolicyGuard.test.ts` | PZ-2 (= level が 0〜4 範囲外) |
+| 系統 | detector file | ruleId pattern | 既存 production guard | demonstration scope | path-helpers adoption |
+|---|---|---|---|---|---|
+| project lifecycle | `project-lifecycle-detector.ts` | `AR-PROJECT-LIFECYCLE-C1` | `projectCompletionConsistencyGuard.test.ts` | C1 (= completed but not archived) | ✅ Phase 4 |
+| archive manifest | `archive-manifest-detector.ts` | `AR-ARCHIVE-MANIFEST-A2` | `archiveV2SchemaGuard.test.ts` | A2 (= top-level required field 欠落) | ✅ Phase 4 |
+| doc registry | `doc-registry-detector.ts` | `AR-DOC-REGISTRY-D1` | `docRegistryGuard.test.ts` | D1 (= registered path が file system に存在しない) | ✅ Phase 4 |
+| generated metadata | `generated-metadata-detector.ts` | `AR-GENERATED-METADATA-G2` | `generatedFileEditGuard.test.ts` | G2 (= GENERATED marker / ISO timestamp 欠落) | Phase 6 予定 |
+| schema validation | `schema-validation-detector.ts` | `AR-SCHEMA-VALIDATION-PZ2` | `projectizationPolicyGuard.test.ts` | PZ-2 (= level が 0〜4 範囲外) | Phase 6 予定 |
 
 各 detector は **1 violation rule の demonstration** に scope を絞っている。残り
 violation rule (= 各 production guard の 5〜13 rule) は Phase 6 で systematic 抽出。
+
+## path-helpers (= Phase 4 で landing)
+
+`tools/architecture-health/src/path-helpers.ts` に **repo-relative POSIX path 規約**
+を articulate。detector は出力 `DetectorResult.sourceFile` を `toRepoPath()` で
+boundary validate し、不正 path で hard fail する。
+
+### path 規約 (= 機械検証可能)
+
+- POSIX separator のみ (= `\\` 禁止)
+- repo-relative (= leading `/` 禁止、Windows drive letter 禁止)
+- non-traversal (= `..` segment 禁止)
+- non-empty
+
+### 提供 API
+
+| API | 役割 |
+|---|---|
+| `RepoPath` (= branded type) | type level での path 規約遵守保証 |
+| `RepoFileEntry` (= type) | repo 内 file metadata articulation (= path + kind + sizeBytes + sha256?) |
+| `isRepoPath(input)` | path 規約 predicate (= type narrowing 用) |
+| `toRepoPath(input)` | validation factory (= 規約違反で throw) |
+| `assertRepoPath(input)` | type assertion |
+| `inferRepoFileKind(path)` | 拡張子から kind 推定 (`json` / `markdown` / `typescript` / `other`) |
+| `createRepoFileEntry(input)` | RepoFileEntry factory (= path validation + kind 推定 + sha256 format check) |
+
+### detector adoption pattern (= Phase 4 で確立)
+
+```ts
+import { toRepoPath } from '../path-helpers.js'
+
+// detector 内で createDetectorResult に渡す sourceFile を boundary validate
+results.push(
+  createDetectorResult({
+    ruleId: 'AR-X',
+    detectionType: 'governance-ops',
+    sourceFile: toRepoPath(facts.somePath),  // ← 不正 path で hard fail
+    severity: 'gate',
+    ...
+  }),
+)
+```
+
+これにより:
+- DetectorResult 消費者は `sourceFile` が常に repo-relative POSIX であることを前提にできる
+- engine 化対象側 (= Go / Rust) は同 path 規約を再現するだけで TS detector と parity 可能
+- 各 detector が個別 path 正規化を実装する必要がない (= 「path 正規化処理が各 detector に散らばっていない」 = Phase 4 完了条件)
 
 ## 新 detector 追加手順
 

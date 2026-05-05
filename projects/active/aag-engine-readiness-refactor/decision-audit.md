@@ -353,4 +353,95 @@ Phase 3 とは role が異なる:
 
 ---
 
-> 後続 DA entry (DA-α-004 〜 007) は各 Phase landing commit 時に articulate 追加。
+## DA-α-004: Phase 4 Path Normalization / RepoFileIndex scope 判断 (= path-helpers foundation + 3 detector adoption)
+
+### status
+
+- 着手判断: **open** (Phase 4 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 4 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 4 plan.md の作業項目:
+1. repo-relative POSIX path を標準化
+2. 絶対 path を artifact に入れない
+3. Windows path separator を内部表現に混ぜない
+4. `RepoFileEntry` 型を導入
+5. DA-α-004 entry
+
+完了条件:
+1. project / archive / doc registry validator が共通 path helper を使う
+2. path 正規化処理が各 detector に散らばっていない
+3. future Go engine が同じ path convention を再現できる
+
+Phase 2 / 3 で確立した detector 5 件の `sourceFile` field は現状 `string`
+(= unvalidated)。各 detector が個別に path normalization を実装すると
+「path 正規化処理が各 detector に散らばる」状態になり、Phase 4 完了条件 2 違反。
+共通 path helper を集約し、detector boundary で validate する pattern が必要。
+
+### decision
+
+以下を採用する:
+
+1. **path-helpers foundation 新設**: `tools/architecture-health/src/path-helpers.ts` を新設し、以下を articulate:
+    - `RepoPath` (= branded type、`string` に `__brand: 'RepoPath'` を tag)
+    - `RepoFileKind` (= `'json' | 'markdown' | 'typescript' | 'other'`)
+    - `RepoFileEntry` (= path + kind + sizeBytes + sha256? の interface)
+    - `isRepoPath` / `toRepoPath` / `assertRepoPath` (= validators)
+    - `inferRepoFileKind` (= 拡張子から kind 推定)
+    - `createRepoFileEntry` (= factory、path validation + kind 推定 + sha256 format check)
+2. **path 規約 articulate** (= 機械検証可能な 4 規約):
+    - POSIX separator のみ (= `\\` 禁止)
+    - repo-relative (= leading `/` 禁止、Windows drive letter 禁止)
+    - non-traversal (= `..` segment 禁止)
+    - non-empty
+3. **3 detector adoption** (= Phase 4 完了条件 1 該当):
+    - `project-lifecycle-detector.ts`: `toRepoPath(project.meta.projectRoot)` で sourceFile validate
+    - `archive-manifest-detector.ts`: `toRepoPath(fact.manifestPath)` で sourceFile validate
+    - `doc-registry-detector.ts`: `toRepoPath(entry.path)` で sourceFile validate
+4. **残り 2 detector (generated-metadata / schema-validation) は Phase 6 adoption に deferral**: Phase 6 (Pure Detector Extraction) で production guard refactor と統合 routing
+5. **detectors/README.md update**: path-helpers 経由 adoption pattern を新 section で articulate (= 4 規約 + 提供 API + adoption pattern code 例)
+6. **既存 production guard を変更しない (= Phase 2/3 と同 pattern)**: path-helpers 経由 validation は detector 出力 path のみに適用、既存 guard input/output は不変
+
+### rationale
+
+- **branded type 採用**: `RepoPath = string & { __brand }` により、`toRepoPath()` を経由しない path 値が detector に渡されることを **TS type level で防止可能**。runtime validation だけでは「うっかり raw string を渡す」regression が起きうるが、branded type なら CI build で検出。但し JSON Schema は branded を articulate できないため `DetectorResult.sourceFile` は `string` 型を維持し、boundary validation で対処
+- **`RepoFileEntry` 型追加**: plan.md Phase 4 で明示要求。Phase 5 fixture corpus + Phase 6 pure detector extraction で facts 入力 type として使用予定 (= forward-looking)。本 Phase では type と factory のみ landing し、実 adoption は後続 Phase
+- **3 detector adoption (= 5 detector のうち 3 件)**: Phase 4 完了条件「project / archive / doc registry validator が共通 path helper を使う」 を **明示的に articulate された 3 系統**で達成。残り 2 系統 (generated-metadata / schema-validation) は plan.md 完了条件で名指しされていないため、Phase 6 routing で adoption (= scope 縮小して各 Phase の commit weight を controllable に維持)
+- **detector boundary validation の wisdom**: detector input facts (= `ProjectChecklistResult.meta.projectRoot` 等) は collector layer から articulate される。collector layer まで遡って validate するのは scope 大、detector boundary (= `createDetectorResult` 直前) で `toRepoPath()` を呼ぶ pattern が **最小コストで最大検証効果** を articulate
+- **既存 production guard 不変**: 不可侵原則 2 strict adherence。Phase 2/3 で確立した parallel implementation pattern を継承
+
+### alternatives
+
+- (a) **5 detector 全 adoption** (= Phase 4 で全 detector に path-helpers 適用): generated-metadata / schema-validation の Facts interface は path field が複数あり、systematic validation には Facts schema 改訂が必要 (= scope 拡大)、Phase 4 単独 wrap-up に収まらない、不採用
+- (b) **`DetectorResult.sourceFile` を branded type 化**: JSON Schema は branded を articulate できないため、`aagContractSchemaSyncGuard` の sync 検証が壊れる。既存 schema (= sync guard で機械検証済) を維持する不可侵原則 2 整合で不採用
+- (c) **collector layer まで path validation を遡る**: collector は fs / glob 直接依存、validation 追加で本 Phase scope を逸脱。Phase 6 (pure detector extraction) の責務、不採用
+- (d) **既存 path 文字列を runtime で auto-normalize (= `\\` を `/` に変換等)**: 「Windows separator が内部表現に混入しない」を達成するには **detect + reject** が正しい (= silent fix は debug 困難)、不採用。hard fail で開発者が気付ける pattern を採用
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `tools/architecture-health/src/path-helpers.ts` が新設、`RepoPath` / `RepoFileKind` / `RepoFileEntry` + 5 helper function を export
+2. `isRepoPath` / `toRepoPath` / `assertRepoPath` が 4 path 規約 (= POSIX separator / repo-relative / non-traversal / non-empty) を機械検証
+3. `createRepoFileEntry` が path + sizeBytes + sha256 を validate (= 負 sizeBytes / 非 integer / 非 hex sha256 で throw)
+4. 3 detector (= project-lifecycle / archive-manifest / doc-registry) が `toRepoPath()` で `sourceFile` を boundary validate
+5. 不正 path (= absolute / Windows separator / traversal) を facts に渡した場合、3 detector は hard fail で throw
+6. 既存 valid path 動作は regression なし (= 既存 test 全 PASS)
+7. 既存 production guard (= 全 5 件) は変更されていない (= git show <landing> --stat で confirm)
+8. 全 guard test PASS (= 147 file / 1018 → 1045 test)
+
+### Lineage
+
+- **preJudgementCommit**: `72872c8` (= Phase 3 wrap-up 後 regen commit、本 Phase 4 landing 直前の HEAD)
+- **judgementCommit**: 本 Phase 4 landing commit (= SHA は landing 直後 git log で確定 → wrap-up commit で本 entry に書き込み)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 4 wrap-up commit
+- **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可、SHA 直接参照で代替)
+- **rollbackTag**: 未設定 (= 同上、rollback target = preJudgementCommit `72872c8` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 4 wrap-up commit で articulate 予定。観測点 1〜8 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-005 〜 007) は各 Phase landing commit 時に articulate 追加。
