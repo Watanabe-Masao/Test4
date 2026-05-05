@@ -480,8 +480,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 4 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 4 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 4 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 ### context
 
@@ -551,15 +551,32 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `d6bfc8e` (= Phase 3 wrap-up regen 後 HEAD)
-- **judgementCommit**: 本 Phase 4 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `f6b514a` (= Phase 4 landing commit、archive_manifest.go + 8 test)
+- **postJudgementRegenCommit**: `f0818e8` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 4 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `d6bfc8e` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 4 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `archive_manifest.go` 新設 (= ArchiveManifestFacts struct + DetectArchiveManifestViolations function + requiredArchiveManifestFields const、~85 line)
+  2. ✅ `archive_manifest_test.go` 新設 (= 8 test = 5 unit + 3 fixture parity、~210 line)
+  3. ✅ requiredArchiveManifestFields 12 field の順序が schema (`project-archive.schema.json`) + TS REQUIRED_TOP_LEVEL_FIELDS と一致 (= TestDetectArchiveManifestViolations_MultipleMissing で順序検証)
+  4. ✅ archive-v2/pass-minimal Match=true (= 0 violation)
+  5. ✅ archive-v2/fail-missing-restore-command Match=true (= 1 violation = AR-ARCHIVE-MANIFEST-A2)
+  6. ✅ archive-v2/fail-missing-multiple-fields Match=true (= 3 violations、順序維持)
+  7. ✅ 各 violation の field-level 一致 (= ruleId / detectionType / severity / sourceFile / evidence / messageSeed すべて TS expected.json と一致)
+  8. ✅ Manifest = nil の skip 動作 (= TestDetectArchiveManifestViolations_NilManifestSkipped PASS)
+  9. ✅ Go test 全 58 PASS
+  10. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **fixture parity primary metric の effectiveness 実証**: 3 fixture すべて Match=true で完了。「同 input から同 expected を返す」 という readiness refactor が articulate した primary success metric が、Go engine 側で機械的に検証可能な形になっていることを Phase 4 で実証。Phase 5-8 でも 同 pattern で進行可能、shadow mode (= Phase 9) の前段階で各 detector の parity が独立に確認できる
+  - **1 file = 1 detector pattern の wisdom**: Go の慣用 + readiness refactor TS detectors/ 配置との 1:1 mirror で navigation cost が最小化。Phase 5-8 で 4 detector を順次 landing する際も同 pattern を機械的に適用可能 (= scope creep 防止 + cohesion 維持)
+  - **path validation deferral の判断**: Phase 4 fixture では sourceFile が事前 valid POSIX のため `toRepoPath()` 移植は parity test で hit せず、Phase 7 (= project lifecycle、active/completed の path 走査) で必要時に articulate するのが natural。早期実装は scope creep の risk
+  - **map[string]interface{} の Go 慣用化**: TS の `Readonly<Record<string, unknown>>` を Go 側で表現する最小 abstraction。typed struct 化は Phase 6 (= Schema Validation Detector) で必要時 articulate、Phase 4 では不要
+  - **factory error 伝播 pattern の transparent value**: panic ではなく `(results, error)` signature で internal sanity を transparent に articulate、CLI orchestration や parity test が clean に handle 可能。TS 側 throw + try/catch の Go 慣用 mirror
 
 ---
 

@@ -5,7 +5,7 @@
 
 ## 1. 現在地
 
-**Phase 4 landing 完了 (= 本 commit landing 後)**。次は Phase 4 wrap-up commit。
+**Phase 4 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 5 Doc Registry Detector。
 
 Phase 0〜3 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
@@ -13,13 +13,14 @@ Phase 0〜3 lineage (= 完遂済):
 - Phase 2: `87643f4` + `2a618d8` + `a001112` + `5e7ce9f` + `21dc655` (DA-α-002 = 正しい)
 - Phase 3: `8fbed60` + `b40ea77` + `3497733` + `d6bfc8e` (DA-α-003 = 正しい)
 
-Phase 4 lineage (= landing 段階):
-- landing commit (本 commit): `internal/detectors/archive_manifest.go` 新設 (= ArchiveManifestFacts struct + DetectArchiveManifestViolations function + requiredArchiveManifestFields const) + `internal/detectors/archive_manifest_test.go` 8 test (= 5 unit + 3 fixture parity) + DA-α-004 articulate (Lineage 仮 sha) + checklist Phase 4 4 件 flip
+Phase 4 lineage (= 完遂済):
+- landing `f6b514a` + regen `f0818e8` + wrap-up (本 commit)
+- DA-α-004 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 Phase 4 deliverable (= cumulative):
 - aag-engine/ Go module (= 5 internal package = contract / detectors / fixture / report / cmd)
 - 58 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 8)
-- 5 detector の最初 (= archive-manifest) が wired up、3 archive-v2 fixture parity 100% 達成
+- 5 detector のうち最初の 1 (= archive-manifest) が wired up、3 archive-v2 fixture parity 100% 達成
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
