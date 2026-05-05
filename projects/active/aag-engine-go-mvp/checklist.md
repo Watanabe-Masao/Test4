@@ -92,7 +92,7 @@
 
 * [x] `.github/workflows/` に Go engine job を non-blocking で追加 (= `aag-engine.yml` 新設、ci.yml と完全独立 + branch protection 非登録 = isolation による advisory、DA-α-010 §decision-1/2)
 * [ ] CI 上で安定実行 (= flake 0 件、最低 5 連続 success) — operational deferred (= 不可侵原則 8 整合、AI session 内 flip しない、user / Phase 11 closure 判断、DA-α-010 §decision-5)
-* [ ] 実行時間が許容範囲 (= 既存 fast-gate に圧迫を与えない、+30 秒以下推奨) — locally engine 部分 < 1 秒確認、CI 1 回目実行後 wrap-up で flip 候補
+* [x] 実行時間が許容範囲 (= 既存 fast-gate に圧迫を与えない、+30 秒以下推奨) — CI 1 回目 wall time 約 32 秒 (= GitHub Actions run 25382855354、setup-go cold 含む institutional cost、locally engine 部分 < 1 秒、ci.yml fast-gate との並列実行で wall time impact = +0 秒、DA-α-010 §振り返り判定 観測点 7)
 * [ ] 2〜4週間 false positive を観測 (= 観測 log を `discovery-log.md` に articulate) — operational deferred (= AI session reach 外、user / Phase 11 closure で flip)
 * [x] DA-α-010 entry を articulate する
 

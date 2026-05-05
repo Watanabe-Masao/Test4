@@ -5,20 +5,25 @@
 
 ## 1. 現在地
 
-**Phase 10 landing 完了 (= 本 commit landing 後)**。次は Phase 10 wrap-up commit (= CI 1 回目 success 観測 + 振り返り判定)。
+**Phase 10 完遂 (= AI session reach 範囲)**。次は Phase 11 (= Partial Hard Gate Promotion) 着手待ち。operational deferred 2 件 (= 5 連続 success + 2〜4 週間 false positive 観測) は user / Phase 11 closure 判断。
 
-Phase 10 lineage (= landing 段階):
-- landing commit (本 commit): `.github/workflows/aag-engine.yml` 新設 (= advisory non-blocking、go test + build + 3 subcommand) + `docs/contracts/project-metadata.json` $comment articulate (= obligation map 履行) + DA-α-010 articulate (Lineage 仮 sha) + checklist Phase 10 2 件 flip (= 1 + 5)
+Phase 10 lineage (= 完遂済):
+- landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up (本 commit)
+- DA-α-010 振り返り判定: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件は不可侵原則 8 整合維持)
+- CI 1 回目 success 観測達成 (= GitHub Actions run 25382855354、aag-engine-advisory job conclusion=success、wall time 約 32 秒)
 
 Phase 10 deliverable (= cumulative):
 - aag-engine/ Go module (= 6 internal package、unchanged)
-- 97 Go test PASS (= unchanged from Phase 9)
+- 97 Go test PASS (= unchanged from Phase 9) + TS guard 1057 PASS
 - 3 subcommand: `aag validate` / `aag fixtures` / `aag shadow`
 - **CI advisory workflow** (= `.github/workflows/aag-engine.yml`、ci.yml 完全独立 + branch protection 非登録 = isolation による advisory non-blocking)
+- **CI 1 回目実行 success** (= 32 秒 wall time、ci.yml fast-gate との並列実行で wall time impact = +0 秒)
 
 Phase 10 重要 distinction (= DA-α-010 articulate、後続 Phase で institutional knowledge):
 - **isolation による advisory** (= continue-on-error より transparent、Phase 11 で branch protection 登録という明確な flip point articulate)
 - **ciJobs list は ci.yml 限定 enumeration** (= aag-engine.yml は別 workflow のため ciJobs に追加せず、documentConsistency test scope 整合)
+- **ciFetchDepthGuard institutional default の重要性** (= Phase 11 hard gate 昇格時の last-modified 解析拡張余地確保)
+- **obligation map per-commit 履行義務** (= workflow modify → 必ず metadata $comment update を含む follow-up commit、HEAD~1 diff scope 整合)
 - **5 連続 success / 2〜4 週間観測 = operational deferred** (= 不可侵原則 8 整合、AI session 内 [x] flip しない、user / Phase 11 closure 判断)
 
 Phase 9 lineage (= 完遂済):
@@ -76,12 +81,12 @@ Phase 8 deliverable (= 5 detector 移植完了):
 0 で bootstrap / scope lock / required reads / DA-α-000 を完遂、Phase 1〜9 で
 5 detector 移植 + fixture parity 100% 集約 達成。
 
-§13 commit pattern application 累積 (= Phase 0〜9 完遂 + Phase 10 landing 時点):
-- §13.1 二段 commit: 10 instance 完遂 + 1 instance landing 段階 (= Phase 0+1+2+3+4+5+6+7+8+9 完遂 + Phase 10 landing)
-- §13.2 atomic dependent update: 1 instance landing (= Phase 10 で `aag-engine.yml` 新設に伴う `project-metadata.json` $comment update を同 commit に統合、obligation map 履行)
-- §13.3 post-flip regen: 20 instance
+§13 commit pattern application 累積 (= Phase 0〜10 完遂時点):
+- §13.1 二段 commit: 11 instance (= Phase 0+1+2+3+4+5+6+7+8+9+10 完遂、Phase 10 は +2 follow-up commit 含む 5 commit chain)
+- §13.2 atomic dependent update: 1 instance (= Phase 10 で `aag-engine.yml` 新設に伴う `project-metadata.json` $comment update を同 commit に統合、obligation map 履行)
+- §13.3 post-flip regen: 21 instance (= Phase 10 landing 後 regen + wrap-up 後 regen)
 
-derivedStatus: in_progress / Phase 0〜9 完遂、Phase 10 landing 段階、Phase 10 wrap-up + Phase 11/12 残。
+derivedStatus: in_progress / Phase 0〜10 完遂 (= AI session reach 範囲)、Phase 11/12 + AI 自己レビュー + 最終レビュー残、operational deferred 2 件 = user / Phase 11 closure 判断。
 完了基準は checklist Phase 0〜12 (= 60 checkbox) + AI 自己レビュー 5 件 + 最終レビュー
 (user 承認) 1 件 = 全 [x]。
 
@@ -89,28 +94,35 @@ derivedStatus: in_progress / Phase 0〜9 完遂、Phase 10 landing 段階、Phas
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 10 wrap-up + Phase 11 着手）
-
-- **Phase 10 wrap-up commit** (= CI 1 回目実行 観測後):
-  - CI 1 回目 success articulate (= 観測点 9 flip)
-  - 実行時間 articulate (= 観測点 7 flip + checklist 3 flip 候補)
-  - 観測点 10/11 (= operational deferred) は維持 (= 不可侵原則 8 整合、user / Phase 11 closure で flip)
-  - DA-α-010 Lineage 実 sha + 振り返り判定 articulate
-
-### 中優先（Phase 11 = Partial Hard Gate Promotion）
+### 高優先（次 PR = Phase 11 = Partial Hard Gate Promotion）
 
 - **archive-manifest detector 推奨** (= 最 deterministic、false positive risk 最低):
-  - branch protection の required checks に `aag-engine-advisory` を追加 (= 別 layer 判断、operational change)
+  - branch protection の required checks に `aag-engine-advisory` を追加 (= operational change、user 判断必須)
   - hard gate 化 detector の fixture parity 100% / shadow mode 期間 false positive 0 確認
   - rollback path 確保 (= TS guard が hard gate を引き続き保持、Go は補完)
   - user approval を decision-audit.md で articulate
   - DA-α-011 entry articulate
 
-### 低優先（Phase 12 以降）
+### 中優先（Phase 12 = Closure / Next Architecture Decision）
 
-- Phase 12: Closure / Next Architecture Decision (= A-E judgement、後続 program 起票候補)
-- AI 自己レビュー 5 件
-- 最終レビュー (user 承認)
+- A〜E のいずれかで user 判断:
+  - A. CI hard gate 昇格 (= 残 detector もすべて hard gate)
+  - B. advisory 継続 (= 現状維持で fixture parity 観測継続)
+  - C. 追加 detector (= 新 governance scope 追加)
+  - D. metadata 強化 (= severity / evidence / messageSeed 充実)
+  - E. Rust 必要性再評価
+- 判断結果を decision-audit.md DA-α-012 で articulate
+- 後続 program 起票候補 articulate (= relatedPrograms.child 候補)
+
+### 低優先（最終 closure）
+
+- AI 自己レビュー 5 件 (= 総チェック / 歪み検出 / 潜在バグ / docs 抜け漏れ / CHANGELOG)
+- 最終レビュー (user 承認) — **AI 単独 [x] flip 禁止、不可侵原則 8 strict adherence**
+
+### Operational deferred (= 不可侵原則 8 整合、AI session 内 [x] flip しない)
+
+- Phase 10 checkbox 2: CI 5 連続 success 観測 (= 現在 1 回目 success、user / Phase 11 closure 判断)
+- Phase 10 checkbox 4: 2〜4 週間 false positive 観測 (= discovery-log.md に articulate、user / Phase 11 closure 判断)
 
 ## 3. ハマりポイント
 

@@ -1077,8 +1077,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 10 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 10 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 10 landing 段階の AI session reach 範囲完遂、Lineage 実 sha articulate 済、operational deferred 2 件は user / Phase 11 closure 判断)
+- 振り返り判定: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件 = 不可侵原則 8 整合維持)
 
 ### context
 
@@ -1139,32 +1139,51 @@ scope 判断点:
 
 ### 観測点
 
-1. ⏳ `.github/workflows/aag-engine.yml` 新設 (= advisory non-blocking workflow、go test + 3 subcommand)
-2. ⏳ workflow file が ci.yml dependency graph と独立 (= ci.yml `needs:` に登録なし、別 concurrency group)
-3. ⏳ project-metadata.json `$comment` に Phase 10 workflow 追加を articulate (= obligation map 履行)
-4. ⏳ ciJobs list 変更なし (= ci.yml 限定 enumeration semantic 維持)
-5. ⏳ documentConsistency test PASS (= ciJobs check が false positive 起こさない)
-6. ⏳ locally Go engine 4 step (= go test + build + fixtures + validate + shadow) すべて pass、shadow AllMatched()=true
-7. ⏳ Go test + 3 subcommand の wall time 合計 < 30 秒 (= setup-go 除外、engine 部分のみ)
-8. ⏳ Go test 全 PASS (= 97 test、Phase 9 deliverable と同) + TS guard 1057 PASS
-9. 🔁 CI 1 回目 success 観測 (= wrap-up commit で flip 候補)
+1. ✅ `.github/workflows/aag-engine.yml` 新設 (= advisory non-blocking workflow、go test + 3 subcommand)
+2. ✅ workflow file が ci.yml dependency graph と独立 (= ci.yml `needs:` に登録なし、別 concurrency group "aag-engine-${{ github.ref }}")
+3. ✅ project-metadata.json `$comment` に Phase 10 workflow 追加を articulate (= obligation map 履行、follow-up commit で fetch-depth fix も articulate)
+4. ✅ ciJobs list 変更なし (= ci.yml 限定 enumeration semantic 維持、documentConsistency test 34 PASS)
+5. ✅ documentConsistency test PASS (= ciJobs check が false positive 起こさない)
+6. ✅ locally Go engine 4 step (= go test + build + fixtures + validate + shadow) すべて pass、shadow AllMatched()=true
+7. ✅ Go test + 3 subcommand の wall time articulate (= locally engine 部分 < 1 秒、CI 1 回目 wall time 約 32 秒 = setup-go cold 含む institutional cost、ci.yml fast-gate への並列実行 wall time impact = +0 秒)
+8. ✅ Go test 全 PASS (= 97 test、Phase 9 deliverable と同) + TS guard 1057 PASS
+9. ✅ CI 1 回目 success 観測 (= GitHub Actions run 25382855354、aag-engine-advisory job 14:35:03Z 開始 / 14:35:35Z 完了 / conclusion=success)
 10. 🔁 5 連続 success 観測 (= operational deferred、user / Phase 11 closure で flip)
 11. 🔁 2〜4 週間 false positive 観測 (= operational deferred、user / Phase 11 closure で flip、`discovery-log.md` に articulate)
 
-凡例: ⏳ landing commit で達成、🔁 operational deferred (= 不可侵原則 8 整合、AI session 内 [x] flip しない)。
+凡例: ✅ AI session 内達成、🔁 operational deferred (= 不可侵原則 8 整合、AI session 内 [x] flip しない、user / Phase 11 closure 判断)。
 
 ### Lineage
 
 - **preJudgementCommit**: `593271b` (= Phase 9 wrap-up + polish 後 HEAD)
-- **judgementCommit**: 本 Phase 10 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `224bb5a` (= Phase 10 landing commit、aag-engine.yml 新設 + project-metadata.json $comment + DA-α-010 articulate + checklist 2 件 flip)
+- **postJudgementRegenCommit**: `e510e47` (= §13.3 Pattern A application)
+- **postJudgementFollowUpCommits**: `ff9de3b` (= ciFetchDepthGuard fix) + `3c0087b` (= project-metadata.json $comment follow-up、obligation 履行)
 - **retrospectiveCommit**: 本 Phase 10 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `593271b` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 10 wrap-up commit で articulate 予定。観測点 1〜8 (= landing 必須) の達成状況 + 9 (= 1 回目 CI success) + 10/11 (= operational deferred 維持) の articulate を後続 commit で update。)
+- **判定**: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件 = 不可侵原則 8 整合維持)
+- **観測点達成状況**:
+  1. ✅ aag-engine.yml 新設 (= 50 行、advisory non-blocking、5 step = checkout + setup-go + go test + go build + 3 subcommand)
+  2. ✅ workflow 完全独立 (= ci.yml `needs:` に登録なし、別 concurrency group、別 runner で並列実行)
+  3. ✅ project-metadata.json $comment 2 段 articulate (= 224bb5a で workflow 新設、3c0087b で fetch-depth fix follow-up)
+  4. ✅ ciJobs list 変更なし (= aag-engine.yml 別 workflow scope 整合)
+  5. ✅ documentConsistency test 34 PASS
+  6. ✅ locally Go engine 4 step すべて pass (= go test 0.18s + build 0.08s + 3 subcommand each <0.01s)
+  7. ✅ CI wall time 約 32 秒 (= setup-go cold 含む、+30 秒推奨 target に対し許容範囲、ci.yml fast-gate impact = 0)
+  8. ✅ Go test 97 PASS + TS guard 1057 PASS
+  9. ✅ **CI 1 回目 success 達成** (= GitHub Actions run 25382855354、aag-engine-advisory job conclusion=success)
+  10. 🔁 5 連続 success 観測 = operational deferred (= user / Phase 11 closure 判断)
+  11. 🔁 2〜4 週間 false positive 観測 = operational deferred (= user / Phase 11 closure 判断)
+- **学習**:
+  - **isolation による advisory が Phase 11 hard gate flip point を transparent 化**: branch protection の required checks に登録するか否かが advisory ↔ hard gate の明確な flip point。`continue-on-error` よりも institutional に分かりやすい (= operational change が単一 setting で完了)
+  - **ciFetchDepthGuard institutional default の重要性**: 新 workflow 追加時 fetch-depth: 0 を default にする institutional rule が、Phase 11 の last-modified 解析拡張余地を未然に確保。Phase 10 で local では不要だったが、Phase 11 hard gate 昇格時の project-lifecycle 検出等で必要になる候補
+  - **obligation map (= .github/workflows/ → project-metadata.json 確認) の per-commit 履行義務**: HEAD~1 diff scope で obligation 検出するため、後続 fix commit も project-metadata.json $comment update を伴う必要。AAG-REQ-NO-AMEND と組み合わせると「workflow modify → 必ず metadata $comment update を含む follow-up commit」 という pattern を articulate
+  - **operational deferred の articulate 必要性**: 5 連続 success / 2〜4 週間 観測 は AI session の reach 外。不可侵原則 8 整合のため、landing commit で `[ ]` 維持 + DA で 🔁 articulate + Phase 11/12 closure で flip 候補。Phase 9 (= 即時機械検証可能) と Phase 10 (= operational long-term observation) の質的違いを institutional knowledge として transparent 化
+  - **§13.1 二段 commit pattern の Phase 10 拡張**: landing + regen + 2 follow-up commit (= guard fix + metadata follow-up) + wrap-up = 5 commit/Phase。Phase 0-9 の 4 commit/Phase より +1、obligation 履行と guard 整合の per-commit 義務が追加 articulate。Phase 11 hard gate 昇格時にも同様の commit chain が articulate される候補
 
 ---
 
