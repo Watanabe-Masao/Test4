@@ -107,10 +107,10 @@
 
 ## Phase 12: Closure / Next Architecture Decision
 
-* [ ] A〜E のいずれかで user 判断 (= A. CI hard gate 昇格 / B. advisory 継続 / C. 追加 detector / D. metadata 強化 / E. Rust 必要性再評価)
-* [ ] 判断結果を `decision-audit.md` DA-α-012 で articulate
-* [ ] 後続 program 起票候補が articulate (= relatedPrograms.child 候補)
-* [ ] DA-α-012 entry を articulate する
+* [ ] A〜E のいずれかで user 判断 (= A. CI hard gate 昇格 / B. advisory 継続 / C. 追加 detector / D. metadata 強化 / E. Rust 必要性再評価) — user 判断必須 (= 不可侵原則 8 strict adherence、AI session 内 flip しない、DA-α-012 §decision-4 + §user-judgement)
+* [ ] 判断結果を `decision-audit.md` DA-α-012 で articulate — user 直接編集 (= DA-α-012 §user-judgement section、template articulate 済)
+* [x] 後続 program 起票候補が articulate (= relatedPrograms.child 候補) (= DA-α-012 §decision-2 で 2 候補 articulate: aag-engine-hard-gate-promotion + aag-engine-domain-coverage-extension)
+* [x] DA-α-012 entry を articulate する
 
 ## AI 自己レビュー (= user 承認の手前)
 
@@ -119,11 +119,11 @@
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-* [ ] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-* [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= Go engine を source of truth にしていない / TS guard を削除していない / rule semantics を複製していない)
-* [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検 (= Go side null safety / panic safety / signal handling)
-* [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-* [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 (= 本 project は internal AAG framework / engine 化、user-facing app 機能変更なし → CHANGELOG 慣習対象外を articulate するか判断)
+* [x] **総チェック**: 全 Phase 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認 (= HANDOFF.md §4.1、50 commit + DA-α-000〜012 = 13 entry + fixture parity 100% + AAG-REQ-NO-AMEND strict adherence)
+* [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認 (= Go engine を source of truth にしていない / TS guard を削除していない / rule semantics を複製していない) — HANDOFF.md §4.2 で 5 観点 articulate (= source of truth / TS guard 並存 / regex 検出 surface vs business logic / drawer Pattern / 隠れた前提)
+* [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検 (= Go side null safety / panic safety / signal handling) — HANDOFF.md §4.3、go vet clean + production panic 0 + edge case 4 種 test PASS + read-only serial で race 構造的に不発生
+* [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了 — HANDOFF.md §4.4、9 doc 軸を articulate (= HANDOFF / plan / checklist / decision-audit / project-metadata.json / CLAUDE.md 自動 / discovery-log / open-issues)
+* [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 (= 本 project は internal AAG framework / engine 化、user-facing app 機能変更なし → CHANGELOG 慣習対象外を articulate するか判断) — HANDOFF.md §4.5、CHANGELOG 更新 不要 articulate (= app/src/ 変更 0、appVersion=1.10.0 維持、readiness refactor 親 program 同 pattern 継承)
 
 ## 最終レビュー (user 承認)
 

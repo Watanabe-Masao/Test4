@@ -1311,4 +1311,130 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-012) は Phase 12 landing commit 時に articulate 追加。
+## DA-α-012: Phase 12 Closure / Next Architecture Decision 提案 (= A〜E option 整理 + 推奨判断 articulate + 後続 program 候補 articulate + user 判断待ち)
+
+### status
+
+- 着手判断: **open / pending user judgement** (= AI session reach 範囲で 5 option 整理 + 推奨判断 articulate 完遂、A〜E のいずれかの最終 user 判断は user に articulate を委ねる、不可侵原則 8 strict adherence)
+- 振り返り判定: **未** (= user 判断後の Phase 12 wrap-up commit + 最終レビュー で articulate 予定)
+
+### context
+
+Phase 12 plan.md の作業項目:
+- A〜E のいずれかで user 判断:
+  - A. Go engine を CI hard gate の一部に昇格 (= 既存 hard gate と並列で Go engine も hard gate 担う)
+  - B. Go engine を advisory validator として継続 (= hard gate 化見送り、shadow mode 維持)
+  - C. 追加 detector を実装する (= 5 系統超え、新領域 detector を別 program で起票)
+  - D. generated artifact validation を強化 (= advisory → hard gate 化検討)
+  - E. Rust engine の必要性を再評価 (= Go 一本化 / Rust 並行 / Rust に移行 のいずれか)
+- DA-α-012 entry articulate
+- AI 自己レビュー section 全 [x]
+- 最終レビュー (user 承認) 待ち state (= 不可侵原則 8 strict adherence)
+
+scope 判断点:
+1. **本 MVP scope 内の judgement vs 後続 program articulation**: 5 option それぞれが本 project closure scope 内 vs 別 program 起票候補 vs 後続 user 判断
+2. **operational deferred 整合性**: Phase 10/11 の operational deferred 4 件 (= 5 連続 success + 2〜4 週間 false positive 観測 + branch protection 登録 + user approval entry) を Phase 12 closure で flip するか否か
+3. **AI 推奨 vs user 自由判断**: AI が推奨を articulate する範囲 (= 5 option の根拠 + trade-off) vs user 自由判断の boundary
+4. **後続 program 起票候補の articulate**: relatedPrograms.child 候補として articulate すべき項目
+
+### decision (= 提案、user 判断待ち)
+
+以下を提案する (= user 承認後に Phase 12 wrap-up で確定):
+
+1. **5 option の整理 + per-option per-evidence articulation**:
+
+| option | 内容 | 本 MVP 内 articulation 状態 | scope | 推奨度 |
+|---|---|---|---|---|
+| A | Go engine を CI hard gate の一部に昇格 (= 残 4 detector も) | Phase 11 で archive-manifest 1 件 hard gate scaffold landing、残 4 detector は §DA-α-011 §decision-5 で 見送り or 永続 advisory | 本 MVP scope 外 (= 残 4 detector 昇格は別判断、operational change 集中) | 中 (= operational deferred 観測完了後の段階昇格として articulate 候補、別 PR 推奨) |
+| B | Go engine を advisory validator として継続 | Phase 9 shadow mode + Phase 10 CI advisory で実装済、Phase 11 で archive-manifest だけ hard gate scaffold | 本 MVP scope 内、現状維持 | **高 (= 推奨)** |
+| C | 追加 detector を実装する | 不可侵原則 4 (= app-specific guard 移植対象外) との整合確認必要、新 governance scope は別 program で articulate | 本 MVP scope 外 (= 別 program 起票必須) | 中 (= 後続 program 候補) |
+| D | generated artifact validation を強化 | DA-α-008 §decision-1 で severity="gate" + CI 扱い advisory を distinction articulate 済、強化 = CI hard gate 化候補 | 本 MVP scope 外 (= operational deferred 観測完了 + plan §8 articulate 整合確認後) | 低 (= 当面据え置き、Phase 8 institutional knowledge 維持) |
+| E | Rust engine の必要性を再評価 | readiness refactor 親 program で deferred articulate、本 MVP の Go 実装で fixture parity 100% 達成、Rust の必要性は **証明されていない** | 本 MVP scope 外 (= 別 program 起票候補、現状不要と articulate) | 低 (= 当面据え置き、本 MVP の Go 実装で十分性 articulate 済) |
+
+2. **AI 推奨 = B (advisory 継続) + 後続 program 起票候補として A/C を articulate**:
+   - **B 推奨理由**:
+     - Phase 10/11 で operational deferred 4 件 (= 5 連続 success + 2〜4 週間 false positive 観測 + branch protection 登録 + user approval) が未完了
+     - 不可侵原則 5 「CI hard gate を即時置換しない」 + 不可侵原則 8 「実装 AI が最終レビューを [x] にしない」 整合
+     - 本 MVP の本質 = 「外部 engine が同 input を読み同 DetectorResult を返せる」 ことの **証明**、これは Phase 4-9 で達成 (= fixture parity 100% + shadow drift 0)
+     - hard gate 段階昇格 (= option A) は別 PR で operational change 含めて articulate するほうが drawer Pattern 1 (Commit-bound Rollback) 整合
+   - **後続 program 候補 (= relatedPrograms.child)**:
+     - `aag-engine-hard-gate-promotion` (= option A、operational deferred 観測完了後の段階昇格 program)
+     - `aag-engine-domain-coverage-extension` (= option C、新 governance scope 追加 program)
+3. **operational deferred 4 件は本 closure で flip しない**:
+   - Phase 10 checkbox 2 (5 連続 success): 現在 2 連続、user 判断必須
+   - Phase 10 checkbox 4 (2〜4 週間 false positive 観測): 観測継続中、user 判断必須
+   - Phase 11 checkbox 1 (branch protection 登録): operational change、user 判断必須
+   - Phase 11 checkbox 4 (user approval entry): user 直接編集、user 判断必須
+   - これらは本 Phase 12 closure scope 外、option B 推奨の場合は archive 後の operational follow-up として articulate
+4. **AI session reach boundary = 提案 articulate のみ**:
+   - DA-α-012 articulate (= 5 軸 + 観測点 + Lineage 仮 sha) → AI 可
+   - 後続 program 起票候補 articulate → AI 可
+   - 5 option 整理 + AI 推奨 → AI 可
+   - **A〜E のいずれかの最終 user 判断 → user 判断**
+   - **本 closure 完了の最終レビュー → user 承認** (= 不可侵原則 8 strict adherence)
+
+### rationale
+
+- **5 option per-evidence articulation の institutional 整合**: 各 option が本 MVP 内で articulate された evidence (= Phase 1〜11 の cumulative observation) に基づいて推奨度を articulate。一括判断ではなく per-option transparent 化 = 後続 program で同 articulation pattern を継承可能
+- **B 推奨 (= advisory 継続) の理由**:
+  - Phase 10 advisory CI が 2 連続 success (= run 25382855354 + 25403656557 = aag-engine-advisory)、5 連続まで観測継続中
+  - Phase 11 archive-manifest hard gate scaffold が landing 済、user approval + branch protection 登録で hard gate 効果 articulate 可能 (= 別 PR で operational change 集中)
+  - 本 MVP の本質的 success metric = fixture parity 100% は Phase 9 で達成、hard gate 化は本質ではなく後続 operational change
+- **後続 program 候補 articulate の institutional 整合**: relatedPrograms.child として articulate することで、本 MVP closure 後も「AAG Engine governance evolution」 の連続性を articulate。readiness refactor → 本 MVP の 2 段 chain を 3 段以降に拡張する pattern
+- **AI session reach boundary strict adherence**: 不可侵原則 8 + 5 + 1 (= validator only) の 3 重整合。AI が A〜E 判断を articulate すると user 判断機会の喪失 + scope creep risk
+
+### alternatives
+
+- (a-alt) **AI が推奨 option を [x] flip**: 不可侵原則 8 違反 (= AI 自己 approval)、不採用
+- (b-alt) **5 option すべて scope 内で articulate (= 本 closure で 5 option 全実行)**: scope creep 違反、本 MVP は MVP scope の closure であり 5 option すべての実装 program ではない、不採用
+- (c-alt) **operational deferred 4 件を本 closure で AI 単独 flip**: 不可侵原則 8 違反、不採用
+- (d-alt) **後続 program 起票候補を articulate しない**: relatedPrograms.child articulation は readiness refactor archive で institutional pattern として articulate 済、本 MVP も同 pattern 継承する必要、不採用
+- (e-alt) **A 推奨 (= 即 hard gate 化)**: operational deferred 観測未完了で hard gate 化は不可侵原則 5「CI hard gate を即時置換しない」 違反、不採用
+
+### 観測点
+
+1. ⏳ DA-α-012 entry を articulate (= 5 軸 + 観測点 + Lineage 仮 sha + 推奨判断 articulate)
+2. ⏳ 5 option per-evidence integrate articulation (= A〜E × evidence × scope × 推奨度の table 形式)
+3. ⏳ B 推奨 (= advisory 継続) の rationale articulate
+4. ⏳ 後続 program 起票候補 articulate (= aag-engine-hard-gate-promotion + aag-engine-domain-coverage-extension)
+5. ⏳ operational deferred 4 件を本 closure scope 外として明示 (= Phase 10/11 cumulative)
+6. ⏳ AI session reach boundary articulate (= 提案のみ、user 判断待ち)
+7. 🔁 user による A〜E 判断 (= user 判断必須、checkbox 1 flip 候補)
+8. 🔁 user による判断結果 articulate (= DA-α-012 §user-judgement section に追記、checkbox 2 flip 候補)
+9. 🔁 後続 program 起票 (= 別 project で起票、本 MVP 完了後)
+10. 🔁 最終レビュー (= user 承認、Phase 12 完了 + 全 Phase 完了 + AI 自己レビュー 全 [x] 後)
+
+凡例: ⏳ AI session 内達成、🔁 user 判断 / operational change 待ち。
+
+### user-judgement (= 本 section は user が直接編集して articulate)
+
+> **本 section は user が判断後に直接編集する**。AI 自動 flip 禁止 (= 不可侵原則 8 strict adherence)。
+>
+> judgement entry template:
+> ```
+> - judger: <username>
+> - judgedAt: <YYYY-MM-DD>
+> - selectedOption: <A | B | C | D | E>
+> - rationale: <なぜこの option か、本 DA §decision に基づく articulate>
+> - relatedPrograms (= 後続起票候補): <list of project ids>
+> - rollbackPath: <選択 option を撤回する場合の path articulate>
+> ```
+
+(本 entry は user 判断待ち、未記入)
+
+### Lineage
+
+- **preJudgementCommit**: `9037b77` (= Phase 11 metadata follow-up 後 HEAD)
+- **judgementCommit**: 本 Phase 12 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 12 wrap-up commit (= user 判断後)
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `9037b77` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 12 wrap-up commit で user 判断後に articulate 予定。観測点 1〜6 (= AI session reach 達成) + 7/8/9/10 (= user 判断 / operational 待ち) の articulate を後続 commit で update。)
+
+---
+
+> 全 DA entry (DA-α-000 〜 012) articulate 完遂。後続 closure (= AI 自己レビュー + 最終レビュー) は本 file のレビュー後 user 承認で archive 移行 articulate 候補。
