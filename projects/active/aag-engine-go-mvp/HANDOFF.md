@@ -23,13 +23,8 @@ Phase 11 重要 distinction (= DA-α-011 articulate、後続 Phase / program で
 - **per-detector judgement table** (= 一括判断ではなく detector-by-detector、後続 program で rollback / 追加 hard gate 化判定が per-detector 履行可能)
 - **AI session reach boundary = structural prep のみ** (= 不可侵原則 8 整合、operational change = branch protection 登録は user 判断)
 
-Phase 10 完遂状態 (= AI session reach 範囲):
-- landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up `8714435` + regen `8bc952d`
-- DA-α-010 振り返り判定: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件は不可侵原則 8 整合維持)
-- CI 1 回目 success 観測達成 (= GitHub Actions run 25382855354)
-
 Phase 10 lineage (= 完遂済):
-- landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up (本 commit)
+- landing `224bb5a` + regen `e510e47` + guard fix `ff9de3b` + metadata follow-up `3c0087b` + wrap-up `8714435` + regen `8bc952d`
 - DA-α-010 振り返り判定: **正しい** (= AI session reach 観測点 9 件すべて達成、operational deferred 2 件は不可侵原則 8 整合維持)
 - CI 1 回目 success 観測達成 (= GitHub Actions run 25382855354、aag-engine-advisory job conclusion=success、wall time 約 32 秒)
 

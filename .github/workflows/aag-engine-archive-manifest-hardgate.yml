@@ -61,7 +61,23 @@ jobs:
           go-version: '1.24'
           cache-dependency-path: aag-engine/go.sum
 
-      # Step 1: archive-manifest detector unit + fixture parity test
+      # Step 1a: archive-manifest detector test の zero-match guard
+      # `go test -run` は pattern が 0 件 match でも exit 0 で pass するため、
+      # hard gate workflow が test rename / removal を silently pass する risk あり。
+      # `go test -list` で expected 8 test (= 5 unit + 3 fixture parity) を pre-validate。
+      - name: archive-manifest detector test count guard (= zero-match prevention)
+        run: |
+          set -e
+          EXPECTED=8
+          ACTUAL=$(go test -list 'TestDetectArchiveManifestViolations|TestFixtureParity_ArchiveV2' ./internal/detectors/ | grep -c '^Test' || true)
+          if [ "$ACTUAL" -ne "$EXPECTED" ]; then
+            echo "::error::archive-manifest test count mismatch: expected $EXPECTED, got $ACTUAL (test rename / removal の可能性、workflow と test name の sync 確認)"
+            go test -list 'TestDetectArchiveManifestViolations|TestFixtureParity_ArchiveV2' ./internal/detectors/
+            exit 1
+          fi
+          echo "archive-manifest test count guard PASS: $ACTUAL/$EXPECTED tests matched"
+
+      # Step 1b: archive-manifest detector unit + fixture parity test
       # 5 unit (TestDetectArchiveManifestViolations_*) + 3 fixture parity (TestFixtureParity_ArchiveV2_*)
       # = 計 8 test、failure 即 hard fail。
       - name: archive-manifest detector test (= 5 unit + 3 fixture parity)
