@@ -866,4 +866,82 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-008 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-008: Phase 8 Generated Metadata Detector scope 判断 (= severity articulate vs CI 扱いの distinction + 5 detector 移植完了)
+
+### status
+
+- 着手判断: **open** (Phase 8 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 8 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 8 plan.md の作業項目:
+- 5 detector 移植優先順位の **最後** (= regex pattern 同期義務、最 careful、advisory only)
+- AR-GENERATED-METADATA-G2 (= GENERATED marker / ISO timestamp 両方欠落) 検出
+- generated/fail-stale-metadata fixture parity
+- 5 detector 移植完了、Phase 9 shadow mode への入口
+
+scope 進入時の重要発見:
+1. **plan §8 の severity 矛盾**: plan §8 が「severity: advisory」 と articulate しているが、TS source + fixture expected.json + readiness report §7 はすべて `severity: "gate"` を articulate
+2. **distinction 必要**: DetectorResult.severity (= detector 出力分類) と CI hard gate 化 (= layer 別判断) を articulate 区別する必要
+
+### decision
+
+以下を採用する:
+
+1. **DetectorResult.severity = "gate"** (= TS / fixture / readiness report 一致):
+   - fixture parity primary metric の strict adherence
+   - readiness refactor readiness-report.md §7 hard gate 判定 table の "advisory (= MVP)" は **CI 扱い** であって detector severity ではない
+2. **CI hard gate 化は Phase 10/11 で articulate** (= 別 layer 判断):
+   - Phase 10 CI Advisory: 全 detector を non-blocking で導入、false positive 観測
+   - Phase 11 Partial Hard Gate Promotion: 安全 detector から段階昇格、generated-metadata は最後 or advisory 継続候補
+3. **regex pattern を Go literal で同期** (= 不可侵原則 4 「rule semantics を別言語に複製しない」 への最小 deviation):
+   - 2 regex (= GENERATED_MARKER + ISO_TIMESTAMP) は detector 内部 const、TS と完全一致
+   - 不可侵原則 4 は本来 rule **semantics** の複製禁止 (= business logic / 判断条件)、regex literal は **検出 surface** であり mechanical 同期義務として articulate
+4. **DA-α-008 で distinction を transparent articulate**:
+   - detector severity と CI 扱いの分離を明示
+   - 後続 Phase で同じ confusion が発生しないよう institutional knowledge として残す
+
+### rationale
+
+- **fixture parity 優先**: 不可侵原則 10 (= fixture parity 必須) が plan §8 の「advisory」 表記より優先順位上。fixture expected.json と Match=true を達成する severity = "gate" を採用、plan §8 の「advisory」 表記は CI layer 解釈と判定
+- **distinction articulate**: detector が emit する severity と CI が hard fail として扱うかは別 layer。readiness refactor readiness-report.md §7 でも "MVP 4 hard gate + 1 advisory" と articulate しているのは CI 判定で、detector severity 自体は 5 件すべて "gate"
+- **regex literal の mechanical 同期**: 不可侵原則 4 は business logic (= 「level >= 0 && level <= 4」 等の判断条件) の複製禁止。regex pattern は **検出 surface 定義** であり、TS / Go で同 literal を articulate するのは scope 内 (= readiness refactor の「rule source は TS 維持、engine は merged JSON 経由」 の例外として regex は detector 内部に閉じる)
+
+### alternatives
+
+- (a-alt) **severity = "warn" を Go で emit** (= plan §8 表記通り): fixture parity 100% 違反、不可侵原則 10 strict adherence 整合性低下、不採用
+- (b-alt) **plan §8 を update** (= "advisory" → "gate, CI 扱いは advisory"): plan は archive 候補、本 DA-α-008 で transparent articulate するほうが institutional knowledge transfer 効率高、不採用
+- (c-alt) **regex を merged JSON 経由で読む**: scope 過剰、readiness refactor merged JSON は rule definitions、detector internal regex は別 articulation、不採用
+
+### 観測点
+
+1. ✅ `internal/detectors/generated_metadata.go` 新設 (= GeneratedMetadataFacts + GeneratedMetadataFile struct + DetectGeneratedMetadataViolations function + 2 regex const)
+2. ✅ `internal/detectors/generated_metadata_test.go` 新設 (= 7 unit + 1 fixture parity = 8 test)
+3. ✅ regex pattern が TS source と literal 一致 (= GENERATED_MARKER 3 形式 + ISO_TIMESTAMP)
+4. ✅ marker のみ / timestamp のみ / 両方 で 0 violation
+5. ✅ 両方欠落で 1 violation、severity="gate" / evidence="no GENERATED marker AND no ISO timestamp"
+6. ✅ generated/fail-stale-metadata fixture parity Match=true
+7. ✅ 5 detector 移植完了 (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
+8. ✅ 8 fixture parity 100% 達成 (= readiness refactor Phase 5 deliverable と完全一致)
+9. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 35 = 計 85)
+10. ✅ TS guard 1057 test PASS
+
+### Lineage
+
+- **preJudgementCommit**: `38729fe` (= Phase 7 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 8 landing commit (= SHA は wrap-up commit で update)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 8 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `38729fe` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 8 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-009 〜 012) は各 Phase landing commit 時に articulate 追加。

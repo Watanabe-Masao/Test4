@@ -5,7 +5,23 @@
 
 ## 1. 現在地
 
-**Phase 7 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 8 Generated Metadata Detector (advisory)。
+**Phase 8 landing 完了 (= 本 commit landing 後)**。次は Phase 8 wrap-up commit。
+
+Phase 8 lineage (= landing 段階):
+- landing commit (本 commit): `internal/detectors/generated_metadata.go` 新設 (= GeneratedMetadataFile + GeneratedMetadataFacts struct + DetectGeneratedMetadataViolations function + 2 regex const) + `internal/detectors/generated_metadata_test.go` 8 test (= 7 unit + 1 fixture parity) + DA-α-008 articulate (Lineage 仮 sha) + checklist Phase 8 3 件 flip
+
+Phase 8 deliverable (= cumulative):
+- aag-engine/ Go module (= 5 internal package、unchanged)
+- 85 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 35)
+- **5 detector 移植完了** (= archive-manifest + doc-registry + schema-validation + project-lifecycle + generated-metadata)
+- **8 fixture parity 100% 達成** (= readiness refactor Phase 5 deliverable と完全一致)
+
+Phase 8 重要 distinction (= DA-α-008 articulate):
+- **DetectorResult.severity = "gate"** (= TS / fixture / readiness report 一致、不可侵原則 10 fixture parity 優先)
+- **CI hard gate 化 = advisory** (= Phase 10/11 別 layer 判断、readiness report §7 「MVP advisory」 整合)
+- distinction を transparent articulate することで後続 Phase の confusion 防止
+
+(以下 Phase 0〜7 lineage は wrap-up commit 後に summary 更新)
 
 Phase 0〜6 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
 Phase 7 lineage (= 完遂済):
