@@ -678,8 +678,8 @@ scope 判断点:
 
 ### status
 
-- 着手判断: **open** (Phase 6 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
-- 振り返り判定: **未** (= Phase 6 wrap-up commit で articulate 予定)
+- 着手判断: **closed** (Phase 6 完遂、Lineage 実 sha articulate 済)
+- 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 ### context
 
@@ -746,15 +746,30 @@ scope 判断点:
 ### Lineage
 
 - **preJudgementCommit**: `ff17b2b` (= coderabbit-review fix regen 後 HEAD)
-- **judgementCommit**: 本 Phase 6 landing commit
-- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **judgementCommit**: `f2d5fae` (= Phase 6 landing commit、schema_validation detector + 8 test)
+- **postJudgementRegenCommit**: `6bc10fa` (= §13.3 Pattern A application)
 - **retrospectiveCommit**: 本 Phase 6 wrap-up commit
 - **judgementTag**: 未設定
 - **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `ff17b2b` を SHA 直接参照)
 
 ### 振り返り判定
 
-(= Phase 6 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+- **判定**: **正しい**
+- **観測点達成状況**:
+  1. ✅ `schema_validation.go` 新設 (= struct + factory + math.Trunc isInteger 判定)
+  2. ✅ `schema_validation_test.go` 新設 (= 8 test = 7 unit + 1 fixture parity)
+  3. ✅ AAG-COA Level 0〜4 すべて valid 動作
+  4. ✅ level=5 violation: actual=5 / evidence + messageSeed の field-level 一致
+  5. ✅ level=-1 violation
+  6. ✅ level=2.5 violation
+  7. ✅ level=nil skip (= 別 rule、本 detector scope 外)
+  8. ✅ schema-validation/fail-level-out-of-range fixture parity Match=true
+  9. ✅ Go test 全 71 PASS
+  10. ✅ TS guard 1057 test PASS
+- **学習**:
+  - **`%v` formatting parity の wisdom**: Go default %v for float64 が %g format (= significant digit のみ) を使用、TS template literal `${number}` と一致。`5.0 → "5"` / `2.5 → "2.5"` / `-1.0 → "-1"` で fixture expected.json と field-level 一致を達成、明示 `%g` 不要
+  - **math.Trunc isInteger pattern**: `Number.isInteger(x)` の Go 等価実装、`x == math.Trunc(x)` で float64 が integer か判定。`%` 演算子は float64 で使えないため必須 pattern
+  - **Phase 4-5 institutional pattern の 3 連続 mechanical 再適用**: Phase 6 でも scope creep ゼロで完遂。pattern が安定、Phase 7-8 でも同 pattern で進行可能 (= institutional knowledge transfer の効率向上、Phase 0 institutional setup が長期 ROI を articulate)
 
 ---
 

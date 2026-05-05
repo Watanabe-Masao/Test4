@@ -5,17 +5,17 @@
 
 ## 1. 現在地
 
-**Phase 6 landing 完了 (= 本 commit landing 後)**。次は Phase 6 wrap-up commit。
+**Phase 6 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 7 Project Lifecycle Detector。
 
-Phase 6 lineage (= landing 段階):
-- landing commit (本 commit): `internal/detectors/schema_validation.go` 新設 (= SchemaValidationProject / SchemaValidationFacts struct + DetectSchemaValidationViolations function、math.Trunc で integer check) + `internal/detectors/schema_validation_test.go` 8 test (= 7 unit + 1 fixture parity) + DA-α-006 articulate (Lineage 仮 sha) + checklist Phase 6 3 件 flip
+Phase 0〜5 lineage (= 完遂済、各 Phase で DA-α 振り返り判定 = 正しい)。
+Phase 6 lineage (= 完遂済):
+- landing `f2d5fae` + regen `6bc10fa` + wrap-up (本 commit)
+- DA-α-006 振り返り判定: **正しい** (= 観測点 10 件すべて達成)
 
 Phase 6 deliverable (= cumulative):
 - aag-engine/ Go module (= 5 internal package、unchanged)
 - 71 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 21)
 - 5 detector のうち 3 (= archive-manifest + doc-registry + schema-validation) が wired up、5 fixture parity 100% 達成
-
-(以下 Phase 0〜5 の lineage は wrap-up commit 後に summary を update)
 
 Phase 0〜4 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
@@ -50,14 +50,15 @@ derivedStatus: in_progress / Phase 0〜5 完遂、Phase 6 着手待ち。
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 6）
+### 高優先（次 PR = Phase 7）
 
-- **Phase 6 Schema Validation Detector landing commit**:
-  - `aag-engine/internal/detectors/schema_validation.go` 新設 (= AR-SCHEMA-VALIDATION-PZ2 = projectization.level が 0〜4 範囲外)
-  - `schema-validation/fail-level-out-of-range` fixture で parity 検証
-  - DA-α-006 entry articulate
-- **Phase 6 wrap-up commit**:
-  - DA-α-006 Lineage 実 sha + 振り返り判定
+- **Phase 7 Project Lifecycle Detector landing commit**:
+  - `aag-engine/internal/detectors/project_lifecycle.go` 新設 (= AR-PROJECT-LIFECYCLE-C1 = completed but not archived)
+  - 2 project-lifecycle fixture (= pass-active / fail-completed-not-archived) で parity 検証
+  - 3 状態 routing (= active / completed v1 / completed v2 圧縮) を articulate
+  - DA-α-007 entry articulate
+- **Phase 7 wrap-up commit**:
+  - DA-α-007 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 7 以降、後続 PR）
 
