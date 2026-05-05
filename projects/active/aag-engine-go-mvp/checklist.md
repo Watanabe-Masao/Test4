@@ -45,10 +45,10 @@
 
 ## Phase 4: Archive Manifest Detector
 
-* [ ] `archive-v2/pass-minimal` fixture が pass (= 0 violation emit)
-* [ ] `archive-v2/fail-missing-restore-command` fixture で AR-ARCHIVE-MANIFEST-A2 を 1 件 emit
-* [ ] `archive-v2/fail-missing-multiple-fields` fixture で AR-ARCHIVE-MANIFEST-A2 を 3 件 emit (= 順序維持)
-* [ ] DetectorResult が TS 側 expected.json と field-level 一致
+* [x] `archive-v2/pass-minimal` fixture が pass (= 0 violation emit)
+* [x] `archive-v2/fail-missing-restore-command` fixture で AR-ARCHIVE-MANIFEST-A2 を 1 件 emit
+* [x] `archive-v2/fail-missing-multiple-fields` fixture で AR-ARCHIVE-MANIFEST-A2 を 3 件 emit (= 順序維持)
+* [x] DetectorResult が TS 側 expected.json と field-level 一致 (= fixture.Compare で Match=true、3 archive-v2 fixture すべて)
 * [ ] DA-α-004 entry を articulate する
 
 ## Phase 5: Doc Registry Detector

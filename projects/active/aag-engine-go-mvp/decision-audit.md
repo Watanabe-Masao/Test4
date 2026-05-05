@@ -474,4 +474,93 @@ scope 判断点:
 
 ---
 
-> 後続 DA entry (DA-α-004 〜 012) は各 Phase landing commit 時に articulate 追加。
+---
+
+## DA-α-004: Phase 4 Archive Manifest Detector scope 判断 (= 最初の detector 移植 + fixture parity 100%)
+
+### status
+
+- 着手判断: **open** (Phase 4 landing commit articulate 中、Lineage 実 sha は wrap-up commit で update)
+- 振り返り判定: **未** (= Phase 4 wrap-up commit で articulate 予定)
+
+### context
+
+Phase 4 plan.md の作業項目:
+- 5 detector 移植優先順位の **最初** (= JSON input 中心、low risk、Archive v2 schema canonical、self-dogfood 済)
+- AR-ARCHIVE-MANIFEST-A2 (= top-level required field 欠落) 検出
+- 3 archive-v2 fixture (= pass-minimal / fail-missing-restore-command / fail-missing-multiple-fields) で parity 検証
+- DA-α-004 entry articulate
+
+scope 判断点:
+1. **detectors/ package structure**: 1 file = 1 detector vs detector 群を 1 file
+2. **path validation の Go 側 articulate**: TS 側 `toRepoPath()` を Go で再現するか / 後続 Phase に deferral
+3. **Test 配置**: detector unit test + fixture parity test を同 file vs 分離
+4. **Manifest 型**: `map[string]interface{}` vs typed struct
+5. **error 戻り値**: factory error を伝播 vs panic
+
+### decision
+
+以下を採用する:
+
+1. **`internal/detectors/` 単一 package、1 file = 1 detector** (= Go 慣用 + 4 層 layered model 整合):
+   - `archive_manifest.go` / `doc_registry.go` / `schema_validation.go` / `project_lifecycle.go` / `generated_metadata.go` の 5 file 構成 (= Phase 4-8 で順次 landing)
+   - 各 file は固有 facts type + detect function を export
+2. **path validation を Phase 4 では deferral**:
+   - TS 側 `toRepoPath()` (= readiness refactor Phase 4 で導入) は parity test で hitしない
+     (= fixture input.json の manifestPath は事前に valid POSIX repo-relative)
+   - Phase 12 closure decision で path-helpers Go 移植の必要性を再評価
+   - 直前の Phase 7 (= project lifecycle detector) で path 規約が必要になれば articulate
+3. **detector unit test + fixture parity test は 同 file** (= 検証対象 ≒ 物理 file):
+   - 5 unit (= empty / all present / 1 missing / 3 missing / nil manifest) + 3 fixture parity test
+   - test helper (`repoRoot` / `loadFixture` / `parseArchiveManifestFacts`) を test file 内 articulate
+4. **Manifest 型 = `map[string]interface{}`** (= TS 側 `Readonly<Record<string, unknown>>` mirror):
+   - JSON parse 後の dynamic access に最適、type-strict struct は Phase 6 (= Schema Validation Detector) で必要時に articulate
+5. **factory error 伝播 + `[]contract.DetectorResult, error` signature**:
+   - panic は最終手段、通常 detector は error 戻り値で transparent
+   - 但し internal sanity (= CreateDetectorResult が固定値で fail することは通常ない) を articulate
+
+### rationale
+
+- **1 file = 1 detector**: Go 慣用 + readiness refactor TS 側 detectors/ 配置と 1:1 mirror、navigation cost 最小、各 detector の独立進化可能
+- **path validation deferral**: Phase 4 fixture では sourceFile が事前に valid POSIX で articulate されているため、parity test は path validation なしで成立。早期に path-helpers 移植すると scope creep、Phase 7 (= project lifecycle) で実際に必要になる時点で articulate
+- **同 file 配置 (unit + fixture)**: 検証対象 detector の next-to で test を articulate、一覧性 + cohesion 高い。Phase 9 shadow mode の cross-detector parity は別 file (= shadow_test.go 等) で集約
+- **map[string]interface{}**: TS 側と field-level parity を確保するための最小 abstraction。Manifest field 値の型 strictness は Schema Validation Detector の責務 (= Phase 6 で実装)
+- **error 戻り値**: TS 側 throw + try/catch を Go の `(value, error)` pattern に mirror、CLI orchestration が transparent に handle 可能
+
+### alternatives
+
+- (a-alt) **detectors/{archivemanifest,docregistry,...}/ subpackage**: 5 detector ごとに dir、Go では over-engineering、不採用
+- (b-alt) **Phase 4 で path-helpers 移植**: scope creep、Phase 7 で必要時に articulate、不採用
+- (c-alt) **fixture parity test を別 file** (= parity_test.go 等): test 一覧性低下、不採用
+- (d-alt) **Manifest を typed struct**: Phase 4 で過剰、Phase 6 schema validation で型 strictness articulate、不採用
+- (e-alt) **panic on factory error**: transparent error path 失う、不採用
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. ✅ `internal/detectors/archive_manifest.go` 新設 (= ArchiveManifestFacts struct + DetectArchiveManifestViolations function + requiredArchiveManifestFields constant)
+2. ✅ `internal/detectors/archive_manifest_test.go` 新設 (= 5 unit + 3 fixture parity = 8 test)
+3. ✅ requiredArchiveManifestFields の順序が schema (= project-archive.schema.json `requiredManifestFields`) + TS 側 REQUIRED_TOP_LEVEL_FIELDS と一致
+4. ✅ `archive-v2/pass-minimal` fixture parity: actual = expected = 0 violations、Match=true
+5. ✅ `archive-v2/fail-missing-restore-command` fixture parity: actual = 1 violation、expected と Match=true
+6. ✅ `archive-v2/fail-missing-multiple-fields` fixture parity: actual = 3 violations、順序維持 + expected と Match=true
+7. ✅ 各 violation の ruleId="AR-ARCHIVE-MANIFEST-A2" / detectionType="governance-ops" / severity="gate" / sourceFile = fact.ManifestPath / evidence + messageSeed が TS 側と field-level 一致
+8. ✅ Manifest = nil の fact は skip (= collector 責務)
+9. ✅ Go test 全 PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 8 = 計 58)
+10. ✅ TS guard 1057 test PASS (= aag-engine/ 変更で TS baseline 維持)
+
+### Lineage
+
+- **preJudgementCommit**: `d6bfc8e` (= Phase 3 wrap-up regen 後 HEAD)
+- **judgementCommit**: 本 Phase 4 landing commit
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 Phase 4 wrap-up commit
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `d6bfc8e` を SHA 直接参照)
+
+### 振り返り判定
+
+(= Phase 4 wrap-up commit で articulate 予定。観測点 1〜10 の達成状況 + 学習を後続 commit で update。)
+
+---
+
+> 後続 DA entry (DA-α-005 〜 012) は各 Phase landing commit 時に articulate 追加。

@@ -5,21 +5,21 @@
 
 ## 1. 現在地
 
-**Phase 3 完遂 (= 本 wrap-up commit landing 後)**。次は Phase 4 Archive Manifest Detector。
+**Phase 4 landing 完了 (= 本 commit landing 後)**。次は Phase 4 wrap-up commit。
 
-Phase 0+1+2 lineage (= 完遂済):
+Phase 0〜3 lineage (= 完遂済):
 - Phase 0: `cc6e824` + `ed348eb` + `be51eaf` + `2ba85dd` (DA-α-000 = 正しい)
 - Phase 1: `2172c25` + `3e3f143` + `e526af2` + `62844c3` (DA-α-001 = 正しい)
 - Phase 2: `87643f4` + `2a618d8` + `a001112` + `5e7ce9f` + `21dc655` (DA-α-002 = 正しい)
+- Phase 3: `8fbed60` + `b40ea77` + `3497733` + `d6bfc8e` (DA-α-003 = 正しい)
 
-Phase 3 lineage (= 完遂済):
-- landing `8fbed60` + regen `b40ea77` + wrap-up (本 commit)
-- DA-α-003 振り返り判定: **正しい** (= 観測点 11 件すべて達成)
+Phase 4 lineage (= landing 段階):
+- landing commit (本 commit): `internal/detectors/archive_manifest.go` 新設 (= ArchiveManifestFacts struct + DetectArchiveManifestViolations function + requiredArchiveManifestFields const) + `internal/detectors/archive_manifest_test.go` 8 test (= 5 unit + 3 fixture parity) + DA-α-004 articulate (Lineage 仮 sha) + checklist Phase 4 4 件 flip
 
-Phase 3 deliverable (= cumulative):
-- aag-engine/ Go module (= 4 internal package = contract / fixture / report / cmd)
-- 50 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8)
-- 2 subcommand: `aag validate` (= empty DetectorResult[]) / `aag fixtures` (= 8 fixture catalog 出力)
+Phase 4 deliverable (= cumulative):
+- aag-engine/ Go module (= 5 internal package = contract / detectors / fixture / report / cmd)
+- 58 Go test PASS (= cmd/aag 12 + contract 14 + fixture 16 + report 8 + detectors 8)
+- 5 detector の最初 (= archive-manifest) が wired up、3 archive-v2 fixture parity 100% 達成
 
 本 project は `aag-engine-readiness-refactor` (= 2026-05-05 archive、self-dogfood
 4 件目) の implementation 段階に入る別 program。**Go 実装は Phase 1 以降**、本
@@ -38,14 +38,14 @@ derivedStatus: in_progress / Phase 0 + 1 完遂 + Phase 2 landing 段階、Phase
 
 詳細は `checklist.md` を参照。優先順位を要約する。
 
-### 高優先（次 PR = Phase 4）
+### 高優先（次 PR = Phase 5）
 
-- **Phase 4 Archive Manifest Detector landing commit**:
-  - `aag-engine/internal/detectors/archive_manifest.go` 新設 (= AR-ARCHIVE-MANIFEST-A2 = top-level required field 欠落 detector)
-  - 3 archive-v2 fixture (= pass-minimal / fail-missing-restore-command / fail-missing-multiple-fields) で parity 検証
-  - DA-α-004 entry articulate
-- **Phase 4 wrap-up commit**:
-  - DA-α-004 Lineage 実 sha + 振り返り判定
+- **Phase 5 Doc Registry Detector landing commit**:
+  - `aag-engine/internal/detectors/doc_registry.go` 新設 (= AR-DOC-REGISTRY-D1 = registered path が file system に存在しない)
+  - `doc-registry/fail-missing-path` fixture で parity 検証
+  - DA-α-005 entry articulate
+- **Phase 5 wrap-up commit**:
+  - DA-α-005 Lineage 実 sha + 振り返り判定
 
 ### 低優先（Phase 2 以降、後続 PR）
 
