@@ -564,9 +564,7 @@ describe('Detector Result Module Guard', () => {
     })
 
     it('input が空なら 違反 0 件', () => {
-      expect(
-        detectDocRegistryViolations({ entries: [], existingPaths: new Set() }),
-      ).toEqual([])
+      expect(detectDocRegistryViolations({ entries: [], existingPaths: new Set() })).toEqual([])
     })
   })
 
@@ -959,27 +957,27 @@ describe('Detector Result Module Guard', () => {
       })
 
       it('invalid path は throw', () => {
-        expect(() =>
-          createRepoFileEntry({ path: '/abs', sizeBytes: 0 }),
-        ).toThrow(/RepoPath 規約違反/)
+        expect(() => createRepoFileEntry({ path: '/abs', sizeBytes: 0 })).toThrow(
+          /RepoPath 規約違反/,
+        )
       })
 
       it('負 sizeBytes は throw', () => {
-        expect(() =>
-          createRepoFileEntry({ path: 'a.ts', sizeBytes: -1 }),
-        ).toThrow(/non-negative integer/)
+        expect(() => createRepoFileEntry({ path: 'a.ts', sizeBytes: -1 })).toThrow(
+          /non-negative integer/,
+        )
       })
 
       it('非 integer sizeBytes は throw', () => {
-        expect(() =>
-          createRepoFileEntry({ path: 'a.ts', sizeBytes: 1.5 }),
-        ).toThrow(/non-negative integer/)
+        expect(() => createRepoFileEntry({ path: 'a.ts', sizeBytes: 1.5 })).toThrow(
+          /non-negative integer/,
+        )
       })
 
       it('invalid sha256 (= 64 char hex でない) は throw', () => {
-        expect(() =>
-          createRepoFileEntry({ path: 'a.ts', sizeBytes: 0, sha256: 'short' }),
-        ).toThrow(/64-char lowercase hex/)
+        expect(() => createRepoFileEntry({ path: 'a.ts', sizeBytes: 0, sha256: 'short' })).toThrow(
+          /64-char lowercase hex/,
+        )
         expect(() =>
           createRepoFileEntry({
             path: 'a.ts',
@@ -1075,9 +1073,10 @@ describe('Detector Result Module Guard', () => {
   describe('fixture corpus parity (= Phase 5、`fixtures/aag/` の 8 fixture を全 detector に通して expected と一致を機械検証)', () => {
     const REPO_ROOT = resolve(__dirname, '../../../..')
 
-    function loadFixture<TFacts>(
-      relativeDir: string,
-    ): { input: { facts: TFacts }; expected: readonly DetectorResult[] } {
+    function loadFixture<TFacts>(relativeDir: string): {
+      input: { facts: TFacts }
+      expected: readonly DetectorResult[]
+    } {
       const inputPath = resolve(REPO_ROOT, 'fixtures/aag', relativeDir, 'input.json')
       const expectedPath = resolve(REPO_ROOT, 'fixtures/aag', relativeDir, 'expected.json')
       const input = JSON.parse(readFileSync(inputPath, 'utf-8')) as { facts: TFacts }
@@ -1086,9 +1085,13 @@ describe('Detector Result Module Guard', () => {
     }
 
     it('archive-v2/pass-minimal: detector 0 件 emit', () => {
-      const { input, expected } = loadFixture<
-        ReadonlyArray<{ readonly manifestPath: string; readonly manifest: Record<string, unknown> }>
-      >('archive-v2/pass-minimal')
+      const { input, expected } =
+        loadFixture<
+          ReadonlyArray<{
+            readonly manifestPath: string
+            readonly manifest: Record<string, unknown>
+          }>
+        >('archive-v2/pass-minimal')
       const results = detectArchiveManifestViolations(input.facts)
       // factory は frozen を返すが、JSON parse 結果は plain object のため shape のみ比較
       expect(results.map((r) => ({ ...r }))).toEqual(expected.map((r) => ({ ...r })))
