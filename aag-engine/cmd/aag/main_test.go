@@ -582,3 +582,54 @@ func TestRun_WhereAmI_UnexpectedPositionalArg(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// context は real repo で valid JSON を出力する (= Wave 3 #11)。
+func TestRun_Context_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"context",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "context-project-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["projectId"] != "reposteward-ai-ops-platform" {
+		t.Errorf("projectId = %v", out["projectId"])
+	}
+	if reads, ok := out["requiredReads"].([]interface{}); !ok || len(reads) != 5 {
+		t.Errorf("requiredReads must be 5-element array, got %v", out["requiredReads"])
+	}
+	if cons, ok := out["constraints"].([]interface{}); !ok || len(cons) == 0 {
+		t.Errorf("constraints must be non-empty array, got %v", out["constraints"])
+	}
+}
+
+// context で --project 不在は ExitError。
+func TestRun_Context_MissingProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"context", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// context で nonexistent project は ExitError。
+func TestRun_Context_NonexistentProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"context",
+		"--repo", repoRootForTest(t),
+		"--project", "nonexistent-zzz",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}

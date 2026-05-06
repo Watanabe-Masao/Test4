@@ -909,3 +909,61 @@ Wave 3 #10 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-013: Wave 3 #11 着手判断 — `aag context --project`、checklist.md parsing で nextActions を articulate、AI 自己レビュー / 最終レビュー section は skip
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 3 #10 (= where-am-i) push 後、Wave 3 #11 = light-weight project context bootstrap command。Task Capsule (Wave 1 #2) の subset (= constraints + requiredReads + nextActions のみ) を articulate、Task Capsule をフル生成しない場合の simplified entry point。
+
+### decision
+
+1. 新規: `internal/navigation/context.go` (= Context() + readUncheckedChecklistItems + readContextProjectConfig)
+2. 新規: `context_test.go` (= 6 contract test)
+3. update: `cmd/aag/main.go` (= context subcommand + --project required + --max-next-actions optional)
+4. update: `main_test.go` (= 3 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**checklist parsing 仕様**: `- [ ] ` / `* [ ] ` line → unchecked item articulate。`## AI 自己レビュー` / `## 最終レビュー` section の checkbox は skip (= 終了直前の儀式、現在の next action ではない)。
+
+### rationale
+
+- **Task Capsule の subset として articulate**: 本 command は AI session が「fast browse」で project を articulate するための entry。Task Capsule は full operating capsule (= goal / repoHealth / repairPolicy 等) を articulate するが、 navigation phase では constraints + reads + nextActions の 3 軸で十分
+- **AI 自己レビュー / 最終レビュー section skip**: これら section は project 完了直前の儀式 checkbox で、Wave 着手中の next action とは responsibility 違い
+- **`--max-next-actions` flag**: AI consumer が「最初の N 件のみ」articulate したい場合の cap、default 5
+- **navigation package を Wave 3 #10 と共有**: MarshalJSON / shared types を一箇所に articulate、helper 重複回避
+
+### alternatives
+
+- (a) AI_CONTEXT.md の "Read Order" section を parse: 却下 (= markdown parse 複雑、5 file fixed list で十分)
+- (b) plan.md の "やってはいけないこと" section から constraints articulate: 却下 (= config の nonGoals が canonical、parsing redundancy 回避)
+- (c) AI 自己レビュー / 最終レビュー も nextActions に含める: 却下 (= 終了直前の儀式、Wave 着手中の next action ではない)
+- (d) Task Capsule の full output を返す: 却下 (= responsibility 違い、Wave 1 #2 で実装済)
+
+### 観測点
+
+1. `internal/navigation/context.go` + test 存在 + go vet clean
+2. `go test ./internal/navigation/...` 全 PASS
+3. real repo dogfood で title + 5 requiredReads + 11 constraints + 1+ nextActions articulate
+4. AI 自己レビュー section の checkbox が nextActions に articulate されていない
+5. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+6. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 3 #10 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

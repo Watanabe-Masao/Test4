@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-06T11:13:39.501Z",
+  "timestamp": "2026-05-06T11:17:33.672Z",
   "summary": {
     "active": 5,
     "archived": 41,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1305,
-    "checkedCheckboxes": 1219
+    "totalCheckboxes": 1313,
+    "checkedCheckboxes": 1227
   },
   "projects": [
     {
@@ -516,9 +516,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 79,
-      "total": 86,
-      "progress": 0.919,
+      "checked": 87,
+      "total": 94,
+      "progress": 0.926,
       "entrypoint": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
       "checklistPath": "projects/active/reposteward-ai-ops-platform/checklist.md",
       "parent": null

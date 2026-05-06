@@ -62,6 +62,7 @@ COMMANDS:
   task prepare     active project の Task Capsule を JSON で出力 (= reposteward-ai-ops-platform Wave 1 #2 deliverable)
   stats files      effectiveCodeLines を bucket / range / layer / percentile で query (= reposteward-ai-ops-platform Wave 1 #6 deliverable)
   where-am-i       branch / activeProject / repoHealth / openObligations / 推奨 next command を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #10 deliverable)
+  context          active project の requiredReads / constraints / nextActions を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #11 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -122,6 +123,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runStats(args[1:], stdout, stderr)
 	case "where-am-i":
 		return runWhereAmI(args[1:], stdout, stderr)
+	case "context":
+		return runContext(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -470,6 +473,53 @@ func runWhereAmI(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag where-am-i: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runContext は `aag context --project <id>` の本体 (= Wave 3 #11)。
+//
+// active project の requiredReads / constraints / nextActions を JSON で
+// stdout に出力 (= read-only)。
+func runContext(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("context", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	project := fs.String("project", "", "active project id (= required)")
+	maxNext := fs.Int("max-next-actions", 5, "nextActions 最大件数 (= default 5)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag context: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+	if *project == "" {
+		fmt.Fprintln(stderr, "aag context: --project flag は required です")
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag context: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := navigation.Context(navigation.ContextInput{
+		RepoRoot:       repoAbs,
+		ProjectID:      *project,
+		MaxNextActions: *maxNext,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag context: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag context: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

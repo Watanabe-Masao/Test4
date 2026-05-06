@@ -164,7 +164,20 @@
 - [x] `aag where-am-i --repo /home/user/Test4` 実行で valid where-am-i-v1 JSON 出力 + recommendedNextCommand が Wave 3 #11 を articulate
 - [x] DA-α-012 を `decision-audit.md` に articulate
 - [x] go vet clean / go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 3 #10 commit を branch に push
+- [x] Wave 3 #10 commit を branch に push
+
+## Wave 3 #11: `aag context --project <id>`
+
+> **着手判断**: DA-α-013 (= Wave 3 継続、light-weight project context bootstrap)。
+
+- [x] `aag-engine/internal/navigation/context.go` を landing (= Context() function、project config 読込 + checklist.md unchecked 項目 articulate、AI 自己レビュー / 最終レビュー section skip)
+- [x] `context_test.go` で contract test 6 件 (= empty input / nonexistent project / real repo / maxN cap / checklist parser 3 cases)
+- [x] `cmd/aag/main.go` に `context` subcommand 追加 (= --project required / --max-next-actions optional)
+- [x] `main_test.go` に CLI test 3 件追加
+- [x] dogfood: aag context --project reposteward-ai-ops-platform → title / 5 requiredReads / 11 constraints / 1+ nextActions articulate
+- [x] DA-α-013 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 3 #11 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 
