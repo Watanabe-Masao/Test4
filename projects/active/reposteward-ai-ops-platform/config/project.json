@@ -1,0 +1,63 @@
+{
+  "$comment": "RepoSteward AI Ops Platform — Go MVP (= aag-engine-go-mvp、2026-05-06 archive 完遂、AAG 6.0 institute、5 detector × 8 fixture = 40 parity 維持) の post-MVP 進化 program。validator から AI-first repo operations engine への phase shift を、JSON-first / read-only-first / command-first / DetectorResult-first / additive-only の 5 原則で安全に展開する。Wave 1 (Task Capsule schema v1 / `reposteward task prepare` MVP / AAG Parameters v1 / SourceFacts v1 / effective LOC statistics / stats files query) を最初の milestone に置き、Task Capsule (= 作業仕様書 + 安全境界 + 参照索引 + 検証手順を 1 JSON に束ねる operating layer) を後続全 command の上位 surface として最先頭に articulate する (= DA-α-002)。hard gate 追加・guard 代替・業務 logic 移行は本 program では行わない (= Go MVP の不可侵原則 4/5 を継承)。L3 governance-hardening、requiresHumanApproval=true、Phase 0 = bootstrap / scope lock / required reads / DA-α-000+001+002 のみ、実装は Phase 1 以降で別 PR。",
+  "projectId": "reposteward-ai-ops-platform",
+  "title": "RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP)",
+  "status": "active",
+  "projectRoot": "projects/active/reposteward-ai-ops-platform",
+  "versionImpact": {
+    "$comment": "計画段階で declare (= DA-α-014 institute mechanism 適用)。app は粗利管理 user-facing 変更なし (= calculation / UI / store / data shape 不変)、AAG は new mechanism 追加 (= AAG Parameters JSON / SourceFacts collector / command navigation surface / cleanliness rules) で minor。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準 reference。verification: 別 program aag-version-impact-declaration-guard で archive 移行時に declared vs actual 整合を機械検証予定。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "粗利管理 user-facing 変更なし (= calculation / UI / store / data shape 全て不変)、本 program は AAG framework / RepoSteward 拡張、app version bump 対象外。判定基準: aag/CHANGELOG.md §判定基準 table app `none`。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.0",
+      "delta": "+0.1",
+      "rationale": "新 mechanism 追加 (= AAG Parameters JSON contract + SourceFacts collector + command navigation MVP + cleanliness/comments/docs rules) は backward-compatible (= 既存 detector / TS guard / docs:generate 不変、新規 read-only command surface のみ)、paradigm shift ではない (= Go MVP で既に validator boundary が repo 外側に確立済み)。AAG MINOR bump = +0.1、expectedTargetVersion = 6.0 + 0.1 = 6.1、archive 時に aag/CHANGELOG.md §[AAG 6.1] entry に本 project ID reference 必要。判定基準: aag/CHANGELOG.md §判定基準 table AAG `minor`。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projectization.md と一致。L3 = governance mechanism 追加 (= AAG Parameters / SourceFacts / command surface) による architecture 拡張、複数 boundary (= contract schema / generated facts / Go CLI surface) 影響、複数 phase の文脈引き継ぎ必要。",
+    "level": 3,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "docs/contracts/aag/task-capsule.schema.json",
+      "aag-engine/internal/taskcapsule/",
+      "aag/parameters/",
+      "docs/contracts/aag/aag-parameters.schema.json",
+      "docs/contracts/aag/source-facts.schema.json",
+      "tools/architecture-health/src/facts/",
+      "references/04-tracking/generated/source-facts.json",
+      "references/04-tracking/generated/aag-size-statistics.json",
+      "aag-engine/",
+      "references/03-implementation/detection-inventory-v2.md",
+      "app/src/test/guards/sizeGuard.test.ts",
+      "app/src/test/audits/architectureStateAudit.test.ts"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "TypeScript guard を全廃する (= 本 program は parallel implementation、TS 不変、Go MVP 不可侵原則 4 継承)",
+      "React / TS AST / WASM / domain calculation guard を Go に移植する (= Go MVP 不可侵原則 5 継承)",
+      "docs:generate を Go に移管する (= TS 維持)",
+      "業務 logic (= calculation / UI / store / data shape) を Go に複製する",
+      "Human UI / browser dashboard を作る (= AI-first 原則と矛盾、JSON output に限定)",
+      "YAML を採用する (= JSON-first 原則、AAG Parameters / SourceFacts / premise contracts は全 JSON)",
+      "Wave 1 milestone 到達前に hard gate を追加する (= read-only first 原則、advisory のみ)",
+      "AAG Parameters を新たな source of truth にしすぎる (= 既存 calculationCanonRegistry / readModels の正本性は維持、parameters は可変設定の articulation のみ)",
+      "コメント annotation (@premise / @canonicalRef 等) を主検出経路にする (= 主検出は path / diff / schema / facts / imports、annotation は補助のみ)",
+      "実装 AI による自己承認 (= 最終レビュー = user 承認 必須、L3 + requiresHumanApproval=true)",
+      "Wave 2 以降を Wave 1 と同 PR に混ぜる (= Wave-by-wave delivery、肥大化抑止)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
+    "handoff": "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
+    "plan": "projects/active/reposteward-ai-ops-platform/plan.md",
+    "checklist": "projects/active/reposteward-ai-ops-platform/checklist.md",
+    "projectization": "projects/active/reposteward-ai-ops-platform/projectization.md"
+  }
+}

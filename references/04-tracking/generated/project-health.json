@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-06T04:19:43.439Z",
+  "timestamp": "2026-05-06T07:53:30.904Z",
   "summary": {
-    "active": 4,
+    "active": 5,
     "archived": 41,
-    "inProgress": 3,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1219,
+    "totalCheckboxes": 1233,
     "checkedCheckboxes": 1140
   },
   "projects": [
@@ -508,6 +508,19 @@
       "progress": 0.923,
       "entrypoint": "projects/active/quick-fixes/AI_CONTEXT.md",
       "checklistPath": "projects/active/quick-fixes/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "reposteward-ai-ops-platform",
+      "title": "RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP)",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 14,
+      "progress": 0,
+      "entrypoint": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
+      "checklistPath": "projects/active/reposteward-ai-ops-platform/checklist.md",
       "parent": null
     },
     {
