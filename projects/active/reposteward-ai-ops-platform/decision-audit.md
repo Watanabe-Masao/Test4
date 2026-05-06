@@ -849,3 +849,63 @@ Wave 2 #7 + #8 完了後、Wave 2 final step = Health report に bucket distribu
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-012: Wave 3 #10 着手判断 — `aag where-am-i`、active dir lookup を projectId 解決の正本とする
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 2 完遂後、user directive「3を完遂させてください」で Wave 3 (= AI navigation MVP) 入口。本 step は AI session bootstrap 時の現在地確認 command。branch 名 + activeProject + repoHealth + openObligations + 推奨 next command を 1 JSON で articulate。
+
+### decision
+
+Wave 3 #10 を以下 scope で landing:
+
+1. 新規: `aag-engine/internal/navigation/whereami.go` (= WhereAmI() function + DeriveActiveProjectFromActiveDirs + recommendNextCommand + MarshalJSON shared helper、package navigation 新設)
+2. 新規: `whereami_test.go` (= 7 test)
+3. update: `cmd/aag/main.go` (= where-am-i subcommand 追加 + import navigation)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist.md` + `decision-audit.md`
+
+**projectId 解決方針**: 「branch 名から regex 抽出」を棄却、`projects/active/<id>/` directory に対する **longest prefix match** を正本とする。理由: `claude/foo-bar-extension` で projectId が `foo-bar` か `foo-bar-extens` か `foo-bar-extension` かは branch 名単独からは決定不能、active dir の存在のみが確定的 source。test 段階で同 ambiguity を踏んだため早期に design decision として articulate。
+
+**openObligations source**: architecture-health.json `kpis[id=docs.obligation.violations].value` から articulate。
+
+### rationale
+
+- **active dir lookup を正本**: regex-based 抽出は ambiguous (= projectId と slug の境界が branch 名単独で決まらない)、active dir lookup は確定的
+- **recommendNextCommand 3 path**: openObligations > 0 → fix command / activeProject 有 → context command / 無 → stats query。AI session の bootstrap path を 3 軸に articulate
+- **`navigation` package を新設**: Wave 3 #11〜#14 で同 package に context / changed / rule / detector を順次 landing する設計、最初に MarshalJSON shared helper も articulate
+
+### alternatives
+
+- (a) regex fallback も articulate: 却下 (= ambiguity を残す、test 段階で踏んだ)
+- (b) `where-am-i` を `task prepare` の subset として実装: 却下 (= responsibility 違い、where-am-i は global state、task prepare は project-specific capsule)
+- (c) `recommendedNextCommand` を articulate しない: 却下 (= AI session の操作 layer として next action の articulate は core value)
+
+### 観測点
+
+1. `internal/navigation/whereami.go` + test 存在 + go vet clean
+2. `go test ./internal/navigation/...` 全 PASS
+3. real repo dogfood で valid where-am-i-v1 JSON、activeProject 正しく articulate
+4. recommendedNextCommand が openObligations / activeProject に応じて articulate
+5. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+6. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 2 #9 final landing commit SHA、本 PR 派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

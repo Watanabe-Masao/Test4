@@ -551,3 +551,34 @@ func TestRun_StatsFiles_UnexpectedPositionalArg(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// where-am-i は real repo で valid JSON を出力する (= Wave 3 #10)。
+func TestRun_WhereAmI_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"where-am-i", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "where-am-i-v1" {
+		t.Errorf("schemaVersion = %v, want where-am-i-v1", out["schemaVersion"])
+	}
+	if _, ok := out["branch"].(string); !ok {
+		t.Error("branch must be string")
+	}
+	if _, ok := out["repoHealth"].(map[string]interface{}); !ok {
+		t.Error("repoHealth must be object")
+	}
+}
+
+// where-am-i で位置引数があれば ExitError。
+func TestRun_WhereAmI_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"where-am-i", "/tmp/extra"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}

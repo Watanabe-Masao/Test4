@@ -150,7 +150,21 @@
 - [x] `references/04-tracking/generated/aag-size-statistics.generated.md` を生成 + commit (= 2714 file 集計、Summary table + 14 bucket distribution table + 26 layer table、生成 timestamp + 関連 query 言及)
 - [x] DA-α-011 (Wave 2 #9 着手判断 + Approach B 採用 + 既存 health report touch なし) を `decision-audit.md` に articulate
 - [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1082 test 維持、Health 60/60 OK / Hard Gate PASS)
-- [ ] Wave 2 #9 commit を `claude/reposteward-ai-ops-platform-size-statistics-md` branch に push (= Wave 2 #8 branch から派生、**Wave 2 全完遂**)
+- [x] Wave 2 #9 commit を `claude/reposteward-ai-ops-platform-size-statistics-md` branch に push (= Wave 2 #8 branch から派生、**Wave 2 全完遂**)
+
+## Wave 3 #10: `aag where-am-i`
+
+> **着手判断**: DA-α-012 (= user directive「3を完遂させてください」、Wave 3 AI navigation MVP 入口)。
+> **本 PR scope**: `aag-engine/internal/navigation/whereami.go` 新設 + `aag where-am-i` subcommand + 7 unit test + 2 CLI test。
+
+- [x] `aag-engine/internal/navigation/whereami.go` を landing (= WhereAmI() function + DeriveActiveProjectFromActiveDirs + recommendNextCommand + MarshalJSON shared helper)
+- [x] `aag-engine/internal/navigation/whereami_test.go` で contract test 7 件 (= empty input / non-git / real repo / active dir lookup 6 case / recommendNextCommand 3 path / MarshalJSON HTML escape)
+- [x] `cmd/aag/main.go` に `where-am-i` subcommand 追加 (= --repo flag のみ)
+- [x] `cmd/aag/main_test.go` に CLI test 2 件追加
+- [x] `aag where-am-i --repo /home/user/Test4` 実行で valid where-am-i-v1 JSON 出力 + recommendedNextCommand が Wave 3 #11 を articulate
+- [x] DA-α-012 を `decision-audit.md` に articulate
+- [x] go vet clean / go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 3 #10 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 
