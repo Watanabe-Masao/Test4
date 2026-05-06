@@ -207,6 +207,7 @@
 | Authoritative 表示ルール                                                                               | `03-implementation/authoritative-display-rules.md`                      |
 | Detection Inventory v2 (reposteward-ai-ops-platform Wave 4 #18)                                        | `03-implementation/detection-inventory-v2.md`                            |
 | RepoSteward Command Surface (reposteward-ai-ops-platform PR B、aag binary command の maturity matrix)  | `03-implementation/reposteward-command-surface.md`                       |
+| AAG Articulation Map (reposteward-ai-ops-platform improvement G、detection / command / schema の 3 軸 cross-reference) | `03-implementation/aag-articulation-map.md`                          |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

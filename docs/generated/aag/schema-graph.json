@@ -1,0 +1,230 @@
+{
+  "$comment": "AAG schema dependency + consumer graph — improvement F (= reposteward-ai-ops-platform). 全 docs/contracts/aag/*.schema.json と producer (= aag-engine command) / consumer (= TS tools) の relation を articulate。AI session が schema を re-grep せずに dependency / producer を辿るため。",
+  "schemaVersion": "aag-schema-graph-v1",
+  "regeneration": "本 file は手 curate (= 入力は 8 schemas、producer は aag-engine/cmd/aag/command_*.go、consumer は tools/architecture-health/)。schema 追加 / producer 追加 / consumer 追加時は本 file を更新する。整合性は将来的に schemaGraphGuard.test.ts で機械検証する候補。",
+  "nodes": [
+    {
+      "id": "aag-parameters-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/aag-parameters.schema.json",
+      "title": "AAG Parameters v1",
+      "purpose": "size bucket / threshold / layer label の parameter source-of-truth"
+    },
+    {
+      "id": "aag-response-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/aag-response.schema.json",
+      "title": "AagResponse",
+      "purpose": "全 command の output envelope (= migrationRecipe / fix-now hint 等)"
+    },
+    {
+      "id": "aag-size-statistics-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/aag-size-statistics.schema.json",
+      "title": "AAG Size Statistics v1",
+      "purpose": "stats files の percentile / bucket / range 出力 shape"
+    },
+    {
+      "id": "detection-inventory-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/detection-inventory.schema.json",
+      "title": "Detection Inventory v1",
+      "purpose": "全 detector の id / family / fixtures / schema relation の inventory"
+    },
+    {
+      "id": "detector-result-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/detector-result.schema.json",
+      "title": "DetectorResult",
+      "purpose": "validate / shadow command の output (= violations 配列の canonical shape)"
+    },
+    {
+      "id": "premise-contracts-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/premise-contract.schema.json",
+      "title": "Premise Contracts v1",
+      "purpose": "path → required reads / co-changes mapping (= obligation check の source)"
+    },
+    {
+      "id": "source-facts-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/source-facts.schema.json",
+      "title": "Source Facts v1",
+      "purpose": "physicalLines / blankLines / commentLines / effectiveCodeLines per file"
+    },
+    {
+      "id": "task-capsule-v1",
+      "kind": "schema",
+      "path": "docs/contracts/aag/task-capsule.schema.json",
+      "title": "Task Capsule v1",
+      "purpose": "task prepare / validate / close の input + output canonical shape"
+    },
+    {
+      "id": "aag-response-v2",
+      "kind": "schema-virtual",
+      "path": "aag-engine/internal/responsewrap/wrap.go",
+      "title": "AagResponse-v2 envelope (= aag wrap output)",
+      "purpose": "improvement A — stdin JSON を wrap して articulate する additive envelope (= 既存 aag-response-v1 の系譜)"
+    },
+    {
+      "id": "aag-describe-v1",
+      "kind": "schema-virtual",
+      "path": "aag-engine/internal/describe/describe.go",
+      "title": "Describe Output (= aag describe / list)",
+      "purpose": "improvement E — command metadata articulation (= maturity / args / output schema)"
+    },
+    {
+      "id": "where-am-i-v2",
+      "kind": "schema-virtual",
+      "path": "aag-engine/internal/navigation/whereami.go",
+      "title": "WhereAmI Output v2",
+      "purpose": "improvement B — manifestContext additive field 含む navigation snapshot"
+    },
+    {
+      "id": "cmd:validate",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_validate.go",
+      "produces": ["detector-result-v1"]
+    },
+    {
+      "id": "cmd:fixtures",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_fixtures.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:shadow",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_shadow.go",
+      "produces": ["detector-result-v1"]
+    },
+    {
+      "id": "cmd:task",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_task.go",
+      "produces": ["task-capsule-v1"]
+    },
+    {
+      "id": "cmd:stats",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_stats.go",
+      "produces": ["aag-size-statistics-v1"],
+      "consumes": ["aag-parameters-v1", "source-facts-v1"]
+    },
+    {
+      "id": "cmd:where-am-i",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "produces": ["where-am-i-v2"]
+    },
+    {
+      "id": "cmd:context",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:changed",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "consumes": ["premise-contracts-v1"]
+    },
+    {
+      "id": "cmd:rule-locate",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:detector-refs",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "consumes": ["detection-inventory-v1"]
+    },
+    {
+      "id": "cmd:clean-check",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_clean.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:comments-list",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_comments.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:docs-placement-check",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_docs.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:obligation-check",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_obligation.go",
+      "consumes": ["premise-contracts-v1"]
+    },
+    {
+      "id": "cmd:repair-context",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_repair.go",
+      "consumes": ["detector-result-v1", "task-capsule-v1"]
+    },
+    {
+      "id": "cmd:project-stale",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_project.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:next",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_project.go",
+      "produces": []
+    },
+    {
+      "id": "cmd:wrap",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_wrap.go",
+      "produces": ["aag-response-v2"]
+    },
+    {
+      "id": "cmd:describe",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_describe.go",
+      "produces": ["aag-describe-v1"]
+    },
+    {
+      "id": "cmd:list",
+      "kind": "command",
+      "path": "aag-engine/cmd/aag/command_describe.go",
+      "produces": ["aag-describe-v1"]
+    }
+  ],
+  "edges": [
+    { "from": "cmd:validate", "to": "detector-result-v1", "kind": "produces" },
+    { "from": "cmd:shadow", "to": "detector-result-v1", "kind": "produces" },
+    { "from": "cmd:task", "to": "task-capsule-v1", "kind": "produces" },
+    { "from": "cmd:stats", "to": "aag-size-statistics-v1", "kind": "produces" },
+    { "from": "cmd:stats", "to": "aag-parameters-v1", "kind": "consumes" },
+    { "from": "cmd:stats", "to": "source-facts-v1", "kind": "consumes" },
+    { "from": "cmd:where-am-i", "to": "where-am-i-v2", "kind": "produces" },
+    { "from": "cmd:changed", "to": "premise-contracts-v1", "kind": "consumes" },
+    { "from": "cmd:detector-refs", "to": "detection-inventory-v1", "kind": "consumes" },
+    { "from": "cmd:obligation-check", "to": "premise-contracts-v1", "kind": "consumes" },
+    { "from": "cmd:repair-context", "to": "detector-result-v1", "kind": "consumes" },
+    { "from": "cmd:repair-context", "to": "task-capsule-v1", "kind": "consumes" },
+    { "from": "cmd:wrap", "to": "aag-response-v2", "kind": "produces" },
+    { "from": "cmd:describe", "to": "aag-describe-v1", "kind": "produces" },
+    { "from": "cmd:list", "to": "aag-describe-v1", "kind": "produces" }
+  ],
+  "summary": {
+    "schemaCount": 8,
+    "virtualSchemaCount": 3,
+    "commandCount": 20,
+    "edgeCount": 15,
+    "schemasWithoutProducer": ["aag-response-v1"],
+    "schemasWithoutConsumer": []
+  }
+}

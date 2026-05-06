@@ -115,6 +115,12 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runProject(args[1:], stdout, stderr)
 	case "next":
 		return runNext(args[1:], stdout, stderr)
+	case "wrap":
+		return runWrap(args[1:], stdout, stderr)
+	case "describe":
+		return runDescribe(args[1:], stdout, stderr)
+	case "list":
+		return runList(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)

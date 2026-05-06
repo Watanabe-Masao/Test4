@@ -700,6 +700,14 @@
           "label": "RepoSteward Command Surface (= reposteward-ai-ops-platform PR B、aag binary が articulate する全 14 command + Go MVP family の maturity matrix)"
         },
         {
+          "path": "references/03-implementation/aag-articulation-map.md",
+          "label": "AAG Articulation Map (= reposteward-ai-ops-platform improvement G、detection / command / schema の 3 軸 cross-reference index)"
+        },
+        {
+          "path": "docs/generated/aag/schema-graph.json",
+          "label": "AAG Schema Graph (= reposteward-ai-ops-platform improvement F、全 schema + producer command + consumer command の dependency graph)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

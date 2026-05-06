@@ -15,6 +15,7 @@ package repaircontext
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -44,6 +45,10 @@ type RepairInput struct {
 // Repair reads the input JSON, classifies its kind, and articulates
 // repairReads + suggestedActions + requiredChecks based on the kind.
 //
+// Input source:
+//   - --from <file>: regular file path
+//   - --from -     : stdin (= for `aag changed --explain | aag repair-context --from -` pipeline、improvement D)
+//
 // Supported input kinds (= autodetected from schemaVersion or shape):
 //   - detector-results (= DetectorResult[] or { detectorResults: [...] })
 //   - obligation-check-v1 (= Wave 5 #20 output)
@@ -54,12 +59,12 @@ func Repair(input RepairInput) (RepairOutput, error) {
 		return RepairOutput{}, fmt.Errorf("Repair: RepoRoot must be set")
 	}
 	if input.From == "" {
-		return RepairOutput{}, fmt.Errorf("Repair: --from must be set")
+		return RepairOutput{}, fmt.Errorf("Repair: --from must be set (= file path or '-' for stdin)")
 	}
 
-	raw, err := os.ReadFile(input.From)
+	raw, err := readFromInput(input.From)
 	if err != nil {
-		return RepairOutput{}, fmt.Errorf("Repair: failed to read %s: %w", input.From, err)
+		return RepairOutput{}, err
 	}
 
 	kind, count, reads, actions, checks := classify(raw, input.RepoRoot)
@@ -74,6 +79,27 @@ func Repair(input RepairInput) (RepairOutput, error) {
 		RequiredChecks:   dedup(checks),
 		Summary:          fmt.Sprintf("Input kind=%s with %d violation(s). %d read(s) / %d action(s) / %d check(s) articulated.", kind, count, len(dedup(reads)), len(dedup(actions)), len(dedup(checks))),
 	}, nil
+}
+
+// readFromInput reads --from input. "-" means stdin (= improvement D)、それ以外は
+// file path として articulate。stdin reading は AI session の pipeline articulation
+// (= 例: aag changed --explain | aag repair-context --from -) を可能にする。
+func readFromInput(from string) ([]byte, error) {
+	if from == "-" {
+		raw, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return nil, fmt.Errorf("Repair: failed to read stdin: %w", err)
+		}
+		if len(raw) == 0 {
+			return nil, fmt.Errorf("Repair: stdin was empty (= --from - 指定だが pipe / redirect で入力が articulate されていない)")
+		}
+		return raw, nil
+	}
+	raw, err := os.ReadFile(from)
+	if err != nil {
+		return nil, fmt.Errorf("Repair: failed to read %s: %w", from, err)
+	}
+	return raw, nil
 }
 
 // classify routes the raw JSON to the appropriate articulation logic.

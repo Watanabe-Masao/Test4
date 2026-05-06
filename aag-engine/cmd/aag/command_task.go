@@ -105,14 +105,19 @@ func runTaskValidate(args []string, stdout, stderr io.Writer) ExitCode {
 		return ExitError
 	}
 	if *capsuleFile == "" {
-		fmt.Fprintln(stderr, "aag task validate: --capsule flag は required です")
+		fmt.Fprintln(stderr, "aag task validate: --capsule flag は required です (= file path or '-' for stdin)")
 		return ExitError
 	}
 
-	abs, err := filepath.Abs(*capsuleFile)
-	if err != nil {
-		fmt.Fprintf(stderr, "aag task validate: failed to resolve --capsule: %v\n", err)
-		return ExitError
+	// "-" は stdin marker (= improvement D)
+	abs := *capsuleFile
+	if abs != "-" {
+		var err error
+		abs, err = filepath.Abs(*capsuleFile)
+		if err != nil {
+			fmt.Fprintf(stderr, "aag task validate: failed to resolve --capsule: %v\n", err)
+			return ExitError
+		}
 	}
 
 	out, err := taskcapsule.ValidateCapsule(taskcapsule.ValidateInput{CapsuleFile: abs})
@@ -146,14 +151,19 @@ func runTaskClose(args []string, stdout, stderr io.Writer) ExitCode {
 		return ExitError
 	}
 	if *capsuleFile == "" {
-		fmt.Fprintln(stderr, "aag task close: --capsule flag は required です")
+		fmt.Fprintln(stderr, "aag task close: --capsule flag は required です (= file path or '-' for stdin)")
 		return ExitError
 	}
 
-	abs, err := filepath.Abs(*capsuleFile)
-	if err != nil {
-		fmt.Fprintf(stderr, "aag task close: failed to resolve --capsule: %v\n", err)
-		return ExitError
+	// "-" は stdin marker (= improvement D)
+	abs := *capsuleFile
+	if abs != "-" {
+		var err error
+		abs, err = filepath.Abs(*capsuleFile)
+		if err != nil {
+			fmt.Fprintf(stderr, "aag task close: failed to resolve --capsule: %v\n", err)
+			return ExitError
+		}
 	}
 
 	out, err := taskcapsule.CloseCapsule(taskcapsule.CloseInput{CapsuleFile: abs})

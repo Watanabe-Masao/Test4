@@ -65,6 +65,82 @@ func TestWhereAmI_RealRepo(t *testing.T) {
 	if _, ok := out.RepoHealth["hardGate"]; !ok {
 		t.Error("RepoHealth.hardGate must be articulated")
 	}
+	// improvement B: manifestContext must be articulated when .claude/manifest.json exists
+	if out.ManifestContext == nil {
+		t.Error("ManifestContext must be articulated when .claude/manifest.json exists")
+	}
+}
+
+func TestReadManifestContext_MissingFile(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "manifest-missing-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmp)
+	got := readManifestContext(tmp)
+	if got != nil {
+		t.Errorf("expected nil for missing manifest, got %+v", got)
+	}
+}
+
+func TestReadManifestContext_ParseError(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "manifest-broken-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmp)
+	if err := os.MkdirAll(filepath.Join(tmp, ".claude"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(tmp, ".claude", "manifest.json"), []byte("{not json"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got := readManifestContext(tmp)
+	if got != nil {
+		t.Errorf("expected nil for invalid JSON, got %+v", got)
+	}
+}
+
+func TestReadManifestContext_FullShape(t *testing.T) {
+	tmp, err := os.MkdirTemp("", "manifest-full-")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmp)
+	if err := os.MkdirAll(filepath.Join(tmp, ".claude"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	body := `{
+		"activeContext": {
+			"currentFocus": "improvement A-G",
+			"loadedRefs": ["a.md", "b.md"],
+			"openQuestions": ["q1?"],
+			"sessionNotes": "in progress",
+			"lastUpdated": "2026-05-06"
+		}
+	}`
+	if err := os.WriteFile(filepath.Join(tmp, ".claude", "manifest.json"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got := readManifestContext(tmp)
+	if got == nil {
+		t.Fatal("expected ManifestContextSummary, got nil")
+	}
+	if got.CurrentFocus == nil || *got.CurrentFocus != "improvement A-G" {
+		t.Errorf("currentFocus = %v", got.CurrentFocus)
+	}
+	if got.LoadedRefsCount != 2 {
+		t.Errorf("loadedRefsCount = %d, want 2", got.LoadedRefsCount)
+	}
+	if got.OpenQuestionsCount != 1 {
+		t.Errorf("openQuestionsCount = %d, want 1", got.OpenQuestionsCount)
+	}
+	if got.SessionNotes == nil || *got.SessionNotes != "in progress" {
+		t.Errorf("sessionNotes = %v", got.SessionNotes)
+	}
+	if got.LastUpdated == nil || *got.LastUpdated != "2026-05-06" {
+		t.Errorf("lastUpdated = %v", got.LastUpdated)
+	}
 }
 
 func TestDeriveActiveProjectFromActiveDirs_RealRepo(t *testing.T) {

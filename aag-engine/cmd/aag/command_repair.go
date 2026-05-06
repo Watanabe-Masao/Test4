@@ -24,7 +24,7 @@ func runRepairContext(args []string, stdout, stderr io.Writer) ExitCode {
 		return ExitError
 	}
 	if *from == "" {
-		fmt.Fprintln(stderr, "aag repair-context: --from flag は required です (= 検出 output JSON file path)")
+		fmt.Fprintln(stderr, "aag repair-context: --from flag は required です (= file path or '-' for stdin)")
 		return ExitError
 	}
 
@@ -33,10 +33,14 @@ func runRepairContext(args []string, stdout, stderr io.Writer) ExitCode {
 		fmt.Fprintf(stderr, "aag repair-context: failed to resolve --repo: %v\n", err)
 		return ExitError
 	}
-	fromAbs, err := filepath.Abs(*from)
-	if err != nil {
-		fmt.Fprintf(stderr, "aag repair-context: failed to resolve --from: %v\n", err)
-		return ExitError
+	// "-" は stdin marker (= improvement D)、filepath.Abs を経由しない
+	fromAbs := *from
+	if fromAbs != "-" {
+		fromAbs, err = filepath.Abs(*from)
+		if err != nil {
+			fmt.Fprintf(stderr, "aag repair-context: failed to resolve --from: %v\n", err)
+			return ExitError
+		}
 	}
 
 	out, err := repaircontext.Repair(repaircontext.RepairInput{
