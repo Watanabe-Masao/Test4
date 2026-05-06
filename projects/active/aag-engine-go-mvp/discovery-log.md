@@ -91,7 +91,7 @@
 - **現状**: `versionSyncGuard.test.ts` は **horizontal sync** (= 4-5 file 間の値整合) のみ機械検証。**vertical obligation** (= AAG-tagged project は `aag/CHANGELOG.md` 更新が必須という project → CHANGELOG の縦方向義務) は **未強制**。本 MVP では HANDOFF §4.5 で AI 単独判断「CHANGELOG 不要」 を articulate し、user feedback で誤りを発見 (= DA-α-013) → 同 抜け穴は他の AAG-related project でも再発 risk あり
 - **改善 / 調査内容**:
   - mechanism 候補 1: `projectization.json` に `aagRelated: true` tag 追加 + projectizationPolicyGuard PZ-N で「aagRelated=true なら `aag/CHANGELOG.md` の最新 entry が project ID を reference する」 を機械検証
-  - mechanism 候補 2: obligation map に `projects/active/aag-*/checklist.md` path → `aag/CHANGELOG.md` modify obligation を articulate
+  - mechanism 候補 2: obligation map に AAG-tagged project の checklist.md path (= projectization.json で aagRelated=true 判定) → `aag/CHANGELOG.md` modify obligation を articulate
   - mechanism 候補 3: 上記 2 mechanism の組み合わせ (= explicit tag + path-based fallback)
 - **trigger**: 2026-05-06 user feedback「プロジェクト単位でそちらの更新も強制すべきです」 (= DA-α-013 §context-2)
 - **解消 timing**: post-archive 別 program (= 仮 ID `aag-changelog-vertical-obligation-guard`) で起票判断、本 MVP archive 後 user 判断
