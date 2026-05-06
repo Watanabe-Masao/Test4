@@ -2,8 +2,8 @@
   "$schemaDescription": "Rule-by-Topic — slice / responsibilityTag / guardTag → rule id index。topic discovery 用 (= AI が業務領域 / 責務 / guard 種別から関連 rule に reach する経路)。manifest.json discovery 拡張の seam。",
   "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts (slice / responsibilityTags / guardTags)",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-06T04:08:10.763Z",
-  "sourceCommit": "1873926cb49dbd6805e34b53409602c3d2227122",
+  "generatedAt": "2026-05-06T04:19:41.447Z",
+  "sourceCommit": "22b77fc51b63f887185c29063648519a2a657781",
   "summary": {
     "totalRules": 172,
     "slices": 5,
