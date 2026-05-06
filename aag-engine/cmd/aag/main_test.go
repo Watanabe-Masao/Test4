@@ -1058,6 +1058,50 @@ func TestRun_TaskClose_MissingCapsule(t *testing.T) {
 	}
 }
 
+// project stale は real repo で valid JSON を出力 (= Wave 5 #23)。
+func TestRun_ProjectStale_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"project", "stale", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "project-stale-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+}
+
+// project action 不足は ExitError。
+func TestRun_Project_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"project"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// next は real repo で valid JSON を出力 (= Wave 5 #23 final)。
+func TestRun_Next_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"next", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "next-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["recommendedActions"].([]interface{}); !ok {
+		t.Errorf("recommendedActions must be array")
+	}
+}
+
 func writeFileForTest(path string, data []byte) error {
 	return os.WriteFile(path, data, 0o644)
 }

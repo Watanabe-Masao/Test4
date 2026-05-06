@@ -320,7 +320,22 @@
 - [x] dogfood: prepared capsule → validate=true / close ready=true + 5 final checks articulate
 - [x] DA-α-024 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 5 #22 commit を branch に push
+- [x] Wave 5 #22 commit を branch に push
+
+## Wave 5 #23: `aag project stale` / `aag next` (= Wave 5 final、全 23 step 完遂)
+
+> **着手判断**: DA-α-025 (= Wave 5 final、stale detection + next action recommendation)。
+
+- [x] `aag-engine/internal/projectstatus/stale.go` を landing (= Stale() + lastCommitInfo + quick-fixes / _template 例外)
+- [x] `aag-engine/internal/projectstatus/next.go` を landing (= Next() + 6 rule recommendation + countUnchecked + isWorkingTreeDirty)
+- [x] `projectstatus_test.go` で contract test 9 件 (= empty / real repo / threshold / today override / next / countUnchecked synthetic)
+- [x] `cmd/aag/main.go` に `project stale` + `next` subcommand 追加
+- [x] `main_test.go` に CLI test 4 件追加
+- [x] dogfood: project stale → 5 fresh projects 全 articulate + 0 stale (= 全 active project 30 日以内)
+- [x] dogfood: next → recommendedActions 3 件 articulate (= dirty + activeProject + unchecked)
+- [x] DA-α-025 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 5 #23 commit を branch に push (= **Wave 5 全完遂、reposteward-ai-ops-platform 全 23 step 完遂**)
 
 ## AI 自己レビュー (= user 承認の手前)
 

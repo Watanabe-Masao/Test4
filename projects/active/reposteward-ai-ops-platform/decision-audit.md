@@ -1674,3 +1674,74 @@ Wave 5 #21 後、Wave 5 #22 = Task Capsule の lifecycle 補助 command。Wave 1
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-025: Wave 5 #23 着手判断 — `aag project stale` / `aag next` (= Wave 5 final、全 23 step 完遂)
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 5 #22 後、Wave 5 final step = stale detection + next action recommendation。AI session の operating layer の最後のピース。`project stale` は active project の commit 履歴から長期放置を articulate、`next` は where-am-i + working tree + checklist progress から次アクション推奨を articulate。
+
+### decision
+
+1. 新規: `internal/projectstatus/stale.go` (= Stale + lastCommitInfo via git log)
+2. 新規: `internal/projectstatus/next.go` (= Next + 6 rule + isWorkingTreeDirty + countUnchecked、navigation.WhereAmI 再利用)
+3. 新規: `projectstatus_test.go` (= 9 contract test)
+4. update: `cmd/aag/main.go` (= project subcommand + next 単独 command)
+5. update: `main_test.go` (= 4 CLI test)
+6. update: `checklist` + `decision-audit` (= 本 entry、Wave 5 全完遂 articulate)
+
+**6 recommendation rules** (priority order):
+1. 作業 tree dirty → commit + push
+2. openObligations > 0 → docs:generate + sync
+3. activeProject + unchecked → context articulate
+4. activeProject + clean checklist → close phase preparation
+5. no activeProject → list active projects + outlier exploration
+6. hardGate fail → Hard Gate restoration
+
+### rationale
+
+- **2 command を 1 package に統合**: `projectstatus` で stale / next を articulate (= 同 layer の AI session navigation 拡張)
+- **navigation.WhereAmI 再利用**: Wave 3 #10 で landing 済の WhereAmI を `next` 内で呼び出し、duplicate logic 回避
+- **6 rule priority order**: AI session の typical workflow を articulate (= dirty 解消 → obligation 解消 → checklist 進行 → close 準備 → 探索)
+- **quick-fixes / _template 例外**: long-running collection / template は stale 概念外 (= articulate 整合)
+- **countUnchecked は AI 自己レビュー / 最終レビュー section を skip**: 終了直前の儀式は次 action ではない (= context --project と同 idiom)
+- **stale 30 日 default**: AAG governance の典型的 cadence、後続で project ごと閾値 articulate 可能
+
+### alternatives
+
+- (a) stale + next を別 package: 却下 (= 同 layer、責務近接)
+- (b) `aag project next` で sub action 化: 却下 (= next は global 推奨、project に紐付かない)
+- (c) recommendation を rule-based ではなく DSL articulate: 却下 (= MVP scope 外、6 rule で primary use case カバー)
+- (d) hardGate fail を最優先 rule にする: 却下 (= dirty / obligations は前段、AI session が踏みやすい状況に対応)
+
+### 観測点
+
+1. `internal/projectstatus/` 配下 3 file 存在 + go vet clean
+2. `go test ./internal/projectstatus/...` 9 test 全 PASS
+3. real repo dogfood: stale → 5 fresh projects all articulate + 0 stale (= 30 日以内 commit articulate)
+4. real repo dogfood: next → 3 recommendedActions + 2 reasoning articulate
+5. countUnchecked が AI 自己レビュー section の checkbox を skip
+6. quick-fixes / _template が stale articulate 対象外
+7. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+8. branch push 成功
+9. **Wave 5 全完遂** (= 5/5 step landed)
+10. **reposteward-ai-ops-platform 全 23 step 完遂** (= Wave 1: 6 + Wave 2: 3 + Wave 3: 5 + Wave 4: 4 + Wave 5: 5)
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 5 #22 commit、派生元)
+- **judgementCommit**: `<TBD>` (= Wave 5 final commit)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
