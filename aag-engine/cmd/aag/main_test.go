@@ -670,3 +670,73 @@ func TestRun_Changed_UnexpectedPositionalArg(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// rule action 不足は ExitError (= Wave 3 #13)。
+func TestRun_Rule_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule の不明 action は ExitError。
+func TestRun_Rule_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule", "unknown"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule locate で ruleId 不在は ExitError。
+func TestRun_RuleLocate_MissingRuleId(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule", "locate", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule locate で known ruleId は valid JSON を出力。
+// flag は positional arg の前に articulate (= 標準 Go flag library 制約)。
+func TestRun_RuleLocate_RealRepo_KnownRule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"rule", "locate",
+		"--repo", repoRootForTest(t),
+		"AR-G5-HOOK-LINES",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "rule-locate-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["ruleId"] != "AR-G5-HOOK-LINES" {
+		t.Errorf("ruleId = %v", out["ruleId"])
+	}
+	if guards, ok := out["guards"].([]interface{}); !ok || len(guards) == 0 {
+		t.Errorf("guards must be non-empty array, got: %v", out["guards"])
+	}
+}
+
+// rule locate で unknown ruleId は ExitError。
+func TestRun_RuleLocate_UnknownRule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"rule", "locate",
+		"--repo", repoRootForTest(t),
+		"AR-NONEXISTENT-XYZ",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "Similar:") {
+		t.Errorf("stderr should articulate Similar: hint, got: %q", stderr.String())
+	}
+}

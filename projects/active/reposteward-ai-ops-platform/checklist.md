@@ -190,7 +190,20 @@
 - [x] dogfood: aag changed --base HEAD~1 → changed file list + by area + obligations + required reads + summary articulate
 - [x] DA-α-014 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 3 #12 commit を branch に push
+- [x] Wave 3 #12 commit を branch に push
+
+## Wave 3 #13: `aag rule locate <ruleId>`
+
+> **着手判断**: DA-α-015 (= Wave 3 継続、merged-architecture-rules.json から rule を locate)。
+
+- [x] `aag-engine/internal/navigation/rule.go` を landing (= RuleLocate() + loadMergedRules + findGuardsReferencingRule + suggestSimilarRuleIds)
+- [x] `rule_test.go` で contract test 5 件 (= empty input / known rule / unknown rule with hint / suggestSimilarRuleIds prefix matching / findGuardsReferencingRule)
+- [x] `cmd/aag/main.go` に `rule locate` subcommand 追加 (= --repo + ruleId positional)
+- [x] `main_test.go` に CLI test 5 件追加
+- [x] dogfood: aag rule locate AR-G5-HOOK-LINES → slice / what / why / doc / principleRefs / thresholds / definition / guards articulate
+- [x] DA-α-015 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 3 #13 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

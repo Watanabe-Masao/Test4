@@ -64,6 +64,8 @@ COMMANDS:
   where-am-i       branch / activeProject / repoHealth / openObligations / 推奨 next command を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #10 deliverable)
   context          active project の requiredReads / constraints / nextActions を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #11 deliverable)
   changed          --base..--head の changed file を area / obligations / requiredReads で articulate (= reposteward-ai-ops-platform Wave 3 #12 deliverable)
+  rule locate      ruleId から rule の definition / guards / docs / thresholds を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #13 deliverable)
+                   note: 'aag rule locate --repo PATH <ruleId>' のように flag を ruleId の前に articulate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -128,6 +130,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runContext(args[1:], stdout, stderr)
 	case "changed":
 		return runChanged(args[1:], stdout, stderr)
+	case "rule":
+		return runRule(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -571,6 +575,68 @@ func runChanged(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag changed: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runRule は `aag rule <action> <args>` の dispatcher (= Wave 3 #13)。
+func runRule(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag rule: action 不足 (= 'locate' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag rule locate <ruleId> [--repo PATH]")
+		return ExitError
+	}
+	switch args[0] {
+	case "locate":
+		return runRuleLocate(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag rule: unknown action %q (= 'locate' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runRuleLocate は `aag rule locate <ruleId>` の本体 (= Wave 3 #13)。
+//
+// merged-architecture-rules.json から ruleId を lookup し、definition + guards +
+// docs + thresholds を JSON で stdout に出力 (= read-only)。
+func runRuleLocate(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("rule locate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	posArgs := fs.Args()
+	if len(posArgs) == 0 {
+		fmt.Fprintln(stderr, "aag rule locate: ruleId 引数が必要です (= 'aag rule locate AR-G5-HOOK-LINES')")
+		return ExitError
+	}
+	if len(posArgs) > 1 {
+		fmt.Fprintf(stderr, "aag rule locate: 引数は ruleId 1 つのみ articulate してください (got %v)\n", posArgs)
+		return ExitError
+	}
+	ruleId := posArgs[0]
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag rule locate: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := navigation.RuleLocate(navigation.RuleLocateInput{
+		RepoRoot: repoAbs,
+		RuleId:   ruleId,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag rule locate: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag rule locate: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

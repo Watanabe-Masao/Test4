@@ -1025,3 +1025,63 @@ Wave 3 #11 (= context --project) push 後、Wave 3 #12 = changed-explain command
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-015: Wave 3 #13 着手判断 — `aag rule locate <ruleId>`、merged-architecture-rules.json + grep で guard reference articulate
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 3 #12 (= changed --explain) 後、Wave 3 #13 = ruleId から rule の definition / guards / docs / thresholds を locate する command。merged-architecture-rules.json (= 172 rule registry) を入力に、grep で guard ファイル参照を articulate。
+
+### decision
+
+1. 新規: `internal/navigation/rule.go` (= RuleLocate() + loadMergedRules + findGuardsReferencingRule + suggestSimilarRuleIds)
+2. 新規: `rule_test.go` (= 5 contract test)
+3. update: `cmd/aag/main.go` (= rule subcommand + locate action)
+4. update: `main_test.go` (= 5 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**flag 規約**: `aag rule locate --repo PATH <ruleId>` のように **flag は ruleId の前に articulate**。Go 標準 flag library 制約 (= flag.Parse は最初の positional で停止)。usage に明記。
+
+### rationale
+
+- **merged-architecture-rules.json を canonical input**: 既存 generated artifact、172 rule の単一 source of truth。Go-side で再 parse 不要 (= TS-side が canonical、Go-side は consumer)
+- **grep ベースの guard reference**: ruleId 文字列を `app/src/test/guards/` + `app/src/test/audits/` 配下で grep。simple かつ implicit な reference (= `getRuleById('XXX')` 等) を articulate
+- **definition path hardcode**: `app-domain/gross-profit/rule-catalog/base-rules.ts` (= CLAUDE.md articulate の canonical)。動的 lookup より hardcode が確実
+- **suggestSimilarRuleIds**: unknown ruleId 時に prefix + substring score で 5 件 hint 提示。AI session が typo を rapid に articulate
+- **flag 規約**: standard flag library で interspersed flag/positional は unsupported、規約として「flag 先 / positional 後」を articulate
+
+### alternatives
+
+- (a) Go-side で base-rules.ts を parse: 却下 (= TS AST parse は heavyweight、generated artifact で十分)
+- (b) cobra/pflag library 採用 (= interspersed flag 対応): 却下 (= dependency 追加コスト > 規約整備コスト、既存 detector / stats も標準 flag 採用で整合)
+- (c) guard reference を `architectureRules.ts` の getRuleById 呼び出しから抽出: 却下 (= regex parse は brittle、grep で十分実用的)
+- (d) parameters field articulate (= aag-parameters.json への reference): 却下 (= MVP では rule ↔ parameters の binding articulation 未確立、後続 step で必要時に追加)
+
+### 観測点
+
+1. `internal/navigation/rule.go` + test 存在 + go vet clean
+2. `go test ./internal/navigation/...` 全 PASS
+3. real repo dogfood で AR-G5-HOOK-LINES → slice / what / why / doc / principleRefs / thresholds / definition / guards articulate
+4. unknown ruleId で `Similar:` hint 提示
+5. flag 規約 (= --repo 先 / ruleId 後) で test pass
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 3 #12 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-06T11:23:07.646Z
+> 生成: 2026-05-06T11:27:00.275Z
 
 ## サマリー
 
@@ -15,8 +15,8 @@
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 1321 |
-| 全 project の checked checkbox 総数 | 1235 |
+| 全 project の required checkbox 総数 | 1329 |
+| 全 project の checked checkbox 総数 | 1243 |
 
 ## projects
 
@@ -60,7 +60,7 @@
 | `presentation-quality-hardening` | Presentation 品質強化 — テスト・E2E・active-debt 解消 | **in_progress** | — | 13/21 (62%) | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) |
 | `pure-calculation-reorg` | Pure 計算責務再編 | **in_progress** | — | 87/119 (73%) | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
 | `quick-fixes` | Quick Fixes — 文脈を必要としない単発作業の集約 | **collection** | — | 12/13 (92%) | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../../projects/active/quick-fixes/AI_CONTEXT.md) |
-| `reposteward-ai-ops-platform` | RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP) | **in_progress** | — | 95/102 (93%) | [`projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md`](../../../projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md) |
+| `reposteward-ai-ops-platform` | RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP) | **in_progress** | — | 103/110 (94%) | [`projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md`](../../../projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md) |
 | `responsibility-taxonomy-v2` | 責務分類 v2（子: 責務軸の Schema / Guard / Operations / Legacy 撤退） | **archived** | `taxonomy-v2` | — | [`projects/responsibility-taxonomy-v2/AI_CONTEXT.md`](../../../projects/responsibility-taxonomy-v2/AI_CONTEXT.md) |
 | `taxonomy-v2` | 分類体系 v2（責務軸 + テスト軸の制度化: 親） | **in_progress** | — | 50/60 (83%) | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../../projects/active/taxonomy-v2/AI_CONTEXT.md) |
 | `test-signal-integrity` | AAG Test Signal Integrity — 品質シグナル保全と False Green 防止 | **archived** | — | 35/35 (100%) | [`projects/completed/test-signal-integrity/AI_CONTEXT.md`](../../../projects/completed/test-signal-integrity/AI_CONTEXT.md) |
