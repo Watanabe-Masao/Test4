@@ -5,7 +5,24 @@
 
 ## 1. 現在地
 
-**Phase 12 landing 完了 + AI 自己レビュー 5 件 [x] 完遂 (= 本 commit landing 後、AI session reach 範囲)**。次は user 判断 (= Phase 11 user approval + branch protection 登録 + Phase 12 A〜E judgement) + 最終レビュー (user 承認)。
+**最終レビュー user 承認完了 (= 2026-05-06「レビューオッケーです」)**。derivedStatus = `completed`、archive obligation 発火 state。次は archive 移行 (= AI 代行 vs user 自身、user delegation 判断待ち)。
+
+Phase 12 lineage 後の 2 段 institute (= user feedback driven、AI 自己 review の盲点を構造的補完):
+- DA-α-013: AAG 6.0 institute (= AAG version の app version からの完全分離、aag/CHANGELOG.md + aag-metadata.json + versionSyncRegistry 拡張)
+- DA-α-014: versionImpact 計画段階 declaration mechanism institute (= delta + baselineAtCreation snapshot 方式、aag/CHANGELOG.md §バージョンアップ判定基準 + config/project.json + projects/_template/ 適用)
+
+**全 Phase 0〜12 + AI 自己レビュー + 最終レビュー = 全 [x]** (= operational deferred 6 件は post-archive user follow-up):
+- Phase 0〜9: 完遂 (= AI session reach 範囲、各 Phase wrap-up commit で flip)
+- Phase 10: 5 件中 3 件 [x] (= 1/3/5)、operational deferred 2 件 (= 2 CI 5 連続 + 4 2-4 週間観測) は post-archive user follow-up
+- Phase 11: 6 件中 4 件 [x] (= 2/3/5/6、structural prep 範囲)、operational deferred 2 件 (= 1 branch protection 登録 + 4 user approval entry) は post-archive user follow-up
+- Phase 12: 4 件中 2 件 [x] (= 3/4)、user judgement 待ち 2 件 (= 1 A-E + 2 §user-judgement entry) は post-archive user follow-up
+- AI 自己レビュー 5 件: 全 [x]
+- 最終レビュー 1 件: [x] (= user 直接 directive「レビューオッケーです」 で flip、不可侵原則 8 strict adherence)
+
+DA-α 系完遂 (= 15 entry):
+- DA-α-000〜012: Phase 0〜12 lineage articulate
+- DA-α-013: AAG 6.0 institute (= user feedback driven)
+- DA-α-014: versionImpact mechanism institute (= user 5 連 directive driven)
 
 Phase 12 lineage (= landing 段階):
 - landing commit (本 commit): DA-α-012 articulate (= 5 option per-evidence 整理 table + AI 推奨 B (advisory 継続) + 後続 program 候補 2 件 = aag-engine-hard-gate-promotion + aag-engine-domain-coverage-extension + user-judgement template) + checklist Phase 12 2 件 [x] flip (= 3 後続 program articulate + 4 DA-α-012 articulate) + 2 件 [ ] 維持 (= 1 user 判断 + 2 user 直接編集) + AI 自己レビュー 5 件 [x] flip + HANDOFF §4 self-review section 新設

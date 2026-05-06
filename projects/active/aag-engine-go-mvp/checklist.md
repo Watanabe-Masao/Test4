@@ -132,4 +132,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-* [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する
+* [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する — 2026-05-06 user 承認「レビューオッケーです」 (= AAG 6.0 institute + versionImpact mechanism institute + AI 自己レビュー 5 件 + DA-α-000〜014 = 15 entry articulate を含む全 Phase 成果物に対する user 承認、不可侵原則 8 strict adherence で AI 単独 flip ではなく user 直接 directive を trigger に flip)
