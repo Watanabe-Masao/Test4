@@ -64,6 +64,8 @@ COMMANDS:
   fixtures         fixtures/aag/ 配下を discover し catalog を出力 (= Phase 3 deliverable)
   shadow           5 detector × 8 fixture を全 dispatch、parity summary を出力 (= Phase 9 deliverable)
   task prepare     active project の Task Capsule を JSON で出力 (= reposteward-ai-ops-platform Wave 1 #2 deliverable)
+  task validate    --capsule <file> の TaskCapsule を schema 準拠 + value invariant で検証 (= Wave 5 #22)
+  task close       --capsule <file> の TaskCapsule を close 可能か articulate (= Wave 5 #22)
   stats files      effectiveCodeLines を bucket / range / layer / percentile で query (= reposteward-ai-ops-platform Wave 1 #6 deliverable)
   where-am-i       branch / activeProject / repoHealth / openObligations / 推奨 next command を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #10 deliverable)
   context          active project の requiredReads / constraints / nextActions を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #11 deliverable)
@@ -326,8 +328,12 @@ func runTask(args []string, stdout, stderr io.Writer) ExitCode {
 	switch args[0] {
 	case "prepare":
 		return runTaskPrepare(args[1:], stdout, stderr)
+	case "validate":
+		return runTaskValidate(args[1:], stdout, stderr)
+	case "close":
+		return runTaskClose(args[1:], stdout, stderr)
 	default:
-		fmt.Fprintf(stderr, "aag task: unknown action %q (= 'prepare' のみ対応)\n", args[0])
+		fmt.Fprintf(stderr, "aag task: unknown action %q (= 'prepare' / 'validate' / 'close')\n", args[0])
 		return ExitError
 	}
 }
@@ -388,6 +394,88 @@ func runTaskPrepare(args []string, stdout, stderr io.Writer) ExitCode {
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(out))
+	return ExitPass
+}
+
+// runTaskValidate は `aag task validate --capsule <file>` の本体 (= Wave 5 #22)。
+func runTaskValidate(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("task validate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	capsuleFile := fs.String("capsule", "", "TaskCapsule JSON file path (= required)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag task validate: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+	if *capsuleFile == "" {
+		fmt.Fprintln(stderr, "aag task validate: --capsule flag は required です")
+		return ExitError
+	}
+
+	abs, err := filepath.Abs(*capsuleFile)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task validate: failed to resolve --capsule: %v\n", err)
+		return ExitError
+	}
+
+	out, err := taskcapsule.ValidateCapsule(taskcapsule.ValidateInput{CapsuleFile: abs})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task validate: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task validate: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	if !out.Valid {
+		return ExitFail
+	}
+	return ExitPass
+}
+
+// runTaskClose は `aag task close --capsule <file>` の本体 (= Wave 5 #22)。
+func runTaskClose(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("task close", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	capsuleFile := fs.String("capsule", "", "TaskCapsule JSON file path (= required)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag task close: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+	if *capsuleFile == "" {
+		fmt.Fprintln(stderr, "aag task close: --capsule flag は required です")
+		return ExitError
+	}
+
+	abs, err := filepath.Abs(*capsuleFile)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task close: failed to resolve --capsule: %v\n", err)
+		return ExitError
+	}
+
+	out, err := taskcapsule.CloseCapsule(taskcapsule.CloseInput{CapsuleFile: abs})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task close: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task close: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	if !out.ReadyToClose {
+		return ExitFail
+	}
 	return ExitPass
 }
 

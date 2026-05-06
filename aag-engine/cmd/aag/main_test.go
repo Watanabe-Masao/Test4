@@ -16,6 +16,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -974,4 +975,89 @@ func TestRun_RepairContext_NonexistentFile(t *testing.T) {
 	if code != ExitError {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
+}
+
+// task validate で --capsule 不在は ExitError (= Wave 5 #22)。
+func TestRun_TaskValidate_MissingCapsule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "validate"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// task validate で valid capsule は ExitPass。
+func TestRun_TaskValidate_ValidCapsule(t *testing.T) {
+	tmp := t.TempDir()
+	capsulePath := tmp + "/capsule.json"
+	// Generate a valid capsule via task prepare
+	var prepareOut bytes.Buffer
+	prepareCode := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &prepareOut, &bytes.Buffer{})
+	if prepareCode != ExitPass {
+		t.Skipf("task prepare failed, cannot setup test: %d", prepareCode)
+	}
+	if err := writeFileForTest(capsulePath, prepareOut.Bytes()); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "validate", "--capsule", capsulePath}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["valid"] != true {
+		t.Errorf("valid = %v, want true", out["valid"])
+	}
+}
+
+// task close で valid capsule は ExitPass + readyToClose=true。
+func TestRun_TaskClose_ValidCapsule(t *testing.T) {
+	tmp := t.TempDir()
+	capsulePath := tmp + "/capsule.json"
+	var prepareOut bytes.Buffer
+	prepareCode := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &prepareOut, &bytes.Buffer{})
+	if prepareCode != ExitPass {
+		t.Skipf("task prepare failed: %d", prepareCode)
+	}
+	if err := writeFileForTest(capsulePath, prepareOut.Bytes()); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "close", "--capsule", capsulePath}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["readyToClose"] != true {
+		t.Errorf("readyToClose = %v, want true", out["readyToClose"])
+	}
+}
+
+// task close で --capsule 不在は ExitError。
+func TestRun_TaskClose_MissingCapsule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "close"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+func writeFileForTest(path string, data []byte) error {
+	return os.WriteFile(path, data, 0o644)
 }

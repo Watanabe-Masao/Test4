@@ -307,7 +307,20 @@
 - [x] dogfood: synthetic detector-results JSON → repairReads 3 件 + suggestedActions 2 件 + requiredChecks 1 件 articulate
 - [x] DA-α-023 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 5 #21 commit を branch に push
+- [x] Wave 5 #21 commit を branch に push
+
+## Wave 5 #22: `aag task validate` / `aag task close`
+
+> **着手判断**: DA-α-024 (= Wave 5 継続、Task Capsule の validate / close 補助 command)。
+
+- [x] `aag-engine/internal/taskcapsule/validate.go` を landing (= ValidateCapsule + CloseCapsule + defaultFinalChecks)
+- [x] `validate_test.go` で contract test 9 件 (= empty / nonexistent / valid / invalid articulate / malformed JSON / hardGate fail blocks / final checks essentials)
+- [x] `cmd/aag/main.go` に `task validate` + `task close` action 追加 (= --capsule required)
+- [x] `main_test.go` に CLI test 4 件追加 (= validate missing / valid / close missing / close valid)
+- [x] dogfood: prepared capsule → validate=true / close ready=true + 5 final checks articulate
+- [x] DA-α-024 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 5 #22 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

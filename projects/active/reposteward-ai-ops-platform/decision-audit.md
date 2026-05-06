@@ -1613,3 +1613,64 @@ Wave 5 #20 後、Wave 5 #21 = repair context generator。検出 output JSON (= d
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-024: Wave 5 #22 着手判断 — `aag task validate` / `aag task close`、Task Capsule lifecycle 補助
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 5 #21 後、Wave 5 #22 = Task Capsule の lifecycle 補助 command。Wave 1 #2 の `task prepare` (= producer) に対し、本 step は consumer 側 (= validate + close) を articulate。
+
+### decision
+
+1. 新規: `internal/taskcapsule/validate.go` (= ValidateCapsule + CloseCapsule + defaultFinalChecks)
+2. 新規: `validate_test.go` (= 9 contract test)
+3. update: `cmd/aag/main.go` (= task subcommand に validate + close action 追加)
+4. update: `main_test.go` (= 4 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**仕様**:
+- `validate`: schema 準拠 + Validate() value-level invariant 検証。Valid なら ExitPass / 不正なら ExitFail (= violation 数で fail)
+- `close`: validate に加え、repoHealth.hardGate=pass を blocking 条件として check + 5 final checks (= test:guards / docs:check / go test / git status / git log) を articulate
+
+### rationale
+
+- **既存 taskcapsule package に追加**: Wave 1 #2 で landing 済の Validate() を再利用、新 package 不要
+- **5 final checks**: AI session が close 前に必ず確認すべき検証 path を明示 (= manual check が抜けない)
+- **hardGate=pass を blocking**: 「fail 状態で close は不可」を機械的に articulate
+- **ExitFail (= 1) for invalid / not ready**: ExitError (= 2、引数不正) と区別、CI / scripting 用途
+- **defaultFinalChecks の articulate**: 後続で per-project 拡張 (= プロジェクト固有 check の追加) を v2 で検討、MVP は global default
+
+### alternatives
+
+- (a) close 時に final checks を実行: 却下 (= read-only first 不可侵原則 3 違反、AI session が判断)
+- (b) validate と close を 1 command で articulate: 却下 (= 責務違い、AI session の workflow phase 違い)
+- (c) hardGate fail を blocking にしない: 却下 (= close 前に必ず Hard Gate PASS を要求するのが governance 整合)
+
+### 観測点
+
+1. `internal/taskcapsule/validate.go` + test 存在 + go vet clean
+2. `go test ./internal/taskcapsule/...` 全 PASS
+3. validate dogfood: valid capsule → valid=true / errors=[]
+4. close dogfood: valid capsule with hardGate=pass → readyToClose=true + 5 final checks articulate
+5. close dogfood: capsule with hardGate=fail → readyToClose=false + blocking issue articulate
+6. ExitFail (= 1) returned for invalid / not-ready cases
+7. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 5 #21 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
