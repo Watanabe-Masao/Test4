@@ -191,3 +191,71 @@ Detection Inventory v2 は Wave 4 #18 (= preparatory doc work / 任意 / 並行)
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-003: Wave 1 #1 着手判断 — Task Capsule schema v1 単体 PR で landing、Go 実装 / sync guard 登録は Wave 1 #2 に分離
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+bootstrap PR (#1260、commit 4ee6898 → main 2026-05-06 08:09 UTC merged) 直後、user から merge 確認 + Health PASS 確認 + 計画評価 (= 7 項目 strong) + 「次は Task Capsule schema v1 から着手でよいです」の green light が articulate された。AI 側は Wave 1 #1 PR scope を提案 (= schema 単体 + checklist Wave 1 section 初期化 + DA-α-003 articulate + docs:generate + test:guards、branch = `claude/reposteward-ai-ops-platform-task-capsule-schema-v1`、Go 実装 / sync guard 登録は Wave 1 #2 に分離) し、user から「よろしくお願いします」で承認。
+
+### decision
+
+Wave 1 #1 を以下 scope で landing:
+
+1. 新規 1 file: `docs/contracts/aag/task-capsule.schema.json` (= JSON Schema draft-07、13 field、`additionalProperties: false`、`required = 12 field` (= intent 以外))
+2. 既存 file 2 件 update: `checklist.md` (= Wave 1 section 初期化 + #1 ticked-out 項目)、`decision-audit.md` (= 本 entry articulate)
+3. bootstrap 規約 byproduct: `cd app && npm run docs:generate` 反映 + `cd app && npm run test:guards` PASS 確認
+
+**やらない**: Go implementation / `aagContractSchemaSyncGuard.test.ts` 登録 / `reposteward task prepare` MVP / stats query / SourceFacts / AAG Parameters / hard gate / Human UI (= user 提示 nonGoals 完全継承)。
+
+**branch 命名**: `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` (= DA-α-001 規約 = `claude/reposteward-ai-ops-platform-<slug>` パターン適用、bootstrap branch (= `claude/reposteward-detection-ops-bootstrap-mqG14`) は historical artifact として close)。
+
+### rationale
+
+- **schema 単体 PR で landing する理由**: schema は JSON contract = 言語非依存 = consumer / producer が無くても valid 化可能。Go 実装 / TS consumer 追加と同 PR にすると、schema design / Go type design / sync guard registration の 3 軸が同時に動き、scope creep + review 負荷増 + rollback granularity 喪失。schema 単体ならば「contract 形状の合意」のみが review 対象になり、後続 PR で producer / consumer / guard を順次 articulate できる
+- **`aagContractSchemaSyncGuard.test.ts` 早期登録を skip する理由**: 同 guard は schema (`required` / `properties`) と TS interface field の 1:1 一致を機械検証する設計。本 PR 時点で TS / Go 双方の対応 type が無いため、登録すると guard が「schema あり TS interface なし = 一致不可能」で hard fail する。Wave 1 #2 で Go 側 `TaskCapsule` type 追加 + (任意で) TS 側 type 追加と同 PR で sync registration するのが正しい順序 (= 不可侵原則 7 = Wave-by-wave delivery)
+- **`additionalProperties: false` 採用**: 既存 `aag-response.schema.json` + `detector-result.schema.json` と同 strictness。誤った field 追加を schema validation で即検出。`currentState` / `repoHealth` / `repairPolicy` / `intent` 内部の柔軟性は object 内 `additionalProperties: true` で確保 (= 2 段の strictness articulate)
+- **`required = 12 field` (= intent 以外) 採用**: 各 dimension (= goal / nonGoals / requiredReads / targetFiles / relatedCommands / expectedOutputs / repairPolicy / repoHealth / currentState) を必ず articulate させることで「dimension 欠落による silent な capsule 不完全性」を schema 段階で防御。空 array / 空 object は許容 (= 物理的に該当無しのケース対応)、ただし producer (= Wave 1 #2 `reposteward task prepare`) は常時 articulate する責務 (= producer policy として後続 PR で articulate)
+- **`schemaVersion: const "task-capsule-v1"` 採用**: AI session が消費可能 schema を identify する anchor。後続 v2 / v3 で minor バージョン bump 時に producer / consumer 側で容易に discriminate (= `versionImpact aag delta=+0.1 minor` の articulation 整合)
+- **`taskId` / `projectId` の pattern**: AAG project id 規約 (= `references/05-aag-interface/operations/project-checklist-governance.md` §10 Step 2 = `<domain>-<action>` kebab-case 3〜5 語) と同 family、producer 側で existence 検証する責務
+
+### alternatives
+
+- (a) **Go 実装 + schema を同 PR で landing**: 却下。scope creep + review 負荷増 + sync guard 登録時の baseline 動きが schema design と同時に動くため判断不能
+- (b) **schema を `aag-engine/contracts/` に置く** (= TS path から外す): 却下。既存 AAG schema (= `aag-response` / `detector-result`) は `docs/contracts/aag/` に集約済、本 schema も同 family として配置することで consumer / producer 双方が予測可能な location で発見可能 (= AI navigation 原則整合)
+- (c) **`required` を最小化** (= schemaVersion / taskId / projectId / goal の 4 field のみ): 却下。dimension 欠落を許容すると capsule の operating layer としての安全境界 articulation 機能が失われる。本 program の primary goal (= AI session の探索コスト最小化 + 安全境界 articulation) と矛盾
+- (d) **`schemaVersion` を `enum` で v1/v2/v3 全て articulate**: 却下。本 schema は v1 の articulate であり、v2 / v3 の forward-looking inclusion は YAGNI + producer / consumer の version discrimination が困難になる。v2 を作る時は別 schema file (= `task-capsule-v2.schema.json`) として articulate するのが既存 AAG version 管理 (= aag-metadata.json + AAG version family) と整合
+- (e) **format 選定 = TOML / YAML**: 却下。不可侵原則 1 (= JSON-first) 違反
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `docs/contracts/aag/task-capsule.schema.json` が存在 + valid JSON で parse 可能
+2. schema が `$schema = draft-07` / `$id = https://aag.local/schemas/task-capsule-v1.json` / `additionalProperties: false` / `required` 12 field articulate
+3. 既存 AAG schema 規約と structurally consistent (= `aag-response.schema.json` / `detector-result.schema.json` と同 family、`$comment` で format 選定根拠 articulate)
+4. `aagContractSchemaSyncGuard.test.ts` が新 schema に対して fail しない (= 同 guard は対象 schema を hard-code、本 schema は登録対象外 = noop)
+5. `cd app && npm run test:guards` 全 PASS (= 1060+ test、新 schema 追加で既存 guard 1 件も落ちない)
+6. `cd app && npm run docs:generate` 反映後、Health 60/60 OK / Hard Gate PASS 維持
+7. checklist.md の Wave 1 #1 section が初期化され、本 PR landing で全 checkbox が [x]
+8. branch `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` に push 成功 (= pre-push 5 段 PASS)
+9. Wave 1 #2 (`reposteward task prepare` MVP) の着手 PR で本 schema を Go 側 `TaskCapsule` type と同期させる sync guard 登録が実行可能 (= 本 schema が producer 側の reference として機能)
+
+### Lineage
+
+- **preJudgementCommit**: `4cee7f6` (= bootstrap PR #1260 main merge 後の HEAD)
+- **judgementCommit**: `<TBD>` (= Wave 1 #1 landing commit SHA、wrap-up commit で update)
+- **retrospectiveCommit**: `<TBD>` (= wrap-up commit SHA、振り返り判定 articulate 時に確定)
+- **judgementTag**: 未設定 (= AI infrastructure で annotated tag 不可なら SHA 直接参照で代替)
+- **rollbackTag**: 未設定 (= 同上)
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

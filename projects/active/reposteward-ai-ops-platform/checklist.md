@@ -15,14 +15,27 @@
 
 ## Phase 0: Bootstrap
 
-- [ ] `projects/active/reposteward-ai-ops-platform/` 配下 8 ファイル一式 (= AI_CONTEXT / HANDOFF / plan / checklist / decision-audit / discovery-log / projectization / config/project.json) を landing
-- [ ] `references/04-tracking/open-issues.md` の `## active projects` 索引に `reposteward-ai-ops-platform` 行を追加
-- [ ] `cd app && npm run docs:generate` を実行し、`references/04-tracking/generated/project-health.generated.md` に新 project が `derivedStatus = in_progress` で現れることを確認
-- [ ] `cd app && npm run test:guards` PASS 確認 (= projectizationPolicyGuard PZ-1〜12 / checklistFormatGuard / projectCompletionConsistencyGuard 等が新 project を accept)
-- [ ] DA-α-000 (進行モデル決定) を `decision-audit.md` に articulate
-- [ ] DA-α-001 (project naming = `reposteward-detection-ops-platform` → `reposteward-ai-ops-platform`) を `decision-audit.md` に articulate
-- [ ] DA-α-002 (Wave 1 reordering / Task Capsule prepend) を `decision-audit.md` に articulate
-- [ ] bootstrap commit を `claude/reposteward-detection-ops-bootstrap-mqG14` に push (= retry 4 回 / exponential backoff per branch policy)
+- [x] `projects/active/reposteward-ai-ops-platform/` 配下 8 ファイル一式 (= AI_CONTEXT / HANDOFF / plan / checklist / decision-audit / discovery-log / projectization / config/project.json) を landing
+- [x] `references/04-tracking/open-issues.md` の `## active projects` 索引に `reposteward-ai-ops-platform` 行を追加
+- [x] `cd app && npm run docs:generate` を実行し、`references/04-tracking/generated/project-health.generated.md` に新 project が `derivedStatus = in_progress` で現れることを確認
+- [x] `cd app && npm run test:guards` PASS 確認 (= projectizationPolicyGuard PZ-1〜12 / checklistFormatGuard / projectCompletionConsistencyGuard 等が新 project を accept)
+- [x] DA-α-000 (進行モデル決定) を `decision-audit.md` に articulate
+- [x] DA-α-001 (project naming = `reposteward-detection-ops-platform` → `reposteward-ai-ops-platform`) を `decision-audit.md` に articulate
+- [x] DA-α-002 (Wave 1 reordering / Task Capsule prepend) を `decision-audit.md` に articulate
+- [x] bootstrap commit を `claude/reposteward-detection-ops-bootstrap-mqG14` に push (= retry 4 回 / exponential backoff per branch policy)
+
+## Wave 1 #1: Task Capsule schema v1
+
+> **着手判断**: DA-α-003 (= bootstrap 後、user 提案で Wave 1 #1 着手承認、本 PR で landing)。
+> **本 PR scope**: schema 単体 (= `docs/contracts/aag/task-capsule.schema.json`) + checklist Wave 1 section 初期化 + DA-α-003 articulate のみ。Go 実装 / sync guard 登録 / consumer 接続は Wave 1 #2 以降に分離 (= 不可侵原則 7 = Wave-by-wave delivery + step 独立 PR)。
+
+- [ ] `docs/contracts/aag/task-capsule.schema.json` を JSON Schema draft-07 形式で landing (= 13 field articulate、`additionalProperties: false`、`required = 12 field` (= intent 以外))
+- [ ] schema が valid JSON であり、`node -e 'JSON.parse(...)'` で parse 可能
+- [ ] 既存 AAG schema 規約と整合 (= `$schema = http://json-schema.org/draft-07/schema#` / `$id = https://aag.local/schemas/task-capsule-v1.json` / `$comment` で format 選定根拠 articulate / `aag-response.schema.json` + `detector-result.schema.json` と同 family)
+- [ ] DA-α-003 (Wave 1 #1 着手判断 + schema 設計の 5 軸) を `decision-audit.md` に articulate
+- [ ] `cd app && npm run docs:generate` 反映 (= project-health の checklist 件数 update)
+- [ ] `cd app && npm run test:guards` PASS 確認 (= 新 schema 追加で既存 guard が落ちないこと、`aagContractSchemaSyncGuard.test.ts` は対象 schema を hard-code しているため新 schema は関与しない)
+- [ ] Wave 1 #1 commit を `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 
