@@ -1288,3 +1288,71 @@ Wave 4 #15 (= clean check) 後、Wave 4 #16 = comment governance scan。AI sessi
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-019: Wave 4 #17 着手判断 — `aag docs placement-check`、2 rule MVP + 6 convention articulate
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 4 #16 後、Wave 4 #17 = doc placement convention articulate command。schema / generated / fixture / project doc 配置の規約違反を read-only に検出。
+
+### decision
+
+1. 新規: `internal/cleanliness/docs_placement.go` (= PlacementCheck() + 2 rule + 6 conventions + scanRoots)
+2. 新規: `docs_placement_test.go` (= 6 contract test)
+3. update: `cmd/aag/main.go` (= docs subcommand + placement-check action)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**2 rule の articulate**:
+- **schema-misplaced**: `*.schema.json` outside of `docs/contracts/` (= fixtures + projects/<id>/derived/ 例外あり)
+- **generated-misplaced**: `*.generated.md` / `*.generated.json` outside of canonical generated dirs (= `references/04-tracking/` 全体 + `docs/generated/`)
+
+**6 conventions articulate**:
+1. long-term-policy → references/
+2. active-project → projects/active/<id>/
+3. archived-project → projects/completed/<id>/ + Archive v2
+4. schema → docs/contracts/
+5. generated → references/04-tracking/ or docs/generated/
+6. fixture → fixtures/
+
+### rationale
+
+- **`references/04-tracking/` 全体を canonical generated dir として articulate**: 既存 codebase が複数 subdir (= generated/ + dashboards/ + elements/ + root-level recent-changes.generated.md) で generated artifact を articulate しており、それぞれ generatedFileEditGuard 対象。subdir ごとに canonical 列挙すると new dir 追加時に false positive 発生、root level で articulate するのが整合
+- **`projects/<id>/derived/` 例外**: project template に `derived/` subdir が articulate されており (= projects/_template/derived/)、project-internal generated artifact の慣例。canonical AAG schema ではない、例外として articulate
+- **6 conventions を output に articulate**: AI session が「正しい配置」を確認できるよう、output 自体に conventions を articulate (= self-documenting)
+- **2 rule MVP**: plan.md spec の placement-check 範囲 (= 長期方針=references / project work=projects/active / archived=projects/completed+Archive v2 / schema=docs/contracts / generated=references/04-tracking/generated / fixture=fixtures) は文書 articulate であり、機械検出可能な subset を 2 rule で MVP
+
+### alternatives
+
+- (a) 6 rule 全実装 (= long-term-policy / active-project / archived-project の placement 違反も検出): 却下 (= "長期方針" の判定は文書内容依存、MVP scope 外、AI session が articulate)
+- (b) `*.generated.md` を strict に `references/04-tracking/generated/` のみ canonical と articulate: 却下 (= 既存 codebase が dashboards / elements / root-level でも articulate、false positive 大)
+- (c) project derived schema も violation として flag: 却下 (= template 規約整合、project-internal は canonical AAG schema ではない)
+
+### 観測点
+
+1. `internal/cleanliness/docs_placement.go` + test 存在 + go vet clean
+2. `go test ./internal/cleanliness/...` 全 PASS
+3. real repo dogfood で 0 violations (= 現状 repo の placement は規約整合)
+4. synthetic test で 2 rule 各 1 件 articulate
+5. output で 6 conventions が articulate
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 4 #16 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

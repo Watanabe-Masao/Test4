@@ -242,7 +242,20 @@
 - [x] dogfood: aag comments list --kind todo → 6 items (= 主に test fixture、real TODO は厳密 anchor で false positive 抑止)
 - [x] DA-α-018 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 4 #16 commit を branch に push
+- [x] Wave 4 #16 commit を branch に push
+
+## Wave 4 #17: `aag docs placement-check`
+
+> **着手判断**: DA-α-019 (= Wave 4 継続、doc placement convention articulate)。
+
+- [x] `aag-engine/internal/cleanliness/docs_placement.go` を landing (= PlacementCheck() + 2 rule = schema-misplaced / generated-misplaced + 6 conventions articulation + scanRoots)
+- [x] `docs_placement_test.go` で contract test 6 件 (= empty / synthetic schema misplaced / synthetic generated misplaced / e2e / isUnder / real repo)
+- [x] `cmd/aag/main.go` に `docs placement-check` subcommand 追加
+- [x] `main_test.go` に CLI test 2 件追加
+- [x] dogfood: aag docs placement-check → 0 violations (= references/04-tracking/ 全体を canonical generated dir として articulate + projects/<id>/derived/ 例外 articulate 後 clean)
+- [x] DA-α-019 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 4 #17 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 
