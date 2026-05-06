@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/task-capsule-v1.json",
+  "title": "Task Capsule v1",
+  "description": "AI session の作業前に渡される operating layer 契約。`reposteward task prepare` コマンドが本 schema 準拠の JSON を出力する。stats files / rule locate / changed --explain 等の個別 command を束ねる上位 surface であり、「作業目的 / 現在地 / 読むべき正本 / 触るべき file / 触ってはいけない範囲 / 関連 command / 期待される成果物 / 失敗時 repair policy」を 1 capsule に articulate する。Wave 1 #1 (= reposteward-ai-ops-platform、本 schema 単体 PR) で landing、Wave 1 #2 で `reposteward task prepare` MVP が producer として接続、Wave 1 #3〜#5 で AAG Parameters / SourceFacts / Effective LOC statistics が capsule fields の入力 source として接続される。canonical: 本 schema file。 sync guard: 未登録 (= Wave 1 #2 で Go 側 type 追加と同 PR で `aagContractSchemaSyncGuard.test.ts` に登録予定、本 PR 時点では TS / Go 双方の対応 type 不在のため早期登録 skip)。",
+  "$comment": "format 選定根拠: contract = schema 系 = 言語非依存性が要件 → JSON Schema (draft-07 採用、既存 aag-response.schema.json + detector-result.schema.json と同 family、Ajv 既定 dialect 整合)。required policy: producer (= `reposteward task prepare`) は intent 以外の全 field を articulate する責務 (= 空 array / 空 object も可だが dimension 自体は必ず存在)、AI session は read-only に消費する。schema は v1 MVP として許容形を articulate、v2 (= --changed-only 拡張) / v3 (= SourceFacts + AAG Parameters facts 連結) で additive に minor bump 予定 (= versionImpact aag delta=+0.1 minor 整合)。canonical 接続図: AI Task Capsule (本 schema) ← reposteward task prepare (Wave 1 #2) ← AAG Parameters (Wave 1 #3) + SourceFacts (Wave 1 #4) + Effective LOC statistics (Wave 1 #5) + stats files query (Wave 1 #6)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "taskId",
+    "projectId",
+    "repoHealth",
+    "currentState",
+    "goal",
+    "nonGoals",
+    "requiredReads",
+    "targetFiles",
+    "relatedCommands",
+    "expectedOutputs",
+    "repairPolicy"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "task-capsule-v1",
+      "description": "schema version anchor。本 schema = `task-capsule-v1`。後続 v2 (= `--changed-only` 対応) / v3 (= `--intent` + SourceFacts / AAG Parameters facts 連結) で minor バージョン (= task-capsule-v2 / v3) を bump 予定 (= 本 program versionImpact aag delta=+0.1 minor の articulate)。AI session は本 field で消費可能 schema を identify する。"
+    },
+    "taskId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+      "description": "本 task の kebab-case 識別子 (例: `effective-loc-statistics`)。同一 project 内で unique。3 文字以上の自然 articulate 推奨 (= 1 文字 / 数字単独は scope 不明瞭で却下)。pattern は AAG project id と同 family (= `references/05-aag-interface/operations/project-checklist-governance.md` §10 Step 2 整合)。"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+      "description": "対象 project の id (例: `reposteward-ai-ops-platform`)。`projects/active/<id>/` または `projects/completed/<id>/` と一致する必要があり、producer 側で存在検証する責務。"
+    },
+    "intent": {
+      "type": "string",
+      "description": "task の意図を free-form 1 文で articulate (例: `effective LOC statistics and stats query implementation`)。`reposteward task prepare --intent <text>` の入力をそのまま echo。capsule 内で唯一 optional (= --intent なしで task prepare を呼ぶ場合は省略)、他 field は producer が常時 articulate する。"
+    },
+    "repoHealth": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "hardGate": {
+          "type": "string",
+          "enum": ["pass", "fail", "unknown"],
+          "description": "現在の Hard Gate state (= `references/04-tracking/generated/architecture-health.json` の hardGate field source)。`unknown` は health JSON が古い / 未生成等で判定不能な場合に producer が articulate。"
+        },
+        "kpi": {
+          "type": "string",
+          "description": "KPI summary (例: `60/60 OK`)。Health summary の primary count を 1 行で articulate。詳細 KPI は `currentState` 内に producer が articulate 可能。"
+        }
+      },
+      "description": "task prepare 時点での repo 健全性 snapshot。producer (= `reposteward task prepare`) が health JSON から articulate、AI session は read-only に参照する。schema は open (= `additionalProperties: true`) で、producer が `warn` / `fail` 件数 等の追加 field を articulate 可能。"
+    },
+    "currentState": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "project 固有の現状 facts (例: `{ goMvp: 'completed', aagEngine: 'available', openPrs: 0 }`)。schema は open (= project ごとに facts kind が異なる、強制的な field を articulate しない)、producer が `references/04-tracking/generated/project-health.json` / `aag-metadata.json` / open PR list 等から articulate する。Wave 1 #4 (SourceFacts v1) landing 後は SourceFacts 抜粋 (= 関連 file 統計) も articulate 可能。"
+    },
+    "goal": {
+      "type": "string",
+      "description": "本 task の到達目標を 1-2 文で articulate (例: `Add effectiveCodeLines statistics and queryable file buckets.`)。AI session の北極星 (= 北極星のずれが scope creep の primary signal)。本 field は単数の goal を articulate (= 複数 goal は別 task に分離する責務、scope 縮退の design pressure)。"
+    },
+    "nonGoals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "本 task で **やってはいけないこと** の articulate (例: `['Do not replace TypeScript guards', 'Do not add new hard gates yet']`)。安全境界 = scope creep 抑止 + 不可侵原則継承の primary mechanism。空 array は許容するが、producer は必ず本 project (= `projects/<id>/projectization.md` §4) + 本 program 不可侵原則 (= `plan.md` §不可侵原則) の articulate を継承して articulate する責務。"
+    },
+    "requiredReads": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI session が作業前に読むべき正本 file path の articulate (例: `['projects/completed/aag-engine-go-mvp/ARCHIVE.md', 'app/src/test/guards/sizeGuard.test.ts']`)。path は repo root からの相対 path。producer は `obligation-collector.ts` の path-based obligation + `manifest.discovery.byTopic` の hint + project の `AI_CONTEXT.md` `Read Order` から articulate する。"
+    },
+    "targetFiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "本 task で **触る予定の file path** の articulate (例: `['docs/contracts/aag/aag-parameters.schema.json', 'tools/architecture-health/src/facts/source-facts.ts']`)。scope creep 抑止の input (= AI session が articulate された path 外を触ろうとした際の review trigger)。producer は project の `implementationScope` (= `config/project.json#/projectization/implementationScope`) と Wave step 仕様から articulate する。"
+    },
+    "relatedCommands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "本 task の検証に必要な shell command 列 (例: `['npm run test:guards', 'npm run docs:check', 'go test ./...']`)。AI session が実装後に実行する。command は repo root から実行可能な形で articulate (= cd app && ... のような prefix 含む)。"
+    },
+    "expectedOutputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "本 task が landing 後に出ているべき成果物 / 観測点 (例: `['effectiveCodeLines bucket distribution', 'stats files query by range', 'Health remains Hard Gate PASS']`)。完了判定の入力 = AI 自己レビューの基準。producer は Wave step 仕様 + `checklist.md` の `expectedOutputs` を articulate する。"
+    },
+    "repairPolicy": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "ifDocsObligationFails": {
+          "type": "string",
+          "description": "`docs:check` / obligation-collector が fail した場合の修復方針 (例: `run docs generation and inspect obligation output`)。AI session が失敗を踏んだ際にどこを読み・どう動くかの指示。"
+        },
+        "ifGuardFails": {
+          "type": "string",
+          "description": "`test:guards` / 個別 guard が fail した場合の修復方針 (例: `return DetectorResult-style repair context`)。Wave 5 #21 (`reposteward repair-context`) と接続予定。"
+        }
+      },
+      "description": "失敗時の修復方針 articulate。AI session が失敗を踏んだ際にどこを読み・どう動くかの指示。schema は open (= 失敗 kind ごとに `if<Kind>Fails` field を producer が articulate 可能、Wave 4 #15 cleanliness / Wave 4 #16 comments / Wave 5 #20 obligation 拡張等で additive)。"
+    }
+  }
+}

@@ -106,6 +106,29 @@ export function stripComments(content: string): string {
     .join('\n')
 }
 
+/**
+ * Effective code line count を articulate (= physicalLines - blankLines - commentLines)。
+ *
+ * Wave 2 #7 (= reposteward-ai-ops-platform、sizeGuard 効果計測 metric 切替) で landing。
+ * AAG Parameters の `codeSize.metric=effectiveCodeLines` (Wave 1 #3) と整合した metric を
+ * articulate するための size guard 共通 helper。コメント / 空行を除外することで「コメント
+ * 追加が size penalty にならない」状態を articulate (= 不可侵原則 4 整合)。
+ *
+ * 算法: line-based filter (= 既存 isCommentLine() approximation 継承)。SourceFacts collector
+ * (= tools/architecture-health/src/facts/source-facts.ts) は state machine で block コメントを
+ * 厳密 articulate するが、本 helper は line-level approximation で十分実用的 (= effective ≤
+ * physical の identity は保たれる、size guard threshold validation で偽陽性は出ない)。
+ */
+export function effectiveCodeLineCount(content: string): number {
+  let count = 0
+  for (const line of content.split('\n')) {
+    if (line.trim().length === 0) continue
+    if (isCommentLine(line)) continue
+    count++
+  }
+  return count
+}
+
 /** 文字列リテラルを除去する（パターン検出の偽陽性防止用） */
 export function stripStrings(line: string): string {
   return line

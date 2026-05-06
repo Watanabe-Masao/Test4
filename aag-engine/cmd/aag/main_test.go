@@ -16,6 +16,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -323,4 +324,784 @@ func TestRun_Fixtures_UnexpectedPositionalArg(t *testing.T) {
 	if !strings.Contains(stderr.String(), "unexpected positional argument") {
 		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
 	}
+}
+
+// task action が不足なら ExitError (= Wave 1 #2、reposteward-ai-ops-platform)。
+func TestRun_Task_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "action 不足") {
+		t.Errorf("stderr should articulate missing action, got: %q", stderr.String())
+	}
+}
+
+// task の不明 action は ExitError。
+func TestRun_Task_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "bogus"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), `unknown action "bogus"`) {
+		t.Errorf("stderr should articulate unknown action, got: %q", stderr.String())
+	}
+}
+
+// task prepare で --project 不在は ExitError。
+func TestRun_TaskPrepare_MissingProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "prepare", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "--project flag は required") {
+		t.Errorf("stderr should articulate required --project, got: %q", stderr.String())
+	}
+}
+
+// task prepare の self-dogfood は ExitPass + valid TaskCapsule v1 JSON を出力。
+func TestRun_TaskPrepare_SelfDogfood(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+		"--intent", "Wave 1 #2 task prepare CLI test",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var capsule map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &capsule); err != nil {
+		t.Fatalf("stdout is not valid JSON: %v\n%s", err, stdout.String())
+	}
+	if capsule["schemaVersion"] != "task-capsule-v1" {
+		t.Errorf("schemaVersion = %v, want task-capsule-v1", capsule["schemaVersion"])
+	}
+	if capsule["projectId"] != "reposteward-ai-ops-platform" {
+		t.Errorf("projectId = %v, want reposteward-ai-ops-platform", capsule["projectId"])
+	}
+	if _, ok := capsule["nonGoals"].([]interface{}); !ok {
+		t.Errorf("nonGoals must be array, got: %T", capsule["nonGoals"])
+	}
+	if _, ok := capsule["repairPolicy"].(map[string]interface{}); !ok {
+		t.Errorf("repairPolicy must be object, got: %T", capsule["repairPolicy"])
+	}
+}
+
+// task prepare で位置引数があれば ExitError。
+func TestRun_TaskPrepare_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--project", "reposteward-ai-ops-platform",
+		"unexpected-positional",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "unexpected positional argument") {
+		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
+	}
+}
+
+// task prepare で存在しない project を指定したら ExitError。
+func TestRun_TaskPrepare_NonexistentProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "nonexistent-project-zzz",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// stats action 不足は ExitError (= Wave 1 #6)。
+func TestRun_Stats_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "action 不足") {
+		t.Errorf("stderr should articulate missing action, got: %q", stderr.String())
+	}
+}
+
+// stats の不明 action は ExitError。
+func TestRun_Stats_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats", "size"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), `unknown action "size"`) {
+		t.Errorf("stderr should articulate unknown action, got: %q", stderr.String())
+	}
+}
+
+// stats files: real repo 走査で valid query output JSON を articulate。
+func TestRun_StatsFiles_RealRepo_NoFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats", "files", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout is not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "stats-files-query-v1" {
+		t.Errorf("schemaVersion = %v, want stats-files-query-v1", out["schemaVersion"])
+	}
+	if out["metric"] != "effectiveCodeLines" {
+		t.Errorf("metric = %v, want effectiveCodeLines", out["metric"])
+	}
+	files, ok := out["files"].([]interface{})
+	if !ok {
+		t.Fatalf("files must be array")
+	}
+	if len(files) == 0 {
+		t.Errorf("expected non-empty files array on real repo")
+	}
+}
+
+// stats files --range で filter された結果が範囲内。
+func TestRun_StatsFiles_RangeFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--range", "21..30",
+		"--limit", "20",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d", code)
+	}
+	var out struct {
+		Files []struct {
+			Path               string `json:"path"`
+			EffectiveCodeLines int    `json:"effectiveCodeLines"`
+		} `json:"files"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	for _, f := range out.Files {
+		if f.EffectiveCodeLines < 21 || f.EffectiveCodeLines > 30 {
+			t.Errorf("file %q effectiveCodeLines=%d outside 21..30", f.Path, f.EffectiveCodeLines)
+		}
+	}
+}
+
+// stats files --bucket でも filter が効く。
+func TestRun_StatsFiles_BucketFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--bucket", "loc.301_plus",
+		"--limit", "5",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out struct {
+		Files []struct {
+			Path               string `json:"path"`
+			EffectiveCodeLines int    `json:"effectiveCodeLines"`
+		} `json:"files"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	for _, f := range out.Files {
+		if f.EffectiveCodeLines < 301 {
+			t.Errorf("file %q effectiveCodeLines=%d below 301 for loc.301_plus", f.Path, f.EffectiveCodeLines)
+		}
+	}
+}
+
+// stats files --range が malformed なら ExitError。
+func TestRun_StatsFiles_MalformedRange(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--range", "21",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// stats files で位置引数があれば ExitError。
+func TestRun_StatsFiles_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"unexpected",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// where-am-i は real repo で valid JSON を出力する (= Wave 3 #10)。
+func TestRun_WhereAmI_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"where-am-i", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "where-am-i-v1" {
+		t.Errorf("schemaVersion = %v, want where-am-i-v1", out["schemaVersion"])
+	}
+	if _, ok := out["branch"].(string); !ok {
+		t.Error("branch must be string")
+	}
+	if _, ok := out["repoHealth"].(map[string]interface{}); !ok {
+		t.Error("repoHealth must be object")
+	}
+}
+
+// where-am-i で位置引数があれば ExitError。
+func TestRun_WhereAmI_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"where-am-i", "/tmp/extra"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// context は real repo で valid JSON を出力する (= Wave 3 #11)。
+func TestRun_Context_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"context",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "context-project-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["projectId"] != "reposteward-ai-ops-platform" {
+		t.Errorf("projectId = %v", out["projectId"])
+	}
+	if reads, ok := out["requiredReads"].([]interface{}); !ok || len(reads) != 5 {
+		t.Errorf("requiredReads must be 5-element array, got %v", out["requiredReads"])
+	}
+	if cons, ok := out["constraints"].([]interface{}); !ok || len(cons) == 0 {
+		t.Errorf("constraints must be non-empty array, got %v", out["constraints"])
+	}
+}
+
+// context で --project 不在は ExitError。
+func TestRun_Context_MissingProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"context", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// context で nonexistent project は ExitError。
+func TestRun_Context_NonexistentProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"context",
+		"--repo", repoRootForTest(t),
+		"--project", "nonexistent-zzz",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// changed は real repo で valid JSON を出力 (= Wave 3 #12)。
+func TestRun_Changed_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"changed",
+		"--repo", repoRootForTest(t),
+		"--base", "HEAD~1",
+		"--head", "HEAD",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		// HEAD~1 may not exist on fresh branches; tolerate
+		if !strings.Contains(stderr.String(), "git diff failed") {
+			t.Errorf("expected ExitPass or git diff failed, got code %d. stderr: %q", code, stderr.String())
+		}
+		return
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "changed-explain-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["base"] != "HEAD~1" || out["head"] != "HEAD" {
+		t.Errorf("base/head not echoed: base=%v head=%v", out["base"], out["head"])
+	}
+}
+
+// changed で位置引数があれば ExitError。
+func TestRun_Changed_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"changed", "--repo", repoRootForTest(t), "extra"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule action 不足は ExitError (= Wave 3 #13)。
+func TestRun_Rule_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule の不明 action は ExitError。
+func TestRun_Rule_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule", "unknown"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule locate で ruleId 不在は ExitError。
+func TestRun_RuleLocate_MissingRuleId(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"rule", "locate", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// rule locate で known ruleId は valid JSON を出力。
+// flag は positional arg の前に articulate (= 標準 Go flag library 制約)。
+func TestRun_RuleLocate_RealRepo_KnownRule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"rule", "locate",
+		"--repo", repoRootForTest(t),
+		"AR-G5-HOOK-LINES",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "rule-locate-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["ruleId"] != "AR-G5-HOOK-LINES" {
+		t.Errorf("ruleId = %v", out["ruleId"])
+	}
+	if guards, ok := out["guards"].([]interface{}); !ok || len(guards) == 0 {
+		t.Errorf("guards must be non-empty array, got: %v", out["guards"])
+	}
+}
+
+// rule locate で unknown ruleId は ExitError。
+func TestRun_RuleLocate_UnknownRule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"rule", "locate",
+		"--repo", repoRootForTest(t),
+		"AR-NONEXISTENT-XYZ",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "Similar:") {
+		t.Errorf("stderr should articulate Similar: hint, got: %q", stderr.String())
+	}
+}
+
+// detector action 不足は ExitError (= Wave 3 #14)。
+func TestRun_Detector_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"detector"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// detector refs で detectorId 不在は ExitError。
+func TestRun_DetectorRefs_MissingDetectorId(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"detector", "refs", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// detector refs で known detectorId は valid JSON を出力。
+func TestRun_DetectorRefs_RealRepo_ArchiveManifest(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"detector", "refs",
+		"--repo", repoRootForTest(t),
+		"archive-manifest",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "detector-refs-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["detectorId"] != "archive-manifest" {
+		t.Errorf("detectorId = %v", out["detectorId"])
+	}
+	if !strings.Contains(out["goImplementation"].(string), "archive_manifest.go") {
+		t.Errorf("goImplementation should reference archive_manifest.go")
+	}
+	if fixtures, ok := out["fixtures"].([]interface{}); !ok || len(fixtures) == 0 {
+		t.Errorf("fixtures must be non-empty array")
+	}
+}
+
+// detector refs で unknown detectorId は ExitError。
+func TestRun_DetectorRefs_UnknownDetector(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"detector", "refs",
+		"--repo", repoRootForTest(t),
+		"nonexistent-detector",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "Known detectors:") {
+		t.Errorf("stderr should articulate Known detectors:, got: %q", stderr.String())
+	}
+}
+
+// clean action 不足は ExitError (= Wave 4 #15)。
+func TestRun_Clean_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"clean"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// clean check は real repo で valid JSON を出力。
+func TestRun_CleanCheck_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"clean", "check", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "clean-check-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["violations"].([]interface{}); !ok {
+		t.Errorf("violations must be array")
+	}
+	if _, ok := out["stats"].(map[string]interface{}); !ok {
+		t.Errorf("stats must be object")
+	}
+	if _, ok := out["summary"].(string); !ok {
+		t.Errorf("summary must be string")
+	}
+}
+
+// comments action 不足は ExitError (= Wave 4 #16)。
+func TestRun_Comments_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list で --kind 不在は ExitError。
+func TestRun_CommentsList_MissingKind(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments", "list", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list で invalid kind は ExitError。
+func TestRun_CommentsList_InvalidKind(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments", "list", "--kind", "bogus"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list --kind=todo は real repo で valid JSON を出力。
+func TestRun_CommentsList_RealRepo_Todo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"comments", "list",
+		"--repo", repoRootForTest(t),
+		"--kind", "todo",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "comments-list-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["kind"] != "todo" {
+		t.Errorf("kind = %v", out["kind"])
+	}
+}
+
+// docs action 不足は ExitError (= Wave 4 #17)。
+func TestRun_Docs_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"docs"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// docs placement-check は real repo で valid JSON を出力。
+func TestRun_DocsPlacementCheck_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"docs", "placement-check", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "docs-placement-check-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	conventions, ok := out["conventions"].([]interface{})
+	if !ok || len(conventions) != 6 {
+		t.Errorf("expected 6 conventions, got %v", out["conventions"])
+	}
+}
+
+// obligation action 不足は ExitError (= Wave 5 #20)。
+func TestRun_Obligation_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"obligation"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// obligation check は real repo で valid JSON を出力。
+func TestRun_ObligationCheck_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"obligation", "check",
+		"--repo", repoRootForTest(t),
+		"--base", "HEAD~1",
+		"--head", "HEAD",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		// HEAD~1 may not exist on fresh branches
+		if !strings.Contains(stderr.String(), "git diff failed") {
+			t.Errorf("expected ExitPass (0) or git-diff-failed, got %d. stderr: %q", code, stderr.String())
+		}
+		return
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "obligation-check-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["matchedContracts"].([]interface{}); !ok {
+		t.Errorf("matchedContracts must be array")
+	}
+}
+
+// repair-context で --from 不在は ExitError (= Wave 5 #21)。
+func TestRun_RepairContext_MissingFrom(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"repair-context", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// repair-context で nonexistent file は ExitError。
+func TestRun_RepairContext_NonexistentFile(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"repair-context",
+		"--repo", repoRootForTest(t),
+		"--from", "/nonexistent/results.json",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// task validate で --capsule 不在は ExitError (= Wave 5 #22)。
+func TestRun_TaskValidate_MissingCapsule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "validate"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// task validate で valid capsule は ExitPass。
+func TestRun_TaskValidate_ValidCapsule(t *testing.T) {
+	tmp := t.TempDir()
+	capsulePath := tmp + "/capsule.json"
+	// Generate a valid capsule via task prepare
+	var prepareOut bytes.Buffer
+	prepareCode := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &prepareOut, &bytes.Buffer{})
+	if prepareCode != ExitPass {
+		t.Skipf("task prepare failed, cannot setup test: %d", prepareCode)
+	}
+	if err := writeFileForTest(capsulePath, prepareOut.Bytes()); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "validate", "--capsule", capsulePath}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["valid"] != true {
+		t.Errorf("valid = %v, want true", out["valid"])
+	}
+}
+
+// task close で valid capsule は ExitPass + readyToClose=true。
+func TestRun_TaskClose_ValidCapsule(t *testing.T) {
+	tmp := t.TempDir()
+	capsulePath := tmp + "/capsule.json"
+	var prepareOut bytes.Buffer
+	prepareCode := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+	}, &prepareOut, &bytes.Buffer{})
+	if prepareCode != ExitPass {
+		t.Skipf("task prepare failed: %d", prepareCode)
+	}
+	if err := writeFileForTest(capsulePath, prepareOut.Bytes()); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "close", "--capsule", capsulePath}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["readyToClose"] != true {
+		t.Errorf("readyToClose = %v, want true", out["readyToClose"])
+	}
+}
+
+// task close で --capsule 不在は ExitError。
+func TestRun_TaskClose_MissingCapsule(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "close"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// project stale は real repo で valid JSON を出力 (= Wave 5 #23)。
+func TestRun_ProjectStale_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"project", "stale", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "project-stale-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+}
+
+// project action 不足は ExitError。
+func TestRun_Project_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"project"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// next は real repo で valid JSON を出力 (= Wave 5 #23 final)。
+func TestRun_Next_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"next", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "next-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["recommendedActions"].([]interface{}); !ok {
+		t.Errorf("recommendedActions must be array")
+	}
+}
+
+func writeFileForTest(path string, data []byte) error {
+	return os.WriteFile(path, data, 0o644)
 }

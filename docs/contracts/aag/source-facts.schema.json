@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/source-facts-v1.json",
+  "title": "Source Facts v1",
+  "description": "repo 内 file の **size + 構造 facts** を articulate する collector output 契約。Wave 1 #4 (= reposteward-ai-ops-platform) で landing。Wave 1 #5 Effective LOC statistics が本 facts を入力に bucket distribution を集計、Wave 1 #6 stats files query が `--bucket loc.021_030 --layer presentation` 等で本 facts を直接 query、Wave 2 sizeGuard refactor が raw line count から `effectiveCodeLines` に切替時に本 facts を reference。canonical: 本 schema file。 generated artifact: references/04-tracking/generated/source-facts.json (= collector が生成)。 sync guard: 未登録 (= consumer 配線後に Wave 後段で検討)。",
+  "$comment": "format 選定根拠: contract = facts articulation = 言語非依存性が要件 → JSON Schema (draft-07 採用、既存 aag-response.schema.json + detector-result.schema.json + task-capsule.schema.json + aag-parameters.schema.json と同 family、Ajv 既定 dialect 整合)。設計判断: facts 単位の strict articulation (= 各 file fact は additionalProperties: false)、imports / exports / hooks は file kind ごとに optional articulate (= TS/TSX/Go では articulate、MD/JSON では omit)、effectiveCodeLines = physicalLines - blankLines - commentLines の identity は producer 側で articulate する責務 (= schema は形を articulate、内容妥当性は人間判断)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "summary", "facts"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "source-facts-v1",
+      "description": "schema version anchor。本 schema = `source-facts-v1`。後続 v2 (= 新 file kind 追加 / 新 fact field 追加) で minor バージョン bump 予定。"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "collector 実行時の ISO 8601 timestamp。Health KPI sync で活用。"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["totalFiles", "byKind"],
+      "properties": {
+        "totalFiles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "facts 配列の長さ (= scan 対象に含まれた file 総数、excludedKinds 適用後)。"
+        },
+        "byKind": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "file kind ごとの件数 (= 例: { typescript: 432, tsx: 215, go: 18, markdown: 89, json: 24 })。"
+        },
+        "excludedKinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["generated", "fixture", "archive"]
+          },
+          "description": "本 collector run で適用された excludedKinds (= aag-parameters.json の codeSize.excludedKinds と同 enum)。"
+        }
+      },
+      "description": "collector run の summary。詳細 facts は facts 配列、本 summary は overview。"
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SourceFact"
+      },
+      "description": "file ごとの SourceFact 配列。順序は path 昇順 (= producer 側で sort、consumer の reproducibility 確保)。"
+    }
+  },
+  "definitions": {
+    "SourceFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind", "physicalLines", "blankLines", "commentLines", "effectiveCodeLines"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "repo-relative POSIX path (= path-helpers.ts RepoPath 規約整合、leading `/` 禁止 / Windows separator 禁止 / `..` segment 禁止)。"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["typescript", "tsx", "go", "markdown", "json", "other"],
+          "description": "file kind の semantic 分類。`typescript`=.ts、`tsx`=.tsx、`go`=.go、`markdown`=.md、`json`=.json、`other`=その他。"
+        },
+        "layer": {
+          "type": ["string", "null"],
+          "description": "path から導出された layer (= 例: 'presentation' / 'application' / 'domain' / 'infrastructure' / 'features/<name>' / 'aag-engine' / 'tools' / 'references' / 'docs' / 'projects')。layer が articulate できない file は null。"
+        },
+        "physicalLines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "file の physical line 数 (= file content split by '\\n' の長さ)。最終行が改行なしでも 1 line として count。"
+        },
+        "blankLines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "blank line 数 (= 空白文字のみまたは empty な line の count)。physicalLines を超えない。"
+        },
+        "commentLines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "comment line 数 (= TS/TSX/Go では `//` から始まる line + `/* ... */` block 内 line の count、MD/JSON では 0)。physicalLines - blankLines を超えない。"
+        },
+        "effectiveCodeLines": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "effective code line 数 (= physicalLines - blankLines - commentLines)。Wave 1 #5 statistics の primary metric、Wave 2 sizeGuard refactor の切替先 metric。`aag-parameters.json` `codeSize.metric=effectiveCodeLines` で pinning。"
+        },
+        "imports": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "imported module path 配列。TS/TSX (= `import ... from '...'` / `import '...'`) / Go (= `import \"...\"`) で articulate、MD/JSON では omit。"
+        },
+        "exports": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "exported declaration count。TS/TSX (= `export ...` 行数、`export type` 除く) / Go (= `func [A-Z]` + `type [A-Z]` + `var [A-Z]` + `const [A-Z]` の count) で articulate、MD/JSON では omit。"
+        },
+        "hooks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "React hook 使用 count (= TSX file のみ articulate)。例: { useState: 2, useEffect: 1, useMemo: 3 }。0 件は omit。TS (.ts) / Go / MD / JSON では omit。"
+        }
+      }
+    }
+  }
+}

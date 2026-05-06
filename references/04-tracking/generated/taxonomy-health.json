@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "schemaSource": "projects/active/taxonomy-v2/plan.md §taxonomy-health.json schema",
-  "generatedAt": "2026-05-06T07:56:21.085Z",
+  "generatedAt": "2026-05-06T12:44:24.817Z",
   "generator": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
   "taxonomy": {
     "responsibility": {
@@ -31,8 +31,8 @@
       }
     },
     "test": {
-      "totalTargets": 778,
-      "tagged": 778,
+      "totalTargets": 780,
+      "tagged": 780,
       "untagged": 0,
       "inAnchorSlice": 53,
       "anchorBreakdown": {
@@ -46,7 +46,7 @@
       "unknownVocabulary": 1,
       "missingOrigin": 0,
       "tagDistribution": {
-        "T:unclassified": 713,
+        "T:unclassified": 715,
         "T:dependency-list": 2,
         "T:zod-contract": 2,
         "T:null-path": 1,

@@ -14,7 +14,13 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel, stripComments } from '../guardTestHelpers'
+import {
+  SRC_DIR,
+  collectTsFiles,
+  rel,
+  stripComments,
+  effectiveCodeLineCount,
+} from '../guardTestHelpers'
 import { getRuleById, formatViolationMessage } from '../architectureRules'
 import {
   useMemoLimits,
@@ -156,7 +162,7 @@ describe('R11: hooks/ の .ts ファイルが行数上限以下', () => {
     for (const file of files) {
       const content = fs.readFileSync(file, 'utf-8')
       const relPath = rel(file)
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       const limit = allowlist[relPath] ?? rule.thresholds!.lineMax!
 
       if (lineCount > limit) {
@@ -187,7 +193,7 @@ describe('R12: Presentation コンポーネントの行数制限', () => {
       if (largeComponentExclusions.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       if (lineCount > rule.thresholds!.lineMax!) {
         violations.push(`${relPath}: ${lineCount}行 (上限: ${rule.thresholds!.lineMax})`)
       }
@@ -202,7 +208,7 @@ describe('R12: Presentation コンポーネントの行数制限', () => {
       const filePath = path.join(SRC_DIR, relPath)
       if (!fs.existsSync(filePath)) continue
       const content = fs.readFileSync(filePath, 'utf-8')
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       expect(
         lineCount,
         `${relPath} は ${lineCount} 行 (上限: ${maxLines})。分割してから機能追加すること`,
@@ -228,7 +234,7 @@ describe('Infrastructure 層の行数制限', () => {
       if (excludeFiles.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       if (lineCount > rule.thresholds!.lineMax!) {
         violations.push(`${relPath}: ${lineCount}行 (上限: ${rule.thresholds!.lineMax})`)
       }
@@ -253,7 +259,7 @@ describe('Domain 層の行数制限', () => {
       if (excludeFiles.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       if (lineCount > rule.thresholds!.lineMax!) {
         violations.push(`${relPath}: ${lineCount}行 (上限: ${rule.thresholds!.lineMax})`)
       }
@@ -279,7 +285,7 @@ describe('Application usecases 層の行数制限', () => {
       if (excludeFiles.has(relPath)) continue
 
       const content = fs.readFileSync(file, 'utf-8')
-      const lineCount = content.split('\n').length
+      const lineCount = effectiveCodeLineCount(content)
       if (lineCount > rule.thresholds!.lineMax!) {
         violations.push(`${relPath}: ${lineCount}行 (上限: ${rule.thresholds!.lineMax})`)
       }

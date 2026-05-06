@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/detection-inventory-v1.json",
+  "title": "Detection Inventory v1",
+  "description": "AAG / RepoSteward に articulate された検出 logic の inventory artifact 契約。Wave 4 #18 (= reposteward-ai-ops-platform、preparatory doc work) で landing。AI session が「どこにどんな検出があるか」を 1 JSON で articulate される map として消費する。canonical: 本 schema file。 narrative: references/03-implementation/detection-inventory-v2.md。 generated artifact: references/04-tracking/generated/detection-inventory.json。",
+  "$comment": "format 選定根拠: contract = inventory articulation = 言語非依存性が要件 → JSON Schema (draft-07)、既存 AAG schema family (= aag-response / detector-result / task-capsule / aag-parameters / source-facts) と整合。設計判断: 各 detection を `kind` (= guard / audit / detector / collector) で分類、`location` (= file path) + `what` (= 検出対象の 1 文 articulate) で identity を articulate。本 schema は v1 MVP、後続で `inputSources` / `outputContract` / `severity` 等の拡張候補。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "totalDetections", "byKind", "detections"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "detection-inventory-v1",
+      "description": "schema version anchor。"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "inventory 生成時の ISO 8601 timestamp。"
+    },
+    "totalDetections": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "detections 配列の長さ。"
+    },
+    "byKind": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "description": "kind 別件数 (= 例: { guard: 60, audit: 4, detector: 5, collector: 14 })。"
+    },
+    "detections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Detection"
+      },
+      "description": "detection 配列。順序は kind ASC, location ASC で sort (= reproducibility 確保)。"
+    }
+  },
+  "definitions": {
+    "Detection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "location", "what"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "detection 識別子。kind ごとに unique (= 例: guard なら test 関数名 / file 名、collector なら export 関数名)。"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["guard", "audit", "detector", "collector"],
+          "description": "検出 logic の kind。`guard`=app/src/test/guards/、`audit`=app/src/test/audits/、`detector`=aag-engine/internal/detectors/ + tools/architecture-health/src/detectors/、`collector`=tools/architecture-health/src/collectors/。"
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "description": "実装 file path (= repo-relative POSIX)。"
+        },
+        "what": {
+          "type": "string",
+          "minLength": 1,
+          "description": "検出対象を 1 文で articulate (= 例: '行数上限を超えた hook ファイルを検出')。"
+        }
+      }
+    }
+  }
+}
