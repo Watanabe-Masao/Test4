@@ -31,7 +31,7 @@
 2. **`reposteward task prepare` MVP** — `aag-engine/internal/taskcapsule/` に Go 実装、最初の対象 project は `reposteward-ai-ops-platform` 自身 (= self-dogfood)。出力は schema v1 準拠 JSON
 3. **AAG Parameters v1** — `docs/contracts/aag/aag-parameters.schema.json` + `aag/parameters/aag-parameters.json`。最初は `codeSize.metric=effectiveCodeLines` + 14 bucket + `excludedKinds=[generated, fixture, archive]` のみ。Task Capsule の constraints source として接続
 4. **SourceFacts v1** — `tools/architecture-health/src/facts/source-facts.ts` + collector + `docs/contracts/aag/source-facts.schema.json` + `references/04-tracking/generated/source-facts.json`。Task Capsule の facts source として接続
-5. **Effective LOC statistics** — `references/04-tracking/generated/aag-size-statistics.json` (= bucket distribution + p50/p75/p90/p95/p99/max + layer 別 distribution) + Health summary 3 KPI (`code.size.effectiveLoc.p90/p95/max`)
+5. **Effective LOC statistics** — `references/04-tracking/generated/aag-size-statistics.json` (= bucket distribution + p50/p75/p90/p95/p99/max + layer 別 distribution)。**Health KPI integration は deferred** (= DA-β-003 articulate、threshold policy 未確定 + Hard Gate FAIL リスク + 不可侵原則 6 整合のため、`code.size.effectiveLoc.{p90,p95,max}` の Health KPI 化は別 program で baseline + ratchet-down 設計と同時に articulate)
 6. **`reposteward stats files` query** — `aag-engine/` に command landing。`--metric effectiveCodeLines --range N..M` / `--bucket loc.021_030` / `--above p95 --layer presentation` 等
 
 完了条件: 全 6 PR landed + Health Hard Gate PASS 維持 + 新 hard gate 0 追加 + Task Capsule self-dogfood 出力が schema v1 valid。

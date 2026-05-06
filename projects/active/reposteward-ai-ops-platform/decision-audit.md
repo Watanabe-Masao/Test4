@@ -1745,3 +1745,179 @@ Wave 5 #22 後、Wave 5 final step = stale detection + next action recommendatio
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-β-001: Consolidated implementation merge review (= post-Wave 5 quality pass)
+
+### status
+
+- 着手判断: **active** (= post-merge quality pass を本 PR で起動)
+- 振り返り判定: **未確定**
+
+### context
+
+本 program は当初 plan §不可侵原則 7 (= Wave-by-wave delivery / step 独立 PR) に従い、23 step を 23 個の stacked branch で landing する設計だった。実装 session で全 23 step が連続 landing され、最終的に PR #1262 で **consolidated branch (= claude/reposteward-ai-ops-platform-consolidated、31 commits)** として main に merge された。stacked branch 群は origin に push 済だが review history としての痕跡保持にとどまり、実 merge は consolidated 1 本。
+
+### decision
+
+consolidated merge を **既成事実として accept** + **post-merge quality pass を別 PR (= 本 PR、PR A) で実施** する。Wave-by-wave 不可侵原則は articulation 上維持 (= 各 Wave / step が独立して articulate されている事実は plan / checklist / DA で track 可能)、merge granularity だけが consolidated になった。
+
+具体的に本 PR (= PR A、post-merge quality pass) で実施:
+
+1. docs:generate / test:guards / go test の最新 sync を確認
+2. main.go の package comment / usage を Wave 1〜5 後の現実 command surface に合わせて修正
+3. naming note (= concept = RepoSteward / binary = aag) を AI_CONTEXT.md / HANDOFF.md / main.go に明記
+4. 本 entry (DA-β-001) + DA-β-002 (= naming) で consolidated merge を AAG governance 上説明可能化
+5. effective LOC Health KPI integration の deferral を plan.md / DA に明記 (= 別 entry DA-β-003)
+
+### rationale
+
+- **consolidated merge を rollback / re-stack しない理由**:
+  - 23 PR を re-create しても review value が増えない (= 既に landed された code に対する後付 review は articulate が薄い)
+  - rollback granularity の喪失は事実だが、commit history は残っており特定 step の revert は可能 (= `git revert <wave-x-y commit>`)
+  - consolidated merge を accept した上で、後続 quality pass で軽量 mitigation を articulate する方が実利
+- **PR A〜C 分割で post-merge quality を articulate**:
+  - PR A: stale wording / naming / DA articulate (= 本 PR)
+  - PR B: command surface audit + maturity labels (= 別 PR、user 提案)
+  - PR C: CLI dispatcher refactor (= 別 PR、user 提案)
+- **不可侵原則 7 違反として articulate しない**: Wave-by-wave 不可侵原則は **delivery cadence** の articulate であり、each step が articulate された事実は維持されている。consolidation は merge granularity の話であり、後続 step で同 pattern を avoid する design pressure として活用
+
+### alternatives
+
+- (a) consolidated merge を revert + 23 PR を順次 re-create: 却下 (= 後付 review の articulate が薄く、実利低い)
+- (b) consolidated merge を「不可侵原則 7 違反」として articulate: 却下 (= delivery cadence vs merge granularity の責務違い、原則の意味を狭く解釈する必要なし)
+- (c) post-merge quality pass を 1 PR にすべて詰め込む: 却下 (= 5 軸 (= sync / wording / naming / DA / KPI deferral) で十分、追加の command surface audit + dispatcher refactor は別 PR の方が rollback granularity 高い)
+- (d) Wave 1〜5 を archive 移行で完了させ post-merge quality は別 program: 却下 (= 同 project 内で完結する範囲、別 program 起動の overhead 大)
+
+### 観測点 (= post-merge quality pass で true となるべき)
+
+1. cd app && npm run docs:generate が drift なく完了
+2. cd app && npm run test:guards が 1082 PASS
+3. cd aag-engine && go test ./... が全 PASS
+4. main.go package comment が現実の command surface 群を articulate
+5. main.go usage 内に NAMING block が articulate される
+6. AI_CONTEXT.md に Naming Note table が articulate される
+7. HANDOFF.md §3.2 に CLI binary 名差を articulate
+8. DA-β-001 (= 本 entry) が consolidated merge を articulate
+9. DA-β-002 (= naming) が concept ↔ binary 関係を articulate
+10. DA-β-003 (= Health KPI deferral) が effective LOC KPI の現状を articulate
+11. Health 60/60 OK / Hard Gate PASS 維持
+
+### Lineage
+
+- **preJudgementCommit**: `cd9773a` (= Codex P2 fix commit、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= post-merge quality pass landing)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
+
+---
+
+## DA-β-002: Naming clarification — concept = "RepoSteward" / binary = "aag"
+
+### status
+
+- 着手判断: **active** (= 本 PR で articulate)
+- 振り返り判定: **未確定**
+
+### context
+
+本 project の構想名は `RepoSteward AI Ops Platform` だが、CLI binary は `aag` (= aag-engine-go-mvp で institute された名称) を継続使用している。plan / docs / user message で `reposteward stats files` のように articulate されるが、実装上の command は `aag stats files`。後続 AI session が「reposteward が install 不在」「`aag` が現実の binary」を即値で articulate できる必要がある。
+
+### decision
+
+両 name を **意図的に維持** + **明示 articulation** で混乱を抑止:
+
+- Concept / platform name = `RepoSteward AI Ops Platform`
+- Binary / CLI command = `aag`
+- Project id = `reposteward-ai-ops-platform` (= concept の kebab-case articulation)
+- naming note を以下に articulate:
+  - `aag-engine/cmd/aag/main.go` 冒頭 package docstring
+  - `aag-engine/cmd/aag/main.go` usage 内 NAMING block
+  - `projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md` §Naming Note table
+  - `projects/active/reposteward-ai-ops-platform/HANDOFF.md` §3.2 (= ハマりポイント)
+
+### rationale
+
+- **rename しない理由**: `aag` binary は aag-engine-go-mvp で landing 済 + 5 detector + fixture parity test + Go module 名 (`module aag-engine`) 全て依存。rename は Go module + import path + test fixture path 全更新で scope 大、実利低い
+- **「reposteward」symlink / alias 採用しない理由**: 本 program は不可侵原則 6 (= additive-only) を articulate しているが、symlink / alias は build artifact / release process に articulate が必要、後続 release engineering で検討
+- **明示 articulation で混乱抑止**: project / docs / CLI 3 か所で naming note を articulate することで、AI session が違いを query 可能
+
+### alternatives
+
+- (a) binary 名を `reposteward` に rename: 却下 (= scope 大、Go module 名 rename も必要)
+- (b) `reposteward` を `aag` の alias / symlink で articulate: 却下 (= release process 拡張、本 program scope 外、後続候補)
+- (c) project id を `aag-ops-platform` に rename: 却下 (= 構想名は RepoSteward で確立、project id 変更は articulation コスト高)
+- (d) naming note を articulate しない (= 暗黙のまま): 却下 (= 後続 AI session が混乱、Wave 5 中も「reposteward stats files」で articulate されたが実は `aag stats files` というギャップを踏んだ)
+
+### 観測点
+
+1. main.go 冒頭 package docstring に Naming note articulate
+2. main.go usage 内に NAMING block articulate
+3. AI_CONTEXT.md §Naming Note table articulate
+4. HANDOFF.md §3.2 articulate
+
+### Lineage
+
+- **preJudgementCommit**: `cd9773a`
+- **judgementCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+
+---
+
+## DA-β-003: Effective LOC Health KPI integration deferral
+
+### status
+
+- 着手判断: **active** (= deferral を本 PR で明文化)
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #5 (= Effective LOC Statistics) で `references/04-tracking/generated/aag-size-statistics.json` + `aag-size-statistics.generated.md` を landing し、p50/p75/p90/p95/p99/max + bucket distribution + per-layer 集計を articulate した。当初 plan では `code.size.effectiveLoc.{p90,p95,max}` の 3 KPI を `architecture-health.json` に統合する想定があったが、Wave 1 #5 内では deferred、Wave 2 / Wave 5 でも統合せず現在に至る。
+
+### decision
+
+**effective LOC の Health KPI 統合は当面 deferred** とし、本 program では articulate しない。代替として:
+
+- statistics artifact (= `aag-size-statistics.json` + `.generated.md`) で観測値を articulate
+- query command (= `aag stats files --above p95` 等) で AI session の探索 path を articulate
+- 必要時 (= threshold policy が articulate された時点) に別 program で Health KPI integration
+
+### rationale
+
+- **threshold policy が未確定**: p90 / p95 / max を Health KPI 化すると budget が articulate されるが、現状は budget の articulate なし (= effective LOC は **観測値**であり判定値ではない)
+- **Health KPI 化は gate 意味を持ちやすい**: 現在の Health は 60 KPI / Hard Gate PASS 構造、KPI を追加すると budget 違反で Hard Gate FAIL の risk articulate
+- **不可侵原則 6 (= additive-only / Wave 1 milestone 前 hard gate 追加禁止) 整合**: effective LOC を hard gate 化するには baseline + ratchet-down 設計が必要、本 program scope 外
+- **Wave 1 #5 で既に articulate**: effective LOC の articulate / query / 統計層は完成、Health pipeline 統合は orthogonal な拡張
+
+### alternatives
+
+- (a) 本 PR で 3 KPI を Health に追加: 却下 (= main.ts collector 配線 + config/health-rules.ts 追加 + renderer 修正 4-5 file scope、本 PR scope 外)
+- (b) WARN-only KPI (= 違反でも Hard Gate FAIL しない) で追加: 却下 (= threshold が articulate されないと WARN 自体が意味を持たない)
+- (c) project archive 前に必ず統合する: 却下 (= deferral が articulate されている方が後続 AI session が混乱しない)
+
+### 観測点
+
+1. plan.md に「effective LOC Health KPI 統合は deferred」articulate (= Wave 1 #5 / Wave 2 #9 spec の articulation 強化)
+2. statistics artifact (= `aag-size-statistics.json`) は landed
+3. query command (= `aag stats files`) は landed
+4. Health 60/60 OK / Hard Gate PASS 維持 (= KPI 増えていない)
+5. 後続で KPI 化する場合の前提条件 (= threshold policy + baseline + ratchet-down) articulate
+
+### Lineage
+
+- **preJudgementCommit**: `cd9773a`
+- **judgementCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`

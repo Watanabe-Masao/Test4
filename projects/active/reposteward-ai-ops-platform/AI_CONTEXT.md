@@ -7,6 +7,16 @@
 
 RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP)（reposteward-ai-ops-platform）
 
+## Naming Note
+
+| 軸 | name | 由来 |
+|---|---|---|
+| **Concept / platform** | `RepoSteward AI Ops Platform` | 構想名 (= 本 project の北極星) |
+| **Binary / CLI command** | `aag` | aag-engine-go-mvp で institute された binary 名を継続、Wave 1〜5 で command surface を additive 拡張 |
+| **Project id** | `reposteward-ai-ops-platform` | concept name を kebab-case で articulate |
+
+plan / docs / examples で「`reposteward stats files`」のように articulate される command は **現実装上 `aag stats files` で実行する**。両者は意図的に維持 (= 構想名の articulate と、既存 binary 命名 continuity の両立)。後続 step で `reposteward` symlink / alias を articulate する選択肢はあるが、本 program では追加しない (= 不可侵原則 6 = additive-only)。
+
 ## Purpose
 
 AAG / RepoSteward を **validator** から **AI-first repo operations engine** に進化させる。
