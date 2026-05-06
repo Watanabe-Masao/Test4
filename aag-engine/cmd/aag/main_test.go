@@ -324,3 +324,98 @@ func TestRun_Fixtures_UnexpectedPositionalArg(t *testing.T) {
 		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
 	}
 }
+
+// task action が不足なら ExitError (= Wave 1 #2、reposteward-ai-ops-platform)。
+func TestRun_Task_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "action 不足") {
+		t.Errorf("stderr should articulate missing action, got: %q", stderr.String())
+	}
+}
+
+// task の不明 action は ExitError。
+func TestRun_Task_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "bogus"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), `unknown action "bogus"`) {
+		t.Errorf("stderr should articulate unknown action, got: %q", stderr.String())
+	}
+}
+
+// task prepare で --project 不在は ExitError。
+func TestRun_TaskPrepare_MissingProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"task", "prepare", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "--project flag は required") {
+		t.Errorf("stderr should articulate required --project, got: %q", stderr.String())
+	}
+}
+
+// task prepare の self-dogfood は ExitPass + valid TaskCapsule v1 JSON を出力。
+func TestRun_TaskPrepare_SelfDogfood(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "reposteward-ai-ops-platform",
+		"--intent", "Wave 1 #2 task prepare CLI test",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var capsule map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &capsule); err != nil {
+		t.Fatalf("stdout is not valid JSON: %v\n%s", err, stdout.String())
+	}
+	if capsule["schemaVersion"] != "task-capsule-v1" {
+		t.Errorf("schemaVersion = %v, want task-capsule-v1", capsule["schemaVersion"])
+	}
+	if capsule["projectId"] != "reposteward-ai-ops-platform" {
+		t.Errorf("projectId = %v, want reposteward-ai-ops-platform", capsule["projectId"])
+	}
+	if _, ok := capsule["nonGoals"].([]interface{}); !ok {
+		t.Errorf("nonGoals must be array, got: %T", capsule["nonGoals"])
+	}
+	if _, ok := capsule["repairPolicy"].(map[string]interface{}); !ok {
+		t.Errorf("repairPolicy must be object, got: %T", capsule["repairPolicy"])
+	}
+}
+
+// task prepare で位置引数があれば ExitError。
+func TestRun_TaskPrepare_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--project", "reposteward-ai-ops-platform",
+		"unexpected-positional",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "unexpected positional argument") {
+		t.Errorf("stderr should articulate unexpected positional, got: %q", stderr.String())
+	}
+}
+
+// task prepare で存在しない project を指定したら ExitError。
+func TestRun_TaskPrepare_NonexistentProject(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"task", "prepare",
+		"--repo", repoRootForTest(t),
+		"--project", "nonexistent-project-zzz",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}

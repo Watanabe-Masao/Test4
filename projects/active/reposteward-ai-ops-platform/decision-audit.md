@@ -259,3 +259,74 @@ Wave 1 #1 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-004: Wave 1 #2 着手判断 — `reposteward task prepare` MVP の Go 実装、TS sync guard 拡張は skip して Go-side parity test で代替
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #1 (Task Capsule schema v1) が `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` branch で landing 済 (= remote push 完了、commit d3370e0)。本 session 中 user から「1を作業をつづけて完遂させましょう」(= Wave 全完遂モード) directive。Wave 1 #2 = `reposteward task prepare` MVP として、Wave 1 #1 schema を consume する Go 実装を Wave 1 #1 branch から stacked branch (= `claude/reposteward-ai-ops-platform-task-prepare-mvp`) で展開する。
+
+### decision
+
+Wave 1 #2 を以下 scope で landing:
+
+1. 新規 3 file: `aag-engine/internal/taskcapsule/task_capsule.go` (= struct + enum + RequiredFields + AllJSONFields + Validate)、`prepare.go` (= Prepare function + helpers + slugify + MarshalJSON with SetEscapeHTML(false))、`task_capsule_test.go` (= schema parity + Validate + slugify + Prepare self-dogfood)
+2. 既存 file 2 件 update: `aag-engine/cmd/aag/main.go` (= `task` subcommand + `prepare` action dispatch)、`main_test.go` (= 6 test 追加: no action / unknown action / missing --project / self-dogfood / unexpected positional / nonexistent project)
+3. 既存 file 2 件 update: `projects/active/reposteward-ai-ops-platform/checklist.md` (= Wave 1 #2 section)、`decision-audit.md` (= 本 entry)
+4. bootstrap 規約 byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認、`go test ./...` PASS 確認
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- TypeScript interface for TaskCapsule の追加 (= TS consumer 不在、AI session が直接 JSON を消費する)
+- `aagContractSchemaSyncGuard.test.ts` 拡張 (= 同 guard は TS interface ↔ schema 一致を検証する設計、TS interface 不在のため適用不能、Go-side parity test で代替)
+- Wave 1 #3 以降の機能 (= AAG Parameters / SourceFacts / Effective LOC / stats query)
+- hard gate 化 (= read-only first 原則、advisory のみ)
+- Human UI / browser dashboard
+
+### rationale
+
+- **Go 単独実装 + Go-side parity test で正しい理由**: 既存 `aag-engine/internal/contract/detector_result.go` は TS interface (`tools/architecture-health/src/detector-result.ts`) と並行して存在し、両側を `aagContractSchemaSyncGuard.test.ts` (TS) + `detector_result_test.go` (Go) の **2 系統 sync test** で守っている。本 task-capsule は Wave 1 段階で TS consumer を持たない (= AI session が aag CLI 出力 JSON を直接消費)、TS interface を speculative に追加するのは YAGNI + 不可侵原則 6 (= additive-only) に対しても余分な surface 追加。Go-side parity test で `task_capsule_test.go::TestSchemaSync_*` 4 種が schema $id / required / properties / struct tag を機械検証するため、schema drift は Go 側 test で確実に検出される
+- **`SetEscapeHTML(false)` 採用**: Go の json.Marshal default は `&`, `<`, `>` を `\uXXXX` escape する (= HTML safe)。AI session が消費する JSON で shell command 文字列 (= `cd app && ...`) が `&&` になると読了性が著しく低下し、不可侵原則 2 (= AI-first) と矛盾。functionally valid JSON は parser 互換だが、可読性は AI session の primary value
+- **Validate() で nil collection を hard fail**: schema は dimension 欠落を許容しないが、Go の zero-value (= nil slice / nil map) は JSON で `null` に marshal される。null と空 array / 空 object は schema 上区別される。Validate() で nil を error にすることで「dimension 欠落 = silent error」を防ぐ。producer (= Prepare) は常に空 slice / 空 map を articulate する
+- **Prepare の入力**: `--project` のみ required、`--intent` / `--task` は optional。`--task` 不在時は `--intent` から slug 生成、両方不在時は `<projectID>-task` fallback。シンプルかつ predictable
+- **architecture-health.json / project-health.json 不在時の挙動**: error にせず `hardGate=unknown` / `projectStatus=unknown` で gracefully degrade。理由: capsule 自体は依然 valid であり、producer の責務は「現時点の articulate された facts を渡す」こと。fail-stop すると AI session が capsule を取得できず、操作 layer 全体が機能停止する
+- **stacked branch (= `claude/reposteward-ai-ops-platform-task-prepare-mvp` from #1 branch)**: Wave 1 #1 が main 未 merge のため、main から派生すると schema file が不在で Go test が fail する。stacked branch にすることで #1 が merge されるまでの review window でも #2 が独立に検証可能
+
+### alternatives
+
+- (a) **TS interface + sync guard 拡張も同 PR で実施**: 却下。TS consumer がまだ存在しない段階で speculative interface を追加するのは YAGNI、scope creep
+- (b) **Go-side test を skip し TS sync guard だけで守る**: 却下。本 PR は Go 単独実装、TS sync guard は TS interface と schema を比較する設計で Go と schema の比較は対象外、parity 守れない
+- (c) **task subcommand の代わりに新 subcommand `prepare` を top-level で追加**: 却下。Wave 5 で task validate / task close / task repair-context が articulate される予定で、`task` namespace に集約するのが命名整合
+- (d) **stacked branch にせず main から派生**: 却下。Wave 1 #1 main 未 merge により schema 不在で Go parity test fail
+- (e) **Validate() を omit + JSON Schema validator で検証**: 却下。Go binding 自体に value-level invariant を articulate することで、producer (Prepare) bug が静的に検出可能、deps 追加なし
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `aag-engine/internal/taskcapsule/` 配下 3 file が存在 + `go vet ./...` clean
+2. `go test ./internal/taskcapsule/...` 全 PASS (= 13 test、schema parity 4 件 + Validate 4 件 + Prepare 5 件)
+3. `go test ./cmd/aag/...` 全 PASS (= 既存 + 新規 6 test)
+4. `aag task prepare --repo <root> --project reposteward-ai-ops-platform --intent "..."` 実行で stdout に valid TaskCapsule v1 JSON が出力される (= schemaVersion / projectId / nonGoals / repairPolicy / repoHealth が正しく articulate)
+5. JSON 出力で `&` / `<` / `>` が literal のまま (= SetEscapeHTML(false) 効果)
+6. `aag task prepare` で --project 不在 / 不正 project / 不正 positional の各 error path が ExitError (2) を返す
+7. 既存 `aag validate / fixtures / shadow` subcommand に regression なし (= 既存 test 全 PASS)
+8. `cd app && npm run test:guards` 1060 PASS 維持 (= TS guard は Go 追加で影響なし)
+9. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+10. branch `claude/reposteward-ai-ops-platform-task-prepare-mvp` に push 成功 (= pre-push 5 段 PASS)
+
+### Lineage
+
+- **preJudgementCommit**: `d3370e0` (= Wave 1 #1 branch HEAD、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 1 #2 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

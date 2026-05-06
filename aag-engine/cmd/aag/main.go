@@ -27,10 +27,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/report"
 	"aag-engine/internal/shadow"
+	"aag-engine/internal/taskcapsule"
 )
 
 // ExitCode は engine の exit code contract。
@@ -52,13 +54,21 @@ USAGE:
   aag <command> [flags]
 
 COMMANDS:
-  validate    repo を read-only で検証し DetectorResult[] を出力 (= Phase 1 skeleton)
-  fixtures    fixtures/aag/ 配下を discover し catalog を出力 (= Phase 3 deliverable)
-  shadow      5 detector × 8 fixture を全 dispatch、parity summary を出力 (= Phase 9 deliverable)
+  validate         repo を read-only で検証し DetectorResult[] を出力 (= Phase 1 skeleton)
+  fixtures         fixtures/aag/ 配下を discover し catalog を出力 (= Phase 3 deliverable)
+  shadow           5 detector × 8 fixture を全 dispatch、parity summary を出力 (= Phase 9 deliverable)
+  task prepare     active project の Task Capsule を JSON で出力 (= reposteward-ai-ops-platform Wave 1 #2 deliverable)
 
-FLAGS:
+FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
   --format FORMAT   出力形式 (= 'json' のみ対応、default: 'json')
+
+FLAGS (task prepare):
+  --repo PATH       repo root の path (= default: 現在 directory)
+  --project ID      active project id (= projects/active/<id>/、required)
+  --intent TEXT     task の意図 (= optional、free-form 1 文)
+  --task ID         task id (= optional、kebab-case、default: --intent slug or <project>-task)
+
   --help            本 help を表示
 
 EXIT CODE:
@@ -93,6 +103,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runFixtures(args[1:], stdout, stderr)
 	case "shadow":
 		return runShadow(args[1:], stdout, stderr)
+	case "task":
+		return runTask(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -247,6 +259,84 @@ func runFixtures(args []string, stdout, stderr io.Writer) ExitCode {
 		return ExitError
 	}
 
+	fmt.Fprintln(stdout, string(out))
+	return ExitPass
+}
+
+// runTask は `aag task <action>` の dispatcher (= Wave 1 #2、reposteward-ai-ops-platform)。
+//
+// MVP では prepare action のみ対応。Wave 5 で task validate / task close / task
+// repair-context が articulate される予定 (= projects/active/reposteward-ai-ops-platform/plan.md §Wave 5)。
+func runTask(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag task: action 不足 (= 'prepare' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag task prepare --project <id> [--intent <text>] [--task <id>]")
+		return ExitError
+	}
+	switch args[0] {
+	case "prepare":
+		return runTaskPrepare(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag task: unknown action %q (= 'prepare' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runTaskPrepare は `aag task prepare` の本体 (= Wave 1 #2 deliverable)。
+//
+// active project の state を read-only に走査して TaskCapsule v1 (= JSON Schema
+// docs/contracts/aag/task-capsule.schema.json) 準拠の JSON を stdout に出力する。
+// AI session の作業前の operating layer 契約として消費される。
+//
+// ExitCode contract:
+//   - ExitPass (0)  = capsule 出力成功
+//   - ExitError (2) = 引数不正 / project 不存在 / generated artifact parse error
+//
+// 不可侵原則 (= projects/active/reposteward-ai-ops-platform/plan.md §不可侵原則 3):
+//   - read-only first: 本 command は repo を一切書き換えない
+//   - JSON-first: 出力は JSON のみ、Human UI / Markdown summary は出さない
+func runTaskPrepare(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("task prepare", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	project := fs.String("project", "", "active project id (= required)")
+	intent := fs.String("intent", "", "task の意図 (= optional、free-form 1 文)")
+	taskID := fs.String("task", "", "task id (= optional、kebab-case、default: intent slug or <project>-task)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag task prepare: unexpected positional argument(s): %v\n", fs.Args())
+		fmt.Fprintln(stderr, "hint: --project / --intent / --task / --repo flag を使用してください")
+		return ExitError
+	}
+	if *project == "" {
+		fmt.Fprintln(stderr, "aag task prepare: --project flag は required です (= active project id を articulate してください)")
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task prepare: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	capsule, err := taskcapsule.Prepare(taskcapsule.PrepareInput{
+		RepoRoot:  repoAbs,
+		ProjectID: *project,
+		Intent:    *intent,
+		TaskID:    *taskID,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task prepare: %v\n", err)
+		return ExitError
+	}
+
+	out, err := taskcapsule.MarshalJSON(capsule)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag task prepare: JSON rendering error: %v\n", err)
+		return ExitError
+	}
 	fmt.Fprintln(stdout, string(out))
 	return ExitPass
 }

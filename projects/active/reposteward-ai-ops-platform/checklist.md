@@ -29,13 +29,31 @@
 > **着手判断**: DA-α-003 (= bootstrap 後、user 提案で Wave 1 #1 着手承認、本 PR で landing)。
 > **本 PR scope**: schema 単体 (= `docs/contracts/aag/task-capsule.schema.json`) + checklist Wave 1 section 初期化 + DA-α-003 articulate のみ。Go 実装 / sync guard 登録 / consumer 接続は Wave 1 #2 以降に分離 (= 不可侵原則 7 = Wave-by-wave delivery + step 独立 PR)。
 
-- [ ] `docs/contracts/aag/task-capsule.schema.json` を JSON Schema draft-07 形式で landing (= 13 field articulate、`additionalProperties: false`、`required = 12 field` (= intent 以外))
-- [ ] schema が valid JSON であり、`node -e 'JSON.parse(...)'` で parse 可能
-- [ ] 既存 AAG schema 規約と整合 (= `$schema = http://json-schema.org/draft-07/schema#` / `$id = https://aag.local/schemas/task-capsule-v1.json` / `$comment` で format 選定根拠 articulate / `aag-response.schema.json` + `detector-result.schema.json` と同 family)
-- [ ] DA-α-003 (Wave 1 #1 着手判断 + schema 設計の 5 軸) を `decision-audit.md` に articulate
-- [ ] `cd app && npm run docs:generate` 反映 (= project-health の checklist 件数 update)
-- [ ] `cd app && npm run test:guards` PASS 確認 (= 新 schema 追加で既存 guard が落ちないこと、`aagContractSchemaSyncGuard.test.ts` は対象 schema を hard-code しているため新 schema は関与しない)
-- [ ] Wave 1 #1 commit を `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` branch に push
+- [x] `docs/contracts/aag/task-capsule.schema.json` を JSON Schema draft-07 形式で landing (= 13 field articulate、`additionalProperties: false`、`required = 12 field` (= intent 以外))
+- [x] schema が valid JSON であり、`node -e 'JSON.parse(...)'` で parse 可能
+- [x] 既存 AAG schema 規約と整合 (= `$schema = http://json-schema.org/draft-07/schema#` / `$id = https://aag.local/schemas/task-capsule-v1.json` / `$comment` で format 選定根拠 articulate / `aag-response.schema.json` + `detector-result.schema.json` と同 family)
+- [x] DA-α-003 (Wave 1 #1 着手判断 + schema 設計の 5 軸) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` 反映 (= project-health の checklist 件数 update)
+- [x] `cd app && npm run test:guards` PASS 確認 (= 新 schema 追加で既存 guard が落ちないこと、`aagContractSchemaSyncGuard.test.ts` は対象 schema を hard-code しているため新 schema は関与しない)
+- [x] Wave 1 #1 commit を `claude/reposteward-ai-ops-platform-task-capsule-schema-v1` branch に push
+
+## Wave 1 #2: `reposteward task prepare` MVP
+
+> **着手判断**: DA-α-004 (= bootstrap PR + Wave 1 #1 PR landing 後、user directive「1を作業をつづけて完遂させましょう」で Wave 全完遂モードに移行)。
+> **本 PR scope**: `aag-engine/internal/taskcapsule/` 新規 Go package + `aag task prepare` subcommand 追加 + Go 側 schema parity test + self-dogfood test + checklist + DA articulate。
+> **やらない**: TS interface 追加 / `aagContractSchemaSyncGuard.test.ts` 拡張 (= TS consumer 不在のため Go 側 sync test で代替)、Wave 1 #3 以降の機能。
+
+- [ ] `aag-engine/internal/taskcapsule/task_capsule.go` を landing (= TaskCapsule struct + HardGate enum + RequiredFields + AllJSONFields + Validate())
+- [ ] `aag-engine/internal/taskcapsule/prepare.go` を landing (= Prepare() function + project config / architecture-health / project-health 読込 + slugify + MarshalJSON with SetEscapeHTML(false))
+- [ ] `aag-engine/internal/taskcapsule/task_capsule_test.go` で Go ↔ schema parity を機械検証 (= TestSchemaSync_SchemaID / RequiredFields / AllJSONFields / SchemaVersionConst / StructTagsMatchAllJSONFields)
+- [ ] Validate / slugify / Prepare の unit test 全 PASS (= empty input / nonexistent project / explicit TaskID / self-dogfood)
+- [ ] `aag-engine/cmd/aag/main.go` に `task` subcommand + `prepare` action 追加 (= --project / --intent / --task / --repo flag、ExitPass = capsule 出力成功 / ExitError = 引数不正)
+- [ ] `aag-engine/cmd/aag/main_test.go` に CLI level test 追加 (= no action / unknown action / missing --project / self-dogfood / unexpected positional / nonexistent project)
+- [ ] `cd /home/user/Test4/aag-engine && go test ./...` 全 PASS
+- [ ] `aag task prepare --repo <root> --project reposteward-ai-ops-platform --intent "..."` 実行で valid TaskCapsule v1 JSON が stdout に出力される (= self-dogfood の AC)
+- [ ] DA-α-004 (Wave 1 #2 着手判断 + Go binding 設計の 5 軸 + Go-side parity vs TS-side sync の判断) を `decision-audit.md` に articulate
+- [ ] `cd app && npm run docs:generate` 反映 + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、Go 追加で TS guard は影響なし)
+- [ ] Wave 1 #2 commit を `claude/reposteward-ai-ops-platform-task-prepare-mvp` branch に push (= Wave 1 #1 branch から派生、stacked PR pattern)
 
 ## AI 自己レビュー (= user 承認の手前)
 
