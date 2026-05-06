@@ -112,7 +112,20 @@
 - [x] `aag stats files --bucket loc.301_plus --limit 5` 実行で 186 件 totalMatched + top 5 file (= execution-overlay.ts 1606 行 / ExplanationService test 1410 行 / doc-registry.json 1239 行 / etc.) を articulate
 - [x] DA-α-008 (Wave 1 #6 着手判断 + Go schema mirror + filter compose 設計の 5 軸) を `decision-audit.md` に articulate
 - [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 149 file / 1082 test 維持)
-- [ ] Wave 1 #6 commit を `claude/reposteward-ai-ops-platform-stats-files-query` branch に push (= Wave 1 #5 branch から派生、Wave 1 全完遂)
+- [x] Wave 1 #6 commit を `claude/reposteward-ai-ops-platform-stats-files-query` branch に push (= Wave 1 #5 branch から派生、Wave 1 全完遂)
+
+## Wave 2 #7: sizeGuard.test.ts effective LOC 化
+
+> **着手判断**: DA-α-009 (= user directive「続けましょう」継続、Wave 1 完遂後 Wave 2 入)。
+> **本 PR scope**: `effectiveCodeLineCount` helper 追加 + sizeGuard.test.ts の 6 site で metric を raw → effective に swap。threshold 維持 (= effective ≤ physical で新規 violation 0 保証)。baseline tightening は別 step (= Wave 2.1 candidate) に分離。
+
+- [x] `app/src/test/guardTestHelpers.ts` に `effectiveCodeLineCount(content)` helper を export 追加 (= line-based filter、blank + isCommentLine() 除外、既存 `stripComments` と同 idiom)
+- [x] `app/src/test/guards/sizeGuard.test.ts` の 6 site (= AR-G5-HOOK-LINES / AR-G6-COMPONENT / Tier 2 / AR-G5-INFRA-LINES / AR-G5-DOMAIN-LINES / AR-G5-USECASE-LINES) で metric を raw line count → `effectiveCodeLineCount(content)` に swap
+- [x] threshold (300 / 400 / 600 / 660) は不変 (= effective ≤ physical の identity により新規 violation 0)
+- [x] sizeGuard.test.ts 11 test 全 PASS、test:guards 1082 PASS
+- [x] DA-α-009 (Wave 2 #7 着手判断 + metric swap 戦略 + baseline tightening 分離判断) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= Health 60/60 OK / Hard Gate PASS、前回比 Improved)
+- [ ] Wave 2 #7 commit を `claude/reposteward-ai-ops-platform-size-guard-effective-loc` branch に push (= Wave 1 #6 branch から派生)
 
 ## AI 自己レビュー (= user 承認の手前)
 

@@ -636,3 +636,75 @@ Wave 1 #6 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-009: Wave 2 #7 着手判断 — sizeGuard を effective LOC 化、metric swap のみで threshold 維持、baseline tightening は分離
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 全 6 step 完遂 push 後、user directive「続けましょう」で Wave 2 (= 既存 guard の歪み修正) 入。本 step は plan.md §Wave 2 #7 = `app/src/test/guards/sizeGuard.test.ts` を raw line count から effective LOC に切替えることで「コメント追加が size penalty にならない」状態を articulate する。
+
+### decision
+
+Wave 2 #7 を以下 scope で landing:
+
+1. update: `app/src/test/guardTestHelpers.ts` に `effectiveCodeLineCount(content)` helper を export 追加 (= line-based filter で blank + isCommentLine() 除外、既存 `stripComments` と同 idiom)
+2. update: `app/src/test/guards/sizeGuard.test.ts` 6 site で `content.split('\n').length` → `effectiveCodeLineCount(content)` に swap (= AR-G5-HOOK-LINES / AR-G6-COMPONENT / Tier 2 / AR-G5-INFRA-LINES / AR-G5-DOMAIN-LINES / AR-G5-USECASE-LINES)
+3. update: `checklist.md` + `decision-audit.md`
+4. byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認
+
+**threshold (300 / 400 / 600 / 660) は不変**:
+- effective ≤ physical の identity により新規 violation 0 を保証
+- 新規 hard gate / 新 baseline 設定 = 0 (= 不可侵原則 6 = additive-only 整合)
+
+**やらない (= 不可侵原則 + 別 step に分離)**:
+- baseline tightening (= effective LOC 値に基づく threshold 切下げ + ratchet-down): 別 step (Wave 2.1 candidate) で実施。理由: 切替と threshold tuning を同 PR にすると baseline 動きが metric semantics 変更と同時に動き、判断不能
+- `app/src/test/audits/architectureStateAudit.test.ts` の raw line count 修正: Wave 2 #8 PR で実施 (= scope 分離)
+- Health report の bucket distribution table 追加: Wave 2 #9 PR で実施
+- source-facts.ts の state machine と guardTestHelpers の line-based filter の comment counting 統一: 後続 step で検討 (= MVP では effective ≤ physical identity を保つ範囲で両 algorithm が valid)
+
+### rationale
+
+- **metric swap のみで safe**: effective ≤ physical の identity は数学的に成立 (= 任意の content について effective(content) ≤ physical(content))。既存 threshold (= raw line count に対して設定) を維持すれば、effective に切替えても violation 数は **必ず減るか変わらない**、増えない。Wave 2 #7 PR は guarantee 付きで safe
+- **`effectiveCodeLineCount` helper を guardTestHelpers に置く理由**: 既存 `stripComments` / `isCommentLine` と同 idiom。tools/architecture-health/src/facts/source-facts.ts の collector 側 (= state machine) と algorithm が異なる (= line-based vs state machine) が、両者とも `physical - blank - comment` という意味的 effective を articulate するため、両 algorithm の coexistence は意図的 (= guard test の偽陽性 zero、collector の精度高め、責務 articulate)
+- **threshold 維持で「コメント penalty なし」articulate**: Wave 2 #7 の primary value は「コメント / 空行追加が size guard の violation を増やさない」状態を articulate すること。metric swap だけでこの value が full に articulate される、threshold tuning は別 step
+- **stacked branch (= claude/reposteward-ai-ops-platform-size-guard-effective-loc from Wave 1 #6)**: Wave 1 全 PR が main 未 merge のため、Wave 1 #6 branch から派生。Wave 1 全 merge → Wave 2 PR rebase / merge の順序で operate
+- **violation message の variable 名 `lineCount` 維持**: 内部変数の semantic は metric swap で変わるが、test 出力 (= "X 行 (上限: Y)") は articulate 上不変、metric semantics の articulation は本 DA + commit message + helper docstring で articulate 済
+
+### alternatives
+
+- (a) **threshold も同 PR で tighten (= effective LOC に基づく新 baseline)**: 却下。baseline 動きが metric 変更と同時に動き判断不能、scope creep、rollback granularity 喪失
+- (b) **collector 側の `countCommentLines` を guardTestHelpers に統一 import**: 却下。source-facts.ts は collector 内部 helper として articulate (= 非 export)、export 化は collector の internal API 変更で別 scope。両 algorithm の coexistence は本 PR では accept、後続 step で検討
+- (c) **`effectiveCodeLineCount` を tools/architecture-health/src/facts/source-facts.ts に置く + guardTestHelpers から import**: 却下。app/src/test/ → tools/ への依存方向は既存 guard で実例あり (= source-facts test 等) だが、本 helper は guard test 専用 (= production code には使わない) のため guardTestHelpers が natural location
+- (d) **`lineCount` 変数を `effectiveLines` に rename**: 却下。diff size 増、test 振る舞い不変、metric semantics は helper docstring + commit + DA で articulate 済
+- (e) **metric swap を Wave 1 #5 statistics 同 PR で landing**: 却下。Wave 1 #5 は statistics 集計 layer の articulate、Wave 2 #7 は existing guard の metric swap、責任分離 (= 不可侵原則 7 = Wave-by-wave delivery 整合)
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `effectiveCodeLineCount(content)` が `guardTestHelpers.ts` に export として存在
+2. `sizeGuard.test.ts` の `content.split('\n').length` 6 site が全て `effectiveCodeLineCount(content)` に swap (= grep verification)
+3. `sizeGuard.test.ts` 11 test 全 PASS (= 既存 violation 数不変 / 増加無し)
+4. `cd app && npm run test:guards` 1082 test PASS (= 全 guard regression なし)
+5. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+6. Health 前回比が `Flat` または `Improved` (= effective LOC 化により tighter measurement、悪化方向ではない)
+7. threshold 値 (300 / 400 / 600 / 660) が `architectureRules.ts` で不変
+8. branch `claude/reposteward-ai-ops-platform-size-guard-effective-loc` に push 成功 (= Wave 1 #6 から派生 stacked、pre-push 5 段 PASS)
+9. Wave 2 #8 (architectureStateAudit) / #9 (Health bucket distribution) は本 PR scope 外、別 PR で landing
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 1 #6 final commit SHA、format-fix commit、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 2 #7 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
