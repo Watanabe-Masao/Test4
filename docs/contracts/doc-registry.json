@@ -696,6 +696,10 @@
           "label": "Detection Inventory v2 narrative（reposteward-ai-ops-platform Wave 4 #18 preparatory doc work）"
         },
         {
+          "path": "references/03-implementation/reposteward-command-surface.md",
+          "label": "RepoSteward Command Surface (= reposteward-ai-ops-platform PR B、aag binary が articulate する全 14 command + Go MVP family の maturity matrix)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },
