@@ -272,6 +272,7 @@
 | AAG Operational Classification（now / debt / review 運用区分、Layer 2 governance-ops）                 | `aag/_internal/operational-classification.md`               |
 | AAG Source of Truth（正本 / 派生物 / 運用物 区分ポリシー、Layer 2 governance-ops）                     | `aag/_internal/source-of-truth.md`                          |
 | AAG Layer Map（ファイル別 5 層マッピング、Layer 2 reference）                                          | `aag/_internal/layer-map.md`                                |
+| Premise Contracts v1（reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本）              | `aag/parameters/premise-contracts.json`                     |
 | Display Rule Registry (DFR、Project C Phase 1)                                                         | `aag/_internal/display-rule-registry.md`                    |
 | Platformization Standard（全 subsystem 共通の 8 軸 articulate template、AAG が Pilot Application）     | `01-foundation/platformization-standard.md`                     |
 | AAG 5.0 4層構造定義（旧、Project A Phase 5 で archive 予定）                                           | `01-foundation/aag-5-constitution.md`                           |
