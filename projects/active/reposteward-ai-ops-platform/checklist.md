@@ -43,17 +43,30 @@
 > **本 PR scope**: `aag-engine/internal/taskcapsule/` 新規 Go package + `aag task prepare` subcommand 追加 + Go 側 schema parity test + self-dogfood test + checklist + DA articulate。
 > **やらない**: TS interface 追加 / `aagContractSchemaSyncGuard.test.ts` 拡張 (= TS consumer 不在のため Go 側 sync test で代替)、Wave 1 #3 以降の機能。
 
-- [ ] `aag-engine/internal/taskcapsule/task_capsule.go` を landing (= TaskCapsule struct + HardGate enum + RequiredFields + AllJSONFields + Validate())
-- [ ] `aag-engine/internal/taskcapsule/prepare.go` を landing (= Prepare() function + project config / architecture-health / project-health 読込 + slugify + MarshalJSON with SetEscapeHTML(false))
-- [ ] `aag-engine/internal/taskcapsule/task_capsule_test.go` で Go ↔ schema parity を機械検証 (= TestSchemaSync_SchemaID / RequiredFields / AllJSONFields / SchemaVersionConst / StructTagsMatchAllJSONFields)
-- [ ] Validate / slugify / Prepare の unit test 全 PASS (= empty input / nonexistent project / explicit TaskID / self-dogfood)
-- [ ] `aag-engine/cmd/aag/main.go` に `task` subcommand + `prepare` action 追加 (= --project / --intent / --task / --repo flag、ExitPass = capsule 出力成功 / ExitError = 引数不正)
-- [ ] `aag-engine/cmd/aag/main_test.go` に CLI level test 追加 (= no action / unknown action / missing --project / self-dogfood / unexpected positional / nonexistent project)
-- [ ] `cd /home/user/Test4/aag-engine && go test ./...` 全 PASS
-- [ ] `aag task prepare --repo <root> --project reposteward-ai-ops-platform --intent "..."` 実行で valid TaskCapsule v1 JSON が stdout に出力される (= self-dogfood の AC)
-- [ ] DA-α-004 (Wave 1 #2 着手判断 + Go binding 設計の 5 軸 + Go-side parity vs TS-side sync の判断) を `decision-audit.md` に articulate
-- [ ] `cd app && npm run docs:generate` 反映 + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、Go 追加で TS guard は影響なし)
-- [ ] Wave 1 #2 commit を `claude/reposteward-ai-ops-platform-task-prepare-mvp` branch に push (= Wave 1 #1 branch から派生、stacked PR pattern)
+- [x] `aag-engine/internal/taskcapsule/task_capsule.go` を landing (= TaskCapsule struct + HardGate enum + RequiredFields + AllJSONFields + Validate())
+- [x] `aag-engine/internal/taskcapsule/prepare.go` を landing (= Prepare() function + project config / architecture-health / project-health 読込 + slugify + MarshalJSON with SetEscapeHTML(false))
+- [x] `aag-engine/internal/taskcapsule/task_capsule_test.go` で Go ↔ schema parity を機械検証 (= TestSchemaSync_SchemaID / RequiredFields / AllJSONFields / SchemaVersionConst / StructTagsMatchAllJSONFields)
+- [x] Validate / slugify / Prepare の unit test 全 PASS (= empty input / nonexistent project / explicit TaskID / self-dogfood)
+- [x] `aag-engine/cmd/aag/main.go` に `task` subcommand + `prepare` action 追加 (= --project / --intent / --task / --repo flag、ExitPass = capsule 出力成功 / ExitError = 引数不正)
+- [x] `aag-engine/cmd/aag/main_test.go` に CLI level test 追加 (= no action / unknown action / missing --project / self-dogfood / unexpected positional / nonexistent project)
+- [x] `cd /home/user/Test4/aag-engine && go test ./...` 全 PASS
+- [x] `aag task prepare --repo <root> --project reposteward-ai-ops-platform --intent "..."` 実行で valid TaskCapsule v1 JSON が stdout に出力される (= self-dogfood の AC)
+- [x] DA-α-004 (Wave 1 #2 着手判断 + Go binding 設計の 5 軸 + Go-side parity vs TS-side sync の判断) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` 反映 + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、Go 追加で TS guard は影響なし)
+- [x] Wave 1 #2 commit を `claude/reposteward-ai-ops-platform-task-prepare-mvp` branch に push (= Wave 1 #1 branch から派生、stacked PR pattern)
+
+## Wave 1 #3: AAG Parameters v1
+
+> **着手判断**: DA-α-005 (= Wave 全完遂モード継続、Wave 1 #2 task prepare の constraints source として接続)。
+> **本 PR scope**: `docs/contracts/aag/aag-parameters.schema.json` (= JSON Schema draft-07) + `aag/parameters/aag-parameters.json` (= 14 bucket / effectiveCodeLines / 3 excludedKinds 初期 articulate) のみ。collector / consumer / sync guard 拡張は Wave 1 #4 / #5 に分離。
+
+- [ ] `docs/contracts/aag/aag-parameters.schema.json` を JSON Schema draft-07 で landing (= top-level `additionalProperties: false`、`required = [schemaVersion, codeSize]`、`schemaVersion: const "aag-parameters-v1"`、`codeSize` 内に metric / buckets / excludedKinds を articulate)
+- [ ] `aag/parameters/aag-parameters.json` を schema 準拠で landing (= `metric: effectiveCodeLines`、14 bucket = 1-10 / 11-20 / ... / 301+、`excludedKinds: [generated, fixture, archive]`)
+- [ ] schema が valid JSON、parameters が valid JSON、parameters が schema を Ajv で pass
+- [ ] bucket 連続性 (= 隣接 bucket の min/max が gap / overlap なし) を articulate (= node check で確認)
+- [ ] DA-α-005 (Wave 1 #3 着手判断 + parameters 設計の 5 軸 + Wave 内位置付け) を `decision-audit.md` に articulate
+- [ ] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、新 schema / parameters は collector 未配線で TS guard に影響なし)
+- [ ] Wave 1 #3 commit を `claude/reposteward-ai-ops-platform-aag-parameters-v1` branch に push (= Wave 1 #2 branch から派生、stacked PR pattern)
 
 ## AI 自己レビュー (= user 承認の手前)
 

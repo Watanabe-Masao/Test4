@@ -7,7 +7,7 @@
 | **総合評価** | **Healthy** |
 | 前回比 | Flat |
 | リリース影響 | No |
-| 最終更新 | 2026-05-06T09:59:33.926Z |
+| 最終更新 | 2026-05-06T10:04:58.909Z |
 
 ## Hard Gate
 
@@ -43,8 +43,8 @@
 
 | 指標 | 前回 | 今回 | 変化 |
 |---|---|---|---|
-| 全 project の required checkbox 総数 | 1240 | 1251 | +11 ! |
-| 全 project の checked checkbox 総数 | 1148 | 1155 | +7 ! |
+| 全 project の checked checkbox 総数 | 1155 | 1166 | +11 ! |
+| 全 project の required checkbox 総数 | 1251 | 1258 | +7 ! |
 
 ## Recommended Actions
 

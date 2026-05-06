@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-parameters-v1.json",
+  "title": "AAG Parameters v1",
+  "description": "AAG / RepoSteward の可変設定 articulation 契約。effective LOC bucket / layer 別 size budget / generated・fixture・archive 除外設定 等の parameter を JSON で集約し、AI / CLI / Health / Task Capsule が共通参照する。本 schema は Wave 1 #3 (= reposteward-ai-ops-platform) で landing。Wave 1 #4 SourceFacts collector が `codeSize.metric` を articulate に効果計測、Wave 1 #5 Effective LOC statistics が `codeSize.buckets` で distribution を集計、Wave 1 #6 stats files query が `--bucket loc.021_030` 等で本 bucket id を直接参照。Wave 2 sizeGuard refactor が `codeSize.metric=effectiveCodeLines` に切替時の reference。canonical: 本 schema file。 sync guard: 未登録 (= producer / consumer が確立後に Wave 後段で sync registration 検討、本 PR 時点では schema + initial JSON のみ articulate)。",
+  "$comment": "format 選定根拠: contract = parameters articulation = 言語非依存性が要件 → JSON Schema (draft-07 採用、既存 aag-response.schema.json + detector-result.schema.json + task-capsule.schema.json と同 family、Ajv 既定 dialect 整合)。設計判断: top-level は additionalProperties: false で誤った parameter category 追加を即検出、各 category 内 (codeSize 等) も additionalProperties: false で field-level strictness 維持。後続 v2 で新 category (= layerSizeBudget / cleanlinessRules 等) 追加時は本 schema を additive 拡張 (= versionImpact aag delta=+0.1 minor 整合)。`codeSize.metric` を const 'effectiveCodeLines' で v1 articulate (= 単一 metric pinning)、v2 で複数 metric (= physicalLines / commentDensity 等) を articulate する場合は enum 化。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "codeSize"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない (= JSON Schema $comment と同 idiom、editor 向けの articulate)。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "aag-parameters-v1",
+      "description": "schema version anchor。本 schema = `aag-parameters-v1`。後続 v2 (= 新 category 追加 / metric enum 化) で minor バージョン bump 予定 (= versionImpact aag delta=+0.1 minor)。consumer は本 field で消費可能 schema を identify する。"
+    },
+    "codeSize": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "buckets", "excludedKinds"],
+      "properties": {
+        "metric": {
+          "type": "string",
+          "const": "effectiveCodeLines",
+          "description": "size 計測の primary metric。v1 では `effectiveCodeLines` (= physicalLines − blankLines − commentLines、コメント / 空行除外) のみ articulate。v2 で複数 metric (= physicalLines / commentDensity 等) 化候補。Wave 1 #4 SourceFacts collector が本 metric の値を articulate、Wave 1 #5 Effective LOC statistics が本 metric の distribution を集計、Wave 2 sizeGuard refactor が raw line count から本 metric に切替する際の reference。"
+        },
+        "buckets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "label", "min", "max"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^loc\\.([0-9]{3}_[0-9]{3}|[0-9]{3}_plus)$",
+                "description": "bucket 識別子。pattern: `loc.<min3>_<max3>` (= 範囲指定) または `loc.<min3>_plus` (= 上限なし)。例: `loc.021_030` / `loc.301_plus`。`reposteward stats files --bucket <id>` の入力 key として使用 (= Wave 1 #6 deliverable)。"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "description": "bucket の human-readable label (= 例: `21-30` / `301+`)。Health report の bucket distribution table で表示 (= Wave 1 #5)。"
+              },
+              "min": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "bucket の inclusive lower bound (= effectiveCodeLines >= min を articulate)。"
+              },
+              "max": {
+                "type": ["integer", "null"],
+                "description": "bucket の inclusive upper bound (= effectiveCodeLines <= max を articulate)。null は上限なし (= 例: `loc.301_plus` の max=null)。整数指定時は min より大きいこと、producer / consumer 側で検証する責務。"
+              }
+            }
+          },
+          "description": "effective LOC distribution の bucket 配列。連続性 (= 隣接 bucket の min/max が overlap / gap なし) は producer (= aag/parameters/aag-parameters.json) 編集者の責務、本 schema は articulation 形式のみ articulate (= AI vocabulary binding と同 philosophy: schema は形を articulate、内容妥当性は人間判断)。Wave 1 #5 statistics + Wave 1 #6 stats files query が本配列を順次 query で参照。"
+        },
+        "excludedKinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["generated", "fixture", "archive"]
+          },
+          "description": "size 計測対象から除外する file kind (= 統計 noise を抑止)。`generated` = `references/04-tracking/generated/` 等の機械生成 artifact、`fixture` = `fixtures/aag/` 等の test fixture、`archive` = `projects/completed/<id>/ARCHIVE.md` 等の圧縮済 archive。本 v1 では 3 enum 限定、v2 で `vendor` / `dependency` 等の追加候補。"
+        }
+      },
+      "description": "Code size parameters。effective LOC metric pinning + bucket distribution articulation + size 計測除外設定の 3 軸を articulate。"
+    }
+  }
+}

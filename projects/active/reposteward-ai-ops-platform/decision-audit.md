@@ -330,3 +330,77 @@ Wave 1 #2 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-005: Wave 1 #3 着手判断 — AAG Parameters v1 (= effective LOC bucket / metric pinning / 除外 kinds) を schema 単独 + initial JSON で landing、collector / consumer 配線は #4 / #5 に分離
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #2 (= `reposteward task prepare` MVP) push 中、Wave 全完遂モード (= user directive「1を作業をつづけて完遂させましょう」) 継続。本 step は Task Capsule の `currentState` / Wave 1 #4 SourceFacts collector / Wave 1 #5 Effective LOC statistics / Wave 1 #6 stats files query が共通参照する parameter 正本を articulate する。
+
+### decision
+
+Wave 1 #3 を以下 scope で landing:
+
+1. 新規 1 file: `docs/contracts/aag/aag-parameters.schema.json` (= JSON Schema draft-07、top-level `additionalProperties: false`、`required = [schemaVersion, codeSize]`、`codeSize.metric: const "effectiveCodeLines"`、`codeSize.buckets` array of {id, label, min, max}、`codeSize.excludedKinds` enum array)
+2. 新規 1 file: `aag/parameters/aag-parameters.json` (= schema 準拠、14 bucket 連続 articulate = 1-10 / 11-20 / 21-30 / 31-40 / 41-50 / 51-60 / 61-70 / 71-80 / 81-90 / 91-100 / 101-150 / 151-200 / 201-300 / 301+、`excludedKinds: [generated, fixture, archive]`)
+3. 既存 file 2 件 update: `checklist.md` (= Wave 1 #3 section)、`decision-audit.md` (= 本 entry)
+4. bootstrap 規約 byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認、Ajv で parameters が schema 準拠を確認
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- Collector 配線 (= `tools/architecture-health/src/facts/source-facts.ts` 等で本 parameters を実際に消費する layer は Wave 1 #4 で landing)
+- Health KPI への bucket distribution 反映 (= Wave 1 #5 で landing)
+- Stats query CLI (= Wave 1 #6 で landing)
+- TS Reader 追加 (= consumer 不在のため YAGNI、Wave 1 #4 collector が必要時に追加)
+- Sync guard 拡張 (= consumer / producer 確立後に Wave 後段で検討)
+
+### rationale
+
+- **schema + initial JSON の単独 landing が正しい理由**: parameters は consumer multiple (= SourceFacts collector / Health KPI / stats query / Wave 2 sizeGuard) で参照される共通 reference。consumer 配線と同 PR にすると、各 consumer が依存する parameter shape を一度に決める必要があり、scope creep + review 負荷増。schema + initial JSON の単独 landing なら「parameter shape 合意」のみが review 対象、後続 PR で各 consumer が順次追加 articulate
+- **`codeSize.metric: const "effectiveCodeLines"` で v1 articulate**: 単一 metric pinning。v2 で複数 metric (= physicalLines / commentDensity / hookDensity 等) を articulate する場合は const → enum に拡張 (= versionImpact aag delta=+0.1 minor 整合)。speculative に enum 化すると producer / consumer が空 metric path を articulate せざるを得ず、不可侵原則 6 (= additive-only) 整合
+- **14 bucket 採用**: user 提案 (= reposteward-ai-ops-platform plan.md §Wave 1 articulate) を full 採用。1-10 / 11-20 / 21-30 / 31-40 / 41-50 / 51-60 / 61-70 / 71-80 / 81-90 / 91-100 で 10 単位、101-150 / 151-200 / 201-300 で 50 単位、301+ で上限なし。code size の典型的 distribution (= short helper を 0-30 で articulate、medium-long を 50-200、outlier を 200+) を articulate するのに十分な resolution
+- **`max: null` の articulation**: schema 上 `["integer", "null"]` で nullable 化。null = 上限なし (= 例: `loc.301_plus` の max=null)。`integer` 単独だと最終 bucket の上限を articulate できず、最大値 (= MaxInt 等) で逃げる approach は intent が articulate されない
+- **bucket 連続性は producer 責務**: schema は articulation 形式のみ articulate (= AI vocabulary binding 哲学整合: schema は形を articulate、内容妥当性は人間判断)。連続性 guard を schema に articulate すると JSON Schema の expressiveness 限界を超える (= forall i, buckets[i].max + 1 == buckets[i+1].min は articulate 不能)。本 PR では Ajv 検証 + 手動連続性 check で articulate
+- **`excludedKinds: enum [generated, fixture, archive]` で 3 enum 限定**: v1 で十分。v2 で `vendor` / `dependency` 等の追加候補だが speculative 化は YAGNI
+- **`$comment` を schema properties に articulate**: top-level `additionalProperties: false` のため、parameters JSON の `$comment` は schema 側で許容必要。JSON Schema 業界 idiom (= `$comment` field は data instance でも documentation 用途で articulate 可) 整合
+- **配置先 `aag/parameters/`**: 既存 `aag/_internal/` (= AAG framework 内部 articulation)、`aag/CHANGELOG.md` (= AAG framework version 履歴) と同 family。`docs/contracts/` は schema 専用、`references/` は人間 read 文書、`aag-engine/` は Go binary。parameters はそのいずれにも合致しない category のため、`aag/parameters/` を新設 (= AAG framework の可変設定 articulation の専用 dir)
+
+### alternatives
+
+- (a) **`aag/parameters/aag-parameters.json` を `docs/contracts/aag/` に置く**: 却下。`docs/contracts/` は schema 専用 dir、parameters (= data instance) は別 dir が適切
+- (b) **`metric` を enum で複数 articulate**: 却下。speculative。v2 で necessary になった時点で minor bump
+- (c) **bucket 配列を schema に articulate (= max 14 enum)**: 却下。bucket 数は producer の articulate 自由度であり、enum 化すると拡張性が損なわれる
+- (d) **`max` を `integer` で MaxInt 採用**: 却下。intent が articulate されない、null による上限なし articulation が schema-friendly
+- (e) **collector + parameters を同 PR で landing**: 却下。scope creep、配線レイヤを後続 PR に分離した方が rollback granularity 高い
+- (f) **Wave 1 #4 SourceFacts と同 PR**: 却下。SourceFacts は producer (= TS collector) 単独で消費可能 / parameters は consumer multiple で参照、責任分離を明確化するため 2 step に分離
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `docs/contracts/aag/aag-parameters.schema.json` が存在 + valid JSON
+2. `aag/parameters/aag-parameters.json` が存在 + valid JSON
+3. parameters が schema を Ajv (draft-07) で PASS
+4. 14 bucket 連続性 (= 隣接の min/max gap なし、最終 max=null) が articulate
+5. schema $id = `https://aag.local/schemas/aag-parameters-v1.json`、$schema = draft-07、既存 AAG schema 規約整合
+6. parameters の `$comment` 含めて schema 準拠 (= schema properties に `$comment` articulate)
+7. `cd app && npm run test:guards` 1060 PASS 維持 (= TS guard は新 file 追加で影響なし)
+8. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+9. branch `claude/reposteward-ai-ops-platform-aag-parameters-v1` に push 成功 (= pre-push 5 段 PASS、Wave 1 #2 branch から派生)
+10. Wave 1 #4 SourceFacts collector が本 parameters を import 経路で参照可能 (= path / file existence の articulation 完成)
+
+### Lineage
+
+- **preJudgementCommit**: `9bb8fef` (= Wave 1 #2 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 1 #3 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
