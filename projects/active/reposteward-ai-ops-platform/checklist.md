@@ -60,13 +60,28 @@
 > **着手判断**: DA-α-005 (= Wave 全完遂モード継続、Wave 1 #2 task prepare の constraints source として接続)。
 > **本 PR scope**: `docs/contracts/aag/aag-parameters.schema.json` (= JSON Schema draft-07) + `aag/parameters/aag-parameters.json` (= 14 bucket / effectiveCodeLines / 3 excludedKinds 初期 articulate) のみ。collector / consumer / sync guard 拡張は Wave 1 #4 / #5 に分離。
 
-- [ ] `docs/contracts/aag/aag-parameters.schema.json` を JSON Schema draft-07 で landing (= top-level `additionalProperties: false`、`required = [schemaVersion, codeSize]`、`schemaVersion: const "aag-parameters-v1"`、`codeSize` 内に metric / buckets / excludedKinds を articulate)
-- [ ] `aag/parameters/aag-parameters.json` を schema 準拠で landing (= `metric: effectiveCodeLines`、14 bucket = 1-10 / 11-20 / ... / 301+、`excludedKinds: [generated, fixture, archive]`)
-- [ ] schema が valid JSON、parameters が valid JSON、parameters が schema を Ajv で pass
-- [ ] bucket 連続性 (= 隣接 bucket の min/max が gap / overlap なし) を articulate (= node check で確認)
-- [ ] DA-α-005 (Wave 1 #3 着手判断 + parameters 設計の 5 軸 + Wave 内位置付け) を `decision-audit.md` に articulate
-- [ ] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、新 schema / parameters は collector 未配線で TS guard に影響なし)
-- [ ] Wave 1 #3 commit を `claude/reposteward-ai-ops-platform-aag-parameters-v1` branch に push (= Wave 1 #2 branch から派生、stacked PR pattern)
+- [x] `docs/contracts/aag/aag-parameters.schema.json` を JSON Schema draft-07 で landing (= top-level `additionalProperties: false`、`required = [schemaVersion, codeSize]`、`schemaVersion: const "aag-parameters-v1"`、`codeSize` 内に metric / buckets / excludedKinds を articulate)
+- [x] `aag/parameters/aag-parameters.json` を schema 準拠で landing (= `metric: effectiveCodeLines`、14 bucket = 1-10 / 11-20 / ... / 301+、`excludedKinds: [generated, fixture, archive]`)
+- [x] schema が valid JSON、parameters が valid JSON、parameters が schema を Ajv で pass
+- [x] bucket 連続性 (= 隣接 bucket の min/max が gap / overlap なし) を articulate (= node check で確認)
+- [x] DA-α-005 (Wave 1 #3 着手判断 + parameters 設計の 5 軸 + Wave 内位置付け) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1060 TS guard 維持、新 schema / parameters は collector 未配線で TS guard に影響なし)
+- [x] Wave 1 #3 commit を `claude/reposteward-ai-ops-platform-aag-parameters-v1` branch に push (= Wave 1 #2 branch から派生、stacked PR pattern)
+
+## Wave 1 #4: SourceFacts v1
+
+> **着手判断**: DA-α-006 (= Wave 全完遂モード継続、AAG Parameters v1 を消費する collector layer)。
+> **本 PR scope**: schema (`docs/contracts/aag/source-facts.schema.json`) + collector (`tools/architecture-health/src/facts/source-facts.ts`) + CLI script (`source-facts-cli.ts`) + 12 unit test (`app/src/test/tools/sourceFactsCollector.test.ts`) + 初期 generated artifact (`references/04-tracking/generated/source-facts.json`)。Wave 1 #5 statistics の入力として接続される。
+> **やらない**: docs:generate pipeline への統合 (= Wave 1 #5 で実施、本 PR では手動 / npm script 経由で実行)、Wave 1 #5 以降の機能。
+
+- [ ] `docs/contracts/aag/source-facts.schema.json` を landing (= `schemaVersion: const "source-facts-v1"`、`summary` + `facts[]` 構造、`SourceFact` definition で path / kind / layer / 4 size field + optional imports / exports / hooks)
+- [ ] `tools/architecture-health/src/facts/source-facts.ts` を landing (= `collectSourceFacts(opts)` / `walkDir` / `factForFile` / `inferKind` / `inferLayer` / `countCommentLines` / `enrichTs` / `enrichGo`、`DEFAULT_INCLUDE_DIRS` 6 件 / `ALWAYS_SKIP_DIRS` 9 件)
+- [ ] `tools/architecture-health/src/facts/source-facts-cli.ts` を landing (= aag-parameters.json から excludedKinds を読込み、collector を実行、`references/04-tracking/generated/source-facts.json` に書き出す)
+- [ ] `app/src/test/tools/sourceFactsCollector.test.ts` で 12 件の contract test を articulate (= shape / kind / layer / TS imports/exports / TSX hooks / Go imports/exports / MD / excludedKinds 3 種 / comment counting / sort / skip dirs)
+- [ ] 初期 `references/04-tracking/generated/source-facts.json` を生成 + commit (= 2710 file scan、Ajv で schema 準拠を確認)
+- [ ] DA-α-006 (Wave 1 #4 着手判断 + collector 設計の 5 軸 + 統合タイミング判断) を `decision-audit.md` に articulate
+- [ ] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 148 file / 1072 test、新 collector test 12 件含む)
+- [ ] Wave 1 #4 commit を `claude/reposteward-ai-ops-platform-source-facts-v1` branch に push (= Wave 1 #3 branch から派生、stacked PR pattern)
 
 ## AI 自己レビュー (= user 承認の手前)
 

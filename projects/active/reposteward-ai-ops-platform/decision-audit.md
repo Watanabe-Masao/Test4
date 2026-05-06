@@ -404,3 +404,81 @@ Wave 1 #3 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-006: Wave 1 #4 着手判断 — SourceFacts v1 collector + 初期 generated artifact、docs:generate 統合は #5 に分離
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #3 (= AAG Parameters v1) push 中、Wave 全完遂モード継続。本 step は Wave 1 #3 で articulate された `codeSize.metric=effectiveCodeLines` / `codeSize.excludedKinds=[generated,fixture,archive]` を実際に消費する **collector layer**。Wave 1 #5 Effective LOC statistics + Wave 1 #6 stats files query が本 facts を入力に集計 / query する base。
+
+### decision
+
+Wave 1 #4 を以下 scope で landing:
+
+1. 新規 1 schema: `docs/contracts/aag/source-facts.schema.json` (= JSON Schema draft-07、bundle level (= schemaVersion + generatedAt + summary + facts[]) + SourceFact definition with `additionalProperties: false`)
+2. 新規 2 ts file: `tools/architecture-health/src/facts/source-facts.ts` (= 約 290 行 collector、type 定義 + walkDir + factForFile + comment counting + TS/TSX/Go enrichment)、`source-facts-cli.ts` (= aag-parameters.json から excludedKinds を読み collector 実行 + `references/04-tracking/generated/source-facts.json` 書き出し)
+3. 新規 1 test: `app/src/test/tools/sourceFactsCollector.test.ts` (= 12 件 contract test、temp dir fixture 経由で kind / layer / TS imports/exports / TSX hooks / Go imports/exports / MD / excludedKinds 3 種 / comment counting / sort / skip dirs を機械検証)
+4. 新規 1 generated artifact: `references/04-tracking/generated/source-facts.json` (= 2710 file scan 結果、tsx 351 / typescript 1955 / markdown 358 / json 23 / go 23、Ajv schema 準拠検証済)
+5. 既存 file 2 件 update: `checklist.md` (= Wave 1 #4 section)、`decision-audit.md` (= 本 entry)
+6. byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認、初期 collector run
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- `docs:generate` pipeline への collector 統合 (= Wave 1 #5 = Effective LOC statistics で health collector に格上げ予定、本 PR では手動 / npm script 経由で執行)
+- Wave 1 #5 以降の機能 (= statistics / stats query)
+- TS interface ↔ schema sync guard 拡張 (= Wave 後段で consumer 確立後)
+- imports/exports/hooks の AST-level 厳密 articulation (= regex-based MVP、十分実用的、誤検出は accept する範囲)
+- generated artifact が機械生成された anchor metadata (= generatedFileEditGuard 対象化) を articulate (= 同 guard は specific generated section 規約用、source-facts.json は新規 generated として articulate される)
+
+### rationale
+
+- **schema + collector + test + 初期 artifact を 1 PR で landing**: Wave 1 #4 は collector layer を新設する step。schema 単独で landing して collector を別 PR にすると schema が orphan になり Wave 1 #5 まで価値を提供できない。collector + test + 初期 artifact まで 1 step で揃えることで「facts が事実上 query 可能」状態を最短で articulate
+- **`docs:generate` 統合を Wave 1 #5 に分離**: 同 pipeline は health 系 KPI 収集の正本 + KPI render 経路、source-facts.json を加える際は health collector / renderer も articulate される必要がある。Wave 1 #5 は statistics layer も同 PR で articulate するため、pipeline 統合は同 step で実施する方が rollback granularity 高い
+- **regex-based imports/exports/hooks 抽出**: AST-level 厳密 parsing (= TypeScript compiler API / babel) は collector 起動時間を秒単位に伸ばし、Wave 1 #5 statistics の集計時間にも影響。MVP では regex-based で 350ms scan / 2710 file 達成、十分実用的。AST 必要時は Wave 後段で additive に追加可能
+- **comment counting の hand-rolled state machine**: TypeScript の `// line` + `/* block */` + `/** jsdoc */` を line-level に articulate するのに既存 lib (= comment-parser) を導入するのは依存追加コスト > 価値。約 30 行の state machine で十分なため hand-roll
+- **`excludedKinds` の path-based filtering**: `generated` = `/generated/`, `fixture` = `/fixtures/` or `*.fixture.*`, `archive` = `projects/completed/` or `references/99-archive/`。AAG Parameters の意味と整合、producer (= collector) が articulate して consumer (= statistics / query) は filter 結果のみ参照
+- **layer 推定の depth-2 articulate**: `app/src/features/<name>` のように 2 段で articulate。features の case-by-case 比較が Wave 1 #5 statistics で必要なため。他 layer は depth-1 で十分
+- **temp dir fixture for unit test**: `mkdtempSync` で隔離、real repo を walk しない。test は collector の **contract** (= 入力 → 出力 mapping) に focus、real repo の現状値に依存しない
+- **2710 file scan / 350ms**: Health budget 整合 (= ci.timing budget は別 KPI、本 collector は手動実行 / Wave 1 #5 で health pipeline 化時に integration test で計測)
+
+### alternatives
+
+- (a) **AST-based parsing (= TypeScript compiler API)**: 却下。MVP には overkill、起動時間 / dependency 増、regex-based で十分
+- (b) **collector 単独 PR + 初期 artifact 別 PR**: 却下。schema が orphan になり、artifact が無いと Wave 1 #5 が consume できない、unnecessarily fine-grained
+- (c) **`docs:generate` 統合を本 PR で実施**: 却下。pipeline の articulate は statistics layer (= Wave 1 #5) と同 PR の方が natural
+- (d) **`source-facts.json` を git tracked にしない (= generated artifact を ignore)**: 却下。Wave 1 #5 の入力として参照、PR review でも数値が見えるべき。既存 generated artifact (= architecture-health.json 等) と同じ tracked 方針
+- (e) **excludedKinds を hard-code (= parameters file 読まない)**: 却下。AAG Parameters の存在意義 (= 可変設定の articulation、3 origin = JSON 一本化) が損なわれる、parameters file から読むべき
+- (f) **Markdown / JSON も imports/exports/hooks を articulate**: 却下。MD/JSON は import 概念がない (= MD link / JSON value は別 semantic)、speculative inclusion は YAGNI
+- (g) **layer を full path で articulate (= 'app/src/presentation' 等)**: 却下。consumer (= statistics / query) は短い articulate を望む、`presentation` で十分
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `tools/architecture-health/src/facts/source-facts.ts` + `source-facts-cli.ts` 存在 + TypeScript build clean
+2. `docs/contracts/aag/source-facts.schema.json` 存在 + valid JSON
+3. `references/04-tracking/generated/source-facts.json` 存在 + 2710 file scan 結果 + Ajv で schema 準拠
+4. `app/src/test/tools/sourceFactsCollector.test.ts` 12 test 全 PASS
+5. `cd app && npm run test:guards` 1072 test PASS (= 既存 1060 + 新 12)
+6. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+7. collector が aag-parameters.json の `codeSize.excludedKinds` を読み、generated / fixture / archive 配下を skip
+8. SourceFact の `effectiveCodeLines = physicalLines - blankLines - commentLines` identity が全 fact で成立
+9. TS imports は `import { x } from 'y'` / `import 'y'` 両 pattern を articulate (= 抽出 string は module path)
+10. TSX hooks は `useState` / `useEffect` / `useMemo` 等 10 種を articulate (= 0 件は omit)
+11. branch `claude/reposteward-ai-ops-platform-source-facts-v1` に push 成功 (= Wave 1 #3 から派生 stacked、pre-push 5 段 PASS)
+
+### Lineage
+
+- **preJudgementCommit**: `3cea2e7` (= Wave 1 #3 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 1 #4 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
