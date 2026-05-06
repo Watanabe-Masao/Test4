@@ -74,14 +74,30 @@
 > **本 PR scope**: schema (`docs/contracts/aag/source-facts.schema.json`) + collector (`tools/architecture-health/src/facts/source-facts.ts`) + CLI script (`source-facts-cli.ts`) + 12 unit test (`app/src/test/tools/sourceFactsCollector.test.ts`) + 初期 generated artifact (`references/04-tracking/generated/source-facts.json`)。Wave 1 #5 statistics の入力として接続される。
 > **やらない**: docs:generate pipeline への統合 (= Wave 1 #5 で実施、本 PR では手動 / npm script 経由で実行)、Wave 1 #5 以降の機能。
 
-- [ ] `docs/contracts/aag/source-facts.schema.json` を landing (= `schemaVersion: const "source-facts-v1"`、`summary` + `facts[]` 構造、`SourceFact` definition で path / kind / layer / 4 size field + optional imports / exports / hooks)
-- [ ] `tools/architecture-health/src/facts/source-facts.ts` を landing (= `collectSourceFacts(opts)` / `walkDir` / `factForFile` / `inferKind` / `inferLayer` / `countCommentLines` / `enrichTs` / `enrichGo`、`DEFAULT_INCLUDE_DIRS` 6 件 / `ALWAYS_SKIP_DIRS` 9 件)
-- [ ] `tools/architecture-health/src/facts/source-facts-cli.ts` を landing (= aag-parameters.json から excludedKinds を読込み、collector を実行、`references/04-tracking/generated/source-facts.json` に書き出す)
-- [ ] `app/src/test/tools/sourceFactsCollector.test.ts` で 12 件の contract test を articulate (= shape / kind / layer / TS imports/exports / TSX hooks / Go imports/exports / MD / excludedKinds 3 種 / comment counting / sort / skip dirs)
-- [ ] 初期 `references/04-tracking/generated/source-facts.json` を生成 + commit (= 2710 file scan、Ajv で schema 準拠を確認)
-- [ ] DA-α-006 (Wave 1 #4 着手判断 + collector 設計の 5 軸 + 統合タイミング判断) を `decision-audit.md` に articulate
-- [ ] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 148 file / 1072 test、新 collector test 12 件含む)
-- [ ] Wave 1 #4 commit を `claude/reposteward-ai-ops-platform-source-facts-v1` branch に push (= Wave 1 #3 branch から派生、stacked PR pattern)
+- [x] `docs/contracts/aag/source-facts.schema.json` を landing (= `schemaVersion: const "source-facts-v1"`、`summary` + `facts[]` 構造、`SourceFact` definition で path / kind / layer / 4 size field + optional imports / exports / hooks)
+- [x] `tools/architecture-health/src/facts/source-facts.ts` を landing (= `collectSourceFacts(opts)` / `walkDir` / `factForFile` / `inferKind` / `inferLayer` / `countCommentLines` / `enrichTs` / `enrichGo`、`DEFAULT_INCLUDE_DIRS` 6 件 / `ALWAYS_SKIP_DIRS` 9 件)
+- [x] `tools/architecture-health/src/facts/source-facts-cli.ts` を landing (= aag-parameters.json から excludedKinds を読込み、collector を実行、`references/04-tracking/generated/source-facts.json` に書き出す)
+- [x] `app/src/test/tools/sourceFactsCollector.test.ts` で 12 件の contract test を articulate (= shape / kind / layer / TS imports/exports / TSX hooks / Go imports/exports / MD / excludedKinds 3 種 / comment counting / sort / skip dirs)
+- [x] 初期 `references/04-tracking/generated/source-facts.json` を生成 + commit (= 2710 file scan、Ajv で schema 準拠を確認)
+- [x] DA-α-006 (Wave 1 #4 着手判断 + collector 設計の 5 軸 + 統合タイミング判断) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 148 file / 1072 test、新 collector test 12 件含む)
+- [x] Wave 1 #4 commit を `claude/reposteward-ai-ops-platform-source-facts-v1` branch に push (= Wave 1 #3 branch から派生、stacked PR pattern)
+
+## Wave 1 #5: Effective LOC Statistics
+
+> **着手判断**: DA-α-007 (= Wave 全完遂モード継続、Wave 1 #4 SourceFacts を入力に集計層を articulate)。
+> **本 PR scope**: schema (`aag-size-statistics.schema.json`) + 集計 logic (`source-facts-statistics.ts`) + CLI (`source-facts-statistics-cli.ts`) + 10 unit test + 初期 generated artifact。Health KPI 統合は別 PR (= main.ts collector 配線が必要、scope 分離)。
+
+- [x] `docs/contracts/aag/aag-size-statistics.schema.json` を landing (= JSON Schema draft-07、`schemaVersion: const "aag-size-statistics-v1"`、summary 7 percentile/mean field + byBucket array + byLayer open object)
+- [x] `tools/architecture-health/src/facts/source-facts-statistics.ts` を landing (= `computeSizeStatistics` / `computeSummary` / `computeBucketDistribution` / `computeLayerStatistics` / `percentile` linear interpolation + floor)
+- [x] `tools/architecture-health/src/facts/source-facts-statistics-cli.ts` を landing (= source-facts.json + aag-parameters.json 読込 + 集計 + JSON 書き出し)
+- [x] `app/src/test/tools/sourceFactsStatistics.test.ts` で 10 件の contract test を articulate (= 空入力 / 単一値 / percentile floor / bucket boundary inclusive / layer null 除外 / parameters 順序保持 / mean float / etc.)
+- [x] features/ 直下 file (= README.md 等) を `features/<name>` にしない edge case 修正 + test 追加
+- [x] 初期 `references/04-tracking/generated/aag-size-statistics.json` を生成 + commit (= 2714 file 集計、p50=80 / p90=249 / p95=330 / p99=626 / max=1606、14 bucket distribution、26 layer)
+- [x] Ajv で statistics が schema 準拠を確認 = STATISTICS_VALID
+- [x] DA-α-007 (Wave 1 #5 着手判断 + statistics 設計の 5 軸 + Health KPI 統合 deferral 判断) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 149 file / 1082 test、新 statistics test 10 件含む)
+- [ ] Wave 1 #5 commit を `claude/reposteward-ai-ops-platform-effective-loc-stats` branch に push (= Wave 1 #4 branch から派生、stacked PR pattern)
 
 ## AI 自己レビュー (= user 承認の手前)
 

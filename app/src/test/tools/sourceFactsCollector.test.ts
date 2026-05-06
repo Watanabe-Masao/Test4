@@ -148,6 +148,7 @@ describe('Source Facts Collector 契約テスト', () => {
       'app/src/domain/d.ts': 'export const d = 1\n',
       'app/src/infrastructure/i.ts': 'export const i = 1\n',
       'app/src/features/sales/s.ts': 'export const s = 1\n',
+      'app/src/features/README.md': '# features\n',
       'app/src/test/t.ts': 'export const t = 1\n',
       'tools/architecture-health/src/foo.ts': 'export const f = 1\n',
       'docs/foo.md': '# x\n',
@@ -160,6 +161,8 @@ describe('Source Facts Collector 契約テスト', () => {
     expect(layers.get('app/src/domain/d.ts')).toBe('domain')
     expect(layers.get('app/src/infrastructure/i.ts')).toBe('infrastructure')
     expect(layers.get('app/src/features/sales/s.ts')).toBe('features/sales')
+    // features/ 直下の file (= README 等) は features/<name> にしない
+    expect(layers.get('app/src/features/README.md')).toBe('features')
     expect(layers.get('app/src/test/t.ts')).toBe('test')
     expect(layers.get('tools/architecture-health/src/foo.ts')).toBe('tools')
     expect(layers.get('docs/foo.md')).toBe('docs')

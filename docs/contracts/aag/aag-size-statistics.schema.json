@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-size-statistics-v1.json",
+  "title": "AAG Size Statistics v1",
+  "description": "SourceFacts (= source-facts-v1、Wave 1 #4 で landing) と AAG Parameters (= aag-parameters-v1、Wave 1 #3 で landing) を入力に、effectiveCodeLines metric の **distribution + percentile + per-layer breakdown** を articulate する集計 output 契約。Wave 1 #5 (= reposteward-ai-ops-platform) で landing。Wave 1 #6 stats files query が本 statistics の bucket id 経由で file-level 詳細を返す。Wave 2 sizeGuard refactor が本 statistics で baseline / ratchet-down の base を articulate。canonical: 本 schema file。 generated artifact: references/04-tracking/generated/aag-size-statistics.json。 sync guard: 未登録 (= consumer 配線後に Wave 後段で検討)。",
+  "$comment": "format 選定根拠: contract = statistics articulation = 言語非依存性が要件 → JSON Schema (draft-07 採用、既存 aag schema family 整合)。設計判断: percentile の type を integer (= 行数 = 整数で articulate、半端 percentile は floor)、bucket id は aag-parameters.json `codeSize.buckets[].id` と完全一致 (= cross-reference)、byLayer は open object (= layer 集合は producer 側で articulate、layer は path-helpers / source-facts.ts が articulate する set と整合)。Health pipeline 統合は本 PR では skip、別 step (= 後続 PR or Wave 2 前段) で main.ts に collector 配線予定。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "generatedAt", "metric", "totalFiles", "summary", "byBucket", "byLayer"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "aag-size-statistics-v1",
+      "description": "schema version anchor。"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "statistics 集計時の ISO 8601 timestamp。"
+    },
+    "metric": {
+      "type": "string",
+      "const": "effectiveCodeLines",
+      "description": "集計対象 metric。aag-parameters.json `codeSize.metric` と一致 (= 単一 metric pinning、v2 で複数 metric 化候補)。"
+    },
+    "totalFiles": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "集計対象 file 総数 (= source-facts.json `summary.totalFiles` と一致、excludedKinds 適用後)。"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["p50", "p75", "p90", "p95", "p99", "max", "mean"],
+      "properties": {
+        "p50": { "type": "integer", "minimum": 0, "description": "50th percentile (= median)。" },
+        "p75": { "type": "integer", "minimum": 0, "description": "75th percentile。" },
+        "p90": { "type": "integer", "minimum": 0, "description": "90th percentile。" },
+        "p95": { "type": "integer", "minimum": 0, "description": "95th percentile。" },
+        "p99": { "type": "integer", "minimum": 0, "description": "99th percentile。" },
+        "max": { "type": "integer", "minimum": 0, "description": "最大値。" },
+        "mean": { "type": "number", "minimum": 0, "description": "算術平均 (= 半端可、float)。" }
+      },
+      "description": "全 file 集計の percentile + max + mean。effectiveCodeLines が 0 件の場合は全 0。"
+    },
+    "byBucket": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "count"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^loc\\.([0-9]{3}_[0-9]{3}|[0-9]{3}_plus)$",
+            "description": "aag-parameters.json `codeSize.buckets[].id` と完全一致。"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "description": "human-readable label (= aag-parameters.json と一致)。"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "本 bucket に該当する file 数。"
+          }
+        }
+      },
+      "description": "bucket 別 file 数 distribution。bucket は aag-parameters.json `codeSize.buckets` と同 ordering / 件数。"
+    },
+    "byLayer": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fileCount", "p50", "p90", "p95", "max"],
+        "properties": {
+          "fileCount": { "type": "integer", "minimum": 0 },
+          "p50": { "type": "integer", "minimum": 0 },
+          "p90": { "type": "integer", "minimum": 0 },
+          "p95": { "type": "integer", "minimum": 0 },
+          "max": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "description": "layer 別 distribution。layer key は source-facts.ts が articulate する set (= presentation / application / domain / infrastructure / features/<name> / test / aag-engine / tools / references / docs / projects / app / stories / その他)。layer null の file は本 map に含めない。"
+    }
+  }
+}

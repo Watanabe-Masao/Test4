@@ -1,13 +1,13 @@
 {
   "schemaVersion": "source-facts-v1",
-  "generatedAt": "2026-05-06T10:09:48.753Z",
+  "generatedAt": "2026-05-06T10:17:05.477Z",
   "summary": {
-    "totalFiles": 2710,
+    "totalFiles": 2714,
     "byKind": {
       "tsx": 351,
-      "typescript": 1955,
+      "typescript": 1958,
       "markdown": 358,
-      "json": 23,
+      "json": 24,
       "go": 23
     },
     "excludedKinds": [
@@ -16316,7 +16316,7 @@
     {
       "path": "app/src/features/README.md",
       "kind": "markdown",
-      "layer": "features/README.md",
+      "layer": "features",
       "physicalLines": 84,
       "blankLines": 25,
       "commentLines": 0,
@@ -35946,6 +35946,23 @@
       "exports": 0
     },
     {
+      "path": "app/src/test/tools/sourceFactsCollector.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 265,
+      "blankLines": 16,
+      "commentLines": 21,
+      "effectiveCodeLines": 228,
+      "imports": [
+        "vitest",
+        "node:fs",
+        "node:os",
+        "node:path",
+        "@tools/architecture-health/facts/source-facts"
+      ],
+      "exports": 0
+    },
+    {
       "path": "app/src/test/tools/temporalGovernanceCollectorContract.test.ts",
       "kind": "typescript",
       "layer": "test",
@@ -36049,6 +36066,15 @@
       "blankLines": 1,
       "commentLines": 0,
       "effectiveCodeLines": 76
+    },
+    {
+      "path": "docs/contracts/aag/aag-size-statistics.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 94,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 93
     },
     {
       "path": "docs/contracts/aag/detector-result.schema.json",
@@ -36593,10 +36619,10 @@
       "path": "projects/active/reposteward-ai-ops-platform/checklist.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 92,
-      "blankLines": 19,
+      "physicalLines": 107,
+      "blankLines": 22,
       "commentLines": 0,
-      "effectiveCodeLines": 73
+      "effectiveCodeLines": 85
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/config/project.json",
@@ -36611,10 +36637,10 @@
       "path": "projects/active/reposteward-ai-ops-platform/decision-audit.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 407,
-      "blankLines": 122,
+      "physicalLines": 485,
+      "blankLines": 142,
       "commentLines": 0,
-      "effectiveCodeLines": 285
+      "effectiveCodeLines": 343
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/discovery-log.md",
@@ -39881,12 +39907,41 @@
       "exports": 0
     },
     {
+      "path": "tools/architecture-health/src/facts/source-facts-statistics-cli.ts",
+      "kind": "typescript",
+      "layer": "tools",
+      "physicalLines": 61,
+      "blankLines": 9,
+      "commentLines": 15,
+      "effectiveCodeLines": 37,
+      "imports": [
+        "node:fs",
+        "node:path",
+        "./source-facts-statistics",
+        "./source-facts"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "tools/architecture-health/src/facts/source-facts-statistics.ts",
+      "kind": "typescript",
+      "layer": "tools",
+      "physicalLines": 184,
+      "blankLines": 18,
+      "commentLines": 32,
+      "effectiveCodeLines": 134,
+      "imports": [
+        "./source-facts"
+      ],
+      "exports": 4
+    },
+    {
       "path": "tools/architecture-health/src/facts/source-facts.ts",
       "kind": "typescript",
       "layer": "tools",
-      "physicalLines": 398,
+      "physicalLines": 400,
       "blankLines": 48,
-      "commentLines": 43,
+      "commentLines": 45,
       "effectiveCodeLines": 307,
       "imports": [
         "node:fs",

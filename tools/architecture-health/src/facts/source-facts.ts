@@ -250,7 +250,9 @@ function inferLayer(relPath: string): string | null {
   if (relPath.startsWith('app/src/infrastructure/')) return 'infrastructure'
   if (relPath.startsWith('app/src/features/')) {
     const segments = relPath.split('/')
-    return segments.length >= 4 ? `features/${segments[3]}` : 'features'
+    // `app/src/features/<name>/<file>` (length > 4) → `features/<name>`
+    // `app/src/features/README.md` (length == 4) → `features` (= top-level file は module 名ではない)
+    return segments.length > 4 ? `features/${segments[3]}` : 'features'
   }
   if (relPath.startsWith('app/src/test/')) return 'test'
   if (relPath.startsWith('app/src/stories/')) return 'stories'

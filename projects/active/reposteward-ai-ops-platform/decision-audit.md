@@ -482,3 +482,79 @@ Wave 1 #4 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-007: Wave 1 #5 着手判断 — Effective LOC Statistics 集計 + 初期 generated artifact、Health KPI 統合は別 PR に分離
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #4 (= SourceFacts v1 collector + 2710 file 初期 artifact) push 中、Wave 全完遂モード継続。本 step は Wave 1 #4 SourceFacts を入力に **bucket distribution + percentile + per-layer breakdown** を集計する **statistics layer**。Wave 1 #6 stats files query が本 statistics の bucket id 経由で file-level 詳細に到達、Wave 2 sizeGuard refactor が本 statistics で baseline / ratchet-down の base を articulate。
+
+### decision
+
+Wave 1 #5 を以下 scope で landing:
+
+1. 新規 1 schema: `docs/contracts/aag/aag-size-statistics.schema.json` (= JSON Schema draft-07、`schemaVersion: const "aag-size-statistics-v1"`、summary 7 field (= p50/p75/p90/p95/p99/max/mean) + byBucket array + byLayer open object)
+2. 新規 2 ts file: `tools/architecture-health/src/facts/source-facts-statistics.ts` (= computeSizeStatistics + computeSummary + computeBucketDistribution + computeLayerStatistics + percentile linear interpolation + floor)、`source-facts-statistics-cli.ts` (= source-facts.json + aag-parameters.json 読込 + 集計 + JSON 書き出し)
+3. 新規 1 test: `app/src/test/tools/sourceFactsStatistics.test.ts` (= 10 件 contract test = 空入力 / 単一値 / percentile floor / bucket boundary inclusive / layer null 除外 / parameters 順序保持 / mean float / 等)
+4. 新規 1 generated artifact: `references/04-tracking/generated/aag-size-statistics.json` (= 2714 file 集計、p50=80 / p90=249 / p95=330 / p99=626 / max=1606 / mean=115.15、14 bucket distribution、26 layer)
+5. update: `tools/architecture-health/src/facts/source-facts.ts` (= `app/src/features/<name>` layer 推定 edge case 修正 = features 直下 file (README 等) を features/<name> にしない、segments.length > 4 条件)
+6. update: `app/src/test/tools/sourceFactsCollector.test.ts` (= 上記 edge case の test 追加)
+7. update: `references/04-tracking/generated/source-facts.json` (= edge case 修正後の再生成、layer 集合が clean)
+8. update: `checklist.md` + `decision-audit.md`
+9. byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- Health KPI 3 件 (= `code.size.effectiveLoc.p90/p95/max`) の architecture-health pipeline 統合 → 別 PR で `tools/architecture-health/src/main.ts` に collector 配線 + `config/health-rules.ts` に rule 追加 + 各 renderer に項目追加 (= scope 大、本 PR では skip)
+- Wave 1 #6 以降の機能 (= stats files query、Wave 2 sizeGuard refactor)
+- bucket 連続性 / overlap の machine-verified guard 化 (= producer 責務、Wave 1 #3 articulate 整合)
+
+### rationale
+
+- **statistics 集計層を Health KPI 統合と分離する理由**: KPI 統合は main.ts collector 配線 + config/health-rules.ts rule 追加 + renderer 修正 + section-updater 修正 など 4-5 file 跨ぎになり、Wave 1 #5 の primary value (= effectiveCodeLines が計測可能 + bucket distribution が articulate) を超える scope creep。statistics generation 単独で「effectiveCodeLines が計測できる + bucket 分布が出る」は完全達成、KPI 統合は後続 PR で additive 配線
+- **percentile を linear interpolation + floor**: 一般的な percentile algorithm の一つ (= NumPy default = linear)、半端 percentile (= idx が integer でない場合) は近接 2 値の linear blend、結果は floor で integer に articulate (= 行数 = 整数 semantic)。Wave 2 sizeGuard が percentile baseline (= 例: p95 を上限 = 330 行) を articulate する場合、integer baseline が natural
+- **bucket boundary inclusive**: aag-parameters.json の bucket は `{ min, max }` で inclusive 両端 articulate (= max=10 は loc.001_010 に含まれる)、boundary value が複数 bucket に articulate されることを防ぐため最初に match した bucket で停止
+- **layer null 除外**: source-facts.ts が layer 推定不能と articulate した file (= app/src/main.tsx 等の root レベル) は byLayer 集計対象外。layer-aware breakdown は articulate された layer のみ articulate
+- **mean は float、percentile は integer**: mean = 算術平均は半端値が物理意味を持つ (= 1.5 行は articulate 可能 = 平均値)、percentile は行数の概念で integer。schema は型を区別 articulate (= summary.mean は number、その他は integer)
+- **edge case fix (features/README.md)**: 初期実装で `app/src/features/README.md` が `features/README.md` という layer に articulate されていた (= length=4 の condition error)。length > 4 に修正することで、features/ 直下 file は単純に `features` layer になり、`features/<module>` (= length>=5) のみが module-level articulate
+
+### alternatives
+
+- (a) **percentile を nearest neighbor (interpolation なし)**: 却下。多 sample size での jitter が大きい、linear interpolation の方が percentile semantics 整合
+- (b) **percentile を float でも返す**: 却下。consumer (= sizeGuard baseline) は integer line count を articulate、float は articulate 不要
+- (c) **boundary を exclusive / inclusive で articulate**: 却下。aag-parameters.json は inclusive で articulate (= `min=11, max=20` は 11〜20 を articulate)、producer 整合
+- (d) **layer null を 'unknown' layer として集約**: 却下。null は intent (= layer 不明) であり、unknown という偽の layer name で articulate するのは意味整合性損失
+- (e) **Health KPI 統合を本 PR で実施**: 却下。pipeline 跨ぎ scope creep、main.ts / config / renderer 全 4-5 file 修正、本 step の primary value (= statistics 計算 + bucket articulate) と分離した方が rollback granularity 高い
+- (f) **mean を articulate しない (= percentile only)**: 却下。mean は size distribution の skew 把握に有用、producer / consumer の articulate コスト低い
+- (g) **edge case (features/README) を別 PR で fix**: 却下。本 PR で statistics を生成する際に layer 集合が clean でないと artifact が dirty、同 PR で fix する方が natural
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `tools/architecture-health/src/facts/source-facts-statistics.ts` + cli + schema 存在 + valid JSON
+2. `references/04-tracking/generated/aag-size-statistics.json` 存在 + Ajv で schema 準拠 = STATISTICS_VALID
+3. `app/src/test/tools/sourceFactsStatistics.test.ts` 10 test 全 PASS
+4. `cd app && npm run test:guards` 1082 test PASS (= 既存 1072 + 新 10)
+5. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+6. statistics の summary.mean は float、その他 (p50/p75/p90/p95/p99/max) は integer
+7. byBucket は aag-parameters.json `codeSize.buckets` と同 ordering / 件数、各 bucket count は ≥ 0
+8. byLayer は layer null を除外、26 layer (= aag-engine / app / application / docs / domain / features / features/<13>{budget,...,weather} / infrastructure / presentation / projects / references / stories / test / tools) を articulate
+9. features/README.md は layer=features (= length=4 condition fix)、features/budget/foo.ts は layer=features/budget (= length>=5)
+10. branch `claude/reposteward-ai-ops-platform-effective-loc-stats` に push 成功 (= Wave 1 #4 から派生 stacked、pre-push 5 段 PASS)
+
+### Lineage
+
+- **preJudgementCommit**: `551c550` (= Wave 1 #4 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 1 #5 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
