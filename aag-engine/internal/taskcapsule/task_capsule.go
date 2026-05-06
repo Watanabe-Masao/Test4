@@ -19,7 +19,10 @@
 //   - projects/active/reposteward-ai-ops-platform/plan.md §Wave 1 #2
 package taskcapsule
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 // SchemaVersion is the const articulated in task-capsule.schema.json `schemaVersion`.
 const SchemaVersion = "task-capsule-v1"
@@ -139,6 +142,14 @@ var AllJSONFields = []string{
 	"repairPolicy",
 }
 
+// kebabCasePattern matches the canonical taskId / projectId pattern articulated
+// in docs/contracts/aag/task-capsule.schema.json (= `^[a-z0-9][a-z0-9-]*[a-z0-9]$`).
+//
+// Schema-level pattern check is mirrored here so producer-side Validate() catches
+// non-conforming ids before the capsule reaches a JSON Schema validator (= AI
+// session が schema-invalid な capsule を出力 / 承認しないように)。
+var kebabCasePattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*[a-z0-9]$`)
+
 // Validate checks that all required fields are articulated and enums are valid.
 //
 // Schema-level structural validity (= field set / additionalProperties) is
@@ -151,8 +162,14 @@ func (t TaskCapsule) Validate() error {
 	if t.TaskId == "" {
 		return fmt.Errorf("TaskCapsule: taskId must be non-empty")
 	}
+	if !kebabCasePattern.MatchString(t.TaskId) {
+		return fmt.Errorf("TaskCapsule: taskId %q must match kebab-case pattern '^[a-z0-9][a-z0-9-]*[a-z0-9]$' (= schema 整合)", t.TaskId)
+	}
 	if t.ProjectId == "" {
 		return fmt.Errorf("TaskCapsule: projectId must be non-empty")
+	}
+	if !kebabCasePattern.MatchString(t.ProjectId) {
+		return fmt.Errorf("TaskCapsule: projectId %q must match kebab-case pattern '^[a-z0-9][a-z0-9-]*[a-z0-9]$' (= schema 整合)", t.ProjectId)
 	}
 	if t.Goal == "" {
 		return fmt.Errorf("TaskCapsule: goal must be non-empty")

@@ -135,7 +135,8 @@ func tryDetectorResults(raw []byte) ([]detectorResult, bool) {
 func classifyDetectorResults(results []detectorResult, repoRoot string) (string, int, []string, []string, []string) {
 	reads := []string{}
 	actions := []string{}
-	checks := []string{"cd /home/user/Test4/aag-engine && go test ./... # rerun engine after fix"}
+	// Repo-relative command (= 環境依存 hardcoded path 回避、any clone location で機能)
+	checks := []string{"cd aag-engine && go test ./... # rerun engine after fix"}
 
 	rulesById := loadRulesById(repoRoot)
 
