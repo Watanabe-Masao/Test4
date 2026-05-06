@@ -1085,3 +1085,67 @@ Wave 3 #12 (= changed --explain) 後、Wave 3 #13 = ruleId から rule の defin
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-016: Wave 3 #14 着手判断 — `aag detector refs <detectorId>`、Wave 3 final、5 detector の goImpl + tsImpl + fixtures articulate
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 3 #13 (= rule locate) push 後、Wave 3 final step = detectorId から detector の goImpl + tsImpl + schema + fixtures を articulate する command。aag-engine-go-mvp で landing 済の 5 detector を id mapping 経由で articulate。
+
+### decision
+
+1. 新規: `internal/navigation/detector.go` (= DetectorRefs() + detectorIdMappings 5 件 + KnownDetectorIds + listFixtures + existsAt)
+2. 新規: `detector_test.go` (= 5 contract test)
+3. update: `cmd/aag/main.go` (= detector subcommand + refs action)
+4. update: `main_test.go` (= 4 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry、Wave 3 全完遂 articulate)
+
+**id 命名規約**:
+- CLI surface (= input) = kebab-case (例: `archive-manifest`)
+- Go file = snake_case (例: `archive_manifest.go`)
+- TS file = kebab-case + `-detector.ts`
+- Fixture dir = kebab-case (= 通常 input id と一致、archive-manifest だけは `archive-v2/` に articulate されている既存規約に追従)
+
+### rationale
+
+- **id mapping を embed**: 5 detector は固定 (= Wave 1 articulate 時点で確定)、動的探索より明示的 mapping が確実
+- **archive-manifest → archive-v2/ の non-uniform mapping**: aag-engine-go-mvp 時点で既に確立されている規約 (= archive-manifest detector が Archive v2 schema を検証する semantic)、新 program で uniform 化するのは scope 違い、既存 idiom 整合
+- **schema = detector-result.schema.json (共通)**: 全 detector の output contract は detector-result-v1。各 detector の input schema (= project-archive / doc-registry / etc.) は別 family、本 articulate には含めない
+- **fixtures は subdir 列挙**: 各 fixture case = 1 subdir (= aag-engine-go-mvp で確立)、count + path list を articulate
+- **flag 規約**: rule locate と同 (= flag を positional の前に articulate)
+
+### alternatives
+
+- (a) detector id を動的に探索 (= aag-engine/internal/detectors/ 配下を walk): 却下 (= mapping が必要 = Go file name と input id の対応、結局 mapping を articulate する必要)
+- (b) input schema も articulate: 却下 (= detector ごとに異なる、複雑性増、後続 step で必要時)
+- (c) input id と Go file を統一 (= archive-manifest.go に rename): 却下 (= 既存 codebase の rename は scope 違い、本 program は additive)
+
+### 観測点
+
+1. `internal/navigation/detector.go` + test 存在 + go vet clean
+2. `go test ./internal/navigation/...` 全 PASS
+3. real repo dogfood (= archive-manifest) で goImpl / goTest / tsImpl / schema / 3 fixtures articulate
+4. 全 5 detector で impl + fixture が存在する (= TestDetectorRefs_AllKnownDetectors_HaveImplsAndFixtures)
+5. unknown detector で `Known detectors:` hint
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+8. **Wave 3 全完遂** (= 5/5 step landed = where-am-i / context --project / changed --explain / rule locate / detector refs)
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 3 #13 commit、派生元)
+- **judgementCommit**: `<TBD>` (= Wave 3 final commit)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

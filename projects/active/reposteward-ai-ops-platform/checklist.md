@@ -203,7 +203,20 @@
 - [x] dogfood: aag rule locate AR-G5-HOOK-LINES → slice / what / why / doc / principleRefs / thresholds / definition / guards articulate
 - [x] DA-α-015 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 3 #13 commit を branch に push
+- [x] Wave 3 #13 commit を branch に push
+
+## Wave 3 #14: `aag detector refs <detectorId>` (= Wave 3 完遂)
+
+> **着手判断**: DA-α-016 (= Wave 3 final step、5 detector の go/ts/schema/fixtures を articulate)。
+
+- [x] `aag-engine/internal/navigation/detector.go` を landing (= DetectorRefs() + detectorIdMappings 5 件 + KnownDetectorIds + listFixtures + existsAt)
+- [x] `detector_test.go` で contract test 5 件 (= empty input / unknown detector hint / archive-manifest dogfood / 全 5 detector × impl + fixture / known list count)
+- [x] `cmd/aag/main.go` に `detector refs` subcommand 追加 (= --repo + detectorId positional)
+- [x] `main_test.go` に CLI test 4 件追加
+- [x] dogfood: aag detector refs archive-manifest → goImpl / goTest / tsImpl / schema / 3 fixtures articulate
+- [x] DA-α-016 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 3 #14 commit を branch に push (= **Wave 3 全完遂**)
 
 ## AI 自己レビュー (= user 承認の手前)
 

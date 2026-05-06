@@ -66,6 +66,8 @@ COMMANDS:
   changed          --base..--head の changed file を area / obligations / requiredReads で articulate (= reposteward-ai-ops-platform Wave 3 #12 deliverable)
   rule locate      ruleId から rule の definition / guards / docs / thresholds を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #13 deliverable)
                    note: 'aag rule locate --repo PATH <ruleId>' のように flag を ruleId の前に articulate
+  detector refs    detectorId から goImplementation / tsImplementation / schema / fixtures を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #14 deliverable)
+                   note: 'aag detector refs --repo PATH <detectorId>' のように flag を detectorId の前に articulate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -132,6 +134,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runChanged(args[1:], stdout, stderr)
 	case "rule":
 		return runRule(args[1:], stdout, stderr)
+	case "detector":
+		return runDetector(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -637,6 +641,68 @@ func runRuleLocate(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag rule locate: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runDetector は `aag detector <action> <args>` の dispatcher (= Wave 3 #14)。
+func runDetector(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag detector: action 不足 (= 'refs' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag detector refs <detectorId> [--repo PATH]")
+		return ExitError
+	}
+	switch args[0] {
+	case "refs":
+		return runDetectorRefs(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag detector: unknown action %q (= 'refs' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runDetectorRefs は `aag detector refs <detectorId>` の本体 (= Wave 3 #14、Wave 3 final)。
+//
+// detectorId から Go / TS implementation + schema + fixtures を JSON で
+// stdout に出力 (= read-only)。
+func runDetectorRefs(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("detector refs", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	posArgs := fs.Args()
+	if len(posArgs) == 0 {
+		fmt.Fprintln(stderr, "aag detector refs: detectorId 引数が必要です (= 'aag detector refs archive-manifest')")
+		return ExitError
+	}
+	if len(posArgs) > 1 {
+		fmt.Fprintf(stderr, "aag detector refs: 引数は detectorId 1 つのみ articulate してください (got %v)\n", posArgs)
+		return ExitError
+	}
+	detectorId := posArgs[0]
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag detector refs: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := navigation.DetectorRefs(navigation.DetectorRefsInput{
+		RepoRoot:   repoAbs,
+		DetectorId: detectorId,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag detector refs: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag detector refs: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

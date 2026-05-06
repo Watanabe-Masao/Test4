@@ -740,3 +740,66 @@ func TestRun_RuleLocate_UnknownRule(t *testing.T) {
 		t.Errorf("stderr should articulate Similar: hint, got: %q", stderr.String())
 	}
 }
+
+// detector action 不足は ExitError (= Wave 3 #14)。
+func TestRun_Detector_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"detector"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// detector refs で detectorId 不在は ExitError。
+func TestRun_DetectorRefs_MissingDetectorId(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"detector", "refs", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// detector refs で known detectorId は valid JSON を出力。
+func TestRun_DetectorRefs_RealRepo_ArchiveManifest(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"detector", "refs",
+		"--repo", repoRootForTest(t),
+		"archive-manifest",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "detector-refs-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["detectorId"] != "archive-manifest" {
+		t.Errorf("detectorId = %v", out["detectorId"])
+	}
+	if !strings.Contains(out["goImplementation"].(string), "archive_manifest.go") {
+		t.Errorf("goImplementation should reference archive_manifest.go")
+	}
+	if fixtures, ok := out["fixtures"].([]interface{}); !ok || len(fixtures) == 0 {
+		t.Errorf("fixtures must be non-empty array")
+	}
+}
+
+// detector refs で unknown detectorId は ExitError。
+func TestRun_DetectorRefs_UnknownDetector(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"detector", "refs",
+		"--repo", repoRootForTest(t),
+		"nonexistent-detector",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "Known detectors:") {
+		t.Errorf("stderr should articulate Known detectors:, got: %q", stderr.String())
+	}
+}
