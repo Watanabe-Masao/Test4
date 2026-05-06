@@ -67,6 +67,8 @@ AI が context から導き出す力を信頼する設計。
 ## AAG を背景にした思考
 
 > **AAG 関連 doc 群の単一エントリ**: [`aag/_internal/README.md`](./aag/_internal/README.md) — Layer 0+1 (Meta) / Layer 2+3 (Core) / Layer 4 (Audit) の index。詳細は [`aag/strategy.md`](./aag/_internal/strategy.md) (戦略) / [`aag/architecture.md`](./aag/_internal/architecture.md) (5 層構造) / [`aag/evolution.md`](./aag/_internal/evolution.md) (進化動学) / [`aag/source-of-truth.md`](./aag/_internal/source-of-truth.md) (正本ポリシー) を参照。
+>
+> **AAG framework version 履歴**: [`aag/CHANGELOG.md`](./aag/CHANGELOG.md) — AAG framework 自体の release log (= app version とは完全独立、2026-05-06 AAG 6.0 で institute、`docs/contracts/aag/aag-metadata.json` `aagVersion` と `versionSyncGuard` で同期検証)。app user-facing 変更の履歴は repo root [`CHANGELOG.md`](./CHANGELOG.md) を参照。
 
 ### 鉄則 (Project A Phase 3 で薄化、§8.13 判断 = B 適用)
 

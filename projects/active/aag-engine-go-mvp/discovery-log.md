@@ -85,6 +85,30 @@
 - **解消 timing**: P3 (= 揮発 / 不要判定可)、post-archive 別 program `aag-engine-domain-coverage-extension` (= DA-α-012 §decision-2 後続候補) で起票判断、または不要判定で削除
 - **影響**: scope 小 (= 1 rule 追加 + fixture + detector 実装 + per-rule unit test)、新 governance scope 追加候補
 
+### 2026-05-06 P2: AAG-tagged project の `aag/CHANGELOG.md` 更新を mechanical 強制する guard
+
+- **場所**: `app/src/test/guards/` (= 新 guard test 配置候補) + `app/src/test/projectizationPolicyGuard*.test.ts` (= PZ-N 拡張候補) + `tools/architecture-health/src/collectors/obligation-collector.ts` (= obligation map 拡張候補)
+- **現状**: `versionSyncGuard.test.ts` は **horizontal sync** (= 4-5 file 間の値整合) のみ機械検証。**vertical obligation** (= AAG-tagged project は `aag/CHANGELOG.md` 更新が必須という project → CHANGELOG の縦方向義務) は **未強制**。本 MVP では HANDOFF §4.5 で AI 単独判断「CHANGELOG 不要」 を articulate し、user feedback で誤りを発見 (= DA-α-013) → 同 抜け穴は他の AAG-related project でも再発 risk あり
+- **改善 / 調査内容**:
+  - mechanism 候補 1: `projectization.json` に `aagRelated: true` tag 追加 + projectizationPolicyGuard PZ-N で「aagRelated=true なら `aag/CHANGELOG.md` の最新 entry が project ID を reference する」 を機械検証
+  - mechanism 候補 2: obligation map に `projects/active/aag-*/checklist.md` path → `aag/CHANGELOG.md` modify obligation を articulate
+  - mechanism 候補 3: 上記 2 mechanism の組み合わせ (= explicit tag + path-based fallback)
+- **trigger**: 2026-05-06 user feedback「プロジェクト単位でそちらの更新も強制すべきです」 (= DA-α-013 §context-2)
+- **解消 timing**: post-archive 別 program (= 仮 ID `aag-changelog-vertical-obligation-guard`) で起票判断、本 MVP archive 後 user 判断
+- **影響**: scope 中 (= projectization.json schema 拡張 + new PZ-N rule + guard test 実装 + 既存 active project の retroactive tag 追加判断 + obligation map articulation)、AAG framework governance evolution の institutional value 高い
+
+### 2026-05-06 P2: AAG 5.x までの inline articulation を `aag/CHANGELOG.md` に retroactive 移植
+
+- **場所**: `CHANGELOG.md` (= repo root) §[v1.9.0] §[v1.10.0] (= AAG 5.1 / AAG 5.2 inline articulation) と `aag/CHANGELOG.md` (= AAG 6.0 以降の canonical) の整合
+- **現状**: `aag/CHANGELOG.md` の bridge note で「AAG 5.x までは `CHANGELOG.md` (= app changelog) に inline articulate、AAG 6.0 以降は本 file が canonical」 と articulate 済 (= DA-α-013 §decision-1)。retroactive split は本 MVP scope 外として deferred、bridge note で navigation 代替
+- **改善 / 調査内容**:
+  - AAG 5.1 (= v1.9.0 の Project Lifecycle Management & Documentation/Task Separation) を `aag/CHANGELOG.md` に retroactive entry articulate (= 既存 inline articulation を copy + AAG version section title を独立 articulate)
+  - AAG 5.2 (= v1.10.0 の Collector-Governance Symmetry) を同様に retroactive entry articulate
+  - 既存 `CHANGELOG.md` の inline articulation は維持 (= 歴史保存)、または「詳細は `aag/CHANGELOG.md` 参照」 と pointer 化
+- **trigger**: 2026-05-06 AAG 6.0 institute 時 (= DA-α-013) に bridge note で「retroactive split は scope 外」 と deferred articulate
+- **解消 timing**: post-archive 別 program (= 仮 ID `aag-changelog-historical-split`) で起票判断、本 MVP archive 後 user 判断 (= bridge note で navigation 機能しているため緊急度低)
+- **影響**: scope 中 (= 2 entry の retroactive 移植 + 既存 CHANGELOG.md pointer 化判断 + AAG 5.0 / 4.x 等の更に過去 articulation の追跡判断)、institutional 価値は中 (= bridge note で代替可能)
+
 ### 2026-05-06 P3: `aag fixtures --compare` flag 拡張 (= actual との parity 比較拡張余地、shadow mode で superseded 候補)
 
 - **場所**: `aag-engine/cmd/aag/main.go` の `runFixtures()` (= Phase 3 で landing、catalog 出力 only)
@@ -105,8 +129,11 @@
 | `aag-engine-domain-coverage-extension` | DA-α-012 option C 採用時、新 governance scope 追加判断時 | 新 detector / rule 追加 (= AR-SCHEMA-VALIDATION-PZ-VERSION 等を含む)、不可侵原則 4 整合確認 | DA-α-012 §decision-2 + 上記 P3 entry「schemaVersion mismatch 検出」 統合候補 |
 | `aag-engine-shadow-mode-runner-impl` | TS 側 detector logic 改修時の drift 即時検出 needs articulate 時 | TS detector を Go から exec する真の TS 並走 mode、node 環境依存 articulate | DA-α-009 §rationale + 上記 P2 entry「TS detector を Go から exec する真の TS 並走 shadow mode」 |
 | `aag-engine-real-repo-dispatch-impl` | `aag validate --repo .` を skeleton から本格実装する判断時、`aag-engine-hard-gate-promotion` の前提実装 candidate | collector layer + 5 detector dispatch + JSON 出力 + edge case test | 上記 P2 entry「`aag validate` real-repo dispatch」、Phase 1 skeleton 解消 |
+| `aag-changelog-vertical-obligation-guard` | 後続 AAG-related project bootstrap 時 / または同 institutional gap 再発時 | projectization.json `aagRelated: true` tag + projectizationPolicyGuard PZ-N + obligation map で AAG project → `aag/CHANGELOG.md` 縦方向更新義務を mechanical 強制 | DA-α-013 + 上記 P2 entry「AAG-tagged project の `aag/CHANGELOG.md` 更新を mechanical 強制する guard」 |
+| `aag-changelog-historical-split` | retroactive split 必要性が user 判断で確定時 (= 緊急度低、bridge note で navigation 代替中) | AAG 5.1 / AAG 5.2 (= v1.9.0 / v1.10.0 inline articulation) を `aag/CHANGELOG.md` に retroactive entry 移植 + 既存 CHANGELOG.md pointer 化判断 | DA-α-013 §decision-6 + 上記 P2 entry「AAG 5.x までの inline articulation を `aag/CHANGELOG.md` に retroactive 移植」 |
 
 ## status
 
 - 2026-05-05 (project bootstrap): 本 discovery-log landing
 - 2026-05-06 (Phase 12 closure 後): scope 外発見 6 件 (= P2 3 件 + P3 3 件) を集約 articulate、後続 program 4 候補を articulate (= user 「蓄積された課題はありますか」 query 由来、option A 採用)
+- 2026-05-06 (AAG 6.0 institute 後): AAG version 分離 mechanism institute (= DA-α-013) 派生で P2 entry 2 件追加 (= 計 P2 5 件 + P3 3 件 = 8 件)、後続 program 候補 6 件に拡張 (= aag-changelog-vertical-obligation-guard + aag-changelog-historical-split 追加)

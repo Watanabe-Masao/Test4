@@ -1437,4 +1437,112 @@ scope 判断点:
 
 ---
 
-> 全 DA entry (DA-α-000 〜 012) articulate 完遂。後続 closure (= AI 自己レビュー + 最終レビュー) は本 file のレビュー後 user 承認で archive 移行 articulate 候補。
+## DA-α-013: AAG version の app version からの分離 institute (= AAG 6.0 articulate + aag/CHANGELOG.md 新設 + aag-metadata.json 新設、user feedback driven)
+
+### status
+
+- 着手判断: **closed** (2026-05-06、user feedback 経由で institute 完遂、AAG 6.0 articulate 済)
+- 振り返り判定: **正しい** (= user 直接 directive「AAGは6.0に」 + 「app versionは粗利管理本体のバージョンなのでそこからは切り離す」 + 「一連のアップデートで分離ができた為そのような形に変更が自然」 を完全反映、3-tree boundary 整合)
+
+### context
+
+本 MVP Phase 12 closure 提案 (= DA-α-012) + AI 自己レビュー (= 2026-05-05 commit d8eb210) で「CHANGELOG 更新 不要」 と articulate したが、user query「蓄積された課題はありますか」 → 「A」 (= discovery-log 集約) → 「AAGの CHANGELOG でバージョン管理は行ってますか？」 → 「プロジェクト単位でそちらの更新も強制すべきです」 の 4 連 query で、本 articulation の **誤り** が transparent 化:
+
+1. **既存 pattern matrix**:
+   - `CHANGELOG.md` (= repo root) は app + AAG 両方を inline articulate していた (= v1.9.0 → AAG 5.1 / v1.10.0 → AAG 5.2)
+   - `versionSyncRegistry.ts` の 4 file triplet (= app/package.json + project-metadata.json + CHANGELOG.md + recent-changes.generated.md) はすべて **app version 同期** を articulate
+   - AAG version は CHANGELOG section title 内 inline articulate のみ、独立 source なし
+2. **user feedback 経由の articulation 修正**:
+   - 「AAGの CHANGELOG でバージョン管理は行ってますか？」 → AI 回答「v1.10.0 = AAG 5.2、unified version triplet」
+   - 「プロジェクト単位でそちらの更新も強制すべきです」 → 私「AAG 6.0 として CHANGELOG entry 追加 + 4 file triplet 同期」 と提案
+   - 「App version は粗利管理本体のバージョンなのでそこからは切り離すのが自然」 → 私「AAG version を独立 mechanism で導入」 と提案 (= aag-metadata.json 新設 + AAG-CHANGELOG.md 新設)
+   - 「一連のアップデートで分離ができた為そのような形に変更が自然」 → 私「3-tree boundary 整合で `aag/CHANGELOG.md` を aag/ tree 内に配置 + `docs/contracts/aag/aag-metadata.json` を docs/contracts/aag/ namespace 整合」 と提案
+   - 「よろしくお願いします」 → 本 institute 実行
+3. **scope 判断**:
+   - 本 MVP 内吸収 vs 別 program 起票
+   - 3-tree boundary 整合配置 (= aag/CHANGELOG.md vs AAG-CHANGELOG.md at repo root)
+   - 既存 CHANGELOG.md retroactive split の有無
+   - per-project enforcement guard の即時導入 vs 別 program 起票
+
+### decision
+
+以下を採用 (= user 完全承認済、本 commit で execute):
+
+1. **`aag/CHANGELOG.md` 新設** at aag/ tree root:
+   - 役割分担 table + バージョニングポリシー + bridge note (= AAG 5.x までの inline articulation 歴史) を articulate
+   - 初回 entry `## [AAG 6.0] - 2026-05-06 — Read-Only Governance Engine (Go MVP)`
+   - relatedPrograms (= parent: aag-engine-readiness-refactor、child candidate 6 件) を articulate
+2. **`docs/contracts/aag/aag-metadata.json` 新設** in docs/contracts/aag/ existing namespace:
+   - `aagVersion: "6.0"` + $comment articulate (= institute 経緯 + 同期検証 reference)
+3. **`app/src/test/versionSyncRegistry.ts` 拡張**:
+   - 5 entry 目として `aag/CHANGELOG.md` 最新 `## [AAG x.y]` ↔ `aag-metadata.json` `aagVersion` の sync pair 追加
+   - `versionSyncGuard.test.ts` 16 test PASS 確認 (= 既存 12 test + 新 sync pair × 4 test = 16 test)
+4. **`aag/README.md` + `CLAUDE.md` 「## AAG を背景にした思考」** に AAG CHANGELOG への navigation 追加
+5. **app version は不変**:
+   - `app/package.json` `version: "1.10.0"` 維持
+   - 既存 4 file triplet (= app version) は不変
+   - 粗利管理 user-facing 変更なし、semver 整合
+6. **既存 CHANGELOG.md は不変** (= retroactive split は scope 外、bridge note で代替):
+   - v1.9.0 / v1.10.0 の AAG 5.1 / 5.2 inline articulation は歴史として残す
+   - retroactive split は別 program `aag-changelog-historical-split` 起票候補 (= discovery-log P2)
+7. **per-project enforcement guard は本 MVP scope 外**:
+   - AAG-tagged project が `aag/CHANGELOG.md` 更新を mechanical 強制する guard は別 program 起票候補
+   - 別 program `aag-changelog-vertical-obligation-guard` (= discovery-log P2)
+   - 本 MVP 内では HANDOFF §4.5 + checklist §AI 自己レビュー entry 5 を articulation 修正することで institutional knowledge transfer を確保
+
+### rationale
+
+- **3-tree boundary 整合 (= user 直接 directive)**: AAG framework の reader scope (= aag/ tree) 内に配置するのが、aag-self-hosting-completion (2026-05-04 完遂) で institute された 3-tree 分離原則と整合。AAG-CHANGELOG.md を repo root に置くと app reader が誤認 risk あり、`aag/CHANGELOG.md` のほうが reader 別 routing を尊重
+- **app version 完全分離 (= user 直接 directive)**: 「app version は粗利管理本体のバージョン」 観点で、AAG framework 変更を app semver にカウントするのは semver 純粋性違反。AAG framework 自身の release version は独立 timeline で進化すべき
+- **AAG 6.0 = MAJOR bump**: AAG 5.x (= TS-only governance) → AAG 6.0 (= TS + 外部 Go validator) は paradigm shift (= validator boundary が repo 内 → repo 外側 + 言語非依存)、MAJOR bump 整合
+- **既存 4 file triplet (= app version) 維持 + 新 1 sync pair (= AAG version) 追加**: 既存 app version mechanism を破壊せず、AAG version を additive に articulate。後方互換 strict adherence
+- **per-project enforcement guard 別 program 起票**: 本 MVP scope creep 回避。institutional knowledge は HANDOFF §4.5 で transparent 化、後続 program で mechanical 強制を articulate
+- **bridge note の institutional value**: AAG 5.x までの inline articulation 歴史を消さず、AAG 6.0 以降の canonical 配置を articulate することで、retroactive split の必要性 vs 不要性を後続 user 判断に open しておく
+
+### alternatives
+
+- (a-alt) **AAG-CHANGELOG.md を repo root に配置**: 3-tree boundary 違反 (= app reader scope に AAG framework artifact を露出)、不採用 (= user 直接 directive で却下)
+- (b-alt) **app version も 1.10.0 → 1.11.0 に bump**: app user-facing 変更なしで semver MINOR bump は意味的に不純、不採用 (= user 直接 directive「app は粗利管理本体」)
+- (c-alt) **app version を 2.0.0 に bump (= AAG MAJOR と整合)**: app と AAG の version timeline 結合は分離原則違反、不採用 (= user 直接 directive 「切り離すのが自然」)
+- (d-alt) **AAG 6.0 として既存 CHANGELOG.md に追加 articulate (= 分離なし)**: 分離原則違反、user 直接 directive で却下
+- (e-alt) **既存 CHANGELOG.md retroactive split を本 MVP 内吸収**: scope creep、別 program で articulate するほうが institutional 整合
+- (f-alt) **per-project enforcement guard を本 MVP 内吸収**: scope creep + 不可侵原則 6 違反、別 program 起票候補
+- (g-alt) **`aag/_internal/CHANGELOG.md` に配置 (= 内部 articulation cluster)**: AAG framework consumer が見つけにくい、`aag/` root のほうが visibility 高い + `aag/README.md` と並列が natural
+- (h-alt) **DA-α-013 を articulate せず DA-α-012 retrospective に統合**: 別 decision lineage を 1 entry に conflate、後続 user navigation 不便、不採用
+
+### 観測点
+
+1. ✅ `aag/CHANGELOG.md` 新設 (= AAG 6.0 entry + bridge note + バージョニングポリシー + 役割分担 table)
+2. ✅ `docs/contracts/aag/aag-metadata.json` 新設 (= aagVersion: "6.0" + $comment articulate)
+3. ✅ `app/src/test/versionSyncRegistry.ts` 拡張 (= 4 entry → 5 entry、AAG version sync pair 追加)
+4. ✅ `versionSyncGuard.test.ts` 16 test PASS (= 既存 12 test + 新 4 test)
+5. ✅ `aag/README.md` に AAG CHANGELOG navigation 追加
+6. ✅ `CLAUDE.md` 「## AAG を背景にした思考」 に AAG CHANGELOG navigation 追加
+7. ✅ HANDOFF §4.5 + checklist §AI 自己レビュー entry 5 articulation 修正
+8. ✅ discovery-log P2 entry 2 件追加 (= aag-changelog-vertical-obligation-guard + aag-changelog-historical-split)
+9. ✅ app version (= 1.10.0) 不変 (= 既存 4 file triplet 維持、粗利管理 user-facing 変更なし)
+10. ✅ user 直接 directive 4 件 (= 「6.0 に」 + 「切り離すのが自然」 + 「分離が自然」 + 「よろしくお願いします」) 完全反映
+
+### Lineage
+
+- **preJudgementCommit**: `2f8647e` (= discovery-log articulate regen 後 HEAD)
+- **judgementCommit**: 本 commit (= AAG 6.0 institute、aag/CHANGELOG.md + aag-metadata.json + versionSyncRegistry 拡張)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 commit (= institute と retrospective を同 commit articulate、user feedback driven の institute は landing と振り返りが時間軸的に分離不能のため §13.1 二段 commit pattern の例外として articulate、DA-α-013 §rationale)
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `2f8647e` を SHA 直接参照)
+
+### 振り返り判定
+
+- **判定**: **正しい** (= user 直接 directive 4 件完全反映、3-tree boundary 整合 strict adherence)
+- **観測点達成状況**: 1〜10 すべて ✅ (= AI session 内 institute 完遂)
+- **学習**:
+  - **AI 自己 review の盲点**: HANDOFF §4.5 で「CHANGELOG 慣習対象外」 と articulate した際、既存 CHANGELOG.md の AAG version inline articulation pattern を見落とした。AI 自己 review でも「既存 pattern との整合確認」 を strict adherence する必要、user feedback で初めて articulation 修正が可能になった
+  - **user feedback driven institute の institutional value**: Phase 12 closure 提案後の user query「蓄積された課題はありますか」 → 「AAGの CHANGELOG でバージョン管理は行ってますか？」 の 2 段 query で、AI 単独では発見できなかった institutional gap (= AAG version の app version からの分離) が transparent 化。AI 自己 review は完璧ではない、user collaboration が institutional knowledge transfer に不可欠
+  - **3-tree boundary 整合の institutional power**: aag-self-hosting-completion で institute された分離原則が、本 institute (= aag/CHANGELOG.md vs AAG-CHANGELOG.md at repo root の選択) で application された。institutional 原則は後続 institute で再利用される asset として transparent 化
+  - **paradigm shift の MAJOR bump 妥当性**: AAG 5.x (= TS-only) → AAG 6.0 (= TS + 外部 Go validator) は validator boundary の根本変更 (= repo 内 → repo 外側 + 言語非依存)、MAJOR bump として institutional に articulate する妥当性高い
+  - **user 4 連 directive の navigation pattern**: 「6.0 に」 (= 数値 directive) + 「切り離すのが自然」 (= 構造 directive) + 「分離が自然」 (= 配置 directive) + 「よろしくお願いします」 (= 実行 approval) の 4 段構成。user は段階的に AI の articulation を refine、AI は per-step に proposal を articulate して user 承認を待つ pattern が institutional に効率的
+
+---
+
+> 全 DA entry (DA-α-000 〜 013) articulate 完遂。後続 closure (= 最終レビュー) は本 file のレビュー後 user 承認で archive 移行 articulate 候補。
