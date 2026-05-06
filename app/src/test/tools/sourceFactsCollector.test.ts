@@ -242,11 +242,7 @@ describe('Source Facts Collector 契約テスト', () => {
     })
     const bundle = collectSourceFacts({ repoRoot: repo.root })
     const paths = bundle.facts.map((f) => f.path)
-    expect(paths).toEqual([
-      'app/src/alpha.ts',
-      'app/src/middle.ts',
-      'app/src/zeta.ts',
-    ])
+    expect(paths).toEqual(['app/src/alpha.ts', 'app/src/middle.ts', 'app/src/zeta.ts'])
   })
 
   it('node_modules / .git / dist は walking 対象外', () => {

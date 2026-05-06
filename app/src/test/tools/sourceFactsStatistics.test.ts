@@ -116,9 +116,7 @@ describe('Source Facts Statistics 契約テスト', () => {
   })
 
   it('layer statistics: layer null は集約対象外', () => {
-    const layers = computeLayerStatistics([
-      makeFact({ layer: null, effectiveCodeLines: 100 }),
-    ])
+    const layers = computeLayerStatistics([makeFact({ layer: null, effectiveCodeLines: 100 })])
     expect(Object.keys(layers)).toHaveLength(0)
   })
 
