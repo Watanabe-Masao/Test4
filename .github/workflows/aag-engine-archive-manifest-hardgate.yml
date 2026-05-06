@@ -1,0 +1,90 @@
+# AAG Engine Archive Manifest — hard gate candidate workflow (Phase 11 deliverable)
+#
+# 役割:
+#   - archive-manifest detector のみを focused に走らせる **hard gate 候補 job**
+#   - aag-engine.yml (= advisory all-detector) と分離、本 workflow は branch protection
+#     登録 candidate (= user 判断必須、operational change)
+#
+# Phase 11 articulation (= projects/active/aag-engine-go-mvp/decision-audit.md DA-α-011):
+#   - archive-manifest detector を最 deterministic と articulate (= 12 required field 単純判定、
+#     regex / 動的状態 依存なし、TS 側でも archive v2 schema guard が hard gate 維持)
+#   - fixture parity 100% 達成 (= Phase 4 で archive-v2 3 fixture すべて Match=true、
+#     Phase 9 shadow runner 集約で drift 0 観測)
+#   - rollback path: TS 側 archive v2 schema guard が hard gate 並存維持、Go は補完 layer
+#
+# 不可侵原則整合:
+#   - 2 (= TS guard を全廃しない) → TS 並存維持 strict adherence
+#   - 5 (= MVP では CI hard gate を即置換しない) → 本 workflow は **branch protection 未登録 advisory**、
+#     user approval 後に operational 登録で hard gate 効果 articulate
+#
+# 操作手順 (= user action):
+#   1. 本 workflow の job (= aag-engine-archive-manifest-hardgate) が CI 上で安定実行を観測
+#   2. user approval entry を decision-audit.md DA-α-011 §user-approval に追加
+#   3. GitHub Settings → Branches → main の branch protection で
+#      `aag-engine-archive-manifest-hardgate` を required checks に追加
+#   4. checklist Phase 11 checkbox 1 (hard gate 化) + 4 (user approval) を flip
+#
+# 詳細: projects/active/aag-engine-go-mvp/plan.md §Phase 11 + decision-audit.md DA-α-011
+
+name: AAG Engine Archive Manifest (hard gate candidate)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: aag-engine-archive-manifest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ── archive-manifest detector hard gate 候補 ──────────
+  # 失敗 = archive-manifest detector の TS / Go drift、または unit logic regression。
+  # branch protection の required checks に登録するか否かは user 判断 (= operational)。
+  aag-engine-archive-manifest-hardgate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aag-engine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # AR-CI-FETCH-DEPTH default 整合 (= Phase 10 institutional default 継承)。
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: aag-engine/go.sum
+
+      # Step 1a: archive-manifest detector test の zero-match guard
+      # `go test -run` は pattern が 0 件 match でも exit 0 で pass するため、
+      # hard gate workflow が test rename / removal を silently pass する risk あり。
+      # `go test -list` で expected 8 test (= 5 unit + 3 fixture parity) を pre-validate。
+      - name: archive-manifest detector test count guard (= zero-match prevention)
+        run: |
+          set -e
+          EXPECTED=8
+          ACTUAL=$(go test -list 'TestDetectArchiveManifestViolations|TestFixtureParity_ArchiveV2' ./internal/detectors/ | grep -c '^Test' || true)
+          if [ "$ACTUAL" -ne "$EXPECTED" ]; then
+            echo "::error::archive-manifest test count mismatch: expected $EXPECTED, got $ACTUAL (test rename / removal の可能性、workflow と test name の sync 確認)"
+            go test -list 'TestDetectArchiveManifestViolations|TestFixtureParity_ArchiveV2' ./internal/detectors/
+            exit 1
+          fi
+          echo "archive-manifest test count guard PASS: $ACTUAL/$EXPECTED tests matched"
+
+      # Step 1b: archive-manifest detector unit + fixture parity test
+      # 5 unit (TestDetectArchiveManifestViolations_*) + 3 fixture parity (TestFixtureParity_ArchiveV2_*)
+      # = 計 8 test、failure 即 hard fail。
+      - name: archive-manifest detector test (= 5 unit + 3 fixture parity)
+        run: go test -v ./internal/detectors/ -run 'TestDetectArchiveManifestViolations|TestFixtureParity_ArchiveV2'
+
+      # Step 2: shadow runner integration test (= TestRun_AllFixturesMatch 等が
+      # archive-v2 fixture を含む 8 fixture 全 dispatch + match=true を検証)
+      # shadow runner の archive-v2 dispatch logic regression を防止。
+      - name: shadow runner integration test
+        run: go test -v ./internal/shadow/...

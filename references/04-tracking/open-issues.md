@@ -20,6 +20,7 @@
 
 | projectId | archived at | title | location |
 |---|---|---|---|
+| `aag-engine-go-mvp` | 2026-05-06 | AAG Engine Go MVP — read-only governance validator shadow implementation (= Phase 0〜12 完遂 + AAG 6.0 institute + versionImpact mechanism institute、L3 architecture-refactor、Archive v2 圧縮済 = self-dogfood 5 件目) | [`projects/completed/aag-engine-go-mvp/`](../../projects/completed/aag-engine-go-mvp/) |
 | `aag-engine-readiness-refactor` | 2026-05-05 | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 (= Phase 0〜7 完遂、L3 architecture-refactor、Archive v2 圧縮済 = self-dogfood 4 件目) | [`projects/completed/aag-engine-readiness-refactor/`](../../projects/completed/aag-engine-readiness-refactor/) |
 | `docs-and-governance-cohesion` | 2026-04-12 | ドキュメントと課題の分離 — projects/ 一元化と AAG 統合 | [`projects/completed/docs-and-governance-cohesion/`](../../projects/completed/docs-and-governance-cohesion/) |
 | `data-load-idempotency-hardening` | 2026-04-12 | データロード冪等化 — 残存防御の固定化 | [`projects/completed/data-load-idempotency-hardening/`](../../projects/completed/data-load-idempotency-hardening/) |

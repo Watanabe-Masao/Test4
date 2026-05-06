@@ -1,9 +1,22 @@
 {
-  "$comment": "新規 project の config テンプレート。projects/_template/ をコピーした後、<PROJECT-ID> と <TITLE> を実値に置き換え、projectization フィールドを AAG-COA の判定結果で埋める。AI が立ち上げる場合は references/05-aag-interface/operations/projectization-policy.md §3 で Level を決めてから references/05-aag-interface/operations/project-checklist-governance.md §10 の bootstrap 手順に進む。",
+  "$comment": "新規 project の config テンプレート。projects/_template/ をコピーした後、<PROJECT-ID> と <TITLE> を実値に置き換え、projectization + versionImpact フィールドを AAG-COA の判定結果で埋める。AI が立ち上げる場合は references/05-aag-interface/operations/projectization-policy.md §3 で Level を決めてから references/05-aag-interface/operations/project-checklist-governance.md §10 の bootstrap 手順に進む。versionImpact は計画段階で declare、archive 移行時に versionImpactGuard が機械検証 (= 別 program aag-version-impact-declaration-guard で実装、本 field 自体は 2026-05-06 DA-α-014 で institute)。",
   "projectId": "<PROJECT-ID>",
   "title": "<TITLE>",
   "status": "active",
   "projectRoot": "projects/<PROJECT-ID>",
+  "versionImpact": {
+    "$comment": "計画段階で AAG-COA scope 検討と同 timing で declare。delta + baselineAtCreation snapshot 方式 (= 並列 / out-of-order project でも判定狂わず)。archive 移行時に versionImpactGuard (= 別 program aag-version-impact-declaration-guard で実装) が declared vs actual 整合を機械検証する。判定基準 + delta 表記: aag/CHANGELOG.md §バージョンアップ判定基準 reference。判定 timing: project 着手 (= projects/_template/ コピー直後)、bump 対象なしなら delta=`+0.0.0` (app) / `+0.0` (aag) を articulate (= 判定 skip ではなく明示的に「none」 を declare)。",
+    "app": {
+      "baselineAtCreation": "<X.Y.Z = project 着手時点の app/package.json version>",
+      "delta": "<+0.0.0 = none / +0.0.1 = patch / +0.1.0 = minor / +1.0.0 = major>",
+      "rationale": "<判断根拠 1-2 文、aag/CHANGELOG.md §判定基準 table app reference>"
+    },
+    "aag": {
+      "baselineAtCreation": "<X.Y = project 着手時点の docs/contracts/aag/aag-metadata.json aagVersion>",
+      "delta": "<+0.0 = none / +0.1 = minor / +1.0 = major>",
+      "rationale": "<判断根拠 1-2 文、aag/CHANGELOG.md §判定基準 table AAG reference>"
+    }
+  },
   "projectization": {
     "$comment": "AAG-COA 判定結果。projects/<id>/projectization.md の1.判定結果と一致させる。判定は可逆（escalate / de-escalate してよい）。詳細: references/05-aag-interface/operations/projectization-policy.md",
     "level": 2,

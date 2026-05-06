@@ -1,6 +1,6 @@
 # Architecture Health Report
 
-> Generated: 2026-05-05T09:03:04.535Z
+> Generated: 2026-05-06T04:19:43.435Z
 > Schema: v1.0.0
 > 正本: `references/04-tracking/generated/architecture-health.json`
 
@@ -85,7 +85,7 @@
 | docs.obligation.requiredReads.declaredCount | Required Reads マップ宣言数 | 10 | OK |
 | docs.obligation.requiredReads.brokenLinks | Required Reads マップ broken link 数 | 0 / 0 | OK |
 | project.checklist.activeCount | active project 数（archive 未実施を含む） | 4 / 20 | OK |
-| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 40 / 100 | OK |
+| project.checklist.archivedCount | archived project 数（projects/completed/ 配下） | 41 / 100 | OK |
 | project.checklist.completedNotArchivedCount | checklist 完了済みだが archive 未実施の project 数 | 0 / 0 | OK |
 | project.checklist.inProgressCount | in_progress な project 数（open required checkbox あり） | 3 / 20 | OK |
 | project.checklist.emptyCount | checkbox 空の project 数（placeholder / 立ち上げ直後） | 0 / 10 | OK |

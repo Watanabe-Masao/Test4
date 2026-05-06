@@ -1,0 +1,50 @@
+{
+  "$comment": "AAG Engine Go MVP — read-only governance validator shadow implementation。aag-engine-readiness-refactor (= 2026-05-05 archive、self-dogfood 4 件目) の 5 detector を Go 製 read-only engine として shadow mode 実装。MVP は validator のみ (= generator ではない)、TS guard / docs:check / architecture-health は置き換えない。L3 architecture-refactor (= 新言語 engine 導入)、requiresHumanApproval=true。Phase 0 = bootstrap / scope lock / required reads / DA-α-000 のみ、Go 実装は Phase 1 以降。",
+  "projectId": "aag-engine-go-mvp",
+  "title": "AAG Engine Go MVP — read-only governance validator shadow implementation",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-engine-go-mvp",
+  "versionImpact": {
+    "$comment": "2026-05-06 retroactive 適用 (= DA-α-014 institute、AAG version-up 判定を計画段階で declare する mechanism)。delta + baselineAtCreation snapshot 方式 (= 並列 / out-of-order project 耐性、user 直接 directive)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準 reference。verification: 別 program aag-version-impact-declaration-guard で archive 移行時に declared vs actual 整合を機械検証予定 (= 本 MVP では schema + self-dogfood + criteria articulation のみ)。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "粗利管理 user-facing 変更なし (= calculation / UI / store / data shape 全て不変)、本 MVP は AAG framework 拡張、app version bump 対象外。判定基準: aag/CHANGELOG.md §判定基準 table app `none`。"
+    },
+    "aag": {
+      "baselineAtCreation": "5.2",
+      "delta": "+1.0",
+      "rationale": "Go 外部 validator 導入 = paradigm shift (= validator boundary が repo 内 → repo 外側 + 言語非依存、source of truth は TS captured fixture output 維持で不可侵原則 9 整合)。AAG MAJOR bump = +1.0、expectedTargetVersion = 5.2 + 1.0 = 6.0、本 MVP archive 時に aag/CHANGELOG.md §[AAG 6.0] entry に本 project ID reference 必要。判定基準: aag/CHANGELOG.md §判定基準 table AAG `major`。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projectization.md と一致。L3 = 新言語 (Go) engine 導入による architecture 変更、複数 boundary (= contract / fixture / shadow report) 影響。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "aag-engine/",
+      "projects/completed/aag-engine-go-mvp/"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "Rust engine の実装 (= Phase 12 で必要性再評価、本 MVP scope 外)",
+      "generated artifact の生成機能 (= MVP は validator のみ、generator ではない)",
+      "docs:generate を Go に移管 (= TS 維持)",
+      "TypeScript guard を削除 (= 本 MVP は parallel implementation、TS 不変)",
+      "AAG rule semantics を Go 側に複製 (= readiness refactor 不可侵原則 4 継承、merged JSON 経由参照のみ)",
+      "calculation / presentation / WASM / TS AST 系 guard を移植 (= readiness refactor 不可侵原則 5 継承)",
+      "CI hard gate を即時置換 (= 初期は local / advisory only、shadow mode 期間後に user 判断で hard gate 化)",
+      "実装 AI による自己承認 (= 最終レビュー = user 承認 必須)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/completed/aag-engine-go-mvp/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-engine-go-mvp/HANDOFF.md",
+    "plan": "projects/completed/aag-engine-go-mvp/plan.md",
+    "checklist": "projects/completed/aag-engine-go-mvp/checklist.md",
+    "projectization": "projects/completed/aag-engine-go-mvp/projectization.md"
+  }
+}

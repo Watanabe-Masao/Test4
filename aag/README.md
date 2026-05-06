@@ -12,6 +12,7 @@
 
 本 tree は **AAG framework 本体** (= 内部 articulation + framework 実装):
 
+- `CHANGELOG.md` (= AAG framework 自体の release log、`aagVersion` canonical source、2026-05-06 AAG 6.0 で institute) — **app version とは完全独立**、AAG framework 改修者が version bump 履歴を navigate する起点。詳細: [`aag/CHANGELOG.md`](./CHANGELOG.md) §役割分担
 - `_internal/` (R1 で fill 予定) — AAG framework 内部 articulation (= meta / strategy / architecture / evolution / source-of-truth / operational-classification / layer-map / display-rule-registry)
 - `_framework/` (R1 で skeleton 新設、後続 phase で fill) — AAG framework 実装 (= rules / collectors / generators / schemas / fixtures)
 - `core/` (= 既存) — AAG core implementation

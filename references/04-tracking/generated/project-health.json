@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-05T09:03:04.539Z",
+  "timestamp": "2026-05-06T04:19:43.439Z",
   "summary": {
     "active": 4,
-    "archived": 40,
+    "archived": 41,
     "inProgress": 3,
     "completedNotArchived": 0,
     "empty": 0,
@@ -88,6 +88,19 @@
       "progress": 1,
       "entrypoint": "projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-doc-responsibility-separation/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-engine-go-mvp",
+      "title": "AAG Engine Go MVP — read-only governance validator shadow implementation",
+      "kind": "project",
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 0,
+      "total": 0,
+      "progress": 0,
+      "entrypoint": "projects/completed/aag-engine-go-mvp/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-engine-go-mvp/checklist.md",
       "parent": null
     },
     {

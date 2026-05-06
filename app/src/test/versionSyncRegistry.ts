@@ -126,4 +126,30 @@ export const VERSION_SYNC_REGISTRY: readonly VersionSyncPair[] = [
       label: 'package-lock.json root version',
     },
   },
+  {
+    id: 'aag/CHANGELOG.md latest [AAG] ↔ docs/contracts/aag/aag-metadata.json aagVersion',
+    description:
+      'AAG framework version の triplet 同期 (= aag/CHANGELOG.md 最新 [AAG x.y] 見出しと aag-metadata.json aagVersion の一致)。app version (= 粗利管理 user-facing) とは完全独立、AAG framework 自体の release version。2026-05-06 aag-engine-go-mvp Phase 12 closure で institute (= AAG 6.0 articulate と同時、3-tree boundary 整合)。',
+    source: {
+      file: 'aag/CHANGELOG.md',
+      // `## [AAG 6.0] - 2026-05-06` 形式の最初の出現を拾う
+      extract: (content: string): string | undefined => {
+        const match = /## \[AAG ([\d.]+)\]/.exec(content)
+        return match?.[1]
+      },
+      label: 'aag/CHANGELOG.md 最新 [AAG x.y]',
+    },
+    target: {
+      file: 'docs/contracts/aag/aag-metadata.json',
+      extract: (content: string): string | undefined => {
+        try {
+          const json = JSON.parse(content) as { aagVersion?: string }
+          return json.aagVersion
+        } catch {
+          return undefined
+        }
+      },
+      label: 'aag-metadata.json aagVersion',
+    },
+  },
 ] as const
