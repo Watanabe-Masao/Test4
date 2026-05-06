@@ -15,6 +15,7 @@
 | `pure-calculation-reorg` | project | Pure 計算責務再編 — Phase 0-7 完遂、**Phase 8 entry artifacts landing 完了** (2026-05-04、`projects/active/pure-calculation-reorg/phase-8/` に readiness table + 4 ANA proposals)。実 WASM build + DEV dual-run 観測 + user 承認は本 session 後 | [`projects/active/pure-calculation-reorg/AI_CONTEXT.md`](../../projects/active/pure-calculation-reorg/AI_CONTEXT.md) |
 | `taxonomy-v2` | project | Taxonomy v2 (責務軸 R:* + テスト軸 T:*) — v1 撤退完遂、運用 phase | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../projects/active/taxonomy-v2/AI_CONTEXT.md) |
 | `quick-fixes` | collection | Quick Fixes — 文脈を必要としない単発作業の集約 | [`projects/active/quick-fixes/AI_CONTEXT.md`](../../projects/active/quick-fixes/AI_CONTEXT.md) |
+| `reposteward-ai-ops-platform` | project | RepoSteward AI Ops Platform — Go MVP (= aag-engine-go-mvp、2026-05-06 archive) の post-MVP 後継。validator から AI-first repo operations engine への phase shift。Wave 1 (Task Capsule schema v1 / `reposteward task prepare` MVP / AAG Parameters v1 / SourceFacts v1 / effective LOC statistics / stats files query) を最初の milestone に置き、JSON-first / AI-first / read-only-first / 構造主検出 / DetectorResult-first / additive-only / Wave-by-wave / versionImpact declare の 8 不可侵原則で長期戦に入る。L3 governance-hardening、versionImpact app=+0.0.0 / aag=+0.1 (minor) declared | [`projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md`](../../projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md) |
 
 ## archived projects
 
