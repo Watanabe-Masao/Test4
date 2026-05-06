@@ -558,3 +558,81 @@ Wave 1 #5 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-008: Wave 1 #6 着手判断 — `aag stats files` query CLI、Go-side schema mirror で SourceFacts / Statistics / Parameters を read-only に集約
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 1 #5 (= Effective LOC Statistics 集計 + 初期 generated artifact) push 完了通知後、Wave 1 final step。本 step は Wave 1 #3 Parameters + Wave 1 #4 SourceFacts + Wave 1 #5 Statistics 三層を AI session が直接 query 可能な形で articulate する **operating CLI**。Task Capsule (= Wave 1 #2) と共に「AI が search なしで file 詳細に到達」状態を完成。
+
+### decision
+
+Wave 1 #6 を以下 scope で landing:
+
+1. 新規 1 Go package: `aag-engine/internal/stats/stats.go` (= QueryInput / QueryOutput / FileEntry types + Query() function + parseRange / resolveBucket / resolvePercentileThreshold + MarshalJSON with SetEscapeHTML(false))
+2. 新規 1 Go test: `aag-engine/internal/stats/stats_test.go` (= 14 unit test = parseRange valid/empty/malformed + empty input + unsupported metric + real repo no filter / range / bucket / unbounded / unknown / layer / above / unknown percentile / limit / sort order + MarshalJSON HTML escape)
+3. update: `aag-engine/cmd/aag/main.go` (= `stats` subcommand + `files` action dispatch + import internal/stats + usage 拡張)
+4. update: `aag-engine/cmd/aag/main_test.go` (= 8 CLI level test = no action / unknown action / no filter / range / bucket / malformed range / unexpected positional / etc.)
+5. update: `checklist.md` + `decision-audit.md`
+6. byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- Wave 2 sizeGuard refactor (= effectiveCodeLines への切替 + baseline / ratchet-down 設計、独立 PR scope)
+- AI navigation MVP (Wave 3) / Cleanliness rules (Wave 4) / Premise・Repair (Wave 5)
+- Health KPI 統合 (= Wave 1 #5 で deferred、別 PR で main.ts collector 配線時に同 PR で実施候補)
+- query result の caching (= file size 数千 file で 350ms scan、cache 不要)
+
+### rationale
+
+- **Go-side schema mirror で 3 input を articulate**: `SourceFact` / `SourceFactsBundle` / `SizeStatisticsBundle` / `ParameterBucket` / `aagParameters` を Go struct で articulate。TS-side schema (= source-facts.schema.json + aag-size-statistics.schema.json + aag-parameters.schema.json) と structural identical。Wave 1 #2 task_capsule.go と同 mirror pattern 整合
+- **schemaVersion validation**: query 時に source-facts.json の `schemaVersion=source-facts-v1` + aag-size-statistics.json の `schemaVersion=aag-size-statistics-v1` を check。schema bump 時に query が silent に誤動作しない
+- **filter compose**: `--range` / `--bucket` / `--layer` / `--above` を 4 軸独立 articulate、AND 結合。bucket 解決 / percentile 解決は必要時のみ別 file 読込み (= --bucket 不在時は parameters file 不要 = robust)
+- **sort order: effectiveCodeLines DESC + path ASC tie-break**: outlier 探索が primary use case (= Wave 1 #6 spec 「stats files --range 21..30 で 21〜30 行の file を抽出」)、降順が natural。tie 時は path ASC で reproducibility 確保
+- **--limit cap with totalMatched articulate**: AI consumer が「全体の何件中何件が cap された」を articulate 可能。output に `totalMatched` + `returned` 両方 articulate
+- **HTML escape disabled**: Wave 1 #2 task prepare と同 idiom (= `&` / `<` / `>` literal articulate、AI consumer 読了性)
+- **percentile lookup from generated artifact**: `--above p95` 入力時に aag-size-statistics.json から `summary.p95` を lookup (= recompute せず、既存 generated を re-use)。consumer が statistics regeneration 必要時は `npx tsx ...source-facts-statistics-cli.ts` を hint に articulate
+- **bucket lookup from parameters**: `--bucket loc.021_030` 入力時に aag-parameters.json `codeSize.buckets` から min/max を resolve。unknown bucket → known list を error message に articulate
+- **read-only な実 file 走査 unit test**: real repo を Go test 内で参照 (= existing detector_result_test.go pattern 継承)、generated artifact が存在する前提。CI で source-facts / statistics 不在時は test fail (= Wave 1 #4 / #5 の generated artifact が tracked = 常時存在)
+
+### alternatives
+
+- (a) **TS-side で query CLI 実装**: 却下。AI session が aag binary 経由で navigate する設計 (= Wave 1 #2 と同 surface)、Go-side に stats query を articulate する方が surface 整合
+- (b) **filter を OR 結合**: 却下。AND 結合の方が AI session の意図 (= 「presentation 層の 21〜30 行 file」のような複合 query) を articulate
+- (c) **--bucket を直接 min/max で articulate (= --min / --max flag)**: 却下。aag-parameters.json で articulate された bucket id をそのまま参照する方が consumer (= AI session) の articulation コストが低い、bucket 名が anchor として機能
+- (d) **schemaVersion validation skip**: 却下。Wave 後段で schema bump 時に silent 誤動作するリスク、Wave 1 段階で hard fail を articulate しておくのが将来安全
+- (e) **percentile recompute (= statistics 不要)**: 却下。Query 時に毎回 recompute は wasteful、generated artifact を re-use する方が JSON-first / read-only 整合
+- (f) **JSON output format alternative (= TSV / Markdown table)**: 却下。AI consumer が消費する surface は JSON のみ (= 不可侵原則 1)、Human UI 向 format は別 step (= 必要時に articulate)
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `aag-engine/internal/stats/` 配下 2 file 存在 + go vet clean
+2. `go test ./internal/stats/...` 14 test PASS
+3. `go test ./cmd/aag/...` 8 stats CLI test 含む全 test PASS
+4. `aag stats files --repo <root> --bucket loc.301_plus --limit 5` 実行で valid stats-files-query-v1 JSON が stdout に出力 (= totalMatched 件数 + top 5 file articulate)
+5. JSON 出力で `&` literal (= SetEscapeHTML(false) 効果)
+6. 各 filter (range / bucket / layer / above) が独立に correct な subset を articulate
+7. unknown bucket / unknown percentile / malformed range が ExitError (2) を返す
+8. sort order: effectiveCodeLines DESC + path ASC tie-break が articulate
+9. `cd app && npm run test:guards` 1082 PASS 維持 (= TS guard は Go 追加で影響なし)
+10. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+11. branch `claude/reposteward-ai-ops-platform-stats-files-query` に push 成功 (= Wave 1 #5 から派生 stacked、pre-push 5 段 PASS)
+12. **Wave 1 全完遂 (= 6/6 step landed)**
+
+### Lineage
+
+- **preJudgementCommit**: `6f15a79` (= Wave 1 #5 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 1 #6 landing commit SHA、Wave 1 final)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

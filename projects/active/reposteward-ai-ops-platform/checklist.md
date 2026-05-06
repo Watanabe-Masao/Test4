@@ -97,7 +97,22 @@
 - [x] Ajv で statistics が schema 準拠を確認 = STATISTICS_VALID
 - [x] DA-α-007 (Wave 1 #5 着手判断 + statistics 設計の 5 軸 + Health KPI 統合 deferral 判断) を `decision-audit.md` に articulate
 - [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 149 file / 1082 test、新 statistics test 10 件含む)
-- [ ] Wave 1 #5 commit を `claude/reposteward-ai-ops-platform-effective-loc-stats` branch に push (= Wave 1 #4 branch から派生、stacked PR pattern)
+- [x] Wave 1 #5 commit を `claude/reposteward-ai-ops-platform-effective-loc-stats` branch に push (= Wave 1 #4 branch から派生、stacked PR pattern)
+
+## Wave 1 #6: `reposteward stats files` query
+
+> **着手判断**: DA-α-008 (= Wave 全完遂 final step、Wave 1 #4 SourceFacts + Wave 1 #5 Statistics + Wave 1 #3 Parameters を実 query に articulate する CLI 接続)。
+> **本 PR scope**: `aag-engine/internal/stats/` Go package (= Query function + filter logic) + `aag stats files` subcommand + 14 unit test + 8 CLI level test + checklist + DA articulate。
+
+- [x] `aag-engine/internal/stats/stats.go` を landing (= QueryInput / QueryOutput / FileEntry types + Query() function + parseRange / resolveBucket / resolvePercentileThreshold + MarshalJSON with SetEscapeHTML(false))
+- [x] `aag-engine/internal/stats/stats_test.go` で 14 件の contract test を articulate (= parseRange valid/empty/malformed + empty input rejection + unsupported metric + real repo no filter / range / bucket / unbounded bucket / unknown bucket / layer / above percentile / unknown percentile / limit cap / sort order + MarshalJSON HTML escape)
+- [x] `aag-engine/cmd/aag/main.go` に `stats` subcommand + `files` action 追加 (= --repo / --metric / --range / --bucket / --layer / --above / --limit flag、ExitPass / ExitError)
+- [x] `aag-engine/cmd/aag/main_test.go` に CLI level test 追加 (= 8 test = no action / unknown action / no filter / range / bucket / malformed range / unexpected positional / 等)
+- [x] `cd /home/user/Test4/aag-engine && go test ./...` 全 PASS (= 既存 + 新 14 stats unit + 8 CLI = 22 件追加)
+- [x] `aag stats files --bucket loc.301_plus --limit 5` 実行で 186 件 totalMatched + top 5 file (= execution-overlay.ts 1606 行 / ExplanationService test 1410 行 / doc-registry.json 1239 行 / etc.) を articulate
+- [x] DA-α-008 (Wave 1 #6 着手判断 + Go schema mirror + filter compose 設計の 5 軸) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 149 file / 1082 test 維持)
+- [ ] Wave 1 #6 commit を `claude/reposteward-ai-ops-platform-stats-files-query` branch に push (= Wave 1 #5 branch から派生、Wave 1 全完遂)
 
 ## AI 自己レビュー (= user 承認の手前)
 

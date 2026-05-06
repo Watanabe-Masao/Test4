@@ -419,3 +419,135 @@ func TestRun_TaskPrepare_NonexistentProject(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// stats action 不足は ExitError (= Wave 1 #6)。
+func TestRun_Stats_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), "action 不足") {
+		t.Errorf("stderr should articulate missing action, got: %q", stderr.String())
+	}
+}
+
+// stats の不明 action は ExitError。
+func TestRun_Stats_UnknownAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats", "size"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+	if !strings.Contains(stderr.String(), `unknown action "size"`) {
+		t.Errorf("stderr should articulate unknown action, got: %q", stderr.String())
+	}
+}
+
+// stats files: real repo 走査で valid query output JSON を articulate。
+func TestRun_StatsFiles_RealRepo_NoFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"stats", "files", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout is not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "stats-files-query-v1" {
+		t.Errorf("schemaVersion = %v, want stats-files-query-v1", out["schemaVersion"])
+	}
+	if out["metric"] != "effectiveCodeLines" {
+		t.Errorf("metric = %v, want effectiveCodeLines", out["metric"])
+	}
+	files, ok := out["files"].([]interface{})
+	if !ok {
+		t.Fatalf("files must be array")
+	}
+	if len(files) == 0 {
+		t.Errorf("expected non-empty files array on real repo")
+	}
+}
+
+// stats files --range で filter された結果が範囲内。
+func TestRun_StatsFiles_RangeFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--range", "21..30",
+		"--limit", "20",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d", code)
+	}
+	var out struct {
+		Files []struct {
+			Path               string `json:"path"`
+			EffectiveCodeLines int    `json:"effectiveCodeLines"`
+		} `json:"files"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	for _, f := range out.Files {
+		if f.EffectiveCodeLines < 21 || f.EffectiveCodeLines > 30 {
+			t.Errorf("file %q effectiveCodeLines=%d outside 21..30", f.Path, f.EffectiveCodeLines)
+		}
+	}
+}
+
+// stats files --bucket でも filter が効く。
+func TestRun_StatsFiles_BucketFilter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--bucket", "loc.301_plus",
+		"--limit", "5",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out struct {
+		Files []struct {
+			Path               string `json:"path"`
+			EffectiveCodeLines int    `json:"effectiveCodeLines"`
+		} `json:"files"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	for _, f := range out.Files {
+		if f.EffectiveCodeLines < 301 {
+			t.Errorf("file %q effectiveCodeLines=%d below 301 for loc.301_plus", f.Path, f.EffectiveCodeLines)
+		}
+	}
+}
+
+// stats files --range が malformed なら ExitError。
+func TestRun_StatsFiles_MalformedRange(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"--range", "21",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// stats files で位置引数があれば ExitError。
+func TestRun_StatsFiles_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"stats", "files",
+		"--repo", repoRootForTest(t),
+		"unexpected",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
