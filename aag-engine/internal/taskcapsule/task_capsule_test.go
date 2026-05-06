@@ -204,6 +204,52 @@ func TestValidate_RejectsEmptyRequiredScalars(t *testing.T) {
 	}
 }
 
+func TestValidate_RejectsNonKebabCaseIds(t *testing.T) {
+	cases := []struct {
+		name string
+		mut  func(c *TaskCapsule)
+	}{
+		{"taskId with uppercase", func(c *TaskCapsule) { c.TaskId = "Bad-Task-Id" }},
+		{"taskId with space", func(c *TaskCapsule) { c.TaskId = "bad task id" }},
+		{"taskId with underscore", func(c *TaskCapsule) { c.TaskId = "bad_task_id" }},
+		{"taskId starting with hyphen", func(c *TaskCapsule) { c.TaskId = "-bad" }},
+		{"taskId ending with hyphen", func(c *TaskCapsule) { c.TaskId = "bad-" }},
+		{"projectId with uppercase", func(c *TaskCapsule) { c.ProjectId = "Bad-Project" }},
+		{"projectId with slash", func(c *TaskCapsule) { c.ProjectId = "bad/project" }},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			c := validCapsule()
+			tc.mut(&c)
+			if err := c.Validate(); err == nil {
+				t.Error("expected error for non-kebab-case id, got nil")
+			}
+		})
+	}
+}
+
+func TestValidate_AcceptsValidKebabCaseIds(t *testing.T) {
+	cases := []struct {
+		name      string
+		taskId    string
+		projectId string
+	}{
+		{"single segment", "task", "project"},
+		{"multi segment", "wave-1-task", "reposteward-ai-ops-platform"},
+		{"with digits", "task-123", "project-2"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			c := validCapsule()
+			c.TaskId = tc.taskId
+			c.ProjectId = tc.projectId
+			if err := c.Validate(); err != nil {
+				t.Errorf("expected valid id %q/%q, got error: %v", tc.taskId, tc.projectId, err)
+			}
+		})
+	}
+}
+
 func TestValidate_RejectsBogusHardGate(t *testing.T) {
 	c := validCapsule()
 	c.RepoHealth["hardGate"] = "bogus"

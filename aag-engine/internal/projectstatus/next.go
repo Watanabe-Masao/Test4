@@ -102,7 +102,7 @@ func Next(input NextInput) (NextOutput, error) {
 	// Rule 4: active project + checklist clean
 	if wai.ActiveProject != nil && uncheckedCount == 0 && !dirty {
 		actions = append(actions, "aag task prepare --project "+*wai.ActiveProject+" --intent 'final review'")
-		actions = append(actions, "Run final checks: cd app && npm run test:guards / cd app && npm run docs:check / cd /home/user/Test4/aag-engine && go test ./...")
+		actions = append(actions, "Run final checks: cd app && npm run test:guards / cd app && npm run docs:check / cd aag-engine && go test ./...")
 		actions = append(actions, "Coordinate with user for final approval (= L3 + requiresHumanApproval)")
 		reasoning = append(reasoning, fmt.Sprintf("activeProject=%s checklist clean — consider close phase", *wai.ActiveProject))
 	}

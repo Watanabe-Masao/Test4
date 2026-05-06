@@ -156,7 +156,7 @@ func defaultFinalChecks() []string {
 	return []string{
 		"cd app && npm run test:guards  # all TS guards PASS",
 		"cd app && npm run docs:check  # health + KPI sync",
-		"cd /home/user/Test4/aag-engine && go test ./...  # all Go tests PASS",
+		"cd aag-engine && go test ./...  # all Go tests PASS",
 		"git status  # working tree clean",
 		"git log --oneline -5  # commit lineage articulated",
 	}
