@@ -2,8 +2,8 @@
   "$comment": "AAG Engine Go MVP — read-only governance validator shadow implementation。aag-engine-readiness-refactor (= 2026-05-05 archive、self-dogfood 4 件目) の 5 detector を Go 製 read-only engine として shadow mode 実装。MVP は validator のみ (= generator ではない)、TS guard / docs:check / architecture-health は置き換えない。L3 architecture-refactor (= 新言語 engine 導入)、requiresHumanApproval=true。Phase 0 = bootstrap / scope lock / required reads / DA-α-000 のみ、Go 実装は Phase 1 以降。",
   "projectId": "aag-engine-go-mvp",
   "title": "AAG Engine Go MVP — read-only governance validator shadow implementation",
-  "status": "active",
-  "projectRoot": "projects/active/aag-engine-go-mvp",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-engine-go-mvp",
   "versionImpact": {
     "$comment": "2026-05-06 retroactive 適用 (= DA-α-014 institute、AAG version-up 判定を計画段階で declare する mechanism)。delta + baselineAtCreation snapshot 方式 (= 並列 / out-of-order project 耐性、user 直接 directive)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準 reference。verification: 別 program aag-version-impact-declaration-guard で archive 移行時に declared vs actual 整合を機械検証予定 (= 本 MVP では schema + self-dogfood + criteria articulation のみ)。",
     "app": {
@@ -23,7 +23,7 @@
     "changeType": "architecture-refactor",
     "implementationScope": [
       "aag-engine/",
-      "projects/active/aag-engine-go-mvp/"
+      "projects/completed/aag-engine-go-mvp/"
     ],
     "breakingChange": false,
     "requiresLegacyRetirement": false,
@@ -41,10 +41,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/active/aag-engine-go-mvp/AI_CONTEXT.md",
-    "handoff": "projects/active/aag-engine-go-mvp/HANDOFF.md",
-    "plan": "projects/active/aag-engine-go-mvp/plan.md",
-    "checklist": "projects/active/aag-engine-go-mvp/checklist.md",
-    "projectization": "projects/active/aag-engine-go-mvp/projectization.md"
+    "aiContext": "projects/completed/aag-engine-go-mvp/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-engine-go-mvp/HANDOFF.md",
+    "plan": "projects/completed/aag-engine-go-mvp/plan.md",
+    "checklist": "projects/completed/aag-engine-go-mvp/checklist.md",
+    "projectization": "projects/completed/aag-engine-go-mvp/projectization.md"
   }
 }

@@ -1,0 +1,145 @@
+{
+  "$comment": "Archive v2 manifest for aag-engine-go-mvp. self-dogfood 5 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 / operational-protocol-system = 3 / aag-engine-readiness-refactor = 4 に続く)。preCompressionCommit は本 archive transition commit 直前 = 最終レビュー [x] flip 後 HEAD (`1873926cb49dbd6805e34b53409602c3d2227122`)。config/project.json は AAG identification key として残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。本 project の deliverable は aag-engine/ + .github/workflows/ + aag/CHANGELOG.md + docs/contracts/aag/aag-metadata.json + projects/_template/ 配下に永続維持 (= 圧縮対象外、archive 後も active artifact として運用継続)。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-engine-go-mvp",
+  "title": "AAG Engine Go MVP — read-only governance validator shadow implementation (= Phase 0〜12 完遂 + AAG 6.0 + versionImpact mechanism institute、L3 architecture-refactor)",
+  "archivedAt": "2026-05-06",
+  "preCompressionCommit": "1873926cb49dbd6805e34b53409602c3d2227122",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/active/aag-engine-go-mvp/AI_CONTEXT.md",
+    "projects/active/aag-engine-go-mvp/HANDOFF.md",
+    "projects/active/aag-engine-go-mvp/plan.md",
+    "projects/active/aag-engine-go-mvp/checklist.md",
+    "projects/active/aag-engine-go-mvp/decision-audit.md",
+    "projects/active/aag-engine-go-mvp/discovery-log.md",
+    "projects/active/aag-engine-go-mvp/projectization.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/active/aag-engine-go-mvp/AI_CONTEXT.md",
+      "lineCount": 140,
+      "summary": "AI 入口 (= why / scope / read order、Go 実装段階の意味空間 + Required reads 17 file 明示列挙)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/HANDOFF.md",
+      "lineCount": 353,
+      "summary": "後任者の入口 (= 完了済み全景 + Phase 0〜12 lineage + AAG 6.0 + versionImpact mechanism + AI 自己レビュー §4 long-form articulation + ハマりポイント 8 件 + 関連文書 17 件、archive 直前は user 最終承認 [x] state)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/plan.md",
+      "lineCount": 308,
+      "summary": "計画正本 (= 不可侵原則 9 件 + Phase 0〜12 構造 + 各 Phase 目的 / 作業 / 完了条件 + やってはいけないこと + 関連実装、Phase 8 §severity warn→gate articulation 修正済 = DA-α-008 経由)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/checklist.md",
+      "lineCount": 135,
+      "summary": "completion 判定 (= Phase 0〜12 達成条件 + AI 自己レビュー 5 件 + 最終レビュー、archive 直前は機能 Phase 0〜9 全 [x] + Phase 10/11/12 operational deferred 6 件 [ ] + AI 自己レビュー 5 件 [x] + 最終レビュー [x] state、operational deferred は post-archive user follow-up として transparent articulate)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/decision-audit.md",
+      "lineCount": 1654,
+      "summary": "重判断 institution (= 15 DA entry: DA-α-000 進行モデル + DA-α-001 CLI skeleton + DA-α-002 contract binding + DA-α-003 fixture runner + DA-α-004 archive manifest + DA-α-005 doc registry + DA-α-006 schema validation + DA-α-007 project lifecycle + DA-α-008 generated metadata + 5 detector 移植完了 + DA-α-009 shadow mode + DA-α-010 CI advisory + DA-α-011 hard gate promotion 提案 + DA-α-012 closure 提案 + DA-α-013 AAG 6.0 institute + DA-α-014 versionImpact mechanism institute、各 entry に 5 軸 + 観測点 + Lineage 実 sha + 振り返り判定 + 学習 articulate)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/discovery-log.md",
+      "lineCount": 144,
+      "summary": "scope 外発見蓄積 (= P2 5 件 + P3 3 件 = 8 件、別 program 候補 6 件 articulate、P2 entry 「versionImpact declaration mechanism の機械検証 guard 実装」 は DA-α-013 旧 entry を proactive 化で renaming + scope expansion = DA-α-014 articulation refinement 経由)"
+    },
+    {
+      "path": "projects/active/aag-engine-go-mvp/projectization.md",
+      "lineCount": 127,
+      "summary": "AAG-COA judgment (= Level 3 + architecture-refactor、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=false / requiresHumanApproval=true、必要文書 + nonGoals + Escalation 条件 articulate)"
+    }
+  ],
+  "restoreAllCommand": "git checkout 1873926cb49dbd6805e34b53409602c3d2227122 -- projects/active/aag-engine-go-mvp/AI_CONTEXT.md projects/active/aag-engine-go-mvp/HANDOFF.md projects/active/aag-engine-go-mvp/plan.md projects/active/aag-engine-go-mvp/checklist.md projects/active/aag-engine-go-mvp/decision-audit.md projects/active/aag-engine-go-mvp/discovery-log.md projects/active/aag-engine-go-mvp/projectization.md",
+  "decisionEntries": [
+    { "id": "DA-α-000", "title": "本 project の進行モデル institute (= readiness refactor DA-α-000 pattern 継承)", "commitSha": "cc6e824fe22d40f8be7f8a1acac470db83bea552" },
+    { "id": "DA-α-001", "title": "Phase 1 Go CLI Skeleton landing scope 判断 (= 標準 flag package + run() inject pattern + cobra 等 deferred)", "commitSha": "2172c254f2943cd809d448747633e76e3d7c5174" },
+    { "id": "DA-α-002", "title": "Phase 2 DetectorResult Contract Binding scope 判断 (= canonical schema 8 field 一致 + Phase 1 positional args fix 統合)", "commitSha": "87643f416400fced730cec20573465a122c45485" },
+    { "id": "DA-α-003", "title": "Phase 3 Fixture Runner scope 判断 (= internal/fixture/ + Compare primitive + reflect.DeepEqual)", "commitSha": "8fbed60729a03bd42a8e4b9e3ca47655b3749a6f" },
+    { "id": "DA-α-004", "title": "Phase 4 Archive Manifest Detector scope 判断 (= 12 required field + 3 fixture parity 100%)", "commitSha": "f6b514a326f16474a12b85a9d3aa2ba3b50a6e00" },
+    { "id": "DA-α-005", "title": "Phase 5 Doc Registry Detector scope 判断 (= missing path 検出 + 4 規約 Phase 7 必要時 articulate)", "commitSha": "674e6df84db318ca50bd07f7ce1d999a03461a10" },
+    { "id": "DA-α-006", "title": "Phase 6 Schema Validation Detector scope 判断 (= level 整数 0-4 + schemaVersion 別 rule 後続候補)", "commitSha": "f2d5fae511fda0f7d3e35da2f4d55b5de9ed71db" },
+    { "id": "DA-α-007", "title": "Phase 7 Project Lifecycle Detector scope 判断 (= state-agnostic detector + collector 責務分離)", "commitSha": "aef3291732a2aa0e67f462492b434c782557eebf" },
+    { "id": "DA-α-008", "title": "Phase 8 Generated Metadata Detector scope 判断 (= severity articulate vs CI 扱いの distinction + 5 detector 移植完了)", "commitSha": "7ae46cff56911dc05a762cdc288a178554b1dacc" },
+    { "id": "DA-α-009", "title": "Phase 9 Shadow Mode scope 判断 (= 5 detector × 8 fixture 集約 + RunResult schema 拡張 + CLI shadow subcommand)", "commitSha": "56d8b66fb01070b304cab7f221eb60598a9107e9" },
+    { "id": "DA-α-010", "title": "Phase 10 CI Advisory scope 判断 (= 別 workflow file 配置 + advisory non-blocking + 既存 ci.yml 完全独立)", "commitSha": "224bb5afcd33169b4d4c71205658fca4e6a3fffe" },
+    { "id": "DA-α-011", "title": "Phase 11 Partial Hard Gate Promotion 提案 (= archive-manifest hard gate scaffold + 残 4 detector per-detector judgement + user approval 待ち)", "commitSha": "b0c329927683ba4d2c9f1399fc49d4cdebdab574" },
+    { "id": "DA-α-012", "title": "Phase 12 Closure / Next Architecture Decision 提案 (= A〜E option 整理 + 推奨判断 articulate + 後続 program 候補 articulate + user 判断待ち)", "commitSha": "d8eb210558b33286b08fc29f70f8574d11d9cca2" },
+    { "id": "DA-α-013", "title": "AAG version の app version からの分離 institute (= AAG 6.0 articulate + aag/CHANGELOG.md 新設 + aag-metadata.json 新設、user feedback driven)", "commitSha": "6b2fcc8f741aa8fc4843566875a7e018c1eb6c63" },
+    { "id": "DA-α-014", "title": "バージョンアップ判定 mechanism institute (= 計画段階 declare + delta + baselineAtCreation snapshot + 機械検証 obligation、user 直接 directive)", "commitSha": "59d65d428465f1e5887f768397771d1b6fdeff9d" }
+  ],
+  "commitLineage": [
+    { "phase": "Phase 0 landing", "commitSha": "cc6e824fe22d40f8be7f8a1acac470db83bea552", "subject": "feat(aag-engine-go-mvp): Phase 0 bootstrap landing (= L3 project 起票 + DA-α-000 進行モデル institute)" },
+    { "phase": "Phase 0 wrap-up", "commitSha": "be51eaf7ece49c6230fabaa228f3ca72cc98e1ed", "subject": "docs(aag-engine-go-mvp): Phase 0 wrap-up — DA-α-000 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 1 landing", "commitSha": "2172c254f2943cd809d448747633e76e3d7c5174", "subject": "feat(aag-engine-go-mvp Phase 1): Go CLI Skeleton landing — aag-engine/ module + 3 サブコマンド + JSON output 経路" },
+    { "phase": "Phase 1 wrap-up", "commitSha": "e526af27532356aa2276e877d09c7b48be6af2bd", "subject": "docs(aag-engine-go-mvp Phase 1): wrap-up — DA-α-001 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 2 landing", "commitSha": "87643f416400fced730cec20573465a122c45485", "subject": "feat(aag-engine-go-mvp Phase 2): DetectorResult Contract Binding + Phase 1 positional args fix 統合" },
+    { "phase": "Phase 2 wrap-up", "commitSha": "5e7ce9f17b030c3fc6dec2248acd20f7d299e72e", "subject": "docs(aag-engine-go-mvp Phase 2): wrap-up — DA-α-002 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 3 landing", "commitSha": "8fbed60729a03bd42a8e4b9e3ca47655b3749a6f", "subject": "feat(aag-engine-go-mvp Phase 3): Fixture Runner — internal/fixture/ + Compare primitive + CLI catalog 出力" },
+    { "phase": "Phase 3 wrap-up", "commitSha": "349773350b5d5ee06bb3f2714923dd3e44ea26bf", "subject": "docs(aag-engine-go-mvp Phase 3): wrap-up — DA-α-003 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 4 landing", "commitSha": "f6b514a326f16474a12b85a9d3aa2ba3b50a6e00", "subject": "feat(aag-engine-go-mvp Phase 4): Archive Manifest Detector — AR-ARCHIVE-MANIFEST-A2 + 3 fixture parity 100%" },
+    { "phase": "Phase 4 wrap-up", "commitSha": "8c288f821809114d3f51bf6c0d9d64d45ae7103c", "subject": "docs(aag-engine-go-mvp Phase 4): wrap-up — DA-α-004 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 5 landing", "commitSha": "674e6df84db318ca50bd07f7ce1d999a03461a10", "subject": "feat(aag-engine-go-mvp Phase 5): Doc Registry Detector — AR-DOC-REGISTRY-D1 + 1 fixture parity" },
+    { "phase": "Phase 5 wrap-up", "commitSha": "cefa8f19a26f11313b1dbe88cb22a8b895d9f15f", "subject": "docs(aag-engine-go-mvp Phase 5): wrap-up — DA-α-005 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 6 landing", "commitSha": "f2d5fae511fda0f7d3e35da2f4d55b5de9ed71db", "subject": "feat(aag-engine-go-mvp Phase 6): Schema Validation Detector — AR-SCHEMA-VALIDATION-PZ2 + 1 fixture parity" },
+    { "phase": "Phase 6 wrap-up", "commitSha": "6e7614836d1a6be5a6b4a7cfd68d1e4d28604711", "subject": "docs(aag-engine-go-mvp Phase 6): wrap-up — DA-α-006 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 7 landing", "commitSha": "aef3291732a2aa0e67f462492b434c782557eebf", "subject": "feat(aag-engine-go-mvp Phase 7): Project Lifecycle Detector — AR-PROJECT-LIFECYCLE-C1 + 2 fixture parity" },
+    { "phase": "Phase 7 wrap-up", "commitSha": "d23a2aa1ef6e07f2f69bfda5ae796afa0243ccdc", "subject": "docs(aag-engine-go-mvp Phase 7): wrap-up — DA-α-007 Lineage 実 sha + 振り返り判定 \"正しい\"" },
+    { "phase": "Phase 8 landing", "commitSha": "7ae46cff56911dc05a762cdc288a178554b1dacc", "subject": "feat(aag-engine-go-mvp Phase 8): Generated Metadata Detector — AR-GENERATED-METADATA-G2 + 5 detector 移植完了" },
+    { "phase": "Phase 8 wrap-up", "commitSha": "0725941d3846ad1cb9abe27ba2e1c1766fff007d", "subject": "docs(aag-engine-go-mvp Phase 8): wrap-up — DA-α-008 Lineage 実 sha + 振り返り判定 \"正しい\" — 5 detector 移植完了" },
+    { "phase": "Phase 9 landing", "commitSha": "56d8b66fb01070b304cab7f221eb60598a9107e9", "subject": "feat(aag-engine-go-mvp Phase 9): Shadow Mode — 5 detector × 8 fixture 集約 runner + aag shadow subcommand" },
+    { "phase": "Phase 9 wrap-up", "commitSha": "485923bfd1549098203793a21feffd2176f8c003", "subject": "docs(aag-engine-go-mvp Phase 9): wrap-up — DA-α-009 Lineage 実 sha + 振り返り判定 \"正しい\" — fixture parity 集約 達成" },
+    { "phase": "Phase 10 landing", "commitSha": "224bb5afcd33169b4d4c71205658fca4e6a3fffe", "subject": "feat(aag-engine-go-mvp Phase 10): CI Advisory — aag-engine.yml advisory workflow + isolation による non-blocking articulate" },
+    { "phase": "Phase 10 fix", "commitSha": "ff9de3bb84ecbfcca923aa559c2003d80f2c7032", "subject": "fix(aag-engine-go-mvp Phase 10): aag-engine.yml に fetch-depth: 0 articulate (= ciFetchDepthGuard 整合)" },
+    { "phase": "Phase 10 wrap-up", "commitSha": "87144356a0764dd10dfa2cc3341159b4bc51f318", "subject": "docs(aag-engine-go-mvp Phase 10): wrap-up — DA-α-010 Lineage 実 sha + 振り返り判定 \"正しい\" — CI advisory landing 完遂" },
+    { "phase": "Phase 11 landing", "commitSha": "b0c329927683ba4d2c9f1399fc49d4cdebdab574", "subject": "feat(aag-engine-go-mvp Phase 11): Partial Hard Gate Promotion 提案 — archive-manifest hard gate scaffold + per-detector judgement + user approval 待ち" },
+    { "phase": "Phase 11 polish", "commitSha": "1f04b69a9e7e32c019feeab6576a3ea24ac2b6ba", "subject": "fix(aag-engine-go-mvp Phase 11): CodeRabbit polish — zero-match guard + HANDOFF Phase 10 重複削除" },
+    { "phase": "Phase 12 + AI 自己レビュー", "commitSha": "d8eb210558b33286b08fc29f70f8574d11d9cca2", "subject": "docs(aag-engine-go-mvp Phase 12 + 自己レビュー): closure 提案 + AI 自己レビュー 5 件 [x] — user 判断待ち state articulate" },
+    { "phase": "discovery-log 集約 articulate", "commitSha": "f1cca412c7bcb6d29f1cbb9eab9c0a73f977a8c6", "subject": "docs(aag-engine-go-mvp): discovery-log に scope 外発見 6 件 + 後続 program 4 候補を集約 articulate" },
+    { "phase": "DA-α-013 AAG 6.0 institute", "commitSha": "6b2fcc8f741aa8fc4843566875a7e018c1eb6c63", "subject": "feat(aag): AAG 6.0 institute — AAG version の app version からの完全分離 + Read-Only Governance Engine articulate (DA-α-013)" },
+    { "phase": "DA-α-014 versionImpact mechanism institute", "commitSha": "59d65d428465f1e5887f768397771d1b6fdeff9d", "subject": "feat(aag): バージョンアップ判定 mechanism institute (= 計画段階 declare + delta + baselineAtCreation snapshot、DA-α-014)" },
+    { "phase": "最終レビュー [x] flip", "commitSha": "1873926cb49dbd6805e34b53409602c3d2227122", "subject": "docs(aag-engine-go-mvp): 最終レビュー [x] flip — user 承認「レビューオッケーです」 (2026-05-06)" }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "parent",
+      "projectId": "aag-engine-readiness-refactor",
+      "rationale": "親 program (= 2026-05-05 archive、self-dogfood 4 件目)。本 MVP の前提条件 (= engine input 5 分類 + 8 fixture corpus + DetectorResult schema + path-helpers articulation) を articulate、本 MVP は readiness refactor の relatedPrograms.child として宣言済"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-engine-hard-gate-promotion",
+      "rationale": "DA-α-012 option A 採用時、operational deferred (= 5 連続 success + 2-4 週間 false positive + branch protection 登録 + user approval entry) 観測完了後の起票候補。残 4 detector の per-detector 段階昇格 + DA-α-011 §decision-5 で「Phase 12 closure で再評価」 と articulate された 3 detector (= doc-registry / schema-validation / project-lifecycle) の判断統合"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-engine-domain-coverage-extension",
+      "rationale": "DA-α-012 option C 採用時、新 governance scope 追加判断時の起票候補。新 detector / rule 追加 (= AR-SCHEMA-VALIDATION-PZ-VERSION 等を含む)、不可侵原則 4 整合確認 + discovery-log P3「schemaVersion mismatch 検出」 統合候補"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-engine-shadow-mode-runner-impl",
+      "rationale": "TS 側 detector logic 改修時の drift 即時検出 needs articulate 時の起票候補。TS detector を Go から exec する真の TS 並走 mode、node 環境依存 articulate (= DA-α-009 §rationale + discovery-log P2「TS detector を Go から exec する真の TS 並走 shadow mode」)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-engine-real-repo-dispatch-impl",
+      "rationale": "`aag validate --repo .` を Phase 1 skeleton から本格実装する判断時、`aag-engine-hard-gate-promotion` の前提実装 candidate。collector layer + 5 detector dispatch + JSON 出力 + edge case test (= discovery-log P2「`aag validate` real-repo dispatch」)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-version-impact-declaration-guard",
+      "rationale": "後続 AAG-related project bootstrap 時 / または versionImpact declaration 漏れ検出時の起票候補。versionImpactGuard.test.ts 実装 + 既存 active project への retroactive declaration + edge case test + archive lifecycle hook 統合 (= DA-α-014 §decision-6、本 MVP では declaration mechanism 自体は institute 完了、guard 実装は別 program)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-changelog-historical-split",
+      "rationale": "retroactive split 必要性が user 判断で確定時の起票候補 (= 緊急度低、bridge note で navigation 代替中)。AAG 5.1 / AAG 5.2 (= v1.9.0 / v1.10.0 inline articulation) を `aag/CHANGELOG.md` に retroactive entry 移植 + 既存 CHANGELOG.md pointer 化判断"
+    }
+  ],
+  "compressionRationale": "active 期 institution 7 file (= 2,861 line) を ARCHIVE.md (= summary + 5 detector × 8 fixture parity 100% 達成 articulate + 不可侵原則 9 件 + 後続 program 候補 6 件) + archive.manifest.json (= recovery metadata + 15 DA entry + 30 commitLineage + 7 relatedPrograms = 1 parent + 6 child program candidate) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= versionImpact field 含 60+ line) は AAG project-checklist-collector の identification key として参照されるため例外残置 (= aag-self-hosting-completion PR 3 で institute された design 整合)。本 project の deliverable (= aag-engine/ Go module + .github/workflows/ aag-engine.yml + aag-engine-archive-manifest-hardgate.yml + aag/CHANGELOG.md + docs/contracts/aag/aag-metadata.json + projects/_template/ versionImpact field) は永続維持 (= 圧縮対象外、後続 AAG-related project の正本参照として運用継続)。restore は restoreAllCommand 1 行で 7 file 復元可能 (= active path 形式での復元、completed/ への adjust は手動)。本圧縮は self-dogfood 5 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 / operational-protocol-system = 3 / aag-engine-readiness-refactor = 4 に続く)、Archive v2 schema が 5 project 横断で動作確認済の状態に到達。本 MVP の後半 (= Phase 12 closure 後) で user feedback driven 2 段 institute (= DA-α-013 AAG 6.0 + DA-α-014 versionImpact mechanism) を完遂、AAG framework governance evolution の institutional infrastructure 2 件を構築。user 最終承認の articulation: 本 project の最終レビュー (user 承認) は 2026-05-06 に user 代行 delegation で AI session が checkbox flip 実行 (= delegation 意思表明 timeline = Phase 0 開始から Phase 12 + 2 段 institute 完遂まで段階的 review + 進行承認、最終承認は 「レビューオッケーです」 + 「完了で」 の 2 段表明 = AI session 内 review 承認 + archive 委任 delegation)。不可侵原則 7 (= 「実装 AI が最終レビューを [x] にしない」) の本義 (= AI 自己判断による approval を防ぐ) は維持されており、user の明示的 delegation は user judgment の expression として整合。operational deferred 6 件 (= Phase 10 CI 5 連続 success + 2-4 週間 false positive 観測 + Phase 11 branch protection 登録 + user approval entry + Phase 12 A-E judgement + DA-α-012 §user-judgement entry) は post-archive user follow-up として transparent articulate、archive 移行 trigger とは分離 (= operational items は institutional knowledge 完遂後の operational change 集中で別 layer 判断)。"
+}
