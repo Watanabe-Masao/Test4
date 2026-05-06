@@ -1,24 +1,35 @@
-// Package main is the AAG Engine Go MVP CLI entry point.
+// Package main is the AAG / RepoSteward read-only operations CLI entry point.
 //
-// Phase 1 (= Go CLI Skeleton) で landing する skeleton。Go binary が起動し、
-// 2 サブコマンド (= validate / fixtures、+ --help / -h / help meta flag) で空の
-// DetectorResult[] JSON を返す。
+// Naming note:
+//   - **Concept / platform name**: RepoSteward AI Ops Platform (= 構想名、project id
+//     `reposteward-ai-ops-platform`)
+//   - **Binary / current command**: `aag` (= aag-engine-go-mvp で institute された
+//     binary 名を継続、Wave 1〜5 で command surface を additive 拡張)
+//   - 後続 doc / example で「reposteward 〇〇」と articulate される command は
+//     現実装上 `aag 〇〇` で実行する (= naming note は plan.md / AI_CONTEXT.md / HANDOFF.md でも articulate)
 //
-// Phase 2 以降で:
-//   - DetectorResult contract binding (= internal/contract/)
-//   - fixture runner (= internal/fixture/、Phase 3 で新設)
-//   - 5 detector 実装 (= internal/detectors/、Phase 4-8 で順次)
-//   - shadow mode report (= Phase 9)
+// Command surface (= reposteward-ai-ops-platform Wave 1〜5 全 23 step landing 済):
+//   - **Go MVP family** (= aag-engine-go-mvp で landing): validate / fixtures / shadow
+//   - **Task Capsule family** (Wave 1 #2 + Wave 5 #22): task prepare / task validate / task close
+//   - **Stats family** (Wave 1 #6): stats files (= --range / --bucket / --layer / --above)
+//   - **Navigation family** (Wave 3 #10〜#14): where-am-i / context / changed / rule locate / detector refs
+//   - **Cleanliness family** (Wave 4 #15〜#17): clean check / comments list / docs placement-check
+//   - **Obligation / Repair family** (Wave 5 #20〜#21): obligation check / repair-context
+//   - **Project status family** (Wave 5 #23): project stale / next
 //
-// 不可侵原則:
-//   - 本 binary は repo を **書き換えない** (= read-only verify)。
-//   - exit code contract: 0 = pass / 1 = fail / 2 = error (= input / config 不正)。
-//   - JSON output は schemaVersion + status + detectorResults の 3 field を保持。
+// 不可侵原則 (= reposteward-ai-ops-platform 8 不可侵原則継承):
+//   - 本 binary は repo を **書き換えない** (= read-only verify、Wave 1 不可侵原則 3 整合)
+//   - JSON-first (= 全 command の primary output は JSON、Human UI 不在)
+//   - exit code contract: 0 = pass / 1 = fail / 2 = error (= input / config 不正)
+//   - schema-driven output (= 各 command output は schemaVersion field で identify)
 //
 // 参照:
-//   - projects/active/aag-engine-go-mvp/plan.md (= 親 project plan)
+//   - projects/active/reposteward-ai-ops-platform/plan.md (= 親 project plan)
+//   - projects/completed/aag-engine-go-mvp/ARCHIVE.md (= 前提 program、Go MVP family の起源)
 //   - tools/architecture-health/src/detectors/README.md (= 4 層 layered model)
 //   - docs/contracts/aag/detector-result.schema.json (= canonical schema)
+//   - docs/contracts/aag/task-capsule.schema.json + aag-parameters.schema.json + source-facts.schema.json
+//     + aag-size-statistics.schema.json + premise-contract.schema.json + detection-inventory.schema.json
 package main
 
 import (
@@ -55,7 +66,12 @@ const (
 )
 
 // usage は --help / argument 不足時の hint 文字列。
-const usage = `aag — AAG Engine Go MVP CLI
+const usage = `aag — AAG / RepoSteward read-only operations CLI
+
+NAMING:
+  Concept / platform = "RepoSteward AI Ops Platform" (= reposteward-ai-ops-platform project)
+  Binary             = "aag" (= aag-engine-go-mvp で institute された binary 名を継続)
+  Plan / docs で "reposteward 〇〇" と articulate される command は本 binary では "aag 〇〇" で実行する。
 
 USAGE:
   aag <command> [flags]
@@ -109,10 +125,12 @@ EXIT CODE:
   1    fail (= violation ≥ 1 件 / parity mismatch)
   2    error (= 引数 / config 不正、内部 error)
 
-PHASE 9 STATUS:
-  shadow subcommand が 5 detector 全 dispatch + 8 fixture parity 集約を articulate。
-  validate subcommand は Phase 1 skeleton のまま (= empty DetectorResult[]、Phase
-  10/11 で実 repo 走査追加候補)。
+STATUS:
+  Go MVP family (= validate / fixtures / shadow) は aag-engine-go-mvp で landing。
+  validate subcommand は skeleton のまま (= empty DetectorResult[]、real repo dispatch は後続 program 候補)。
+  shadow は 5 detector × 8 fixture parity を集約 (= primary success metric)。
+  Wave 1〜5 全 23 step は reposteward-ai-ops-platform で landing 済 (= consolidated branch 上)。
+  各 command の maturity (= stable / provisional) は plan.md / decision-audit.md DA-β-001 を参照。
 `
 
 func main() {

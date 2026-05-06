@@ -42,7 +42,7 @@ func TestRun_NoArgs(t *testing.T) {
 	if code != ExitError {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
-	if !strings.Contains(stderr.String(), "aag — AAG Engine") {
+	if !strings.Contains(stderr.String(), "aag — AAG / RepoSteward") {
 		t.Errorf("stderr should contain usage, got: %q", stderr.String())
 	}
 	if stdout.Len() != 0 {
@@ -59,7 +59,7 @@ func TestRun_Help(t *testing.T) {
 			if code != ExitPass {
 				t.Errorf("expected ExitPass (0), got %d", code)
 			}
-			if !strings.Contains(stdout.String(), "aag — AAG Engine") {
+			if !strings.Contains(stdout.String(), "aag — AAG / RepoSteward") {
 				t.Errorf("stdout should contain usage, got: %q", stdout.String())
 			}
 		})

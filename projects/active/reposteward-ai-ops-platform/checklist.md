@@ -335,7 +335,25 @@
 - [x] dogfood: next → recommendedActions 3 件 articulate (= dirty + activeProject + unchecked)
 - [x] DA-α-025 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 5 #23 commit を branch に push (= **Wave 5 全完遂、reposteward-ai-ops-platform 全 23 step 完遂**)
+- [x] Wave 5 #23 commit を branch に push (= **Wave 5 全完遂、reposteward-ai-ops-platform 全 23 step 完遂**)
+
+## Post-merge Quality Pass (PR A)
+
+> **着手判断**: DA-β-001 (= consolidated merge を post-merge quality pass で AAG governance 上説明可能化)。
+> **本 PR scope**: stale wording cleanup + naming clarification + DA-β-001/002/003 articulate + Health KPI deferral 明文化。
+> **後続**: PR B (= command surface audit + maturity labels) / PR C (= CLI dispatcher refactor) は別 PR に分離。
+
+- [x] cd app && npm run docs:generate / cd app && npm run test:guards / cd aag-engine && go test ./... の最新 sync 確認 (= 1082 TS PASS、Go all PASS、Health 60/60 OK / Hard Gate PASS)
+- [x] aag-engine/cmd/aag/main.go package comment を Wave 1〜5 後の現実 command surface に articulate (= 6 family + 不可侵原則 + 参照 schema 6 件)
+- [x] usage の "Go MVP CLI" → "AAG / RepoSteward read-only operations CLI" + NAMING block 追加
+- [x] AI_CONTEXT.md §Naming Note table 追加 (= concept = RepoSteward / binary = aag / project id 関係 articulate)
+- [x] HANDOFF.md §3.2 ハマりポイント追加 (= concept ↔ binary 違い)
+- [x] DA-β-001 articulate (= consolidated merge review、5 軸 + 観測点 11 件)
+- [x] DA-β-002 articulate (= naming clarification、5 軸 + 観測点 4 件)
+- [x] DA-β-003 articulate (= effective LOC Health KPI deferral、5 軸 + 観測点 5 件)
+- [x] plan.md §Wave 1 #5 spec を更新 (= Health KPI deferred を明記、DA-β-003 reference)
+- [x] main_test.go の usage assertion を新 header に同期
+- [ ] post-merge quality pass commit を branch `claude/reposteward-ai-ops-platform-post-merge-qa` に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

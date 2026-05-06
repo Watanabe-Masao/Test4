@@ -51,6 +51,13 @@
 - 後続 PR の branch 命名は `claude/reposteward-ai-ops-platform-<slug>` パターンを採用 (= 本 bootstrap 限定で `detection-ops` 名残あり)
 - 詳細: `decision-audit.md` DA-α-001
 
+### 3.2. CLI binary 名 vs concept name
+
+- **Concept**: `RepoSteward AI Ops Platform` (= 構想名、project 北極星)
+- **Binary**: `aag` (= aag-engine-go-mvp 由来、Wave 1〜5 で additive 拡張)
+- plan / docs で「`reposteward stats files`」のように articulate される command は **現実装上 `aag stats files`** で実行する
+- 詳細: `AI_CONTEXT.md` §Naming Note + `cmd/aag/main.go` 冒頭 docstring + `decision-audit.md` DA-β-002
+
 ### 3.2. Go MVP の不可侵原則を継承
 
 - `aag-engine-go-mvp` 不可侵原則 4 (= TS guard 不変) / 不可侵原則 5 (= 業務 logic 不可触) は **本 program でも完全継承**
