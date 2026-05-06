@@ -177,7 +177,20 @@
 - [x] dogfood: aag context --project reposteward-ai-ops-platform → title / 5 requiredReads / 11 constraints / 1+ nextActions articulate
 - [x] DA-α-013 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 3 #11 commit を branch に push
+- [x] Wave 3 #11 commit を branch に push
+
+## Wave 3 #12: `aag changed --explain`
+
+> **着手判断**: DA-α-014 (= Wave 3 継続、changed-explain via git diff + obligation map subset)。
+
+- [x] `aag-engine/internal/navigation/changed.go` を landing (= Changed() + classifyByArea + matchObligations + collectRequiredReads + summarizeChange、areaRules 30 件 + obligationRules 11 件 + requiredReadsByPrefix 10 prefix)
+- [x] `changed_test.go` で contract test 6 件 (= empty input / area classification / guard obligation / required reads dedupe / summary format / real repo)
+- [x] `cmd/aag/main.go` に `changed` subcommand 追加 (= --base / --head / --explain default true / --repo)
+- [x] `main_test.go` に CLI test 2 件追加 (= real repo / unexpected positional)
+- [x] dogfood: aag changed --base HEAD~1 → changed file list + by area + obligations + required reads + summary articulate
+- [x] DA-α-014 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 3 #12 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

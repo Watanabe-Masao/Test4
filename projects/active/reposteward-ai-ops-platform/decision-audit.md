@@ -967,3 +967,61 @@ Wave 3 #10 (= where-am-i) push 後、Wave 3 #11 = light-weight project context b
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-014: Wave 3 #12 着手判断 — `aag changed --explain`、obligation map の Go-side mirror subset (= core 11 rule)
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 3 #11 (= context --project) push 後、Wave 3 #12 = changed-explain command。git diff <base>..<head> の changed file を path prefix で classify、TS-side OBLIGATION_MAP の subset と PATH_TO_REQUIRED_READS の subset を Go-side で mirror して articulate。
+
+### decision
+
+1. 新規: `internal/navigation/changed.go` (= Changed() + areaRules 30 件 + obligationRules 11 件 + requiredReadsByPrefix 10 prefix)
+2. 新規: `changed_test.go` (= 6 contract test)
+3. update: `cmd/aag/main.go` (= changed subcommand + --base / --head / --explain / --repo)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**obligation rules subset 採用**: TS-side 18 rule をすべて mirror する代わりに、AI session が即値で articulate したい core 11 rule を Go-side で articulate。残りは Wave 後段で必要時に追加 (= YAGNI 整合)。
+
+### rationale
+
+- **Go-side embed map で mirror**: TS-side OBLIGATION_MAP を Go から動的 read するのは parse 複雑、embed map で十分実用的。TS-side が canonical、Go-side は subset mirror、責務 articulate
+- **areaRules 30 件**: repo の典型的 directory 構造を articulate (= app/src/test/guards/ 〜 .github/workflows/ 〜 wasm/)。priority order で longest prefix match を articulate
+- **--explain flag は default true**: AI consumer は常に explanation 必要、--explain=false の non-explanation mode は YAGNI、MVP では default true
+- **PATH_TO_REQUIRED_READS の subset**: 10 prefix で AI session の typical workflow をカバー、完全 mirror は不要
+
+### alternatives
+
+- (a) TS-side OBLIGATION_MAP を JSON 経由で Go から読む: 却下 (= 既存 articulate 経路なし、parse 複雑、embed で十分)
+- (b) すべての 18 rule を mirror: 却下 (= YAGNI、core 11 で AI session の primary need カバー)
+- (c) --explain=false で raw changed file list のみ出力: 却下 (= JSON-first surface としては明示的に explanation 含む方が AI consumer-friendly、command 名が `changed --explain` なので explanation always articulate)
+- (d) 'other' area を出さない (= filter): 却下 (= AI consumer は articulate されない area を articulate されたくない、明示的に "other" として articulate する方が信号として有用)
+
+### 観測点
+
+1. `internal/navigation/changed.go` + test 存在 + go vet clean
+2. `go test ./internal/navigation/...` 全 PASS
+3. real repo dogfood で changed file 一覧 + area 分類 + obligation match + required reads が articulate
+4. obligation match で `obligation.guard.health` / `obligation.aag-engine.gotest` / `obligation.project.checklist-format` が core path で fire
+5. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+6. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 3 #11 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

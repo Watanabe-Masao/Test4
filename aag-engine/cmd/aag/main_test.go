@@ -633,3 +633,40 @@ func TestRun_Context_NonexistentProject(t *testing.T) {
 		t.Errorf("expected ExitError (2), got %d", code)
 	}
 }
+
+// changed は real repo で valid JSON を出力 (= Wave 3 #12)。
+func TestRun_Changed_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"changed",
+		"--repo", repoRootForTest(t),
+		"--base", "HEAD~1",
+		"--head", "HEAD",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		// HEAD~1 may not exist on fresh branches; tolerate
+		if !strings.Contains(stderr.String(), "git diff failed") {
+			t.Errorf("expected ExitPass or git diff failed, got code %d. stderr: %q", code, stderr.String())
+		}
+		return
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "changed-explain-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["base"] != "HEAD~1" || out["head"] != "HEAD" {
+		t.Errorf("base/head not echoed: base=%v head=%v", out["base"], out["head"])
+	}
+}
+
+// changed で位置引数があれば ExitError。
+func TestRun_Changed_UnexpectedPositionalArg(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"changed", "--repo", repoRootForTest(t), "extra"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}

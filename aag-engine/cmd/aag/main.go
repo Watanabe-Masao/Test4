@@ -63,6 +63,7 @@ COMMANDS:
   stats files      effectiveCodeLines を bucket / range / layer / percentile で query (= reposteward-ai-ops-platform Wave 1 #6 deliverable)
   where-am-i       branch / activeProject / repoHealth / openObligations / 推奨 next command を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #10 deliverable)
   context          active project の requiredReads / constraints / nextActions を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #11 deliverable)
+  changed          --base..--head の changed file を area / obligations / requiredReads で articulate (= reposteward-ai-ops-platform Wave 3 #12 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -125,6 +126,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runWhereAmI(args[1:], stdout, stderr)
 	case "context":
 		return runContext(args[1:], stdout, stderr)
+	case "changed":
+		return runChanged(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -520,6 +523,54 @@ func runContext(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag context: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runChanged は `aag changed --explain` の本体 (= Wave 3 #12)。
+//
+// git diff base..head の changed file を area / obligations / requiredReads /
+// summary で articulate (= read-only)。
+//
+// Note: --explain flag は articulate 上の signal、実装上は default で全 explanation を
+// 出力 (= JSON-first の primary output、別 mode は不要)。
+func runChanged(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("changed", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	base := fs.String("base", "main", "base ref")
+	head := fs.String("head", "HEAD", "head ref")
+	explain := fs.Bool("explain", true, "explanation を articulate (= MVP では default true、--explain=false は not yet supported)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	_ = explain // articulate signal (= MVP で default は always explain)
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag changed: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag changed: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := navigation.Changed(navigation.ChangedInput{
+		RepoRoot: repoAbs,
+		Base:     *base,
+		Head:     *head,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag changed: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag changed: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))
