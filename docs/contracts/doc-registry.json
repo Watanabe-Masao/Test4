@@ -672,6 +672,22 @@
           "label": "Project Health view（人間可読 — 全 project の derivedStatus + progress 一覧）"
         },
         {
+          "path": "references/04-tracking/generated/aag-size-statistics.json",
+          "label": "AAG Size Statistics 正本（reposteward-ai-ops-platform Wave 1 #5、effective LOC distribution + percentile + per-layer）"
+        },
+        {
+          "path": "references/04-tracking/generated/aag-size-statistics.generated.md",
+          "label": "AAG Size Statistics view（人間可読 — Summary + Bucket Distribution + By Layer table、reposteward-ai-ops-platform Wave 2 #9）"
+        },
+        {
+          "path": "references/04-tracking/generated/source-facts.json",
+          "label": "Source Facts 正本（reposteward-ai-ops-platform Wave 1 #4、repo 全 file の size + 構造 facts）"
+        },
+        {
+          "path": "references/04-tracking/generated/architecture-state-snapshot.md",
+          "label": "Architecture State Snapshot view（architectureStateAudit 出力、bridge inventory + complexity hotspot）"
+        },
+        {
           "path": "references/04-tracking/open-issues.md",
           "label": "active project 索引（live task table は持たない）"
         },
