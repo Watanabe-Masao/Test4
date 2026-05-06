@@ -837,3 +837,53 @@ func TestRun_CleanCheck_RealRepo(t *testing.T) {
 		t.Errorf("summary must be string")
 	}
 }
+
+// comments action 不足は ExitError (= Wave 4 #16)。
+func TestRun_Comments_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list で --kind 不在は ExitError。
+func TestRun_CommentsList_MissingKind(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments", "list", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list で invalid kind は ExitError。
+func TestRun_CommentsList_InvalidKind(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"comments", "list", "--kind", "bogus"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// comments list --kind=todo は real repo で valid JSON を出力。
+func TestRun_CommentsList_RealRepo_Todo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"comments", "list",
+		"--repo", repoRootForTest(t),
+		"--kind", "todo",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "comments-list-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if out["kind"] != "todo" {
+		t.Errorf("kind = %v", out["kind"])
+	}
+}

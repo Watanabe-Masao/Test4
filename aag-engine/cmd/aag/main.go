@@ -30,6 +30,7 @@ import (
 	"path/filepath"
 
 	"aag-engine/internal/cleanliness"
+	"aag-engine/internal/commentscan"
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/navigation"
 	"aag-engine/internal/report"
@@ -70,6 +71,7 @@ COMMANDS:
   detector refs    detectorId から goImplementation / tsImplementation / schema / fixtures を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #14 deliverable)
                    note: 'aag detector refs --repo PATH <detectorId>' のように flag を detectorId の前に articulate
   clean check      generated 混入 / archive manifest 不在 / projectId 重複 等の cleanliness 違反を JSON で出力 (= reposteward-ai-ops-platform Wave 4 #15 deliverable)
+  comments list    --kind todo|suppression|expired のコメントを repo 全体から scan して JSON で出力 (= reposteward-ai-ops-platform Wave 4 #16 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -140,6 +142,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runDetector(args[1:], stdout, stderr)
 	case "clean":
 		return runClean(args[1:], stdout, stderr)
+	case "comments":
+		return runComments(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -762,6 +766,68 @@ func runCleanCheck(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag clean check: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runComments は `aag comments <action>` の dispatcher (= Wave 4 #16)。
+func runComments(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag comments: action 不足 (= 'list' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag comments list --kind <todo|suppression|expired> [--repo PATH]")
+		return ExitError
+	}
+	switch args[0] {
+	case "list":
+		return runCommentsList(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag comments: unknown action %q (= 'list' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runCommentsList は `aag comments list --kind <kind>` の本体 (= Wave 4 #16)。
+func runCommentsList(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("comments list", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	kind := fs.String("kind", "", "comment kind (= 'todo' / 'suppression' / 'expired'、required)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag comments list: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+	if *kind == "" {
+		fmt.Fprintln(stderr, "aag comments list: --kind flag は required です (= 'todo' / 'suppression' / 'expired')")
+		return ExitError
+	}
+	if !commentscan.IsValidKind(*kind) {
+		fmt.Fprintf(stderr, "aag comments list: invalid --kind %q (= 'todo' / 'suppression' / 'expired')\n", *kind)
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag comments list: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := commentscan.List(commentscan.ListInput{
+		RepoRoot: repoAbs,
+		Kind:     commentscan.CommentKind(*kind),
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag comments list: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag comments list: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

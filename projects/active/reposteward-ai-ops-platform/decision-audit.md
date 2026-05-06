@@ -1218,3 +1218,73 @@ Wave 3 完遂後、Wave 4 入口 (= cleanliness rules detection)。plan.md §Wav
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-018: Wave 4 #16 着手判断 — `aag comments list --kind`、3 kind (todo / suppression / expired) + 厳密 anchor regex
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 4 #15 (= clean check) 後、Wave 4 #16 = comment governance scan。AI session が repo 内 TS/TSX/Go の TODO / FIXME / XXX、suppression idiom、expired-at marker を kind 別に articulate するための CLI。
+
+### decision
+
+1. 新規: `internal/commentscan/comments.go` (= List() + CommentKind enum + scanFile + 5 regex pattern + scanDirs 3 件)
+2. 新規: `comments_test.go` (= 8 contract test)
+3. update: `cmd/aag/main.go` (= comments subcommand + list action + --kind required)
+4. update: `main_test.go` (= 4 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**3 kind の articulate**:
+- **todo**: `// TODO` / `// FIXME` / `// XXX` で keyword 直後 (= `:` または `[A-Za-z]` content) を要求 = 厳密 anchor。projectId / reviewAfter annotation の有無を articulate
+- **suppression**: `// eslint-disable*` / `// @ts-ignore` / `// @ts-expect-error` / `// @ts-nocheck`。reason / expiresAt 不在を articulate
+- **expired**: `expiresAt: YYYY-MM-DD` で today を超過しているもの
+
+**厳密 anchor regex 採用** (= 当初 broad pattern で false positive 多発):
+- 当初: `(?i)//[^\n]*\b(TODO|FIXME|XXX)\b` → 文中の TODO 言及もマッチ (= docstring 等で keyword を articulate するだけで誤検出)
+- 修正後: `(?i)//\s*(TODO|FIXME|XXX)\b\s*[:(]|//\s*(TODO|FIXME|XXX)\s+[A-Za-z]` → keyword 直後に `:` / `(` / 英字 content が必要 = 「実 TODO comment」 のみ articulate
+
+### rationale
+
+- **3 kind 単一 command**: kind を flag で articulate (= todo|suppression|expired)、別々の command にしない。consumer (= AI session) が同じ idiom で query
+- **厳密 anchor**: false positive を抑止 (= docstring / 仕様書中の keyword 言及を flag しない)。dogfood で当初 4096+ 件 → 6 件に削減を確認
+- **scanDirs limit (= app/src + aag-engine + tools/architecture-health/src)**: production code path のみ走査、references/ や docs/ のような doc text は対象外 (= comment governance は code に対する規約)
+- **annotation parser**: projectId / reviewAfter / reason / expiresAt の各 annotation を regex で articulate、missingFields に articulate されないものを列挙
+- **scanFile per file**: bufio.Scanner で line-by-line 走査、64KB max line buffer (= long minified file 対応)
+
+### alternatives
+
+- (a) AST-based parsing (= TypeScript compiler API 経由): 却下 (= dependency 追加 + 起動時間増、regex で十分実用的)
+- (b) `--all-kinds` で 3 kind 同時 list: 却下 (= consumer は kind ごとに用途が違う、別 query が natural)
+- (c) hard fail with exit code: 却下 (= read-only first 不可侵原則 3、enforce ではなく articulate)
+- (d) 当初 broad pattern を維持: 却下 (= false positive 4096+ 件、AI consumer 価値破綻)
+- (e) docstring / commentblock を skip する zone heuristic: 却下 (= AST なしで厳密判定不能、anchor 強化で十分)
+
+### 観測点
+
+1. `internal/commentscan/comments.go` + test 存在 + go vet clean
+2. `go test ./internal/commentscan/...` 全 PASS (= 8 test、3 kind synthetic + skip dirs + regex precision)
+3. real repo dogfood で todo kind = 6 items (= 主に test fixture、production code に未整理 TODO ほぼなし)
+4. todo missingFields に projectId or reviewAfter が articulate
+5. suppression missingFields に reason / expiresAt が articulate
+6. expired は today 超過の expiresAt のみ articulate
+7. node_modules / dist / .git は skip
+8. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+9. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 4 #15 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

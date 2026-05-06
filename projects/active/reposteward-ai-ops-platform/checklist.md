@@ -229,7 +229,20 @@
 - [x] dogfood: aag clean check → 0 violations articulate (= real repo clean)
 - [x] DA-α-017 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 4 #15 commit を branch に push
+- [x] Wave 4 #15 commit を branch に push
+
+## Wave 4 #16: `aag comments list --kind`
+
+> **着手判断**: DA-α-018 (= Wave 4 継続、comment governance scan)。
+
+- [x] `aag-engine/internal/commentscan/comments.go` を landing (= List() + 3 kind (= todo / suppression / expired) + scanFile + 5 regex pattern)
+- [x] `comments_test.go` で contract test 8 件 (= empty / invalid kind / 3 kind real scenario / skip dirs / regex precision)
+- [x] `cmd/aag/main.go` に `comments list` subcommand 追加 (= --kind required + --repo)
+- [x] `main_test.go` に CLI test 4 件追加
+- [x] dogfood: aag comments list --kind todo → 6 items (= 主に test fixture、real TODO は厳密 anchor で false positive 抑止)
+- [x] DA-α-018 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 4 #16 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 
