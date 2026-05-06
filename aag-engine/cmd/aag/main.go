@@ -29,6 +29,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"aag-engine/internal/cleanliness"
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/navigation"
 	"aag-engine/internal/report"
@@ -68,6 +69,7 @@ COMMANDS:
                    note: 'aag rule locate --repo PATH <ruleId>' のように flag を ruleId の前に articulate
   detector refs    detectorId から goImplementation / tsImplementation / schema / fixtures を JSON で出力 (= reposteward-ai-ops-platform Wave 3 #14 deliverable)
                    note: 'aag detector refs --repo PATH <detectorId>' のように flag を detectorId の前に articulate
+  clean check      generated 混入 / archive manifest 不在 / projectId 重複 等の cleanliness 違反を JSON で出力 (= reposteward-ai-ops-platform Wave 4 #15 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -136,6 +138,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runRule(args[1:], stdout, stderr)
 	case "detector":
 		return runDetector(args[1:], stdout, stderr)
+	case "clean":
+		return runClean(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -703,6 +707,61 @@ func runDetectorRefs(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag detector refs: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runClean は `aag clean <action>` の dispatcher (= Wave 4 #15)。
+func runClean(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag clean: action 不足 (= 'check' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag clean check [--repo PATH]")
+		return ExitError
+	}
+	switch args[0] {
+	case "check":
+		return runCleanCheck(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag clean: unknown action %q (= 'check' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runCleanCheck は `aag clean check` の本体 (= Wave 4 #15)。
+//
+// repo 全体を scan して cleanliness rule 違反 (= generated-handauthored /
+// archive-missing-manifest / projectid-duplicate) を JSON で stdout に articulate。
+// ExitPass with violations articulated (= violation 数で fail しない、AI session
+// が判断する read-only output)。
+func runCleanCheck(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("clean check", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag clean check: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag clean check: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := cleanliness.Check(cleanliness.CheckInput{RepoRoot: repoAbs})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag clean check: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag clean check: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

@@ -216,7 +216,20 @@
 - [x] dogfood: aag detector refs archive-manifest → goImpl / goTest / tsImpl / schema / 3 fixtures articulate
 - [x] DA-α-016 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 3 #14 commit を branch に push (= **Wave 3 全完遂**)
+- [x] Wave 3 #14 commit を branch に push (= **Wave 3 全完遂**)
+
+## Wave 4 #15: `aag clean check`
+
+> **着手判断**: DA-α-017 (= Wave 4 入口、cleanliness rules detection)。
+
+- [x] `aag-engine/internal/cleanliness/clean.go` を landing (= Check() + 3 rule (= generated-handauthored / archive-missing-manifest / projectid-duplicate) + summarize)
+- [x] `clean_test.go` で contract test 7 件 (= 3 rule synthetic / hasGeneratedMarker / quick-fixes 例外 / summarize)
+- [x] `cmd/aag/main.go` に `clean check` subcommand 追加
+- [x] `main_test.go` に CLI test 2 件追加
+- [x] dogfood: aag clean check → 0 violations articulate (= real repo clean)
+- [x] DA-α-017 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 4 #15 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

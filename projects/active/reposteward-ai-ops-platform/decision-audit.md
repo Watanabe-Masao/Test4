@@ -1149,3 +1149,72 @@ Wave 3 #13 (= rule locate) push 後、Wave 3 final step = detectorId から dete
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-017: Wave 4 #15 着手判断 — `aag clean check`、3 rule MVP (= generated-handauthored / archive-missing-manifest / projectid-duplicate)
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 3 完遂後、Wave 4 入口 (= cleanliness rules detection)。plan.md §Wave 4 #15 spec は generated 混入 / docs/contracts narrative / fixtures production doc / archive-manifest 不在 / projectId 重複 / generated metadata 不在 など 6+ rule を articulate。本 step では AI session が即値で踏みやすい core 3 rule を Go-side で articulate。
+
+### decision
+
+1. 新規: `internal/cleanliness/clean.go` (= Check() + 3 rule = generated-handauthored / archive-missing-manifest / projectid-duplicate + summarize)
+2. 新規: `clean_test.go` (= 7 contract test、synthetic temp dir で 3 rule + helper を機械検証)
+3. update: `cmd/aag/main.go` (= clean subcommand + check action)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**3 rule の選択理由**:
+- **generated-handauthored**: AI session が誤って `references/04-tracking/generated/` 等に hand-authored doc を混入する pattern を検出
+- **archive-missing-manifest**: Archive v2 idiom (= ARCHIVE.md + archive.manifest.json) を articulate しているが manifest が欠落する pattern を検出
+- **projectid-duplicate**: active と completed に同 id が articulate されている pattern を検出 (= quick-fixes 例外あり = 長期 collection)
+
+**やらない (= 後続 step で必要時に追加)**:
+- docs/contracts narrative 検出 (= 既存 directory 内容が articulate されているかの heuristic 必要)
+- fixtures production doc 検出 (= fixture と production の境界 articulation 必要)
+- generated metadata 不在 (= generatedFileEditGuard のような既存 mechanism と整合させる scope)
+
+### rationale
+
+- **3 rule MVP 採用**: AI session の primary risk path をカバー、残りは後続で必要時に additive
+- **`*.generated.md` convention pass**: 命名規約で「機械生成」を articulate する idiom を尊重 (= 既存 codebase の architecture-health.generated.md / aag-size-statistics.generated.md 等が articulate)
+- **content marker pattern subset**: `> Generated:` / `機械生成` / `"generatedAt"` / `"timestamp"` 等を articulate (= 実 generated artifact から発見した pattern)
+- **quick-fixes 例外**: `projects/active/quick-fixes/` は long-running collection、`projects/completed/quick-fixes/` がたまたま存在しても duplicate ではない (= idiom 整合)
+- **violations articulate / no fail**: AI session の判断材料を articulate するのが responsibility、強制 fail は後続 step (Wave 5 hard gate) で検討
+- **synthetic temp dir test**: `t.TempDir()` で隔離、real repo 走査せず contract 入出力 mapping のみ検証 (= 既存 collector test pattern 整合)
+
+### alternatives
+
+- (a) 6+ rule すべて MVP で実装: 却下 (= scope creep、core 3 で AI session の primary risk カバー)
+- (b) violation で ExitFail (= 違反あれば exit 1): 却下 (= read-only first 不可侵原則 3、enforce ではなく articulate)
+- (c) 既存 detector framework (= aag-engine/internal/detectors/) に統合: 却下 (= detector framework は fixture parity 用、cleanliness は別 idiom、別 package で articulate)
+- (d) `*.generated.md` 規約 pass を articulate しない: 却下 (= 既存 codebase の正当な generated artifact が flag される、false positive 大)
+
+### 観測点
+
+1. `internal/cleanliness/clean.go` + test 存在 + go vet clean
+2. `go test ./internal/cleanliness/...` 全 PASS
+3. real repo dogfood で 0 violations (= 現状 repo は 3 rule すべて clean)
+4. synthetic test で 3 rule すべて検出 (= bad fixture で violation 1 件返す)
+5. quick-fixes 例外 articulate
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 3 #14 final commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

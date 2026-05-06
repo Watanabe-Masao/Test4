@@ -803,3 +803,37 @@ func TestRun_DetectorRefs_UnknownDetector(t *testing.T) {
 		t.Errorf("stderr should articulate Known detectors:, got: %q", stderr.String())
 	}
 }
+
+// clean action 不足は ExitError (= Wave 4 #15)。
+func TestRun_Clean_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"clean"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// clean check は real repo で valid JSON を出力。
+func TestRun_CleanCheck_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"clean", "check", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitPass {
+		t.Errorf("expected ExitPass (0), got %d. stderr: %q", code, stderr.String())
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "clean-check-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["violations"].([]interface{}); !ok {
+		t.Errorf("violations must be array")
+	}
+	if _, ok := out["stats"].(map[string]interface{}); !ok {
+		t.Errorf("stats must be object")
+	}
+	if _, ok := out["summary"].(string); !ok {
+		t.Errorf("summary must be string")
+	}
+}
