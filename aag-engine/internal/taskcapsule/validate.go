@@ -12,6 +12,7 @@ package taskcapsule
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -61,12 +62,12 @@ type CloseInput struct {
 // Otherwise returns ValidateOutput with valid=true/false and detailed errors.
 func ValidateCapsule(input ValidateInput) (ValidateOutput, error) {
 	if input.CapsuleFile == "" {
-		return ValidateOutput{}, fmt.Errorf("ValidateCapsule: CapsuleFile must be set")
+		return ValidateOutput{}, fmt.Errorf("ValidateCapsule: CapsuleFile must be set (= file path or '-' for stdin)")
 	}
 
-	raw, err := os.ReadFile(input.CapsuleFile)
+	raw, err := readCapsuleInput(input.CapsuleFile)
 	if err != nil {
-		return ValidateOutput{}, fmt.Errorf("ValidateCapsule: failed to read %s: %w", input.CapsuleFile, err)
+		return ValidateOutput{}, err
 	}
 
 	out := ValidateOutput{
@@ -104,12 +105,12 @@ func ValidateCapsule(input ValidateInput) (ValidateOutput, error) {
 // checks listed in requiredFinalChecks.
 func CloseCapsule(input CloseInput) (CloseOutput, error) {
 	if input.CapsuleFile == "" {
-		return CloseOutput{}, fmt.Errorf("CloseCapsule: CapsuleFile must be set")
+		return CloseOutput{}, fmt.Errorf("CloseCapsule: CapsuleFile must be set (= file path or '-' for stdin)")
 	}
 
-	raw, err := os.ReadFile(input.CapsuleFile)
+	raw, err := readCapsuleInput(input.CapsuleFile)
 	if err != nil {
-		return CloseOutput{}, fmt.Errorf("CloseCapsule: failed to read %s: %w", input.CapsuleFile, err)
+		return CloseOutput{}, err
 	}
 
 	out := CloseOutput{
@@ -148,6 +149,26 @@ func CloseCapsule(input CloseInput) (CloseOutput, error) {
 	out.Valid = true
 	out.ReadyToClose = len(out.BlockingIssues) == 0
 	return out, nil
+}
+
+// readCapsuleInput reads --capsule input. "-" means stdin (= improvement D)。
+// pipeline articulation (= aag task prepare ... | aag task validate --capsule -) を可能にする。
+func readCapsuleInput(file string) ([]byte, error) {
+	if file == "-" {
+		raw, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return nil, fmt.Errorf("ValidateCapsule: failed to read stdin: %w", err)
+		}
+		if len(raw) == 0 {
+			return nil, fmt.Errorf("ValidateCapsule: stdin was empty (= --capsule - 指定だが pipe / redirect で入力なし)")
+		}
+		return raw, nil
+	}
+	raw, err := os.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("ValidateCapsule: failed to read %s: %w", file, err)
+	}
+	return raw, nil
 }
 
 // defaultFinalChecks articulates the standard set of final checks the AI session

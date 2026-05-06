@@ -33,6 +33,10 @@ import (
 // ───────────────────────────────────────────────────────────────────────
 
 // WhereAmIOutput is the JSON shape emitted by `aag where-am-i`.
+//
+// ManifestContext (= improvement B) surfaces `.claude/manifest.json` `activeContext`
+// snapshot so AI session が自身の前 session notes / openQuestions / lastUpdated
+// を再 grep 不要で確認できる。manifest が無い / parse error 時は nil。
 type WhereAmIOutput struct {
 	SchemaVersion          string                 `json:"schemaVersion"`
 	Branch                 string                 `json:"branch"`
@@ -40,10 +44,23 @@ type WhereAmIOutput struct {
 	RepoHealth             map[string]interface{} `json:"repoHealth"`
 	OpenObligations        int                    `json:"openObligations"`
 	RecommendedNextCommand string                 `json:"recommendedNextCommand,omitempty"`
+	ManifestContext        *ManifestContextSummary `json:"manifestContext,omitempty"`
+}
+
+// ManifestContextSummary is the lightweight projection of `.claude/manifest.json`
+// `activeContext` (= improvement B、AI session free-form notebook の snapshot)。
+type ManifestContextSummary struct {
+	CurrentFocus       *string `json:"currentFocus"`
+	LoadedRefsCount    int     `json:"loadedRefsCount"`
+	OpenQuestionsCount int     `json:"openQuestionsCount"`
+	SessionNotes       *string `json:"sessionNotes"`
+	LastUpdated        *string `json:"lastUpdated"`
 }
 
 // WhereAmISchemaVersion is the schemaVersion const articulated in WhereAmIOutput.
-const WhereAmISchemaVersion = "where-am-i-v1"
+//
+// v2 (= improvement B) で manifestContext field を additive 追加。
+const WhereAmISchemaVersion = "where-am-i-v2"
 
 // WhereAmIInput controls WhereAmI behavior.
 type WhereAmIInput struct {
@@ -86,8 +103,44 @@ func WhereAmI(input WhereAmIInput) (WhereAmIOutput, error) {
 		RepoHealth:             repoHealth,
 		OpenObligations:        openObligations,
 		RecommendedNextCommand: recommendNextCommand(activeProject, openObligations),
+		ManifestContext:        readManifestContext(input.RepoRoot),
 	}
 	return out, nil
+}
+
+// readManifestContext loads `.claude/manifest.json` and projects its
+// `activeContext` block as a lightweight summary (= improvement B).
+//
+// manifest が無い / parse error / activeContext key 不在 → nil を返す。
+// manifest schema は self-describing なので、本 reader は best-effort projection。
+func readManifestContext(repoRoot string) *ManifestContextSummary {
+	path := filepath.Join(repoRoot, ".claude", "manifest.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	var m struct {
+		ActiveContext *struct {
+			CurrentFocus   *string  `json:"currentFocus"`
+			LoadedRefs     []string `json:"loadedRefs"`
+			OpenQuestions  []string `json:"openQuestions"`
+			SessionNotes   *string  `json:"sessionNotes"`
+			LastUpdated    *string  `json:"lastUpdated"`
+		} `json:"activeContext"`
+	}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return nil
+	}
+	if m.ActiveContext == nil {
+		return nil
+	}
+	return &ManifestContextSummary{
+		CurrentFocus:       m.ActiveContext.CurrentFocus,
+		LoadedRefsCount:    len(m.ActiveContext.LoadedRefs),
+		OpenQuestionsCount: len(m.ActiveContext.OpenQuestions),
+		SessionNotes:       m.ActiveContext.SessionNotes,
+		LastUpdated:        m.ActiveContext.LastUpdated,
+	}
 }
 
 // detectBranch returns the current git branch name. Falls back to "(unknown)"

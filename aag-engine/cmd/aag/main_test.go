@@ -564,8 +564,8 @@ func TestRun_WhereAmI_RealRepo(t *testing.T) {
 	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
 		t.Fatalf("stdout not valid JSON: %v", err)
 	}
-	if out["schemaVersion"] != "where-am-i-v1" {
-		t.Errorf("schemaVersion = %v, want where-am-i-v1", out["schemaVersion"])
+	if out["schemaVersion"] != "where-am-i-v2" {
+		t.Errorf("schemaVersion = %v, want where-am-i-v2", out["schemaVersion"])
 	}
 	if _, ok := out["branch"].(string); !ok {
 		t.Error("branch must be string")
