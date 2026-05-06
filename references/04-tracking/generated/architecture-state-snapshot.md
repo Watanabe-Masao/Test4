@@ -1,0 +1,139 @@
+# Architecture State Snapshot
+
+> Generated: 2026-05-06T10:49:45.742Z
+
+## Allowlist Summary
+
+| 指標 | 値 |
+|---|---|
+| 総エントリ数 | 14 |
+| アクティブリスト数 | 6 |
+| 凍結リスト数 | 6 |
+| .vm.ts ファイル数 | 25 |
+| 互換 re-export 残数 | 0 |
+
+## Category Breakdown
+
+| カテゴリ | 件数 |
+|---|---|
+| structural | 13 |
+| adapter | 1 |
+
+
+## Active Bridges
+
+
+## Facade Hooks
+
+- application/hooks/categoryDaily/useCategoryDailyBundle.ts
+- application/hooks/duckdb/useAdvancedQueries.ts
+- application/hooks/duckdb/useAsyncQuery.ts
+- application/hooks/duckdb/useCtsAggregationQueries.ts
+- application/hooks/duckdb/useCtsHierarchyQueries.ts
+- application/hooks/duckdb/useDailyRecordQueries.ts
+- application/hooks/duckdb/useDeptKpiQueries.ts
+- application/hooks/duckdb/useFeatureQueries.ts
+- application/hooks/duckdb/useJsFeatureQueries.ts
+- application/hooks/duckdb/useJsSalesCompQueries.ts
+- application/hooks/duckdb/useMetricsQueries.ts
+- application/hooks/duckdb/usePurchaseComparisonQuery.ts
+- application/hooks/duckdb/useStoreCostPriceQuery.ts
+- application/hooks/duckdb/useStoreDailyMarkupRateQuery.ts
+- application/hooks/duckdb/useSummaryQueries.ts
+- application/hooks/duckdb/useYoyQueries.ts
+- application/hooks/plans/useDayDetailPlan.ts
+- application/hooks/plans/useIntegratedSalesPlan.ts
+- application/hooks/storeDaily/useStoreDailyBundle.ts
+- application/hooks/useAnalysisInput.ts
+- application/hooks/useAnalyticsResolver.ts
+- application/hooks/useAppShortcuts.ts
+- application/hooks/useAutoBackup.ts
+- application/hooks/useAutoImport.ts
+- application/hooks/useBackup.ts
+- application/hooks/useCalculation.ts
+- application/hooks/useClipExport.ts
+- application/hooks/useComparisonContext.ts
+- application/hooks/useComparisonModule.ts
+- application/hooks/useDeviceSync.ts
+- application/hooks/useDrillAction.ts
+- application/hooks/useEtrnStationSearch.ts
+- application/hooks/useExplanation.ts
+- application/hooks/useFactorDecomposition.ts
+- application/hooks/useFilterSelectors.ts
+- application/hooks/useGeocode.ts
+- application/hooks/useHierarchySelection.ts
+- application/hooks/useImport.ts
+- application/hooks/useLoadComparisonData.ts
+- application/hooks/useMetricBreakdown.ts
+- application/hooks/useMonthSwitcher.ts
+- application/hooks/useMonthlyHistory.ts
+- application/hooks/useMultiMovingAverage.ts
+- application/hooks/usePageComparisonModule.ts
+- application/hooks/usePeriodAwareKpi.ts
+- application/hooks/usePersistence.ts
+- application/hooks/usePrevYearWeather.ts
+- application/hooks/usePurchaseAnalysis.ts
+- application/hooks/useQueryWithHandler.ts
+- application/hooks/useRouteSync.ts
+- application/hooks/useSensitivity.ts
+- application/hooks/useSettings.ts
+- application/hooks/useStoragePersistence.ts
+- application/hooks/useStoreSelection.ts
+- application/hooks/useStoredMonthsMonitor.ts
+- application/hooks/useTemporalAnalysis.ts
+- application/hooks/useTimeSlotData.ts
+- application/hooks/useUndoRedo.ts
+- application/hooks/useWeather.ts
+- application/hooks/useWeatherFallback.ts
+- application/hooks/useWeatherForecast.ts
+- application/hooks/useWeatherHourlyOnDemand.ts
+- application/hooks/useWeatherStoreId.ts
+- application/hooks/useWeatherTriple.ts
+- application/hooks/useWidgetQueryContext.ts
+
+## Complexity Hotspots (Top 10)
+
+| ファイル | useMemo | useState | 行数 |
+|---|---|---|---|
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 480 |
+| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 172 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 412 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 388 |
+| presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 350 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 215 |
+| application/hooks/useMetricBreakdown.ts | 7 | 5 | 220 |
+| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 299 |
+| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 230 |
+| application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 153 |
+
+## Near-Limit Files (≥80%)
+
+| ファイル | 指標 | 実測 | 上限 | % |
+|---|---|---|---|---|
+| application/hooks/usePeriodAwareKpi.ts | lines | 302 | 305 | 99% |
+
+## Frozen Lists
+
+- presentationDuckdbHook
+- presentationMemoLimits
+- presentationStateLimits
+- cmpPrevYearDaily
+- cmpFramePrevious
+- cmpDailyMapping
+
+## Per-List Detail
+
+| リスト名 | 件数 | カテゴリ内訳 |
+|---|---|---|
+| domainLargeFiles | 6 | structural:6 |
+| useStateLimits | 3 | structural:3 |
+| hookLineLimits | 2 | structural:2 |
+| applicationToInfrastructure | 1 | adapter:1 |
+| useMemoLimits | 1 | structural:1 |
+| ctxHook | 1 | structural:1 |
+| presentationDuckdbHook | 0 | - |
+| presentationMemoLimits | 0 | - |
+| presentationStateLimits | 0 | - |
+| cmpPrevYearDaily | 0 | - |
+| cmpFramePrevious | 0 | - |
+| cmpDailyMapping | 0 | - |

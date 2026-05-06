@@ -708,3 +708,67 @@ Wave 2 #7 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-010: Wave 2 #8 着手判断 — architectureStateAudit を effective LOC 化、Wave 2 #7 helper を再利用
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 2 #7 (= sizeGuard.test.ts effective LOC 化) push 後、Wave 2 #8 = `architectureStateAudit.test.ts` で同 metric 切替を articulate する step。本 audit は「違反を止める」のではなく「状態を観測し数値化する」役割 (= 構造状態の正本)。bridge inventory + complexity hotspot 2 site で raw line count を articulate しており、Wave 2 #7 の effective LOC 化と整合させる。
+
+### decision
+
+Wave 2 #8 を以下 scope で landing:
+
+1. update: `app/src/test/audits/architectureStateAudit.test.ts` で `effectiveCodeLineCount` を import (= Wave 2 #7 で landing 済 helper)
+2. update: 同 file で 2 site を effective LOC に swap (= bridge inventory line 115 + complexity hotspot line 141)
+3. update: `checklist.md` + `decision-audit.md`
+4. byproduct: `cd app && npm run docs:generate` + `npm run test:guards` PASS 確認
+
+**やらない (= 不可侵原則 + nonGoals 継承)**:
+- audit 側 threshold 変更 (= 本 audit は state 観測のみ、threshold articulate せず)
+- bridge file inventory の filter 条件変更 (= `Bridge.ts` 名前 + dual-run 痕跡 articulate 維持)
+- complexity hotspot の articulate 数 (= `memoCount + stateCount >= 4` threshold) 変更
+- 他 site の line count 利用 (= line 89 の `lines.length` は re-export 検出用、size measure ではないため対象外)
+
+### rationale
+
+- **Wave 2 #7 helper を再利用**: 同 codebase の effective LOC 計算を 2 箇所で重複 articulate する必要なし、import で接続することで algorithm 一貫性を guarantee
+- **audit は articulate 対象、guard は enforce 対象**: state audit は markdown report に line count を articulate するのみ (= violation 判定なし)。effective LOC に切替えても enforce 結果は変わらず、articulate 数値が tighter になるだけ
+- **2 site とも swap**: bridge inventory + complexity hotspot 両者 effective LOC に articulate 整合 = audit 出力 markdown table の line count 数値が一貫
+- **line 89 の `lines.length` は対象外**: re-export pattern 検出用 (= 5 line 以下 + re-export only かを判定)、size measure ではない。`split` 直後の length を pattern 検査の guard として articulate しており、effective LOC 化すると意味が変わるため不変
+
+### alternatives
+
+- (a) **Wave 2 #7 と同 PR で実施**: 却下。Wave 2 #7 は guard (= enforce)、Wave 2 #8 は audit (= articulate) で責務異なる、scope 分離 (= 不可侵原則 7) で rollback granularity 確保
+- (b) **audit 側で別 helper を articulate (= guard helper を import しない)**: 却下。algorithm 重複 + 一貫性 risk、import が natural
+- (c) **line 89 も swap**: 却下。site の semantics が異なる (= size measure ではない)、不要
+- (d) **bridge inventory の lines field を effectiveLines に rename**: 却下。diff size 増、外部 articulate (= markdown table 出力) 不変、metric semantics は commit + DA で articulate 済
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `architectureStateAudit.test.ts` の bridge inventory + complexity hotspot 2 site が effective LOC に swap (= grep verification)
+2. `effectiveCodeLineCount` を import で接続 (= Wave 2 #7 helper 再利用)
+3. line 89 の `lines.length` (= re-export pattern 検出) は不変
+4. audit 11 test 全 PASS
+5. `cd app && npm run test:guards` 1082 test PASS (= 全 guard regression なし)
+6. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+7. branch `claude/reposteward-ai-ops-platform-state-audit-effective-loc` に push 成功 (= Wave 2 #7 から派生 stacked、pre-push 5 段 PASS)
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 2 #7 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 2 #8 landing commit SHA)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

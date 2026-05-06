@@ -125,7 +125,20 @@
 - [x] sizeGuard.test.ts 11 test 全 PASS、test:guards 1082 PASS
 - [x] DA-α-009 (Wave 2 #7 着手判断 + metric swap 戦略 + baseline tightening 分離判断) を `decision-audit.md` に articulate
 - [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= Health 60/60 OK / Hard Gate PASS、前回比 Improved)
-- [ ] Wave 2 #7 commit を `claude/reposteward-ai-ops-platform-size-guard-effective-loc` branch に push (= Wave 1 #6 branch から派生)
+- [x] Wave 2 #7 commit を `claude/reposteward-ai-ops-platform-size-guard-effective-loc` branch に push (= Wave 1 #6 branch から派生)
+
+## Wave 2 #8: architectureStateAudit.test.ts effective LOC 化
+
+> **着手判断**: DA-α-010 (= Wave 2 継続、Wave 2 #7 と同 idiom で audit 側も effective LOC に articulate)。
+> **本 PR scope**: `architectureStateAudit.test.ts` の 2 site (= bridge inventory `lines` + complexity hotspot `lineCount`) で raw line count を `effectiveCodeLineCount(content)` に swap。Wave 2 #7 で landing 済 helper を import で再利用。
+
+- [x] `app/src/test/audits/architectureStateAudit.test.ts` で `effectiveCodeLineCount` を import (= Wave 2 #7 で landing 済 helper)
+- [x] bridge inventory (= `inventoryBridgeFiles()`、line 115) で `fs.readFileSync(f, 'utf-8').split('\n').length` → `effectiveCodeLineCount(fs.readFileSync(f, 'utf-8'))` に swap
+- [x] complexity hotspot (= `detectComplexityHotspots()`、line 141) で `content.split('\n').length` → `effectiveCodeLineCount(content)` に swap
+- [x] audit 11 test 全 PASS
+- [x] DA-α-010 (Wave 2 #8 着手判断 + helper 再利用 + audit metric 整合) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1082 test 維持、Health 60/60 OK / Hard Gate PASS)
+- [ ] Wave 2 #8 commit を `claude/reposteward-ai-ops-platform-state-audit-effective-loc` branch に push (= Wave 2 #7 branch から派生)
 
 ## AI 自己レビュー (= user 承認の手前)
 

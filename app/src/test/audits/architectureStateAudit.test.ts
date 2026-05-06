@@ -14,7 +14,7 @@
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'
 import * as path from 'path'
-import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'
+import { SRC_DIR, collectTsFiles, rel, effectiveCodeLineCount } from '../guardTestHelpers'
 
 // ── Import all allowlists ──
 import {
@@ -112,7 +112,7 @@ function inventoryBridgeFiles(): Array<{ path: string; lines: number }> {
     })
     .map((f) => ({
       path: rel(f),
-      lines: fs.readFileSync(f, 'utf-8').split('\n').length,
+      lines: effectiveCodeLineCount(fs.readFileSync(f, 'utf-8')),
     }))
 }
 
@@ -138,7 +138,7 @@ function detectComplexityHotspots(topN = 10): ComplexityHotspot[] {
           file: rel(f),
           memoCount,
           stateCount,
-          lineCount: content.split('\n').length,
+          lineCount: effectiveCodeLineCount(content),
         })
       }
     }
