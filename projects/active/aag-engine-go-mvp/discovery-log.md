@@ -85,17 +85,21 @@
 - **解消 timing**: P3 (= 揮発 / 不要判定可)、post-archive 別 program `aag-engine-domain-coverage-extension` (= DA-α-012 §decision-2 後続候補) で起票判断、または不要判定で削除
 - **影響**: scope 小 (= 1 rule 追加 + fixture + detector 実装 + per-rule unit test)、新 governance scope 追加候補
 
-### 2026-05-06 P2: AAG-tagged project の `aag/CHANGELOG.md` 更新を mechanical 強制する guard
+### 2026-05-06 P2: versionImpact declaration mechanism の機械検証 guard 実装 (= 別 program 起票候補、DA-α-014 で proactive 化済)
 
-- **場所**: `app/src/test/guards/` (= 新 guard test 配置候補) + `app/src/test/projectizationPolicyGuard*.test.ts` (= PZ-N 拡張候補) + `tools/architecture-health/src/collectors/obligation-collector.ts` (= obligation map 拡張候補)
-- **現状**: `versionSyncGuard.test.ts` は **horizontal sync** (= 4-5 file 間の値整合) のみ機械検証。**vertical obligation** (= AAG-tagged project は `aag/CHANGELOG.md` 更新が必須という project → CHANGELOG の縦方向義務) は **未強制**。本 MVP では HANDOFF §4.5 で AI 単独判断「CHANGELOG 不要」 を articulate し、user feedback で誤りを発見 (= DA-α-013) → 同 抜け穴は他の AAG-related project でも再発 risk あり
+- **articulation 修正履歴**:
+  - 2026-05-06 (旧 articulation、DA-α-013 経由): 「AAG-tagged project の `aag/CHANGELOG.md` 更新を mechanical 強制する guard」 (= reactive、後追い検出)
+  - 2026-05-06 (本 articulation、DA-α-014 経由): 「versionImpact declaration mechanism の機械検証 guard」 (= proactive、事前 declare + 整合検証) に articulation 修正 (= user 直接 directive「計画段階で判定すべき + 事前判定で未更新を機械的判定」)
+- **場所**: `app/src/test/guards/versionImpactGuard.test.ts` (= 新 guard test 配置候補)
+- **現状**: 2026-05-06 DA-α-014 で **declaration mechanism 自体は institute 完了** (= aag/CHANGELOG.md §バージョンアップ判定基準 + config/project.json `versionImpact` field + projects/_template/ 適用 + 本 MVP self-dogfood)。**機械検証 guard は未実装**、archive 移行時の整合検証は別 program で articulate 必要
 - **改善 / 調査内容**:
-  - mechanism 候補 1: `projectization.json` に `aagRelated: true` tag 追加 + projectizationPolicyGuard PZ-N で「aagRelated=true なら `aag/CHANGELOG.md` の最新 entry が project ID を reference する」 を機械検証
-  - mechanism 候補 2: obligation map に AAG-tagged project の checklist.md path (= projectization.json で aagRelated=true 判定) → `aag/CHANGELOG.md` modify obligation を articulate
-  - mechanism 候補 3: 上記 2 mechanism の組み合わせ (= explicit tag + path-based fallback)
-- **trigger**: 2026-05-06 user feedback「プロジェクト単位でそちらの更新も強制すべきです」 (= DA-α-013 §context-2)
-- **解消 timing**: post-archive 別 program (= 仮 ID `aag-changelog-vertical-obligation-guard`) で起票判断、本 MVP archive 後 user 判断
-- **影響**: scope 中 (= projectization.json schema 拡張 + new PZ-N rule + guard test 実装 + 既存 active project の retroactive tag 追加判断 + obligation map articulation)、AAG framework governance evolution の institutional value 高い
+  - guard test 実装: archive 移行 trigger (= active → archived) で `config/project.json` `versionImpact` を read、`expectedTargetVersion = baselineAtCreation + delta` (semver 加算) を算出、CHANGELOG (= app or AAG) に該当 entry 存在 + 当該 entry に project ID reference を機械検証、未満たす項目で hard fail
+  - 既存 active project への retroactive declaration: 既存 active project (= aag-engine-go-mvp 以外) に `versionImpact` field 追加 (= app `+0.0.0` / aag `+0.0` を default 適用、必要に応じて bump declare に修正)
+  - edge case test: 並列 project (= 同 expected) / sequential (= 異 expected) / 競合 declare (= rationale 衝突) / delta 加算 semver 整合 / out-of-order completion 等
+  - integration with archive lifecycle hook: 既存 `projectCompletionConsistencyGuard` との 統合判断 (= 同 hook で実行 vs 独立 hook)
+- **trigger**: 2026-05-06 user feedback (= DA-α-013 「プロジェクト単位でそちらの更新も強制すべきです」 + DA-α-014 4 連 directive で proactive declaration mechanism に articulation 修正)
+- **解消 timing**: post-archive 別 program (= 仮 ID `aag-version-impact-declaration-guard`) で起票判断、本 MVP archive 後 user 判断
+- **影響**: scope 中 (= guard test 実装 + 既存 active project の retroactive declaration + edge case test + integration with archive lifecycle hook + 機械検証 logic の delta 加算 semver 実装)、AAG framework governance evolution の institutional value 極めて高い (= 「気をつけるではなく mechanism として運用」 の完全適用)
 
 ### 2026-05-06 P2: AAG 5.x までの inline articulation を `aag/CHANGELOG.md` に retroactive 移植
 
@@ -129,7 +133,7 @@
 | `aag-engine-domain-coverage-extension` | DA-α-012 option C 採用時、新 governance scope 追加判断時 | 新 detector / rule 追加 (= AR-SCHEMA-VALIDATION-PZ-VERSION 等を含む)、不可侵原則 4 整合確認 | DA-α-012 §decision-2 + 上記 P3 entry「schemaVersion mismatch 検出」 統合候補 |
 | `aag-engine-shadow-mode-runner-impl` | TS 側 detector logic 改修時の drift 即時検出 needs articulate 時 | TS detector を Go から exec する真の TS 並走 mode、node 環境依存 articulate | DA-α-009 §rationale + 上記 P2 entry「TS detector を Go から exec する真の TS 並走 shadow mode」 |
 | `aag-engine-real-repo-dispatch-impl` | `aag validate --repo .` を skeleton から本格実装する判断時、`aag-engine-hard-gate-promotion` の前提実装 candidate | collector layer + 5 detector dispatch + JSON 出力 + edge case test | 上記 P2 entry「`aag validate` real-repo dispatch」、Phase 1 skeleton 解消 |
-| `aag-changelog-vertical-obligation-guard` | 後続 AAG-related project bootstrap 時 / または同 institutional gap 再発時 | projectization.json `aagRelated: true` tag + projectizationPolicyGuard PZ-N + obligation map で AAG project → `aag/CHANGELOG.md` 縦方向更新義務を mechanical 強制 | DA-α-013 + 上記 P2 entry「AAG-tagged project の `aag/CHANGELOG.md` 更新を mechanical 強制する guard」 |
+| `aag-version-impact-declaration-guard` | 後続 AAG-related project bootstrap 時 / または versionImpact declaration 漏れ検出時 | versionImpactGuard.test.ts 実装 + 既存 active project への retroactive declaration + edge case test + archive lifecycle hook 統合。declaration mechanism 自体は DA-α-014 で institute 完了、本 program は機械検証 layer 実装 | DA-α-014 §decision-6 + 上記 P2 entry「versionImpact declaration mechanism の機械検証 guard 実装」 (= DA-α-013 旧 entry を proactive 化で renaming + scope expansion) |
 | `aag-changelog-historical-split` | retroactive split 必要性が user 判断で確定時 (= 緊急度低、bridge note で navigation 代替中) | AAG 5.1 / AAG 5.2 (= v1.9.0 / v1.10.0 inline articulation) を `aag/CHANGELOG.md` に retroactive entry 移植 + 既存 CHANGELOG.md pointer 化判断 | DA-α-013 §decision-6 + 上記 P2 entry「AAG 5.x までの inline articulation を `aag/CHANGELOG.md` に retroactive 移植」 |
 
 ## status
@@ -137,3 +141,4 @@
 - 2026-05-05 (project bootstrap): 本 discovery-log landing
 - 2026-05-06 (Phase 12 closure 後): scope 外発見 6 件 (= P2 3 件 + P3 3 件) を集約 articulate、後続 program 4 候補を articulate (= user 「蓄積された課題はありますか」 query 由来、option A 採用)
 - 2026-05-06 (AAG 6.0 institute 後): AAG version 分離 mechanism institute (= DA-α-013) 派生で P2 entry 2 件追加 (= 計 P2 5 件 + P3 3 件 = 8 件)、後続 program 候補 6 件に拡張 (= aag-changelog-vertical-obligation-guard + aag-changelog-historical-split 追加)
+- 2026-05-06 (versionImpact mechanism institute 後): user 4 連 directive で reactive guard を proactive declaration + 機械検証に articulation 修正 (= DA-α-014)、P2 entry の articulation refinement (= 「aag-changelog-vertical-obligation-guard」 → 「aag-version-impact-declaration-guard」)、P2 件数不変 (5 件)、program 候補不変 (6 件、entry name + scope のみ更新)

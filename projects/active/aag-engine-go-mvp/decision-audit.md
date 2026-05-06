@@ -1545,4 +1545,110 @@ scope 判断点:
 
 ---
 
-> 全 DA entry (DA-α-000 〜 013) articulate 完遂。後続 closure (= 最終レビュー) は本 file のレビュー後 user 承認で archive 移行 articulate 候補。
+## DA-α-014: バージョンアップ判定 mechanism institute (= 計画段階 declare + delta + baselineAtCreation snapshot + 機械検証 obligation、user 直接 directive)
+
+### status
+
+- 着手判断: **closed** (2026-05-06、user feedback 経由で institute 完遂、versionImpact schema + criteria + self-dogfood + bootstrap template articulate 済)
+- 振り返り判定: **正しい** (= user 4 連 directive (「バージョンアップの定義 + 基準を設けましょう」 + 「計画段階で判定すべき」 + 「事前判定で未更新を機械的判定」 + 「絶対値ではなく delta」 + 「適切にお願いします」) 完全反映、AAG philosophy「気をつけるではなく mechanism」 strict adherence)
+
+### context
+
+DA-α-013 (= AAG 6.0 institute) の learning の 1 件「AI 自己 review の盲点」 への構造的対処を user が directive:
+
+1. 「バージョンアップの定義を行い、バージョンアップの基準を設けましょう」 (= criteria 不在を指摘)
+2. 「計画段階でバージョンアップ判定をすべきですね」 (= judgement timing を archive 直前 → 計画段階に前倒し)
+3. 「事前にバージョンアップ判定をしていたら、未更新が機械的判定できますよね？」 (= proactive declaration + 機械検証で AI 単独看過を構造的防止)
+4. 「バージョンアップ判定は5.0とかでなく、0.1.0のように上げる値を入れておかないと他のプロジェクトで先に上がった時に判定が狂うので注意」 (= 絶対値 declare の並列 / out-of-order 問題、delta 表記 directive)
+5. 「適切にお願いします」 (= 実行 approval)
+
+DA-α-013 では「reactive guard 起票候補」 (= aag-changelog-vertical-obligation-guard) で済ませようとしたが、user の指摘で **proactive declaration + 機械検証** の structurally superior な mechanism に articulation 修正:
+
+- DA-α-013 提案: 「失敗してから guard で検出」 = reactive
+- DA-α-014 institute: 「計画段階で declare + 機械検証」 = proactive、AAG philosophy 完全適用
+
+scope 判断点:
+1. **declaration 形式**: 絶対値 (= targetVersion) vs delta + baselineAtCreation snapshot
+2. **判定基準の articulate 配置**: aag/CHANGELOG.md §expand vs 新 file (= aag/_internal/version-bump-criteria.md)
+3. **schema field 配置**: config/project.json vs 別 schema (= versionImpact dedicated)
+4. **bootstrap template への適用**: 即時 vs 後続 program
+5. **機械検証 guard 実装の scope**: 本 MVP 内 vs 別 program
+
+### decision
+
+以下を採用 (= user 完全承認済、本 commit で execute):
+
+1. **delta + baselineAtCreation snapshot 方式**:
+   - 絶対値 declare (= e.g., `targetVersion: "6.0"`) は他 project が先に bump した時に判定狂う、user 直接 directive で却下
+   - `delta` (= `+0.0.0` / `+0.0.1` / `+0.1.0` / `+1.0.0` for app、`+0.0` / `+0.1` / `+1.0` for AAG) で **上げる値** を declare
+   - `baselineAtCreation` (= project 着手時点の version snapshot) を併記
+   - **expectedTargetVersion** = `baselineAtCreation + delta` (semver 加算) を archive 時に算出
+2. **判定基準の articulate**: 既存 `aag/CHANGELOG.md` §バージョニングポリシー の直下に `§バージョンアップ判定基準` section を expand (= 新 file 作成より既存 doc 内 articulate のほうが reader navigation 効率高、source of truth 集約)
+3. **schema field**: `config/project.json` の root level に `versionImpact` field 追加 (= projectization と並列、AAG-COA 判断と同 timing で declare)
+4. **bootstrap template への即時適用**: `projects/_template/config/project.json` に `versionImpact` field 追加、placeholder articulate (= `<X.Y.Z = project 着手時点の ...>` 形式)
+5. **本 MVP self-dogfood (= retroactive 適用)**:
+   - app: baselineAtCreation `1.10.0` / delta `+0.0.0` / rationale (= 粗利管理 user-facing 変更なし)
+   - aag: baselineAtCreation `5.2` / delta `+1.0` / rationale (= Go 外部 validator paradigm shift、expectedTargetVersion = 6.0)
+6. **機械検証 guard 実装は別 program 起票**:
+   - 本 MVP scope creep 回避、scope 中 (= guard test 実装 + 既存 active project の retroactive declaration + edge case test + integration with archive lifecycle hook)
+   - DA-α-013 で articulate した P2 entry (= aag-changelog-vertical-obligation-guard) を **renaming + scope expansion** で `aag-version-impact-declaration-guard` (= 既存名より精度高い) に articulation 修正
+7. **並列 / out-of-order 耐性 articulation**:
+   - 並列 project (= 同 baseline + 同 delta) → 同 expectedTargetVersion → CHANGELOG entry 1 つに複数 project が relatedPrograms で reference されれば全 PASS
+   - sequential (= A 先完了で AAG 5.2 → 6.0 後、B が baseline 5.2 + delta `+0.1` で archive) → expected 5.3、CHANGELOG 5.3 entry を要求 (= 6.0 とは独立 entry articulate 必要)
+   - 競合 declare (= 同 baseline + 同 delta だが意味的に別 paradigm) → expected 衝突を検出、user 判断で baseline 再 snapshot or entry 統合
+
+### rationale
+
+- **delta 表記の institutional value (= user 直接 directive)**: 絶対値 declare は他 project の bump で「自 project が contribute したか」 が判定不能、delta + baselineAtCreation snapshot で project 着手時点の context を保存しつつ「上げる値」 を declare できるため並列 / out-of-order 耐性確保。これは「declare 時点の意図」 と「実行時点の状態」 を分離する semver の本質的設計と整合
+- **proactive declaration + 機械検証の structural superiority (= user 直接 directive)**: 「失敗してから検出」 ではなく「計画段階で意図を declare → archive 移行で整合検証」 が AAG philosophy「気をつけるではなく mechanism として運用」 完全適用。DA-α-013 で articulate した P2 entry「aag-changelog-vertical-obligation-guard」 (= reactive、後追い検出) を本 DA-α-014 で「aag-version-impact-declaration-guard」 (= proactive、事前 declare + 整合検証) に articulation 修正
+- **既存 aag/CHANGELOG.md §expand の reader navigation 整合**: AAG version 関連の articulation は aag/CHANGELOG.md に集約 (= source of truth 集約原則)、新 file 作成より既存 doc 内 §expand のほうが 1 entry で reader navigation 完結
+- **config/project.json root level field の institutional consistency**: projectization (= AAG-COA 判断) と versionImpact (= bump 判断) は project 着手段階の判断 2 軸として並列 articulate、root level で並列配置が natural
+- **bootstrap template 即時適用の institutional power**: 後続 project bootstrap 時に AI が必須項目として認識する mechanism (= placeholder が空欄なら project 立ち上げ不完全と articulate)、後続 program で同 institutional gap 再発を構造的防止
+- **本 MVP self-dogfood の transparent articulation**: 本 MVP 自身が `versionImpact: { aag: { delta: "+1.0", baseline: "5.2" } }` を declare することで、後続 versionImpactGuard 実装時の test fixture / institutional reference として直接利用可能
+
+### alternatives
+
+- (a-alt) **絶対値 declare (= targetVersion: "6.0")**: 並列 / out-of-order 判定狂い、user 直接 directive で却下
+- (b-alt) **判定基準を新 file articulate (= aag/_internal/version-bump-criteria.md)**: source of truth 分散、reader navigation 不便、不採用
+- (c-alt) **schema field を別 file articulate (= versionImpact dedicated json)**: schema 分散、project metadata の 1 file 集約原則違反、不採用
+- (d-alt) **bootstrap template 適用を後続 program 起票**: institutional gap 再発 risk、即時適用のほうが institutional safety 高、不採用
+- (e-alt) **本 MVP 内に versionImpactGuard 実装吸収**: scope creep + 不可侵原則 6 違反、別 program で articulate するほうが institutional 整合
+- (f-alt) **delta を 4 段階 enum (= none / patch / minor / major)** で declare**: enum と semver 加算の mapping を guard 内部で再現する必要、delta literal (= +0.0.1 等) で直接 declare のほうが 1 layer 削減 + reader 直感的、不採用 (= ただし criteria table で enum と delta 表記を mapping articulate)
+- (g-alt) **DA-α-013 P2 entry「aag-changelog-vertical-obligation-guard」 をそのまま維持**: reactive guard より proactive declaration + 機械検証が structurally superior、user 直接 directive で却下、本 DA で articulation 修正
+
+### 観測点
+
+1. ✅ `aag/CHANGELOG.md` §バージョンアップ判定基準 section expand (= 判定基準 table app + AAG + delta 表記 + delta + baselineAtCreation snapshot 方式 + 並列 / out-of-order 耐性 articulation + 機械検証 logic articulation)
+2. ✅ `projects/active/aag-engine-go-mvp/config/project.json` に `versionImpact` field 追記 (= self-dogfood、app + AAG 両方 declare、retroactive)
+3. ✅ `projects/_template/config/project.json` に `versionImpact` field 追記 (= bootstrap template、placeholder articulate)
+4. ✅ DA-α-014 articulate (= 5 軸 + 観測点 + Lineage + 振り返り判定)
+5. ✅ DA-α-013 P2 entry を `aag-changelog-vertical-obligation-guard` → `aag-version-impact-declaration-guard` に renaming + scope expansion (= reactive → proactive 整合)
+6. ✅ user 4 連 directive (= 定義 + 基準 + 計画段階 + 機械検証 + delta + 適切に) 完全反映
+7. 🔁 機械検証 guard 実装 (= 別 program `aag-version-impact-declaration-guard` で起票判断、本 MVP scope 外)
+8. 🔁 本 MVP archive 時に手動で aag/CHANGELOG.md §[AAG 6.0] entry に本 project ID reference 確認 (= guard 実装前なので user 手動検証、archive 移行 trigger と統合)
+
+凡例: ✅ AI session 内達成、🔁 後続 program / archive 時 user 検証待ち。
+
+### Lineage
+
+- **preJudgementCommit**: `4eb0109` (= AAG 6.0 institute regen + guard fix 後 HEAD)
+- **judgementCommit**: 本 commit (= versionImpact schema + criteria + self-dogfood + bootstrap template + DA-α-014 articulate)
+- **postJudgementRegenCommit**: 該当時 §13.3 適用
+- **retrospectiveCommit**: 本 commit (= institute と retrospective を同 commit articulate、user feedback driven の institute は landing と振り返りが時間軸的に分離不能、DA-α-013 §rationale 継承)
+- **judgementTag**: 未設定
+- **rollbackTag**: 未設定 (= rollback target = preJudgementCommit `4eb0109` を SHA 直接参照)
+
+### 振り返り判定
+
+- **判定**: **正しい** (= user 5 連 directive 完全反映、AAG philosophy strict adherence、DA-α-013 reactive 提案からの structural improvement)
+- **観測点達成状況**: 1〜6 すべて ✅、7/8 は 🔁 (= 後続 program / archive 時待ち)
+- **学習**:
+  - **proactive declaration + 機械検証 > reactive guard**: DA-α-013 で articulate した「失敗してから guard で検出」 は AAG philosophy「気をつける」 の延長、user 直接 directive で「事前 declare + 整合検証」 に articulation 修正。判断 timing を archive 直前 → 計画段階に前倒しすることで、AI 単独 review の盲点を構造的に防止
+  - **delta 表記の semver 設計整合**: 並列 / out-of-order project への耐性は絶対値 declare では不可能、delta + baselineAtCreation snapshot で「declare 時点の意図」 と「実行時点の状態」 を分離。これは semver の本質的設計 (= MAJOR / MINOR / PATCH の delta 認識) と整合、institutional knowledge として後続 program に継承
+  - **user 5 連 directive の navigation pattern (= DA-α-013 4 連 + DA-α-014 5 連)**: user は段階的に AI の articulation を refine、AI は per-step に proposal を articulate して user 承認を待つ pattern が institutional に効率的。本 MVP closure 後半 (= AAG 6.0 institute + versionImpact mechanism institute) の 2 段で institutional infrastructure を 2 件構築、AI 単独では発見できない institutional gap を user collaboration で transparent 化
+  - **bootstrap template 即時適用の institutional power**: 後続 project bootstrap 時に AI が必須項目として認識する mechanism、後続 program で同 institutional gap 再発を構造的防止。これは「instituting once, applies forever」 の AAG framework evolution pattern
+  - **DA-α-013 P2 entry の renaming + scope expansion**: discovery-log P2 entry は live document、後続 institute で articulate 修正可能。reactive → proactive の articulation refinement は同 P2 entry で吸収せず、新 DA-α-014 で institute + 旧 P2 entry を articulation 修正することで lineage 透明性確保
+
+---
+
+> 全 DA entry (DA-α-000 〜 014) articulate 完遂。後続 closure (= 最終レビュー) は本 file のレビュー後 user 承認で archive 移行 articulate 候補。
