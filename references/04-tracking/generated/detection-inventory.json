@@ -1,0 +1,1016 @@
+{
+  "$comment": "Detection Inventory v1 — Wave 4 #18 で landing。canonical schema = docs/contracts/aag/detection-inventory.schema.json。narrative = references/03-implementation/detection-inventory-v2.md。本 artifact は MVP として preparatory doc work、後続 step で collector による自動生成を検討。",
+  "schemaVersion": "detection-inventory-v1",
+  "generatedAt": "2026-05-06T11:59:45Z",
+  "totalDetections": 167,
+  "byKind": {
+    "audit": 6,
+    "collector": 14,
+    "detector": 10,
+    "guard": 137
+  },
+  "detections": [
+    {
+      "id": "architectureStateAudit",
+      "kind": "audit",
+      "location": "app/src/test/audits/architectureStateAudit.test.ts",
+      "what": "guards/ が「違反を止める」のに対し、この監査は「状態を観測し数値化する」。"
+    },
+    {
+      "id": "buildParityAudit",
+      "kind": "audit",
+      "location": "app/src/test/audits/buildParityAudit.test.ts",
+      "what": "// wasm-pack build の直接呼び出し検出"
+    },
+    {
+      "id": "claimToCodeAudit",
+      "kind": "audit",
+      "location": "app/src/test/audits/claimToCodeAudit.test.ts",
+      "what": "主張と実体のズレを機械的に検出する。"
+    },
+    {
+      "id": "comparisonSemanticsAudit",
+      "kind": "audit",
+      "location": "app/src/test/audits/comparisonSemanticsAudit.test.ts",
+      "what": "Comparison Semantics Audit — 比較意味論の散逸検出"
+    },
+    {
+      "id": "queryAccessAudit",
+      "kind": "audit",
+      "location": "app/src/test/audits/queryAccessAudit.test.ts",
+      "what": "import { SRC_DIR, collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "temporaryStructureMetrics",
+      "kind": "audit",
+      "location": "app/src/test/audits/temporaryStructureMetrics.test.ts",
+      "what": "@guard G1 テストに書く"
+    },
+    {
+      "id": "architecture-debt-recovery-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/architecture-debt-recovery-collector.ts",
+      "what": "- projects/<sub-project>/checklist.md（sub-project の checkbox 完遂率）"
+    },
+    {
+      "id": "bundle-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/bundle-collector.ts",
+      "what": "チャンク別・合計のサイズを KPI として報告する。"
+    },
+    {
+      "id": "ci-timing-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/ci-timing-collector.ts",
+      "what": "readonly guardsSeconds?: number"
+    },
+    {
+      "id": "content-graph-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/content-graph-collector.ts",
+      "what": "(architecture-health.json は KPI のみ集約、content graph 詳細は別 file)"
+    },
+    {
+      "id": "content-spec-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/content-spec-collector.ts",
+      "what": "chart / ui-component) を集計し、`content-spec-health.json` を出力する。"
+    },
+    {
+      "id": "doc-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/doc-collector.ts",
+      "what": "doc collector"
+    },
+    {
+      "id": "guard-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/guard-collector.ts",
+      "what": "Guard Collector — ガードテストファイルと guardTagRegistry から KPI を抽出"
+    },
+    {
+      "id": "integrity-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/integrity-collector.ts",
+      "what": "が壊れている件数 (Phase F coverage guard と同期)"
+    },
+    {
+      "id": "obligation-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/obligation-collector.ts",
+      "what": "Obligation Collector — 変更パス → doc 更新義務の検出"
+    },
+    {
+      "id": "project-checklist-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/project-checklist-collector.ts",
+      "what": "`projects/<id>/config/project.json` を列挙し、`entrypoints.checklist` で"
+    },
+    {
+      "id": "snapshot-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/snapshot-collector.ts",
+      "what": "snapshot collector"
+    },
+    {
+      "id": "taxonomy-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/taxonomy-collector.ts",
+      "what": "役割: responsibility / test 両軸の v2 vocabulary 状態を集計し、"
+    },
+    {
+      "id": "temporal-governance-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/temporal-governance-collector.ts",
+      "what": "temporal governance の健全性を計測する。"
+    },
+    {
+      "id": "test-contract-collector",
+      "kind": "collector",
+      "location": "tools/architecture-health/src/collectors/test-contract-collector.ts",
+      "what": "CLAUDE.md 内で満たされているかを集計し、KPI として出力する。"
+    },
+    {
+      "id": "go:archive_manifest",
+      "kind": "detector",
+      "location": "aag-engine/internal/detectors/archive_manifest.go",
+      "what": "// Package detectors provides AAG Engine detector Go implementations."
+    },
+    {
+      "id": "go:doc_registry",
+      "kind": "detector",
+      "location": "aag-engine/internal/detectors/doc_registry.go",
+      "what": "//   - readiness refactor `tools/architecture-health/src/detectors/doc-registry-detector.ts` の Go mirror"
+    },
+    {
+      "id": "go:generated_metadata",
+      "kind": "detector",
+      "location": "aag-engine/internal/detectors/generated_metadata.go",
+      "what": "//   - readiness refactor `tools/architecture-health/src/detectors/generated-metadata-detector.ts` の Go mirror"
+    },
+    {
+      "id": "go:project_lifecycle",
+      "kind": "detector",
+      "location": "aag-engine/internal/detectors/project_lifecycle.go",
+      "what": "//   - readiness refactor `tools/architecture-health/src/detectors/project-lifecycle-detector.ts` の Go mirror"
+    },
+    {
+      "id": "go:schema_validation",
+      "kind": "detector",
+      "location": "aag-engine/internal/detectors/schema_validation.go",
+      "what": "//   - readiness refactor `tools/architecture-health/src/detectors/schema-validation-detector.ts` の Go mirror"
+    },
+    {
+      "id": "ts:archive-manifest-detector",
+      "kind": "detector",
+      "location": "tools/architecture-health/src/detectors/archive-manifest-detector.ts",
+      "what": "+ 既存 production guard `archiveV2SchemaGuard.test.ts` の violation 経路の一部を"
+    },
+    {
+      "id": "ts:doc-registry-detector",
+      "kind": "detector",
+      "location": "tools/architecture-health/src/detectors/doc-registry-detector.ts",
+      "what": "production guard `docRegistryGuard.test.ts` (= 「レジストリに登録された全文書が"
+    },
+    {
+      "id": "ts:generated-metadata-detector",
+      "kind": "detector",
+      "location": "tools/architecture-health/src/detectors/generated-metadata-detector.ts",
+      "what": "既存 production guard `generatedFileEditGuard.test.ts` (= G1〜G3 = 命名規約 +"
+    },
+    {
+      "id": "ts:project-lifecycle-detector",
+      "kind": "detector",
+      "location": "tools/architecture-health/src/detectors/project-lifecycle-detector.ts",
+      "what": "- 既存 `app/src/test/guards/projectCompletionConsistencyGuard.test.ts` の"
+    },
+    {
+      "id": "ts:schema-validation-detector",
+      "kind": "detector",
+      "location": "tools/architecture-health/src/detectors/schema-validation-detector.ts",
+      "what": "production guard `projectizationPolicyGuard.test.ts` (= PZ-1〜PZ-14、AAG-COA"
+    },
+    {
+      "id": "aagBoundaryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagBoundaryGuard.test.ts",
+      "what": "R2 で sub-invariant (b) + (c) active、R5 で sub-invariant (d) active 予定。"
+    },
+    {
+      "id": "aagContractSchemaSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagContractSchemaSyncGuard.test.ts",
+      "what": "`docs/contracts/aag/aag-response.schema.json` + `detector-result.schema.json`"
+    },
+    {
+      "id": "aagDerivedOnlyImportGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagDerivedOnlyImportGuard.test.ts",
+      "what": "- app/src/test/guards/executionOverlayGuard.test.ts（BaseRule vs overlay 整合検証）"
+    },
+    {
+      "id": "aagDrawerSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagDrawerSyncGuard.test.ts",
+      "what": "sync guard。"
+    },
+    {
+      "id": "aagMergedArtifactSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagMergedArtifactSyncGuard.test.ts",
+      "what": "機械保証する sync guard。"
+    },
+    {
+      "id": "aagResponseFeedbackUnificationGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/aagResponseFeedbackUnificationGuard.test.ts",
+      "what": "AAG Feedback 層単一性 Guard — renderAagResponse 重複検出 + 構造的拒否"
+    },
+    {
+      "id": "allowlistMetadataGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/allowlistMetadataGuard.test.ts",
+      "what": "- PR4 (予定): expiresAt 超過 entry の fail 検出"
+    },
+    {
+      "id": "analysisFrameGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/analysisFrameGuard.test.ts",
+      "what": "AnalysisFrame / CalculationFrame が分析入力の唯一入口。"
+    },
+    {
+      "id": "architectureRuleGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/architectureRuleGuard.test.ts",
+      "what": "@guard G1 テストに書く"
+    },
+    {
+      "id": "architectureRulesMergeSmokeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/architectureRulesMergeSmokeGuard.test.ts",
+      "what": "`app-domain/integrity/` 経由の adapter 化。checkInclusion (5 経路 id 集合一致) +"
+    },
+    {
+      "id": "archiveV2SchemaGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/archiveV2SchemaGuard.test.ts",
+      "what": "- restoreAllCommand 形式整合 (= `git checkout <preCompressionCommit> --` で始まる)"
+    },
+    {
+      "id": "barrelReexportMetadataGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/barrelReexportMetadataGuard.test.ts",
+      "what": "検出対象:"
+    },
+    {
+      "id": "calculationCanonGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/calculationCanonGuard.test.ts",
+      "what": "inline iteration ロジックを削除し、tsRegistry + checkBidirectionalExistence +"
+    },
+    {
+      "id": "canonicalDocBackLinkGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/canonicalDocBackLinkGuard.test.ts",
+      "what": "Canonical Doc Back Link Guard — Project B Phase 4 meta-guard #3"
+    },
+    {
+      "id": "canonicalDocRefIntegrityGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/canonicalDocRefIntegrityGuard.test.ts",
+      "what": "Canonical Doc Ref Integrity Guard — Project B Phase 4 meta-guard #2"
+    },
+    {
+      "id": "canonicalInputGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/canonicalInputGuard.test.ts",
+      "what": "@guard G1 テストに書く"
+    },
+    {
+      "id": "canonicalizationSystemGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/canonicalizationSystemGuard.test.ts",
+      "what": "定義書 11 + registry 1 + orchestrator 1) + checkInclusionByPredicate"
+    },
+    {
+      "id": "categoryDailyLaneSurfaceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/categoryDailyLaneSurfaceGuard.test.ts",
+      "what": "// 本 guard はその方針の軽めの先行防御として、YoYWaterfallChart ecosystem"
+    },
+    {
+      "id": "categoryLeafDailyLaneSurfaceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/categoryLeafDailyLaneSurfaceGuard.test.ts",
+      "what": "//   3. baseline 0 到達後、guard を「追加禁止」固定モードに移行する"
+    },
+    {
+      "id": "categoryLeafDailyNestedFieldGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/categoryLeafDailyNestedFieldGuard.test.ts",
+      "what": "// 「追加禁止」固定モード化した guard (2 層防御の field surface 軸)。"
+    },
+    {
+      "id": "chartInputBuilderGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/chartInputBuilderGuard.test.ts",
+      "what": "// 組み立てる責務」を剥がし、application 層の pure builder に集約する"
+    },
+    {
+      "id": "chartRenderingStructureGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/chartRenderingStructureGuard.test.ts",
+      "what": "// 守る invariant:"
+    },
+    {
+      "id": "checklistFormatGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/checklistFormatGuard.test.ts",
+      "what": "`projects/<id>/checklist.md` の規格適合を機械的に検証する。"
+    },
+    {
+      "id": "checklistGovernanceSymmetryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/checklistGovernanceSymmetryGuard.test.ts",
+      "what": "規約（`references/05-aag-interface/operations/project-checklist-governance.md` §3）と実装"
+    },
+    {
+      "id": "ciFetchDepthGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/ciFetchDepthGuard.test.ts",
+      "what": "docs-health / test-coverage / content-specs-impact の checkout に明示"
+    },
+    {
+      "id": "coChangeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/coChangeGuard.test.ts",
+      "what": "Co-Change ガード — 変更の影響範囲を一括検出し、修正方法をまとめて案内する"
+    },
+    {
+      "id": "codePatternGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/codePatternGuard.test.ts",
+      "what": "コードパターンガードテスト — 禁止パターンの機械的検出"
+    },
+    {
+      "id": "comparisonProjectionContextFieldGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/comparisonProjectionContextFieldGuard.test.ts",
+      "what": "2. 許可フィールド名の snapshot (意図しない追加の検出)"
+    },
+    {
+      "id": "comparisonProjectionContextImportGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/comparisonProjectionContextImportGuard.test.ts",
+      "what": "これにより「PeriodSelection 知識の集約点は 1 つ」(plan.md 不可侵原則 3) が"
+    },
+    {
+      "id": "comparisonResolvedRangeSurfaceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/comparisonResolvedRangeSurfaceGuard.test.ts",
+      "what": "## 検出方法"
+    },
+    {
+      "id": "comparisonScopeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/comparisonScopeGuard.test.ts",
+      "what": "import { collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "constitutionBootstrapGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/constitutionBootstrapGuard.test.ts",
+      "what": "検出する違反 (失敗シナリオ — TSIG self-check coverage matrix):"
+    },
+    {
+      "id": "contentSpecCanonicalRegistrationSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecCanonicalRegistrationSyncGuard.test.ts",
+      "what": "などになっていたら hard fail（user 質問の核心: spec ↔ registry 乖離禁止）"
+    },
+    {
+      "id": "contentSpecCoChangeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecCoChangeGuard.test.ts",
+      "what": "@taxonomyKind T:meta-guard"
+    },
+    {
+      "id": "contentSpecEvidenceLevelGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecEvidenceLevelGuard.test.ts",
+      "what": "`guarded` claim には guard path が記載されていることを機械検証する。"
+    },
+    {
+      "id": "contentSpecExistsGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecExistsGuard.test.ts",
+      "what": "@taxonomyKind T:meta-guard"
+    },
+    {
+      "id": "contentSpecFrontmatterSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecFrontmatterSyncGuard.test.ts",
+      "what": "`tools/widget-specs/generate.mjs --check` を 1 回 spawn し、source AST から"
+    },
+    {
+      "id": "contentSpecLastSourceCommitGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecLastSourceCommitGuard.test.ts",
+      "what": "ため通常は自動 sync、本 guard は co-change が漏らした stale spec を検出する safety"
+    },
+    {
+      "id": "contentSpecLifecycleGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecLifecycleGuard.test.ts",
+      "what": "deadline 超過の sunsetting / deprecated は temporal governance で hard fail。"
+    },
+    {
+      "id": "contentSpecLifecycleLinkSymmetryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecLifecycleLinkSymmetryGuard.test.ts",
+      "what": "- 参照先 spec が存在しない場合は孤立リンクとして hard fail"
+    },
+    {
+      "id": "contentSpecOwnerGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecOwnerGuard.test.ts",
+      "what": "@taxonomyKind T:meta-guard"
+    },
+    {
+      "id": "contentSpecPathExistenceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecPathExistenceGuard.test.ts",
+      "what": "spec body の Behavior Claims に記載された tests / guards path が repo 内に実在"
+    },
+    {
+      "id": "contentSpecVisualEvidenceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/contentSpecVisualEvidenceGuard.test.ts",
+      "what": "@taxonomyKind T:meta-guard"
+    },
+    {
+      "id": "coreRequiredFieldNullCheckGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/coreRequiredFieldNullCheckGuard.test.ts",
+      "what": "null check pattern を ratchet-down 監視"
+    },
+    {
+      "id": "coverageMapDisplayNameGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/coverageMapDisplayNameGuard.test.ts",
+      "what": "`displayName` 末尾 `× N` 表記が `guardFiles.length` と一致することを機械検証する。"
+    },
+    {
+      "id": "customerFactPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/customerFactPathGuard.test.ts",
+      "what": "readCustomerFact() が客数の分析用正本の唯一入口であることを検証する。"
+    },
+    {
+      "id": "customerGapPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/customerGapPathGuard.test.ts",
+      "what": "import { collectTsFiles } from '../guardTestHelpers'"
+    },
+    {
+      "id": "dataIntegrityGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/dataIntegrityGuard.test.ts",
+      "what": "@guard G1 テストに書く — 機械的検出手段で再発防止"
+    },
+    {
+      "id": "defaultOverlayCompletenessGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/defaultOverlayCompletenessGuard.test.ts",
+      "what": "it('DEFAULT_EXECUTION_OVERLAY に未知の ruleId がない（orphan 検出）', () => {"
+    },
+    {
+      "id": "deprecatedMetadataGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/deprecatedMetadataGuard.test.ts",
+      "what": "@reason）必須化と lifecycle 監視を行う temporal governance guard"
+    },
+    {
+      "id": "detectorResultModuleGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/detectorResultModuleGuard.test.ts",
+      "what": "`tools/architecture-health/src/detector-result.ts` (= DetectorResult TS"
+    },
+    {
+      "id": "discountFactPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/discountFactPathGuard.test.ts",
+      "what": "readDiscountFact / discountFactHandler が唯一の分析用正本。"
+    },
+    {
+      "id": "displayRuleGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/displayRuleGuard.test.ts",
+      "what": "@guard F2 文字列カタログ"
+    },
+    {
+      "id": "docCodeConsistencyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/docCodeConsistencyGuard.test.ts",
+      "what": "@guard G1 テストに書く"
+    },
+    {
+      "id": "docRegistryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/docRegistryGuard.test.ts",
+      "what": "inline parsing / existence check ロジックを削除し、jsonRegistry +"
+    },
+    {
+      "id": "docStaticNumberGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/docStaticNumberGuard.test.ts",
+      "what": "Doc Static Number Guard — 文書中のハードコード数値の drift を検出"
+    },
+    {
+      "id": "dualRunExitCriteriaGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
+      "what": "describe('dual-run retirement guard', () => {"
+    },
+    {
+      "id": "duplicateFileHashGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/duplicateFileHashGuard.test.ts",
+      "what": "検出対象:"
+    },
+    {
+      "id": "executionOverlayGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/executionOverlayGuard.test.ts",
+      "what": "it('overlay に未知の ruleId がない（orphan 検出）', () => {"
+    },
+    {
+      "id": "factorDecompositionPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/factorDecompositionPathGuard.test.ts",
+      "what": "import { collectTsFiles, rel, extractValueImports } from '../guardTestHelpers'"
+    },
+    {
+      "id": "fallbackMetadataGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/fallbackMetadataGuard.test.ts",
+      "what": "@invariant INV-CANON-17 Fallback Transparency"
+    },
+    {
+      "id": "freePeriodBudgetPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/freePeriodBudgetPathGuard.test.ts",
+      "what": "import { collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "freePeriodDeptKPIPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/freePeriodDeptKPIPathGuard.test.ts",
+      "what": "import { collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "freePeriodHandlerOnlyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/freePeriodHandlerOnlyGuard.test.ts",
+      "what": "## 本ガードが守る 2 つの invariant"
+    },
+    {
+      "id": "freePeriodPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/freePeriodPathGuard.test.ts",
+      "what": "自由期間分析正本ガード"
+    },
+    {
+      "id": "fullCtxPassthroughGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/fullCtxPassthroughGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "generatedFileEditGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/generatedFileEditGuard.test.ts",
+      "what": "- file 名 suffix で「機械生成 / 手書き」の articulate を構造化"
+    },
+    {
+      "id": "grossProfitConsistencyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/grossProfitConsistencyGuard.test.ts",
+      "what": "// This guard uses value comparison (toBeCloseTo) rather than violation arrays"
+    },
+    {
+      "id": "grossProfitPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/grossProfitPathGuard.test.ts",
+      "what": "import { collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "guardTestMapConsistencyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/guardTestMapConsistencyGuard.test.ts",
+      "what": "`references/03-implementation/guard-test-map.md` が全 `app/src/test/guards/"
+    },
+    {
+      "id": "hookCanonicalPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/hookCanonicalPathGuard.test.ts",
+      "what": "検出対象:"
+    },
+    {
+      "id": "integrityDomainCoverageGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/integrityDomainCoverageGuard.test.ts",
+      "what": "いることを機械検証する。Phase H 着手の prerequisite (本 guard PASS が条件)。"
+    },
+    {
+      "id": "integrityDomainSkeletonGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/integrityDomainSkeletonGuard.test.ts",
+      "what": "- 命名規約: parsing は名詞 / detection は `check"
+    },
+    {
+      "id": "integrityNoResurrectGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/integrityNoResurrectGuard.test.ts",
+      "what": "Integrity No Resurrect Guard — AR-INTEGRITY-NO-RESURRECT 検出"
+    },
+    {
+      "id": "layerBoundaryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/layerBoundaryGuard.test.ts",
+      "what": "@guard A1 4層依存ルール"
+    },
+    {
+      "id": "manifestGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/manifestGuard.test.ts",
+      "what": "@guard G1 テストに書く / governance-ops"
+    },
+    {
+      "id": "migrationTagGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/migrationTagGuard.test.ts",
+      "what": "- 期限切れタグの放置を検出"
+    },
+    {
+      "id": "monthlyPrevYearSalesGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/monthlyPrevYearSalesGuard.test.ts",
+      "what": "// monthlyPrevYearSalesGuard — 「月間」ラベルで期間スコープ値の混入を機械検出する"
+    },
+    {
+      "id": "noDayOnlyKeyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/noDayOnlyKeyGuard.test.ts",
+      "what": "`(storeId, day)` 2 軸のみで indexing する集約 primitive (`indexByStoreDay` /"
+    },
+    {
+      "id": "noNewDebtGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/noNewDebtGuard.test.ts",
+      "what": "@guard G1 テストに書く — 機械的検出手段で再発防止"
+    },
+    {
+      "id": "noParseIntStoreIdGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/noParseIntStoreIdGuard.test.ts",
+      "what": "集計の整合性を silent に破壊する。"
+    },
+    {
+      "id": "noRateInFreePeriodSqlGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/noRateInFreePeriodSqlGuard.test.ts",
+      "what": "// 守る 2 つの invariant:"
+    },
+    {
+      "id": "noSafeNumberAtImportBoundaryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/noSafeNumberAtImportBoundaryGuard.test.ts",
+      "what": "セルが silent に 0 化されて永続化され、後段の集計から検知不能になる。"
+    },
+    {
+      "id": "oldPathImportGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/oldPathImportGuard.test.ts",
+      "what": "@guard F4 配置はパスで決まる"
+    },
+    {
+      "id": "oldPathReferenceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/oldPathReferenceGuard.test.ts",
+      "what": "`03-guides` / `05-contents`) への path reference 残置を機械検出する。"
+    },
+    {
+      "id": "orphanUiComponentGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/orphanUiComponentGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "pageMetaGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/pageMetaGuard.test.ts",
+      "what": "@guard F10 ページ正本の整合性"
+    },
+    {
+      "id": "piValuePathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/piValuePathGuard.test.ts",
+      "what": "import { collectTsFiles } from '../guardTestHelpers'"
+    },
+    {
+      "id": "pipelineSafetyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/pipelineSafetyGuard.test.ts",
+      "what": "パイプライン安全性ガード — データパイプラインの壊れ方を機械的に検出"
+    },
+    {
+      "id": "prePushSkipRulesGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/prePushSkipRulesGuard.test.ts",
+      "what": "全スキャンは CI が AI 不可侵の最終ゲートとして担う。pre-push は影響範囲フォーカス"
+    },
+    {
+      "id": "presentationComparisonMathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/presentationComparisonMathGuard.test.ts",
+      "what": "## 検出パターン"
+    },
+    {
+      "id": "presentationIsolationGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/presentationIsolationGuard.test.ts",
+      "what": "@guard A3 Presentation は描画専用"
+    },
+    {
+      "id": "presentationPeriodStoreAccessGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/presentationPeriodStoreAccessGuard.test.ts",
+      "what": "import { collectTsFiles, rel } from '../guardTestHelpers'"
+    },
+    {
+      "id": "projectCompletionConsistencyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/projectCompletionConsistencyGuard.test.ts",
+      "what": "規約: `references/05-aag-interface/operations/project-checklist-governance.md` §6 (lifecycle)。"
+    },
+    {
+      "id": "projectDocConsistencyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/projectDocConsistencyGuard.test.ts",
+      "what": "各 active project の HANDOFF.md / checklist.md / config/project.json の"
+    },
+    {
+      "id": "projectDocStructureGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/projectDocStructureGuard.test.ts",
+      "what": "規約: `references/05-aag-interface/operations/project-checklist-governance.md` §4 (ディレクトリ構造) §4.1 (役割分離)。"
+    },
+    {
+      "id": "projectStructureGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/projectStructureGuard.test.ts",
+      "what": "@guard G1 テストに書く"
+    },
+    {
+      "id": "projectizationPolicyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/projectizationPolicyGuard.test.ts",
+      "what": "## 検出する違反"
+    },
+    {
+      "id": "purchaseCostImportGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/purchaseCostImportGuard.test.ts",
+      "what": "purchaseCostImport guard"
+    },
+    {
+      "id": "purchaseCostPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/purchaseCostPathGuard.test.ts",
+      "what": "Layer 2: 集計逸脱 — 正当な集計元以外で独自集計パターンがない"
+    },
+    {
+      "id": "purityGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/purityGuard.test.ts",
+      "what": "@guard A2 Domain は純粋（副作用API禁止、async禁止）"
+    },
+    {
+      "id": "queryPatternGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/queryPatternGuard.test.ts",
+      "what": "@guard H3 query input 正規化必須 — canonicalize 統合を検証"
+    },
+    {
+      "id": "readModelSafetyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/readModelSafetyGuard.test.ts",
+      "what": "経由しない unsafe アクセスを検出する。"
+    },
+    {
+      "id": "registryInlineLogicGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/registryInlineLogicGuard.test.ts",
+      "what": "projects/widget-registry-simplification SP-B ADR-B-003 PR1 で初期化（IIFE 検出）。"
+    },
+    {
+      "id": "renderSideEffectGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/renderSideEffectGuard.test.ts",
+      "what": "@guard A3 Presentation 描画専用"
+    },
+    {
+      "id": "responsibilitySeparationGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/responsibilitySeparationGuard.test.ts",
+      "what": "24 パターンのうち、機械的に検出可能なものをガード化する。"
+    },
+    {
+      "id": "responsibilityTagGuardV2",
+      "kind": "guard",
+      "location": "app/src/test/guards/responsibilityTagGuardV2.test.ts",
+      "what": "vocabulary 検出"
+    },
+    {
+      "id": "reviewPolicyRequiredGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/reviewPolicyRequiredGuard.test.ts",
+      "what": "本 guard は型システムのバックストップ + 時刻検証に転換"
+    },
+    {
+      "id": "ruleBindingBoundaryGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/ruleBindingBoundaryGuard.test.ts",
+      "what": "(`detection"
+    },
+    {
+      "id": "salesFactPathGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/salesFactPathGuard.test.ts",
+      "what": "readSalesFact / salesFactHandler が唯一の分析用正本。"
+    },
+    {
+      "id": "sameInterfaceNameGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/sameInterfaceNameGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "scopeAwareMutationGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/scopeAwareMutationGuard.test.ts",
+      "what": "@guard G1 テストに書く — 機械的検出手段で再発防止"
+    },
+    {
+      "id": "scopeJsonGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/scopeJsonGuard.test.ts",
+      "what": "architecture / implementation / invariant-guardian /"
+    },
+    {
+      "id": "selfHostingGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/selfHostingGuard.test.ts",
+      "what": "selfHostingGuard.test.ts (= 本 file、closure 構造を hard fail で検証)"
+    },
+    {
+      "id": "semanticArticulationQualityGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/semanticArticulationQualityGuard.test.ts",
+      "what": "Semantic Articulation Quality Guard — Project B Phase 4 meta-guard #4"
+    },
+    {
+      "id": "shortcutPatternGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/shortcutPatternGuard.test.ts",
+      "what": "Dashboard widget registry の二重 null check pattern を ratchet-down 管理"
+    },
+    {
+      "id": "sizeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/sizeGuard.test.ts",
+      "what": "@guard G5 サイズ上限（hook ≤300行、useMemo ≤7、useState ≤6）"
+    },
+    {
+      "id": "statusIntegrityGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/statusIntegrityGuard.test.ts",
+      "what": "Status Integrity Guard — Project B Phase 4 meta-guard #1"
+    },
+    {
+      "id": "storeDailyLaneSurfaceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/storeDailyLaneSurfaceGuard.test.ts",
+      "what": "// 本 guard はその方針の軽めの先行防御として、`SalesPurchaseComparisonChart.tsx`"
+    },
+    {
+      "id": "storeResultAnalysisInputGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/storeResultAnalysisInputGuard.test.ts",
+      "what": "StoreResult Analysis Input Guard — StoreResult.totalCustomers の分析用途新規利用を禁止"
+    },
+    {
+      "id": "structuralConventionGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/structuralConventionGuard.test.ts",
+      "what": "サブ分析パネルのデータソースを検証する。"
+    },
+    {
+      "id": "subprojectParentGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/subprojectParentGuard.test.ts",
+      "what": "subprojectParent guard"
+    },
+    {
+      "id": "taxonomyInterlockGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/taxonomyInterlockGuard.test.ts",
+      "what": "`app-domain/integrity/` 経由の adapter 化。INTERLOCK-1 を checkInclusionByPredicate /"
+    },
+    {
+      "id": "taxonomyLifecycleTransitionGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/taxonomyLifecycleTransitionGuard.test.ts",
+      "what": "- `AR-TAXONOMY-AI-VOCABULARY-BINDING` は新タグ追加のみを git diff で検出"
+    },
+    {
+      "id": "temporalRollingGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/temporalRollingGuard.test.ts",
+      "what": "} from '../guardTestHelpers'"
+    },
+    {
+      "id": "temporalScopeGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/temporalScopeGuard.test.ts",
+      "what": "elapsedDays cap の誤用を検出する。"
+    },
+    {
+      "id": "testContractGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/testContractGuard.test.ts",
+      "what": "暗黙のテスト依存（『この guard が CLAUDE.md にこのトークンを要求している』）を"
+    },
+    {
+      "id": "testTaxonomyGuardV2",
+      "kind": "guard",
+      "location": "app/src/test/guards/testTaxonomyGuardV2.test.ts",
+      "what": "検出する違反 (本 Phase 3 deliverable):"
+    },
+    {
+      "id": "timeSlotLaneSurfaceGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/timeSlotLaneSurfaceGuard.test.ts",
+      "what": "// 本 guard はその方針の軽めの先行防御として、`StoreAggregationRow` (時間帯の"
+    },
+    {
+      "id": "topologyGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/topologyGuard.test.ts",
+      "what": "@guard F4 配置はパスで決まる"
+    },
+    {
+      "id": "unifiedWidgetContextNoDashboardSpecificGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/unifiedWidgetContextNoDashboardSpecificGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "unifiedWidgetContextNoPageLocalOptionalGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/unifiedWidgetContextNoPageLocalOptionalGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "useComparisonModuleLegacyCallerGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/useComparisonModuleLegacyCallerGuard.test.ts",
+      "what": "// useComparisonModule legacy caller ratchet-down guard"
+    },
+    {
+      "id": "userPromptSubmitHookGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/userPromptSubmitHookGuard.test.ts",
+      "what": "@guard G1 テストに書く / governance-ops"
+    },
+    {
+      "id": "versionSyncGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/versionSyncGuard.test.ts",
+      "what": "検出する違反:"
+    },
+    {
+      "id": "wasmCrateStructureGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/wasmCrateStructureGuard.test.ts",
+      "what": "@guard B1"
+    },
+    {
+      "id": "weatherCorrelationProjectionGuard",
+      "kind": "guard",
+      "location": "app/src/test/guards/weatherCorrelationProjectionGuard.test.ts",
+      "what": "// presentation に戻さないための凍結 guard"
+    }
+  ]
+}

@@ -255,7 +255,21 @@
 - [x] dogfood: aag docs placement-check → 0 violations (= references/04-tracking/ 全体を canonical generated dir として articulate + projects/<id>/derived/ 例外 articulate 後 clean)
 - [x] DA-α-019 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 4 #17 commit を branch に push
+- [x] Wave 4 #17 commit を branch に push
+
+## Wave 4 #18: Detection Inventory v2 (= preparatory doc work、Wave 4 完遂)
+
+> **着手判断**: DA-α-020 (= Wave 4 final、preparatory doc work、Wave 5 入力として完成)。
+
+- [x] `docs/contracts/aag/detection-inventory.schema.json` を landing (= JSON Schema draft-07、Detection definition with id / kind enum (= guard / audit / detector / collector) / location / what)
+- [x] `references/03-implementation/detection-inventory-v2.md` narrative を landing (= 動機 + 4 kind articulate + 更新方針 + 関連 Wave map)
+- [x] `references/04-tracking/generated/detection-inventory.json` 初期 inventory を生成 (= 167 detection: guard 137 / collector 14 / detector 10 / audit 6)
+- [x] Ajv で inventory が schema 準拠を確認 = INVENTORY_VALID
+- [x] `docs/contracts/doc-registry.json` に 2 entry 追加 (= schema + narrative)
+- [x] `references/README.md` に narrative entry 追加 (= docRegistryGuard 整合)
+- [x] DA-α-020 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 4 #18 commit を branch に push (= **Wave 4 全完遂**)
 
 ## AI 自己レビュー (= user 承認の手前)
 

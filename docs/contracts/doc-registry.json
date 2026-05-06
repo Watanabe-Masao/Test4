@@ -688,6 +688,14 @@
           "label": "Architecture State Snapshot view（architectureStateAudit 出力、bridge inventory + complexity hotspot）"
         },
         {
+          "path": "references/04-tracking/generated/detection-inventory.json",
+          "label": "Detection Inventory v1（reposteward-ai-ops-platform Wave 4 #18、guard / audit / detector / collector の articulate map）"
+        },
+        {
+          "path": "references/03-implementation/detection-inventory-v2.md",
+          "label": "Detection Inventory v2 narrative（reposteward-ai-ops-platform Wave 4 #18 preparatory doc work）"
+        },
+        {
           "path": "references/04-tracking/open-issues.md",
           "label": "active project 索引（live task table は持たない）"
         },

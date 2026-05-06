@@ -1356,3 +1356,68 @@ Wave 4 #16 後、Wave 4 #17 = doc placement convention articulate command。sche
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-020: Wave 4 #18 着手判断 — Detection Inventory v2 (= preparatory doc work、Wave 4 完遂)
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 4 #17 後、Wave 4 final step = Detection Inventory v2 preparatory doc work。AI session が repo 内 4 kind (= guard / audit / detector / collector) の articulate を 1 JSON で query できるよう、schema + narrative + 初期 inventory を articulate。Wave 5 #21 (`reposteward repair-context`) の入力として再利用予定。
+
+### decision
+
+1. 新規: `docs/contracts/aag/detection-inventory.schema.json` (= Detection definition with id / kind enum / location / what)
+2. 新規: `references/03-implementation/detection-inventory-v2.md` narrative (= 動機 + 4 kind articulate + 更新方針 + 関連 Wave map)
+3. 新規 generated: `references/04-tracking/generated/detection-inventory.json` (= 167 detection、guard 137 / collector 14 / detector 10 / audit 6)
+4. update: `docs/contracts/doc-registry.json` (= 2 entry 追加 = schema + narrative)
+5. update: `references/README.md` (= narrative entry 追加、docRegistryGuard 整合)
+6. update: `checklist` + `decision-audit` (= 本 entry、Wave 4 全完遂 articulate)
+
+**MVP scope**:
+- inventory artifact は Python script で hand-author + 簡易 listing で articulate
+- 自動生成 (= collector による継続更新) は v2 で検討、本 step は preparatory のみ
+- Detection の `id` は kind ごとに unique (= 例: guard なら test 関数名、collector なら export 関数名)
+
+### rationale
+
+- **doc-only step として articulate**: plan.md spec 「preparatory doc work」整合。Go code / 新 command 追加なし、schema + narrative + initial artifact で Wave 5 への入力を articulate
+- **Python script で hand-author**: TS collector 自動生成は scope 大、初期 articulate は scriptable な hand-build で十分。後続 v2 で `tools/architecture-health/src/collectors/detection-inventory-collector.ts` 化を検討
+- **4 kind enum (= guard / audit / detector / collector)**: 既存 codebase の articulate 整合 (= app/src/test/guards/ + app/src/test/audits/ + aag-engine/internal/detectors/ + tools/architecture-health/src/detectors/ + tools/architecture-health/src/collectors/)
+- **`what` field は best-effort articulate**: Python script で file 冒頭の docstring から候補抽出、なければ filename based。完全自動化は AST parse 必要、MVP では十分実用的
+- **Wave 5 #21 への入力としての設計**: violation kind から関連 detection を look up する用途を articulate
+
+### alternatives
+
+- (a) TS collector で自動生成: 却下 (= scope 大、preparatory doc work scope 外、後続 v2 で検討)
+- (b) inventory を生成しない (= schema + narrative のみ): 却下 (= 「Wave 4 の入力として完成」 spec 整合のため初期 artifact が必要)
+- (c) 4 kind を guard / detector の 2 kind に縮小: 却下 (= audit と collector は責務が異なる、4 kind articulate が integrity 高)
+- (d) `what` を全 manual articulate (= 各 file の意図を hand-write): 却下 (= 167 file への hand-write は preparatory scope を超える、auto-extract で十分)
+
+### 観測点
+
+1. `docs/contracts/aag/detection-inventory.schema.json` 存在 + valid JSON
+2. `references/03-implementation/detection-inventory-v2.md` 存在 + 4 kind articulate
+3. `references/04-tracking/generated/detection-inventory.json` 存在 + Ajv 準拠 + 167 detection articulate
+4. `byKind.{guard, audit, detector, collector}` が articulate
+5. doc-registry に 2 entry 追加、README.md に narrative entry 追加 (= docRegistryGuard PASS)
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+8. **Wave 4 全完遂** (= 4/4 step landed = clean check / comments list / docs placement-check / Detection Inventory v2)
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 4 #17 commit、派生元)
+- **judgementCommit**: `<TBD>` (= Wave 4 final commit)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
