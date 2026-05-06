@@ -269,7 +269,19 @@
 - [x] `references/README.md` に narrative entry 追加 (= docRegistryGuard 整合)
 - [x] DA-α-020 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 4 #18 commit を branch に push (= **Wave 4 全完遂**)
+- [x] Wave 4 #18 commit を branch に push (= **Wave 4 全完遂**)
+
+## Wave 5 #19: Premise Contracts v1
+
+> **着手判断**: DA-α-021 (= Wave 5 入口、structural premise articulation)。
+
+- [x] `docs/contracts/aag/premise-contract.schema.json` を landing (= JSON Schema draft-07、PremiseContract definition with id pattern + trigger.paths + requires array、PremiseRequirement with mode enum (= must-pass / review / co-update))
+- [x] `aag/parameters/premise-contracts.json` を landing (= 5 initial contract = PC-DETECTOR-RESULT-CONTRACT / PC-AAG-RESPONSE-CONTRACT / PC-TASK-CAPSULE-CONTRACT / PC-SOURCE-FACTS-CONTRACT / PC-AAG-PARAMETERS-CONTRACT)
+- [x] Ajv で contracts が schema 準拠を確認 = PREMISE_VALID
+- [x] doc-registry に entry 追加
+- [x] DA-α-021 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 5 #19 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

@@ -696,6 +696,10 @@
           "label": "Detection Inventory v2 narrative（reposteward-ai-ops-platform Wave 4 #18 preparatory doc work）"
         },
         {
+          "path": "aag/parameters/premise-contracts.json",
+          "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
+        },
+        {
           "path": "references/04-tracking/open-issues.md",
           "label": "active project 索引（live task table は持たない）"
         },

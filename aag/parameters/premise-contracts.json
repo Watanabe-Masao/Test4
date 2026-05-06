@@ -1,0 +1,127 @@
+{
+  "$comment": "Premise Contracts v1 — Wave 5 #19 (= reposteward-ai-ops-platform) で landing。canonical schema = docs/contracts/aag/premise-contract.schema.json。本 file は AAG / RepoSteward の structural premise (= 三角依存・複数 file の同時変更必要性) を articulate。Wave 5 #20 reposteward obligation check --changed-only が本契約を消費して changed-set ↔ obligation cross-check を実行。MVP では AAG framework の core contract 5 件を articulate、後続 step で必要時に追加。",
+  "schemaVersion": "premise-contracts-v1",
+  "contracts": [
+    {
+      "id": "PC-DETECTOR-RESULT-CONTRACT",
+      "label": "DetectorResult schema 変更時は Go binding + TS implementation + sync guard + fixture review が必要",
+      "trigger": {
+        "paths": [
+          "docs/contracts/aag/detector-result.schema.json",
+          "tools/architecture-health/src/detector-result.ts",
+          "aag-engine/internal/contract/detector_result.go"
+        ]
+      },
+      "requires": [
+        {
+          "path": "app/src/test/guards/aagContractSchemaSyncGuard.test.ts",
+          "mode": "must-pass",
+          "rationale": "TS interface ↔ schema sync を機械検証する guard、schema 変更時に必ず PASS が必要"
+        },
+        {
+          "path": "aag-engine/internal/contract/detector_result_test.go",
+          "mode": "must-pass",
+          "rationale": "Go binding ↔ schema sync を機械検証する test、schema 変更時に必ず PASS が必要"
+        },
+        {
+          "path": "fixtures/aag",
+          "mode": "review",
+          "rationale": "fixture 内 expected.json が schema 変更を articulate する場合は review が必要"
+        }
+      ]
+    },
+    {
+      "id": "PC-AAG-RESPONSE-CONTRACT",
+      "label": "AagResponse schema 変更時は TS implementation + sync guard が必要",
+      "trigger": {
+        "paths": [
+          "docs/contracts/aag/aag-response.schema.json",
+          "tools/architecture-health/src/aag-response.ts"
+        ]
+      },
+      "requires": [
+        {
+          "path": "app/src/test/guards/aagContractSchemaSyncGuard.test.ts",
+          "mode": "must-pass",
+          "rationale": "AagResponse interface ↔ schema sync を機械検証する guard"
+        },
+        {
+          "path": "app/src/test/guards/aagResponseFeedbackUnificationGuard.test.ts",
+          "mode": "must-pass",
+          "rationale": "AagResponse の field 整合を articulate する補助 guard"
+        }
+      ]
+    },
+    {
+      "id": "PC-TASK-CAPSULE-CONTRACT",
+      "label": "Task Capsule schema 変更時は Go producer + parity test が必要",
+      "trigger": {
+        "paths": [
+          "docs/contracts/aag/task-capsule.schema.json",
+          "aag-engine/internal/taskcapsule/task_capsule.go"
+        ]
+      },
+      "requires": [
+        {
+          "path": "aag-engine/internal/taskcapsule/task_capsule_test.go",
+          "mode": "must-pass",
+          "rationale": "TaskCapsule Go ↔ schema parity を機械検証 (= TestSchemaSync_*)"
+        },
+        {
+          "path": "aag-engine/internal/taskcapsule/prepare.go",
+          "mode": "review",
+          "rationale": "Prepare() producer は schema field と整合する必要、field 追加時は producer 側 articulate も必要"
+        }
+      ]
+    },
+    {
+      "id": "PC-SOURCE-FACTS-CONTRACT",
+      "label": "SourceFacts schema 変更時は collector + statistics + Go consumer の articulate が必要",
+      "trigger": {
+        "paths": [
+          "docs/contracts/aag/source-facts.schema.json",
+          "tools/architecture-health/src/facts/source-facts.ts"
+        ]
+      },
+      "requires": [
+        {
+          "path": "app/src/test/tools/sourceFactsCollector.test.ts",
+          "mode": "must-pass",
+          "rationale": "collector の入出力 contract を機械検証"
+        },
+        {
+          "path": "tools/architecture-health/src/facts/source-facts-statistics.ts",
+          "mode": "review",
+          "rationale": "Statistics consumer は SourceFact field と整合する必要"
+        },
+        {
+          "path": "aag-engine/internal/stats/stats.go",
+          "mode": "review",
+          "rationale": "Go-side stats query は SourceFact mirror、field 追加時は Go-side articulate 必要"
+        }
+      ]
+    },
+    {
+      "id": "PC-AAG-PARAMETERS-CONTRACT",
+      "label": "AAG Parameters 変更時は consumer (= statistics / stats query / sizeGuard) の articulate が必要",
+      "trigger": {
+        "paths": [
+          "docs/contracts/aag/aag-parameters.schema.json",
+          "aag/parameters/aag-parameters.json"
+        ]
+      },
+      "requires": [
+        {
+          "path": "tools/architecture-health/src/facts/source-facts-statistics.ts",
+          "mode": "review",
+          "rationale": "Statistics は parameters の codeSize.buckets を消費"
+        },
+        {
+          "path": "aag-engine/internal/stats/stats.go",
+          "mode": "review",
+          "rationale": "stats files query は parameters の bucket id を resolve"
+        }
+      ]
+    }
+  ]
+}

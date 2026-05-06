@@ -1421,3 +1421,65 @@ Wave 4 #17 後、Wave 4 final step = Detection Inventory v2 preparatory doc work
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-021: Wave 5 #19 着手判断 — Premise Contracts v1 schema + 5 initial contracts、structural premise articulation
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 4 完遂後、Wave 5 入口 = Premise Contracts。AI session が「A を変えたら B も確認・更新する」を path-based に articulate する正本。Wave 5 #20 obligation check が本契約集合を消費。既存 OBLIGATION_MAP (= TS-side) と並行する layer。
+
+### decision
+
+1. 新規: `docs/contracts/aag/premise-contract.schema.json` (= JSON Schema、PremiseContract / PremiseRequirement definition + mode enum 3 件)
+2. 新規: `aag/parameters/premise-contracts.json` (= 5 initial contract、AAG framework core)
+3. update: `docs/contracts/doc-registry.json` (= 1 entry 追加)
+4. update: `checklist` + `decision-audit` (= 本 entry)
+
+**5 initial contracts**:
+- PC-DETECTOR-RESULT-CONTRACT (= schema + Go binding + TS interface + sync guard + fixture)
+- PC-AAG-RESPONSE-CONTRACT (= schema + TS implementation + sync guard)
+- PC-TASK-CAPSULE-CONTRACT (= schema + Go producer + parity test + Prepare consumer)
+- PC-SOURCE-FACTS-CONTRACT (= schema + TS collector + statistics consumer + Go stats consumer)
+- PC-AAG-PARAMETERS-CONTRACT (= schema + parameters JSON + statistics + Go consumer)
+
+### rationale
+
+- **OBLIGATION_MAP との責務分離**: OBLIGATION_MAP は live triggers (= changed file → obligation check)、本 schema は structural premise (= 三角依存・複数 file の同時更新必要性) を articulate。同 layer ではなく直交 (= 補完関係)
+- **mode 3 enum**: `must-pass` (= 該当 test PASS 必須) / `review` (= AI session 手動 review、内容判断) / `co-update` (= 同 PR で更新が必要)。AI session の判断 path を articulate
+- **id pattern `PC-<UPPERCASE-KEBAB>`**: AAG rule の `AR-<KEBAB>` family と articulate 整合
+- **MVP 5 contract**: AAG framework の core schema 5 件をカバー、後続で repo 固有 contract を追加可能
+- **trigger.paths は file path or glob 両対応**: `**/*` で directory match (= 例: `fixtures/aag` で配下全 file が trigger)、prefix match で十分実用的
+
+### alternatives
+
+- (a) OBLIGATION_MAP に統合 (= TS-side で全 articulate): 却下 (= structural premise vs live trigger は責務違い、separation of concern)
+- (b) Go-side で contract definition (= aag-engine/internal/contract/): 却下 (= parameters family の中で articulate するのが整合、`aag/parameters/` 既存 family)
+- (c) trigger に optional な `severity` 追加: 却下 (= mode で十分、severity は要件 (`must-pass`) に内包される articulate)
+
+### 観測点
+
+1. `docs/contracts/aag/premise-contract.schema.json` 存在 + valid JSON
+2. `aag/parameters/premise-contracts.json` 存在 + Ajv で schema 準拠 (= PREMISE_VALID)
+3. 5 initial contract が articulate
+4. doc-registry に entry 追加
+5. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+6. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 4 #18 final commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
