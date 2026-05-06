@@ -138,7 +138,19 @@
 - [x] audit 11 test 全 PASS
 - [x] DA-α-010 (Wave 2 #8 着手判断 + helper 再利用 + audit metric 整合) を `decision-audit.md` に articulate
 - [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1082 test 維持、Health 60/60 OK / Hard Gate PASS)
-- [ ] Wave 2 #8 commit を `claude/reposteward-ai-ops-platform-state-audit-effective-loc` branch に push (= Wave 2 #7 branch から派生)
+- [x] Wave 2 #8 commit を `claude/reposteward-ai-ops-platform-state-audit-effective-loc` branch に push (= Wave 2 #7 branch から派生)
+
+## Wave 2 #9: Health report に bucket distribution 追加 (= Wave 2 完遂)
+
+> **着手判断**: DA-α-011 (= Wave 2 final step、Health report に bucket distribution table を articulate)。
+> **本 PR scope**: 既存 architecture-health.generated.md を touch せず、独立 generated artifact `aag-size-statistics.generated.md` を新設 (= blast radius 最小、Wave 1 #5 の JSON を消費する MD view layer)。
+
+- [x] `tools/architecture-health/src/facts/source-facts-statistics-md.ts` を landing (= renderStatisticsMarkdown 関数、Summary + Bucket Distribution + By Layer の 3 section articulate)
+- [x] `tools/architecture-health/src/facts/source-facts-statistics-cli.ts` を update (= MD 出力経路追加、JSON と並行で MD 書き出し)
+- [x] `references/04-tracking/generated/aag-size-statistics.generated.md` を生成 + commit (= 2714 file 集計、Summary table + 14 bucket distribution table + 26 layer table、生成 timestamp + 関連 query 言及)
+- [x] DA-α-011 (Wave 2 #9 着手判断 + Approach B 採用 + 既存 health report touch なし) を `decision-audit.md` に articulate
+- [x] `cd app && npm run docs:generate` + `cd app && npm run test:guards` PASS 確認 (= 1082 test 維持、Health 60/60 OK / Hard Gate PASS)
+- [ ] Wave 2 #9 commit を `claude/reposteward-ai-ops-platform-size-statistics-md` branch に push (= Wave 2 #8 branch から派生、**Wave 2 全完遂**)
 
 ## AI 自己レビュー (= user 承認の手前)
 

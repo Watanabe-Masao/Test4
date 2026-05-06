@@ -2,8 +2,8 @@
   "$schemaDescription": "Rules-by-Path — import / codeSignal → rule id index。path-triggered access 用 (= AI が編集 file の関連 rule subset に reach する経路)。unmapped = imports / signals 不在の rule (= general rule、特定 path に紐付かない)。",
   "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts (outdatedPattern + correctPattern)",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-06T10:49:54.104Z",
-  "sourceCommit": "8bfaa7b8c05a7ddb25c874ef2a3d61ab3db2a2af",
+  "generatedAt": "2026-05-06T10:53:25.720Z",
+  "sourceCommit": "49d6543dcc714e01610bd55d3a2164c34768bd44",
   "summary": {
     "totalRules": 172,
     "mappedRules": 52,

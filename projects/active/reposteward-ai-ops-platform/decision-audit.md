@@ -772,3 +772,80 @@ Wave 2 #8 を以下 scope で landing:
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-011: Wave 2 #9 着手判断 — Health bucket distribution を Approach B (独立 generated MD) で landing、既存 health report touch なし
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 2 #7 + #8 完了後、Wave 2 final step = Health report に bucket distribution table を articulate する step。plan.md §Wave 2 #9 spec は「`references/04-tracking/generated/architecture-health.generated.md` に bucket distribution table 追加」。実装 approach は 2 通り考えられる:
+
+- **Approach A**: 既存 `architecture-health.generated.md` の md-renderer.ts を拡張して bucket distribution section を articulate
+- **Approach B**: 独立 generated artifact `aag-size-statistics.generated.md` を新設、Wave 1 #5 で landing 済 `aag-size-statistics.json` を入力に rendering
+
+### decision
+
+**Approach B を採用**:
+
+1. 新規: `tools/architecture-health/src/facts/source-facts-statistics-md.ts` (= renderStatisticsMarkdown 関数、Summary + Bucket Distribution + By Layer の 3 section articulate)
+2. update: `source-facts-statistics-cli.ts` (= MD 出力経路追加、JSON と並行で MD 書き出し)
+3. 新規 generated: `references/04-tracking/generated/aag-size-statistics.generated.md` (= 2714 file 集計、Summary + Bucket Distribution + By Layer table、生成 timestamp + 関連 query 言及)
+4. update: `checklist.md` + `decision-audit.md`
+
+**やらない (= Approach A 棄却 + nonGoals 継承)**:
+- 既存 `architecture-health.generated.md` への section 追加 (= md-renderer.ts 拡張)
+- md-renderer.ts への新 section 統合 (= section-updater.ts も touch する必要あり、scope 拡大)
+- architecture-health.json KPI への bucket distribution 統合 (= Wave 1 #5 で deferred 済、別 PR 候補)
+
+### rationale
+
+- **Approach B (独立 generated MD) が正しい理由**:
+  - **blast radius 最小**: 既存 `md-renderer.ts` / `section-updater.ts` / `architecture-health.generated.md` を一切 touch しない。既存 health report の generation pipeline は不変
+  - **Wave 1 #5 の単独成果物として完成**: 既に存在する `aag-size-statistics.json` を消費する MD view layer を追加するだけ。JSON が canonical, MD が view という layering は健全 (= 不可侵原則 1 = JSON-first 整合)
+  - **CLI 一発で再生成可能**: `source-facts-statistics-cli.ts` を実行すると JSON + MD 両方が atomic に再生成される。既存 docs:generate pipeline と独立で実行可能
+  - **rollback granularity 高**: Approach B の rollback は 3 file 削除のみ、Approach A は md-renderer.ts の section 削除 + section-updater 再構成が必要
+- **Approach A 棄却理由**:
+  - md-renderer.ts に 26 layer × 6 metric の table を articulate するには renderer の拡張 + section-updater の anchor 追加が必要 (= 4-5 file 跨ぎ scope)
+  - architecture-health.generated.md は health KPI の primary report、bucket distribution は size 専用 view = 責務混在の risk
+  - 既存 health pipeline を touch すると Health 値が drift する可能性、現在 Healthy / Hard Gate PASS の良好状態を維持する方が safe
+- **`renderStatisticsMarkdown` の 3 section 構成**: Summary (= 全 file p50-p99/max/mean) + Bucket Distribution (= 14 bucket × file count + ratio + 累積) + By Layer (= 26 layer × p50/p90/p95/max)。AI consumer が outlier 探索 (= bucket / layer / percentile) で entry point とする 3 軸全 articulate
+- **Bucket Distribution の `比率 + 累積` 列**: AI consumer が「`50% 以下が 71 行未満`」のような shape を一目で articulate 可能、Wave 1 #6 stats files query との接続が natural
+
+### alternatives
+
+- (a) **Approach A (既存 health report に統合)**: 却下 (上記 §rationale)
+- (b) **Bucket Distribution + By Layer を別 MD file で articulate**: 却下。3 section を 1 MD で articulate する方が AI consumer の navigation コスト低い、cumulatively articulate された方が context 把握しやすい
+- (c) **MD output を CLI が選択 (= --md flag)**: 却下。CLI 単純化、JSON と MD を atomic に生成する idiom (= 一貫性 guarantee)
+- (d) **MD output を docs:generate pipeline に統合**: 却下。Wave 1 #5 で deferred 済 (= main.ts collector 配線 scope 大)、本 PR は MD layer 追加のみ
+- (e) **`generated.md` suffix 不採用**: 却下。既存 generated artifact 命名規約 (= `architecture-health.generated.md` / `project-health.generated.md` etc.) と整合させる、`generated` suffix で「機械生成 = 手編集禁止」を articulate
+
+### 観測点 (= 判断後に true となるべき検証可能 observation)
+
+1. `source-facts-statistics-md.ts` 存在 + TypeScript build clean
+2. `source-facts-statistics-cli.ts` が JSON + MD 両方を atomic に書き出す
+3. `references/04-tracking/generated/aag-size-statistics.generated.md` 存在 + 3 section (= Summary + Bucket Distribution + By Layer) 含む
+4. MD で 14 bucket distribution + 26 layer 全 articulate
+5. 比率 + 累積 が 100% に達する (= 全 file が articulate されている)
+6. 既存 `architecture-health.generated.md` / `md-renderer.ts` / `section-updater.ts` は touch なし (= git diff verification)
+7. `cd app && npm run test:guards` 1082 test PASS (= 全 guard regression なし)
+8. `cd app && npm run docs:generate` 反映後 Health 60/60 OK / Hard Gate PASS 維持
+9. branch `claude/reposteward-ai-ops-platform-size-statistics-md` に push 成功 (= Wave 2 #8 から派生 stacked、pre-push 5 段 PASS)
+10. **Wave 2 全完遂 (= 3/3 step landed = #7 + #8 + #9)**
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 2 #8 landing commit SHA、本 PR の派生元)
+- **judgementCommit**: `<TBD>` (= Wave 2 #9 landing commit SHA、Wave 2 final)
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD
