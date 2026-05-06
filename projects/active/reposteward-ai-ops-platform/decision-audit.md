@@ -1483,3 +1483,63 @@ Wave 4 完遂後、Wave 5 入口 = Premise Contracts。AI session が「A を変
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-022: Wave 5 #20 着手判断 — `aag obligation check`、premise contract triggers を git diff 駆動で articulate
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 5 #19 (= premise-contracts.json 5 件 articulate) 後、Wave 5 #20 = obligation check command。git diff の changed file を premise contract triggers と cross-check し、要求事項 (= requirements) を JSON で articulate。Wave 3 #12 changed --explain (= Go embed map) と並行する layer (= こちらは parameters JSON 駆動)。
+
+### decision
+
+1. 新規: `internal/obligation/obligation.go` (= Check() + loadPremiseContracts + matchContracts + pathMatchesTrigger)
+2. 新規: `obligation_test.go` (= 7 contract test、pathMatchesTrigger 6 case + synthetic match + real repo)
+3. update: `cmd/aag/main.go` (= obligation subcommand + check action + --changed-only flag)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**pathMatchesTrigger 仕様**:
+- exact match: `trigger == file`
+- glob `**/*` / `**` / `*` suffix: prefix match
+- no extension on trigger: directory prefix match
+
+### rationale
+
+- **parameters JSON 駆動**: Wave 5 #19 で articulate された contract 集合を直接消費。Wave 3 #12 の Go embed map (= core obligation rules) と並行、separation of concern
+- **`--changed-only` flag は default true**: MVP では唯一の mode、command 名「obligation check」と整合
+- **structural premise focus**: live obligation map (= TS-side OBLIGATION_MAP / Go-side embed) は file→files 関係を articulate、本 command は contract→files 関係を articulate (= 1 contract が複数 trigger + 複数 requirement)。両者の出力は補完的
+
+### alternatives
+
+- (a) Wave 3 #12 changed --explain と統合: 却下 (= 責務違い、changed は live map / obligation は contract-driven、別 surface が AI consumer 価値高い)
+- (b) `--changed-only=false` mode (= 全 contract articulate): 却下 (= MVP で必要性低い、後続で `aag obligation list` 等で別 articulate 可能)
+- (c) trigger.paths を regex 化: 却下 (= glob で十分、regex は syntax 複雑性増)
+
+### 観測点
+
+1. `internal/obligation/obligation.go` + test 存在 + go vet clean
+2. `go test ./internal/obligation/...` 全 PASS
+3. real repo dogfood で changed file 一覧 + matched contracts articulate
+4. unknown / out-of-scope changes で 0 matched (= contract 範囲外は articulate されない)
+5. core schema 変更時に matched contracts > 0 になる (= synthetic test で確認済)
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 5 #19 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

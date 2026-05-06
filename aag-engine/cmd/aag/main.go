@@ -33,6 +33,7 @@ import (
 	"aag-engine/internal/commentscan"
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/navigation"
+	"aag-engine/internal/obligation"
 	"aag-engine/internal/report"
 	"aag-engine/internal/shadow"
 	"aag-engine/internal/stats"
@@ -73,6 +74,7 @@ COMMANDS:
   clean check      generated 混入 / archive manifest 不在 / projectId 重複 等の cleanliness 違反を JSON で出力 (= reposteward-ai-ops-platform Wave 4 #15 deliverable)
   comments list    --kind todo|suppression|expired のコメントを repo 全体から scan して JSON で出力 (= reposteward-ai-ops-platform Wave 4 #16 deliverable)
   docs placement-check  schema / generated artifact の配置規約違反を JSON で出力 (= reposteward-ai-ops-platform Wave 4 #17 deliverable)
+  obligation check  premise contract triggers を git diff で検出し requirements を JSON で出力 (= reposteward-ai-ops-platform Wave 5 #20 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -147,6 +149,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runComments(args[1:], stdout, stderr)
 	case "docs":
 		return runDocs(args[1:], stdout, stderr)
+	case "obligation":
+		return runObligation(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -881,6 +885,64 @@ func runDocsPlacementCheck(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag docs placement-check: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runObligation は `aag obligation <action>` の dispatcher (= Wave 5 #20)。
+func runObligation(args []string, stdout, stderr io.Writer) ExitCode {
+	if len(args) == 0 {
+		fmt.Fprintln(stderr, "aag obligation: action 不足 (= 'check' を指定してください)")
+		fmt.Fprintln(stderr, "usage: aag obligation check [--changed-only] [--base REF] [--head REF] [--repo PATH]")
+		return ExitError
+	}
+	switch args[0] {
+	case "check":
+		return runObligationCheck(args[1:], stdout, stderr)
+	default:
+		fmt.Fprintf(stderr, "aag obligation: unknown action %q (= 'check' のみ対応)\n", args[0])
+		return ExitError
+	}
+}
+
+// runObligationCheck は `aag obligation check` の本体 (= Wave 5 #20)。
+func runObligationCheck(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("obligation check", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	base := fs.String("base", "main", "base ref")
+	head := fs.String("head", "HEAD", "head ref")
+	changedOnly := fs.Bool("changed-only", true, "changed-only mode (= MVP では default true、唯一の mode)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	_ = changedOnly // articulate signal、MVP では always changed-only
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag obligation check: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag obligation check: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+
+	out, err := obligation.Check(obligation.CheckInput{
+		RepoRoot: repoAbs,
+		Base:     *base,
+		Head:     *head,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag obligation check: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag obligation check: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

@@ -281,7 +281,20 @@
 - [x] doc-registry に entry 追加
 - [x] DA-α-021 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 5 #19 commit を branch に push
+- [x] Wave 5 #19 commit を branch に push
+
+## Wave 5 #20: `aag obligation check`
+
+> **着手判断**: DA-α-022 (= Wave 5 継続、premise contract triggers を git diff で検出)。
+
+- [x] `aag-engine/internal/obligation/obligation.go` を landing (= Check() + premise contract loader + pathMatchesTrigger + matchContracts)
+- [x] `obligation_test.go` で contract test 7 件 (= empty input / pathMatchesTrigger 6 case / matchContracts synthetic / no-trigger / loadContracts / real repo / summarize)
+- [x] `cmd/aag/main.go` に `obligation check` subcommand 追加 (= --base / --head / --changed-only / --repo)
+- [x] `main_test.go` に CLI test 2 件追加
+- [x] dogfood: aag obligation check --base HEAD~3 → 24 changed file、0 matched contracts (= 現在の変更は core schema 外)
+- [x] DA-α-022 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 5 #20 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

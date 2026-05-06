@@ -916,3 +916,40 @@ func TestRun_DocsPlacementCheck_RealRepo(t *testing.T) {
 		t.Errorf("expected 6 conventions, got %v", out["conventions"])
 	}
 }
+
+// obligation action 不足は ExitError (= Wave 5 #20)。
+func TestRun_Obligation_NoAction(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"obligation"}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// obligation check は real repo で valid JSON を出力。
+func TestRun_ObligationCheck_RealRepo(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"obligation", "check",
+		"--repo", repoRootForTest(t),
+		"--base", "HEAD~1",
+		"--head", "HEAD",
+	}, &stdout, &stderr)
+	if code != ExitPass {
+		// HEAD~1 may not exist on fresh branches
+		if !strings.Contains(stderr.String(), "git diff failed") {
+			t.Errorf("expected ExitPass (0) or git-diff-failed, got %d. stderr: %q", code, stderr.String())
+		}
+		return
+	}
+	var out map[string]interface{}
+	if err := json.Unmarshal(stdout.Bytes(), &out); err != nil {
+		t.Fatalf("stdout not valid JSON: %v", err)
+	}
+	if out["schemaVersion"] != "obligation-check-v1" {
+		t.Errorf("schemaVersion = %v", out["schemaVersion"])
+	}
+	if _, ok := out["matchedContracts"].([]interface{}); !ok {
+		t.Errorf("matchedContracts must be array")
+	}
+}
