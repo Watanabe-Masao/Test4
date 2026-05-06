@@ -1543,3 +1543,73 @@ Wave 5 #19 (= premise-contracts.json 5 件 articulate) 後、Wave 5 #20 = obliga
 - **判定**: `未確定`
 - **観測点達成状況**: TBD
 - **学習**: TBD
+
+---
+
+## DA-α-023: Wave 5 #21 着手判断 — `aag repair-context --from`、4 input kind classifier で repair context articulate
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Wave 5 #20 後、Wave 5 #21 = repair context generator。検出 output JSON (= detector-results / obligation-check / clean-check / docs-placement-check) を入力に、AI session が修復に必要な reads + actions + checks を articulate する command。
+
+### decision
+
+1. 新規: `internal/repaircontext/repaircontext.go` (= Repair() + 4 classifier + rule registry lookup + dedup helper)
+2. 新規: `repaircontext_test.go` (= 8 contract test、4 kind 各々 synthetic + unknown fallback + helpers)
+3. update: `cmd/aag/main.go` (= repair-context subcommand)
+4. update: `main_test.go` (= 2 CLI test)
+5. update: `checklist` + `decision-audit` (= 本 entry)
+
+**4 input kind 自動判別** (= schemaVersion ベース):
+- detector-results (= DetectorResult[] or { detectorResults: [] }、shape probe)
+- obligation-check-v1 (= Wave 5 #20 output)
+- clean-check-v1 (= Wave 4 #15 output)
+- docs-placement-check-v1 (= Wave 4 #17 output)
+
+各 kind ごとに repairReads / suggestedActions / requiredChecks の articulation logic が異なる:
+- detector-results: rule registry lookup で rule の doc + sourceFile を articulate、each violation に action
+- obligation-check: requirements の path を reads、mode で must-pass→checks / review→actions / co-update→actions に分岐
+- clean-check / placement-check: violations の path を reads、action articulation
+
+### rationale
+
+- **schemaVersion ベースの自動判別**: 入力 file 内 schemaVersion で route、AI session が `--kind` flag を articulate する必要なく、入力ファイル単独で完結
+- **shape probe fallback**: detector-results は schemaVersion を持たない可能性 (= aag-engine 出力は wrapper / array 両形式) なので shape probe で検出
+- **rule registry lookup (= merged-architecture-rules.json)**: detector-results の ruleId から rule の doc を articulate (= AI session が rule の docs に直行できる)
+- **dedup**: 複数 violation で同 path / 同 action が重複しないよう output 整理
+- **fallback unknown**: 未知 schemaVersion でも error にせず、supported kind list を articulate して AI session に hint
+- **repairReads / suggestedActions / requiredChecks の 3 軸**: 「何を読み・何をして・何で検証するか」の AI workflow に整合
+
+### alternatives
+
+- (a) `--kind` flag で kind を articulate: 却下 (= 自動判別で十分、AI consumer のコスト増)
+- (b) detector-results を主 input、他 kind は別 command: 却下 (= 統一 surface の方が AI consumer 価値高い)
+- (c) 5 kind 以上 (= comments / inventory も対応): 却下 (= MVP 4 kind で primary use case カバー、後続で拡張可能)
+- (d) actions / checks を articulate しない (= reads のみ): 却下 (= AI session の workflow 全体 articulate が core value)
+
+### 観測点
+
+1. `internal/repaircontext/repaircontext.go` + test 存在 + go vet clean
+2. `go test ./internal/repaircontext/...` 全 PASS
+3. detector-results synthetic input → 3 reads / 2 actions / 1 check articulate
+4. obligation-check synthetic input → must-pass requirement が check に articulate
+5. unknown schemaVersion → fallback action articulate
+6. TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+7. branch push 成功
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>` (= Wave 5 #20 commit、派生元)
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+- **観測点達成状況**: TBD
+- **学習**: TBD

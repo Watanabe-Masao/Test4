@@ -294,7 +294,20 @@
 - [x] dogfood: aag obligation check --base HEAD~3 → 24 changed file、0 matched contracts (= 現在の変更は core schema 外)
 - [x] DA-α-022 articulate
 - [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
-- [ ] Wave 5 #20 commit を branch に push
+- [x] Wave 5 #20 commit を branch に push
+
+## Wave 5 #21: `aag repair-context --from <file>`
+
+> **着手判断**: DA-α-023 (= Wave 5 継続、検出 output → repair context generator)。
+
+- [x] `aag-engine/internal/repaircontext/repaircontext.go` を landing (= Repair() + 4 input kind classifier = detector-results / obligation-check-v1 / clean-check-v1 / docs-placement-check-v1 + rule registry lookup)
+- [x] `repaircontext_test.go` で contract test 8 件 (= empty / nonexistent / 4 kind synthetic + unknown fallback + supported kinds + dedup)
+- [x] `cmd/aag/main.go` に `repair-context` subcommand 追加 (= --from required + --repo)
+- [x] `main_test.go` に CLI test 2 件追加
+- [x] dogfood: synthetic detector-results JSON → repairReads 3 件 + suggestedActions 2 件 + requiredChecks 1 件 articulate
+- [x] DA-α-023 articulate
+- [x] go test all PASS / TS 1082 PASS / Health 60/60 OK / Hard Gate PASS
+- [ ] Wave 5 #21 commit を branch に push
 
 ## AI 自己レビュー (= user 承認の手前)
 

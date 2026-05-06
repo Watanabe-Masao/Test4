@@ -34,6 +34,7 @@ import (
 	"aag-engine/internal/fixture"
 	"aag-engine/internal/navigation"
 	"aag-engine/internal/obligation"
+	"aag-engine/internal/repaircontext"
 	"aag-engine/internal/report"
 	"aag-engine/internal/shadow"
 	"aag-engine/internal/stats"
@@ -75,6 +76,7 @@ COMMANDS:
   comments list    --kind todo|suppression|expired のコメントを repo 全体から scan して JSON で出力 (= reposteward-ai-ops-platform Wave 4 #16 deliverable)
   docs placement-check  schema / generated artifact の配置規約違反を JSON で出力 (= reposteward-ai-ops-platform Wave 4 #17 deliverable)
   obligation check  premise contract triggers を git diff で検出し requirements を JSON で出力 (= reposteward-ai-ops-platform Wave 5 #20 deliverable)
+  repair-context   --from <file> の検出結果から repairReads / suggestedActions / requiredChecks を JSON で出力 (= reposteward-ai-ops-platform Wave 5 #21 deliverable)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
@@ -151,6 +153,8 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runDocs(args[1:], stdout, stderr)
 	case "obligation":
 		return runObligation(args[1:], stdout, stderr)
+	case "repair-context":
+		return runRepairContext(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)
@@ -943,6 +947,53 @@ func runObligationCheck(args []string, stdout, stderr io.Writer) ExitCode {
 	b, err := navigation.MarshalJSON(out)
 	if err != nil {
 		fmt.Fprintf(stderr, "aag obligation check: JSON rendering error: %v\n", err)
+		return ExitError
+	}
+	fmt.Fprintln(stdout, string(b))
+	return ExitPass
+}
+
+// runRepairContext は `aag repair-context --from <file>` の本体 (= Wave 5 #21)。
+func runRepairContext(args []string, stdout, stderr io.Writer) ExitCode {
+	fs := flag.NewFlagSet("repair-context", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	repo := fs.String("repo", ".", "repo root の path")
+	from := fs.String("from", "", "input JSON file (= detector-results / obligation-check-v1 / clean-check-v1 / docs-placement-check-v1)")
+	if err := fs.Parse(args); err != nil {
+		return ExitError
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintf(stderr, "aag repair-context: unexpected positional argument(s): %v\n", fs.Args())
+		return ExitError
+	}
+	if *from == "" {
+		fmt.Fprintln(stderr, "aag repair-context: --from flag は required です (= 検出 output JSON file path)")
+		return ExitError
+	}
+
+	repoAbs, err := filepath.Abs(*repo)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag repair-context: failed to resolve --repo: %v\n", err)
+		return ExitError
+	}
+	fromAbs, err := filepath.Abs(*from)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag repair-context: failed to resolve --from: %v\n", err)
+		return ExitError
+	}
+
+	out, err := repaircontext.Repair(repaircontext.RepairInput{
+		RepoRoot: repoAbs,
+		From:     fromAbs,
+	})
+	if err != nil {
+		fmt.Fprintf(stderr, "aag repair-context: %v\n", err)
+		return ExitError
+	}
+
+	b, err := navigation.MarshalJSON(out)
+	if err != nil {
+		fmt.Fprintf(stderr, "aag repair-context: JSON rendering error: %v\n", err)
 		return ExitError
 	}
 	fmt.Fprintln(stdout, string(b))

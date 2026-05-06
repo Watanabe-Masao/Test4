@@ -953,3 +953,25 @@ func TestRun_ObligationCheck_RealRepo(t *testing.T) {
 		t.Errorf("matchedContracts must be array")
 	}
 }
+
+// repair-context で --from 不在は ExitError (= Wave 5 #21)。
+func TestRun_RepairContext_MissingFrom(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"repair-context", "--repo", repoRootForTest(t)}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
+
+// repair-context で nonexistent file は ExitError。
+func TestRun_RepairContext_NonexistentFile(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{
+		"repair-context",
+		"--repo", repoRootForTest(t),
+		"--from", "/nonexistent/results.json",
+	}, &stdout, &stderr)
+	if code != ExitError {
+		t.Errorf("expected ExitError (2), got %d", code)
+	}
+}
