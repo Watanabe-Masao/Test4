@@ -79,3 +79,21 @@ jobs:
       - name: aag shadow --repo .
         working-directory: ${{ github.workspace }}
         run: /tmp/aag shadow --repo .
+
+      # subcommand 4: aag self-check (= AAG 自身の整合性 7 軸 cross-validation、
+      # v4.2 cluster C C4 articulate)。advisory step (= continue-on-error)、healthy=false
+      # でも CI fail しない (= AI / human の判断材料、failure mode register に新 entry を
+      # articulate する trigger として articulate される)。
+      - name: aag self-check (advisory)
+        working-directory: ${{ github.workspace }}
+        continue-on-error: true
+        run: /tmp/aag self-check --repo .
+
+      # subcommand 5: aag chaos run (= 主要 command の adversarial substrate verify、
+      # v4.2 cluster C C4 articulate)。advisory step。
+      # 'wrap' の 3 reproducible failure modes が pre-articulate された behavior と
+      # 整合するかを実機械実行で verify (= "あえて壊して証明" の CI articulate)。
+      - name: aag chaos run wrap (advisory)
+        working-directory: ${{ github.workspace }}
+        continue-on-error: true
+        run: /tmp/aag chaos run wrap

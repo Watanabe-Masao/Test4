@@ -780,6 +780,14 @@
           "label": "AAG Task Close Output Schema (= reposteward-substrate-v4-2-self-check-v7、aag task close result、readyToClose + blockingIssues)"
         },
         {
+          "path": "docs/contracts/aag/commands/bootstrap-output.schema.json",
+          "label": "AAG Bootstrap Output Schema (= reposteward-substrate-v4-2-cluster-c、AI session 開始時の where-am-i + context + suggestedNext aggregate)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/index-output.schema.json",
+          "label": "AAG Index Output Schema (= reposteward-substrate-v4-2-cluster-c、command / schema cross-reference projection)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

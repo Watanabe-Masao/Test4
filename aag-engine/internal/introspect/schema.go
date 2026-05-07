@@ -230,6 +230,24 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/task-close-output.schema.json"),
 		Purpose: "aag task close の output (= readyToClose / blockingIssues articulate)",
 	},
+	"aag-bootstrap-v1": {
+		ID:      "aag-bootstrap-v1",
+		Title:   "Bootstrap Output",
+		Path:    ptr("docs/contracts/aag/commands/bootstrap-output.schema.json"),
+		Purpose: "aag bootstrap の output (= AI session 開始時の where-am-i + context + suggestedNext aggregate)",
+	},
+	"aag-index-by-command-v1": {
+		ID:      "aag-index-by-command-v1",
+		Title:   "Index By-Command Output",
+		Path:    ptr("docs/contracts/aag/commands/index-output.schema.json"),
+		Purpose: "aag index command の output (= 全 command の cross-reference index)",
+	},
+	"aag-index-by-schema-v1": {
+		ID:      "aag-index-by-schema-v1",
+		Title:   "Index By-Schema Output",
+		Path:    ptr("docs/contracts/aag/commands/index-output.schema.json"),
+		Purpose: "aag index schema の output (= 全 schema の relations index)",
+	},
 }
 
 // schemaProducersTable は schema id → 該当 schema を produce する command 一覧。
@@ -265,6 +283,9 @@ var schemaProducersTable = map[string][]string{
 	"stats-files-query-v1":           {"stats files"},
 	"task-validate-v1":               {"task validate"},
 	"task-close-v1":                  {"task close"},
+	"aag-bootstrap-v1":               {"bootstrap"},
+	"aag-index-by-command-v1":        {"index"},
+	"aag-index-by-schema-v1":         {"index"},
 }
 
 // schemaConsumersTable は schema id → 該当 schema を consume する command 一覧。
