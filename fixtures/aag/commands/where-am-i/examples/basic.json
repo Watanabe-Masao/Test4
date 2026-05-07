@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "where-am-i-v2",
+  "branch": "claude/reposteward-substrate-v4-2-examples-phase1",
+  "activeProject": null,
+  "repoHealth": {
+    "hardGate": "pass",
+    "kpi": "60/60 OK"
+  },
+  "openObligations": 0,
+  "recommendedNextCommand": "aag stats files --above p95 --limit 10",
+  "manifestContext": {
+    "currentFocus": null,
+    "loadedRefsCount": 0,
+    "openQuestionsCount": 0,
+    "sessionNotes": null,
+    "lastUpdated": null
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "aag-engine-run-result-v1",
+  "status": "pass",
+  "repo": ".",
+  "detectorResults": [],
+  "fixtureSummary": {
+    "total": 8,
+    "fixtures": [
+      {
+        "name": "archive-v2/fail-missing-multiple-fields",
+        "expectedCount": 3
+      },
+      {
+        "name": "archive-v2/fail-missing-restore-command",
+        "expectedCount": 1
+      },
+      {
+        "name": "archive-v2/pass-minimal",
+        "expectedCount": 0
+      },
+      {
+        "name": "doc-registry/fail-missing-path",
+        "expectedCount": 1
+      },
+      {
+        "name": "generated/fail-stale-metadata",
+        "expectedCount": 1
+      },
+      {
+        "name": "project-lifecycle/fail-completed-not-archived",
+        "expectedCount": 1
+      },
+      {
+        "name": "project-lifecycle/pass-active",
+        "expectedCount": 0
+      },
+      {
+        "name": "schema-validation/fail-level-out-of-range",
+        "expectedCount": 1
+      }
+    ]
+  },
+  "note": "Phase 3 fixture runner: discovered fixtures listed in fixtureSummary. Detector wire-up は Phase 4-8 で landing 予定。"
+}

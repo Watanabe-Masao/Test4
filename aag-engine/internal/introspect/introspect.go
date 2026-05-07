@@ -265,6 +265,49 @@ var testTable = map[string][]string{
 	"self-check":           {"aag-engine/internal/selfcheck/selfcheck_test.go"},
 }
 
+// exampleTable は command → example fixtures directory path の mapping。
+//
+// fixtures/aag/commands/<cmd-id>/examples/ に articulate された snapshot output。
+// AI session が `aag introspect command <name>` から本 directory に navigate して
+// representative shape を articulate する substrate (= v4.2 examples-phase1 seed)。
+//
+// directory 不在 (= example articulate されていない command) は nil。
+//
+// command name と directory id の articulate (= directory id は command name の
+// space → '-' 変換、特殊な multi-word は同 idiom):
+//   - "self-check" → "self-check"
+//   - "introspect command" → "introspect-command"
+//   - "introspect schema" → "introspect-schema"
+//   - "task prepare" → "task-prepare" (= 未 articulate、demand-driven)
+var exampleTable = map[string]*string{
+	"self-check":           ptr("fixtures/aag/commands/self-check/examples/"),
+	"fixtures":             ptr("fixtures/aag/commands/fixtures/examples/"),
+	"list":                 ptr("fixtures/aag/commands/list/examples/"),
+	"where-am-i":           ptr("fixtures/aag/commands/where-am-i/examples/"),
+	"clean check":          ptr("fixtures/aag/commands/clean-check/examples/"),
+	"docs placement-check": ptr("fixtures/aag/commands/docs-placement-check/examples/"),
+	"project stale":        ptr("fixtures/aag/commands/project-stale/examples/"),
+	"shadow":               ptr("fixtures/aag/commands/shadow/examples/"),
+	"validate":             ptr("fixtures/aag/commands/validate/examples/"),
+	"describe":             ptr("fixtures/aag/commands/describe/examples/"),
+	"introspect command":   ptr("fixtures/aag/commands/introspect-command/examples/"),
+	"introspect schema":    ptr("fixtures/aag/commands/introspect-schema/examples/"),
+	"rule locate":          ptr("fixtures/aag/commands/rule-locate/examples/"),
+	"detector refs":        ptr("fixtures/aag/commands/detector-refs/examples/"),
+	// 以下は example 未 articulate (= demand-driven 起動候補、input 依存度高)
+	"context":         nil,
+	"changed":         nil,
+	"obligation check": nil,
+	"comments list":   nil,
+	"stats files":     nil,
+	"task prepare":    nil,
+	"task validate":   nil,
+	"task close":      nil,
+	"repair-context":  nil,
+	"wrap":            nil,
+	"next":            nil,
+}
+
 // Introspect は command 名から implementation pointer 等を articulate する。
 //
 // command 名は full name (= 'task prepare' / 'rule locate' / 'detector refs' /
@@ -291,10 +334,10 @@ func Introspect(command string) (IntrospectOutput, error) {
 		Implementation: impl,
 		Schema:         schemaTable[command],
 		Tests:          testTable[command],
-		Examples:       nil, // v4.2 subsequent PR で fixtures/aag/commands/<cmd>/examples/ articulate 候補
+		Examples:       exampleTable[command], // v4.2 examples-phase1 で articulate (= nil = 未 articulate command)
 		Provenance: provenance.Compute(
 			provenance.Canonical,
-			"embedded implTable + schemaTable + testTable + describe.commandTable",
+			"embedded implTable + schemaTable + testTable + exampleTable + describe.commandTable",
 		),
 	}, nil
 }
@@ -337,6 +380,15 @@ func AllTestPaths() map[string][]string {
 		paths := make([]string, len(v))
 		copy(paths, v)
 		out[k] = paths
+	}
+	return out
+}
+
+// AllExamplePaths returns a copy of exampleTable for read-only access。
+func AllExamplePaths() map[string]*string {
+	out := make(map[string]*string, len(exampleTable))
+	for k, v := range exampleTable {
+		out[k] = v
 	}
 	return out
 }

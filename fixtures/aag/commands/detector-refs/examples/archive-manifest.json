@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "detector-refs-v1",
+  "detectorId": "archive-manifest",
+  "goImplementation": "aag-engine/internal/detectors/archive_manifest.go",
+  "goTest": "aag-engine/internal/detectors/archive_manifest_test.go",
+  "tsImplementation": "tools/architecture-health/src/detectors/archive-manifest-detector.ts",
+  "schema": "docs/contracts/aag/detector-result.schema.json",
+  "fixtures": [
+    "fixtures/aag/archive-v2/fail-missing-multiple-fields",
+    "fixtures/aag/archive-v2/fail-missing-restore-command",
+    "fixtures/aag/archive-v2/pass-minimal"
+  ],
+  "fixtureCount": 3
+}

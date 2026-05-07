@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "docs-placement-check-v1",
+  "violations": [],
+  "stats": {
+    "generated-misplaced": 0,
+    "schema-misplaced": 0,
+    "total": 0
+  },
+  "conventions": [
+    {
+      "kind": "long-term-policy",
+      "description": "長期方針 / 設計原則 / canonical 説明 doc",
+      "path": "references/"
+    },
+    {
+      "kind": "active-project",
+      "description": "進行中 project の AI_CONTEXT / HANDOFF / plan / checklist 等",
+      "path": "projects/active/<id>/"
+    },
+    {
+      "kind": "archived-project",
+      "description": "完了 project (= Archive v2 = ARCHIVE.md + archive.manifest.json)",
+      "path": "projects/completed/<id>/"
+    },
+    {
+      "kind": "schema",
+      "description": "JSON Schema (= *.schema.json)",
+      "path": "docs/contracts/"
+    },
+    {
+      "kind": "generated",
+      "description": "機械生成 artifact (= *.generated.md / *.json by docs:generate)",
+      "path": "references/04-tracking/generated/ or docs/generated/"
+    },
+    {
+      "kind": "fixture",
+      "description": "test / detector fixture",
+      "path": "fixtures/"
+    }
+  ],
+  "summary": "Doc placement check: 0 violations. ✓"
+}

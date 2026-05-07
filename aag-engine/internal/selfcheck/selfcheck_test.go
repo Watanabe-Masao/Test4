@@ -27,8 +27,8 @@ func TestRun_BasicShape(t *testing.T) {
 	if out.Provenance.Confidence != "observed" {
 		t.Errorf("provenance.confidence = %q (want observed)", out.Provenance.Confidence)
 	}
-	if out.Summary.TotalChecks != 5 {
-		t.Errorf("summary.totalChecks = %d (want 5)", out.Summary.TotalChecks)
+	if out.Summary.TotalChecks != 6 {
+		t.Errorf("summary.totalChecks = %d (want 6)", out.Summary.TotalChecks)
 	}
 }
 
@@ -61,6 +61,7 @@ func TestRun_AllAxesCovered(t *testing.T) {
 	_ = out.Summary.V3SchemaFiles
 	_ = out.Summary.V4TestPaths
 	_ = out.Summary.V5OrphanSchema
+	_ = out.Summary.V6ExamplePaths
 }
 
 func TestMarshalJSON_NoHTMLEscape(t *testing.T) {

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "aag-introspect-schema-v1",
+  "schema": {
+    "id": "detector-result-v1",
+    "title": "DetectorResult",
+    "path": "docs/contracts/aag/detector-result.schema.json",
+    "isVirtual": false,
+    "purpose": "validate / shadow command の output (= violations 配列の canonical shape)"
+  },
+  "producers": [
+    "validate",
+    "shadow"
+  ],
+  "consumers": [
+    "repair-context"
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T09:17:00Z",
+    "sourceCommit": "3689028fa9192e8901fbe4f47c5d1c71f40f50fd",
+    "confidence": "canonical",
+    "computedFrom": "embedded schemaInfoTable + schemaProducersTable + schemaConsumersTable (= schema-graph.json と同期)"
+  }
+}

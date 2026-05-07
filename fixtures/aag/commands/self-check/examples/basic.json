@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "aag-self-check-v1",
+  "healthy": true,
+  "summary": {
+    "totalChecks": 5,
+    "totalViolations": 0,
+    "v1CrossSync": 0,
+    "v2ImplFiles": 0,
+    "v3SchemaFiles": 0,
+    "v4TestPaths": 0,
+    "v5OrphanSchema": 0
+  },
+  "violations": [],
+  "provenance": {
+    "computedAt": "2026-05-07T09:16:52Z",
+    "sourceCommit": "3689028fa9192e8901fbe4f47c5d1c71f40f50fd",
+    "confidence": "observed",
+    "computedFrom": "runtime cross-validation of describe.commandTable + introspect.implTable / schemaTable / testTable / schemaInfoTable + filesystem 実在"
+  }
+}

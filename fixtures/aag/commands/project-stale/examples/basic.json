@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "project-stale-v1",
+  "staleDays": 30,
+  "today": "2026-05-07",
+  "staleProjects": [],
+  "freshProjects": [
+    {
+      "projectId": "reposteward-ai-ops-platform",
+      "lastCommit": "ab44968ace541868a3de1edd9dd173296bf15d7d",
+      "lastCommitDate": "2026-05-07",
+      "daysSinceCommit": 0,
+      "isStale": false
+    },
+    {
+      "projectId": "pure-calculation-reorg",
+      "lastCommit": "3bef6e9b2ae2d3ca86dfbc4f3a445aec15a41408",
+      "lastCommitDate": "2026-05-04",
+      "daysSinceCommit": 3,
+      "isStale": false
+    },
+    {
+      "projectId": "presentation-quality-hardening",
+      "lastCommit": "aa007345217574e30ac93b5efd628ecae48065cd",
+      "lastCommitDate": "2026-05-03",
+      "daysSinceCommit": 4,
+      "isStale": false
+    },
+    {
+      "projectId": "taxonomy-v2",
+      "lastCommit": "aa007345217574e30ac93b5efd628ecae48065cd",
+      "lastCommitDate": "2026-05-03",
+      "daysSinceCommit": 4,
+      "isStale": false
+    }
+  ],
+  "summary": "0 stale project(s) (= no commit in last 30 days). 4 fresh project(s)."
+}
