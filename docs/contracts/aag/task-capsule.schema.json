@@ -114,6 +114,13 @@
         }
       },
       "description": "失敗時の修復方針 articulate。AI session が失敗を踏んだ際にどこを読み・どう動くかの指示。schema は open (= 失敗 kind ごとに `if<Kind>Fails` field を producer が articulate 可能、Wave 4 #15 cleanliness / Wave 4 #16 comments / Wave 5 #20 obligation 拡張等で additive)。"
+    },
+    "openQuestions": {
+      "oneOf": [
+        { "type": "array", "items": { "type": "string" } },
+        { "type": "null" }
+      ],
+      "description": "v4.2 capsule-open-questions で institute (= optional、null / 配列 / 不在 全て articulate 可)。前 session が articulate しきれなかった question を articulate する free-form list。AI session 間の continuity substrate (= 'session-handoff 時の question 漏れ' demand surface に対応)。task prepare 時点では空配列 default articulate (= AI session が slot 存在を即値で discover 可能)、AI session が capsule を edit / 後続 capsule に articulate する経路で accumulate。期間軸 articulate ではなく **session 内 articulate**、permanent record ではない (= 解決 / 削除自由)。"
     }
   }
 }

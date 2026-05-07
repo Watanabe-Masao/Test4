@@ -370,6 +370,77 @@ func TestPrepare_SelfDogfood_RepostewardAiOpsPlatform(t *testing.T) {
 	if _, ok := capsule.RepoHealth["hardGate"]; !ok {
 		t.Error("expected repoHealth.hardGate to be articulated")
 	}
+	// v4.2 capsule-open-questions: prepare は空配列を articulate (= slot 存在を AI session に articulate)
+	if capsule.OpenQuestions == nil {
+		t.Error("expected OpenQuestions to be articulated as empty slice (not nil)")
+	}
+	if len(capsule.OpenQuestions) != 0 {
+		t.Errorf("expected OpenQuestions to be empty initially, got %d entries", len(capsule.OpenQuestions))
+	}
+}
+
+func TestOpenQuestions_RoundTrip(t *testing.T) {
+	// AI session が articulate した questions が JSON round-trip で保持されるか
+	c := TaskCapsule{
+		SchemaVersion:   SchemaVersion,
+		TaskId:          "test-task",
+		ProjectId:       "test-project",
+		Goal:            "test articulate",
+		RepoHealth:      map[string]interface{}{},
+		CurrentState:    map[string]interface{}{},
+		NonGoals:        []string{},
+		RequiredReads:   []string{},
+		TargetFiles:     []string{},
+		RelatedCommands: []string{},
+		ExpectedOutputs: []string{},
+		RepairPolicy:    map[string]interface{}{},
+		OpenQuestions:   []string{"前 session で articulate しきれなかった question 1", "session-handoff 時の query 2"},
+	}
+	if err := c.Validate(); err != nil {
+		t.Fatalf("Validate failed: %v", err)
+	}
+	b, err := json.Marshal(c)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	if !strings.Contains(string(b), "openQuestions") {
+		t.Error("JSON output should articulate openQuestions field")
+	}
+	var back TaskCapsule
+	if err := json.Unmarshal(b, &back); err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	if len(back.OpenQuestions) != 2 {
+		t.Errorf("expected 2 OpenQuestions after roundtrip, got %d", len(back.OpenQuestions))
+	}
+}
+
+func TestOpenQuestions_NilTolerated(t *testing.T) {
+	// 既存 capsule (= openQuestions field 不在) が unmarshal で valid に articulate されるか
+	jsonNoField := []byte(`{
+		"schemaVersion": "task-capsule-v1",
+		"taskId": "old-task",
+		"projectId": "old-project",
+		"goal": "test",
+		"repoHealth": {},
+		"currentState": {},
+		"nonGoals": [],
+		"requiredReads": [],
+		"targetFiles": [],
+		"relatedCommands": [],
+		"expectedOutputs": [],
+		"repairPolicy": {}
+	}`)
+	var c TaskCapsule
+	if err := json.Unmarshal(jsonNoField, &c); err != nil {
+		t.Fatalf("Unmarshal of old capsule failed: %v", err)
+	}
+	if c.OpenQuestions != nil {
+		t.Errorf("expected nil OpenQuestions for old capsule, got %v", c.OpenQuestions)
+	}
+	if err := c.Validate(); err != nil {
+		t.Errorf("old capsule should validate (= openQuestions optional), got error: %v", err)
+	}
 }
 
 func TestPrepare_DerivesTaskIDFromIntent(t *testing.T) {

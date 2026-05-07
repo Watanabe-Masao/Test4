@@ -107,6 +107,15 @@ type TaskCapsule struct {
 	// RepairPolicy is the failure-handling articulation. Open shape.
 	// Conventional keys: ifDocsObligationFails / ifGuardFails.
 	RepairPolicy map[string]interface{} `json:"repairPolicy"`
+
+	// OpenQuestions is the optional list of questions left unresolved by previous
+	// AI session articulations. Articulated to substrate session-handoff continuity
+	// (= AI session 間の question 漏れ防止)。期間軸 articulate ではなく **session 内
+	// articulate**、permanent record ではない (= 解決 / 削除自由)。
+	//
+	// v4.2 capsule-open-questions で institute。omitempty なし (= task prepare で常に
+	// 空配列を articulate、AI session が slot 存在を即値で discover 可能)。
+	OpenQuestions []string `json:"openQuestions"`
 }
 
 // RequiredFields mirrors task-capsule.schema.json `required`. Used by sync test.
@@ -140,6 +149,7 @@ var AllJSONFields = []string{
 	"relatedCommands",
 	"expectedOutputs",
 	"repairPolicy",
+	"openQuestions", // v4.2 capsule-open-questions で institute (= optional)
 }
 
 // kebabCasePattern matches the canonical taskId / projectId pattern articulated
