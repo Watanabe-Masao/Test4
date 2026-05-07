@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "comments-list-v1",
+  "kind": "todo",
+  "totalScanned": 2398,
+  "items": [
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "line": 54,
+      "text": "\"// TODO: refactor this — projectId: foo-bar\",",
+      "annotations": [
+        "projectId"
+      ]
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "line": 55,
+      "text": "\"// FIXME: needs review\",",
+      "missingFields": [
+        "projectId or reviewAfter"
+      ]
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "line": 140,
+      "text": "makeFile(t, tmp, \"app/src/foo.ts\", \"// TODO: keep me\\n\")",
+      "missingFields": [
+        "projectId or reviewAfter"
+      ]
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "line": 141,
+      "text": "makeFile(t, tmp, \"app/src/node_modules/lib/index.ts\", \"// TODO: skip me\\n\")",
+      "missingFields": [
+        "projectId or reviewAfter"
+      ]
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "line": 142,
+      "text": "makeFile(t, tmp, \"dist/bundle.ts\", \"// TODO: skip me\\n\")",
+      "missingFields": [
+        "projectId or reviewAfter"
+      ]
+    },
+    {
+      "path": "app/src/infrastructure/ImportService.ts",
+      "line": 221,
+      "text": "importedCount, // TODO: per-month count（Phase 3 で精緻化）",
+      "missingFields": [
+        "projectId or reviewAfter"
+      ]
+    }
+  ],
+  "summary": "6 comment(s) of kind=todo across 2398 scanned file(s)."
+}

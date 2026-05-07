@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "obligation-check-v1",
+  "base": "main",
+  "head": "HEAD",
+  "changedFiles": [],
+  "matchedContracts": [],
+  "stats": {
+    "changedFiles": 0,
+    "matchedContracts": 0,
+    "requirements": 0
+  },
+  "summary": "No files changed."
+}

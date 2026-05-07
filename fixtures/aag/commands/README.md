@@ -33,9 +33,11 @@ fixtures/aag/commands/
 - `describe/examples/validate.json` (= `aag describe validate` の出力)
 - `introspect-schema/examples/detector-result-v1.json` (= `aag introspect schema detector-result-v1` の出力)
 
-## Articulate されている command (= v4.2 substrate Phase 1 articulate seed)
+## Articulate されている command (= v4.2 substrate Phase 1 + Phase 2)
 
-14 stable / provisional commands を articulate (= 残 command は demand-driven 起動候補):
+全 25 commands を articulate (= 完全 coverage):
+
+### Phase 1 (= no-arg / simple-arg)
 
 | Command | Example file |
 |---|---|
@@ -53,19 +55,28 @@ fixtures/aag/commands/
 | `aag introspect schema detector-result-v1` | `introspect-schema/examples/detector-result-v1.json` |
 | `aag rule locate AR-G3-SUPPRESS-RATIONALE` | `rule-locate/examples/AR-G3-SUPPRESS-RATIONALE.json` |
 | `aag detector refs archive-manifest` | `detector-refs/examples/archive-manifest.json` |
+| `aag chaos` (overview) | `chaos/examples/overview.json` |
+| `aag chaos wrap` | `chaos/examples/wrap.json` |
 
-## 未 articulate command (= demand-driven 起動候補)
+### Phase 2 (= input-dependent commands、v4.2 examples-phase2)
 
-以下は input 依存 (= active project / stdin / file path) で example 配置が複雑、demand articulate されたら articulate:
-- `aag context --project <id>` (= active project 依存)
-- `aag changed --base <ref> --head <ref>` (= git history 依存)
-- `aag obligation check --base ... --head ...` (= 同上)
-- `aag comments list --kind <kind>` (= per-kind articulate 候補)
-- `aag stats files` (= filter combination per-example articulate 候補)
-- `aag task prepare/validate/close` (= active project + capsule file 依存)
-- `aag repair-context --from <file>` (= input file 依存)
-- `aag wrap --command <name>` (= stdin 依存)
-- `aag next` (= state 依存)
+| Command | Example file |
+|---|---|
+| `aag context --project reposteward-ai-ops-platform` | `context/examples/reposteward-ai-ops-platform.json` |
+| `aag changed --base main --head HEAD` | `changed/examples/main-to-head.json` |
+| `aag obligation check --base main --head HEAD` | `obligation-check/examples/main-to-head.json` |
+| `aag comments list --kind todo` | `comments-list/examples/kind-todo.json` |
+| `aag stats files --above p95 --limit 5` | `stats-files/examples/above-p95-limit-5.json` |
+| `aag task prepare --project reposteward-ai-ops-platform` | `task-prepare/examples/reposteward-ai-ops-platform.json` |
+| `aag next` | `next/examples/basic.json` |
+| `aag describe validate \| aag wrap --command describe` | `wrap/examples/describe-validate-wrapped.json` |
+| `aag task prepare ... \| aag task validate --capsule -` | `task-validate/examples/reposteward-ai-ops-platform.json` |
+| `aag task prepare ... \| aag task close --capsule -` | `task-close/examples/reposteward-ai-ops-platform.json` |
+| `aag validate \| aag repair-context --from -` | `repair-context/examples/from-validate.json` |
+
+## 未 articulate command
+
+なし (= 全 stable / provisional command が articulate 済)。新 command 追加時は本 directory に example を追加 (= self-check V6 軸で実在検証)。
 
 ## 参照
 

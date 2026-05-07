@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "context-project-v1",
+  "projectId": "reposteward-ai-ops-platform",
+  "title": "RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP)",
+  "requiredReads": [
+    "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
+    "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
+    "projects/active/reposteward-ai-ops-platform/plan.md",
+    "projects/active/reposteward-ai-ops-platform/projectization.md",
+    "projects/active/reposteward-ai-ops-platform/decision-audit.md"
+  ],
+  "constraints": [
+    "TypeScript guard を全廃する (= 本 program は parallel implementation、TS 不変、Go MVP 不可侵原則 4 継承)",
+    "React / TS AST / WASM / domain calculation guard を Go に移植する (= Go MVP 不可侵原則 5 継承)",
+    "docs:generate を Go に移管する (= TS 維持)",
+    "業務 logic (= calculation / UI / store / data shape) を Go に複製する",
+    "Human UI / browser dashboard を作る (= AI-first 原則と矛盾、JSON output に限定)",
+    "YAML を採用する (= JSON-first 原則、AAG Parameters / SourceFacts / premise contracts は全 JSON)",
+    "Wave 1 milestone 到達前に hard gate を追加する (= read-only first 原則、advisory のみ)",
+    "AAG Parameters を新たな source of truth にしすぎる (= 既存 calculationCanonRegistry / readModels の正本性は維持、parameters は可変設定の articulation のみ)",
+    "コメント annotation (@premise / @canonicalRef 等) を主検出経路にする (= 主検出は path / diff / schema / facts / imports、annotation は補助のみ)",
+    "実装 AI による自己承認 (= 最終レビュー = user 承認 必須、L3 + requiresHumanApproval=true)",
+    "Wave 2 以降を Wave 1 と同 PR に混ぜる (= Wave-by-wave delivery、肥大化抑止)"
+  ],
+  "nextActions": [
+    "post-merge quality pass commit を branch `claude/reposteward-ai-ops-platform-post-merge-qa` に push"
+  ]
+}

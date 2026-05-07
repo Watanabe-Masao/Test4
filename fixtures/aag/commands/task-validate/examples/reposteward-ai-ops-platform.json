@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "task-validate-v1",
+  "capsuleFile": "-",
+  "valid": true,
+  "errors": [],
+  "taskId": "reposteward-ai-ops-platform-task",
+  "projectId": "reposteward-ai-ops-platform"
+}

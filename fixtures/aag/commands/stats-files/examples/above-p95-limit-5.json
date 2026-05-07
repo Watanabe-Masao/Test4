@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "stats-files-query-v1",
+  "metric": "effectiveCodeLines",
+  "filter": {
+    "above": "p95",
+    "metric": "effectiveCodeLines"
+  },
+  "totalMatched": 135,
+  "returned": 5,
+  "files": [
+    {
+      "path": "projects/active/pure-calculation-reorg/aag/execution-overlay.ts",
+      "kind": "typescript",
+      "layer": "projects",
+      "effectiveCodeLines": 1606,
+      "physicalLines": 1666,
+      "commentLines": 54,
+      "blankLines": 6
+    },
+    {
+      "path": "app/src/application/usecases/explanation/__tests__/ExplanationService.edgeCases.test.ts",
+      "kind": "typescript",
+      "layer": "application",
+      "effectiveCodeLines": 1410,
+      "physicalLines": 1610,
+      "commentLines": 67,
+      "blankLines": 133
+    },
+    {
+      "path": "docs/contracts/doc-registry.json",
+      "kind": "json",
+      "layer": "docs",
+      "effectiveCodeLines": 1239,
+      "physicalLines": 1239,
+      "commentLines": 0,
+      "blankLines": 0
+    },
+    {
+      "path": "app/src/application/usecases/import/__tests__/FileImportService.test.ts",
+      "kind": "typescript",
+      "layer": "application",
+      "effectiveCodeLines": 1179,
+      "physicalLines": 1273,
+      "commentLines": 32,
+      "blankLines": 62
+    },
+    {
+      "path": "app/src/application/services/__tests__/diffCalculator.test.ts",
+      "kind": "typescript",
+      "layer": "application",
+      "effectiveCodeLines": 1121,
+      "physicalLines": 1218,
+      "commentLines": 22,
+      "blankLines": 75
+    }
+  ]
+}

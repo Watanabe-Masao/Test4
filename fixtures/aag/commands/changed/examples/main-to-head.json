@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "changed-explain-v1",
+  "base": "main",
+  "head": "HEAD",
+  "changedFiles": [],
+  "byArea": {},
+  "obligations": [],
+  "requiredReads": [],
+  "summary": "No files changed."
+}

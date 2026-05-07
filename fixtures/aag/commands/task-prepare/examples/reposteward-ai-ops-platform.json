@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "task-capsule-v1",
+  "taskId": "reposteward-ai-ops-platform-task",
+  "projectId": "reposteward-ai-ops-platform",
+  "repoHealth": {
+    "hardGate": "pass",
+    "kpi": "60/60 OK"
+  },
+  "currentState": {
+    "checkboxes": "0/0",
+    "projectStatus": "in_progress"
+  },
+  "goal": "RepoSteward AI Ops Platform — AI-first repo operations engine への進化 (= post-MVP)",
+  "nonGoals": [
+    "TypeScript guard を全廃する (= 本 program は parallel implementation、TS 不変、Go MVP 不可侵原則 4 継承)",
+    "React / TS AST / WASM / domain calculation guard を Go に移植する (= Go MVP 不可侵原則 5 継承)",
+    "docs:generate を Go に移管する (= TS 維持)",
+    "業務 logic (= calculation / UI / store / data shape) を Go に複製する",
+    "Human UI / browser dashboard を作る (= AI-first 原則と矛盾、JSON output に限定)",
+    "YAML を採用する (= JSON-first 原則、AAG Parameters / SourceFacts / premise contracts は全 JSON)",
+    "Wave 1 milestone 到達前に hard gate を追加する (= read-only first 原則、advisory のみ)",
+    "AAG Parameters を新たな source of truth にしすぎる (= 既存 calculationCanonRegistry / readModels の正本性は維持、parameters は可変設定の articulation のみ)",
+    "コメント annotation (@premise / @canonicalRef 等) を主検出経路にする (= 主検出は path / diff / schema / facts / imports、annotation は補助のみ)",
+    "実装 AI による自己承認 (= 最終レビュー = user 承認 必須、L3 + requiresHumanApproval=true)",
+    "Wave 2 以降を Wave 1 と同 PR に混ぜる (= Wave-by-wave delivery、肥大化抑止)"
+  ],
+  "requiredReads": [
+    "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
+    "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
+    "projects/active/reposteward-ai-ops-platform/plan.md",
+    "projects/active/reposteward-ai-ops-platform/projectization.md",
+    "projects/active/reposteward-ai-ops-platform/decision-audit.md"
+  ],
+  "targetFiles": [
+    "docs/contracts/aag/task-capsule.schema.json",
+    "aag-engine/internal/taskcapsule/",
+    "aag/parameters/",
+    "docs/contracts/aag/aag-parameters.schema.json",
+    "docs/contracts/aag/source-facts.schema.json",
+    "tools/architecture-health/src/facts/",
+    "references/04-tracking/generated/source-facts.json",
+    "references/04-tracking/generated/aag-size-statistics.json",
+    "aag-engine/",
+    "references/03-implementation/detection-inventory-v2.md",
+    "app/src/test/guards/sizeGuard.test.ts",
+    "app/src/test/audits/architectureStateAudit.test.ts"
+  ],
+  "relatedCommands": [
+    "cd app && npm run test:guards",
+    "cd app && npm run docs:check",
+    "cd app && npm run docs:generate"
+  ],
+  "expectedOutputs": [],
+  "repairPolicy": {
+    "ifDocsObligationFails": "Run `cd app && npm run docs:generate`. If obligation collector flags additional path updates, follow them and re-run `cd app && npm run docs:check`.",
+    "ifGuardFails": "Read the failing guard source and its linked AAG Response. Fix the underlying violation, then re-run `cd app && npm run test:guards`."
+  },
+  "openQuestions": []
+}
