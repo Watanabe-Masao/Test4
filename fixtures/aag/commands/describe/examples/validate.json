@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "aag-describe-v1",
+  "command": {
+    "name": "validate",
+    "family": "go-mvp",
+    "maturity": "provisional",
+    "summary": "repo を read-only で検証し DetectorResult[] を出力 (= Phase 1 skeleton)",
+    "args": [
+      "--repo PATH",
+      "--format json"
+    ],
+    "outputKind": "detector-result-array",
+    "outputShape": "DetectorResult[] (= empty in skeleton)",
+    "waveStep": "go-mvp",
+    "whyExists": "Go MVP 経路で repo を read-only に検証する CLI entrypoint",
+    "enables": [
+      "DetectorResult schema 準拠 output 取得",
+      "shadow / fixtures との parity 検証"
+    ],
+    "relatedCommands": [
+      "shadow",
+      "fixtures",
+      "repair-context"
+    ],
+    "knownFailureModes": [
+      {
+        "trigger": "--format=yaml 指定 (= json 以外)",
+        "behavior": "ExitError + stderr で 'json のみ対応' を articulate",
+        "countermeasureTest": "TestRun_Validate_RejectsYamlFormat"
+      }
+    ]
+  },
+  "provenance": {
+    "computedAt": "2026-05-07T09:17:00Z",
+    "sourceCommit": "3689028fa9192e8901fbe4f47c5d1c71f40f50fd",
+    "confidence": "canonical",
+    "computedFrom": "embedded commandTable source-of-truth"
+  }
+}

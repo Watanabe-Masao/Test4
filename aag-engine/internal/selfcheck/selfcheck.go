@@ -3,13 +3,15 @@
 // AAG 自身の整合性を 1 command で articulate する。AI session が「AAG は trust できる
 // 状態か?」を re-grep / 多 hop discovery 不要で articulate するための substrate。
 //
-// 検証 5 軸:
+// 検証 6 軸:
 //   - V1: describe.commandTable ↔ introspect.implTable cross-sync (= 同数 + 同 name set)
 //   - V2: introspect.implTable の handlerFile / dispatcherFile が実在
 //   - V3: introspect.schemaTable の file-backed schema path が実在
 //   - V4: introspect.testTable の test file path が実在 (= dir も accept)
 //   - V5: introspect.schemaInfoTable の各 schema が producer or consumer を持つ
 //         (= orphan schema 検出、ただし TS 側 / 共通 schema は例外 articulate)
+//   - V6: introspect.exampleTable の articulate された example directory が実在
+//         (= nil entry は skip、articulate 済 entry のみ check、v4.2 examples-phase1 で institute)
 //
 // 不可侵原則:
 //   1. JSON-first
@@ -52,13 +54,14 @@ type SelfCheckOutput struct {
 
 // Summary は per-axis violation count + overall articulate。
 type Summary struct {
-	TotalChecks    int `json:"totalChecks"`
+	TotalChecks     int `json:"totalChecks"`
 	TotalViolations int `json:"totalViolations"`
-	V1CrossSync    int `json:"v1CrossSync"`
-	V2ImplFiles    int `json:"v2ImplFiles"`
-	V3SchemaFiles  int `json:"v3SchemaFiles"`
-	V4TestPaths    int `json:"v4TestPaths"`
-	V5OrphanSchema int `json:"v5OrphanSchema"`
+	V1CrossSync     int `json:"v1CrossSync"`
+	V2ImplFiles     int `json:"v2ImplFiles"`
+	V3SchemaFiles   int `json:"v3SchemaFiles"`
+	V4TestPaths     int `json:"v4TestPaths"`
+	V5OrphanSchema  int `json:"v5OrphanSchema"`
+	V6ExamplePaths  int `json:"v6ExamplePaths"`
 }
 
 // Violation は 1 件の整合性違反 articulate。
@@ -90,9 +93,10 @@ func Run(repoRoot string) SelfCheckOutput {
 	violations = append(violations, checkV3SchemaFiles(repoRoot)...)
 	violations = append(violations, checkV4TestPaths(repoRoot)...)
 	violations = append(violations, checkV5OrphanSchemas()...)
+	violations = append(violations, checkV6ExamplePaths(repoRoot)...)
 
 	// per-axis count
-	summary := Summary{TotalChecks: 5, TotalViolations: len(violations)}
+	summary := Summary{TotalChecks: 6, TotalViolations: len(violations)}
 	for _, v := range violations {
 		switch v.Axis {
 		case "V1":
@@ -105,6 +109,8 @@ func Run(repoRoot string) SelfCheckOutput {
 			summary.V4TestPaths++
 		case "V5":
 			summary.V5OrphanSchema++
+		case "V6":
+			summary.V6ExamplePaths++
 		}
 	}
 
@@ -252,6 +258,39 @@ func checkV5OrphanSchemas() []Violation {
 				Axis:    "V5",
 				Subject: id,
 				Detail:  "schema は articulate されているが producer も consumer も articulate されていない (= orphan schema)",
+			})
+		}
+	}
+	sort.Slice(violations, func(i, j int) bool { return violations[i].Subject < violations[j].Subject })
+	return violations
+}
+
+// checkV6ExamplePaths は introspect.exampleTable の articulate された example directory が実在するか articulate。
+//
+// nil entry (= example 未 articulate command) は skip。articulate 済 entry のみ
+// check (= AI session が `aag introspect command <name>` で example pointer を取得する
+// substrate の trustability を articulate)。
+func checkV6ExamplePaths(repoRoot string) []Violation {
+	violations := []Violation{}
+	for name, examplePath := range introspect.AllExamplePaths() {
+		if examplePath == nil {
+			continue
+		}
+		abs := filepath.Join(repoRoot, *examplePath)
+		info, err := os.Stat(abs)
+		if err != nil {
+			violations = append(violations, Violation{
+				Axis:    "V6",
+				Subject: name,
+				Detail:  fmt.Sprintf("example path が実在しない: %s (= %v)", *examplePath, err),
+			})
+			continue
+		}
+		if !info.IsDir() {
+			violations = append(violations, Violation{
+				Axis:    "V6",
+				Subject: name,
+				Detail:  fmt.Sprintf("example path が directory ではない: %s", *examplePath),
 			})
 		}
 	}

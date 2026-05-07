@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "aag-engine-run-result-v1",
+  "status": "pass",
+  "repo": ".",
+  "detectorResults": [],
+  "shadowSummary": {
+    "total": 8,
+    "matched": 8,
+    "mismatched": 0,
+    "skipped": 0,
+    "results": [
+      {
+        "fixtureName": "archive-v2/fail-missing-multiple-fields",
+        "detectorName": "archive-manifest",
+        "match": true,
+        "expectedCount": 3,
+        "actualCount": 3
+      },
+      {
+        "fixtureName": "archive-v2/fail-missing-restore-command",
+        "detectorName": "archive-manifest",
+        "match": true,
+        "expectedCount": 1,
+        "actualCount": 1
+      },
+      {
+        "fixtureName": "archive-v2/pass-minimal",
+        "detectorName": "archive-manifest",
+        "match": true,
+        "expectedCount": 0,
+        "actualCount": 0
+      },
+      {
+        "fixtureName": "doc-registry/fail-missing-path",
+        "detectorName": "doc-registry",
+        "match": true,
+        "expectedCount": 1,
+        "actualCount": 1
+      },
+      {
+        "fixtureName": "generated/fail-stale-metadata",
+        "detectorName": "generated-metadata",
+        "match": true,
+        "expectedCount": 1,
+        "actualCount": 1
+      },
+      {
+        "fixtureName": "project-lifecycle/fail-completed-not-archived",
+        "detectorName": "project-lifecycle",
+        "match": true,
+        "expectedCount": 1,
+        "actualCount": 1
+      },
+      {
+        "fixtureName": "project-lifecycle/pass-active",
+        "detectorName": "project-lifecycle",
+        "match": true,
+        "expectedCount": 0,
+        "actualCount": 0
+      },
+      {
+        "fixtureName": "schema-validation/fail-level-out-of-range",
+        "detectorName": "schema-validation",
+        "match": true,
+        "expectedCount": 1,
+        "actualCount": 1
+      }
+    ]
+  },
+  "note": "Phase 9 shadow mode: 5 detector × 8 fixture parity 100% (= primary success metric 達成)"
+}

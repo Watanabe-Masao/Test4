@@ -1,0 +1,660 @@
+{
+  "schemaVersion": "aag-list-v1",
+  "total": 25,
+  "commands": [
+    {
+      "name": "changed",
+      "family": "navigation",
+      "maturity": "stable",
+      "summary": "--base..--head の changed file を area / obligations / requiredReads で articulate",
+      "args": [
+        "--repo PATH",
+        "--base REV",
+        "--head REV"
+      ],
+      "outputKind": "changed",
+      "outputShape": "{ files[], areas[], obligations[], requiredReads[] }",
+      "waveStep": "Wave 3 #12",
+      "whyExists": "git diff から area / obligations / requiredReads を articulate するため",
+      "enables": [
+        "変更 file の area 分類",
+        "premise contract trigger 検出",
+        "co-change 必須 path articulate"
+      ],
+      "relatedCommands": [
+        "obligation check",
+        "context"
+      ]
+    },
+    {
+      "name": "clean check",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "summary": "generated 混入 / archive manifest 不在 / projectId 重複 等の cleanliness 違反",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "cleanliness-report",
+      "outputShape": "{ violations[], summary }",
+      "waveStep": "Wave 4 #15",
+      "whyExists": "repo の cleanliness 違反 (= 3 rule MVP) を articulate するため",
+      "enables": [
+        "generated 混入 detect",
+        "archive manifest 不在 detect",
+        "projectId 重複 detect"
+      ],
+      "relatedCommands": [
+        "docs placement-check",
+        "comments list"
+      ]
+    },
+    {
+      "name": "comments list",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "summary": "--kind todo|suppression|expired のコメントを repo 全体から scan",
+      "args": [
+        "--repo PATH",
+        "--kind KIND"
+      ],
+      "outputKind": "comments-list",
+      "outputShape": "{ kind, count, comments[] }",
+      "waveStep": "Wave 4 #16",
+      "whyExists": "TODO / FIXME / suppression / expired コメントを machine-scan するため",
+      "enables": [
+        "comment kind 別 list 取得",
+        "暗黙 debt の articulate"
+      ],
+      "relatedCommands": [
+        "clean check"
+      ]
+    },
+    {
+      "name": "context",
+      "family": "navigation",
+      "maturity": "stable",
+      "summary": "active project の requiredReads / constraints / nextActions",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "context",
+      "outputShape": "{ projectId, requiredReads[], constraints[], nextActions[] }",
+      "waveStep": "Wave 3 #11",
+      "whyExists": "active project の作業 context を articulate するため",
+      "enables": [
+        "requiredReads list 取得",
+        "constraints articulate",
+        "nextActions の articulate"
+      ],
+      "relatedCommands": [
+        "where-am-i",
+        "task prepare"
+      ]
+    },
+    {
+      "name": "describe",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "summary": "指定 command の metadata (= maturity / args / output schema) を JSON で articulate",
+      "args": [
+        "<command>"
+      ],
+      "outputKind": "describe",
+      "outputShape": "{ schemaVersion, command: CommandMetadata }",
+      "waveStep": "improvement E",
+      "whyExists": "指定 command の metadata を 1 command で articulate するため (= self-discover)",
+      "enables": [
+        "command metadata の point lookup",
+        "AI session の self-discovery"
+      ],
+      "relatedCommands": [
+        "list",
+        "introspect"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "<command> 引数不在",
+          "behavior": "ExitError + stderr で '<command> 引数は required' articulate",
+          "countermeasureTest": "describe.go runDescribe argument validation"
+        },
+        {
+          "trigger": "command が commandTable に articulate されていない",
+          "behavior": "ExitError + stderr で 'unknown command' articulate ('aag list' hint 付き)",
+          "countermeasureTest": "TestDescribe_RejectsUnknownCommand (= internal/describe)"
+        }
+      ]
+    },
+    {
+      "name": "detector refs",
+      "family": "navigation",
+      "maturity": "stable",
+      "summary": "detectorId から goImplementation / tsImplementation / schema / fixtures を JSON で出力",
+      "args": [
+        "--repo PATH",
+        "<detectorId>"
+      ],
+      "outputKind": "detector-refs",
+      "outputShape": "{ detectorId, goImplementation, tsImplementation, schema, fixtures[] }",
+      "waveStep": "Wave 3 #14",
+      "whyExists": "detectorId から detector の implementation pointer を articulate するため",
+      "enables": [
+        "Go / TS 実装 file への直接 navigation",
+        "schema + fixtures への navigation"
+      ],
+      "relatedCommands": [
+        "rule locate",
+        "shadow"
+      ]
+    },
+    {
+      "name": "docs placement-check",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "summary": "schema / generated artifact の配置規約違反",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "placement-report",
+      "outputShape": "{ violations[], summary }",
+      "waveStep": "Wave 4 #17",
+      "whyExists": "schema / generated artifact の配置規約違反を articulate するため",
+      "enables": [
+        "schema misplacement detect",
+        "generated artifact misplacement detect"
+      ],
+      "relatedCommands": [
+        "clean check"
+      ]
+    },
+    {
+      "name": "fixtures",
+      "family": "go-mvp",
+      "maturity": "stable",
+      "summary": "fixtures/aag/ 配下を discover し catalog を出力",
+      "args": [
+        "--repo PATH",
+        "--format json"
+      ],
+      "outputKind": "fixture-catalog",
+      "outputShape": "{ count: N, fixtures: Fixture[] }",
+      "waveStep": "go-mvp",
+      "whyExists": "fixtures/aag/ の存在 articulate と count を AI に articulate するため",
+      "enables": [
+        "fixture catalog の JSON 取得",
+        "shadow command の事前 file 確認"
+      ],
+      "relatedCommands": [
+        "shadow",
+        "validate"
+      ]
+    },
+    {
+      "name": "introspect command",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "summary": "command の implementation pointer (= dispatcher / handler / package / schema / tests) を JSON で articulate",
+      "args": [
+        "<command>"
+      ],
+      "outputKind": "introspect-command",
+      "outputShape": "{ schemaVersion, command: CommandMetadata, implementation, schema, tests, examples, provenance }",
+      "waveStep": "v4.2 seed",
+      "whyExists": "AI session が grep なしに command の Go 実装に navigate できるようにするため",
+      "enables": [
+        "command source への direct navigation",
+        "test / schema / fixture pointer の articulate"
+      ],
+      "relatedCommands": [
+        "describe",
+        "list",
+        "detector refs"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "command が implTable に articulate されていない (= cross-table drift signal)",
+          "behavior": "ExitError + stderr で 'implementation pointer not articulated' articulate",
+          "countermeasureTest": "self-check V1 cross-sync 軸が事前に articulate (= drift detection)"
+        }
+      ]
+    },
+    {
+      "name": "introspect schema",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "summary": "schema id の path + virtual flag + producers + consumers を JSON で articulate",
+      "args": [
+        "<schema-id>"
+      ],
+      "outputKind": "introspect-schema",
+      "outputShape": "{ schemaVersion, schema: { id, title, path, isVirtual, purpose }, producers[], consumers[], provenance }",
+      "waveStep": "v4.2 introspect-provenance",
+      "whyExists": "AI session が schema-graph.json を walk せずに 1 command で schema の relation を articulate するため",
+      "enables": [
+        "schema producer / consumer の articulate",
+        "virtual schema (= Go internal) と file-backed schema の articulate"
+      ],
+      "relatedCommands": [
+        "introspect command",
+        "detector refs"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "schema id が schemaInfoTable に articulate されていない",
+          "behavior": "ExitError + stderr で 'unknown schema id' articulate (= 'aag list' / schema-graph.json hint 付き)",
+          "countermeasureTest": "TestIntrospectSchema_RejectsUnknown (= internal/introspect)"
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "summary": "全 command 一覧 + maturity を JSON で articulate",
+      "args": [],
+      "outputKind": "list",
+      "outputShape": "{ schemaVersion, total, commands: CommandMetadata[] }",
+      "waveStep": "improvement E",
+      "whyExists": "全 command の metadata を 1 command で articulate するため",
+      "enables": [
+        "全 command surface の articulate",
+        "maturity / family 別 filter (= jq との compose)"
+      ],
+      "relatedCommands": [
+        "describe",
+        "introspect"
+      ]
+    },
+    {
+      "name": "next",
+      "family": "project-status",
+      "maturity": "stable",
+      "summary": "AI session の next action recommendation",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "next-action",
+      "outputShape": "{ recommendation, reasons[], suggestedCommands[] }",
+      "waveStep": "Wave 5 #23",
+      "whyExists": "where-am-i + working tree + checklist から AI session の next action を articulate するため",
+      "enables": [
+        "recommendation articulate",
+        "次 command の hint 取得"
+      ],
+      "relatedCommands": [
+        "where-am-i",
+        "context",
+        "project stale"
+      ]
+    },
+    {
+      "name": "obligation check",
+      "family": "obligation",
+      "maturity": "stable",
+      "summary": "premise contract triggers を git diff で検出し requirements を JSON で出力",
+      "args": [
+        "--repo PATH",
+        "--base REV",
+        "--head REV"
+      ],
+      "outputKind": "obligation-check",
+      "outputShape": "{ triggered[], requiredReads[], requiredCoChanges[] }",
+      "waveStep": "Wave 5 #20",
+      "whyExists": "git diff から premise contract trigger を検出し requirements を articulate するため",
+      "enables": [
+        "requiredReads articulate",
+        "co-change 必須 path articulate"
+      ],
+      "relatedCommands": [
+        "changed",
+        "repair-context"
+      ]
+    },
+    {
+      "name": "project stale",
+      "family": "project-status",
+      "maturity": "stable",
+      "summary": "active project の最終 commit から stale (= 30 日以上 commit なし) 状態",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "project-stale",
+      "outputShape": "{ projectId, lastCommitAt, daysSince, stale }",
+      "waveStep": "Wave 5 #23",
+      "whyExists": "active project の stale 状態を 30 日 threshold で articulate するため",
+      "enables": [
+        "active project の最終 commit articulate",
+        "stale 判定"
+      ],
+      "relatedCommands": [
+        "next",
+        "where-am-i"
+      ]
+    },
+    {
+      "name": "repair-context",
+      "family": "repair",
+      "maturity": "stable",
+      "summary": "--from <file> の検出結果から repairReads / suggestedActions / requiredChecks",
+      "args": [
+        "--from FILE | -"
+      ],
+      "outputKind": "repair-context",
+      "outputShape": "{ inputKind, repairReads[], suggestedActions[], requiredChecks[] }",
+      "waveStep": "Wave 5 #21",
+      "whyExists": "検出結果 (= DetectorResult / TaskCapsule 等) から repair context を articulate するため",
+      "enables": [
+        "4 input kind classifier",
+        "stdin pipe (= --from -) 経由の repair generation"
+      ],
+      "relatedCommands": [
+        "validate",
+        "task validate",
+        "obligation check"
+      ]
+    },
+    {
+      "name": "rule locate",
+      "family": "navigation",
+      "maturity": "stable",
+      "summary": "ruleId から rule の definition / guards / docs / thresholds を JSON で出力",
+      "args": [
+        "--repo PATH",
+        "<ruleId>"
+      ],
+      "outputKind": "rule-locate",
+      "outputShape": "{ ruleId, definition, guards[], docs[], thresholds }",
+      "waveStep": "Wave 3 #13",
+      "whyExists": "ruleId から rule の正本位置を articulate するため (= grep 省略)",
+      "enables": [
+        "rule definition への直接 navigation",
+        "関連 guard / docs / thresholds の articulate"
+      ],
+      "relatedCommands": [
+        "detector refs"
+      ]
+    },
+    {
+      "name": "self-check",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "summary": "AAG 自身の整合性 (= cross-table sync + file 実在 + orphan schema) を 5 軸で機械検証",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "self-check",
+      "outputShape": "{ schemaVersion, healthy, summary: { totalChecks, totalViolations, V1〜V5 counts }, violations[], provenance }",
+      "waveStep": "v4.2 introspect-provenance",
+      "whyExists": "AI session が AAG 自身の trustability (= 整合性) を 1 command で articulate するため",
+      "enables": [
+        "AAG meta-substrate verification",
+        "cross-table drift detection at runtime",
+        "AAG infrastructure file 実在 confirmation"
+      ],
+      "relatedCommands": [
+        "introspect command",
+        "introspect schema",
+        "describe",
+        "list"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--repo が articulate された path 不在 / 走査不能",
+          "behavior": "V2/V3/V4 で path 不在 violation を articulate (= ExitPass、healthy=false で articulate)"
+        },
+        {
+          "trigger": "implTable / schemaTable / testTable 間の cross-table drift",
+          "behavior": "violations[] で V1〜V5 の articulate、healthy=false、ExitPass (= advisory)",
+          "countermeasureTest": "TestRun_HealthyOnRealRepo (= internal/selfcheck)"
+        }
+      ]
+    },
+    {
+      "name": "shadow",
+      "family": "go-mvp",
+      "maturity": "stable",
+      "summary": "5 detector × 8 fixture を全 dispatch、parity summary を出力",
+      "args": [
+        "--repo PATH",
+        "--format json"
+      ],
+      "outputKind": "parity-summary",
+      "outputShape": "{ totalCases, matched, mismatches[] }",
+      "waveStep": "go-mvp",
+      "whyExists": "Go detector と TS detector の parity を articulate (= primary success metric)",
+      "enables": [
+        "parity drift 検出",
+        "Go MVP の正当性 articulate"
+      ],
+      "relatedCommands": [
+        "validate",
+        "fixtures"
+      ]
+    },
+    {
+      "name": "stats files",
+      "family": "stats",
+      "maturity": "stable",
+      "summary": "effectiveCodeLines を bucket / range / layer / percentile で query",
+      "args": [
+        "--repo PATH",
+        "--metric NAME",
+        "--range N..M",
+        "--bucket ID",
+        "--layer NAME",
+        "--above PNN",
+        "--limit N"
+      ],
+      "outputKind": "stats-files",
+      "outputShape": "{ matched, files[] }",
+      "waveStep": "Wave 1 #6",
+      "whyExists": "size metric を bucket / range / layer / percentile で query するため",
+      "enables": [
+        "上位 N file の size articulate",
+        "bucket / range / layer 別 distribution 取得"
+      ],
+      "relatedCommands": [
+        "where-am-i",
+        "rule locate"
+      ]
+    },
+    {
+      "name": "task close",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "summary": "TaskCapsule を close 可能か articulate",
+      "args": [
+        "--capsule FILE | -"
+      ],
+      "outputKind": "close-result",
+      "outputShape": "{ closeable, blockers[], capsule }",
+      "waveStep": "Wave 5 #22",
+      "whyExists": "Task Capsule の close 可能性 (= blockers 不在) を articulate するため",
+      "enables": [
+        "capsule lifecycle 完了判定",
+        "stdin pipe 経由の close check"
+      ],
+      "relatedCommands": [
+        "task prepare",
+        "task validate"
+      ]
+    },
+    {
+      "name": "task prepare",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "summary": "active project の Task Capsule を JSON で出力",
+      "args": [
+        "--repo PATH",
+        "--project ID",
+        "--intent TEXT",
+        "--task ID"
+      ],
+      "outputKind": "task-capsule",
+      "outputShape": "TaskCapsule (= task-capsule.schema.json)",
+      "waveStep": "Wave 1 #2",
+      "whyExists": "AI session が active project に対して Task Capsule を articulate するため",
+      "enables": [
+        "task-capsule.schema.json 準拠 capsule 生成",
+        "task validate / task close への stdin pipe 入力"
+      ],
+      "relatedCommands": [
+        "task validate",
+        "task close",
+        "context"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--project ID 不在 / 未 articulate active project (= projects/active/<id>/ 不在)",
+          "behavior": "ExitError + stderr で project not found を articulate"
+        },
+        {
+          "trigger": "--task ID が kebab-case 違反 (= camelCase / PascalCase)",
+          "behavior": "ExitError + stderr で kebab-case enforcement を articulate",
+          "countermeasureTest": "TestTaskCapsule_Validate_KebabCaseEnforcement (= internal/taskcapsule)"
+        }
+      ]
+    },
+    {
+      "name": "task validate",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "summary": "TaskCapsule を schema 準拠 + value invariant で検証",
+      "args": [
+        "--capsule FILE | -"
+      ],
+      "outputKind": "validate-result",
+      "outputShape": "{ valid, errors[], capsule }",
+      "waveStep": "Wave 5 #22",
+      "whyExists": "Task Capsule の schema 準拠 + invariant 整合を articulate するため",
+      "enables": [
+        "capsule の machine-verify",
+        "stdin pipe (= --capsule -) 経由の validation"
+      ],
+      "relatedCommands": [
+        "task prepare",
+        "task close"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--capsule - で stdin が空",
+          "behavior": "ExitError + stderr で 'stdin was empty' articulate",
+          "countermeasureTest": "TestValidateCapsule_StdinEmpty (= improvement D で landing)"
+        },
+        {
+          "trigger": "schema field 不在 (= partial capsule)",
+          "behavior": "ExitFail + structured error per missing field"
+        }
+      ]
+    },
+    {
+      "name": "validate",
+      "family": "go-mvp",
+      "maturity": "provisional",
+      "summary": "repo を read-only で検証し DetectorResult[] を出力 (= Phase 1 skeleton)",
+      "args": [
+        "--repo PATH",
+        "--format json"
+      ],
+      "outputKind": "detector-result-array",
+      "outputShape": "DetectorResult[] (= empty in skeleton)",
+      "waveStep": "go-mvp",
+      "whyExists": "Go MVP 経路で repo を read-only に検証する CLI entrypoint",
+      "enables": [
+        "DetectorResult schema 準拠 output 取得",
+        "shadow / fixtures との parity 検証"
+      ],
+      "relatedCommands": [
+        "shadow",
+        "fixtures",
+        "repair-context"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--format=yaml 指定 (= json 以外)",
+          "behavior": "ExitError + stderr で 'json のみ対応' を articulate",
+          "countermeasureTest": "TestRun_Validate_RejectsYamlFormat"
+        }
+      ]
+    },
+    {
+      "name": "where-am-i",
+      "family": "navigation",
+      "maturity": "stable",
+      "summary": "branch / activeProject / repoHealth / openObligations / 推奨 next command",
+      "args": [
+        "--repo PATH"
+      ],
+      "outputKind": "where-am-i",
+      "outputShape": "{ branch, activeProject, repoHealth, openObligations[], suggestedNext[] }",
+      "waveStep": "Wave 3 #10",
+      "whyExists": "AI session が現在 repo state を 1 command で articulate するため (= session bootstrap entrypoint)",
+      "enables": [
+        "branch / activeProject articulate",
+        "manifestContext snapshot 取得",
+        "session 開始時の re-grep 省略"
+      ],
+      "relatedCommands": [
+        "context",
+        "changed",
+        "next"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--repo が non-git directory",
+          "behavior": "ExitError + stderr で 'not a git repository' articulate",
+          "countermeasureTest": "TestWhereAmI_RejectsNonGitDir (= internal/navigation)"
+        },
+        {
+          "trigger": ".claude/manifest.json が malformed JSON",
+          "behavior": "ExitPass、ManifestContext = null で graceful degradation (= 部分 fail を articulate しない)",
+          "countermeasureTest": "TestReadManifestContext_ParseError (= internal/navigation)"
+        }
+      ]
+    },
+    {
+      "name": "wrap",
+      "family": "envelope",
+      "maturity": "provisional",
+      "summary": "stdin の JSON を pipeline envelope (= aag-pipeline-envelope-v1) で wrap",
+      "args": [
+        "--command NAME"
+      ],
+      "outputKind": "wrapped-response",
+      "outputShape": "{ schemaVersion, command, source, timestamp, summary?, data }",
+      "waveStep": "improvement A",
+      "whyExists": "stdin pipeline で任意 command output を pipeline envelope で articulate するため",
+      "enables": [
+        "AI consumer 向けの統一 envelope",
+        "stdin pipe composition"
+      ],
+      "relatedCommands": [
+        "where-am-i",
+        "stats files",
+        "describe"
+      ],
+      "knownFailureModes": [
+        {
+          "trigger": "--command flag 不在",
+          "behavior": "ExitError + stderr で '--command flag は required' articulate",
+          "countermeasureTest": "TestWrap_RejectsEmptyCommand (= internal/responsewrap)"
+        },
+        {
+          "trigger": "stdin が空",
+          "behavior": "ExitError + stderr で 'stdin was empty' articulate",
+          "countermeasureTest": "TestWrap_RejectsEmptyStdin (= internal/responsewrap)"
+        },
+        {
+          "trigger": "stdin が invalid JSON",
+          "behavior": "ExitError + stderr で 'stdin is not valid JSON' articulate (= envelope に invalid data を wrap しない)",
+          "countermeasureTest": "TestWrap_RejectsInvalidJSON (= internal/responsewrap)"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T09:16:52Z",
+    "sourceCommit": "3689028fa9192e8901fbe4f47c5d1c71f40f50fd",
+    "confidence": "canonical",
+    "computedFrom": "embedded commandTable source-of-truth"
+  }
+}

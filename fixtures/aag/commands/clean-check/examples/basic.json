@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "clean-check-v1",
+  "violations": [
+    {
+      "kind": "generated-handauthored",
+      "path": "docs/generated/aag/schema-graph.json",
+      "reason": "file in generated/ dir lacks generation marker (= GENERATED:START / 機械生成 / auto-generated / generatedAt / *.generated.md suffix / etc.)",
+      "severity": "warn",
+      "action": "Add a generation marker to the file header, OR rename to *.generated.md, OR move the file out of generated/ if it is hand-authored"
+    }
+  ],
+  "stats": {
+    "archive-missing-manifest": 0,
+    "generated-handauthored": 1,
+    "projectid-duplicate": 0,
+    "total": 1
+  },
+  "summary": "1 violation(s): generated-handauthored=1"
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "rule-locate-v1",
+  "ruleId": "AR-G3-SUPPRESS-RATIONALE",
+  "slice": "governance-ops",
+  "what": "allowlist 登録された eslint-disable / @ts-ignore / @ts-expect-error は構造化された reason: / removalCondition: を必須とする",
+  "why": "allowlist で許容しても、自由文の説明では「なぜ」「いつ消せるか」が後から読めない。構造化された rationale を必須化することで、suppression を「黙らせる手段」から「制度化された例外」に格上げする。これは TSIG-COMP-01/02 の実装方針として AR-G3-SUPPRESS の rationale enforcement 拡張で実現する",
+  "doc": "references/01-foundation/test-signal-integrity.md",
+  "principleRefs": [
+    "G3"
+  ],
+  "definition": "app-domain/gross-profit/rule-catalog/base-rules.ts",
+  "guards": []
+}

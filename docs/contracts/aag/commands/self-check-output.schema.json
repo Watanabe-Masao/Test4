@@ -26,13 +26,14 @@
         "v2ImplFiles",
         "v3SchemaFiles",
         "v4TestPaths",
-        "v5OrphanSchema"
+        "v5OrphanSchema",
+        "v6ExamplePaths"
       ],
       "properties": {
         "totalChecks": {
           "type": "integer",
-          "const": 5,
-          "description": "検証軸数 (= V1〜V5)"
+          "const": 6,
+          "description": "検証軸数 (= V1〜V6、v4.2 examples-phase1 で V6 articulate)"
         },
         "totalViolations": {
           "type": "integer",
@@ -62,6 +63,11 @@
           "type": "integer",
           "minimum": 0,
           "description": "schemaInfoTable の orphan schema 件数 (= producer / consumer が articulate されていない、ただし orphan exception 除外)"
+        },
+        "v6ExamplePaths": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "exampleTable で articulate された example directory が不在 / non-directory な件数 (= v4.2 examples-phase1 で institute、nil entry は skip)"
         }
       }
     },
@@ -74,7 +80,7 @@
         "properties": {
           "axis": {
             "type": "string",
-            "enum": ["V1", "V2", "V3", "V4", "V5"]
+            "enum": ["V1", "V2", "V3", "V4", "V5", "V6"]
           },
           "subject": {
             "type": "string",
