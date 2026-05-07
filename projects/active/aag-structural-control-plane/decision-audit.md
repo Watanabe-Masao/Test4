@@ -986,6 +986,69 @@ AI に与える Instruction Pack は、出力を狭めるためではなく、**
 
 AAG Gate は AI の創造的判断や設計判断を代替しない。**Gate は構造破綻を防ぎ、判断すべき対象を明確化** する。設計判断・表現品質・文脈解釈は AI / human review の責務であり、Gate の責務ではない。
 
+##### AAG-SCP-GUIDANCE-005: 仕組み化可能なものは仕組み化する（exhortation を mechanism に変換）
+
+「やってはいけないこと」は **2 分類** する:
+
+- **§A: 仕組み化できるもの** = 構造的に判定可能。**検出ロジック（検出装置 + landing phase）をセットで articulate + 実装** する。仕組み化せずに exhortation（「気をつける」）に留めない
+- **§B: 仕組み化できないもの** = 設計判断 / 表現品質 / 文脈解釈 / mindset / design intent。AI / human review の責務として明示し、guard 化しない
+
+判定 flow:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  Yes → §A: CI level で foul させる検出ロジックを articulate + 実装（mechanism）
+  No  → §B: AI / human review の責務として明示、guard 化しない（review）
+```
+
+CLAUDE.md G8（「気をつける」ではなく mechanism として運用）と同じ思想。本 program では plan.md 「やってはいけないこと」section を §A / §B に分割し、§A の各項目に **検出装置 + landing phase + 違反根拠** を必須記述する。
+
+§A の検出装置は本 program で **新設**（`tools/governance/check-*.ts` 群）または **既存 mechanism の拡張**（`docs:check` / `projectizationPolicyGuard` / `projectCompletionConsistencyGuard` 等）として実装する。
+
+§B の項目は plan.md / inquiry / decision-audit に articulate するが、guard 化を試みない（AAG philosophy「製本されないものを guard 化しない」整合）。
+
+##### AAG-SCP-GUIDANCE-006: 仕組み化できないものは AI 再チェック機会を提供する
+
+§B（仕組み化できないもの）は **AI / human review に放置しない**。各項目に対し、AI が **判断の妥当性を再チェックできる文脈** を articulate する:
+
+- **再チェック trigger**: いつ AI が再評価するか（PR review 時 / Instruction Pack 初参照時 / ADR landing 時 / Reading Pass disposition 確定時 等）
+- **文脈提供 surface**: どこで AI に文脈が渡されるか（PR description template / Instruction Pack JSON の `philosophy` block / doc-kind-registry の `discriminationGuide` field 等）
+
+判定 flow（GUIDANCE-005 + GUIDANCE-006 統合）:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  Yes → §A: 検出装置 + landing phase を articulate + 実装（CI foul）
+  No  → §B: AI / human review の責務として明示
+         + 再チェック trigger を articulate
+         + 文脈提供 surface を articulate
+         （= AI が判断妥当性を見直せる機会を構造的に確保）
+```
+
+**なぜ単なる "AI / human review に任せる" では不十分か**:
+
+- AI は文脈なしには再評価できない（推測で判断する → 低 confidence）
+- 「気をつける」だけでは drift する（CLAUDE.md G8 / GUIDANCE-005 と同じ理由）
+- §B 項目を articulate しないまま放置すると、AI session が defensive に振る舞う / 自由判断を回避する
+
+§B 項目は **soft mechanism** で運用する:
+
+- soft = guard / CI で foul させない
+- mechanism = 再チェック機会を構造的に提供する（template / philosophy block / discrimination guide 等）
+
+具体的な context surface 例:
+
+- **Instruction Pack JSON の `philosophy` block**: AI が初参照時に「This is guidance, not a command. Adapt to context.」を読む
+- **PR description template**: Phase 5 PR で「rationaleSummary の妥当性確認」prompt を含める
+- **ADR template の `振り返り判定` section**: wrap-up commit 時に rationale / alternatives 品質を AI が再評価
+- **doc-kind-registry の `discriminationGuide` field**: kind 選択時に「kind A vs kind B の判別観点」を AI が読む
+- **Reading Pass の `alternativesConsidered` field**（ADR-SCP-010 既 articulate）: AI が「他の kind / disposition も検討した」根拠を articulate
+- **AI 自己レビュー section（既存 PZ-13、5 軸）**: 総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ確認 / CHANGELOG 更新 で archive 前の最終再評価
+
 #### 定量・定性の分離（機械検証 scope の articulate）
 
 | 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |

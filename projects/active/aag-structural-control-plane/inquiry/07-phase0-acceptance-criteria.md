@@ -472,6 +472,51 @@ ADR-SCP-012 に従い、Phase 5 の Finding group 単位 = **zone × disposition
 - [ ] 上記 10.1 / 10.2 / 10.3 が plan.md Phase 5 section に articulate される
 - [ ] 想定 PR 数が articulate される（実数は Phase 2.5 完了時に確定）
 
+## 10.5. やってはいけないこと の §A/§B 分類（不可侵原則 11 / GUIDANCE-005 整合）
+
+ADR-SCP-014 + AAG-SCP-GUIDANCE-005 に従い、plan.md「やってはいけないこと」を §A（仕組み化可能 = CI で foul）と §B（仕組み化不可 = AI/human review）に 2 分類する。§A の各項目には **検出ロジックがセットで articulate** される。
+
+### §A: 仕組み化できるもの（検出装置 + landing phase が必須）
+
+plan.md「やってはいけないこと」§A table で 18 項目が articulate 済。各項目は以下を必須記述:
+
+- **違反根拠**: どの不可侵原則 / ADR / projectization.md nonGoal に違反するか
+- **検出装置**: `tools/governance/check-*.ts` の path、または既存 mechanism（`docs:check` / `projectizationPolicyGuard` / `projectCompletionConsistencyGuard` 等）の拡張
+- **landing phase**: 検出装置が advisory として動き始める phase（Phase 0 完了後即時 / Phase 1 / Phase 2.5 / Phase 3 / Phase 4 / Phase 5 / Phase 6 / Phase 8a〜c のいずれか）
+
+検出装置の総数:
+
+- 新設 checker: 約 14 件（`check-yaml-machine-truth` / `check-doc-contracts` / `check-doc-temporal-scope` / `check-tree` / `check-obligation-drift` / `check-no-prewrite-hook` / `check-reading-pass-review` / `check-phase-ordering` / `check-hard-gate-count` / `check-aag-contract-untouched` / `check-app-untouched` / `check-finding-group-pr` / `check-no-new-references-doc` / `check-inquiry-scope`）
+- 既存 mechanism 利用: 4 件（`projectizationPolicyGuard` PZ-13 / `projectCompletionConsistencyGuard` C1 / `docs:check` 拡張 / `scopeJsonGuard` 整合）
+
+### §B: 仕組み化できないもの（AI/human review が判定 + 再チェック機会を構造提供）
+
+plan.md「やってはいけないこと」§B で articulate 済。**guard 化を試みない** が、**AI / human review に放置せず、再チェック trigger + 文脈提供 surface を必須記述**（GUIDANCE-006）:
+
+| 項目 | 再チェック trigger | 文脈提供 surface |
+|---|---|---|
+| 設計判断・表現品質・文脈解釈を機械検証 scope に含める | 新 checker 設計時 | `check-design-intent.yaml` |
+| Instruction Pack を命令書扱いする | AI 初参照時 | Instruction Pack JSON `philosophy` block |
+| Gate を AI 失敗装置として設計する | 新 checker 設計時 / severity 引き上げ時 | `check-design-intent.yaml` + ADR-SCP-014 back link |
+| Reading Pass `rationaleSummary` の内容妥当性 | Phase 5 PR review 時 / stale 後の再 review | PR description template + `alternativesConsidered` field |
+| ADR の `rationale` / `alternatives` 品質 | wrap-up commit / 振り返り判定 / archive 圧縮時 | ADR template `振り返り判定` + alternatives 最低 2 件 guideline |
+| 文書間の責務境界 / kind 選択妥当性 | doc-registry kind 設定時 / disposition 確定時 | `doc-kind-registry.yaml` の `discriminationGuide` field + `alternativesConsidered` field |
+
+soft mechanism としての運用（GUIDANCE-006）:
+
+- soft = guard / CI で foul させない
+- mechanism = 再チェック機会を構造的に提供する（template / philosophy block / discrimination guide / 振り返り判定 / AI 自己レビュー 5 軸）
+- AI session が defensive に振る舞わず、自由判断と妥当性確認を両立
+
+### Phase 0 完了条件（§A/§B split 整合）
+
+- [ ] plan.md「やってはいけないこと」が §A（18 項目）と §B（6 項目）に 2 分類されている
+- [ ] §A 各項目に **検出装置 + landing phase + 違反根拠** が articulate されている
+- [ ] §B 各項目に **再チェック trigger + 文脈提供 surface** が articulate されている（GUIDANCE-006）
+- [ ] 新設 14 checker / 既存 mechanism 4 件の listing が articulate されている
+- [ ] §B の文脈提供 surface（`check-design-intent.yaml` / Instruction Pack `philosophy` block / `discriminationGuide` field 等）の landing phase が articulate されている
+- [ ] checker の landing phase が Phase 0〜10 に分散され、Wave 1 milestone（reposteward Task Capsule v1）到達前は advisory のみ（不可侵原則 8 整合）
+
 ## 11. 整合性確認項目（Phase 0 完了 = 本 inquiry の最終 acceptance）
 
 - [ ] 高 #1〜#5 が ADR / schema draft / inquiry に articulate されている
