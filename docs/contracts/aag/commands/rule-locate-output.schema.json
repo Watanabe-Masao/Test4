@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/rule-locate-v1.json",
+  "title": "Rule Locate Output v1",
+  "description": "aag rule locate <ruleId> の output envelope。ruleId から rule の definition / guards / docs / thresholds を 1 command で articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase1 で institute。canonical Go implementation: aag-engine/internal/navigation/rule.go。Sources: docs/generated/aag/merged-architecture-rules.json + grep app/src/test/guards/ + canonical definition path: app-domain/gross-profit/rule-catalog/base-rules.ts。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "ruleId", "definition", "guards"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "rule-locate-v1"
+    },
+    "ruleId": {
+      "type": "string",
+      "description": "rule identifier (= 'AR-STRUCT-CANONICALIZATION' / 'AR-G3-SUPPRESS-RATIONALE' 等)。"
+    },
+    "slice": {
+      "type": "string",
+      "description": "AAG 5 縦スライス (= layer-boundary / canonicalization / query-runtime / responsibility-separation / governance-ops)。",
+      "enum": ["layer-boundary", "canonicalization", "query-runtime", "responsibility-separation", "governance-ops"]
+    },
+    "what": {
+      "type": "string",
+      "description": "rule の what description。"
+    },
+    "why": {
+      "type": "string",
+      "description": "rule の why description (= 設計理由 / 制約根拠)。"
+    },
+    "doc": {
+      "type": "string",
+      "description": "rule の正本 doc path (= references/01-foundation/... 等)。"
+    },
+    "principleRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "関連 principle id (= A-I+Q taxonomy、'A1' / 'C8' / 'G8' 等)。"
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "rule の threshold articulate (= e.g., baseline / max / percentile values)。rule に thresholds が articulate されていない場合は不在。"
+    },
+    "definition": {
+      "type": "string",
+      "description": "rule の canonical definition path (= 通常 app/src/test/architectureRules.ts または rule-catalog/base-rules.ts)。"
+    },
+    "guards": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "rule を機械検証する guard test file path 一覧 (= grep で検出された articulate)。"
+    },
+    "parameters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "rule に articulate された parameter / config field 名 (= optional)。"
+    }
+  }
+}

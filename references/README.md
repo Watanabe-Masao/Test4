@@ -210,6 +210,11 @@
 | AAG Articulation Map (reposteward-ai-ops-platform improvement G、detection / command / schema の 3 軸 cross-reference) | `03-implementation/aag-articulation-map.md`                          |
 | AAG Describe / List / Introspect Output Schema (reposteward-substrate-v4-2-seed、DA-γ-002、新世代 schema convention seed) | `docs/contracts/aag/commands/describe-output.schema.json`                |
 | AAG Self-Check Output Schema (reposteward-substrate-v4-2-introspect-provenance、5 軸 substrate 整合性検証) | `docs/contracts/aag/commands/self-check-output.schema.json`              |
+| AAG WhereAmI Output v2 Schema (reposteward-substrate-v4-2-stable-schemas-phase1、AI session bootstrap surface) | `docs/contracts/aag/commands/where-am-i-output.schema.json`              |
+| AAG Context Project Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、active project bootstrap) | `docs/contracts/aag/commands/context-output.schema.json`                 |
+| AAG Fixtures Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、RunResult + fixtureSummary) | `docs/contracts/aag/commands/fixtures-output.schema.json`                |
+| AAG Rule Locate Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、ruleId navigation) | `docs/contracts/aag/commands/rule-locate-output.schema.json`             |
+| AAG Detector Refs Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、detectorId pointer) | `docs/contracts/aag/commands/detector-refs-output.schema.json`           |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

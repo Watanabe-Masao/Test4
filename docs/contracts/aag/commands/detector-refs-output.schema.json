@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/detector-refs-v1.json",
+  "title": "Detector Refs Output v1",
+  "description": "aag detector refs <detectorId> の output envelope。detectorId から detector の goImplementation / tsImplementation / schema / fixtures pointer を 1 command で articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase1 で institute。canonical Go implementation: aag-engine/internal/navigation/detector.go。本 schema は output envelope (= AI consume 経路)、detection-inventory.schema.json (= input source-of-truth、AI consume されない) とは別 family。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "detectorId", "fixtures", "fixtureCount"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "detector-refs-v1"
+    },
+    "detectorId": {
+      "type": "string",
+      "description": "detector identifier (= kebab-case、'archive-manifest' / 'no-static-numbers' 等)。"
+    },
+    "goImplementation": {
+      "type": "string",
+      "description": "Go detector implementation file path (= aag-engine/internal/detectors/<id_snake>.go)。articulate されていない場合は不在 (= omitempty)。"
+    },
+    "goTest": {
+      "type": "string",
+      "description": "Go detector test file path (= aag-engine/internal/detectors/<id_snake>_test.go)。"
+    },
+    "tsImplementation": {
+      "type": "string",
+      "description": "TS detector implementation file path (= tools/architecture-health/src/detectors/<id-kebab>-detector.ts)。"
+    },
+    "schema": {
+      "type": "string",
+      "description": "detector が emit する DetectorResult schema path (= 通常 docs/contracts/aag/detector-result.schema.json)。"
+    },
+    "fixtures": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "fixture directory path 一覧 (= fixtures/aag/<id-kebab>/ 配下の各 fixture dir)。空配列 = fixture 不在 (= articulate failure signal)。"
+    },
+    "fixtureCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "fixture 件数 (= fixtures.length、redundant articulate ですが AI consumer の便宜)。"
+    }
+  }
+}
