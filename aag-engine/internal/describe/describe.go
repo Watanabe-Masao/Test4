@@ -391,6 +391,19 @@ var commandTable = []CommandMetadata{
 		Enables:         []string{"schema producer / consumer の articulate", "virtual schema (= Go internal) と file-backed schema の articulate"},
 		RelatedCommands: []string{"introspect command", "detector refs"},
 	},
+	{
+		Name:            "self-check",
+		Family:          "self-describe",
+		Maturity:        "provisional",
+		Summary:         "AAG 自身の整合性 (= cross-table sync + file 実在 + orphan schema) を 5 軸で機械検証",
+		Args:            []string{"--repo PATH"},
+		OutputKind:      "self-check",
+		OutputShape:     "{ schemaVersion, healthy, summary: { totalChecks, totalViolations, V1〜V5 counts }, violations[], provenance }",
+		WaveStep:        "v4.2 introspect-provenance",
+		WhyExists:       "AI session が AAG 自身の trustability (= 整合性) を 1 command で articulate するため",
+		Enables:         []string{"AAG meta-substrate verification", "cross-table drift detection at runtime", "AAG infrastructure file 実在 confirmation"},
+		RelatedCommands: []string{"introspect command", "introspect schema", "describe", "list"},
+	},
 }
 
 // Describe は command 名から metadata を lookup する。

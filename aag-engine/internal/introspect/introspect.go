@@ -197,6 +197,12 @@ var implTable = map[string]ImplementationPointer{
 		HandlerFunc:    "runIntrospectSchema",
 		Package:        ptr("aag-engine/internal/introspect"),
 	},
+	"self-check": {
+		DispatcherFile: "aag-engine/cmd/aag/main.go",
+		HandlerFile:    "aag-engine/cmd/aag/command_selfcheck.go",
+		HandlerFunc:    "runSelfCheck",
+		Package:        ptr("aag-engine/internal/selfcheck"),
+	},
 }
 
 // schemaTable は command → output schema path の mapping。
@@ -214,6 +220,7 @@ var schemaTable = map[string]*string{
 	"list":                 ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"introspect command":   ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"introspect schema":    ptr("docs/contracts/aag/commands/describe-output.schema.json"),
+	"self-check":           ptr("docs/contracts/aag/commands/self-check-output.schema.json"),
 	// 以下は schema 未 articulate (= v4.2 subsequent PR で stable subset 化候補)
 	"fixtures":             nil,
 	"where-am-i":           nil,
@@ -255,6 +262,7 @@ var testTable = map[string][]string{
 	"list":                 {"aag-engine/internal/describe/describe_test.go"},
 	"introspect command":   {"aag-engine/internal/introspect/introspect_test.go"},
 	"introspect schema":    {"aag-engine/internal/introspect/schema_test.go"},
+	"self-check":           {"aag-engine/internal/selfcheck/selfcheck_test.go"},
 }
 
 // Introspect は command 名から implementation pointer 等を articulate する。
@@ -289,6 +297,48 @@ func Introspect(command string) (IntrospectOutput, error) {
 			"embedded implTable + schemaTable + testTable + describe.commandTable",
 		),
 	}, nil
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Accessor functions for selfcheck / external substrate verification。
+// ─────────────────────────────────────────────────────────────────────
+
+// ImplTableNames returns the set of command names articulated in implTable。
+func ImplTableNames() map[string]bool {
+	out := make(map[string]bool, len(implTable))
+	for k := range implTable {
+		out[k] = true
+	}
+	return out
+}
+
+// AllImplPointers returns a copy of implTable for read-only access。
+func AllImplPointers() map[string]ImplementationPointer {
+	out := make(map[string]ImplementationPointer, len(implTable))
+	for k, v := range implTable {
+		out[k] = v
+	}
+	return out
+}
+
+// AllSchemaPaths returns a copy of schemaTable for read-only access。
+func AllSchemaPaths() map[string]*string {
+	out := make(map[string]*string, len(schemaTable))
+	for k, v := range schemaTable {
+		out[k] = v
+	}
+	return out
+}
+
+// AllTestPaths returns a copy of testTable for read-only access。
+func AllTestPaths() map[string][]string {
+	out := make(map[string][]string, len(testTable))
+	for k, v := range testTable {
+		paths := make([]string, len(v))
+		copy(paths, v)
+		out[k] = paths
+	}
+	return out
 }
 
 // MarshalJSON returns indented JSON without HTML escaping。
