@@ -320,10 +320,8 @@ disposition 4 分類:
 
 §A はさらに 2 分類（GUIDANCE-007）:
 
-- **§A1: AAG Core 永続 checker** — 全 repo / 全 program に普遍適用、`tools/governance/` 配下、本 program archive 後も残置
-- **§A2: project-scoped AI tool** — 本 program 固有の制約、`projects/active/aag-structural-control-plane/aag/scp-checkers/` 配下、archive 時に Archive v2 §6.4 で物理削除、AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能
-
-各項目に **検出装置 + landing phase + 区分（A1/A2）** を articulate。Phase 1+ で実装され、advisory → new-only gate → hard gate の段階で foul。
+- **§A1: AAG Core 永続 checker** — 全 repo / 全 program に普遍適用、`tools/governance/` 配下、本 program archive 後も残置。parse-heavy も含む（schema validation / drift detection / phase ordering 等）
+- **§A2: project-scoped boundary protection** — 本 program が約束する **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定**（GUIDANCE-007）。**parse-free**（`git diff --name-only` / `grep` のみ）、**phase 不変**（本 program 全期間を通じて一貫禁止）、`projects/active/aag-structural-control-plane/aag/scp-checkers/` 配下、archive で消失、AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能
 
 #### §A1: AAG Core 永続 checker（`tools/governance/`、archive 後も残置）
 
@@ -335,34 +333,36 @@ disposition 4 分類:
 | **Tree Contract MVP scope を超えて全ディレクトリを宣言する** | 不可侵原則 4 / ADR-SCP-004 | `tools/governance/check-tree.ts`（tree-contracts.yaml の declared directory 数が baseline + N を超えれば finding、ratchet-down） | Phase 3 |
 | **AI Instruction Pack を pre-write 強制機構として実装する** | 不可侵原則 6 / ADR-SCP-006 / AAG-SCP-GUIDANCE-003 | `tools/governance/check-no-prewrite-hook.ts`（git pre-commit / pre-push hook に Markdown 編集前 instruction-pack 取得強制があれば finding） | Phase 6 |
 | **YAML 変更後の generated JSON 未更新** | 不可侵原則 1 補強 | 既存 `docs:check` mechanism（pre-push hook で live recalc + semantic diff）に YAML→JSON normalize 検証を追加 | Phase 1 |
+| **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** | 不可侵原則 5 / ADR-SCP-005 | `tools/governance/check-obligation-drift.ts`（Phase 8a で正規化比較器、TS 定数と generated JSON の意味的差分機械検証 + commit history で Phase 8a→8b→8c 段階順序検証）— **universal な migration safety pattern** のため §A1 配置 | Phase 8a/8b/8c |
+| **Reading Pass を機械分類で代替する** | 不可侵原則 7 / ADR-SCP-007 / ADR-SCP-008 / ADR-SCP-010 | `tools/governance/check-reading-pass-schema.ts`（document-reading-decisions.yaml の各 entry に reviewedBy / reviewedAtCommit / reviewedAtSha が必須、`generated-report` / `archive-doc` 例外条項該当外で machine-inferred 表記があれば finding）— **universal な reading-pass.schema.json validation** | Phase 2.5 |
+| **Phase 順序を逆行させる** | 不可侵原則 9 | `tools/governance/check-phase-ordering.ts`（commit history で Phase N+1 の成果物が Phase N より前に landing していれば finding、各 phase の sentinel artifact 存在確認）— **多 phase project の universal pattern** | Phase 1 |
+| **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** | AAG-SCP-MIGRATION-005 | `tools/governance/check-finding-group-pr.ts`（PR 内で異なる zone × disposition の Finding group が混在すれば finding、PR description の `Finding group:` annotation 必須）— **universal な migration PR convention** | Phase 5 |
 | **実装 AI による自己承認** | L3 + requiresHumanApproval=true | 既存 `projectizationPolicyGuard` PZ-13（最終レビュー section 存在 + ordering 検証）+ `projectCompletionConsistencyGuard` C1（completed 判定後の archive obligation） | 既存 mechanism 利用 |
 
-#### §A2: project-scoped AI tool（`projects/active/aag-structural-control-plane/aag/scp-checkers/`、archive で消失）
+#### §A2: project-scoped boundary protection（`projects/active/aag-structural-control-plane/aag/scp-checkers/`、archive で消失、4 件のみ）
+
+> **boundary protection の image**: 触ってはいけない / 変更してはいけない / 崩してはいけない（GUIDANCE-007）。本 program の全期間（Phase 0〜10）を通じて一貫して禁止される事項に限定。**parse-free**（`git diff --name-only` / `grep` のみで検出可能）。
 
 各 checker は AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能。Archive v2 §6.4 で project の `aag/` folder ごと物理削除されるため、archive 後は invocation 不能（restore 経由でのみ復活）。
 
-| やってはいけないこと | 違反根拠 | 検出装置（project-scoped） | landing phase |
+| boundary protection | 違反根拠 | 検出装置（parse-free、`git` + `grep` only） | image |
 |---|---|---|---|
-| **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** | 不可侵原則 5 / ADR-SCP-005 | `aag scp check obligation-migration-staging`（Phase 8a で正規化比較器、TS 定数と generated JSON の意味的差分機械検証 + commit history で Phase 8a→8b→8c 段階順序検証） | Phase 8a/8b/8c |
-| **Reading Pass を機械分類で代替する** | 不可侵原則 7 / ADR-SCP-007 / ADR-SCP-008 | `aag scp check reading-pass-review`（document-reading-decisions.yaml の各 entry に reviewedBy / reviewedAtCommit / reviewedAtSha が必須、`generated-report` / `archive-doc` 例外条項該当外で machine-inferred 表記があれば finding） | Phase 2.5 |
-| **Phase 順序を逆行させる** | 不可侵原則 9 | `aag scp check phase-ordering`（commit history で Phase N+1 の成果物が Phase N より前に landing していれば finding、各 phase の sentinel artifact 存在確認） | Phase 1 |
-| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-count`（pre-push / CI に新規 hard-gate step が追加されれば finding、advisory のみ許可） | Phase 1 |
-| **`docs/contracts/aag/*.schema.json` を `docs/contracts/schema/` に再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（git log で `docs/contracts/aag/` 配下に move / delete が発生すれば finding） | Phase 0 完了後即時 |
-| **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（本 program branch で `app/src/` 配下に変更があれば finding、scopeJsonGuard 整合） | Phase 0 完了後即時 |
-| **業務 logic / domain calculations / readModels を変更する** | projectization.md §4 nonGoal | 上記 `app-untouched` に統合 + `app/src/domain/calculations/` / `app/src/application/readModels/` への変更検出 | Phase 0 完了後即時 |
-| **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** | AAG-SCP-MIGRATION-005 | `aag scp check finding-group-pr`（PR 内で異なる zone × disposition の Finding group が混在すれば finding、PR description の `Finding group:` annotation 必須） | Phase 5 |
-| **Reading Pass 中に対象 zone 内の文書本体を編集する** | AAG-SCP-MIGRATION-006 | 上記 `reading-pass-review` に統合（Reading Pass 期間中の対象 zone 編集を git log で検出、frontmatter docId 付与のみ許可） | Phase 2.5 |
-| **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（本 program branch で `references/` 配下に新 .md 追加があれば finding、ただし inquiry/ や Reading Pass split target は ADR-SCP-011 disposition に従い許可） | Phase 0 完了後即時 |
-| **inquiry/ にすべての検証結果を集約する** | inquiry/ は skeleton 限定 | `aag scp check inquiry-scope`（inquiry/*.md 内に generated artifact path / KPI 数値が直書きされていれば finding、generated/ への参照のみ許可） | Phase 1 |
+| **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（`git diff --name-only HEAD..` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry） | 触ってはいけない（既存実装層） |
+| **`docs/contracts/aag/*.schema.json` を再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（`git diff --name-only HEAD..` で `^docs/contracts/aag/` の move / delete / modify 検出） | 触ってはいけない（既存 reposteward AAG contract schemas） |
+| **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（`git diff --name-only --diff-filter=A HEAD..` で `^references/.*\.md$` 検出。ただし Reading Pass `disposition: split / move / archive` の split target は disposition 確認で許可） | 触ってはいけない（既存 references/ への追加） |
+| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-count`（`grep -c "hard.\?gate"` で `.github/workflows/` + `tools/git-hooks/pre-push` を検査、本 program 開始時 baseline からの増加があれば finding） | 崩してはいけない（既存 advisory state） |
 
-#### §A2 → §A1 promotion 経路
+#### §A2 narrowing rationale（GUIDANCE-007）
 
-本 program 期間中に「universal な rule」と判明した §A2 checker は、archive 直前に user 判断で **§A1 に promote**:
+§A2 を boundary protection 4 件に narrowing した理由:
 
-1. checker 実装を `projects/active/aag-structural-control-plane/aag/scp-checkers/<checker>.ts` から `tools/governance/check-<checker>.ts` へ move
-2. `aag scp check <checker>` 呼び出し経路を維持しつつ、pre-push / CI へ統合
-3. promotion record を `decision-audit.md` に articulate（DA-α-N の振り返り判定として）
-4. archive プロセスで §A2 checker 群が削除されても、promotion 済 §A1 は残置
+- **「やってはいけない」より重い「不可触・不可変・不可崩」に限定** — 単なる手続き上の禁止（migration 一発切替 / 順序逆行 / Reading Pass 機械分類代替 等）は parse-heavy + phase 依存のため §A1 へ promote
+- **parse-free 限定** — `git diff --name-only` / `grep` だけで動く。TypeScript AST / Markdown 構造解析 / YAML schema 解析 不要。reposteward Wave 1+ infrastructure 待ちなしで Phase 1 で landing 可能
+- **phase 不変** — 本 program 全期間を通じて一貫して禁止される事項のみ。phase 別 transient rule（Reading Pass 中の zone 編集禁止 等）は §B に降格
+- **AI tool として均質** — 4 checker すべて「path 集合の差分比較」と均質、AI が学ぶコストが小さい
+- **archive 削除が文脈整合** — 本 program が完遂すれば boundary protection の約束も終わる、checker が消えるのが自然
+
+§A2 → §A1 promotion: §A2 は boundary protection 限定のため、通常 promotion 候補にならない（universal rule にはなりにくい）。例外は archive 直前の user 判断による articulation。
 
 ### B. 仕組み化できない（AI / human review が判定する + 再チェック機会を提供する）
 

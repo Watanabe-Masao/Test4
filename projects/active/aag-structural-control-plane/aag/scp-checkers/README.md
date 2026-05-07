@@ -1,34 +1,32 @@
-# scp-checkers — aag-structural-control-plane project-scoped AI tools
+# scp-checkers — aag-structural-control-plane project-scoped boundary protection
 
-> **役割**: 本 program 固有の制約（plan.md「やってはいけないこと」§A2）を CI level で foul させる **project-scoped checker** 群。AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能。
+> **役割**: 本 program が約束する **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection** を CI level で foul させる project-scoped checker 群（plan.md「やってはいけないこと」§A2、ADR-SCP-014 / AAG-SCP-GUIDANCE-007）。
 >
-> **規約**: ADR-SCP-014 / AAG-SCP-GUIDANCE-007 に従う。本 program archive 時に Archive v2 §6.4 で `projects/active/aag-structural-control-plane/aag/` folder ごと物理削除されるため、§A2 checker は archive 後 invocation 不能（restore 経由でのみ復活）。
+> **image**: AI が安心してアクセルを踏めるように、事前にコース固有のガードレールを敷く。AI は本筋（Tree / Document / Temporal の構造補助設計）に集中でき、boundary 逸脱の不安に認知資源を奪われない。
+>
+> **scope narrowing**: parse-free 限定（`git diff --name-only` / `grep` のみ）+ phase 不変（本 program 全期間 Phase 0〜10 を通じて一貫禁止）+ project lifetime（archive 時に Archive v2 §6.4 で `aag/` folder ごと物理削除）。
 
-## 1. 設計原則
+## 1. 設計原則（GUIDANCE-007）
 
-- **lifecycle**: 本 program active 期間のみ。archive 時に物理削除
+- **lifecycle**: 本 program active 期間のみ。archive 時に物理削除（次 program は別の boundary を持つため、コース固有 guardrail は撤去）
 - **invocation**: `aag scp check --project aag-structural-control-plane <checker>`（reposteward `aag-engine` 経由、Phase 1+ で landing）
 - **output**: Finding JSON（ADR-SCP-013 schema 準拠、`docs/contracts/schema/aag-finding.schema.json`）
 - **配置**: 本 directory（`projects/active/aag-structural-control-plane/aag/scp-checkers/`）
-- **promotion**: archive 直前に user 判断で「universal」と判明した checker は `tools/governance/check-*.ts` へ promote（§A2 → §A1）
+- **detection method**: **parse-free 限定**（`git diff --name-only` / `grep` のみ。TypeScript AST / Markdown 構造解析 / YAML schema 解析 不要）
+- **promotion**: 通常は §A1 へ promote しない（boundary protection は本 program 固有 nonGoal、universal rule にはなりにくい）。例外は archive 直前 user 判断
 
-## 2. checker 一覧（Phase 1+ で順次 landing）
+## 2. checker 一覧（4 件、boundary protection 限定）
 
-| checker name | 検出対象 | landing phase | promotion candidate? |
+| checker | image | 検出ロジック | 違反根拠 |
 |---|---|---|---|
-| `obligation-migration-staging` | OBLIGATION_MAP / PATH_TO_REQUIRED_READS の一発切替 | Phase 8a/8b/8c | yes（OBLIGATION_MAP migration pattern は universal） |
-| `reading-pass-review` | Reading Pass の機械分類代替 + 期間中の対象 zone 編集 | Phase 2.5 | partial（reading-decisions.yaml schema は universal、対象 zone 編集禁止は project-scoped） |
-| `phase-ordering` | Phase 順序逆行 | Phase 1 | partial（多 phase project の universal pattern） |
-| `hard-gate-count` | Wave 1 milestone 到達前の Hard Gate 追加 | Phase 1 | no（reposteward Wave 1 state に依存、本 program 固有） |
-| `docs-contracts-aag-untouched` | `docs/contracts/aag/*.schema.json` 再配置 | Phase 0 完了後即時 | no（本 program nonGoal） |
-| `app-untouched` | `app/src/` 配下 touch + 業務 logic 変更 | Phase 0 完了後即時 | no（本 program nonGoal） |
-| `finding-group-pr` | references/99-archive/ への 1 PR 大量移動 | Phase 5 | yes（Finding group 単位 PR は universal pattern） |
-| `no-new-references-doc` | references/ への新 doc 追加（本 program scope 外） | Phase 0 完了後即時 | no（本 program scope） |
-| `inquiry-scope` | inquiry/ への generated artifact 直書き | Phase 1 | yes（inquiry/ skeleton 限定は universal） |
+| `app-untouched` | 触ってはいけない（既存実装層） | `git diff --name-only HEAD..` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry | projectization.md §4 nonGoal |
+| `docs-contracts-aag-untouched` | 触ってはいけない（既存 reposteward AAG contract schemas） | `git diff --name-only HEAD..` で `^docs/contracts/aag/` の move / delete / modify 検出 | ADR-SCP-002 / projectization.md §4 nonGoal |
+| `no-new-references-doc` | 触ってはいけない（既存 references/ への新 doc 追加） | `git diff --name-only --diff-filter=A HEAD..` で `^references/.*\.md$` 検出。Reading Pass `disposition: split / move / archive` の split target は disposition 確認で許可 | 本 program scope 外（plan.md やってはいけないこと §A2） |
+| `hard-gate-count` | 崩してはいけない（既存 advisory state） | `grep -c "hard.\?gate"` で `.github/workflows/` + `tools/git-hooks/pre-push` を検査、本 program 開始時 baseline からの増加があれば finding | 不可侵原則 8 |
 
-## 3. 実装方針
+## 3. 実装方針（Phase 1+ で実装）
 
-各 checker は以下の interface を満たす TypeScript module（Phase 1+ で実装）:
+各 checker は以下の interface を満たす TypeScript module（lightweight、parse-free）:
 
 ```typescript
 import type { Finding } from '@/test/aag-core-types' // Phase 1 で aag-finding.schema.json に基づく型を articulate
@@ -36,10 +34,10 @@ import type { Finding } from '@/test/aag-core-types' // Phase 1 で aag-finding.
 export interface ScpChecker {
   readonly name: string
   readonly description: string
+  readonly imageMetaphor: string // 触ってはいけない / 変更してはいけない / 崩してはいけない のいずれか
   readonly violationBasis: string // 不可侵原則 / ADR / nonGoal への参照
-  readonly landingPhase: 'phase-0-post' | 'phase-1' | 'phase-2-5' | 'phase-3' | 'phase-4' | 'phase-5' | 'phase-6' | 'phase-8a' | 'phase-8b' | 'phase-8c'
-  readonly promotionCandidate: 'yes' | 'no' | 'partial'
-  check(): Finding[] // 検出ロジック
+  readonly detectionMethod: 'git-diff' | 'grep' | 'git-ls-files' // parse-free のみ
+  check(repoRoot: string, baseRef: string): Finding[] // 検出ロジック
 }
 ```
 
@@ -52,7 +50,7 @@ aag-engine reads projects/active/aag-structural-control-plane/aag/scp-checkers/
   ↓
 load <checker>.ts module
   ↓
-invoke check() → Finding[]
+invoke check(repoRoot, baseRef='HEAD~1') → Finding[]
   ↓
 output JSON (ADR-SCP-013 schema)
 ```
@@ -61,12 +59,26 @@ output JSON (ADR-SCP-013 schema)
 
 本 program archive 時:
 
-1. archive 直前: §A2 checker のうち promotion candidate を user 判断で評価
-2. promotion 採用: `tools/governance/check-<checker>.ts` へ実装 move + decision-audit.md 振り返り判定 articulate
-3. promotion 棄却 / 該当なし: そのまま放置（§A2 のまま）
+1. archive 直前: §A2 checker のうち promotion candidate を user 判断で評価（通常は無し、boundary protection は project 固有）
+2. promotion 採用（例外的）: `tools/governance/check-<checker>.ts` へ実装 move + decision-audit.md 振り返り判定 articulate
+3. promotion 棄却 / 該当なし（通常）: そのまま放置（§A2 のまま）
 4. Archive v2 §6.4: `projects/active/aag-structural-control-plane/aag/` folder が `projects/completed/aag-structural-control-plane/` 移動時に物理削除（archive.manifest.json `deletedPaths` に記録）
 5. restore 経路: archive.manifest.json `restoreAllCommand` で preCompressionCommit 時点を復元すれば §A2 checker も復活
 
 ## 5. 現在の実装状態
 
-Phase 0 では本 directory + README のみ landing。実 checker は Phase 1+ で順次 landing する（checklist.md の Phase 0 acceptance criteria は本 directory 存在 + README articulation を含む）。
+Phase 0 では本 directory + README のみ landing。実 checker 4 件は Phase 1+ で順次 landing する（checklist.md の Phase 0 acceptance criteria は本 directory 存在 + README articulation を含む）。
+
+## 6. §A2 から外したもの（参考: plan.md §A1 / §B 配置）
+
+以下は §A2 narrowing rationale により §A1 / §B へ移動:
+
+| 元案項目 | 移動先 | 理由 |
+|---|---|---|
+| `obligation-migration-staging`（OBLIGATION_MAP 比較器） | §A1（`tools/governance/check-obligation-drift.ts`） | parse-heavy + universal な migration safety pattern |
+| `reading-pass-review`（YAML schema 検証） | §A1（`tools/governance/check-reading-pass-schema.ts`） | parse-heavy + universal な reading-pass.schema.json validation |
+| `phase-ordering`（commit history 検証） | §A1（`tools/governance/check-phase-ordering.ts`） | 多 phase project の universal pattern |
+| `finding-group-pr`（PR description parse） | §A1（`tools/governance/check-finding-group-pr.ts`） | parse-heavy + universal な migration PR convention |
+| `inquiry-scope`（Markdown KPI grep） | §B（AI が `grep` で self-check） | 軽量、AI self-check で十分 |
+| `Reading Pass 中の対象 zone 編集禁止` | §B（AI が `git diff` で self-check） | phase 依存 transient rule、§A2 phase 不変条件に該当しない |
+| `既存 references/99-archive/ への 1 PR 大量移動禁止` | §A1 promote（universal Finding group convention） | universal な migration PR convention |

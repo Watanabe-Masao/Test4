@@ -1049,17 +1049,64 @@ CLAUDE.md G8（「気をつける」ではなく mechanism として運用）と
 - **Reading Pass の `alternativesConsidered` field**（ADR-SCP-010 既 articulate）: AI が「他の kind / disposition も検討した」根拠を articulate
 - **AI 自己レビュー section（既存 PZ-13、5 軸）**: 総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ確認 / CHANGELOG 更新 で archive 前の最終再評価
 
-##### AAG-SCP-GUIDANCE-007: project-scoped 検出装置は AI tool として提供 + archive で消失
+##### AAG-SCP-GUIDANCE-007: project-scoped 検出装置は **boundary protection に限定** + AI tool として提供 + archive で消失
 
-§A（仕組み化可能）はさらに **§A1（AAG Core 永続）** と **§A2（project-scoped、AI tool、archive で消失）** に分ける:
+§A（仕組み化可能）はさらに **§A1（AAG Core 永続）** と **§A2（project-scoped、AI tool、archive で消失）** に分けるが、§A2 は **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定** する。
 
-| 軸 | §A1: AAG Core 永続 | §A2: project-scoped AI tool |
+§A2 = boundary protection の image:
+
+```
+触ってはいけない   = 既存正本 / 既存実装層 / 既存 schema directory への変更を禁止
+変更してはいけない = 既存正本の意味 / 既存契約 / 既存 invariant への破壊的変更を禁止
+崩してはいけない   = 既存 governance 状態（advisory のみ等）/ 既存 boundary を崩さない
+```
+
+これらは **本 program の全期間（Phase 0〜10）を通じて一貫して禁止** される事項であり、phase 不変・parse 不要・`git` + `grep` だけで検出可能。
+
+| 軸 | §A1: AAG Core 永続 | §A2: project-scoped boundary protection |
 |---|---|---|
-| **scope** | 全 repo / 全 program に普遍適用される構造ルール | 本 program 固有の制約（nonGoal / phase 構造 / scope 境界） |
+| **scope** | 全 repo / 全 program に普遍適用される構造ルール | 本 program 固有の **boundary protection**（既存正本 / 既存実装層 / 既存 governance 状態の不可触・不可変・不可崩） |
+| **対象範囲** | parse-heavy も含む（schema validation / drift detection / phase ordering 等） | **parse-free 限定**。`git diff --name-only` / `grep` で検出可能なものに限る |
+| **phase 依存** | 個別 phase（Phase 1 / 2.5 / 4 / 5 / 6 / 8a 等）に landing | **phase 不変**。本 program 全期間（Phase 0〜10）を通じて一貫して禁止 |
 | **配置** | `tools/governance/check-*.ts`（既存 architecture-health pipeline 拡張も含む） | `projects/active/aag-structural-control-plane/aag/scp-checkers/` |
 | **lifecycle** | 永続。本 program archive 後も残置 | 本 program archive 時に物理削除（Archive v2 §6.4 で `aag/` folder ごと削除対象） |
 | **invocation** | pre-push / CI / docs:check に統合 | **AI tool として明示的に提供**（reposteward `aag scp check --project aag-structural-control-plane <checker>` 経由、または project's aag-engine subcommand として articulate） |
-| **promotion path** | — | 本 program 期間中に「universal な rule」と判明したら §A1 に promote（archive 前に user 判断） |
+| **promotion path** | — | 通常は不要（boundary protection は本 program 固有 nonGoal、universal rule にはなりにくい） |
+
+§A2 narrowing rationale:
+
+- **「やってはいけない」より重い**: 単なる手続き上の禁止（一発切替禁止 / 順序逆行禁止 等）は phase 依存で parse-heavy になるため §A1 へ promote。§A2 は **本 program が約束する不可触・不可変・不可崩 boundary** に限定
+- **AI tool として一貫**: §A2 は全 checker が `git` + `grep` 均質、AI が学ぶコストが小さい
+- **archive 削除が文脈整合**: §A2 は本 program が archive されれば「約束が完遂された」状態であり、checker が消えるのが自然
+
+##### §A2 の image: AI が安心してアクセルを踏むための事前ガードレール
+
+§A2 boundary protection の本質は、**AI が事前にガードレールを敷いておくことで、本筋（Tree / Document / Temporal の構造補助設計）でアクセルを踏める**ことにある。
+
+```
+ガードレールなし:
+  AI は自分が脱線していないか毎ステップ確認 (= defensive)
+  → 創造的判断を回避 / 表面的 compliance / 速度低下
+
+ガードレールあり (§A2):
+  AI は本筋でアクセルを踏める
+  → 万一脱線したら §A2 が catch
+  → 速度と妥当性の両立
+```
+
+メタファー対応:
+
+| 要素 | metaphor | 役割 |
+|---|---|---|
+| §A1（AAG Core 永続） | 道路交通法 / 高速道路の構造 | 全 program / 全 repo に適用される普遍ルール |
+| **§A2（project-scoped guardrail）** | **このコース固有のガードレール** | 本 program の boundary protection、archive で撤去 |
+| §B（再チェック trigger + 文脈提供） | 助手席の運転教官 / カーナビ | AI が判断時に参照する文脈 |
+| Guidance（Instruction Pack） | 道路標識 / コース案内 | AI が文脈を取り違えないための補助 |
+| Gate（構造破綻検出） | 崖際の鉄柵 | 本当に脱線した時だけ catch |
+
+§A2 の存在意義は「AI を縛る」ではなく「**AI が安心してアクセルを踏めるように、事前にコースの境界を物理的に articulate する**」こと。これにより AI は本筋（構造補助の設計判断）に集中でき、boundary 逸脱の不安に認知資源を奪われない。
+
+archive 時に §A2 が消えるのも、この metaphor で整合する: 本 program という「特定のコース」を走り終えれば、そのコース固有のガードレールは撤去される（次の program は別のコースなので、別のガードレールが要る）。
 
 §A2 を AI tool として提供する理由:
 
@@ -1067,18 +1114,19 @@ CLAUDE.md G8（「気をつける」ではなく mechanism として運用）と
 - **CI の暗黙の foul ではない**: 隠れた制約として AI を defensive にせず、explicit な tool として AI が認識する
 - **archive 後の削除が自然**: project の aag/ folder 自体が Archive v2 で削除されるため、§A2 checker が自動的に消える（恒久 dead code 化を防ぐ）
 
-§A2 invocation 例（articulation only、Phase 1+ で実装）:
+§A2 invocation 例（articulation only、Phase 1+ で実装。**4 件の boundary protection checker のみ**）:
 
 ```bash
-# 本 program が active な間、AI が呼び出せる:
-aag scp check --project aag-structural-control-plane app-untouched
-aag scp check --project aag-structural-control-plane docs-contracts-aag-untouched
-aag scp check --project aag-structural-control-plane phase-ordering
-aag scp check --project aag-structural-control-plane reading-pass-zone-not-edited
-aag scp check --all  # = 本 program の全 §A2 checker を一括実行
+# 本 program が active な間、AI が呼び出せる (= parse-free、git + grep only):
+aag scp check --project aag-structural-control-plane app-untouched               # 触ってはいけない: app/src/
+aag scp check --project aag-structural-control-plane docs-contracts-aag-untouched # 触ってはいけない: docs/contracts/aag/
+aag scp check --project aag-structural-control-plane no-new-references-doc       # 触ってはいけない: references/ への新 .md 追加
+aag scp check --project aag-structural-control-plane hard-gate-count             # 崩してはいけない: pre-push/CI advisory state
+aag scp check --all  # = 本 program の全 §A2 checker (4 件) を一括実行
 
 # archive 後（projects/completed/aag-structural-control-plane/）:
 # aag/ folder が削除されているため、上記 command は該当 checker not found を返す
+# (= 本 program が完遂すれば boundary protection の約束も終わる、文脈整合)
 ```
 
 判定 flow（GUIDANCE-005〜007 統合）:
