@@ -1,0 +1,42 @@
+# CodeRabbit configuration — v4.2 substrate articulation
+#
+# Purpose:
+#   - CodeRabbit (= 自動 PR review tool) の article-time tool 設定
+#   - golangci-lint integration を repo の multi-module 構造 (= go.work)
+#     に整合させるため、本 file で disable
+#
+# Rationale (= v4.2 coderabbit-fix で institute):
+#   - 本 repo は go.work で aag-engine/ を workspace member に articulate (= DA-γ-002 系)
+#   - CodeRabbit の golangci-lint integration は repo root から `./...` で
+#     invoke するが、go.work 経由でも `./...` は workspace member に
+#     展開されない (= "directory prefix . does not contain modules" warning)
+#   - 修正方法は 2 案:
+#     (a) golangci-lint を disable (= 本 file の articulate)
+#     (b) repo root に minimal go.mod を articulate (= workspace 構造を破壊する risk)
+#   - 案 (a) を採択: 既存 CI workflow (= .github/workflows/aag-engine.yml) が
+#     working-directory: aag-engine で go test を articulate しており、
+#     scope 済 Go quality は CI で機械検証されている。CodeRabbit 側で重複
+#     articulate しても価値が articulate されない (= warning のみ累積)
+#
+# Trade-off:
+#   - CodeRabbit が golangci-lint suggestion を articulate しなくなる
+#   - ただし本 repo の Go quality は existing CI + go test で articulate されている
+#   - 必要 demand articulate されたら、別 PR で .golangci.yml + per-module CI
+#     scope を articulate する option を articulate
+#
+# References:
+#   - go.work: repo root (= v4.2 substrate seed、PR #1267)
+#   - aag-engine CI: .github/workflows/aag-engine.yml
+#   - golangci-lint warning history: PR #1267 / #1268 / #1270 の CodeRabbit comment
+language: ja-JP
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  collapse_walkthrough: false
+
+  tools:
+    # golangci-lint: disable (= multi-module + go.work 構造との非整合のため)
+    # 本 repo の Go quality は existing CI workflow (= aag-engine.yml の go test) で articulate
+    golangci-lint:
+      enabled: false
