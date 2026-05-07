@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "task-close-v1",
+  "capsuleFile": "-",
+  "valid": true,
+  "readyToClose": true,
+  "blockingIssues": [],
+  "requiredFinalChecks": [
+    "cd app && npm run test:guards  # all TS guards PASS",
+    "cd app && npm run docs:check  # health + KPI sync",
+    "cd aag-engine && go test ./...  # all Go tests PASS",
+    "git status  # working tree clean",
+    "git log --oneline -5  # commit lineage articulated"
+  ],
+  "taskId": "reposteward-ai-ops-platform-task",
+  "projectId": "reposteward-ai-ops-platform"
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "next-v1",
+  "branch": "claude/reposteward-substrate-v4-2-examples-phase2",
+  "activeProject": null,
+  "hardGate": "pass",
+  "workingTreeClean": false,
+  "uncheckedItemsCount": 0,
+  "recommendedActions": [
+    "git add -A && commit (= articulate the change with a 1-line summary)",
+    "git push -u origin claude/reposteward-substrate-v4-2-examples-phase2"
+  ],
+  "reasoning": [
+    "working tree has uncommitted changes — commit + push first"
+  ]
+}

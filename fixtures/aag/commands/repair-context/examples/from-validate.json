@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "repair-context-v1",
+  "inputFile": "-",
+  "inputKind": "unknown",
+  "violationCount": 0,
+  "repairReads": [],
+  "suggestedActions": [
+    "Input file (input) is unrecognized. Supported: detector-results / obligation-check-v1 / clean-check-v1 / docs-placement-check-v1."
+  ],
+  "requiredChecks": [],
+  "summary": "Input kind=unknown with 0 violation(s). 0 read(s) / 1 action(s) / 0 check(s) articulated."
+}
