@@ -2,16 +2,22 @@
 
 ## 不可侵原則
 
-1. **YAML authoring / JSON machine truth** — YAML は人間/AI が編集する authoring source としてのみ許可する。Detector / CI / AAG CLI / architecture-health は **generated JSON のみ** を読む。YAML を AAG machine truth にしない（ADR-SCP-001）。reposteward 不可侵原則 1（JSON-first）は AAG Parameters / Task Capsule / SourceFacts / Premise Contract / DetectorResult / generated artifact の **narrow scope** として再定義し、本 program の YAML 用法は同 scope 外（authoring source 層）として共存する。
+1. **YAML authoring / JSON machine truth** — YAML は人間/AI が編集する authoring source としてのみ許可する。Detector / CI / AAG CLI / architecture-health は **generated JSON のみ** を読む。YAML を AAG machine truth にしない（ADR-SCP-001）。reposteward 不可侵原則 1（JSON-first）は AAG Parameters / Task Capsule / SourceFacts / Premise Contract / DetectorResult / generated artifact の **narrow scope** として再定義し、本 program の YAML 用法は同 scope 外（authoring source 層）として共存する。**normalize は deterministic**: object key alphabetical sort + array order-preserving + indent 2 spaces + final newline + metadata block（`schemaVersion` / `sourceSha` / `sourcePaths` / `generatedAt`）必須（詳細: inquiry/07 §8）。
 2. **Document Contract は doc-registry.json の拡張層** — 新 namespace の Document ID（DOC-DEF-*）を既存 `docs/contracts/doc-registry.json` と並立させない。kind / temporalScope / requiredSections / forbiddenContent / owner / audience / granularity / lifecycle は doc-registry entry に additive 拡張する形で articulate する（ADR-SCP-002）。既存 `references/04-tracking/recent-changes.generated.md` 系の generator の後方互換（未知 field 無視）は Phase 0 で確認する。
 3. **製本は present-only** — `canonical-doc` kind の文書は **現在有効な実装・契約・定義・ルール** のみを書く。過去の実装経緯 / 退役済み設計 / 移行ログは `archive-doc` へ。将来計画 / roadmap / TODO / Phase plan / project progress は `project-plan` へ。現在値の一覧 / 件数 / status は `generated-report` へ。製本に過去/未来が必要な場合は **本文展開せず、Document ID / Project ID で参照** する（ADR-SCP-003）。
-4. **Tree Contract MVP scope は top-level + structural roots のみ** — Phase 1 では `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` / `tools/` / `wasm/` のみを Tree Contract 対象とする。それ以外は `unmanaged-but-tolerated` 状態で許容する。粒度爆発を抑止するため、Phase 1 内で個別ディレクトリへ拡大しない（ADR-SCP-004）。
+4. **Tree Contract MVP scope は top-level + structural roots のみ** — Phase 1 では `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` / `tools/` / `wasm/` のみを Tree Contract 対象とする。それ以外は `unmanaged-but-tolerated` 状態で許容する。粒度爆発を抑止するため、Phase 1 内で個別ディレクトリへ拡大しない（ADR-SCP-004）。`unmanaged-but-tolerated` の意味: inventory に載るが contract 必須対象ではない / 既存 unmanaged 配下への新規子 directory 追加は OK / **新規 top-level directory 追加は finding**（new-only gate 対象）/ baseline は単調減少のみ（unmanaged → managed への promotion は user 判断、新規 unmanaged 化は finding）。詳細: inquiry/07 §7。
 5. **OBLIGATION_MAP / PATH_TO_REQUIRED_READS migration は 3 段階 shadow** — Phase 8a で YAML → generated JSON を追加（既存 TS 定数も維持）、TS 定数と generated JSON の正規化比較器で差分を shadow check。Phase 8b で collector を generated JSON 読みに切替（TS 定数は deprecated shim）。Phase 8c で TS 定数を削除。一発切替は禁止（ADR-SCP-005）。
 6. **AI Instruction Pack は post-write validation 限定** — AI 執筆の pre-write 強制は機構上不可能。Phase 6 の完了条件は「AI が参照できる Instruction Pack JSON が生成される」 + 「Markdown 作成後に Document Contract 適合性を機械検証できる」のみ。pre-write 強制を完了条件にしない（ADR-SCP-006）。
 7. **Existing Documentation Reading Pass を機械分類で代替しない** — Phase 2.5 で各既存 Markdown の `proposedKind` / `temporalScope` / `disposition` は **人間/AI の reading** で確定する。機械は candidate と finding を出すのみ。`generated-report`（producer 宣言済）と `archive-doc`（archive-manifest 存在）は machine inferred で accepted 扱いとする例外条項を持つ（ADR-SCP-008）。Reading Pass 期間中、対象 zone 内の文書本体は編集しない（frontmatter docId 付与は同時付与可）。
 8. **Additive-only / Wave 1 milestone 到達前は hard gate 追加しない** — 全 Phase の checker は **advisory** で開始。Hard Gate 昇格は user 判断による別 program 候補（reposteward `aag-engine-hard-gate-promotion` 候補と並走しない）。新規 mechanism は既存 TS guard / docs:generate / aag-engine に **additive** 追加され、置換しない。
 9. **Schema-first / Finding-first / Shadow / Ratchet / Gate の段階順序を逆行させない** — Phase 0（ADR + Existing Asset Mapping）→ Phase 1（Schema MVP）→ Phase 2（Inventory）→ Phase 2.5（Reading Pass）→ Phase 3（Tree Contract Shadow）→ Phase 4（Document Kind + Temporal Scope Shadow）→ Phase 5（Document Contract Declaration + Rewrite/Move/Archive PRs）→ Phase 6（AI Instruction Pack）→ Phase 7（Required Docs Matrix）→ Phase 8a/8b/8c（Obligation Migration）→ Phase 9（Artifact Coverage Gate）→ Phase 10（Runner Parity Contract）。Phase の順序を逆行させない（例: Phase 1 Schema 前に Phase 5 Document Contract Declaration を始めない）。
 10. **versionImpact は計画段階で declare 済（app: +0.0.0 / aag: +0.1）** — 実 archive 時に paradigm shift が surface したら DA entry を articulate して delta を escalate する。本 program は backward-compatible な additive mechanism のみで minor 想定。
+11. **Guidance over restriction（AI を縛らず導く）** — AAG SCP の思想・Document Kind・Instruction Pack は、AI の能力を制限するためではなく、**AI が文脈・役割・粒度・時間軸を正しく把握し、より良い判断を行うための定性的ガイダンス**である。機械的 foul は **構造違反**（未登録 / 欠落 / 混入 / 生成物手編集 / 時間軸違反 / producer 不明 等）に限定し、**設計判断・表現品質・文脈解釈は AI / human review** で扱う。Gate は AI を失敗させる仕組みではなく、**構造的にありえないものだけを検出する安全網**（ADR-SCP-014 + AAG-SCP-GUIDANCE-001〜004）。
+   - 思想 (= 不可変) → AI の判断を定性的に導く
+   - Contract (= 構造的前提) → AI と repo が共有する前提
+   - Guidance (= 文脈提供) → AI が良い判断をするための文脈・観点・参照先
+   - Gate (= 構造破綻検出) → 構造的に判定可能な違反のみを foul する安全網
+   - 合言葉: **`Plan → Context → Contract → Guidance → Gate`**（旧 `Plan → Contract → Rule → Gate` を更新）
 
 ## Phase 構造
 
@@ -172,12 +178,20 @@ disposition 4 分類:
 - `docs/contracts/generated/document-contracts.generated.json`
 - doc-registry.json への kind / temporalScope / requiredSections / forbiddenContent additive 拡張
 - `tools/governance/check-doc-contracts.ts`（advisory checker）
-- 個別 Finding group PR（disposition 別）:
-  - PR-A 系: docId 付与（Phase 2.5 で disposition=keep-and-contract と確定済の docs に frontmatter docId 付与）
-  - PR-B 系: 製本から future-plan を projects/ へ移動（disposition=split の future-part）
-  - PR-C 系: 製本から history を archive へ移動（disposition=split の history-part）
-  - PR-D 系: disposition=move 対象の物理移動
-  - PR-E 系: disposition=archive 対象の `references/99-archive/` または `projects/completed/` への移動
+
+**PR 分割単位 = zone × disposition**（ADR-SCP-012、AAG-SCP-MIGRATION-005）。具体例:
+
+| PR タイトル | zone | disposition | 想定 PR 数 |
+|---|---|---|---|
+| `phase5(zone-01-foundation): keep-and-contract` | references/01-foundation | keep-and-contract | 1 |
+| `phase5(zone-01-foundation): split-history-to-archive` | references/01-foundation | split | 数件 |
+| `phase5(zone-01-foundation): move-to-project` | references/01-foundation | move | 数件 |
+| `phase5(zone-03-implementation): keep-and-contract` | references/03-implementation | keep-and-contract | 1 |
+| `phase5(zone-03-implementation): move-project-plan-to-projects` | references/03-implementation | move | 数件 |
+| `phase5(zone-04-tracking): generated-register` | references/04-tracking | generated-register | 1（一括） |
+| `phase5(zone-99-archive): archive-manifest-add` | references/99-archive | archive | 数件 |
+
+想定 PR 数: 15〜25（6 zone × 6 disposition - 空組み合わせ）。同 zone 同 disposition で entry 数 > 10 の場合は kind 単位で分割可（zone × disposition × kind）。詳細: inquiry/07 §10。
 
 完了条件（ratchet-down）:
 
@@ -189,20 +203,24 @@ disposition 4 分類:
 
 ### Phase 6: AI Instruction Pack（2〜3 PR）
 
-> **目的**: Document Kind ごとの AI 向け JSON 指示書を生成する。**post-write validation 限定**（不可侵原則 6）。
+> **目的**: Document Kind ごとの AI 向け JSON guidance を生成する。**post-write validation 限定**（不可侵原則 6）+ **guidance であって命令書ではない**（不可侵原則 11、AAG-SCP-GUIDANCE-003）。
+>
+> Instruction Pack は AI の出力を機械的に拘束しない。文書 kind ごとに **目的・読者・必須観点・禁止混入・粒度・参照先** を明示し、AI が文脈を取り違えずに能力を発揮するための補助である。
 
 成果物:
 
 - `docs/contracts/src/docs/ai-doc-template-rules.yaml`
 - `docs/contracts/generated/ai-doc-instructions.generated.json`
 - `aag docs instruction <doc-id>` command（reposteward `aag-engine` に additive 追加、または `tools/governance/` に landing）
-- `tools/governance/check-doc-postwrite.ts`（Markdown 作成後に Document Contract 適合性を機械検証）
+- `tools/governance/check-doc-postwrite.ts`（Markdown 作成後に Document Contract **構造的適合性**を機械検証）
 
-完了条件:
+完了条件（不可侵原則 11 整合）:
 
-- AI が doc kind に応じた Instruction Pack を JSON で取得できる
-- 新規 doc 作成は instruction pack から scaffold できる（推奨、強制ではない）
-- Markdown 作成後に Document Contract 適合性が post-write validation で検証される（pre-write 強制ではない）
+- AI が参照できる文脈パック（Instruction Pack JSON）が生成される
+- AI が文書の目的・読者・時間軸・粒度を理解できる
+- 作成後に **構造的欠落・混入** が検証できる（requiredSections 欠落 / forbiddenContent 混入 / kind / temporalScope mismatch）
+- pre-write 強制機構は実装しない（AI session の自由度を確保）
+- 「設計の良し悪し」「表現品質」「比喩の適切さ」は post-write validation の scope 外（AI / human review の責務）
 
 ### Phase 7: Required Docs Matrix（2 PR）
 
@@ -295,23 +313,92 @@ disposition 4 分類:
 
 ## やってはいけないこと
 
-- **YAML を AAG machine truth として採用する** → 不可侵原則 1 違反、reposteward JSON-first 原則の narrow scope を破壊する
-- **Document Contract を doc-registry.json と並立させる** → 不可侵原則 2 違反、新 namespace（DOC-DEF-*）を base registry と分離させない
-- **製本に過去/未来を本文展開する** → 不可侵原則 3 違反、本文展開禁止 + Document ID / Project ID リンクのみ許可
-- **Tree Contract MVP scope を超えて全ディレクトリを宣言する** → 不可侵原則 4 違反、粒度爆発を抑止
-- **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** → 不可侵原則 5 違反、必ず Phase 8a/8b/8c の 3 段階
-- **AI Instruction Pack を pre-write 強制機構として実装する** → 不可侵原則 6 違反、post-write validation 限定
-- **Reading Pass を機械分類で代替する** → 不可侵原則 7 違反、proposedKind / temporalScope / disposition は人間/AI が読んで確定（generated-report / archive-doc は ADR-SCP-008 例外条項のみ許可）
-- **Phase 順序を逆行させる** → 不可侵原則 9 違反、Schema → Inventory → Reading Pass → Shadow → Triage → Declaration → Ratchet → Gate
-- **Wave 1 milestone（reposteward Task Capsule v1）到達前に Hard Gate を追加する** → 不可侵原則 8 違反、advisory のみ
-- **`docs/contracts/aag/*.schema.json` を `docs/contracts/schema/` に再配置する** → ADR-SCP-002 違反、新 schema は `docs/contracts/schema/` に置くが、既存 `docs/contracts/aag/` は触らない
-- **app/src/ 配下を touch する** → projectization.md §4 nonGoal、本 program は app に触れない
-- **業務 logic / domain calculations / readModels を変更する** → projectization.md §4 nonGoal、既存正本性は不変
-- **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** → 1 Finding group = 1 PR を厳守（AAG-SCP-MIGRATION-005）
-- **Reading Pass 中に対象 zone 内の文書本体を編集する** → AAG-SCP-MIGRATION-006 違反、frontmatter docId 付与のみ許可
-- **新 doc を新規追加する** → 本 program は references/ への新 doc 追加を含まない（plan / decision-audit / ADR は decision-audit.md 内で articulate、別 doc 化しない）
-- **実装 AI による自己承認** → L3 + requiresHumanApproval=true、最終レビュー = user 承認 必須
-- **inquiry/ にすべての検証結果を集約する** → inquiry/ は **Phase 0 で確定すべき既存資産マッピング項目の skeleton** であり、Phase 1+ の検証結果は generated/ に置く
+> **CLAUDE.md G8 整合**: 「気をつける」（exhortation）ではなく **mechanism として運用** する。
+> 仕組み化可能なものは **CI level で foul させる検出装置**を articulate し、仕組み化できないものは AI / human review の責務として明示する（不可侵原則 11 + ADR-SCP-014 + AAG-SCP-GUIDANCE-005）。
+
+### A. CI level で foul させる仕組みあり（mechanism articulated、§A1 + §A2 に細分）
+
+§A はさらに 2 分類（GUIDANCE-007）:
+
+- **§A1: AAG Core 永続 checker** — 全 repo / 全 program に普遍適用、`tools/governance/` 配下、本 program archive 後も残置。parse-heavy も含む（schema validation / drift detection / phase ordering 等）
+- **§A2: project-scoped boundary protection** — 本 program が約束する **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定**（GUIDANCE-007）。**parse-free**（`git diff --name-only` / `grep` のみ）、**phase 不変**（本 program 全期間を通じて一貫禁止）、`projects/active/aag-structural-control-plane/aag/scp-checkers/` 配下、archive で消失、AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能
+
+#### §A1: AAG Core 永続 checker（`tools/governance/`、archive 後も残置）
+
+| やってはいけないこと | 違反根拠 | 検出装置 | landing phase |
+|---|---|---|---|
+| **YAML を AAG machine truth として採用する** | 不可侵原則 1 / ADR-SCP-001 | `tools/governance/check-yaml-machine-truth.ts`（detector / CI / AAG CLI が `*.yaml` を直読する import を grep 検出） | Phase 1 |
+| **Document Contract を doc-registry.json と並立させる** | 不可侵原則 2 / ADR-SCP-002 | `tools/governance/check-doc-contracts.ts`（新 namespace `DOC-DEF-*` 等の prefix を doc-registry 外で検出すれば finding） | Phase 5 |
+| **製本に過去/未来を本文展開する** | 不可侵原則 3 / ADR-SCP-003 | `tools/governance/check-doc-temporal-scope.ts`（canonical-doc kind の文書に History / Roadmap / Future / TODO / Phase / Migration Log heading + checkbox + 禁止表現 patterns 検出） | Phase 4 |
+| **Tree Contract MVP scope を超えて全ディレクトリを宣言する** | 不可侵原則 4 / ADR-SCP-004 | `tools/governance/check-tree.ts`（tree-contracts.yaml の declared directory 数が baseline + N を超えれば finding、ratchet-down） | Phase 3 |
+| **AI Instruction Pack を pre-write 強制機構として実装する** | 不可侵原則 6 / ADR-SCP-006 / AAG-SCP-GUIDANCE-003 | `tools/governance/check-no-prewrite-hook.ts`（git pre-commit / pre-push hook に Markdown 編集前 instruction-pack 取得強制があれば finding） | Phase 6 |
+| **YAML 変更後の generated JSON 未更新** | 不可侵原則 1 補強 | 既存 `docs:check` mechanism（pre-push hook で live recalc + semantic diff）に YAML→JSON normalize 検証を追加 | Phase 1 |
+| **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** | 不可侵原則 5 / ADR-SCP-005 | `tools/governance/check-obligation-drift.ts`（Phase 8a で正規化比較器、TS 定数と generated JSON の意味的差分機械検証 + commit history で Phase 8a→8b→8c 段階順序検証）— **universal な migration safety pattern** のため §A1 配置 | Phase 8a/8b/8c |
+| **Reading Pass を機械分類で代替する** | 不可侵原則 7 / ADR-SCP-007 / ADR-SCP-008 / ADR-SCP-010 | `tools/governance/check-reading-pass-schema.ts`（document-reading-decisions.yaml の各 entry に reviewedBy / reviewedAtCommit / reviewedAtSha が必須、`generated-report` / `archive-doc` 例外条項該当外で machine-inferred 表記があれば finding）— **universal な reading-pass.schema.json validation** | Phase 2.5 |
+| **Phase 順序を逆行させる** | 不可侵原則 9 | `tools/governance/check-phase-ordering.ts`（commit history で Phase N+1 の成果物が Phase N より前に landing していれば finding、各 phase の sentinel artifact 存在確認）— **多 phase project の universal pattern** | Phase 1 |
+| **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** | AAG-SCP-MIGRATION-005 | `tools/governance/check-finding-group-pr.ts`（PR 内で異なる zone × disposition の Finding group が混在すれば finding、PR description の `Finding group:` annotation 必須）— **universal な migration PR convention** | Phase 5 |
+| **実装 AI による自己承認** | L3 + requiresHumanApproval=true | 既存 `projectizationPolicyGuard` PZ-13（最終レビュー section 存在 + ordering 検証）+ `projectCompletionConsistencyGuard` C1（completed 判定後の archive obligation） | 既存 mechanism 利用 |
+
+#### §A2: project-scoped boundary protection（`projects/active/aag-structural-control-plane/aag/scp-checkers/`、archive で消失、4 件のみ）
+
+> **boundary protection の image**: 触ってはいけない / 変更してはいけない / 崩してはいけない（GUIDANCE-007）。本 program の全期間（Phase 0〜10）を通じて一貫して禁止される事項に限定。**parse-free**（`git diff --name-only` / `grep` のみで検出可能）。
+
+各 checker は AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能。Archive v2 §6.4 で project の `aag/` folder ごと物理削除されるため、archive 後は invocation 不能（restore 経由でのみ復活）。
+
+| boundary protection | 違反根拠 | 検出装置（parse-free、`git` + `grep` only） | image |
+|---|---|---|---|
+| **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（`git diff --name-only HEAD..` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry） | 触ってはいけない（既存実装層） |
+| **`docs/contracts/aag/*.schema.json` を再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（`git diff --name-only HEAD..` で `^docs/contracts/aag/` の move / delete / modify 検出） | 触ってはいけない（既存 reposteward AAG contract schemas） |
+| **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（`git diff --name-only --diff-filter=A HEAD..` で `^references/.*\.md$` 検出。ただし Reading Pass `disposition: split / move / archive` の split target は disposition 確認で許可） | 触ってはいけない（既存 references/ への追加） |
+| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-count`（`grep -c "hard.\?gate"` で `.github/workflows/` + `tools/git-hooks/pre-push` を検査、本 program 開始時 baseline からの増加があれば finding） | 崩してはいけない（既存 advisory state） |
+
+#### §A2 narrowing rationale（GUIDANCE-007）
+
+§A2 を boundary protection 4 件に narrowing した理由:
+
+- **「やってはいけない」より重い「不可触・不可変・不可崩」に限定** — 単なる手続き上の禁止（migration 一発切替 / 順序逆行 / Reading Pass 機械分類代替 等）は parse-heavy + phase 依存のため §A1 へ promote
+- **parse-free 限定** — `git diff --name-only` / `grep` だけで動く。TypeScript AST / Markdown 構造解析 / YAML schema 解析 不要。reposteward Wave 1+ infrastructure 待ちなしで Phase 1 で landing 可能
+- **phase 不変** — 本 program 全期間を通じて一貫して禁止される事項のみ。phase 別 transient rule（Reading Pass 中の zone 編集禁止 等）は §B に降格
+- **AI tool として均質** — 4 checker すべて「path 集合の差分比較」と均質、AI が学ぶコストが小さい
+- **archive 削除が文脈整合** — 本 program が完遂すれば boundary protection の約束も終わる、checker が消えるのが自然
+
+§A2 → §A1 promotion: §A2 は boundary protection 限定のため、通常 promotion 候補にならない（universal rule にはなりにくい）。例外は archive 直前の user 判断による articulation。
+
+### B. 仕組み化できない（AI / human review が判定する + 再チェック機会を提供する）
+
+設計判断・表現品質・文脈解釈に属するもの。**Gate / checker の責務ではない**が、**AI / human review に放置せず、再チェック機会を構造的に提供する**（不可侵原則 11 / AAG-SCP-GUIDANCE-002〜004 / **GUIDANCE-006**）。
+
+各項目に **再チェック trigger（いつ）+ 文脈提供 surface（どこで）** を articulate:
+
+| やってはいけないこと | 違反根拠 | 再チェック trigger | 文脈提供 surface |
+|---|---|---|---|
+| 設計判断・表現品質・文脈解釈を機械検証 scope に含める | 不可侵原則 11 / GUIDANCE-002 | 新 checker 設計時 / new-only gate 昇格時 | `docs/contracts/src/governance/check-design-intent.yaml`（各 checker の design intent / scope 境界を articulate、checker 実装前に AI 確認） + ADR review window |
+| Instruction Pack を AI への命令書として扱う | 不可侵原則 11 / GUIDANCE-003 | AI が Instruction Pack を初参照する時 / Markdown 作成前 | Instruction Pack JSON の頭に `philosophy` block を articulate（"This is guidance, not a command. Adapt to context."） + Instruction Pack の `requiredSections` は guideline であって template ではないと明示 |
+| Gate を AI 失敗装置として設計する | 不可侵原則 11 / GUIDANCE-004 | 新 checker 設計時 / 既存 checker の severity 引き上げ時 | 同上 `check-design-intent.yaml`（"Gate detects structural break, not bad judgement"） + ADR-SCP-014 への back link |
+| Reading Pass の `rationaleSummary` の内容妥当性 | GUIDANCE-002（schema は §A で構造検証、文章品質は §B） | Phase 5 PR review 時 / Reading Pass entry の stale 検出後の再 review 時 | Phase 5 PR description template の「rationaleSummary 妥当性確認」prompt + reading-decisions.yaml の `alternativesConsidered` field（ADR-SCP-010 既 articulate）が AI に「他案も検討した」事実を再認識させる |
+| ADR の `rationale` / `alternatives` の articulation 品質 | GUIDANCE-002 | wrap-up commit 時の Lineage update / archive 時の `振り返り判定` articulation | ADR template の `振り返り判定` section（既存）+ 「alternatives は最低 2 件」guideline + archive.manifest.json `decisionEntries` への要約圧縮時の再評価 |
+| 文書間の責務境界の妥当性 / kind 選択妥当性 | GUIDANCE-002（kind 設定は §A で構造検証、kind 選択妥当性は §B） | doc-registry kind 設定時 / Reading Pass disposition 確定時 / kind 変更 PR 時 | `docs/contracts/src/docs/doc-kind-registry.yaml` の各 kind に `discriminationGuide` field（"kind A vs kind B の判別観点"、Phase 4 で articulate） + Reading Pass の `alternativesConsidered` field |
+
+> **soft mechanism の articulate**: §B は guard / CI で foul させないが、**再チェック機会を構造的に提供** することで AI session が defensive に振る舞わず、自由判断と妥当性確認を両立できる。AAG philosophy「製本されないものを guard 化しない」+「気をつけるではなく mechanism として運用」（CLAUDE.md G8）の両立。
+>
+> **AI 自己レビュー section（既存 PZ-13）との関係**: §B 全項目は archive 前に **AI 自己レビュー 5 軸**（総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ確認 / CHANGELOG 更新）で最終再評価される。本 program archive 時に必ず通過する gate であり、§B 項目の取りこぼしを抑止する最後の安全網。
+
+### 機械検証する（Gate scope）vs 定性的に AI を導く（Guidance scope）
+
+不可侵原則 11 / ADR-SCP-014 / AAG-SCP-GUIDANCE-005 に従う分離:
+
+| 機械検証する（Gate scope = §A） | 定性的に AI を導く（Guidance scope = §B） |
+|---|---|
+| 未登録 Markdown | この文書は何のためにあるか |
+| requiredSections 欠落 | 読者は誰か |
+| generated artifact の producer 不明 | どの粒度で説明すべきか |
+| generated file の手編集 | 何を判断材料として扱うか |
+| doc kind / topology mismatch | 過去・現在・未来をどう分けるか |
+| 製本に TODO / Roadmap section | どのような設計思想を優先するか |
+| 例外に owner / reason / reviewAfter なし | どの文脈を参照すべきか |
+| YAML 変更後の generated JSON 未更新 | 比喩 / 表現の適切さ |
+
+左側 §A だけが foul 可能な構造ルールであり、本 program で **検出装置を articulate + 実装** する。右側 §B は AI / human review の責務であり、AAG が無理に数値化しない。
 
 ## 関連実装
 

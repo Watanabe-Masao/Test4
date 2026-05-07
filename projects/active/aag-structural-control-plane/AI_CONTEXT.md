@@ -7,21 +7,49 @@
 
 AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く（aag-structural-control-plane）
 
+## Naming Note
+
+| 軸 | name | 由来 |
+|---|---|---|
+| **Internal name** | `AAG` | repo 内で長期使用、`aag/` tree / `aag-engine/` / `aag/_internal/` 等で articulate |
+| **Expanded** | `Adaptive Architecture Governance` | AAG の正式展開、CLAUDE.md / `aag/_internal/strategy.md` 等で articulate |
+| **External name** | `RepoSteward` | 外向き name（reposteward-ai-ops-platform で institute、`aag` binary は CLI 名として継続） |
+| **Subtitle** | `AI-native repository maintenance control plane` | external な position articulate（user-facing communication 等で使用） |
+
+本 program は internal AAG 名で進める（既存 substrate / project / file 命名との整合）。external な position articulate が必要な場面（README / external doc / aag/CHANGELOG.md release entry 等）では `RepoSteward — AI-native repository maintenance control plane` の形式で言及する。
+
 ## Purpose
 
 AAG を **guard collection** から **repository structural control plane** に進化させる。
+
+ただし、本 program の目的は **AI を細かく縛ることではない**。AI が **迷わず、余計な推測を減らし、より高い判断能力を発揮する** ための **構造的補助**を提供することが目的である（不可侵原則 11 / ADR-SCP-014「Guidance over restriction」）。
+
+> **metaphor**: AAG SCP は **AI が安心してアクセルを踏めるように、事前にガードレールを敷くもの**。
+> §A2（project-scoped boundary protection）は「触ってはいけない / 変更してはいけない / 崩してはいけない」コース固有のガードレール。AI は本筋（構造補助の設計判断）に集中でき、boundary 逸脱の不安に認知資源を奪われない（GUIDANCE-007）。
+
 具体的には以下を AAG 統制下に置く:
 
 1. **repo tree の意味** — 親ディレクトリ境界 + 子ディレクトリ集合体の Tree Contract
 2. **ドキュメントの型・粒度・記載範囲** — Document Kind Registry + Document Contract
 3. **時間軸分離** — 製本 = 現在 / archive = 過去 / project = 未来 / generated report = 計算済み現在
-4. **AI ドキュメント執筆** — Document Kind ごとの AI Instruction Pack（post-write validation）
+4. **AI ドキュメント執筆の guidance** — Document Kind ごとの Instruction Pack（**命令書ではなく文脈パック**、post-write validation 限定）
 5. **未管理 artifact の禁止** — Artifact Coverage Gate
 6. **例外の所有者・理由・期限** — Exception Policy
 
-合言葉は **Plan → Contract → Rule → Gate**。計画・意図・判断を YAML 宣言 → 正規化 JSON → Detector → pre-push / CI gate に変換する。
+合言葉は **`Plan → Context → Contract → Guidance → Gate`**。
 
-`reposteward-ai-ops-platform`（active、Wave 1〜5、Task Capsule + AAG Parameters + SourceFacts + DetectorResult を確立中）の **substrate を入力として消費する別動線**。reposteward が「AI navigation surface」を提供するのに対し、本 program は「repo structure / document / temporal の構造統制」を提供する。両者は scope と読者が異なるため独立 project として articulate する。
+- **Plan** = 計画・意図
+- **Context** = AI が読む文脈（manifest / inquiry / Reading Pass）
+- **Contract** = AI と repo が共有する構造的前提（Tree / Document / Temporal）
+- **Guidance** = AI が良い判断をするための定性的補助（Instruction Pack）
+- **Gate** = 構造的にありえないものだけを検出する安全網
+
+定性と定量の分離（不可侵原則 11 / AAG-SCP-GUIDANCE-002）:
+
+- **機械検証する（Gate scope）**: 未登録 Markdown / requiredSections 欠落 / generated artifact 手編集 / doc kind mismatch / 製本に TODO 等の **構造的に判定可能なもの** のみ
+- **定性的に AI を導く（Guidance scope）**: 文書の目的 / 読者 / 粒度 / 時間軸 / 設計思想 / 比喩の適切さ / 判断の妥当性 等は **AI / human review の責務**
+
+`reposteward-ai-ops-platform`（active、Wave 1〜5、Task Capsule + AAG Parameters + SourceFacts + DetectorResult を確立中）の **substrate を入力として消費する別動線**。reposteward が「AI navigation surface」を提供するのに対し、本 program は「repo structure / document / temporal の構造補助」を提供する。両者は scope と読者が異なるため独立 project として articulate する。
 
 ## Read Order
 

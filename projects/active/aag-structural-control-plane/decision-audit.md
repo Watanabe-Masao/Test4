@@ -614,3 +614,586 @@ stale 検出ルール:
 - **判定**: `<未確定>`
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-010: Reading Pass 記録フォーマット最小 schema
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-007 で Reading Pass 成果物の保存規約を articulate（src = human authored / generated = machine candidate / merged = join）したが、各 entry 内の **必須 field** が未定義。Reading Pass を AI session 単独で進めると、entry 形式が session ごとに drift し、後段 Phase 5（Rewrite/Move/Archive PR）で参照不能になる。
+
+### decision
+
+`docs/contracts/src/docs/document-reading-decisions.yaml` の各 entry は以下を必須とする:
+
+```yaml
+- path: <doc path from repo root>
+  currentZone: <現在配置 zone path>
+  proposedKind: <doc-kind-registry 登録済 kind>
+  temporalScope: <present | past | future | computed-present>
+  disposition: <ADR-SCP-011 6 分類のいずれか>
+  contains:
+    presentContract: <bool>
+    implementationHistory: <bool>
+    futurePlan: <bool>
+    generatedState: <bool>
+    taskList: <bool>
+  review:
+    reviewedBy: <session ID or human ID>
+    reviewedAtCommit: <commit SHA>
+    reviewedAtSha: <file blob SHA at commit>
+    rationaleSummary: <1-2 文>
+    alternativesConsidered:
+      - kind: <alt kind>
+        rejectedBecause: <却下理由>
+```
+
+disposition 別の追加 field:
+
+- `disposition: split` → `splitTargets: { present, past, future, rationale }`
+- `disposition: move` → `moveTo: <new path>`、`rationale`
+- `disposition: archive` → `archiveTo: <archive path>`、`archiveManifest: <bool>`、`rationale`
+- `disposition: generated-register` → `producer: <generator path or command>`
+- `disposition: needs-triage` → `triageReason: <文脈>`、`expectedResolutionPhase: 2.5`
+
+詳細: inquiry/07 §3 を参照。
+
+### rationale
+
+- AI session ごとの drift を抑止（必須 field により形式が固定）
+- alternativesConsidered の articulate により、判断根拠が trace 可能（再現性確保）
+- disposition 別の追加 field により、Phase 5 PR が機械的に生成可能（zone × disposition で grouping）
+
+### alternatives
+
+- (a) **必須 field なし、自由形式** — 却下: drift 発生、Phase 5 で参照不能
+- (b) **alternativesConsidered を optional** — 却下: 判断根拠の trace が失われ、再 review 時に再現困難
+- (c) **disposition 別 field を unified field** — 却下: 各 disposition の固有情報（splitTargets / moveTo / archiveTo / producer）を articulate 不能
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/reading-pass.schema.json` が landing し、上記 field を JSON Schema として articulate
+2. Phase 2.5 開始時に `docs/contracts/src/docs/document-reading-decisions.yaml` の最初の entry が上記形式で landing
+3. Phase 5 PR 生成時に zone × disposition の機械 grouping が動作（PR タイトル自動推定可能）
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD = inquiry/07 + ADR-SCP-010〜013 landing 直前の commit SHA、wrap-up commit で update>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-011: disposition taxonomy を 6 分類に拡張
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-007 / plan.md Phase 2.5 で disposition は 4 分類（keep-and-contract / split / move / archive）と articulate していた。ただし、実運用で以下 2 分類が必要と判明:
+
+- `references/04-tracking/generated/` 配下の generated report は Reading Pass で「machine inferred で auto-accept」(ADR-SCP-008) するが、disposition として明示的に articulate しないと doc-registry 拡張時の処理が曖昧
+- AI session が判断保留する状況は実務上必ず発生（複数の kind が妥当に見える doc 等）。「needs-triage」状態を articulate しないと、AI session が無理に判断して低 confidence の disposition を articulate するリスク
+
+### decision
+
+disposition を **6 分類**に拡張:
+
+| disposition | 性質 | 採否根拠 |
+|---|---|---|
+| `keep-and-contract` | 現在の場所・内容で妥当、Document Contract のみ付与 | 既存 |
+| `split` | 1 文書に複数責務混在、本文を分割 | 既存 |
+| `move` | 内容は有効、置き場所が違う | 既存 |
+| `archive` | 現行の正本ではない、archive へ移動 | 既存 |
+| `generated-register` | **新規**: generated report として登録（ADR-SCP-008 例外条項で auto-accept） | 機械再生成可能、Reading Pass コスト不要 |
+| `needs-triage` | **新規**: 判断保留、Phase 2.5 内で再 review | AI session の自由度確保、Phase 2.5 完了条件「needs-triage 残数 == 0」で必ず解消 |
+
+採用しない candidate:
+
+- `delete-candidate`: archive にも残さない candidate → 却下: 本 program scope 外（archive 廃止は別 program 候補）
+- `external-reference`: repo 内正本ではなく外部参照 → 却下: 本 program 対象は repo 内 doc のみ、外部 reference は ADR-SCP-002 で扱う doc-registry に登録しない方針
+- `project-owned`: projects/active 配下の作業文脈 → 却下: project doc は kind=`project-plan` / `project-checklist` / `ai-entrypoint` で articulate するため、disposition で別扱いする必要なし
+
+### rationale
+
+- `generated-register` 追加で ADR-SCP-008 例外条項の機械処理が明確化
+- `needs-triage` 追加で AI session が低 confidence で disposition を articulate するリスクを抑止
+- 6 分類を超えると分類自体の運用 cost が増えるため、最小 set で start
+
+### alternatives
+
+- (a) **4 分類のまま** — 却下: generated report の処理が曖昧、判断保留の articulate 経路なし
+- (b) **8+ 分類**（delete-candidate / external-reference / project-owned 等を全採用） — 却下: 分類 cost 過大、実運用で混同リスク
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/reading-pass.schema.json` の disposition enum に 6 分類が articulate
+2. Phase 2.5 で `generated-register` disposition が `references/04-tracking/generated/` 配下に machine inferred で auto-accept される
+3. Phase 2.5 完了時に `needs-triage` 残数 == 0
+4. Phase 5 で 6 分類すべての PR が Finding group 単位で landing 可能
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-012: Phase 5 PR 分割基準 = zone × disposition
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+plan.md Phase 5 で「1 Finding group = 1 PR」と articulate（AAG-SCP-MIGRATION-005）したが、Finding group の単位が未定義。zone 単位 / kind 単位 / disposition 単位 / owner 単位の選択肢がある。
+
+肥大化抑止 + rollback granularity 確保 + review しやすさを満たす分割が必要。
+
+### decision
+
+Finding group の単位 = **zone × disposition**。
+
+具体例:
+
+```
+phase5(zone-01-foundation): keep-and-contract
+phase5(zone-01-foundation): split-history-to-archive
+phase5(zone-01-foundation): move-to-project
+phase5(zone-03-implementation): keep-and-contract
+phase5(zone-03-implementation): move-project-plan-to-projects
+phase5(zone-04-tracking): generated-register
+phase5(zone-99-archive): archive-manifest-add
+```
+
+例外:
+
+- 同 zone 同 disposition で entry 数が多い場合（split 等で 10+）は doc kind 単位で分割可（zone × disposition × kind）
+- `disposition: needs-triage` は Phase 5 PR 対象外（Phase 2.5 で残数 0 にする）
+
+想定 PR 数: 15〜25（6 zone × 6 disposition - 空組み合わせ）。
+
+詳細: inquiry/07 §10 を参照。
+
+### rationale
+
+- **rollback granularity**: zone × disposition で独立 rollback 可能、影響範囲が局所化
+- **review しやすさ**: 同 zone + 同 disposition のため reviewer の認知負荷が均一
+- **肥大化抑止**: 1 PR が 1 zone の 1 disposition のみなので、自然と diff サイズが制限される
+- **機械生成**: reading-decisions.yaml から zone × disposition で grouping し、PR タイトル / branch 名を auto 推定可能
+
+### alternatives
+
+- (a) **zone 単位のみ**（zone 内の全 disposition を 1 PR） — 却下: zone あたり 100+ files diff の可能性、review 困難
+- (b) **disposition 単位のみ**（disposition 内の全 zone を 1 PR） — 却下: zone 跨ぎで影響範囲が広い、rollback 不能
+- (c) **kind 単位のみ**（kind 内の全 zone × disposition を 1 PR） — 却下: kind が同じでも zone / disposition が異なる作業を混ぜる
+- (d) **owner 単位**（同 owner の作業を 1 PR） — 却下: owner が repo 全体に跨ると PR が肥大化
+
+### 観測点
+
+1. Phase 5 開始時に reading-decisions.yaml から zone × disposition の grouping が機械生成される
+2. 各 PR の diff size が中央値で 200 行以下に収まる（rollback 可能性確保）
+3. 同 zone 同 disposition で entry 数 > 10 の場合に kind 単位の更なる分割が機械検出される
+4. needs-triage 残数 == 0 で Phase 5 へ進む
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-013: Finding schema 最小 field set
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Phase 1 で `docs/contracts/schema/aag-finding.schema.json` を landing するが、初期 schema が貧弱だと Phase 3〜10 の checker / triage / ratchet で field 不足が露呈し、後付けで schema 拡張が頻発する。最初から triage / ratchet / status trace が可能な field set を articulate すべき。
+
+### decision
+
+Finding schema 最小 field set:
+
+```jsonc
+{
+  "id": "FND-DOC-TEMPORAL-001",
+  "schemaVersion": "aag-finding-v1",
+  "severity": "warn",
+  "phase": "shadow",
+  "subject": {
+    "kind": "document",
+    "path": "references/...",
+    "lineRange": "84-90"
+  },
+  "rule": {
+    "id": "DOC-TEMPORAL-PRESENT-ONLY",
+    "category": "temporal-scope"
+  },
+  "problem": "<観測した現象 1 文>",
+  "expected": "<期待される状態 1 文>",
+  "suggestedDisposition": "move-to-project",
+  "confidence": "medium",
+  "falsePositiveAllowed": true,
+  "detectedBy": "check-doc-temporal-scope",
+  "detectedAt": {
+    "commit": "<SHA>",
+    "phase": "phase-2-5-reading-pass"
+  },
+  "status": "open"
+}
+```
+
+特に必須 3 field:
+
+- `confidence`: high | medium | low（shadow phase で low / medium 許容、hard-gate で high のみ）
+- `suggestedDisposition`: triage candidate を機械提示（reading-decisions.yaml の disposition と同 enum）
+- `status`: open | acknowledged | resolved | wontfix | superseded（lifecycle trace）
+
+ID prefix:
+
+- Finding ID は `FND-` prefix（Document ID の `DOC-` と区別、grep で識別可能）
+- rule ID は `<CATEGORY>-<NAME>` 形式（例: `DOC-TEMPORAL-PRESENT-ONLY` / `TREE-UNMANAGED-TOPLEVEL` / `OBLIGATION-DRIFT-SHADOW`）
+
+詳細: inquiry/07 §5 を参照。
+
+### rationale
+
+- **confidence**: shadow → hard-gate へ昇格時に false positive を機械 filter 可能
+- **suggestedDisposition**: AI session の triage 工数を削減
+- **status**: 同 finding が複数 phase で再検出された際に重複処理を抑止（superseded により旧 finding を closed 化）
+- **FND- prefix**: grep / regex で Document ID と区別、誤参照を抑止
+
+### alternatives
+
+- (a) **最小 field のみ**（id / severity / problem / expected） — 却下: triage / ratchet / lifecycle trace が機能不全
+- (b) **より多くの field**（component / module / urgency / impact 等） — 却下: 初期 schema が肥大化、運用 cost 増、後付け拡張で十分
+- (c) **prefix なし**（Finding ID と Document ID を区別しない） — 却下: grep / regex 誤参照リスク
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/aag-finding.schema.json` が上記最小 set で landing
+2. Phase 3〜10 の各 checker が Finding schema を共通 output として使用
+3. shadow → new-only-gate → hard-gate の昇格時に confidence で filter 可能
+4. status: superseded により、同種 finding の重複処理が抑止される
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+
+---
+
+## ADR-SCP-014: Guidance over restriction（AAG SCP 思想の articulate）
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-001〜013 で本 program の構造（Schema / Contract / Rule / Gate）が articulate されたが、それらが「AI を縛る管理システム」として読まれるリスクがある。実際には、AAG Structural Control Plane の目的は **AI が迷わず、余計な推測を減らし、より高い判断能力を発揮するための構造的補助**であり、AI を細かく拘束するものではない。
+
+このリスクを放置すると、後続 phase で「AAG 違反 = AI 失敗」「Instruction Pack = AI 命令書」という誤解が institute され、実装 AI が defensive に振る舞う / 創造的判断を回避する / 表面的に compliance するだけ等の機能不全が起きる。
+
+### decision
+
+AAG SCP の思想を次のように articulate する:
+
+#### 思想層別
+
+```
+思想 (= 不可変)
+  → AI の判断を定性的に導くもの
+  例: 「製本は現在の正本」「過去 = archive / 未来 = project / 計算済み現在 = generated」
+
+Contract (= 構造的前提)
+  → AI と repo が共有する構造的な前提
+  例: doc-registry の kind / temporalScope / requiredSections
+
+Guidance (= 文脈提供)
+  → AI が良い判断をするための文脈・観点・参照先
+  例: AI Instruction Pack（旧名「AI 命令書」ではなく「文書kindごとの guidance」）
+
+Gate (= 構造破綻検出)
+  → 構造的に判定可能な違反のみを foul する安全網
+  例: 未登録 Markdown / generated 手編集 / 製本に Roadmap section
+```
+
+#### 合言葉の更新
+
+- 旧: `Plan → Contract → Rule → Gate`（構造統制を強調するが「Rule」が拘束的）
+- **新: `Plan → Context → Contract → Guidance → Gate`**（Context = AI が読む文脈、Guidance = 定性的補助、Gate = 構造破綻検出）
+
+#### 4 sub-principle（GUIDANCE 系列）
+
+##### AAG-SCP-GUIDANCE-001: 思想は AI を導く、能力を制限しない
+
+AAG の思想・原則・文書型は、AI の能力を制限するためではなく、AI がより正確に判断するための **定性的ガイダンス** である。
+
+##### AAG-SCP-GUIDANCE-002: 定性を定量に無理変換しない
+
+定性的判断を定量ルールへ無理に変換してはならない。機械検証するのは、**未登録・欠落・混入・生成物手編集・時間軸違反など、構造的に判定可能なものに限定** する。「設計の良し悪し」「比喩の適切さ」「判断の妥当性」は機械検証 scope 外。
+
+##### AAG-SCP-GUIDANCE-003: Instruction Pack は guidance、命令書ではない
+
+AI に与える Instruction Pack は、出力を狭めるためではなく、**文書の目的・読者・粒度・時間軸・書くべき観点を明確にするための補助** である。Instruction Pack は AI の出力を機械的に拘束しない。
+
+##### AAG-SCP-GUIDANCE-004: Gate は判断を代替しない
+
+AAG Gate は AI の創造的判断や設計判断を代替しない。**Gate は構造破綻を防ぎ、判断すべき対象を明確化** する。設計判断・表現品質・文脈解釈は AI / human review の責務であり、Gate の責務ではない。
+
+##### AAG-SCP-GUIDANCE-005: 仕組み化可能なものは仕組み化する（exhortation を mechanism に変換）
+
+「やってはいけないこと」は **2 分類** する:
+
+- **§A: 仕組み化できるもの** = 構造的に判定可能。**検出ロジック（検出装置 + landing phase）をセットで articulate + 実装** する。仕組み化せずに exhortation（「気をつける」）に留めない
+- **§B: 仕組み化できないもの** = 設計判断 / 表現品質 / 文脈解釈 / mindset / design intent。AI / human review の責務として明示し、guard 化しない
+
+判定 flow:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  Yes → §A: CI level で foul させる検出ロジックを articulate + 実装（mechanism）
+  No  → §B: AI / human review の責務として明示、guard 化しない（review）
+```
+
+CLAUDE.md G8（「気をつける」ではなく mechanism として運用）と同じ思想。本 program では plan.md 「やってはいけないこと」section を §A / §B に分割し、§A の各項目に **検出装置 + landing phase + 違反根拠** を必須記述する。
+
+§A の検出装置は本 program で **新設**（`tools/governance/check-*.ts` 群）または **既存 mechanism の拡張**（`docs:check` / `projectizationPolicyGuard` / `projectCompletionConsistencyGuard` 等）として実装する。
+
+§B の項目は plan.md / inquiry / decision-audit に articulate するが、guard 化を試みない（AAG philosophy「製本されないものを guard 化しない」整合）。
+
+##### AAG-SCP-GUIDANCE-006: 仕組み化できないものは AI 再チェック機会を提供する
+
+§B（仕組み化できないもの）は **AI / human review に放置しない**。各項目に対し、AI が **判断の妥当性を再チェックできる文脈** を articulate する:
+
+- **再チェック trigger**: いつ AI が再評価するか（PR review 時 / Instruction Pack 初参照時 / ADR landing 時 / Reading Pass disposition 確定時 等）
+- **文脈提供 surface**: どこで AI に文脈が渡されるか（PR description template / Instruction Pack JSON の `philosophy` block / doc-kind-registry の `discriminationGuide` field 等）
+
+判定 flow（GUIDANCE-005 + GUIDANCE-006 統合）:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  Yes → §A: 検出装置 + landing phase を articulate + 実装（CI foul）
+  No  → §B: AI / human review の責務として明示
+         + 再チェック trigger を articulate
+         + 文脈提供 surface を articulate
+         （= AI が判断妥当性を見直せる機会を構造的に確保）
+```
+
+**なぜ単なる "AI / human review に任せる" では不十分か**:
+
+- AI は文脈なしには再評価できない（推測で判断する → 低 confidence）
+- 「気をつける」だけでは drift する（CLAUDE.md G8 / GUIDANCE-005 と同じ理由）
+- §B 項目を articulate しないまま放置すると、AI session が defensive に振る舞う / 自由判断を回避する
+
+§B 項目は **soft mechanism** で運用する:
+
+- soft = guard / CI で foul させない
+- mechanism = 再チェック機会を構造的に提供する（template / philosophy block / discrimination guide 等）
+
+具体的な context surface 例:
+
+- **Instruction Pack JSON の `philosophy` block**: AI が初参照時に「This is guidance, not a command. Adapt to context.」を読む
+- **PR description template**: Phase 5 PR で「rationaleSummary の妥当性確認」prompt を含める
+- **ADR template の `振り返り判定` section**: wrap-up commit 時に rationale / alternatives 品質を AI が再評価
+- **doc-kind-registry の `discriminationGuide` field**: kind 選択時に「kind A vs kind B の判別観点」を AI が読む
+- **Reading Pass の `alternativesConsidered` field**（ADR-SCP-010 既 articulate）: AI が「他の kind / disposition も検討した」根拠を articulate
+- **AI 自己レビュー section（既存 PZ-13、5 軸）**: 総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ確認 / CHANGELOG 更新 で archive 前の最終再評価
+
+##### AAG-SCP-GUIDANCE-007: project-scoped 検出装置は **boundary protection に限定** + AI tool として提供 + archive で消失
+
+§A（仕組み化可能）はさらに **§A1（AAG Core 永続）** と **§A2（project-scoped、AI tool、archive で消失）** に分けるが、§A2 は **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定** する。
+
+§A2 = boundary protection の image:
+
+```
+触ってはいけない   = 既存正本 / 既存実装層 / 既存 schema directory への変更を禁止
+変更してはいけない = 既存正本の意味 / 既存契約 / 既存 invariant への破壊的変更を禁止
+崩してはいけない   = 既存 governance 状態（advisory のみ等）/ 既存 boundary を崩さない
+```
+
+これらは **本 program の全期間（Phase 0〜10）を通じて一貫して禁止** される事項であり、phase 不変・parse 不要・`git` + `grep` だけで検出可能。
+
+| 軸 | §A1: AAG Core 永続 | §A2: project-scoped boundary protection |
+|---|---|---|
+| **scope** | 全 repo / 全 program に普遍適用される構造ルール | 本 program 固有の **boundary protection**（既存正本 / 既存実装層 / 既存 governance 状態の不可触・不可変・不可崩） |
+| **対象範囲** | parse-heavy も含む（schema validation / drift detection / phase ordering 等） | **parse-free 限定**。`git diff --name-only` / `grep` で検出可能なものに限る |
+| **phase 依存** | 個別 phase（Phase 1 / 2.5 / 4 / 5 / 6 / 8a 等）に landing | **phase 不変**。本 program 全期間（Phase 0〜10）を通じて一貫して禁止 |
+| **配置** | `tools/governance/check-*.ts`（既存 architecture-health pipeline 拡張も含む） | `projects/active/aag-structural-control-plane/aag/scp-checkers/` |
+| **lifecycle** | 永続。本 program archive 後も残置 | 本 program archive 時に物理削除（Archive v2 §6.4 で `aag/` folder ごと削除対象） |
+| **invocation** | pre-push / CI / docs:check に統合 | **AI tool として明示的に提供**（reposteward `aag scp check --project aag-structural-control-plane <checker>` 経由、または project's aag-engine subcommand として articulate） |
+| **promotion path** | — | 通常は不要（boundary protection は本 program 固有 nonGoal、universal rule にはなりにくい） |
+
+§A2 narrowing rationale:
+
+- **「やってはいけない」より重い**: 単なる手続き上の禁止（一発切替禁止 / 順序逆行禁止 等）は phase 依存で parse-heavy になるため §A1 へ promote。§A2 は **本 program が約束する不可触・不可変・不可崩 boundary** に限定
+- **AI tool として一貫**: §A2 は全 checker が `git` + `grep` 均質、AI が学ぶコストが小さい
+- **archive 削除が文脈整合**: §A2 は本 program が archive されれば「約束が完遂された」状態であり、checker が消えるのが自然
+
+##### §A2 の image: AI が安心してアクセルを踏むための事前ガードレール
+
+§A2 boundary protection の本質は、**AI が事前にガードレールを敷いておくことで、本筋（Tree / Document / Temporal の構造補助設計）でアクセルを踏める**ことにある。
+
+```
+ガードレールなし:
+  AI は自分が脱線していないか毎ステップ確認 (= defensive)
+  → 創造的判断を回避 / 表面的 compliance / 速度低下
+
+ガードレールあり (§A2):
+  AI は本筋でアクセルを踏める
+  → 万一脱線したら §A2 が catch
+  → 速度と妥当性の両立
+```
+
+メタファー対応:
+
+| 要素 | metaphor | 役割 |
+|---|---|---|
+| §A1（AAG Core 永続） | 道路交通法 / 高速道路の構造 | 全 program / 全 repo に適用される普遍ルール |
+| **§A2（project-scoped guardrail）** | **このコース固有のガードレール** | 本 program の boundary protection、archive で撤去 |
+| §B（再チェック trigger + 文脈提供） | 助手席の運転教官 / カーナビ | AI が判断時に参照する文脈 |
+| Guidance（Instruction Pack） | 道路標識 / コース案内 | AI が文脈を取り違えないための補助 |
+| Gate（構造破綻検出） | 崖際の鉄柵 | 本当に脱線した時だけ catch |
+
+§A2 の存在意義は「AI を縛る」ではなく「**AI が安心してアクセルを踏めるように、事前にコースの境界を物理的に articulate する**」こと。これにより AI は本筋（構造補助の設計判断）に集中でき、boundary 逸脱の不安に認知資源を奪われない。
+
+archive 時に §A2 が消えるのも、この metaphor で整合する: 本 program という「特定のコース」を走り終えれば、そのコース固有のガードレールは撤去される（次の program は別のコースなので、別のガードレールが要る）。
+
+§A2 を AI tool として提供する理由:
+
+- **AI が能動的に self-check 可能**: AI session が「app/src/ を touch していないか」「docs/contracts/aag/ を再配置していないか」等を自分で確認可能（reposteward `aag where-am-i` / `aag context --project` の延長線上）
+- **CI の暗黙の foul ではない**: 隠れた制約として AI を defensive にせず、explicit な tool として AI が認識する
+- **archive 後の削除が自然**: project の aag/ folder 自体が Archive v2 で削除されるため、§A2 checker が自動的に消える（恒久 dead code 化を防ぐ）
+
+§A2 invocation 例（articulation only、Phase 1+ で実装。**4 件の boundary protection checker のみ**）:
+
+```bash
+# 本 program が active な間、AI が呼び出せる (= parse-free、git + grep only):
+aag scp check --project aag-structural-control-plane app-untouched               # 触ってはいけない: app/src/
+aag scp check --project aag-structural-control-plane docs-contracts-aag-untouched # 触ってはいけない: docs/contracts/aag/
+aag scp check --project aag-structural-control-plane no-new-references-doc       # 触ってはいけない: references/ への新 .md 追加
+aag scp check --project aag-structural-control-plane hard-gate-count             # 崩してはいけない: pre-push/CI advisory state
+aag scp check --all  # = 本 program の全 §A2 checker (4 件) を一括実行
+
+# archive 後（projects/completed/aag-structural-control-plane/）:
+# aag/ folder が削除されているため、上記 command は該当 checker not found を返す
+# (= 本 program が完遂すれば boundary protection の約束も終わる、文脈整合)
+```
+
+判定 flow（GUIDANCE-005〜007 統合）:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  No  → §B: AI / human review + 再チェック trigger + 文脈提供 surface（GUIDANCE-006）
+  Yes ↓
+       本 program 固有の制約か?
+       No  → §A1: AAG Core 永続 checker（tools/governance/、pre-push/CI）
+       Yes → §A2: project-scoped AI tool（projects/active/<id>/aag/、aag command、archive で消失）
+```
+
+archive 時の処理:
+
+- §A1 checker: 残置（永続）
+- §A2 checker: `projects/active/<id>/aag/` ごと物理削除（Archive v2 §6.4 既存 mechanism）
+- §A2 → §A1 promotion 候補: 本 program 期間中に user 判断で promote 候補を articulate（archive 直前に決定、§A2 から §A1 に移動 + tools/governance/ に landing）
+
+#### 定量・定性の分離（機械検証 scope の articulate）
+
+| 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |
+|---|---|
+| 未登録 Markdown | この文書は何のためにあるか |
+| requiredSections 欠落 | 読者は誰か |
+| generated artifact の producer 不明 | どの粒度で説明すべきか |
+| generated file の手編集 | 何を判断材料として扱うか |
+| doc kind / topology mismatch | 過去・現在・未来をどう分けるか |
+| 製本に TODO / Roadmap section | どのような設計思想を優先するか |
+| 例外に owner / reason / reviewAfter なし | どの文脈を参照すべきか |
+| YAML 変更後の generated JSON 未更新 | 比喩 / 表現の適切さ |
+
+左側だけが foul 可能な構造ルール。右側は AI / human review の責務であり、AAG が無理に数値化しない。
+
+### rationale
+
+- AAG SCP の目的は **構造補助** であり、AI 拘束ではない（aag/_internal/strategy.md / meta.md の AAG 思想と整合: 「AI judgement + retrospective + commit-bound rollback」が前提、AI を信頼する設計）
+- 定量・定性を混ぜると、定性領域に foul が侵入し AI session が defensive に振る舞う / 創造的判断を回避する / 表面的 compliance に陥る
+- Instruction Pack を「命令書」と扱うと、AI が文脈無視で template 機械適用するだけになり、本来の「文脈把握 → 良い判断」が機能しない
+- Gate を「失敗させる仕組み」と扱うと、Gate を回避する loophole 探しが発生し、構造統制の意図が腐敗する
+- 「縛る」設計は短期的に compliance を高めるが、長期的に AI / human の創造性を毀損する。AAG philosophy「製本されないものを guard 化しない」「期間 buffer は anti-ritual」と同じ思想（信頼前提）
+
+### alternatives
+
+- (a) **思想を articulate しない** — 却下: 後続 phase で「AAG 違反 = AI 失敗」誤解が institute される
+- (b) **GUIDANCE 系列を ADR ではなく plan.md 不可侵原則のみで articulate** — 却下: 思想の根拠（rationale / alternatives / 観測点）が trace 不能、後続 program で「なぜそうしたか」が失われる
+- (c) **Instruction Pack を「Writing Context Pack」「Document Guidance Pack」に rename** — 却下: 既存 articulation（reposteward 等）との name continuity 喪失、本 ADR で「定義を再 articulate」する方が低 cost
+
+### 観測点
+
+1. plan.md 不可侵原則 11（Guidance over restriction）が landing
+2. plan.md の合言葉が `Plan → Context → Contract → Guidance → Gate` に update
+3. plan.md / inquiry/07 に定量・定性分離 table が landing
+4. Phase 6 AI Instruction Pack の完了条件が「AI が文脈を取り違えずに能力を発揮するための guidance」として articulate（pre-write 拘束ではない）
+5. Phase 3〜10 の各 checker の foul scope が「構造的に判定可能なもの」に限定される（設計判断・表現品質・文脈解釈は scope 外）
+6. 後続 phase で AI session が defensive に振る舞わず、創造的判断を行える状態が維持される（state-based、Phase 5+ の各 PR で AI session の自由度が articulate される）
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD = 760013c の次の commit、本 ADR landing 直前>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
