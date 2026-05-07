@@ -736,6 +736,34 @@
           "label": "AAG Detector Refs Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、detectorId → goImpl / tsImpl / schema / fixtures pointer、output 専用 = input source-of-truth detection-inventory.schema.json と分離)"
         },
         {
+          "path": "docs/contracts/aag/commands/changed-output.schema.json",
+          "label": "AAG Changed Explain Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、git diff から area / obligations / requiredReads articulate)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/clean-check-output.schema.json",
+          "label": "AAG Clean Check Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、cleanliness rule violation articulate)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/comments-list-output.schema.json",
+          "label": "AAG Comments List Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、TODO / suppression / expired comment scan)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/docs-placement-check-output.schema.json",
+          "label": "AAG Docs Placement Check Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、schema / generated artifact 配置規約違反)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/obligation-check-output.schema.json",
+          "label": "AAG Obligation Check Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、premise contract triggers + requirements、output 専用 = input source-of-truth premise-contract.schema.json と分離)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/repair-context-output.schema.json",
+          "label": "AAG Repair Context Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、検出結果 → repairReads / suggestedActions / requiredChecks)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/project-stale-output.schema.json",
+          "label": "AAG Project Stale Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、active project の最終 commit から stale 判定)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

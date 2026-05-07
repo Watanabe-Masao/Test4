@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/project-stale-v1.json",
+  "title": "Project Stale Output v1",
+  "description": "aag project stale の output envelope。active project の最終 commit から stale 状態を articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/projectstatus/stale.go。stale threshold は default 30 日 (= staleDays field で articulate)。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "staleDays", "today", "staleProjects", "freshProjects", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "project-stale-v1" },
+    "staleDays": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "stale 判定 threshold (= default 30 日)"
+    },
+    "today": {
+      "type": "string",
+      "description": "判定 base date (= ISO date)"
+    },
+    "staleProjects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/StaleProject" },
+      "description": "stale 判定された active project 一覧"
+    },
+    "freshProjects": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/StaleProject" },
+      "description": "fresh (= stale ではない) active project 一覧"
+    },
+    "summary": { "type": "string" }
+  },
+  "definitions": {
+    "StaleProject": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["projectId", "daysSinceCommit", "isStale"],
+      "properties": {
+        "projectId": { "type": "string" },
+        "lastCommit": { "type": "string", "description": "git commit hash (= short)" },
+        "lastCommitDate": { "type": "string", "description": "ISO date" },
+        "daysSinceCommit": { "type": "integer", "minimum": 0 },
+        "isStale": { "type": "boolean" }
+      }
+    }
+  }
+}

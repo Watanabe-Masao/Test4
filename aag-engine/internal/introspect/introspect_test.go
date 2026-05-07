@@ -86,7 +86,7 @@ func TestIntrospect_CommandsWithSchemaArticulated(t *testing.T) {
 		"validate":           "detector-result",
 		"task prepare":       "task-capsule",
 		"stats files":        "aag-size-statistics",
-		"obligation check":   "premise-contract",
+		"obligation check":   "obligation-check-output",
 		"detector refs":      "detector-refs-output",
 		"describe":           "describe-output",
 		"introspect command": "describe-output",

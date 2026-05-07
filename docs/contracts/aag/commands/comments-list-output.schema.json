@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/comments-list-v1.json",
+  "title": "Comments List Output v1",
+  "description": "aag comments list --kind の output envelope。TODO / FIXME / suppression / expired comment を repo 全体から scan して articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/commentscan/comments.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "kind", "totalScanned", "items", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "comments-list-v1" },
+    "kind": {
+      "type": "string",
+      "enum": ["todo", "suppression", "expired"],
+      "description": "scan 対象 comment kind"
+    },
+    "totalScanned": { "type": "integer", "minimum": 0 },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["path", "line", "text"],
+        "properties": {
+          "path": { "type": "string" },
+          "line": { "type": "integer", "minimum": 1 },
+          "text": { "type": "string", "description": "comment text articulate" },
+          "missingFields": { "type": "array", "items": { "type": "string" }, "description": "suppression kind で必要だが articulate されていない field 一覧" },
+          "annotations": { "type": "array", "items": { "type": "string" }, "description": "@reason / @expiresAt 等の annotation 一覧" },
+          "expiresAt": { "type": "string", "description": "expired kind で articulate される expiration date" }
+        }
+      }
+    },
+    "summary": { "type": "string" }
+  }
+}

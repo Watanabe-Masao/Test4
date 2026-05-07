@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/changed-explain-v1.json",
+  "title": "Changed Explain Output v1",
+  "description": "aag changed --base..--head の output envelope。git diff から changed file を area / obligations / requiredReads で articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/navigation/changed.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "base", "head", "changedFiles", "byArea", "obligations", "requiredReads", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "changed-explain-v1" },
+    "base": { "type": "string", "description": "git diff base ref (= default 'main')" },
+    "head": { "type": "string", "description": "git diff head ref (= default 'HEAD')" },
+    "changedFiles": { "type": "array", "items": { "type": "string" } },
+    "byArea": {
+      "type": "object",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } },
+      "description": "area name (= path prefix classification) → changed file list"
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["obligationId", "label", "matchedFiles", "action"],
+        "properties": {
+          "obligationId": { "type": "string" },
+          "label": { "type": "string" },
+          "matchedFiles": { "type": "array", "items": { "type": "string" } },
+          "action": { "type": "string" }
+        }
+      }
+    },
+    "requiredReads": { "type": "array", "items": { "type": "string" } },
+    "summary": { "type": "string" }
+  }
+}

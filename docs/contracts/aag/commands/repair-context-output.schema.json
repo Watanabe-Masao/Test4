@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/repair-context-v1.json",
+  "title": "Repair Context Output v1",
+  "description": "aag repair-context --from <file> の output envelope。検出結果 (= DetectorResult / TaskCapsule / obligation-check / clean-check / docs-placement-check) から repair context を articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/repaircontext/repaircontext.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "inputFile", "inputKind", "violationCount", "repairReads", "suggestedActions", "requiredChecks", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "repair-context-v1" },
+    "inputFile": { "type": "string", "description": "--from で articulate された path (= file path or '-' for stdin)" },
+    "inputKind": {
+      "type": "string",
+      "enum": ["detector-results", "obligation-check-v1", "clean-check-v1", "docs-placement-check-v1", "task-capsule-v1", "unknown"],
+      "description": "入力 JSON の classifier 結果"
+    },
+    "violationCount": { "type": "integer", "minimum": 0 },
+    "repairReads": { "type": "array", "items": { "type": "string" }, "description": "修復前に読むべき正本 file path 一覧" },
+    "suggestedActions": { "type": "array", "items": { "type": "string" }, "description": "修復候補 action 一覧 (= confidence: heuristic、AI 判断材料)" },
+    "requiredChecks": { "type": "array", "items": { "type": "string" }, "description": "修復後に実行すべき検証 command 一覧" },
+    "summary": { "type": "string" }
+  }
+}
