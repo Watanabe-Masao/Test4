@@ -139,6 +139,7 @@ func Prepare(input PrepareInput) (TaskCapsule, error) {
 		RelatedCommands: defaultRelatedCommands(),
 		ExpectedOutputs: []string{},
 		RepairPolicy:    defaultRepairPolicy(),
+		OpenQuestions:   []string{}, // v4.2 capsule-open-questions で institute (= 空配列で slot を articulate)
 	}
 
 	if err := capsule.Validate(); err != nil {
