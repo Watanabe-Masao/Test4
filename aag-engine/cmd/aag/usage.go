@@ -36,9 +36,11 @@ COMMANDS:
   repair-context   --from <file> の検出結果から repairReads / suggestedActions / requiredChecks を JSON で出力 (= reposteward-ai-ops-platform Wave 5 #21 deliverable)
   project stale    active project の最終 commit から stale (= 30 日以上 commit なし) 状態を JSON で articulate (= reposteward-ai-ops-platform Wave 5 #23 deliverable)
   next             AI session の next action recommendation を JSON で articulate (= reposteward-ai-ops-platform Wave 5 #23 deliverable)
-  wrap             stdin の JSON を AagResponse-v2 envelope で wrap (= improvement A、'aag <cmd> | aag wrap --command <name>')
+  wrap             stdin の JSON を pipeline envelope (= aag-pipeline-envelope-v1) で wrap (= improvement A、'aag <cmd> | aag wrap --command <name>')
   describe         指定 command の metadata (= maturity / args / output schema) を JSON で articulate (= improvement E)
   list             全 command 一覧 + maturity を JSON で articulate (= improvement E)
+  introspect command  command の implementation pointer (= dispatcher / handler / package / schema / tests) を JSON で articulate (= v4.2 seed)
+                   note: 'aag introspect command <name>' のように subcommand + command 名を articulate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)

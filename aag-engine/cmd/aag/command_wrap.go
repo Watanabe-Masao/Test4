@@ -11,8 +11,13 @@ import (
 
 // runWrap は `aag wrap --command <name>` の本体 (= improvement A、reposteward-ai-ops-platform)。
 //
-// stdin から JSON を読み、AagResponse-v2 envelope で wrap して articulate する。
-// 既存 14 command の output を破壊変更せず、optional な envelope layer として articulate。
+// stdin から JSON を読み、pipeline envelope (= aag-pipeline-envelope-v1) で wrap して
+// articulate する。既存 14 command の output を破壊変更せず、optional な envelope layer
+// として articulate。
+//
+// Naming (= v4.2 seed、DA-γ-001):
+//   - schemaVersion = "aag-pipeline-envelope-v1" (= 旧 "aag-response-v2" から rename)
+//   - 既存 TS 側 aag-response-v1 と name conflict 解消、stdin pipeline 文脈を articulate。
 //
 // 使用例:
 //   aag where-am-i --repo . | aag wrap --command where-am-i

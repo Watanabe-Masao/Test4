@@ -83,8 +83,10 @@ AI session が repo を articulate する際、従来は 3 か所を独立に wa
 
 | Detection | Command(s) | Schema(s) | Maturity |
 |---|---|---|---|
-| stdin JSON wrap (= AagResponse-v2 envelope) | `aag wrap --command NAME` | aag-response-v2 (virtual) | provisional |
-| command metadata articulation | `aag describe <command>` / `aag list` | aag-describe-v1 (virtual) | provisional |
+| stdin JSON wrap (= pipeline envelope) | `aag wrap --command NAME` | aag-pipeline-envelope-v1 (virtual、= v4.2 seed で rename、DA-γ-001) | provisional |
+| command metadata articulation | `aag describe <command>` / `aag list` | aag-describe-v1 / aag-list-v1 (= docs/contracts/aag/commands/describe-output.schema.json、additionalProperties: true、DA-γ-002) | provisional |
+| command implementation pointer | `aag introspect command <name>` | aag-introspect-command-v1 (= 同上 schema、provenance 含む、v4.2 seed) | provisional |
+| dispatcher / usage / describe drift detection | (TS guard: repostewardCommandRegistryGuard) | — (= meta-guard) | stable |
 
 ## 軸間 relation
 

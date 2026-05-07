@@ -1,13 +1,21 @@
 // Package responsewrap implements `aag wrap` — improvement A
-// (= reposteward-ai-ops-platform、AagResponse<T> 統一 wrapper の additive articulation)。
+// (= reposteward-ai-ops-platform、stdin pipeline envelope の additive articulation)。
 //
 // 全 14 command の output を破壊変更せず、別 command (= aag wrap) で stdin から
-// 読み込んだ JSON を AagResponse-v2 envelope で wrap して articulate する。
+// 読み込んだ JSON を pipeline envelope で wrap して articulate する。
+//
+// Naming note (= v4.2 seed で確定、DA-γ-001):
+//   - 旧 schemaVersion 名は "aag-response-v2"。これは既存 TS 側 `aag-response-v1` schema
+//     (= docs/contracts/aag/aag-response.schema.json、guard / obligations / health
+//     の統一 response 契約) と name conflict を起こすため rename。
+//   - 新 schemaVersion 名: "aag-pipeline-envelope-v1" (= stdin pipe 文脈を articulate、
+//     既存 aag-response-v1 と直交した別 family であることを articulate)。
+//   - Go struct 名 (= WrappedResponse) は internal で同一意味なので変更なし。
 //
 // 設計判断:
 //   - existing command の output は不変 (= breaking change を articulate しない)
 //   - `aag wrap` は stdin pipeline で composable (= improvement D との整合)
-//   - AagResponse-v2 envelope は既存 aag-response.schema.json と同 family
+//   - pipeline envelope は既存 aag-response.schema.json と **別 family** (= DA-γ-001)
 //
 // 使用例:
 //   aag where-am-i --repo . | aag wrap --command where-am-i
@@ -27,8 +35,13 @@ import (
 	"time"
 )
 
-// WrappedResponse is the AagResponse-v2 envelope that wraps any command's
-// existing output as `data`。
+// WrappedResponse is the pipeline envelope (= aag-pipeline-envelope-v1) that wraps
+// any command's existing output as `data`。
+//
+// Naming (= v4.2 seed、DA-γ-001):
+//   - schemaVersion = "aag-pipeline-envelope-v1" (= 旧 "aag-response-v2" から rename)
+//   - 既存 TS 側 aag-response-v1 (= docs/contracts/aag/aag-response.schema.json) とは
+//     **別 family**。同名 confusion 防止のため rename 実施。
 //
 // Field articulation:
 //   - schemaVersion: 本 envelope の version anchor
@@ -47,7 +60,11 @@ type WrappedResponse struct {
 }
 
 // WrapSchemaVersion is the const articulated in WrappedResponse.schemaVersion.
-const WrapSchemaVersion = "aag-response-v2"
+//
+// v4.2 seed で旧 "aag-response-v2" から rename (= DA-γ-001)。既存 TS 側
+// aag-response-v1 (= guard / obligations / health の統一 response 契約) との
+// name conflict を解消し、stdin pipeline 文脈を articulate する命名に articulate。
+const WrapSchemaVersion = "aag-pipeline-envelope-v1"
 
 // SourceName is the const articulated in WrappedResponse.source.
 const SourceName = "aag-engine"
@@ -59,7 +76,8 @@ type WrapInput struct {
 	NowFn   func() time.Time // optional override for test
 }
 
-// Wrap reads JSON from stdin and articulates it inside an AagResponse-v2 envelope.
+// Wrap reads JSON from stdin and articulates it inside a pipeline envelope
+// (= aag-pipeline-envelope-v1)。
 //
 // Errors:
 //   - Stdin nil → error
