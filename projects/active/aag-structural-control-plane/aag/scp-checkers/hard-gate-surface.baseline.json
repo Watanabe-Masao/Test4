@@ -1,0 +1,12 @@
+{
+  "$comment": "Phase 0 placeholder. 実 baseline 値は Phase 1 開始時に landing する (= ADR-SCP-015 D3)。本 program 開始時の hard gate surface を capture し、Wave 1 milestone 到達まで増やさない (不可侵原則 8 整合)。Phase 1 で各 hardGate.* field に実値を articulate。",
+  "schemaVersion": "scp-baseline-v1",
+  "phase": "phase-0-placeholder",
+  "capturedAtCommit": "<TBD = Phase 1 開始時 commit SHA>",
+  "hardGate": {
+    "workflowJobs": [],
+    "requiredChecks": [],
+    "prePushExitOneSteps": [],
+    "npmScriptGates": []
+  }
+}

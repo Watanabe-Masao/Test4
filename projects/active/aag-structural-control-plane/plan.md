@@ -321,7 +321,7 @@ disposition 4 分類:
 §A はさらに 2 分類（GUIDANCE-007）:
 
 - **§A1: AAG Core 永続 checker** — 全 repo / 全 program に普遍適用、`tools/governance/` 配下、本 program archive 後も残置。parse-heavy も含む（schema validation / drift detection / phase ordering 等）
-- **§A2: project-scoped boundary protection** — 本 program が約束する **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定**（GUIDANCE-007）。**parse-free**（`git diff --name-only` / `grep` のみ）、**phase 不変**（本 program 全期間を通じて一貫禁止）、`projects/active/aag-structural-control-plane/aag/scp-checkers/` 配下、archive で消失、AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能
+- **§A2: project-scoped boundary protection** — 本 program が約束する **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定**（GUIDANCE-007）。**parse-free spirit**（`git` + `grep` + well-known config の field 抽出 only、Markdown semantic 解析 / TS AST 解析は禁止）、**phase 不変**（本 program 全期間を通じて一貫禁止）、`projects/active/aag-structural-control-plane/aag/scp-checkers/` 配下、archive で消失、AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能。**実装方式 = declarative YAML + common runner**（ADR-SCP-015 D1）
 
 #### §A1: AAG Core 永続 checker（`tools/governance/`、archive 後も残置）
 
@@ -341,16 +341,16 @@ disposition 4 分類:
 
 #### §A2: project-scoped boundary protection（`projects/active/aag-structural-control-plane/aag/scp-checkers/`、archive で消失、4 件のみ）
 
-> **boundary protection の image**: 触ってはいけない / 変更してはいけない / 崩してはいけない（GUIDANCE-007）。本 program の全期間（Phase 0〜10）を通じて一貫して禁止される事項に限定。**parse-free**（`git diff --name-only` / `grep` のみで検出可能）。
+> **boundary protection の image**: 触ってはいけない / 変更してはいけない / 崩してはいけない（GUIDANCE-007）。本 program の全期間（Phase 0〜10）を通じて一貫して禁止される事項に限定。**parse-free spirit**（`git` + `grep` + well-known config の field 抽出 only、Markdown semantic 解析 / TS AST 解析は禁止）。**実装は declarative YAML + common runner**（ADR-SCP-015 D1: `tools/governance/run-scp-checker.ts` が共通 runner、各 checker は `aag/scp-checkers/<id>.yaml`）。
 
 各 checker は AI が `aag scp check --project aag-structural-control-plane <checker>` で呼び出し可能。Archive v2 §6.4 で project の `aag/` folder ごと物理削除されるため、archive 後は invocation 不能（restore 経由でのみ復活）。
 
 | boundary protection | 違反根拠 | 検出装置（parse-free、`git` + `grep` only） | image |
 |---|---|---|---|
-| **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（`git diff --name-only HEAD..` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry） | 触ってはいけない（既存実装層） |
-| **`docs/contracts/aag/*.schema.json` を再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（`git diff --name-only HEAD..` で `^docs/contracts/aag/` の move / delete / modify 検出） | 触ってはいけない（既存 reposteward AAG contract schemas） |
-| **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（`git diff --name-only --diff-filter=A HEAD..` で `^references/.*\.md$` 検出。ただし Reading Pass `disposition: split / move / archive` の split target は disposition 確認で許可） | 触ってはいけない（既存 references/ への追加） |
-| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-count`（`grep -c "hard.\?gate"` で `.github/workflows/` + `tools/git-hooks/pre-push` を検査、本 program 開始時 baseline からの増加があれば finding） | 崩してはいけない（既存 advisory state） |
+| **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（`git diff --name-only ${BASE_REF}..HEAD` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry。baseRef は ADR-SCP-015 D2 の 4 段階解決） | 触ってはいけない（既存実装層） |
+| **`docs/contracts/aag/*.schema.json` を再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（`git diff --name-status -M ${BASE_REF}..HEAD` で `^docs/contracts/aag/` の move / delete / modify 検出） | 触ってはいけない（既存 reposteward AAG contract schemas） |
+| **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（`git diff --name-status -M ${BASE_REF}..HEAD` で `^references/.*\.md$` の Addition 検出。rename `R<N>` は除外。5 例外: Reading Pass disposition target / generated-report / archive-target / readme-index-update / this-program-deliverable は許可。詳細 ADR-SCP-015 D4） | 触ってはいけない（既存 references/ への追加） |
+| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-surface`（baseline file `aag/scp-checkers/hard-gate-surface.baseline.json` と現在の workflow / pre-push / package.json から収集した `hardGate.{workflowJobs, requiredChecks, prePushExitOneSteps, npmScriptGates}` を意味的 set diff、増加方向のみ finding。詳細 ADR-SCP-015 D3） | 崩してはいけない（既存 advisory state） |
 
 #### §A2 narrowing rationale（GUIDANCE-007）
 

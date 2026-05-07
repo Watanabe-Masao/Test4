@@ -4,7 +4,7 @@
 >
 > **scope**: 「何をもって Phase 0 完了か」「どこまでを自動判定するか」「既存資産とどう接続するか」を明確化する。Phase 1 schema 設計の揺れを抑止する。
 >
-> **規約**: ADR-SCP-010〜013（本 inquiry と同 commit で landing）+ ADR-SCP-001〜009（既 landing）。
+> **規約**: ADR-SCP-001〜015（全 15 ADR + 7 GUIDANCE 系列、本 inquiry は ADR-SCP-014 の §A1/§A2/§B 3 分類 + ADR-SCP-015 の Phase 1 implementation prep を整合確認する集約 view）。
 
 ## 0. 思想層別（前提）
 
@@ -496,7 +496,7 @@ plan.md「やってはいけないこと」§A は **§A1（AAG Core 永続、pa
   - `app-untouched`（触ってはいけない: app/src/）
   - `docs-contracts-aag-untouched`（触ってはいけない: docs/contracts/aag/）
   - `no-new-references-doc`（触ってはいけない: references/ への新 .md 追加）
-  - `hard-gate-count`（崩してはいけない: pre-push/CI advisory state）
+  - `hard-gate-surface`（崩してはいけない: pre-push/CI advisory state）
 - §A2 → §A1 promotion 経路: §A2 は boundary protection 限定のため通常は promote 候補にならない（universal rule にはなりにくい）
 
 §A2 narrowing rationale（GUIDANCE-007）:
@@ -530,7 +530,7 @@ soft mechanism としての運用（GUIDANCE-006）:
 
 - [ ] plan.md「やってはいけないこと」が §A1（AAG Core 永続、11 件）/ §A2（project-scoped boundary protection、**4 件のみ**）/ §B（仕組み化不可、6+ 件）に 3 分類されている
 - [ ] §A1 各項目に **検出装置 path（`tools/governance/check-*.ts` または既存 mechanism、parse-heavy 含む）+ landing phase + 違反根拠** が articulate されている
-- [ ] §A2 が **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定** されている（GUIDANCE-007、4 件のみ: `app-untouched` / `docs-contracts-aag-untouched` / `no-new-references-doc` / `hard-gate-count`）
+- [ ] §A2 が **「触ってはいけない / 変更してはいけない / 崩してはいけない」boundary protection に限定** されている（GUIDANCE-007、4 件のみ: `app-untouched` / `docs-contracts-aag-untouched` / `no-new-references-doc` / `hard-gate-surface`）
 - [ ] §A2 各 checker が **parse-free**（`git diff --name-only` / `grep` のみ、TypeScript AST / Markdown 構造解析 / YAML schema 解析 不要）であることが articulate されている
 - [ ] §A2 各項目が **phase 不変**（本 program 全期間 Phase 0〜10 を通じて一貫禁止）であることが articulate されている
 - [ ] §B 各項目に **再チェック trigger + 文脈提供 surface** が articulate されている（GUIDANCE-006）

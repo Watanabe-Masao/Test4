@@ -55,7 +55,7 @@
 
 ### 観測点 (= 判断後に true となるべき検証可能 observation)
 
-1. Phase 0 の全 checkbox（27 個）が `[x]` になり、user 承認後に Phase 1 へ進む
+1. Phase 0 の全 checkbox（36 個）が `[x]` になり、user 承認後に Phase 1 へ進む
 2. 各 Phase の landing commit + wrap-up commit が独立 rollback 可能（git log で 2 commit 確認可能）
 3. 新 doc 追加時に doc-registry.json + references/README.md の同 atomic commit 統合が pre-push hook を pass
 4. checkbox flip を含む commit の後、別 regen commit が landing して KPI drift が解消される
@@ -1189,6 +1189,191 @@ archive 時の処理:
 ### Lineage
 
 - **preJudgementCommit**: `<TBD = 760013c の次の commit、本 ADR landing 直前>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-015: Phase 1 implementation prep（§A2 scp-checkers の実装方式 + git diff baseRef + hard-gate-surface refactor + rename detection）
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-014 GUIDANCE-007 で §A2 を boundary protection 4 件に narrowing したが、Phase 1 着手前に **実装方式の詰めるべき 4 点** が user review で identify された:
+
+1. aag-engine（Go binary）が TypeScript checker module をどう実行するか — Go から TS module を直接 load する設計は重い
+2. `git diff` の baseRef 規約 — local pre-push / CI / fallback で異なる挙動になり得る
+3. `hard-gate-count` は誤検知しやすい — `grep -c "hard.\?gate"` だとコメントや README 内 mention でも増える
+4. `no-new-references-doc` の例外条件 — generated report / Reading Pass disposition / archive target / index update / rename detection の扱い
+
+これらを Phase 1 着手前に articulate しないと、checker 実装が drift する / ローカルと CI で異なる finding が出る / 誤検知で advisory が機能不全になる。
+
+### decision
+
+#### D1: §A2 checker の実行方式 = **declarative YAML + TypeScript common runner**
+
+- §A2 checker は **TypeScript module ではなく宣言的 YAML** として articulate
+- 配置: `projects/active/aag-structural-control-plane/aag/scp-checkers/<checker>.yaml`（per-checker 1 ファイル）
+- YAML schema 例:
+
+```yaml
+schemaVersion: scp-checker-v1
+id: app-untouched
+description: 触ってはいけない: app/src/ 配下の touch
+imageMetaphor: must-not-touch
+violationBasis: projectization.md §4 nonGoal
+detectionMethod: git-diff
+spec:
+  diffMode: name-only  # name-only | name-status
+  baseRefResolver: scp-baseRef  # ADR-SCP-015 D2 に従う
+  pathPatterns:
+    forbidden:
+      - ^app/src/
+    allowedExceptions: []
+findingTemplate:
+  ruleId: SCP-A2-APP-UNTOUCHED
+  severity: warn
+  suggestedDisposition: out-of-scope-for-this-program
+```
+
+- Common runner: `tools/governance/run-scp-checker.ts`（Phase 1 で landing）
+  - YAML を parse → git diff 実行 → pattern match → Finding JSON 出力（ADR-SCP-013 schema）
+  - Common runner 自体は §A1 配置（永続）。runner は project-specific 知識を持たない
+- aag CLI（aag-engine、Go）: 薄い dispatcher。`aag scp check --project <id> <checker>` を `node tools/governance/run-scp-checker.mjs --project <id> --checker <checker>` に変換するだけ
+- 利点:
+  - parse-free 整合（`git` + `grep` ベースの宣言的 spec）
+  - aag-engine（Go）が TS module を load する複雑さを回避
+  - 新 checker 追加 = YAML 1 ファイル（runner 変更不要）
+  - archive 時の削除 = YAML 削除のみ（runner は §A1 で永続）
+
+#### D2: git diff baseRef 規約
+
+baseRef 解決順序:
+
+1. **環境変数 `SCP_BASE_REF`**（明示指定、最優先）
+2. **CI 環境変数**（github.event.pull_request.base.sha or `${{ github.base_ref }}` の SHA 解決）
+   - GitHub Actions: `GITHUB_BASE_REF` + `git merge-base origin/$GITHUB_BASE_REF HEAD`
+3. **local pre-push**: `git rev-parse @{upstream} 2>/dev/null` → 失敗なら `origin/main`
+4. **fallback**: `HEAD~1`
+
+実行 command 規約:
+
+- 通常: `git diff --name-only ${BASE_REF}..HEAD`
+- 追加検出: `git diff --name-only --diff-filter=A ${BASE_REF}..HEAD`
+- rename 含む: `git diff --name-status -M ${BASE_REF}..HEAD`（D4 で使用）
+
+scp-checker.yaml の `baseRefResolver: scp-baseRef` は上記 4 段階を common runner が共通解決する。各 checker で個別実装しない。
+
+#### D3: hard-gate-count → **hard-gate-surface** に rename + baseline 比較方式
+
+`hard-gate-count`（grep -c）は誤検知が多いため廃止。代わりに `hard-gate-surface`:
+
+- baseline file: `projects/active/aag-structural-control-plane/aag/scp-checkers/hard-gate-surface.baseline.json`（Phase 1 開始時に landing、ratchet-down 対象）
+- 構造:
+
+```jsonc
+{
+  "$comment": "本 program 開始時の hard gate surface baseline。Wave 1 milestone 到達まで増やさない。",
+  "schemaVersion": "scp-baseline-v1",
+  "capturedAtCommit": "<SHA at Phase 1 start>",
+  "hardGate": {
+    "workflowJobs": [],         // .github/workflows/ から hard gate として動く job 名
+    "requiredChecks": [],       // GitHub branch protection で required と articulate される check
+    "prePushExitOneSteps": [],  // tools/git-hooks/pre-push 内で exit 1 する step ID
+    "npmScriptGates": []        // package.json scripts で gate として呼ばれる script 名
+  }
+}
+```
+
+- 検出ロジック（hard-gate-surface.yaml）:
+  1. baseline file を読む
+  2. 現在の `.github/workflows/` / `tools/git-hooks/pre-push` / `package.json` から `hardGate.*` を再収集
+  3. baseline と現在を意味的 diff（set 比較）
+  4. **増加方向のみ finding**（減少 = ratchet-down OK）
+
+- workflow / pre-push / package.json は parse 必要だが、**well-known config file** であり Markdown semantic 解析や TS AST 解析ではない（§A2 parse-free 原則の精神は「内容意味の解析を避ける」であり、構造化 config の field 抽出は許容）
+- baseline の更新: Wave 1 milestone 到達後の user 判断でのみ可（parse-free を maintain しつつ ratchet-down で hard gate 追加）
+
+#### D4: no-new-references-doc の例外条件 + rename detection
+
+許可される例外:
+
+1. **Reading Pass disposition target**: `document-reading-decisions.yaml` 内の `disposition: split | move | archive` に対応する `splitTargets` / `moveTo` / `archiveTo` path（生成された path）
+2. **generated report**: file path が `*.generated.md` / `*.generated.json` パターンに一致 AND `docs/contracts/src/governance/generated-artifacts.yaml` に producer 宣言済み（Phase 9 以降）
+3. **archive target**: file path が `^references/99-archive/` 配下 AND 同一 directory 内に `archive-manifest.json` 存在（または `references/99-archive/` 配下 zone semantics で暫定許可）
+4. **index update**: file 名が `README.md` AND modification（addition ではない）— rename / addition 検出から exclude
+5. **本 program 自身の inquiry / Phase 0 deliverable**: `^projects/active/aag-structural-control-plane/` 配下は本 checker scope 外
+
+rename detection 規約:
+
+- `git diff --name-status -M ${BASE_REF}..HEAD` を使用（`-M` で similarity-based rename detection）
+- `R<N>` status の場合（rename 検出）: addition としてカウントしない
+- `A` status のみが addition として finding 対象
+- Reading Pass `disposition: move` の `moveTo` path は rename として記録される想定（git mv 相当）
+
+検出 flow（no-new-references-doc.yaml）:
+
+```yaml
+schemaVersion: scp-checker-v1
+id: no-new-references-doc
+description: 触ってはいけない: references/ への新 .md 追加
+imageMetaphor: must-not-touch
+detectionMethod: git-diff
+spec:
+  diffMode: name-status  # rename 検出のため
+  diffOptions: -M
+  baseRefResolver: scp-baseRef
+  pathPatterns:
+    forbidden:
+      - ^references/.*\.md$
+    forbiddenStatuses: [A]  # Addition のみ。R (rename) / M (modify) は許可
+    allowedExceptions:
+      - reading-pass-disposition  # document-reading-decisions.yaml と join
+      - generated-report          # *.generated.{md,json} pattern + producer 宣言確認
+      - archive-target            # ^references/99-archive/ + archive-manifest.json 存在
+      - readme-index-update       # README.md の modification only
+      - this-program-deliverable  # ^projects/active/aag-structural-control-plane/
+```
+
+### rationale
+
+- **D1（declarative YAML + common runner）**: Go から TS module load の重さを回避 + parse-free 原則整合 + checker 追加コスト最小化 + archive 削除が file 削除のみで完結
+- **D2（baseRef 4 段階解決）**: ローカルと CI で同じ finding を返す保証（drift 防止）+ `SCP_BASE_REF` 環境変数で test 容易
+- **D3（hard-gate-surface + baseline）**: grep -c の誤検知を解消 + ratchet-down で hard gate 追加を抑止 + baseline で観測可能
+- **D4（5 例外 + rename detection）**: 例外条件の articulate により誤検知を抑止 + Reading Pass disposition との join で「許可される追加」を機械判定可能 + rename detection で git mv が誤検知されない
+
+### alternatives
+
+- **D1 alternative (a)**: TypeScript module を直接 load（AAG CLI が Go → TS bridge を持つ） — 却下: Go binary の責務肥大化、test 困難
+- **D1 alternative (b)**: 各 checker を独立 shell script で実装 — 却下: parse-free 維持できるが、共通 logic（baseRef 解決 / Finding JSON 出力 / 例外条件 join）の重複
+- **D2 alternative (a)**: `HEAD~1..HEAD` のみ — 却下: PR 全体でなく直近 commit のみ check、PR 単位 finding 不能
+- **D2 alternative (b)**: `main..HEAD` 固定 — 却下: feature branch から feature branch への分岐で誤動作
+- **D3 alternative (a)**: 全 hard gate を grep で count — 却下: 誤検知過多
+- **D3 alternative (b)**: hard gate 検出を完全に手動化 — 却下: drift 検出機能を失う
+- **D4 alternative (a)**: 例外条件なし、references/ への新 doc 一律禁止 — 却下: Reading Pass split target の追加が永久に禁止される、機能不全
+- **D4 alternative (b)**: rename を addition として扱う — 却下: Reading Pass `disposition: move` が誤検知される
+
+### 観測点
+
+1. Phase 1 で `tools/governance/run-scp-checker.ts` (common runner) と各 §A2 checker YAML が landing
+2. `aag scp check --project aag-structural-control-plane <checker>` 呼び出しが local pre-push と CI で同じ Finding JSON を返す
+3. `hard-gate-surface` が baseline file を持ち、ratchet-down 検証で動作
+4. `no-new-references-doc` が 5 例外条件を機械判定し、Reading Pass disposition target / rename を誤検知しない
+5. archive 時に `aag/scp-checkers/` 配下 YAML + baseline ごと削除されるが、`tools/governance/run-scp-checker.ts` (common runner) は §A1 として残置
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD = 78d265c の次の commit、本 ADR landing 直前>`
 - **judgementCommit**: `<TBD>`
 - **retrospectiveCommit**: `<TBD>`
 
