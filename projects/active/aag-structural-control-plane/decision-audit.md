@@ -1049,6 +1049,57 @@ CLAUDE.md G8（「気をつける」ではなく mechanism として運用）と
 - **Reading Pass の `alternativesConsidered` field**（ADR-SCP-010 既 articulate）: AI が「他の kind / disposition も検討した」根拠を articulate
 - **AI 自己レビュー section（既存 PZ-13、5 軸）**: 総チェック / 歪み検出 / 潜在バグ確認 / ドキュメント抜け漏れ確認 / CHANGELOG 更新 で archive 前の最終再評価
 
+##### AAG-SCP-GUIDANCE-007: project-scoped 検出装置は AI tool として提供 + archive で消失
+
+§A（仕組み化可能）はさらに **§A1（AAG Core 永続）** と **§A2（project-scoped、AI tool、archive で消失）** に分ける:
+
+| 軸 | §A1: AAG Core 永続 | §A2: project-scoped AI tool |
+|---|---|---|
+| **scope** | 全 repo / 全 program に普遍適用される構造ルール | 本 program 固有の制約（nonGoal / phase 構造 / scope 境界） |
+| **配置** | `tools/governance/check-*.ts`（既存 architecture-health pipeline 拡張も含む） | `projects/active/aag-structural-control-plane/aag/scp-checkers/` |
+| **lifecycle** | 永続。本 program archive 後も残置 | 本 program archive 時に物理削除（Archive v2 §6.4 で `aag/` folder ごと削除対象） |
+| **invocation** | pre-push / CI / docs:check に統合 | **AI tool として明示的に提供**（reposteward `aag scp check --project aag-structural-control-plane <checker>` 経由、または project's aag-engine subcommand として articulate） |
+| **promotion path** | — | 本 program 期間中に「universal な rule」と判明したら §A1 に promote（archive 前に user 判断） |
+
+§A2 を AI tool として提供する理由:
+
+- **AI が能動的に self-check 可能**: AI session が「app/src/ を touch していないか」「docs/contracts/aag/ を再配置していないか」等を自分で確認可能（reposteward `aag where-am-i` / `aag context --project` の延長線上）
+- **CI の暗黙の foul ではない**: 隠れた制約として AI を defensive にせず、explicit な tool として AI が認識する
+- **archive 後の削除が自然**: project の aag/ folder 自体が Archive v2 で削除されるため、§A2 checker が自動的に消える（恒久 dead code 化を防ぐ）
+
+§A2 invocation 例（articulation only、Phase 1+ で実装）:
+
+```bash
+# 本 program が active な間、AI が呼び出せる:
+aag scp check --project aag-structural-control-plane app-untouched
+aag scp check --project aag-structural-control-plane docs-contracts-aag-untouched
+aag scp check --project aag-structural-control-plane phase-ordering
+aag scp check --project aag-structural-control-plane reading-pass-zone-not-edited
+aag scp check --all  # = 本 program の全 §A2 checker を一括実行
+
+# archive 後（projects/completed/aag-structural-control-plane/）:
+# aag/ folder が削除されているため、上記 command は該当 checker not found を返す
+```
+
+判定 flow（GUIDANCE-005〜007 統合）:
+
+```
+やってはいけないこと candidate
+  ↓
+構造的に判定可能か?
+  No  → §B: AI / human review + 再チェック trigger + 文脈提供 surface（GUIDANCE-006）
+  Yes ↓
+       本 program 固有の制約か?
+       No  → §A1: AAG Core 永続 checker（tools/governance/、pre-push/CI）
+       Yes → §A2: project-scoped AI tool（projects/active/<id>/aag/、aag command、archive で消失）
+```
+
+archive 時の処理:
+
+- §A1 checker: 残置（永続）
+- §A2 checker: `projects/active/<id>/aag/` ごと物理削除（Archive v2 §6.4 既存 mechanism）
+- §A2 → §A1 promotion 候補: 本 program 期間中に user 判断で promote 候補を articulate（archive 直前に決定、§A2 から §A1 に移動 + tools/governance/ に landing）
+
 #### 定量・定性の分離（機械検証 scope の articulate）
 
 | 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |

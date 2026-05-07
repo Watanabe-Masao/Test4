@@ -29,9 +29,12 @@
 - [ ] ADR-SCP-011（disposition taxonomy を 6 分類に拡張: + generated-register / + needs-triage）を decision-audit.md に articulate
 - [ ] ADR-SCP-012（Phase 5 PR 分割基準 = zone × disposition）を decision-audit.md に articulate
 - [ ] ADR-SCP-013（Finding schema 最小 field set: id / severity / phase / subject / rule / problem / expected / suggestedDisposition / confidence / falsePositiveAllowed / detectedBy / detectedAt / status）を decision-audit.md に articulate
-- [ ] ADR-SCP-014（Guidance over restriction: AAG SCP 思想 + AAG-SCP-GUIDANCE-001〜006 + 定量/定性分離 + 合言葉更新 `Plan → Context → Contract → Guidance → Gate` + やってはいけないこと §A/§B 分類 + §A 検出ロジック + §B 再チェック機会の articulate）を decision-audit.md に articulate
-- [ ] plan.md「やってはいけないこと」が §A（仕組み化可能、18 項目、検出装置 + landing phase 必須）と §B（仕組み化不可、6 項目、再チェック trigger + 文脈提供 surface 必須）に 2 分類されている
-- [ ] §A 各項目に検出装置 path（`tools/governance/check-*.ts` または既存 mechanism 拡張）+ landing phase が articulate されている（GUIDANCE-005）
+- [ ] ADR-SCP-014（Guidance over restriction: AAG SCP 思想 + AAG-SCP-GUIDANCE-001〜007 + 定量/定性分離 + 合言葉更新 `Plan → Context → Contract → Guidance → Gate` + やってはいけないこと §A1/§A2/§B 3 分類 + §A1 永続 checker + §A2 project-scoped AI tool + §B 再チェック機会）を decision-audit.md に articulate
+- [ ] plan.md「やってはいけないこと」が §A1（AAG Core 永続、6 + 既存 1）/ §A2（project-scoped AI tool、11、archive で消失）/ §B（仕組み化不可、6）に 3 分類されている
+- [ ] §A1 各項目に検出装置 path（`tools/governance/check-*.ts` または既存 mechanism 拡張）+ landing phase が articulate されている（GUIDANCE-005）
+- [ ] §A2 各項目に検出装置 path（`projects/active/aag-structural-control-plane/aag/scp-checkers/`）+ AI tool invocation（`aag scp check --project aag-structural-control-plane <checker>`）+ landing phase が articulate されている（GUIDANCE-007）
+- [ ] §A2 checker が archive 時に Archive v2 §6.4 で物理削除されることが articulate されている
+- [ ] §A2 → §A1 promotion 経路（archive 直前 user 判断 + 実装 move + decision-audit 振り返り判定）が articulate されている
 - [ ] §B 各項目に再チェック trigger + 文脈提供 surface が articulate されている（GUIDANCE-006、`check-design-intent.yaml` / Instruction Pack `philosophy` block / `discriminationGuide` field 等）
 - [ ] inquiry/01: 既存 `docs/contracts/aag/*.schema.json`（10 schemas）を棚卸し、本 program の新 schema との配置関係を articulate
 - [ ] inquiry/02: 既存 YAML 4 件（`.coderabbit.yaml` / `references/04-tracking/*-inventory.yaml` 3 件）を 5 分類（declaration / inventory / generated-input / legacy / unknown）で articulate

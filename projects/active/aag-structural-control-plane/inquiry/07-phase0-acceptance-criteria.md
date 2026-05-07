@@ -476,18 +476,20 @@ ADR-SCP-012 に従い、Phase 5 の Finding group 単位 = **zone × disposition
 
 ADR-SCP-014 + AAG-SCP-GUIDANCE-005 に従い、plan.md「やってはいけないこと」を §A（仕組み化可能 = CI で foul）と §B（仕組み化不可 = AI/human review）に 2 分類する。§A の各項目には **検出ロジックがセットで articulate** される。
 
-### §A: 仕組み化できるもの（検出装置 + landing phase が必須）
+### §A: 仕組み化できるもの（検出装置 + landing phase が必須、§A1/§A2 細分）
 
-plan.md「やってはいけないこと」§A table で 18 項目が articulate 済。各項目は以下を必須記述:
+plan.md「やってはいけないこと」§A は **§A1（AAG Core 永続）** と **§A2（project-scoped AI tool、archive で消失）** に細分（GUIDANCE-007）。各項目は以下を必須記述:
 
 - **違反根拠**: どの不可侵原則 / ADR / projectization.md nonGoal に違反するか
-- **検出装置**: `tools/governance/check-*.ts` の path、または既存 mechanism（`docs:check` / `projectizationPolicyGuard` / `projectCompletionConsistencyGuard` 等）の拡張
-- **landing phase**: 検出装置が advisory として動き始める phase（Phase 0 完了後即時 / Phase 1 / Phase 2.5 / Phase 3 / Phase 4 / Phase 5 / Phase 6 / Phase 8a〜c のいずれか）
+- **検出装置 + 配置**: §A1 = `tools/governance/check-*.ts` / §A2 = `projects/active/aag-structural-control-plane/aag/scp-checkers/`、AI が `aag scp check --project <id> <checker>` で呼び出し可能
+- **landing phase**: 検出装置が advisory として動き始める phase
+- **lifecycle**: §A1 = 永続 / §A2 = archive 時 Archive v2 §6.4 で物理削除
 
 検出装置の総数:
 
-- 新設 checker: 約 14 件（`check-yaml-machine-truth` / `check-doc-contracts` / `check-doc-temporal-scope` / `check-tree` / `check-obligation-drift` / `check-no-prewrite-hook` / `check-reading-pass-review` / `check-phase-ordering` / `check-hard-gate-count` / `check-aag-contract-untouched` / `check-app-untouched` / `check-finding-group-pr` / `check-no-new-references-doc` / `check-inquiry-scope`）
-- 既存 mechanism 利用: 4 件（`projectizationPolicyGuard` PZ-13 / `projectCompletionConsistencyGuard` C1 / `docs:check` 拡張 / `scopeJsonGuard` 整合）
+- §A1（AAG Core 永続）: 6 件（`check-yaml-machine-truth` / `check-doc-contracts` / `check-doc-temporal-scope` / `check-tree` / `check-no-prewrite-hook` / 既存 `docs:check` 拡張）+ 既存 mechanism 1 件（`projectizationPolicyGuard` PZ-13 + `projectCompletionConsistencyGuard` C1）
+- §A2（project-scoped AI tool）: 11 件（`obligation-migration-staging` / `reading-pass-review` / `phase-ordering` / `hard-gate-count` / `docs-contracts-aag-untouched` / `app-untouched` / `finding-group-pr` / `no-new-references-doc` / `inquiry-scope` 等）
+- §A2 → §A1 promotion 経路: 本 program 期間中に「universal」と判明した §A2 checker を archive 直前に user 判断で promote（実装 move + pre-push 統合 + decision-audit 振り返り判定）
 
 ### §B: 仕組み化できないもの（AI/human review が判定 + 再チェック機会を構造提供）
 
@@ -508,12 +510,14 @@ soft mechanism としての運用（GUIDANCE-006）:
 - mechanism = 再チェック機会を構造的に提供する（template / philosophy block / discrimination guide / 振り返り判定 / AI 自己レビュー 5 軸）
 - AI session が defensive に振る舞わず、自由判断と妥当性確認を両立
 
-### Phase 0 完了条件（§A/§B split 整合）
+### Phase 0 完了条件（§A/§B split + §A1/§A2 細分整合）
 
-- [ ] plan.md「やってはいけないこと」が §A（18 項目）と §B（6 項目）に 2 分類されている
-- [ ] §A 各項目に **検出装置 + landing phase + 違反根拠** が articulate されている
+- [ ] plan.md「やってはいけないこと」が §A1（AAG Core 永続、6 + 既存 1）/ §A2（project-scoped AI tool、11）/ §B（仕組み化不可、6）に 3 分類されている
+- [ ] §A1 各項目に **検出装置 path（`tools/governance/check-*.ts` または既存 mechanism）+ landing phase + 違反根拠** が articulate されている
+- [ ] §A2 各項目に **検出装置 path（`projects/active/<id>/aag/scp-checkers/`）+ AI tool invocation（`aag scp check --project <id> <checker>`）+ landing phase + 違反根拠** が articulate されている（GUIDANCE-007）
 - [ ] §B 各項目に **再チェック trigger + 文脈提供 surface** が articulate されている（GUIDANCE-006）
-- [ ] 新設 14 checker / 既存 mechanism 4 件の listing が articulate されている
+- [ ] §A2 checker は本 program archive 時に Archive v2 §6.4 で物理削除されることが articulate されている
+- [ ] §A2 → §A1 promotion 経路（archive 直前の user 判断 + 実装 move + decision-audit 振り返り判定）が articulate されている
 - [ ] §B の文脈提供 surface（`check-design-intent.yaml` / Instruction Pack `philosophy` block / `discriminationGuide` field 等）の landing phase が articulate されている
 - [ ] checker の landing phase が Phase 0〜10 に分散され、Wave 1 milestone（reposteward Task Capsule v1）到達前は advisory のみ（不可侵原則 8 整合）
 
