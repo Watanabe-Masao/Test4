@@ -116,20 +116,62 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 		Purpose: "aag introspect schema <id> の output (= schema の path + producers + consumers articulate)",
 	},
+	"aag-self-check-v1": {
+		ID:      "aag-self-check-v1",
+		Title:   "Self-Check Output",
+		Path:    ptr("docs/contracts/aag/commands/self-check-output.schema.json"),
+		Purpose: "aag self-check の output (= 5 軸 cross-validation result + healthy boolean)",
+	},
+	"aag-engine-fixtures-output-v1": {
+		ID:      "aag-engine-fixtures-output-v1",
+		Title:   "AAG Fixtures Output",
+		Path:    ptr("docs/contracts/aag/commands/fixtures-output.schema.json"),
+		Purpose: "aag fixtures の output (= RunResult + fixtureSummary、fixture catalog articulate)",
+	},
+	"where-am-i-v2": {
+		ID:      "where-am-i-v2",
+		Title:   "WhereAmI Output v2",
+		Path:    ptr("docs/contracts/aag/commands/where-am-i-output.schema.json"),
+		Purpose: "aag where-am-i の output (= branch / activeProject / repoHealth / openObligations / manifestContext snapshot)",
+	},
+	"context-project-v1": {
+		ID:      "context-project-v1",
+		Title:   "Context Project Output",
+		Path:    ptr("docs/contracts/aag/commands/context-output.schema.json"),
+		Purpose: "aag context の output (= active project の requiredReads / constraints / nextActions、light-weight bootstrap)",
+	},
+	"rule-locate-v1": {
+		ID:      "rule-locate-v1",
+		Title:   "Rule Locate Output",
+		Path:    ptr("docs/contracts/aag/commands/rule-locate-output.schema.json"),
+		Purpose: "aag rule locate <ruleId> の output (= rule の definition / guards / docs / thresholds articulate)",
+	},
+	"detector-refs-v1": {
+		ID:      "detector-refs-v1",
+		Title:   "Detector Refs Output",
+		Path:    ptr("docs/contracts/aag/commands/detector-refs-output.schema.json"),
+		Purpose: "aag detector refs <detectorId> の output (= goImpl / tsImpl / schema / fixtures pointer articulate)",
+	},
 }
 
 // schemaProducersTable は schema id → 該当 schema を produce する command 一覧。
 //
 // schema-graph.json edges (= kind: produces) と同期。
 var schemaProducersTable = map[string][]string{
-	"detector-result-v1":          {"validate", "shadow"},
-	"task-capsule-v1":             {"task prepare"},
-	"aag-size-statistics-v1":      {"stats files"},
-	"aag-pipeline-envelope-v1":    {"wrap"},
-	"aag-describe-v1":             {"describe"},
-	"aag-list-v1":                 {"list"},
-	"aag-introspect-command-v1":   {"introspect command"},
-	"aag-introspect-schema-v1":    {"introspect schema"},
+	"detector-result-v1":            {"validate", "shadow"},
+	"task-capsule-v1":               {"task prepare"},
+	"aag-size-statistics-v1":        {"stats files"},
+	"aag-pipeline-envelope-v1":      {"wrap"},
+	"aag-describe-v1":               {"describe"},
+	"aag-list-v1":                   {"list"},
+	"aag-introspect-command-v1":     {"introspect command"},
+	"aag-introspect-schema-v1":      {"introspect schema"},
+	"aag-self-check-v1":             {"self-check"},
+	"aag-engine-fixtures-output-v1": {"fixtures"},
+	"where-am-i-v2":                 {"where-am-i"},
+	"context-project-v1":            {"context"},
+	"rule-locate-v1":                {"rule locate"},
+	"detector-refs-v1":              {"detector refs"},
 }
 
 // schemaConsumersTable は schema id → 該当 schema を consume する command 一覧。

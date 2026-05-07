@@ -716,6 +716,26 @@
           "label": "AAG Self-Check Output Schema (= reposteward-substrate-v4-2-introspect-provenance、5 軸 substrate 整合性検証 output、advisory exit code 常に 0)"
         },
         {
+          "path": "docs/contracts/aag/commands/where-am-i-output.schema.json",
+          "label": "AAG WhereAmI Output v2 Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、AI session bootstrap surface、manifestContext 含む)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/context-output.schema.json",
+          "label": "AAG Context Project Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、active project の requiredReads / constraints / nextActions)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/fixtures-output.schema.json",
+          "label": "AAG Fixtures Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、RunResult + fixtureSummary、Go MVP family)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/rule-locate-output.schema.json",
+          "label": "AAG Rule Locate Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、ruleId → definition / guards / docs / thresholds)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/detector-refs-output.schema.json",
+          "label": "AAG Detector Refs Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase1、detectorId → goImpl / tsImpl / schema / fixtures pointer、output 専用 = input source-of-truth detection-inventory.schema.json と分離)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

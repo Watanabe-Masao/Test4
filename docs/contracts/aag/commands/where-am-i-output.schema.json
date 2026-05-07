@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/where-am-i-v2.json",
+  "title": "WhereAmI Output v2",
+  "description": "aag where-am-i の output envelope。AI session が現在 repo state (= branch / activeProject / repoHealth / openObligations / manifestContext snapshot) を 1 command で articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase1 で institute (= reposteward-substrate-v4-2-stable-schemas-phase1)。新世代 schema convention 整合: additionalProperties: true (= AI 拡張可能)。canonical Go implementation: aag-engine/internal/navigation/whereami.go。v2 で manifestContext field を additive 追加 (= improvement B)。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "branch", "activeProject", "repoHealth", "openObligations"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "where-am-i-v2"
+    },
+    "branch": {
+      "type": "string",
+      "description": "current git branch name (= 'main' / 'claude/...' 等)。git 環境外は '(unknown)' / detached HEAD は '(detached)'。"
+    },
+    "activeProject": {
+      "oneOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "branch name pattern (= claude/<projectId>-<slug>) + projects/active/ dir 走査で derive された project id。articulate されない場合は null。"
+    },
+    "repoHealth": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "architecture-health.json の summary projection (= hardGate / kpi / warn / fail)。",
+      "properties": {
+        "hardGate": {
+          "type": "string",
+          "enum": ["pass", "fail", "unknown"]
+        },
+        "kpi": {
+          "type": "string",
+          "description": "KPI 整合 articulate (= '60/60 OK' 等)。articulate 不能時は 'unknown ...'。"
+        },
+        "warn": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "openObligations": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "docs.obligation.violations KPI 値 (= articulate されている open obligation 件数)。"
+    },
+    "recommendedNextCommand": {
+      "type": "string",
+      "description": "AI session 向けの heuristic next command articulate (= confidence: heuristic、必ずしも optimal を articulate しない)。"
+    },
+    "manifestContext": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["currentFocus", "loadedRefsCount", "openQuestionsCount", "sessionNotes", "lastUpdated"],
+          "properties": {
+            "currentFocus": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+            "loadedRefsCount": { "type": "integer", "minimum": 0 },
+            "openQuestionsCount": { "type": "integer", "minimum": 0 },
+            "sessionNotes": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+            "lastUpdated": { "oneOf": [{ "type": "string" }, { "type": "null" }] }
+          }
+        }
+      ],
+      "description": ".claude/manifest.json activeContext snapshot (= improvement B、v2 で articulate)。manifest 不在 / parse error 時は null。"
+    }
+  }
+}

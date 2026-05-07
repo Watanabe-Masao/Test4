@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/context-project-v1.json",
+  "title": "Context Project Output v1",
+  "description": "aag context --project <id> の output envelope。AI session が project 着手時に読むべき正本 path / 不可触の constraints / 次に取るべき action を 1 JSON で articulate するための substrate (= task prepare の light-weight subset)。",
+  "$comment": "v4.2 stable-schemas-phase1 で institute。canonical Go implementation: aag-engine/internal/navigation/context.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "projectId", "requiredReads", "constraints", "nextActions"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "context-project-v1"
+    },
+    "projectId": {
+      "type": "string",
+      "description": "active project id (= projects/active/<id>/ の dir 名、kebab-case)。"
+    },
+    "title": {
+      "type": "string",
+      "description": "project config の title field (= optional、articulate されていない場合は省略)。"
+    },
+    "requiredReads": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "AI session 着手時に読むべき正本 file path (= 5 standard files: AI_CONTEXT.md / HANDOFF.md / plan.md / projectization.md / decision-audit.md)。"
+    },
+    "constraints": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "project の不可触 constraints (= projectization.nonGoals + 不可侵原則 derive)。"
+    },
+    "nextActions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "checklist.md の unchecked entries (= top N、default 5)。"
+    }
+  }
+}

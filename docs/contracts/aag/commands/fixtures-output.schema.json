@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-engine-fixtures-output-v1.json",
+  "title": "AAG Fixtures Output v1",
+  "description": "aag fixtures の output envelope (= RunResult shape with fixtureSummary populated)。fixtures/aag/ 配下を discover し、各 fixture の name + expected count を JSON で articulate。",
+  "$comment": "v4.2 stable-schemas-phase1 で institute。canonical Go implementation: aag-engine/cmd/aag/command_fixtures.go + aag-engine/internal/report/report.go (= RunResult + FixtureSummary)。RunResult envelope は detector-result-v1 と同 family (= aag-engine-run-result-v1)、fixtureSummary は fixtures subcommand のみ articulate。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "status", "repo", "detectorResults", "fixtureSummary"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "aag-engine-run-result-v1"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pass", "fail"],
+      "description": "engine 実行結果 (= violation 0 件で pass、≥ 1 件で fail)。fixtures は通常 pass を articulate。"
+    },
+    "repo": {
+      "type": "string",
+      "description": "検証対象 repo root の path (= --repo flag 値)。"
+    },
+    "detectorResults": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "DetectorResult 配列 (= fixtures subcommand では空配列を articulate、Phase 4-8 で各 detector が landing 後 to populate)。"
+    },
+    "fixtureSummary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["total", "fixtures"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "discover された fixture 件数 (= readiness refactor Phase 5 で 8 件想定)。"
+        },
+        "fixtures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "expectedCount"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "fixture identifier (= 'archive-v2/pass-minimal' 等、POSIX separator)。"
+              },
+              "expectedCount": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "expected.json 内の DetectorResult 件数。"
+              }
+            }
+          }
+        }
+      },
+      "description": "per-fixture catalog (= fixtures subcommand のみ articulate)。"
+    },
+    "shadowSummary": {
+      "type": "object",
+      "description": "shadow subcommand のみ articulate (= fixtures では不在、omitempty)。"
+    },
+    "note": {
+      "type": "string",
+      "description": "engine 実装段階 articulate (= optional、Phase 1-3 skeleton で活用)。"
+    }
+  }
+}
