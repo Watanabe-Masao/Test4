@@ -1,0 +1,52 @@
+{
+  "$comment": "AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く governance-hardening project。reposteward-ai-ops-platform の Task Capsule / AAG Parameters / SourceFacts substrate を入力として消費し、その上に Tree Contract / Document Contract / Temporal Scope Contract / AI Document Instruction Pack を additive に積む。Level 3 / requiresHumanApproval=true / requiresGuard=true (= governance-hardening 本体)。詳細判定根拠: projectization.md §2。versionImpact: app=+0.0.0 (app に変更なし、references/ + docs/contracts/ + tools/ のみ touch) / aag=+0.1 (AAG framework に Tree Contract + Document Contract + Temporal Scope の新 substrate を additive 追加、minor)。",
+  "projectId": "aag-structural-control-plane",
+  "title": "AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く",
+  "status": "active",
+  "projectRoot": "projects/active/aag-structural-control-plane",
+  "versionImpact": {
+    "$comment": "app は本 project で touch しない (= references/ + docs/contracts/ + tools/governance/ のみ)、aag framework は Tree Contract + Document Contract + Temporal Scope の新 schema + 新 generated artifact を additive 追加 (minor)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "app/ 配下を一切触らない project。references/ + docs/contracts/ + tools/governance/ + projects/ のみ。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.0",
+      "delta": "+0.1",
+      "rationale": "AAG framework に Tree Contract / Document Contract / Temporal Scope Contract / AI Document Instruction Pack の新 substrate を additive 追加。既存 substrate (Parameters / SourceFacts / Task Capsule / DetectorResult) には触れず、新 contract を上層に積む minor 増分。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projects/active/aag-structural-control-plane/projectization.md §1 と一致。Level 3 (architecture / governance-hardening) + breakingChange=false (additive only) + requiresLegacyRetirement=false (Phase 8 の OBLIGATION_MAP migration は 3 段階で TS 定数を残しつつ移行) + requiresGuard=true (Tree / Document / Temporal の機械検証 guard 新設) + requiresHumanApproval=true (Phase 0 ADR 確定 + Reading Pass の disposition 確定 + final review 全て user 承認必須)。",
+    "level": 3,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "docs/contracts",
+      "tools/governance",
+      "references",
+      "projects"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "app/src/ 配下の touch (= 本 project は app に触れない)",
+      "業務 logic / domain calculations / readModels の変更",
+      "既存 doc-registry.json の置換 (= 拡張のみ)",
+      "既存 OBLIGATION_MAP / PATH_TO_REQUIRED_READS の即時切替 (= 3 段階 shadow migration)",
+      "既存 references/99-archive/ への docs 大量移動 (= Phase 5 で Reading Pass 結果に基づき個別 PR で実施)",
+      "AI 執筆の pre-write 強制 (= ADR-SCP-006: post-write validation のみ)",
+      "Wave 1 milestone (= reposteward Task Capsule v1) 到達前の Hard Gate 追加",
+      "新規 YAML を AAG machine truth として採用 (= ADR-SCP-001: YAML は authoring source、generated JSON が machine truth)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-structural-control-plane/HANDOFF.md",
+    "plan": "projects/active/aag-structural-control-plane/plan.md",
+    "checklist": "projects/active/aag-structural-control-plane/checklist.md",
+    "projectization": "projects/active/aag-structural-control-plane/projectization.md"
+  }
+}
