@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/task-validate-v1.json",
+  "title": "Task Validate Output v1",
+  "description": "aag task validate --capsule の output envelope。TaskCapsule schema 準拠 + value invariant 検証結果を articulate するための substrate。",
+  "$comment": "v4.2 self-check-v7 で institute (= V7 axis 検出した schema-example drift 修正、task-capsule-v1 (= input schema) と分離した validate result schema)。canonical Go implementation: aag-engine/internal/taskcapsule/validate.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "valid", "errors"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "task-validate-v1" },
+    "capsuleFile": {
+      "type": "string",
+      "description": "--capsule で articulate された file path (= '-' は stdin)"
+    },
+    "valid": {
+      "type": "boolean",
+      "description": "schema + invariant 整合性が articulate されているか"
+    },
+    "errors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "validation 違反一覧 (= valid=true なら空配列)"
+    },
+    "taskId": { "type": "string", "description": "validated capsule の taskId (= articulate されている場合)" },
+    "projectId": { "type": "string", "description": "validated capsule の projectId" }
+  }
+}
