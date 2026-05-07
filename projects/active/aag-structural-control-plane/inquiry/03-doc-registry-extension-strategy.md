@@ -88,6 +88,20 @@
 - [ ] Phase 5 段階的 PR plan が articulate
 - [ ] 新 guard `tools/governance/check-doc-contracts.ts` の責務範囲が articulate（既存 docRegistryGuard と責務分離）
 
+## 5.5. Phase 0 acceptance criteria（inquiry/07 §1 整合）
+
+本 inquiry が Phase 1 へ進む前に articulate すべき 7 項目:
+
+| 項目 | 内容 | status |
+|---|---|---|
+| **対象ファイル / 対象資産** | `docs/contracts/doc-registry.json`（138KB、既存）+ 本 program で新設する `docs/contracts/schema/document-contracts.schema.json` | articulated（§1.1 / §2） |
+| **現在の正本** | doc-registry.json（既存 source of truth） | articulated（§1.1） |
+| **新構造での位置付け** | doc-registry を Document Registry v1 として扱い、Document Contract は上位互換の additive 拡張層 | articulated（§2） |
+| **移行方針** | Phase 5.1 schema 拡張 → Phase 5.2 Reading Pass 結果 join → Phase 5.3 split/move/archive 実行 → Phase 5.4 required 昇格 | articulated（§4） |
+| **未解決事項** | Q1〜Q4 が open（§6） | 一部解消必要 |
+| **Phase 1 以降への入力** | doc-registry.json の最小拡張 schema（§2 minimal field set）+ 後方互換確認結果（§3） | articulated（§2 / §3） |
+| **acceptance criteria** | (1) doc-registry.json の現在 schema が確認 / (2) 既存 reader listing 完了 / (3) 未知 field 無視性 確認 / (4) Phase 5 段階的 PR plan articulate / (5) 新 guard `tools/governance/check-doc-contracts.ts` の責務範囲 articulate | §5（既存）と整合 |
+
 ## 6. open questions
 
 - Q1: doc-registry.json の schema 定義 file（JSON Schema）は現在存在するか? → Phase 0 で確認、なければ Phase 5.1 で `docs/contracts/schema/document-contracts.schema.json` の一部として articulate

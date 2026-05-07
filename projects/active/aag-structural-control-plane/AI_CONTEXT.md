@@ -7,6 +7,17 @@
 
 AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く（aag-structural-control-plane）
 
+## Naming Note
+
+| 軸 | name | 由来 |
+|---|---|---|
+| **Internal name** | `AAG` | repo 内で長期使用、`aag/` tree / `aag-engine/` / `aag/_internal/` 等で articulate |
+| **Expanded** | `Adaptive Architecture Governance` | AAG の正式展開、CLAUDE.md / `aag/_internal/strategy.md` 等で articulate |
+| **External name** | `RepoSteward` | 外向き name（reposteward-ai-ops-platform で institute、`aag` binary は CLI 名として継続） |
+| **Subtitle** | `AI-native repository maintenance control plane` | external な position articulate（user-facing communication 等で使用） |
+
+本 program は internal AAG 名で進める（既存 substrate / project / file 命名との整合）。external な position articulate が必要な場面（README / external doc / aag/CHANGELOG.md release entry 等）では `RepoSteward — AI-native repository maintenance control plane` の形式で言及する。
+
 ## Purpose
 
 AAG を **guard collection** から **repository structural control plane** に進化させる。

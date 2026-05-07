@@ -78,6 +78,20 @@ finding:
 - AAG-SCP-DOC-TEMPORAL-001（製本は present-only）は **「現在に追いついている」**ことも要求する
 - Phase 4 Document Kind + Temporal Scope Shadow で同種 drift を機械検出する設計を articulate（heading drift / version drift / signature drift）
 
+## 4.5. Phase 0 acceptance criteria（inquiry/07 §9 整合）
+
+本 inquiry が Phase 1 へ進む前に articulate すべき 7 項目:
+
+| 項目 | 内容 | status |
+|---|---|---|
+| **対象ファイル / 対象資産** | `aag-engine/internal/selfcheck/selfcheck.go`（V1〜V7 実装）+ `aag-engine/cmd/aag/command_selfcheck.go`（V1〜V5 のみ articulate） | articulated（§1） |
+| **現在の正本** | `internal/selfcheck/selfcheck.go`（V7 まで実装が正本、command 層 doc + Axis comment が stale） | articulated（§1） |
+| **新構造での位置付け** | drift 自体は本 program scope 外（aag-engine 内部）。本 program は **最初の Finding として記録** + Phase 4 Document Kind + Temporal Scope Shadow checker の design 入力（doc-comment-code sync drift 検出 design） | articulated（§3 / §4） |
+| **移行方針** | 本 program では修正しない（discovery-log.md P2 entry → reposteward `aag-engine-domain-coverage-extension` 候補等で post-archive escalate） | articulated（§3） |
+| **未解決事項** | Q1〜Q3 が open（§5）。特に Q1（他にも同種 drift があるか）は本 program scope 外、Q2（reposteward discovery-log への転記）は archive 時に articulate | partially articulated |
+| **Phase 1 以降への入力** | (a) Finding ID `FND-SELFCHECK-AXIS-DRIFT-001`（仮）が aag-finding.schema.json の最初の実例として inform / (b) self-check / index への接続候補表（inquiry/07 §9）/ (c) V8 / V9 候補（sourceSha 整合 / src/ schema validation）の articulate | articulated（§4 / inquiry/07 §9） |
+| **acceptance criteria** | (1) 本 finding が discovery-log.md の 2026-05-07 P2 entry と整合 / (2) 「本 program 修正対象外」明示 / (3) 「reposteward post-archive escalate 先」articulate / (4) Phase 4 checker design への inform articulate / (5) self-check / index 接続候補（inquiry/07 §9）articulate | §6（既存）+ inquiry/07 §9（追加）と整合 |
+
 ## 5. open questions
 
 - Q1: 本 drift は self-check 軸数のみか、他にも同種 drift があるか? → Phase 0 では本 1 件のみ記録、Phase 1+ で全 substrate doc-comment-code sync の機械検出 plan を articulate（reposteward 側で扱う候補）

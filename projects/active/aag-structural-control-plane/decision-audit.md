@@ -614,3 +614,312 @@ stale 検出ルール:
 - **判定**: `<未確定>`
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-010: Reading Pass 記録フォーマット最小 schema
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-007 で Reading Pass 成果物の保存規約を articulate（src = human authored / generated = machine candidate / merged = join）したが、各 entry 内の **必須 field** が未定義。Reading Pass を AI session 単独で進めると、entry 形式が session ごとに drift し、後段 Phase 5（Rewrite/Move/Archive PR）で参照不能になる。
+
+### decision
+
+`docs/contracts/src/docs/document-reading-decisions.yaml` の各 entry は以下を必須とする:
+
+```yaml
+- path: <doc path from repo root>
+  currentZone: <現在配置 zone path>
+  proposedKind: <doc-kind-registry 登録済 kind>
+  temporalScope: <present | past | future | computed-present>
+  disposition: <ADR-SCP-011 6 分類のいずれか>
+  contains:
+    presentContract: <bool>
+    implementationHistory: <bool>
+    futurePlan: <bool>
+    generatedState: <bool>
+    taskList: <bool>
+  review:
+    reviewedBy: <session ID or human ID>
+    reviewedAtCommit: <commit SHA>
+    reviewedAtSha: <file blob SHA at commit>
+    rationaleSummary: <1-2 文>
+    alternativesConsidered:
+      - kind: <alt kind>
+        rejectedBecause: <却下理由>
+```
+
+disposition 別の追加 field:
+
+- `disposition: split` → `splitTargets: { present, past, future, rationale }`
+- `disposition: move` → `moveTo: <new path>`、`rationale`
+- `disposition: archive` → `archiveTo: <archive path>`、`archiveManifest: <bool>`、`rationale`
+- `disposition: generated-register` → `producer: <generator path or command>`
+- `disposition: needs-triage` → `triageReason: <文脈>`、`expectedResolutionPhase: 2.5`
+
+詳細: inquiry/07 §3 を参照。
+
+### rationale
+
+- AI session ごとの drift を抑止（必須 field により形式が固定）
+- alternativesConsidered の articulate により、判断根拠が trace 可能（再現性確保）
+- disposition 別の追加 field により、Phase 5 PR が機械的に生成可能（zone × disposition で grouping）
+
+### alternatives
+
+- (a) **必須 field なし、自由形式** — 却下: drift 発生、Phase 5 で参照不能
+- (b) **alternativesConsidered を optional** — 却下: 判断根拠の trace が失われ、再 review 時に再現困難
+- (c) **disposition 別 field を unified field** — 却下: 各 disposition の固有情報（splitTargets / moveTo / archiveTo / producer）を articulate 不能
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/reading-pass.schema.json` が landing し、上記 field を JSON Schema として articulate
+2. Phase 2.5 開始時に `docs/contracts/src/docs/document-reading-decisions.yaml` の最初の entry が上記形式で landing
+3. Phase 5 PR 生成時に zone × disposition の機械 grouping が動作（PR タイトル自動推定可能）
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD = inquiry/07 + ADR-SCP-010〜013 landing 直前の commit SHA、wrap-up commit で update>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-011: disposition taxonomy を 6 分類に拡張
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-007 / plan.md Phase 2.5 で disposition は 4 分類（keep-and-contract / split / move / archive）と articulate していた。ただし、実運用で以下 2 分類が必要と判明:
+
+- `references/04-tracking/generated/` 配下の generated report は Reading Pass で「machine inferred で auto-accept」(ADR-SCP-008) するが、disposition として明示的に articulate しないと doc-registry 拡張時の処理が曖昧
+- AI session が判断保留する状況は実務上必ず発生（複数の kind が妥当に見える doc 等）。「needs-triage」状態を articulate しないと、AI session が無理に判断して低 confidence の disposition を articulate するリスク
+
+### decision
+
+disposition を **6 分類**に拡張:
+
+| disposition | 性質 | 採否根拠 |
+|---|---|---|
+| `keep-and-contract` | 現在の場所・内容で妥当、Document Contract のみ付与 | 既存 |
+| `split` | 1 文書に複数責務混在、本文を分割 | 既存 |
+| `move` | 内容は有効、置き場所が違う | 既存 |
+| `archive` | 現行の正本ではない、archive へ移動 | 既存 |
+| `generated-register` | **新規**: generated report として登録（ADR-SCP-008 例外条項で auto-accept） | 機械再生成可能、Reading Pass コスト不要 |
+| `needs-triage` | **新規**: 判断保留、Phase 2.5 内で再 review | AI session の自由度確保、Phase 2.5 完了条件「needs-triage 残数 == 0」で必ず解消 |
+
+採用しない candidate:
+
+- `delete-candidate`: archive にも残さない candidate → 却下: 本 program scope 外（archive 廃止は別 program 候補）
+- `external-reference`: repo 内正本ではなく外部参照 → 却下: 本 program 対象は repo 内 doc のみ、外部 reference は ADR-SCP-002 で扱う doc-registry に登録しない方針
+- `project-owned`: projects/active 配下の作業文脈 → 却下: project doc は kind=`project-plan` / `project-checklist` / `ai-entrypoint` で articulate するため、disposition で別扱いする必要なし
+
+### rationale
+
+- `generated-register` 追加で ADR-SCP-008 例外条項の機械処理が明確化
+- `needs-triage` 追加で AI session が低 confidence で disposition を articulate するリスクを抑止
+- 6 分類を超えると分類自体の運用 cost が増えるため、最小 set で start
+
+### alternatives
+
+- (a) **4 分類のまま** — 却下: generated report の処理が曖昧、判断保留の articulate 経路なし
+- (b) **8+ 分類**（delete-candidate / external-reference / project-owned 等を全採用） — 却下: 分類 cost 過大、実運用で混同リスク
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/reading-pass.schema.json` の disposition enum に 6 分類が articulate
+2. Phase 2.5 で `generated-register` disposition が `references/04-tracking/generated/` 配下に machine inferred で auto-accept される
+3. Phase 2.5 完了時に `needs-triage` 残数 == 0
+4. Phase 5 で 6 分類すべての PR が Finding group 単位で landing 可能
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-012: Phase 5 PR 分割基準 = zone × disposition
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+plan.md Phase 5 で「1 Finding group = 1 PR」と articulate（AAG-SCP-MIGRATION-005）したが、Finding group の単位が未定義。zone 単位 / kind 単位 / disposition 単位 / owner 単位の選択肢がある。
+
+肥大化抑止 + rollback granularity 確保 + review しやすさを満たす分割が必要。
+
+### decision
+
+Finding group の単位 = **zone × disposition**。
+
+具体例:
+
+```
+phase5(zone-01-foundation): keep-and-contract
+phase5(zone-01-foundation): split-history-to-archive
+phase5(zone-01-foundation): move-to-project
+phase5(zone-03-implementation): keep-and-contract
+phase5(zone-03-implementation): move-project-plan-to-projects
+phase5(zone-04-tracking): generated-register
+phase5(zone-99-archive): archive-manifest-add
+```
+
+例外:
+
+- 同 zone 同 disposition で entry 数が多い場合（split 等で 10+）は doc kind 単位で分割可（zone × disposition × kind）
+- `disposition: needs-triage` は Phase 5 PR 対象外（Phase 2.5 で残数 0 にする）
+
+想定 PR 数: 15〜25（6 zone × 6 disposition - 空組み合わせ）。
+
+詳細: inquiry/07 §10 を参照。
+
+### rationale
+
+- **rollback granularity**: zone × disposition で独立 rollback 可能、影響範囲が局所化
+- **review しやすさ**: 同 zone + 同 disposition のため reviewer の認知負荷が均一
+- **肥大化抑止**: 1 PR が 1 zone の 1 disposition のみなので、自然と diff サイズが制限される
+- **機械生成**: reading-decisions.yaml から zone × disposition で grouping し、PR タイトル / branch 名を auto 推定可能
+
+### alternatives
+
+- (a) **zone 単位のみ**（zone 内の全 disposition を 1 PR） — 却下: zone あたり 100+ files diff の可能性、review 困難
+- (b) **disposition 単位のみ**（disposition 内の全 zone を 1 PR） — 却下: zone 跨ぎで影響範囲が広い、rollback 不能
+- (c) **kind 単位のみ**（kind 内の全 zone × disposition を 1 PR） — 却下: kind が同じでも zone / disposition が異なる作業を混ぜる
+- (d) **owner 単位**（同 owner の作業を 1 PR） — 却下: owner が repo 全体に跨ると PR が肥大化
+
+### 観測点
+
+1. Phase 5 開始時に reading-decisions.yaml から zone × disposition の grouping が機械生成される
+2. 各 PR の diff size が中央値で 200 行以下に収まる（rollback 可能性確保）
+3. 同 zone 同 disposition で entry 数 > 10 の場合に kind 単位の更なる分割が機械検出される
+4. needs-triage 残数 == 0 で Phase 5 へ進む
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+---
+
+## ADR-SCP-013: Finding schema 最小 field set
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+Phase 1 で `docs/contracts/schema/aag-finding.schema.json` を landing するが、初期 schema が貧弱だと Phase 3〜10 の checker / triage / ratchet で field 不足が露呈し、後付けで schema 拡張が頻発する。最初から triage / ratchet / status trace が可能な field set を articulate すべき。
+
+### decision
+
+Finding schema 最小 field set:
+
+```jsonc
+{
+  "id": "FND-DOC-TEMPORAL-001",
+  "schemaVersion": "aag-finding-v1",
+  "severity": "warn",
+  "phase": "shadow",
+  "subject": {
+    "kind": "document",
+    "path": "references/...",
+    "lineRange": "84-90"
+  },
+  "rule": {
+    "id": "DOC-TEMPORAL-PRESENT-ONLY",
+    "category": "temporal-scope"
+  },
+  "problem": "<観測した現象 1 文>",
+  "expected": "<期待される状態 1 文>",
+  "suggestedDisposition": "move-to-project",
+  "confidence": "medium",
+  "falsePositiveAllowed": true,
+  "detectedBy": "check-doc-temporal-scope",
+  "detectedAt": {
+    "commit": "<SHA>",
+    "phase": "phase-2-5-reading-pass"
+  },
+  "status": "open"
+}
+```
+
+特に必須 3 field:
+
+- `confidence`: high | medium | low（shadow phase で low / medium 許容、hard-gate で high のみ）
+- `suggestedDisposition`: triage candidate を機械提示（reading-decisions.yaml の disposition と同 enum）
+- `status`: open | acknowledged | resolved | wontfix | superseded（lifecycle trace）
+
+ID prefix:
+
+- Finding ID は `FND-` prefix（Document ID の `DOC-` と区別、grep で識別可能）
+- rule ID は `<CATEGORY>-<NAME>` 形式（例: `DOC-TEMPORAL-PRESENT-ONLY` / `TREE-UNMANAGED-TOPLEVEL` / `OBLIGATION-DRIFT-SHADOW`）
+
+詳細: inquiry/07 §5 を参照。
+
+### rationale
+
+- **confidence**: shadow → hard-gate へ昇格時に false positive を機械 filter 可能
+- **suggestedDisposition**: AI session の triage 工数を削減
+- **status**: 同 finding が複数 phase で再検出された際に重複処理を抑止（superseded により旧 finding を closed 化）
+- **FND- prefix**: grep / regex で Document ID と区別、誤参照を抑止
+
+### alternatives
+
+- (a) **最小 field のみ**（id / severity / problem / expected） — 却下: triage / ratchet / lifecycle trace が機能不全
+- (b) **より多くの field**（component / module / urgency / impact 等） — 却下: 初期 schema が肥大化、運用 cost 増、後付け拡張で十分
+- (c) **prefix なし**（Finding ID と Document ID を区別しない） — 却下: grep / regex 誤参照リスク
+
+### 観測点
+
+1. Phase 1 で `docs/contracts/schema/aag-finding.schema.json` が上記最小 set で landing
+2. Phase 3〜10 の各 checker が Finding schema を共通 output として使用
+3. shadow → new-only-gate → hard-gate の昇格時に confidence で filter 可能
+4. status: superseded により、同種 finding の重複処理が抑止される
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+

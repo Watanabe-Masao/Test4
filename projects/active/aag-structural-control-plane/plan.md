@@ -2,10 +2,10 @@
 
 ## 不可侵原則
 
-1. **YAML authoring / JSON machine truth** — YAML は人間/AI が編集する authoring source としてのみ許可する。Detector / CI / AAG CLI / architecture-health は **generated JSON のみ** を読む。YAML を AAG machine truth にしない（ADR-SCP-001）。reposteward 不可侵原則 1（JSON-first）は AAG Parameters / Task Capsule / SourceFacts / Premise Contract / DetectorResult / generated artifact の **narrow scope** として再定義し、本 program の YAML 用法は同 scope 外（authoring source 層）として共存する。
+1. **YAML authoring / JSON machine truth** — YAML は人間/AI が編集する authoring source としてのみ許可する。Detector / CI / AAG CLI / architecture-health は **generated JSON のみ** を読む。YAML を AAG machine truth にしない（ADR-SCP-001）。reposteward 不可侵原則 1（JSON-first）は AAG Parameters / Task Capsule / SourceFacts / Premise Contract / DetectorResult / generated artifact の **narrow scope** として再定義し、本 program の YAML 用法は同 scope 外（authoring source 層）として共存する。**normalize は deterministic**: object key alphabetical sort + array order-preserving + indent 2 spaces + final newline + metadata block（`schemaVersion` / `sourceSha` / `sourcePaths` / `generatedAt`）必須（詳細: inquiry/07 §8）。
 2. **Document Contract は doc-registry.json の拡張層** — 新 namespace の Document ID（DOC-DEF-*）を既存 `docs/contracts/doc-registry.json` と並立させない。kind / temporalScope / requiredSections / forbiddenContent / owner / audience / granularity / lifecycle は doc-registry entry に additive 拡張する形で articulate する（ADR-SCP-002）。既存 `references/04-tracking/recent-changes.generated.md` 系の generator の後方互換（未知 field 無視）は Phase 0 で確認する。
 3. **製本は present-only** — `canonical-doc` kind の文書は **現在有効な実装・契約・定義・ルール** のみを書く。過去の実装経緯 / 退役済み設計 / 移行ログは `archive-doc` へ。将来計画 / roadmap / TODO / Phase plan / project progress は `project-plan` へ。現在値の一覧 / 件数 / status は `generated-report` へ。製本に過去/未来が必要な場合は **本文展開せず、Document ID / Project ID で参照** する（ADR-SCP-003）。
-4. **Tree Contract MVP scope は top-level + structural roots のみ** — Phase 1 では `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` / `tools/` / `wasm/` のみを Tree Contract 対象とする。それ以外は `unmanaged-but-tolerated` 状態で許容する。粒度爆発を抑止するため、Phase 1 内で個別ディレクトリへ拡大しない（ADR-SCP-004）。
+4. **Tree Contract MVP scope は top-level + structural roots のみ** — Phase 1 では `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` / `tools/` / `wasm/` のみを Tree Contract 対象とする。それ以外は `unmanaged-but-tolerated` 状態で許容する。粒度爆発を抑止するため、Phase 1 内で個別ディレクトリへ拡大しない（ADR-SCP-004）。`unmanaged-but-tolerated` の意味: inventory に載るが contract 必須対象ではない / 既存 unmanaged 配下への新規子 directory 追加は OK / **新規 top-level directory 追加は finding**（new-only gate 対象）/ baseline は単調減少のみ（unmanaged → managed への promotion は user 判断、新規 unmanaged 化は finding）。詳細: inquiry/07 §7。
 5. **OBLIGATION_MAP / PATH_TO_REQUIRED_READS migration は 3 段階 shadow** — Phase 8a で YAML → generated JSON を追加（既存 TS 定数も維持）、TS 定数と generated JSON の正規化比較器で差分を shadow check。Phase 8b で collector を generated JSON 読みに切替（TS 定数は deprecated shim）。Phase 8c で TS 定数を削除。一発切替は禁止（ADR-SCP-005）。
 6. **AI Instruction Pack は post-write validation 限定** — AI 執筆の pre-write 強制は機構上不可能。Phase 6 の完了条件は「AI が参照できる Instruction Pack JSON が生成される」 + 「Markdown 作成後に Document Contract 適合性を機械検証できる」のみ。pre-write 強制を完了条件にしない（ADR-SCP-006）。
 7. **Existing Documentation Reading Pass を機械分類で代替しない** — Phase 2.5 で各既存 Markdown の `proposedKind` / `temporalScope` / `disposition` は **人間/AI の reading** で確定する。機械は candidate と finding を出すのみ。`generated-report`（producer 宣言済）と `archive-doc`（archive-manifest 存在）は machine inferred で accepted 扱いとする例外条項を持つ（ADR-SCP-008）。Reading Pass 期間中、対象 zone 内の文書本体は編集しない（frontmatter docId 付与は同時付与可）。
@@ -172,12 +172,20 @@ disposition 4 分類:
 - `docs/contracts/generated/document-contracts.generated.json`
 - doc-registry.json への kind / temporalScope / requiredSections / forbiddenContent additive 拡張
 - `tools/governance/check-doc-contracts.ts`（advisory checker）
-- 個別 Finding group PR（disposition 別）:
-  - PR-A 系: docId 付与（Phase 2.5 で disposition=keep-and-contract と確定済の docs に frontmatter docId 付与）
-  - PR-B 系: 製本から future-plan を projects/ へ移動（disposition=split の future-part）
-  - PR-C 系: 製本から history を archive へ移動（disposition=split の history-part）
-  - PR-D 系: disposition=move 対象の物理移動
-  - PR-E 系: disposition=archive 対象の `references/99-archive/` または `projects/completed/` への移動
+
+**PR 分割単位 = zone × disposition**（ADR-SCP-012、AAG-SCP-MIGRATION-005）。具体例:
+
+| PR タイトル | zone | disposition | 想定 PR 数 |
+|---|---|---|---|
+| `phase5(zone-01-foundation): keep-and-contract` | references/01-foundation | keep-and-contract | 1 |
+| `phase5(zone-01-foundation): split-history-to-archive` | references/01-foundation | split | 数件 |
+| `phase5(zone-01-foundation): move-to-project` | references/01-foundation | move | 数件 |
+| `phase5(zone-03-implementation): keep-and-contract` | references/03-implementation | keep-and-contract | 1 |
+| `phase5(zone-03-implementation): move-project-plan-to-projects` | references/03-implementation | move | 数件 |
+| `phase5(zone-04-tracking): generated-register` | references/04-tracking | generated-register | 1（一括） |
+| `phase5(zone-99-archive): archive-manifest-add` | references/99-archive | archive | 数件 |
+
+想定 PR 数: 15〜25（6 zone × 6 disposition - 空組み合わせ）。同 zone 同 disposition で entry 数 > 10 の場合は kind 単位で分割可（zone × disposition × kind）。詳細: inquiry/07 §10。
 
 完了条件（ratchet-down）:
 
