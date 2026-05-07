@@ -144,6 +144,31 @@ var schemaConsumersTable = map[string][]string{
 	"task-capsule-v1":        {"task validate", "task close", "repair-context"},
 }
 
+// AllSchemaInfo returns a copy of schemaInfoTable for read-only access。
+func AllSchemaInfo() map[string]SchemaInfo {
+	out := make(map[string]SchemaInfo, len(schemaInfoTable))
+	for k, v := range schemaInfoTable {
+		out[k] = v
+	}
+	return out
+}
+
+// SchemaProducers returns the producer command list for a schema id (= empty if none)。
+func SchemaProducers(id string) []string {
+	v := schemaProducersTable[id]
+	out := make([]string, len(v))
+	copy(out, v)
+	return out
+}
+
+// SchemaConsumers returns the consumer command list for a schema id (= empty if none)。
+func SchemaConsumers(id string) []string {
+	v := schemaConsumersTable[id]
+	out := make([]string, len(v))
+	copy(out, v)
+	return out
+}
+
 // IntrospectSchema は schema id から identity + relation を articulate する。
 //
 // id は schema-graph.json の node id (= 'detector-result-v1' / 'aag-pipeline-envelope-v1' 等) を accept。

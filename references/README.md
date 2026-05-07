@@ -209,6 +209,7 @@
 | RepoSteward Command Surface (reposteward-ai-ops-platform PR B、aag binary command の maturity matrix)  | `03-implementation/reposteward-command-surface.md`                       |
 | AAG Articulation Map (reposteward-ai-ops-platform improvement G、detection / command / schema の 3 軸 cross-reference) | `03-implementation/aag-articulation-map.md`                          |
 | AAG Describe / List / Introspect Output Schema (reposteward-substrate-v4-2-seed、DA-γ-002、新世代 schema convention seed) | `docs/contracts/aag/commands/describe-output.schema.json`                |
+| AAG Self-Check Output Schema (reposteward-substrate-v4-2-introspect-provenance、5 軸 substrate 整合性検証) | `docs/contracts/aag/commands/self-check-output.schema.json`              |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

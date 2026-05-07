@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-self-check-v1.json",
+  "title": "AAG Self-Check Output v1",
+  "description": "aag self-check の出力 envelope。AAG 自身の整合性 (= cross-table sync + file 実在 + orphan schema) を 5 軸で機械検証した結果を articulate。AI session が AAG 自身の trustability を 1 command で articulate するための substrate。",
+  "$comment": "v4.2 introspect-provenance (= reposteward-substrate-v4-2-introspect-provenance) で institute。新世代 schema convention 整合: additionalProperties: true (= AI 拡張可能) + provenance required。canonical Go implementation: aag-engine/internal/selfcheck/selfcheck.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "healthy", "summary", "violations", "provenance"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "aag-self-check-v1"
+    },
+    "healthy": {
+      "type": "boolean",
+      "description": "全 5 軸で violation 0 件なら true。AI が「AAG は trust できる状態か?」を 1 boolean で articulate するための substrate。"
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "totalChecks",
+        "totalViolations",
+        "v1CrossSync",
+        "v2ImplFiles",
+        "v3SchemaFiles",
+        "v4TestPaths",
+        "v5OrphanSchema"
+      ],
+      "properties": {
+        "totalChecks": {
+          "type": "integer",
+          "const": 5,
+          "description": "検証軸数 (= V1〜V5)"
+        },
+        "totalViolations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "v1CrossSync": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "describe.commandTable ↔ introspect.implTable cross-sync 違反件数"
+        },
+        "v2ImplFiles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "implTable の handlerFile / dispatcherFile 不在件数"
+        },
+        "v3SchemaFiles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "schemaTable の path 不在件数"
+        },
+        "v4TestPaths": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "testTable の path 不在件数"
+        },
+        "v5OrphanSchema": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "schemaInfoTable の orphan schema 件数 (= producer / consumer が articulate されていない、ただし orphan exception 除外)"
+        }
+      }
+    },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["axis", "subject", "detail"],
+        "properties": {
+          "axis": {
+            "type": "string",
+            "enum": ["V1", "V2", "V3", "V4", "V5"]
+          },
+          "subject": {
+            "type": "string",
+            "description": "違反対象 (= command name / schema id / file path)"
+          },
+          "detail": {
+            "type": "string",
+            "description": "違反 detail (= human-readable articulate)"
+          }
+        }
+      },
+      "description": "5 軸で検出された全違反 articulate。空配列 = healthy。"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "出典 metadata (= confidence: observed、computedFrom: runtime cross-validation)。AI が trustability を判断するための substrate。"
+    }
+  }
+}

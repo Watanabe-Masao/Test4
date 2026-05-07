@@ -712,6 +712,10 @@
           "label": "AAG Describe / List / Introspect Output Schema (= reposteward-substrate-v4-2-seed、DA-γ-002、additionalProperties: true + provenance、新世代 schema convention の seed)"
         },
         {
+          "path": "docs/contracts/aag/commands/self-check-output.schema.json",
+          "label": "AAG Self-Check Output Schema (= reposteward-substrate-v4-2-introspect-provenance、5 軸 substrate 整合性検証 output、advisory exit code 常に 0)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

@@ -43,6 +43,8 @@ COMMANDS:
                    note: 'aag introspect command <name>' のように subcommand + command 名を articulate
   introspect schema   schema id の path + virtual flag + producers + consumers を JSON で articulate (= v4.2 introspect-provenance)
                    note: 'aag introspect schema <schema-id>' (= 例: detector-result-v1 / aag-pipeline-envelope-v1)
+  self-check       AAG 自身の整合性 (= cross-table sync + file 実在 + orphan schema) を 5 軸で機械検証 (= v4.2 introspect-provenance)
+                   note: exit code は常に 0 (= advisory)、violation は output 'violations[]' で articulate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
