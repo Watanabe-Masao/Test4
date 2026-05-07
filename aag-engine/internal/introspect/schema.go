@@ -206,6 +206,24 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
 		Purpose: "aag chaos <command> の output (= per-command failure modes adversarial 視点)",
 	},
+	"stats-files-query-v1": {
+		ID:      "stats-files-query-v1",
+		Title:   "Stats Files Query Output",
+		Path:    ptr("docs/contracts/aag/commands/stats-files-query-output.schema.json"),
+		Purpose: "aag stats files の output (= filtered query result、aag-size-statistics-v1 と分離)",
+	},
+	"task-validate-v1": {
+		ID:      "task-validate-v1",
+		Title:   "Task Validate Output",
+		Path:    ptr("docs/contracts/aag/commands/task-validate-output.schema.json"),
+		Purpose: "aag task validate の output (= valid / errors articulate、task-capsule-v1 input と分離)",
+	},
+	"task-close-v1": {
+		ID:      "task-close-v1",
+		Title:   "Task Close Output",
+		Path:    ptr("docs/contracts/aag/commands/task-close-output.schema.json"),
+		Purpose: "aag task close の output (= readyToClose / blockingIssues articulate)",
+	},
 }
 
 // schemaProducersTable は schema id → 該当 schema を produce する command 一覧。
@@ -214,7 +232,9 @@ var schemaInfoTable = map[string]SchemaInfo{
 var schemaProducersTable = map[string][]string{
 	"detector-result-v1":            {"validate", "shadow"},
 	"task-capsule-v1":                {"task prepare"},
-	"aag-size-statistics-v1":         {"stats files"},
+	// aag-size-statistics-v1 producer は TS-side architecture-health collector
+	// (= references/04-tracking/generated/aag-size-statistics.json articulate)、
+	// Go-side commandTable には producer 不在。consumer は stats files (= 入力 source)。
 	"aag-pipeline-envelope-v1":       {"wrap"},
 	"aag-describe-v1":                {"describe"},
 	"aag-list-v1":                    {"list"},
@@ -235,6 +255,9 @@ var schemaProducersTable = map[string][]string{
 	"project-stale-v1":               {"project stale"},
 	"aag-chaos-overview-v1":          {"chaos"},
 	"aag-chaos-command-v1":           {"chaos"},
+	"stats-files-query-v1":           {"stats files"},
+	"task-validate-v1":               {"task validate"},
+	"task-close-v1":                  {"task close"},
 }
 
 // schemaConsumersTable は schema id → 該当 schema を consume する command 一覧。
@@ -242,6 +265,7 @@ var schemaProducersTable = map[string][]string{
 // schema-graph.json edges (= kind: consumes) と同期。
 var schemaConsumersTable = map[string][]string{
 	"aag-parameters-v1":       {"stats files"},
+	"aag-size-statistics-v1":  {"stats files"},
 	"source-facts-v1":         {"stats files"},
 	"premise-contracts-v1":    {"changed", "obligation check"},
 	"detection-inventory-v1":  {"detector refs"},

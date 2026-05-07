@@ -85,7 +85,7 @@ func TestIntrospect_CommandsWithSchemaArticulated(t *testing.T) {
 	cases := map[string]string{
 		"validate":           "detector-result",
 		"task prepare":       "task-capsule",
-		"stats files":        "aag-size-statistics",
+		"stats files":        "stats-files-query-output",
 		"obligation check":   "obligation-check-output",
 		"detector refs":      "detector-refs-output",
 		"describe":           "describe-output",

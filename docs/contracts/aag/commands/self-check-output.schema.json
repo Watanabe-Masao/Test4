@@ -27,13 +27,14 @@
         "v3SchemaFiles",
         "v4TestPaths",
         "v5OrphanSchema",
-        "v6ExamplePaths"
+        "v6ExamplePaths",
+        "v7ExampleSchemaConsistency"
       ],
       "properties": {
         "totalChecks": {
           "type": "integer",
-          "const": 6,
-          "description": "検証軸数 (= V1〜V6、v4.2 examples-phase1 で V6 articulate)"
+          "const": 7,
+          "description": "検証軸数 (= V1〜V7、v4.2 self-check-v7 で V7 articulate)"
         },
         "totalViolations": {
           "type": "integer",
@@ -68,6 +69,11 @@
           "type": "integer",
           "minimum": 0,
           "description": "exampleTable で articulate された example directory が不在 / non-directory な件数 (= v4.2 examples-phase1 で institute、nil entry は skip)"
+        },
+        "v7ExampleSchemaConsistency": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "example file の schemaVersion が schema の const / enum と一致しない件数 (= v4.2 self-check-v7 で institute、schema rename / example regenerate 漏れ等の drift 検出)"
         }
       }
     },
@@ -80,7 +86,7 @@
         "properties": {
           "axis": {
             "type": "string",
-            "enum": ["V1", "V2", "V3", "V4", "V5", "V6"]
+            "enum": ["V1", "V2", "V3", "V4", "V5", "V6", "V7"]
           },
           "subject": {
             "type": "string",

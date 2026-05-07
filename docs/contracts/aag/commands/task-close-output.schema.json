@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/task-close-v1.json",
+  "title": "Task Close Output v1",
+  "description": "aag task close --capsule の output envelope。TaskCapsule の close 可能性 + blockers 判定結果を articulate するための substrate。",
+  "$comment": "v4.2 self-check-v7 で institute (= V7 axis 検出した schema-example drift 修正、task-capsule-v1 (= input schema) と分離した close result schema)。canonical Go implementation: aag-engine/internal/taskcapsule/close.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "valid", "readyToClose"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "task-close-v1" },
+    "capsuleFile": {
+      "type": "string",
+      "description": "--capsule で articulate された file path (= '-' は stdin)"
+    },
+    "valid": {
+      "type": "boolean",
+      "description": "schema + invariant 整合性 (= validate と同じ check)"
+    },
+    "readyToClose": {
+      "type": "boolean",
+      "description": "close 可能か (= valid=true && blockingIssues=[])"
+    },
+    "blockingIssues": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "close を block する issue 一覧 (= readyToClose=true なら空配列)"
+    },
+    "requiredFinalChecks": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "close 前に AI session が実行すべき検証 command 一覧"
+    },
+    "taskId": { "type": "string" },
+    "projectId": { "type": "string" }
+  }
+}

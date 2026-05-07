@@ -768,6 +768,18 @@
           "label": "AAG Chaos Output Schema (= reposteward-substrate-v4-2-chaos、command の既知 failure modes adversarial 視点 articulate、overview / per-command の 2 mode)"
         },
         {
+          "path": "docs/contracts/aag/commands/stats-files-query-output.schema.json",
+          "label": "AAG Stats Files Query Output Schema (= reposteward-substrate-v4-2-self-check-v7、aag stats files filtered query result、aag-size-statistics-v1 と分離)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/task-validate-output.schema.json",
+          "label": "AAG Task Validate Output Schema (= reposteward-substrate-v4-2-self-check-v7、aag task validate result、task-capsule-v1 input と分離)"
+        },
+        {
+          "path": "docs/contracts/aag/commands/task-close-output.schema.json",
+          "label": "AAG Task Close Output Schema (= reposteward-substrate-v4-2-self-check-v7、aag task close result、readyToClose + blockingIssues)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },

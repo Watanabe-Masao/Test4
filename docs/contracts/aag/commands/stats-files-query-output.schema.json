@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/stats-files-query-v1.json",
+  "title": "Stats Files Query Output v1",
+  "description": "aag stats files の output envelope (= filtered query result)。effectiveCodeLines を bucket / range / layer / percentile で query した結果を articulate するための substrate。",
+  "$comment": "v4.2 self-check-v7 で institute (= V7 axis 検出した schema-example drift 修正、aag-size-statistics-v1 (= source-of-truth) と分離した query output schema)。canonical Go implementation: aag-engine/internal/stats/。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "metric", "totalMatched", "returned", "files"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "stats-files-query-v1" },
+    "metric": {
+      "type": "string",
+      "description": "size metric 名 (= 現時点 'effectiveCodeLines' のみ)"
+    },
+    "filter": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "適用された filter articulate (= range / bucket / layer / above 等)"
+    },
+    "totalMatched": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "filter 適用後の matched file 件数"
+    },
+    "returned": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "実際に返却された件数 (= --limit cap 適用後)"
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "path": { "type": "string" },
+          "value": { "type": "number" },
+          "bucket": { "type": "string" },
+          "layer": { "type": "string" }
+        }
+      }
+    }
+  }
+}

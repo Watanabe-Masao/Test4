@@ -223,6 +223,9 @@
 | AAG Repair Context Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、repair input classifier) | `docs/contracts/aag/commands/repair-context-output.schema.json`          |
 | AAG Project Stale Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、project staleness) | `docs/contracts/aag/commands/project-stale-output.schema.json`           |
 | AAG Chaos Output Schema (reposteward-substrate-v4-2-chaos、failure modes adversarial articulate) | `docs/contracts/aag/commands/chaos-output.schema.json`                   |
+| AAG Stats Files Query Output Schema (reposteward-substrate-v4-2-self-check-v7、filtered query result) | `docs/contracts/aag/commands/stats-files-query-output.schema.json`       |
+| AAG Task Validate Output Schema (reposteward-substrate-v4-2-self-check-v7、validate result) | `docs/contracts/aag/commands/task-validate-output.schema.json`           |
+| AAG Task Close Output Schema (reposteward-substrate-v4-2-self-check-v7、close result) | `docs/contracts/aag/commands/task-close-output.schema.json`              |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

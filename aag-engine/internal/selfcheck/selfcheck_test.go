@@ -3,6 +3,7 @@ package selfcheck
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -27,8 +28,8 @@ func TestRun_BasicShape(t *testing.T) {
 	if out.Provenance.Confidence != "observed" {
 		t.Errorf("provenance.confidence = %q (want observed)", out.Provenance.Confidence)
 	}
-	if out.Summary.TotalChecks != 6 {
-		t.Errorf("summary.totalChecks = %d (want 6)", out.Summary.TotalChecks)
+	if out.Summary.TotalChecks != 7 {
+		t.Errorf("summary.totalChecks = %d (want 7)", out.Summary.TotalChecks)
 	}
 }
 
@@ -62,6 +63,54 @@ func TestRun_AllAxesCovered(t *testing.T) {
 	_ = out.Summary.V4TestPaths
 	_ = out.Summary.V5OrphanSchema
 	_ = out.Summary.V6ExamplePaths
+	_ = out.Summary.V7ExampleSchemaConsistency
+}
+
+func TestExtractExpectedSchemaVersions(t *testing.T) {
+	// V7 helper の単体 test
+	tmp := t.TempDir()
+	cases := []struct {
+		name   string
+		schema string
+		want   []string
+	}{
+		{
+			name:   "const",
+			schema: `{"properties": {"schemaVersion": {"const": "foo-v1"}}}`,
+			want:   []string{"foo-v1"},
+		},
+		{
+			name:   "enum",
+			schema: `{"properties": {"schemaVersion": {"enum": ["foo-v1", "bar-v2"]}}}`,
+			want:   []string{"foo-v1", "bar-v2"},
+		},
+		{
+			name:   "no schemaVersion property",
+			schema: `{"properties": {"other": {"type": "string"}}}`,
+			want:   nil,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			path := tmp + "/" + tc.name + ".json"
+			if err := os.WriteFile(path, []byte(tc.schema), 0644); err != nil {
+				t.Fatal(err)
+			}
+			got, err := extractExpectedSchemaVersions(path)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if len(got) != len(tc.want) {
+				t.Errorf("len mismatch: got %v, want %v", got, tc.want)
+				return
+			}
+			for i, g := range got {
+				if g != tc.want[i] {
+					t.Errorf("[%d] = %q, want %q", i, g, tc.want[i])
+				}
+			}
+		})
+	}
 }
 
 func TestMarshalJSON_NoHTMLEscape(t *testing.T) {
