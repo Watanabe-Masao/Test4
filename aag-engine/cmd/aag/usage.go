@@ -45,6 +45,8 @@ COMMANDS:
                    note: 'aag introspect schema <schema-id>' (= 例: detector-result-v1 / aag-pipeline-envelope-v1)
   self-check       AAG 自身の整合性 (= cross-table sync + file 実在 + orphan schema) を 5 軸で機械検証 (= v4.2 introspect-provenance)
                    note: exit code は常に 0 (= advisory)、violation は output 'violations[]' で articulate
+  chaos            command の既知 failure modes を adversarial 視点で articulate (= v4.2 chaos)
+                   note: 引数なしで overview / 引数ありで per-command articulate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)

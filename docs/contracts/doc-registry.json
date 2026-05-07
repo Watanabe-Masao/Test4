@@ -764,6 +764,10 @@
           "label": "AAG Project Stale Output Schema (= reposteward-substrate-v4-2-stable-schemas-phase2、active project の最終 commit から stale 判定)"
         },
         {
+          "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+          "label": "AAG Chaos Output Schema (= reposteward-substrate-v4-2-chaos、command の既知 failure modes adversarial 視点 articulate、overview / per-command の 2 mode)"
+        },
+        {
           "path": "aag/parameters/premise-contracts.json",
           "label": "Premise Contracts v1 (= reposteward-ai-ops-platform Wave 5 #19、path-based premise の正本、Wave 5 #20 obligation check の入力)"
         },
