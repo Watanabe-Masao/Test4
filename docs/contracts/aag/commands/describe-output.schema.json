@@ -127,6 +127,36 @@
         "countermeasureTest": {
           "type": "string",
           "description": "behavior を verify する test 名 / file 参照 (= optional)。articulate されている = 機械検証で守られている、不在 = 観察 articulate のみ。"
+        },
+        "reproduction": {
+          "$ref": "#/definitions/Reproduction",
+          "description": "v4.2 chaos-run で institute (= optional)。articulate されている entry のみ `aag chaos run` で実機械実行 + verify。"
+        }
+      }
+    },
+    "Reproduction": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["args", "expectedExitCode"],
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "aag binary に渡す positional + flag argument (= 例: ['validate', '--format=yaml'])"
+        },
+        "stdin": {
+          "type": "string",
+          "description": "subprocess stdin に渡す content (= empty なら stdin 不在)"
+        },
+        "expectedExitCode": {
+          "type": "integer",
+          "enum": [0, 1, 2],
+          "description": "subprocess の articulate される exit code (= 0=pass / 1=fail / 2=error)"
+        },
+        "expectedStderrContains": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "stderr に含まれるべき文字列一覧 (= AND match)"
         }
       }
     },

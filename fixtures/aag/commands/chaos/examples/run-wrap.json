@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "aag-chaos-run-v1",
+  "command": "wrap",
+  "binaryPath": "/tmp/aag",
+  "totalReproducible": 3,
+  "matchedCount": 3,
+  "mismatchedCount": 0,
+  "skippedCount": 0,
+  "healthy": true,
+  "results": [
+    {
+      "trigger": "--command flag 不在",
+      "expectedExitCode": 2,
+      "actualExitCode": 2,
+      "exitCodeMatched": true,
+      "stderrSnippet": "aag wrap: --command flag は required です (= 例: --command where-am-i)\n",
+      "expectedStderrContains": [
+        "--command"
+      ],
+      "stderrMatched": true,
+      "matched": true,
+      "status": "matched"
+    },
+    {
+      "trigger": "stdin が空",
+      "expectedExitCode": 2,
+      "actualExitCode": 2,
+      "exitCodeMatched": true,
+      "stderrSnippet": "aag wrap: Wrap: stdin was empty (= input JSON が articulate されていない)\n",
+      "expectedStderrContains": [
+        "stdin"
+      ],
+      "stderrMatched": true,
+      "matched": true,
+      "status": "matched"
+    },
+    {
+      "trigger": "stdin が invalid JSON",
+      "expectedExitCode": 2,
+      "actualExitCode": 2,
+      "exitCodeMatched": true,
+      "stderrSnippet": "aag wrap: Wrap: stdin is not valid JSON: invalid character 'o' in literal null (expecting 'u')\n",
+      "expectedStderrContains": [
+        "JSON"
+      ],
+      "stderrMatched": true,
+      "matched": true,
+      "status": "matched"
+    }
+  ],
+  "summary": "3 reproductions executed, 3 matched, 0 mismatched, 0 skipped (= no recipe)",
+  "provenance": {
+    "computedAt": "2026-05-07T11:18:02Z",
+    "sourceCommit": "583c40b04b7efe4bb3478c0a30bcac28e510b864",
+    "confidence": "observed",
+    "computedFrom": "actual subprocess execution + expected behavior comparison"
+  }
+}

@@ -10,8 +10,8 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "enum": ["aag-chaos-overview-v1", "aag-chaos-command-v1"],
-      "description": "overview = 全 command coverage / command = per-command failure modes"
+      "enum": ["aag-chaos-overview-v1", "aag-chaos-command-v1", "aag-chaos-run-v1"],
+      "description": "overview = 全 command coverage / command = per-command failure modes (listing) / run = per-command failure modes (execution、v4.2 chaos-run で institute)"
     },
     "totalCommands": { "type": "integer", "minimum": 0, "description": "overview only" },
     "commandsWithFailureModes": { "type": "integer", "minimum": 0, "description": "overview only" },
@@ -55,7 +55,34 @@
       },
       "description": "per-command only: 該当 command の failure modes を adversarial 視点で articulate"
     },
-    "summary": { "type": "string", "description": "per-command only: human-readable summary" },
+    "summary": { "type": "string", "description": "per-command / run mode: human-readable summary" },
+    "binaryPath": { "type": "string", "description": "run mode only: aag binary path used for subprocess spawn" },
+    "totalReproducible": { "type": "integer", "minimum": 0, "description": "run mode only: 実行可能 reproduction 件数" },
+    "matchedCount": { "type": "integer", "minimum": 0, "description": "run mode only: actual behavior が expected と一致した件数" },
+    "mismatchedCount": { "type": "integer", "minimum": 0, "description": "run mode only: actual behavior が expected と不一致な件数" },
+    "skippedCount": { "type": "integer", "minimum": 0, "description": "run mode only: reproduction recipe 不在で skip された件数" },
+    "healthy": { "type": "boolean", "description": "run mode only: matched=total かつ total>0" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["trigger", "status"],
+        "properties": {
+          "trigger": { "type": "string" },
+          "expectedExitCode": { "type": "integer" },
+          "actualExitCode": { "type": "integer" },
+          "exitCodeMatched": { "type": "boolean" },
+          "stderrSnippet": { "type": "string" },
+          "expectedStderrContains": { "type": "array", "items": { "type": "string" } },
+          "stderrMatched": { "type": "boolean" },
+          "matched": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["matched", "mismatched", "skipped"] },
+          "note": { "type": "string" }
+        }
+      },
+      "description": "run mode only: 各 reproduction の実行結果 articulate"
+    },
     "provenance": {
       "type": "object",
       "additionalProperties": true,

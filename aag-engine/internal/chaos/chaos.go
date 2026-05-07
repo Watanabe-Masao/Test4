@@ -27,7 +27,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os/exec"
 	"sort"
+	"strings"
 
 	"aag-engine/internal/describe"
 	"aag-engine/internal/provenance"
@@ -38,6 +40,9 @@ const OverviewSchemaVersion = "aag-chaos-overview-v1"
 
 // PerCommandSchemaVersion is the schemaVersion for `aag chaos <command>` output.
 const PerCommandSchemaVersion = "aag-chaos-command-v1"
+
+// RunSchemaVersion is the schemaVersion for `aag chaos run <command>` output (= execution version)。
+const RunSchemaVersion = "aag-chaos-run-v1"
 
 // OverviewOutput は `aag chaos` (= no args) の output envelope。
 //
@@ -177,6 +182,171 @@ func PerCommand(command string) (PerCommandOutput, error) {
 			"projection of describe.commandTable.KnownFailureModes for "+command,
 		),
 	}, nil
+}
+
+// RunOutput は `aag chaos run <command>` の output envelope。
+//
+// 各 reproducible failure mode を実機械実行 (= subprocess spawn) し、
+// actual exit code / stderr が expected behavior と整合するかを machine-verify。
+//
+// "あえて壊して証明する" の物理 articulate (= adversarial substrate execution version)。
+type RunOutput struct {
+	SchemaVersion          string                `json:"schemaVersion"`
+	Command                string                `json:"command"`
+	BinaryPath             string                `json:"binaryPath"`
+	TotalReproducible      int                   `json:"totalReproducible"`
+	MatchedCount           int                   `json:"matchedCount"`
+	MismatchedCount        int                   `json:"mismatchedCount"`
+	SkippedCount           int                   `json:"skippedCount"`
+	Healthy                bool                  `json:"healthy"`
+	Results                []RunResult           `json:"results"`
+	Summary                string                `json:"summary"`
+	Provenance             provenance.Provenance `json:"provenance"`
+}
+
+// RunResult は 1 reproduction の実行結果 articulate。
+type RunResult struct {
+	Trigger          string   `json:"trigger"`
+	ExpectedExitCode int      `json:"expectedExitCode"`
+	ActualExitCode   int      `json:"actualExitCode"`
+	ExitCodeMatched  bool     `json:"exitCodeMatched"`
+	StderrSnippet    string   `json:"stderrSnippet,omitempty"`
+	StderrContains   []string `json:"expectedStderrContains,omitempty"`
+	StderrMatched    bool     `json:"stderrMatched"`
+	Matched          bool     `json:"matched"`
+	Status           string   `json:"status"` // "matched" | "mismatched" | "skipped"
+	Note             string   `json:"note,omitempty"`
+}
+
+// RunAdversarial executes all reproducible failure modes for a command and verifies them。
+//
+// binaryPath: aag binary の絶対 path (= os.Executable() で resolve、または test で build した path)。
+// command: target command 名 (= describe.Describe() で resolve)。
+//
+// 各 FailureMode で Reproduction が articulate されている entry のみ実行。
+// 実 exit code + stderr を expected と比較、結果を Articulate。
+//
+// Errors:
+//   - binaryPath 空 → error
+//   - command 空 → error
+//   - command が commandTable に articulate されていない → error
+func RunAdversarial(binaryPath, command string) (RunOutput, error) {
+	if binaryPath == "" {
+		return RunOutput{}, fmt.Errorf("RunAdversarial: binaryPath must be non-empty")
+	}
+	if command == "" {
+		return RunOutput{}, fmt.Errorf("RunAdversarial: command must be non-empty")
+	}
+	desc, err := describe.Describe(command)
+	if err != nil {
+		return RunOutput{}, fmt.Errorf("RunAdversarial: %w", err)
+	}
+
+	results := make([]RunResult, 0, len(desc.Command.KnownFailureModes))
+	matched, mismatched, skipped := 0, 0, 0
+
+	for _, fm := range desc.Command.KnownFailureModes {
+		if fm.Reproduction == nil {
+			results = append(results, RunResult{
+				Trigger: fm.Trigger,
+				Status:  "skipped",
+				Note:    "Reproduction recipe が articulate されていない",
+			})
+			skipped++
+			continue
+		}
+		r := executeReproduction(binaryPath, fm)
+		results = append(results, r)
+		if r.Matched {
+			matched++
+		} else {
+			mismatched++
+		}
+	}
+
+	total := len(results) - skipped
+	healthy := mismatched == 0 && total > 0
+	if total == 0 {
+		healthy = false // 実行可能 reproduction 0 件 = 検証失敗
+	}
+
+	summary := fmt.Sprintf("%d reproductions executed, %d matched, %d mismatched, %d skipped (= no recipe)",
+		total, matched, mismatched, skipped)
+
+	return RunOutput{
+		SchemaVersion:     RunSchemaVersion,
+		Command:           command,
+		BinaryPath:        binaryPath,
+		TotalReproducible: total,
+		MatchedCount:      matched,
+		MismatchedCount:   mismatched,
+		SkippedCount:      skipped,
+		Healthy:           healthy,
+		Results:           results,
+		Summary:           summary,
+		Provenance: provenance.Compute(
+			provenance.Observed,
+			"actual subprocess execution + expected behavior comparison",
+		),
+	}, nil
+}
+
+// executeReproduction runs a single reproduction recipe and articulate the result。
+func executeReproduction(binaryPath string, fm describe.FailureMode) RunResult {
+	rep := fm.Reproduction
+	cmd := exec.Command(binaryPath, rep.Args...)
+	// 常に explicit stdin を articulate (= empty stdin も deterministic に articulate される)
+	cmd.Stdin = strings.NewReader(rep.Stdin)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+	exitCode := 0
+	if err != nil {
+		if ee, ok := err.(*exec.ExitError); ok {
+			exitCode = ee.ExitCode()
+		} else {
+			// non-exit error (= binary 不在等)
+			return RunResult{
+				Trigger:          fm.Trigger,
+				ExpectedExitCode: rep.ExpectedExitCode,
+				ActualExitCode:   -1,
+				Status:           "mismatched",
+				Note:             "subprocess spawn failed: " + err.Error(),
+			}
+		}
+	}
+
+	exitMatched := exitCode == rep.ExpectedExitCode
+	stderrSnippet := stderr.String()
+	if len(stderrSnippet) > 200 {
+		stderrSnippet = stderrSnippet[:200] + "..."
+	}
+	stderrMatched := true
+	for _, want := range rep.ExpectedStderrContains {
+		if !strings.Contains(stderr.String(), want) {
+			stderrMatched = false
+			break
+		}
+	}
+
+	overall := exitMatched && stderrMatched
+	status := "matched"
+	if !overall {
+		status = "mismatched"
+	}
+	return RunResult{
+		Trigger:          fm.Trigger,
+		ExpectedExitCode: rep.ExpectedExitCode,
+		ActualExitCode:   exitCode,
+		ExitCodeMatched:  exitMatched,
+		StderrSnippet:    stderrSnippet,
+		StderrContains:   rep.ExpectedStderrContains,
+		StderrMatched:    stderrMatched,
+		Matched:          overall,
+		Status:           status,
+	}
 }
 
 // MarshalJSON returns indented JSON without HTML escaping。

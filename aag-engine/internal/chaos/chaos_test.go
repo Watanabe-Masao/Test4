@@ -3,6 +3,7 @@ package chaos
 
 import (
 	"encoding/json"
+	"os/exec"
 	"strings"
 	"testing"
 )
@@ -116,5 +117,49 @@ func TestMarshalJSON_NoHTMLEscape(t *testing.T) {
 	}
 	if back.SchemaVersion != out.SchemaVersion {
 		t.Error("schemaVersion roundtrip mismatch")
+	}
+}
+
+func TestRunAdversarial_RejectsEmpty(t *testing.T) {
+	if _, err := RunAdversarial("", "validate"); err == nil {
+		t.Error("expected error for empty binaryPath")
+	}
+	if _, err := RunAdversarial("/some/path", ""); err == nil {
+		t.Error("expected error for empty command")
+	}
+}
+
+func TestRunAdversarial_RejectsUnknown(t *testing.T) {
+	_, err := RunAdversarial("/some/path", "nonexistent-command")
+	if err == nil {
+		t.Error("expected error for unknown command")
+	}
+}
+
+func TestRunAdversarial_LiveExecution(t *testing.T) {
+	// 実 binary build + execute (= integration test)。
+	// build 失敗時は skip (= environment articulate されていない場合の graceful)。
+	tmp := t.TempDir()
+	binaryPath := tmp + "/aag-test"
+	build := exec.Command("go", "build", "-o", binaryPath, "../../cmd/aag")
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Skipf("build failed (= environment dependent): %v\noutput: %s", err, out)
+	}
+
+	out, err := RunAdversarial(binaryPath, "wrap")
+	if err != nil {
+		t.Fatalf("RunAdversarial error: %v", err)
+	}
+	if out.SchemaVersion != RunSchemaVersion {
+		t.Errorf("schemaVersion = %q (want %q)", out.SchemaVersion, RunSchemaVersion)
+	}
+	if out.TotalReproducible != 3 {
+		t.Errorf("expected 3 reproducible failure modes for wrap, got %d", out.TotalReproducible)
+	}
+	if !out.Healthy {
+		t.Errorf("expected healthy=true (= 3/3 matched), got results: %+v", out.Results)
+	}
+	if out.MatchedCount != 3 {
+		t.Errorf("expected 3 matched, got %d", out.MatchedCount)
 	}
 }

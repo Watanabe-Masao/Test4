@@ -59,7 +59,9 @@ type CommandMetadata struct {
 // 想定外 failure を **新 FailureMode** として articulate する材料 (= adversarial substrate)。
 //
 // Permanent ID は articulate しない (= 軽量 doc 経路、registry overhead を避ける)。
-// 必要 demand articulate されたら別 PR で permanent ID + chaos runner を articulate する。
+//
+// v4.2 chaos-run で Reproduction field を additive 追加 (= optional、`aag chaos run`
+// で実 reproduce + verify する material articulate)。
 type FailureMode struct {
 	// Trigger は failure を起こす条件 (= 1 行 factual articulate)。
 	Trigger string `json:"trigger"`
@@ -70,6 +72,28 @@ type FailureMode struct {
 	// CountermeasureTest は behavior を verify する test 名 / file 参照 (= optional)。
 	// articulate されている = 機械検証で守られている、不在 = 観察 articulate のみ。
 	CountermeasureTest string `json:"countermeasureTest,omitempty"`
+
+	// Reproduction は `aag chaos run` で実 reproduce + verify する material (= optional)。
+	// articulate されている entry のみ chaos run で実機械実行される。
+	Reproduction *Reproduction `json:"reproduction,omitempty"`
+}
+
+// Reproduction は failure mode を実機械的に reproduce するための recipe articulate。
+//
+// 各 entry は subprocess spawn 用の引数 + stdin、および expected behavior の machine-verifiable articulate。
+type Reproduction struct {
+	// Args は aag binary に渡す positional + flag argument 一覧 (= 例: ["validate", "--format=yaml"])。
+	Args []string `json:"args"`
+
+	// Stdin は subprocess stdin に渡す content (= empty なら stdin を articulate しない)。
+	Stdin string `json:"stdin,omitempty"`
+
+	// ExpectedExitCode は subprocess の articulate される exit code (= 0=pass / 1=fail / 2=error)。
+	ExpectedExitCode int `json:"expectedExitCode"`
+
+	// ExpectedStderrContains は stderr に含まれるべき文字列一覧 (= AND match)。
+	// 空配列なら stderr 内容 check しない。
+	ExpectedStderrContains []string `json:"expectedStderrContains,omitempty"`
 }
 
 // DescribeSchemaVersion is the schemaVersion for `aag describe` output.
@@ -120,6 +144,11 @@ var commandTable = []CommandMetadata{
 				Trigger:            "--format=yaml 指定 (= json 以外)",
 				Behavior:           "ExitError + stderr で 'json のみ対応' を articulate",
 				CountermeasureTest: "TestRun_Validate_RejectsYamlFormat",
+				Reproduction: &Reproduction{
+					Args:                   []string{"validate", "--format=yaml"},
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"json"},
+				},
 			},
 		},
 	},
@@ -190,6 +219,12 @@ var commandTable = []CommandMetadata{
 				Trigger:            "--capsule - で stdin が空",
 				Behavior:           "ExitError + stderr で 'stdin was empty' articulate",
 				CountermeasureTest: "TestValidateCapsule_StdinEmpty (= improvement D で landing)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"task", "validate", "--capsule", "-"},
+					Stdin:                  "",
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"stdin"},
+				},
 			},
 			{
 				Trigger:  "schema field 不在 (= partial capsule)",
@@ -240,6 +275,11 @@ var commandTable = []CommandMetadata{
 				Trigger:            "--repo が non-git directory",
 				Behavior:           "ExitError + stderr で 'not a git repository' articulate",
 				CountermeasureTest: "TestWhereAmI_RejectsNonGitDir (= internal/navigation)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"where-am-i", "--repo", "/tmp"},
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"not a git repository"},
+				},
 			},
 			{
 				Trigger:            ".claude/manifest.json が malformed JSON",
@@ -408,16 +448,34 @@ var commandTable = []CommandMetadata{
 				Trigger:            "--command flag 不在",
 				Behavior:           "ExitError + stderr で '--command flag は required' articulate",
 				CountermeasureTest: "TestWrap_RejectsEmptyCommand (= internal/responsewrap)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"wrap"},
+					Stdin:                  "{}",
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"--command"},
+				},
 			},
 			{
 				Trigger:            "stdin が空",
 				Behavior:           "ExitError + stderr で 'stdin was empty' articulate",
 				CountermeasureTest: "TestWrap_RejectsEmptyStdin (= internal/responsewrap)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"wrap", "--command", "x"},
+					Stdin:                  "",
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"stdin"},
+				},
 			},
 			{
 				Trigger:            "stdin が invalid JSON",
 				Behavior:           "ExitError + stderr で 'stdin is not valid JSON' articulate (= envelope に invalid data を wrap しない)",
 				CountermeasureTest: "TestWrap_RejectsInvalidJSON (= internal/responsewrap)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"wrap", "--command", "x"},
+					Stdin:                  "not valid json",
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"JSON"},
+				},
 			},
 		},
 	},
@@ -438,11 +496,21 @@ var commandTable = []CommandMetadata{
 				Trigger:            "<command> 引数不在",
 				Behavior:           "ExitError + stderr で '<command> 引数は required' articulate",
 				CountermeasureTest: "describe.go runDescribe argument validation",
+				Reproduction: &Reproduction{
+					Args:                   []string{"describe"},
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"required"},
+				},
 			},
 			{
 				Trigger:            "command が commandTable に articulate されていない",
 				Behavior:           "ExitError + stderr で 'unknown command' articulate ('aag list' hint 付き)",
 				CountermeasureTest: "TestDescribe_RejectsUnknownCommand (= internal/describe)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"describe", "nonexistent-command"},
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"unknown"},
+				},
 			},
 		},
 	},
@@ -496,6 +564,11 @@ var commandTable = []CommandMetadata{
 				Trigger:            "schema id が schemaInfoTable に articulate されていない",
 				Behavior:           "ExitError + stderr で 'unknown schema id' articulate (= 'aag list' / schema-graph.json hint 付き)",
 				CountermeasureTest: "TestIntrospectSchema_RejectsUnknown (= internal/introspect)",
+				Reproduction: &Reproduction{
+					Args:                   []string{"introspect", "schema", "nonexistent-schema-v99"},
+					ExpectedExitCode:       2,
+					ExpectedStderrContains: []string{"unknown schema"},
+				},
 			},
 		},
 	},

@@ -206,6 +206,12 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
 		Purpose: "aag chaos <command> の output (= per-command failure modes adversarial 視点)",
 	},
+	"aag-chaos-run-v1": {
+		ID:      "aag-chaos-run-v1",
+		Title:   "Chaos Run Output",
+		Path:    ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
+		Purpose: "aag chaos run <command> の output (= execution version、reproducible failure modes 実機械実行 + verify)",
+	},
 	"stats-files-query-v1": {
 		ID:      "stats-files-query-v1",
 		Title:   "Stats Files Query Output",
@@ -255,6 +261,7 @@ var schemaProducersTable = map[string][]string{
 	"project-stale-v1":               {"project stale"},
 	"aag-chaos-overview-v1":          {"chaos"},
 	"aag-chaos-command-v1":           {"chaos"},
+	"aag-chaos-run-v1":               {"chaos"},
 	"stats-files-query-v1":           {"stats files"},
 	"task-validate-v1":               {"task validate"},
 	"task-close-v1":                  {"task close"},
