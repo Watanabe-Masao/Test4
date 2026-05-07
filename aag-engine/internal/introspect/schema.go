@@ -152,6 +152,48 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/detector-refs-output.schema.json"),
 		Purpose: "aag detector refs <detectorId> の output (= goImpl / tsImpl / schema / fixtures pointer articulate)",
 	},
+	"changed-explain-v1": {
+		ID:      "changed-explain-v1",
+		Title:   "Changed Explain Output",
+		Path:    ptr("docs/contracts/aag/commands/changed-output.schema.json"),
+		Purpose: "aag changed --base..--head の output (= changed file + area + obligations + requiredReads articulate)",
+	},
+	"clean-check-v1": {
+		ID:      "clean-check-v1",
+		Title:   "Clean Check Output",
+		Path:    ptr("docs/contracts/aag/commands/clean-check-output.schema.json"),
+		Purpose: "aag clean check の output (= cleanliness rule violation articulate)",
+	},
+	"comments-list-v1": {
+		ID:      "comments-list-v1",
+		Title:   "Comments List Output",
+		Path:    ptr("docs/contracts/aag/commands/comments-list-output.schema.json"),
+		Purpose: "aag comments list --kind の output (= TODO / suppression / expired comment scan articulate)",
+	},
+	"docs-placement-check-v1": {
+		ID:      "docs-placement-check-v1",
+		Title:   "Docs Placement Check Output",
+		Path:    ptr("docs/contracts/aag/commands/docs-placement-check-output.schema.json"),
+		Purpose: "aag docs placement-check の output (= schema / generated artifact 配置規約違反 articulate)",
+	},
+	"obligation-check-v1": {
+		ID:      "obligation-check-v1",
+		Title:   "Obligation Check Output",
+		Path:    ptr("docs/contracts/aag/commands/obligation-check-output.schema.json"),
+		Purpose: "aag obligation check の output (= premise contract triggers + requirements articulate)",
+	},
+	"repair-context-v1": {
+		ID:      "repair-context-v1",
+		Title:   "Repair Context Output",
+		Path:    ptr("docs/contracts/aag/commands/repair-context-output.schema.json"),
+		Purpose: "aag repair-context --from の output (= input kind classifier + repairReads / suggestedActions / requiredChecks)",
+	},
+	"project-stale-v1": {
+		ID:      "project-stale-v1",
+		Title:   "Project Stale Output",
+		Path:    ptr("docs/contracts/aag/commands/project-stale-output.schema.json"),
+		Purpose: "aag project stale の output (= active project の最終 commit から stale 判定)",
+	},
 }
 
 // schemaProducersTable は schema id → 該当 schema を produce する command 一覧。
@@ -159,31 +201,41 @@ var schemaInfoTable = map[string]SchemaInfo{
 // schema-graph.json edges (= kind: produces) と同期。
 var schemaProducersTable = map[string][]string{
 	"detector-result-v1":            {"validate", "shadow"},
-	"task-capsule-v1":               {"task prepare"},
-	"aag-size-statistics-v1":        {"stats files"},
-	"aag-pipeline-envelope-v1":      {"wrap"},
-	"aag-describe-v1":               {"describe"},
-	"aag-list-v1":                   {"list"},
-	"aag-introspect-command-v1":     {"introspect command"},
-	"aag-introspect-schema-v1":      {"introspect schema"},
-	"aag-self-check-v1":             {"self-check"},
-	"aag-engine-fixtures-output-v1": {"fixtures"},
-	"where-am-i-v2":                 {"where-am-i"},
-	"context-project-v1":            {"context"},
-	"rule-locate-v1":                {"rule locate"},
-	"detector-refs-v1":              {"detector refs"},
+	"task-capsule-v1":                {"task prepare"},
+	"aag-size-statistics-v1":         {"stats files"},
+	"aag-pipeline-envelope-v1":       {"wrap"},
+	"aag-describe-v1":                {"describe"},
+	"aag-list-v1":                    {"list"},
+	"aag-introspect-command-v1":      {"introspect command"},
+	"aag-introspect-schema-v1":       {"introspect schema"},
+	"aag-self-check-v1":              {"self-check"},
+	"aag-engine-fixtures-output-v1":  {"fixtures"},
+	"where-am-i-v2":                  {"where-am-i"},
+	"context-project-v1":             {"context"},
+	"rule-locate-v1":                 {"rule locate"},
+	"detector-refs-v1":               {"detector refs"},
+	"changed-explain-v1":             {"changed"},
+	"clean-check-v1":                 {"clean check"},
+	"comments-list-v1":               {"comments list"},
+	"docs-placement-check-v1":        {"docs placement-check"},
+	"obligation-check-v1":            {"obligation check"},
+	"repair-context-v1":              {"repair-context"},
+	"project-stale-v1":               {"project stale"},
 }
 
 // schemaConsumersTable は schema id → 該当 schema を consume する command 一覧。
 //
 // schema-graph.json edges (= kind: consumes) と同期。
 var schemaConsumersTable = map[string][]string{
-	"aag-parameters-v1":      {"stats files"},
-	"source-facts-v1":        {"stats files"},
-	"premise-contracts-v1":   {"changed", "obligation check"},
-	"detection-inventory-v1": {"detector refs"},
-	"detector-result-v1":     {"repair-context"},
-	"task-capsule-v1":        {"task validate", "task close", "repair-context"},
+	"aag-parameters-v1":       {"stats files"},
+	"source-facts-v1":         {"stats files"},
+	"premise-contracts-v1":    {"changed", "obligation check"},
+	"detection-inventory-v1":  {"detector refs"},
+	"detector-result-v1":      {"repair-context"},
+	"task-capsule-v1":         {"task validate", "task close", "repair-context"},
+	"obligation-check-v1":     {"repair-context"},
+	"clean-check-v1":          {"repair-context"},
+	"docs-placement-check-v1": {"repair-context"},
 }
 
 // AllSchemaInfo returns a copy of schemaInfoTable for read-only access。

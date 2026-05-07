@@ -215,6 +215,13 @@
 | AAG Fixtures Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、RunResult + fixtureSummary) | `docs/contracts/aag/commands/fixtures-output.schema.json`                |
 | AAG Rule Locate Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、ruleId navigation) | `docs/contracts/aag/commands/rule-locate-output.schema.json`             |
 | AAG Detector Refs Output Schema (reposteward-substrate-v4-2-stable-schemas-phase1、detectorId pointer) | `docs/contracts/aag/commands/detector-refs-output.schema.json`           |
+| AAG Changed Explain Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、git diff articulate) | `docs/contracts/aag/commands/changed-output.schema.json`                 |
+| AAG Clean Check Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、cleanliness violation) | `docs/contracts/aag/commands/clean-check-output.schema.json`             |
+| AAG Comments List Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、comment scan) | `docs/contracts/aag/commands/comments-list-output.schema.json`           |
+| AAG Docs Placement Check Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、placement violation) | `docs/contracts/aag/commands/docs-placement-check-output.schema.json`    |
+| AAG Obligation Check Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、premise trigger requirements) | `docs/contracts/aag/commands/obligation-check-output.schema.json`        |
+| AAG Repair Context Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、repair input classifier) | `docs/contracts/aag/commands/repair-context-output.schema.json`          |
+| AAG Project Stale Output Schema (reposteward-substrate-v4-2-stable-schemas-phase2、project staleness) | `docs/contracts/aag/commands/project-stale-output.schema.json`           |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

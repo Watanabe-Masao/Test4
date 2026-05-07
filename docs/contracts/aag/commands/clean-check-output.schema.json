@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/clean-check-v1.json",
+  "title": "Clean Check Output v1",
+  "description": "aag clean check の output envelope。generated 混入 / archive manifest 不在 / projectId 重複 等の cleanliness rule violation を articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/cleanliness/clean.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "violations", "stats", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "clean-check-v1" },
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["kind", "path", "reason", "severity"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["generated-handauthored", "archive-missing-manifest", "projectid-duplicate", "generated-no-metadata"],
+            "description": "cleanliness rule kind articulate"
+          },
+          "path": { "type": "string", "description": "違反対象 file / dir path" },
+          "reason": { "type": "string" },
+          "severity": { "type": "string", "enum": ["warn", "error"] },
+          "action": { "type": "string", "description": "推奨 corrective action (= optional)" }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" },
+      "description": "kind 別 violation 件数 articulate"
+    },
+    "summary": { "type": "string" }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/obligation-check-v1.json",
+  "title": "Obligation Check Output v1",
+  "description": "aag obligation check の output envelope。premise contract triggers を git diff で検出し requirements を articulate するための substrate。",
+  "$comment": "v4.2 stable-schemas-phase2 で institute。canonical Go implementation: aag-engine/internal/obligation/obligation.go。本 schema は output envelope (= AI consume 経路)、premise-contract.schema.json (= input source-of-truth、premise-contracts.json の articulate) とは別 family。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "base", "head", "changedFiles", "matchedContracts", "stats", "summary"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "obligation-check-v1" },
+    "base": { "type": "string" },
+    "head": { "type": "string" },
+    "changedFiles": { "type": "array", "items": { "type": "string" } },
+    "matchedContracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["contractId", "label", "matchedTriggers", "requirements"],
+        "properties": {
+          "contractId": { "type": "string" },
+          "label": { "type": "string" },
+          "matchedTriggers": { "type": "array", "items": { "type": "string" }, "description": "trigger を発火した changed file 一覧" },
+          "requirements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["path", "mode"],
+              "properties": {
+                "path": { "type": "string", "description": "required read / co-change path" },
+                "mode": { "type": "string", "description": "must-pass / review / must-read 等" },
+                "rationale": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "summary": { "type": "string" }
+  }
+}
