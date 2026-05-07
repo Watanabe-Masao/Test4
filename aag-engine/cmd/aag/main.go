@@ -127,6 +127,10 @@ func run(args []string, stdout, stderr io.Writer) ExitCode {
 		return runSelfCheck(args[1:], stdout, stderr)
 	case "chaos":
 		return runChaos(args[1:], stdout, stderr)
+	case "bootstrap":
+		return runBootstrap(args[1:], stdout, stderr)
+	case "index":
+		return runIndex(args[1:], stdout, stderr)
 	default:
 		fmt.Fprintf(stderr, "aag: unknown command %q\n\n", args[0])
 		fmt.Fprint(stderr, usage)

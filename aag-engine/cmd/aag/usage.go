@@ -47,6 +47,10 @@ COMMANDS:
                    note: exit code は常に 0 (= advisory)、violation は output 'violations[]' で articulate
   chaos            command の既知 failure modes を adversarial 視点で articulate (= v4.2 chaos)
                    note: 引数なしで overview / 引数ありで per-command articulate (= listing) / 'aag chaos run <command>' で実機械実行 + verify
+  bootstrap        AI session 開始時の aggregate snapshot (= where-am-i + context + suggestedNext) (= v4.2 cluster C)
+                   note: 1 command で多 hop discovery を articulate
+  index            substrate cross-reference index (= 'aag index command' / 'aag index schema') (= v4.2 cluster C)
+                   note: describe + introspect の projection、AI session の cross-reference 用 substrate
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)

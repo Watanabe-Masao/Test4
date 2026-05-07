@@ -226,6 +226,8 @@
 | AAG Stats Files Query Output Schema (reposteward-substrate-v4-2-self-check-v7、filtered query result) | `docs/contracts/aag/commands/stats-files-query-output.schema.json`       |
 | AAG Task Validate Output Schema (reposteward-substrate-v4-2-self-check-v7、validate result) | `docs/contracts/aag/commands/task-validate-output.schema.json`           |
 | AAG Task Close Output Schema (reposteward-substrate-v4-2-self-check-v7、close result) | `docs/contracts/aag/commands/task-close-output.schema.json`              |
+| AAG Bootstrap Output Schema (reposteward-substrate-v4-2-cluster-c、session bootstrap aggregate) | `docs/contracts/aag/commands/bootstrap-output.schema.json`               |
+| AAG Index Output Schema (reposteward-substrate-v4-2-cluster-c、command / schema cross-reference) | `docs/contracts/aag/commands/index-output.schema.json`                   |
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |

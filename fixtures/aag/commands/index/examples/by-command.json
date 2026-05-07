@@ -1,0 +1,320 @@
+{
+  "schemaVersion": "aag-index-by-command-v1",
+  "totalCommands": 28,
+  "commands": [
+    {
+      "name": "bootstrap",
+      "family": "navigation",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_bootstrap.go",
+      "handlerFunc": "runBootstrap",
+      "schemaPath": "docs/contracts/aag/commands/bootstrap-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/bootstrap/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "changed",
+      "family": "navigation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_navigation.go",
+      "handlerFunc": "runChanged",
+      "schemaPath": "docs/contracts/aag/commands/changed-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/changed/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "chaos",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_chaos.go",
+      "handlerFunc": "runChaos",
+      "schemaPath": "docs/contracts/aag/commands/chaos-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/chaos/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "clean check",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_clean.go",
+      "handlerFunc": "runClean",
+      "schemaPath": "docs/contracts/aag/commands/clean-check-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/clean-check/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "comments list",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_comments.go",
+      "handlerFunc": "runComments",
+      "schemaPath": "docs/contracts/aag/commands/comments-list-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/comments-list/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "context",
+      "family": "navigation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_navigation.go",
+      "handlerFunc": "runContext",
+      "schemaPath": "docs/contracts/aag/commands/context-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/context/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "describe",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_describe.go",
+      "handlerFunc": "runDescribe",
+      "schemaPath": "docs/contracts/aag/commands/describe-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/describe/examples/",
+      "failureModesCount": 2,
+      "reproducibleCount": 2
+    },
+    {
+      "name": "detector refs",
+      "family": "navigation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_navigation.go",
+      "handlerFunc": "runDetector",
+      "schemaPath": "docs/contracts/aag/commands/detector-refs-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/detector-refs/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "docs placement-check",
+      "family": "cleanliness",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_docs.go",
+      "handlerFunc": "runDocs",
+      "schemaPath": "docs/contracts/aag/commands/docs-placement-check-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/docs-placement-check/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "fixtures",
+      "family": "go-mvp",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_fixtures.go",
+      "handlerFunc": "runFixtures",
+      "schemaPath": "docs/contracts/aag/commands/fixtures-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/fixtures/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "index",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_index.go",
+      "handlerFunc": "runIndex",
+      "schemaPath": "docs/contracts/aag/commands/index-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/index/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "introspect command",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_introspect.go",
+      "handlerFunc": "runIntrospectCommand",
+      "schemaPath": "docs/contracts/aag/commands/describe-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/introspect-command/examples/",
+      "failureModesCount": 1,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "introspect schema",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_introspect.go",
+      "handlerFunc": "runIntrospectSchema",
+      "schemaPath": "docs/contracts/aag/commands/describe-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/introspect-schema/examples/",
+      "failureModesCount": 1,
+      "reproducibleCount": 1
+    },
+    {
+      "name": "list",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_describe.go",
+      "handlerFunc": "runList",
+      "schemaPath": "docs/contracts/aag/commands/describe-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/list/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "next",
+      "family": "project-status",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_project.go",
+      "handlerFunc": "runNext",
+      "schemaPath": null,
+      "examplesPath": "fixtures/aag/commands/next/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "obligation check",
+      "family": "obligation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_obligation.go",
+      "handlerFunc": "runObligation",
+      "schemaPath": "docs/contracts/aag/commands/obligation-check-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/obligation-check/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "project stale",
+      "family": "project-status",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_project.go",
+      "handlerFunc": "runProject",
+      "schemaPath": "docs/contracts/aag/commands/project-stale-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/project-stale/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "repair-context",
+      "family": "repair",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_repair.go",
+      "handlerFunc": "runRepairContext",
+      "schemaPath": "docs/contracts/aag/commands/repair-context-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/repair-context/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "rule locate",
+      "family": "navigation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_navigation.go",
+      "handlerFunc": "runRule",
+      "schemaPath": "docs/contracts/aag/commands/rule-locate-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/rule-locate/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "self-check",
+      "family": "self-describe",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_selfcheck.go",
+      "handlerFunc": "runSelfCheck",
+      "schemaPath": "docs/contracts/aag/commands/self-check-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/self-check/examples/",
+      "failureModesCount": 2,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "shadow",
+      "family": "go-mvp",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_shadow.go",
+      "handlerFunc": "runShadow",
+      "schemaPath": "docs/contracts/aag/detector-result.schema.json",
+      "examplesPath": "fixtures/aag/commands/shadow/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "stats files",
+      "family": "stats",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_stats.go",
+      "handlerFunc": "runStatsFiles",
+      "schemaPath": "docs/contracts/aag/commands/stats-files-query-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/stats-files/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "task close",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_task.go",
+      "handlerFunc": "runTaskClose",
+      "schemaPath": "docs/contracts/aag/commands/task-close-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/task-close/examples/",
+      "failureModesCount": 0,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "task prepare",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_task.go",
+      "handlerFunc": "runTaskPrepare",
+      "schemaPath": "docs/contracts/aag/task-capsule.schema.json",
+      "examplesPath": "fixtures/aag/commands/task-prepare/examples/",
+      "failureModesCount": 2,
+      "reproducibleCount": 0
+    },
+    {
+      "name": "task validate",
+      "family": "task-capsule",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_task.go",
+      "handlerFunc": "runTaskValidate",
+      "schemaPath": "docs/contracts/aag/commands/task-validate-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/task-validate/examples/",
+      "failureModesCount": 2,
+      "reproducibleCount": 1
+    },
+    {
+      "name": "validate",
+      "family": "go-mvp",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_validate.go",
+      "handlerFunc": "runValidate",
+      "schemaPath": "docs/contracts/aag/detector-result.schema.json",
+      "examplesPath": "fixtures/aag/commands/validate/examples/",
+      "failureModesCount": 1,
+      "reproducibleCount": 1
+    },
+    {
+      "name": "where-am-i",
+      "family": "navigation",
+      "maturity": "stable",
+      "handlerFile": "aag-engine/cmd/aag/command_navigation.go",
+      "handlerFunc": "runWhereAmI",
+      "schemaPath": "docs/contracts/aag/commands/where-am-i-output.schema.json",
+      "examplesPath": "fixtures/aag/commands/where-am-i/examples/",
+      "failureModesCount": 2,
+      "reproducibleCount": 1
+    },
+    {
+      "name": "wrap",
+      "family": "envelope",
+      "maturity": "provisional",
+      "handlerFile": "aag-engine/cmd/aag/command_wrap.go",
+      "handlerFunc": "runWrap",
+      "schemaPath": null,
+      "examplesPath": "fixtures/aag/commands/wrap/examples/",
+      "failureModesCount": 3,
+      "reproducibleCount": 3
+    }
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T11:52:54Z",
+    "sourceCommit": "575b9711b4448612017a2a1fc56ed68a8ddc0816",
+    "confidence": "canonical",
+    "computedFrom": "projection of describe.commandTable + introspect.implTable / schemaTable / exampleTable"
+  }
+}

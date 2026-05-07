@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "aag-index-by-schema-v1",
+  "totalSchemas": 35,
+  "schemas": [
+    {
+      "id": "aag-bootstrap-v1",
+      "title": "Bootstrap Output",
+      "path": "docs/contracts/aag/commands/bootstrap-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "bootstrap"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-chaos-command-v1",
+      "title": "Chaos Per-Command Output",
+      "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "chaos"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-chaos-overview-v1",
+      "title": "Chaos Overview Output",
+      "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "chaos"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-chaos-run-v1",
+      "title": "Chaos Run Output",
+      "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "chaos"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-describe-v1",
+      "title": "Describe Output",
+      "path": "docs/contracts/aag/commands/describe-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "describe"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-engine-fixtures-output-v1",
+      "title": "AAG Fixtures Output",
+      "path": "docs/contracts/aag/commands/fixtures-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "fixtures"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-index-by-command-v1",
+      "title": "Index By-Command Output",
+      "path": "docs/contracts/aag/commands/index-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "index"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-index-by-schema-v1",
+      "title": "Index By-Schema Output",
+      "path": "docs/contracts/aag/commands/index-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "index"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-introspect-command-v1",
+      "title": "Introspect Command Output",
+      "path": "docs/contracts/aag/commands/describe-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "introspect command"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-introspect-schema-v1",
+      "title": "Introspect Schema Output",
+      "path": "docs/contracts/aag/commands/describe-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "introspect schema"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-list-v1",
+      "title": "List Output",
+      "path": "docs/contracts/aag/commands/describe-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "list"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-parameters-v1",
+      "title": "AAG Parameters v1",
+      "path": "docs/contracts/aag/aag-parameters.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": [
+        "stats files"
+      ]
+    },
+    {
+      "id": "aag-pipeline-envelope-v1",
+      "title": "Pipeline envelope (= aag wrap output)",
+      "path": null,
+      "isVirtual": true,
+      "producers": [
+        "wrap"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-response-v1",
+      "title": "AagResponse",
+      "path": "docs/contracts/aag/aag-response.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": []
+    },
+    {
+      "id": "aag-self-check-v1",
+      "title": "Self-Check Output",
+      "path": "docs/contracts/aag/commands/self-check-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "self-check"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "aag-size-statistics-v1",
+      "title": "AAG Size Statistics v1",
+      "path": "docs/contracts/aag/aag-size-statistics.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": [
+        "stats files"
+      ]
+    },
+    {
+      "id": "changed-explain-v1",
+      "title": "Changed Explain Output",
+      "path": "docs/contracts/aag/commands/changed-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "changed"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "clean-check-v1",
+      "title": "Clean Check Output",
+      "path": "docs/contracts/aag/commands/clean-check-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "clean check"
+      ],
+      "consumers": [
+        "repair-context"
+      ]
+    },
+    {
+      "id": "comments-list-v1",
+      "title": "Comments List Output",
+      "path": "docs/contracts/aag/commands/comments-list-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "comments list"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "context-project-v1",
+      "title": "Context Project Output",
+      "path": "docs/contracts/aag/commands/context-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "context"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "detection-inventory-v1",
+      "title": "Detection Inventory v1",
+      "path": "docs/contracts/aag/detection-inventory.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": [
+        "detector refs"
+      ]
+    },
+    {
+      "id": "detector-refs-v1",
+      "title": "Detector Refs Output",
+      "path": "docs/contracts/aag/commands/detector-refs-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "detector refs"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "detector-result-v1",
+      "title": "DetectorResult",
+      "path": "docs/contracts/aag/detector-result.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "validate",
+        "shadow"
+      ],
+      "consumers": [
+        "repair-context"
+      ]
+    },
+    {
+      "id": "docs-placement-check-v1",
+      "title": "Docs Placement Check Output",
+      "path": "docs/contracts/aag/commands/docs-placement-check-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "docs placement-check"
+      ],
+      "consumers": [
+        "repair-context"
+      ]
+    },
+    {
+      "id": "obligation-check-v1",
+      "title": "Obligation Check Output",
+      "path": "docs/contracts/aag/commands/obligation-check-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "obligation check"
+      ],
+      "consumers": [
+        "repair-context"
+      ]
+    },
+    {
+      "id": "premise-contracts-v1",
+      "title": "Premise Contracts v1",
+      "path": "docs/contracts/aag/premise-contract.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": [
+        "changed",
+        "obligation check"
+      ]
+    },
+    {
+      "id": "project-stale-v1",
+      "title": "Project Stale Output",
+      "path": "docs/contracts/aag/commands/project-stale-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "project stale"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "repair-context-v1",
+      "title": "Repair Context Output",
+      "path": "docs/contracts/aag/commands/repair-context-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "repair-context"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "rule-locate-v1",
+      "title": "Rule Locate Output",
+      "path": "docs/contracts/aag/commands/rule-locate-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "rule locate"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "source-facts-v1",
+      "title": "Source Facts v1",
+      "path": "docs/contracts/aag/source-facts.schema.json",
+      "isVirtual": false,
+      "producers": [],
+      "consumers": [
+        "stats files"
+      ]
+    },
+    {
+      "id": "stats-files-query-v1",
+      "title": "Stats Files Query Output",
+      "path": "docs/contracts/aag/commands/stats-files-query-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "stats files"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "task-capsule-v1",
+      "title": "Task Capsule v1",
+      "path": "docs/contracts/aag/task-capsule.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "task prepare"
+      ],
+      "consumers": [
+        "task validate",
+        "task close",
+        "repair-context"
+      ]
+    },
+    {
+      "id": "task-close-v1",
+      "title": "Task Close Output",
+      "path": "docs/contracts/aag/commands/task-close-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "task close"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "task-validate-v1",
+      "title": "Task Validate Output",
+      "path": "docs/contracts/aag/commands/task-validate-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "task validate"
+      ],
+      "consumers": []
+    },
+    {
+      "id": "where-am-i-v2",
+      "title": "WhereAmI Output v2",
+      "path": "docs/contracts/aag/commands/where-am-i-output.schema.json",
+      "isVirtual": false,
+      "producers": [
+        "where-am-i"
+      ],
+      "consumers": []
+    }
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T11:52:54Z",
+    "sourceCommit": "575b9711b4448612017a2a1fc56ed68a8ddc0816",
+    "confidence": "canonical",
+    "computedFrom": "projection of introspect.schemaInfoTable + schemaProducersTable + schemaConsumersTable"
+  }
+}

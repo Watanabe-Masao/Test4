@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-index-v1.json",
+  "title": "AAG Index Output v1",
+  "description": "aag index <kind> の output envelope (= command / schema 別 cross-reference index)。AI session が schema-graph.json + describe + introspect を walk せず 1 query で cross-reference を articulate するための substrate。",
+  "$comment": "v4.2 cluster C C2 で institute。canonical Go implementation: aag-engine/internal/aagindex/aagindex.go。既存 source-of-truth (= describe / introspect) の projection。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "provenance"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["aag-index-by-command-v1", "aag-index-by-schema-v1"]
+    },
+    "totalCommands": { "type": "integer", "minimum": 0, "description": "by-command only" },
+    "totalSchemas": { "type": "integer", "minimum": 0, "description": "by-schema only" },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "family", "maturity"],
+        "properties": {
+          "name": { "type": "string" },
+          "family": { "type": "string" },
+          "maturity": { "type": "string" },
+          "handlerFile": { "type": "string" },
+          "handlerFunc": { "type": "string" },
+          "schemaPath": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+          "examplesPath": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+          "failureModesCount": { "type": "integer", "minimum": 0 },
+          "reproducibleCount": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "description": "by-command only: command name 順 sort"
+    },
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "path": { "oneOf": [{ "type": "string" }, { "type": "null" }] },
+          "isVirtual": { "type": "boolean" },
+          "producers": { "type": "array", "items": { "type": "string" } },
+          "consumers": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "description": "by-schema only: schema id 順 sort"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "出典 metadata (= confidence: canonical、describe / introspect projection)"
+    }
+  }
+}

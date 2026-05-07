@@ -209,6 +209,18 @@ var implTable = map[string]ImplementationPointer{
 		HandlerFunc:    "runChaos",
 		Package:        ptr("aag-engine/internal/chaos"),
 	},
+	"bootstrap": {
+		DispatcherFile: "aag-engine/cmd/aag/main.go",
+		HandlerFile:    "aag-engine/cmd/aag/command_bootstrap.go",
+		HandlerFunc:    "runBootstrap",
+		Package:        ptr("aag-engine/internal/bootstrap"),
+	},
+	"index": {
+		DispatcherFile: "aag-engine/cmd/aag/main.go",
+		HandlerFile:    "aag-engine/cmd/aag/command_index.go",
+		HandlerFunc:    "runIndex",
+		Package:        ptr("aag-engine/internal/aagindex"),
+	},
 }
 
 // schemaTable は command → output schema path の mapping。
@@ -228,6 +240,8 @@ var schemaTable = map[string]*string{
 	"introspect schema":    ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"self-check":           ptr("docs/contracts/aag/commands/self-check-output.schema.json"),
 	"chaos":                ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
+	"bootstrap":            ptr("docs/contracts/aag/commands/bootstrap-output.schema.json"),
+	"index":                ptr("docs/contracts/aag/commands/index-output.schema.json"),
 	"fixtures":             ptr("docs/contracts/aag/commands/fixtures-output.schema.json"),
 	"where-am-i":           ptr("docs/contracts/aag/commands/where-am-i-output.schema.json"),
 	"context":              ptr("docs/contracts/aag/commands/context-output.schema.json"),
@@ -271,6 +285,8 @@ var testTable = map[string][]string{
 	"introspect schema":    {"aag-engine/internal/introspect/schema_test.go"},
 	"self-check":           {"aag-engine/internal/selfcheck/selfcheck_test.go"},
 	"chaos":                {"aag-engine/internal/chaos/chaos_test.go"},
+	"bootstrap":            {"aag-engine/internal/bootstrap/bootstrap_test.go"},
+	"index":                {"aag-engine/internal/aagindex/aagindex_test.go"},
 }
 
 // exampleTable は command → example fixtures directory path の mapping。
@@ -303,6 +319,8 @@ var exampleTable = map[string]*string{
 	"rule locate":          ptr("fixtures/aag/commands/rule-locate/examples/"),
 	"detector refs":        ptr("fixtures/aag/commands/detector-refs/examples/"),
 	"chaos":                ptr("fixtures/aag/commands/chaos/examples/"),
+	"bootstrap":            ptr("fixtures/aag/commands/bootstrap/examples/"),
+	"index":                ptr("fixtures/aag/commands/index/examples/"),
 	"context":              ptr("fixtures/aag/commands/context/examples/"),
 	"changed":              ptr("fixtures/aag/commands/changed/examples/"),
 	"obligation check":     ptr("fixtures/aag/commands/obligation-check/examples/"),

@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-bootstrap-v1.json",
+  "title": "AAG Bootstrap Output v1",
+  "description": "aag bootstrap の output envelope (= AI session 開始時の aggregate snapshot)。多 hop discovery (= where-am-i → context → ...) を 1 command で articulate するための substrate。",
+  "$comment": "v4.2 cluster C C1 で institute (= reposteward-substrate-v4-2-cluster-c)。canonical Go implementation: aag-engine/internal/bootstrap/bootstrap.go。既存 commands の output を aggregate (= read-only composition、新 logic 不在)。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "whereAmI", "suggestedNext", "provenance"],
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "aag-bootstrap-v1" },
+    "whereAmI": {
+      "description": "where-am-i output (= where-am-i-v2 schema 準拠)",
+      "oneOf": [{ "type": "object", "additionalProperties": true }, { "type": "null" }]
+    },
+    "context": {
+      "description": "context output (= context-project-v1 schema 準拠、active project ある場合のみ articulate、不在は null)",
+      "oneOf": [{ "type": "object", "additionalProperties": true }, { "type": "null" }]
+    },
+    "suggestedNext": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["command", "rationale"],
+        "properties": {
+          "command": { "type": "string", "description": "推奨 command line (= 例: 'aag obligation check --base main --head HEAD')" },
+          "rationale": { "type": "string", "description": "推奨 rationale (= heuristic、AI 判断材料、必須 follow ではない)" }
+        }
+      },
+      "description": "AI session 向け heuristic next command 候補 (= confidence: heuristic)"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "出典 metadata (= confidence: inferred、aggregate of substrate snapshots)"
+    }
+  }
+}

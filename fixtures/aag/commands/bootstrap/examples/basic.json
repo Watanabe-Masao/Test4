@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "aag-bootstrap-v1",
+  "whereAmI": {
+    "schemaVersion": "where-am-i-v2",
+    "branch": "claude/reposteward-substrate-v4-2-cluster-c",
+    "activeProject": null,
+    "repoHealth": {
+      "hardGate": "pass",
+      "kpi": "60/60 OK"
+    },
+    "openObligations": 0,
+    "recommendedNextCommand": "aag stats files --above p95 --limit 10",
+    "manifestContext": {
+      "currentFocus": null,
+      "loadedRefsCount": 0,
+      "openQuestionsCount": 0,
+      "sessionNotes": null,
+      "lastUpdated": null
+    }
+  },
+  "context": null,
+  "suggestedNext": [
+    {
+      "command": "aag list",
+      "rationale": "全 command surface を articulate (= AI session の self-discovery 起点)"
+    }
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T11:52:54Z",
+    "sourceCommit": "575b9711b4448612017a2a1fc56ed68a8ddc0816",
+    "confidence": "inferred",
+    "computedFrom": "aggregate of where-am-i + context (if active) + heuristic suggested commands"
+  }
+}
