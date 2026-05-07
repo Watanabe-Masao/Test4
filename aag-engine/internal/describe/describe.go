@@ -32,20 +32,44 @@ import (
 //   - Enables: factual articulate of capabilities this command unlocks (= 能力)
 //   - RelatedCommands: factual articulate of compose-friendly commands (= 構成 hint)
 //
-// 3 field は **factual articulate のみ** (= marketing speak / opinion を articulate しない)。
+// v4.2 failure-modes (= reposteward-substrate-v4-2-failure-modes) で 1 field を additive 追加:
+//   - KnownFailureModes: 既知 failure 条件 + 期待 behavior + countermeasure test の articulate
+//
+// 全 field は **factual articulate のみ** (= marketing speak / opinion を articulate しない)。
 // AI session が command を understand する際の re-grep を省略する substrate を articulate。
 type CommandMetadata struct {
-	Name            string   `json:"name"`
-	Family          string   `json:"family"`
-	Maturity        string   `json:"maturity"`
-	Summary         string   `json:"summary"`
-	Args            []string `json:"args"`
-	OutputKind      string   `json:"outputKind"`
-	OutputShape     string   `json:"outputShape"`
-	WaveStep        string   `json:"waveStep,omitempty"`
-	WhyExists       string   `json:"whyExists,omitempty"`
-	Enables         []string `json:"enables,omitempty"`
-	RelatedCommands []string `json:"relatedCommands,omitempty"`
+	Name              string        `json:"name"`
+	Family            string        `json:"family"`
+	Maturity          string        `json:"maturity"`
+	Summary           string        `json:"summary"`
+	Args              []string      `json:"args"`
+	OutputKind        string        `json:"outputKind"`
+	OutputShape       string        `json:"outputShape"`
+	WaveStep          string        `json:"waveStep,omitempty"`
+	WhyExists         string        `json:"whyExists,omitempty"`
+	Enables           []string      `json:"enables,omitempty"`
+	RelatedCommands   []string      `json:"relatedCommands,omitempty"`
+	KnownFailureModes []FailureMode `json:"knownFailureModes,omitempty"`
+}
+
+// FailureMode は 1 件の既知 failure 条件 articulate。
+//
+// 期間 articulate (= "N ヶ月安定") ではなく **条件 articulate** で trustability を articulate。
+// AI session が command 実行前に「ここで壊れる」を pre-articulate されているため、
+// 想定外 failure を **新 FailureMode** として articulate する材料 (= adversarial substrate)。
+//
+// Permanent ID は articulate しない (= 軽量 doc 経路、registry overhead を避ける)。
+// 必要 demand articulate されたら別 PR で permanent ID + chaos runner を articulate する。
+type FailureMode struct {
+	// Trigger は failure を起こす条件 (= 1 行 factual articulate)。
+	Trigger string `json:"trigger"`
+
+	// Behavior は trigger 時の期待 behavior (= ExitError + stderr 等、observable articulate)。
+	Behavior string `json:"behavior"`
+
+	// CountermeasureTest は behavior を verify する test 名 / file 参照 (= optional)。
+	// articulate されている = 機械検証で守られている、不在 = 観察 articulate のみ。
+	CountermeasureTest string `json:"countermeasureTest,omitempty"`
 }
 
 // DescribeSchemaVersion is the schemaVersion for `aag describe` output.
@@ -91,6 +115,13 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "Go MVP 経路で repo を read-only に検証する CLI entrypoint",
 		Enables:         []string{"DetectorResult schema 準拠 output 取得", "shadow / fixtures との parity 検証"},
 		RelatedCommands: []string{"shadow", "fixtures", "repair-context"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "--format=yaml 指定 (= json 以外)",
+				Behavior:           "ExitError + stderr で 'json のみ対応' を articulate",
+				CountermeasureTest: "TestRun_Validate_RejectsYamlFormat",
+			},
+		},
 	},
 	{
 		Name:            "fixtures",
@@ -130,6 +161,17 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "AI session が active project に対して Task Capsule を articulate するため",
 		Enables:         []string{"task-capsule.schema.json 準拠 capsule 生成", "task validate / task close への stdin pipe 入力"},
 		RelatedCommands: []string{"task validate", "task close", "context"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:  "--project ID 不在 / 未 articulate active project (= projects/active/<id>/ 不在)",
+				Behavior: "ExitError + stderr で project not found を articulate",
+			},
+			{
+				Trigger:            "--task ID が kebab-case 違反 (= camelCase / PascalCase)",
+				Behavior:           "ExitError + stderr で kebab-case enforcement を articulate",
+				CountermeasureTest: "TestTaskCapsule_Validate_KebabCaseEnforcement (= internal/taskcapsule)",
+			},
+		},
 	},
 	{
 		Name:            "task validate",
@@ -143,6 +185,17 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "Task Capsule の schema 準拠 + invariant 整合を articulate するため",
 		Enables:         []string{"capsule の machine-verify", "stdin pipe (= --capsule -) 経由の validation"},
 		RelatedCommands: []string{"task prepare", "task close"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "--capsule - で stdin が空",
+				Behavior:           "ExitError + stderr で 'stdin was empty' articulate",
+				CountermeasureTest: "TestValidateCapsule_StdinEmpty (= improvement D で landing)",
+			},
+			{
+				Trigger:  "schema field 不在 (= partial capsule)",
+				Behavior: "ExitFail + structured error per missing field",
+			},
+		},
 	},
 	{
 		Name:            "task close",
@@ -182,6 +235,18 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "AI session が現在 repo state を 1 command で articulate するため (= session bootstrap entrypoint)",
 		Enables:         []string{"branch / activeProject articulate", "manifestContext snapshot 取得", "session 開始時の re-grep 省略"},
 		RelatedCommands: []string{"context", "changed", "next"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "--repo が non-git directory",
+				Behavior:           "ExitError + stderr で 'not a git repository' articulate",
+				CountermeasureTest: "TestWhereAmI_RejectsNonGitDir (= internal/navigation)",
+			},
+			{
+				Trigger:            ".claude/manifest.json が malformed JSON",
+				Behavior:           "ExitPass、ManifestContext = null で graceful degradation (= 部分 fail を articulate しない)",
+				CountermeasureTest: "TestReadManifestContext_ParseError (= internal/navigation)",
+			},
+		},
 	},
 	{
 		Name:            "context",
@@ -338,6 +403,23 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "stdin pipeline で任意 command output を pipeline envelope で articulate するため",
 		Enables:         []string{"AI consumer 向けの統一 envelope", "stdin pipe composition"},
 		RelatedCommands: []string{"where-am-i", "stats files", "describe"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "--command flag 不在",
+				Behavior:           "ExitError + stderr で '--command flag は required' articulate",
+				CountermeasureTest: "TestWrap_RejectsEmptyCommand (= internal/responsewrap)",
+			},
+			{
+				Trigger:            "stdin が空",
+				Behavior:           "ExitError + stderr で 'stdin was empty' articulate",
+				CountermeasureTest: "TestWrap_RejectsEmptyStdin (= internal/responsewrap)",
+			},
+			{
+				Trigger:            "stdin が invalid JSON",
+				Behavior:           "ExitError + stderr で 'stdin is not valid JSON' articulate (= envelope に invalid data を wrap しない)",
+				CountermeasureTest: "TestWrap_RejectsInvalidJSON (= internal/responsewrap)",
+			},
+		},
 	},
 	{
 		Name:            "describe",
@@ -351,6 +433,18 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "指定 command の metadata を 1 command で articulate するため (= self-discover)",
 		Enables:         []string{"command metadata の point lookup", "AI session の self-discovery"},
 		RelatedCommands: []string{"list", "introspect"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "<command> 引数不在",
+				Behavior:           "ExitError + stderr で '<command> 引数は required' articulate",
+				CountermeasureTest: "describe.go runDescribe argument validation",
+			},
+			{
+				Trigger:            "command が commandTable に articulate されていない",
+				Behavior:           "ExitError + stderr で 'unknown command' articulate ('aag list' hint 付き)",
+				CountermeasureTest: "TestDescribe_RejectsUnknownCommand (= internal/describe)",
+			},
+		},
 	},
 	{
 		Name:            "list",
@@ -377,6 +471,13 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "AI session が grep なしに command の Go 実装に navigate できるようにするため",
 		Enables:         []string{"command source への direct navigation", "test / schema / fixture pointer の articulate"},
 		RelatedCommands: []string{"describe", "list", "detector refs"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "command が implTable に articulate されていない (= cross-table drift signal)",
+				Behavior:           "ExitError + stderr で 'implementation pointer not articulated' articulate",
+				CountermeasureTest: "self-check V1 cross-sync 軸が事前に articulate (= drift detection)",
+			},
+		},
 	},
 	{
 		Name:            "introspect schema",
@@ -390,6 +491,13 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "AI session が schema-graph.json を walk せずに 1 command で schema の relation を articulate するため",
 		Enables:         []string{"schema producer / consumer の articulate", "virtual schema (= Go internal) と file-backed schema の articulate"},
 		RelatedCommands: []string{"introspect command", "detector refs"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:            "schema id が schemaInfoTable に articulate されていない",
+				Behavior:           "ExitError + stderr で 'unknown schema id' articulate (= 'aag list' / schema-graph.json hint 付き)",
+				CountermeasureTest: "TestIntrospectSchema_RejectsUnknown (= internal/introspect)",
+			},
+		},
 	},
 	{
 		Name:            "self-check",
@@ -403,6 +511,17 @@ var commandTable = []CommandMetadata{
 		WhyExists:       "AI session が AAG 自身の trustability (= 整合性) を 1 command で articulate するため",
 		Enables:         []string{"AAG meta-substrate verification", "cross-table drift detection at runtime", "AAG infrastructure file 実在 confirmation"},
 		RelatedCommands: []string{"introspect command", "introspect schema", "describe", "list"},
+		KnownFailureModes: []FailureMode{
+			{
+				Trigger:  "--repo が articulate された path 不在 / 走査不能",
+				Behavior: "V2/V3/V4 で path 不在 violation を articulate (= ExitPass、healthy=false で articulate)",
+			},
+			{
+				Trigger:            "implTable / schemaTable / testTable 間の cross-table drift",
+				Behavior:           "violations[] で V1〜V5 の articulate、healthy=false、ExitPass (= advisory)",
+				CountermeasureTest: "TestRun_HealthyOnRealRepo (= internal/selfcheck)",
+			},
+		},
 	},
 }
 

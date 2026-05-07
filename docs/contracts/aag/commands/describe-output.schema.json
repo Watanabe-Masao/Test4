@@ -103,6 +103,30 @@
           "type": "array",
           "items": { "type": "string" },
           "description": "v4.2 seed: 本 command と compose-friendly な command 一覧 (= factual composition hint)。"
+        },
+        "knownFailureModes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FailureMode" },
+          "description": "v4.2 failure-modes: 既知 failure 条件 articulate (= trigger / behavior / countermeasure-test)。期間 articulate ではなく **条件 articulate** で trustability を articulate。AI session が command 実行前に boundary を pre-articulate されているため、想定外 failure を新 entry として articulate する材料 (= adversarial substrate)。"
+        }
+      }
+    },
+    "FailureMode": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["trigger", "behavior"],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "description": "failure を起こす条件 (= 1 行 factual articulate)。"
+        },
+        "behavior": {
+          "type": "string",
+          "description": "trigger 時の期待 behavior (= ExitError + stderr 等、observable articulate)。"
+        },
+        "countermeasureTest": {
+          "type": "string",
+          "description": "behavior を verify する test 名 / file 参照 (= optional)。articulate されている = 機械検証で守られている、不在 = 観察 articulate のみ。"
         }
       }
     },
