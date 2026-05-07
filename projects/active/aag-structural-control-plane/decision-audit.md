@@ -923,3 +923,115 @@ ID prefix:
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
 
+
+---
+
+## ADR-SCP-014: Guidance over restriction（AAG SCP 思想の articulate）
+
+### status
+
+- 着手判断: **active**
+- 振り返り判定: **未確定**
+
+### context
+
+ADR-SCP-001〜013 で本 program の構造（Schema / Contract / Rule / Gate）が articulate されたが、それらが「AI を縛る管理システム」として読まれるリスクがある。実際には、AAG Structural Control Plane の目的は **AI が迷わず、余計な推測を減らし、より高い判断能力を発揮するための構造的補助**であり、AI を細かく拘束するものではない。
+
+このリスクを放置すると、後続 phase で「AAG 違反 = AI 失敗」「Instruction Pack = AI 命令書」という誤解が institute され、実装 AI が defensive に振る舞う / 創造的判断を回避する / 表面的に compliance するだけ等の機能不全が起きる。
+
+### decision
+
+AAG SCP の思想を次のように articulate する:
+
+#### 思想層別
+
+```
+思想 (= 不可変)
+  → AI の判断を定性的に導くもの
+  例: 「製本は現在の正本」「過去 = archive / 未来 = project / 計算済み現在 = generated」
+
+Contract (= 構造的前提)
+  → AI と repo が共有する構造的な前提
+  例: doc-registry の kind / temporalScope / requiredSections
+
+Guidance (= 文脈提供)
+  → AI が良い判断をするための文脈・観点・参照先
+  例: AI Instruction Pack（旧名「AI 命令書」ではなく「文書kindごとの guidance」）
+
+Gate (= 構造破綻検出)
+  → 構造的に判定可能な違反のみを foul する安全網
+  例: 未登録 Markdown / generated 手編集 / 製本に Roadmap section
+```
+
+#### 合言葉の更新
+
+- 旧: `Plan → Contract → Rule → Gate`（構造統制を強調するが「Rule」が拘束的）
+- **新: `Plan → Context → Contract → Guidance → Gate`**（Context = AI が読む文脈、Guidance = 定性的補助、Gate = 構造破綻検出）
+
+#### 4 sub-principle（GUIDANCE 系列）
+
+##### AAG-SCP-GUIDANCE-001: 思想は AI を導く、能力を制限しない
+
+AAG の思想・原則・文書型は、AI の能力を制限するためではなく、AI がより正確に判断するための **定性的ガイダンス** である。
+
+##### AAG-SCP-GUIDANCE-002: 定性を定量に無理変換しない
+
+定性的判断を定量ルールへ無理に変換してはならない。機械検証するのは、**未登録・欠落・混入・生成物手編集・時間軸違反など、構造的に判定可能なものに限定** する。「設計の良し悪し」「比喩の適切さ」「判断の妥当性」は機械検証 scope 外。
+
+##### AAG-SCP-GUIDANCE-003: Instruction Pack は guidance、命令書ではない
+
+AI に与える Instruction Pack は、出力を狭めるためではなく、**文書の目的・読者・粒度・時間軸・書くべき観点を明確にするための補助** である。Instruction Pack は AI の出力を機械的に拘束しない。
+
+##### AAG-SCP-GUIDANCE-004: Gate は判断を代替しない
+
+AAG Gate は AI の創造的判断や設計判断を代替しない。**Gate は構造破綻を防ぎ、判断すべき対象を明確化** する。設計判断・表現品質・文脈解釈は AI / human review の責務であり、Gate の責務ではない。
+
+#### 定量・定性の分離（機械検証 scope の articulate）
+
+| 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |
+|---|---|
+| 未登録 Markdown | この文書は何のためにあるか |
+| requiredSections 欠落 | 読者は誰か |
+| generated artifact の producer 不明 | どの粒度で説明すべきか |
+| generated file の手編集 | 何を判断材料として扱うか |
+| doc kind / topology mismatch | 過去・現在・未来をどう分けるか |
+| 製本に TODO / Roadmap section | どのような設計思想を優先するか |
+| 例外に owner / reason / reviewAfter なし | どの文脈を参照すべきか |
+| YAML 変更後の generated JSON 未更新 | 比喩 / 表現の適切さ |
+
+左側だけが foul 可能な構造ルール。右側は AI / human review の責務であり、AAG が無理に数値化しない。
+
+### rationale
+
+- AAG SCP の目的は **構造補助** であり、AI 拘束ではない（aag/_internal/strategy.md / meta.md の AAG 思想と整合: 「AI judgement + retrospective + commit-bound rollback」が前提、AI を信頼する設計）
+- 定量・定性を混ぜると、定性領域に foul が侵入し AI session が defensive に振る舞う / 創造的判断を回避する / 表面的 compliance に陥る
+- Instruction Pack を「命令書」と扱うと、AI が文脈無視で template 機械適用するだけになり、本来の「文脈把握 → 良い判断」が機能しない
+- Gate を「失敗させる仕組み」と扱うと、Gate を回避する loophole 探しが発生し、構造統制の意図が腐敗する
+- 「縛る」設計は短期的に compliance を高めるが、長期的に AI / human の創造性を毀損する。AAG philosophy「製本されないものを guard 化しない」「期間 buffer は anti-ritual」と同じ思想（信頼前提）
+
+### alternatives
+
+- (a) **思想を articulate しない** — 却下: 後続 phase で「AAG 違反 = AI 失敗」誤解が institute される
+- (b) **GUIDANCE 系列を ADR ではなく plan.md 不可侵原則のみで articulate** — 却下: 思想の根拠（rationale / alternatives / 観測点）が trace 不能、後続 program で「なぜそうしたか」が失われる
+- (c) **Instruction Pack を「Writing Context Pack」「Document Guidance Pack」に rename** — 却下: 既存 articulation（reposteward 等）との name continuity 喪失、本 ADR で「定義を再 articulate」する方が低 cost
+
+### 観測点
+
+1. plan.md 不可侵原則 11（Guidance over restriction）が landing
+2. plan.md の合言葉が `Plan → Context → Contract → Guidance → Gate` に update
+3. plan.md / inquiry/07 に定量・定性分離 table が landing
+4. Phase 6 AI Instruction Pack の完了条件が「AI が文脈を取り違えずに能力を発揮するための guidance」として articulate（pre-write 拘束ではない）
+5. Phase 3〜10 の各 checker の foul scope が「構造的に判定可能なもの」に限定される（設計判断・表現品質・文脈解釈は scope 外）
+6. 後続 phase で AI session が defensive に振る舞わず、創造的判断を行える状態が維持される（state-based、Phase 5+ の各 PR で AI session の自由度が articulate される）
+
+### Lineage
+
+- **preJudgementCommit**: `<TBD = 760013c の次の commit、本 ADR landing 直前>`
+- **judgementCommit**: `<TBD>`
+- **retrospectiveCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`

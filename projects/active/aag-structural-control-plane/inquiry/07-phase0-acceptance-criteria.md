@@ -6,7 +6,48 @@
 >
 > **規約**: ADR-SCP-010〜013（本 inquiry と同 commit で landing）+ ADR-SCP-001〜009（既 landing）。
 
-## 0. 優先度
+## 0. 思想層別（前提）
+
+> ADR-SCP-014「Guidance over restriction」+ 不可侵原則 11 に従う。
+
+```
+思想 (= 不可変)
+  → AI の判断を定性的に導くもの
+  例: 「製本は現在の正本」「過去 = archive / 未来 = project」
+
+Contract (= 構造的前提)
+  → AI と repo が共有する構造的な前提
+  例: doc-registry の kind / temporalScope / requiredSections
+
+Guidance (= 文脈提供)
+  → AI が良い判断をするための文脈・観点・参照先
+  例: AI Instruction Pack（「命令書」ではなく「文書kindごとの guidance」）
+
+Gate (= 構造破綻検出)
+  → 構造的に判定可能な違反のみを foul する安全網
+  例: 未登録 Markdown / generated 手編集 / 製本に Roadmap section
+```
+
+合言葉: **`Plan → Context → Contract → Guidance → Gate`**
+
+### 定量・定性の分離（機械検証 scope の articulate）
+
+| 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |
+|---|---|
+| 未登録 Markdown | この文書は何のためにあるか |
+| requiredSections 欠落 | 読者は誰か |
+| generated artifact の producer 不明 | どの粒度で説明すべきか |
+| generated file の手編集 | 何を判断材料として扱うか |
+| doc kind / topology mismatch | 過去・現在・未来をどう分けるか |
+| 製本に TODO / Roadmap section | どのような設計思想を優先するか |
+| 例外に owner / reason / reviewAfter なし | どの文脈を参照すべきか |
+| YAML 変更後の generated JSON 未更新 | 比喩 / 表現の適切さ |
+
+左側だけが foul 可能な構造ルール。右側は AI / human review の責務であり、AAG が無理に数値化しない。
+
+本 inquiry で articulate する 10 acceptance criteria は **すべて左側（構造ルール）に属するもの** であり、右側（定性的 guidance）の機械化を企図しない。
+
+## 0.5. 優先度
 
 | 優先度 | 項目 | landing 先 |
 |---|---|---|
@@ -436,5 +477,7 @@ ADR-SCP-012 に従い、Phase 5 の Finding group 単位 = **zone × disposition
 - [ ] 高 #1〜#5 が ADR / schema draft / inquiry に articulate されている
 - [ ] 次点 #6〜#10 が ADR 補強 / inquiry / plan.md section に articulate されている
 - [ ] inquiry/01〜06 の各 file が §1 の 7 項目（対象 / 正本 / 位置付け / 移行方針 / 未解決 / 入力 / acceptance）を articulate している
-- [ ] 本 inquiry が `decision-audit.md` の ADR-SCP-010〜013 へ back link している
-- [ ] checklist.md に本 inquiry + ADR-SCP-010〜013 の checkbox が追加されている
+- [ ] 本 inquiry が `decision-audit.md` の ADR-SCP-010〜014 へ back link している
+- [ ] checklist.md に本 inquiry + ADR-SCP-010〜014 の checkbox が追加されている
+- [ ] §0 思想層別（Plan → Context → Contract → Guidance → Gate）が articulate されている
+- [ ] §0 定量・定性分離 table が articulate されている（10 acceptance criteria はすべて左側 = 構造ルールに属する）

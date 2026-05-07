@@ -12,6 +12,12 @@
 8. **Additive-only / Wave 1 milestone 到達前は hard gate 追加しない** — 全 Phase の checker は **advisory** で開始。Hard Gate 昇格は user 判断による別 program 候補（reposteward `aag-engine-hard-gate-promotion` 候補と並走しない）。新規 mechanism は既存 TS guard / docs:generate / aag-engine に **additive** 追加され、置換しない。
 9. **Schema-first / Finding-first / Shadow / Ratchet / Gate の段階順序を逆行させない** — Phase 0（ADR + Existing Asset Mapping）→ Phase 1（Schema MVP）→ Phase 2（Inventory）→ Phase 2.5（Reading Pass）→ Phase 3（Tree Contract Shadow）→ Phase 4（Document Kind + Temporal Scope Shadow）→ Phase 5（Document Contract Declaration + Rewrite/Move/Archive PRs）→ Phase 6（AI Instruction Pack）→ Phase 7（Required Docs Matrix）→ Phase 8a/8b/8c（Obligation Migration）→ Phase 9（Artifact Coverage Gate）→ Phase 10（Runner Parity Contract）。Phase の順序を逆行させない（例: Phase 1 Schema 前に Phase 5 Document Contract Declaration を始めない）。
 10. **versionImpact は計画段階で declare 済（app: +0.0.0 / aag: +0.1）** — 実 archive 時に paradigm shift が surface したら DA entry を articulate して delta を escalate する。本 program は backward-compatible な additive mechanism のみで minor 想定。
+11. **Guidance over restriction（AI を縛らず導く）** — AAG SCP の思想・Document Kind・Instruction Pack は、AI の能力を制限するためではなく、**AI が文脈・役割・粒度・時間軸を正しく把握し、より良い判断を行うための定性的ガイダンス**である。機械的 foul は **構造違反**（未登録 / 欠落 / 混入 / 生成物手編集 / 時間軸違反 / producer 不明 等）に限定し、**設計判断・表現品質・文脈解釈は AI / human review** で扱う。Gate は AI を失敗させる仕組みではなく、**構造的にありえないものだけを検出する安全網**（ADR-SCP-014 + AAG-SCP-GUIDANCE-001〜004）。
+   - 思想 (= 不可変) → AI の判断を定性的に導く
+   - Contract (= 構造的前提) → AI と repo が共有する前提
+   - Guidance (= 文脈提供) → AI が良い判断をするための文脈・観点・参照先
+   - Gate (= 構造破綻検出) → 構造的に判定可能な違反のみを foul する安全網
+   - 合言葉: **`Plan → Context → Contract → Guidance → Gate`**（旧 `Plan → Contract → Rule → Gate` を更新）
 
 ## Phase 構造
 
@@ -197,20 +203,24 @@ disposition 4 分類:
 
 ### Phase 6: AI Instruction Pack（2〜3 PR）
 
-> **目的**: Document Kind ごとの AI 向け JSON 指示書を生成する。**post-write validation 限定**（不可侵原則 6）。
+> **目的**: Document Kind ごとの AI 向け JSON guidance を生成する。**post-write validation 限定**（不可侵原則 6）+ **guidance であって命令書ではない**（不可侵原則 11、AAG-SCP-GUIDANCE-003）。
+>
+> Instruction Pack は AI の出力を機械的に拘束しない。文書 kind ごとに **目的・読者・必須観点・禁止混入・粒度・参照先** を明示し、AI が文脈を取り違えずに能力を発揮するための補助である。
 
 成果物:
 
 - `docs/contracts/src/docs/ai-doc-template-rules.yaml`
 - `docs/contracts/generated/ai-doc-instructions.generated.json`
 - `aag docs instruction <doc-id>` command（reposteward `aag-engine` に additive 追加、または `tools/governance/` に landing）
-- `tools/governance/check-doc-postwrite.ts`（Markdown 作成後に Document Contract 適合性を機械検証）
+- `tools/governance/check-doc-postwrite.ts`（Markdown 作成後に Document Contract **構造的適合性**を機械検証）
 
-完了条件:
+完了条件（不可侵原則 11 整合）:
 
-- AI が doc kind に応じた Instruction Pack を JSON で取得できる
-- 新規 doc 作成は instruction pack から scaffold できる（推奨、強制ではない）
-- Markdown 作成後に Document Contract 適合性が post-write validation で検証される（pre-write 強制ではない）
+- AI が参照できる文脈パック（Instruction Pack JSON）が生成される
+- AI が文書の目的・読者・時間軸・粒度を理解できる
+- 作成後に **構造的欠落・混入** が検証できる（requiredSections 欠落 / forbiddenContent 混入 / kind / temporalScope mismatch）
+- pre-write 強制機構は実装しない（AI session の自由度を確保）
+- 「設計の良し悪し」「表現品質」「比喩の適切さ」は post-write validation の scope 外（AI / human review の責務）
 
 ### Phase 7: Required Docs Matrix（2 PR）
 
@@ -320,6 +330,26 @@ disposition 4 分類:
 - **新 doc を新規追加する** → 本 program は references/ への新 doc 追加を含まない（plan / decision-audit / ADR は decision-audit.md 内で articulate、別 doc 化しない）
 - **実装 AI による自己承認** → L3 + requiresHumanApproval=true、最終レビュー = user 承認 必須
 - **inquiry/ にすべての検証結果を集約する** → inquiry/ は **Phase 0 で確定すべき既存資産マッピング項目の skeleton** であり、Phase 1+ の検証結果は generated/ に置く
+- **設計判断・表現品質・文脈解釈を機械検証 scope に含める** → 不可侵原則 11 違反、AAG-SCP-GUIDANCE-002 違反。「設計の良し悪し」「比喩の適切さ」「判断の妥当性」「説明の十分さ」は AI / human review の責務であり、Gate / checker の責務ではない
+- **Instruction Pack を AI への命令書として扱う** → 不可侵原則 11 違反、AAG-SCP-GUIDANCE-003 違反。Instruction Pack は AI の出力を機械的に拘束しない。文書 kind ごとの「目的・読者・粒度・時間軸・観点」を articulate する guidance（補助）であり、template 機械適用ではない
+- **Gate を AI 失敗装置として設計する** → 不可侵原則 11 違反、AAG-SCP-GUIDANCE-004 違反。Gate は構造破綻を防ぎ、判断すべき対象を明確化するもの。AI の創造的判断や設計判断を代替しない
+
+### 機械検証する（Gate scope）vs 定性的に AI を導く（Guidance scope）
+
+不可侵原則 11 / ADR-SCP-014 に従う分離:
+
+| 機械検証する（Gate scope） | 定性的に AI を導く（Guidance scope） |
+|---|---|
+| 未登録 Markdown | この文書は何のためにあるか |
+| requiredSections 欠落 | 読者は誰か |
+| generated artifact の producer 不明 | どの粒度で説明すべきか |
+| generated file の手編集 | 何を判断材料として扱うか |
+| doc kind / topology mismatch | 過去・現在・未来をどう分けるか |
+| 製本に TODO / Roadmap section | どのような設計思想を優先するか |
+| 例外に owner / reason / reviewAfter なし | どの文脈を参照すべきか |
+| YAML 変更後の generated JSON 未更新 | 比喩 / 表現の適切さ |
+
+左側だけが foul 可能な構造ルール。右側は AI / human review の責務であり、AAG が無理に数値化しない。
 
 ## 関連実装
 

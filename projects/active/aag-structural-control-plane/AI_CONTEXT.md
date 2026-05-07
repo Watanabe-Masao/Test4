@@ -21,18 +21,32 @@ AAG Structural Control Plane — repo tree / document contract / temporal scope 
 ## Purpose
 
 AAG を **guard collection** から **repository structural control plane** に進化させる。
+
+ただし、本 program の目的は **AI を細かく縛ることではない**。AI が **迷わず、余計な推測を減らし、より高い判断能力を発揮する** ための **構造的補助**を提供することが目的である（不可侵原則 11 / ADR-SCP-014「Guidance over restriction」）。
+
 具体的には以下を AAG 統制下に置く:
 
 1. **repo tree の意味** — 親ディレクトリ境界 + 子ディレクトリ集合体の Tree Contract
 2. **ドキュメントの型・粒度・記載範囲** — Document Kind Registry + Document Contract
 3. **時間軸分離** — 製本 = 現在 / archive = 過去 / project = 未来 / generated report = 計算済み現在
-4. **AI ドキュメント執筆** — Document Kind ごとの AI Instruction Pack（post-write validation）
+4. **AI ドキュメント執筆の guidance** — Document Kind ごとの Instruction Pack（**命令書ではなく文脈パック**、post-write validation 限定）
 5. **未管理 artifact の禁止** — Artifact Coverage Gate
 6. **例外の所有者・理由・期限** — Exception Policy
 
-合言葉は **Plan → Contract → Rule → Gate**。計画・意図・判断を YAML 宣言 → 正規化 JSON → Detector → pre-push / CI gate に変換する。
+合言葉は **`Plan → Context → Contract → Guidance → Gate`**。
 
-`reposteward-ai-ops-platform`（active、Wave 1〜5、Task Capsule + AAG Parameters + SourceFacts + DetectorResult を確立中）の **substrate を入力として消費する別動線**。reposteward が「AI navigation surface」を提供するのに対し、本 program は「repo structure / document / temporal の構造統制」を提供する。両者は scope と読者が異なるため独立 project として articulate する。
+- **Plan** = 計画・意図
+- **Context** = AI が読む文脈（manifest / inquiry / Reading Pass）
+- **Contract** = AI と repo が共有する構造的前提（Tree / Document / Temporal）
+- **Guidance** = AI が良い判断をするための定性的補助（Instruction Pack）
+- **Gate** = 構造的にありえないものだけを検出する安全網
+
+定性と定量の分離（不可侵原則 11 / AAG-SCP-GUIDANCE-002）:
+
+- **機械検証する（Gate scope）**: 未登録 Markdown / requiredSections 欠落 / generated artifact 手編集 / doc kind mismatch / 製本に TODO 等の **構造的に判定可能なもの** のみ
+- **定性的に AI を導く（Guidance scope）**: 文書の目的 / 読者 / 粒度 / 時間軸 / 設計思想 / 比喩の適切さ / 判断の妥当性 等は **AI / human review の責務**
+
+`reposteward-ai-ops-platform`（active、Wave 1〜5、Task Capsule + AAG Parameters + SourceFacts + DetectorResult を確立中）の **substrate を入力として消費する別動線**。reposteward が「AI navigation surface」を提供するのに対し、本 program は「repo structure / document / temporal の構造補助」を提供する。両者は scope と読者が異なるため独立 project として articulate する。
 
 ## Read Order
 
