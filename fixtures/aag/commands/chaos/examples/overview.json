@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "aag-chaos-overview-v1",
+  "totalCommands": 26,
+  "commandsWithFailureModes": 9,
+  "totalFailureModes": 16,
+  "withCountermeasureCount": 13,
+  "untestedCount": 3,
+  "byCommand": [
+    {
+      "command": "describe",
+      "totalFailureModes": 2,
+      "withCountermeasure": 2
+    },
+    {
+      "command": "introspect command",
+      "totalFailureModes": 1,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "introspect schema",
+      "totalFailureModes": 1,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "self-check",
+      "totalFailureModes": 2,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "task prepare",
+      "totalFailureModes": 2,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "task validate",
+      "totalFailureModes": 2,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "validate",
+      "totalFailureModes": 1,
+      "withCountermeasure": 1
+    },
+    {
+      "command": "where-am-i",
+      "totalFailureModes": 2,
+      "withCountermeasure": 2
+    },
+    {
+      "command": "wrap",
+      "totalFailureModes": 3,
+      "withCountermeasure": 3
+    }
+  ],
+  "provenance": {
+    "computedAt": "2026-05-07T10:20:17Z",
+    "sourceCommit": "c8e482128ea8cebe66b2d744c6da85e6fb2c60c7",
+    "confidence": "canonical",
+    "computedFrom": "projection of describe.commandTable.KnownFailureModes"
+  }
+}

@@ -203,6 +203,12 @@ var implTable = map[string]ImplementationPointer{
 		HandlerFunc:    "runSelfCheck",
 		Package:        ptr("aag-engine/internal/selfcheck"),
 	},
+	"chaos": {
+		DispatcherFile: "aag-engine/cmd/aag/main.go",
+		HandlerFile:    "aag-engine/cmd/aag/command_chaos.go",
+		HandlerFunc:    "runChaos",
+		Package:        ptr("aag-engine/internal/chaos"),
+	},
 }
 
 // schemaTable は command → output schema path の mapping。
@@ -221,6 +227,7 @@ var schemaTable = map[string]*string{
 	"introspect command":   ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"introspect schema":    ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"self-check":           ptr("docs/contracts/aag/commands/self-check-output.schema.json"),
+	"chaos":                ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
 	"fixtures":             ptr("docs/contracts/aag/commands/fixtures-output.schema.json"),
 	"where-am-i":           ptr("docs/contracts/aag/commands/where-am-i-output.schema.json"),
 	"context":              ptr("docs/contracts/aag/commands/context-output.schema.json"),
@@ -263,6 +270,7 @@ var testTable = map[string][]string{
 	"introspect command":   {"aag-engine/internal/introspect/introspect_test.go"},
 	"introspect schema":    {"aag-engine/internal/introspect/schema_test.go"},
 	"self-check":           {"aag-engine/internal/selfcheck/selfcheck_test.go"},
+	"chaos":                {"aag-engine/internal/chaos/chaos_test.go"},
 }
 
 // exampleTable は command → example fixtures directory path の mapping。
@@ -294,6 +302,7 @@ var exampleTable = map[string]*string{
 	"introspect schema":    ptr("fixtures/aag/commands/introspect-schema/examples/"),
 	"rule locate":          ptr("fixtures/aag/commands/rule-locate/examples/"),
 	"detector refs":        ptr("fixtures/aag/commands/detector-refs/examples/"),
+	"chaos":                ptr("fixtures/aag/commands/chaos/examples/"),
 	// 以下は example 未 articulate (= demand-driven 起動候補、input 依存度高)
 	"context":         nil,
 	"changed":         nil,

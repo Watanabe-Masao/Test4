@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-chaos-v1.json",
+  "title": "AAG Chaos Output v1",
+  "description": "aag chaos の output envelope (= overview + per-command の 2 mode)。AI session が command 実行前に既知 failure boundary を articulate なしに understand し、想定外 failure を新 entry として articulate する材料 (= adversarial substrate)。",
+  "$comment": "v4.2 chaos (= reposteward-substrate-v4-2-chaos) で institute。describe.commandTable.KnownFailureModes の adversarial 視点 projection。execution version (= aag chaos run <command>) は future PR で articulate 候補。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion", "provenance"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["aag-chaos-overview-v1", "aag-chaos-command-v1"],
+      "description": "overview = 全 command coverage / command = per-command failure modes"
+    },
+    "totalCommands": { "type": "integer", "minimum": 0, "description": "overview only" },
+    "commandsWithFailureModes": { "type": "integer", "minimum": 0, "description": "overview only" },
+    "totalFailureModes": { "type": "integer", "minimum": 0 },
+    "withCountermeasureCount": { "type": "integer", "minimum": 0 },
+    "untestedCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "countermeasureTest 不在 entries 数 (= surface された untested boundary)"
+    },
+    "byCommand": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["command", "totalFailureModes", "withCountermeasure"],
+        "properties": {
+          "command": { "type": "string" },
+          "totalFailureModes": { "type": "integer", "minimum": 0 },
+          "withCountermeasure": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "description": "overview only: command name 順で sort された summary array"
+    },
+    "command": {
+      "type": "string",
+      "description": "per-command only: 対象 command name"
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["trigger", "behavior", "hasCountermeasure"],
+        "properties": {
+          "trigger": { "type": "string" },
+          "behavior": { "type": "string" },
+          "countermeasureTest": { "type": "string" },
+          "hasCountermeasure": { "type": "boolean" }
+        }
+      },
+      "description": "per-command only: 該当 command の failure modes を adversarial 視点で articulate"
+    },
+    "summary": { "type": "string", "description": "per-command only: human-readable summary" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "出典 metadata (= confidence: canonical、describe.commandTable projection)"
+    }
+  }
+}

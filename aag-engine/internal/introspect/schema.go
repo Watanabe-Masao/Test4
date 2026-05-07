@@ -194,6 +194,18 @@ var schemaInfoTable = map[string]SchemaInfo{
 		Path:    ptr("docs/contracts/aag/commands/project-stale-output.schema.json"),
 		Purpose: "aag project stale の output (= active project の最終 commit から stale 判定)",
 	},
+	"aag-chaos-overview-v1": {
+		ID:      "aag-chaos-overview-v1",
+		Title:   "Chaos Overview Output",
+		Path:    ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
+		Purpose: "aag chaos (no args) の output (= 全 command の adversarial coverage articulate)",
+	},
+	"aag-chaos-command-v1": {
+		ID:      "aag-chaos-command-v1",
+		Title:   "Chaos Per-Command Output",
+		Path:    ptr("docs/contracts/aag/commands/chaos-output.schema.json"),
+		Purpose: "aag chaos <command> の output (= per-command failure modes adversarial 視点)",
+	},
 }
 
 // schemaProducersTable は schema id → 該当 schema を produce する command 一覧。
@@ -221,6 +233,8 @@ var schemaProducersTable = map[string][]string{
 	"obligation-check-v1":            {"obligation check"},
 	"repair-context-v1":              {"repair-context"},
 	"project-stale-v1":               {"project stale"},
+	"aag-chaos-overview-v1":          {"chaos"},
+	"aag-chaos-command-v1":           {"chaos"},
 }
 
 // schemaConsumersTable は schema id → 該当 schema を consume する command 一覧。

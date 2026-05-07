@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "aag-chaos-command-v1",
+  "command": "wrap",
+  "totalFailureModes": 3,
+  "withCountermeasureCount": 3,
+  "untestedCount": 0,
+  "scenarios": [
+    {
+      "trigger": "--command flag 不在",
+      "behavior": "ExitError + stderr で '--command flag は required' articulate",
+      "countermeasureTest": "TestWrap_RejectsEmptyCommand (= internal/responsewrap)",
+      "hasCountermeasure": true
+    },
+    {
+      "trigger": "stdin が空",
+      "behavior": "ExitError + stderr で 'stdin was empty' articulate",
+      "countermeasureTest": "TestWrap_RejectsEmptyStdin (= internal/responsewrap)",
+      "hasCountermeasure": true
+    },
+    {
+      "trigger": "stdin が invalid JSON",
+      "behavior": "ExitError + stderr で 'stdin is not valid JSON' articulate (= envelope に invalid data を wrap しない)",
+      "countermeasureTest": "TestWrap_RejectsInvalidJSON (= internal/responsewrap)",
+      "hasCountermeasure": true
+    }
+  ],
+  "summary": "3 failure modes articulated, 3 with countermeasure test, 0 untested",
+  "provenance": {
+    "computedAt": "2026-05-07T10:20:17Z",
+    "sourceCommit": "c8e482128ea8cebe66b2d744c6da85e6fb2c60c7",
+    "confidence": "canonical",
+    "computedFrom": "projection of describe.commandTable.KnownFailureModes for wrap"
+  }
+}
