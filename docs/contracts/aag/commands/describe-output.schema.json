@@ -10,8 +10,8 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "enum": ["aag-describe-v1", "aag-list-v1", "aag-introspect-command-v1"],
-      "description": "schemaVersion. describe = single command、list = full table、introspect-command = implementation pointer 付き。"
+      "enum": ["aag-describe-v1", "aag-list-v1", "aag-introspect-command-v1", "aag-introspect-schema-v1"],
+      "description": "schemaVersion. describe = single command、list = full table、introspect-command = command implementation pointer、introspect-schema = schema producers / consumers articulate (= v4.2 introspect-provenance)。"
     },
     "command": {
       "$ref": "#/definitions/CommandMetadata",

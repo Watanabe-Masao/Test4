@@ -21,11 +21,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"os/exec"
-	"strings"
-	"time"
 
 	"aag-engine/internal/describe"
+	"aag-engine/internal/provenance"
 )
 
 // IntrospectSchemaVersion is the schemaVersion for `aag introspect command` output.
@@ -33,13 +31,13 @@ const IntrospectSchemaVersion = "aag-introspect-command-v1"
 
 // IntrospectOutput is the envelope for `aag introspect command <name>`。
 type IntrospectOutput struct {
-	SchemaVersion  string                    `json:"schemaVersion"`
-	Command        describe.CommandMetadata  `json:"command"`
-	Implementation ImplementationPointer     `json:"implementation"`
-	Schema         *string                   `json:"schema"`
-	Tests          []string                  `json:"tests"`
-	Examples       *string                   `json:"examples"`
-	Provenance     Provenance                `json:"provenance"`
+	SchemaVersion  string                   `json:"schemaVersion"`
+	Command        describe.CommandMetadata `json:"command"`
+	Implementation ImplementationPointer    `json:"implementation"`
+	Schema         *string                  `json:"schema"`
+	Tests          []string                 `json:"tests"`
+	Examples       *string                  `json:"examples"`
+	Provenance     provenance.Provenance    `json:"provenance"`
 }
 
 // ImplementationPointer は command の Go 実装位置を articulate する。
@@ -48,14 +46,6 @@ type ImplementationPointer struct {
 	HandlerFile    string  `json:"handlerFile"`
 	HandlerFunc    string  `json:"handlerFunc"`
 	Package        *string `json:"package"`
-}
-
-// Provenance は出典 metadata (= AI が trust を articulate するための substrate)。
-type Provenance struct {
-	ComputedAt   string `json:"computedAt"`
-	SourceCommit string `json:"sourceCommit,omitempty"`
-	Confidence   string `json:"confidence"`
-	ComputedFrom string `json:"computedFrom"`
 }
 
 // implTable は 22 command の implementation pointer の embedded source-of-truth。
@@ -198,7 +188,13 @@ var implTable = map[string]ImplementationPointer{
 	"introspect command": {
 		DispatcherFile: "aag-engine/cmd/aag/main.go",
 		HandlerFile:    "aag-engine/cmd/aag/command_introspect.go",
-		HandlerFunc:    "runIntrospect",
+		HandlerFunc:    "runIntrospectCommand",
+		Package:        ptr("aag-engine/internal/introspect"),
+	},
+	"introspect schema": {
+		DispatcherFile: "aag-engine/cmd/aag/main.go",
+		HandlerFile:    "aag-engine/cmd/aag/command_introspect.go",
+		HandlerFunc:    "runIntrospectSchema",
 		Package:        ptr("aag-engine/internal/introspect"),
 	},
 }
@@ -217,6 +213,7 @@ var schemaTable = map[string]*string{
 	"describe":             ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"list":                 ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	"introspect command":   ptr("docs/contracts/aag/commands/describe-output.schema.json"),
+	"introspect schema":    ptr("docs/contracts/aag/commands/describe-output.schema.json"),
 	// 以下は schema 未 articulate (= v4.2 subsequent PR で stable subset 化候補)
 	"fixtures":             nil,
 	"where-am-i":           nil,
@@ -257,6 +254,7 @@ var testTable = map[string][]string{
 	"describe":             {"aag-engine/internal/describe/describe_test.go"},
 	"list":                 {"aag-engine/internal/describe/describe_test.go"},
 	"introspect command":   {"aag-engine/internal/introspect/introspect_test.go"},
+	"introspect schema":    {"aag-engine/internal/introspect/schema_test.go"},
 }
 
 // Introspect は command 名から implementation pointer 等を articulate する。
@@ -286,28 +284,17 @@ func Introspect(command string) (IntrospectOutput, error) {
 		Schema:         schemaTable[command],
 		Tests:          testTable[command],
 		Examples:       nil, // v4.2 subsequent PR で fixtures/aag/commands/<cmd>/examples/ articulate 候補
-		Provenance: Provenance{
-			ComputedAt:   time.Now().UTC().Format(time.RFC3339),
-			SourceCommit: detectSourceCommit(),
-			Confidence:   "canonical",
-			ComputedFrom: "embedded implTable + schemaTable + testTable + describe.commandTable",
-		},
+		Provenance: provenance.Compute(
+			provenance.Canonical,
+			"embedded implTable + schemaTable + testTable + describe.commandTable",
+		),
 	}, nil
 }
 
-// detectSourceCommit は git rev-parse HEAD で current commit を articulate する。
-// git 環境外 / 失敗時は空文字列 (= JSON omitempty で省略)。
-func detectSourceCommit() string {
-	cmd := exec.Command("git", "rev-parse", "HEAD")
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
-}
-
 // MarshalJSON returns indented JSON without HTML escaping。
-func MarshalJSON(out IntrospectOutput) ([]byte, error) {
+//
+// Accepts any introspect output type (= IntrospectOutput / SchemaIntrospectOutput)。
+func MarshalJSON(out any) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)

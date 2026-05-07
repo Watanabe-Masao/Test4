@@ -41,6 +41,8 @@ COMMANDS:
   list             全 command 一覧 + maturity を JSON で articulate (= improvement E)
   introspect command  command の implementation pointer (= dispatcher / handler / package / schema / tests) を JSON で articulate (= v4.2 seed)
                    note: 'aag introspect command <name>' のように subcommand + command 名を articulate
+  introspect schema   schema id の path + virtual flag + producers + consumers を JSON で articulate (= v4.2 introspect-provenance)
+                   note: 'aag introspect schema <schema-id>' (= 例: detector-result-v1 / aag-pipeline-envelope-v1)
 
 FLAGS (validate / fixtures / shadow):
   --repo PATH       検証対象 repo root の path (= default: 現在 directory)
