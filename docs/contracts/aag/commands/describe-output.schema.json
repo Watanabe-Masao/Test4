@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-describe-v1.json",
+  "title": "AAG Describe Output v1",
+  "description": "aag describe / aag list / aag introspect command の出力 envelope。command metadata の articulate と AI session の self-discovery を articulate する substrate seed schema。",
+  "$comment": "v4.2 seed (= reposteward-substrate-v4-2-seed) で institute (DA-γ-002 / DA-γ-003)。新 schema は additionalProperties: true (= AI 拡張可能) で articulate。既存 8 schema (= aag-response / detector-result / task-capsule / etc.) は strict mode 維持で不変 (= 既存 sync guard との互換性確保)。canonical Go implementation: aag-engine/internal/describe/describe.go + aag-engine/internal/introspect/introspect.go。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["aag-describe-v1", "aag-list-v1", "aag-introspect-command-v1"],
+      "description": "schemaVersion. describe = single command、list = full table、introspect-command = implementation pointer 付き。"
+    },
+    "command": {
+      "$ref": "#/definitions/CommandMetadata",
+      "description": "describe / introspect-command で articulate される 1 command の metadata。"
+    },
+    "commands": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/CommandMetadata" },
+      "description": "list で articulate される全 command metadata。"
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "list で articulate される command 件数。"
+    },
+    "implementation": {
+      "$ref": "#/definitions/ImplementationPointer",
+      "description": "introspect-command で articulate される Go 実装 pointer。"
+    },
+    "schema": {
+      "type": ["string", "null"],
+      "description": "introspect-command で articulate される output schema path (= docs/contracts/aag/...)。schema 不在は null。"
+    },
+    "tests": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "introspect-command で articulate される test file path 一覧。"
+    },
+    "examples": {
+      "type": ["string", "null"],
+      "description": "introspect-command で articulate される example fixture directory path。例不在は null。"
+    },
+    "provenance": {
+      "$ref": "#/definitions/Provenance",
+      "description": "出典 metadata (= computedAt / sourceCommit / confidence)。AI が trust を判断する材料を articulate。"
+    }
+  },
+  "definitions": {
+    "CommandMetadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["name", "family", "maturity", "summary"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "command 名。multi-word command (= 'task prepare' 等) は space 区切りで articulate。"
+        },
+        "family": {
+          "type": "string",
+          "description": "command family (= go-mvp / task-capsule / stats / navigation / cleanliness / obligation / repair / project-status / envelope / self-describe)。"
+        },
+        "maturity": {
+          "type": "string",
+          "enum": ["stable", "provisional"],
+          "description": "command の成熟度。stable = shape 安定 / provisional = shape 動く可能性あり。"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "1 行 summary (= 既存 usage.go と整合)。"
+        },
+        "args": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "受け付ける flag / positional argument 一覧。"
+        },
+        "outputKind": {
+          "type": "string",
+          "description": "output の種別 (= detector-result-array / task-capsule / stats-files / 等)。"
+        },
+        "outputShape": {
+          "type": "string",
+          "description": "output の shape を articulate (= 1 行で簡潔に articulate、詳細は schema 参照)。"
+        },
+        "waveStep": {
+          "type": "string",
+          "description": "landing wave step (= 'Wave 1 #2' / 'improvement A' / 'v4.2 seed' 等)。"
+        },
+        "whyExists": {
+          "type": "string",
+          "description": "v4.2 seed: 本 command が articulate される factual reason (= marketing speak / opinion を articulate しない)。"
+        },
+        "enables": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "v4.2 seed: 本 command が unlock する factual capabilities (= 例: 'stdin pipeline composition' / 'JSON parse without uncertainty')。"
+        },
+        "relatedCommands": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "v4.2 seed: 本 command と compose-friendly な command 一覧 (= factual composition hint)。"
+        }
+      }
+    },
+    "ImplementationPointer": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["dispatcherFile", "handlerFile"],
+      "properties": {
+        "dispatcherFile": {
+          "type": "string",
+          "description": "main.go dispatcher path (= aag-engine/cmd/aag/main.go)。"
+        },
+        "handlerFile": {
+          "type": "string",
+          "description": "command handler の articulate file (= aag-engine/cmd/aag/command_*.go)。"
+        },
+        "handlerFunc": {
+          "type": "string",
+          "description": "command handler 関数名 (= runValidate / runTask / 等)。"
+        },
+        "package": {
+          "type": ["string", "null"],
+          "description": "command logic の articulate package path (= aag-engine/internal/...)。CLI handler 内に articulate されている場合は null。"
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "出典 metadata。AI が「いつの状態か / 何から計算されたか / どこまで信用できるか」を articulate なしに判断するための substrate。",
+      "properties": {
+        "computedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "本 output が articulate された時刻 (= RFC3339)。"
+        },
+        "sourceCommit": {
+          "type": ["string", "null"],
+          "description": "git commit hash (= 計算 source の commit)。git 環境外は null。"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["canonical", "observed", "inferred", "heuristic"],
+          "description": "本 output の confidence。canonical = schema-backed、observed = 計測値、inferred = 計算/heuristic、heuristic = weak signal。"
+        },
+        "computedFrom": {
+          "type": "string",
+          "description": "計算 source の articulate (= 'commandTable embedded source-of-truth' / 'git rev-parse HEAD' / 等)。"
+        }
+      }
+    }
+  }
+}

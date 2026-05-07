@@ -32,7 +32,7 @@ app/src/
 - time-slot
 - weather
 
-> 13 モジュール — 生成: 2026-05-06T15:18:34.279Z
+> 13 モジュール — 生成: 2026-05-07T03:28:41.474Z
 <!-- GENERATED:END features-list -->
 
 ### test/ 構成
@@ -168,6 +168,7 @@ test/
 - `readModelSafetyGuard.test.ts`
 - `registryInlineLogicGuard.test.ts`
 - `renderSideEffectGuard.test.ts`
+- `repostewardCommandRegistryGuard.test.ts`
 - `repostewardPrincipleGuard.test.ts`
 - `responsibilitySeparationGuard.test.ts`
 - `responsibilityTagGuardV2.test.ts`
@@ -202,7 +203,7 @@ test/
 - `wasmCrateStructureGuard.test.ts`
 - `weatherCorrelationProjectionGuard.test.ts`
 
-> 138 ファイル — 生成: 2026-05-06T15:18:34.279Z
+> 139 ファイル — 生成: 2026-05-07T03:28:41.474Z
 <!-- GENERATED:END guard-files-list -->
 
 ## レイヤー間の依存ルール

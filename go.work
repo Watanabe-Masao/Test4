@@ -1,0 +1,19 @@
+// repo root go.work — Go workspace articulate (= v4.2 seed、DA-γ-002)
+//
+// 目的:
+//   - CodeRabbit / generic golangci-lint / gopls 等の generic Go tool が
+//     repo root から走った時に Go module を articulate できるようにする
+//   - 既存 aag-engine/ の standalone go.mod は不変 (= aag-engine 単独でも build / test 可能)
+//   - 将来 Go module を additive に articulate する余地を articulate
+//
+// 不可侵原則整合:
+//   6 (= additive-only) — go.work は新 articulate、既存 module は不変
+//
+// CI 整合:
+//   - .github/workflows/aag-engine.yml は working-directory: aag-engine を articulate
+//     しているため、本 go.work の articulate に影響されない (= 同 module の参照)
+//   - generic CI / external tool (= CodeRabbit) は本 go.work 経由で aag-engine module
+//     を resolve できる
+go 1.24
+
+use ./aag-engine

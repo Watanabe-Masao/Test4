@@ -60,10 +60,10 @@
       "purpose": "task prepare / validate / close の input + output canonical shape"
     },
     {
-      "id": "aag-response-v2",
+      "id": "aag-pipeline-envelope-v1",
       "kind": "schema-virtual",
       "path": "aag-engine/internal/responsewrap/wrap.go",
-      "title": "AagResponse-v2 envelope (= aag wrap output)",
+      "title": "Pipeline envelope (= aag wrap output、aag-pipeline-envelope-v1)",
       "purpose": "improvement A — stdin JSON を wrap して articulate する additive envelope (= 既存 aag-response-v1 の系譜)"
     },
     {
@@ -187,7 +187,7 @@
       "id": "cmd:wrap",
       "kind": "command",
       "path": "aag-engine/cmd/aag/command_wrap.go",
-      "produces": ["aag-response-v2"]
+      "produces": ["aag-pipeline-envelope-v1"]
     },
     {
       "id": "cmd:describe",
@@ -215,7 +215,7 @@
     { "from": "cmd:obligation-check", "to": "premise-contracts-v1", "kind": "consumes" },
     { "from": "cmd:repair-context", "to": "detector-result-v1", "kind": "consumes" },
     { "from": "cmd:repair-context", "to": "task-capsule-v1", "kind": "consumes" },
-    { "from": "cmd:wrap", "to": "aag-response-v2", "kind": "produces" },
+    { "from": "cmd:wrap", "to": "aag-pipeline-envelope-v1", "kind": "produces" },
     { "from": "cmd:describe", "to": "aag-describe-v1", "kind": "produces" },
     { "from": "cmd:list", "to": "aag-describe-v1", "kind": "produces" }
   ],

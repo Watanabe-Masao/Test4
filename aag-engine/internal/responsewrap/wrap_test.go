@@ -1,4 +1,7 @@
 // wrap_test.go — improvement A (= reposteward-ai-ops-platform、aag wrap)
+//
+// schemaVersion = "aag-pipeline-envelope-v1" (= v4.2 seed で rename、DA-γ-001、
+// 旧 "aag-response-v2" との name conflict を解消)。
 package responsewrap
 
 import (

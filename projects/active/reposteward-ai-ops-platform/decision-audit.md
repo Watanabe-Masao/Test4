@@ -1921,3 +1921,181 @@ Wave 1 #5 (= Effective LOC Statistics) で `references/04-tracking/generated/aag
 ### 振り返り判定
 
 - **判定**: `未確定`
+
+---
+
+## DA-γ-001: `aag-response-v2` schema rename → `aag-pipeline-envelope-v1`
+
+### status
+
+- 着手判断: **active** (= 本 PR (= reposteward-substrate-v4-2-seed) で articulate)
+- 振り返り判定: **未確定**
+
+### context
+
+improvement A (= `aag wrap`) で institute した `aag-response-v2` schemaVersion は、既存 TS 側 `aag-response-v1` schema (= `docs/contracts/aag/aag-response.schema.json`、guard / obligations / health / pre-commit の統一 response 契約) と **同名前空間 + 似た title (= AagResponse) で別 schema** という name conflict を articulate していた。
+
+実害 articulate:
+- AI consumer が `aag-response-v2` を v1 の successor と articulate する誤認 path
+- TS 側 `aagContractSchemaSyncGuard` が将来 v2 を v1 の更新と interpret する可能性
+- documentation で混在すると認知 cost が articulate される
+
+### decision
+
+`aag-response-v2` を **`aag-pipeline-envelope-v1`** に rename:
+
+- schemaVersion 文字列: `"aag-response-v2"` → `"aag-pipeline-envelope-v1"`
+- Go const 名 (= `WrapSchemaVersion`) 不変、値のみ変更
+- Go struct 名 (= `WrappedResponse`) 不変 (= internal 命名は意味同一)
+- 関連 articulate を全 update
+
+### rationale
+
+- **rename 早期実施**: name conflict は時間と共に harm が articulate される、早期解消が最低 cost
+- **`aag-pipeline-envelope-v1` 命名**: stdin pipe 文脈を articulate (= 旧 `aag-response-v2` は「v1 の successor」誤認を articulate した)
+- **既存 TS 側 schema は不変**: `aag-response-v1` (= TS 側 statutes response) は既存 consumer が articulate、touch しない (= 不可侵原則 6 整合)
+
+### alternatives
+
+- (a) `aag-wrap-output-v1`: 却下 (= command 名を schemaVersion に articulate するのは将来 wrap 用法が広がった時に articulate しにくい)
+- (b) `aag-stdin-envelope-v1`: 却下 (= 「stdin 経由」は実装手段で、schema の意図 (= pipeline composition) を articulate しない)
+- (c) rename しない (= disclaimer で articulate): 却下 (= name conflict の継続 harm articulate)
+
+### 観測点
+
+1. `aag-engine/internal/responsewrap/wrap.go` の `WrapSchemaVersion` 定数値が `"aag-pipeline-envelope-v1"` を articulate
+2. 関連 file (= `wrap_test.go` / `command_wrap.go` / `usage.go` / `describe.go` / `schema-graph.json` / `aag-articulation-map.md`) で旧 v2 articulate 不在
+3. 既存 `docs/contracts/aag/aag-response.schema.json` (= TS 側 v1) は不変
+
+### Lineage
+
+- **preJudgementCommit**: `5236fa4`
+- **judgementCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+
+---
+
+## DA-γ-002: 既存 schema 不変原則 + 新 schema は `additionalProperties: true`
+
+### status
+
+- 着手判断: **active** (= 本 PR で articulate)
+- 振り返り判定: **未確定**
+
+### context
+
+v4.1 計画段階で「全 schema を `additionalProperties: true` に articulate」を提案したが、調査で以下が articulate された:
+
+- 既存 8 schemas (= aag-response / detector-result / task-capsule / aag-parameters / aag-size-statistics / detection-inventory / source-facts / premise-contract) は全て `additionalProperties: false` で **strict mode** articulate
+- `aagContractSchemaSyncGuard` 等が strict mode を機械検証
+- 既存 consumer が strict 前提で実装、緩和は forward compat と既存 sync guard を破壊する実害 risk
+
+### decision
+
+**既存 schema は不変、新 schema のみ `additionalProperties: true`** で articulate:
+
+- 既存 8 schemas: 不変 (= touch しない、sync guard の互換維持)
+- 新 schema (= `docs/contracts/aag/commands/describe-output.schema.json`、= 本 PR で institute): `additionalProperties: true` で articulate (= AI が additive 拡張可能な新世代 schema を articulate)
+- 後続 PR で新 schema を追加する際も同 convention で articulate
+
+### rationale
+
+- **既存 consumer 保護**: strict mode 前提の consumer が articulate されている、緩和は forward compat と既存 sync guard を破壊
+- **新 schema の AI 拡張余地**: AI session が将来 additive field を articulate する余地を、新 schema 限定で institute (= 不可侵原則 6 = additive-only と整合)
+- **schema 命名空間の articulate**: 既存 `docs/contracts/aag/*.schema.json` は strict、`docs/contracts/aag/commands/*.schema.json` は flexible、と物理 dir で articulate (= AI が即値で convention articulate 可能)
+
+### alternatives
+
+- (a) 全 schema を `additionalProperties: true` に articulate: 却下 (= 既存 sync guard / consumer 破壊)
+- (b) 全 schema を strict のまま維持: 却下 (= AI 能力増幅 substrate に articulate される flexibility が articulate されない)
+- (c) 新 schema も strict articulate: 検討、ただし AI session が将来 additive 拡張する余地を articulate するため flexible が articulate
+
+### 観測点
+
+1. `docs/contracts/aag/*.schema.json` (= 既存 8) の `additionalProperties: false` が不変
+2. `docs/contracts/aag/commands/describe-output.schema.json` (= 新) の `additionalProperties: true` が articulate
+3. `aagContractSchemaSyncGuard` PASS 維持
+
+### Lineage
+
+- **preJudgementCommit**: `5236fa4`
+- **judgementCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
+
+---
+
+## DA-γ-003: PR scope decisions (= v4.2 substrate seed の defer / drop articulate)
+
+### status
+
+- 着手判断: **active** (= 本 PR で articulate)
+- 振り返り判定: **未確定**
+
+### context
+
+v4.2 substrate plan (= AI Agent OS 構想) は L0〜L4 architectural model + quality 4 軸 (provenance / coverage / index / adversarial) + 多数の追加 command / schema / channel を articulate していた。本 PR で全 articulate するのは scope 過大、また item ごとに **実害 risk vs benefit** を articulate し、defer / drop 判断を articulate する必要があった。
+
+### decision
+
+本 PR (= reposteward-substrate-v4-2-seed) で landing する scope を以下に articulate:
+
+**Landing (= 本 PR で articulate)**:
+
+1. `aag-response-v2` rename (= DA-γ-001、critical fix)
+2. `go.work` repo root articulate (= CodeRabbit / generic Go tool resolve)
+3. describe.go: `whyExists` / `enables` / `relatedCommands` の 3 field 追加 + 22 command articulate (= factual のみ)
+4. `docs/contracts/aag/commands/describe-output.schema.json` 新 schema (= additionalProperties: true + provenance、DA-γ-002)
+5. `aag-engine/internal/introspect/` package + `aag introspect command <name>` (= AI grep 省略 substrate)
+6. `app/src/test/guards/repostewardCommandRegistryGuard.test.ts` (= dispatcher / usage / describe drift 検出)
+
+**Defer (= 後続 PR、demand articulate されたら起動)**:
+
+- Failure Mode Register permanent ID (= 軽量 doc articulate のみで足りる場合は不要)
+- `aag chaos` command (= adversarial 検証、Failure Mode register 後に判断)
+- `aag bootstrap` (= AI compose pattern 観察後)
+- `aag self-check` (= Registry Sync Guard で大半 cover、必要 surface 後)
+- Index layer L1.5 (= schema-graph.json walk で latency issue articulate されてから)
+- Property invariants framework (= per command で必要 articulate されてから)
+- Task Capsule v3 (= v1 superset、`openQuestions` 等の単一 field 追加候補)
+- Coverage block on existing collectors (= 新 output のみ先行)
+
+**Drop (= 現時点 articulate しない)**:
+
+- Extension channel (= `aag detector propose` / `aag schema propose`) — governance review 不在で articulate harm risk
+- Bidirectional articulate (= `aag pattern record` / `aag question raise`) — capsule.openQuestions で articulate 可能、新 mechanism 不要
+- L0〜L4 formal layer marker — mental model のみで足りる、code に articulate しない
+- Score / N / A / O articulation (= principle radar) — score 自体が gravitational pull で AI 拘束、fact articulation で代替
+
+### rationale
+
+- **実害 risk vs benefit で articulate**: 計画の大きさで判断していない (= name conflict は size 小だが harm 大、index layer は中規模だが drift risk articulate されている)
+- **Defer は demand-driven**: 時間軸で起動しない、actual demand articulate されてから起動 (= over-engineering 抑止)
+- **Drop は philosophy 整合不足**: extension channel / score articulation は AI 自律性に articulate される harm を articulate するため drop
+- **AAG mental model は articulate しない**: L0〜L4 layer は思考道具、code に articulate すると formal overhead
+
+### alternatives
+
+- (a) v4.2 全項目を 1 PR で articulate: 却下 (= review 不能、landing risk articulate)
+- (b) item ごとに別 PR で articulate: 検討、ただし critical fix (= rename / go.work) と clear-benefit seed (= sync guard / introspect / describe field) は同 PR で articulate (= name conflict harm 早期解消)
+- (c) 全 defer / drop なしで全項目 keep: 却下 (= AI 拘束 articulate、philosophy 違反)
+
+### 観測点
+
+1. 本 PR で landing する 6 item が articulate される (= file count 観測)
+2. defer item は後続 PR の trigger 観察 (= demand articulate されているか)
+3. drop item は本 PR / 後続 PR で articulate されない (= articulate 不在を観察)
+
+### Lineage
+
+- **preJudgementCommit**: `5236fa4`
+- **judgementCommit**: `<TBD>`
+
+### 振り返り判定
+
+- **判定**: `未確定`
