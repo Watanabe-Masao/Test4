@@ -21,6 +21,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+
+	"aag-engine/internal/provenance"
 )
 
 // CommandMetadata は 1 command の metadata articulation。
@@ -53,16 +55,24 @@ const DescribeSchemaVersion = "aag-describe-v1"
 const ListSchemaVersion = "aag-list-v1"
 
 // DescribeOutput is the envelope for `aag describe <command>`。
+//
+// v4.2 seed (= reposteward-substrate-v4-2-introspect-provenance) で Provenance
+// field を additive 追加 (= AI が computedAt / sourceCommit / confidence を
+// articulate なしに判断するための substrate)。
 type DescribeOutput struct {
-	SchemaVersion string          `json:"schemaVersion"`
-	Command       CommandMetadata `json:"command"`
+	SchemaVersion string                 `json:"schemaVersion"`
+	Command       CommandMetadata        `json:"command"`
+	Provenance    provenance.Provenance  `json:"provenance"`
 }
 
 // ListOutput is the envelope for `aag list`。
+//
+// v4.2 seed で Provenance field を additive 追加。
 type ListOutput struct {
-	SchemaVersion string            `json:"schemaVersion"`
-	Total         int               `json:"total"`
-	Commands      []CommandMetadata `json:"commands"`
+	SchemaVersion string                 `json:"schemaVersion"`
+	Total         int                    `json:"total"`
+	Commands      []CommandMetadata      `json:"commands"`
+	Provenance    provenance.Provenance  `json:"provenance"`
 }
 
 // commandTable は全 command の metadata の embedded source-of-truth。
@@ -362,11 +372,24 @@ var commandTable = []CommandMetadata{
 		Summary:         "command の implementation pointer (= dispatcher / handler / package / schema / tests) を JSON で articulate",
 		Args:            []string{"<command>"},
 		OutputKind:      "introspect-command",
-		OutputShape:     "{ schemaVersion, command: CommandMetadata, implementation, schema, tests, examples }",
+		OutputShape:     "{ schemaVersion, command: CommandMetadata, implementation, schema, tests, examples, provenance }",
 		WaveStep:        "v4.2 seed",
 		WhyExists:       "AI session が grep なしに command の Go 実装に navigate できるようにするため",
 		Enables:         []string{"command source への direct navigation", "test / schema / fixture pointer の articulate"},
 		RelatedCommands: []string{"describe", "list", "detector refs"},
+	},
+	{
+		Name:            "introspect schema",
+		Family:          "self-describe",
+		Maturity:        "provisional",
+		Summary:         "schema id の path + virtual flag + producers + consumers を JSON で articulate",
+		Args:            []string{"<schema-id>"},
+		OutputKind:      "introspect-schema",
+		OutputShape:     "{ schemaVersion, schema: { id, title, path, isVirtual, purpose }, producers[], consumers[], provenance }",
+		WaveStep:        "v4.2 introspect-provenance",
+		WhyExists:       "AI session が schema-graph.json を walk せずに 1 command で schema の relation を articulate するため",
+		Enables:         []string{"schema producer / consumer の articulate", "virtual schema (= Go internal) と file-backed schema の articulate"},
+		RelatedCommands: []string{"introspect command", "detector refs"},
 	},
 }
 
@@ -388,6 +411,10 @@ func Describe(command string) (DescribeOutput, error) {
 			return DescribeOutput{
 				SchemaVersion: DescribeSchemaVersion,
 				Command:       m,
+				Provenance: provenance.Compute(
+					provenance.Canonical,
+					"embedded commandTable source-of-truth",
+				),
 			}, nil
 		}
 	}
@@ -403,6 +430,10 @@ func List() ListOutput {
 		SchemaVersion: ListSchemaVersion,
 		Total:         len(out),
 		Commands:      out,
+		Provenance: provenance.Compute(
+			provenance.Canonical,
+			"embedded commandTable source-of-truth",
+		),
 	}
 }
 
