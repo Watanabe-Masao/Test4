@@ -93,17 +93,17 @@
 
 ### sub-PR 3: doc-kind-registry.schema.json（最小） + authoring source 雛形
 
-- [ ] `docs/contracts/schema/doc-kind-registry.schema.json` landing — kind / temporalScope / lifecycle の最小 enum + extensibility（Wave 2 Phase 4 で本宣言）
-- [ ] `docs/contracts/src/docs/` ディレクトリ作成
-- [ ] `docs/contracts/src/docs/doc-kind-registry.yaml` authoring source 雛形 landing（最小 enum example のみ、本宣言は Wave 2 Phase 4）
-- [ ] schema 自体が JSON Schema draft-07 として valid（既存 AAG schemas 整合）
+- [x] `docs/contracts/schema/doc-kind-registry.schema.json` landing — kind / temporalScope / lifecycle の最小 enum + extensibility（kind id pattern + stage enum で Wave 2 Phase 4 へ extensibility 確保、ADR-SCP-003 4 temporal scopes + ADR-SCP-008 例外条項 articulate）
+- [x] `docs/contracts/src/docs/` ディレクトリ作成
+- [x] `docs/contracts/src/docs/doc-kind-registry.yaml` authoring source 雛形 landing（stage = minimum、4 entries = canonical-doc / project-plan / archive-doc / generated-report で 4 temporal scope spectrum + ADR-SCP-008 exception 1 件ずつ articulate、本宣言は Wave 2 Phase 4）
+- [x] schema 自体が JSON Schema draft-07 として valid（ajv 7 test cases: yaml 雛形 + extended stage + 5 invalid cases、全件期待通り）
 
 ### Phase 1 完了条件（ADR-SCP-016 整合）
 
-- [ ] 3 schema が JSON Schema draft-07 として valid（既存 `docs/contracts/aag/*.schema.json` 同様の検証パターン、Ajv 既定 dialect）
-- [ ] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
-- [ ] Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）
-- [ ] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
+- [x] 3 schema が JSON Schema draft-07 として valid（既存 `docs/contracts/aag/*.schema.json` 同様の検証パターン、Ajv 既定 dialect）
+- [x] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
+- [x] Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）
+- [x] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
 - [ ] Wave 1 / Phase 2 着手 user 承認
 
 ## AI 自己レビュー (= user 承認の手前)
