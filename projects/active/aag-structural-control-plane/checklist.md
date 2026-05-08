@@ -86,10 +86,10 @@
 
 ### sub-PR 2: tree-contracts.schema.json + authoring source 雛形
 
-- [ ] `docs/contracts/schema/tree-contracts.schema.json` landing — top-level 8 directory の declared / unmanaged-but-tolerated 状態を表現
-- [ ] `docs/contracts/src/repo/` ディレクトリ作成
-- [ ] `docs/contracts/src/repo/tree-contracts.yaml` authoring source 雛形 landing（宣言は Phase 3 で確定、本 sub-PR では schema 形式 example のみ）
-- [ ] schema 自体が JSON Schema draft-07 として valid（既存 AAG schemas 整合）
+- [x] `docs/contracts/schema/tree-contracts.schema.json` landing — top-level 8 directory の declared / unmanaged-but-tolerated 状態を表現（status enum 2 値 + scope enum 3 値 + metadata block optional + path pattern 構造ルート対応）
+- [x] `docs/contracts/src/repo/` ディレクトリ作成
+- [x] `docs/contracts/src/repo/tree-contracts.yaml` authoring source 雛形 landing（宣言は Phase 3 で確定、本 sub-PR では `docs/contracts/` 1 entry の schema 形式 example のみ）
+- [x] schema 自体が JSON Schema draft-07 として valid（ajv 7 test cases: yaml 雛形 + unmanaged-but-tolerated + nested path + 4 invalid cases、全件期待通り）
 
 ### sub-PR 3: doc-kind-registry.schema.json（最小） + authoring source 雛形
 
