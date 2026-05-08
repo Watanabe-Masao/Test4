@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/aag-finding-v1.json",
+  "title": "AAG Finding v1",
+  "description": "AAG SCP checker が emit する Finding の共通契約。各 Finding は (a) detected structural drift = `valid-finding` または (b) verified absence of drift = `verified-zero` (ADR-SCP-016 D3 整合) を articulate する。Wave 1 / Phase 1 sub-PR 1 で landing。base fields は ADR-SCP-013 (13 fields)、result discriminator + verified-zero specific fields は ADR-SCP-016 D3。consumer = §A1 + §A2 全 checker (Wave 1〜3)、producer = AAG SCP CLI / governance runner (`tools/governance/run-scp-checker.ts` 等)。",
+  "$comment": "format 選定根拠: AAG repo 既存 8 schemas (aag-parameters / aag-response / detector-result / aag-size-statistics / task-capsule etc.) と同 family = draft-07、Ajv 既定 dialect。設計判断 (ADR-SCP-016 D3 整合): result discriminator は oneOf + const pattern (ADR-SCP-016 推奨案 A、明示的 + IDE 補完性能高、共通 fields 重複は top-level properties で解決)。severity は 3 値 (info / warn / error) で start (推奨案 B、`block` は不可侵原則 8 と整合せず Wave 3 以降に追加判断、本 schema additive 拡張時に v2 で enum 追加)。suggestedDisposition は Reading Pass 6 + Tree Contract 用 1 = 7 値。confidence は enum 3 値 (high / medium / low、numeric は false-positive 計算で意味なし、運用負荷小)。後続 v2 で severity 拡張 / disposition 追加 / confidence numeric 化が必要なら additive minor (= aag delta=+0.1)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "phase", "detectedBy", "detectedAt", "status", "result"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない (= JSON Schema $comment と同 idiom)。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "aag-finding-v1",
+      "description": "schema version anchor。本 schema = `aag-finding-v1`。後続 v2 (= severity 拡張 / disposition 追加 / confidence numeric 化) で minor バージョン bump 予定 (= versionImpact aag delta=+0.1 minor)。"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^FND-SCP-",
+      "description": "Finding unique identifier。AAG SCP は prefix `FND-SCP-` を使用 (Document ID `DOC-` と区別、grep 容易)。例: `FND-SCP-WAVE1-TREE-001` / `FND-SCP-WAVE1-VERIFIED-ZERO-002`。"
+    },
+    "phase": {
+      "type": "string",
+      "description": "Wave / Phase context where this Finding was emitted。例: 'Wave 1 / Phase 1' / 'Wave 1 / Phase 3' / 'Wave 2 / Phase 5'。本 program archive 後は phase context が消失するため、history view (= recent-changes.generated.md) では参照のみ。"
+    },
+    "detectedBy": {
+      "type": "string",
+      "description": "Checker identifier that emitted this Finding。例: 'check-yaml-machine-truth' / 'check-tree' / 'scp-check-app-untouched' / 'scp-check-hard-gate-surface'。§A1 = `tools/governance/check-*.ts`、§A2 = `aag/scp-checkers/<id>.yaml` の id 値を使用。"
+    },
+    "detectedAt": {
+      "type": "string",
+      "description": "Commit SHA at which the Finding was emitted (reproducibility 用)。short SHA (7 chars) または full SHA (40 chars) 許可。"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "acknowledged", "fixed", "wontfix", "false-positive"],
+      "description": "Triage status。Wave 1 advisory only 期間中は `open` / `acknowledged` のみ運用、`fixed` / `wontfix` / `false-positive` は Wave 2+ Reading Pass / disposition 確定時に articulate。"
+    },
+    "result": {
+      "type": "string",
+      "enum": ["valid-finding", "verified-zero"],
+      "description": "Discriminator (ADR-SCP-016 D3)。`valid-finding` = detected structural drift。`verified-zero` = scoped scan confirmed no drift (= 既存 governance が十分強い場合でも Wave 1 を無価値扱いにしないための articulation 形式、AAG 形式の Finding/Report で証明)。"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warn", "error"],
+      "description": "Severity (valid-finding case のみ articulate、verified-zero では未使用)。Wave 1 advisory only。`block` severity は不可侵原則 8 (Wave 1 milestone 前 hard gate 禁止) と整合しないため除外、Wave 3+ user 判断で v2 拡張候補。"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Subject of the violation (valid-finding case のみ)。file path / directory / document ID / schema field 等の articulation。例: 'app/src/foo/bar.ts' / 'docs/contracts/aag/' / 'DOC-CALC-001' / 'aag-finding.schema.json#/properties/result'。"
+    },
+    "rule": {
+      "type": "string",
+      "description": "Rule reference (valid-finding case のみ)。違反根拠の articulation。例: 'ADR-SCP-001' / 'AAG-SCP-GUIDANCE-007' / '不可侵原則 4' / 'projectization §4 nonGoal'。"
+    },
+    "problem": {
+      "type": "string",
+      "description": "What went wrong (valid-finding case のみ、1〜2 sentences)。"
+    },
+    "expected": {
+      "type": "string",
+      "description": "What should be the case instead (valid-finding case のみ、1〜2 sentences)。AI / human が次に取るべき action の articulate。"
+    },
+    "suggestedDisposition": {
+      "type": "string",
+      "enum": [
+        "keep-and-contract",
+        "split",
+        "move",
+        "archive",
+        "generated-register",
+        "needs-triage",
+        "unmanaged-promote"
+      ],
+      "description": "Suggested disposition (valid-finding case のみ)。Reading Pass 6 categories (ADR-SCP-011: keep-and-contract / split / move / archive / generated-register / needs-triage) + `unmanaged-promote` (Tree Contract 専用、unmanaged-but-tolerated → managed への user 判断 promotion)。"
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low"],
+      "description": "Detection confidence (valid-finding case のみ)。`high` = mechanically deterministic detection (例: git diff name-only patterns / JSON schema validation)。`medium` = heuristic detection (例: Markdown heading pattern matching)。`low` = high false-positive risk = require human review before action。"
+    },
+    "falsePositiveAllowed": {
+      "type": "boolean",
+      "description": "Whether this Finding is allowed to be false-positive (= soft Finding, advisory) (valid-finding case のみ)。Wave 1 advisory only 期間中は全 Finding が `falsePositiveAllowed = true` で運用、Wave 3+ hard gate 化判断時に false-positive 0 を要求する Finding が articulate される。"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope that was scanned (verified-zero case のみ articulate)。例: 'managed zone 4 件 = top-level tree + projects/ + references/04-tracking/ + docs/contracts/' / 'top-level tree 8 entries'。"
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Evidence of zero drift (verified-zero case のみ articulate)。",
+      "additionalProperties": false,
+      "required": ["scannedFiles", "drift", "scannedAt"],
+      "properties": {
+        "scannedFiles": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Count of files / paths / entries scanned。"
+        },
+        "drift": {
+          "type": "integer",
+          "const": 0,
+          "description": "Drift count (verified-zero では必ず 0、schema レベルで articulate)。"
+        },
+        "scannedAt": {
+          "type": "string",
+          "description": "Commit SHA at which scan was performed。"
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Why this verified-zero Finding has value (verified-zero case のみ articulate)。例: '対象範囲を完全に走査し、structural drift が存在しないことを機械的に確認' / '既存 governance による carry を AAG 形式で articulate し、Wave 1 evidence として保存'。"
+    }
+  },
+  "oneOf": [
+    {
+      "title": "valid-finding case (detected structural drift)",
+      "description": "structural drift が検出された Finding。severity / subject / rule / problem / expected / suggestedDisposition / confidence / falsePositiveAllowed が必須。",
+      "properties": {
+        "result": { "const": "valid-finding" }
+      },
+      "required": [
+        "severity",
+        "subject",
+        "rule",
+        "problem",
+        "expected",
+        "suggestedDisposition",
+        "confidence",
+        "falsePositiveAllowed"
+      ]
+    },
+    {
+      "title": "verified-zero case (no drift detected in scoped scan)",
+      "description": "対象範囲に structural drift がないことを scoped scan で証明した Finding (ADR-SCP-016 D3)。scope / evidence / rationale が必須。",
+      "properties": {
+        "result": { "const": "verified-zero" }
+      },
+      "required": ["scope", "evidence", "rationale"]
+    }
+  ]
+}
