@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/doc-kind-registry-v1.json",
+  "title": "Document Kind Registry v1 (minimum)",
+  "description": "AAG SCP の Document Kind Registry authoring source / generated 共通 schema。文書 kind の id / temporalScope / lifecycle / discriminationGuide 等を articulate し、Wave 2 / Phase 4 で advisory checker (`tools/governance/check-doc-temporal-scope.ts` + `check-doc-contracts.ts`) の入力として消費する。Wave 1 narrowing (ADR-SCP-016 D1): stage = `minimum` で start、4 entries (canonical-doc / project-plan / archive-doc / generated-report) で 4 temporal scope spectrum + ADR-SCP-008 例外条項 articulate のみ。Wave 2 / Phase 4 で stage = `extended` に promotion し、本宣言 (= 残 kinds + lifecycle 拡張 + 各 kind の requiredSections / forbiddenContent / discriminationGuide 完備) を実施。consumer = Wave 2 check-doc-temporal-scope (Phase 4) / check-doc-contracts (Phase 5) / check-reading-pass-schema (Phase 2.5) 等。producer = `docs/contracts/src/docs/doc-kind-registry.yaml` (authoring source) → normalize → `docs/contracts/generated/doc-kind-registry.generated.json` (machine truth、Phase 4 で landing 予定)。",
+  "$comment": "format 選定根拠: AAG repo 既存 8 schemas + sub-PR 1 + sub-PR 2 と同 family = draft-07、Ajv 既定 dialect。設計判断 (ADR-SCP-002 + ADR-SCP-003 + ADR-SCP-008 整合): kind id は enum ではなく pattern (^[a-z][a-z0-9-]*$、kebab-case) で extensibility 確保 — enum にすると Wave 2 Phase 4 で kind 追加するたびに schema v2 bump が必要、pattern なら additive で schema 維持可能。stage enum 2 値 (minimum / extended) で Wave milestone を schema レベルで articulate、Wave 1 = minimum / Wave 2 Phase 4 = extended への promotion を明示。temporalScope は ADR-SCP-003 4 分類 (present / past / future / generated-current) で構造固定。lifecycle は Wave 1 minimum 2 値 (active / candidate)、Wave 2 で deprecated / removed 追加 (= versionImpact aag delta=+0.1 minor)。machineInferredAccepted は boolean + acceptanceCondition 文 (ADR-SCP-008: generated-report with producer / archive-doc with archive-manifest)、condition 文を articulate することで checker 側 logic との対応を明示。requiredSections / forbiddenContent / discriminationGuide は Wave 1 minimum では optional (= sketch only)、Wave 2 Phase 4 で 各 kind の本宣言時に articulate 完備。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "stage", "kinds"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない (= JSON Schema $comment と同 idiom)。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "doc-kind-registry-v1",
+      "description": "schema version anchor。本 schema = `doc-kind-registry-v1`。後続 v2 (= lifecycle 拡張 / temporalScope 追加 / requiredSections 必須化) で minor バージョン bump 予定 (= versionImpact aag delta=+0.1 minor)。"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["minimum", "extended"],
+      "description": "Registry stage (Wave milestone articulation)。`minimum` = Wave 1 / Phase 1 sub-PR 3 (本 sub-PR、4 entries で temporal scope spectrum + ADR-SCP-008 例外条項のみ articulate)。`extended` = Wave 2 / Phase 4 (本宣言、残 kinds + lifecycle 拡張 + requiredSections / forbiddenContent / discriminationGuide 完備)。stage = extended への transition は明示的な milestone (= AAG SCP plan.md / decision-audit.md の articulate を伴う)。"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Generator-populated metadata。authoring source (YAML) では optional (省略可)、generated JSON では必須 (不可侵原則 1 整合)。",
+      "required": ["sourceSha", "sourcePaths", "generatedAt"],
+      "properties": {
+        "sourceSha": {
+          "type": "string",
+          "description": "Authoring source の commit SHA。"
+        },
+        "sourcePaths": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Authoring source file paths (例: ['docs/contracts/src/docs/doc-kind-registry.yaml'])。"
+        },
+        "generatedAt": {
+          "type": "string",
+          "description": "ISO8601 timestamp of generation。"
+        }
+      }
+    },
+    "kinds": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Document kind entries。Wave 1 minimum で 4 entries (canonical-doc / project-plan / archive-doc / generated-report)、Wave 2 Phase 4 で extended (= 本宣言、残 kinds + 各 kind の articulate 完備)。",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "temporalScope", "lifecycle"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "kind id (kebab-case、Wave 2 Phase 4 で extensibility 確保のため enum ではなく pattern)。例: `canonical-doc` / `project-plan` / `project-checklist` / `generated-report` / `archive-doc` / `index` / `ai-entrypoint` / `domain-definition` / `implementation-guide` / `operation-protocol`。"
+          },
+          "description": {
+            "type": "string",
+            "description": "kind の役割 articulation (1〜2 sentences)。"
+          },
+          "temporalScope": {
+            "type": "string",
+            "enum": ["present", "past", "future", "generated-current"],
+            "description": "Temporal scope (ADR-SCP-003 4 分類)。`present` = 製本 (現在有効な実装 / 契約 / 定義 / ルール)、`past` = archive (過去の経緯 / 退役済み設計 / 移行ログ)、`future` = project (将来計画 / roadmap / TODO / Phase plan / project progress)、`generated-current` = 計算済み現在 (現在値の一覧 / 件数 / status、producer 必要)。"
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": ["active", "candidate"],
+            "description": "kind lifecycle (Wave 1 minimum 2 値)。`active` = 現在 repo で運用中。`candidate` = Wave 2 で正式採用候補 (本 sub-PR では未使用の placeholder)。Wave 2 で `deprecated` / `removed` 拡張 (additive minor)。"
+          },
+          "machineInferredAccepted": {
+            "type": "boolean",
+            "description": "ADR-SCP-008 例外条項。Reading Pass で `proposedKind` を機械分類で代替できる kind か否か。`true` = generated-report with producer declared / archive-doc with archive-manifest exists 等の条件を満たす kind (acceptanceCondition で articulate)。`false` = 通常の human/AI reading 必須 kind。Wave 2 / Phase 2.5 Reading Pass の入力として消費。"
+          },
+          "acceptanceCondition": {
+            "type": "string",
+            "description": "Optional。machineInferredAccepted = true の場合に、accepted となる条件を articulate。例: 'producer field が generated-artifacts registry に declared' / 'archive-manifest.json が同 zone 内に存在'。checker 側 logic との対応を明示。"
+          },
+          "discriminationGuide": {
+            "type": "string",
+            "description": "Optional (Wave 1 minimum では sketch、Wave 2 Phase 4 で完備)。kind A vs kind B の判別観点 articulation (GUIDANCE-006)。例: 'canonical-doc vs archive-doc: 現在運用中 vs 退役済み、archive-manifest 有無で判別' / 'project-plan vs canonical-doc: future vs present、Phase / Wave / TODO / Roadmap heading の有無で判別'。"
+          },
+          "requiredSections": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional (Wave 1 minimum では sketch、Wave 2 Phase 4 で完備)。kind が要求する必須 section 一覧 (heading text / regex)。例: ['## Purpose', '## Scope']。Wave 2 Phase 5 で check-doc-contracts checker の入力として消費。"
+          },
+          "forbiddenContent": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional (Wave 1 minimum では sketch、Wave 2 Phase 4 で完備)。kind に混入してはいけない content 一覧 (heading text / regex)。例: canonical-doc の forbiddenContent = ['## History', '## Roadmap', '## Future', '## TODO', '## Phase', '## Migration Log']。Wave 2 Phase 4 で check-doc-temporal-scope checker の入力として消費。"
+          }
+        }
+      }
+    }
+  }
+}

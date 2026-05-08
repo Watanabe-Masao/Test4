@@ -1,0 +1,89 @@
+# Document Kind Registry authoring source (Wave 1 / Phase 1 sub-PR 3 雛形 = stage: minimum)
+#
+# 役割: 文書 kind の id / description / temporalScope / lifecycle / machineInferredAccepted を
+# articulate する authoring source。Wave 2 / Phase 4 で advisory checker
+# (tools/governance/check-doc-temporal-scope.ts + check-doc-contracts.ts) の入力として消費される。
+#
+# 機械正本 (= generated JSON) は docs/contracts/generated/doc-kind-registry.generated.json
+# (Phase 4 で landing 予定、本 sub-PR では未生成)。
+#
+# 不可侵原則 3 (ADR-SCP-003): 製本 = 現在 / archive = 過去 / project = 未来 / generated report =
+# 計算済み現在 の 4 temporal scope 分類。
+# ADR-SCP-008: machineInferredAccepted の例外条項 (generated-report with producer / archive-doc
+# with archive-manifest)。
+# Wave 1 narrowing (ADR-SCP-016 D1): stage = minimum、4 entries で 4 temporal scope spectrum +
+# ADR-SCP-008 例外条項のみ articulate。本宣言 (= 残 kinds + 各 kind の requiredSections /
+# forbiddenContent / discriminationGuide 完備) は Wave 2 / Phase 4 で実施。
+#
+# schema: docs/contracts/schema/doc-kind-registry.schema.json (本 sub-PR で landing 済)
+
+schemaVersion: doc-kind-registry-v1
+stage: minimum
+
+kinds:
+  # 1. canonical-doc (present) — 製本、現在有効な実装/契約/定義/ルール
+  - id: canonical-doc
+    description: |
+      製本文書。現在有効な実装 / 契約 / 定義 / ルールのみを articulate する kind。
+      過去の実装経緯 / 退役済み設計 / 移行ログは archive-doc へ、
+      将来計画 / roadmap / TODO / Phase plan / project progress は project-plan へ分離 (不可侵原則 3 / ADR-SCP-003)。
+    temporalScope: present
+    lifecycle: active
+    machineInferredAccepted: false
+    discriminationGuide: |
+      sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):
+      - vs archive-doc: 現在運用中 vs 退役済み、archive-manifest 有無で判別
+      - vs project-plan: present vs future、Phase / Wave / TODO / Roadmap heading の有無で判別
+      - vs generated-report: 人間/AI authored vs producer 自動生成、producer field 有無で判別
+    forbiddenContent:
+      - "## History"
+      - "## Roadmap"
+      - "## Future"
+      - "## TODO"
+      - "## Phase"
+      - "## Migration Log"
+
+  # 2. project-plan (future) — project、将来計画/roadmap/TODO/Phase plan/project progress
+  - id: project-plan
+    description: |
+      project 文書。将来計画 / roadmap / TODO / Phase plan / project progress を articulate する kind。
+      projects/active/<id>/plan.md / checklist.md / decision-audit.md 等の project 配下文書が該当。
+      製本 (= canonical-doc) と分離 (= 不可侵原則 3 / ADR-SCP-003)。
+    temporalScope: future
+    lifecycle: active
+    machineInferredAccepted: false
+    discriminationGuide: |
+      sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):
+      - vs canonical-doc: future vs present、Phase / Wave 構造の存在で判別
+      - vs archive-doc: in_progress vs completed、projects/active/ vs projects/completed/ で判別
+
+  # 3. archive-doc (past) — archive、過去の経緯/退役済み設計/移行ログ
+  - id: archive-doc
+    description: |
+      archive 文書。過去の経緯 / 退役済み設計 / 移行ログを articulate する kind。
+      references/99-archive/ または projects/completed/<id>/ARCHIVE.md 配下が該当。
+      archive-manifest.json の存在で machine-inferred 認定可能 (ADR-SCP-008 例外条項)。
+    temporalScope: past
+    lifecycle: active
+    machineInferredAccepted: true
+    acceptanceCondition: archive-manifest.json が同 zone 内に存在 (ADR-SCP-008 例外条項)
+    discriminationGuide: |
+      sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):
+      - vs canonical-doc: 退役済み vs 現在運用中、archive-manifest 有無で判別
+      - vs project-plan: completed vs in_progress、projects/completed/ vs projects/active/ で判別
+
+  # 4. generated-report (generated-current) — 計算済み現在、producer 必要
+  - id: generated-report
+    description: |
+      generated 文書。現在値の一覧 / 件数 / status を機械生成する kind。
+      producer field が generated-artifacts registry に declared されている場合に machine-inferred 認定可能 (ADR-SCP-008 例外条項)。
+      references/04-tracking/generated/ 配下 (例: project-health.generated.md / architecture-health.generated.md) が該当。
+      製本 (= canonical-doc) と分離 (= 不可侵原則 3 / ADR-SCP-003): generated-report は計算済み、canonical-doc は手 articulate。
+    temporalScope: generated-current
+    lifecycle: active
+    machineInferredAccepted: true
+    acceptanceCondition: producer field が generated-artifacts registry (Wave 3 / Phase 9 で landing 予定) に declared (ADR-SCP-008 例外条項)
+    discriminationGuide: |
+      sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):
+      - vs canonical-doc: 機械生成 vs 手 articulate、producer 有無 + filename suffix (.generated.md) で判別
+      - 手編集禁止 (= generatedFileEditGuard で機械検証予定)
