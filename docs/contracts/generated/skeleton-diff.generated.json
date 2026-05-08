@@ -7,21 +7,22 @@
       "contextPackRequired": false,
       "contextQuestion": null,
       "continuityEvidence": [
-        "declared as tolerated, declared 昇格は保留",
-        "declared in commit 3727253"
+        "declared in commit 15c1c69",
+        "cannotMoveBecause: 2 reason(s) articulated"
       ],
-      "continuityStatus": "inherited",
+      "continuityStatus": "active",
       "contractStatus": "unreviewed",
       "futureQuestion": null,
       "intentEvidence": [
         "owner: external-tool-managed (Claude Code)",
-        "promotionRationale articulated"
+        "continuityNote: .claude/ is tolerated as platform configuration (external AI tool), not as AAG structural root。\nmanifest.json の整合性は app/src/test/guards/manifestGuard.test.ts で機械検証済 (本 program は touch しない)。\n.claude/ 自体の構造は Claude Code 仕様に従う (AAG SCP 内では articulate しない)。\n"
       ],
       "intentStatus": "declared",
       "inventoryStatus": "observed-only",
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
-        "declared as unmanaged-but-tolerated in tree-contracts.yaml",
+        "declared as platform-config-tolerated in tree-contracts.yaml",
+        "reason: Claude Code は repository root の .claude/ path を AI 単一エントリ + project-scoped settings として\n要求する (= Claude Code platform 仕様)。\n",
         "purpose: Claude Code (AI 開発 CLI) configuration。manifest.json (= AI 単一エントリ、discovery / pathTriggers /"
       ],
       "meaningStatus": "explained",
@@ -30,14 +31,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": null,
+      "reasonCode": "PLATFORM_CONFIG_REQUIRED_AT_ROOT",
       "requiredQuestion": null,
-      "skeletonStatus": "inside-unmanaged-zone"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "platform-config-tolerated"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "declaration-or-inventory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -61,9 +63,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "tolerate",
@@ -72,21 +75,22 @@
       "contextPackRequired": false,
       "contextQuestion": null,
       "continuityEvidence": [
-        "declared as tolerated, declared 昇格は保留",
-        "declared in commit 3727253"
+        "declared in commit 15c1c69",
+        "cannotMoveBecause: 2 reason(s) articulated"
       ],
-      "continuityStatus": "inherited",
+      "continuityStatus": "active",
       "contractStatus": "unreviewed",
       "futureQuestion": null,
       "intentEvidence": [
         "owner: external-tool-managed (GitHub Actions)",
-        "promotionRationale articulated"
+        "continuityNote: .github/ is tolerated as platform configuration, not as AAG structural root。\n.github/workflows/** は §A2 hard-gate-surface baseline 対象 (workflow-job、increase 方向のみ finding)\nだが、これは AAG SCP の boundary protection であって structural root としての declared ではない。\n"
       ],
       "intentStatus": "declared",
       "inventoryStatus": "observed-only",
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
-        "declared as unmanaged-but-tolerated in tree-contracts.yaml",
+        "declared as platform-config-tolerated in tree-contracts.yaml",
+        "reason: GitHub Actions は repository root の .github/workflows/** path を必須として要求する\n(= GitHub platform 仕様)。\n",
         "purpose: GitHub Actions workflows / actions configuration。CI pipeline (wasm-build / fast-gate / docs-health /"
       ],
       "meaningStatus": "explained",
@@ -95,14 +99,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": null,
+      "reasonCode": "PLATFORM_CONFIG_REQUIRED_AT_ROOT",
       "requiredQuestion": null,
-      "skeletonStatus": "inside-unmanaged-zone"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "platform-config-tolerated"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-file",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -126,14 +131,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-file",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -157,9 +163,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "tolerate",
@@ -191,7 +198,8 @@
       "promotionAllowed": false,
       "reasonCode": "MISSING_EXPECTED",
       "requiredQuestion": "このartifactの過去文脈と未来意図を articulate できるか?",
-      "skeletonStatus": "missing-expected"
+      "skeletonStatus": "missing-expected",
+      "topLevelDispositionCandidate": "tolerate"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -225,7 +233,8 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -259,12 +268,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-directory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L4",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -278,7 +288,8 @@
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
         "path: app-domain/",
-        "type: directory"
+        "type: directory",
+        "heuristic context: app-domain/ は app/src/domain/ と意味が重複している可能性。promote / move / archive の判断対象"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -286,9 +297,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON + CORRECT_LOCATION_BUT_UNEXPLAINED",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CORRECT_LOCATION_BUT_UNEXPLAINED + POSSIBLE_MOVE_TO_APP + POSSIBLE_ROOT_DUPLICATION",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "move-candidate"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -322,12 +334,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "canonical-doc-or-archive-doc",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -350,14 +363,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "canonical-doc-or-archive-doc",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -380,14 +394,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "canonical-doc-or-archive-doc",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -410,14 +425,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "canonical-doc-or-archive-doc",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -432,7 +448,8 @@
       "meaningEvidence": [
         "path: CURRENT_PROJECT.md",
         "type: file",
-        "size: 799 bytes"
+        "size: 799 bytes",
+        "heuristic context: CURRENT_PROJECT.md は projects/active/ + project-health.generated.md と意味重複の可能性。thin pointer 化候補 (削除候補とは異なる、別 PR で reference scan + consumer 確認後)"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -440,41 +457,46 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CURRENT_PROJECT_POINTER_CANDIDATE",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
-      "candidateDisposition": "tolerate",
-      "changeQuestion": "tolerate (子 declared で十分) / promote (親も declared) / revise-skeleton (子 declared を見直し) のどれ?",
-      "contextDepthHint": "L0-L2",
-      "contextPackRequired": true,
-      "contextQuestion": "この親 directory は declared 子の単なる filesystem 親か、独立した purpose を持つか?",
+      "candidateDisposition": "keep-and-contract",
+      "changeQuestion": null,
+      "contextDepthHint": null,
+      "contextPackRequired": false,
+      "contextQuestion": null,
       "continuityEvidence": [
-        "unclear if intentionally a parent or just inherited from filesystem hierarchy"
+        "declared in commit 15c1c69",
+        "addedAt: 2026-05-08T00:00:00Z"
       ],
-      "continuityStatus": "inherited",
+      "continuityStatus": "active",
       "contractStatus": "unreviewed",
-      "futureQuestion": "親自体を declared にすべきか、子のみで十分か?",
+      "futureQuestion": null,
       "intentEvidence": [
-        "contains declared child path(s)、親 directory として暗黙に存在"
+        "owner: aag-structural-control-plane (skeleton articulate) + reposteward-ai-ops-platform (docs/contracts/aag/ 領域)",
+        "container-only: 意味は配下 nested declared root が担う"
       ],
-      "intentStatus": "inferred",
+      "intentStatus": "declared",
       "inventoryStatus": "observed-only",
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
-        "path is parent of declared root(s): docs/contracts/",
-        "type: directory"
+        "declared as container-only in tree-contracts.yaml",
+        "nestedDeclaredChildren: docs/contracts/",
+        "purpose: documentation container root。docs/ 自体は意味を持たず、配下 nested declared root"
       ],
-      "meaningStatus": "candidate",
+      "meaningStatus": "explained",
       "observed": true,
       "path": "docs/",
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "INHERITED_WITHOUT_RATIONALE",
-      "requiredQuestion": "親 directory にも独立した purpose / owner があるか?",
-      "skeletonStatus": "inside-unmanaged-zone"
+      "reasonCode": "CONTAINER_ONLY_ROOT",
+      "requiredQuestion": null,
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "container-only-root"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -508,12 +530,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-directory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L4",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -527,7 +550,8 @@
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
         "path: fixtures/",
-        "type: directory"
+        "type: directory",
+        "heuristic context: fixtures/ は app/test/fixtures/ または tools/fixtures/ への移動候補、もしくは廃止候補"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -535,14 +559,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON + CORRECT_LOCATION_BUT_UNEXPLAINED",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CORRECT_LOCATION_BUT_UNEXPLAINED + POSSIBLE_MOVE_TO_APP + POSSIBLE_MOVE_TO_TOOLS",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "move-candidate"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "package-manifest",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -566,14 +591,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "package-manifest",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -597,14 +623,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "package-manifest",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -628,9 +655,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -664,12 +692,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "canonical-doc-or-archive-doc",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L2",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -692,9 +721,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -728,12 +758,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-directory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L4",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -747,7 +778,8 @@
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
         "path: roles/",
-        "type: directory"
+        "type: directory",
+        "heuristic context: roles/ は aag/ + references/ + .claude/ と責務が重なる可能性。AAG role registry 正本かを再確認"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -755,14 +787,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON + CORRECT_LOCATION_BUT_UNEXPLAINED",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CORRECT_LOCATION_BUT_UNEXPLAINED + POSSIBLE_ROOT_DUPLICATION + POSSIBLE_MOVE_TO_AAG + POSSIBLE_MOVE_TO_REFERENCES",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-directory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L4",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -776,7 +809,8 @@
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
         "path: scripts/",
-        "type: directory"
+        "type: directory",
+        "heuristic context: scripts/ は tools/ と責務重複の可能性。維持なら意味説明、不要なら tools/ 統合または archive"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -784,9 +818,10 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON + CORRECT_LOCATION_BUT_UNEXPLAINED",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CORRECT_LOCATION_BUT_UNEXPLAINED + POSSIBLE_MOVE_TO_TOOLS + POSSIBLE_ROOT_DUPLICATION",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "move-candidate"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -820,7 +855,8 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "keep-and-contract",
@@ -854,12 +890,13 @@
       "promotionAllowed": false,
       "reasonCode": null,
       "requiredQuestion": null,
-      "skeletonStatus": "in-skeleton"
+      "skeletonStatus": "in-skeleton",
+      "topLevelDispositionCandidate": "declared-root"
     },
     {
       "candidateDisposition": "needs-triage",
       "candidateKind": "unclassified-directory",
-      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?",
+      "changeQuestion": "declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?",
       "contextDepthHint": "L0-L4",
       "contextPackRequired": true,
       "contextQuestion": "このartifactは過去のどの文脈から存在しているか?",
@@ -873,7 +910,8 @@
       "localConvenienceDecisionAllowed": false,
       "meaningEvidence": [
         "path: workers/",
-        "type: directory"
+        "type: directory",
+        "heuristic context: workers/ は product runtime か旧実装か unclear。app/ 配下統合 / archive 判断対象"
       ],
       "meaningStatus": "candidate",
       "observed": true,
@@ -881,14 +919,15 @@
       "preferenceBasedDecisionAllowed": false,
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "reasonCode": "OUT_OF_SKELETON + CORRECT_LOCATION_BUT_UNEXPLAINED",
+      "reasonCode": "OUT_OF_SKELETON + TOP_LEVEL_OVERPOPULATED + CORRECT_LOCATION_BUT_UNEXPLAINED + POSSIBLE_MOVE_TO_APP",
       "requiredQuestion": "このartifactは何の意味を持ち、どのrootに属すべきか?",
-      "skeletonStatus": "out-of-skeleton"
+      "skeletonStatus": "out-of-skeleton",
+      "topLevelDispositionCandidate": "needs-triage"
     }
   ],
   "inputs": {
     "skeleton": {
-      "contractsCount": 11,
+      "contractsCount": 12,
       "schemaVersion": "tree-contracts-v1",
       "scope": "top-level-only"
     },
@@ -899,26 +938,33 @@
     }
   },
   "metadata": {
-    "generatedAt": "2026-05-08T14:42:59.430Z",
+    "generatedAt": "2026-05-08T16:17:43.491Z",
     "sourcePaths": [
       "docs/contracts/src/repo/tree-contracts.yaml",
       "docs/contracts/generated/repo-topology.generated.json"
     ],
-    "sourceSha": "e6c03e97e2ca24f472767919e16838f16a2901fb"
+    "sourceSha": "15c1c6937cc1bc4b43bc68bee65484926803dc77"
   },
   "schemaVersion": "skeleton-diff-v1",
   "scope": "top-level-only",
   "summary": {
     "byCandidateDisposition": {
-      "keep-and-contract": 8,
+      "keep-and-contract": 9,
       "needs-triage": 16,
-      "tolerate": 4
+      "tolerate": 3
     },
     "bySkeletonStatus": {
-      "in-skeleton": 8,
-      "inside-unmanaged-zone": 3,
+      "in-skeleton": 11,
       "missing-expected": 1,
       "out-of-skeleton": 16
+    },
+    "byTopLevelDispositionCandidate": {
+      "container-only-root": 1,
+      "declared-root": 8,
+      "move-candidate": 3,
+      "needs-triage": 13,
+      "platform-config-tolerated": 2,
+      "tolerate": 1
     },
     "totalEntries": 28
   }
