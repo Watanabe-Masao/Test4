@@ -1,12 +1,14 @@
 # inquiry/08 — Wave Restructuring 棚卸し
 
+> **status**: **採用済み（2026-05-08、ADR-SCP-016 D1〜D7 で正式採用）**。本 inquiry §8 推奨「選択肢 1（棚卸し採用 + plan.md refactor）」が user review #2（2 本目のレビュー）で確認され、ADR-SCP-016 で正式採用された。本 inquiry は採用履歴として保持し、後続の判断材料として参照する。
+>
 > **役割**: plan.md の Phase 0〜10 を **keep / defer / separate-program / 中止候補** に分類し、Wave 1 / Wave 2 / Wave 3 / 別 program candidate へ再配置するための棚卸し view。
 >
-> **trigger**: user review (#1283 後) で「現計画は方向性は妥当だが、現在の repo state（architecture-health 全面グリーン、reposteward 97% 進行）に対して一段重い」と articulate された。
+> **trigger**: user review (#1283 後) で「現計画は方向性は妥当だが、現在の repo state（architecture-health 全面グリーン、reposteward 97% 進行）に対して一段重い」と articulate された。user review #2（2 本目のレビュー）で「次の PR は実装 PR ではなく `refactor(aag-scp): adopt wave restructuring in plan and checklist`」と判断され、選択肢 1 が推奨された。
 >
-> **scope**: 本 inquiry は **棚卸し** のみ。実 plan.md refactor は本 inquiry の結論を user 判断後に別 commit で実施する。
+> **scope**: 本 inquiry は **棚卸し** のみ。実 plan.md refactor は本 inquiry の結論を user 判断後に別 commit で実施する → **本 commit で実施完了**。
 >
-> **規約**: ADR-SCP-001〜015 は維持。Wave 構造への refactor はこの後の ADR-SCP-016 で articulate する候補。
+> **規約**: ADR-SCP-001〜015 は維持。Wave 構造への refactor は ADR-SCP-016 で articulate **完了**（本 commit 含む）。
 
 ## 0. 現状の active project 状況（2026-05-07 時点）
 
@@ -192,7 +194,7 @@
 - 棚卸し後: Wave 1 + Wave 2 + Wave 3、想定 PR 数 20〜30、別 program へ移譲 5〜8 PR
 - **本 program 範囲縮小: 約 25〜35%**
 
-## 5. Wave 1 exit criteria（数値化、user review #1283 §5 整合）
+## 5. Wave 1 exit criteria（数値化、user review #1283 §5 + #2 §3 整合、ADR-SCP-016 D3 で更新）
 
 Wave 1 完了条件:
 
@@ -202,8 +204,29 @@ Wave 1 完了条件:
 - [ ] §A2 checker = 4（変更なし、boundary protection 維持）
 - [ ] 誤検知レビューで未解決 == 0
 - [ ] new-only gate 未導入（advisory のみ）
-- [ ] valid finding が出る（= 既存 governance で拾えていない repo の structural drift を最低 1 件 articulate）
+- [ ] **valid finding または verified-zero finding を出せる**（user review #2 §3 articulate、ADR-SCP-016 D3 採用）:
+  - A. 新しい structural drift を発見した（valid finding）
+  - B. 対象範囲（managed zone 4 件）に structural drift がないことを **AAG 形式の Finding/Report で証明** した（verified-zero finding）
 - [ ] 運用コストが読める（= AI session の探索 cost と user review cost が articulate 済）
+
+**verified-zero finding の articulate 形式**（ADR-SCP-016 D3）:
+
+```json
+{
+  "id": "FND-SCP-WAVE1-VERIFIED-ZERO-<n>",
+  "checker": "check-tree | check-yaml-machine-truth | scp-check-app-untouched | ...",
+  "scope": "managed zone 4 件",
+  "result": "verified-zero",
+  "evidence": {
+    "scannedFiles": "<count>",
+    "drift": 0,
+    "scannedAt": "<sha>"
+  },
+  "rationale": "対象範囲を完全に走査し、structural drift が存在しないことを機械的に確認"
+}
+```
+
+verified-zero finding 採用の rationale: 既存 governance が十分強い場合でも Wave 1 を無価値扱いにしないため。Wave 1 の価値は finding の発見だけではなく、(1) repo topology を機械的に把握できる / (2) `unmanaged-but-tolerated` baseline を作れる / (3) Finding schema が実用に耐えるか確認できる / (4) §A2 boundary checker の実行経路を作れる、も含む。defensive な structural drift 製造（「finding を出すために何か壊す」誘惑）を構造的に排除。
 
 ## 6. 中止条件（user review #1283 §「追加した方がよいもの」整合）
 

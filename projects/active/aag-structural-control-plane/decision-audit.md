@@ -1382,3 +1382,243 @@ spec:
 - **判定**: `<未確定>`
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
+
+## ADR-SCP-016: Wave restructuring 採用（Phase 0〜10 → Wave 1/2/3 + Separate Program candidate）
+
+### context
+
+**前提**: ADR-SCP-001〜015 + inquiry/01〜08 articulate 完了。Phase 0 deliverable がすべて landed（本 commit が Phase 0 完遂判定）。
+
+**問題提起**: user review で以下 articulate された:
+
+1. plan.md の Phase 0〜10 構造は、現在の repo state（architecture-health 全面 PASS / 60 KPIs OK / Hard Gate PASS）に対して **一段重い**。Phase 5 想定 PR 数 15〜25、全文書一斉適用 image は重すぎる
+2. 並走 program（reposteward 204/211 = 97% / pure-calculation-reorg 87/119 = 73% / taxonomy-v2 50/60 = 83% / presentation-quality-hardening 13/21 = 62%）の進行に影響する image
+3. inquiry/08 の Wave restructuring 棚卸しの **選択肢 1（採用 + plan.md refactor）が user review #2 で推奨**
+4. plan.md と inquiry/08 の **二重構造を解消** する必要（plan.md = Phase 0〜10 / inquiry/08 = Wave restructuring 提案、どちらが正本か曖昧）
+5. Wave 1 exit criteria の「valid finding が出る」を「**valid finding または verified-zero finding を出せる**」に修正（既存 governance が十分強い場合でも Wave 1 が無価値扱いにならない articulate）
+6. **`hard-gate-surface` の baseline 構造を明示**（baselineCommit / surfaces / knownHardGateSurfaces を JSON で articulate）
+7. **§A2 scp-checkers の実行モデルを再強調**（declarative checker + common runner、ADR-SCP-015 D1 で既に articulate されている方式を再強調）
+
+**判断点**: 上記 7 articulate を本 ADR で正式採用するか、保留して別 ADR で扱うか。
+
+### decision
+
+Wave restructuring を **正式採用** し、本 ADR で 7 修正を articulate する。具体:
+
+#### D1: Phase 構造を Wave 構造へ refactor（inquiry/08 §2 採用）
+
+| Wave | 含む Phase | scope narrowing | 想定 PR 数 |
+|---|---|---|---|
+| **Wave 1: Structural Inventory MVP** | Phase 1（縮小: 最小 3 schema） + Phase 2（縮小: managed zone 4 件） + Phase 3（縮小: top-level tree のみ） | 価値検証 critical path | 8〜12 PR |
+| **Wave 2: Contract Pilot** | Phase 2.5（hot zone 4 件限定） + Phase 4 + Phase 5（hot zone 限定で 5〜8 PR に縮小） | Wave 1 結果を見て着手判断 | 8〜12 PR |
+| **Wave 3: Governance Migration** | Phase 6 + Phase 7 + Phase 9 | Wave 2 結果を見て着手判断 | 4〜6 PR |
+| **Separate Program candidate** | Phase 8a/8b/8c + Phase 10 | reposteward Premise Contract と責務重複の可能性、別 program で再評価 | 5〜8 PR（移譲先で） |
+
+不可侵原則 9（段階順序）は **Wave 順序 + Wave 内 Phase 順序** の二重順序として再 articulate する:
+
+- Wave 1（Phase 1 → 2 → 3）→ Wave 2（Phase 2.5 → 4 → 5）→ Wave 3（Phase 6 → 7 → 9）
+- Separate Program candidate（Phase 8a/8b/8c + Phase 10）は本 program scope 外、archive 時に決定
+
+#### D2: §A1 / §A2 checker の Wave 配置（inquiry/08 §3 採用）
+
+§A1 checker 11 件 → Wave 配置 + 別 program 移譲 articulate:
+
+| checker | 元 Phase | Wave 配置 | 判断 |
+|---|---|---|---|
+| `check-yaml-machine-truth` | Phase 1 | Wave 1 | grep ベース、軽い |
+| `check-tree` | Phase 3 | Wave 1 | top-level tree のみ |
+| `docs:check 拡張` | Phase 1 | Wave 1 | YAML→JSON drift 検出 |
+| `check-doc-contracts` | Phase 5 | Wave 2 | doc-registry 拡張実装後 |
+| `check-doc-temporal-scope` | Phase 4 | Wave 2 | 誤検知率検証必要 |
+| `check-reading-pass-schema` | Phase 2.5 | Wave 2 | Reading Pass start 時 |
+| `check-no-prewrite-hook` | Phase 6 | Wave 3 | Phase 6 と同期 |
+| `check-obligation-drift` | Phase 8a | 別 program 候補 | reposteward Premise Contract と重複 |
+| `check-phase-ordering` | Phase 1 | 別 program 候補 | universal multi-phase pattern |
+| `check-finding-group-pr` | Phase 5 | 別 program 候補 | universal migration PR convention |
+| 既存 PZ-13 + C1 | 既存 | 既存 mechanism 利用 | 維持 |
+
+§A2 checker 4 件は **不変**（Wave 1 から有効、本 program 全期間維持）:
+
+- `app-untouched` / `docs-contracts-aag-untouched` / `no-new-references-doc` / `hard-gate-surface`
+
+#### D3: Wave 1 exit criteria を verified-zero finding 許容に修正（user review #2 §3）
+
+inquiry/08 §5 で articulate した「valid finding が出る」を以下に修正:
+
+> **valid finding または verified-zero finding を出せる**:
+> - A. 新しい structural drift を発見した（valid finding）
+> - B. 対象範囲（managed zone 4 件）に structural drift がないことを **AAG 形式の Finding/Report で証明** した（verified-zero finding）
+
+理由: 既存 governance が十分強い場合でも Wave 1 を無価値扱いにしないため。Wave 1 の価値は finding の発見だけではなく、(1) repo topology を機械的に把握できる / (2) `unmanaged-but-tolerated` baseline を作れる / (3) Finding schema が実用に耐えるか確認できる / (4) §A2 boundary checker の実行経路を作れる、も含む。
+
+verified-zero finding の articulate 形式:
+
+```json
+{
+  "id": "FND-SCP-WAVE1-VERIFIED-ZERO-<n>",
+  "checker": "check-tree | check-yaml-machine-truth | scp-check-app-untouched | ...",
+  "scope": "managed zone 4 件 = top-level tree + projects/ + references/04-tracking/ + docs/contracts/",
+  "result": "verified-zero",
+  "evidence": {
+    "scannedFiles": "<count>",
+    "drift": 0,
+    "scannedAt": "<sha>"
+  },
+  "rationale": "対象範囲を完全に走査し、structural drift が存在しないことを機械的に確認"
+}
+```
+
+#### D4: hard-gate-surface baseline 構造を明示（user review #2 §4）
+
+ADR-SCP-015 D3 で articulate した `hard-gate-surface` baseline file の最小 schema:
+
+```json
+{
+  "checker": "hard-gate-surface",
+  "baselineCommit": "<sha = baseline 確定 commit>",
+  "baselineAt": "<ISO8601 timestamp>",
+  "surfaces": [
+    ".github/workflows/**",
+    "tools/git-hooks/pre-push",
+    "app/package.json#scripts"
+  ],
+  "knownHardGateSurfaces": [
+    {
+      "surface": ".github/workflows/ci.yml",
+      "kind": "workflow-job",
+      "name": "fast-gate",
+      "exitOneSteps": ["lint", "format:check", "build", "test:guards"]
+    },
+    {
+      "surface": "tools/git-hooks/pre-push",
+      "kind": "pre-push-step",
+      "exitOneSteps": ["docs:check", "tsc -b --noEmit", "lint", "format:check", "test:guards"]
+    },
+    {
+      "surface": "app/package.json#scripts",
+      "kind": "npm-script-gate",
+      "names": ["docs:check"]
+    }
+  ]
+}
+```
+
+判定ロジック: 単純 grep ではなく、現在の workflow / pre-push / package.json から `knownHardGateSurfaces` を意味的に再収集 → baseline と **set diff**、増加方向のみ finding。これにより、コメント文 / 説明文の揺れによる誤検知を抑制。
+
+baseline file path: `projects/active/aag-structural-control-plane/aag/scp-checkers/hard-gate-surface.baseline.json`（archive 時に物理削除、ADR-SCP-015 D1 整合）。
+
+#### D5: §A2 scp-checkers の実行モデル再強調（user review #2 §5）
+
+ADR-SCP-015 D1 で articulate した実行モデルを **本 ADR で再強調**:
+
+- **共通 runner**: `tools/governance/run-scp-checker.ts`（TypeScript、Node.js 実行）
+- **各 checker**: `projects/active/aag-structural-control-plane/aag/scp-checkers/<id>.yaml`（declarative spec）
+- **呼び出し**: `aag scp check --project aag-structural-control-plane <checker>`
+
+却下案:
+
+- **却下案 a**: Go 製 `aag-engine` が TypeScript module を直接 load — Go binary の責務肥大化、test 困難、parse-free spirit と整合しない
+- **却下案 b**: 各 checker を独立 shell script で実装 — parse-free 維持できるが、共通 logic（baseRef 解決 / Finding JSON 出力 / 例外条件 join）の重複
+
+採用方式の image:
+
+```yaml
+# aag/scp-checkers/app-untouched.yaml
+id: app-untouched
+method: git-diff-name-only
+baseRef: scp-baseref  # ADR-SCP-015 D2 4 段階解決
+forbiddenPatterns:
+  - "^app/src/"
+findingTemplate:
+  severity: error
+  subject: "app/src/ 配下の touch"
+  rule: "projectization.md §4 nonGoal"
+  problem: "本 program は app/src/ 配下を touch しない (boundary protection)"
+  expected: "app/src/ 配下への変更を別 project / branch で実施"
+```
+
+これにより、checker 追加は YAML 1 file の追加のみで済む（runner 改修不要、既存 method を流用する場合）。新 method（例: `markdown-pattern-grep`）が必要になった時のみ runner 拡張。
+
+#### D6: Phase 0 完了判定 + checklist 状態整合（user review #1）
+
+**Phase 0 完了**: 本 commit（ADR-SCP-016 landing + plan refactor + checklist refactor）で Phase 0 deliverable がすべて landed。
+
+| Phase 0 deliverable | landed status |
+|---|---|
+| projects/active/aag-structural-control-plane/ 8 ファイル一式 | landed |
+| inquiry/01〜07（6 ファイル + Phase 0 acceptance） | landed |
+| inquiry/08（Wave restructuring 棚卸し） | landed |
+| references/04-tracking/open-issues.md 索引追加 | landed |
+| docs:generate で project-health 登録 | confirmed |
+| test:guards PASS | confirmed |
+| ADR-SCP-001〜015（15 ADR）articulate | landed |
+| ADR-SCP-016（本 ADR、Wave restructuring 採用） | landed in this commit |
+| §A1 / §A2 / §B 3 分類 articulate | landed |
+| §A2 narrowing 4 件 + parse-free + phase 不変 articulate | landed |
+| aag/scp-checkers/README.md landing | landed |
+
+**checklist.md 状態整合**: 本 commit で:
+
+- Phase 0 acceptance section の全 checkbox を `[x]` flip（Phase 0 完了判定）
+- Wave 1 readiness section を新設（Wave 1 開始の前提条件 articulate）
+- AI 自己レビュー / 最終レビュー section は本 program archive 時に flip（不変）
+
+**project-health 整合**: 本 commit 後の `docs:generate` で `aag-structural-control-plane` の progress が更新される。Wave 1 の checkbox は本 ADR では追記しない（Wave 1 着手時に追記、不可侵原則 9 整合）。
+
+#### D7: inquiry/08 を「採用済み」マーク
+
+inquiry/08 §8 の選択肢 1 採用を本 ADR で articulate。inquiry/08 冒頭に「2026-05-08: ADR-SCP-016 で採用済み」note を追加し、§5 の valid finding criteria を D3 articulate に揃える。
+
+### rationale
+
+#### Wave 採用の利点
+
+- **価値検証可能**: Wave 1（Structural Inventory MVP）は 8〜12 PR に絞られ、価値検証 + 早期撤退判断が可能
+- **並走 program 影響最小化**: reposteward archive（97%、近日完了想定）後に Wave 2 着手判断、責務重複回避
+- **scope 明確化**: 本 program scope = Wave 1〜3、Separate Program candidate = 移譲（Phase 8a/8b/8c → reposteward Premise Contract / Phase 10 → reposteward Wave 6）
+- **中止条件 articulate 可能**: inquiry/08 §6 articulated 5 中止条件
+- **plan.md と inquiry/08 の二重構造解消**: 本 ADR landing 後、plan.md = Wave 構造（正本）、inquiry/08 = 棚卸し履歴（採用済み記録）
+
+#### verified-zero finding 採用の利点（D3）
+
+- **既存 governance を高評価する文化** — drift がない = governance が機能している = 価値あり
+- **defensive な structural drift 製造を抑止** — 「finding を出すために何か壊す」誘惑を構造的に排除
+- **Wave 1 evidence の articulate 強制** — verified-zero でも `evidence.scannedFiles` / `evidence.scannedAt` を articulate するため、Wave 1 完了時点の repo state が機械的に記録される
+
+#### baseline 必須化の利点（D4）
+
+- **誤検知抑制** — 単純 grep ではなく意味的 set diff、コメント / 説明文の揺れに耐性
+- **ratchet-down 機能** — baseline からの増加方向のみ finding、減少（hard gate 撤去）は許容
+- **archive 時の振り返り資料** — `baselineCommit` で Wave 1 開始時点の Hard Gate surface が記録され、archive 時に Wave 1 → Wave 3 の Hard Gate 推移が比較可能
+
+### alternatives
+
+- **alternative (a)**: Wave restructuring を採用せず、Phase 0〜10 のまま進行 — 却下: user review で「一段重い」articulate、並走 program との責務衝突回避不能
+- **alternative (b)**: Wave 1 のみ本 program で完遂、Wave 2/3/別 program は archive 後の後継 program で扱う — 部分採用、Wave 2/3 を「別 program 候補」と明示することで migration cost の見通しが立つため、本 ADR は両者を articulate（Wave 2/3 は本 program scope 内、Separate Program candidate のみ移譲）
+- **alternative (c)**: program 一旦 paused、reposteward archive 後に再評価 — 却下: foundation（ADR-SCP-001〜016）が活用されないまま放置、再開時の context 復元 cost 大
+- **alternative (d)**: valid finding 厳格化（verified-zero 不可） — 却下: 既存 governance が十分強い場合 Wave 1 が無価値扱い、defensive な drift 製造の誘惑、user review #2 §3 articulate
+- **alternative (e)**: hard-gate-surface を単純 grep count で実装 — 却下: 誤検知過多、コメント / 説明文の揺れに脆弱、user review #2 §4 articulate
+- **alternative (f)**: §A2 scp-checkers を Go (aag-engine) に組み込む — 却下: ADR-SCP-015 D1 で既に却下、parse-free spirit と整合しない、user review #2 §5 articulate
+
+### 観測点
+
+1. plan.md が Wave 構造で再 articulate され、Phase 0〜10 構造の articulate が消失（または採用済み履歴として inquiry に articulate）
+2. checklist.md Phase 0 acceptance section の全 checkbox が `[x]` flip
+3. checklist.md に Wave 1 readiness section が articulate され、Wave 1 着手の前提条件 + Wave 1 exit criteria（verified-zero finding 含む）+ 中止条件 articulate
+4. inquiry/08 冒頭に「ADR-SCP-016 で採用済み」note + §5 verified-zero finding articulate
+5. AI_CONTEXT.md の「Read Order」が Wave 構造を反映（Phase 0〜10 articulate を Wave articulate に refactor）
+6. project-health で `aag-structural-control-plane` の progress が更新される
+7. 本 ADR landing commit 後の test:guards / docs:generate が PASS、pre-push hook が通る
+8. Wave 1 着手時（次 PR）に Wave 1 checkbox section が追記される（不可侵原則 9 整合）
+
+### Lineage
+
+- **preJudgementCommit**: `65b74fb`（inquiry/08 landing commit）
+- **judgementCommit**: `<TBD = 本 ADR landing commit>`
+- **retrospectiveCommit**: `<TBD = 本 program archive 時の振り返り commit>`
+
+### 振り返り判定（ADR-SCP-016）
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
