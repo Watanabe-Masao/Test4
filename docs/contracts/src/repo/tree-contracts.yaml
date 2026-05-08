@@ -1,0 +1,29 @@
+# Tree Contracts authoring source (Wave 1 / Phase 1 sub-PR 2 雛形)
+#
+# 役割: top-level directory の declared / unmanaged-but-tolerated 状態を articulate する authoring source。
+# 機械正本 (= generated JSON) は docs/contracts/generated/tree-contracts.generated.json (Phase 3 で landing 予定、本 sub-PR では未生成)。
+#
+# 不可侵原則 4 (ADR-SCP-004): top-level + structural roots のみ宣言、unmanaged-but-tolerated 第 3 状態を許容。
+# Wave 1 narrowing (ADR-SCP-016 D1): scope = top-level-only、対象 8 entries (= references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/)。
+#
+# 本 yaml は authoring source 雛形のみ。schema 形式 example として 1 entry のみ articulate。
+# 残 7 entries (+ unmanaged-but-tolerated entries) の 宣言確定は Wave 1 / Phase 3 (= Tree Contract Shadow) で実施する。
+#
+# schema: docs/contracts/schema/tree-contracts.schema.json (本 sub-PR で landing 済)
+
+schemaVersion: tree-contracts-v1
+scope: top-level-only
+
+contracts:
+  - path: docs/contracts/
+    status: declared
+    purpose: |
+      AAG / RepoSteward の contract registry。
+      schema (= docs/contracts/aag/ + docs/contracts/schema/)、authoring source (= docs/contracts/src/)、generated artifact (= docs/contracts/generated/) の 3 namespace で articulate。
+    owner: reposteward-ai-ops-platform + aag-structural-control-plane
+    childPolicy: |
+      docs/contracts/aag/ namespace は reposteward 既存資産 (touch 禁止 = §A2 docs-contracts-aag-untouched)。
+      docs/contracts/schema/ + docs/contracts/src/ + docs/contracts/generated/ は AAG SCP scope (ADR-SCP-002 整合)。
+      新規子 namespace 追加は user 判断 (= AAG SCP plan.md / decision-audit.md で articulate)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '12185c0'
