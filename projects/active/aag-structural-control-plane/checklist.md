@@ -143,12 +143,14 @@
 
 ### Phase 2B (sub-PR 2): repo topology parser リファクタ + observed-only field 追加
 
-- [ ] `tools/governance/build-repo-topology.mjs` を refactor:
+- [x] `tools/governance/build-repo-topology.mjs` を refactor:
   - scope を `managed-zone-4` → `top-level-only` に narrow
   - 再帰 zone (projects/ + references/04-tracking/ + docs/contracts/) を削除
   - entry に `observed: true` / `inventoryStatus: "observed-only"` field 追加
-- [ ] `docs/contracts/generated/repo-topology.generated.json` を上書き（旧 4 zone 出力 → 新 top-level-only 出力）
-- [ ] 上書きで content 大幅変更（旧 881 entries → 新 ~30 entries 想定）
+- [x] `docs/contracts/generated/repo-topology.generated.json` を上書き（旧 4 zone 出力 → 新 top-level-only 出力）
+- [x] 上書きで content 大幅変更（旧 881 entries → 新 26 entries: 15 directories + 11 files、想定 ~30 entries 範囲内）
+- [x] 旧 zones[] structure を flat entries[] に simplify（Phase 2C skeleton-diff の comparison 入力として最適化）
+- [x] 6 unaccounted top-level dirs (`app-domain/` / `fixtures/` / `roles/` / `scripts/` / `workers/` / `docs/`) が観測値として surface（Phase 2C で out-of-skeleton 候補として articulate される）
 
 ### Phase 2C (sub-PR 3): skeleton diff generator
 
