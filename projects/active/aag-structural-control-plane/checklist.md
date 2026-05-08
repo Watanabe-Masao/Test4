@@ -76,31 +76,31 @@
 
 ### sub-PR 1: aag-finding.schema.json
 
-- [ ] `docs/contracts/schema/` ディレクトリ作成（既存 `docs/contracts/aag/` とは別 namespace、ADR-SCP-002 整合）
-- [ ] `docs/contracts/schema/aag-finding.schema.json` landing — ADR-SCP-013 13 fields + ADR-SCP-016 D3 result discriminator（valid-finding / verified-zero）統合
-- [ ] valid-finding case: `subject` / `problem` / `expected` / `suggestedDisposition` / `confidence` 必須
-- [ ] verified-zero case: `scope` / `evidence`（scannedFiles / drift / scannedAt）/ `rationale` 必須
-- [ ] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
-- [ ] schema 自体が JSON Schema 2020-12 として valid
-- [ ] schema が AAG-SCP の ID prefix（`FND-SCP-`）を documentation コメントで articulate
+- [x] `docs/contracts/schema/` ディレクトリ作成（既存 `docs/contracts/aag/` とは別 namespace、ADR-SCP-002 整合）
+- [x] `docs/contracts/schema/aag-finding.schema.json` landing — ADR-SCP-013 13 fields + ADR-SCP-016 D3 result discriminator（valid-finding / verified-zero）統合
+- [x] valid-finding case: `severity` / `subject` / `rule` / `problem` / `expected` / `suggestedDisposition` / `confidence` / `falsePositiveAllowed` 必須（ajv で確認済）
+- [x] verified-zero case: `scope` / `evidence`（scannedFiles / drift / scannedAt）/ `rationale` 必須（ajv で確認済）
+- [x] Finding ID prefix `FND-SCP-` で grep 可能（Document ID `DOC-` と区別、pattern validation 含む）
+- [x] schema 自体が JSON Schema **draft-07** として valid（既存 AAG schemas 8 件と同 family、Ajv 既定 dialect）
+- [x] schema が AAG-SCP の ID prefix（`FND-SCP-`）を documentation コメント + pattern validation で articulate
 
 ### sub-PR 2: tree-contracts.schema.json + authoring source 雛形
 
 - [ ] `docs/contracts/schema/tree-contracts.schema.json` landing — top-level 8 directory の declared / unmanaged-but-tolerated 状態を表現
 - [ ] `docs/contracts/src/repo/` ディレクトリ作成
 - [ ] `docs/contracts/src/repo/tree-contracts.yaml` authoring source 雛形 landing（宣言は Phase 3 で確定、本 sub-PR では schema 形式 example のみ）
-- [ ] schema 自体が JSON Schema 2020-12 として valid
+- [ ] schema 自体が JSON Schema draft-07 として valid（既存 AAG schemas 整合）
 
 ### sub-PR 3: doc-kind-registry.schema.json（最小） + authoring source 雛形
 
 - [ ] `docs/contracts/schema/doc-kind-registry.schema.json` landing — kind / temporalScope / lifecycle の最小 enum + extensibility（Wave 2 Phase 4 で本宣言）
 - [ ] `docs/contracts/src/docs/` ディレクトリ作成
 - [ ] `docs/contracts/src/docs/doc-kind-registry.yaml` authoring source 雛形 landing（最小 enum example のみ、本宣言は Wave 2 Phase 4）
-- [ ] schema 自体が JSON Schema 2020-12 として valid
+- [ ] schema 自体が JSON Schema draft-07 として valid（既存 AAG schemas 整合）
 
 ### Phase 1 完了条件（ADR-SCP-016 整合）
 
-- [ ] 3 schema が JSON Schema 2020-12 として valid（既存 `docs/contracts/aag/*.schema.json` 同様の検証パターン）
+- [ ] 3 schema が JSON Schema draft-07 として valid（既存 `docs/contracts/aag/*.schema.json` 同様の検証パターン、Ajv 既定 dialect）
 - [ ] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
 - [ ] Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）
 - [ ] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
