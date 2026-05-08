@@ -143,45 +143,50 @@
 
 ### Phase 2B (sub-PR 2): repo topology parser リファクタ + observed-only field 追加
 
-- [ ] `tools/governance/build-repo-topology.mjs` を refactor:
+- [x] `tools/governance/build-repo-topology.mjs` を refactor:
   - scope を `managed-zone-4` → `top-level-only` に narrow
   - 再帰 zone (projects/ + references/04-tracking/ + docs/contracts/) を削除
   - entry に `observed: true` / `inventoryStatus: "observed-only"` field 追加
-- [ ] `docs/contracts/generated/repo-topology.generated.json` を上書き（旧 4 zone 出力 → 新 top-level-only 出力）
-- [ ] 上書きで content 大幅変更（旧 881 entries → 新 ~30 entries 想定）
+- [x] `docs/contracts/generated/repo-topology.generated.json` を上書き（旧 4 zone 出力 → 新 top-level-only 出力）
+- [x] 上書きで content 大幅変更（旧 881 entries → 新 26 entries: 15 directories + 11 files、想定 ~30 entries 範囲内）
+- [x] 旧 zones[] structure を flat entries[] に simplify（Phase 2C skeleton-diff の comparison 入力として最適化）
+- [x] 6 unaccounted top-level dirs (`app-domain/` / `fixtures/` / `roles/` / `scripts/` / `workers/` / `docs/`) が観測値として surface（Phase 2C で out-of-skeleton 候補として articulate される）
 
 ### Phase 2C (sub-PR 3): skeleton diff generator
 
-- [ ] `tools/governance/build-skeleton-diff.mjs` generator landing — Phase 2A skeleton declaration + Phase 2B repo topology を入力に diff を生成
-- [ ] `docs/contracts/generated/skeleton-diff.generated.json` landing — 6 分類（in-skeleton / out-of-skeleton / missing-expected / unexpected-child / inside-unmanaged-zone / observed-only）+ Status / Disposition / Reason / Questions / Constraint flags の articulate
-- [ ] entry に approval 誤認 / 現状維持誤認 field を含めない（ADR-SCP-017 D6 + ADR-SCP-019 D5 整合）
-- [ ] **Status fields**: meaningStatus / intentStatus / continuityStatus articulate
-- [ ] **Disposition field**: candidateDisposition articulate（Gap 7 分類: fix / revise-skeleton / promote / move / archive / tolerate / delete-candidate / needs-triage）
-- [ ] **Reason field**: reasonCode articulate（OUT_OF_SKELETON / MISSING_EXPECTED / NO_PURPOSE / NO_OWNER / CORRECT_LOCATION_BUT_UNEXPLAINED 等）
-- [ ] **Question fields**（Guidance 入力）: contextQuestion / futureQuestion / changeQuestion / requiredQuestion articulate
-- [ ] **Constraint flags（一律 false）**: preservationAssumed / preferenceBasedDecisionAllowed / localConvenienceDecisionAllowed / promotionAllowed を全 entry に articulate
-- [ ] AI-EXPECTATION-002 整合: out-of-skeleton entry を「即削除」せず、observation target として articulate（preservationAssumed=false でも自動削除はしない）
+- [x] `tools/governance/build-skeleton-diff.mjs` generator landing — Phase 2A skeleton declaration + Phase 2B repo topology を入力に diff を生成（js-yaml は app/node_modules から createRequire で resolve）
+- [x] `docs/contracts/generated/skeleton-diff.generated.json` landing — 6 分類（in-skeleton / out-of-skeleton / missing-expected / unexpected-child（Wave 1 では検出しない）/ inside-unmanaged-zone / observed-only）+ Status / Disposition / Reason / Questions / Constraint flags / Context hooks の articulate（合計 28 entries）
+- [x] entry に approval 誤認 / 現状維持誤認 field を含めない（ADR-SCP-017 D6 + ADR-SCP-019 D5 整合）
+- [x] **Status fields**: meaningStatus / intentStatus / continuityStatus + Evidence（meaningEvidence / intentEvidence / continuityEvidence）articulate
+- [x] **Disposition field**: candidateDisposition articulate（Gap 7 分類: keep-and-contract 8 / tolerate 4 / needs-triage 16）
+- [x] **Reason field**: reasonCode articulate（OUT_OF_SKELETON / MISSING_EXPECTED / CORRECT_LOCATION_BUT_UNEXPLAINED / INHERITED_WITHOUT_RATIONALE 等）
+- [x] **Question fields**（Guidance 入力）: contextQuestion / futureQuestion / changeQuestion / requiredQuestion articulate（in-skeleton 8 entries は null = 既 articulate、investigation entries 20 は具体的 question）
+- [x] **Constraint flags（一律 false）**: preservationAssumed / preferenceBasedDecisionAllowed / localConvenienceDecisionAllowed / promotionAllowed を全 entry に articulate
+- [x] **Context Pipeline hooks**: contextPackRequired / contextDepthHint articulate（in-skeleton entries は false / null = 既 articulate、investigation entries は true / L0-L2 〜 L0-L4）
+- [x] AI-EXPECTATION-002 整合: out-of-skeleton entry を「即削除」せず、observation target として articulate（preservationAssumed=false でも自動削除はしない）
+- [x] 6 unaccounted top-level dirs 検出: app-domain/ + fixtures/ + roles/ + scripts/ + workers/ が `out-of-skeleton + CORRECT_LOCATION_BUT_UNEXPLAINED` として surface、docs/ は `inside-unmanaged-zone` (parent-of-declared docs/contracts/) として surface
+- [x] .vscode/ が `missing-expected + tolerate` として surface（declared as unmanaged-but-tolerated だが本 repo に不在）
 
 ### Phase 2D (sub-PR 4): managed-zone file-level inventories
 
-- [ ] `tools/governance/build-markdown-inventory.mjs` generator landing — managed zone 3 件（projects/ + references/04-tracking/ + docs/contracts/）の Markdown の path / size / heading 構造 / docId 有無 / candidate kind を articulate
-- [ ] `docs/contracts/generated/markdown-inventory.generated.json` landing
-- [ ] `tools/governance/build-yaml-inventory.mjs` generator landing — managed zone 3 件の YAML の 5 分類 candidate（declaration / inventory / generated-input / legacy / unknown）
-- [ ] `docs/contracts/generated/yaml-inventory.generated.json` landing
-- [ ] `tools/governance/build-generated-artifact-inventory.mjs` generator landing — managed zone 3 件の generated artifact 候補の path / 推定 producer / manualEdit policy 候補
-- [ ] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — producerCandidate articulate、producerDeclared は false / unknown（Wave 3 / Phase 9 で正式宣言）
-- [ ] すべての entry に observed / inventoryStatus=observed-only / contractStatus=unreviewed / promotionAllowed=false articulate
+- [x] `tools/governance/build-markdown-inventory.mjs` generator landing — managed zone 3 件（projects/ + references/04-tracking/ + docs/contracts/）の Markdown の path / size / topHeading / candidateKind を articulate（541 entries / 18 candidateKind 分類）
+- [x] `docs/contracts/generated/markdown-inventory.generated.json` landing
+- [x] `tools/governance/build-yaml-inventory.mjs` generator landing — managed zone 3 件の YAML の 5 分類 candidate（declaration / inventory / generated-input / legacy / unknown）（5 entries / declaration 2 + inventory 3）
+- [x] `docs/contracts/generated/yaml-inventory.generated.json` landing
+- [x] `tools/governance/build-generated-artifact-inventory.mjs` generator landing — managed zone 3 件の generated artifact 候補の path / detectionReason / producerCandidate（43 entries / unknown 0、self-reference は loop break のため除外）
+- [x] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — producerCandidate articulate、producerDeclared は false / unknown（Wave 3 / Phase 9 で正式宣言）
+- [x] すべての entry に observed / inventoryStatus=observed-only / contractStatus=unreviewed / promotionAllowed=false / preservationAssumed=false articulate
 
 ### Phase 2 完了条件（ADR-SCP-019 整合 + D8 抜け殻化防止）
 
-- [ ] Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
-- [ ] repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B、`1918202` の content 上書き）
-- [ ] skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
-- [ ] managed zone 3 件の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
-- [ ] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / continuityStatus / promotionAllowed=false articulate 済）
-- [ ] out-of-skeleton が fail ではなく needs-triage candidate として出力
-- [ ] promotionAllowed は原則 false
-- [ ] hard gate / new-only gate 追加なし
+- [x] Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
+- [x] repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B、`1918202` の content 上書き）
+- [x] skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
+- [x] managed zone 3 件の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
+- [x] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / continuityStatus / promotionAllowed=false articulate 済）
+- [x] out-of-skeleton が fail ではなく needs-triage candidate として出力
+- [x] promotionAllowed は原則 false（全 inventory entry articulate 済）
+- [x] hard gate / new-only gate 追加なし
 
 #### D8 抜け殻化防止条件（status を operational に articulate）
 
