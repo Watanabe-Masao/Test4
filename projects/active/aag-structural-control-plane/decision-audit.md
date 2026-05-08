@@ -2086,6 +2086,131 @@ ADR-SCP-018 AAG-SCP-DESIGN-001〜005 を Tree Contract 領域に concrete に ar
 | observed を approved に昇格 | AAG-SCP-PARSE2-002 違反 |
 | out-of-skeleton を即違反として fail | AAG-SCP-PARSE2-004 違反、advisory より前段の観測のみ |
 
+#### D8: Operational decision criteria for Phase 2（抜け殻化防止）
+
+最上位原則の Meaning / Intent / Continuity articulate を **AI が判定・質問・深掘りできる operational form** に落とす。status 単独だと抜け殻になるため、**判定基準 + Evidence + Question templates + 昇格禁止条件**を articulate（user review #1290 整合）。
+
+##### D8.1: status 判定基準（enum 値の operational definition）
+
+各 status の enum 値が抜け殻ラベルにならないよう、判定基準を articulate:
+
+**meaningStatus**:
+
+| 値 | 判定基準 |
+|---|---|
+| `explained` | artifact が何であるか **1 文で説明できる** + どの root / kind / role に属するか説明できる |
+| `candidate` | path / 名前 / 周辺 context から推定はできるが、**正本として説明されていない** |
+| `unexplained` | 何のための artifact か説明できない（machine も human も推定不能） |
+
+**intentStatus**:
+
+| 値 | 判定基準 |
+|---|---|
+| `declared` | purpose / rationale / owner / consumer の **いずれかで明示的に説明されている** |
+| `inferred` | 周辺文脈から推定できるが、**明示されていない** |
+| `unknown` | 推定はできるが **根拠が薄い** |
+| `missing` | **存在理由が説明不能** |
+
+**continuityStatus**:
+
+| 値 | 判定基準 |
+|---|---|
+| `active` | **現在も維持する意思**が articulate されている（recent-changes / active-project 等で言及） |
+| `inherited` | 過去から来ているが、**現在の維持意思は未確認** |
+| `stale` | **過去の名残**である可能性が高い（recent activity なし、関連 project archived） |
+| `unreviewed` | まだ読んでいない（Reading Pass 未実施） |
+| `absent` | 継承すべき意図が見当たらない（孤立 artifact） |
+
+##### D8.2: Evidence field（status 根拠の articulate）
+
+各 entry に status の **根拠**を articulate（status 単独だと AI が「なぜこの status か」を追えない）:
+
+```json
+{
+  "path": "...",
+  "meaningStatus": "candidate",
+  "meaningEvidence": [
+    "path is under references/04-tracking/",
+    "filename ends with .generated.md",
+    "doc-registry に entry がない"
+  ],
+  "intentStatus": "unknown",
+  "intentEvidence": [],
+  "continuityStatus": "unreviewed",
+  "continuityEvidence": []
+}
+```
+
+`*Evidence` field が **空 array** の場合、status は status enum の low-confidence 値に articulate される（unknown / unreviewed / unexplained）。Evidence の articulate が status の confidence を支える。
+
+##### D8.3: status 別 contextQuestion テンプレート
+
+固定 question では弱いため、**status / skeletonStatus / candidateKind の組み合わせ別**に question テンプレートを articulate（Wave 1 では articulation のみ、Wave 2 で context-trigger.yaml に institute）:
+
+| 状況 | contextQuestion テンプレート |
+|---|---|
+| `out-of-skeleton` | このartifactは既存 root へ移動すべきか? / 新しい root として昇格するだけの意味があるか? / 一時物・過去資産・外部 tool 由来ではないか? |
+| `unexpected-child` | 親 root の childPolicy に articulate されていないか? / 同種の child は他にも存在するか? / childPolicy を update すべきか? |
+| `missing-expected` | 削除されたのか、未着手なのか? / 代替 artifact が存在するか? / skeleton 側を revise すべきか? |
+| `inside-unmanaged-zone` | Wave 2 以降で詳細 contract 対象とするか? / 当面 `tolerate` で articulate するか? |
+| `candidateKind: canonical-doc` | 現在の正本か? / 過去の経緯が混ざっていないか? / 未来計画が混ざっていないか? / 製本として維持する意思があるか? |
+| `candidateKind: generated-report` | producer は何か? / 手編集されていないか? / 現在も必要な projection か? / 古い projection ではないか? |
+| `candidateKind: archive-doc` | archive-manifest が存在するか? / 関連 project が completed か? / 復活させる意思があるか? |
+| `candidateKind: project-plan` | 関連 project が active か? / 完了したのに残っていないか? / 製本に move すべき正本性を持っていないか? |
+
+##### D8.4: reasonCode 拡張（10 codes、抜け殻化防止）
+
+Wave 1 では以下 12 codes を articulate（既存 5 codes + 拡張 7 codes、user review #1290 整合）:
+
+| reasonCode | 意味 |
+|---|---|
+| `OUT_OF_SKELETON` | skeleton 外（既存） |
+| `MISSING_EXPECTED` | skeleton 上必要だが存在しない（既存） |
+| `NO_PURPOSE` | purpose field 不在（既存） |
+| `NO_OWNER` | owner field 不在（既存） |
+| `NO_CONSUMER` | consumer 不明 |
+| `NO_LIFECYCLE` | lifecycle 不明 |
+| `NO_PRODUCER` | producer 不明 |
+| `NO_KIND` | document kind 不明 |
+| `STALE_INTENT` | 意図が古い（recent activity なし） |
+| `INHERITED_WITHOUT_RATIONALE` | 継承されているが rationale なし |
+| `CORRECT_LOCATION_BUT_UNEXPLAINED` | **正しい場所に見えても意味や意図が説明できない**（MEANING-004 整合） |
+| `FUNCTIONING_BUT_INTENT_UNKNOWN` | **動いているが意図不明**（MEANING-004 整合） |
+| `PRESENT_BUT_NOT_NECESSARY` | 存在するが必要性が articulate されていない |
+| `EXISTS_BUT_NO_CONSUMER` | 存在するが consumer なし |
+| `GENERATED_BUT_NO_PRODUCER` | generated らしいが producer 宣言なし（ADR-SCP-008 例外条項対象外） |
+| `DOCUMENTED_BUT_NO_CURRENT_ROLE` | 文書化されているが現在の role 不明 |
+
+特に重要な 2 codes:
+
+- `CORRECT_LOCATION_BUT_UNEXPLAINED`: 正しい場所にあるからOK、という誤認を防ぐ
+- `FUNCTIONING_BUT_INTENT_UNKNOWN`: 動いているからOK、という誤認を防ぐ
+
+##### D8.5: 昇格禁止条件（promotionAllowed の operational gate）
+
+`promotionAllowed: false` を一律にしているが、**特定の status combination は厳格に昇格禁止**として articulate（Wave 2 / Phase 5 で declared / contracted に昇格判断する際の gate）:
+
+| 状態 | 昇格禁止 |
+|---|---|
+| `meaningStatus == unexplained` | declared / contracted / generated / archived のいずれにも昇格不可（MEANING-002 整合） |
+| `intentStatus == missing` | いかなる promotion も不可（MEANING-003 整合） |
+| `continuityStatus == absent` | preservation も不可（CONTINUITY-007 整合、archive 候補へ） |
+| `meaningEvidence == [] && intentEvidence == []` | evidence 不在のため、Wave 1 から Wave 2 への昇格判断保留 |
+| `reasonCode includes CORRECT_LOCATION_BUT_UNEXPLAINED` | 正しい場所だが意味未説明、Reading Pass 必須 |
+| `reasonCode includes FUNCTIONING_BUT_INTENT_UNKNOWN` | 動作するが意図不明、intent 調査必須 |
+
+これらは Wave 1 では **articulation のみ**（advisory）、Wave 2 / Phase 5 で declared 昇格判断時に gate として活性化。
+
+##### D8 の効果
+
+- AI が `candidate` と `unknown` の違いで迷わない（D8.1 判定基準 articulate）
+- AI が「なぜこの status か」を追える（D8.2 Evidence articulate）
+- AI が状況別に何を問うべきか分かる（D8.3 question テンプレート）
+- 「正しい場所だから OK」「動いているから OK」誤認を構造的に検出（D8.4 reasonCode 拡張）
+- declared 昇格判断で誤った promotion を構造的に防ぐ（D8.5 昇格禁止条件）
+
+これにより、Meaning / Intent / Continuity が **抜け殻ラベルではなく、AI が判断可能な足場** になる。
+
 ### rationale
 
 #### Skeleton-aware Inventory 採用の利点

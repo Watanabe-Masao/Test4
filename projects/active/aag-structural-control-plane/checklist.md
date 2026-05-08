@@ -36,7 +36,7 @@
 - [x] ADR-SCP-016（Wave restructuring 採用: D1 Phase 0〜10 → Wave 1/2/3 + Separate Program candidate / D2 §A1 checker Wave 配置 / D3 verified-zero finding 許容 / D4 hard-gate-surface baseline 構造明示 / D5 §A2 declarative checker + common runner 再強調 / D6 Phase 0 完了判定 / D7 inquiry/08 採用済み）を decision-audit.md に articulate
 - [x] ADR-SCP-017（AAG SCP Constitutional Layer = Meaning / Intent / Will / Continuity 最上位原則: D1 AAG-SCP-MEANING-001〜005 / D1.5 AAG-SCP-CONTINUITY-001〜005 / D2 3-layer 思考モデル / D3 AAG 再定義 / D4 Mechanical/Guidance 分離 / D5 ADR 階層 / D6 artifact field articulate / D7 最上位原則 section institute）を decision-audit.md に articulate
 - [x] ADR-SCP-018（AAG SCP Ideal-first / Gap-driven 基本作法 = MEANING+CONTINUITY の operational approach: D1 AAG-SCP-DESIGN-001〜005 / D2 8 step 標準フロー / D3 5 areas application / D4 不可侵原則 12 articulate）を decision-audit.md に articulate
-- [x] ADR-SCP-019（Parse2 Re-articulation = Skeleton-aware Inventory、DESIGN の Tree Contract concrete application: D1 AAG-SCP-PARSE2-001〜005 / D2 Phase 2A/B/C/D 再分解 / D3 Phase 3 役割変更 / D4 skeleton-diff 6 分類 / D5 Inventory entry 必須 field / D6 1918202 リファクタ方針 / D7 Parse2 でやらないこと）を decision-audit.md に articulate
+- [x] ADR-SCP-019（Parse2 Re-articulation = Skeleton-aware Inventory、DESIGN の Tree Contract concrete application: D1 AAG-SCP-PARSE2-001〜005 / D2 Phase 2A/B/C/D 再分解 / D3 Phase 3 役割変更 / D4 skeleton-diff 6 分類 / D5 Inventory entry 必須 field / D6 1918202 リファクタ方針 / D7 Parse2 でやらないこと / **D8 Operational decision criteria 抜け殻化防止: status 判定基準 + Evidence + status 別 contextQuestion テンプレート + reasonCode 12 codes + 昇格禁止条件**）を decision-audit.md に articulate
 - [x] plan.md「やってはいけないこと」が §A1（AAG Core 永続、11 件、Wave 配置 articulate）/ §A2（project-scoped boundary protection、**4 件のみ**、archive で消失）/ §B（仕組み化不可、6+ 件）に 3 分類されている
 - [x] §A1 各項目に検出装置 path（`tools/governance/check-*.ts` または既存 mechanism 拡張、parse-heavy 含む）+ Wave / landing phase が articulate されている（GUIDANCE-005 + ADR-SCP-016 D2）
 - [x] §A2 が boundary protection（触ってはいけない / 変更してはいけない / 崩してはいけない）4 件に限定されている: `app-untouched` / `docs-contracts-aag-untouched` / `no-new-references-doc` / `hard-gate-surface`
@@ -170,16 +170,26 @@
 - [ ] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — producerCandidate articulate、producerDeclared は false / unknown（Wave 3 / Phase 9 で正式宣言）
 - [ ] すべての entry に observed / inventoryStatus=observed-only / contractStatus=unreviewed / promotionAllowed=false articulate
 
-### Phase 2 完了条件（ADR-SCP-019 整合）
+### Phase 2 完了条件（ADR-SCP-019 整合 + D8 抜け殻化防止）
 
 - [ ] Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
 - [ ] repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B、`1918202` の content 上書き）
 - [ ] skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
 - [ ] managed zone 3 件の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
-- [ ] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / willStatus / promotionAllowed=false articulate 済）
+- [ ] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / continuityStatus / promotionAllowed=false articulate 済）
 - [ ] out-of-skeleton が fail ではなく needs-triage candidate として出力
 - [ ] promotionAllowed は原則 false
 - [ ] hard gate / new-only gate 追加なし
+
+#### D8 抜け殻化防止条件（status を operational に articulate）
+
+- [ ] meaningStatus / intentStatus / continuityStatus の各 enum に **判定基準が定義されている**（D8.1: explained/candidate/unexplained 等の operational definition、entry articulate と並行で plan.md / ADR-SCP-019 D8 で確認可能）
+- [ ] 各 inventory entry が **status だけでなく Evidence （meaningEvidence / intentEvidence / continuityEvidence）または reasonCode を持つ**（D8.2、空 array は low-confidence として扱う）
+- [ ] **contextQuestion が status / skeletonStatus / candidateKind に応じて生成される**（D8.3、Wave 1 では articulation のみ、Wave 2 で context-trigger.yaml に institute）
+- [ ] reasonCode に **CORRECT_LOCATION_BUT_UNEXPLAINED が articulate されている**（D8.4、「正しい場所だから OK」誤認検出）
+- [ ] reasonCode に **FUNCTIONING_BUT_INTENT_UNKNOWN が articulate されている**（D8.4、「動いているから OK」誤認検出）
+- [ ] 昇格禁止条件（D8.5）が articulate されている: `meaningStatus==unexplained` / `intentStatus==missing` / `continuityStatus==absent` / Evidence 空 / 該当 reasonCode が含まれる場合の昇格 gate
+
 - [ ] Wave 1 / Phase 3 着手 user 承認
 
 ## AI 自己レビュー (= user 承認の手前)
