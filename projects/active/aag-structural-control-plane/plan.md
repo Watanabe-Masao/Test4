@@ -10,7 +10,10 @@
 6. **AI Instruction Pack は post-write validation 限定** — AI 執筆の pre-write 強制は機構上不可能。Phase 6 の完了条件は「AI が参照できる Instruction Pack JSON が生成される」 + 「Markdown 作成後に Document Contract 適合性を機械検証できる」のみ。pre-write 強制を完了条件にしない（ADR-SCP-006）。
 7. **Existing Documentation Reading Pass を機械分類で代替しない** — Phase 2.5 で各既存 Markdown の `proposedKind` / `temporalScope` / `disposition` は **人間/AI の reading** で確定する。機械は candidate と finding を出すのみ。`generated-report`（producer 宣言済）と `archive-doc`（archive-manifest 存在）は machine inferred で accepted 扱いとする例外条項を持つ（ADR-SCP-008）。Reading Pass 期間中、対象 zone 内の文書本体は編集しない（frontmatter docId 付与は同時付与可）。
 8. **Additive-only / Wave 1 milestone 到達前は hard gate 追加しない** — 全 Phase の checker は **advisory** で開始。Hard Gate 昇格は user 判断による別 program 候補（reposteward `aag-engine-hard-gate-promotion` 候補と並走しない）。新規 mechanism は既存 TS guard / docs:generate / aag-engine に **additive** 追加され、置換しない。
-9. **Schema-first / Finding-first / Shadow / Ratchet / Gate の段階順序を逆行させない** — Phase 0（ADR + Existing Asset Mapping）→ Phase 1（Schema MVP）→ Phase 2（Inventory）→ Phase 2.5（Reading Pass）→ Phase 3（Tree Contract Shadow）→ Phase 4（Document Kind + Temporal Scope Shadow）→ Phase 5（Document Contract Declaration + Rewrite/Move/Archive PRs）→ Phase 6（AI Instruction Pack）→ Phase 7（Required Docs Matrix）→ Phase 8a/8b/8c（Obligation Migration）→ Phase 9（Artifact Coverage Gate）→ Phase 10（Runner Parity Contract）。Phase の順序を逆行させない（例: Phase 1 Schema 前に Phase 5 Document Contract Declaration を始めない）。
+9. **Schema-first / Finding-first / Shadow / Ratchet / Gate の段階順序を逆行させない** — **Wave 順序 + Wave 内 Phase 順序の二重順序**（ADR-SCP-016）:
+   - **Phase 0**（ADR + Existing Asset Mapping、本 program 完遂判定対象）→ **Wave 1: Structural Inventory MVP**（Phase 1 → Phase 2 → Phase 3）→ **Wave 2: Contract Pilot**（Phase 2.5 → Phase 4 → Phase 5）→ **Wave 3: Governance Migration**（Phase 6 → Phase 7 → Phase 9）
+   - **Separate Program candidate**（Phase 8a/8b/8c = Obligation Migration、Phase 10 = Runner Parity Contract）は本 program scope 外、**reposteward Premise Contract（Wave 5）との責務重複の可能性** + **runner parity = reposteward の責務** のため archive 時に移譲先を決定
+   - Wave / Phase の順序を逆行させない（例: Wave 1 Phase 1 Schema 前に Wave 2 Phase 5 Document Contract Declaration を始めない、Wave 1 完了前に Wave 2 着手しない）
 10. **versionImpact は計画段階で declare 済（app: +0.0.0 / aag: +0.1）** — 実 archive 時に paradigm shift が surface したら DA entry を articulate して delta を escalate する。本 program は backward-compatible な additive mechanism のみで minor 想定。
 11. **Guidance over restriction（AI を縛らず導く）** — AAG SCP の思想・Document Kind・Instruction Pack は、AI の能力を制限するためではなく、**AI が文脈・役割・粒度・時間軸を正しく把握し、より良い判断を行うための定性的ガイダンス**である。機械的 foul は **構造違反**（未登録 / 欠落 / 混入 / 生成物手編集 / 時間軸違反 / producer 不明 等）に限定し、**設計判断・表現品質・文脈解釈は AI / human review** で扱う。Gate は AI を失敗させる仕組みではなく、**構造的にありえないものだけを検出する安全網**（ADR-SCP-014 + AAG-SCP-GUIDANCE-001〜004）。
    - 思想 (= 不可変) → AI の判断を定性的に導く
@@ -19,9 +22,15 @@
    - Gate (= 構造破綻検出) → 構造的に判定可能な違反のみを foul する安全網
    - 合言葉: **`Plan → Context → Contract → Guidance → Gate`**（旧 `Plan → Contract → Rule → Gate` を更新）
 
-## Phase 構造
+## Wave 構造（Phase 0 完了 → Wave 1/2/3 + Separate Program candidate）
 
-### Phase 0: ADR + Existing Asset Mapping（本 PR で完了）
+> **正式採用**: ADR-SCP-016（2026-05-08）で Wave restructuring 採用。Phase 0 deliverable はすべて landed（本 commit が Phase 0 完遂判定）。Phase 0〜10 は Wave 1/2/3 + Separate Program candidate に再構成された。
+>
+> **想定 PR 数集計**: Wave 1 = 8〜12 PR / Wave 2 = 8〜12 PR / Wave 3 = 4〜6 PR / Separate Program candidate = 5〜8 PR（移譲先で）。元計画 30〜45 PR から本 program 範囲は 20〜30 PR に縮小（25〜35% 縮小）。
+
+### Phase 0: ADR + Existing Asset Mapping（COMPLETE — 本 commit で完遂判定）
+
+> **完遂状態**: ADR-SCP-001〜016（16 ADR）+ inquiry/01〜08 + projects/active/aag-structural-control-plane/ 8 ファイル + aag/scp-checkers/README.md がすべて landed。本 commit (ADR-SCP-016 landing) で Phase 0 acceptance criteria 全 36 項目が満足され、checklist Phase 0 section の checkbox は本 commit で `[x]` flip される。AI 自己レビュー / 最終レビュー section は Wave 3 完了 + 本 program archive 時に flip（不変）。
 
 > **目的**: 実装開始前に **既存資産との接続関係を確定** する。型・schema・detector を増やす前に、既存 5 資産（doc-registry / docs/contracts/aag schemas / OBLIGATION_MAP / 既存 YAML / self-check substrate）との関係を articulate する。
 
@@ -50,59 +59,115 @@ ADR 一覧（詳細は `decision-audit.md` 参照）:
 
 完了条件: 上記すべて PASS かつ user 承認による checklist.md 最終レビュー [x] flip。
 
-### Phase 1: Schema MVP（5〜6 PR）
+## Wave 1: Structural Inventory MVP（8〜12 PR）
+
+> **目的**: 価値検証 critical path として最小スコープで start。repo topology 把握 + Finding schema 妥当性確認 + §A2 boundary checker 実行経路確立 を Wave 1 内で完遂。Wave 2 着手判断のための valid finding または verified-zero finding（ADR-SCP-016 D3）を獲得する。
+>
+> **Wave 1 narrowing**: managed zone 4 件（top-level tree + projects/ + references/04-tracking/ + docs/contracts/）+ 最小 3 schema + top-level tree のみ Tree Contract 対象 + advisory のみ。
+
+### Wave 1 / Phase 1: Schema MVP（縮小: 最小 3 schema、3〜4 PR）
 
 > **目的**: Finding-first migration の受け皿を最初に作る。検出結果の型を先に定義し、すべての checker が同一 Finding JSON を返せる状態を作る。
+>
+> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画 5 schema → **最小 3 schema**（aag-finding + tree-contracts + 最小 doc-kind-registry）。document-contracts.schema.json + temporal-scope-policy.schema.json は **Wave 2** へ後ろ倒し（Phase 4 / Phase 5 着手時に同 phase で landing）。
 
-成果物:
+成果物（Wave 1 範囲）:
 
-- `docs/contracts/schema/aag-finding.schema.json`（Finding の共通 schema = id / severity / subject / problem / expected / suggestedDisposition）
+- `docs/contracts/schema/aag-finding.schema.json`（Finding の共通 schema = id / severity / subject / problem / expected / suggestedDisposition / **result**（valid-finding / verified-zero、ADR-SCP-016 D3 整合））
 - `docs/contracts/schema/tree-contracts.schema.json`
-- `docs/contracts/schema/doc-kind-registry.schema.json`
-- `docs/contracts/schema/document-contracts.schema.json`
-- `docs/contracts/schema/temporal-scope-policy.schema.json`
+- `docs/contracts/schema/doc-kind-registry.schema.json`（最小 schema、Phase 4 で本宣言）
 - `docs/contracts/src/repo/tree-contracts.yaml`（authoring source 雛形のみ、宣言は Phase 3 で確定）
-- `docs/contracts/src/docs/doc-kind-registry.yaml`（authoring source 雛形のみ、宣言は Phase 4 で確定）
+- `docs/contracts/src/docs/doc-kind-registry.yaml`（authoring source 雛形のみ、宣言は Wave 2 Phase 4 で確定）
 
-完了条件: 5 schema が JSON Schema として valid + Finding ID prefix が `FND-` で grep 可能（Document ID `DOC-` と区別）+ hard gate 追加なし。
+Wave 2 で landing する schema（ここでは記載のみ、実装は Wave 2）:
 
-### Phase 2: Inventory（3〜4 PR）
+- `docs/contracts/schema/document-contracts.schema.json`（Wave 2 Phase 5）
+- `docs/contracts/schema/temporal-scope-policy.schema.json`（Wave 2 Phase 4）
 
-> **目的**: repo の現状を機械的に把握する。文書移動や大規模修正は一切しない。違反一覧を出すための入力データを揃える。
+完了条件: 3 schema が JSON Schema として valid + Finding ID prefix が `FND-` で grep 可能（Document ID `DOC-` と区別）+ Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）+ hard gate 追加なし。
+
+### Wave 1 / Phase 2: Inventory（縮小: managed zone 4 件、3〜4 PR）
+
+> **目的**: managed zone 4 件の現状を機械的に把握する。文書移動や大規模修正は一切しない。Finding を出すための入力データを揃える。
+>
+> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画「全 zone」→ **managed zone 4 件限定**（top-level tree + `projects/` + `references/04-tracking/` + `docs/contracts/`）。`references/01-foundation/` / `references/03-implementation/` / `aag/_internal/` 等は Wave 2 で hot zone Reading Pass の入力として inventory 拡張する。
+
+成果物（managed zone 4 件 scope）:
+
+- `docs/contracts/generated/repo-topology.generated.json`（managed zone 4 件の tree 探索結果）
+- `docs/contracts/generated/markdown-inventory.generated.json`（managed zone 内 Markdown の path / size / heading 構造 / docId 有無）
+- `docs/contracts/generated/yaml-inventory.generated.json`（managed zone 内 YAML を `declaration` / `inventory` / `generated-input` / `legacy` / `unknown` の 5 分類 candidate で articulate）
+- `docs/contracts/generated/generated-artifact-inventory.generated.json`（managed zone 内 generated artifact 候補の path / 推定 producer / manualEdit policy 候補）
+
+完了条件: 4 inventory JSON 生成 + managed zone 4 件の repo 構造 / Markdown / YAML / generated artifact 候補をすべて把握 + まだ foul しない + Wave 2 拡張点 articulate（hot zone Reading Pass で inventory 拡張する zone 一覧）。
+
+### Wave 1 / Phase 3: Tree Contract Shadow（縮小: top-level tree のみ、2〜3 PR）
+
+> **目的**: Phase 1 の tree-contracts.schema.json と Phase 2 の repo-topology.generated.json を入力に、Tree Contract checker を **advisory** で稼働させる。
+>
+> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画「主要 layer + references zone まで」→ **top-level tree のみ**（`references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/` / `tools/` / `wasm/`）。`app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` 等の中間階層は **Wave 2 以降**で拡大判断（top-level Tree Contract が valid / verified-zero finding を articulate できるかを Wave 1 で検証）。
+
+対象（Wave 1 narrowing scope = top-level tree のみ）:
+
+- `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/` / `tools/` / `wasm/`（上記 8 件のみ）
 
 成果物:
 
-- `docs/contracts/generated/repo-topology.generated.json`（repo tree 全体の探索結果）
-- `docs/contracts/generated/markdown-inventory.generated.json`（全 Markdown の path / size / heading 構造 / docId 有無）
-- `docs/contracts/generated/yaml-inventory.generated.json`（全 YAML を `declaration` / `inventory` / `generated-input` / `legacy` / `unknown` の 5 分類 candidate で articulate）
-- `docs/contracts/generated/generated-artifact-inventory.generated.json`（generated artifact 候補の path / 推定 producer / manualEdit policy 候補）
+- `docs/contracts/src/repo/tree-contracts.yaml`（宣言確定、top-level 8 件のみ）
+- `docs/contracts/generated/tree-contracts.generated.json`
+- `docs/contracts/generated/tree-contract-findings.generated.json`
+- `tools/governance/check-tree.ts`（advisory checker）
 
-完了条件: 4 inventory JSON 生成 + repo 構造 / Markdown / YAML / generated artifact 候補をすべて把握 + まだ foul しない。
+完了条件: 未宣言 top-level directory finding を出せる + `unmanaged-but-tolerated` を表現できる + valid finding または verified-zero finding（ADR-SCP-016 D3）articulate + new-only gate 設計が articulate されている + advisory のみ。
 
-### Phase 2.5: Existing Documentation Reading Pass（zone 単位、複数 PR）
+### Wave 1 exit criteria（数値化、ADR-SCP-016 D3 整合）
+
+Wave 1 完了条件:
+
+- managed zone == 4（top-level tree + projects/ + references/04-tracking/ + docs/contracts/）
+- 追加 schema ≤ 3（aag-finding + tree-contracts + 最小 doc-kind-registry）
+- 新 §A1 checker ≤ 3（check-yaml-machine-truth + check-tree + docs:check 拡張）+ 既存 mechanism 1（PZ-13 / C1）
+- §A2 checker = 4（変更なし、boundary protection 維持）
+- 誤検知レビューで未解決 == 0
+- new-only gate 未導入（advisory のみ）
+- **valid finding または verified-zero finding を出せる**（ADR-SCP-016 D3）:
+  - A. 新しい structural drift を発見した（valid finding）
+  - B. 対象範囲（managed zone 4 件）に structural drift がないことを **AAG 形式の Finding/Report で証明** した（verified-zero finding）
+- 運用コスト articulate 済（AI session の探索 cost + user review cost）
+
+### Wave 1 中止条件（inquiry/08 §6 整合）
+
+以下のいずれかが Wave 1 で発生したら、本 program を **paused 状態** にして再評価:
+
+1. **誤検知率が高い**: shadow check の false-positive rate > 30%、運用 cost 過大
+2. **Reading Pass の人手負荷過大**: Wave 2 へ進む前に hot zone Reading Pass の cost が articulate 不能
+3. **既存 program と責務衝突**: reposteward Premise Contract / Task Capsule と本 program Document Contract の境界が articulate 不能
+4. **valid finding + verified-zero finding ともに不能**: 既存 governance（architecture-health / projectizationPolicyGuard / docRegistryGuard 等）で完全 carry されており、本 program の追加価値が articulate 不能
+5. **他 active program の進行に影響**: 本 program review / merge / ratchet-down が他 program の archive を遅延
+
+## Wave 2: Contract Pilot（8〜12 PR）
+
+> **目的**: Wave 1 で articulate された managed zone 4 件 + Tree Contract baseline を入力に、Document Kind / Temporal Scope / Document Contract を hot zone 限定で pilot する。Wave 1 exit criteria 全件 PASS 後に着手判断。
+>
+> **Wave 2 narrowing**: Reading Pass + Document Contract Declaration を hot zone 4 件限定（references/04-tracking/, projects/active/, CLAUDE.md, docs/contracts/）。Phase 5 想定 PR 数を元計画 15〜25 から **5〜8 PR** に縮小。
+
+### Wave 2 / Phase 2.5: Existing Documentation Reading Pass（縮小: hot zone 4 件限定、3〜5 PR）
 
 > **目的**: 既存 Markdown を一度読み、各文書の意味・役割・時間軸・正本性を確定する。機械分類だけで contract 化しない（不可侵原則 7）。
 >
 > **AAG-SCP-MIGRATION-001〜006** をここで適用する（詳細は `decision-audit.md` の ADR-SCP-007〜009）。
+>
+> **Wave 2 narrowing（ADR-SCP-016 D1）**: 元計画「全 12 zone」→ **hot zone 4 件限定**:
+> 1. `references/04-tracking/`（generated/ 配下は ADR-SCP-008 例外条項で machine inferred）
+> 2. `projects/active/`（各 project の AI_CONTEXT / HANDOFF / plan / checklist は project-plan / project-checklist kind で固定）
+> 3. `CLAUDE.md`（orchestration 層の確認）
+> 4. `docs/contracts/`（schema は ADR-SCP-008 例外条項で machine inferred）
+>
+> 残 8 zone（`references/01-foundation/` / `references/03-implementation/` / `references/02-design-system/` / `references/05-aag-interface/` / `references/99-archive/` / `aag/` / `aag/_internal/` / `references/README.md` + `aag/README.md` + `projects/` root の README.md）は **Wave 3 以降または別 program 候補**。Wave 2 完了時の Reading Pass 価値検証を踏まえて user 判断。
 
-zone 読み順（依存順）:
+成果物（hot zone 4 件 scope）:
 
-1. `references/README.md` + `aag/README.md` + `projects/` root の README.md（3 tree 境界の正本確認）
-2. `CLAUDE.md`（orchestration 層の確認）
-3. `aag/_internal/{meta,strategy,architecture,evolution,source-of-truth,layer-map,operational-classification}.md`（型と原則の確認）
-4. `references/01-foundation/`
-5. `references/03-implementation/`
-6. `references/04-tracking/`（generated/ 配下は ADR-SCP-008 例外条項で machine inferred）
-7. `references/02-design-system/`
-8. `references/05-aag-interface/`
-9. `references/99-archive/`（archive-manifest 存在の場合 ADR-SCP-008 例外条項で machine inferred）
-10. `projects/active/`（各 project の AI_CONTEXT / HANDOFF / plan / checklist は project-plan / project-checklist kind で固定）
-11. `aag/`（README.md 以外の framework 内部）
-12. `docs/contracts/`（schema は ADR-SCP-008 例外条項で machine inferred）
-
-成果物:
-
-- `docs/contracts/src/docs/document-reading-decisions.yaml`（**human/AI authored**、各 docId に対する `proposedKind` / `temporalScope` / `disposition` / `reviewedBy` / `reviewedAtCommit` / `reviewedAtSha` / `rationaleSummary` / `alternativesConsidered`）
+- `docs/contracts/src/docs/document-reading-decisions.yaml`（**human/AI authored**、hot zone 4 件の各 docId に対する `proposedKind` / `temporalScope` / `disposition` / `reviewedBy` / `reviewedAtCommit` / `reviewedAtSha` / `rationaleSummary` / `alternativesConsidered`）
 - `docs/contracts/generated/document-reading-candidates.generated.json`（**machine inferred**、heuristic candidate の集合）
 - `docs/contracts/generated/document-reading-merged.generated.json`（src/ + generated/ の join projection、final disposition view）
 
@@ -115,30 +180,13 @@ disposition 4 分類:
 
 完了条件（state-based）:
 
-- `reading-coverage` ratio == 100% per managed zone（reading-decisions.yaml entry 数 / inventory entry 数）
+- `reading-coverage` ratio == 100% per **hot zone 4 件**（reading-decisions.yaml entry 数 / inventory entry 数）
 - `false-positive` disposition rate < N%（shadow detection との突合）
 - `needs-triage` 残数 == 0
 - 各 disposition の根拠が `rationaleSummary` で 1〜2 文 articulate されている
 - すべての decision に `reviewedBy` / `reviewedAtCommit` / `reviewedAtSha` 必須
 
-### Phase 3: Tree Contract Shadow（2〜3 PR）
-
-> **目的**: Phase 1 の tree-contracts.schema.json と Phase 2 の repo-topology.generated.json を入力に、Tree Contract checker を **advisory** で稼働させる。
-
-対象（不可侵原則 4 に従う MVP scope）:
-
-- `references/` / `aag/` / `aag-engine/` / `projects/` / `docs/contracts/` / `app/src/{domain,application,infrastructure,presentation,features}` / `app/src/test/guards/` / `tools/` / `wasm/`
-
-成果物:
-
-- `docs/contracts/src/repo/tree-contracts.yaml`（宣言確定）
-- `docs/contracts/generated/tree-contracts.generated.json`
-- `docs/contracts/generated/tree-contract-findings.generated.json`
-- `tools/governance/check-tree.ts`（advisory checker）
-
-完了条件: 未宣言 top-level directory finding を出せる + `unmanaged-but-tolerated` を表現できる + new-only gate 設計が articulate されている + advisory のみ。
-
-### Phase 4: Document Kind + Temporal Scope Shadow（2〜3 PR）
+### Wave 2 / Phase 4: Document Kind + Temporal Scope Shadow（2〜3 PR）
 
 > **目的**: Document Kind Registry + Temporal Scope Policy を確定し、shadow checker で誤検知を回収する。
 
@@ -166,42 +214,48 @@ disposition 4 分類:
 
 完了条件: 製本/archive/project/generated の分類候補が出る + 過去/未来混入 finding が一覧化される + 誤検知レビュー期間（state-based exit）を Phase 2.5 と並列で開始 + advisory のみ。
 
-### Phase 5: Document Contract Declaration + Rewrite/Move/Archive PRs（多数 PR）
+### Wave 2 / Phase 5: Document Contract Declaration + Rewrite/Move/Archive PRs（縮小: hot zone 限定、5〜8 PR）
 
 > **目的**: Phase 2.5 Reading Pass で確定した disposition に基づき、(a) Document Contract を doc-registry に拡張宣言、(b) split / move / archive を実行する。
 >
 > **1 Finding group = 1 PR** を厳守。一括置換禁止（AAG-SCP-MIGRATION-005）。
+>
+> **Wave 2 narrowing（ADR-SCP-016 D1）**: 元計画「全文書一斉適用、15〜25 PR」→ **hot zone 4 件限定で 5〜8 PR に縮小**。zone × disposition partition は維持。残 zone は Wave 3 以降または別 program で扱う。
 
 含むもの:
 
-- `docs/contracts/src/docs/document-contracts.yaml`（宣言確定、Reading Pass `keep-and-contract` 対象から順次）
+- `docs/contracts/src/docs/document-contracts.yaml`（宣言確定、hot zone 4 件の Reading Pass `keep-and-contract` 対象から順次）
 - `docs/contracts/generated/document-contracts.generated.json`
 - doc-registry.json への kind / temporalScope / requiredSections / forbiddenContent additive 拡張
 - `tools/governance/check-doc-contracts.ts`（advisory checker）
 
-**PR 分割単位 = zone × disposition**（ADR-SCP-012、AAG-SCP-MIGRATION-005）。具体例:
+**PR 分割単位 = zone × disposition**（ADR-SCP-012、AAG-SCP-MIGRATION-005）。具体例（hot zone 4 件）:
 
 | PR タイトル | zone | disposition | 想定 PR 数 |
 |---|---|---|---|
-| `phase5(zone-01-foundation): keep-and-contract` | references/01-foundation | keep-and-contract | 1 |
-| `phase5(zone-01-foundation): split-history-to-archive` | references/01-foundation | split | 数件 |
-| `phase5(zone-01-foundation): move-to-project` | references/01-foundation | move | 数件 |
-| `phase5(zone-03-implementation): keep-and-contract` | references/03-implementation | keep-and-contract | 1 |
-| `phase5(zone-03-implementation): move-project-plan-to-projects` | references/03-implementation | move | 数件 |
 | `phase5(zone-04-tracking): generated-register` | references/04-tracking | generated-register | 1（一括） |
-| `phase5(zone-99-archive): archive-manifest-add` | references/99-archive | archive | 数件 |
+| `phase5(zone-04-tracking): keep-and-contract` | references/04-tracking | keep-and-contract | 1 |
+| `phase5(zone-projects-active): keep-and-contract` | projects/active | keep-and-contract | 1 |
+| `phase5(zone-projects-active): split-or-move` | projects/active | split / move | 1〜2 |
+| `phase5(zone-claude-md): keep-and-contract` | CLAUDE.md | keep-and-contract | 1 |
+| `phase5(zone-docs-contracts): keep-and-contract` | docs/contracts | keep-and-contract | 1 |
+| `phase5(zone-docs-contracts): generated-register` | docs/contracts | generated-register | 1 |
 
-想定 PR 数: 15〜25（6 zone × 6 disposition - 空組み合わせ）。同 zone 同 disposition で entry 数 > 10 の場合は kind 単位で分割可（zone × disposition × kind）。詳細: inquiry/07 §10。
+想定 PR 数（hot zone scope）: **5〜8 PR**（4 zone × 関連 disposition、entry 数次第）。残 zone は Wave 3 以降または別 program で扱う。
 
-完了条件（ratchet-down）:
+完了条件（ratchet-down、hot zone 4 件 scope）:
 
-- `document.unregistered.count` 単調減少 → 0
-- `canonical.temporalViolation.count` 単調減少 → 0
-- `disposition.unresolved.count` == 0
+- `document.unregistered.count` （hot zone 内）単調減少 → 0
+- `canonical.temporalViolation.count` （hot zone 内）単調減少 → 0
+- `disposition.unresolved.count` （hot zone 内）== 0
 - 各 PR が Finding group 単位で独立 rollback 可能
-- new-only gate 化（advisory → new violation のみ foul）
+- new-only gate 化（advisory → new violation のみ foul、hot zone 内）
 
-### Phase 6: AI Instruction Pack（2〜3 PR）
+## Wave 3: Governance Migration（4〜6 PR）
+
+> **目的**: Wave 1 / Wave 2 で articulate された Tree Contract / Document Contract / Reading Pass を入力に、AI Instruction Pack + Required Docs Matrix + Artifact Coverage Gate を landing する。Wave 2 exit criteria PASS 後に着手判断。
+
+### Wave 3 / Phase 6: AI Instruction Pack（2〜3 PR）
 
 > **目的**: Document Kind ごとの AI 向け JSON guidance を生成する。**post-write validation 限定**（不可侵原則 6）+ **guidance であって命令書ではない**（不可侵原則 11、AAG-SCP-GUIDANCE-003）。
 >
@@ -222,7 +276,7 @@ disposition 4 分類:
 - pre-write 強制機構は実装しない（AI session の自由度を確保）
 - 「設計の良し悪し」「表現品質」「比喩の適切さ」は post-write validation の scope 外（AI / human review の責務）
 
-### Phase 7: Required Docs Matrix（2 PR）
+### Wave 3 / Phase 7: Required Docs Matrix（2 PR）
 
 > **目的**: repo 構造から必要 doc を導出。
 
@@ -241,9 +295,42 @@ disposition 4 分類:
 
 完了条件: missing required doc finding が一覧化される + 初期は advisory + new-only gate のみ foul。
 
-### Phase 8a/8b/8c: Obligation / Required Reads 3 段階 Shadow Migration
+### Wave 3 / Phase 9: Artifact Coverage Gate（2 PR）
 
-> **目的**: 既存 `OBLIGATION_MAP` / `PATH_TO_REQUIRED_READS`（`tools/architecture-health/src/collectors/obligation-collector.ts`）を YAML authoring source へ慎重に移行（不可侵原則 5）。
+> **目的**: 未管理 artifact をすべて declared / generated / archived / external / temporary-with-expiry / ignored-with-reason のいずれかに分類する。
+
+成果物:
+
+- `docs/contracts/src/governance/artifact-coverage.yaml`
+- `docs/contracts/src/governance/generated-artifacts.yaml`
+- `docs/contracts/generated/artifact-coverage.generated.json`
+- `docs/contracts/generated/generated-artifacts.generated.json`
+- `docs/contracts/generated/unmanaged-artifacts.generated.json`
+- `tools/governance/check-coverage.ts`（advisory checker）
+
+完了条件:
+
+- generated artifact producer 不明を検出
+- ignored / temporary には owner / reason / reviewAfter / expiresAt 必須
+- 初期は inventory、次に new-only gate
+
+## Separate Program candidate（5〜8 PR、移譲先で）
+
+> **scope 外**: 以下 Phase は **本 program scope 外**。reposteward Premise Contract（Wave 5）との責務重複の可能性 + reposteward の責務（runner parity）のため、本 program archive 時に移譲先を決定する（ADR-SCP-016 D1）。
+>
+> **移譲先候補**:
+> - **Phase 8a/8b/8c → reposteward Premise Contract 拡張**（path → required reads の universal contract が確立されれば、本 program で重複実装する意味は薄い。reposteward archive 後に再評価）
+> - **Phase 10 → reposteward `aag-engine-runner-parity-extension`**（reposteward の self-check / chaos run の延長として実装）
+>
+> **代替案**: 本 program では「既存 OBLIGATION_MAP の値が drift していないか」の advisory check のみ実施し、migration は reposteward 系統に委ねる（inquiry/08 §2 整合）。
+>
+> **本 ADR 採用後は本 program では着手しない**。記載は移譲先 program articulate のための参照用。
+
+### Separate Program candidate / Phase 8a/8b/8c: Obligation / Required Reads 3 段階 Shadow Migration
+
+> **scope 外マーク**: 本 program では着手しない。reposteward Premise Contract (Wave 5) との責務重複の可能性、別 program で再評価（ADR-SCP-016 D1）。
+>
+> **目的**（移譲先 program で articulate 参照用）: 既存 `OBLIGATION_MAP` / `PATH_TO_REQUIRED_READS`（`tools/architecture-health/src/collectors/obligation-collector.ts`）を YAML authoring source へ慎重に移行（不可侵原則 5）。
 
 #### Phase 8a（2 PR）: YAML 追加 + 正規化比較器
 
@@ -272,28 +359,11 @@ disposition 4 分類:
 
 完了条件: TS 定数削除 + 全テスト PASS + architecture-health pipeline 不変。
 
-### Phase 9: Artifact Coverage Gate（2 PR）
+### Separate Program candidate / Phase 10: Runner Parity Contract（1〜2 PR）
 
-> **目的**: 未管理 artifact をすべて declared / generated / archived / external / temporary-with-expiry / ignored-with-reason のいずれかに分類する。
-
-成果物:
-
-- `docs/contracts/src/governance/artifact-coverage.yaml`
-- `docs/contracts/src/governance/generated-artifacts.yaml`
-- `docs/contracts/generated/artifact-coverage.generated.json`
-- `docs/contracts/generated/generated-artifacts.generated.json`
-- `docs/contracts/generated/unmanaged-artifacts.generated.json`
-- `tools/governance/check-coverage.ts`（advisory checker）
-
-完了条件:
-
-- generated artifact producer 不明を検出
-- ignored / temporary には owner / reason / reviewAfter / expiresAt 必須
-- 初期は inventory、次に new-only gate
-
-### Phase 10: Runner Parity Contract（1〜2 PR）
-
-> **目的**: pre-push / CI / npm scripts / aag-engine advisory checks の必須 step drift を検出する。
+> **scope 外マーク**: 本 program では着手しない。runner parity = reposteward の責務（self-check / chaos run の延長）、別 program で再評価（ADR-SCP-016 D1）。
+>
+> **目的**（移譲先 program で articulate 参照用）: pre-push / CI / npm scripts / aag-engine advisory checks の必須 step drift を検出する。
 
 成果物:
 
@@ -309,7 +379,7 @@ disposition 4 分類:
 - aag-engine CI（reposteward 由来）
 - 既存の `docs:check` / `test:guards` / `aag self-check` / `aag chaos run`
 
-完了条件: pre-push / CI / npm scripts / aag-engine の必須 step driftを検出 + advisory から開始 + Core gate 成熟後に hard gate 化（user 判断、別 program 候補）。
+完了条件: pre-push / CI / npm scripts / aag-engine の必須 step drift を検出 + advisory から開始 + Core gate 成熟後に hard gate 化（user 判断、別 program 候補）。
 
 ## やってはいけないこと
 
@@ -325,19 +395,21 @@ disposition 4 分類:
 
 #### §A1: AAG Core 永続 checker（`tools/governance/`、archive 後も残置）
 
-| やってはいけないこと | 違反根拠 | 検出装置 | landing phase |
+> **Wave 配置**（ADR-SCP-016 D2）: §A1 11 件 → Wave 1 = 3 件 + Wave 2 = 3 件 + Wave 3 = 1 件 + 別 program 候補 = 3 件 + 既存 mechanism = 1 件。Wave 1 で landing する checker は 3 件に narrowing（Wave 1 exit criteria「新 §A1 checker ≤ 3」整合）。
+
+| やってはいけないこと | 違反根拠 | 検出装置 | Wave / landing phase |
 |---|---|---|---|
-| **YAML を AAG machine truth として採用する** | 不可侵原則 1 / ADR-SCP-001 | `tools/governance/check-yaml-machine-truth.ts`（detector / CI / AAG CLI が `*.yaml` を直読する import を grep 検出） | Phase 1 |
-| **Document Contract を doc-registry.json と並立させる** | 不可侵原則 2 / ADR-SCP-002 | `tools/governance/check-doc-contracts.ts`（新 namespace `DOC-DEF-*` 等の prefix を doc-registry 外で検出すれば finding） | Phase 5 |
-| **製本に過去/未来を本文展開する** | 不可侵原則 3 / ADR-SCP-003 | `tools/governance/check-doc-temporal-scope.ts`（canonical-doc kind の文書に History / Roadmap / Future / TODO / Phase / Migration Log heading + checkbox + 禁止表現 patterns 検出） | Phase 4 |
-| **Tree Contract MVP scope を超えて全ディレクトリを宣言する** | 不可侵原則 4 / ADR-SCP-004 | `tools/governance/check-tree.ts`（tree-contracts.yaml の declared directory 数が baseline + N を超えれば finding、ratchet-down） | Phase 3 |
-| **AI Instruction Pack を pre-write 強制機構として実装する** | 不可侵原則 6 / ADR-SCP-006 / AAG-SCP-GUIDANCE-003 | `tools/governance/check-no-prewrite-hook.ts`（git pre-commit / pre-push hook に Markdown 編集前 instruction-pack 取得強制があれば finding） | Phase 6 |
-| **YAML 変更後の generated JSON 未更新** | 不可侵原則 1 補強 | 既存 `docs:check` mechanism（pre-push hook で live recalc + semantic diff）に YAML→JSON normalize 検証を追加 | Phase 1 |
-| **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** | 不可侵原則 5 / ADR-SCP-005 | `tools/governance/check-obligation-drift.ts`（Phase 8a で正規化比較器、TS 定数と generated JSON の意味的差分機械検証 + commit history で Phase 8a→8b→8c 段階順序検証）— **universal な migration safety pattern** のため §A1 配置 | Phase 8a/8b/8c |
-| **Reading Pass を機械分類で代替する** | 不可侵原則 7 / ADR-SCP-007 / ADR-SCP-008 / ADR-SCP-010 | `tools/governance/check-reading-pass-schema.ts`（document-reading-decisions.yaml の各 entry に reviewedBy / reviewedAtCommit / reviewedAtSha が必須、`generated-report` / `archive-doc` 例外条項該当外で machine-inferred 表記があれば finding）— **universal な reading-pass.schema.json validation** | Phase 2.5 |
-| **Phase 順序を逆行させる** | 不可侵原則 9 | `tools/governance/check-phase-ordering.ts`（commit history で Phase N+1 の成果物が Phase N より前に landing していれば finding、各 phase の sentinel artifact 存在確認）— **多 phase project の universal pattern** | Phase 1 |
-| **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** | AAG-SCP-MIGRATION-005 | `tools/governance/check-finding-group-pr.ts`（PR 内で異なる zone × disposition の Finding group が混在すれば finding、PR description の `Finding group:` annotation 必須）— **universal な migration PR convention** | Phase 5 |
-| **実装 AI による自己承認** | L3 + requiresHumanApproval=true | 既存 `projectizationPolicyGuard` PZ-13（最終レビュー section 存在 + ordering 検証）+ `projectCompletionConsistencyGuard` C1（completed 判定後の archive obligation） | 既存 mechanism 利用 |
+| **YAML を AAG machine truth として採用する** | 不可侵原則 1 / ADR-SCP-001 | `tools/governance/check-yaml-machine-truth.ts`（detector / CI / AAG CLI が `*.yaml` を直読する import を grep 検出） | **Wave 1** / Phase 1 |
+| **Tree Contract MVP scope を超えて全ディレクトリを宣言する** | 不可侵原則 4 / ADR-SCP-004 | `tools/governance/check-tree.ts`（tree-contracts.yaml の declared directory 数が baseline + N を超えれば finding、ratchet-down） | **Wave 1** / Phase 3 |
+| **YAML 変更後の generated JSON 未更新** | 不可侵原則 1 補強 | 既存 `docs:check` mechanism（pre-push hook で live recalc + semantic diff）に YAML→JSON normalize 検証を追加 | **Wave 1** / Phase 1 |
+| **Document Contract を doc-registry.json と並立させる** | 不可侵原則 2 / ADR-SCP-002 | `tools/governance/check-doc-contracts.ts`（新 namespace `DOC-DEF-*` 等の prefix を doc-registry 外で検出すれば finding） | **Wave 2** / Phase 5 |
+| **製本に過去/未来を本文展開する** | 不可侵原則 3 / ADR-SCP-003 | `tools/governance/check-doc-temporal-scope.ts`（canonical-doc kind の文書に History / Roadmap / Future / TODO / Phase / Migration Log heading + checkbox + 禁止表現 patterns 検出） | **Wave 2** / Phase 4 |
+| **Reading Pass を機械分類で代替する** | 不可侵原則 7 / ADR-SCP-007 / ADR-SCP-008 / ADR-SCP-010 | `tools/governance/check-reading-pass-schema.ts`（document-reading-decisions.yaml の各 entry に reviewedBy / reviewedAtCommit / reviewedAtSha が必須、`generated-report` / `archive-doc` 例外条項該当外で machine-inferred 表記があれば finding）— **universal な reading-pass.schema.json validation** | **Wave 2** / Phase 2.5 |
+| **AI Instruction Pack を pre-write 強制機構として実装する** | 不可侵原則 6 / ADR-SCP-006 / AAG-SCP-GUIDANCE-003 | `tools/governance/check-no-prewrite-hook.ts`（git pre-commit / pre-push hook に Markdown 編集前 instruction-pack 取得強制があれば finding） | **Wave 3** / Phase 6 |
+| **OBLIGATION_MAP / PATH_TO_REQUIRED_READS を一発切替する** | 不可侵原則 5 / ADR-SCP-005 | `tools/governance/check-obligation-drift.ts`（Phase 8a で正規化比較器、TS 定数と generated JSON の意味的差分機械検証 + commit history で Phase 8a→8b→8c 段階順序検証）— **universal な migration safety pattern** | **別 program 候補** / Phase 8a/8b/8c |
+| **Phase 順序を逆行させる** | 不可侵原則 9 | `tools/governance/check-phase-ordering.ts`（commit history で Phase N+1 の成果物が Phase N より前に landing していれば finding、各 phase の sentinel artifact 存在確認）— **多 phase project の universal pattern** | **別 program 候補** / Phase 1 |
+| **既存 references/99-archive/ への大量 docs 移動を 1 PR で実行する** | AAG-SCP-MIGRATION-005 | `tools/governance/check-finding-group-pr.ts`（PR 内で異なる zone × disposition の Finding group が混在すれば finding、PR description の `Finding group:` annotation 必須）— **universal な migration PR convention** | **別 program 候補** / Phase 5 |
+| **実装 AI による自己承認** | L3 + requiresHumanApproval=true | 既存 `projectizationPolicyGuard` PZ-13（最終レビュー section 存在 + ordering 検証）+ `projectCompletionConsistencyGuard` C1（completed 判定後の archive obligation） | **既存 mechanism 利用** |
 
 #### §A2: project-scoped boundary protection（`projects/active/aag-structural-control-plane/aag/scp-checkers/`、archive で消失、4 件のみ）
 
@@ -350,7 +422,46 @@ disposition 4 分類:
 | **app/src/ 配下を touch する** | projectization.md §4 nonGoal | `aag scp check app-untouched`（`git diff --name-only ${BASE_REF}..HEAD` で `^app/src/` patterns 検出。業務 logic / domain calculations / readModels への変更も同 checker で carry。baseRef は ADR-SCP-015 D2 の 4 段階解決） | 触ってはいけない（既存実装層） |
 | **`docs/contracts/aag/*.schema.json` を再配置する** | ADR-SCP-002 / projectization.md §4 nonGoal | `aag scp check docs-contracts-aag-untouched`（`git diff --name-status -M ${BASE_REF}..HEAD` で `^docs/contracts/aag/` の move / delete / modify 検出） | 触ってはいけない（既存 reposteward AAG contract schemas） |
 | **新 doc を references/ に新規追加する** | 本 program scope 外 | `aag scp check no-new-references-doc`（`git diff --name-status -M ${BASE_REF}..HEAD` で `^references/.*\.md$` の Addition 検出。rename `R<N>` は除外。5 例外: Reading Pass disposition target / generated-report / archive-target / readme-index-update / this-program-deliverable は許可。詳細 ADR-SCP-015 D4） | 触ってはいけない（既存 references/ への追加） |
-| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-surface`（baseline file `aag/scp-checkers/hard-gate-surface.baseline.json` と現在の workflow / pre-push / package.json から収集した `hardGate.{workflowJobs, requiredChecks, prePushExitOneSteps, npmScriptGates}` を意味的 set diff、増加方向のみ finding。詳細 ADR-SCP-015 D3） | 崩してはいけない（既存 advisory state） |
+| **Wave 1 milestone 到達前に Hard Gate を追加する** | 不可侵原則 8 | `aag scp check hard-gate-surface`（baseline file `aag/scp-checkers/hard-gate-surface.baseline.json` と現在の workflow / pre-push / package.json から収集した `hardGate.{workflowJobs, requiredChecks, prePushExitOneSteps, npmScriptGates}` を **意味的 set diff**、増加方向のみ finding。baseline schema = `{checker, baselineCommit, baselineAt, surfaces, knownHardGateSurfaces[]}`、詳細 ADR-SCP-016 D4） | 崩してはいけない（既存 advisory state） |
+
+##### hard-gate-surface baseline 構造（ADR-SCP-016 D4 articulate）
+
+baseline file path: `projects/active/aag-structural-control-plane/aag/scp-checkers/hard-gate-surface.baseline.json`（archive 時に物理削除、ADR-SCP-015 D1 整合）
+
+minimum schema:
+
+```json
+{
+  "checker": "hard-gate-surface",
+  "baselineCommit": "<sha = baseline 確定 commit>",
+  "baselineAt": "<ISO8601 timestamp>",
+  "surfaces": [
+    ".github/workflows/**",
+    "tools/git-hooks/pre-push",
+    "app/package.json#scripts"
+  ],
+  "knownHardGateSurfaces": [
+    {
+      "surface": ".github/workflows/ci.yml",
+      "kind": "workflow-job",
+      "name": "fast-gate",
+      "exitOneSteps": ["lint", "format:check", "build", "test:guards"]
+    },
+    {
+      "surface": "tools/git-hooks/pre-push",
+      "kind": "pre-push-step",
+      "exitOneSteps": ["docs:check", "tsc -b --noEmit", "lint", "format:check", "test:guards"]
+    },
+    {
+      "surface": "app/package.json#scripts",
+      "kind": "npm-script-gate",
+      "names": ["docs:check"]
+    }
+  ]
+}
+```
+
+判定ロジック: 単純 grep ではなく、現在の workflow / pre-push / package.json から `knownHardGateSurfaces` を意味的に再収集 → baseline と **set diff**、増加方向のみ finding。コメント文 / 説明文の揺れによる誤検知を抑制。減少方向（hard gate 撤去）は許容、ratchet-down 機能。
 
 #### §A2 narrowing rationale（GUIDANCE-007）
 
