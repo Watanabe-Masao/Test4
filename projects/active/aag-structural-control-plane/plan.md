@@ -413,17 +413,62 @@ Wave 1 では **articulation のみ**（advisory）、Wave 2 / Phase 5 で gate 
 
 `1918202` 自体は revert / amend しない（履歴保持、評価の進化を articulate）。
 
-#### Phase 2 完了条件（ADR-SCP-019 整合）
+#### Phase 2 完了条件（ADR-SCP-019 + ADR-SCP-020 整合）
 
 - Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
 - repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B）
 - skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
 - managed zone 3 件（projects/ + references/04-tracking/ + docs/contracts/）の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
+- skeleton status enum が 4 値（declared / unmanaged-but-tolerated / container-only / platform-config-tolerated）に articulate（Phase 2E、ADR-SCP-020）
+- skeleton-diff entry に topLevelDispositionCandidate（8 値）+ 24 reasonCode が articulate（Phase 2E、ADR-SCP-020）
 - すべての inventory entry に approval 誤認 field が含まれない
 - out-of-skeleton が fail ではなく needs-triage candidate として出力
 - promotionAllowed は原則 false
 - hard gate / new-only gate 追加なし
 - Wave 1 / Phase 3 着手 user 承認
+
+### Wave 1 / Phase 2E: Top-level Disposition Articulation（ADR-SCP-020、Phase 3 着手前の補完 Phase）
+
+> **目的（ADR-SCP-020）**: Phase 2A〜2D で観測された top-level 過密状態を **意味・意図・意思の問いとして surface できる状態**にする。Phase 2C skeleton-diff を補完し、out-of-skeleton entry に対する **disposition の方向性**（move / archive / delete-candidate / pointer / tolerate / needs-triage）を articulate する。
+>
+> **AAG-SCP-DESIGN-001 ideal-first 整合**: 「存在しているから残す」「邪魔だから消す」のいずれでもなく、意味 → 意図 → 維持意思 → 骨格照合 → 判断 の正しい順序を articulate するための補完 Phase。
+
+**やること（articulate-only、Wave 1 内で完遂）**:
+
+- `docs/contracts/schema/tree-contracts.schema.json` の status enum を 4 値に拡張: `declared` / `unmanaged-but-tolerated` / `container-only` / `platform-config-tolerated`（additive、ADR-SCP-004 不可侵）
+- schema に `topLevelRationale`（structured object: reason / cannotMoveBecause / continuityNote）+ `nestedDeclaredChildren` field 追加
+- `docs/contracts/src/repo/tree-contracts.yaml` で `docs/` を `container-only` として明示 articulate（nestedDeclaredChildren = `["docs/contracts/"]`）
+- tree-contracts.yaml で `.github/` `.claude/` を `platform-config-tolerated` に refine + topLevelRationale populate（`.vscode/` は `unmanaged-but-tolerated` 維持）
+- `tools/governance/build-skeleton-diff.mjs` に `topLevelDispositionCandidate`（8 値）articulate logic 追加
+- skeleton-diff に新 12 reasonCode 追加（既存 12 + 新 12 = 24）: TOP_LEVEL_OVERPOPULATED / POSSIBLE_ROOT_DUPLICATION / CONTAINER_ONLY_ROOT / PLATFORM_CONFIG_REQUIRED_AT_ROOT / POSSIBLE_MOVE_TO_APP / POSSIBLE_MOVE_TO_TOOLS / POSSIBLE_MOVE_TO_PROJECTS / POSSIBLE_MOVE_TO_AAG / POSSIBLE_MOVE_TO_REFERENCES / POSSIBLE_MOVE_TO_DOCS_CONTRACTS / POSSIBLE_DELETE_CANDIDATE / CURRENT_PROJECT_POINTER_CANDIDATE
+- 個別 heuristic map articulate（`app-domain/` / `fixtures/` / `roles/` / `scripts/` / `workers/` / `CURRENT_PROJECT.md`）
+- `docs/contracts/generated/skeleton-diff.generated.json` 再生成
+
+**やらないこと（明示）**:
+
+- 削除しない（AAG-SCP-AI-EXPECTATION-002）
+- 移動しない（実 move PR は Wave 2）
+- README 更新しない（cleanup 後に articulate、Wave 2）
+- cleanup inquiry を起こさない（Wave 2 で起票）
+- hard gate / new-only gate 追加しない（Wave 1 不可侵）
+- CURRENT_PROJECT.md の中身改変しない（surface のみ）
+
+**PR 分割（ADR-SCP-020 D8）**:
+
+- **Phase 2E-1**（refactor commit）: ADR-SCP-020 + plan + checklist + schema + build-skeleton-diff.mjs 拡張（yaml refine と diff 再生成は含めない）
+- **Phase 2E-2**（feat commit）: tree-contracts.yaml refine + skeleton-diff.generated.json 再生成 + checklist [x] 反映
+
+#### Phase 2E 完了条件（ADR-SCP-020 整合）
+
+- tree-contracts.schema.json status enum が 4 値に articulate
+- topLevelRationale が structured object として articulate（platform-config-tolerated で必須）
+- nestedDeclaredChildren が container-only で articulate
+- tree-contracts.yaml で `docs/` `container-only` + `.github/` `.claude/` `platform-config-tolerated` articulate（topLevelRationale populate）
+- skeleton-diff.generated.json で `app-domain/` `fixtures/` `scripts/` が `move-candidate` surface
+- skeleton-diff.generated.json で `roles/` `workers/` `CURRENT_PROJECT.md` が `needs-triage` surface
+- skeleton-diff.generated.json で `docs/` `container-only-root` + `.github/` `.claude/` `platform-config-tolerated` surface
+- 既存 declared 8 件の articulate 変更なし（regression 0）
+- 削除 / 移動 / README 更新を行っていない
 
 ### Wave 1 / Phase 3: Tree Contract Shadow checker advisory（役割変更、ADR-SCP-019 D3）
 
@@ -431,11 +476,11 @@ Wave 1 では **articulation のみ**（advisory）、Wave 2 / Phase 5 で gate 
 >
 > **旧計画からの変更**: 元計画では Tree Contract 宣言 + advisory checker の両方を Phase 3 で実施。Wave restructuring (ADR-SCP-016) + Parse2 re-articulation (ADR-SCP-019) で skeleton 宣言を Phase 2A に前倒し、Phase 3 は advisory checker / finding emit に focus。
 
-入力（Phase 2A / 2C で生成済の前提）:
+入力（Phase 2A / 2C / 2E で生成済の前提）:
 
-- `docs/contracts/src/repo/tree-contracts.yaml`（top-level 8 件 declared、Phase 2A 確定）
+- `docs/contracts/src/repo/tree-contracts.yaml`（top-level 8 件 declared + Phase 2E で `docs/` container-only + `.github/` `.claude/` platform-config-tolerated articulate 済）
 - `docs/contracts/generated/repo-topology.generated.json`（Phase 2B 生成）
-- `docs/contracts/generated/skeleton-diff.generated.json`（Phase 2C 生成、6 分類）
+- `docs/contracts/generated/skeleton-diff.generated.json`（Phase 2C 6 分類 + Phase 2E topLevelDispositionCandidate + 24 reasonCode 拡張、ADR-SCP-019 + ADR-SCP-020 整合）
 
 成果物:
 

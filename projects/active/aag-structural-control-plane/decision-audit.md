@@ -2258,3 +2258,213 @@ Wave 1 では以下 12 codes を articulate（既存 5 codes + 拡張 7 codes、
 - **判定**: `<未確定>`
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
+
+## ADR-SCP-020: Top-level Disposition Articulation — container-only / platform-config-tolerated 拡張 + topLevelDispositionCandidate（Phase 2E、ADR-SCP-019 の skeleton refinement）
+
+### context
+
+**前提**: ADR-SCP-019 で Phase 2A/B/C/D が完遂し、skeleton-diff.generated.json が 6 分類 + 12 reasonCode で out-of-skeleton を surface 済。Phase 2D で managed zone 3 件の file-level inventory も landed（commit `1f833bb`）。Phase 2 の Skeleton-aware Parse は既に観測層として機能している。
+
+**問題提起**: 現行 Phase 2C skeleton-diff は「declared か / unmanaged-but-tolerated か / out-of-skeleton か」までは articulate できるが、out-of-skeleton entry に対する **disposition の方向性**（= move / promote / archive / tolerate / delete-candidate のどれを推奨するか、なぜ top-level に置く必要があるか）を articulate していない。結果として、user / future AI が skeleton-diff を見ても「だから何をすべきか」の判断軸が不足している。
+
+具体的には repo top-level に以下が存在し、いずれも declared でも unmanaged-but-tolerated でもない:
+
+- `app-domain/` `fixtures/` `roles/` `scripts/` `workers/` (= directory)
+- `CURRENT_PROJECT.md` (= top-level file)
+
+これらは Phase 2C で `out-of-skeleton + CORRECT_LOCATION_BUT_UNEXPLAINED` として surface されているが、「app/ 配下に移すべきか」「tools/ に統合すべきか」「pointer に limit すべきか」の判断軸が articulate されていない。
+
+加えて:
+
+- `docs/` は `inside-unmanaged-zone (parent-of-declared docs/contracts/)` として暗黙的に articulate されているが、**docs/ 自体は意味を持たない container-only root** であることが明示されていない（= 任意の汎用 doc 置き場として使われるリスク）
+- `.github/` `.claude/` は `unmanaged-but-tolerated` だが、**外部 tool 連携上 top-level 必須** という性質と、`.vscode/` のような **個人 IDE 設定** とは性質が異なる（= 同じ status で articulate するのは不正確）
+
+**判断点**: 本 program の Wave 1 内で skeleton 拡張 + skeleton-diff 拡張を institute するか、Wave 2 に持ち越すか。
+
+### decision
+
+**Phase 2E** として Wave 1 内で以下を institute する（Phase 3 着手前）。Wave 1 では **articulate のみ**（finding emit / hard gate / 実 cleanup PR は行わない）、Wave 2 で cleanup inquiry + 小 PR + README 整理に進む（= AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D1: Tree Contract status enum 拡張（4 値）
+
+`docs/contracts/schema/tree-contracts.schema.json` の `status` enum を additive に拡張:
+
+| status | 意味 | 例 |
+|---|---|---|
+| `declared` | 完全に articulate された managed root（既存） | `app/` `aag/` `references/` 等 8 件 |
+| `unmanaged-but-tolerated` | 第 3 状態、外部 tool / convention で存在許容（既存） | `.vscode/` |
+| **`container-only`**（新規） | top-level に存在するが意味は配下 nested declared root が担う、container 自体は declared でも tolerated でもない | `docs/`（意味は `docs/contracts/` が担う） |
+| **`platform-config-tolerated`**（新規） | 外部 tool 連携上 top-level 必須、汎用 IDE 設定とは区別される | `.github/` `.claude/` |
+
+新 fields（schema additive 拡張）:
+
+- `topLevelRationale`: なぜ top-level に置く必要があるか + 既存 root へ move 不可な理由 + 継承事項を articulate する **structured object**。`platform-config-tolerated` で **必須**、`container-only` で **推奨**。declared / unmanaged-but-tolerated では optional。
+
+  ```yaml
+  topLevelRationale:
+    reason: "..."           # required: なぜ top-level に置く必要があるか
+    cannotMoveBecause:      # required: 既存 root へ move 不可な理由（list）
+      - "..."
+    continuityNote: "..."   # required: 未来へ何を継承するか（platform-config / container-only の articulate）
+  ```
+
+  単純自由文ではなく structured object にするのは、AI が future review で迷わず判断できるようにするため（AAG-SCP-MEANING-002 + AAG-SCP-CONTINUITY-006 整合）。
+
+- `nestedDeclaredChildren`: `container-only` の場合、配下に declared root がある path 列（= 意味を担う子）。例: `docs/` の場合 `["docs/contracts/"]`。container-only が空の汎用置き場化するのを構造的に防ぐ（= 明示子がない container-only は articulate 違反）。
+
+ADR-SCP-004 不可侵原則 4（top-level + structural roots のみ宣言、unmanaged-but-tolerated 第 3 状態を許容）は **invariant のまま**、本 ADR は status の articulation を 2 → 4 値に **refine** する additive 拡張（= 既存 declared 8 件 / `.vscode/` の articulation は変更なし）。
+
+#### D2: tree-contracts.yaml の status refine
+
+| path | 旧 status | 新 status | 理由 |
+|---|---|---|---|
+| `docs/` | （未 articulate、Phase 2C で `inside-unmanaged-zone` として暗黙） | `container-only` | docs/ 自体は意味を持たず、`docs/contracts/` だけが declared root。明示しないと汎用 doc 置き場化するリスク |
+| `.github/` | `unmanaged-but-tolerated` | `platform-config-tolerated` | GitHub Actions 連携上 top-level 必須、外部 tool 仕様 |
+| `.claude/` | `unmanaged-but-tolerated` | `platform-config-tolerated` | Claude Code 連携上 top-level 必須、外部 AI tool 仕様 |
+| `.vscode/` | `unmanaged-but-tolerated` | `unmanaged-but-tolerated`（変更なし） | 個人 IDE 設定、platform-config 性質ではない |
+
+既存 declared 8 件（`app/` `aag/` `aag-engine/` `docs/contracts/` `projects/` `references/` `tools/` `wasm/`）は **そのまま維持**。`app-domain/` `fixtures/` `roles/` `scripts/` `workers/` は **declared にも tolerated にも昇格させない**（= Phase 2E 後も引き続き skeleton-diff で `out-of-skeleton + needs-triage` として surface、AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D3: skeleton-diff に topLevelDispositionCandidate 追加
+
+各 entry に新 field `topLevelDispositionCandidate`（8 値、user articulate 整合）:
+
+| 値 | 意味 | 出力対象 |
+|---|---|---|
+| `declared-root` | declared status の entry | declared 8 件 |
+| `container-only-root` | container-only status の entry | `docs/` |
+| `platform-config-tolerated` | platform-config-tolerated status の entry（status enum と語彙整合） | `.github/` `.claude/` |
+| `tolerate` | unmanaged-but-tolerated status の entry | `.vscode/` |
+| `move-candidate` | 既存 declared root へ移動可能性が高い out-of-skeleton entry | `app-domain/` `scripts/` `fixtures/` 等 |
+| `archive-candidate` | 過去資産・廃止候補の可能性 | （Wave 1 では heuristic は控えめ、explicit hint なし） |
+| `delete-candidate` | 削除候補（要 reference scan + consumer 確認、Wave 2 以降に判断） | （Wave 1 では heuristic は控えめ） |
+| `needs-triage` | 上記いずれかへの分類が決まらず、user 判断が必要 | `roles/` `workers/` `CURRENT_PROJECT.md` 等 |
+
+`platform-config-root` ではなく `platform-config-tolerated` を採用する（status enum と語彙整合、AAG 上の structural root ではないことを明示）。
+
+#### D4: 12 新 reasonCode 追加
+
+skeleton-diff の reasonCode に追加（既存 12 + 新 12 = 24 codes）:
+
+| reasonCode | 意味 |
+|---|---|
+| `TOP_LEVEL_OVERPOPULATED` | top-level entry 数が overpopulation の signal（= 全 out-of-skeleton entry に articulate、Wave 1 では articulate-only、閾値判定なし） |
+| `POSSIBLE_ROOT_DUPLICATION` | 既存 root と意味が重複している可能性（例: scripts/ vs tools/、roles/ vs aag/+references/+.claude/） |
+| `CONTAINER_ONLY_ROOT` | container-only status の entry articulate 用 |
+| `PLATFORM_CONFIG_REQUIRED_AT_ROOT` | platform / 外部 tool 連携上 top-level 必須（GitHub Actions / Claude Code 等の仕様）。`platform-config-tolerated` entry に articulate |
+| `POSSIBLE_MOVE_TO_APP` | app/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_TOOLS` | tools/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_PROJECTS` | projects/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_AAG` | aag/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_REFERENCES` | references/ 配下へ寄せられる可能性（roles / scripts / 等の知識 interface への移動候補） |
+| `POSSIBLE_MOVE_TO_DOCS_CONTRACTS` | docs/contracts/ 配下へ寄せられる可能性（schema / contract 系の集約先） |
+| `POSSIBLE_DELETE_CANDIDATE` | 削除候補（Wave 2 で reference scan + consumer 確認後に判断） |
+| `CURRENT_PROJECT_POINTER_CANDIDATE` | top-level pointer file として中身を thin pointer に refine する候補（削除候補とは区別、`CURRENT_PROJECT.md` 等） |
+
+`POSSIBLE_DELETE_CANDIDATE` と `CURRENT_PROJECT_POINTER_CANDIDATE` を分離する（削除と pointer 化は意味が異なる、AAG-SCP-MEANING-002 整合）。
+
+#### D5: 個別 heuristic（Wave 1 articulate のみ）
+
+build-skeleton-diff.mjs に以下 explicit map を articulate（= Wave 2 cleanup PR の入力）:
+
+| path | topLevelDispositionCandidate | 追加 reasonCode |
+|---|---|---|
+| `app-domain/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` + `POSSIBLE_ROOT_DUPLICATION` |
+| `fixtures/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` + `POSSIBLE_MOVE_TO_TOOLS` |
+| `roles/` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_ROOT_DUPLICATION` + `POSSIBLE_MOVE_TO_AAG` + `POSSIBLE_MOVE_TO_REFERENCES` |
+| `scripts/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_TOOLS` + `POSSIBLE_ROOT_DUPLICATION` |
+| `workers/` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` |
+| `CURRENT_PROJECT.md` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `CURRENT_PROJECT_POINTER_CANDIDATE` |
+
+`CURRENT_PROJECT.md` は **削除候補ではなく pointer 候補** として articulate（中身改変は別 PR、reference scan + consumer 確認 後）。Phase 2E では surface のみ。
+
+その他 out-of-skeleton entry には heuristic 一致がなければ既存 reasonCode（OUT_OF_SKELETON / CORRECT_LOCATION_BUT_UNEXPLAINED）+ 新規 `TOP_LEVEL_OVERPOPULATED` を articulate（Wave 1 一律）、topLevelDispositionCandidate は `needs-triage` 既定。
+
+`TOP_LEVEL_OVERPOPULATED` は **全 out-of-skeleton + すべての non-declared top-level entry** に articulate（= 構造的 articulate、判定 threshold は不要、AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D6: 不可侵（Wave 1 articulate-only）
+
+- finding emit しない（Phase 3 advisory checker で消費）
+- hard gate / new-only gate 追加なし
+- **削除しない**（AAG-SCP-AI-EXPECTATION-002: 観察対象として surface するのみ、削除は別 PR + reference scan + consumer 確認 + archive 判断 後）
+- 既存 declared 8 件の articulate は変更しない（status / purpose / owner / childPolicy / addedAt / addedSha 維持）
+- skeleton-diff schema は **additive 拡張のみ**（既存 field 削除なし、Phase 3 checker は新 field を optional として扱う）
+
+#### D7: Wave 1 vs Wave 2 切り分け
+
+| 範囲 | Wave 1 (Phase 2E、本 ADR) | Wave 2 |
+|---|---|---|
+| skeleton status enum 拡張 | ✅（schema + yaml refine） | — |
+| skeleton-diff articulate 拡張 | ✅（topLevelDispositionCandidate + 12 reasonCode） | — |
+| out-of-skeleton entry surface | ✅（既存 + 新 articulate） | — |
+| top-level cleanup inquiry | — | ✅（inquiry/0X として作成） |
+| 実 move / archive / delete PR | — | ✅（小 PR 分割、reference scan 経由） |
+| CURRENT_PROJECT.md thin pointer 化 | — | ✅（別 PR、reference scan + consumer 確認後） |
+| README 整理（整理後骨格反映） | — | ✅（cleanup 後に articulate、未精査対象は載せない） |
+
+Wave 1 = articulate 完遂 / Wave 2 = 整理実行、の分離（AAG-SCP-DESIGN-001 ideal-first 原則整合）。
+
+#### D8: Phase 2E PR 分割
+
+Phase 2E は **2 commit に分割** する（schema 変更と generated 更新を分離 = レビュー容易性）:
+
+**Phase 2E-1**（refactor commit）:
+- ADR-SCP-020 articulate（本 ADR、decision-audit.md）
+- plan.md Phase 2E section 追加 + Phase 3 description 整合
+- checklist.md Phase 2E 項目追加 + Phase 2 完了条件再 articulate
+- `docs/contracts/schema/tree-contracts.schema.json` の status enum 拡張 + `topLevelRationale` (structured) + `nestedDeclaredChildren` field 追加
+- `tools/governance/build-skeleton-diff.mjs` 拡張（topLevelDispositionCandidate + 12 新 reasonCode logic + D5 個別 heuristic map）
+
+**Phase 2E-2**（feat commit）:
+- `docs/contracts/src/repo/tree-contracts.yaml` refine（`docs/` container-only 追加、`.github/` `.claude/` を `platform-config-tolerated` に refine、それぞれ `topLevelRationale` populate）
+- `docs/contracts/generated/skeleton-diff.generated.json` 再生成 + 御指摘の精査対象 (`app-domain/` `fixtures/` `roles/` `scripts/` `workers/` `CURRENT_PROJECT.md`) の disposition surface 確認
+- checklist.md Phase 2E 項目 [x] + Phase 2 完了条件 articulate
+
+1 PR でも実装可能だが、schema (= contract) 変更と yaml/diff (= data) 変更を分けることで、PR review において影響範囲を明確化する（Wave 1 / Phase 1 sub-PR 分割原則と整合）。
+
+### rationale
+
+#### 拡張採用の利点
+
+- **判断軸の articulate**: out-of-skeleton entry が「だから何をすべきか」の disposition を articulate（= AI / human review が同じ判断軸を共有可能）
+- **container-only / platform-config-tolerated の精度向上**: `docs/` の汎用化リスクを構造的に防ぐ + `.github/` `.claude/` と `.vscode/` の性質差を articulate（user articulate「精査対象」整合）
+- **Wave 2 cleanup PR の入力データ完成**: 個別 heuristic（D5）が Wave 2 cleanup PR の起点として機能（= 再判断不要、AAG-SCP-CONTINUITY-006 整合）
+- **ideal-first 維持**: declared 昇格させない方針（user articulate「存在しているから skeleton に declared するとはしない」整合）+ AAG-SCP-AI-EXPECTATION-002（即削除しない）整合
+
+### alternatives
+
+- **alternative (a)**: Phase 2E を Wave 1 ではなく Wave 2 に持ち越す — 却下: skeleton-diff に判断軸 articulate がない状態で Wave 2 cleanup PR を起こすと、判断 context を都度再構築する必要がある（AAG-SCP-CONTINUITY-006 違反）
+- **alternative (b)**: status enum を 4 値ではなく `declared` / `unmanaged-but-tolerated` の 2 値に留め、container-only / platform-config の articulate は purpose 内に prose で記述 — 却下: 機械的に articulate されない、checker / generator から消費不可、user articulate「明示的に区別」整合せず
+- **alternative (c)**: app-domain/ / scripts/ 等を Phase 2E で declared に昇格 — 却下: AAG-SCP-DESIGN-001 ideal-first 違反（存在 = 必要 の誤認）、user articulate「declared には昇格させない」整合せず
+- **alternative (d)**: TOP_LEVEL_OVERPOPULATED に閾値判定（例: top-level entry > N で activate）を articulate — 却下: 閾値選定根拠なし、Wave 1 では articulate-only が AAG-SCP-PARSE2-002 整合
+- **alternative (e)**: skeleton-diff schema を破壊的変更（既存 field 削除 + 新 field 必須化）— 却下: 既存 commit `c58b6ff` (Phase 2C) との backward compatibility 喪失、不要な destructive 変更
+
+### 観測点
+
+1. `docs/contracts/schema/tree-contracts.schema.json` の `status` enum が 4 値（`declared` / `unmanaged-but-tolerated` / `container-only` / `platform-config-tolerated`）に articulate される
+2. schema に `topLevelRationale` / `nestedDeclaredChildren` の 2 optional field が articulate される
+3. `docs/contracts/src/repo/tree-contracts.yaml` で `docs/` が `container-only` として明示 articulate される
+4. tree-contracts.yaml で `.github/` `.claude/` が `platform-config-tolerated` に refine される（`.vscode/` は `unmanaged-but-tolerated` 維持）
+5. `tools/governance/build-skeleton-diff.mjs` に `topLevelDispositionCandidate`（8 値、`platform-config-tolerated` 採用）articulate logic が articulate される
+6. build-skeleton-diff.mjs に新 12 reasonCode（TOP_LEVEL_OVERPOPULATED / POSSIBLE_MOVE_TO_REFERENCES / POSSIBLE_MOVE_TO_DOCS_CONTRACTS / PLATFORM_CONFIG_REQUIRED_AT_ROOT / CURRENT_PROJECT_POINTER_CANDIDATE 等）articulate logic が articulate される
+7. build-skeleton-diff.mjs に D5 個別 heuristic map（app-domain/ / fixtures/ / roles/ / scripts/ / workers/ / CURRENT_PROJECT.md）が articulate される
+8. `docs/contracts/generated/skeleton-diff.generated.json` 再生成で:
+   - `app-domain/` `fixtures/` `scripts/` が `move-candidate` として surface
+   - `roles/` `workers/` `CURRENT_PROJECT.md` が `needs-triage` として surface
+   - `docs/` が `container-only-root` + `CONTAINER_ONLY_ROOT` reasonCode で articulate
+   - `.github/` `.claude/` が `platform-config-root` で articulate
+9. plan.md に Phase 2E section が articulate される（Phase 3 の前段として）
+10. checklist.md に Phase 2E 項目 articulate + Phase 2 完了条件再 articulate される
+11. test:guards 通過（hard gate / 既存 guard 影響なし）
+
+### Lineage
+
+- **preJudgementCommit**: `c58b6ff`（Phase 2C skeleton-diff 6 分類 + 12 reasonCode landing、本 ADR の trigger = articulate 不足の自覚）
+- **judgementCommit**: `<TBD = 本 ADR landing commit>`
+- **retrospectiveCommit**: `<TBD = 本 program archive 時の振り返り commit>`
+
+### 振り返り判定（ADR-SCP-020）
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
