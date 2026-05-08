@@ -62,7 +62,49 @@
 - [x] Wave 1 中止条件が articulate されている（誤検知率 > 30% / Reading Pass 人手負荷過大 / 既存 program 責務衝突 / valid + verified-zero finding ともに不能 / 他 program 進行影響）
 - [x] inquiry/08 冒頭に「ADR-SCP-016 で採用済み」note + §5 verified-zero finding articulate
 - [x] AI_CONTEXT.md の Read Order が Wave 構造を反映している
-- [ ] Wave 1 着手 user 承認（次の PR で Phase 1 着手判断、本 commit の review window で確認）
+- [x] Wave 1 着手 user 承認（次の PR で Phase 1 着手判断、本 commit の review window で確認）
+
+## Wave 1 / Phase 1: Schema MVP（縮小: 最小 3 schema、3〜4 sub-PR）
+
+> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画 5 schema → **最小 3 schema**（aag-finding + tree-contracts + 最小 doc-kind-registry）。document-contracts.schema.json + temporal-scope-policy.schema.json は **Wave 2** へ後ろ倒し。
+>
+> **sub-PR 構造**（独立 rollback 可能、PR 単位 review）:
+> - sub-PR 1: aag-finding.schema.json（Finding 共通 schema、ADR-SCP-013 + ADR-SCP-016 D3 result discriminator 統合）
+> - sub-PR 2: tree-contracts.schema.json + repo/tree-contracts.yaml authoring source 雛形
+> - sub-PR 3: doc-kind-registry.schema.json（最小 schema、Phase 4 で本宣言）+ docs/doc-kind-registry.yaml authoring source 雛形
+> - （optional）sub-PR 4: schema validation test infrastructure（既存 ajv 等が利用可能なら省略可）
+
+### sub-PR 1: aag-finding.schema.json
+
+- [ ] `docs/contracts/schema/` ディレクトリ作成（既存 `docs/contracts/aag/` とは別 namespace、ADR-SCP-002 整合）
+- [ ] `docs/contracts/schema/aag-finding.schema.json` landing — ADR-SCP-013 13 fields + ADR-SCP-016 D3 result discriminator（valid-finding / verified-zero）統合
+- [ ] valid-finding case: `subject` / `problem` / `expected` / `suggestedDisposition` / `confidence` 必須
+- [ ] verified-zero case: `scope` / `evidence`（scannedFiles / drift / scannedAt）/ `rationale` 必須
+- [ ] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
+- [ ] schema 自体が JSON Schema 2020-12 として valid
+- [ ] schema が AAG-SCP の ID prefix（`FND-SCP-`）を documentation コメントで articulate
+
+### sub-PR 2: tree-contracts.schema.json + authoring source 雛形
+
+- [ ] `docs/contracts/schema/tree-contracts.schema.json` landing — top-level 8 directory の declared / unmanaged-but-tolerated 状態を表現
+- [ ] `docs/contracts/src/repo/` ディレクトリ作成
+- [ ] `docs/contracts/src/repo/tree-contracts.yaml` authoring source 雛形 landing（宣言は Phase 3 で確定、本 sub-PR では schema 形式 example のみ）
+- [ ] schema 自体が JSON Schema 2020-12 として valid
+
+### sub-PR 3: doc-kind-registry.schema.json（最小） + authoring source 雛形
+
+- [ ] `docs/contracts/schema/doc-kind-registry.schema.json` landing — kind / temporalScope / lifecycle の最小 enum + extensibility（Wave 2 Phase 4 で本宣言）
+- [ ] `docs/contracts/src/docs/` ディレクトリ作成
+- [ ] `docs/contracts/src/docs/doc-kind-registry.yaml` authoring source 雛形 landing（最小 enum example のみ、本宣言は Wave 2 Phase 4）
+- [ ] schema 自体が JSON Schema 2020-12 として valid
+
+### Phase 1 完了条件（ADR-SCP-016 整合）
+
+- [ ] 3 schema が JSON Schema 2020-12 として valid（既存 `docs/contracts/aag/*.schema.json` 同様の検証パターン）
+- [ ] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
+- [ ] Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）
+- [ ] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
+- [ ] Wave 1 / Phase 2 着手 user 承認
 
 ## AI 自己レビュー (= user 承認の手前)
 
