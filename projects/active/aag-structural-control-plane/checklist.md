@@ -236,6 +236,32 @@
 
 - [ ] Wave 1 / Phase 3 着手 user 承認
 
+## Wave 2 readiness（Wave 2 着手前の articulate 確認、ADR-SCP-021 + ADR-SCP-022 整合、articulation-only）
+
+> **役割**: Wave 2（Phase 2.5 Document Reset Pass + Phase 4 + Phase 5）着手の前提条件 articulate。本 section の checkbox は **articulation のみ**（= Wave 1 内に institute 済の constitutional 原則 + ADR が plan.md / decision-audit.md に articulate されているかの確認）。Wave 2 内 Phase の作業 checkbox は Wave 2 着手時 + user 承認後に追記する（不可侵原則 9 = 順序逆行禁止）。
+
+### ADR-SCP-021: Document Reset Pass + Failure Learning Loop articulate 確認
+
+- [x] ADR-SCP-021 が decision-audit.md に articulate されている（D1 = 5 DOC-RESET 原則 / D2 = 4 DOC-LEARNING 原則 / D3 = 9 disposition values / D4 = 10 DOC-FAIL-* taxonomy / D5 = DOC-GUARD-* 5 段階 maturity / D6 = ルール化可/不可 / D7 = Wave 2 deliverables / D8 = Wave 1 articulate-only / Wave 2 implementation 切り分け）
+- [x] plan.md 不可侵原則 16 (Document Reset Pass、AAG-SCP-DOC-RESET-001〜005) が articulate されている
+- [x] plan.md 不可侵原則 17 (Documentation Failure Learning Loop、AAG-SCP-DOC-LEARNING-001〜004) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 description が **Document Reset Pass** として rewrite されている（旧「Existing Documentation Reading Pass」を含む superset、9 disposition + DOC-FAIL-* + DOC-GUARD-* + Failure Learning Loop articulate）
+- [x] plan.md Wave 2 / Phase 2.5 完了条件に Document Reset Pass + Failure Learning Loop の state-based exit criteria articulate
+- [x] plan.md Wave 2 / Phase 5 description に 9 disposition execution + README rewrite (整理後骨格反映) articulate
+
+### ADR-SCP-022: Document Universe Index + README/Index 役割分離 articulate 確認
+
+- [x] ADR-SCP-022 が decision-audit.md に articulate されている（D1 = 5 DOC-INDEX 原則 (本体) / D2 = 3 DOC-INDEX 原則 (README/Index 分離) / D3 = 索引対象 + 構造 + 成果物 / D4 = 7 DOC-IDX-* finding namespace / D5 = entry shape / D6 = Wave 配置 / D7 = README 載せる/載せない）
+- [x] plan.md 不可侵原則 18 (Document Universe Index + README/Index 分離、AAG-SCP-DOC-INDEX-001〜008) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 deliverables に Document Universe Index 4 成果物 (build-document-universe.mjs / document-universe.generated.json / .md / check-document-universe.mjs) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 完了条件に Document Universe Index coverage + link integrity check が articulate されている
+- [x] plan.md Wave 2 / Phase 5 README rewrite が AAG-SCP-DOC-INDEX-005〜008 + AAG-SCP-DOC-RESET-005 整合で articulate されている
+
+### Wave 2 内実装は本 readiness section に含めない（Wave 1 articulate-only 整合、ADR-SCP-021 D8 + ADR-SCP-022 D6）
+
+- [x] Wave 1 では実装しない: build-document-universe.mjs / Reading Pass 実行 / document-failure-patterns.md 蓄積 / DOC-FAIL-* yaml landing / DOC-GUARD-* yaml landing / 削除 / 移動 / rewrite / split / merge / create-missing / README rewrite はすべて **Wave 2 以降**
+- [x] Wave 2 着手 user 承認は Wave 1 完了 + Wave 1 exit criteria 全件 PASS 後に判断（不可侵原則 9）
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
