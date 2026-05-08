@@ -514,9 +514,10 @@ Wave 1 では **articulation のみ**（advisory）、Wave 2 / Phase 5 で gate 
 
 成果物:
 
-- `docs/contracts/generated/tree-contracts.generated.json`（authoring source の normalize、Phase 2A 確定 → 本 Phase で generate）
-- `docs/contracts/generated/tree-contract-findings.generated.json`（Phase 2C skeleton-diff を入力に、aag-finding.schema.json conform Finding を emit）
-- `tools/governance/check-tree.ts`（advisory checker、aag scp check tree-contract）
+- `tools/governance/build-tree-contracts.mjs`（Phase 3-A、authoring source normalizer = `tree-contracts.yaml` → `tree-contracts.generated.json`、ajv schema validation 込み、deterministic）
+- `docs/contracts/generated/tree-contracts.generated.json`（authoring source の normalize、Phase 2A 確定 + Phase 2E 4-status 拡張 → 本 Phase で generate）
+- `tools/governance/check-tree.mjs`（Phase 3-B、advisory checker = skeleton-diff → aag-finding-v1 conform Finding emit）
+- `docs/contracts/generated/tree-contract-findings.generated.json`（Phase 2C + 2E skeleton-diff を入力に、aag-finding.schema.json conform Finding を emit、valid-finding または verified-zero finding）
 
 完了条件:
 

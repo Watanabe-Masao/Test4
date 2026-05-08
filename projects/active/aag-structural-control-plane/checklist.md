@@ -234,7 +234,39 @@
 - [ ] reasonCode に **FUNCTIONING_BUT_INTENT_UNKNOWN が articulate されている**（D8.4、「動いているから OK」誤認検出）
 - [ ] 昇格禁止条件（D8.5）が articulate されている: `meaningStatus==unexplained` / `intentStatus==missing` / `continuityStatus==absent` / Evidence 空 / 該当 reasonCode が含まれる場合の昇格 gate
 
-- [ ] Wave 1 / Phase 3 着手 user 承認
+- [x] Wave 1 / Phase 3 着手 user 承認
+
+## Wave 1 / Phase 3: Tree Contract Shadow checker advisory（ADR-SCP-019 D3 整合、2 sub-PR）
+
+> **目的（再定義、ADR-SCP-019 D3）**: Phase 2A skeleton 宣言済 + Phase 2C skeleton-diff + Phase 2E top-level disposition articulate 済を前提に、**Tree Contract Shadow checker を advisory で稼働**。skeleton 宣言は Phase 2A で前倒し済のため、本 Phase は **checker / Finding 化に集中**。
+
+### Phase 3-A (sub-PR 7): tree-contracts normalize generator
+
+- [x] `tools/governance/build-tree-contracts.mjs` landing — `docs/contracts/src/repo/tree-contracts.yaml` を normalize し、`docs/contracts/generated/tree-contracts.generated.json` を生成（不可侵原則 1 整合: schemaVersion / sourceSha / sourcePaths / generatedAt + 既存 schema validation）
+- [x] `docs/contracts/generated/tree-contracts.generated.json` 初版 landing（12 entries = 8 declared + 1 container-only + 2 platform-config-tolerated + 1 unmanaged-but-tolerated）
+- [x] generator が deterministic（object key alphabetical sort + array order-preserving + indent 2 + final newline）
+- [x] tree-contracts.schema.json (ADR-SCP-020 拡張版) との整合確認
+
+### Phase 3-B (sub-PR 8): check-tree advisory checker
+
+- [x] `tools/governance/check-tree.mjs` landing — `docs/contracts/generated/skeleton-diff.generated.json` を入力に、aag-finding-v1 conform Finding を emit
+- [x] `docs/contracts/generated/tree-contract-findings.generated.json` 初版 landing
+- [x] valid-finding emit: out-of-skeleton + missing-expected (declared) entries (= structural drift articulation)
+- [x] verified-zero finding emit: drift count == 0 の場合の AAG 形式 Finding (ADR-SCP-016 D3 整合)
+- [x] suggestedDisposition mapping: topLevelDispositionCandidate (Phase 2E) → aag-finding suggestedDisposition (move-candidate → move / archive-candidate → archive / delete-candidate → needs-triage / needs-triage → needs-triage)
+- [x] severity articulate: missing-expected (declared) → warn / out-of-skeleton → info (Wave 1 advisory only)
+- [x] confidence: high (mechanically deterministic from skeleton+topology join)
+- [x] falsePositiveAllowed: true (Wave 1 advisory only、不可侵原則 8 整合)
+- [x] new-only gate 設計が articulate されている（実装は別 program、Wave 1 では advisory のみ）
+- [x] hard gate 追加なし
+
+### Phase 3 完了条件（ADR-SCP-019 D3 + ADR-SCP-016 D3 整合）
+
+- [x] tree-contracts.generated.json が tree-contracts.yaml から normalize で再生可能（deterministic）
+- [x] tree-contract-findings.generated.json が aag-finding-v1 schema conform（ajv 検証 OK）
+- [x] valid-finding (= structural drift articulate) または verified-zero finding (= 完全走査済証明) のいずれかが必ず emit される
+- [x] `unmanaged-but-tolerated` 状態を Finding として表現できる（no Finding emit = tolerated 整合の articulate）
+- [x] hard gate / new-only gate 追加なし（Wave 1 不可侵原則 8 整合）
 
 ## Wave 2 readiness（Wave 2 着手前の articulate 確認、ADR-SCP-021 + ADR-SCP-022 整合、articulation-only）
 
