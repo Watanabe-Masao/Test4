@@ -104,7 +104,54 @@
 - [x] Finding ID prefix `FND-` で grep 可能（Document ID `DOC-` と区別）
 - [x] Finding result field が `valid-finding` / `verified-zero` を articulate（ADR-SCP-016 D3）
 - [x] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
-- [ ] Wave 1 / Phase 2 着手 user 承認
+- [x] Wave 1 / Phase 2 着手 user 承認
+
+## Wave 1 / Phase 2: Inventory（縮小: managed zone 4 件、3〜4 sub-PR）
+
+> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画「全 zone」→ **managed zone 4 件限定**（top-level tree + `projects/` + `references/04-tracking/` + `docs/contracts/`）。`references/01-foundation/` / `references/03-implementation/` / `aag/_internal/` 等は Wave 2 で hot zone Reading Pass の入力として inventory 拡張。
+>
+> **Phase 2 不可侵**: foul / hard gate 追加しない / finding はまだ出さず、入力データの整備に集中 / generated JSON は inventory 系のみ（tree-contracts.generated.json / doc-kind-registry.generated.json は Phase 3 / 4）。
+>
+> **sub-PR 構造**（独立 rollback 可能、PR 単位 review）:
+> - sub-PR 1: repo-topology.generated.json（4 zone の tree 探索結果）+ topology inventory generator
+> - sub-PR 2: markdown-inventory.generated.json（Markdown の path / size / heading 構造 / docId 有無）+ markdown inventory generator
+> - sub-PR 3: yaml-inventory.generated.json（YAML の 5 分類 candidate）+ yaml inventory generator
+> - sub-PR 4: generated-artifact-inventory.generated.json（generated artifact 候補）+ generator
+
+### sub-PR 1: repo-topology.generated.json + topology generator
+
+- [x] `tools/governance/` ディレクトリ作成
+- [x] `tools/governance/build-repo-topology.mjs` generator landing — managed zone 4 件を探索し、各 entry の path / type / size / depth を articulate（Node.js ES Modules、TypeScript toolchain なしで `node tools/governance/build-repo-topology.mjs` で起動）
+- [x] `docs/contracts/generated/` ディレクトリ作成（ADR-SCP-002 整合）
+- [x] `docs/contracts/generated/repo-topology.generated.json` landing — schemaVersion + metadata block（不可侵原則 1 整合）+ 4 zone entries（合計 881 entries: top-level-tree 27 + projects 626 + references-tracking 182 + docs-contracts 46）
+- [x] top-level tree zone は `1-level` walk（top-level directories のみ、再帰しない、dotfile dirs `.claude/` `.github/` 等も articulate）
+- [x] projects/ + references/04-tracking/ + docs/contracts/ zone は recursive walk（node_modules / .git / dist / build / coverage / target 等の build artifacts を skip）
+- [x] generator が deterministic（object key alphabetical sort + array sort by path + indent 2 spaces + final newline、同 commit で再実行しても content 安定、generatedAt のみ変動）
+- [x] generated JSON の手編集禁止 articulate（generator の header コメント + metadata.sourceSha で明示）
+
+### sub-PR 2: markdown-inventory.generated.json + markdown generator
+
+- [ ] `tools/governance/build-markdown-inventory.*` generator landing
+- [ ] `docs/contracts/generated/markdown-inventory.generated.json` landing — managed zone 内 Markdown の path / size / heading 構造 / docId 有無
+
+### sub-PR 3: yaml-inventory.generated.json + yaml generator
+
+- [ ] `tools/governance/build-yaml-inventory.*` generator landing
+- [ ] `docs/contracts/generated/yaml-inventory.generated.json` landing — managed zone 内 YAML の 5 分類 candidate（declaration / inventory / generated-input / legacy / unknown）
+
+### sub-PR 4: generated-artifact-inventory.generated.json + generator
+
+- [ ] `tools/governance/build-generated-artifact-inventory.*` generator landing
+- [ ] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — managed zone 内 generated artifact 候補の path / 推定 producer / manualEdit policy 候補
+
+### Phase 2 完了条件（ADR-SCP-016 整合）
+
+- [ ] 4 inventory JSON 生成完了
+- [ ] managed zone 4 件の repo 構造 / Markdown / YAML / generated artifact 候補をすべて把握
+- [ ] まだ foul しない（advisory も emit せず、入力データの整備のみ）
+- [ ] finding 出力なし（schema は sub-PR 1 で landed、emit は Phase 3+ で実施）
+- [ ] Wave 2 拡張点 articulate（hot zone Reading Pass で inventory 拡張する zone 一覧）
+- [ ] Wave 1 / Phase 3 着手 user 承認
 
 ## AI 自己レビュー (= user 承認の手前)
 

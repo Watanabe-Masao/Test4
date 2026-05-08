@@ -1,0 +1,5153 @@
+{
+  "metadata": {
+    "generatedAt": "2026-05-08T13:07:09.088Z",
+    "sourcePaths": [
+      ".",
+      "projects",
+      "references/04-tracking",
+      "docs/contracts"
+    ],
+    "sourceSha": "2c50f3b20f195fb590f5b31f8ef9c8474f99b736"
+  },
+  "schemaVersion": "repo-topology-v1",
+  "scope": "managed-zone-4",
+  "summary": {
+    "byZone": {
+      "docs-contracts": 46,
+      "projects": 626,
+      "references-tracking": 182,
+      "top-level-tree": 27
+    },
+    "totalEntries": 881
+  },
+  "zones": [
+    {
+      "entries": [
+        {
+          "depth": 1,
+          "path": ".claude/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": ".coderabbit.yaml",
+          "size": 2079,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": ".git/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": ".github/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": ".gitignore",
+          "size": 91,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": ".nvmrc",
+          "size": 3,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "aag-engine/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "app-domain/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "app/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "CHANGELOG.md",
+          "size": 33249,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "CLAUDE.md",
+          "size": 38838,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "CONTRIBUTING.md",
+          "size": 8596,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "CURRENT_PROJECT.md",
+          "size": 799,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "fixtures/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "go.work",
+          "size": 905,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "package-lock.json",
+          "size": 84,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "package.json",
+          "size": 229,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "projects/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "README.md",
+          "size": 2682,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "roles/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "scripts/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "tools/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "wasm/",
+          "type": "directory"
+        },
+        {
+          "depth": 1,
+          "path": "workers/",
+          "type": "directory"
+        }
+      ],
+      "id": "top-level-tree",
+      "rootPath": ".",
+      "walkPolicy": "1-level"
+    },
+    {
+      "entries": [
+        {
+          "depth": 1,
+          "path": "projects/_template/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/aag/execution-overlay.ts",
+          "size": 1871,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/AI_CONTEXT.md",
+          "size": 1808,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/checklist.md",
+          "size": 3203,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/config/project.json",
+          "size": 2983,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/decision-audit.md",
+          "size": 5847,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/DERIVED.md",
+          "size": 3158,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/_template/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/_template/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/_template/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/discovery-log.md",
+          "size": 2732,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/HANDOFF.md",
+          "size": 932,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/plan.md",
+          "size": 556,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/_template/projectization.md",
+          "size": 2634,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "projects/active/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/aag-structural-control-plane/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/hard-gate-surface.baseline.json",
+          "size": 573,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/README.md",
+          "size": 9555,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
+          "size": 12228,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/checklist.md",
+          "size": 18725,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/config/project.json",
+          "size": 4042,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/decision-audit.md",
+          "size": 87533,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/discovery-log.md",
+          "size": 4539,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/HANDOFF.md",
+          "size": 7785,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/inquiry/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md",
+          "size": 7772,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md",
+          "size": 6799,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md",
+          "size": 8586,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md",
+          "size": 7857,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md",
+          "size": 7718,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md",
+          "size": 11539,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md",
+          "size": 31669,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md",
+          "size": 20808,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/plan.md",
+          "size": 50869,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/aag-structural-control-plane/projectization.md",
+          "size": 9977,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/presentation-quality-hardening/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/AI_CONTEXT.md",
+          "size": 2320,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/checklist.md",
+          "size": 4771,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/presentation-quality-hardening/config/project.json",
+          "size": 1455,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/discovery-log.md",
+          "size": 1655,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/HANDOFF.md",
+          "size": 22628,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/plan.md",
+          "size": 2354,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/presentation-quality-hardening/projectization.md",
+          "size": 5061,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/pure-calculation-reorg/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/aag/execution-overlay.ts",
+          "size": 45918,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/AI_CONTEXT.md",
+          "size": 5973,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/breaking-changes.md",
+          "size": 2623,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/checklist.md",
+          "size": 10286,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/config/project.json",
+          "size": 1994,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/discovery-log.md",
+          "size": 4356,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/HANDOFF.md",
+          "size": 20253,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/legacy-retirement.md",
+          "size": 3335,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/phase-8/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/phase-8/evidence-packs/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/evidence-packs/ANA-003.json",
+          "size": 932,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/evidence-packs/ANA-004.json",
+          "size": 934,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/evidence-packs/ANA-007.json",
+          "size": 924,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/evidence-packs/ANA-009.json",
+          "size": 939,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/phase-8/promotion-readiness-table.md",
+          "size": 5950,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/phase-8/proposals/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md",
+          "size": 4548,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md",
+          "size": 4235,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md",
+          "size": 6429,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md",
+          "size": 5996,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/pure-calculation-reorg/phase-8/README.md",
+          "size": 4724,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/plan.md",
+          "size": 49563,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/pure-calculation-reorg/projectization.md",
+          "size": 6042,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/quick-fixes/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/quick-fixes/AI_CONTEXT.md",
+          "size": 1887,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/quick-fixes/checklist.md",
+          "size": 9148,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/quick-fixes/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/quick-fixes/config/project.json",
+          "size": 799,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/quick-fixes/HANDOFF.md",
+          "size": 1465,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/quick-fixes/plan.md",
+          "size": 1784,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/reposteward-ai-ops-platform/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
+          "size": 9219,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/checklist.md",
+          "size": 35551,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/reposteward-ai-ops-platform/config/project.json",
+          "size": 5822,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/decision-audit.md",
+          "size": 144234,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/discovery-log.md",
+          "size": 3699,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
+          "size": 8236,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/plan.md",
+          "size": 12278,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/reposteward-ai-ops-platform/projectization.md",
+          "size": 7747,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/active/taxonomy-v2/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/aag/execution-overlay.ts",
+          "size": 1715,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/AI_CONTEXT.md",
+          "size": 5887,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/breaking-changes.md",
+          "size": 2735,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/checklist.md",
+          "size": 11701,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/config/project.json",
+          "size": 1359,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/DERIVED.md",
+          "size": 3158,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/taxonomy-v2/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/active/taxonomy-v2/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/active/taxonomy-v2/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/discovery-log.md",
+          "size": 1636,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/HANDOFF.md",
+          "size": 26116,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/legacy-retirement.md",
+          "size": 3145,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/plan.md",
+          "size": 35331,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/projectization.md",
+          "size": 6011,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/active/taxonomy-v2/sub-project-map.md",
+          "size": 4081,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "projects/completed/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/.gitkeep",
+          "size": 0,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-bidirectional-integrity/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-bidirectional-integrity/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/AI_CONTEXT.md",
+          "size": 14353,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/breaking-changes.md",
+          "size": 12191,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/checklist.md",
+          "size": 52257,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-bidirectional-integrity/config/project.json",
+          "size": 7223,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/HANDOFF.md",
+          "size": 63421,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/legacy-retirement.md",
+          "size": 14466,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/plan.md",
+          "size": 84862,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-bidirectional-integrity/projectization.md",
+          "size": 11637,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-collector-purification/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-collector-purification/AI_CONTEXT.md",
+          "size": 4137,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-collector-purification/checklist.md",
+          "size": 4396,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-collector-purification/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-collector-purification/config/project.json",
+          "size": 537,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-collector-purification/HANDOFF.md",
+          "size": 6032,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-collector-purification/plan.md",
+          "size": 4560,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-core-doc-refactor/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-core-doc-refactor/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/AI_CONTEXT.md",
+          "size": 5215,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/breaking-changes.md",
+          "size": 7963,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/checklist.md",
+          "size": 17344,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-core-doc-refactor/config/project.json",
+          "size": 2298,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/HANDOFF.md",
+          "size": 10037,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/legacy-retirement.md",
+          "size": 9217,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/plan.md",
+          "size": 11801,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-core-doc-refactor/projectization.md",
+          "size": 7026,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-decision-traceability/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-decision-traceability/aag/execution-overlay.ts",
+          "size": 1611,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/AI_CONTEXT.md",
+          "size": 3741,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/checklist.md",
+          "size": 1944,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-decision-traceability/config/project.json",
+          "size": 1411,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/HANDOFF.md",
+          "size": 4506,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/plan.md",
+          "size": 3610,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-decision-traceability/projectization.md",
+          "size": 4514,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-display-rule-registry/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-display-rule-registry/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/AI_CONTEXT.md",
+          "size": 5892,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/checklist.md",
+          "size": 12336,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-display-rule-registry/config/project.json",
+          "size": 2118,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/HANDOFF.md",
+          "size": 8763,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/plan.md",
+          "size": 9350,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-display-rule-registry/projectization.md",
+          "size": 4206,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-doc-responsibility-separation/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-doc-responsibility-separation/aag/execution-overlay.ts",
+          "size": 1604,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/AI_CONTEXT.md",
+          "size": 3932,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/checklist.md",
+          "size": 3011,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-doc-responsibility-separation/config/project.json",
+          "size": 1449,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/HANDOFF.md",
+          "size": 7027,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/plan.md",
+          "size": 4237,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-doc-responsibility-separation/projectization.md",
+          "size": 3072,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-engine-go-mvp/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-go-mvp/archive.manifest.json",
+          "size": 20800,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-go-mvp/ARCHIVE.md",
+          "size": 13846,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-go-mvp/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-engine-go-mvp/config/project.json",
+          "size": 3891,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-engine-readiness-refactor/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-readiness-refactor/archive.manifest.json",
+          "size": 14367,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-readiness-refactor/ARCHIVE.md",
+          "size": 8725,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-engine-readiness-refactor/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-engine-readiness-refactor/config/project.json",
+          "size": 2340,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-format-redesign/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-format-redesign/aag/execution-overlay.ts",
+          "size": 37830,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/AI_CONTEXT.md",
+          "size": 6044,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/checklist.md",
+          "size": 4449,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-format-redesign/config/project.json",
+          "size": 574,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/current-state-survey.md",
+          "size": 11008,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/HANDOFF.md",
+          "size": 4889,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/migration-guide.md",
+          "size": 7009,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/new-format-design.md",
+          "size": 8232,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/overlay-bootstrap-design.md",
+          "size": 8336,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/pain-points.md",
+          "size": 11834,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/plan.md",
+          "size": 7436,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/strengths.md",
+          "size": 11190,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-format-redesign/subproject-design.md",
+          "size": 7087,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-legacy-retirement/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-legacy-retirement/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/AI_CONTEXT.md",
+          "size": 5010,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/breaking-changes.md",
+          "size": 2804,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/checklist.md",
+          "size": 9998,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-legacy-retirement/config/project.json",
+          "size": 2016,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/HANDOFF.md",
+          "size": 7959,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/legacy-retirement.md",
+          "size": 6198,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/plan.md",
+          "size": 8051,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-legacy-retirement/projectization.md",
+          "size": 4083,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-platformization/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-platformization/archive.manifest.json",
+          "size": 13044,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-platformization/ARCHIVE.md",
+          "size": 6026,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-platformization/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-platformization/config/project.json",
+          "size": 2588,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-rule-schema-meta-guard/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-rule-schema-meta-guard/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md",
+          "size": 6005,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/checklist.md",
+          "size": 14244,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-rule-schema-meta-guard/config/project.json",
+          "size": 2569,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/HANDOFF.md",
+          "size": 11177,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/plan.md",
+          "size": 10484,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-schema-meta-guard/projectization.md",
+          "size": 5103,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-rule-splitting-execution/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md",
+          "size": 2228,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-splitting-execution/checklist.md",
+          "size": 1635,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-splitting-execution/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-rule-splitting-execution/config/project.json",
+          "size": 555,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-splitting-execution/HANDOFF.md",
+          "size": 3259,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-rule-splitting-execution/plan.md",
+          "size": 1970,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-self-hosting-completion/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-self-hosting-completion/archive.manifest.json",
+          "size": 16077,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-self-hosting-completion/ARCHIVE.md",
+          "size": 6839,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-self-hosting-completion/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-self-hosting-completion/config/project.json",
+          "size": 3444,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/aag-temporal-governance-hardening/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md",
+          "size": 3309,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/breaking-changes.md",
+          "size": 1882,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/checklist.md",
+          "size": 5386,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/config/project.json",
+          "size": 1760,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/aag-temporal-governance-hardening/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/HANDOFF.md",
+          "size": 9104,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/plan.md",
+          "size": 4105,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/projectization.md",
+          "size": 3525,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/aag-temporal-governance-hardening/SUMMARY.md",
+          "size": 10714,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/architecture-debt-recovery/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/aag/execution-overlay.ts",
+          "size": 24675,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/AI_CONTEXT.md",
+          "size": 7891,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/breaking-changes.md",
+          "size": 2057,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/checklist.md",
+          "size": 8711,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/config/project.json",
+          "size": 1904,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/architecture-debt-recovery/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/architecture-debt-recovery/derived/inventory/README.md",
+          "size": 1096,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/review-checklist.md",
+          "size": 2160,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/HANDOFF.md",
+          "size": 14103,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/.gitkeep",
+          "size": 24,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/01-widget-registries.md",
+          "size": 34145,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/01a-widget-specs-bootstrap.md",
+          "size": 11298,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/02-widget-ctx-dependency.md",
+          "size": 19330,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/03-ui-component-orphans.md",
+          "size": 12299,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/04-type-asymmetry.md",
+          "size": 14778,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/05-pure-fn-candidates.md",
+          "size": 15924,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/06-data-pipeline-map.md",
+          "size": 13292,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/07-complexity-hotspots.md",
+          "size": 7443,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/08-ui-responsibility-audit.md",
+          "size": 9015,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/09-symptom-to-hypothesis.md",
+          "size": 24255,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/10-hypothesis-interaction.md",
+          "size": 11275,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/10a-wss-concern-link.md",
+          "size": 13623,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/11-recurrence-pattern.md",
+          "size": 12702,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/12-principle-candidates.md",
+          "size": 18590,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/13-invariant-candidates.md",
+          "size": 13678,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/14-rule-retirement-candidates.md",
+          "size": 9693,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/15-remediation-plan.md",
+          "size": 26486,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/16-breaking-changes.md",
+          "size": 10367,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/17-legacy-retirement.md",
+          "size": 15690,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/17a-orphan-scope-extension.md",
+          "size": 10983,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/18-sub-project-map.md",
+          "size": 14126,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/19-predecessor-project-transition.md",
+          "size": 8941,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/20-current-project-switch-plan.md",
+          "size": 11119,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-debt-recovery/inquiry/21-spawn-sequence.md",
+          "size": 11018,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/legacy-retirement.md",
+          "size": 2263,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/plan.md",
+          "size": 46479,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/projectization.md",
+          "size": 4204,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/sub-project-map.md",
+          "size": 2554,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-debt-recovery/SUMMARY.md",
+          "size": 11287,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/architecture-decision-backlog/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-decision-backlog/AI_CONTEXT.md",
+          "size": 1860,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-decision-backlog/checklist.md",
+          "size": 1067,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-decision-backlog/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/architecture-decision-backlog/config/project.json",
+          "size": 561,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-decision-backlog/HANDOFF.md",
+          "size": 2674,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/architecture-decision-backlog/plan.md",
+          "size": 997,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/budget-achievement-simulator/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/budget-achievement-simulator/aag/execution-overlay.ts",
+          "size": 3565,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/AI_CONTEXT.md",
+          "size": 7160,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/checklist.md",
+          "size": 4842,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/budget-achievement-simulator/config/project.json",
+          "size": 917,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/HANDOFF.md",
+          "size": 7249,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/plan.md",
+          "size": 9599,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/budget-achievement-simulator/SUMMARY.md",
+          "size": 5273,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/calendar-modal-bundle-migration/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-bundle-migration/AI_CONTEXT.md",
+          "size": 3200,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-bundle-migration/checklist.md",
+          "size": 3257,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-bundle-migration/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/calendar-modal-bundle-migration/config/project.json",
+          "size": 615,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-bundle-migration/HANDOFF.md",
+          "size": 11060,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-bundle-migration/plan.md",
+          "size": 4683,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/calendar-modal-route-unification/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-route-unification/AI_CONTEXT.md",
+          "size": 3209,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-route-unification/checklist.md",
+          "size": 2084,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-route-unification/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/calendar-modal-route-unification/config/project.json",
+          "size": 622,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-route-unification/HANDOFF.md",
+          "size": 9981,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/calendar-modal-route-unification/plan.md",
+          "size": 8573,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/canonicalization-domain-consolidation/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/aag/execution-overlay.ts",
+          "size": 1849,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/AI_CONTEXT.md",
+          "size": 3165,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/breaking-changes.md",
+          "size": 4472,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/checklist.md",
+          "size": 11602,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/config/project.json",
+          "size": 2842,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/derived/.gitkeep",
+          "size": 0,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.json",
+          "size": 12968,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/derived/adoption-candidates.schema.json",
+          "size": 7294,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/canonicalization-domain-consolidation/derived/README.md",
+          "size": 2100,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/HANDOFF.md",
+          "size": 5046,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/legacy-retirement.md",
+          "size": 20127,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/plan.md",
+          "size": 23644,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/projectization.md",
+          "size": 3507,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/canonicalization-domain-consolidation/sub-project-map.md",
+          "size": 4516,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/AI_CONTEXT.md",
+          "size": 4180,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/checklist.md",
+          "size": 4410,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/config/project.json",
+          "size": 615,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/HANDOFF.md",
+          "size": 9567,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-entry-shape-break/plan.md",
+          "size": 6919,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/category-leaf-daily-series/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-series/AI_CONTEXT.md",
+          "size": 3824,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-series/checklist.md",
+          "size": 3963,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-series/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/category-leaf-daily-series/config/project.json",
+          "size": 574,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-series/HANDOFF.md",
+          "size": 7111,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/category-leaf-daily-series/plan.md",
+          "size": 5076,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/chart-color-alignment/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/chart-color-alignment/AI_CONTEXT.md",
+          "size": 3014,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/chart-color-alignment/checklist.md",
+          "size": 3657,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/chart-color-alignment/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/chart-color-alignment/config/project.json",
+          "size": 875,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/chart-color-alignment/HANDOFF.md",
+          "size": 2928,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/chart-color-alignment/plan.md",
+          "size": 2767,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/data-flow-unification/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-flow-unification/AI_CONTEXT.md",
+          "size": 3035,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-flow-unification/checklist.md",
+          "size": 3587,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-flow-unification/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/data-flow-unification/config/project.json",
+          "size": 522,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-flow-unification/HANDOFF.md",
+          "size": 7493,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-flow-unification/plan.md",
+          "size": 5386,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/data-load-idempotency-hardening/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-load-idempotency-hardening/AI_CONTEXT.md",
+          "size": 2399,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-load-idempotency-hardening/checklist.md",
+          "size": 2304,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-load-idempotency-hardening/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/data-load-idempotency-hardening/config/project.json",
+          "size": 565,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-load-idempotency-hardening/HANDOFF.md",
+          "size": 4120,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/data-load-idempotency-hardening/plan.md",
+          "size": 2709,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/AI_CONTEXT.md",
+          "size": 3296,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/checklist.md",
+          "size": 2573,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/config/project.json",
+          "size": 652,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/HANDOFF.md",
+          "size": 14762,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/day-detail-modal-prev-year-investigation/plan.md",
+          "size": 4906,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/design-system-v2-1-asset/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/design-system-v2-1-asset/AI_CONTEXT.md",
+          "size": 2746,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/design-system-v2-1-asset/checklist.md",
+          "size": 2518,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/design-system-v2-1-asset/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/design-system-v2-1-asset/config/project.json",
+          "size": 789,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/design-system-v2-1-asset/HANDOFF.md",
+          "size": 3144,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/design-system-v2-1-asset/plan.md",
+          "size": 2024,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/docs-and-governance-cohesion/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/docs-and-governance-cohesion/AI_CONTEXT.md",
+          "size": 2469,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/docs-and-governance-cohesion/checklist.md",
+          "size": 9566,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/docs-and-governance-cohesion/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/docs-and-governance-cohesion/config/project.json",
+          "size": 565,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/docs-and-governance-cohesion/HANDOFF.md",
+          "size": 3786,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/docs-and-governance-cohesion/plan.md",
+          "size": 5489,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/duplicate-orphan-retirement/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/AI_CONTEXT.md",
+          "size": 3896,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/breaking-changes.md",
+          "size": 3444,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/checklist.md",
+          "size": 4823,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/config/project.json",
+          "size": 1583,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/duplicate-orphan-retirement/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/HANDOFF.md",
+          "size": 5000,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/legacy-retirement.md",
+          "size": 2466,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/plan.md",
+          "size": 4722,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/projectization.md",
+          "size": 2869,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/duplicate-orphan-retirement/SUMMARY.md",
+          "size": 10239,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/integrity-framework-evolution/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/integrity-framework-evolution/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/AI_CONTEXT.md",
+          "size": 2621,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/breaking-changes.md",
+          "size": 5146,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/checklist.md",
+          "size": 6086,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/integrity-framework-evolution/config/project.json",
+          "size": 3179,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/integrity-framework-evolution/derived/quality-review.md",
+          "size": 25713,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/HANDOFF.md",
+          "size": 4687,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/legacy-retirement.md",
+          "size": 4842,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/plan.md",
+          "size": 26254,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/projectization.md",
+          "size": 3431,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/integrity-framework-evolution/sub-project-map.md",
+          "size": 3231,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/operational-protocol-system/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/operational-protocol-system/archive.manifest.json",
+          "size": 13469,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/operational-protocol-system/ARCHIVE.md",
+          "size": 7740,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/operational-protocol-system/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/operational-protocol-system/config/project.json",
+          "size": 2564,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/phase-6-optional-comparison-projection/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phase-6-optional-comparison-projection/AI_CONTEXT.md",
+          "size": 5560,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phase-6-optional-comparison-projection/checklist.md",
+          "size": 6236,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phase-6-optional-comparison-projection/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phase-6-optional-comparison-projection/config/project.json",
+          "size": 648,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phase-6-optional-comparison-projection/HANDOFF.md",
+          "size": 8437,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phase-6-optional-comparison-projection/plan.md",
+          "size": 14756,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/phased-content-specs-rollout/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/aag/execution-overlay.ts",
+          "size": 4536,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/AI_CONTEXT.md",
+          "size": 5433,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/checklist.md",
+          "size": 17378,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/config/project.json",
+          "size": 2927,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/phased-content-specs-rollout/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/phased-content-specs-rollout/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/phased-content-specs-rollout/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/HANDOFF.md",
+          "size": 24511,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/plan.md",
+          "size": 39655,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/phased-content-specs-rollout/projectization.md",
+          "size": 4779,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/AI_CONTEXT.md",
+          "size": 3252,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/checklist.md",
+          "size": 2514,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/config/project.json",
+          "size": 624,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/HANDOFF.md",
+          "size": 6656,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/presentation-cts-surface-ratchetdown/plan.md",
+          "size": 3167,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/README.md",
+          "size": 2327,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/responsibility-taxonomy-v2/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/AI_CONTEXT.md",
+          "size": 3916,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/breaking-changes.md",
+          "size": 2783,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/checklist.md",
+          "size": 14850,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/config/project.json",
+          "size": 1480,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/responsibility-taxonomy-v2/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/HANDOFF.md",
+          "size": 30344,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/legacy-retirement.md",
+          "size": 4276,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/plan.md",
+          "size": 9231,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/responsibility-taxonomy-v2/projectization.md",
+          "size": 5196,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/test-signal-integrity/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-signal-integrity/AI_CONTEXT.md",
+          "size": 4590,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-signal-integrity/checklist.md",
+          "size": 6277,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-signal-integrity/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-signal-integrity/config/project.json",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-signal-integrity/HANDOFF.md",
+          "size": 38658,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-signal-integrity/plan.md",
+          "size": 21555,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/test-taxonomy-v2/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/AI_CONTEXT.md",
+          "size": 3870,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/breaking-changes.md",
+          "size": 2813,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/checklist.md",
+          "size": 15074,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/config/project.json",
+          "size": 1500,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/test-taxonomy-v2/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/test-taxonomy-v2/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/test-taxonomy-v2/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/HANDOFF.md",
+          "size": 25733,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/legacy-retirement.md",
+          "size": 4564,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/plan.md",
+          "size": 9515,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/test-taxonomy-v2/projectization.md",
+          "size": 6033,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/unify-period-analysis/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/aag/execution-overlay.ts",
+          "size": 37830,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/acceptance-suite.md",
+          "size": 6147,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/AI_CONTEXT.md",
+          "size": 3495,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/checklist.md",
+          "size": 19451,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/config/project.json",
+          "size": 670,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/HANDOFF.md",
+          "size": 28580,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/01-comparison-math-in-presentation.md",
+          "size": 3518,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/02-non-handler-free-period-access.md",
+          "size": 2804,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/03-rate-in-sql.md",
+          "size": 3978,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/04-header-filter-state-direct-refs.md",
+          "size": 6511,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/05-phase6-widget-consumers.md",
+          "size": 10182,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/06-phase7-phase8-audit.md",
+          "size": 11540,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/unify-period-analysis/inventory/README.md",
+          "size": 1708,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/phase-6-5-step-b-design.md",
+          "size": 10381,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/plan.md",
+          "size": 9046,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/pr-breakdown.md",
+          "size": 8517,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/review-checklist.md",
+          "size": 8395,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/step-c-timeslot-lane-policy.md",
+          "size": 6620,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/unify-period-analysis/test-plan.md",
+          "size": 14661,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/widget-context-boundary/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/AI_CONTEXT.md",
+          "size": 3962,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/breaking-changes.md",
+          "size": 2958,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/checklist.md",
+          "size": 6159,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/config/project.json",
+          "size": 1967,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/widget-context-boundary/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/widget-context-boundary/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-context-boundary/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/HANDOFF.md",
+          "size": 8758,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/legacy-retirement.md",
+          "size": 3402,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/next-phase-plan.md",
+          "size": 8481,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/plan.md",
+          "size": 4089,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/projectization.md",
+          "size": 3539,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-context-boundary/SUMMARY.md",
+          "size": 12218,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "projects/completed/widget-registry-simplification/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/aag/execution-overlay.ts",
+          "size": 1707,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/AI_CONTEXT.md",
+          "size": 7013,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/checklist.md",
+          "size": 3924,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/config/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/config/project.json",
+          "size": 2064,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/DERIVED.md",
+          "size": 3122,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/derived/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/acceptance-suite.md",
+          "size": 1219,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/inventory/",
+          "type": "directory"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/widget-registry-simplification/derived/inventory/00-example.md",
+          "size": 525,
+          "type": "file"
+        },
+        {
+          "depth": 5,
+          "path": "projects/completed/widget-registry-simplification/derived/inventory/README.md",
+          "size": 1093,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/pr-breakdown.md",
+          "size": 1089,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/README.md",
+          "size": 1291,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/review-checklist.md",
+          "size": 1925,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "projects/completed/widget-registry-simplification/derived/test-plan.md",
+          "size": 1343,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/HANDOFF.md",
+          "size": 4702,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/legacy-retirement.md",
+          "size": 2026,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/plan.md",
+          "size": 5102,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/projectization.md",
+          "size": 3957,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "projects/completed/widget-registry-simplification/SUMMARY.md",
+          "size": 9186,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "projects/README.md",
+          "size": 3714,
+          "type": "file"
+        }
+      ],
+      "id": "projects",
+      "rootPath": "projects",
+      "walkPolicy": "recursive"
+    },
+    {
+      "entries": [
+        {
+          "depth": 1,
+          "path": "references/04-tracking/aag-doc-audit-report.md",
+          "size": 34272,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/ar-rule-audit.md",
+          "size": 19035,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/authoritative-term-sweep.md",
+          "size": 5469,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/dashboards/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/dashboards/boundary-health.generated.md",
+          "size": 775,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/dashboards/element-coverage.generated.md",
+          "size": 763,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/dashboards/migration-progress.generated.md",
+          "size": 801,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/dashboards/quality-dashboard.generated.md",
+          "size": 790,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/dashboards/README.md",
+          "size": 1636,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/elements/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/calculations/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-001.md",
+          "size": 4358,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-002.md",
+          "size": 4667,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-003.md",
+          "size": 4891,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-004.md",
+          "size": 4312,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-005.md",
+          "size": 4555,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-006.md",
+          "size": 4097,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-007.md",
+          "size": 4561,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-008.md",
+          "size": 4676,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-009.md",
+          "size": 4320,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-010.md",
+          "size": 4995,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-011.md",
+          "size": 4702,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-012.md",
+          "size": 3411,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-013.md",
+          "size": 3434,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-014.md",
+          "size": 3781,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-015.md",
+          "size": 3540,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-016.md",
+          "size": 3652,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-017.md",
+          "size": 3716,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-018.md",
+          "size": 4825,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-019.md",
+          "size": 4292,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-020.md",
+          "size": 4684,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-021.md",
+          "size": 4758,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-022.md",
+          "size": 4939,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-023.md",
+          "size": 4747,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/CALC-024.md",
+          "size": 4475,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/calculations/README.md",
+          "size": 13004,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/charts/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/CHART-001/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-001/implementation-ledger.md",
+          "size": 889,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-001/open-issues.generated.md",
+          "size": 713,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-001/quality-status.generated.md",
+          "size": 636,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-001/README.md",
+          "size": 4948,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/CHART-002/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-002/implementation-ledger.md",
+          "size": 889,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-002/open-issues.generated.md",
+          "size": 713,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-002/quality-status.generated.md",
+          "size": 636,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-002/README.md",
+          "size": 4634,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/CHART-003/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-003/implementation-ledger.md",
+          "size": 889,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-003/open-issues.generated.md",
+          "size": 713,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-003/quality-status.generated.md",
+          "size": 636,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-003/README.md",
+          "size": 4107,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/CHART-004/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-004/implementation-ledger.md",
+          "size": 889,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-004/open-issues.generated.md",
+          "size": 713,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-004/quality-status.generated.md",
+          "size": 636,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-004/README.md",
+          "size": 3911,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/CHART-005/",
+          "type": "directory"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-005/implementation-ledger.md",
+          "size": 889,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-005/open-issues.generated.md",
+          "size": 713,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-005/quality-status.generated.md",
+          "size": 636,
+          "type": "file"
+        },
+        {
+          "depth": 4,
+          "path": "references/04-tracking/elements/charts/CHART-005/README.md",
+          "size": 4792,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/charts/README.md",
+          "size": 5983,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/element-index.generated.md",
+          "size": 1799,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/element-taxonomy.md",
+          "size": 4223,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/read-models/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/README.md",
+          "size": 6853,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-001.md",
+          "size": 4219,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-002.md",
+          "size": 4253,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-003.md",
+          "size": 3964,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-004.md",
+          "size": 3509,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-005.md",
+          "size": 4676,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-006.md",
+          "size": 4192,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-007.md",
+          "size": 4577,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-008.md",
+          "size": 3775,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-009.md",
+          "size": 4241,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/read-models/RM-010.md",
+          "size": 4011,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/README.md",
+          "size": 11927,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/ui-components/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/README.md",
+          "size": 4847,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/UIC-001.md",
+          "size": 5117,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/UIC-002.md",
+          "size": 4476,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/UIC-003.md",
+          "size": 3614,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/UIC-004.md",
+          "size": 4595,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/ui-components/UIC-005.md",
+          "size": 3931,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/elements/widgets/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/README.md",
+          "size": 14162,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-001.md",
+          "size": 7439,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-002.md",
+          "size": 8632,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-003.md",
+          "size": 5340,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-004.md",
+          "size": 4433,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-005.md",
+          "size": 3612,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-006.md",
+          "size": 4900,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-007.md",
+          "size": 3813,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-008.md",
+          "size": 3228,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-009.md",
+          "size": 3556,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-010.md",
+          "size": 2550,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-011.md",
+          "size": 2908,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-012.md",
+          "size": 3323,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-013.md",
+          "size": 2732,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-014.md",
+          "size": 3443,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-015.md",
+          "size": 3265,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-016.md",
+          "size": 3514,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-017.md",
+          "size": 3626,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-018.md",
+          "size": 5363,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-019.md",
+          "size": 3969,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-020.md",
+          "size": 4341,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-021.md",
+          "size": 3364,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-022.md",
+          "size": 2980,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-023.md",
+          "size": 3129,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-024.md",
+          "size": 3954,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-025.md",
+          "size": 3051,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-026.md",
+          "size": 3412,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-027.md",
+          "size": 2842,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-028.md",
+          "size": 2469,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-029.md",
+          "size": 2703,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-030.md",
+          "size": 3357,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-031.md",
+          "size": 3593,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-032.md",
+          "size": 3526,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-033.md",
+          "size": 4223,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-034.md",
+          "size": 3237,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-035.md",
+          "size": 3302,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-036.md",
+          "size": 3328,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-037.md",
+          "size": 3590,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-038.md",
+          "size": 3677,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-039.md",
+          "size": 3555,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-040.md",
+          "size": 8315,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-041.md",
+          "size": 2901,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-042.md",
+          "size": 2644,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-043.md",
+          "size": 2712,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-044.md",
+          "size": 3227,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "references/04-tracking/elements/widgets/WID-045.md",
+          "size": 3437,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/engine-maturity-matrix.md",
+          "size": 5200,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/engine-promotion-matrix.md",
+          "size": 7103,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/features-migration-status.md",
+          "size": 3107,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/frozen-list.md",
+          "size": 7408,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/generated/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/aag-size-statistics.generated.md",
+          "size": 2974,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/aag-size-statistics.json",
+          "size": 4675,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
+          "size": 664,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
+          "size": 290,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-health-certificate.generated.md",
+          "size": 2661,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-health.generated.md",
+          "size": 13159,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-health.json",
+          "size": 63256,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-state-snapshot.generated.md",
+          "size": 4851,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-state-snapshot.json",
+          "size": 6422,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/architecture-state-snapshot.md",
+          "size": 4851,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/build-parity-audit.json",
+          "size": 1556,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/comparison-semantics-audit.json",
+          "size": 2682,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/content-graph.json",
+          "size": 10208,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/content-spec-health.json",
+          "size": 1080,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/detection-inventory.json",
+          "size": 39260,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/project-health.generated.md",
+          "size": 13862,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/project-health.json",
+          "size": 23979,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/query-access-audit.generated.md",
+          "size": 6729,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/query-access-audit.json",
+          "size": 7514,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/source-facts.json",
+          "size": 1095411,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/taxonomy-health.json",
+          "size": 1984,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/test-signal-baseline.generated.md",
+          "size": 3476,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "references/04-tracking/generated/test-signal-baseline.json",
+          "size": 2371,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/observation-evaluation-guide.md",
+          "size": 9567,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/open-issues.md",
+          "size": 27822,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/project-structure.md",
+          "size": 8292,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-criteria.md",
+          "size": 12189,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-correlation.md",
+          "size": 561,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-customerGap.md",
+          "size": 1539,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-dowGapAnalysis.md",
+          "size": 601,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-inventoryCalc.md",
+          "size": 1854,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-movingAverage.md",
+          "size": 561,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-observationPeriod.md",
+          "size": 1545,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-pinIntervals.md",
+          "size": 1603,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-piValue.md",
+          "size": 2814,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-remainingBudgetRate.md",
+          "size": 1503,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-sensitivity.md",
+          "size": 481,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/promotion-readiness-trendAnalysis.md",
+          "size": 597,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/quality-audit-latest.md",
+          "size": 8571,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/recent-changes.generated.md",
+          "size": 48381,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/responsibility-taxonomy-inventory.yaml",
+          "size": 903681,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/semantic-inventory.yaml",
+          "size": 13739,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/taxonomy-review-journal.md",
+          "size": 31212,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/technical-debt-roadmap.md",
+          "size": 29726,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "references/04-tracking/test-taxonomy-inventory.yaml",
+          "size": 543771,
+          "type": "file"
+        }
+      ],
+      "id": "references-tracking",
+      "rootPath": "references/04-tracking",
+      "walkPolicy": "recursive"
+    },
+    {
+      "entries": [
+        {
+          "depth": 1,
+          "path": "docs/contracts/aag/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/aag-metadata.json",
+          "size": 681,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/aag-parameters.schema.json",
+          "size": 6149,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/aag-response.schema.json",
+          "size": 2897,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/aag-size-statistics.schema.json",
+          "size": 5298,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/commands/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/bootstrap-output.schema.json",
+          "size": 2070,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/changed-output.schema.json",
+          "size": 1772,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+          "size": 4692,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/clean-check-output.schema.json",
+          "size": 1670,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/comments-list-output.schema.json",
+          "size": 1760,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/context-output.schema.json",
+          "size": 1777,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/describe-output.schema.json",
+          "size": 9614,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/detector-refs-output.schema.json",
+          "size": 2268,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/docs-placement-check-output.schema.json",
+          "size": 1878,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/fixtures-output.schema.json",
+          "size": 2947,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/index-output.schema.json",
+          "size": 2622,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/obligation-check-output.schema.json",
+          "size": 2175,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/project-stale-output.schema.json",
+          "size": 1914,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/repair-context-output.schema.json",
+          "size": 1738,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/rule-locate-output.schema.json",
+          "size": 2710,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/self-check-output.schema.json",
+          "size": 4325,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/stats-files-query-output.schema.json",
+          "size": 1774,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/task-close-output.schema.json",
+          "size": 1608,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/task-validate-output.schema.json",
+          "size": 1420,
+          "type": "file"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/aag/commands/where-am-i-output.schema.json",
+          "size": 3315,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/detection-inventory.schema.json",
+          "size": 3569,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/detector-result.schema.json",
+          "size": 2533,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/premise-contract.schema.json",
+          "size": 4406,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/source-facts.schema.json",
+          "size": 6828,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/aag/task-capsule.schema.json",
+          "size": 10463,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/doc-registry.json",
+          "size": 138713,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/escalation-criteria.json",
+          "size": 2664,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/principles.json",
+          "size": 58291,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/project-archive.schema.json",
+          "size": 10662,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/project-metadata.json",
+          "size": 3078,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/schema/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/schema/aag-finding.schema.json",
+          "size": 9144,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/schema/doc-kind-registry.schema.json",
+          "size": 8769,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/schema/tree-contracts.schema.json",
+          "size": 7560,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/src/",
+          "type": "directory"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/src/docs/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/src/docs/doc-kind-registry.yaml",
+          "size": 5202,
+          "type": "file"
+        },
+        {
+          "depth": 2,
+          "path": "docs/contracts/src/repo/",
+          "type": "directory"
+        },
+        {
+          "depth": 3,
+          "path": "docs/contracts/src/repo/tree-contracts.yaml",
+          "size": 1842,
+          "type": "file"
+        },
+        {
+          "depth": 1,
+          "path": "docs/contracts/test-contract.json",
+          "size": 3819,
+          "type": "file"
+        }
+      ],
+      "id": "docs-contracts",
+      "rootPath": "docs/contracts",
+      "walkPolicy": "recursive"
+    }
+  ]
+}
