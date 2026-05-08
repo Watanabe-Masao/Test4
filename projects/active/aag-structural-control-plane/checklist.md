@@ -34,6 +34,9 @@
 - [x] ADR-SCP-014（Guidance over restriction: AAG SCP 思想 + AAG-SCP-GUIDANCE-001〜007 + 定量/定性分離 + 合言葉更新 `Plan → Context → Contract → Guidance → Gate` + やってはいけないこと §A1/§A2/§B 3 分類 + §A1 永続 checker + §A2 boundary protection guardrail + §B 再チェック機会 + ガードレール metaphor）を decision-audit.md に articulate
 - [x] ADR-SCP-015（Phase 1 implementation prep: D1 §A2 declarative YAML + common runner / D2 git diff baseRef 4 段階解決 / D3 hard-gate-count → hard-gate-surface + baseline 比較 / D4 no-new-references-doc 5 例外条件 + rename detection）を decision-audit.md に articulate
 - [x] ADR-SCP-016（Wave restructuring 採用: D1 Phase 0〜10 → Wave 1/2/3 + Separate Program candidate / D2 §A1 checker Wave 配置 / D3 verified-zero finding 許容 / D4 hard-gate-surface baseline 構造明示 / D5 §A2 declarative checker + common runner 再強調 / D6 Phase 0 完了判定 / D7 inquiry/08 採用済み）を decision-audit.md に articulate
+- [x] ADR-SCP-017（AAG SCP Constitutional Layer = Meaning / Intent / Will / Continuity 最上位原則: D1 AAG-SCP-MEANING-001〜005 / D1.5 AAG-SCP-CONTINUITY-001〜005 / D2 3-layer 思考モデル / D3 AAG 再定義 / D4 Mechanical/Guidance 分離 / D5 ADR 階層 / D6 artifact field articulate / D7 最上位原則 section institute）を decision-audit.md に articulate
+- [x] ADR-SCP-018（AAG SCP Ideal-first / Gap-driven 基本作法 = MEANING+CONTINUITY の operational approach: D1 AAG-SCP-DESIGN-001〜005 / D2 8 step 標準フロー / D3 5 areas application / D4 不可侵原則 12 articulate）を decision-audit.md に articulate
+- [x] ADR-SCP-019（Parse2 Re-articulation = Skeleton-aware Inventory、DESIGN の Tree Contract concrete application: D1 AAG-SCP-PARSE2-001〜005 / D2 Phase 2A/B/C/D 再分解 / D3 Phase 3 役割変更 / D4 skeleton-diff 6 分類 / D5 Inventory entry 必須 field / D6 1918202 リファクタ方針 / D7 Parse2 でやらないこと）を decision-audit.md に articulate
 - [x] plan.md「やってはいけないこと」が §A1（AAG Core 永続、11 件、Wave 配置 articulate）/ §A2（project-scoped boundary protection、**4 件のみ**、archive で消失）/ §B（仕組み化不可、6+ 件）に 3 分類されている
 - [x] §A1 各項目に検出装置 path（`tools/governance/check-*.ts` または既存 mechanism 拡張、parse-heavy 含む）+ Wave / landing phase が articulate されている（GUIDANCE-005 + ADR-SCP-016 D2）
 - [x] §A2 が boundary protection（触ってはいけない / 変更してはいけない / 崩してはいけない）4 件に限定されている: `app-untouched` / `docs-contracts-aag-untouched` / `no-new-references-doc` / `hard-gate-surface`
@@ -106,51 +109,77 @@
 - [x] hard gate 追加なし（advisory only、Wave 1 不可侵原則 8 整合）
 - [x] Wave 1 / Phase 2 着手 user 承認
 
-## Wave 1 / Phase 2: Inventory（縮小: managed zone 4 件、3〜4 sub-PR）
+## Wave 1 / Phase 2: Skeleton-aware Parse（再定義 = ADR-SCP-019 PARSE2、4 sub-PR = Phase 2A/B/C/D）
 
-> **Wave 1 narrowing（ADR-SCP-016 D1）**: 元計画「全 zone」→ **managed zone 4 件限定**（top-level tree + `projects/` + `references/04-tracking/` + `docs/contracts/`）。`references/01-foundation/` / `references/03-implementation/` / `aag/_internal/` 等は Wave 2 で hot zone Reading Pass の入力として inventory 拡張。
+> **再定義（ADR-SCP-019 PARSE2 整合）**: Inventory は現状承認ではない。先に定義した **Structural Skeleton に照らして repo を観察**し、in-skeleton / out-of-skeleton / missing-expected / unexpected-child / inside-unmanaged-zone / observed-only を分類する。**Gap は即違反ではなく、Phase 3 以降の調査・再計画対象**として扱う（最上位原則 MEANING + CONTINUITY 整合、不可侵原則 12 整合）。
 >
-> **Phase 2 不可侵**: foul / hard gate 追加しない / finding はまだ出さず、入力データの整備に集中 / generated JSON は inventory 系のみ（tree-contracts.generated.json / doc-kind-registry.generated.json は Phase 3 / 4）。
+> **AAG-SCP-PARSE2-001〜005**:
+> - Parse2 は現状承認ではない / observed-only として articulate / Skeleton 先定義 / out-of-skeleton は精査対象 / 昇格には rationale 必要
 >
-> **sub-PR 構造**（独立 rollback 可能、PR 単位 review）:
-> - sub-PR 1: repo-topology.generated.json（4 zone の tree 探索結果）+ topology inventory generator
-> - sub-PR 2: markdown-inventory.generated.json（Markdown の path / size / heading 構造 / docId 有無）+ markdown inventory generator
-> - sub-PR 3: yaml-inventory.generated.json（YAML の 5 分類 candidate）+ yaml inventory generator
-> - sub-PR 4: generated-artifact-inventory.generated.json（generated artifact 候補）+ generator
+> **中心 articulate**: **Inventory is not approval. Correct location is not proof of necessity.**
+>
+> **既存 commit `1918202` 扱い（ADR-SCP-019 D6）**: 旧 Phase 2 sub-PR 1（4 zone 横断観測、commit `1918202`）は Phase 2B 着手時に refactor（scope を top-level-only に narrow + observed-only field 追加 + 出力 JSON 上書き）。`1918202` 自体は revert / amend しない（履歴保持）。再帰 zone 処理は Phase 2D で file-level inventory として再実装。
+>
+> **Phase 2 でやらないこと（ADR-SCP-019 D7）**: Document Contract 確定 / 文書移動 / archive / delete / hard gate 追加 / generated JSON を machine truth として consumer に読ませる / observed を approved に昇格 / out-of-skeleton を即違反として fail
+>
+> **Parse2 entry 必須 field**（ADR-SCP-017 D6 + ADR-SCP-019 D5、不可侵原則 12〜14 整合）:
+> - **Status**: observed / inventoryStatus / skeletonStatus / **meaningStatus** (explained/candidate/unexplained) / **intentStatus** (declared/inferred/unknown/missing) / **continuityStatus** (active/inherited/stale/unreviewed/absent)
+> - **Disposition**: candidateDisposition (= Gap 7 分類: fix / revise-skeleton / promote / move / archive / tolerate / delete-candidate / needs-triage)
+> - **Reason**: reasonCode (OUT_OF_SKELETON / NO_PURPOSE / NO_OWNER / CORRECT_LOCATION_BUT_UNEXPLAINED 等)
+> - **Questions**（Guidance 入力）: contextQuestion / futureQuestion / changeQuestion / requiredQuestion
+> - **Constraint flags**（一律 false）: preservationAssumed / preferenceBasedDecisionAllowed / localConvenienceDecisionAllowed / promotionAllowed
+> - **Context Pipeline hooks**（不可侵原則 15 = CONTEXT 整合、Wave 1 hooks のみ、Wave 2/3 で full pipeline）: contextPackRequired (=true) / contextDepthHint (= L0〜L6 範囲)
+> - **Other**: contractStatus (= unreviewed)
 
-### sub-PR 1: repo-topology.generated.json + topology generator
+### Phase 2A (sub-PR 1): Structural Skeleton declaration
 
-- [x] `tools/governance/` ディレクトリ作成
-- [x] `tools/governance/build-repo-topology.mjs` generator landing — managed zone 4 件を探索し、各 entry の path / type / size / depth を articulate（Node.js ES Modules、TypeScript toolchain なしで `node tools/governance/build-repo-topology.mjs` で起動）
-- [x] `docs/contracts/generated/` ディレクトリ作成（ADR-SCP-002 整合）
-- [x] `docs/contracts/generated/repo-topology.generated.json` landing — schemaVersion + metadata block（不可侵原則 1 整合）+ 4 zone entries（合計 881 entries: top-level-tree 27 + projects 626 + references-tracking 182 + docs-contracts 46）
-- [x] top-level tree zone は `1-level` walk（top-level directories のみ、再帰しない、dotfile dirs `.claude/` `.github/` 等も articulate）
-- [x] projects/ + references/04-tracking/ + docs/contracts/ zone は recursive walk（node_modules / .git / dist / build / coverage / target 等の build artifacts を skip）
-- [x] generator が deterministic（object key alphabetical sort + array sort by path + indent 2 spaces + final newline、同 commit で再実行しても content 安定、generatedAt のみ変動）
-- [x] generated JSON の手編集禁止 articulate（generator の header コメント + metadata.sourceSha で明示）
+- [ ] `docs/contracts/src/repo/tree-contracts.yaml` を 1 entry 雛形 → **top-level 8 root の declared 状態に拡張**（references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/）
+- [ ] 各 entry に purpose / owner articulate（free-form、ADR-SCP-004 整合）
+- [ ] declared 状態の articulate と並行して、unmanaged-but-tolerated 候補（.github/ / .vscode/ / .claude/ 等）の articulate も含めることを検討
+- [ ] tree-contracts.yaml の最終版が ajv で valid（JSON Schema draft-07 整合、Phase 1 sub-PR 2 で landed）
+- [ ] generator はまだ無い（Phase 2B で landing）
 
-### sub-PR 2: markdown-inventory.generated.json + markdown generator
+### Phase 2B (sub-PR 2): repo topology parser リファクタ + observed-only field 追加
 
-- [ ] `tools/governance/build-markdown-inventory.*` generator landing
-- [ ] `docs/contracts/generated/markdown-inventory.generated.json` landing — managed zone 内 Markdown の path / size / heading 構造 / docId 有無
+- [ ] `tools/governance/build-repo-topology.mjs` を refactor:
+  - scope を `managed-zone-4` → `top-level-only` に narrow
+  - 再帰 zone (projects/ + references/04-tracking/ + docs/contracts/) を削除
+  - entry に `observed: true` / `inventoryStatus: "observed-only"` field 追加
+- [ ] `docs/contracts/generated/repo-topology.generated.json` を上書き（旧 4 zone 出力 → 新 top-level-only 出力）
+- [ ] 上書きで content 大幅変更（旧 881 entries → 新 ~30 entries 想定）
 
-### sub-PR 3: yaml-inventory.generated.json + yaml generator
+### Phase 2C (sub-PR 3): skeleton diff generator
 
-- [ ] `tools/governance/build-yaml-inventory.*` generator landing
-- [ ] `docs/contracts/generated/yaml-inventory.generated.json` landing — managed zone 内 YAML の 5 分類 candidate（declaration / inventory / generated-input / legacy / unknown）
+- [ ] `tools/governance/build-skeleton-diff.mjs` generator landing — Phase 2A skeleton declaration + Phase 2B repo topology を入力に diff を生成
+- [ ] `docs/contracts/generated/skeleton-diff.generated.json` landing — 6 分類（in-skeleton / out-of-skeleton / missing-expected / unexpected-child / inside-unmanaged-zone / observed-only）+ Status / Disposition / Reason / Questions / Constraint flags の articulate
+- [ ] entry に approval 誤認 / 現状維持誤認 field を含めない（ADR-SCP-017 D6 + ADR-SCP-019 D5 整合）
+- [ ] **Status fields**: meaningStatus / intentStatus / continuityStatus articulate
+- [ ] **Disposition field**: candidateDisposition articulate（Gap 7 分類: fix / revise-skeleton / promote / move / archive / tolerate / delete-candidate / needs-triage）
+- [ ] **Reason field**: reasonCode articulate（OUT_OF_SKELETON / MISSING_EXPECTED / NO_PURPOSE / NO_OWNER / CORRECT_LOCATION_BUT_UNEXPLAINED 等）
+- [ ] **Question fields**（Guidance 入力）: contextQuestion / futureQuestion / changeQuestion / requiredQuestion articulate
+- [ ] **Constraint flags（一律 false）**: preservationAssumed / preferenceBasedDecisionAllowed / localConvenienceDecisionAllowed / promotionAllowed を全 entry に articulate
+- [ ] AI-EXPECTATION-002 整合: out-of-skeleton entry を「即削除」せず、observation target として articulate（preservationAssumed=false でも自動削除はしない）
 
-### sub-PR 4: generated-artifact-inventory.generated.json + generator
+### Phase 2D (sub-PR 4): managed-zone file-level inventories
 
-- [ ] `tools/governance/build-generated-artifact-inventory.*` generator landing
-- [ ] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — managed zone 内 generated artifact 候補の path / 推定 producer / manualEdit policy 候補
+- [ ] `tools/governance/build-markdown-inventory.mjs` generator landing — managed zone 3 件（projects/ + references/04-tracking/ + docs/contracts/）の Markdown の path / size / heading 構造 / docId 有無 / candidate kind を articulate
+- [ ] `docs/contracts/generated/markdown-inventory.generated.json` landing
+- [ ] `tools/governance/build-yaml-inventory.mjs` generator landing — managed zone 3 件の YAML の 5 分類 candidate（declaration / inventory / generated-input / legacy / unknown）
+- [ ] `docs/contracts/generated/yaml-inventory.generated.json` landing
+- [ ] `tools/governance/build-generated-artifact-inventory.mjs` generator landing — managed zone 3 件の generated artifact 候補の path / 推定 producer / manualEdit policy 候補
+- [ ] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — producerCandidate articulate、producerDeclared は false / unknown（Wave 3 / Phase 9 で正式宣言）
+- [ ] すべての entry に observed / inventoryStatus=observed-only / contractStatus=unreviewed / promotionAllowed=false articulate
 
-### Phase 2 完了条件（ADR-SCP-016 整合）
+### Phase 2 完了条件（ADR-SCP-019 整合）
 
-- [ ] 4 inventory JSON 生成完了
-- [ ] managed zone 4 件の repo 構造 / Markdown / YAML / generated artifact 候補をすべて把握
-- [ ] まだ foul しない（advisory も emit せず、入力データの整備のみ）
-- [ ] finding 出力なし（schema は sub-PR 1 で landed、emit は Phase 3+ で実施）
-- [ ] Wave 2 拡張点 articulate（hot zone Reading Pass で inventory 拡張する zone 一覧）
+- [ ] Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
+- [ ] repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B、`1918202` の content 上書き）
+- [ ] skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
+- [ ] managed zone 3 件の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
+- [ ] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / willStatus / promotionAllowed=false articulate 済）
+- [ ] out-of-skeleton が fail ではなく needs-triage candidate として出力
+- [ ] promotionAllowed は原則 false
+- [ ] hard gate / new-only gate 追加なし
 - [ ] Wave 1 / Phase 3 着手 user 承認
 
 ## AI 自己レビュー (= user 承認の手前)
