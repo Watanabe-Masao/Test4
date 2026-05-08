@@ -133,11 +133,13 @@
 
 ### Phase 2A (sub-PR 1): Structural Skeleton declaration
 
-- [ ] `docs/contracts/src/repo/tree-contracts.yaml` を 1 entry 雛形 → **top-level 8 root の declared 状態に拡張**（references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/）
-- [ ] 各 entry に purpose / owner articulate（free-form、ADR-SCP-004 整合）
-- [ ] declared 状態の articulate と並行して、unmanaged-but-tolerated 候補（.github/ / .vscode/ / .claude/ 等）の articulate も含めることを検討
-- [ ] tree-contracts.yaml の最終版が ajv で valid（JSON Schema draft-07 整合、Phase 1 sub-PR 2 で landed）
-- [ ] generator はまだ無い（Phase 2B で landing）
+- [x] `docs/contracts/src/repo/tree-contracts.yaml` を 1 entry 雛形 → **top-level 8 root の declared 状態に拡張**（references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/）
+- [x] 各 entry に purpose / owner articulate（free-form、ADR-SCP-004 整合）
+- [x] declared 状態の articulate と並行して、unmanaged-but-tolerated 候補（.github/ / .claude/ / .vscode/）を articulate（promotionRationale で declared 昇格保留 rationale を articulate）
+- [x] tree-contracts.yaml の最終版が ajv で valid（JSON Schema draft-07 整合、Phase 1 sub-PR 2 で landed schema、合計 11 entries: 8 declared + 3 unmanaged-but-tolerated）
+- [x] 各 declared entry に childPolicy articulate（child directory rule、§A2 boundary protection との整合 + 本 program scope と他 program scope の articulate）
+- [x] Ideal-first 原則整合: 実存する top-level dir のうち、planned 8 + dotfile 3 のみ skeleton に articulate。残り (`app-domain/` / `fixtures/` / `roles/` / `scripts/` / `workers/` / `docs/` / `docs/generated/` 等) は Phase 2C skeleton-diff で `out-of-skeleton` または `inside-unmanaged-zone` として surface、user 判断対象（AAG-SCP-MEANING-002 + DESIGN-001/002 整合 = 存在 ≠ 必要性の証明）
+- [x] generator はまだ無い（Phase 2B で landing 予定）
 
 ### Phase 2B (sub-PR 2): repo topology parser リファクタ + observed-only field 追加
 

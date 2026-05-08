@@ -1,29 +1,203 @@
-# Tree Contracts authoring source (Wave 1 / Phase 1 sub-PR 2 雛形)
+# Tree Contracts authoring source — Wave 1 / Phase 2A: Structural Skeleton Declaration
 #
-# 役割: top-level directory の declared / unmanaged-but-tolerated 状態を articulate する authoring source。
-# 機械正本 (= generated JSON) は docs/contracts/generated/tree-contracts.generated.json (Phase 3 で landing 予定、本 sub-PR では未生成)。
+# 役割: top-level structural root の declared / unmanaged-but-tolerated 状態を articulate する authoring source。
+# 機械正本 (= generated JSON) は docs/contracts/generated/tree-contracts.generated.json (Phase 3 で landing 予定、本 Phase 2A では未生成)。
 #
 # 不可侵原則 4 (ADR-SCP-004): top-level + structural roots のみ宣言、unmanaged-but-tolerated 第 3 状態を許容。
-# Wave 1 narrowing (ADR-SCP-016 D1): scope = top-level-only、対象 8 entries (= references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/)。
+# Wave 1 narrowing (ADR-SCP-016 D1): scope = top-level-only、declared 8 entries 限定。
+# Phase 2A 前倒し (ADR-SCP-019 D2): 元 Phase 3 で実施予定だった skeleton 宣言を Phase 2A に前倒し。
 #
-# 本 yaml は authoring source 雛形のみ。schema 形式 example として 1 entry のみ articulate。
-# 残 7 entries (+ unmanaged-but-tolerated entries) の 宣言確定は Wave 1 / Phase 3 (= Tree Contract Shadow) で実施する。
+# Ideal-first 原則 (不可侵原則 13 + AAG-SCP-DESIGN-001): repo に存在する top-level directory を全て declared にする
+# のではなく、構造上必要な root として **意味・意図・意思**を articulate できるもののみ declared にする。
+# 他は Phase 2C skeleton-diff で out-of-skeleton として surface され、user 判断対象になる (= Gap 7 分類: fix /
+# revise-skeleton / promote / move / archive / tolerate / delete-candidate)。
 #
-# schema: docs/contracts/schema/tree-contracts.schema.json (本 sub-PR で landing 済)
+# AAG-SCP-MEANING-002 整合: 各 declared entry は purpose / owner で意味と意図を articulate。説明できない artifact は
+# declared に昇格させない。
+#
+# schema: docs/contracts/schema/tree-contracts.schema.json (Wave 1 / Phase 1 sub-PR 2 で landed)
 
 schemaVersion: tree-contracts-v1
 scope: top-level-only
 
 contracts:
+  # ====================================================================
+  # Declared structural roots (ADR-SCP-016 D1 = Wave 1 narrowing 8 件)
+  # ====================================================================
+
+  # 1. references/ — knowledge interface
+  - path: references/
+    status: declared
+    purpose: |
+      repo 内の正本・製本・generated report・archive を含む知識 interface。
+      現在の設計・実装・運用知識を人間 / AI が参照する入口。
+    owner: documentation-steward
+    childPolicy: |
+      references/ 配下の zone 分類 (01-foundation / 02-design-system / 03-implementation / 04-tracking /
+      05-aag-interface / 99-archive) は Wave 2 / Phase 2.5 hot zone Reading Pass で扱う。
+      Wave 1 では top-level root としてのみ declared。Wave 2 で zone × disposition 分類で詳細 contract 化。
+      新規 zone 追加 (例: references/06-*) は user 判断 (= ADR + plan.md articulate 必須)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 2. aag/ — AAG framework knowledge
+  - path: aag/
+    status: declared
+    purpose: |
+      AAG framework の知識・protocol・meta 情報を置く領域。
+      AAG framework 自体の articulate (= internal articulation) と本 program 専用 boundary protection checker
+      (= aag/scp-checkers/) を含む。
+    owner: AAG framework
+    childPolicy: |
+      aag/_internal/ は AAG framework internal articulate (Layer 0+1 Meta / Layer 2+3 Core / Layer 4 Audit、
+      reposteward 専有)。
+      aag/scp-checkers/ は本 program (aag-structural-control-plane) の §A2 boundary protection checker 配置
+      (parse-free YAML、archive で物理削除、ADR-SCP-015 D1)。
+      aag/CHANGELOG.md は AAG framework version 履歴 (versionImpact aagVersion 整合)。
+      aag/README.md は 3 tree boundary articulate (R0 reader 別 routing)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 3. aag-engine/ — executable AAG engine
+  - path: aag-engine/
+    status: declared
+    purpose: |
+      executable AAG engine / RepoSteward CLI 実装領域。Go binary 製、reposteward-ai-ops-platform program 専有。
+    owner: reposteward-ai-ops-platform
+    childPolicy: |
+      Go 実装 (aag-engine/internal/* + aag-engine/cmd/aag/*)。reposteward 専有のため、本 program
+      (aag-structural-control-plane) は touch しない (projectization §4 nonGoal)。
+      本 program の §A2 boundary protection は aag/scp-checkers/ 配下の declarative YAML として配置 (Go binary に
+      組み込まない、ADR-SCP-015 D1 + ADR-SCP-016 D5 整合)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 4. projects/ — execution planning space
+  - path: projects/
+    status: declared
+    purpose: |
+      未来計画・作業中判断・handoff・completion 判定を置く execution planning space。
+      製本に未来計画を混入させないための隔離領域 (不可侵原則 3 / ADR-SCP-003 整合 = 製本 = 現在 / project = 未来)。
+    owner: project-steward (multiple programs)
+    childPolicy: |
+      projects/active/ = in_progress projects (各 project に AI_CONTEXT / HANDOFF / plan / checklist /
+      decision-audit / projectization / config/project.json + 必要に応じ inquiry/ + aag/ subdirectories)。
+      projects/completed/ = archived projects (Archive v2 形式、archive-manifest.json 必須)。
+      projectizationPolicyGuard / checklistFormatGuard / projectCompletionConsistencyGuard 全件準拠。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 5. docs/contracts/ — contract registry
   - path: docs/contracts/
     status: declared
     purpose: |
-      AAG / RepoSteward の contract registry。
-      schema (= docs/contracts/aag/ + docs/contracts/schema/)、authoring source (= docs/contracts/src/)、generated artifact (= docs/contracts/generated/) の 3 namespace で articulate。
+      AAG / RepoSteward の contract registry。schema (= docs/contracts/aag/ + docs/contracts/schema/)、
+      authoring source (= docs/contracts/src/)、generated artifact (= docs/contracts/generated/) の 3 namespace で
+      articulate。
     owner: reposteward-ai-ops-platform + aag-structural-control-plane
     childPolicy: |
-      docs/contracts/aag/ namespace は reposteward 既存資産 (touch 禁止 = §A2 docs-contracts-aag-untouched)。
-      docs/contracts/schema/ + docs/contracts/src/ + docs/contracts/generated/ は AAG SCP scope (ADR-SCP-002 整合)。
-      新規子 namespace 追加は user 判断 (= AAG SCP plan.md / decision-audit.md で articulate)。
+      docs/contracts/aag/ namespace は reposteward 既存資産 (touch 禁止 = §A2 docs-contracts-aag-untouched、
+      AagResponse / DetectorResult / TaskCapsule / Parameters 等 8 schemas)。
+      docs/contracts/schema/ + docs/contracts/src/ + docs/contracts/generated/ は AAG SCP scope (ADR-SCP-002 整合、
+      Wave 1 / Phase 1 で 3 schemas + 2 yaml landed)。
+      新規子 namespace 追加は user 判断 (= AAG SCP plan.md / decision-audit.md で articulate 必須)。
+      docs/contracts/ 直下 file (doc-registry.json / principles.json / project-metadata.json /
+      escalation-criteria.json / test-contract.json / project-archive.schema.json) は既存 Layer 4 contract、本
+      program は touch しない (Phase 5 で kind / temporalScope / requiredSections の additive 拡張のみ)。
     addedAt: '2026-05-08T00:00:00Z'
-    addedSha: '12185c0'
+    addedSha: '3727253'
+
+  # 6. app/ — product application
+  - path: app/
+    status: declared
+    purpose: |
+      product application 実装領域 (主アプリ = 仕入荒利管理システム、shiire-arari)。
+      domain / application / infrastructure / presentation / features の 4+1 layer architecture。
+    owner: application-steward (multiple roles = pure-calculation-reorg / presentation-quality-hardening /
+      taxonomy-v2 等)
+    childPolicy: |
+      app/src/{domain,application,infrastructure,presentation,features} の 5 layer + app/src/test/ + app/src/stories/
+      structure。
+      本 program (aag-structural-control-plane) は app/src/ 配下を touch しない (§A2 app-untouched、
+      projectization §4 nonGoal)。
+      app/package.json scripts は §A2 hard-gate-surface baseline 対象 (npm-script-gate)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 7. tools/ — tooling
+  - path: tools/
+    status: declared
+    purpose: |
+      build / governance / generation / health check tooling 領域。
+      本 program の §A1 永続 checker および Phase 2/3 generator はここに landing (ADR-SCP-016 D2 整合)。
+    owner: tooling-steward (multiple programs)
+    childPolicy: |
+      tools/architecture-health/ = reposteward 既存 architecture health pipeline (collectors / docs:check /
+      docs:generate)。
+      tools/governance/ = 本 program (aag-structural-control-plane) 新設 = §A1 checker (check-tree /
+      check-yaml-machine-truth / docs:check 拡張、Wave 1) + Phase 2 generator (build-repo-topology.mjs landed in
+      commit 1918202、Phase 2B で refactor 予定) + Phase 2/3 後段 generator。
+      tools/git-hooks/ = pre-push hook (§A2 hard-gate-surface baseline 対象、pre-push-step)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # 8. wasm/ — WASM runtime
+  - path: wasm/
+    status: declared
+    purpose: |
+      WASM runtime extension / calculation runtime integration 領域。Rust 実装、各 module は specific calculation の
+      WASM build target (factor-decomposition / gross-profit / budget-analysis / forecast / time-slot / statistics /
+      core-utils)。
+    owner: wasm-steward
+    childPolicy: |
+      Rust 実装 (各 module 内 src/ + Cargo.toml)。本 program (aag-structural-control-plane) は touch しない
+      (projectization §4 nonGoal)。
+      WASM artifact は CI wasm-build job で生成、後続 fast-gate / docs-health / test-coverage / e2e job が消費。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # ====================================================================
+  # Unmanaged-but-tolerated entries (ADR-SCP-004 第 3 状態)
+  # ====================================================================
+  # 「inventory に載るが contract 必須対象ではない」状態。外部 tool 由来 / dotfile dir 等。
+  # promotionRationale で declared 昇格を保留する rationale を articulate (AAG-SCP-MEANING-002 + AAG-SCP-PARSE2-005
+  # 整合 = 昇格には別 PR + rationale が必要)。
+
+  # .github/ — GitHub workflows / actions
+  - path: .github/
+    status: unmanaged-but-tolerated
+    purpose: |
+      GitHub Actions workflows / actions configuration。CI pipeline (wasm-build / fast-gate / docs-health /
+      test-coverage / e2e) を定義。
+    owner: external-tool-managed (GitHub Actions)
+    promotionRationale: |
+      外部 tool (GitHub Actions) が管理する dotfile dir。AAG SCP 直接 contract 化は cost 過大、Wave 3+ で再評価候補。
+      ただし .github/workflows/** は §A2 hard-gate-surface baseline 対象 (workflow-job、increase 方向のみ finding)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # .claude/ — Claude Code configuration
+  - path: .claude/
+    status: unmanaged-but-tolerated
+    purpose: |
+      Claude Code (AI 開発 CLI) configuration。manifest.json (= AI 単一エントリ、discovery / pathTriggers /
+      activeContext) と settings 等を含む。
+    owner: external-tool-managed (Claude Code)
+    promotionRationale: |
+      外部 AI tool (Claude Code) が管理する dotfile dir。manifest.json は AAG が消費する surface だが、
+      .claude/ 自体の構造は Claude Code 仕様に従う (AAG SCP 内では articulate しない)。
+      manifest.json の整合性は app/src/test/guards/manifestGuard.test.ts で機械検証済 (本 program は touch しない)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
+
+  # .vscode/ — VSCode editor configuration
+  - path: .vscode/
+    status: unmanaged-but-tolerated
+    purpose: |
+      VSCode editor configuration (settings / extensions / launch 等)。開発者 IDE 専用。
+    owner: external-tool-managed (VSCode)
+    promotionRationale: |
+      外部 tool (VSCode) が管理する dotfile dir。AAG SCP scope 外 (個人 IDE 設定、repo 構造の意味とは独立)。
+      存在しない repo もある (= dotfile dir 不在の repo は inventory entry 自体が出ない)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '3727253'
