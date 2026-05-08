@@ -1,0 +1,77 @@
+{
+  "entries": [
+    {
+      "candidateYamlKind": "declaration",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/src/docs/doc-kind-registry.yaml",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 5202,
+      "topKey": "schemaVersion"
+    },
+    {
+      "candidateYamlKind": "declaration",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/src/repo/tree-contracts.yaml",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 11555,
+      "topKey": "schemaVersion"
+    },
+    {
+      "candidateYamlKind": "inventory",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/responsibility-taxonomy-inventory.yaml",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 903681,
+      "topKey": "summary"
+    },
+    {
+      "candidateYamlKind": "inventory",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/semantic-inventory.yaml",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 13739,
+      "topKey": "entries"
+    },
+    {
+      "candidateYamlKind": "inventory",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/test-taxonomy-inventory.yaml",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 543771,
+      "topKey": "summary"
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-05-08T15:37:27.596Z",
+    "sourcePaths": [
+      "projects/",
+      "references/04-tracking/",
+      "docs/contracts/"
+    ],
+    "sourceSha": "c58b6ff840795eb478e017e1488f2153b714bdd7"
+  },
+  "schemaVersion": "yaml-inventory-v1",
+  "scope": "managed-zone-3",
+  "summary": {
+    "candidateYamlKindHistogram": {
+      "declaration": 2,
+      "inventory": 3
+    },
+    "totalEntries": 5
+  }
+}

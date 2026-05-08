@@ -1,0 +1,640 @@
+{
+  "entries": [
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/generated/markdown-inventory.generated.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/governance/build-markdown-inventory.mjs",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 211817
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/generated/repo-topology.generated.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/governance/build-repo-topology.mjs",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 4422
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/generated/skeleton-diff.generated.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/governance/build-skeleton-diff.mjs",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 36442
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "docs/contracts/generated/yaml-inventory.generated.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/governance/build-yaml-inventory.mjs",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 2172
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/dashboards/boundary-health.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 775
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/dashboards/element-coverage.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 763
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/dashboards/migration-progress.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 801
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/dashboards/quality-dashboard.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 790
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-001/open-issues.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 713
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-001/quality-status.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 636
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-002/open-issues.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 713
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-002/quality-status.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 636
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-003/open-issues.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 713
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-003/quality-status.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 636
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-004/open-issues.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 713
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-004/quality-status.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 636
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-005/open-issues.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 713
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/charts/CHART-005/quality-status.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 636
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/elements/element-index.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 1799
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/aag-size-statistics.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 2974
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/aag-size-statistics.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 4675
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 664
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 290
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-health-certificate.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 2728
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-health.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 13159
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-health.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 63256
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-state-snapshot.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 4851
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-state-snapshot.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 6422
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/architecture-state-snapshot.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 4851
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/build-parity-audit.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 1556
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/comparison-semantics-audit.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 2682
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/content-graph.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 10208
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/content-spec-health.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 1080
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/detection-inventory.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 39260
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/project-health.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 13863
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/project-health.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 23980
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/query-access-audit.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 6729
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/query-access-audit.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 7514
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/source-facts.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 1095411
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/taxonomy-health.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 1984
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix",
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/test-signal-baseline.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 3476
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-segment"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/test-signal-baseline.json",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 2371
+    },
+    {
+      "contractStatus": "unreviewed",
+      "detectionReason": [
+        "generated-suffix"
+      ],
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/recent-changes.generated.md",
+      "preservationAssumed": false,
+      "producerCandidate": "tools/architecture-health",
+      "producerDeclared": false,
+      "promotionAllowed": false,
+      "size": 48381
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-05-08T15:38:21.752Z",
+    "sourcePaths": [
+      "projects/",
+      "references/04-tracking/",
+      "docs/contracts/"
+    ],
+    "sourceSha": "c58b6ff840795eb478e017e1488f2153b714bdd7"
+  },
+  "schemaVersion": "generated-artifact-inventory-v1",
+  "scope": "managed-zone-3",
+  "summary": {
+    "producerCandidateHistogram": {
+      "tools/architecture-health": 39,
+      "tools/governance/build-markdown-inventory.mjs": 1,
+      "tools/governance/build-repo-topology.mjs": 1,
+      "tools/governance/build-skeleton-diff.mjs": 1,
+      "tools/governance/build-yaml-inventory.mjs": 1
+    },
+    "totalEntries": 43,
+    "unknownProducerCount": 0
+  }
+}
