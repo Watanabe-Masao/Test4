@@ -852,6 +852,80 @@ project-promotion-proposal は AI scaffold + user 承認 form の二段 workflow
 → AI / user の責任配分が doc 構造に articulate される事例。proposal kind の固有 schema
 (承認 form の存在) が新 kind articulate を裏打ち。
 
+## Wave 2 / Phase 2.5 sub-PR 15: Reading Pass Batch 11 (= taxonomy-v2 + Failure Learning Loop 初 auto-promotion 実証、reviewedAtCommit 256da35)
+
+> **目的**: projects/active/ zone shift 継続。taxonomy-v2 (= 17 docs、Level 4 Umbrella project)
+> 全件 articulate。**重大発見**: 8 件 (DERIVED.md + derived/ 7 files) が projects/_template/
+> identical 複製 → DOC-FAIL-DUPLICATE-RESPONSIBILITY を **初観測**、Failure Learning Loop の
+> auto-promotion (= unobserved → guard candidate) が実証された。新 proposedKind 1 種 articulate
+> (project-sub-project-map = Level 4 Umbrella 固有 governance)。
+
+### Phase 2.5 sub-PR 15 (Reading Pass Batch 11、17 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 15 着手 (= user 「1」承認、= taxonomy-v2 一括)
+- [x] 17 docs を read + articulate: 標準 6 + AAG-COA mandatory 2 + DERIVED.md + derived/ 7 + sub-project-map.md
+- [x] 17 entry を document-reading-decisions.yaml に append (= entries: 84 → 101、stage: in-progress)
+- [x] **重大発見**: DERIVED.md + derived/ 7 files (= 8 件) が projects/_template/ と完全 identical (= diff 0) と判明、aag-scp が同位置で project-specific 内容にカスタマイズしている対比から duplicate と判断
+- [x] 8 件に DOC-FAIL-DUPLICATE-RESPONSIBILITY 付与 + disposition: delete-candidate articulate (= 初観測の unobserved pattern)
+- [x] 新 proposedKind 1 種 articulate: project-sub-project-map (= Level 4 Umbrella 固有 governance contract)
+- [x] proposedKind 15 種に拡張達成 (= 14 → 15)
+- [x] candidates regenerate (= 314 → 297 candidates、HIGH 110 → 93、alreadyReviewedCount 84 → 101)
+- [x] **Failure Loop generator が初の auto-promotion 実証**:
+  - DUPLICATE-RESPONSIBILITY: observedCount 0 → 8 (= 1 batch で観測)
+  - computedMaturity: 'pattern-articulated' → 'guardrail-candidate-emitted' (= 自動昇格)
+  - guard candidates total: 4 → 5 (= +1)
+  - observed patterns: 6 → 7
+  - unobserved patterns: 4 → 3
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 101 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 15 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 11 17 entry append 済 (= 累計 101 entries、stage: in-progress)
+- [x] proposedKind 15 種に拡張達成
+- [x] 7 番目の disposition 'delete-candidate' を 9 件に拡大 (= 1 → 9、初の有意な delete 候補発見)
+- [x] **Failure Learning Loop の design intent (= ratchet-down 自動化、CLAUDE.md G8) が実証**
+- [x] Level 4 Umbrella project pattern 初観測 + articulate (= projectizationLevel spectrum 完成)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、guard candidate 昇格は次 Wave で gate 化判断)
+
+### Phase 2.5 sub-PR 15 で articulate された重大発見
+
+**1. taxonomy-v2/derived/ + DERIVED.md = projects/_template/ identical 複製**:
+
+| Path (taxonomy-v2) | Path (_template) | 状態 |
+|---|---|---|
+| DERIVED.md | DERIVED.md | identical (diff 0) |
+| derived/README.md | derived/README.md | identical |
+| derived/acceptance-suite.md | derived/acceptance-suite.md | identical |
+| derived/pr-breakdown.md | derived/pr-breakdown.md | identical |
+| derived/review-checklist.md | derived/review-checklist.md | identical |
+| derived/test-plan.md | derived/test-plan.md | identical |
+| derived/inventory/README.md | derived/inventory/README.md | identical |
+| derived/inventory/00-example.md | derived/inventory/00-example.md | identical |
+
+aag-scp は同位置で project-specific 内容にカスタマイズ (= derived/README.md は Wave 2 deliverable
+space articulate)、対して taxonomy-v2 は unfilled template copy のまま放置。
+
+→ 8 件 disposition: delete-candidate (= 最終確認は user + bootstrap policy 整合性検証後)。
+→ 同類 pattern が他 active project (= aag-scp 以外) で発生していないか Wave 3 以降で検証。
+
+**2. Failure Learning Loop ratchet-down 自動化の実証**:
+
+sub-PR 9 で着地した Failure Learning Loop infrastructure が **設計通りに機能** した:
+- Reading Pass で 1 batch (8 件) の DUPLICATE-RESPONSIBILITY 観測
+- Generator 再実行 で computedMaturity を 'pattern-articulated' → 'guardrail-candidate-emitted' に
+  **自動昇格** (= observedCount >= 5 threshold で auto-promotion)
+- guard candidate count が 4 → 5 に増加 (= Wave 3 着地候補が +1)
+
+これは CLAUDE.md G8 (= 同種 failure 2 回観測 → guard 候補昇格) の機械化実装が正しく機能している
+証拠。**ratchet-down mechanism は自動的に動作する**。
+
+**3. proposedKind 15 種への拡張**:
+project-sub-project-map (= Level 4 Umbrella 固有) を articulate。projectizationLevel spectrum:
+- Level 2 = presentation-quality-hardening
+- Level 3 = reposteward + pure-calculation-reorg
+- Level 4 (Umbrella) = taxonomy-v2 (= 初観測、固有 governance contract)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

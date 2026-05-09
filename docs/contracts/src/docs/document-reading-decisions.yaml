@@ -2160,3 +2160,381 @@ entries:
       - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
       - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 11 (Wave 2 / Phase 2.5 sub-PR 15、reviewedAtCommit 256da35)
+  # 17 文書 = projects/active/taxonomy-v2/ 全 HIGH 候補。Level 4 Umbrella project の articulate。
+  # 重大発見: 8 件 (DERIVED.md + derived/ 7 files) が projects/_template/ identical 複製
+  # → DOC-FAIL-DUPLICATE-RESPONSIBILITY 初観測 (= unobserved pattern の surface)。
+  # 新 proposedKind 1 種 articulate: project-sub-project-map (= umbrella governance)。
+  # ============================================================================
+
+  - path: projects/active/taxonomy-v2/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      project 意味空間の入口。responsibility-taxonomy-v2 + test-taxonomy-v2 の 2 軸を束ねる
+      umbrella articulate (= Level 4 Umbrella、AAG 第 3 の柱)。
+    alternativesConsidered: |
+      なし (= Batch 7-10 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/breaking-changes.md
+    proposedKind: project-breaking-changes
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.breakingChange: true)。BC-TAX-1〜4 articulate
+      (= 責務タグ vocabulary 全入替 + テストタグ新規導入 + R⇔T interlock + Origin Journal 必須化)。
+      正本 = plan.md の 7 不可侵原則 + interlock 仕様。
+    alternativesConsidered: |
+      なし (= Batch 10 breaking-changes.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/breaking-changes.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。Phase 1〜4 articulate、
+      両子 archive 完遂後の観察フェーズ articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-10 checklist.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/DERIVED.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/DERIVED.md と完全 identical (= diff 0)。aag-scp の derived/README.md は
+      project-specific 内容にカスタマイズされているのに対し、本 file は unfilled template copy で
+      project-specific value なし。canonical = _template、本 copy は重複 articulate (= 派生セット
+      判断基準は project root に置かなくても _template から参照可)。
+    alternativesConsidered: |
+      keep-and-contract (= bootstrap policy 上 mandate されている可能性) も候補だが、aag-scp が
+      本 file を持たず derived/README.md だけ articulate している事実から、bootstrap mandate ではない
+      = delete 可能と判断。最終 disposition は user 確認 + bootstrap policy 整合性検証後に確定。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/DERIVED.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/README.md と完全 identical (= unfilled template copy)。
+      aag-scp が同位置で project-specific 内容にカスタマイズしている対比で、本 copy は
+      project-specific value なし。
+    alternativesConsidered: |
+      keep-and-contract (= bootstrap policy 整合) も候補だが、_template に canonical あり。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/README.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/acceptance-suite.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/acceptance-suite.md と完全 identical (= <PROJECT-ID> placeholder
+      未置換の unfilled template copy)。canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= 7 derived/ template-copy family の一員、同 disposition)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/acceptance-suite.md
+      - projects/active/taxonomy-v2/derived/pr-breakdown.md
+      - projects/active/taxonomy-v2/derived/review-checklist.md
+      - projects/active/taxonomy-v2/derived/test-plan.md
+      - projects/active/taxonomy-v2/derived/inventory/README.md
+      - projects/active/taxonomy-v2/derived/inventory/00-example.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/inventory/00-example.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/inventory/00-example.md と完全 identical (= サンプル棚卸し template)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/inventory/00-example.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/inventory/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/inventory/README.md と完全 identical (= 棚卸し置き場 articulate)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/inventory/README.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/pr-breakdown.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/pr-breakdown.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/pr-breakdown.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/review-checklist.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/review-checklist.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/review-checklist.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/test-plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/test-plan.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/test-plan.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      DA-β-003 institute artifact、同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-10 と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+      - projects/active/pure-calculation-reorg/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      起点文書。Phase 1+2+3+4 完遂 articulate (= past) + 観察フェーズ continuation articulate (= future)。
+      両子 archive 済 + 親 active 維持の dual-state articulate。governance-articulated mixed temporal。
+    alternativesConsidered: |
+      なし (= Batch 8-10 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+      - projects/active/pure-calculation-reorg/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/legacy-retirement.md
+    proposedKind: project-legacy-retirement
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.requiresLegacyRetirement: true)。
+      v1 責務タグ体系 + テストタグ + R⇔T interlock 等の撤退 articulate。
+    alternativesConsidered: |
+      なし (= Batch 10 legacy-retirement.md と同 kind、bidirectional governance pair)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/legacy-retirement.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      7 不可侵原則 + interlock 仕様 + Phase 構造 articulate (= 630 行)。両子 project の正本でもある
+      (= breaking-changes / legacy-retirement の正本 source、sub-project-map の依存関係 source)。
+    alternativesConsidered: |
+      なし (= Batch 7-10 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA 判定結果。projectizationLevel: Level 4 (Umbrella) (= 初観測の最大 level)。
+      breakingChange + requiresLegacyRetirement + requiresGuard 全 true。両子 project と
+      bidirectional governance contract を articulate (= sub-project-map 経由)。
+    alternativesConsidered: |
+      なし (= Batch 8-10 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+      - projects/active/pure-calculation-reorg/projectization.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/sub-project-map.md
+    proposedKind: project-sub-project-map
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      umbrella project (Level 4) 固有の governance artifact (= sub-project 一覧 + 依存関係 articulate)。
+      responsibility-taxonomy-v2 + test-taxonomy-v2 の状態 / changeType / scope を articulate。
+      正本 = plan.md §Interlock 仕様、本 doc は AAG-COA 入口の summary。
+      新 proposedKind 'project-sub-project-map' を articulate (= Level 4 Umbrella 固有 governance contract)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、umbrella governance contract は projectizationLevel: Level 4 で
+      初出 (= 他 active project は Level 2/3) で固有 articulate role を持つため別 kind articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
