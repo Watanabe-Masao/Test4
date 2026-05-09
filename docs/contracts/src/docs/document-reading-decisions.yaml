@@ -4291,3 +4291,323 @@ entries:
     duplicates: []
     failurePatterns: []
 
+
+  # ============================================================================
+  # Reading Pass Batch 15 (Wave 2 / Phase 2.5 sub-PR 19、reviewedAtCommit 879f13e)
+  # 15 文書 = projects/_template/ 全件 (= canonical project bootstrap templates)。
+  # 初の MEDIUM priority batch + Batch 11 で観測された taxonomy-v2 duplicate の canonical 側 articulate。
+  # 新 proposedKind 1 種 articulate: template-doc (= placeholder 含む unfilled template、bootstrap 時 copy & customize 対象)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/_template/AI_CONTEXT.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 AI_CONTEXT 雛形 (= 必須セット 6 の 1 つ)。新 proposedKind 'template-doc'
+      を articulate (= 各 active project が bootstrap 時に copy + project-specific customize する
+      canonical source)。Batch 11 で観測した taxonomy-v2 duplicate の canonical 側。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、template (= 未充填、placeholder 含む) と filled-in active doc
+      は role が異なる (= 前者は bootstrap reference / 後者は project-specific filled artifact)。
+      別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/_template/checklist.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 checklist 雛形 (= 必須セット 6 の 1 つ、project-checklist-governance 整合)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/decision-audit.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 decision-audit 雛形 (= drawer Pattern 1 application、5 軸 + 観測点 +
+      Lineage 構造の template)。template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/DERIVED.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生セット判断基準 (= 5 質問で derived/ から何を足すか決める decision framework)。
+      Batch 11 で観測した taxonomy-v2/DERIVED.md (= identical duplicate) の **canonical 側**。
+      本 file こそ正本、taxonomy-v2 側は不要 copy。
+    alternativesConsidered: |
+      なし (= template-doc family の一員、判断基準 articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/DERIVED.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/acceptance-suite.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 acceptance-suite 雛形 (= 必要時のみ project root へ copy + customize)。
+      Batch 11 で観測した taxonomy-v2/derived/acceptance-suite.md (= identical duplicate) の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/inventory/00-example.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 inventory/00-example 雛形 (= サンプル棚卸しファイル、コピー時の参考)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/inventory/00-example.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/inventory/README.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 inventory/README 雛形 (= Phase 0 棚卸しの結果を章単位で固定する置き場 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/inventory/README.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/pr-breakdown.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 pr-breakdown 雛形 (= project を複数 PR に分解する scope / 依存 / マージ順 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/pr-breakdown.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/README.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 directory README (= 派生ファイルセットのテンプレート集 articulate、判断基準は ../DERIVED.md 参照)。
+      taxonomy-v2 側 identical copy (= 未カスタマイズ) と aag-scp 側 customized copy (= Wave 2 deliverable
+      space articulate) の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/README.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/review-checklist.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 review-checklist 雛形 (= カテゴリ別レビュー観点を固定化、レビュー脱属人化)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/review-checklist.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/test-plan.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 test-plan 雛形 (= 追加 / 修正 test を G0〜G6 ガード + L0〜L4 ロジックに分類する計画 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/test-plan.md
+    failurePatterns: []
+
+  - path: projects/_template/discovery-log.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 discovery-log 雛形 (= DA-β-003 institute、AAG 5 系統目: 発見蓄積)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/HANDOFF.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 HANDOFF 雛形 (= 必須セット 6 の 1 つ、起点文書 role)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/plan.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 plan 雛形 (= 必須セット 6 の 1 つ、不可侵原則 + Phase 構造 articulate role)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/projectization.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 projectization 雛形 (= AAG-COA 判定結果、projectization-policy.md governance contract)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []

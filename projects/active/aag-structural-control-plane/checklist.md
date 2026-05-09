@@ -1108,6 +1108,67 @@ Batch 6 で確立した CALC-* family-level 一括処理 mechanism を本 batch 
 - observed patterns: 7 (= 10 中 7、3 件 unobserved に縮小)
 - unregistered DOC-FAIL-* 検出: 0 維持
 
+## Wave 2 / Phase 2.5 sub-PR 19: Reading Pass Batch 15 (= 初の MEDIUM batch、projects/_template/ 一括、reviewedAtCommit 879f13e)
+
+> **目的**: HIGH 完遂後、MEDIUM priority Reading Pass を着手。projects/_template/ (= 15 docs、
+> canonical project bootstrap templates) を 1 batch で articulate。Batch 11 で観測した
+> taxonomy-v2 duplicate の **canonical 側** articulate (= 8 件 duplicate の正本 source 確定)。
+> 新 proposedKind 1 種 articulate (template-doc)。
+
+### Phase 2.5 sub-PR 19 (Reading Pass Batch 15、15 docs、初 MEDIUM batch)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 19 着手 (= user 「1」承認、= MEDIUM 着手 + projects/_template/ 一括)
+- [x] 15 docs を read + articulate: 標準 7 (AI_CONTEXT/checklist/decision-audit/discovery-log/HANDOFF/plan/projectization) + DERIVED.md + derived/ 7 (README + 5 templates + inventory/{README + 00-example})
+- [x] 15 entry を document-reading-decisions.yaml に append (= entries: 194 → 209、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 proposedKind: template-doc articulate (= 新 kind)
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] Batch 11 の duplicate finding に対する canonical 側 articulate 完成 (= taxonomy-v2/derived/* + DERIVED.md の正本 source 確定)
+- [x] proposedKind 17 種に拡張達成 (= 16 → 17、新規: template-doc)
+- [x] candidates regenerate (= 204 → 189 MEDIUM、alreadyReviewedCount 194 → 209)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 209 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 19 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 15 15 entry append 済 (= 累計 209 entries、stage: in-progress)
+- [x] 初の MEDIUM priority batch articulate 達成
+- [x] projects/_template/ family 完遂 (= 15 件全件 articulate)
+- [x] 新 proposedKind 'template-doc' articulate (= 17 種に拡張)
+- [x] Batch 11 duplicate findings の canonical 側との bidirectional articulate 完成 (= duplicates field の cross-reference 経由)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 19 で articulate された pattern
+
+**1. template-doc kind articulate**:
+
+projects/_template/ 配下の 15 docs は全て **filled-in active project doc とは role が異なる**:
+- template-doc = unfilled、placeholder 含む、bootstrap 時 copy + customize 対象 = canonical source
+- active project docs (project-plan / project-checklist 等) = filled-in、project-specific 内容
+
+→ 新 proposedKind 'template-doc' で role 区別を articulate。
+
+**2. duplicate finding bidirectional articulate 完成**:
+
+Batch 11 で観測した taxonomy-v2 duplicate (= 8 件 identical copy) の **canonical 側** articulate
+完成。各 _template/<file> の duplicates field に対応する taxonomy-v2/<file> を articulate、
+bidirectional graph 完成:
+
+| canonical (_template) | duplicate (taxonomy-v2) |
+|---|---|
+| DERIVED.md | DERIVED.md |
+| derived/README.md | derived/README.md |
+| derived/acceptance-suite.md | derived/acceptance-suite.md |
+| derived/inventory/00-example.md | derived/inventory/00-example.md |
+| derived/inventory/README.md | derived/inventory/README.md |
+| derived/pr-breakdown.md | derived/pr-breakdown.md |
+| derived/review-checklist.md | derived/review-checklist.md |
+| derived/test-plan.md | derived/test-plan.md |
+
+→ Wave 3 で taxonomy-v2 側 8 件の delete 実行可能 (= canonical _template 側を保持、duplicate
+削除で repo 整理)。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
