@@ -4611,3 +4611,395 @@ entries:
     duplicates:
       - projects/_template/AI_CONTEXT.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 16 (Wave 2 / Phase 2.5 sub-PR 20、reviewedAtCommit efa8469)
+  # 16 文書 = roles/ family 全 8 roles × 2 (ROLE.md + SKILL.md) = 16。
+  # 新 proposedKind 2 種 articulate: role-identity (ROLE.md) + role-skill (SKILL.md)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: roles/line/architecture/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      architecture (line) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'4層境界・エンジン責務分離の守護者' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/architecture/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      architecture (line) ロールの Execution layer (= 論理構造 + 方法論 articulate)。architecture の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/implementation/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      implementation (line) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'コーディングの実行者 (= コードを書く唯一のロール)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/implementation/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      implementation (line) ロールの Execution layer (= 論理構造 + 方法論 articulate)。implementation の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/duckdb-specialist/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      duckdb-specialist (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'DuckDB クエリ・スキーマ・SQL/JS 責務境界' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/duckdb-specialist/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      duckdb-specialist (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。duckdb-specialist の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/explanation-steward/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      explanation-steward (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'Explanation L1-L3 の説明責任' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/explanation-steward/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      explanation-steward (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。explanation-steward の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/invariant-guardian/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      invariant-guardian (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'数学検証 (= シャープリー恒等式・計算正確性)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/invariant-guardian/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      invariant-guardian (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。invariant-guardian の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/documentation-steward/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      documentation-steward (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'CLAUDE.md / roles/ / references/ 整合性管理 (全過程の記録係)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/documentation-steward/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      documentation-steward (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。documentation-steward の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/pm-business/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      pm-business (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'要件正確さ・受入基準 (= 指示者・要件入口)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/pm-business/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      pm-business (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。pm-business の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/review-gate/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      review-gate (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'設計原則・ガードテスト・CI 通過 (品質の出口)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/review-gate/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      review-gate (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。review-gate の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+

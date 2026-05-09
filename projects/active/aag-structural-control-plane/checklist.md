@@ -1169,6 +1169,68 @@ bidirectional graph 完成:
 → Wave 3 で taxonomy-v2 側 8 件の delete 実行可能 (= canonical _template 側を保持、duplicate
 削除で repo 整理)。
 
+## Wave 2 / Phase 2.5 sub-PR 20: Reading Pass Batch 16 (= roles/ family 一括、reviewedAtCommit efa8469)
+
+> **目的**: MEDIUM Reading Pass 継続。roles/ family (= 8 roles × 2 file types = 16 docs) を
+> 1 batch で articulate。新 proposedKind 2 種 articulate (= role-identity + role-skill、CLAUDE.md
+> 4 層 governance model の Identity / Execution layer に対応)。
+
+### Phase 2.5 sub-PR 20 (Reading Pass Batch 16、16 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 20 着手 (= user 「1」承認、= roles/ family 一括)
+- [x] 16 docs を read + articulate:
+  - line/architecture/{ROLE, SKILL}.md (= 4層境界守護者)
+  - line/implementation/{ROLE, SKILL}.md (= コードを書く唯一のロール)
+  - line/specialist/duckdb-specialist/{ROLE, SKILL}.md
+  - line/specialist/explanation-steward/{ROLE, SKILL}.md
+  - line/specialist/invariant-guardian/{ROLE, SKILL}.md
+  - staff/documentation-steward/{ROLE, SKILL}.md
+  - staff/pm-business/{ROLE, SKILL}.md
+  - staff/review-gate/{ROLE, SKILL}.md
+- [x] 16 entry を document-reading-decisions.yaml に append (= entries: 209 → 225、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 2 種 articulate:
+  - role-identity (= ROLE.md = 前提・価値基準・判断基準、CLAUDE.md Identity layer)
+  - role-skill (= SKILL.md = 論理構造 + 方法論、CLAUDE.md Execution layer)
+- [x] proposedKind 19 種に拡張達成 (= 17 → 19)
+- [x] candidates regenerate (= 189 → 173 MEDIUM、alreadyReviewedCount 209 → 225)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 225 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 20 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 16 16 entry append 済 (= 累計 225 entries、stage: in-progress)
+- [x] roles/ family 完遂 (= 16 件全件 articulate、line 5 roles + staff 3 roles × 2 file types)
+- [x] 新 proposedKind 2 種 articulate (= role-identity + role-skill、CLAUDE.md 4 層 governance model 整合)
+- [x] proposedKind 19 種に拡張達成
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 20 で articulate された pattern
+
+**1. CLAUDE.md 4 層 governance model の articulate 対応**:
+
+CLAUDE.md は以下の 4 層 governance model を articulate:
+
+| 層 | 担い手 | 責務 |
+|---|---|---|
+| Authority | user | 何をやるか・やらないか |
+| Orchestration | CLAUDE.md (本 file) | タスク → ロール → 連携の自動 routing |
+| Identity | roles/*/ROLE.md | 各ロールの前提・価値基準・判断基準 |
+| Execution | roles/*/SKILL.md | 論理構造 + 方法論 |
+
+→ Reading Pass の proposedKind は role-identity / role-skill で Identity / Execution layer 別に articulate、
+4 層 governance model と bidirectional に対応。
+
+**2. role family pair pattern**:
+
+各 role は ROLE.md + SKILL.md の **pair** で governance contract を構成:
+- ROLE.md (role-identity) = 前提 + 価値基準 + 判断基準 (= 何を最適化するか)
+- SKILL.md (role-skill) = 論理構造 + 方法論 (= どう実行するか)
+
+→ pair の片方だけでは不完全。Reading Pass の duplicates field でも pair の cross-reference articulate。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
