@@ -1050,6 +1050,64 @@ Batch 6 で確立した CALC-* family-level 一括処理 mechanism を本 batch 
 
 → Batch 14 (widgets 46) でも同 mechanism 適用予定。
 
+## Wave 2 / Phase 2.5 sub-PR 18: Reading Pass Batch 14 (= HIGH priority 完遂、reviewedAtCommit cfae04e)
+
+> **目的**: HIGH priority Reading Pass の最終 batch。widgets 46 + technical-debt-roadmap.md 1
+> = 47 docs 一括 articulate。Wave 2 開始から累計 194 件の HIGH 文書を全件 articulate 完遂
+> (= **HIGH 0 到達**)。残 candidates は MEDIUM 204 件のみ。
+
+### Phase 2.5 sub-PR 18 (Reading Pass Batch 14、47 docs、HIGH 完遂)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 18 着手 (= user 「Batch 14 で HIGH 完遂」承認)
+- [x] 47 docs を read + articulate:
+  - elements/widgets/README.md (1)
+  - elements/widgets/WID-001〜WID-045.md (45 widgets)
+  - references/04-tracking/technical-debt-roadmap.md (1)
+- [x] 47 entry を document-reading-decisions.yaml に append (= entries: 147 → 194、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] technical-debt-roadmap.md の governance-articulated mixed temporal articulate (= judgment rationale doc、'件数の一次情報源は generated' で manual rationale と generated current value を articulate に分離、GENERATED-AS-MANUAL 違反なし)
+- [x] generation script で frontmatter (= widgetDefId + registry + contextType + registrySource 等) 自動抽出 (= /tmp/gen-batch14.mjs)
+- [x] candidates regenerate (= 251 → 204 candidates、**HIGH 47 → 0 (完遂)**、MEDIUM 204 のみ残、alreadyReviewedCount 147 → 194)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 194 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 18 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 14 47 entry append 済 (= 累計 194 entries、stage: in-progress)
+- [x] **HIGH priority Reading Pass 完遂達成** (= candidates HIGH 0、Wave 2 開始から 194 件全件 articulate)
+- [x] elements/ 全 family 完遂 (= calculations 24 + charts 11 + read-models 11 + ui-components 6 + widgets 46 + parent README 1 = 99 elements docs articulate)
+- [x] family-level 一括 articulate mechanism の最大規模適用 (= 47 件 1 batch、Batch 6 23 件 / Batch 13 29 件を上回る)
+- [x] 即 Gate 化禁止維持
+
+### Wave 2 Reading Pass HIGH 完遂後の状態
+
+**Reading Pass 累計 progress (Batch 1〜14)**:
+- candidates: 398 → 204 (= MEDIUM のみ残)
+- alreadyReviewedCount: 0 → **194**
+- HIGH priority remaining: 194 → **0** (完遂)
+- proposedKind: 16 種 / disposition: 7 種
+- delete-candidate: 9 件 / guard candidates: 5 件
+
+**zone breakdown of articulated docs**:
+- references/04-tracking/elements/ = 99 docs (calculations + charts + RM + UIC + widgets + parent)
+- references/04-tracking/ 直下 + その他 = 30 docs (engine-maturity + open-issues + tracking + 11 promotion-readiness + 1 technical-debt-roadmap 等)
+- projects/active/ = 65 docs (6 active projects 全件)
+- CLAUDE.md = 1 doc
+
+**Failure Learning Loop 累計成果**:
+- totalObservedReferences: 0 → 50
+- guard candidates (>=5 occurrences): 0 → 5
+  - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE (16)
+  - DOC-FAIL-LOCATION-MISMATCH (13)
+  - DOC-FAIL-TEMPORAL-MIXING (6)
+  - DOC-FAIL-DUPLICATE-RESPONSIBILITY (8)  ← Batch 11 で auto-promotion 実証
+  - DOC-FAIL-GENERATED-AS-MANUAL (5)
+- observed patterns: 7 (= 10 中 7、3 件 unobserved に縮小)
+- unregistered DOC-FAIL-* 検出: 0 維持
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

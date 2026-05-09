@@ -3436,3 +3436,858 @@ entries:
     duplicates: []
     failurePatterns: []
 
+
+  # ============================================================================
+  # Reading Pass Batch 14 (Wave 2 / Phase 2.5 sub-PR 18、reviewedAtCommit cfae04e)
+  # 47 文書 = elements/widgets/ family 46 (= README + WID-001〜045) + technical-debt-roadmap.md 1。
+  # 本 batch で HIGH priority 完遂 (= remaining HIGH 47 → 0)。
+  # 全件 keep-and-contract / canonical-doc / failurePatterns: []。
+  # technical-debt-roadmap.md は governance-articulated mixed temporal (= judgment rationale doc)。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/widgets/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      widgets/ category README。45 件の widget 仕様書カタログ articulate (= 改修前の前提資料、source / 型 / 依存 ctx / データ経路 / co-change 影響面)。型番体系 WID-NNN articulate (= 一度割り当てたら再利用しない、@widget-id JSDoc 宣言で機械検証)。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-001 = widget-budget-achievement (kind: widget、registry: WIDGETS_KPI、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryKpiWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-002 = chart-daily-sales (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-003 = chart-gross-profit-amount (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-004 = chart-timeslot-heatmap (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-005 = chart-store-timeslot-comparison (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-006 = chart-sales-purchase-comparison (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-007 = chart-weather-correlation (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-008 = analysis-alert-panel (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-009 = exec-dow-average (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-010 = exec-weekly-summary (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-011.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-011 = exec-daily-store-sales (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-012.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-012 = exec-daily-inventory (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-013.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-013 = exec-store-kpi (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-014.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-014 = exec-forecast-tools (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-015.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-015 = analysis-waterfall (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-016.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-016 = analysis-gp-heatmap (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-017.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-017 = analysis-customer-scatter (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-018.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-018 = analysis-performance-index (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-019.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-019 = analysis-category-pi (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-020.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-020 = analysis-causal-chain (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-021.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-021 = analysis-sensitivity (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-022.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-022 = analysis-regression-insight (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-023.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-023 = analysis-seasonal-benchmark (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-024.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-024 = analysis-duckdb-features (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-025.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-025 = duckdb-dow-pattern (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-026.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-026 = duckdb-category-mix (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-027.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-027 = duckdb-category-benchmark (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-028.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-028 = duckdb-category-boxplot (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-029.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-029 = duckdb-cv-timeseries (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-030.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-030 = daily-chart-gp-rate (kind: widget、registry: DAILY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Daily/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-031.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-031 = daily-chart-shapley (kind: widget、registry: DAILY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Daily/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-032.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-032 = insight-budget (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-033.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-033 = insight-budget-simulator (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-034.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-034 = insight-gross-profit (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-035.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-035 = insight-forecast (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-036.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-036 = insight-decomposition (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-037.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-037 = insight-pi-cv-map (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-038.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-038 = category-total-view (kind: widget、registry: CATEGORY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Category/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-039.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-039 = category-comparison-view (kind: widget、registry: CATEGORY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Category/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-040.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-040 = costdetail-kpi-summary (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-041.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-041 = costdetail-purchase (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-042.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-042 = costdetail-transfer (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-043.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-043 = costdetail-cost-inclusion (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-044.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-044 = reports-summary-grid (kind: widget、registry: REPORTS_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Reports/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-045.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-045 = reports-dept-table (kind: widget、registry: REPORTS_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Reports/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/technical-debt-roadmap.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      judgment rationale doc (= 方針・優先順位・判断理由・歴史)。documentation-steward 管理。'件数の一次情報源: architecture-health.json' で manual rationale と generated current value を articulate に分離 (= GENERATED-AS-MANUAL 違反なし)。'live task は本文書に書かない、正本は projects/<id>/checklist.md' を articulate (= project-checklist-governance pointer)。P1〜P5 完了済 project は履歴記録として保持 (= governance-articulated mixed temporal、past 履歴 + present 健全性 + 新規 project guidance)。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
