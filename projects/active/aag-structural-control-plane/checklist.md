@@ -926,6 +926,73 @@ project-sub-project-map (= Level 4 Umbrella 固有) を articulate。projectizat
 - Level 3 = reposteward + pure-calculation-reorg
 - Level 4 (Umbrella) = taxonomy-v2 (= 初観測、固有 governance contract)
 
+## Wave 2 / Phase 2.5 sub-PR 16: Reading Pass Batch 12 (= aag-structural-control-plane self-reference 一括、reviewedAtCommit babfc69)
+
+> **目的**: projects/active/ zone shift 継続。aag-structural-control-plane (= 自プロジェクト 17 docs)
+> 全件 articulate (= self-reference)。新 sub-structure 2 種 (aag/scp-checkers/ + inquiry/) を articulate、
+> 新 proposedKind 1 種 articulate (project-inquiry = Phase 0 投資調査記録)。projects/active/ zone
+> 完遂 (= 6 active projects 全件)。
+
+### Phase 2.5 sub-PR 16 (Reading Pass Batch 12、17 docs、self-reference)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 16 着手 (= user 「1」承認、= aag-scp 自プロジェクト一括)
+- [x] 17 docs を read + articulate: 標準 7 + derived/README.md (customized) + aag/scp-checkers/README.md + inquiry/ 8
+- [x] 17 entry を document-reading-decisions.yaml に append (= entries: 101 → 118、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 1 種 articulate: project-inquiry (= Phase 0 投資調査記録、PRE-decision investigation で decision-audit と区別)
+- [x] proposedKind 16 種に拡張達成 (= 15 → 16)
+- [x] derived/README.md (aag-scp) は customized = duplicate ではないこと articulate (= taxonomy-v2 identical copy と対比)
+- [x] inquiry/08 採用済み status の articulate (= ADR-SCP-016 正式採用、本 batch の Wave 構造の正本 source)
+- [x] candidates regenerate (= 297 → 280 candidates、HIGH 93 → 76、alreadyReviewedCount 101 → 118)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 118 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 16 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 12 17 entry append 済 (= 累計 118 entries、stage: in-progress)
+- [x] proposedKind 16 種に拡張達成
+- [x] **projects/active/ zone 完遂** (= 6 active projects 全件 articulate: quick-fixes 4 + presentation-quality-hardening 6 + reposteward 7 + pure-calculation-reorg 14 + taxonomy-v2 17 + aag-scp 17 = 65)
+- [x] 自プロジェクト self-reference articulate を慎重に実施 (= 各 entry の disposition / proposedKind は他 project と同 standard で articulate、self-bias 排除)
+- [x] inquiry/ pattern の articulate (= PRE-decision investigation の保管役)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 16 で articulate された pattern
+
+**1. inquiry/ pattern (= PRE-decision investigation の保管)**:
+
+aag-scp は inquiry/ sub-directory に Phase 0 投資調査記録 8 件 (= 01-08 numbered) を articulate。
+これは drawer Pattern 1 (= decision-audit の POST-decision lineage articulate) と異なる role:
+
+| 役割 | location | content | timing |
+|---|---|---|---|
+| project-inquiry (新) | inquiry/<NN>-<topic>.md | PRE-decision investigation | decision 前 |
+| project-decision-audit | decision-audit.md | POST-decision lineage | decision 後 |
+
+inquiry → decision-audit に feeding する関係が articulate された (= ADR-SCP-001〜016 の各 ADR は対応する
+inquiry/<NN> から導出)。inquiry は採用後も '後続の判断材料として参照する' role で keep-and-contract。
+
+**2. 自プロジェクト self-reference articulate の慎重さ**:
+
+本 batch は AAG Structural Control Plane (= 本 program 自身) の docs を articulate するため、
+self-bias を排除する必要があった。各 entry の disposition / proposedKind は他 project の同 doc 種と
+同 standard で articulate (= AI_CONTEXT は project-plan / checklist は project-checklist 等)、
+self-bias による格上げ / 特別扱いを排除した。
+
+**3. projects/active/ zone 完遂達成**:
+
+Batch 7〜12 で projects/active/ 6 active project 全件 articulate 完遂 (= 累計 65 docs):
+- Batch 7: quick-fixes 4 (= collection、軽量)
+- Batch 8: presentation-quality-hardening 6 (= finite)
+- Batch 9: reposteward 7 (= L3 重判断 institute)
+- Batch 10: pure-calculation-reorg 14 (= AAG-COA mandatory + phase sub-structure)
+- Batch 11: taxonomy-v2 17 (= Level 4 Umbrella、Failure Loop auto-promotion 実証)
+- Batch 12: aag-scp 17 (= self-reference + inquiry sub-structure)
+
+→ projects/active/ zone は次 Reading Pass の対象から除外、references/04-tracking/ + その他 zone へ
+focus shift 可能。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

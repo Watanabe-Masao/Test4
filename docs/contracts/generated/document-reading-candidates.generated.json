@@ -3,230 +3,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/README.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/checklist.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/decision-audit.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/derived/README.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/discovery-log.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/HANDOFF.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/plan.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/aag-structural-control-plane/projectization.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/elements/charts/CHART-001/implementation-ledger.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -4476,31 +4252,29 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T13:33:29.174Z",
+    "generatedAt": "2026-05-09T13:43:14.500Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "256da353ceedb7cb7b7ceb478d6656f86a085770"
+    "sourceSha": "babfc69979b1120f6b20e81499fa2ea1932dab80"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 101,
+    "alreadyReviewedCount": 118,
     "byKind": {
       "canonical-doc": 226,
-      "project-plan": 16,
       "repo-entrypoint": 2,
-      "unknown": 53
+      "unknown": 52
     },
     "byPriority": {
-      "HIGH": 93,
+      "HIGH": 76,
       "MEDIUM": 204
     },
     "bySection": {
       "aag-framework": 5,
       "aag-framework-internal": 9,
       "aag-interface": 16,
-      "active-projects": 17,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
@@ -4512,6 +4286,6 @@
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 297
+    "totalCandidates": 280
   }
 }

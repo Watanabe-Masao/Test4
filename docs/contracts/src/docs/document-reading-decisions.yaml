@@ -2538,3 +2538,370 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 12 (Wave 2 / Phase 2.5 sub-PR 16、reviewedAtCommit babfc69)
+  # 17 文書 = projects/active/aag-structural-control-plane/ 全 HIGH 候補 (= 自プロジェクト self-reference)。
+  # 標準 7 + derived/ 1 (= customized) + aag/scp-checkers/ 1 + inquiry/ 8 (= 新 sub-structure)。
+  # 新 proposedKind 1 種 articulate: project-inquiry (= Phase 0 投資調査記録、採用後は履歴参照役)。
+  # ============================================================================
+
+  - path: projects/active/aag-structural-control-plane/aag/scp-checkers/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      project-scoped boundary protection checkers articulate (= plan.md §A2、ADR-SCP-014/015 整合)。
+      lifecycle = project-active 期間のみ (= Archive 時に aag/ folder ごと物理削除)、parse-free spirit
+      限定。touch しない app/src/ 等の boundary を CI level で foul させる project-scoped checker 群。
+    alternativesConsidered: |
+      新 kind project-scoped-checker-suite も候補だが、role は project-plan の sub-scope variant
+      (= governance contract は plan.md / projectization.md の derivative) で別 kind articulate は
+      vocabulary 過剰、project-plan で十分。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      project 意味空間の入口。AAG Structural Control Plane (= Tree / Document / Temporal の構造補助
+      設計) articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-11 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+      - projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+      - projects/active/pure-calculation-reorg/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。本 file で本 batch の articulate を
+      行っている self-reference doc。Phase 0〜2.5 sub-PR の incremental articulate articulate。
+    alternativesConsidered: |
+      self-reference のため articulate には慎重を要するが、role は他 project の checklist と同 kind、
+      governance contract も同じ。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/decision-audit.md
+    proposedKind: project-decision-audit
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      L3 重判断 institute (= drawer Pattern 1 application)。ADR-SCP-001〜022 の lineage articulate。
+      Batch 9 reposteward decision-audit.md と同 governance contract、同 5 軸 schema。
+    alternativesConsidered: |
+      なし (= Batch 9 decision-audit.md と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/reposteward-ai-ops-platform/decision-audit.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/derived/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Wave 2 deliverable space articulate (= Document Reset Pass + Failure Learning Loop で蓄積される
+      派生成果物の配置先)。projects/_template/derived/README.md と diff (= customized)、taxonomy-v2 の
+      identical copy と対照的に project-specific value あり (= Batch 11 Failure Loop auto-promotion の
+      reference 例)。
+    alternativesConsidered: |
+      なし (= customized doc、_template の duplicate ではない)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      DA-β-003 institute artifact、同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-11 discovery-log.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+      - projects/active/pure-calculation-reorg/discovery-log.md
+      - projects/active/taxonomy-v2/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      起点文書。Wave 1〜2 進行状況 articulate (= past Phase 完遂 + future Wave 3 articulate)。
+      governance-articulated mixed temporal。
+    alternativesConsidered: |
+      なし (= Batch 8-11 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+      - projects/active/pure-calculation-reorg/HANDOFF.md
+      - projects/active/taxonomy-v2/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= 既存 contract 資産の棚卸 + 本 program 新 schema との配置関係 articulate)。
+      ADR-SCP-002 へ feeding した investigation。past (= 調査 timing) + present (= 採用後の reference)
+      の articulate mixed temporal。新 proposedKind 'project-inquiry' を articulate (= decision-audit と
+      別物、PRE-decision investigation の articulate role)。
+    alternativesConsidered: |
+      project-decision-audit で統合も候補だが、inquiry は PRE-decision investigation で
+      decision-audit (= POST-decision lineage) と role が異なる。inquiry が decision-audit に feeding
+      する関係で articulate に分離が適切。archive-doc (= 過去調査) も候補だが '採用後の reference として
+      参照する' の役割が articulate されているため keep articulate。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= 既存 YAML 資産の棚卸)。ADR-SCP-002/003 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= doc-registry 拡張戦略)。ADR-SCP-002 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= self-check substrate sync 戦略)。ADR-SCP-005 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= obligation map migration 戦略)。ADR-SCP-007/008 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= temporal scope shadow policy)。ADR-SCP-009/010 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= acceptance criteria、551 行 = inquiry family 最大規模)。
+      ADR-SCP-011〜015 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= Wave restructuring 棚卸し)。'採用済み (2026-05-08、ADR-SCP-016 で正式採用)'
+      status を doc 冒頭に articulate (= governance-articulated past + 採用後 reference 役)。
+      本 inquiry は Wave 1/2/3 構造化の正本 source、本 PR session の構造はここから derived。
+    alternativesConsidered: |
+      archive-doc (= 採用済み履歴) も候補だが、'採用後の reference として参照する' の役割が
+      articulate されているため keep-and-contract が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      不可侵原則 + Wave 構造 + Phase 定義 articulate (= AAG Structural Control Plane の正本)。
+      ADR-SCP-016 で Wave restructuring 採用後の structure articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-11 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+      - projects/active/reposteward-ai-ops-platform/plan.md
+      - projects/active/pure-calculation-reorg/plan.md
+      - projects/active/taxonomy-v2/plan.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-11 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+      - projects/active/pure-calculation-reorg/projectization.md
+      - projects/active/taxonomy-v2/projectization.md
+    failurePatterns: []
