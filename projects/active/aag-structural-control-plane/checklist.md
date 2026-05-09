@@ -430,6 +430,36 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 5: Reading Pass Batch 2 (= HIGH priority 5 docs articulate、reviewedAtCommit dd0f6ed)
+
+> **目的**: Reading Pass Batch 1 (= sub-PR 4) の continuation。HIGH priority hot zone 候補
+> から次の 5 documents を articulate。proposedKind に新 vocabulary (= status-snapshot /
+> log-journal) を articulate に導入し、disposition 4 種 (split / move / keep-and-contract /
+> archive) を実例で articulate。
+
+### Phase 2.5 sub-PR 5 (Reading Pass Batch 2、5 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 5 着手 user 承認 (= Batch 1 完遂後の同 session 順次)
+- [x] 5 docs を read + articulate: references/04-tracking/engine-maturity-matrix.md (HIGH unknown) + open-issues.md (HIGH canonical-doc) + project-structure.md (HIGH canonical-doc) + promotion-readiness-correlation.md (HIGH canonical-doc) + taxonomy-review-journal.md (HIGH canonical-doc)
+- [x] 5 entry を document-reading-decisions.yaml に append (= entries: 5 → 10、stage: in-progress)
+- [x] 各 entry に 9 disposition のいずれかを articulate: keep-and-contract 3 件 (open-issues + project-structure + taxonomy-review-journal) / split 1 件 (engine-maturity-matrix) / move 1 件 (promotion-readiness-correlation)
+- [x] 各 entry に 5 hasX flags + rationaleSummary + alternativesConsidered + duplicates + failurePatterns articulate
+- [x] 新 proposedKind vocabulary articulate: status-snapshot (engine-maturity-matrix + promotion-readiness-correlation) / log-journal (taxonomy-review-journal)
+- [x] duplicates field 実 articulate: engine-maturity-matrix → engine-promotion-matrix / promotion-readiness-correlation → 9 同型 file (customerGap 等)
+- [x] candidates regenerate (= 393 → 388 candidates、HIGH 189 → 184、alreadyReviewedCount 5 → 10)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 10 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 5 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 2 5 entry append 済 (= 累計 10 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] proposedKind 6 種 articulate (= repo-entrypoint / project-plan / canonical-doc / archive-doc / status-snapshot / log-journal)
+- [x] disposition 4 種 articulate (= keep-and-contract / archive / move / split)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

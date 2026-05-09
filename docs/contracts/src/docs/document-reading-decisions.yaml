@@ -141,3 +141,135 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 2 (Wave 2 / Phase 2.5 sub-PR 5、reviewedAtCommit dd0f6ed)
+  # 5 文書 = references/04-tracking/ HIGH 文書 (engine-maturity-matrix +
+  # open-issues + project-structure + promotion-readiness-correlation +
+  # taxonomy-review-journal)
+  # ============================================================================
+
+  - path: references/04-tracking/engine-maturity-matrix.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      Engine maturity 状態 (= 5 engine の WASM bridge / compare / observation status table) +
+      観測テスト結果 (= '57 テスト全 pass' 等の手 count) + 「次にやること」TODO list が混在。
+      状態 part は producer 経由で generated 化可、TODO part は projects/active/ へ移管が articulate。
+    alternativesConsidered: |
+      archive (= 2026-03-29 snapshot として固定) も候補だが、状態 articulate は live monitoring 用途で
+      保持価値あり。rewrite-and-contract も検討したが、責務分離が必要なため split 推奨。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/engine-promotion-matrix.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/open-issues.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      'active projects 索引' role を articulate (= 索引のみ、live task table 持たない、AAG
+      project-checklist collector が動的判定)。AAG-SCP-DOC-INDEX-005~008 整合。
+      '解決済みの課題' table は disclaimer 'live ではない' 付きで意図的 historical reference。
+    alternativesConsidered: |
+      ファイル名 'open-issues.md' と内容 'active projects 索引' が不一致 (= rename candidate)
+      だが、先頭 articulate で role 明示済 + 多数 inbound link 既存のため、rename は別 sub-PR で
+      慎重に判断。現状 keep-and-contract 推奨。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/project-structure.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      app/src/ プロジェクト構成の正本 (= 'この文書がプロジェクト構成の正本' 自称、CLAUDE.md は
+      ここを参照)。features モジュール一覧 + guards ファイル一覧は GENERATED:START/END マーカー
+      対で articulate (= 機械生成済、静的数値混入なし)。レイヤー依存ルール articulate も明確。
+    alternativesConsidered: |
+      なし (= 現状 articulate が適切、static number は generated section に隔離済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/promotion-readiness-correlation.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (CAND-ANA-005 correlation)。'まだ current に編入しない'
+      + '実 WASM 検証待ち' = projects/active/pure-calculation-reorg/ の Phase work と同 scope。
+      references/04-tracking/ でなく projects/active/pure-calculation-reorg/phase-X/readiness/
+      へ move が articulate。
+    alternativesConsidered: |
+      archive (= snapshot として固定) も候補だが、'検証待ち' = 未完了 future work のため move 推奨。
+      keep-and-contract も候補だが、project work-in-progress content が references/ に混入 = anti-pattern。
+      同型 promotion-readiness-* file 9 件 (= customerGap / dowGapAnalysis / inventoryCalc /
+      movingAverage / observationPeriod / pinIntervals / piValue / remainingBudgetRate / sensitivity /
+      trendAnalysis) も同 disposition 推奨 (= 個別 entry は別 batch で articulate)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/taxonomy-review-journal.md
+    proposedKind: log-journal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      review window 記録 journal (= 提案 / 採択 / 撤回 / 例外 + 6 状態 Lifecycle 遷移記録)。改訂規律
+      articulate 明確 (= AI 単独編集禁止 + AR-TAXONOMY-AI-VOCABULARY-BINDING 整合)。journal の本質
+      として temporal mixing は意図的特性 (= 過去 window + 提案中 + 次回予定の articulate)。
+    alternativesConsidered: |
+      split (= 過去 window archive / 現在 journal 分離) も検討したが、journal の連続性を破壊する
+      ため不適切。temporal mixing を意図的特性として keep-and-contract が articulate。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []

@@ -2408,22 +2408,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/engine-maturity-matrix.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tracking",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/engine-promotion-matrix.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -2503,36 +2487,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/open-issues.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/project-structure.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/promotion-criteria.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -2545,21 +2499,6 @@
       "universeDocumentStatus": "observed-only",
       "universeIndexSection": "tracking",
       "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/promotion-readiness-correlation.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
     },
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
@@ -2715,21 +2654,6 @@
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
       "path": "references/04-tracking/quality-audit-latest.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/taxonomy-review-journal.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
         "keep-and-contract",
@@ -5863,24 +5787,24 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T09:07:10.879Z",
+    "generatedAt": "2026-05-09T09:46:54.072Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "f4927855b5f85d338ed1c0dfbf3105f53e86044e"
+    "sourceSha": "dd0f6ed2ef089da5b01243332155543a576a7fe3"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 5,
+    "alreadyReviewedCount": 10,
     "byKind": {
-      "canonical-doc": 267,
+      "canonical-doc": 263,
       "project-plan": 52,
       "repo-entrypoint": 2,
-      "unknown": 72
+      "unknown": 71
     },
     "byPriority": {
-      "HIGH": 189,
+      "HIGH": 184,
       "MEDIUM": 204
     },
     "bySection": {
@@ -5895,10 +5819,10 @@
       "repository-entrypoints": 3,
       "roles": 16,
       "tools": 1,
-      "tracking": 124,
+      "tracking": 119,
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 393
+    "totalCandidates": 388
   }
 }
