@@ -1,0 +1,885 @@
+# Document Reading Decisions authoring source (Wave 2 / Phase 2.5 sub-PR 4 = stage: in-progress)
+#
+# 役割: Document Reset Pass の各文書 reading 結果を articulate する authoring source。
+# 各 entry は 1 文書の精査記録 (= path + proposedKind + temporalScope + 9 disposition の 1 +
+# 5 hasX flags + duplicates + reviewedBy + reviewedAtSha + rationaleSummary)。
+#
+# 機械正本: docs/contracts/generated/document-reading-decisions.generated.json
+# (Wave 2 後段 sub-PR で normalize generator landing 後に生成)。
+#
+# 不可侵 (ADR-SCP-021 D7 + AAG-SCP-DOC-RESET-001~005 整合):
+# - human / AI authored (= Reading Pass の output、incremental に append)
+# - 機械分類だけで contract 化しない (= 不可侵原則 7、AAG-SCP-DOC-LEARNING-002 整合)
+# - 9 disposition のいずれかに必ず分類完了 (空 disposition 不許可)
+# - Hot zone 4 件 (references/04-tracking + projects/active + CLAUDE.md + docs/contracts) 優先
+# - candidates.generated.json の対象から順次 entry 追加
+#
+# Wave 2 narrowing (ADR-SCP-016 D1): hot zone 4 件 + Phase 4 finding subjects 優先。
+# 残 8 zone は Wave 3 以降または別 program で扱う。
+#
+# schema: docs/contracts/schema/document-reading-decisions.schema.json (本 sub-PR で landing)
+
+schemaVersion: document-reading-decisions-v1
+stage: in-progress
+
+entries:
+  # ============================================================================
+  # Reading Pass Batch 1 (Wave 2 / Phase 2.5 sub-PR 4、reviewedAtCommit f492785)
+  # 5 文書 = CLAUDE.md (HIGH repo-entrypoint) + 4 references/04-tracking/ HIGH 文書
+  # ============================================================================
+
+  - path: CLAUDE.md
+    proposedKind: repo-entrypoint
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      orchestration 層の最上位案内板。役割が明確 (= 鉄則索引 + AI manifest pointer + 設計原則
+      要約 + roles 連携 articulate)、live task list は projects/<id>/checklist.md に逃がしてある
+      (project-checklist-governance 整合)。generated section 経由で current value も articulate 済。
+    alternativesConsidered: |
+      rewrite-and-contract も検討したが、現状 articulate は鉄則 quote + drill-down link 形式で
+      AAG-SCP-DOC-INDEX-005~008 整合済 (= 案内板役割を逸脱していない)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/aag-doc-audit-report.md
+    proposedKind: project-plan
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      'Phase 3 deliverable' を自称し、completed project (aag-bidirectional-integrity) の audit
+      findings + migration plan を 382 行で articulate。references/04-tracking/ 配下にあるが
+      content は project audit 履歴で、現在の canonical reference ではない。
+    alternativesConsidered: |
+      move (= projects/completed/aag-bidirectional-integrity/derived/audit-report.md へ移動) も
+      候補だが、既に project ARCHIVE 経由で migration 完遂済のため、references/99-archive/
+      または同 project 配下への archive で十分。delete-candidate も検討したが、audit 履歴として
+      preserve 価値あり。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+      - DOC-FAIL-TEMPORAL-MIXING
+
+  - path: references/04-tracking/ar-rule-audit.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      'AR-rule binding 品質基準 protocol' を articulate する canonical content (= "正本: 本 doc"
+      + semanticArticulationQualityGuard の検証条件正本)。location が 04-tracking (= 健康 / 監査)
+      に不整合、references/03-implementation/ar-rule-binding-protocol.md 等への move が適切。
+    alternativesConsidered: |
+      keep-and-contract (= 04-tracking でも audit-derived protocol として articulate 可) も候補
+      だが、content は protocol contract で audit ではないため move 推奨。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/authoritative-term-sweep.md
+    proposedKind: archive-doc
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      2026-04-10 時点の用語スイープ結果 (279 箇所 / 65 ファイル)。一度限りの調査 snapshot で、
+      'Phase 3 (bridge 境界定義) で修正' 等の migration TODO が混入。件数は本来 generated
+      report 化すべき (DOC-FAIL-GENERATED-AS-MANUAL)。
+    alternativesConsidered: |
+      split (= count 部分 → generated-register / TODO 部分 → projects/) も候補だが、sweep 自体が
+      one-time work で、 ratchet 管理は別 mechanism で十分。archive で historical record 保存が
+      pragmatic。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+
+  - path: references/04-tracking/dashboards/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      dashboards/ directory の articulate (= 横断 metrics 集約 layer の役割 + 4 dashboard 一覧 +
+      正本性 = 機械生成 + status)。短く役割明確 (23 lines)、AAG-SCP-DOC-INDEX-008 整合
+      (= 索引でなく案内板)。
+    alternativesConsidered: |
+      なし (= 現状 articulate は適切)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 2 (Wave 2 / Phase 2.5 sub-PR 5、reviewedAtCommit dd0f6ed)
+  # 5 文書 = references/04-tracking/ HIGH 文書 (engine-maturity-matrix +
+  # open-issues + project-structure + promotion-readiness-correlation +
+  # taxonomy-review-journal)
+  # ============================================================================
+
+  - path: references/04-tracking/engine-maturity-matrix.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      Engine maturity 状態 (= 5 engine の WASM bridge / compare / observation status table) +
+      観測テスト結果 (= '57 テスト全 pass' 等の手 count) + 「次にやること」TODO list が混在。
+      状態 part は producer 経由で generated 化可、TODO part は projects/active/ へ移管が articulate。
+    alternativesConsidered: |
+      archive (= 2026-03-29 snapshot として固定) も候補だが、状態 articulate は live monitoring 用途で
+      保持価値あり。rewrite-and-contract も検討したが、責務分離が必要なため split 推奨。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/engine-promotion-matrix.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/open-issues.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      'active projects 索引' role を articulate (= 索引のみ、live task table 持たない、AAG
+      project-checklist collector が動的判定)。AAG-SCP-DOC-INDEX-005~008 整合。
+      '解決済みの課題' table は disclaimer 'live ではない' 付きで意図的 historical reference。
+    alternativesConsidered: |
+      ファイル名 'open-issues.md' と内容 'active projects 索引' が不一致 (= rename candidate)
+      だが、先頭 articulate で role 明示済 + 多数 inbound link 既存のため、rename は別 sub-PR で
+      慎重に判断。現状 keep-and-contract 推奨。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/project-structure.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      app/src/ プロジェクト構成の正本 (= 'この文書がプロジェクト構成の正本' 自称、CLAUDE.md は
+      ここを参照)。features モジュール一覧 + guards ファイル一覧は GENERATED:START/END マーカー
+      対で articulate (= 機械生成済、静的数値混入なし)。レイヤー依存ルール articulate も明確。
+    alternativesConsidered: |
+      なし (= 現状 articulate が適切、static number は generated section に隔離済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/promotion-readiness-correlation.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (CAND-ANA-005 correlation)。'まだ current に編入しない'
+      + '実 WASM 検証待ち' = projects/active/pure-calculation-reorg/ の Phase work と同 scope。
+      references/04-tracking/ でなく projects/active/pure-calculation-reorg/phase-X/readiness/
+      へ move が articulate。
+    alternativesConsidered: |
+      archive (= snapshot として固定) も候補だが、'検証待ち' = 未完了 future work のため move 推奨。
+      keep-and-contract も候補だが、project work-in-progress content が references/ に混入 = anti-pattern。
+      同型 promotion-readiness-* file 9 件 (= customerGap / dowGapAnalysis / inventoryCalc /
+      movingAverage / observationPeriod / pinIntervals / piValue / remainingBudgetRate / sensitivity /
+      trendAnalysis) も同 disposition 推奨 (= 個別 entry は別 batch で articulate)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/taxonomy-review-journal.md
+    proposedKind: log-journal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    reviewedAtSha: dd0f6ed2ef089da5b01243332155543a576a7fe3
+    rationaleSummary: |
+      review window 記録 journal (= 提案 / 採択 / 撤回 / 例外 + 6 状態 Lifecycle 遷移記録)。改訂規律
+      articulate 明確 (= AI 単独編集禁止 + AR-TAXONOMY-AI-VOCABULARY-BINDING 整合)。journal の本質
+      として temporal mixing は意図的特性 (= 過去 window + 提案中 + 次回予定の articulate)。
+    alternativesConsidered: |
+      split (= 過去 window archive / 現在 journal 分離) も検討したが、journal の連続性を破壊する
+      ため不適切。temporal mixing を意図的特性として keep-and-contract が articulate。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 3 (Wave 2 / Phase 2.5 sub-PR 6、reviewedAtCommit a564f37)
+  # 5 文書 = references/04-tracking/ HIGH unknown 文書 (engine-promotion-matrix +
+  # features-migration-status + frozen-list + observation-evaluation-guide +
+  # promotion-criteria)。Universe Index で kind=unknown だった triage 候補を集中処理。
+  # ============================================================================
+
+  - path: references/04-tracking/engine-promotion-matrix.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      Engine 昇格状況一覧 (= 5 engine 全 'authoritative ✅（2026-04-05 昇格）' 完了 status +
+      engine 別詳細 + 「次の一手」future plan)。engine-maturity-matrix.md と組み 1 機能 (= maturity
+      stage 定義 + 個別状況) を 2 doc 分割しているが、件数 / 状態 / TODO 混在 = 同 failure pattern。
+    alternativesConsidered: |
+      archive (= 全 engine 昇格完了済 = work done) も候補だが、'次の一手' 未完了 work + 個別 engine
+      補足 = future plan 残存。merge (= engine-maturity-matrix と統合) も検討したが、責務分離
+      (定義 vs 状況) は articulate 価値あり、各々を split で structure 化が pragmatic。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/engine-maturity-matrix.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/features-migration-status.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      'features/ 縦スライス移行 進捗管理表' = '全 8 feature 完了' status + Dashboard Widget
+      Ownership table + 'Dashboard Widget Ownership' (= 31 widget owner table) + '次の移行対象
+      （別 Epic）' future plan 混在。Widget Ownership table は canonical reference 価値高い、
+      移行 status は完了済 archive 価値、TODO は projects/ へ移管が articulate。
+    alternativesConsidered: |
+      keep-and-contract も候補だが、責務複合 (status + canonical Widget Ownership + TODO) で C1
+      違反候補。rewrite-and-contract も候補だが、責務分離が必要なため split 推奨。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/frozen-list.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      凍結リスト = 3 種類 (ゼロ維持 / 件数上限 / 残存許可) の articulate 明確な canonical 定義 +
+      多数の 'count' 数値 (現在値 / 上限) が手 articulate + ~~strikethrough~~ で解消済み history 混在。
+      定義 part は canonical 価値高い、count は producer (architecture-health.json 既存) から generated
+      化、解消 history は archive 部分に分離が articulate。
+    alternativesConsidered: |
+      split も候補だが、定義 + count + history は同一概念 (= 凍結 mechanism articulate) のため、
+      rewrite-and-contract で 1 doc 内に generated section を導入し、history は別 archive doc へ
+      移管する形で 2 doc に整理が pragmatic。keep-and-contract も候補だが count drift が長期的に蓄積
+      するため不適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL
+
+  - path: references/04-tracking/observation-evaluation-guide.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      観測評価ガイド = '観測結果を promotion 判定に使える形で読む基準を固定すること' role articulate
+      明確。基本原則 + 評価対象 + 自動 vs 手動 articulate 整理済 (371 lines)。kind=unknown は
+      Universe Index detection ヒューリスティクス漏れ (= H1 missing markdown headings 等の判定子
+      の articulate refinement 候補)。
+    alternativesConsidered: |
+      move (= references/03-implementation/ や 01-foundation/ に移動) も候補だが、04-tracking が
+      promotion 評価関連 doc の集約 zone として機能している現状を尊重し keep-and-contract。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/promotion-criteria.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      Engine 昇格基準 = '昇格判断を、人手に依存せず継続可能な形にする' role articulate 明確。
+      基本原則 + 用語定義 + Maturity 状態遷移 + 必須/補助証拠 + Mismatch Taxonomy + 各 promotion
+      条件 (promotion-candidate / wasm-only trial / authoritative) 等 articulate 整理済 (334 lines)。
+      observation-evaluation-guide.md と pair で promotion 評価 framework を構成する canonical doc。
+    alternativesConsidered: |
+      move (= references/01-foundation/ に移動) も候補だが、observation-evaluation-guide.md と pair
+      で 04-tracking に集約されている現状の articulate を尊重し keep-and-contract。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/observation-evaluation-guide.md
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 4 (Wave 2 / Phase 2.5 sub-PR 7、reviewedAtCommit fa58cc7)
+  # 5 文書 = references/04-tracking/ 残非elements 3 + elements/ サンプル 2
+  # (quality-audit-latest + architecture-state-snapshot + element-taxonomy +
+  #  CALC-001 + calculations/README)
+  # ============================================================================
+
+  - path: references/04-tracking/quality-audit-latest.md
+    proposedKind: status-snapshot
+    temporalScope: past
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      品質チェックレポート (= 2026-03-29 更新)。CI 6段階ゲート結果 + 前回比較 + Lint 警告 + 層境界
+      allowlist の手 articulate snapshot。'latest' を名乗りながら 1 ヶ月以上 stale、内容は
+      architecture-health.json (= producer 経由 generated) と完全 redundant。
+    alternativesConsidered: |
+      archive (= 履歴 preserve) も候補だが、architecture-health.json + architecture-health.generated.md
+      が同等以上の articulate を generate しているため履歴的価値は重複。delete-candidate 推奨、
+      確認手順 = inbound link 0 件 verify 後の物理削除。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/generated/architecture-health.generated.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-AI-ROUTING-AMBIGUITY
+
+  - path: references/04-tracking/generated/architecture-state-snapshot.md
+    proposedKind: generated-report
+    temporalScope: present
+    disposition: generated-register
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      Allowlist Summary + Category Breakdown + Active Bridges + Facade Hooks の機械生成 snapshot
+      (= 'Generated: 2026-05-06T10:49:45.742Z')。内容は明確に generated だが file 名が
+      `*.generated.md` suffix を欠いており、CLAUDE.md '命名規約予告 (= R3 以降適用): 機械生成
+      file は *.generated.md suffix で明示' に不整合。generated-register で正規化。
+    alternativesConsidered: |
+      keep-and-contract (= rename 不要、現状維持) も候補だが、命名規約 articulate との不整合は
+      `generatedFileEditGuard` 予定実装時に hard fail trigger。rewrite-and-contract も候補だが、
+      file は既に generated で manual edit がない、generated-register で producer + naming
+      canonicalize が articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/element-taxonomy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      element ID prefix 正本 (= WID-/CHART-/ENG-/PAGE-/FLOW- 5 prefix articulation + 物理配置 +
+      reader articulate)。aag-self-hosting-completion R4 で landing、'本 doc が canonical' 自称、
+      per-element directory 構造 articulate 明確。post-R7 全 category 展開判断は将来 program。
+    alternativesConsidered: |
+      なし (= 役割明確 + canonical 性 articulate 済、検証 mechanism 予告も articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      `calculateCustomerGap` (BIZ-013) 計算正本仕様 (= 客数 GAP)。frontmatter (id / kind /
+      exportName / sourceRef / sourceLine / definitionDoc / contractId / semanticClass /
+      authorityKind / lifecycleStatus / lastSourceCommit 等) で機械検証可能な metadata articulate +
+      Input/Output Contract + Invariants + Behavior Claims (CLM-001~003 evidenceLevel) + Migration
+      Plan + Consumers + Co-Change Impact + Guard References articulate 整理済。CALC-* 全 24 件の
+      exemplar として articulate 完成度高い。
+    alternativesConsidered: |
+      なし (= per-element canonical-doc としての完成形、frontmatter + lifecycleStatus + Behavior
+      Claims の structured articulate が exemplary)。CALC-002~024 も同 pattern + 同 disposition
+      推奨だが、各 element 固有の内容は別 batch で articulate (= group articulate は schema 上
+      不可、個別 entry が原則)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      Domain Calculation 仕様書カタログ = 'CALC-* 型番体系' + 'Lifecycle State Machine (Phase D で
+      institutionalize)' + 'Promote Ceremony' + 'Candidate Slot 二状態モデル' を articulate 整理済。
+      CALC-* 24 件の per-element spec を統制する mechanism doc、AAG-SCP-DOC-INDEX-008 整合
+      (= directory 案内 + lifecycle articulate)。
+    alternativesConsidered: |
+      なし (= directory README として完成形、機械検証 + lifecycle + Promote Ceremony 等 institute
+      済概念を articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 5 (Wave 2 / Phase 2.5 sub-PR 8、reviewedAtCommit 034c10b)
+  # 10 文書 = promotion-readiness-* family の残 10 件 (correlation は Batch 2 で articulate 済)。
+  # 6 BIZ-* candidate (Phase 5 Step 8) + 4 ANA-* candidate (Phase 6 Step 9)、全件同 disposition: move。
+  # ============================================================================
+
+  - path: references/04-tracking/promotion-readiness-customerGap.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (customerGap、CAND-BIZ-013)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-dowGapAnalysis.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (dowGapAnalysis、CAND-ANA-007)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-inventoryCalc.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (inventoryCalc、CAND-BIZ-009)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-movingAverage.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (computeMovingAverage、CAND-ANA-009)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-observationPeriod.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (observationPeriod、CAND-BIZ-010)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-pinIntervals.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (pinIntervals、CAND-BIZ-011)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-piValue.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (piValue、CAND-BIZ-012)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-remainingBudgetRate.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (remainingBudgetRate、CAND-BIZ-008)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-sensitivity.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (sensitivity、CAND-ANA-003)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-trendAnalysis.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (trendAnalysis、CAND-ANA-004)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
