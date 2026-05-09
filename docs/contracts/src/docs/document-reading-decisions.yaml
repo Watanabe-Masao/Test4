@@ -1842,3 +1842,321 @@ entries:
     duplicates:
       - projects/active/presentation-quality-hardening/projectization.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 10 (Wave 2 / Phase 2.5 sub-PR 14、reviewedAtCommit 5b5a9d1)
+  # 14 文書 = projects/active/pure-calculation-reorg/ 全 HIGH 候補。標準 6 doc + 拡張 2
+  # (breaking-changes + legacy-retirement) + phase-8/ sub-structure 6 (= README +
+  # promotion-readiness-table + 4 proposals)。
+  # 新 proposedKind 3 種 articulate: project-breaking-changes + project-legacy-retirement +
+  # project-promotion-proposal。全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/pure-calculation-reorg/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。pure 計算群を意味責任ベースで再分類、
+      AI が誤読・誤実装しにくい構造へ整備。Scope 境界明示 articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-9 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+      - projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/breaking-changes.md
+    proposedKind: project-breaking-changes
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.json で breakingChange: true 宣言時の必須 doc)。
+      BC-CALC-1〜3 の articulate (= 対象 + 破壊内容 + Phase)。'正本: plan.md' を明示し、本 doc は
+      AAG-COA 入口としての summary role。新 proposedKind 'project-breaking-changes' を articulate
+      (= AAG-COA governance contract に裏打ち)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、breaking-changes は AAG-COA の特定 mandatory artifact で、
+      projectization.breakingChange: true との bidirectional governance contract を持つため
+      別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      live task list 正本。Phase 0〜11 の達成条件 checkbox を articulate。Phase 別禁止事項は
+      plan.md に分離済 (= 役割分担 articulate)、本 doc は達成条件のみ。
+    alternativesConsidered: |
+      なし (= Batch 7-9 checklist.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+      - projects/active/presentation-quality-hardening/checklist.md
+      - projects/active/reposteward-ai-ops-platform/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      DA-β-003 institute artifact。同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8/9 discovery-log.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。3 文書役割分担 articulate (= HANDOFF / plan / checklist の
+      更新タイミング表)。governance-articulated mixed temporal (= handoff role 要求)。
+    alternativesConsidered: |
+      なし (= Batch 8/9 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/legacy-retirement.md
+    proposedKind: project-legacy-retirement
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.json で requiresLegacyRetirement: true 宣言時の必須 doc)。
+      撤退対象 + sunsetCondition articulate (= JS calc 正本群 / 'authoritative' 単独語)。
+      '正本: plan.md' を明示し、本 doc は AAG-COA 入口としての summary role。
+      新 proposedKind 'project-legacy-retirement' を articulate (= breaking-changes と同様、
+      AAG-COA governance contract に裏打ち、bidirectional with projectization.requiresLegacyRetirement)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、legacy-retirement は AAG-COA の特定 mandatory artifact で、
+      projectization.requiresLegacyRetirement: true との bidirectional governance contract を持つため
+      別 kind articulate が適切。breaking-changes と並ぶ governance pair。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      4 不可侵原則 + Phase 別禁止事項テーブル + Phase 0〜11 定義 articulate (= 1051 行、最大規模 plan)。
+      breaking-changes / legacy-retirement の正本でもある (= summary doc が pointer する先)。
+    alternativesConsidered: |
+      なし (= Batch 7-9 plan.md と同 pattern、規模だけ大)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+      - projects/active/reposteward-ai-ops-platform/plan.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA 判定結果。projectizationLevel: Level 3、changeType: architecture-refactor、
+      breakingChange: true、requiresLegacyRetirement: true、requiresGuard: true (= 全フラグ on の最大値)。
+      breaking-changes.md / legacy-retirement.md の bidirectional governance contract source。
+    alternativesConsidered: |
+      なし (= Batch 8/9 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Phase 8 (Promote Ceremony) entry doc。AI と user の責任配分 articulate
+      (= AI: scaffold + 提案書 draft / user: WASM build + DEV dual-run + 昇格承認)。
+      sub-scope の articulate role (= phase-specific entry、project AI_CONTEXT に近い)。
+    alternativesConsidered: |
+      新 kind project-phase-readme も候補だが、role は project-plan の sub-scope variant で、
+      governance contract が新たに articulate されているわけではないため統合が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/promotion-readiness-table.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Phase 8 着手対象 4 ANA candidate の readiness 判定 summary view。Pre-observation readiness
+      (= AI 検証済) + Post-observation entry/exit criteria (= user 観測後埋め)。
+      Batch 2/5 で articulate した references/04-tracking/promotion-readiness-* family と関連
+      (= 個別候補の readiness 判定表 vs 本 doc の summary view)。governance-articulated mixed
+      (= 観測前の structural state articulate + 観測後 update 予定)。
+    alternativesConsidered: |
+      project-promotion-readiness 新 kind も候補だが、status-snapshot で role articulate 済
+      (= per-candidate snapshot の集約 view、Batch 5 promotion-readiness-* と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= AI scaffold draft、user 承認待ち、'承認待ち: user' を user signature で置換する
+      governance workflow)。候補情報 (CAND-ANA-003) + 推奨順序 + 観測 entry/exit criteria + 承認 form の
+      articulate。新 proposedKind 'project-promotion-proposal' を articulate (= user 承認 form という
+      固有 governance workflow を持つため別 kind articulate)。
+    alternativesConsidered: |
+      status-snapshot で統合も候補だが、proposal は user signature 承認 form を持つ固有 governance
+      workflow であり、status-snapshot (= 観測 snapshot) とは role が異なる。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-004、ANA-003 と同 governance workflow)。
+    alternativesConsidered: |
+      なし (= ANA-003-sensitivity.md と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-007、同 governance workflow)。
+    alternativesConsidered: |
+      なし (= proposal family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-009、同 governance workflow、推奨順序の 1 番目)。
+    alternativesConsidered: |
+      なし (= proposal family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+    failurePatterns: []

@@ -227,212 +227,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/AI_CONTEXT.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/breaking-changes.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/checklist.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/discovery-log.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/HANDOFF.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/legacy-retirement.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/promotion-readiness-table.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/phase-8/README.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/plan.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/pure-calculation-reorg/projectization.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "projects/active/taxonomy-v2/AI_CONTEXT.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -4915,31 +4709,31 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T13:13:18.433Z",
+    "generatedAt": "2026-05-09T13:22:32.612Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "52c9556dae18c1ae18790d963a93c3c1d64f5778"
+    "sourceSha": "5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 70,
+    "alreadyReviewedCount": 84,
     "byKind": {
       "canonical-doc": 226,
-      "project-plan": 35,
+      "project-plan": 29,
       "repo-entrypoint": 2,
-      "unknown": 65
+      "unknown": 57
     },
     "byPriority": {
-      "HIGH": 124,
+      "HIGH": 110,
       "MEDIUM": 204
     },
     "bySection": {
       "aag-framework": 5,
       "aag-framework-internal": 9,
       "aag-interface": 16,
-      "active-projects": 48,
+      "active-projects": 34,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
@@ -4951,6 +4745,6 @@
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 328
+    "totalCandidates": 314
   }
 }

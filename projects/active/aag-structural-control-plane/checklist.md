@@ -790,6 +790,68 @@ drawer/) は AAG が AI に提供する interface family であり、本 Reading
 articulate を観測。今後の Reading Pass で他 drawer pattern (Pattern 2/3/...) の application も
 surface する可能性を articulate。
 
+## Wave 2 / Phase 2.5 sub-PR 14: Reading Pass Batch 10 (= pure-calculation-reorg 一括、reviewedAtCommit 5b5a9d1)
+
+> **目的**: projects/active/ zone shift 継続。pure-calculation-reorg (= 14 docs、最大規模 active project)
+> 全件 articulate。AAG-COA mandatory artifact (= breaking-changes / legacy-retirement) を初観測、
+> phase-8/ sub-structure (= phase-specific entry + readiness table + 4 promote 提案書) を articulate。
+> 新 proposedKind 3 種 articulate (= project-breaking-changes + project-legacy-retirement +
+> project-promotion-proposal)。
+
+### Phase 2.5 sub-PR 14 (Reading Pass Batch 10、14 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 14 着手 (= user 「1」承認、= pure-calculation-reorg 一括)
+- [x] 14 docs を read + articulate: 標準 6 (AI_CONTEXT/checklist/discovery-log/HANDOFF/plan/projectization) + 拡張 2 (breaking-changes/legacy-retirement) + phase-8/ 6 (README + readiness-table + 4 proposals)
+- [x] 14 entry を document-reading-decisions.yaml に append (= entries: 70 → 84、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 3 種 articulate:
+  - project-breaking-changes (= AAG-COA mandatory when breakingChange:true、bidirectional with projectization)
+  - project-legacy-retirement (= AAG-COA mandatory when requiresLegacyRetirement:true、bidirectional with projectization)
+  - project-promotion-proposal (= AI scaffold draft + user signature 承認 form の固有 governance workflow)
+- [x] candidates regenerate (= 328 → 314 candidates、HIGH 124 → 110、alreadyReviewedCount 70 → 84)
+- [x] Failure Loop generator 再実行 (= clean batch 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 84 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 14 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 10 14 entry append 済 (= 累計 84 entries、stage: in-progress)
+- [x] proposedKind 14 種に拡張達成 (= 11 → 14)
+- [x] AAG-COA mandatory artifact pattern 初観測 + articulate (= projectization.flag → breaking-changes / legacy-retirement の bidirectional governance contract)
+- [x] phase-specific sub-structure 初観測 + articulate (= phase-8/ 配下の README + readiness-table + proposals/)
+- [x] Promote Ceremony governance workflow articulate (= AI scaffold + user 承認 form)
+- [x] active project 規模 spectrum articulate (= 4 doc / 6 doc / 7 doc / 14 doc の 4 段階)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 14 で articulate された pattern
+
+**1. AAG-COA mandatory artifact bidirectional pair**:
+projectization.json で breakingChange: true / requiresLegacyRetirement: true を declare すると、
+対応する mandatory artifact (= breaking-changes.md / legacy-retirement.md) を要求される
+governance contract が articulate された。両者は bidirectional pair:
+- projectization.breakingChange: true ↔ breaking-changes.md 必須
+- projectization.requiresLegacyRetirement: true ↔ legacy-retirement.md 必須
+
+→ 将来の guard candidate: 'projectization で flag が true のとき対応 doc が存在することを機械検証'。
+
+**2. Phase-specific sub-structure pattern**:
+projects/active/<id>/phase-N/ の sub-directory 構造を初観測。中身:
+- phase-N/README.md (= phase entry doc)
+- phase-N/<artifact-type>/<id>.md (= per-Phase artifact、例: proposals/ANA-003-sensitivity.md)
+- phase-N/<summary-view>.md (= phase 全体 summary、例: promotion-readiness-table.md)
+
+→ Reading Pass の articulate では phase-N/ sub-structure も project の一部として articulate、
+独立 zone として扱わない。
+
+**3. Promote Ceremony governance workflow articulate**:
+project-promotion-proposal は AI scaffold + user 承認 form の二段 workflow:
+- AI: candidate 情報 + 観測 entry/exit criteria + 推奨順序を draft (= scaffold)
+- user: 観測完了後 '承認待ち: user' を user signature で置換 (= 承認 form)
+
+→ AI / user の責任配分が doc 構造に articulate される事例。proposal kind の固有 schema
+(承認 form の存在) が新 kind articulate を裏打ち。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
