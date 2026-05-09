@@ -157,40 +157,99 @@ contracts:
     addedSha: '3727253'
 
   # ====================================================================
-  # Unmanaged-but-tolerated entries (ADR-SCP-004 第 3 状態)
+  # Container-only roots (ADR-SCP-020 D2、Phase 2E)
   # ====================================================================
-  # 「inventory に載るが contract 必須対象ではない」状態。外部 tool 由来 / dotfile dir 等。
-  # promotionRationale で declared 昇格を保留する rationale を articulate (AAG-SCP-MEANING-002 + AAG-SCP-PARSE2-005
-  # 整合 = 昇格には別 PR + rationale が必要)。
+  # top-level に存在するが意味は配下 nested declared root が担う、container 自体は
+  # declared でも tolerated でもない。`nestedDeclaredChildren` で意味を担う子を articulate
+  # (空 array 不可)。空の汎用置き場化を構造的に防ぐ (AAG-SCP-MEANING-002 整合)。
 
-  # .github/ — GitHub workflows / actions
+  # docs/ — documentation container (意味は docs/contracts/ が担う)
+  - path: docs/
+    status: container-only
+    purpose: |
+      documentation container root。docs/ 自体は意味を持たず、配下 nested declared root
+      (= docs/contracts/) が contract registry として意味を担う。
+      docs/ を declared root にすると「汎用 doc 置き場」化するため container-only として articulate
+      (ADR-SCP-020 D2 + AAG-SCP-MEANING-002 整合)。
+    owner: aag-structural-control-plane (skeleton articulate) + reposteward-ai-ops-platform (docs/contracts/aag/ 領域)
+    nestedDeclaredChildren:
+      - docs/contracts/
+    topLevelRationale:
+      reason: |
+        docs/contracts/ が AAG / RepoSteward の machine-readable contract registry の正本配置として
+        institute されているため、その親 path として docs/ が必要。docs/ 自体は意味を担わない。
+      cannotMoveBecause:
+        - |
+          docs/contracts/aag/ + docs/contracts/schema/ + docs/contracts/src/ + docs/contracts/generated/
+          の 4 namespace が既に Layer 4 contract / authoring source / generated artifact として
+          institute 済 (= ADR-SCP-002 + Wave 1 Phase 1 で landed)。
+        - |
+          多数の checker / generator / consumer が docs/contracts/ path を hardcode しているため、
+          移動 cost と影響範囲が過大 (Wave 1 不可侵原則 6: 既存正本 path 維持)。
+      continuityNote: |
+        docs/ は container-only であり、AAG SCP 上の declared structural root ではない。
+        将来 docs/ 配下に新規 doc を追加する場合は、必ず declared nested root として明示
+        articulate するか、references/ や projects/ への配置を検討する (汎用 doc 置き場化禁止)。
+    addedAt: '2026-05-08T00:00:00Z'
+    addedSha: '15c1c69'
+
+  # ====================================================================
+  # Platform-config-tolerated roots (ADR-SCP-020 D2、Phase 2E)
+  # ====================================================================
+  # 外部 platform / tool 連携上 top-level 必須、AAG 上の structural root ではない。
+  # `topLevelRationale` で reason / cannotMoveBecause / continuityNote を articulate (必須)。
+  # 個人 IDE 設定 (.vscode/ 等) とは性質が異なる (= 外部 platform 仕様に従って top-level 配置を強制される)。
+
+  # .github/ — GitHub workflows / actions (platform-config-tolerated)
   - path: .github/
-    status: unmanaged-but-tolerated
+    status: platform-config-tolerated
     purpose: |
       GitHub Actions workflows / actions configuration。CI pipeline (wasm-build / fast-gate / docs-health /
-      test-coverage / e2e) を定義。
+      test-coverage / e2e) を定義。GitHub repository 設定 / labels / dependabot config も含む。
     owner: external-tool-managed (GitHub Actions)
-    promotionRationale: |
-      外部 tool (GitHub Actions) が管理する dotfile dir。AAG SCP 直接 contract 化は cost 過大、Wave 3+ で再評価候補。
-      ただし .github/workflows/** は §A2 hard-gate-surface baseline 対象 (workflow-job、increase 方向のみ finding)。
+    topLevelRationale:
+      reason: |
+        GitHub Actions は repository root の .github/workflows/** path を必須として要求する
+        (= GitHub platform 仕様)。
+      cannotMoveBecause:
+        - GitHub Actions requires .github/workflows/** at repository root (platform-mandated path)。
+        - GitHub repository settings (.github/dependabot.yml / .github/CODEOWNERS / .github/ISSUE_TEMPLATE/ 等) も同 root path 必須。
+      continuityNote: |
+        .github/ is tolerated as platform configuration, not as AAG structural root。
+        .github/workflows/** は §A2 hard-gate-surface baseline 対象 (workflow-job、increase 方向のみ finding)
+        だが、これは AAG SCP の boundary protection であって structural root としての declared ではない。
     addedAt: '2026-05-08T00:00:00Z'
-    addedSha: '3727253'
+    addedSha: '15c1c69'
 
-  # .claude/ — Claude Code configuration
+  # .claude/ — Claude Code configuration (platform-config-tolerated)
   - path: .claude/
-    status: unmanaged-but-tolerated
+    status: platform-config-tolerated
     purpose: |
       Claude Code (AI 開発 CLI) configuration。manifest.json (= AI 単一エントリ、discovery / pathTriggers /
       activeContext) と settings 等を含む。
     owner: external-tool-managed (Claude Code)
-    promotionRationale: |
-      外部 AI tool (Claude Code) が管理する dotfile dir。manifest.json は AAG が消費する surface だが、
-      .claude/ 自体の構造は Claude Code 仕様に従う (AAG SCP 内では articulate しない)。
-      manifest.json の整合性は app/src/test/guards/manifestGuard.test.ts で機械検証済 (本 program は touch しない)。
+    topLevelRationale:
+      reason: |
+        Claude Code は repository root の .claude/ path を AI 単一エントリ + project-scoped settings として
+        要求する (= Claude Code platform 仕様)。
+      cannotMoveBecause:
+        - Claude Code requires .claude/manifest.json + .claude/settings.* at repository root (platform-mandated path)。
+        - manifest.json は AI session 開始時に自動 load される (path 移動不可)。
+      continuityNote: |
+        .claude/ is tolerated as platform configuration (external AI tool), not as AAG structural root。
+        manifest.json の整合性は app/src/test/guards/manifestGuard.test.ts で機械検証済 (本 program は touch しない)。
+        .claude/ 自体の構造は Claude Code 仕様に従う (AAG SCP 内では articulate しない)。
     addedAt: '2026-05-08T00:00:00Z'
-    addedSha: '3727253'
+    addedSha: '15c1c69'
 
-  # .vscode/ — VSCode editor configuration
+  # ====================================================================
+  # Unmanaged-but-tolerated entries (ADR-SCP-004 第 3 状態)
+  # ====================================================================
+  # 「inventory に載るが contract 必須対象ではない」状態。platform-config 性質ではない外部 tool /
+  # 個人 IDE 設定等。promotionRationale で declared 昇格を保留する rationale を articulate
+  # (AAG-SCP-MEANING-002 + AAG-SCP-PARSE2-005 整合 = 昇格には別 PR + rationale が必要)。
+
+  # .vscode/ — VSCode editor configuration (個人 IDE 設定、platform-config ではない)
   - path: .vscode/
     status: unmanaged-but-tolerated
     purpose: |
@@ -199,5 +258,6 @@ contracts:
     promotionRationale: |
       外部 tool (VSCode) が管理する dotfile dir。AAG SCP scope 外 (個人 IDE 設定、repo 構造の意味とは独立)。
       存在しない repo もある (= dotfile dir 不在の repo は inventory entry 自体が出ない)。
+      .github/ や .claude/ と異なり、VSCode は .vscode/ path を強制しない (= 個人 IDE 選択、platform-config-tolerated ではない、ADR-SCP-020 D2)。
     addedAt: '2026-05-08T00:00:00Z'
     addedSha: '3727253'

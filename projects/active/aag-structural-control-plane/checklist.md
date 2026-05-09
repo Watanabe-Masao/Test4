@@ -177,12 +177,49 @@
 - [x] `docs/contracts/generated/generated-artifact-inventory.generated.json` landing — producerCandidate articulate、producerDeclared は false / unknown（Wave 3 / Phase 9 で正式宣言）
 - [x] すべての entry に observed / inventoryStatus=observed-only / contractStatus=unreviewed / promotionAllowed=false / preservationAssumed=false articulate
 
-### Phase 2 完了条件（ADR-SCP-019 整合 + D8 抜け殻化防止）
+### Phase 2E (sub-PR 5 + 6): Top-level Disposition Articulation（ADR-SCP-020）
+
+> **目的**: Phase 2C skeleton-diff を補完し、out-of-skeleton entry に対する disposition の方向性を articulate。Wave 1 = articulate-only / Wave 2 = 整理実行 の分離原則整合。
+
+#### Phase 2E-1 (sub-PR 5): refactor — schema / plan / checklist / ADR / generator
+
+- [x] ADR-SCP-020 articulate（decision-audit.md）
+- [x] plan.md に Phase 2E section 追加 + Phase 3 description 整合
+- [x] checklist.md Phase 2E 項目 articulate + Phase 2 完了条件再 articulate（本 sub-PR で実施）
+- [x] `docs/contracts/schema/tree-contracts.schema.json` の status enum を 4 値に拡張（declared / unmanaged-but-tolerated / container-only / platform-config-tolerated、additive、ADR-SCP-004 不可侵）
+- [x] schema に `topLevelRationale` field（structured object: reason / cannotMoveBecause / continuityNote）追加 — `platform-config-tolerated` で必須、`container-only` で推奨
+- [x] schema に `nestedDeclaredChildren` field 追加 — `container-only` で必須（空 array 不可）
+- [x] `tools/governance/build-skeleton-diff.mjs` 拡張: `topLevelDispositionCandidate`（8 値: declared-root / container-only-root / platform-config-tolerated / tolerate / move-candidate / archive-candidate / delete-candidate / needs-triage）articulate logic 追加
+- [x] build-skeleton-diff.mjs に新 12 reasonCode logic 追加（既存 12 + 新 12 = 24）: TOP_LEVEL_OVERPOPULATED / POSSIBLE_ROOT_DUPLICATION / CONTAINER_ONLY_ROOT / PLATFORM_CONFIG_REQUIRED_AT_ROOT / POSSIBLE_MOVE_TO_APP / POSSIBLE_MOVE_TO_TOOLS / POSSIBLE_MOVE_TO_PROJECTS / POSSIBLE_MOVE_TO_AAG / POSSIBLE_MOVE_TO_REFERENCES / POSSIBLE_MOVE_TO_DOCS_CONTRACTS / POSSIBLE_DELETE_CANDIDATE / CURRENT_PROJECT_POINTER_CANDIDATE
+- [x] build-skeleton-diff.mjs に D5 個別 heuristic map articulate（app-domain/ → move-candidate + POSSIBLE_MOVE_TO_APP + POSSIBLE_ROOT_DUPLICATION 等、`CURRENT_PROJECT.md` → needs-triage + CURRENT_PROJECT_POINTER_CANDIDATE）
+- [x] schema 拡張は additive のみ（既存 declared 8 件 / `.vscode/` の articulate 変更なし、regression 0）
+- [x] 本 sub-PR では yaml refine と diff 再生成は行わない（Phase 2E-2 で実施）
+
+#### Phase 2E-2 (sub-PR 6): feat — yaml refine + skeleton-diff regenerate
+
+- [x] `docs/contracts/src/repo/tree-contracts.yaml` で `docs/` を `container-only` として明示 articulate（`nestedDeclaredChildren: ["docs/contracts/"]` + `topLevelRationale` populate）
+- [x] tree-contracts.yaml で `.github/` を `platform-config-tolerated` に refine + `topLevelRationale` populate（reason / cannotMoveBecause / continuityNote）
+- [x] tree-contracts.yaml で `.claude/` を `platform-config-tolerated` に refine + `topLevelRationale` populate
+- [x] tree-contracts.yaml で `.vscode/` は `unmanaged-but-tolerated` 維持（platform-config 性質ではない、個人 IDE 設定）
+- [x] 既存 declared 8 件（app/ wasm/ aag/ aag-engine/ docs/contracts/ projects/ references/ tools/）の articulate 変更なし
+- [x] `docs/contracts/generated/skeleton-diff.generated.json` 再生成
+- [x] surface 確認: `app-domain/` `fixtures/` `scripts/` が `move-candidate` として出力
+- [x] surface 確認: `roles/` `workers/` `CURRENT_PROJECT.md` が `needs-triage` として出力
+- [x] surface 確認: `docs/` が `container-only-root` + `CONTAINER_ONLY_ROOT` reasonCode で出力
+- [x] surface 確認: `.github/` `.claude/` が `platform-config-tolerated` + `PLATFORM_CONFIG_REQUIRED_AT_ROOT` reasonCode で出力
+- [x] 削除 / 移動 / README 更新を行っていない（articulate-only 不可侵）
+- [x] CURRENT_PROJECT.md の中身改変なし（surface のみ、別 PR）
+- [x] cleanup inquiry を起こしていない（Wave 2 で起票）
+
+### Phase 2 完了条件（ADR-SCP-019 + ADR-SCP-020 整合 + D8 抜け殻化防止）
 
 - [x] Structural Skeleton top-level 8 件が tree-contracts.yaml に declared（Phase 2A）
 - [x] repo-topology.generated.json が top-level-only + observed-only で生成（Phase 2B、`1918202` の content 上書き）
 - [x] skeleton-diff.generated.json が 6 分類で生成（Phase 2C）
 - [x] managed zone 3 件の Markdown / YAML / generated artifact 候補が observed-only として出力（Phase 2D）
+- [x] skeleton status enum が 4 値（declared / unmanaged-but-tolerated / container-only / platform-config-tolerated）に articulate（Phase 2E、ADR-SCP-020）
+- [x] skeleton-diff entry に topLevelDispositionCandidate（8 値）+ 24 reasonCode が articulate（Phase 2E、ADR-SCP-020）
+- [x] `docs/` が `container-only` として明示 articulate、`.github/` `.claude/` が `platform-config-tolerated` に refine（Phase 2E）
 - [x] inventory entry に approved / contracted / declared と誤認される field がない（meaningStatus / intentStatus / continuityStatus / promotionAllowed=false articulate 済）
 - [x] out-of-skeleton が fail ではなく needs-triage candidate として出力
 - [x] promotionAllowed は原則 false（全 inventory entry articulate 済）
@@ -197,7 +234,65 @@
 - [ ] reasonCode に **FUNCTIONING_BUT_INTENT_UNKNOWN が articulate されている**（D8.4、「動いているから OK」誤認検出）
 - [ ] 昇格禁止条件（D8.5）が articulate されている: `meaningStatus==unexplained` / `intentStatus==missing` / `continuityStatus==absent` / Evidence 空 / 該当 reasonCode が含まれる場合の昇格 gate
 
-- [ ] Wave 1 / Phase 3 着手 user 承認
+- [x] Wave 1 / Phase 3 着手 user 承認
+
+## Wave 1 / Phase 3: Tree Contract Shadow checker advisory（ADR-SCP-019 D3 整合、2 sub-PR）
+
+> **目的（再定義、ADR-SCP-019 D3）**: Phase 2A skeleton 宣言済 + Phase 2C skeleton-diff + Phase 2E top-level disposition articulate 済を前提に、**Tree Contract Shadow checker を advisory で稼働**。skeleton 宣言は Phase 2A で前倒し済のため、本 Phase は **checker / Finding 化に集中**。
+
+### Phase 3-A (sub-PR 7): tree-contracts normalize generator
+
+- [x] `tools/governance/build-tree-contracts.mjs` landing — `docs/contracts/src/repo/tree-contracts.yaml` を normalize し、`docs/contracts/generated/tree-contracts.generated.json` を生成（不可侵原則 1 整合: schemaVersion / sourceSha / sourcePaths / generatedAt + 既存 schema validation）
+- [x] `docs/contracts/generated/tree-contracts.generated.json` 初版 landing（12 entries = 8 declared + 1 container-only + 2 platform-config-tolerated + 1 unmanaged-but-tolerated）
+- [x] generator が deterministic（object key alphabetical sort + array order-preserving + indent 2 + final newline）
+- [x] tree-contracts.schema.json (ADR-SCP-020 拡張版) との整合確認
+
+### Phase 3-B (sub-PR 8): check-tree advisory checker
+
+- [x] `tools/governance/check-tree.mjs` landing — `docs/contracts/generated/skeleton-diff.generated.json` を入力に、aag-finding-v1 conform Finding を emit
+- [x] `docs/contracts/generated/tree-contract-findings.generated.json` 初版 landing
+- [x] valid-finding emit: out-of-skeleton + missing-expected (declared) entries (= structural drift articulation)
+- [x] verified-zero finding emit: drift count == 0 の場合の AAG 形式 Finding (ADR-SCP-016 D3 整合)
+- [x] suggestedDisposition mapping: topLevelDispositionCandidate (Phase 2E) → aag-finding suggestedDisposition (move-candidate → move / archive-candidate → archive / delete-candidate → needs-triage / needs-triage → needs-triage)
+- [x] severity articulate: missing-expected (declared) → warn / out-of-skeleton → info (Wave 1 advisory only)
+- [x] confidence: high (mechanically deterministic from skeleton+topology join)
+- [x] falsePositiveAllowed: true (Wave 1 advisory only、不可侵原則 8 整合)
+- [x] new-only gate 設計が articulate されている（実装は別 program、Wave 1 では advisory のみ）
+- [x] hard gate 追加なし
+
+### Phase 3 完了条件（ADR-SCP-019 D3 + ADR-SCP-016 D3 整合）
+
+- [x] tree-contracts.generated.json が tree-contracts.yaml から normalize で再生可能（deterministic）
+- [x] tree-contract-findings.generated.json が aag-finding-v1 schema conform（ajv 検証 OK）
+- [x] valid-finding (= structural drift articulate) または verified-zero finding (= 完全走査済証明) のいずれかが必ず emit される
+- [x] `unmanaged-but-tolerated` 状態を Finding として表現できる（no Finding emit = tolerated 整合の articulate）
+- [x] hard gate / new-only gate 追加なし（Wave 1 不可侵原則 8 整合）
+
+## Wave 2 readiness（Wave 2 着手前の articulate 確認、ADR-SCP-021 + ADR-SCP-022 整合、articulation-only）
+
+> **役割**: Wave 2（Phase 2.5 Document Reset Pass + Phase 4 + Phase 5）着手の前提条件 articulate。本 section の checkbox は **articulation のみ**（= Wave 1 内に institute 済の constitutional 原則 + ADR が plan.md / decision-audit.md に articulate されているかの確認）。Wave 2 内 Phase の作業 checkbox は Wave 2 着手時 + user 承認後に追記する（不可侵原則 9 = 順序逆行禁止）。
+
+### ADR-SCP-021: Document Reset Pass + Failure Learning Loop articulate 確認
+
+- [x] ADR-SCP-021 が decision-audit.md に articulate されている（D1 = 5 DOC-RESET 原則 / D2 = 4 DOC-LEARNING 原則 / D3 = 9 disposition values / D4 = 10 DOC-FAIL-* taxonomy / D5 = DOC-GUARD-* 5 段階 maturity / D6 = ルール化可/不可 / D7 = Wave 2 deliverables / D8 = Wave 1 articulate-only / Wave 2 implementation 切り分け）
+- [x] plan.md 不可侵原則 16 (Document Reset Pass、AAG-SCP-DOC-RESET-001〜005) が articulate されている
+- [x] plan.md 不可侵原則 17 (Documentation Failure Learning Loop、AAG-SCP-DOC-LEARNING-001〜004) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 description が **Document Reset Pass** として rewrite されている（旧「Existing Documentation Reading Pass」を含む superset、9 disposition + DOC-FAIL-* + DOC-GUARD-* + Failure Learning Loop articulate）
+- [x] plan.md Wave 2 / Phase 2.5 完了条件に Document Reset Pass + Failure Learning Loop の state-based exit criteria articulate
+- [x] plan.md Wave 2 / Phase 5 description に 9 disposition execution + README rewrite (整理後骨格反映) articulate
+
+### ADR-SCP-022: Document Universe Index + README/Index 役割分離 articulate 確認
+
+- [x] ADR-SCP-022 が decision-audit.md に articulate されている（D1 = 5 DOC-INDEX 原則 (本体) / D2 = 3 DOC-INDEX 原則 (README/Index 分離) / D3 = 索引対象 + 構造 + 成果物 / D4 = 7 DOC-IDX-* finding namespace / D5 = entry shape / D6 = Wave 配置 / D7 = README 載せる/載せない）
+- [x] plan.md 不可侵原則 18 (Document Universe Index + README/Index 分離、AAG-SCP-DOC-INDEX-001〜008) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 deliverables に Document Universe Index 4 成果物 (build-document-universe.mjs / document-universe.generated.json / .md / check-document-universe.mjs) が articulate されている
+- [x] plan.md Wave 2 / Phase 2.5 完了条件に Document Universe Index coverage + link integrity check が articulate されている
+- [x] plan.md Wave 2 / Phase 5 README rewrite が AAG-SCP-DOC-INDEX-005〜008 + AAG-SCP-DOC-RESET-005 整合で articulate されている
+
+### Wave 2 内実装は本 readiness section に含めない（Wave 1 articulate-only 整合、ADR-SCP-021 D8 + ADR-SCP-022 D6）
+
+- [x] Wave 1 では実装しない: build-document-universe.mjs / Reading Pass 実行 / document-failure-patterns.md 蓄積 / DOC-FAIL-* yaml landing / DOC-GUARD-* yaml landing / 削除 / 移動 / rewrite / split / merge / create-missing / README rewrite はすべて **Wave 2 以降**
+- [x] Wave 2 着手 user 承認は Wave 1 完了 + Wave 1 exit criteria 全件 PASS 後に判断（不可侵原則 9）
 
 ## AI 自己レビュー (= user 承認の手前)
 

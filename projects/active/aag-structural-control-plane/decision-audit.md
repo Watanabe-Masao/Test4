@@ -2258,3 +2258,558 @@ Wave 1 では以下 12 codes を articulate（既存 5 codes + 拡張 7 codes、
 - **判定**: `<未確定>`
 - **観測点達成状況**: `<TBD>`
 - **学習**: `<TBD>`
+
+## ADR-SCP-020: Top-level Disposition Articulation — container-only / platform-config-tolerated 拡張 + topLevelDispositionCandidate（Phase 2E、ADR-SCP-019 の skeleton refinement）
+
+### context
+
+**前提**: ADR-SCP-019 で Phase 2A/B/C/D が完遂し、skeleton-diff.generated.json が 6 分類 + 12 reasonCode で out-of-skeleton を surface 済。Phase 2D で managed zone 3 件の file-level inventory も landed（commit `1f833bb`）。Phase 2 の Skeleton-aware Parse は既に観測層として機能している。
+
+**問題提起**: 現行 Phase 2C skeleton-diff は「declared か / unmanaged-but-tolerated か / out-of-skeleton か」までは articulate できるが、out-of-skeleton entry に対する **disposition の方向性**（= move / promote / archive / tolerate / delete-candidate のどれを推奨するか、なぜ top-level に置く必要があるか）を articulate していない。結果として、user / future AI が skeleton-diff を見ても「だから何をすべきか」の判断軸が不足している。
+
+具体的には repo top-level に以下が存在し、いずれも declared でも unmanaged-but-tolerated でもない:
+
+- `app-domain/` `fixtures/` `roles/` `scripts/` `workers/` (= directory)
+- `CURRENT_PROJECT.md` (= top-level file)
+
+これらは Phase 2C で `out-of-skeleton + CORRECT_LOCATION_BUT_UNEXPLAINED` として surface されているが、「app/ 配下に移すべきか」「tools/ に統合すべきか」「pointer に limit すべきか」の判断軸が articulate されていない。
+
+加えて:
+
+- `docs/` は `inside-unmanaged-zone (parent-of-declared docs/contracts/)` として暗黙的に articulate されているが、**docs/ 自体は意味を持たない container-only root** であることが明示されていない（= 任意の汎用 doc 置き場として使われるリスク）
+- `.github/` `.claude/` は `unmanaged-but-tolerated` だが、**外部 tool 連携上 top-level 必須** という性質と、`.vscode/` のような **個人 IDE 設定** とは性質が異なる（= 同じ status で articulate するのは不正確）
+
+**判断点**: 本 program の Wave 1 内で skeleton 拡張 + skeleton-diff 拡張を institute するか、Wave 2 に持ち越すか。
+
+### decision
+
+**Phase 2E** として Wave 1 内で以下を institute する（Phase 3 着手前）。Wave 1 では **articulate のみ**（finding emit / hard gate / 実 cleanup PR は行わない）、Wave 2 で cleanup inquiry + 小 PR + README 整理に進む（= AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D1: Tree Contract status enum 拡張（4 値）
+
+`docs/contracts/schema/tree-contracts.schema.json` の `status` enum を additive に拡張:
+
+| status | 意味 | 例 |
+|---|---|---|
+| `declared` | 完全に articulate された managed root（既存） | `app/` `aag/` `references/` 等 8 件 |
+| `unmanaged-but-tolerated` | 第 3 状態、外部 tool / convention で存在許容（既存） | `.vscode/` |
+| **`container-only`**（新規） | top-level に存在するが意味は配下 nested declared root が担う、container 自体は declared でも tolerated でもない | `docs/`（意味は `docs/contracts/` が担う） |
+| **`platform-config-tolerated`**（新規） | 外部 tool 連携上 top-level 必須、汎用 IDE 設定とは区別される | `.github/` `.claude/` |
+
+新 fields（schema additive 拡張）:
+
+- `topLevelRationale`: なぜ top-level に置く必要があるか + 既存 root へ move 不可な理由 + 継承事項を articulate する **structured object**。`platform-config-tolerated` で **必須**、`container-only` で **推奨**。declared / unmanaged-but-tolerated では optional。
+
+  ```yaml
+  topLevelRationale:
+    reason: "..."           # required: なぜ top-level に置く必要があるか
+    cannotMoveBecause:      # required: 既存 root へ move 不可な理由（list）
+      - "..."
+    continuityNote: "..."   # required: 未来へ何を継承するか（platform-config / container-only の articulate）
+  ```
+
+  単純自由文ではなく structured object にするのは、AI が future review で迷わず判断できるようにするため（AAG-SCP-MEANING-002 + AAG-SCP-CONTINUITY-006 整合）。
+
+- `nestedDeclaredChildren`: `container-only` の場合、配下に declared root がある path 列（= 意味を担う子）。例: `docs/` の場合 `["docs/contracts/"]`。container-only が空の汎用置き場化するのを構造的に防ぐ（= 明示子がない container-only は articulate 違反）。
+
+ADR-SCP-004 不可侵原則 4（top-level + structural roots のみ宣言、unmanaged-but-tolerated 第 3 状態を許容）は **invariant のまま**、本 ADR は status の articulation を 2 → 4 値に **refine** する additive 拡張（= 既存 declared 8 件 / `.vscode/` の articulation は変更なし）。
+
+#### D2: tree-contracts.yaml の status refine
+
+| path | 旧 status | 新 status | 理由 |
+|---|---|---|---|
+| `docs/` | （未 articulate、Phase 2C で `inside-unmanaged-zone` として暗黙） | `container-only` | docs/ 自体は意味を持たず、`docs/contracts/` だけが declared root。明示しないと汎用 doc 置き場化するリスク |
+| `.github/` | `unmanaged-but-tolerated` | `platform-config-tolerated` | GitHub Actions 連携上 top-level 必須、外部 tool 仕様 |
+| `.claude/` | `unmanaged-but-tolerated` | `platform-config-tolerated` | Claude Code 連携上 top-level 必須、外部 AI tool 仕様 |
+| `.vscode/` | `unmanaged-but-tolerated` | `unmanaged-but-tolerated`（変更なし） | 個人 IDE 設定、platform-config 性質ではない |
+
+既存 declared 8 件（`app/` `aag/` `aag-engine/` `docs/contracts/` `projects/` `references/` `tools/` `wasm/`）は **そのまま維持**。`app-domain/` `fixtures/` `roles/` `scripts/` `workers/` は **declared にも tolerated にも昇格させない**（= Phase 2E 後も引き続き skeleton-diff で `out-of-skeleton + needs-triage` として surface、AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D3: skeleton-diff に topLevelDispositionCandidate 追加
+
+各 entry に新 field `topLevelDispositionCandidate`（8 値、user articulate 整合）:
+
+| 値 | 意味 | 出力対象 |
+|---|---|---|
+| `declared-root` | declared status の entry | declared 8 件 |
+| `container-only-root` | container-only status の entry | `docs/` |
+| `platform-config-tolerated` | platform-config-tolerated status の entry（status enum と語彙整合） | `.github/` `.claude/` |
+| `tolerate` | unmanaged-but-tolerated status の entry | `.vscode/` |
+| `move-candidate` | 既存 declared root へ移動可能性が高い out-of-skeleton entry | `app-domain/` `scripts/` `fixtures/` 等 |
+| `archive-candidate` | 過去資産・廃止候補の可能性 | （Wave 1 では heuristic は控えめ、explicit hint なし） |
+| `delete-candidate` | 削除候補（要 reference scan + consumer 確認、Wave 2 以降に判断） | （Wave 1 では heuristic は控えめ） |
+| `needs-triage` | 上記いずれかへの分類が決まらず、user 判断が必要 | `roles/` `workers/` `CURRENT_PROJECT.md` 等 |
+
+`platform-config-root` ではなく `platform-config-tolerated` を採用する（status enum と語彙整合、AAG 上の structural root ではないことを明示）。
+
+#### D4: 12 新 reasonCode 追加
+
+skeleton-diff の reasonCode に追加（既存 12 + 新 12 = 24 codes）:
+
+| reasonCode | 意味 |
+|---|---|
+| `TOP_LEVEL_OVERPOPULATED` | top-level entry 数が overpopulation の signal（= 全 out-of-skeleton entry に articulate、Wave 1 では articulate-only、閾値判定なし） |
+| `POSSIBLE_ROOT_DUPLICATION` | 既存 root と意味が重複している可能性（例: scripts/ vs tools/、roles/ vs aag/+references/+.claude/） |
+| `CONTAINER_ONLY_ROOT` | container-only status の entry articulate 用 |
+| `PLATFORM_CONFIG_REQUIRED_AT_ROOT` | platform / 外部 tool 連携上 top-level 必須（GitHub Actions / Claude Code 等の仕様）。`platform-config-tolerated` entry に articulate |
+| `POSSIBLE_MOVE_TO_APP` | app/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_TOOLS` | tools/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_PROJECTS` | projects/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_AAG` | aag/ 配下へ寄せられる可能性 |
+| `POSSIBLE_MOVE_TO_REFERENCES` | references/ 配下へ寄せられる可能性（roles / scripts / 等の知識 interface への移動候補） |
+| `POSSIBLE_MOVE_TO_DOCS_CONTRACTS` | docs/contracts/ 配下へ寄せられる可能性（schema / contract 系の集約先） |
+| `POSSIBLE_DELETE_CANDIDATE` | 削除候補（Wave 2 で reference scan + consumer 確認後に判断） |
+| `CURRENT_PROJECT_POINTER_CANDIDATE` | top-level pointer file として中身を thin pointer に refine する候補（削除候補とは区別、`CURRENT_PROJECT.md` 等） |
+
+`POSSIBLE_DELETE_CANDIDATE` と `CURRENT_PROJECT_POINTER_CANDIDATE` を分離する（削除と pointer 化は意味が異なる、AAG-SCP-MEANING-002 整合）。
+
+#### D5: 個別 heuristic（Wave 1 articulate のみ）
+
+build-skeleton-diff.mjs に以下 explicit map を articulate（= Wave 2 cleanup PR の入力）:
+
+| path | topLevelDispositionCandidate | 追加 reasonCode |
+|---|---|---|
+| `app-domain/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` + `POSSIBLE_ROOT_DUPLICATION` |
+| `fixtures/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` + `POSSIBLE_MOVE_TO_TOOLS` |
+| `roles/` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_ROOT_DUPLICATION` + `POSSIBLE_MOVE_TO_AAG` + `POSSIBLE_MOVE_TO_REFERENCES` |
+| `scripts/` | `move-candidate` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_TOOLS` + `POSSIBLE_ROOT_DUPLICATION` |
+| `workers/` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `POSSIBLE_MOVE_TO_APP` |
+| `CURRENT_PROJECT.md` | `needs-triage` | `TOP_LEVEL_OVERPOPULATED` + `CURRENT_PROJECT_POINTER_CANDIDATE` |
+
+`CURRENT_PROJECT.md` は **削除候補ではなく pointer 候補** として articulate（中身改変は別 PR、reference scan + consumer 確認 後）。Phase 2E では surface のみ。
+
+その他 out-of-skeleton entry には heuristic 一致がなければ既存 reasonCode（OUT_OF_SKELETON / CORRECT_LOCATION_BUT_UNEXPLAINED）+ 新規 `TOP_LEVEL_OVERPOPULATED` を articulate（Wave 1 一律）、topLevelDispositionCandidate は `needs-triage` 既定。
+
+`TOP_LEVEL_OVERPOPULATED` は **全 out-of-skeleton + すべての non-declared top-level entry** に articulate（= 構造的 articulate、判定 threshold は不要、AAG-SCP-DESIGN-001 ideal-first 整合）。
+
+#### D6: 不可侵（Wave 1 articulate-only）
+
+- finding emit しない（Phase 3 advisory checker で消費）
+- hard gate / new-only gate 追加なし
+- **削除しない**（AAG-SCP-AI-EXPECTATION-002: 観察対象として surface するのみ、削除は別 PR + reference scan + consumer 確認 + archive 判断 後）
+- 既存 declared 8 件の articulate は変更しない（status / purpose / owner / childPolicy / addedAt / addedSha 維持）
+- skeleton-diff schema は **additive 拡張のみ**（既存 field 削除なし、Phase 3 checker は新 field を optional として扱う）
+
+#### D7: Wave 1 vs Wave 2 切り分け
+
+| 範囲 | Wave 1 (Phase 2E、本 ADR) | Wave 2 |
+|---|---|---|
+| skeleton status enum 拡張 | ✅（schema + yaml refine） | — |
+| skeleton-diff articulate 拡張 | ✅（topLevelDispositionCandidate + 12 reasonCode） | — |
+| out-of-skeleton entry surface | ✅（既存 + 新 articulate） | — |
+| top-level cleanup inquiry | — | ✅（inquiry/0X として作成） |
+| 実 move / archive / delete PR | — | ✅（小 PR 分割、reference scan 経由） |
+| CURRENT_PROJECT.md thin pointer 化 | — | ✅（別 PR、reference scan + consumer 確認後） |
+| README 整理（整理後骨格反映） | — | ✅（cleanup 後に articulate、未精査対象は載せない） |
+
+Wave 1 = articulate 完遂 / Wave 2 = 整理実行、の分離（AAG-SCP-DESIGN-001 ideal-first 原則整合）。
+
+#### D8: Phase 2E PR 分割
+
+Phase 2E は **2 commit に分割** する（schema 変更と generated 更新を分離 = レビュー容易性）:
+
+**Phase 2E-1**（refactor commit）:
+- ADR-SCP-020 articulate（本 ADR、decision-audit.md）
+- plan.md Phase 2E section 追加 + Phase 3 description 整合
+- checklist.md Phase 2E 項目追加 + Phase 2 完了条件再 articulate
+- `docs/contracts/schema/tree-contracts.schema.json` の status enum 拡張 + `topLevelRationale` (structured) + `nestedDeclaredChildren` field 追加
+- `tools/governance/build-skeleton-diff.mjs` 拡張（topLevelDispositionCandidate + 12 新 reasonCode logic + D5 個別 heuristic map）
+
+**Phase 2E-2**（feat commit）:
+- `docs/contracts/src/repo/tree-contracts.yaml` refine（`docs/` container-only 追加、`.github/` `.claude/` を `platform-config-tolerated` に refine、それぞれ `topLevelRationale` populate）
+- `docs/contracts/generated/skeleton-diff.generated.json` 再生成 + 御指摘の精査対象 (`app-domain/` `fixtures/` `roles/` `scripts/` `workers/` `CURRENT_PROJECT.md`) の disposition surface 確認
+- checklist.md Phase 2E 項目 [x] + Phase 2 完了条件 articulate
+
+1 PR でも実装可能だが、schema (= contract) 変更と yaml/diff (= data) 変更を分けることで、PR review において影響範囲を明確化する（Wave 1 / Phase 1 sub-PR 分割原則と整合）。
+
+### rationale
+
+#### 拡張採用の利点
+
+- **判断軸の articulate**: out-of-skeleton entry が「だから何をすべきか」の disposition を articulate（= AI / human review が同じ判断軸を共有可能）
+- **container-only / platform-config-tolerated の精度向上**: `docs/` の汎用化リスクを構造的に防ぐ + `.github/` `.claude/` と `.vscode/` の性質差を articulate（user articulate「精査対象」整合）
+- **Wave 2 cleanup PR の入力データ完成**: 個別 heuristic（D5）が Wave 2 cleanup PR の起点として機能（= 再判断不要、AAG-SCP-CONTINUITY-006 整合）
+- **ideal-first 維持**: declared 昇格させない方針（user articulate「存在しているから skeleton に declared するとはしない」整合）+ AAG-SCP-AI-EXPECTATION-002（即削除しない）整合
+
+### alternatives
+
+- **alternative (a)**: Phase 2E を Wave 1 ではなく Wave 2 に持ち越す — 却下: skeleton-diff に判断軸 articulate がない状態で Wave 2 cleanup PR を起こすと、判断 context を都度再構築する必要がある（AAG-SCP-CONTINUITY-006 違反）
+- **alternative (b)**: status enum を 4 値ではなく `declared` / `unmanaged-but-tolerated` の 2 値に留め、container-only / platform-config の articulate は purpose 内に prose で記述 — 却下: 機械的に articulate されない、checker / generator から消費不可、user articulate「明示的に区別」整合せず
+- **alternative (c)**: app-domain/ / scripts/ 等を Phase 2E で declared に昇格 — 却下: AAG-SCP-DESIGN-001 ideal-first 違反（存在 = 必要 の誤認）、user articulate「declared には昇格させない」整合せず
+- **alternative (d)**: TOP_LEVEL_OVERPOPULATED に閾値判定（例: top-level entry > N で activate）を articulate — 却下: 閾値選定根拠なし、Wave 1 では articulate-only が AAG-SCP-PARSE2-002 整合
+- **alternative (e)**: skeleton-diff schema を破壊的変更（既存 field 削除 + 新 field 必須化）— 却下: 既存 commit `c58b6ff` (Phase 2C) との backward compatibility 喪失、不要な destructive 変更
+
+### 観測点
+
+1. `docs/contracts/schema/tree-contracts.schema.json` の `status` enum が 4 値（`declared` / `unmanaged-but-tolerated` / `container-only` / `platform-config-tolerated`）に articulate される
+2. schema に `topLevelRationale` / `nestedDeclaredChildren` の 2 optional field が articulate される
+3. `docs/contracts/src/repo/tree-contracts.yaml` で `docs/` が `container-only` として明示 articulate される
+4. tree-contracts.yaml で `.github/` `.claude/` が `platform-config-tolerated` に refine される（`.vscode/` は `unmanaged-but-tolerated` 維持）
+5. `tools/governance/build-skeleton-diff.mjs` に `topLevelDispositionCandidate`（8 値、`platform-config-tolerated` 採用）articulate logic が articulate される
+6. build-skeleton-diff.mjs に新 12 reasonCode（TOP_LEVEL_OVERPOPULATED / POSSIBLE_MOVE_TO_REFERENCES / POSSIBLE_MOVE_TO_DOCS_CONTRACTS / PLATFORM_CONFIG_REQUIRED_AT_ROOT / CURRENT_PROJECT_POINTER_CANDIDATE 等）articulate logic が articulate される
+7. build-skeleton-diff.mjs に D5 個別 heuristic map（app-domain/ / fixtures/ / roles/ / scripts/ / workers/ / CURRENT_PROJECT.md）が articulate される
+8. `docs/contracts/generated/skeleton-diff.generated.json` 再生成で:
+   - `app-domain/` `fixtures/` `scripts/` が `move-candidate` として surface
+   - `roles/` `workers/` `CURRENT_PROJECT.md` が `needs-triage` として surface
+   - `docs/` が `container-only-root` + `CONTAINER_ONLY_ROOT` reasonCode で articulate
+   - `.github/` `.claude/` が `platform-config-root` で articulate
+9. plan.md に Phase 2E section が articulate される（Phase 3 の前段として）
+10. checklist.md に Phase 2E 項目 articulate + Phase 2 完了条件再 articulate される
+11. test:guards 通過（hard gate / 既存 guard 影響なし）
+
+### Lineage
+
+- **preJudgementCommit**: `c58b6ff`（Phase 2C skeleton-diff 6 分類 + 12 reasonCode landing、本 ADR の trigger = articulate 不足の自覚）
+- **judgementCommit**: `<TBD = 本 ADR landing commit>`
+- **retrospectiveCommit**: `<TBD = 本 program archive 時の振り返り commit>`
+
+### 振り返り判定（ADR-SCP-020）
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+## ADR-SCP-021: Document Reset Pass + Documentation Failure Learning Loop（Wave 2 本体定義 articulation、ADR-SCP-017 Constitutional Layer の document axis 拡張）
+
+### context
+
+**前提**: ADR-SCP-017 で Constitutional Layer (MEANING / CONTINUITY / AI-EXPECTATION / CONTEXT) institute 済。ADR-SCP-018 で Ideal-first / Gap-driven 基本作法 institute 済。ADR-SCP-019 + 020 で Tree Contract 領域 (= top-level structural skeleton) の Parse2 = Skeleton-aware Parse + Top-level Disposition Articulation が完遂。Phase 2 は **structural** 軸の articulate に focus した。
+
+**問題提起**: 構造軸 (= top-level disposition) は articulate されたが、**document content 軸** (= 既存 Markdown が現在有効か / 役割が明確か / 配置が適切か / 重複していないか / 過去・現在・未来・generated が混在していないか) の articulate がない。Phase 2D で landed した markdown-inventory.generated.json は path / size / topHeading / candidateKind の **observed-only** 列挙であり、**意味・意図・責務・重複・時間軸の精査** ではない。
+
+旧制度の Markdown documentation を新制度 (= AAG SCP の document skeleton + doc-kind-registry) に切り替える際、「旧文書をなるべく残す」という温存方針では:
+
+- 古い制度の前提が新制度に混入
+- 製本に過去計画 / 移行経緯が残存
+- canonical / project / archive / generated の境界が曖昧化
+- 同じ説明が複数箇所に重複
+- AI がどの文書を正本として読むべきか迷う
+- 次回以降の AAG が古い構造を正当化
+
+つまり、AAG が **意図を継承する仕組み** ではなく、**旧構造を温存する仕組み** になってしまうリスクがある。
+
+**判断点**: 旧制度から新制度への移行を **一度限りのリセット作業** として明示的に institute するか、通常運用 (= 既存文書の安定性優先) として処理するか。
+
+### decision
+
+**Document Reset Pass = 旧制度から新制度への一度限りのリセット作業 + Documentation Failure Learning Loop を Wave 2 本体として institute** する。Wave 1 では articulation のみ (本 ADR)、実装 (Reading Pass + disposition 確定 + Failure Pattern 抽出) は Wave 2。
+
+#### D1: AAG-SCP-DOC-RESET-001〜005 の institute
+
+不可侵原則 12〜15 (Constitutional Layer) の document axis 拡張として、新 namespace `AAG-SCP-DOC-RESET-*` を 5 原則で articulate:
+
+| 原則 ID | 内容 |
+|---|---|
+| **AAG-SCP-DOC-RESET-001** | Document Reset Pass は、既存文書を温存対象として扱わない。既存文書は意味・意図・責務・配置・重複・時間軸を精査する観測対象である。 |
+| **AAG-SCP-DOC-RESET-002** | 旧制度から新制度への移行時は、一度限りのリセット判断を行う。意図から外れた文書は、削除・移動・更新・archive・統合・追加の対象にする。 |
+| **AAG-SCP-DOC-RESET-003** | 製本に残す文書は、現在有効な意味と責務を説明できなければならない。説明できない文書は canonical-doc に昇格できない (= AAG-SCP-MEANING-002 整合)。 |
+| **AAG-SCP-DOC-RESET-004** | 重複文書は、内容の差分ではなく責務の差分で判定する。同じ責務を持つ文書が複数ある場合、統合 (merge) ・分割 (split) ・archive を判断する。 |
+| **AAG-SCP-DOC-RESET-005** | README / CLAUDE / references / projects / docs/contracts の入口文書は、整理後の骨格に合わせて最後に更新する (= 整理前に README を書き換えると未精査構造を正当化するリスク)。 |
+
+#### D2: AAG-SCP-DOC-LEARNING-001〜004 の institute
+
+Document Reset Pass で抽出した failure pattern を **次回以降の guidance / template / checker / contract** に変換する Failure Learning Loop を articulate:
+
+| 原則 ID | 内容 |
+|---|---|
+| **AAG-SCP-DOC-LEARNING-001** | Document Reset Pass は、既存文書を整理するだけではなく、同じ失敗を繰り返さないための failure pattern を抽出する **学習期間** である。 |
+| **AAG-SCP-DOC-LEARNING-002** | Failure pattern は **即 Gate 化しない**。まず candidate として蓄積し、再現性・機械検出可能性・false positive risk を確認してから、Guidance / Template / Advisory Checker / Gate へ昇格する (= 5 段階 maturity progression: candidate → shadow → advisory → ratchet → gate)。 |
+| **AAG-SCP-DOC-LEARNING-003** | 泥臭い文書精査で得た知見は、次回以降の AI が迷わないよう、Context Pack / Document Template / Discrimination Guide / Checker Candidate に変換する。 |
+| **AAG-SCP-DOC-LEARNING-004** | AAG は個別判断の正しさを保証しない。ただし、過去の失敗から学び、同じ構造的失敗を繰り返しにくくする仕組みを蓄積する (= AAG-SCP-AI-EXPECTATION 整合 = 現状維持ではなく意思のある変更を促す)。 |
+
+#### D3: 9 disposition values articulation
+
+既存の skeleton-diff / 旧 Reading Pass plan の disposition (= keep / split / move / archive 等 4 値) では、document content 移行に不足。Wave 2 Reading Pass 用に 9 disposition values を institute:
+
+| disposition | 意味 | 適用例 |
+|---|---|---|
+| `keep-and-contract` | 役割が明確で、現在の正本として残す | 現在有効な canonical-doc |
+| `rewrite-and-contract` | 残す価値はあるが、内容が古い・混ざっているため書き直す | 役割は必要だが現在・過去・未来が混在している文書 |
+| `split` | 現在・過去・未来・generated 内容が混在しているため分割する | 1 文書に複数責務が混入 |
+| `move` | 内容は有効だが場所が違う | 未来計画が references にある → projects/ へ |
+| `merge` | 同じ責務の文書が複数あり、統合すべき | 同 docId 重複 |
+| `archive` | 過去文脈として残す | 退役済み設計の判断材料、移行経緯 |
+| `delete-candidate` | 継承する意味が薄い、参照確認後に削除候補 | consumer 不在 / 重複 / generated で再現可能 |
+| `generated-register` | 手書き文書ではなく generated report として扱う | 現在値一覧を手書きしている文書 |
+| `create-missing` | 骨格上必要だが存在しないため新規作成 | 入口文書不在 / 正本断片化 |
+
+#### D4: DOC-FAIL-* failure taxonomy（Wave 2 で institute）
+
+Wave 2 Reading Pass で発生する failure pattern の分類 namespace:
+
+| ID | symptom |
+|---|---|
+| `DOC-FAIL-TEMPORAL-MIXING` | 現在・過去・未来が同じ文書に混在 |
+| `DOC-FAIL-DUPLICATE-RESPONSIBILITY` | 同じ責務の文書が複数存在 |
+| `DOC-FAIL-LOCATION-MISMATCH` | 内容の時間軸や責務に対して配置が違う |
+| `DOC-FAIL-GENERATED-AS-MANUAL` | 本来 generated にすべき現在値・一覧・件数を手書きしている |
+| `DOC-FAIL-UNOWNED-DOC` | owner / consumer / 更新責任が不明 |
+| `DOC-FAIL-UNEXPLAINED-CANONICAL` | 正本を名乗っているが、何の正本か説明できない |
+| `DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE` | 未来計画や作業中メモが references に混入 |
+| `DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL` | 過去経緯や退役済み設計が canonical-doc に残っている |
+| `DOC-FAIL-AI-ROUTING-AMBIGUITY` | AI がどの文書を読めばよいか判断できない |
+| `DOC-FAIL-README-OVEREXPLAINS-UNREVIEWED-STRUCTURE` | README が未精査構造を正当化している |
+
+#### D5: DOC-GUARD-* guardrail candidate registry（Wave 2 で institute）
+
+DOC-FAIL-* から派生する advisory check candidate の registry。**5 段階 maturity progression** で進化:
+
+`candidate` → `shadow` (機械検出 dry-run) → `advisory` (finding emit) → `ratchet` (baseline 比較 + 増加方向 fail) → `gate` (hard gate)。
+
+例: `DOC-GUARD-CANONICAL-TEMPORAL-SCOPE` (sourceFailurePatterns: DOC-FAIL-TEMPORAL-MIXING、target: canonical-doc、guardrailType: advisory-check、mechanicalSignal: heading が "History|Roadmap|TODO|Migration Log|Phase" 一致 / temporal language が canonical section に出現、guidance: 過去経緯は archive-doc へ・未来計画は project-plan へ・現在値一覧は generated-report へ、falsePositiveRisk: medium、maturity: candidate)。
+
+#### D6: ルール化してよいもの / してはいけないもの
+
+| ルール化してよいもの (= 機械検出可能な signal) | ルール化してはいけないもの (= AI/human review 領域) |
+|---|---|
+| required field がない | この説明が良いか悪いか |
+| document kind がない | この設計が最善か |
+| owner がない | この文書を本当に読む価値があるか |
+| generated file に producer がない | この意図が十分に強いか |
+| canonical-doc に明らかな future/project section がある | この責務分割が美しいか |
+| archive 対象が canonical に残っている | |
+| 同じ docId が重複している | |
+| README が out-of-skeleton 候補を正式構造として案内している | |
+
+「設計判断の正しさ」は AAG が判定しない (= ADR-SCP-017 + AAG-SCP-MEANING-005 整合)。
+
+#### D7: Wave 2 deliverables articulate（Wave 1 では articulate-only）
+
+Wave 2 で articulate される成果物:
+
+- `projects/active/aag-structural-control-plane/derived/` 配下に reading-log を蓄積 — 各文書の精査記録 (= path / currentRole / proposedKind / temporalScope / owner / consumer / hasCurrentContract / hasHistory / hasFuturePlan / hasGeneratedCurrentValue / duplicates / disposition / rationale)。詳細 filename articulate は `projects/active/aag-structural-control-plane/derived/README.md` 参照
+- `projects/active/aag-structural-control-plane/derived/` 配下に DOC-FAIL-* 抽出記録を蓄積 — 詳細 filename articulate は同 derived/README.md 参照
+- `docs/contracts/src/docs/document-failure-taxonomy.yaml` — DOC-FAIL-* taxonomy authoring source (Wave 2 で institute、最初は 本 program 配下 derived/ で蓄積、成熟後に docs/contracts/ へ昇格、AAG-SCP-PARSE2-005 整合)
+- `docs/contracts/src/docs/document-guardrail-candidates.yaml` — DOC-GUARD-* registry authoring source (同様、本 program 配下 derived/ → docs/contracts/ へ昇格)
+
+最初は `projects/active/.../derived/` で蓄積し、成熟したものだけ `docs/contracts/` へ昇格 (= 不可侵原則 1 + AAG-SCP-PARSE2-002 整合 = observed-only からの段階的 declared 化)。
+
+#### D8: Wave 1 vs Wave 2 切り分け
+
+| 範囲 | Wave 1 (articulation only、本 ADR) | Wave 2 (implementation) |
+|---|---|---|
+| AAG-SCP-DOC-RESET-001〜005 institute | ✅（plan.md 不可侵原則 section） | — |
+| AAG-SCP-DOC-LEARNING-001〜004 institute | ✅（plan.md 不可侵原則 section） | — |
+| 9 disposition values articulate | ✅（plan.md + 本 ADR） | — |
+| DOC-FAIL-* taxonomy articulate | ✅（本 ADR D4） | — |
+| DOC-GUARD-* registry articulate | ✅（本 ADR D5） | — |
+| Reading Pass 実行 | — | ✅（既存 Wave 2 / Phase 2.5 で実行） |
+| document-reset-reading-log.md 作成 | — | ✅（Wave 2 / Phase 2.5） |
+| Failure Pattern 抽出 + DOC-GUARD-* candidate 登録 | — | ✅（Wave 2 / Phase 2.5 後段） |
+| document-failure-taxonomy.yaml + document-guardrail-candidates.yaml landing | — | ✅（本 program 配下 derived/ → 成熟後 docs/contracts/） |
+| 削除・移動・rewrite・split・merge・create-missing PR | — | ✅（Wave 2 / Phase 5 = 既存 Phase 名、本 ADR で 9 disposition 反映） |
+
+### rationale
+
+#### Reset Pass institute の利点
+
+- **新制度 institute の正当性確保**: 旧制度温存リスクを構造的に排除 (= 古い前提が新制度に混入しない)
+- **AAG-SCP-MEANING-005 整合**: 意味を説明できない文書は canonical-doc に昇格しない (= D1 AAG-SCP-DOC-RESET-003 で operationalize)
+- **Failure Learning institute による継続改善**: 1 回限りのリセットで終わらず、抽出した失敗パターンが次回以降の guidance / template / checker / contract に変換される (= AAG-SCP-CONTINUITY-006 整合 = 学習の継承)
+
+#### "即 Gate 化禁止" の重要性
+
+DOC-FAIL-* / DOC-GUARD-* を即 hard gate にすると、false positive で legitimate な文書も block される。5 段階 maturity progression (candidate → shadow → advisory → ratchet → gate) で熟成させることで、誤検知率を抑えながら mechanism として institute する (= ADR-SCP-014 Guidance over restriction + 不可侵原則 8 advisory 第一 整合)。
+
+### alternatives
+
+- **alternative (a)**: 既存 Wave 2 / Phase 2.5 (Existing Documentation Reading Pass) のまま、Document Reset Pass の名称 + DOC-RESET / DOC-LEARNING namespace を institute しない — 却下: 旧制度温存 vs 新制度移行の判断軸が articulate されず、AI/human review が「なるべく残す」判断に傾く可能性
+- **alternative (b)**: 9 disposition を 4 disposition (keep/split/move/archive) に留める — 却下: rewrite-and-contract / merge / generated-register / create-missing が articulate されず、Wave 2 で同種判断を都度再構築する必要 (AAG-SCP-CONTINUITY-006 違反)
+- **alternative (c)**: DOC-FAIL-* / DOC-GUARD-* を Wave 1 で immediate gate institute — 却下: false positive 高、ADR-SCP-014 + 不可侵原則 8 違反、5 段階 maturity progression と整合せず
+- **alternative (d)**: Wave 1 で document-failure-taxonomy.yaml + document-guardrail-candidates.yaml を docs/contracts/ に直接 landing — 却下: 蓄積データ皆無の状態で正式 contract 化、AAG-SCP-PARSE2-005 違反 (declared 昇格には rationale + consumer 必要)
+- **alternative (e)**: AAG-SCP-DOC-RESET / DOC-LEARNING を独立 ADR ではなく ADR-SCP-017 Constitutional Layer に直接統合 — 却下: ADR-SCP-017 が膨張、Constitutional Layer は invariant、document axis は phase-specific の operational guideline
+
+### 観測点
+
+1. plan.md 不可侵原則 section に AAG-SCP-DOC-RESET-001〜005 が articulate される
+2. plan.md 不可侵原則 section に AAG-SCP-DOC-LEARNING-001〜004 が articulate される
+3. plan.md Wave 2 / Phase 2.5 (既存) の description が **Document Reset Pass** として rewrite される (= 9 disposition + DOC-FAIL-* + DOC-GUARD-* + Failure Learning Loop articulate、既存 Reading Pass 内容は subset として保持)
+4. plan.md Wave 2 / Phase 2.5 完了条件に Failure Pattern 抽出 + DOC-GUARD-* candidate 登録が articulate される
+5. plan.md Wave 2 / Phase 5 (既存 Document Contract Declaration + Rewrite/Move/Archive PRs) の description に 9 disposition (rewrite-and-contract / merge / generated-register / create-missing 含む) が articulate される
+6. 既存 Reading Pass plan が新 9 disposition + Failure Learning との整合で再 articulate される (規制値変更なし)
+7. checklist.md Wave 2 readiness section に Document Reset Pass + Failure Learning institute が前提条件として articulate される (具体的 Wave 2 checkbox は Wave 2 着手時に追加 = ADR-SCP-016 D2 progressive)
+8. test:guards 通過 (本 ADR は articulation のみ、機械影響なし)
+9. Wave 1 では実装しない (build-document-universe.mjs / Reading Pass / Failure Pattern Registry の実装は Wave 2)
+
+### Lineage
+
+- **preJudgementCommit**: `bdf071c` (Phase 2E-2 landing、Phase 2 完遂、本 ADR の trigger = structural articulate 完了 + content articulate 不足の自覚)
+- **judgementCommit**: `<TBD = 本 ADR landing commit (021 + 022 同 commit)>`
+- **retrospectiveCommit**: `<TBD = 本 program archive 時の振り返り commit>`
+
+### 振り返り判定（ADR-SCP-021）
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`
+
+## ADR-SCP-022: Document Universe Index + README/Index 役割分離（Wave 2 deliverables articulation、ADR-SCP-021 と pair）
+
+### context
+
+**前提**: ADR-SCP-021 で Document Reset Pass + Failure Learning Loop institute 済 (本 commit、同 batch)。Phase 2D で managed zone 3 件 (= projects/ + references/04-tracking/ + docs/contracts/) の markdown-inventory.generated.json (541 entries) landed。
+
+**問題提起**: 現状 markdown-inventory は managed zone 3 件 limited で、**repo 全体の Markdown 単一索引がない**。結果として:
+
+- ドキュメントが増えたが誰も全体を把握していない
+- 同じ責務の文書が複数できる
+- README や CLAUDE から到達できない文書が残る
+- 古い文書が正本のように見える
+- generated report が手書き文書と混ざる
+- archive すべき文書が現役に残る
+- AI がどの文書を読めばよいか迷う
+
+加えて、README は narrative entrypoint (読み物) と controlled dictionary (索引) の **責務が混在しがち**。README に全文書索引を埋め込むと:
+
+- README が肥大化
+- 未精査構造を正当化するリスク
+- 索引 update のたびに README が更新される (高頻度 churn)
+
+**判断点**: repo 全体の Markdown 単一索引を Wave 2 deliverable として institute するか、index は project / per-zone レベルに留めるか。
+
+### decision
+
+**Document Universe Index = repo 内全 Markdown を分類・管理する controlled dictionary** を Wave 2 deliverable として institute、**README は narrative entrypoint として責務分離** する。Wave 1 では articulation のみ (本 ADR)、実装は Wave 2 (= simple version は Wave 2 / Phase 2.5 着手時、full version は Reading Pass 後)。
+
+#### D1: AAG-SCP-DOC-INDEX-001〜005 の institute（Document Universe Index 本体）
+
+| 原則 ID | 内容 |
+|---|---|
+| **AAG-SCP-DOC-INDEX-001** | すべての Markdown document は、Document Universe Index に掲載されなければならない (= repo 内 Markdown の漏れを構造的に防ぐ)。 |
+| **AAG-SCP-DOC-INDEX-002** | Document Universe Index への掲載は **承認ではない**。掲載は AAG が存在を把握していることを意味する (= AAG-SCP-PARSE2-002 observed-only 整合)。 |
+| **AAG-SCP-DOC-INDEX-003** | 索引内リンクは機械的に検証される。broken link / missing target / broken anchor は finding とする。 |
+| **AAG-SCP-DOC-INDEX-004** | repo 内に存在する Markdown で、Document Universe Index に載っていないものは finding とする (= coverage check)。 |
+| **AAG-SCP-DOC-INDEX-005** | README は全索引を担わない。README は入口であり、全ドキュメント索引は generated index として分離する。 |
+
+#### D2: AAG-SCP-DOC-INDEX-006〜008 の institute（README/Index 役割分離）
+
+| 原則 ID | 内容 |
+|---|---|
+| **AAG-SCP-DOC-INDEX-006** | README は documentation universe を網羅しない。README は repo の説明と目的別導線を担う **narrative entrypoint** である。 |
+| **AAG-SCP-DOC-INDEX-007** | Document Universe Index は読み物ではなく、分類・管理された **document dictionary** である。repo 内の全 Markdown はこの索引に登録され、分類・状態・リンク整合性を機械検証される。 |
+| **AAG-SCP-DOC-INDEX-008** | README は Document Universe Index への導線を持つが、索引の内容を重複して展開してはならない (= README hyper-narrative 化 + 索引 churn 同期 risk 防止)。 |
+
+#### D3: 索引対象 + 構造 articulate
+
+**索引対象** (Wave 1 articulate、Wave 2 で実装):
+
+- `README.md` / `CLAUDE.md` / `CONTRIBUTING.md` / `CHANGELOG.md` / `CURRENT_PROJECT.md` (= top-level Markdown)
+- `references/**/*.md` (canonical knowledge interface)
+- `projects/**/*.md` (active + completed + template)
+- `docs/**/*.md` (documentation container 配下)
+- `aag/**/*.md` (AAG framework)
+- `roles/**/*.md` (out-of-skeleton 含む、observed として索引化)
+- `app/**/*.md` (= Wave 2 後段 で対象判断、Storybook / test docs を含めるか別判断)
+
+**成果物** (Wave 2 で landing):
+
+- `docs/contracts/generated/document-universe.generated.json` — 機械検証用の正規化 dictionary (schemaVersion: `document-universe-v1`、observed-only 中心、promotionAllowed: false 維持)
+- `references/04-tracking/generated/document-universe.generated.md` — 人間 / AI が読む 1 枚の分類済み索引 (JSON からの projection)
+- `tools/governance/build-document-universe.mjs` — index generator (Wave 2 / Phase 2.5 で landing、入力 = markdown-inventory.generated.json + doc-registry.json + doc-kind-registry.yaml)
+- `tools/governance/check-document-universe.mjs` — coverage + link integrity advisory checker (Wave 2 / Phase 2.5 後段、DOC-IDX-* finding emit)
+
+#### D4: DOC-IDX-* finding namespace（Wave 2 で institute、本 ADR で articulate）
+
+| finding ID | symptom | check type |
+|---|---|---|
+| `DOC-IDX-BROKEN-LINK` | 索引内の相対 link が存在しない target を指す | link integrity |
+| `DOC-IDX-BROKEN-ANCHOR` | 索引内の anchor link が存在しない section を指す | link integrity |
+| `DOC-IDX-STALE-GENERATED` | generated index が markdown-inventory より古い | freshness |
+| `DOC-IDX-UNINDEXED-MARKDOWN` | repo 内に存在する Markdown が索引に未掲載 | coverage |
+| `DOC-IDX-MISSING-TARGET` | 索引に載っているが実体ファイルが存在しない | coverage |
+| `DOC-IDX-DUPLICATE-ENTRY` | 同じ Markdown が複数カテゴリに重複登録 | coverage |
+| `DOC-IDX-KIND-MISMATCH` | 索引の kind と doc-kind-registry の declared kind が不一致 | classification |
+
+#### D5: 索引内 entry shape articulate
+
+各 entry は **observed-only / promotionAllowed: false** を維持しつつ、Wave 2 Reading Pass 結果を反映:
+
+```json
+{
+  "path": "README.md",
+  "href": "../../README.md",
+  "indexSection": "repository-entrypoints",
+  "documentStatus": "declared | generated | needs-triage | observed-only | archive",
+  "kind": "repo-entrypoint | canonical-doc | generated-report | project-plan | archive-doc | unknown",
+  "temporalScope": "present | past | future | computed-current | unreviewed",
+  "contractStatus": "unreviewed | reviewed | declared",
+  "meaningStatus": "explained | candidate | unexplained | unknown",
+  "intentStatus": "declared | inferred | unknown | missing",
+  "continuityStatus": "active | inherited | absent | unreviewed",
+  "source": "markdown-inventory | doc-registry | doc-kind-registry",
+  "promotionAllowed": false
+}
+```
+
+`promotionAllowed: false` を維持するのは、索引掲載 ≠ contract 化を構造的に articulate するため (= AAG-SCP-DOC-INDEX-002 整合)。
+
+#### D6: Wave 配置
+
+| 範囲 | Wave 1 (articulation only、本 ADR) | Wave 2 (implementation) |
+|---|---|---|
+| AAG-SCP-DOC-INDEX-001〜008 institute | ✅（plan.md 不可侵原則 section） | — |
+| 索引対象 + 構造 articulate | ✅（本 ADR D3） | — |
+| DOC-IDX-* finding namespace articulate | ✅（本 ADR D4） | — |
+| build-document-universe.mjs landing | — | ✅（Wave 2 / Phase 2.5 着手時、simple version = observed-only / needs-triage 中心） |
+| document-universe.generated.json 初版 landing | — | ✅（Wave 2 / Phase 2.5、initial: status は observed-only / needs-triage 中心） |
+| Reading Pass 結果反映 (kind / temporalScope / disposition) | — | ✅（Wave 2 / Phase 2.5 後段） |
+| document-universe.generated.md 正式版 | — | ✅（Wave 2 / Phase 2.5 後段、Reading Pass 後） |
+| check-document-universe.mjs (advisory checker) | — | ✅（Wave 2 / Phase 2.5 後段、DOC-IDX-* advisory finding emit） |
+| README から索引への pointer 追加 | — | ✅（Wave 2 後段、README rewrite と同 PR、AAG-SCP-DOC-RESET-005 整合） |
+| README hard gate (= DOC-IDX-* gate 化) | — | ✅（Wave 3 以降、5 段階 maturity progression 経由） |
+
+#### D7: README に載せるもの / 載せないもの（Wave 2 README rewrite 用 articulate）
+
+| README に載せる | README に載せない |
+|---|---|
+| repo の短い説明 | 全ドキュメント一覧 |
+| Product (粗利管理ツール) / Governance (AAG / RepoSteward) の責務分離 | 未精査 top-level directory |
+| 代表的な入口 (`app/` `wasm/` `aag/` `aag-engine/` `docs/contracts/` `projects/active/` 等) | out-of-skeleton candidate |
+| quick start | Phase / Wave の詳細 |
+| どこを見ればよいか | 過去の移行経緯 |
+| 全ドキュメント索引へのリンク (= document-universe.generated.md) | generated status の詳細一覧 |
+
+README は「案内板」、索引は「台帳」(AAG-SCP-DOC-INDEX-006 + 007 整合)。
+
+### rationale
+
+#### 単一索引 institute の利点
+
+- **AI が文脈を辿れる**: 1 枚の索引から canonical / generated / project / archive / needs-triage を区別 (= AI session 開始時の routing source)
+- **ドキュメント漏れ検出**: coverage check (DOC-IDX-UNINDEXED-MARKDOWN) で repo 内 Markdown が索引未掲載を機械検出
+- **link integrity**: broken link / broken anchor を機械検出 (= 移動 / rename PR 後の breakage 防止)
+- **README/Index 役割分離**: README が肥大化せず narrative 維持、索引が詳細を担う (= 責務分離整合)
+
+#### "promotionAllowed: false 維持" の重要性
+
+索引掲載は AAG が存在を把握していることのみを意味する。kind / temporalScope / disposition が articulate されても、それは Reading Pass の判断結果であり、自動 contract 化ではない (= AAG-SCP-PARSE2-002 + AAG-SCP-MEANING-002 整合)。declared 昇格は別 PR (= Wave 2 / Phase 5 Document Contract Declaration) で user 判断。
+
+### alternatives
+
+- **alternative (a)**: 単一索引を作らず、per-zone (例: references/04-tracking/index.md / 各 project 配下 index 等) で運用 — 却下: AI が文脈を辿る際に複数 index を訪問必要、coverage check 不能、AAG-SCP-DOC-INDEX-001 違反
+- **alternative (b)**: 索引を README に埋め込む (= README が全 Markdown を列挙) — 却下: README 肥大化、index churn 同期 risk、未精査構造正当化、AAG-SCP-DOC-INDEX-005 + 006 + 008 違反
+- **alternative (c)**: 索引を JSON のみ (Markdown projection 不要) — 却下: 人間 / AI が読みにくい、Markdown projection は cost 低 + 利便性高、却下理由 weak
+- **alternative (d)**: 索引を Wave 1 で landing — 却下: Wave 1 = Parse / skeleton / surface に focus (= ADR-SCP-021 D8 整合)、Wave 2 Reading Pass 前に索引を作ると status は observed-only/needs-triage のみで informational value 低
+- **alternative (e)**: DOC-IDX-* を即 hard gate institute — 却下: ADR-SCP-014 + 不可侵原則 8 違反 (advisory 第一)、5 段階 maturity progression 経由必須 (= ADR-SCP-021 D5 整合)
+
+### 観測点
+
+1. plan.md 不可侵原則 section に AAG-SCP-DOC-INDEX-001〜008 が articulate される
+2. plan.md Wave 2 / Phase 2.5 description に Document Universe Index landing (simple version = build-document-universe.mjs + document-universe.generated.json) が articulate される
+3. plan.md Wave 2 / Phase 2.5 完了条件に DOC-IDX-* coverage + link integrity check articulate
+4. plan.md Wave 2 / Phase 5 description に README rewrite + AAG-SCP-DOC-RESET-005 整合 (整理後の骨格に合わせて最後に更新) articulate
+5. checklist.md Wave 2 readiness section に Document Universe Index institute + README/Index 役割分離 が前提条件として articulate される (具体的 Wave 2 checkbox は Wave 2 着手時に追加)
+6. test:guards 通過 (本 ADR は articulation のみ、機械影響なし)
+7. Wave 1 では実装しない (build-document-universe.mjs / document-universe.generated.json の実装は Wave 2)
+
+### Lineage
+
+- **preJudgementCommit**: `bdf071c` (Phase 2E-2 landing、Phase 2 完遂)
+- **judgementCommit**: `<TBD = 本 ADR landing commit (021 + 022 同 commit)>`
+- **retrospectiveCommit**: `<TBD = 本 program archive 時の振り返り commit>`
+
+### 振り返り判定（ADR-SCP-022）
+
+- **判定**: `<未確定>`
+- **観測点達成状況**: `<TBD>`
+- **学習**: `<TBD>`

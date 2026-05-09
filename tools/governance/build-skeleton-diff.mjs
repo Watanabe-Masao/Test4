@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 // tools/governance/build-skeleton-diff.mjs
 //
-// Wave 1 / Phase 2C — skeleton diff generator
+// Wave 1 / Phase 2C + 2E — skeleton diff generator
 //
 // 役割: Structural Skeleton (= Phase 2A tree-contracts.yaml) と observed topology (= Phase 2B
 // repo-topology.generated.json) を join し、6 分類 + Status / Disposition / Reason / Questions /
-// Constraint flags / Context hooks を articulate した skeleton-diff JSON を生成。
+// Constraint flags / Context hooks + topLevelDispositionCandidate (Phase 2E、ADR-SCP-020) を
+// articulate した skeleton-diff JSON を生成。
+//
+// Phase 2E (ADR-SCP-020) 拡張:
+//   - status enum 4 値対応 (declared / unmanaged-but-tolerated / container-only /
+//     platform-config-tolerated)
+//   - 各 entry に topLevelDispositionCandidate (8 値) articulate
+//   - 12 新 reasonCode 追加 (TOP_LEVEL_OVERPOPULATED / POSSIBLE_ROOT_DUPLICATION /
+//     CONTAINER_ONLY_ROOT / PLATFORM_CONFIG_REQUIRED_AT_ROOT / POSSIBLE_MOVE_TO_APP /
+//     POSSIBLE_MOVE_TO_TOOLS / POSSIBLE_MOVE_TO_PROJECTS / POSSIBLE_MOVE_TO_AAG /
+//     POSSIBLE_MOVE_TO_REFERENCES / POSSIBLE_MOVE_TO_DOCS_CONTRACTS /
+//     POSSIBLE_DELETE_CANDIDATE / CURRENT_PROJECT_POINTER_CANDIDATE)
+//   - D5 個別 heuristic map (app-domain/ / fixtures/ / roles/ / scripts/ / workers/ /
+//     CURRENT_PROJECT.md) articulate
 //
 // 出力: docs/contracts/generated/skeleton-diff.generated.json
 //
@@ -131,10 +144,64 @@ const COMMON_FLAGS_DECLARED = {
   inventoryStatus: 'observed-only',
 }
 
+// ADR-SCP-020 D5: 個別 heuristic map (out-of-skeleton entry に対する disposition / reasonCode 推定)。
+// path 完全一致 (= top-level directory or file)。Wave 1 では articulate-only、Wave 2 cleanup PR の入力。
+const TOP_LEVEL_DISPOSITION_HEURISTICS = {
+  'app-domain/': {
+    topLevelDispositionCandidate: 'move-candidate',
+    extraReasonCodes: ['POSSIBLE_MOVE_TO_APP', 'POSSIBLE_ROOT_DUPLICATION'],
+    contextHint:
+      'app-domain/ は app/src/domain/ と意味が重複している可能性。promote / move / archive の判断対象',
+  },
+  'fixtures/': {
+    topLevelDispositionCandidate: 'move-candidate',
+    extraReasonCodes: ['POSSIBLE_MOVE_TO_APP', 'POSSIBLE_MOVE_TO_TOOLS'],
+    contextHint:
+      'fixtures/ は app/test/fixtures/ または tools/fixtures/ への移動候補、もしくは廃止候補',
+  },
+  'roles/': {
+    topLevelDispositionCandidate: 'needs-triage',
+    extraReasonCodes: [
+      'POSSIBLE_ROOT_DUPLICATION',
+      'POSSIBLE_MOVE_TO_AAG',
+      'POSSIBLE_MOVE_TO_REFERENCES',
+    ],
+    contextHint:
+      'roles/ は aag/ + references/ + .claude/ と責務が重なる可能性。AAG role registry 正本かを再確認',
+  },
+  'scripts/': {
+    topLevelDispositionCandidate: 'move-candidate',
+    extraReasonCodes: ['POSSIBLE_MOVE_TO_TOOLS', 'POSSIBLE_ROOT_DUPLICATION'],
+    contextHint:
+      'scripts/ は tools/ と責務重複の可能性。維持なら意味説明、不要なら tools/ 統合または archive',
+  },
+  'workers/': {
+    topLevelDispositionCandidate: 'needs-triage',
+    extraReasonCodes: ['POSSIBLE_MOVE_TO_APP'],
+    contextHint:
+      'workers/ は product runtime か旧実装か unclear。app/ 配下統合 / archive 判断対象',
+  },
+  'CURRENT_PROJECT.md': {
+    topLevelDispositionCandidate: 'needs-triage',
+    extraReasonCodes: ['CURRENT_PROJECT_POINTER_CANDIDATE'],
+    contextHint:
+      'CURRENT_PROJECT.md は projects/active/ + project-health.generated.md と意味重複の可能性。thin pointer 化候補 (削除候補とは異なる、別 PR で reference scan + consumer 確認後)',
+  },
+}
+
+// status → topLevelDispositionCandidate の base mapping (declared/tolerated/container-only/platform-config)
+const STATUS_TO_DISPOSITION_CANDIDATE = {
+  declared: 'declared-root',
+  'unmanaged-but-tolerated': 'tolerate',
+  'container-only': 'container-only-root',
+  'platform-config-tolerated': 'platform-config-tolerated',
+}
+
 function buildInSkeletonEntry(skelEntry) {
   return {
     path: skelEntry.path,
     skeletonStatus: 'in-skeleton',
+    topLevelDispositionCandidate: STATUS_TO_DISPOSITION_CANDIDATE.declared,
     meaningStatus: 'explained',
     meaningEvidence: [
       `declared in tree-contracts.yaml`,
@@ -162,10 +229,83 @@ function buildInSkeletonEntry(skelEntry) {
   }
 }
 
+function buildContainerOnlyEntry(skelEntry) {
+  // ADR-SCP-020: container-only = top-level に存在するが意味は配下 nested declared root が担う
+  const children = (skelEntry.nestedDeclaredChildren || []).join(', ')
+  return {
+    path: skelEntry.path,
+    skeletonStatus: 'in-skeleton',
+    topLevelDispositionCandidate: STATUS_TO_DISPOSITION_CANDIDATE['container-only'],
+    meaningStatus: 'explained',
+    meaningEvidence: [
+      `declared as container-only in tree-contracts.yaml`,
+      `nestedDeclaredChildren: ${children}`,
+      `purpose: ${shortPurpose(skelEntry.purpose)}`,
+    ],
+    intentStatus: 'declared',
+    intentEvidence: [
+      `owner: ${skelEntry.owner}`,
+      `container-only: 意味は配下 nested declared root が担う`,
+    ],
+    continuityStatus: 'active',
+    continuityEvidence: [
+      ...(skelEntry.addedSha ? [`declared in commit ${skelEntry.addedSha}`] : []),
+      ...(skelEntry.addedAt ? [`addedAt: ${skelEntry.addedAt}`] : []),
+    ],
+    candidateDisposition: 'keep-and-contract',
+    reasonCode: 'CONTAINER_ONLY_ROOT',
+    contextQuestion: null,
+    futureQuestion: null,
+    changeQuestion: null,
+    requiredQuestion: null,
+    contextDepthHint: null,
+    observed: true,
+    ...COMMON_FLAGS_DECLARED,
+  }
+}
+
+function buildPlatformConfigEntry(skelEntry) {
+  // ADR-SCP-020: platform-config-tolerated = 外部 platform 連携上 top-level 必須
+  const rationale = skelEntry.topLevelRationale || {}
+  return {
+    path: skelEntry.path,
+    skeletonStatus: 'in-skeleton',
+    topLevelDispositionCandidate: STATUS_TO_DISPOSITION_CANDIDATE['platform-config-tolerated'],
+    meaningStatus: 'explained',
+    meaningEvidence: [
+      `declared as platform-config-tolerated in tree-contracts.yaml`,
+      ...(rationale.reason ? [`reason: ${rationale.reason}`] : []),
+      `purpose: ${shortPurpose(skelEntry.purpose)}`,
+    ],
+    intentStatus: 'declared',
+    intentEvidence: [
+      `owner: ${skelEntry.owner}`,
+      ...(rationale.continuityNote ? [`continuityNote: ${rationale.continuityNote}`] : []),
+    ],
+    continuityStatus: 'active',
+    continuityEvidence: [
+      ...(skelEntry.addedSha ? [`declared in commit ${skelEntry.addedSha}`] : []),
+      ...(rationale.cannotMoveBecause
+        ? [`cannotMoveBecause: ${rationale.cannotMoveBecause.length} reason(s) articulated`]
+        : []),
+    ],
+    candidateDisposition: 'tolerate',
+    reasonCode: 'PLATFORM_CONFIG_REQUIRED_AT_ROOT',
+    contextQuestion: null,
+    futureQuestion: null,
+    changeQuestion: null,
+    requiredQuestion: null,
+    contextDepthHint: null,
+    observed: true,
+    ...COMMON_FLAGS_DECLARED,
+  }
+}
+
 function buildInsideUnmanagedZoneEntryFromTolerated(skelEntry) {
   return {
     path: skelEntry.path,
     skeletonStatus: 'inside-unmanaged-zone',
+    topLevelDispositionCandidate: STATUS_TO_DISPOSITION_CANDIDATE['unmanaged-but-tolerated'],
     meaningStatus: 'explained',
     meaningEvidence: [
       `declared as unmanaged-but-tolerated in tree-contracts.yaml`,
@@ -197,9 +337,12 @@ function buildInsideUnmanagedZoneEntryFromTolerated(skelEntry) {
 
 function buildMissingExpectedEntry(skelEntry) {
   const isTolerated = skelEntry.status === 'unmanaged-but-tolerated'
+  // missing-expected: declared status だが filesystem に存在しない。disposition は status に応じて articulate
+  const baseDisposition = STATUS_TO_DISPOSITION_CANDIDATE[skelEntry.status] || 'needs-triage'
   return {
     path: skelEntry.path,
     skeletonStatus: 'missing-expected',
+    topLevelDispositionCandidate: isTolerated ? 'tolerate' : baseDisposition,
     meaningStatus: 'explained',
     meaningEvidence: [`declared in tree-contracts.yaml`],
     intentStatus: 'declared',
@@ -222,9 +365,12 @@ function buildMissingExpectedEntry(skelEntry) {
 }
 
 function buildInsideUnmanagedZoneEntryFromParentOfDeclared(obsEntry, declaredChildren) {
+  // 親 directory が container-only として declared 済の場合は呼ばれない (= main で先に container-only として
+  // articulate される)。本 builder は parent が skeleton 未articulate の場合の fallback (= 暗黙的 parent)
   return {
     path: obsEntry.path,
     skeletonStatus: 'inside-unmanaged-zone',
+    topLevelDispositionCandidate: 'needs-triage',
     meaningStatus: 'candidate',
     meaningEvidence: [
       `path is parent of declared root(s): ${declaredChildren.join(', ')}`,
@@ -257,12 +403,27 @@ function buildOutOfSkeletonEntry(obsEntry) {
     (n) => obsEntry.path === n,
   )
 
-  // reasonCode 構成 (D8.4)
-  const reasonCodes = ['OUT_OF_SKELETON']
+  // ADR-SCP-020 D5: 個別 heuristic map で disposition + 追加 reasonCode を articulate
+  const heuristic = TOP_LEVEL_DISPOSITION_HEURISTICS[obsEntry.path] || null
+
+  // reasonCode 構成 (D8.4 + ADR-SCP-020 D4)
+  // base: OUT_OF_SKELETON、top-level entry には TOP_LEVEL_OVERPOPULATED を articulate
+  // (Wave 1 articulate-only、閾値判定なし、構造的 surface)
+  const reasonCodes = ['OUT_OF_SKELETON', 'TOP_LEVEL_OVERPOPULATED']
   if (!isFile) {
     // top-level directory が out-of-skeleton = 構造的に大きな drift candidate
     reasonCodes.push('CORRECT_LOCATION_BUT_UNEXPLAINED')
   }
+  if (heuristic) {
+    for (const code of heuristic.extraReasonCodes) {
+      if (!reasonCodes.includes(code)) reasonCodes.push(code)
+    }
+  }
+
+  // topLevelDispositionCandidate: heuristic があればそれを採用、なければ needs-triage
+  const topLevelDispositionCandidate = heuristic
+    ? heuristic.topLevelDispositionCandidate
+    : 'needs-triage'
 
   // candidateKind 推定 (Wave 1 では heuristic only、Wave 2 で精緻化)
   let candidateKind = null
@@ -279,6 +440,7 @@ function buildOutOfSkeletonEntry(obsEntry) {
   if (isFile && obsEntry.size != null) meaningEvidence.push(`size: ${obsEntry.size} bytes`)
   if (isDotfile) meaningEvidence.push(`dotfile (likely external-tool-managed or convention-based)`)
   if (isPackageManifest) meaningEvidence.push(`recognized package manifest`)
+  if (heuristic) meaningEvidence.push(`heuristic context: ${heuristic.contextHint}`)
 
   // file vs directory で contextDepthHint 調整
   const contextDepthHint = isFile ? 'L0-L2' : 'L0-L4'
@@ -286,6 +448,7 @@ function buildOutOfSkeletonEntry(obsEntry) {
   return {
     path: obsEntry.path,
     skeletonStatus: 'out-of-skeleton',
+    topLevelDispositionCandidate,
     meaningStatus: 'candidate',
     meaningEvidence,
     intentStatus: 'unknown',
@@ -298,7 +461,7 @@ function buildOutOfSkeletonEntry(obsEntry) {
     contextQuestion: 'このartifactは過去のどの文脈から存在しているか?',
     futureQuestion: 'このartifactは未来へ何を継承するために維持するのか?',
     changeQuestion:
-      'declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / revise-skeleton のどれが妥当?',
+      'declared root へ promote / 既存 root へ move / archive / tolerate / delete-candidate / pointer-refine / revise-skeleton のどれが妥当?',
     requiredQuestion: 'このartifactは何の意味を持ち、どのrootに属すべきか?',
     contextDepthHint,
     observed: true,
@@ -332,6 +495,10 @@ function main() {
         diffEntries.push(buildInSkeletonEntry(skelEntry))
       } else if (skelEntry.status === 'unmanaged-but-tolerated') {
         diffEntries.push(buildInsideUnmanagedZoneEntryFromTolerated(skelEntry))
+      } else if (skelEntry.status === 'container-only') {
+        diffEntries.push(buildContainerOnlyEntry(skelEntry))
+      } else if (skelEntry.status === 'platform-config-tolerated') {
+        diffEntries.push(buildPlatformConfigEntry(skelEntry))
       }
     } else {
       diffEntries.push(buildMissingExpectedEntry(skelEntry))
@@ -365,17 +532,23 @@ function main() {
   // summary
   const bySkeletonStatus = {}
   const byCandidateDisposition = {}
+  const byTopLevelDispositionCandidate = {}
   for (const entry of diffEntries) {
     bySkeletonStatus[entry.skeletonStatus] =
       (bySkeletonStatus[entry.skeletonStatus] || 0) + 1
     byCandidateDisposition[entry.candidateDisposition] =
       (byCandidateDisposition[entry.candidateDisposition] || 0) + 1
+    if (entry.topLevelDispositionCandidate) {
+      byTopLevelDispositionCandidate[entry.topLevelDispositionCandidate] =
+        (byTopLevelDispositionCandidate[entry.topLevelDispositionCandidate] || 0) + 1
+    }
   }
 
   const summary = {
     totalEntries: diffEntries.length,
     bySkeletonStatus,
     byCandidateDisposition,
+    byTopLevelDispositionCandidate,
   }
 
   const output = {
@@ -419,6 +592,10 @@ function main() {
   }
   console.log(`  byCandidateDisposition:`)
   for (const [k, v] of Object.entries(byCandidateDisposition).sort()) {
+    console.log(`    ${k}: ${v}`)
+  }
+  console.log(`  byTopLevelDispositionCandidate:`)
+  for (const [k, v] of Object.entries(byTopLevelDispositionCandidate).sort()) {
     console.log(`    ${k}: ${v}`)
   }
 }

@@ -2,8 +2,8 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://aag.local/schemas/tree-contracts-v1.json",
   "title": "Tree Contracts v1",
-  "description": "AAG SCP の Tree Contract authoring source / generated 共通 schema。repo の top-level directory の `declared` / `unmanaged-but-tolerated` 状態を articulate し、Phase 3 で advisory checker (`tools/governance/check-tree.ts`) の入力として消費する。Wave 1 narrowing (ADR-SCP-016 D1): scope = `top-level-only`、対象 8 entries (= references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/) のみ。Wave 2+ で `managed-zone-4` / `extended` への scope 拡大判断。consumer = Phase 3 check-tree (Wave 1) / Phase 5 check-doc-contracts (Wave 2) / 後続 Wave checker。producer = `docs/contracts/src/repo/tree-contracts.yaml` (authoring source) → normalize → `docs/contracts/generated/tree-contracts.generated.json` (machine truth)。",
-  "$comment": "format 選定根拠: AAG repo 既存 8 schemas と同 family = draft-07、Ajv 既定 dialect。設計判断 (ADR-SCP-004 + ADR-SCP-016 D1 整合): status は enum 2 値 (declared / unmanaged-but-tolerated)、必須 fields は両者同一 (= path / status / purpose / owner)、semantic 差は optional fields (= childPolicy / promotionRationale) で articulate (oneOf 不要、AI が schema 違反しにくい flat 構造)。scope は enum 3 値 (top-level-only / managed-zone-4 / extended) で Wave narrowing を schema レベルで articulate、Wave 1 = top-level-only から start、Wave 2+ で additive 拡張。metadata block は authoring source (YAML) では optional、generator (Phase 1 後段) が generated JSON に populate (不可侵原則 1 整合: sourceSha / sourcePaths / generatedAt + schemaVersion)。path は trailing / 強制 (top-level directory のみ受け入れる pattern)。owner は free-form string (例: 'reposteward-ai-ops-platform' / 'aag-structural-control-plane' / 'all-roles' / 'AAG framework')、enum 化は後続 v2 候補 (= AAG role registry が articulate された後)。",
+  "description": "AAG SCP の Tree Contract authoring source / generated 共通 schema。repo の top-level directory の status (declared / unmanaged-but-tolerated / container-only / platform-config-tolerated) を articulate し、Phase 3 で advisory checker (`tools/governance/check-tree.ts`) の入力として消費する。Wave 1 narrowing (ADR-SCP-016 D1): scope = `top-level-only`、対象 8 declared entries (= references/ / aag/ / aag-engine/ / projects/ / docs/contracts/ / app/ / tools/ / wasm/) + Phase 2E (ADR-SCP-020) で container-only / platform-config-tolerated 拡張。Wave 2+ で `managed-zone-4` / `extended` への scope 拡大判断。consumer = Phase 3 check-tree (Wave 1) / Phase 5 check-doc-contracts (Wave 2) / 後続 Wave checker。producer = `docs/contracts/src/repo/tree-contracts.yaml` (authoring source) → normalize → `docs/contracts/generated/tree-contracts.generated.json` (machine truth)。",
+  "$comment": "format 選定根拠: AAG repo 既存 8 schemas と同 family = draft-07、Ajv 既定 dialect。設計判断 (ADR-SCP-004 + ADR-SCP-016 D1 + ADR-SCP-020 整合): status は enum 4 値 (declared / unmanaged-but-tolerated / container-only / platform-config-tolerated)、必須 fields は四者同一 (= path / status / purpose / owner)、semantic 差は optional fields (= childPolicy / promotionRationale / topLevelRationale / nestedDeclaredChildren) で articulate (oneOf 不要、AI が schema 違反しにくい flat 構造)。scope は enum 3 値 (top-level-only / managed-zone-4 / extended) で Wave narrowing を schema レベルで articulate、Wave 1 = top-level-only から start、Wave 2+ で additive 拡張。metadata block は authoring source (YAML) では optional、generator (Phase 1 後段) が generated JSON に populate (不可侵原則 1 整合: sourceSha / sourcePaths / generatedAt + schemaVersion)。path は trailing / 強制 (top-level directory のみ受け入れる pattern)。owner は free-form string (例: 'reposteward-ai-ops-platform' / 'aag-structural-control-plane' / 'all-roles' / 'AAG framework')、enum 化は後続 v2 候補 (= AAG role registry が articulate された後)。",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "scope", "contracts"],
@@ -60,8 +60,8 @@
           },
           "status": {
             "type": "string",
-            "enum": ["declared", "unmanaged-but-tolerated"],
-            "description": "Tree Contract status (ADR-SCP-004 整合)。`declared` = 完全に articulate された managed directory、Tree Contract 対象、childPolicy で子 directory rule articulate。`unmanaged-but-tolerated` = inventory に載るが contract 必須対象ではない第 3 状態、既存 unmanaged 配下への新規子 directory 追加は OK、新規 top-level directory 追加は finding (new-only gate 対象)、unmanaged → declared への promotion は user 判断 (promotionRationale で articulate)。"
+            "enum": ["declared", "unmanaged-but-tolerated", "container-only", "platform-config-tolerated"],
+            "description": "Tree Contract status (ADR-SCP-004 + ADR-SCP-020 整合)。`declared` = 完全に articulate された managed directory、Tree Contract 対象、childPolicy で子 directory rule articulate。`unmanaged-but-tolerated` = inventory に載るが contract 必須対象ではない第 3 状態、既存 unmanaged 配下への新規子 directory 追加は OK、新規 top-level directory 追加は finding (new-only gate 対象)、unmanaged → declared への promotion は user 判断 (promotionRationale で articulate)。`container-only` (ADR-SCP-020) = top-level に存在するが意味は配下 nested declared root が担う、container 自体は declared でも tolerated でもない (例: `docs/` の意味は `docs/contracts/` が担う)、`nestedDeclaredChildren` で意味を担う子を articulate (空 array 不可)。`platform-config-tolerated` (ADR-SCP-020) = 外部 platform / tool 連携上 top-level 必須、AAG 上の structural root ではない (例: `.github/` `.claude/`)、`topLevelRationale` で move 不可な理由を articulate (必須)。"
           },
           "purpose": {
             "type": "string",
@@ -77,7 +77,38 @@
           },
           "promotionRationale": {
             "type": "string",
-            "description": "Optional。unmanaged-but-tolerated entries で declared promotion を deferred している rationale articulate (unmanaged-but-tolerated status の場合のみ意味あり)。例: '本 directory は外部 tool (.github / .vscode 等) が管理、AAG SCP 直接 contract 化は cost 過大、Wave 3+ で再評価'。"
+            "description": "Optional。unmanaged-but-tolerated entries で declared promotion を deferred している rationale articulate (unmanaged-but-tolerated status の場合のみ意味あり)。例: '本 directory は外部 tool (.vscode 等) が管理、AAG SCP 直接 contract 化は cost 過大、Wave 3+ で再評価'。"
+          },
+          "topLevelRationale": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "ADR-SCP-020 D1。なぜ top-level に置く必要があるか + 既存 root へ move 不可な理由 + 継承事項を articulate する structured object。`platform-config-tolerated` で必須、`container-only` で推奨。declared / unmanaged-but-tolerated では optional。structured (= 単純自由文ではない) にするのは、AI が future review で迷わず判断できるようにするため (AAG-SCP-MEANING-002 + AAG-SCP-CONTINUITY-006 整合)。",
+            "required": ["reason", "cannotMoveBecause", "continuityNote"],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "description": "なぜ top-level に置く必要があるか (1〜2 文で articulate)。例: 'GitHub Actions requires .github/workflows at repository root.'"
+              },
+              "cannotMoveBecause": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string" },
+                "description": "既存 root へ move 不可な理由 (list、複数あれば articulate)。例: ['GitHub Actions requires .github/workflows at repository root.', 'GitHub repository settings / labels / dependabot config も同 path 必須']"
+              },
+              "continuityNote": {
+                "type": "string",
+                "description": "未来へ何を継承するか (= platform-config / container-only であることを明示、汎用置き場化を防ぐ)。例: 'This root is tolerated as platform configuration, not as AAG structural root.'"
+              }
+            }
+          },
+          "nestedDeclaredChildren": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_./-]+/$"
+            },
+            "description": "ADR-SCP-020 D1。`container-only` の場合に必須 (空 array 不可)。配下に declared root がある path 列 (= 意味を担う子)。例: `docs/` の場合 `['docs/contracts/']`。container-only が空の汎用置き場化するのを構造的に防ぐ (= 明示子がない container-only は articulate 違反)。declared / unmanaged-but-tolerated / platform-config-tolerated では optional。"
           },
           "addedAt": {
             "type": "string",
