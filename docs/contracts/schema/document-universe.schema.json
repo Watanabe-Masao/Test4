@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/document-universe-v1.json",
+  "title": "Document Universe Index v1",
+  "description": "AAG SCP Document Universe Index = repo 内 Markdown を 1 枚で articulate した分類済み索引。Wave 2 / Phase 2.5 着手時に simple version (= observed-only / unreviewed 中心、promotionAllowed: false 維持) で landing し、Reading Pass 後段で kind / temporalScope / disposition を articulate に更新 (ADR-SCP-022 D3 + D5 + D6 整合)。consumer = `tools/governance/check-document-universe.mjs` (Wave 2 後段、DOC-IDX-* finding emit) + AI session routing source (= 1 枚から canonical / generated / project / archive を区別)。producer = `tools/governance/build-document-universe.mjs`。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family (aag-finding / tree-contracts / doc-kind-registry) と同 draft-07、Ajv 既定 dialect。設計判断 (ADR-SCP-022 D5 整合): 索引内 entry shape は ADR-SCP-022 D5 に articulate された 13 fields を採用。documentStatus / kind / temporalScope / contractStatus / meaningStatus / intentStatus / continuityStatus は string enum で articulate (= AI 補完性能優先)。promotionAllowed は const false (= 索引掲載 ≠ contract 化、AAG-SCP-DOC-INDEX-002 整合)。後続 Reading Pass で本 schema entry の field 値が articulate に更新される (= unreviewed → reviewed / unknown → explained 等)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "metadata", "entries", "summary"],
+  "properties": {
+    "$comment": {
+      "type": "string",
+      "description": "free-form documentation comment、consumer は参照しない。"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "document-universe-v1",
+      "description": "schema version anchor。本 schema = `document-universe-v1`。Reading Pass で field 値が articulate に更新されても schemaVersion は v1 維持 (= entry shape unchanged)。後続 v2 (= field 追加 / enum 拡張) で minor バージョン bump 予定 (= versionImpact aag delta=+0.1 minor)。"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generatedAt", "sourceSha", "sourcePaths"],
+      "properties": {
+        "generatedAt": { "type": "string" },
+        "sourceSha": { "type": "string" },
+        "sourcePaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "description": "全 Markdown entry の集合。observed-only / unreviewed 中心、promotionAllowed: false 維持。",
+      "items": { "$ref": "#/definitions/UniverseEntry" }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["totalEntries", "bySection", "byKind", "byDocumentStatus", "byContractStatus"],
+      "properties": {
+        "totalEntries": { "type": "integer", "minimum": 0 },
+        "bySection": {
+          "type": "object",
+          "description": "indexSection 別 entry 数。",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "byKind": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "byDocumentStatus": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "byContractStatus": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UniverseEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "href",
+        "indexSection",
+        "documentStatus",
+        "kind",
+        "temporalScope",
+        "contractStatus",
+        "meaningStatus",
+        "intentStatus",
+        "continuityStatus",
+        "source",
+        "promotionAllowed"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "POSIX repo-relative path。例: 'README.md' / 'references/01-foundation/gross-profit-definition.md'。"
+        },
+        "href": {
+          "type": "string",
+          "description": "document-universe.generated.md からの相対 link。例: '../../../README.md' / '../../01-foundation/gross-profit-definition.md'。"
+        },
+        "indexSection": {
+          "type": "string",
+          "description": "索引内 grouping key。例: 'repository-entrypoints' / 'foundation' / 'tracking-generated' / 'active-projects' / 'aag-framework' / 'unmanaged'。Phase 2.5 simple version では top-level path から heuristic で導出、Reading Pass 後段で articulate に更新。"
+        },
+        "documentStatus": {
+          "type": "string",
+          "enum": ["declared", "generated", "needs-triage", "observed-only", "archive"],
+          "description": "文書の現在 status。Phase 2.5 simple version 既定値 = `observed-only` (Reading Pass 未実施)。`generated` = `*.generated.md` / `*.generated.json` 経由生成。`archive` = `references/99-archive/` / `projects/completed/`。`declared` = doc-registry.json 掲載。Reading Pass 後 = `needs-triage` / 確定値に更新。"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "repo-entrypoint",
+            "canonical-doc",
+            "generated-report",
+            "project-plan",
+            "archive-doc",
+            "unknown"
+          ],
+          "description": "文書 kind。Phase 2.5 simple version では heuristic で導出 (= top-level README → repo-entrypoint / *.generated.md → generated-report / projects/active/<id>/{plan,checklist,AI_CONTEXT,HANDOFF}.md → project-plan / references/99-archive/ → archive-doc / doc-registry 掲載 → canonical-doc / 残 → unknown)。Reading Pass 後段で doc-kind-registry の declared kind に更新 (= Phase 4 で landing)。"
+        },
+        "temporalScope": {
+          "type": "string",
+          "enum": ["present", "past", "future", "computed-current", "unreviewed"],
+          "description": "時間軸 scope。Phase 2.5 simple version 既定値 = `unreviewed` (= Reading Pass 未実施、温存方針)。`computed-current` = generated report (= 計算済み現在値)。Reading Pass 後段で確定値に更新。"
+        },
+        "contractStatus": {
+          "type": "string",
+          "enum": ["unreviewed", "reviewed", "declared"],
+          "description": "Document Contract status。Phase 2.5 simple version: doc-registry 掲載 → `declared` / それ以外 → `unreviewed`。Reading Pass 後段 → `reviewed`。"
+        },
+        "meaningStatus": {
+          "type": "string",
+          "enum": ["explained", "candidate", "unexplained", "unknown"],
+          "description": "Meaning Layer status (ADR-SCP-017 整合)。Phase 2.5 simple version 既定値 = `unknown`。Reading Pass 後段で articulate に更新。"
+        },
+        "intentStatus": {
+          "type": "string",
+          "enum": ["declared", "inferred", "unknown", "missing"],
+          "description": "Intent Layer status (ADR-SCP-017 整合)。Phase 2.5 simple version 既定値 = `unknown`。Reading Pass 後段で articulate に更新。"
+        },
+        "continuityStatus": {
+          "type": "string",
+          "enum": ["active", "inherited", "absent", "unreviewed"],
+          "description": "Continuity Layer status (ADR-SCP-017 整合)。Phase 2.5 simple version 既定値 = `unreviewed`。Reading Pass 後段で articulate に更新。"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["markdown-inventory", "doc-registry", "doc-kind-registry"],
+          "description": "primary source articulate (= 当該 entry が最も articulate に articulate されている inventory)。Phase 2.5 simple version では doc-registry 掲載 → `doc-registry` / それ以外 → `markdown-inventory`。doc-kind-registry は Phase 4 で landing 後に source 化。"
+        },
+        "promotionAllowed": {
+          "const": false,
+          "description": "索引掲載 ≠ contract 化を構造的に articulate するため、本 schema entry は常に `false` (= AAG-SCP-DOC-INDEX-002 + ADR-SCP-022 D5 整合)。Wave 3 以降の Document Contract 確定 phase でも本 field は `false` 維持 (= Document Contract は別 schema = doc-contracts.yaml で articulate)。"
+        }
+      }
+    }
+  }
+}
