@@ -887,351 +887,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-002.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-003.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-004.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-005.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-006.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-007.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-008.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-009.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-010.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-011.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-012.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-013.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-014.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-015.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-016.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-017.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-018.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-019.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-020.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-021.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-022.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-023.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-024.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/elements/charts/CHART-001/implementation-ledger.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -5481,24 +5136,24 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T11:04:47.739Z",
+    "generatedAt": "2026-05-09T12:21:13.177Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "034c10b935688309cc72c80e7b4d20e750f926eb"
+    "sourceSha": "af480ddb9e972e836cd4cd39c599115328edb31b"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 30,
+    "alreadyReviewedCount": 53,
     "byKind": {
-      "canonical-doc": 249,
+      "canonical-doc": 226,
       "project-plan": 52,
       "repo-entrypoint": 2,
       "unknown": 65
     },
     "byPriority": {
-      "HIGH": 164,
+      "HIGH": 141,
       "MEDIUM": 204
     },
     "bySection": {
@@ -5513,10 +5168,10 @@
       "repository-entrypoints": 3,
       "roles": 16,
       "tools": 1,
-      "tracking": 99,
+      "tracking": 76,
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 368
+    "totalCandidates": 345
   }
 }

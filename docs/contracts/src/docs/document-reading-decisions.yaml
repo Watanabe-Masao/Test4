@@ -883,3 +883,564 @@ entries:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
+
+  # ============================================================================
+  # Reading Pass Batch 6 (Wave 2 / Phase 2.5 sub-PR 10、reviewedAtCommit af480dd)
+  # 23 文書 = elements/calculations/CALC-002〜CALC-024 family 一括 articulate。
+  # CALC-001 (Batch 3 で articulate 済) と同 pattern: per-calculation 業務契約 spec
+  # (= frontmatter + 構造化 spec + sourceRef link)、全件 lifecycleStatus: active。
+  # disposition 全件: keep-and-contract (= canonical-doc として有効、計算正本台帳の articulate)。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/calculations/CALC-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-002 = calculatePIValues (contractId: BIZ-012、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/piValue.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-003 = computeEstimatedInventory (contractId: BIZ-009、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/inventoryCalc.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-004 = calculatePinIntervals (contractId: BIZ-011、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/pinIntervals.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-005 = evaluateObservationPeriod (contractId: BIZ-010、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/observationPeriod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-006 = calculateRemainingBudgetRate (contractId: BIZ-008、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/remainingBudgetRate.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-007 = decompose5 (contractId: BIZ-004、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/factorDecomposition.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-008 = calculateForecast (contractId: ANA-006、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/forecast.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-009 = calculateInvMethod (contractId: BIZ-001、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/invMethod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-010 = calculateEstMethod (contractId: BIZ-002、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/estMethod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-011.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-011 = calculateBudgetAnalysis (contractId: BIZ-003、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-012.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-012 = analyzeDowGap (contractId: ANA-007、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/dowGapAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-013.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-013 = calculateDiscountImpact (contractId: BIZ-005、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/discountImpact.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-014.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-014 = buildPrevYearCostApprox (contractId: ANA-005、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/prevYearCostApprox.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-015.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-015 = calculateTransferTotals (contractId: BIZ-006、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/costAggregation.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-016.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-016 = calculateMarkupRates (contractId: BIZ-007、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/markupRate.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-017.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-017 = findCoreTime (contractId: ANA-001、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/timeSlotCalculations.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-018.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-018 = computeKpis (contractId: ANA-010、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetSimulator.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-019.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-019 = aggregateDowAverages (contractId: ANA-010、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetSimulatorAggregations.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-020.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-020 = calculateMonthEndProjection (contractId: ANA-002、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/advancedForecast.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-021.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-021 = pearsonCorrelation (contractId: ANA-005、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/correlation.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-022.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-022 = calculateSensitivity (contractId: ANA-003、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/sensitivity.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-023.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-023 = analyzeTrend (contractId: ANA-004、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/trendAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-024.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-024 = computeMovingAverage (contractId: ANA-009、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/temporal/computeMovingAverage.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+

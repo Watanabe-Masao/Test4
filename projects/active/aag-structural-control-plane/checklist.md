@@ -602,6 +602,40 @@
 5. **Wave 3 で guard 実装** (= guard candidate を実際の guard test に articulate)
 6. **同種 failure 再発時に hard fail** (= ratchet-down 完成、CLAUDE.md G8 整合)
 
+## Wave 2 / Phase 2.5 sub-PR 10: Reading Pass Batch 6 (= CALC-* family 23 docs 一括 articulate、reviewedAtCommit af480dd)
+
+> **目的**: sub-PR 9 で Failure Learning Loop infrastructure 着地後の最初の Reading Pass batch。
+> elements/calculations/CALC-002〜CALC-024 family 23 件を一括 articulate。CALC-001 (Batch 3 articulate 済)
+> と同 pattern (= per-calculation 業務契約 spec、frontmatter + 構造化 spec、lifecycleStatus: active) で
+> 全件 keep-and-contract / canonical-doc。Failure Learning Loop の 0-pattern batch 動作検証 (= 全件 clean docs、
+> failurePatterns: [] で generator が unregistered surface しないこと確認)。
+
+### Phase 2.5 sub-PR 10 (Reading Pass Batch 6、23 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 10 着手 (= user 「よろしくお願いします」承認、推薦 = CALC-* family 一括)
+- [x] 23 docs を read + articulate: CALC-002〜CALC-024 (= 全件 lifecycleStatus: active、canonicalRegistration: current)
+- [x] 23 entry を document-reading-decisions.yaml に append (= entries: 30 → 53、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= family-level 一括処理)
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に同 temporalScope: present articulate
+- [x] 全 entry に同 hasCurrentContract: true / hasHistory: false / hasFuturePlan: false articulate
+- [x] 全 entry に同 failurePatterns: [] articulate (= clean docs、Failure Loop の 0-pattern batch 検証)
+- [x] generation script で frontmatter (= exportName + contractId + sourceRef + semanticClass + authorityKind) を抽出 + entry 生成 (= /tmp/gen-batch6.mjs、23 件 1 batch 自動 articulate)
+- [x] candidates regenerate (= 368 → 345 candidates、HIGH 164 → 141、alreadyReviewedCount 30 → 53)
+- [x] Failure Loop generator 再実行 (= per-pattern observed 数値変化なし、unregistered 0、clean batch を確認)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 53 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 10 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 6 23 entry append 済 (= 累計 53 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] family-level 一括 articulate mechanism 再実証 (= 23 件 = Batch 5 (10 件) より大規模 batch、generation script で再現可能)
+- [x] Failure Learning Loop 0-pattern batch 動作検証 (= clean docs batch でも generator 安定動作、unregistered 検出は 0 維持)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
