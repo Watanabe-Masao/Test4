@@ -319,7 +319,27 @@
 - [x] document-universe.generated.json 初版 landing (= observed-only / unreviewed 中心、promotionAllowed: false 維持)
 - [x] document-universe.generated.md 初版 landing (= 1 枚 projection、Reading Pass 後段で articulate に更新)
 - [x] coverage: repo 内 Markdown (scope: README + CLAUDE.md + CHANGELOG.md + CURRENT_PROJECT.md + references + projects + docs + aag + aag-engine + roles + tools + workers) の索引未掲載 == 0 (= UNINDEXED-MARKDOWN finding 0 検出ロジックは Phase 2.5 後段で landing、本 sub-PR では coverage 担保のみ)
-- [x] check-document-universe.mjs (= advisory checker) は Phase 2.5 後段で landing (= 本 sub-PR scope 外、ADR-SCP-022 D6 整合)
+- [x] check-document-universe.mjs (= advisory checker) は Phase 2.5 後段で landing (= 本 sub-PR scope 外、ADR-SCP-022 D6 整合) → **sub-PR 2 で landing 完了**
+
+### Phase 2.5 sub-PR 2 (Document Universe Index advisory checker、ADR-SCP-022 D4 整合)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 2 着手 user 承認
+- [x] `tools/governance/check-document-universe.mjs` landing — DOC-IDX-* finding emit (4 check types: MISSING-TARGET / UNINDEXED-MARKDOWN / DUPLICATE-ENTRY / BROKEN-LINK)
+- [x] `docs/contracts/generated/document-universe-findings.generated.json` 初版 landing
+- [x] aag-finding-v1 schema conform (= ajv 検証 OK)
+- [x] verified-zero finding emit (= drift count == 0 達成、ADR-SCP-016 D3 整合): scannedFiles 744 / drift 0
+- [x] hard gate / new-only gate 追加なし (= Wave 2 advisory only、不可侵原則 8 整合)
+- [x] severity articulate (= 全 check 1 種ずつ articulate: MISSING-TARGET → warn / UNINDEXED-MARKDOWN → info / DUPLICATE-ENTRY → warn / BROKEN-LINK → warn)
+- [x] confidence: high (= mechanically deterministic な existsSync / Set lookup)
+- [x] falsePositiveAllowed: true (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 2 完了条件 (ADR-SCP-022 D4 + ADR-SCP-016 D3 整合)
+
+- [x] check-document-universe.mjs landing
+- [x] document-universe-findings.generated.json 初版 landing
+- [x] valid-finding (= structural drift) または verified-zero finding が必ず emit される (= 本 sub-PR では verified-zero finding を emit、index integrity 達成証明)
+- [x] DOC-IDX-* 4 check (MISSING-TARGET / UNINDEXED-MARKDOWN / DUPLICATE-ENTRY / BROKEN-LINK) 全実装
+- [x] BROKEN-ANCHOR / STALE-GENERATED / KIND-MISMATCH check は Phase 2.5 後段 / Phase 4 で landing (= 本 sub-PR scope 外、anchor parse / freshness logic / doc-kind-registry 同期 は Wave 2 別 sub-PR)
 
 ## AI 自己レビュー (= user 承認の手前)
 
