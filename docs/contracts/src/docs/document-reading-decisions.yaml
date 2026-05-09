@@ -883,3 +883,1280 @@ entries:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
+
+  # ============================================================================
+  # Reading Pass Batch 6 (Wave 2 / Phase 2.5 sub-PR 10、reviewedAtCommit af480dd)
+  # 23 文書 = elements/calculations/CALC-002〜CALC-024 family 一括 articulate。
+  # CALC-001 (Batch 3 で articulate 済) と同 pattern: per-calculation 業務契約 spec
+  # (= frontmatter + 構造化 spec + sourceRef link)、全件 lifecycleStatus: active。
+  # disposition 全件: keep-and-contract (= canonical-doc として有効、計算正本台帳の articulate)。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/calculations/CALC-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-002 = calculatePIValues (contractId: BIZ-012、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/piValue.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-003 = computeEstimatedInventory (contractId: BIZ-009、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/inventoryCalc.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-004 = calculatePinIntervals (contractId: BIZ-011、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/pinIntervals.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-005 = evaluateObservationPeriod (contractId: BIZ-010、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/observationPeriod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-006 = calculateRemainingBudgetRate (contractId: BIZ-008、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/remainingBudgetRate.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-007 = decompose5 (contractId: BIZ-004、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/factorDecomposition.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-008 = calculateForecast (contractId: ANA-006、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/forecast.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-009 = calculateInvMethod (contractId: BIZ-001、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/invMethod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-010 = calculateEstMethod (contractId: BIZ-002、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/estMethod.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-011.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-011 = calculateBudgetAnalysis (contractId: BIZ-003、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-012.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-012 = analyzeDowGap (contractId: ANA-007、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/dowGapAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-013.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-013 = calculateDiscountImpact (contractId: BIZ-005、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/discountImpact.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-014.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-014 = buildPrevYearCostApprox (contractId: ANA-005、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/prevYearCostApprox.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-015.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-015 = calculateTransferTotals (contractId: BIZ-006、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/costAggregation.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-016.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-016 = calculateMarkupRates (contractId: BIZ-007、business/business-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/markupRate.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-017.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-017 = findCoreTime (contractId: ANA-001、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/timeSlotCalculations.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-018.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-018 = computeKpis (contractId: ANA-010、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetSimulator.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-019.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-019 = aggregateDowAverages (contractId: ANA-010、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/budgetSimulatorAggregations.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-020.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-020 = calculateMonthEndProjection (contractId: ANA-002、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/advancedForecast.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-021.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-021 = pearsonCorrelation (contractId: ANA-005、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/correlation.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-022.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-022 = calculateSensitivity (contractId: ANA-003、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/sensitivity.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-023.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-023 = analyzeTrend (contractId: ANA-004、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/algorithms/trendAnalysis.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-024.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: af480ddb9e972e836cd4cd39c599115328edb31b
+    reviewedAtSha: af480ddb9e972e836cd4cd39c599115328edb31b
+    rationaleSummary: |
+      CALC-024 = computeMovingAverage (contractId: ANA-009、analytic/analytic-authoritative)。
+      改修者向け事実台帳 (= app/src/domain/calculations/temporal/computeMovingAverage.ts の業務契約 spec、frontmatter + 入出力契約 + 不変条件 +
+      lifecycle 状態 + current ↔ candidate 双方向リンク)。lifecycleStatus: active で
+      canonicalRegistration: current、改修前提資料として valid canonical-doc。
+    alternativesConsidered: |
+      family-level 一括処理 (= 23 件の per-calc spec を 1 batch で articulate) を採用。
+      individual articulate も理論上可能だが、全 23 件が同 pattern (= frontmatter +
+      structured spec、lifecycleStatus: active、calculations/ README で family articulate 済) のため、
+      family-level 一括 keep-and-contract が最 articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+
+  # ============================================================================
+  # Reading Pass Batch 7 (Wave 2 / Phase 2.5 sub-PR 11、reviewedAtCommit 02c623a)
+  # 4 文書 = projects/active/quick-fixes/ 配下の標準 project structure 4 件 (= 初の
+  # projects/active/ zone shift、Failure Loop の新 zone での動作検証)。
+  # 全件 keep-and-contract / project-plan / temporalScope: present / failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/quick-fixes/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。collection kind の articulate
+      (= 1 checkbox = 1 単発 fix、終わらない collection、独立 project への昇格判断基準)。
+      project-checklist-governance §11 への pointer 含む。役割明確、location 整合。
+    alternativesConsidered: |
+      project-context など新 kind 追加も候補だが、project-plan で role を articulate 済 (=
+      project-internal context articulate doc は project-plan family の一種)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance 整合)。collection kind のため
+      [x] 完了 items と [ ] open items が articulate 蓄積する設計 (= '完了したら checked
+      にする、削除しない' が governance-articulated rule)。'collection は終わらない'
+      不可侵原則のため archive 対象でない。temporal mixing に見えるが governance で
+      明示的に articulate された pattern (= 失敗ではなく feature)。
+    alternativesConsidered: |
+      project-plan と統合も可能だが、live task list は AAG governance の特定 contract
+      (= project-checklist-governance) が articulate されており、project-checklist として
+      別 kind articulate が分かりやすい。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      起点文書 (= 現在地 + 次にやること + ハマりポイント)。collection としての特性
+      (= 単発 fix の受け皿、複数 phase 文脈なし、文脈が育ったら独立 project 昇格) を
+      articulate。役割明確、location 整合、live state 反映。
+    alternativesConsidered: |
+      project-handoff など新 kind 追加も候補だが、project-plan で role を articulate 済。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      project の不可侵原則 + checkbox の書き方 + 昇格判断基準を articulate。collection の
+      governance contract そのもの (= 5 不可侵原則は collection mode 維持の構造)。
+      役割明確、location 整合。
+    alternativesConsidered: |
+      project-charter / project-rules など新 kind も候補だが、project-plan family で十分。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 8 (Wave 2 / Phase 2.5 sub-PR 12、reviewedAtCommit 7970765)
+  # 6 文書 = projects/active/presentation-quality-hardening/ 全件。標準 4 doc + 2 拡張 doc。
+  # 新 proposedKind 2 種 articulate: project-discovery-log + project-projectization。
+  # 全件 keep-and-contract、failurePatterns: [] (= governance-articulated docs)。
+  # ============================================================================
+
+  - path: projects/active/presentation-quality-hardening/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。Presentation 層品質強化 program の
+      正本化先 articulate (= 旧 open-issues / technical-debt-roadmap / active-debt-refactoring-plan
+      の分散を本 project の checklist.md に集約)。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/AI_CONTEXT.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance 整合)。Phase 1〜3 構造化済、
+      verification 済 (2026-04-12) の未着手項目のみ articulate。Phase 1/2 は完了 + Phase 3
+      残作業を articulate。collection kind とは異なる finite project 形態 (= 完了したら archive へ移行)
+      だが、checklist 内の [x]/[ ] 混在は governance-articulated。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/checklist.md と同 kind、project-checklist で governance contract articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      DA-β-003 で institute された AAG 5 系統目 (= 発見蓄積) artifact。implementation 中に
+      発見した scope 外 / 改善必要 / 詳細調査要事項を P1〜P3 priority articulate で蓄積。
+      機械検証: projectizationPolicyGuard PZ-14 (= file 存在 + schema 軽量 check)。
+      新 proposedKind 'project-discovery-log' を articulate (= project-checklist と同様、
+      AAG governance の特定 contract を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、DA-β-003 institute の特定 governance contract (= PZ-14
+      machine validation) を持つため別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。Phase 1〜3 完了済 articulate (= past) + Phase 3 残作業
+      articulate (= future) を併存させる handoff 構造。416 行と長尺だが handoff role が要求する
+      'current state = what is done + what is next + pitfalls' を articulate するため structurally
+      mixed temporal。governance-articulated pattern (= Batch 7 checklist.md collection mode と同様、
+      失敗ではなく feature) として failurePatterns 未付与。
+    alternativesConsidered: |
+      split (= 完了 history を別 doc に切り出し) も候補だが、handoff の role は '後任者が
+      最初に読む 1 doc' であり、history と next steps の分離は handoff の機能を毀損する。
+      長尺は Phase 1〜3 program の完遂状況を反映 (= 自然な volume)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      不可侵原則 4 件 + Phase 1〜3 構造 articulate。役割明確、location 整合。
+      coverage 閾値引き上げ / .vm.ts 抽出 / hook 抽出 / test 追加の判断基準を articulate。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/plan.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate (= projectizationLevel + changeType + implementationScope +
+      breakingChange + requiresGuard + requiresHumanApproval)。projectization-policy.md governance
+      contract に基づく document type。past (= 判定 timing) + present (= 適用継続) の articulate
+      mixed temporal は governance-articulated。新 proposedKind 'project-projectization' を
+      articulate (= projectization-policy contract を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、projectization-policy の特定 governance contract を持ち、
+      機械検証 (projectizationPolicyGuard) の対象でもあるため別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 9 (Wave 2 / Phase 2.5 sub-PR 13、reviewedAtCommit 52c9556)
+  # 7 文書 = projects/active/reposteward-ai-ops-platform/ 全件。標準 4 + 拡張 3 (= Batch 8 の
+  # discovery-log + projectization に加えて decision-audit が新出)。
+  # 新 proposedKind 1 種 articulate: project-decision-audit (= drawer Pattern 1 application)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      project 意味空間の入口。RepoSteward AI Ops Platform 構想 articulate (= post-MVP、
+      AI-first repo operations engine)。Naming Note (= concept / binary / project id 三軸
+      articulate) を独自 articulate。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7/8 の AI_CONTEXT.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。Phase 0 (Bootstrap) のみ
+      articulate、Wave 1〜5 は §3 ルール '想像上の項目を bootstrap 段階で先取り articulate しない'
+      に従い着手 PR で incremental 追記。AI 自己レビュー + 最終レビュー section 必須構造維持。
+    alternativesConsidered: |
+      なし (= Batch 7/8 の checklist.md と同 kind、governance contract articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+      - projects/active/presentation-quality-hardening/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/decision-audit.md
+    proposedKind: project-decision-audit
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      L3 重判断 institute (= drawer Pattern 1 application、複数 Phase に跨る判断の lineage
+      articulation)。各 entry が 5 軸 (= status / context / decision / rationale / alternatives) +
+      観測点 + Lineage (judgementCommit + preJudgementCommit + retrospectiveCommit) +
+      振り返り判定 を articulate。governance contract: complexity-policy.md §3.4 +
+      decision-articulation-patterns.md Pattern 1。新 proposedKind 'project-decision-audit'
+      を articulate (= 独自 governance contract と固有 5 軸 schema を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、L3 重判断 institution は drawer Pattern 1 という
+      固有 governance contract と 5 軸 + Lineage という固有 schema を持つため別 kind articulate
+      が適切。Archive v2 で archive.manifest.json への圧縮対象であることも別 kind を裏打ち。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      DA-β-003 institute artifact (= AAG 5 系統目: 発見蓄積)。implementation 中に発見した
+      scope 外 / 改善必要 / 詳細調査要事項を P1〜P3 priority articulate で蓄積。
+      decision-audit.md (= 判断履歴) との役割分担を articulate (= scope 内 vs scope 外)。
+      機械検証: projectizationPolicyGuard PZ-14。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/discovery-log.md と同 kind、
+      project-discovery-log governance contract articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。Phase 0 (Bootstrap) landing 直後の現在地 articulate +
+      Wave 1〜5 次にやること articulate。前提 program (= aag-engine-go-mvp、2026-05-06 archive)
+      への back reference 含む。governance-articulated mixed temporal (= handoff role 要求)。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      不可侵原則 8 件 + Phase 構造 articulate (= JSON-first / AI-first / Read-only first /
+      主検出は構造 / DetectorResult-first / Additive-only / Wave-by-wave delivery /
+      versionImpact)。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7/8 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate。projectizationLevel: Level 3、changeType: governance-hardening、
+      requiresHumanApproval: true。projectization-policy.md governance contract に基づく。
+      past (= 判定 timing) + present (= 適用継続) の articulate mixed temporal は governance-articulated。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 10 (Wave 2 / Phase 2.5 sub-PR 14、reviewedAtCommit 5b5a9d1)
+  # 14 文書 = projects/active/pure-calculation-reorg/ 全 HIGH 候補。標準 6 doc + 拡張 2
+  # (breaking-changes + legacy-retirement) + phase-8/ sub-structure 6 (= README +
+  # promotion-readiness-table + 4 proposals)。
+  # 新 proposedKind 3 種 articulate: project-breaking-changes + project-legacy-retirement +
+  # project-promotion-proposal。全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/pure-calculation-reorg/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。pure 計算群を意味責任ベースで再分類、
+      AI が誤読・誤実装しにくい構造へ整備。Scope 境界明示 articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-9 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+      - projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/breaking-changes.md
+    proposedKind: project-breaking-changes
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.json で breakingChange: true 宣言時の必須 doc)。
+      BC-CALC-1〜3 の articulate (= 対象 + 破壊内容 + Phase)。'正本: plan.md' を明示し、本 doc は
+      AAG-COA 入口としての summary role。新 proposedKind 'project-breaking-changes' を articulate
+      (= AAG-COA governance contract に裏打ち)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、breaking-changes は AAG-COA の特定 mandatory artifact で、
+      projectization.breakingChange: true との bidirectional governance contract を持つため
+      別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      live task list 正本。Phase 0〜11 の達成条件 checkbox を articulate。Phase 別禁止事項は
+      plan.md に分離済 (= 役割分担 articulate)、本 doc は達成条件のみ。
+    alternativesConsidered: |
+      なし (= Batch 7-9 checklist.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+      - projects/active/presentation-quality-hardening/checklist.md
+      - projects/active/reposteward-ai-ops-platform/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      DA-β-003 institute artifact。同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8/9 discovery-log.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。3 文書役割分担 articulate (= HANDOFF / plan / checklist の
+      更新タイミング表)。governance-articulated mixed temporal (= handoff role 要求)。
+    alternativesConsidered: |
+      なし (= Batch 8/9 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/legacy-retirement.md
+    proposedKind: project-legacy-retirement
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.json で requiresLegacyRetirement: true 宣言時の必須 doc)。
+      撤退対象 + sunsetCondition articulate (= JS calc 正本群 / 'authoritative' 単独語)。
+      '正本: plan.md' を明示し、本 doc は AAG-COA 入口としての summary role。
+      新 proposedKind 'project-legacy-retirement' を articulate (= breaking-changes と同様、
+      AAG-COA governance contract に裏打ち、bidirectional with projectization.requiresLegacyRetirement)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、legacy-retirement は AAG-COA の特定 mandatory artifact で、
+      projectization.requiresLegacyRetirement: true との bidirectional governance contract を持つため
+      別 kind articulate が適切。breaking-changes と並ぶ governance pair。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      4 不可侵原則 + Phase 別禁止事項テーブル + Phase 0〜11 定義 articulate (= 1051 行、最大規模 plan)。
+      breaking-changes / legacy-retirement の正本でもある (= summary doc が pointer する先)。
+    alternativesConsidered: |
+      なし (= Batch 7-9 plan.md と同 pattern、規模だけ大)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+      - projects/active/reposteward-ai-ops-platform/plan.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      AAG-COA 判定結果。projectizationLevel: Level 3、changeType: architecture-refactor、
+      breakingChange: true、requiresLegacyRetirement: true、requiresGuard: true (= 全フラグ on の最大値)。
+      breaking-changes.md / legacy-retirement.md の bidirectional governance contract source。
+    alternativesConsidered: |
+      なし (= Batch 8/9 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Phase 8 (Promote Ceremony) entry doc。AI と user の責任配分 articulate
+      (= AI: scaffold + 提案書 draft / user: WASM build + DEV dual-run + 昇格承認)。
+      sub-scope の articulate role (= phase-specific entry、project AI_CONTEXT に近い)。
+    alternativesConsidered: |
+      新 kind project-phase-readme も候補だが、role は project-plan の sub-scope variant で、
+      governance contract が新たに articulate されているわけではないため統合が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/promotion-readiness-table.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Phase 8 着手対象 4 ANA candidate の readiness 判定 summary view。Pre-observation readiness
+      (= AI 検証済) + Post-observation entry/exit criteria (= user 観測後埋め)。
+      Batch 2/5 で articulate した references/04-tracking/promotion-readiness-* family と関連
+      (= 個別候補の readiness 判定表 vs 本 doc の summary view)。governance-articulated mixed
+      (= 観測前の structural state articulate + 観測後 update 予定)。
+    alternativesConsidered: |
+      project-promotion-readiness 新 kind も候補だが、status-snapshot で role articulate 済
+      (= per-candidate snapshot の集約 view、Batch 5 promotion-readiness-* と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= AI scaffold draft、user 承認待ち、'承認待ち: user' を user signature で置換する
+      governance workflow)。候補情報 (CAND-ANA-003) + 推奨順序 + 観測 entry/exit criteria + 承認 form の
+      articulate。新 proposedKind 'project-promotion-proposal' を articulate (= user 承認 form という
+      固有 governance workflow を持つため別 kind articulate)。
+    alternativesConsidered: |
+      status-snapshot で統合も候補だが、proposal は user signature 承認 form を持つ固有 governance
+      workflow であり、status-snapshot (= 観測 snapshot) とは role が異なる。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-004、ANA-003 と同 governance workflow)。
+    alternativesConsidered: |
+      なし (= ANA-003-sensitivity.md と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-007、同 governance workflow)。
+    alternativesConsidered: |
+      なし (= proposal family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    failurePatterns: []
+
+  - path: projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md
+    proposedKind: project-promotion-proposal
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    reviewedAtSha: 5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5
+    rationaleSummary: |
+      Promote 提案書 (= CAND-ANA-009、同 governance workflow、推奨順序の 1 番目)。
+    alternativesConsidered: |
+      なし (= proposal family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
+    failurePatterns: []

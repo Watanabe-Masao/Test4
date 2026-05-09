@@ -556,6 +556,302 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 9: failurePattern Registry Generator + Cross-Reference Validation (= Failure Learning Loop infrastructure 着地、reviewedAtCommit 69dd32f)
+
+> **目的**: Reading Pass 結果を ad-hoc string から構造化 registry に articulate。毎 batch が registry を
+> 自動 enrich する mechanism。同種 failure の N 回観測 → guard candidate 自動昇格 (= ratchet-down 自動化、
+> CLAUDE.md G8 整合)。Reading Pass throughput と Learning quality の bidirectional 強化。
+
+### Phase 2.5 sub-PR 9 (failurePattern registry infrastructure)
+
+- [x] 既存 asset audit: `docs/contracts/src/docs/document-failure-taxonomy.yaml` (= 10 patterns pre-articulated) + `docs/contracts/schema/document-failure-taxonomy.schema.json` (= 既存 schema 完備) を確認、duplicate articulate 防止
+- [x] gap 特定: generator 未実装 (= reading-decisions.yaml の使用と bidirectional cross-reference 機能なし)
+- [x] generator 実装: `tools/governance/build-document-failure-taxonomy.mjs`
+  - taxonomy authoring source schema validation (= ajv conform fail fast)
+  - reading-decisions.yaml scan で per-pattern observedCount + observedPaths + observedDispositions auto-compute
+  - computedMaturity auto-promotion ルール articulate (= observedCount 1-4 → observed / >=5 → guardrail-candidate-emitted、promote のみ = 下方向 demotion なし)
+  - unregistered DOC-FAIL-* in use 検出 (= reading-decisions で使用されているが taxonomy 未登録 = advisory warning)
+  - deterministic JSON output (= sorted keys、reproducible)
+- [x] generated artifacts 着地:
+  - `docs/contracts/generated/document-failure-taxonomy.generated.json` (= machine truth)
+  - `references/04-tracking/generated/document-failure-taxonomy.generated.md` (= human view)
+- [x] authoring source comment 更新 (= sub-PR 9 で generator landed を明記、derived block + advisory 機能を articulate)
+- [x] 初回実行検証:
+  - 10 patterns registered / 6 observed / 4 unobserved
+  - 4 guard candidates auto-promoted (= PROJECT-CONTENT-IN-REFERENCE 16 + LOCATION-MISMATCH 13 + TEMPORAL-MIXING 6 + GENERATED-AS-MANUAL 5)
+  - 2 emerging patterns tracked (= ARCHIVE-CONTENT-IN-CANONICAL 1 + AI-ROUTING-AMBIGUITY 1)
+  - 0 unregistered DOC-FAIL-* in use (= clean state、reading-decisions の全 failurePattern が registry 登録済)
+- [x] hard gate 追加なし (= Wave 2 advisory only、AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 9 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] generator が deterministic に動作 (= reproducible output、2 回連続実行で diff 0)
+- [x] 既存 taxonomy schema を改変せず derived block で auto-enrichment 実装 (= curated taxonomy preserve)
+- [x] computedMaturity の promotion ルールが articulate (= observedCount threshold + 5 段階 progression)
+- [x] unregistered DOC-FAIL-* surface 機能あり (= 未登録 pattern 検出、advisory warning)
+- [x] guard candidate 抽出機能あり (= observedCount >= 5 で eligible 判定、Wave 3 で guard 着地候補)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、未登録 pattern も hard gate なし)
+- [x] Reading Pass の毎 batch で registry が自動 enrich (= node 1 コマンドで再生成可能)
+
+### Phase 2.5 sub-PR 9 で articulate された Failure Learning Loop mechanism
+
+1. **Reading Pass で failurePattern observation** (= reading-decisions.yaml entry に DOC-FAIL-* tag 付与)
+2. **Generator が auto-aggregate** (= per-pattern observedCount + observedPaths + observedDispositions)
+3. **Maturity auto-promotion** (= observedCount threshold で computedMaturity 昇格)
+4. **Guard candidate surface** (= observedCount >= 5 で eligible flag)
+5. **Wave 3 で guard 実装** (= guard candidate を実際の guard test に articulate)
+6. **同種 failure 再発時に hard fail** (= ratchet-down 完成、CLAUDE.md G8 整合)
+
+## Wave 2 / Phase 2.5 sub-PR 10: Reading Pass Batch 6 (= CALC-* family 23 docs 一括 articulate、reviewedAtCommit af480dd)
+
+> **目的**: sub-PR 9 で Failure Learning Loop infrastructure 着地後の最初の Reading Pass batch。
+> elements/calculations/CALC-002〜CALC-024 family 23 件を一括 articulate。CALC-001 (Batch 3 articulate 済)
+> と同 pattern (= per-calculation 業務契約 spec、frontmatter + 構造化 spec、lifecycleStatus: active) で
+> 全件 keep-and-contract / canonical-doc。Failure Learning Loop の 0-pattern batch 動作検証 (= 全件 clean docs、
+> failurePatterns: [] で generator が unregistered surface しないこと確認)。
+
+### Phase 2.5 sub-PR 10 (Reading Pass Batch 6、23 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 10 着手 (= user 「よろしくお願いします」承認、推薦 = CALC-* family 一括)
+- [x] 23 docs を read + articulate: CALC-002〜CALC-024 (= 全件 lifecycleStatus: active、canonicalRegistration: current)
+- [x] 23 entry を document-reading-decisions.yaml に append (= entries: 30 → 53、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= family-level 一括処理)
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に同 temporalScope: present articulate
+- [x] 全 entry に同 hasCurrentContract: true / hasHistory: false / hasFuturePlan: false articulate
+- [x] 全 entry に同 failurePatterns: [] articulate (= clean docs、Failure Loop の 0-pattern batch 検証)
+- [x] generation script で frontmatter (= exportName + contractId + sourceRef + semanticClass + authorityKind) を抽出 + entry 生成 (= /tmp/gen-batch6.mjs、23 件 1 batch 自動 articulate)
+- [x] candidates regenerate (= 368 → 345 candidates、HIGH 164 → 141、alreadyReviewedCount 30 → 53)
+- [x] Failure Loop generator 再実行 (= per-pattern observed 数値変化なし、unregistered 0、clean batch を確認)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 53 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 10 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 6 23 entry append 済 (= 累計 53 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] family-level 一括 articulate mechanism 再実証 (= 23 件 = Batch 5 (10 件) より大規模 batch、generation script で再現可能)
+- [x] Failure Learning Loop 0-pattern batch 動作検証 (= clean docs batch でも generator 安定動作、unregistered 検出は 0 維持)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
+## Wave 2 / Phase 2.5 sub-PR 11: Reading Pass Batch 7 (= projects/active/ zone shift、reviewedAtCommit 02c623a)
+
+> **目的**: sub-PR 10 までは references/04-tracking/ 配下の articulate に集中。Batch 7 で初の
+> projects/active/ zone shift を実施 (= 新 zone での Failure Loop 動作検証 + 新 pattern surface 可能性)。
+> quick-fixes/ 4 docs を probe batch として articulate (= 標準 project structure: AI_CONTEXT +
+> checklist + HANDOFF + plan)、新 proposedKind = project-checklist articulate。
+
+### Phase 2.5 sub-PR 11 (Reading Pass Batch 7、4 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 11 着手 (= user 「よろしくお願いします」承認、推薦 = projects/active/ zone shift)
+- [x] 4 docs を read + articulate: quick-fixes/{AI_CONTEXT, checklist, HANDOFF, plan}.md (= 標準 project structure 全 4 件)
+- [x] 4 entry を document-reading-decisions.yaml に append (= entries: 53 → 57、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= 全件 location 整合 + 役割明確)
+- [x] 全 entry に同 temporalScope: present articulate
+- [x] 全 entry に同 failurePatterns: [] articulate (= clean docs by design)
+- [x] 新 proposedKind articulate: project-checklist (= live task list 正本、project-checklist-governance contract)
+- [x] checklist.md の '完了 [x] と open [ ] が混在' を temporal-mixing に誤分類しない判断 articulate (= governance-articulated rule 'collection は終わらない、削除しない' のため failure ではなく feature)
+- [x] candidates regenerate (= 345 → 341 candidates、HIGH 141 → 137、alreadyReviewedCount 53 → 57)
+- [x] Failure Loop generator 再実行 (= clean batch、unregistered 0 維持、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 57 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 11 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 7 4 entry append 済 (= 累計 57 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] projects/active/ zone shift 完遂 (= 初の references/04-tracking/ 以外 zone articulate)
+- [x] 新 proposedKind 'project-checklist' articulate (= proposedKind 8 種に拡張)
+- [x] governance-articulated pattern と failure pattern を articulate に区別 (= collection mode の [x] 蓄積を temporal-mixing と誤分類せず)
+- [x] Failure Loop infrastructure が新 zone でも安定動作 (= clean batch、unregistered surface 機能維持)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 11 で articulate された判断 mechanism
+
+**governance-articulated pattern vs failure pattern の articulate 区別**:
+
+quick-fixes/checklist.md は [x] 完了 items と [ ] open items が混在するため一見
+DOC-FAIL-TEMPORAL-MIXING に該当する可能性がある。しかし:
+- collection kind の不可侵原則 '完了したら checked にする (削除しない)' で governance-articulated
+- 失敗ではなく feature として articulate されている
+- 同 pattern は他の collection project にも適用される
+
+→ Reading Pass の articulate では「mechanism 上の pattern」と「失敗 pattern」を区別、後者のみ
+failurePatterns 付与。本判断は将来の Reading Pass で同類 governance-articulated pattern に
+遭遇した際の reference (= failurePatterns 付与判断の基準) として機能。
+
+## Wave 2 / Phase 2.5 sub-PR 12: Reading Pass Batch 8 (= projects/active/ zone 継続、reviewedAtCommit 7970765)
+
+> **目的**: Batch 7 の projects/active/ zone shift を継続。presentation-quality-hardening (= 6 docs)
+> 全件 articulate。標準 4 doc 構造 (AI_CONTEXT/checklist/HANDOFF/plan) + 拡張 2 doc (discovery-log/
+> projectization) を発見、新 proposedKind 2 種 articulate (= project-discovery-log + project-projectization)。
+> finite project pattern (= collection と異なる完了 → archive 移行型) を初観測、HANDOFF.md mixed temporal の
+> governance-articulated 判断 articulate。
+
+### Phase 2.5 sub-PR 12 (Reading Pass Batch 8、6 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 12 着手 (= user 「1で」承認、= presentation-quality-hardening 一括)
+- [x] 6 docs を read + articulate: AI_CONTEXT + checklist + discovery-log + HANDOFF + plan + projectization
+- [x] 6 entry を document-reading-decisions.yaml に append (= entries: 57 → 63、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= 全件 location 整合 + governance contract 整合)
+- [x] 全 entry に同 failurePatterns: [] articulate (= governance-articulated docs)
+- [x] 新 proposedKind 2 種 articulate:
+  - project-discovery-log (= DA-β-003 institute、projectizationPolicyGuard PZ-14 contract)
+  - project-projectization (= projectization-policy.md contract、AAG-COA 判定結果)
+- [x] HANDOFF.md mixed temporal の governance-articulated 判断 articulate (= handoff role が past + present + future の併存を要求、長尺 416 行は Phase 1〜3 program の自然な volume、failurePatterns 未付与)
+- [x] projectization.md mixed temporal の governance-articulated 判断 articulate (= 判定 timing past + 適用継続 present、機械検証対象)
+- [x] candidates regenerate (= 341 → 335 candidates、HIGH 137 → 131、alreadyReviewedCount 57 → 63)
+- [x] Failure Loop generator 再実行 (= clean batch 維持、unregistered 0、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 63 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 12 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 8 6 entry append 済 (= 累計 63 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] proposedKind 10 種に拡張達成 (= repo-entrypoint + canonical-doc + archive-doc + project-plan + status-snapshot + log-journal + generated-report + project-checklist + project-discovery-log + project-projectization)
+- [x] finite project pattern 初観測 (= presentation-quality-hardening、collection mode の quick-fixes と異なる完了型)
+- [x] governance-articulated mixed temporal の articulate 判断 (= HANDOFF + projectization、failurePatterns 付与せず governance contract で正当化)
+- [x] Failure Loop infrastructure が新 doc kind articulate でも安定動作 (= 2 新 kind 追加でも generator は input 不変)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 12 で articulate された pattern (= Reading Pass の知見蓄積)
+
+**1. project doc の governance contract 多様性**:
+projects/active/<id>/ 配下の doc は単一 'project-plan' kind で済まない。それぞれ異なる governance
+contract を持つ:
+- AI_CONTEXT.md → 入口 articulate (project-plan family)
+- checklist.md → project-checklist-governance contract (project-checklist kind)
+- discovery-log.md → DA-β-003 institute / PZ-14 (project-discovery-log kind)
+- HANDOFF.md → 起点文書 (project-plan family)
+- plan.md → 不可侵原則 (project-plan family)
+- projectization.md → projectization-policy contract (project-projectization kind)
+
+**2. governance-articulated mixed temporal の articulate 判定**:
+mixed temporal scope を持つが governance contract で正当化される doc は failurePatterns 未付与:
+- collection mode checklist の [x]+[ ] 混在 (Batch 7 で articulate)
+- HANDOFF.md の past + future 併存 (= handoff role 要求)
+- projectization.md の past 判定 + present 適用 (= governance contract)
+
+→ Reading Pass の articulate では「mechanism の構造」を見て governance contract がある場合は
+failurePatterns 未付与とする judgment 確立。
+
+## Wave 2 / Phase 2.5 sub-PR 13: Reading Pass Batch 9 (= reposteward-ai-ops-platform 一括、reviewedAtCommit 52c9556)
+
+> **目的**: Batch 7/8 の projects/active/ zone shift を継続。reposteward-ai-ops-platform (= 7 docs)
+> 全件 articulate。Batch 8 で発見した 6 doc 構造に加えて新出 doc 'decision-audit.md' を articulate
+> (= L3 重判断 institute、drawer Pattern 1 application)。新 proposedKind 1 種 articulate
+> (project-decision-audit)。
+
+### Phase 2.5 sub-PR 13 (Reading Pass Batch 9、7 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 13 着手 (= user 「1」承認、= reposteward-ai-ops-platform 一括)
+- [x] 7 docs を read + articulate: AI_CONTEXT + checklist + decision-audit + discovery-log + HANDOFF + plan + projectization
+- [x] 7 entry を document-reading-decisions.yaml に append (= entries: 63 → 70、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 1 種 articulate: project-decision-audit (= drawer Pattern 1 application、5 軸 + 観測点 + Lineage + 振り返り判定の固有 schema、complexity-policy.md §3.4 + decision-articulation-patterns.md governance contract)
+- [x] decision-audit.md (2101 行、最大規模 doc) の Lineage articulate scheme (= judgementCommit + preJudgementCommit + retrospectiveCommit) を articulate に温存
+- [x] candidates regenerate (= 335 → 328 candidates、HIGH 131 → 124、alreadyReviewedCount 63 → 70)
+- [x] Failure Loop generator 再実行 (= clean batch 維持、unregistered 0、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 70 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 13 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 9 7 entry append 済 (= 累計 70 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] proposedKind 11 種に拡張達成 (= 10 → 11、新規: project-decision-audit)
+- [x] L3 重判断 institute pattern (= drawer Pattern 1) 初観測 + articulate
+- [x] active project の standard structure 拡張形 articulate (= quick-fixes 4 doc / presentation-quality-hardening 6 doc / reposteward 7 doc の段階)
+- [x] Failure Loop infrastructure が大規模 doc (2101 行) 含む batch でも安定動作
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 13 で articulate された pattern (= Reading Pass の知見蓄積)
+
+**1. active project structure の incremental 拡張 articulate**:
+projects/active/<id>/ の標準 structure は固定ではなく、project の governance 要件に応じて
+incremental に拡張される:
+- 4 doc 構造 = quick-fixes (collection、軽量)
+- 6 doc 構造 = presentation-quality-hardening (= 4 + discovery-log + projectization、finite)
+- 7 doc 構造 = reposteward-ai-ops-platform (= 6 + decision-audit、L3 重判断 institute)
+
+→ 各 doc は独自 governance contract を持ち得る (= proposedKind 11 種に articulate された理由)。
+
+**2. drawer pattern の articulate 観測**:
+decision-audit.md は drawer Pattern 1 application の実例。drawer pattern (= references/05-aag-interface/
+drawer/) は AAG が AI に提供する interface family であり、本 Reading Pass で初の application
+articulate を観測。今後の Reading Pass で他 drawer pattern (Pattern 2/3/...) の application も
+surface する可能性を articulate。
+
+## Wave 2 / Phase 2.5 sub-PR 14: Reading Pass Batch 10 (= pure-calculation-reorg 一括、reviewedAtCommit 5b5a9d1)
+
+> **目的**: projects/active/ zone shift 継続。pure-calculation-reorg (= 14 docs、最大規模 active project)
+> 全件 articulate。AAG-COA mandatory artifact (= breaking-changes / legacy-retirement) を初観測、
+> phase-8/ sub-structure (= phase-specific entry + readiness table + 4 promote 提案書) を articulate。
+> 新 proposedKind 3 種 articulate (= project-breaking-changes + project-legacy-retirement +
+> project-promotion-proposal)。
+
+### Phase 2.5 sub-PR 14 (Reading Pass Batch 10、14 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 14 着手 (= user 「1」承認、= pure-calculation-reorg 一括)
+- [x] 14 docs を read + articulate: 標準 6 (AI_CONTEXT/checklist/discovery-log/HANDOFF/plan/projectization) + 拡張 2 (breaking-changes/legacy-retirement) + phase-8/ 6 (README + readiness-table + 4 proposals)
+- [x] 14 entry を document-reading-decisions.yaml に append (= entries: 70 → 84、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 3 種 articulate:
+  - project-breaking-changes (= AAG-COA mandatory when breakingChange:true、bidirectional with projectization)
+  - project-legacy-retirement (= AAG-COA mandatory when requiresLegacyRetirement:true、bidirectional with projectization)
+  - project-promotion-proposal (= AI scaffold draft + user signature 承認 form の固有 governance workflow)
+- [x] candidates regenerate (= 328 → 314 candidates、HIGH 124 → 110、alreadyReviewedCount 70 → 84)
+- [x] Failure Loop generator 再実行 (= clean batch 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 84 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 14 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 10 14 entry append 済 (= 累計 84 entries、stage: in-progress)
+- [x] proposedKind 14 種に拡張達成 (= 11 → 14)
+- [x] AAG-COA mandatory artifact pattern 初観測 + articulate (= projectization.flag → breaking-changes / legacy-retirement の bidirectional governance contract)
+- [x] phase-specific sub-structure 初観測 + articulate (= phase-8/ 配下の README + readiness-table + proposals/)
+- [x] Promote Ceremony governance workflow articulate (= AI scaffold + user 承認 form)
+- [x] active project 規模 spectrum articulate (= 4 doc / 6 doc / 7 doc / 14 doc の 4 段階)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 14 で articulate された pattern
+
+**1. AAG-COA mandatory artifact bidirectional pair**:
+projectization.json で breakingChange: true / requiresLegacyRetirement: true を declare すると、
+対応する mandatory artifact (= breaking-changes.md / legacy-retirement.md) を要求される
+governance contract が articulate された。両者は bidirectional pair:
+- projectization.breakingChange: true ↔ breaking-changes.md 必須
+- projectization.requiresLegacyRetirement: true ↔ legacy-retirement.md 必須
+
+→ 将来の guard candidate: 'projectization で flag が true のとき対応 doc が存在することを機械検証'。
+
+**2. Phase-specific sub-structure pattern**:
+projects/active/<id>/phase-N/ の sub-directory 構造を初観測。中身:
+- phase-N/README.md (= phase entry doc)
+- phase-N/<artifact-type>/<id>.md (= per-Phase artifact、例: proposals/ANA-003-sensitivity.md)
+- phase-N/<summary-view>.md (= phase 全体 summary、例: promotion-readiness-table.md)
+
+→ Reading Pass の articulate では phase-N/ sub-structure も project の一部として articulate、
+独立 zone として扱わない。
+
+**3. Promote Ceremony governance workflow articulate**:
+project-promotion-proposal は AI scaffold + user 承認 form の二段 workflow:
+- AI: candidate 情報 + 観測 entry/exit criteria + 推奨順序を draft (= scaffold)
+- user: 観測完了後 '承認待ち: user' を user signature で置換 (= 承認 form)
+
+→ AI / user の責任配分が doc 構造に articulate される事例。proposal kind の固有 schema
+(承認 form の存在) が新 kind articulate を裏打ち。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
