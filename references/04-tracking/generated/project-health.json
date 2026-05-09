@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-09T03:14:08.561Z",
+  "timestamp": "2026-05-09T03:26:26.408Z",
   "summary": {
     "active": 6,
     "archived": 41,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 1641,
-    "checkedCheckboxes": 1543
+    "totalCheckboxes": 1664,
+    "checkedCheckboxes": 1566
   },
   "projects": [
     {
@@ -200,9 +200,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 199,
-      "total": 211,
-      "progress": 0.943,
+      "checked": 222,
+      "total": 234,
+      "progress": 0.949,
       "entrypoint": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
       "checklistPath": "projects/active/aag-structural-control-plane/checklist.md",
       "parent": null

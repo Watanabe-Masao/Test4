@@ -1,0 +1,55 @@
+{
+  "kinds": [
+    {
+      "description": "製本文書。現在有効な実装 / 契約 / 定義 / ルールのみを articulate する kind。\n過去の実装経緯 / 退役済み設計 / 移行ログは archive-doc へ、\n将来計画 / roadmap / TODO / Phase plan / project progress は project-plan へ分離 (不可侵原則 3 / ADR-SCP-003)。\n",
+      "discriminationGuide": "sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):\n- vs archive-doc: 現在運用中 vs 退役済み、archive-manifest 有無で判別\n- vs project-plan: present vs future、Phase / Wave / TODO / Roadmap heading の有無で判別\n- vs generated-report: 人間/AI authored vs producer 自動生成、producer field 有無で判別\n",
+      "forbiddenContent": [
+        "## History",
+        "## Roadmap",
+        "## Future",
+        "## TODO",
+        "## Phase",
+        "## Migration Log"
+      ],
+      "id": "canonical-doc",
+      "lifecycle": "active",
+      "machineInferredAccepted": false,
+      "temporalScope": "present"
+    },
+    {
+      "description": "project 文書。将来計画 / roadmap / TODO / Phase plan / project progress を articulate する kind。\nprojects/active/<id>/plan.md / checklist.md / decision-audit.md 等の project 配下文書が該当。\n製本 (= canonical-doc) と分離 (= 不可侵原則 3 / ADR-SCP-003)。\n",
+      "discriminationGuide": "sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):\n- vs canonical-doc: future vs present、Phase / Wave 構造の存在で判別\n- vs archive-doc: in_progress vs completed、projects/active/ vs projects/completed/ で判別\n",
+      "id": "project-plan",
+      "lifecycle": "active",
+      "machineInferredAccepted": false,
+      "temporalScope": "future"
+    },
+    {
+      "acceptanceCondition": "archive-manifest.json が同 zone 内に存在 (ADR-SCP-008 例外条項)",
+      "description": "archive 文書。過去の経緯 / 退役済み設計 / 移行ログを articulate する kind。\nreferences/99-archive/ または projects/completed/<id>/ARCHIVE.md 配下が該当。\narchive-manifest.json の存在で machine-inferred 認定可能 (ADR-SCP-008 例外条項)。\n",
+      "discriminationGuide": "sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):\n- vs canonical-doc: 退役済み vs 現在運用中、archive-manifest 有無で判別\n- vs project-plan: completed vs in_progress、projects/completed/ vs projects/active/ で判別\n",
+      "id": "archive-doc",
+      "lifecycle": "active",
+      "machineInferredAccepted": true,
+      "temporalScope": "past"
+    },
+    {
+      "acceptanceCondition": "producer field が generated-artifacts registry (Wave 3 / Phase 9 で landing 予定) に declared (ADR-SCP-008 例外条項)",
+      "description": "generated 文書。現在値の一覧 / 件数 / status を機械生成する kind。\nproducer field が generated-artifacts registry に declared されている場合に machine-inferred 認定可能 (ADR-SCP-008 例外条項)。\nreferences/04-tracking/generated/ 配下 (例: project-health.generated.md / architecture-health.generated.md) が該当。\n製本 (= canonical-doc) と分離 (= 不可侵原則 3 / ADR-SCP-003): generated-report は計算済み、canonical-doc は手 articulate。\n",
+      "discriminationGuide": "sketch (Wave 1 minimum、Wave 2 Phase 4 で完備):\n- vs canonical-doc: 機械生成 vs 手 articulate、producer 有無 + filename suffix (.generated.md) で判別\n- 手編集禁止 (= generatedFileEditGuard で機械検証予定)\n",
+      "id": "generated-report",
+      "lifecycle": "active",
+      "machineInferredAccepted": true,
+      "temporalScope": "generated-current"
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-05-09T03:24:21.817Z",
+    "sourcePaths": [
+      "docs/contracts/src/docs/doc-kind-registry.yaml"
+    ],
+    "sourceSha": "f877572daa25003f524c9ea5d446cd8147ac53be"
+  },
+  "schemaVersion": "doc-kind-registry-v1",
+  "stage": "minimum"
+}

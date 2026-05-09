@@ -341,6 +341,42 @@
 - [x] DOC-IDX-* 4 check (MISSING-TARGET / UNINDEXED-MARKDOWN / DUPLICATE-ENTRY / BROKEN-LINK) 全実装
 - [x] BROKEN-ANCHOR / STALE-GENERATED / KIND-MISMATCH check は Phase 2.5 後段 / Phase 4 で landing (= 本 sub-PR scope 外、anchor parse / freshness logic / doc-kind-registry 同期 は Wave 2 別 sub-PR)
 
+## Wave 2 / Phase 4: Document Kind + Temporal Scope Shadow checker (sub-PR B + C bundle)
+
+> **目的（plan.md L639-L665 整合）**: Document Kind Registry を normalize し、temporal-scope policy を articulate して advisory checker を稼働させる。Wave 2 advisory only (= 不可侵原則 8 整合)、hard gate 追加なし。
+
+### Phase 4 sub-PR B (Document Kind Registry normalize)
+
+- [x] Wave 2 / Phase 4 sub-PR B 着手 user 承認
+- [x] `tools/governance/build-doc-kind-registry.mjs` landing — yaml→json normalize (= 不可侵原則 1 整合: schemaVersion / metadata / sourceSha + ajv schema validation)
+- [x] `docs/contracts/generated/doc-kind-registry.generated.json` 初版 landing (4 kinds: canonical-doc / project-plan / archive-doc / generated-report、stage: minimum 維持)
+- [x] stage promotion (minimum → extended) は Phase 4 後段 PR で articulate (= 本 sub-PR では generator + initial generate のみ、scope 限定)
+- [x] deterministic (object key alphabetical sort + array order-preserving + indent 2 + final newline)
+
+### Phase 4 sub-PR C (Temporal Scope Policy + advisory checker)
+
+- [x] Wave 2 / Phase 4 sub-PR C 着手 user 承認
+- [x] `docs/contracts/schema/temporal-scope-policy.schema.json` landing — Policy entry shape (id / description / scope / checks / severity / confidence / suggestedDisposition / rationale)
+- [x] `docs/contracts/src/docs/temporal-scope-policy.yaml` landing — 3 policies: no-temporal-mixing (canonical-doc) + generated-must-have-producer (generated-report、ADR-SCP-008 例外条項 articulate のみ) + archive-must-have-manifest (archive-doc、ADR-SCP-008 例外条項 articulate のみ)
+- [x] `tools/governance/build-temporal-scope-policy.mjs` landing — yaml→json normalize + ajv schema validation
+- [x] `docs/contracts/generated/temporal-scope-policy.generated.json` 初版 landing
+- [x] `tools/governance/check-doc-temporal-scope.mjs` landing — canonical-doc kind の forbidden heading (## History / Roadmap / Future / TODO / Phase / Migration Log) + forbidden pattern (checkbox `^[ \t]*-[ \t]+\[[ x]\]`) を scan、aag-finding-v1 conform finding emit
+- [x] `docs/contracts/generated/temporal-scope-findings.generated.json` 初版 landing — 326 valid-finding emit (canonical-doc 269 entries scanned、no-temporal-mixing policy)
+- [x] severity articulate: warn (= Wave 2 advisory only、不可侵原則 8 整合)
+- [x] confidence: high (= regex match の deterministic 検出)
+- [x] falsePositiveAllowed: true (= Wave 2 advisory、Phase 5 cleanup PR で disposition 確定)
+- [x] suggestedDisposition: split (= no-temporal-mixing policy で articulate、project-checklist-governance 整合)
+- [x] hard gate / new-only gate 追加なし
+
+### Phase 4 sub-PR B + C 完了条件 (plan.md L660-L666 整合)
+
+- [x] doc-kind-registry.generated.json + temporal-scope-policy.generated.json + temporal-scope-findings.generated.json の 3 generated.json が landing
+- [x] 製本/archive/project/generated の分類候補が出る (= doc-kind-registry stage minimum で 4 kinds articulate 済 + universe entry kind heuristic で分類済)
+- [x] 過去/未来混入 finding が一覧化される (= temporal-scope-findings 326 件で articulate 済、Phase 5 cleanup PR で disposition 確定)
+- [x] 誤検知レビュー期間 (state-based exit) は Phase 5 cleanup PR + Reading Pass で並列開始
+- [x] advisory のみ (= hard gate なし、Wave 2 不可侵原則 8 整合)
+- [x] generated-must-have-producer + archive-must-have-manifest は acceptanceRule articulate のみ (= Phase 4 後段 / Wave 3 で checker 実装、本 sub-PR scope 外)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
