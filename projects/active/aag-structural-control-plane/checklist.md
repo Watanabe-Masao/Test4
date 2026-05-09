@@ -403,6 +403,33 @@
 - [x] Reading Pass 実行 workflow が derived/README.md L25-L33 で articulate されている
 - [x] Wave 2 後段で landing 予定の追加成果物 (= reading log narrative + decisions normalize generator + merged generator + guardrail-candidates schema/yaml) が derived/README.md L37-L43 で articulate されている (= 順序逆行禁止、本 sub-PR scope 外)
 
+## Wave 2 / Phase 2.5 sub-PR 4: Reading Pass Batch 1 (= HIGH priority 5 docs articulate)
+
+> **目的**: sub-PR 3 で landed Reading Pass infrastructure を入力に、HIGH priority hot zone 候補から最初の Reading Pass batch を実行。disposition + 5 hasX flags + rationale + failurePatterns を articulate に確定し、failure-taxonomy examplePaths + maturityHint を observed stage に promote。
+
+### Phase 2.5 sub-PR 4 (Reading Pass Batch 1、5 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 4 着手 user 承認
+- [x] 5 docs を read + articulate: CLAUDE.md (HIGH repo-entrypoint) + references/04-tracking/aag-doc-audit-report.md (HIGH canonical-doc) + ar-rule-audit.md (HIGH canonical-doc) + authoritative-term-sweep.md (HIGH unknown) + dashboards/README.md (HIGH unknown)
+- [x] 5 entry を document-reading-decisions.yaml に append (= stage: empty → in-progress)
+- [x] 各 entry に 9 disposition のいずれかを articulate: keep-and-contract 2 件 (CLAUDE.md + dashboards/README.md) / archive 2 件 (aag-doc-audit-report + authoritative-term-sweep) / move 1 件 (ar-rule-audit)
+- [x] 各 entry に 5 hasX flags + rationaleSummary + alternativesConsidered + duplicates + failurePatterns articulate
+- [x] document-failure-taxonomy.yaml stage を pre-articulate → in-use に promote
+- [x] 4 failure patterns の maturityHint を pattern-articulated → observed に promote: TEMPORAL-MIXING / LOCATION-MISMATCH / GENERATED-AS-MANUAL / PROJECT-CONTENT-IN-REFERENCE
+- [x] 各 observed pattern に examplePaths を articulate (= reading-decisions entry path との bidirectional reference)
+- [x] candidates regenerate (= 398 → 393 candidates、alreadyReviewedCount 0 → 5)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress + failure-taxonomy in-use)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 4 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に 5 entry articulate 済 (= stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] failure-taxonomy.yaml の 4 pattern が observed stage に promote (= AAG-SCP-DOC-LEARNING-002 5 段階 maturity progression 整合: pattern-articulated → observed)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

@@ -3,20 +3,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "CLAUDE.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "rewrite-and-contract",
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "repository-entrypoints",
-      "universeKind": "repo-entrypoint"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/README.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -896,68 +882,6 @@
       "universeContractStatus": "unreviewed",
       "universeDocumentStatus": "observed-only",
       "universeIndexSection": "active-projects",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/aag-doc-audit-report.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/ar-rule-audit.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/authoritative-term-sweep.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tracking",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/dashboards/README.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tracking",
       "universeKind": "unknown"
     },
     {
@@ -5939,24 +5863,24 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T03:38:34.119Z",
+    "generatedAt": "2026-05-09T09:07:10.879Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "1091c3710498c90c16c1a7c5f297390e1a65afff"
+    "sourceSha": "f4927855b5f85d338ed1c0dfbf3105f53e86044e"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 0,
+    "alreadyReviewedCount": 5,
     "byKind": {
-      "canonical-doc": 269,
+      "canonical-doc": 267,
       "project-plan": 52,
-      "repo-entrypoint": 3,
-      "unknown": 74
+      "repo-entrypoint": 2,
+      "unknown": 72
     },
     "byPriority": {
-      "HIGH": 194,
+      "HIGH": 189,
       "MEDIUM": 204
     },
     "bySection": {
@@ -5968,13 +5892,13 @@
       "foundation": 42,
       "implementation": 76,
       "project-templates": 15,
-      "repository-entrypoints": 4,
+      "repository-entrypoints": 3,
       "roles": 16,
       "tools": 1,
-      "tracking": 128,
+      "tracking": 124,
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 398
+    "totalCandidates": 393
   }
 }

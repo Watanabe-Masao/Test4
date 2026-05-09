@@ -1,4 +1,4 @@
-# Document Reading Decisions authoring source (Wave 2 / Phase 2.5 sub-PR 3 雛形 = stage: empty)
+# Document Reading Decisions authoring source (Wave 2 / Phase 2.5 sub-PR 4 = stage: in-progress)
 #
 # 役割: Document Reset Pass の各文書 reading 結果を articulate する authoring source。
 # 各 entry は 1 文書の精査記録 (= path + proposedKind + temporalScope + 9 disposition の 1 +
@@ -20,6 +20,124 @@
 # schema: docs/contracts/schema/document-reading-decisions.schema.json (本 sub-PR で landing)
 
 schemaVersion: document-reading-decisions-v1
-stage: empty
+stage: in-progress
 
-entries: []
+entries:
+  # ============================================================================
+  # Reading Pass Batch 1 (Wave 2 / Phase 2.5 sub-PR 4、reviewedAtCommit f492785)
+  # 5 文書 = CLAUDE.md (HIGH repo-entrypoint) + 4 references/04-tracking/ HIGH 文書
+  # ============================================================================
+
+  - path: CLAUDE.md
+    proposedKind: repo-entrypoint
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      orchestration 層の最上位案内板。役割が明確 (= 鉄則索引 + AI manifest pointer + 設計原則
+      要約 + roles 連携 articulate)、live task list は projects/<id>/checklist.md に逃がしてある
+      (project-checklist-governance 整合)。generated section 経由で current value も articulate 済。
+    alternativesConsidered: |
+      rewrite-and-contract も検討したが、現状 articulate は鉄則 quote + drill-down link 形式で
+      AAG-SCP-DOC-INDEX-005~008 整合済 (= 案内板役割を逸脱していない)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/aag-doc-audit-report.md
+    proposedKind: project-plan
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      'Phase 3 deliverable' を自称し、completed project (aag-bidirectional-integrity) の audit
+      findings + migration plan を 382 行で articulate。references/04-tracking/ 配下にあるが
+      content は project audit 履歴で、現在の canonical reference ではない。
+    alternativesConsidered: |
+      move (= projects/completed/aag-bidirectional-integrity/derived/audit-report.md へ移動) も
+      候補だが、既に project ARCHIVE 経由で migration 完遂済のため、references/99-archive/
+      または同 project 配下への archive で十分。delete-candidate も検討したが、audit 履歴として
+      preserve 価値あり。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+      - DOC-FAIL-TEMPORAL-MIXING
+
+  - path: references/04-tracking/ar-rule-audit.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      'AR-rule binding 品質基準 protocol' を articulate する canonical content (= "正本: 本 doc"
+      + semanticArticulationQualityGuard の検証条件正本)。location が 04-tracking (= 健康 / 監査)
+      に不整合、references/03-implementation/ar-rule-binding-protocol.md 等への move が適切。
+    alternativesConsidered: |
+      keep-and-contract (= 04-tracking でも audit-derived protocol として articulate 可) も候補
+      だが、content は protocol contract で audit ではないため move 推奨。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/authoritative-term-sweep.md
+    proposedKind: archive-doc
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      2026-04-10 時点の用語スイープ結果 (279 箇所 / 65 ファイル)。一度限りの調査 snapshot で、
+      'Phase 3 (bridge 境界定義) で修正' 等の migration TODO が混入。件数は本来 generated
+      report 化すべき (DOC-FAIL-GENERATED-AS-MANUAL)。
+    alternativesConsidered: |
+      split (= count 部分 → generated-register / TODO 部分 → projects/) も候補だが、sweep 自体が
+      one-time work で、 ratchet 管理は別 mechanism で十分。archive で historical record 保存が
+      pragmatic。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+
+  - path: references/04-tracking/dashboards/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    reviewedAtSha: f4927855b5f85d338ed1c0dfbf3105f53e86044e
+    rationaleSummary: |
+      dashboards/ directory の articulate (= 横断 metrics 集約 layer の役割 + 4 dashboard 一覧 +
+      正本性 = 機械生成 + status)。短く役割明確 (23 lines)、AAG-SCP-DOC-INDEX-008 整合
+      (= 索引でなく案内板)。
+    alternativesConsidered: |
+      なし (= 現状 articulate は適切)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
