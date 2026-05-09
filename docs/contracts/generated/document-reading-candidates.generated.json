@@ -227,84 +227,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/AI_CONTEXT.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/checklist.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/discovery-log.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/HANDOFF.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/plan.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/presentation-quality-hardening/projectization.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "projects/active/pure-calculation-reorg/AI_CONTEXT.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -5084,31 +5006,31 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T12:50:48.230Z",
+    "generatedAt": "2026-05-09T13:03:24.298Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "02c623a2bda46be4e2f60876453c06915d79a4a7"
+    "sourceSha": "7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 57,
+    "alreadyReviewedCount": 63,
     "byKind": {
       "canonical-doc": 226,
-      "project-plan": 48,
+      "project-plan": 42,
       "repo-entrypoint": 2,
       "unknown": 65
     },
     "byPriority": {
-      "HIGH": 137,
+      "HIGH": 131,
       "MEDIUM": 204
     },
     "bySection": {
       "aag-framework": 5,
       "aag-framework-internal": 9,
       "aag-interface": 16,
-      "active-projects": 61,
+      "active-projects": 55,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
@@ -5120,6 +5042,6 @@
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 341
+    "totalCandidates": 335
   }
 }

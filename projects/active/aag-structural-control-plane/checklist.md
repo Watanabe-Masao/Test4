@@ -684,6 +684,63 @@ DOC-FAIL-TEMPORAL-MIXING に該当する可能性がある。しかし:
 failurePatterns 付与。本判断は将来の Reading Pass で同類 governance-articulated pattern に
 遭遇した際の reference (= failurePatterns 付与判断の基準) として機能。
 
+## Wave 2 / Phase 2.5 sub-PR 12: Reading Pass Batch 8 (= projects/active/ zone 継続、reviewedAtCommit 7970765)
+
+> **目的**: Batch 7 の projects/active/ zone shift を継続。presentation-quality-hardening (= 6 docs)
+> 全件 articulate。標準 4 doc 構造 (AI_CONTEXT/checklist/HANDOFF/plan) + 拡張 2 doc (discovery-log/
+> projectization) を発見、新 proposedKind 2 種 articulate (= project-discovery-log + project-projectization)。
+> finite project pattern (= collection と異なる完了 → archive 移行型) を初観測、HANDOFF.md mixed temporal の
+> governance-articulated 判断 articulate。
+
+### Phase 2.5 sub-PR 12 (Reading Pass Batch 8、6 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 12 着手 (= user 「1で」承認、= presentation-quality-hardening 一括)
+- [x] 6 docs を read + articulate: AI_CONTEXT + checklist + discovery-log + HANDOFF + plan + projectization
+- [x] 6 entry を document-reading-decisions.yaml に append (= entries: 57 → 63、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= 全件 location 整合 + governance contract 整合)
+- [x] 全 entry に同 failurePatterns: [] articulate (= governance-articulated docs)
+- [x] 新 proposedKind 2 種 articulate:
+  - project-discovery-log (= DA-β-003 institute、projectizationPolicyGuard PZ-14 contract)
+  - project-projectization (= projectization-policy.md contract、AAG-COA 判定結果)
+- [x] HANDOFF.md mixed temporal の governance-articulated 判断 articulate (= handoff role が past + present + future の併存を要求、長尺 416 行は Phase 1〜3 program の自然な volume、failurePatterns 未付与)
+- [x] projectization.md mixed temporal の governance-articulated 判断 articulate (= 判定 timing past + 適用継続 present、機械検証対象)
+- [x] candidates regenerate (= 341 → 335 candidates、HIGH 137 → 131、alreadyReviewedCount 57 → 63)
+- [x] Failure Loop generator 再実行 (= clean batch 維持、unregistered 0、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 63 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 12 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 8 6 entry append 済 (= 累計 63 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] proposedKind 10 種に拡張達成 (= repo-entrypoint + canonical-doc + archive-doc + project-plan + status-snapshot + log-journal + generated-report + project-checklist + project-discovery-log + project-projectization)
+- [x] finite project pattern 初観測 (= presentation-quality-hardening、collection mode の quick-fixes と異なる完了型)
+- [x] governance-articulated mixed temporal の articulate 判断 (= HANDOFF + projectization、failurePatterns 付与せず governance contract で正当化)
+- [x] Failure Loop infrastructure が新 doc kind articulate でも安定動作 (= 2 新 kind 追加でも generator は input 不変)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 12 で articulate された pattern (= Reading Pass の知見蓄積)
+
+**1. project doc の governance contract 多様性**:
+projects/active/<id>/ 配下の doc は単一 'project-plan' kind で済まない。それぞれ異なる governance
+contract を持つ:
+- AI_CONTEXT.md → 入口 articulate (project-plan family)
+- checklist.md → project-checklist-governance contract (project-checklist kind)
+- discovery-log.md → DA-β-003 institute / PZ-14 (project-discovery-log kind)
+- HANDOFF.md → 起点文書 (project-plan family)
+- plan.md → 不可侵原則 (project-plan family)
+- projectization.md → projectization-policy contract (project-projectization kind)
+
+**2. governance-articulated mixed temporal の articulate 判定**:
+mixed temporal scope を持つが governance contract で正当化される doc は failurePatterns 未付与:
+- collection mode checklist の [x]+[ ] 混在 (Batch 7 で articulate)
+- HANDOFF.md の past + future 併存 (= handoff role 要求)
+- projectization.md の past 判定 + present 適用 (= governance contract)
+
+→ Reading Pass の articulate では「mechanism の構造」を見て governance contract がある場合は
+failurePatterns 未付与とする judgment 確立。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

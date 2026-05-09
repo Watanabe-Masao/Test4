@@ -1536,3 +1536,144 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 8 (Wave 2 / Phase 2.5 sub-PR 12、reviewedAtCommit 7970765)
+  # 6 文書 = projects/active/presentation-quality-hardening/ 全件。標準 4 doc + 2 拡張 doc。
+  # 新 proposedKind 2 種 articulate: project-discovery-log + project-projectization。
+  # 全件 keep-and-contract、failurePatterns: [] (= governance-articulated docs)。
+  # ============================================================================
+
+  - path: projects/active/presentation-quality-hardening/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。Presentation 層品質強化 program の
+      正本化先 articulate (= 旧 open-issues / technical-debt-roadmap / active-debt-refactoring-plan
+      の分散を本 project の checklist.md に集約)。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/AI_CONTEXT.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance 整合)。Phase 1〜3 構造化済、
+      verification 済 (2026-04-12) の未着手項目のみ articulate。Phase 1/2 は完了 + Phase 3
+      残作業を articulate。collection kind とは異なる finite project 形態 (= 完了したら archive へ移行)
+      だが、checklist 内の [x]/[ ] 混在は governance-articulated。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/checklist.md と同 kind、project-checklist で governance contract articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      DA-β-003 で institute された AAG 5 系統目 (= 発見蓄積) artifact。implementation 中に
+      発見した scope 外 / 改善必要 / 詳細調査要事項を P1〜P3 priority articulate で蓄積。
+      機械検証: projectizationPolicyGuard PZ-14 (= file 存在 + schema 軽量 check)。
+      新 proposedKind 'project-discovery-log' を articulate (= project-checklist と同様、
+      AAG governance の特定 contract を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、DA-β-003 institute の特定 governance contract (= PZ-14
+      machine validation) を持つため別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。Phase 1〜3 完了済 articulate (= past) + Phase 3 残作業
+      articulate (= future) を併存させる handoff 構造。416 行と長尺だが handoff role が要求する
+      'current state = what is done + what is next + pitfalls' を articulate するため structurally
+      mixed temporal。governance-articulated pattern (= Batch 7 checklist.md collection mode と同様、
+      失敗ではなく feature) として failurePatterns 未付与。
+    alternativesConsidered: |
+      split (= 完了 history を別 doc に切り出し) も候補だが、handoff の role は '後任者が
+      最初に読む 1 doc' であり、history と next steps の分離は handoff の機能を毀損する。
+      長尺は Phase 1〜3 program の完遂状況を反映 (= 自然な volume)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      不可侵原則 4 件 + Phase 1〜3 構造 articulate。役割明確、location 整合。
+      coverage 閾値引き上げ / .vm.ts 抽出 / hook 抽出 / test 追加の判断基準を articulate。
+    alternativesConsidered: |
+      なし (= Batch 7 quick-fixes/plan.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+    failurePatterns: []
+
+  - path: projects/active/presentation-quality-hardening/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    reviewedAtSha: 7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate (= projectizationLevel + changeType + implementationScope +
+      breakingChange + requiresGuard + requiresHumanApproval)。projectization-policy.md governance
+      contract に基づく document type。past (= 判定 timing) + present (= 適用継続) の articulate
+      mixed temporal は governance-articulated。新 proposedKind 'project-projectization' を
+      articulate (= projectization-policy contract を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、projectization-policy の特定 governance contract を持ち、
+      機械検証 (projectizationPolicyGuard) の対象でもあるため別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
