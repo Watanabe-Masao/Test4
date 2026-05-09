@@ -636,6 +636,54 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 11: Reading Pass Batch 7 (= projects/active/ zone shift、reviewedAtCommit 02c623a)
+
+> **目的**: sub-PR 10 までは references/04-tracking/ 配下の articulate に集中。Batch 7 で初の
+> projects/active/ zone shift を実施 (= 新 zone での Failure Loop 動作検証 + 新 pattern surface 可能性)。
+> quick-fixes/ 4 docs を probe batch として articulate (= 標準 project structure: AI_CONTEXT +
+> checklist + HANDOFF + plan)、新 proposedKind = project-checklist articulate。
+
+### Phase 2.5 sub-PR 11 (Reading Pass Batch 7、4 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 11 着手 (= user 「よろしくお願いします」承認、推薦 = projects/active/ zone shift)
+- [x] 4 docs を read + articulate: quick-fixes/{AI_CONTEXT, checklist, HANDOFF, plan}.md (= 標準 project structure 全 4 件)
+- [x] 4 entry を document-reading-decisions.yaml に append (= entries: 53 → 57、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate (= 全件 location 整合 + 役割明確)
+- [x] 全 entry に同 temporalScope: present articulate
+- [x] 全 entry に同 failurePatterns: [] articulate (= clean docs by design)
+- [x] 新 proposedKind articulate: project-checklist (= live task list 正本、project-checklist-governance contract)
+- [x] checklist.md の '完了 [x] と open [ ] が混在' を temporal-mixing に誤分類しない判断 articulate (= governance-articulated rule 'collection は終わらない、削除しない' のため failure ではなく feature)
+- [x] candidates regenerate (= 345 → 341 candidates、HIGH 141 → 137、alreadyReviewedCount 53 → 57)
+- [x] Failure Loop generator 再実行 (= clean batch、unregistered 0 維持、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 57 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 11 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 7 4 entry append 済 (= 累計 57 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] projects/active/ zone shift 完遂 (= 初の references/04-tracking/ 以外 zone articulate)
+- [x] 新 proposedKind 'project-checklist' articulate (= proposedKind 8 種に拡張)
+- [x] governance-articulated pattern と failure pattern を articulate に区別 (= collection mode の [x] 蓄積を temporal-mixing と誤分類せず)
+- [x] Failure Loop infrastructure が新 zone でも安定動作 (= clean batch、unregistered surface 機能維持)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 11 で articulate された判断 mechanism
+
+**governance-articulated pattern vs failure pattern の articulate 区別**:
+
+quick-fixes/checklist.md は [x] 完了 items と [ ] open items が混在するため一見
+DOC-FAIL-TEMPORAL-MIXING に該当する可能性がある。しかし:
+- collection kind の不可侵原則 '完了したら checked にする (削除しない)' で governance-articulated
+- 失敗ではなく feature として articulate されている
+- 同 pattern は他の collection project にも適用される
+
+→ Reading Pass の articulate では「mechanism 上の pattern」と「失敗 pattern」を区別、後者のみ
+failurePatterns 付与。本判断は将来の Reading Pass で同類 governance-articulated pattern に
+遭遇した際の reference (= failurePatterns 付与判断の基準) として機能。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

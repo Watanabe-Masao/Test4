@@ -1444,3 +1444,95 @@ entries:
     duplicates: []
     failurePatterns: []
 
+
+  # ============================================================================
+  # Reading Pass Batch 7 (Wave 2 / Phase 2.5 sub-PR 11、reviewedAtCommit 02c623a)
+  # 4 文書 = projects/active/quick-fixes/ 配下の標準 project structure 4 件 (= 初の
+  # projects/active/ zone shift、Failure Loop の新 zone での動作検証)。
+  # 全件 keep-and-contract / project-plan / temporalScope: present / failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/quick-fixes/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      project 意味空間の入口 (= why / scope / read order)。collection kind の articulate
+      (= 1 checkbox = 1 単発 fix、終わらない collection、独立 project への昇格判断基準)。
+      project-checklist-governance §11 への pointer 含む。役割明確、location 整合。
+    alternativesConsidered: |
+      project-context など新 kind 追加も候補だが、project-plan で role を articulate 済 (=
+      project-internal context articulate doc は project-plan family の一種)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance 整合)。collection kind のため
+      [x] 完了 items と [ ] open items が articulate 蓄積する設計 (= '完了したら checked
+      にする、削除しない' が governance-articulated rule)。'collection は終わらない'
+      不可侵原則のため archive 対象でない。temporal mixing に見えるが governance で
+      明示的に articulate された pattern (= 失敗ではなく feature)。
+    alternativesConsidered: |
+      project-plan と統合も可能だが、live task list は AAG governance の特定 contract
+      (= project-checklist-governance) が articulate されており、project-checklist として
+      別 kind articulate が分かりやすい。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      起点文書 (= 現在地 + 次にやること + ハマりポイント)。collection としての特性
+      (= 単発 fix の受け皿、複数 phase 文脈なし、文脈が育ったら独立 project 昇格) を
+      articulate。役割明確、location 整合、live state 反映。
+    alternativesConsidered: |
+      project-handoff など新 kind 追加も候補だが、project-plan で role を articulate 済。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/quick-fixes/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    reviewedAtSha: 02c623a2bda46be4e2f60876453c06915d79a4a7
+    rationaleSummary: |
+      project の不可侵原則 + checkbox の書き方 + 昇格判断基準を articulate。collection の
+      governance contract そのもの (= 5 不可侵原則は collection mode 維持の構造)。
+      役割明確、location 整合。
+    alternativesConsidered: |
+      project-charter / project-rules など新 kind も候補だが、project-plan family で十分。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []

@@ -511,58 +511,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "projects/active/quick-fixes/AI_CONTEXT.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/quick-fixes/checklist.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/quick-fixes/HANDOFF.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/quick-fixes/plan.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -5136,31 +5084,31 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T12:21:13.177Z",
+    "generatedAt": "2026-05-09T12:50:48.230Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "af480ddb9e972e836cd4cd39c599115328edb31b"
+    "sourceSha": "02c623a2bda46be4e2f60876453c06915d79a4a7"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 53,
+    "alreadyReviewedCount": 57,
     "byKind": {
       "canonical-doc": 226,
-      "project-plan": 52,
+      "project-plan": 48,
       "repo-entrypoint": 2,
       "unknown": 65
     },
     "byPriority": {
-      "HIGH": 141,
+      "HIGH": 137,
       "MEDIUM": 204
     },
     "bySection": {
       "aag-framework": 5,
       "aag-framework-internal": 9,
       "aag-interface": 16,
-      "active-projects": 65,
+      "active-projects": 61,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
@@ -5172,6 +5120,6 @@
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 345
+    "totalCandidates": 341
   }
 }
