@@ -294,6 +294,33 @@
 - [x] Wave 1 では実装しない: build-document-universe.mjs / Reading Pass 実行 / document-failure-patterns.md 蓄積 / DOC-FAIL-* yaml landing / DOC-GUARD-* yaml landing / 削除 / 移動 / rewrite / split / merge / create-missing / README rewrite はすべて **Wave 2 以降**
 - [x] Wave 2 着手 user 承認は Wave 1 完了 + Wave 1 exit criteria 全件 PASS 後に判断（不可侵原則 9）
 
+## Wave 2 / Phase 2.5: Document Universe Index simple version (ADR-SCP-022 整合、Wave 2 sub-PR 1)
+
+> **目的（再定義、ADR-SCP-022 D6 整合）**: Phase 2.5 着手時の最初の sub-PR。Reading Pass を実行する前に、repo 内 Markdown を 1 枚で articulate した分類済み索引を landing し、後続 Reading Pass のインフラ + 進捗可視化 surface を提供する。observed-only / unreviewed 中心、`promotionAllowed: false` 維持。
+
+### Phase 2.5 sub-PR 1 (Document Universe Index simple version)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 1 着手 user 承認
+- [x] `docs/contracts/schema/document-universe.schema.json` landing — entry shape 13 fields (path / href / indexSection / documentStatus / kind / temporalScope / contractStatus / meaningStatus / intentStatus / continuityStatus / source / promotionAllowed=const false)、ADR-SCP-022 D5 整合
+- [x] `tools/governance/build-document-universe.mjs` landing — generator (= git ls-files で broad scope、markdown-inventory + doc-registry + tree-contracts を input、ajv schema validation 込み、deterministic)
+- [x] `docs/contracts/generated/document-universe.generated.json` 初版 landing — 743 entries (= repo 内 Markdown 全件、app/ + wasm/ + app-domain/ + fixtures/ + scripts/ は scope 外、ADR-SCP-022 D3 整合)
+- [x] `references/04-tracking/generated/document-universe.generated.md` 初版 landing — 1 枚 projection (= summary + indexSection 別 entry table)
+- [x] schema validation OK (= ajv) + deterministic (= 連続実行で diff なし)
+- [x] indexSection 18 grouping articulate (= repository-entrypoints / foundation / implementation / design-system / aag-interface / tracking / tracking-generated / aag-framework / aag-framework-internal / aag-scp-checkers / aag-engine / contracts / docs-other / active-projects / completed-projects / project-templates / archive / tree-readers / roles / tools / unmanaged 等)
+- [x] kind heuristic 6 enum articulate (repo-entrypoint / canonical-doc / generated-report / project-plan / archive-doc / unknown) — Phase 4 doc-kind-registry landing 後に Reading Pass で articulate に更新
+- [x] documentStatus 5 enum articulate (declared / generated / needs-triage / observed-only / archive)
+- [x] contractStatus 3 enum articulate (unreviewed / reviewed / declared)
+- [x] promotionAllowed: false 全 entry で維持 (= 索引掲載 ≠ contract 化、AAG-SCP-DOC-INDEX-002 整合)
+- [x] hard gate 追加なし (= Wave 2 advisory only、不可侵原則 8 整合)
+
+### Phase 2.5 sub-PR 1 完了条件 (ADR-SCP-022 D6 整合)
+
+- [x] build-document-universe.mjs simple version landing
+- [x] document-universe.generated.json 初版 landing (= observed-only / unreviewed 中心、promotionAllowed: false 維持)
+- [x] document-universe.generated.md 初版 landing (= 1 枚 projection、Reading Pass 後段で articulate に更新)
+- [x] coverage: repo 内 Markdown (scope: README + CLAUDE.md + CHANGELOG.md + CURRENT_PROJECT.md + references + projects + docs + aag + aag-engine + roles + tools + workers) の索引未掲載 == 0 (= UNINDEXED-MARKDOWN finding 0 検出ロジックは Phase 2.5 後段で landing、本 sub-PR では coverage 担保のみ)
+- [x] check-document-universe.mjs (= advisory checker) は Phase 2.5 後段で landing (= 本 sub-PR scope 外、ADR-SCP-022 D6 整合)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

@@ -846,6 +846,10 @@
         {
           "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
           "label": "architecture-debt-recovery Remediation 進捗 (Markdown)"
+        },
+        {
+          "path": "references/04-tracking/generated/document-universe.generated.md",
+          "label": "Document Universe Index — repo 内 Markdown を 1 枚で articulate した分類済み索引 (AAG SCP Wave 2 / Phase 2.5、ADR-SCP-022 整合、observed-only / promotionAllowed: false)"
         }
       ]
     },
