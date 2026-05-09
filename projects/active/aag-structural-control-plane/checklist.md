@@ -377,6 +377,32 @@
 - [x] advisory のみ (= hard gate なし、Wave 2 不可侵原則 8 整合)
 - [x] generated-must-have-producer + archive-must-have-manifest は acceptanceRule articulate のみ (= Phase 4 後段 / Wave 3 で checker 実装、本 sub-PR scope 外)
 
+## Wave 2 / Phase 2.5 sub-PR 3: Document Reading Pass infrastructure (ADR-SCP-021 D7 整合)
+
+> **目的**: Reading Pass を実行する前段として、reading 結果 entry shape (= reading-decisions schema + empty yaml) と DOC-FAIL-* taxonomy (= 10 pre-articulate patterns) と candidates 生成 (= universe → 398 candidates) の infrastructure を landing。machine inferred candidate emit は許容 (= heuristic、disposition 自体は articulate しない)、disposition 確定は次 sub-PR 以降の Reading Pass で実施。
+
+### Phase 2.5 sub-PR 3 (Reading Pass infrastructure、6 files)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 3 着手 user 承認
+- [x] `docs/contracts/schema/document-reading-decisions.schema.json` landing — entry shape (= ADR-SCP-021 D7: 9 disposition + 5 hasX flags + reviewedBy + reviewedAtCommit + reviewedAtSha + rationaleSummary + alternativesConsidered + duplicates + failurePatterns)
+- [x] `docs/contracts/src/docs/document-reading-decisions.yaml` landing — 初版 stage: empty / entries: [] (= Reading Pass 進行で incremental に append)
+- [x] `docs/contracts/schema/document-failure-taxonomy.schema.json` landing — DOC-FAIL-* pattern shape (= id pattern `^DOC-FAIL-` + maturityHint 5 段階 + suggestedRemedy + relatedDispositions + guardrailCandidate)
+- [x] `docs/contracts/src/docs/document-failure-taxonomy.yaml` landing — 10 DOC-FAIL-* pre-articulate patterns (= derived/README L18 から landing、stage: pre-articulate、maturityHint: pattern-articulated)
+- [x] `tools/governance/build-document-reading-candidates.mjs` landing — universe → candidates generator (= kind heuristic + hot zone priority + alreadyReviewedPaths exclusion)
+- [x] `docs/contracts/generated/document-reading-candidates.generated.json` 初版 landing — 398 candidates (HIGH 194 / MEDIUM 204、byKind: canonical-doc 269 / unknown 74 / project-plan 52 / repo-entrypoint 3)
+- [x] `derived/README.md` update — landed infrastructure articulate + Reading Pass workflow articulate
+- [x] yaml schema validation OK (= ajv conform、empty entries / 10 patterns 共に valid)
+- [x] candidates 出力 deterministic (= 連続実行で diff なし)
+- [x] hard gate / new-only gate 追加なし (= Wave 2 advisory only、不可侵原則 8 整合)
+
+### Phase 2.5 sub-PR 3 完了条件 (ADR-SCP-021 + AAG-SCP-DOC-RESET-001〜005 + AAG-SCP-DOC-LEARNING-001〜004 整合)
+
+- [x] reading-decisions schema + 空 yaml landing → Reading Pass 結果 articulate 用 contract が utilizable
+- [x] failure-taxonomy schema + 10 pre-articulate patterns landing → 即 Gate 化禁止 (AAG-SCP-DOC-LEARNING-002) 整合維持 (= maturityHint: pattern-articulated stage)
+- [x] candidates generator + 初版 output landing → 398 candidates が priority articulate 済
+- [x] Reading Pass 実行 workflow が derived/README.md L25-L33 で articulate されている
+- [x] Wave 2 後段で landing 予定の追加成果物 (= reading log narrative + decisions normalize generator + merged generator + guardrail-candidates schema/yaml) が derived/README.md L37-L43 で articulate されている (= 順序逆行禁止、本 sub-PR scope 外)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

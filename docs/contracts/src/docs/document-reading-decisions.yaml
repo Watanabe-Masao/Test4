@@ -1,0 +1,25 @@
+# Document Reading Decisions authoring source (Wave 2 / Phase 2.5 sub-PR 3 雛形 = stage: empty)
+#
+# 役割: Document Reset Pass の各文書 reading 結果を articulate する authoring source。
+# 各 entry は 1 文書の精査記録 (= path + proposedKind + temporalScope + 9 disposition の 1 +
+# 5 hasX flags + duplicates + reviewedBy + reviewedAtSha + rationaleSummary)。
+#
+# 機械正本: docs/contracts/generated/document-reading-decisions.generated.json
+# (Wave 2 後段 sub-PR で normalize generator landing 後に生成)。
+#
+# 不可侵 (ADR-SCP-021 D7 + AAG-SCP-DOC-RESET-001~005 整合):
+# - human / AI authored (= Reading Pass の output、incremental に append)
+# - 機械分類だけで contract 化しない (= 不可侵原則 7、AAG-SCP-DOC-LEARNING-002 整合)
+# - 9 disposition のいずれかに必ず分類完了 (空 disposition 不許可)
+# - Hot zone 4 件 (references/04-tracking + projects/active + CLAUDE.md + docs/contracts) 優先
+# - candidates.generated.json の対象から順次 entry 追加
+#
+# Wave 2 narrowing (ADR-SCP-016 D1): hot zone 4 件 + Phase 4 finding subjects 優先。
+# 残 8 zone は Wave 3 以降または別 program で扱う。
+#
+# schema: docs/contracts/schema/document-reading-decisions.schema.json (本 sub-PR で landing)
+
+schemaVersion: document-reading-decisions-v1
+stage: empty
+
+entries: []

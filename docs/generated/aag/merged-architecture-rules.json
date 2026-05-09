@@ -2,8 +2,8 @@
   "$schemaDescription": "Merged ARCHITECTURE_RULES artifact. App Domain (BaseRule) + Project Overlay (RuleOperationalState) を ruleId で merge した結果 + resolvedBy 追跡。",
   "canonicalMergePolicy": "aag/_internal/source-of-truth.md §4 (Merge Policy)",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-09T03:26:22.175Z",
-  "sourceCommit": "f877572daa25003f524c9ea5d446cd8147ac53be",
+  "generatedAt": "2026-05-09T03:41:04.130Z",
+  "sourceCommit": "1091c3710498c90c16c1a7c5f297390e1a65afff",
   "activeProjectId": "pure-calculation-reorg",
   "summary": {
     "totalRules": 172,

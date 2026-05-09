@@ -1,0 +1,115 @@
+# Document Failure Taxonomy authoring source (Wave 2 / Phase 2.5 sub-PR 3 雛形 = stage: pre-articulate)
+#
+# 役割: Documentation Failure Learning Loop の DOC-FAIL-* taxonomy を articulate。
+# 各 entry は 1 failure pattern (= TEMPORAL-MIXING / DUPLICATE-RESPONSIBILITY 等) の
+# articulate (= id + title + description + maturityHint + suggestedRemedy)。
+#
+# 機械正本: docs/contracts/generated/document-failure-taxonomy.generated.json
+# (Wave 2 後段 sub-PR で normalize generator landing 後に生成)。
+#
+# 不可侵 (ADR-SCP-021 D2/D4/D5 + AAG-SCP-DOC-LEARNING-001~004 整合):
+# - 即 Gate 化禁止 (AAG-SCP-DOC-LEARNING-002): 5 段階 maturity progression を経て Wave 3+ で
+#   gate 化判断
+# - Phase 2.5 着手時 pre-articulate batch (= 10 patterns) は 'pattern-articulated' から start
+# - Reading Pass で実際 observed されたら maturityHint = 'observed' or 'guardrail-candidate-emitted'
+#   へ promote
+# - examplePaths は Reading Pass 進行に伴い incremental に append
+#
+# 出典: derived/README.md L18 (= ADR-SCP-021 D4 articulate 済 10 patterns) を pre-articulate landing
+#
+# schema: docs/contracts/schema/document-failure-taxonomy.schema.json (本 sub-PR で landing)
+
+schemaVersion: document-failure-taxonomy-v1
+stage: pre-articulate
+
+patterns:
+  - id: DOC-FAIL-TEMPORAL-MIXING
+    title: 時間軸の混在 (= present + past + future content が同 doc 内に混在)
+    description: |
+      canonical-doc に過去 (history / migration log) / 未来 (roadmap / TODO / Phase plan) / progress
+      content が混入。不可侵原則 3 (ADR-SCP-003) 違反。Phase 4 check-doc-temporal-scope.mjs で機械検出。
+    maturityHint: pattern-articulated
+    suggestedRemedy: split (= 過去 → archive-doc / 未来 → project-plan / 現在のみ canonical-doc に残す)
+    relatedDispositions: [split, rewrite-and-contract]
+
+  - id: DOC-FAIL-DUPLICATE-RESPONSIBILITY
+    title: 責務重複 (= 同責務の文書が複数 zone に存在)
+    description: |
+      同 zone 内 (例: references/01-foundation/) に同じ責務をカバーする文書が複数存在。
+      正本不明確化 + AI routing ambiguity を招く。
+    maturityHint: pattern-articulated
+    suggestedRemedy: merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後)
+    relatedDispositions: [merge, delete-candidate]
+
+  - id: DOC-FAIL-LOCATION-MISMATCH
+    title: 配置不一致 (= 内容は有効だが場所が誤り)
+    description: |
+      文書の内容が現在の zone の責務と不一致。例: project-plan content が references/ にある、
+      canonical-doc content が projects/active/ にある等。
+    maturityHint: pattern-articulated
+    suggestedRemedy: move (= 適切な zone へ移動 + 参照更新)
+    relatedDispositions: [move]
+
+  - id: DOC-FAIL-GENERATED-AS-MANUAL
+    title: 機械生成相当を手動 articulate (= generated-register 候補)
+    description: |
+      件数 / status / progress 等の機械算出可能な content を手 articulate。
+      drift + stale 化 + 監査困難を招く。
+    maturityHint: pattern-articulated
+    suggestedRemedy: generated-register (= producer 経由で generated-report 化、ADR-SCP-008 例外条項 articulate)
+    relatedDispositions: [generated-register]
+
+  - id: DOC-FAIL-UNOWNED-DOC
+    title: 所有不明 (= 更新責任が articulate されていない)
+    description: |
+      文書の owner / consumer / update trigger が不明確。
+      stale 化 + 修正タイミング不明 + 廃止判断不可。
+    maturityHint: pattern-articulated
+    suggestedRemedy: rewrite-and-contract (= owner / consumer / update trigger を明示) または delete-candidate
+    relatedDispositions: [rewrite-and-contract, delete-candidate]
+
+  - id: DOC-FAIL-UNEXPLAINED-CANONICAL
+    title: 意味不明 canonical (= 何のためか説明されていない正本)
+    description: |
+      canonical-doc として配置されているが、目的 / consumer / 適用範囲が articulate されていない。
+      AI / human が読んでも判断不可、Meaning Layer 欠落 (ADR-SCP-017 整合)。
+    maturityHint: pattern-articulated
+    suggestedRemedy: rewrite-and-contract (= 役割 / consumer / 適用範囲を冒頭に articulate)
+    relatedDispositions: [rewrite-and-contract]
+
+  - id: DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+    title: project content が references/ に混入
+    description: |
+      Phase / Wave / TODO / progress 等の project work-in-progress content が references/ 配下に存在。
+      live task list の正本は projects/<id>/checklist.md のみ
+      (= project-checklist-governance 整合)。
+    maturityHint: pattern-articulated
+    suggestedRemedy: move (= projects/active/<id>/ へ移動) または split (= 残すべき部分は canonical 化、TODO 部分は project へ)
+    relatedDispositions: [move, split]
+
+  - id: DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL
+    title: archive content が canonical-doc に混入
+    description: |
+      退役済み実装 / migration log / 過去の判断履歴 が現役 canonical-doc に残存。
+      現在有効な情報の発見性低下 + 誤読リスク。
+    maturityHint: pattern-articulated
+    suggestedRemedy: split (= archive 部分を archive-doc へ抽出) または move (= 全体 archive 化)
+    relatedDispositions: [split, move, archive]
+
+  - id: DOC-FAIL-AI-ROUTING-AMBIGUITY
+    title: AI routing 曖昧 (= 同 query に対して複数文書が候補化)
+    description: |
+      AI session が文脈を辿る際、同じ topic に対して複数文書が hit。
+      正本判定不可 + ハルシネーション誘発。Document Universe Index で検出可能。
+    maturityHint: pattern-articulated
+    suggestedRemedy: merge (= 統合 + AI 単一エントリ articulate) または rewrite-and-contract (= 各文書の scope を articulate に分離)
+    relatedDispositions: [merge, rewrite-and-contract]
+
+  - id: DOC-FAIL-README-OVEREXPLAINS-UNREVIEWED-STRUCTURE
+    title: README が未精査構造を過剰説明 (= AAG-SCP-DOC-INDEX-008 違反)
+    description: |
+      README.md / readme 系文書が、まだ reviewed されていない構造 / out-of-skeleton candidate /
+      未確定の Phase 詳細を articulate。AAG-SCP-DOC-INDEX-008 整合違反 (= README は案内板、索引は台帳)。
+    maturityHint: pattern-articulated
+    suggestedRemedy: rewrite-and-contract (= AAG-SCP-DOC-INDEX-005~008 整合の README rewrite + Universe Index への pointer 化)
+    relatedDispositions: [rewrite-and-contract]

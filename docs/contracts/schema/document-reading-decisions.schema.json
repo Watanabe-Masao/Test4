@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/document-reading-decisions-v1.json",
+  "title": "Document Reading Decisions v1",
+  "description": "AAG SCP Wave 2 / Phase 2.5 — Document Reset Pass の各文書 reading 結果を articulate する authoring source schema (= ADR-SCP-021 D7 + AAG-SCP-DOC-RESET-001〜005 整合)。各 entry は 1 文書の精査記録 (= path + proposedKind + temporalScope + 9 disposition values の 1 + 5 hasX flags + duplicates + reviewedBy + reviewedAtSha + rationaleSummary + alternativesConsidered)。consumer = `tools/governance/build-document-reading-merged.mjs` (= src + heuristic candidates の join projection、Wave 2 後段 sub-PR で landing)。producer = human / AI authored (= Reading Pass の output、Phase 2.5 後段 PR で incremental に append)。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family (aag-finding / tree-contracts / doc-kind-registry / document-universe / temporal-scope-policy) と同 draft-07 / Ajv 既定 dialect。設計判断 (ADR-SCP-021 D7 整合): 9 disposition values は plan.md L598-L607 articulate に整合 (keep-and-contract / rewrite-and-contract / split / move / merge / archive / delete-candidate / generated-register / create-missing)。5 hasX flags は AAG-SCP-DOC-RESET-001 整合 (hasCurrentContract / hasHistory / hasFuturePlan / hasGeneratedCurrentValue / duplicates)。reviewedBy = human (user) / ai (claude session) / claude-session 等の自由文字列 (= ad-hoc identity articulate)。本 schema は authoring source 用 (= machine generated normalize 出力は別 schema = document-reading-decisions-generated-v1 を後段で landing 候補)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entries"],
+  "properties": {
+    "$comment": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "const": "document-reading-decisions-v1"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["empty", "in-progress", "hot-zone-complete", "all-complete"],
+      "description": "Reading Pass 進捗 stage articulate。`empty` = entries 0 (= 本 sub-PR landing 時)。`in-progress` = entries 1+。`hot-zone-complete` = hot zone 4 件 (references/04-tracking + projects/active + CLAUDE.md + docs/contracts) の coverage 100%。`all-complete` = 全 zone coverage 100% (= Wave 3+ 判断)。"
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/ReadingDecision" }
+    }
+  },
+  "definitions": {
+    "ReadingDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "proposedKind",
+        "temporalScope",
+        "disposition",
+        "reviewedBy",
+        "reviewedAtCommit",
+        "reviewedAtSha",
+        "rationaleSummary",
+        "hasCurrentContract",
+        "hasHistory",
+        "hasFuturePlan",
+        "hasGeneratedCurrentValue",
+        "duplicates"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "POSIX repo-relative path (= document-universe.entries[].path と整合)。"
+        },
+        "docId": {
+          "type": "string",
+          "pattern": "^DOC-",
+          "description": "Document ID (= optional、Wave 3+ Document Contract 確定時に articulate)。"
+        },
+        "proposedKind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Reading 結果の proposed kind (= doc-kind-registry kind id と整合、または新 kind candidate)。例: 'canonical-doc' / 'project-plan' / 'archive-doc' / 'generated-report' / 'repo-entrypoint' / 'review-checklist' (= 新 kind candidate)。"
+        },
+        "temporalScope": {
+          "type": "string",
+          "enum": ["present", "past", "future", "computed-current", "mixed"],
+          "description": "Reading 結果の temporal scope。`mixed` = 過去/未来/現在 が混在 (= disposition: split 候補)。"
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "keep-and-contract",
+            "rewrite-and-contract",
+            "split",
+            "move",
+            "merge",
+            "archive",
+            "delete-candidate",
+            "generated-register",
+            "create-missing"
+          ],
+          "description": "9 disposition values (= plan.md L598-L607 + ADR-SCP-021 D3 整合)。"
+        },
+        "reviewedBy": {
+          "type": "string",
+          "description": "Reviewer identity (= 'user' / 'ai-claude' / 'session-XXX' 等の自由文字列、Wave 2 advisory 期間中は ad-hoc articulate 許容)。"
+        },
+        "reviewedAtCommit": {
+          "type": "string",
+          "description": "Reading 実施時の commit ref (= short SHA 7 chars または full SHA 40 chars)。"
+        },
+        "reviewedAtSha": {
+          "type": "string",
+          "description": "Reading 実施時の対象文書 SHA (= reproducibility、git ls-tree の blob SHA でも可)。reviewedAtCommit と同値でも可 (= 文書が当該 commit 時点で読まれたという意味)。"
+        },
+        "rationaleSummary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "disposition 確定の根拠 (1〜2 文、ADR-SCP-021 D7 整合)。"
+        },
+        "alternativesConsidered": {
+          "type": "string",
+          "description": "考慮した別 disposition + 採用しなかった理由 (= 任意、ADR-SCP-021 D7 articulate)。"
+        },
+        "hasCurrentContract": {
+          "type": "boolean",
+          "description": "現在有効な契約 / 定義 / ルールを含むか (= AAG-SCP-DOC-RESET-001 articulate)。"
+        },
+        "hasHistory": {
+          "type": "boolean",
+          "description": "過去の経緯 / migration log を含むか (= AAG-SCP-DOC-RESET-001 articulate)。"
+        },
+        "hasFuturePlan": {
+          "type": "boolean",
+          "description": "将来計画 / TODO / Roadmap / Phase plan を含むか (= AAG-SCP-DOC-RESET-001 articulate)。"
+        },
+        "hasGeneratedCurrentValue": {
+          "type": "boolean",
+          "description": "計算済み現在値 (= 件数 / status / progress) を含むか (= AAG-SCP-DOC-RESET-001 articulate、generated-register 候補判定)。"
+        },
+        "duplicates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "重複候補 (= 同 zone 内で同責務の他文書 path、merge 候補判定)。空配列許可。"
+        },
+        "failurePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^DOC-FAIL-"
+          },
+          "description": "本文書が示した failure pattern id 列 (= document-failure-taxonomy.yaml entry id、Failure Learning Loop 入力)。"
+        }
+      }
+    }
+  }
+}
