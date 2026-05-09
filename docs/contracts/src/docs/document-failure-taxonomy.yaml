@@ -103,9 +103,11 @@ patterns:
     description: |
       退役済み実装 / migration log / 過去の判断履歴 が現役 canonical-doc に残存。
       現在有効な情報の発見性低下 + 誤読リスク。
-    maturityHint: pattern-articulated
+    maturityHint: observed
     suggestedRemedy: split (= archive 部分を archive-doc へ抽出) または move (= 全体 archive 化)
     relatedDispositions: [split, move, archive]
+    examplePaths:
+      - references/04-tracking/frozen-list.md
 
   - id: DOC-FAIL-AI-ROUTING-AMBIGUITY
     title: AI routing 曖昧 (= 同 query に対して複数文書が候補化)

@@ -273,3 +273,132 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 3 (Wave 2 / Phase 2.5 sub-PR 6、reviewedAtCommit a564f37)
+  # 5 文書 = references/04-tracking/ HIGH unknown 文書 (engine-promotion-matrix +
+  # features-migration-status + frozen-list + observation-evaluation-guide +
+  # promotion-criteria)。Universe Index で kind=unknown だった triage 候補を集中処理。
+  # ============================================================================
+
+  - path: references/04-tracking/engine-promotion-matrix.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      Engine 昇格状況一覧 (= 5 engine 全 'authoritative ✅（2026-04-05 昇格）' 完了 status +
+      engine 別詳細 + 「次の一手」future plan)。engine-maturity-matrix.md と組み 1 機能 (= maturity
+      stage 定義 + 個別状況) を 2 doc 分割しているが、件数 / 状態 / TODO 混在 = 同 failure pattern。
+    alternativesConsidered: |
+      archive (= 全 engine 昇格完了済 = work done) も候補だが、'次の一手' 未完了 work + 個別 engine
+      補足 = future plan 残存。merge (= engine-maturity-matrix と統合) も検討したが、責務分離
+      (定義 vs 状況) は articulate 価値あり、各々を split で structure 化が pragmatic。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/engine-maturity-matrix.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/features-migration-status.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: split
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      'features/ 縦スライス移行 進捗管理表' = '全 8 feature 完了' status + Dashboard Widget
+      Ownership table + 'Dashboard Widget Ownership' (= 31 widget owner table) + '次の移行対象
+      （別 Epic）' future plan 混在。Widget Ownership table は canonical reference 価値高い、
+      移行 status は完了済 archive 価値、TODO は projects/ へ移管が articulate。
+    alternativesConsidered: |
+      keep-and-contract も候補だが、責務複合 (status + canonical Widget Ownership + TODO) で C1
+      違反候補。rewrite-and-contract も候補だが、責務分離が必要なため split 推奨。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+
+  - path: references/04-tracking/frozen-list.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      凍結リスト = 3 種類 (ゼロ維持 / 件数上限 / 残存許可) の articulate 明確な canonical 定義 +
+      多数の 'count' 数値 (現在値 / 上限) が手 articulate + ~~strikethrough~~ で解消済み history 混在。
+      定義 part は canonical 価値高い、count は producer (architecture-health.json 既存) から generated
+      化、解消 history は archive 部分に分離が articulate。
+    alternativesConsidered: |
+      split も候補だが、定義 + count + history は同一概念 (= 凍結 mechanism articulate) のため、
+      rewrite-and-contract で 1 doc 内に generated section を導入し、history は別 archive doc へ
+      移管する形で 2 doc に整理が pragmatic。keep-and-contract も候補だが count drift が長期的に蓄積
+      するため不適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL
+
+  - path: references/04-tracking/observation-evaluation-guide.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      観測評価ガイド = '観測結果を promotion 判定に使える形で読む基準を固定すること' role articulate
+      明確。基本原則 + 評価対象 + 自動 vs 手動 articulate 整理済 (371 lines)。kind=unknown は
+      Universe Index detection ヒューリスティクス漏れ (= H1 missing markdown headings 等の判定子
+      の articulate refinement 候補)。
+    alternativesConsidered: |
+      move (= references/03-implementation/ や 01-foundation/ に移動) も候補だが、04-tracking が
+      promotion 評価関連 doc の集約 zone として機能している現状を尊重し keep-and-contract。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/promotion-criteria.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    reviewedAtSha: a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea
+    rationaleSummary: |
+      Engine 昇格基準 = '昇格判断を、人手に依存せず継続可能な形にする' role articulate 明確。
+      基本原則 + 用語定義 + Maturity 状態遷移 + 必須/補助証拠 + Mismatch Taxonomy + 各 promotion
+      条件 (promotion-candidate / wasm-only trial / authoritative) 等 articulate 整理済 (334 lines)。
+      observation-evaluation-guide.md と pair で promotion 評価 framework を構成する canonical doc。
+    alternativesConsidered: |
+      move (= references/01-foundation/ に移動) も候補だが、observation-evaluation-guide.md と pair
+      で 04-tracking に集約されている現状の articulate を尊重し keep-and-contract。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/observation-evaluation-guide.md
+    failurePatterns: []

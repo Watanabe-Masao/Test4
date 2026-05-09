@@ -460,6 +460,36 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 6: Reading Pass Batch 3 (= HIGH priority unknown 5 docs articulate、reviewedAtCommit a564f37)
+
+> **目的**: Reading Pass Batch 1+2 の continuation。Universe Index で `kind=unknown` だった
+> 5 documents を triage 集中処理。新 disposition 'rewrite-and-contract' 初使用、新 failure
+> pattern 'DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL' を observed stage に promote。
+
+### Phase 2.5 sub-PR 6 (Reading Pass Batch 3、5 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 6 着手 (= user 「続けてください」継続承認)
+- [x] 5 docs を read + articulate: references/04-tracking/engine-promotion-matrix.md (HIGH unknown) + features-migration-status.md (HIGH unknown) + frozen-list.md (HIGH unknown) + observation-evaluation-guide.md (HIGH unknown) + promotion-criteria.md (HIGH unknown)
+- [x] 5 entry を document-reading-decisions.yaml に append (= entries: 10 → 15、stage: in-progress)
+- [x] 各 entry に 9 disposition のいずれかを articulate: keep-and-contract 2 件 (observation-evaluation-guide + promotion-criteria) / split 2 件 (engine-promotion-matrix + features-migration-status) / rewrite-and-contract 1 件 (frozen-list)
+- [x] 各 entry に 5 hasX flags + rationaleSummary + alternativesConsidered + duplicates + failurePatterns articulate
+- [x] 新 disposition 'rewrite-and-contract' 初使用 (= frozen-list、count を generated 化 + history 分離)
+- [x] 新 failure pattern 'DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL' を pattern-articulated → observed promote (examplePaths: frozen-list.md)
+- [x] kind=unknown triage 結果 articulate: 2 件 canonical-doc (= Universe Index detection 漏れ candidate)、2 件 status-snapshot、1 件 canonical-doc (frozen-list)
+- [x] candidates regenerate (= 388 → 383 candidates、HIGH 184 → 179、alreadyReviewedCount 10 → 15)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 15 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 6 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 3 5 entry append 済 (= 累計 15 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] disposition 5 種 articulate (= keep-and-contract / archive / move / split / rewrite-and-contract)
+- [x] failure-taxonomy.yaml の 5 pattern が observed stage に promote (= 既存 4 + 新 1: ARCHIVE-CONTENT-IN-CANONICAL)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
