@@ -2905,3 +2905,534 @@ entries:
       - projects/active/pure-calculation-reorg/projectization.md
       - projects/active/taxonomy-v2/projectization.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 13 (Wave 2 / Phase 2.5 sub-PR 17、reviewedAtCommit b80b2df)
+  # 29 文書 = elements/ family の charts (11) + read-models (11) + ui-components (6) +
+  # parent README (1)。widgets (46) は次 batch で扱う。Batch 6 CALC-* と同 pattern
+  # (= per-element 業務契約 spec、frontmatter + 構造化 spec、lifecycleStatus: active)。
+  # 全件 keep-and-contract / canonical-doc / failurePatterns: []。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      elements/ category root README。実装要素の現状把握台帳としての位置付け articulate (= 改修・変更のための前提資料)、'振る舞い (behavior) を書く、使い方 (usage) は書かない' の判断基準 articulate。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      charts/ category README。Chart Component 仕様書カタログ articulate (= 型番体系 CHART-NNN、source / input builder / logic / view model / option builder / styles / 状態カバレッジ / visual evidence)。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-001/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-001 = SalesPurchaseComparisonChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/SalesPurchaseComparisonChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-002/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-002 = PerformanceIndexChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/PerformanceIndexChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-003/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-003 = BudgetVsActualChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/BudgetVsActualChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-004/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-004 = CustomerScatterChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/CustomerScatterChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-005/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-005 = GrossProfitAmountChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/GrossProfitAmountChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-001/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-001 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-002/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-002 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-003/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-003 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-004/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-004 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-005/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-005 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      read-models/ category README。ReadModel 仕様書カタログ articulate (= application/readModels/ の正本 readModel の現状把握台帳)。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-001 = readPurchaseCost (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/purchaseCost/readPurchaseCost.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-002 = calculateGrossProfit (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/grossProfit/calculateGrossProfit.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-003 = buildSalesFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/salesFact/readSalesFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-004 = buildDiscountFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/discountFact/readDiscountFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-005 = buildCustomerFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/customerFact/readCustomerFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-006 = calculateFactorDecomposition (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/factorDecomposition/calculateFactorDecomposition.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-007 = buildFreePeriodReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-008 = buildFreePeriodBudgetReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodBudgetFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-009 = buildFreePeriodDeptKPIReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodDeptKPI.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-010 = selectMonthlyPrevYearSales (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/prevYear/selectMonthlyPrevYearSales.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      ui-components/ category README。UI Component 仕様書カタログ articulate。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-001 = ConditionSummaryEnhanced (kind: ui-component、category: dashboard-summary)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-002 = KpiCard (kind: ui-component、category: kpi-display)。改修者向け事実台帳 (= app/src/presentation/components/common/KpiCard.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-003 = KpiGrid (kind: ui-component、category: kpi-layout)。改修者向け事実台帳 (= app/src/presentation/components/common/KpiCard.styles.ts の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-004 = ChartCard (kind: ui-component、category: chart-shell)。改修者向け事実台帳 (= app/src/presentation/components/charts/ChartCard.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-005 = ChartLoading (kind: ui-component、category: chart-state)。改修者向け事実台帳 (= app/src/presentation/components/charts/ChartState.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
