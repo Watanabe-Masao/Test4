@@ -1,0 +1,85 @@
+# Temporal Scope Policy authoring source (Wave 2 / Phase 4 sub-PR C 雛形 = stage: discovery)
+#
+# 役割: doc-kind-registry.yaml で declared された各 kind に対する temporal-scope policy を articulate
+# する authoring source。Phase 4 advisory checker (= tools/governance/check-doc-temporal-scope.mjs)
+# の入力として消費される。
+#
+# 機械正本: docs/contracts/generated/temporal-scope-policy.generated.json
+# (Phase 4 sub-PR C で landing)。
+#
+# 不可侵原則 3 (ADR-SCP-003): 製本 = 現在 / archive = 過去 / project = 未来 / generated report =
+# 計算済み現在 の 4 temporal scope 分類。
+# ADR-SCP-008: machineInferredAccepted の例外条項 (generated-report with producer / archive-doc
+# with archive-manifest) — acceptanceRule field で articulate (Phase 4 simple version では articulate
+# のみ、checker 実装は後段)。
+#
+# Wave 2 narrowing (ADR-SCP-016 D1 + 不可侵原則 8 整合): Wave 2 advisory only、hard gate 追加なし。
+# stage = discovery で Phase 4 simple version (= scan のみ、acceptance check 未実装)。Phase 4 後段で
+# minimum/extended 昇格。
+#
+# schema: docs/contracts/schema/temporal-scope-policy.schema.json (本 sub-PR で landing)
+
+schemaVersion: temporal-scope-policy-v1
+stage: discovery
+
+policies:
+  # 1. canonical-doc に対する no-temporal-mixing policy
+  - id: no-temporal-mixing
+    description: |
+      canonical-doc kind に過去 (= history / migration log) / 未来 (= roadmap / TODO / Phase plan) /
+      progress content の混入禁止 (= 不可侵原則 3 / ADR-SCP-003)。検出は forbidden heading +
+      checkbox + hand-written count の regex scan。
+    scope: [canonical-doc]
+    checks:
+      forbiddenHeadings:
+        - History
+        - Roadmap
+        - Future
+        - TODO
+        - Phase
+        - Migration Log
+      forbiddenPatterns:
+        # checkbox は project-plan kind 専用 (= live task list は projects/<id>/checklist.md のみ、
+        # references/ / CLAUDE.md / roles/ には書かない、project-checklist-governance 整合)
+        - "^[ \\t]*-[ \\t]+\\[[ x]\\]"
+    severity: warn
+    confidence: high
+    suggestedDisposition: split
+    rationale: |
+      不可侵原則 3 (ADR-SCP-003) + project-checklist-governance.md 整合。
+      live task list の正本は projects/<id>/checklist.md のみ、canonical-doc には書かない。
+
+  # 2. generated-report に対する producer-required policy (= ADR-SCP-008 例外条項)
+  - id: generated-must-have-producer
+    description: |
+      generated-report kind は producer field が generated-artifacts registry に declared されている
+      場合に machine-inferred accepted。本 policy では acceptanceRule の articulate のみ
+      (= Phase 4 simple version)、checker 実装は Wave 3 / Phase 9 generated-artifacts registry
+      landing 後 (= Phase 4 後段で revisit)。
+    scope: [generated-report]
+    checks:
+      acceptanceRule: producer_declared_in_artifact_registry
+    severity: warn
+    confidence: high
+    suggestedDisposition: generated-register
+    rationale: |
+      ADR-SCP-008 例外条項。Wave 3 / Phase 9 で generated-artifacts registry が landing 後に
+      checker 実装。本 policy では articulate のみ。
+
+  # 3. archive-doc に対する manifest-required policy (= ADR-SCP-008 例外条項)
+  - id: archive-must-have-manifest
+    description: |
+      archive-doc kind は archive-manifest.json が同 zone 内に存在する場合に machine-inferred
+      accepted。本 policy では acceptanceRule の articulate のみ (= Phase 4 simple version)、
+      checker 実装は archive-manifest 仕様確定 + 既存 references/99-archive/ への適用判断後
+      (= Phase 4 後段で revisit)。
+    scope: [archive-doc]
+    checks:
+      acceptanceRule: archive_manifest_exists_in_zone
+    severity: warn
+    confidence: high
+    suggestedDisposition: archive
+    rationale: |
+      ADR-SCP-008 例外条項 + inquiry/06-temporal-scope-shadow-policy.md (= existing
+      references/99-archive/ に archive-manifest が無いため、trigger 条件は将来追加判断)。
+      本 policy では articulate のみ。

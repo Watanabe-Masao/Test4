@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "generatedAt": "2026-05-09T03:24:21.962Z",
+    "sourcePaths": [
+      "docs/contracts/src/docs/temporal-scope-policy.yaml"
+    ],
+    "sourceSha": "f877572daa25003f524c9ea5d446cd8147ac53be"
+  },
+  "policies": [
+    {
+      "checks": {
+        "forbiddenHeadings": [
+          "History",
+          "Roadmap",
+          "Future",
+          "TODO",
+          "Phase",
+          "Migration Log"
+        ],
+        "forbiddenPatterns": [
+          "^[ \\t]*-[ \\t]+\\[[ x]\\]"
+        ]
+      },
+      "confidence": "high",
+      "description": "canonical-doc kind に過去 (= history / migration log) / 未来 (= roadmap / TODO / Phase plan) /\nprogress content の混入禁止 (= 不可侵原則 3 / ADR-SCP-003)。検出は forbidden heading +\ncheckbox + hand-written count の regex scan。\n",
+      "id": "no-temporal-mixing",
+      "rationale": "不可侵原則 3 (ADR-SCP-003) + project-checklist-governance.md 整合。\nlive task list の正本は projects/<id>/checklist.md のみ、canonical-doc には書かない。\n",
+      "scope": [
+        "canonical-doc"
+      ],
+      "severity": "warn",
+      "suggestedDisposition": "split"
+    },
+    {
+      "checks": {
+        "acceptanceRule": "producer_declared_in_artifact_registry"
+      },
+      "confidence": "high",
+      "description": "generated-report kind は producer field が generated-artifacts registry に declared されている\n場合に machine-inferred accepted。本 policy では acceptanceRule の articulate のみ\n(= Phase 4 simple version)、checker 実装は Wave 3 / Phase 9 generated-artifacts registry\nlanding 後 (= Phase 4 後段で revisit)。\n",
+      "id": "generated-must-have-producer",
+      "rationale": "ADR-SCP-008 例外条項。Wave 3 / Phase 9 で generated-artifacts registry が landing 後に\nchecker 実装。本 policy では articulate のみ。\n",
+      "scope": [
+        "generated-report"
+      ],
+      "severity": "warn",
+      "suggestedDisposition": "generated-register"
+    },
+    {
+      "checks": {
+        "acceptanceRule": "archive_manifest_exists_in_zone"
+      },
+      "confidence": "high",
+      "description": "archive-doc kind は archive-manifest.json が同 zone 内に存在する場合に machine-inferred\naccepted。本 policy では acceptanceRule の articulate のみ (= Phase 4 simple version)、\nchecker 実装は archive-manifest 仕様確定 + 既存 references/99-archive/ への適用判断後\n(= Phase 4 後段で revisit)。\n",
+      "id": "archive-must-have-manifest",
+      "rationale": "ADR-SCP-008 例外条項 + inquiry/06-temporal-scope-shadow-policy.md (= existing\nreferences/99-archive/ に archive-manifest が無いため、trigger 条件は将来追加判断)。\n本 policy では articulate のみ。\n",
+      "scope": [
+        "archive-doc"
+      ],
+      "severity": "warn",
+      "suggestedDisposition": "archive"
+    }
+  ],
+  "schemaVersion": "temporal-scope-policy-v1",
+  "stage": "discovery"
+}

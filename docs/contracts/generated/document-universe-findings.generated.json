@@ -1,0 +1,38 @@
+{
+  "findings": [
+    {
+      "detectedAt": "c0332ab1a3bd8d7882cac5e4d6b908d356e4c33a",
+      "detectedBy": "check-document-universe",
+      "evidence": {
+        "drift": 0,
+        "scannedAt": "c0332ab1a3bd8d7882cac5e4d6b908d356e4c33a",
+        "scannedFiles": 744
+      },
+      "id": "FND-SCP-WAVE2-DOC-IDX-VERIFIED-ZERO-001",
+      "phase": "Wave 2 / Phase 2.5",
+      "rationale": "Document Universe Index 4 種 check (DOC-IDX-MISSING-TARGET / UNINDEXED-MARKDOWN / DUPLICATE-ENTRY / BROKEN-LINK) を完全実行し、structural drift が存在しないことを機械的に確認 (Wave 2 advisory checker、ADR-SCP-016 D3 整合)。Phase 2.5 後段 / Phase 4 で BROKEN-ANCHOR / STALE-GENERATED / KIND-MISMATCH check が追加される予定。",
+      "result": "verified-zero",
+      "schemaVersion": "aag-finding-v1",
+      "scope": "Document Universe Index entries (= scope: README + CLAUDE.md + CHANGELOG.md + CURRENT_PROJECT.md + references + projects + docs + aag + aag-engine + roles + tools + workers、app/ + wasm/ + app-domain/ + fixtures/ + scripts/ 除外、ADR-SCP-022 D3 整合)",
+      "status": "open"
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-05-09T03:11:51.117Z",
+    "sourcePaths": [
+      "docs/contracts/generated/document-universe.generated.json",
+      "docs/contracts/schema/aag-finding.schema.json"
+    ],
+    "sourceSha": "c0332ab1a3bd8d7882cac5e4d6b908d356e4c33a"
+  },
+  "schemaVersion": "document-universe-findings-v1",
+  "summary": {
+    "byCheckType": {},
+    "byResult": {
+      "verified-zero": 1
+    },
+    "bySeverity": {},
+    "driftCount": 0,
+    "totalFindings": 1
+  }
+}

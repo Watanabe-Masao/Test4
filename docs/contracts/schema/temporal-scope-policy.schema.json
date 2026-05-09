@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/temporal-scope-policy-v1.json",
+  "title": "Temporal Scope Policy v1",
+  "description": "AAG SCP Wave 2 / Phase 4 — canonical-doc / project-plan / archive-doc / generated-report 各 kind に対する temporal-scope policy の articulate (= 不可侵原則 3 / ADR-SCP-003 4 temporal scope 分類 + ADR-SCP-008 例外条項の運用形)。consumer = `tools/governance/check-doc-temporal-scope.mjs` (Wave 2 Phase 4 advisory checker、aag-finding-v1 conform finding emit)。producer = `tools/governance/build-temporal-scope-policy.mjs` (= temporal-scope-policy.yaml normalize)。本 schema は doc-kind-registry.yaml の forbiddenContent / acceptanceCondition を「policy として articulate 可能な単位」に再構成 (= kind 自体は kind registry、policy + check は本 registry で管理する分離)。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family (aag-finding / tree-contracts / doc-kind-registry / document-universe) と同 draft-07 / Ajv 既定 dialect。設計判断 (Phase 4 background subagent design memo 整合): policy entry は id / scope (= 適用 kind 列) / checks (= 検出ルール) / severity / suggestedDisposition / confidence の articulate を持ち、check ごとに forbidden patterns / required artifacts を articulate する。Phase 4 simple version では canonical-doc に対する forbiddenHeadings + forbiddenPatterns 中心、Phase 4 後段で acceptance rule (producer / manifest existence) を追加。後続 v2 で severity 拡張 / disposition 追加が必要なら additive minor。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "stage", "policies"],
+  "properties": {
+    "$comment": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "const": "temporal-scope-policy-v1"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["discovery", "minimum", "extended"],
+      "description": "Policy stage。`discovery` = Phase 4 simple version (= scan のみ、acceptance check 未実装)。`minimum` = forbidden patterns + acceptance rule basic articulate。`extended` = full coverage (= 全 kind × 全 check)。"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generatedAt": { "type": "string" },
+        "sourceSha": { "type": "string" },
+        "sourcePaths": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "policies": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Policy" }
+    }
+  },
+  "definitions": {
+    "Policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "scope", "checks", "severity", "confidence", "suggestedDisposition"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Policy 識別子。例: `no-temporal-mixing` / `generated-must-have-producer` / `archive-must-have-manifest`。"
+        },
+        "description": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "description": "適用 kind id 列 (= doc-kind-registry の kind id と整合)。例: ['canonical-doc'] / ['generated-report'] / ['archive-doc']。"
+        },
+        "checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "検出ルール集。Phase 4 simple version では forbiddenHeadings + forbiddenPatterns 中心、後段で acceptanceRule 追加。",
+          "properties": {
+            "forbiddenHeadings": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "禁止 heading 文字列 (full match for `^##\\s+<value>\\s*$`、case-sensitive)。"
+            },
+            "forbiddenPatterns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "禁止 regex pattern 列 (= 任意の本文 pattern を禁止)。例: '- \\\\[[ x]\\\\]' = checkbox / '(current|total|count).*\\\\d+' = hand-written count。"
+            },
+            "acceptanceRule": {
+              "type": "string",
+              "description": "ADR-SCP-008 例外条項 (= machineInferredAccepted = true の kind に必要な artifact 存在条件)。例: 'producer_declared_in_artifact_registry' / 'archive_manifest_exists_in_zone'。Phase 4 simple version では articulate のみ、checker 実装は Phase 4 後段。"
+            }
+          }
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warn", "error"],
+          "description": "Wave 2 advisory only (= block 除外、不可侵原則 8 整合)。"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "suggestedDisposition": {
+          "type": "string",
+          "enum": [
+            "keep-and-contract",
+            "split",
+            "move",
+            "archive",
+            "generated-register",
+            "needs-triage",
+            "unmanaged-promote"
+          ]
+        },
+        "rationale": {
+          "type": "string",
+          "description": "policy の articulate 根拠 (= ADR / 不可侵原則 reference)。"
+        }
+      }
+    }
+  }
+}
