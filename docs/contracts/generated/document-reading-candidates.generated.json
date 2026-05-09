@@ -433,97 +433,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/checklist.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/decision-audit.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/discovery-log.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/plan.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "projects/active/reposteward-ai-ops-platform/projectization.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "active-projects",
-      "universeKind": "project-plan"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "projects/active/taxonomy-v2/AI_CONTEXT.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -5006,31 +4915,31 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T13:03:24.298Z",
+    "generatedAt": "2026-05-09T13:13:18.433Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "7970765edeeaf1b537cb9a7b62b6e2ccb15d61b8"
+    "sourceSha": "52c9556dae18c1ae18790d963a93c3c1d64f5778"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 63,
+    "alreadyReviewedCount": 70,
     "byKind": {
       "canonical-doc": 226,
-      "project-plan": 42,
+      "project-plan": 35,
       "repo-entrypoint": 2,
       "unknown": 65
     },
     "byPriority": {
-      "HIGH": 131,
+      "HIGH": 124,
       "MEDIUM": 204
     },
     "bySection": {
       "aag-framework": 5,
       "aag-framework-internal": 9,
       "aag-interface": 16,
-      "active-projects": 55,
+      "active-projects": 48,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
@@ -5042,6 +4951,6 @@
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 335
+    "totalCandidates": 328
   }
 }

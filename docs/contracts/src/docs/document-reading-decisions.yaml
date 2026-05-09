@@ -1677,3 +1677,168 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 9 (Wave 2 / Phase 2.5 sub-PR 13、reviewedAtCommit 52c9556)
+  # 7 文書 = projects/active/reposteward-ai-ops-platform/ 全件。標準 4 + 拡張 3 (= Batch 8 の
+  # discovery-log + projectization に加えて decision-audit が新出)。
+  # 新 proposedKind 1 種 articulate: project-decision-audit (= drawer Pattern 1 application)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      project 意味空間の入口。RepoSteward AI Ops Platform 構想 articulate (= post-MVP、
+      AI-first repo operations engine)。Naming Note (= concept / binary / project id 三軸
+      articulate) を独自 articulate。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7/8 の AI_CONTEXT.md と同 pattern、project-plan で role articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。Phase 0 (Bootstrap) のみ
+      articulate、Wave 1〜5 は §3 ルール '想像上の項目を bootstrap 段階で先取り articulate しない'
+      に従い着手 PR で incremental 追記。AI 自己レビュー + 最終レビュー section 必須構造維持。
+    alternativesConsidered: |
+      なし (= Batch 7/8 の checklist.md と同 kind、governance contract articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/checklist.md
+      - projects/active/presentation-quality-hardening/checklist.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/decision-audit.md
+    proposedKind: project-decision-audit
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      L3 重判断 institute (= drawer Pattern 1 application、複数 Phase に跨る判断の lineage
+      articulation)。各 entry が 5 軸 (= status / context / decision / rationale / alternatives) +
+      観測点 + Lineage (judgementCommit + preJudgementCommit + retrospectiveCommit) +
+      振り返り判定 を articulate。governance contract: complexity-policy.md §3.4 +
+      decision-articulation-patterns.md Pattern 1。新 proposedKind 'project-decision-audit'
+      を articulate (= 独自 governance contract と固有 5 軸 schema を持つため別 kind articulate)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、L3 重判断 institution は drawer Pattern 1 という
+      固有 governance contract と 5 軸 + Lineage という固有 schema を持つため別 kind articulate
+      が適切。Archive v2 で archive.manifest.json への圧縮対象であることも別 kind を裏打ち。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      DA-β-003 institute artifact (= AAG 5 系統目: 発見蓄積)。implementation 中に発見した
+      scope 外 / 改善必要 / 詳細調査要事項を P1〜P3 priority articulate で蓄積。
+      decision-audit.md (= 判断履歴) との役割分担を articulate (= scope 内 vs scope 外)。
+      機械検証: projectizationPolicyGuard PZ-14。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/discovery-log.md と同 kind、
+      project-discovery-log governance contract articulate 済)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      起点文書 (= 後任者が最初に読む)。Phase 0 (Bootstrap) landing 直後の現在地 articulate +
+      Wave 1〜5 次にやること articulate。前提 program (= aag-engine-go-mvp、2026-05-06 archive)
+      への back reference 含む。governance-articulated mixed temporal (= handoff role 要求)。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      不可侵原則 8 件 + Phase 構造 articulate (= JSON-first / AI-first / Read-only first /
+      主検出は構造 / DetectorResult-first / Additive-only / Wave-by-wave delivery /
+      versionImpact)。役割明確、location 整合。
+    alternativesConsidered: |
+      なし (= Batch 7/8 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+    failurePatterns: []
+
+  - path: projects/active/reposteward-ai-ops-platform/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    reviewedAtSha: 52c9556dae18c1ae18790d963a93c3c1d64f5778
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate。projectizationLevel: Level 3、changeType: governance-hardening、
+      requiresHumanApproval: true。projectization-policy.md governance contract に基づく。
+      past (= 判定 timing) + present (= 適用継続) の articulate mixed temporal は governance-articulated。
+    alternativesConsidered: |
+      なし (= Batch 8 presentation-quality-hardening/projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+    failurePatterns: []

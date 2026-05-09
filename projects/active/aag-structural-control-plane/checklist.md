@@ -741,6 +741,55 @@ mixed temporal scope を持つが governance contract で正当化される doc 
 → Reading Pass の articulate では「mechanism の構造」を見て governance contract がある場合は
 failurePatterns 未付与とする judgment 確立。
 
+## Wave 2 / Phase 2.5 sub-PR 13: Reading Pass Batch 9 (= reposteward-ai-ops-platform 一括、reviewedAtCommit 52c9556)
+
+> **目的**: Batch 7/8 の projects/active/ zone shift を継続。reposteward-ai-ops-platform (= 7 docs)
+> 全件 articulate。Batch 8 で発見した 6 doc 構造に加えて新出 doc 'decision-audit.md' を articulate
+> (= L3 重判断 institute、drawer Pattern 1 application)。新 proposedKind 1 種 articulate
+> (project-decision-audit)。
+
+### Phase 2.5 sub-PR 13 (Reading Pass Batch 9、7 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 13 着手 (= user 「1」承認、= reposteward-ai-ops-platform 一括)
+- [x] 7 docs を read + articulate: AI_CONTEXT + checklist + decision-audit + discovery-log + HANDOFF + plan + projectization
+- [x] 7 entry を document-reading-decisions.yaml に append (= entries: 63 → 70、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 1 種 articulate: project-decision-audit (= drawer Pattern 1 application、5 軸 + 観測点 + Lineage + 振り返り判定の固有 schema、complexity-policy.md §3.4 + decision-articulation-patterns.md governance contract)
+- [x] decision-audit.md (2101 行、最大規模 doc) の Lineage articulate scheme (= judgementCommit + preJudgementCommit + retrospectiveCommit) を articulate に温存
+- [x] candidates regenerate (= 335 → 328 candidates、HIGH 131 → 124、alreadyReviewedCount 63 → 70)
+- [x] Failure Loop generator 再実行 (= clean batch 維持、unregistered 0、guard candidates 4 維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 70 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 13 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 9 7 entry append 済 (= 累計 70 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載
+- [x] proposedKind 11 種に拡張達成 (= 10 → 11、新規: project-decision-audit)
+- [x] L3 重判断 institute pattern (= drawer Pattern 1) 初観測 + articulate
+- [x] active project の standard structure 拡張形 articulate (= quick-fixes 4 doc / presentation-quality-hardening 6 doc / reposteward 7 doc の段階)
+- [x] Failure Loop infrastructure が大規模 doc (2101 行) 含む batch でも安定動作
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 13 で articulate された pattern (= Reading Pass の知見蓄積)
+
+**1. active project structure の incremental 拡張 articulate**:
+projects/active/<id>/ の標準 structure は固定ではなく、project の governance 要件に応じて
+incremental に拡張される:
+- 4 doc 構造 = quick-fixes (collection、軽量)
+- 6 doc 構造 = presentation-quality-hardening (= 4 + discovery-log + projectization、finite)
+- 7 doc 構造 = reposteward-ai-ops-platform (= 6 + decision-audit、L3 重判断 institute)
+
+→ 各 doc は独自 governance contract を持ち得る (= proposedKind 11 種に articulate された理由)。
+
+**2. drawer pattern の articulate 観測**:
+decision-audit.md は drawer Pattern 1 application の実例。drawer pattern (= references/05-aag-interface/
+drawer/) は AAG が AI に提供する interface family であり、本 Reading Pass で初の application
+articulate を観測。今後の Reading Pass で他 drawer pattern (Pattern 2/3/...) の application も
+surface する可能性を articulate。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
