@@ -1231,6 +1231,63 @@ CLAUDE.md は以下の 4 層 governance model を articulate:
 
 → pair の片方だけでは不完全。Reading Pass の duplicates field でも pair の cross-reference articulate。
 
+## Wave 2 / Phase 2.5 sub-PR 21: Reading Pass Batch 17 (= references/05-aag-interface/ 一括 + staleness 検出、reviewedAtCommit ff958dc)
+
+> **目的**: MEDIUM Reading Pass 継続。references/05-aag-interface/ family (= 16 docs、AAG public
+> interface) を 1 batch で articulate。**新発見**: protocols/README.md が staleness (= skeleton +
+> R5 で fill 予定 articulate しているが、実際は M1-M5 fill 完了済 2026-05-04)、disposition:
+> rewrite-and-contract に articulate。残 15 件は keep-and-contract。
+
+### Phase 2.5 sub-PR 21 (Reading Pass Batch 17、16 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 21 着手 (= user 「1」承認、= references/05-aag-interface/ 一括)
+- [x] 16 docs を read + articulate:
+  - aag-interface/README.md (1)
+  - drawer/decision-articulation-patterns.md (1)
+  - operations/{deferred-decision-pattern, new-project-bootstrap-guide, project-checklist-governance, projectization-policy}.md (4)
+  - protocols/README.md (1) + 9 protocol docs (10)
+- [x] 16 entry を document-reading-decisions.yaml に append (= entries: 225 → 241、stage: in-progress)
+- [x] 全 entry に同 proposedKind: canonical-doc articulate (= AAG interface family)
+- [x] **staleness 検出**: protocols/README.md が skeleton + R5 で fill 予定 articulate しているが、protocols/ 配下 9 docs は 2026-05-04 で M1-M5 fill 完了済 → disposition: rewrite-and-contract
+- [x] 残 15 件 disposition: keep-and-contract articulate
+- [x] 全 entry に failurePatterns: [] articulate (= staleness は taxonomy 未登録 pattern、disposition で surface)
+- [x] candidates regenerate (= 173 → 157 MEDIUM、alreadyReviewedCount 225 → 241)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 241 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 21 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 17 16 entry append 済 (= 累計 241 entries、stage: in-progress)
+- [x] references/05-aag-interface/ family 完遂 (= 16 件全件 articulate)
+- [x] staleness pattern (= README が完了済 work を skeleton として articulate) を初観測 + surface
+- [x] disposition rewrite-and-contract が 1 → 2 件に増加 (= staleness 検出 case)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 21 で articulate された pattern
+
+**1. staleness pattern 初観測 (= taxonomy 未登録)**:
+
+protocols/README.md は以下の staleness を articulate:
+- 'status: skeleton (= R2 で landed)、R5 で fill 予定' を articulate
+- 実際は 9 protocol docs が 2026-05-04 で M1-M5 fill 完了済 (= operational-protocol-system project)
+- 'projects/completed/operational-protocol-system/' (= 参照先 program) も既に completed
+- README は未だ skeleton 状態 articulate を維持 → reader (= 主アプリ改修 user) に AI routing ambiguity
+
+→ disposition rewrite-and-contract で surface。staleness は現 10 patterns (= TEMPORAL-MIXING /
+DUPLICATE-RESPONSIBILITY 等) のいずれにも完全には match しない新 pattern candidate。Wave 3 で
+DOC-FAIL-STALE-DESCRIPTION 等の追加 pattern として review window 経由で articulate する候補。
+
+**2. AAG public interface family の articulate 構造**:
+
+references/05-aag-interface/ は AAG が主アプリ改修 user に提供する public interface:
+- README.md = root + 境界 articulate (= 不可侵原則: AAG-specific term 持ち込み禁止)
+- drawer/ = AI ↔ AAG primary interface (= 領域 agnostic な change articulation pattern)
+- operations/ = AAG-COA System Operations (= governance contract pointer source)
+- protocols/ = AAG protocols (= Task / Session / Complexity protocol)
+
+→ 多数の active project / template doc が本 interface を pointer 経由で参照する hub role。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

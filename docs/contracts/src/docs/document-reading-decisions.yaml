@@ -5003,3 +5003,324 @@ entries:
       - roles/line/specialist/duckdb-specialist/SKILL.md
     failurePatterns: []
 
+
+  # ============================================================================
+  # Reading Pass Batch 17 (Wave 2 / Phase 2.5 sub-PR 21、reviewedAtCommit ff958dc)
+  # 16 文書 = references/05-aag-interface/ 全件 (= AAG public interface family)。
+  # README + drawer/ 1 + operations/ 4 + protocols/ 10 = 16。
+  # 新発見: protocols/README.md が staleness (= skeleton + R5 で fill 予定 articulate しているが、
+  # 実際は M1-M5 fill 完了済 2026-05-04)、disposition: rewrite-and-contract に articulate。
+  # 残 15 件は keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: references/05-aag-interface/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG public interface root README (= 主アプリ改修 user knowledge interface)。3 tree boundary
+      integration 整合 (= aag/_internal/ を読まずに本 directory のみで pattern / operations /
+      protocols に reach 可能)。境界 (= 不可侵原則) articulate (= AAG-specific term 持ち込み禁止)。
+    alternativesConsidered: |
+      なし (= AAG public interface root の articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/drawer/decision-articulation-patterns.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      drawer Pattern catalog (= AI ↔ AAG primary interface、領域 agnostic な change articulation
+      pattern 集)。Pattern 1 = decision-audit.md の正本 contract (= Batch 9/12 の project-decision-audit
+      kind articulate の governance source)。aag-self-hosting-completion R2 で AAG public interface
+      へ移管済。
+    alternativesConsidered: |
+      なし (= drawer 単一 doc の役割明確、operations / protocols とは異なる layer = AI 対話 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/deferred-decision-pattern.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG-COA Deferred Decision Pattern (= 判断保留の articulate)。AAG Layer 4A System Operations。
+    alternativesConsidered: |
+      なし (= operations layer の articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/new-project-bootstrap-guide.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      新 project bootstrap guide (= projects/_template/ から copy + customize する手順 articulate)。
+      Batch 15 articulate した template-doc family の利用ガイド。
+    alternativesConsidered: |
+      なし (= operations layer の articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/project-checklist-governance.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      project-checklist-governance contract 正本 (= Batch 7-12 で観測した project-checklist kind の
+      governance source、live task list は projects/<id>/checklist.md のみ articulate)。
+      多数の active project / template / 主アプリ doc が本 contract を pointer 経由で参照。
+    alternativesConsidered: |
+      なし (= governance contract の正本 role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/projectization-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG-COA Projectization Policy 正本 (= Batch 8-11 で観測した project-projectization kind の
+      governance source、projectizationLevel L0〜L4 + breakingChange / requiresLegacyRetirement /
+      requiresGuard / requiresHumanApproval flag articulate)。Batch 10 で観測した bidirectional
+      governance contract (= projectization.flag ↔ breaking-changes / legacy-retirement) の source。
+    alternativesConsidered: |
+      なし (= governance contract の正本 role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/README.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      **staleness 検出**: README が 'status: skeleton (= R2 で landed)、R5 で fill 予定' と articulate
+      しているが、実際は protocols/ 配下の 9 protocol docs (task-protocol-system / task-class-catalog /
+      session-protocol / complexity-policy / planning-protocol / refactor-protocol / bug-fix-protocol /
+      new-capability-protocol / seam-integration) が 2026-05-04 で M1-M5 fill 完了済。'projects/completed/
+      operational-protocol-system/' (= bottom 'status' section の参照先) も既に completed。本 README は
+      古い skeleton 状態 articulate を維持しており、現状 (= filled state) を反映する rewrite が必要。
+    alternativesConsidered: |
+      keep-and-contract (= 'skeleton 段階の歴史記録' として保持) も候補だが、reader (= 主アプリ改修 user)
+      に対して staleness ある index を提供すると AI routing ambiguity を招く。rewrite-and-contract で
+      現状 (M1-M5 filled) を articulate すべき。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/bug-fix-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Bug Fix Protocol — TC-3 (= operational-protocol-system M4 fill、2026-05-04 landed)。
+      Task Class 6 類型の 1 つ。
+    alternativesConsidered: |
+      なし (= 9 protocols family の 1、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/complexity-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Complexity Policy — L1 / L2 / L3 (= operational-protocol-system M1 fill、2026-05-04 landed)。
+      動的昇格・降格 trigger articulate。Batch 9 で observed の L3 重判断 institute (= drawer Pattern 1)
+      の正本 source。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/new-capability-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      New Capability Protocol — TC-4 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/planning-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Planning Protocol — TC-1 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/refactor-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Refactor Protocol — TC-2 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/seam-integration.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Seam Integration (= AAG drawer _seam × Task Protocol System、operational-protocol-system M5 fill、
+      2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/session-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Session Protocol — 開始 / 実行中 / 終了 / 引き継ぎ (= L1/L2/L3 別 read order articulate、
+      operational-protocol-system M1+M2 fill、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/task-class-catalog.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Task Class Catalog — 6 類型 (= Planning / Refactor / Bug Fix / New Capability / Incident
+      Discovery / Handoff、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/task-protocol-system.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Task Protocol System — index (= M1-M5 全体 index、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
