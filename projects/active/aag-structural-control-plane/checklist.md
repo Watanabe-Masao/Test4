@@ -523,6 +523,39 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 8: Reading Pass Batch 5 (= promotion-readiness-* family 一括 articulate、reviewedAtCommit 034c10b)
+
+> **目的**: Reading Pass の throughput 加速 batch。promotion-readiness-* family (correlation +
+> 10 candidates) は同 pattern (= per-candidate snapshot + 'まだ current に編入しない' marker +
+> Promote Ceremony 待ち) で全件同 disposition: move (= projects/active/pure-calculation-reorg/
+> phase-X/readiness/) と articulate。残 10 件を 1 batch で family-level 一括 articulate、
+> duplicates field の bidirectional cross-reference で family 関係を articulate。
+
+### Phase 2.5 sub-PR 8 (Reading Pass Batch 5、10 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 8 着手 (= user 「効率よく進めたい」承認、推薦 = promotion-readiness-* 一括)
+- [x] 10 docs を read + articulate: 6 BIZ-* (Phase 5 Step 8) = customerGap (BIZ-013) + inventoryCalc (BIZ-009) + observationPeriod (BIZ-010) + pinIntervals (BIZ-011) + piValue (BIZ-012) + remainingBudgetRate (BIZ-008) + 4 ANA-* (Phase 6 Step 9) = dowGapAnalysis (ANA-007) + movingAverage (ANA-009) + sensitivity (ANA-003) + trendAnalysis (ANA-004)
+- [x] 10 entry を document-reading-decisions.yaml に append (= entries: 20 → 30、stage: in-progress)
+- [x] 全 entry に同 disposition: move articulate (= family-level 一括処理)
+- [x] 全 entry に同 proposedKind: status-snapshot articulate
+- [x] 全 entry に同 temporalScope: mixed articulate (= 候補情報 present + Promote Ceremony 待ち future)
+- [x] 全 entry の duplicates field に他 10 件 (= 11 family - self) cross-reference articulate (= bidirectional family graph 完成)
+- [x] 全 entry に同 failurePatterns articulate: DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE + DOC-FAIL-LOCATION-MISMATCH
+- [x] generation script 経由で 10 entry を一括生成 (= /tmp/gen-batch5.mjs、re-run 可能な articulate)
+- [x] candidates regenerate (= 378 → 368 candidates、HIGH 174 → 164、alreadyReviewedCount 20 → 30)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 30 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 8 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 5 10 entry append 済 (= 累計 30 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] family-level 一括 articulate mechanism 確立 (= 同 pattern 文書群を 1 batch で処理する Reading Pass 最適化要素実証)
+- [x] duplicates field bidirectional cross-reference articulate 完成 (= 11 件 family graph、各 entry に 10 cross-reference)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

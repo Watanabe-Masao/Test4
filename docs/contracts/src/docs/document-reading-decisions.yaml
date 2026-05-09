@@ -526,3 +526,360 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 5 (Wave 2 / Phase 2.5 sub-PR 8、reviewedAtCommit 034c10b)
+  # 10 文書 = promotion-readiness-* family の残 10 件 (correlation は Batch 2 で articulate 済)。
+  # 6 BIZ-* candidate (Phase 5 Step 8) + 4 ANA-* candidate (Phase 6 Step 9)、全件同 disposition: move。
+  # ============================================================================
+
+  - path: references/04-tracking/promotion-readiness-customerGap.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (customerGap、CAND-BIZ-013)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-dowGapAnalysis.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (dowGapAnalysis、CAND-ANA-007)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-inventoryCalc.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (inventoryCalc、CAND-BIZ-009)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-movingAverage.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (computeMovingAverage、CAND-ANA-009)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-observationPeriod.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (observationPeriod、CAND-BIZ-010)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-pinIntervals.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (pinIntervals、CAND-BIZ-011)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-piValue.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (piValue、CAND-BIZ-012)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-remainingBudgetRate.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 5 Step 8 promotion-ready 判定 (remainingBudgetRate、CAND-BIZ-008)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-sensitivity.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (sensitivity、CAND-ANA-003)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-trendAnalysis.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
+  - path: references/04-tracking/promotion-readiness-trendAnalysis.md
+    proposedKind: status-snapshot
+    temporalScope: mixed
+    disposition: move
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 034c10b935688309cc72c80e7b4d20e750f926eb
+    reviewedAtSha: 034c10b935688309cc72c80e7b4d20e750f926eb
+    rationaleSummary: |
+      Phase 6 Step 9 promotion-ready 判定 (trendAnalysis、CAND-ANA-004)。'まだ current に編入しない'
+      + future Promote Ceremony 待ち = projects/active/pure-calculation-reorg/ の Phase work と
+      同 scope。promotion-readiness-correlation (Batch 2 で articulate 済) と同 disposition: move、
+      projects/active/pure-calculation-reorg/phase-X/readiness/ への family 一括移管が articulate。
+    alternativesConsidered: |
+      individual articulate (= 各 candidate に独立 disposition) も理論上可能だが、全 11 件 (本
+      family + correlation) が同 pattern (= per-candidate snapshot + 'current に編入しない' marker
+      + Promote Ceremony 待ち) のため、family-level 一括 move が最 articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/promotion-readiness-customerGap.md
+      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
+      - references/04-tracking/promotion-readiness-inventoryCalc.md
+      - references/04-tracking/promotion-readiness-movingAverage.md
+      - references/04-tracking/promotion-readiness-observationPeriod.md
+      - references/04-tracking/promotion-readiness-pinIntervals.md
+      - references/04-tracking/promotion-readiness-piValue.md
+      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
+      - references/04-tracking/promotion-readiness-sensitivity.md
+    failurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-LOCATION-MISMATCH
+
