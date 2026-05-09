@@ -5,7 +5,10 @@
 # articulate (= id + title + description + maturityHint + suggestedRemedy)。
 #
 # 機械正本: docs/contracts/generated/document-failure-taxonomy.generated.json
-# (Wave 2 後段 sub-PR で normalize generator landing 後に生成)。
+# (Wave 2 / Phase 2.5 sub-PR 9 で generator landed = tools/governance/build-document-failure-taxonomy.mjs、
+# 各 pattern に derived block (= observedCount + observedPaths + computedMaturity + guardCandidateEligible) を
+# auto-compute して enrich、unregistered DOC-FAIL-* in use を advisory surface)。
+# 人間 view: references/04-tracking/generated/document-failure-taxonomy.generated.md
 #
 # 不可侵 (ADR-SCP-021 D2/D4/D5 + AAG-SCP-DOC-LEARNING-001~004 整合):
 # - 即 Gate 化禁止 (AAG-SCP-DOC-LEARNING-002): 5 段階 maturity progression を経て Wave 3+ で

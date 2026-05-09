@@ -556,6 +556,52 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 9: failurePattern Registry Generator + Cross-Reference Validation (= Failure Learning Loop infrastructure 着地、reviewedAtCommit 69dd32f)
+
+> **目的**: Reading Pass 結果を ad-hoc string から構造化 registry に articulate。毎 batch が registry を
+> 自動 enrich する mechanism。同種 failure の N 回観測 → guard candidate 自動昇格 (= ratchet-down 自動化、
+> CLAUDE.md G8 整合)。Reading Pass throughput と Learning quality の bidirectional 強化。
+
+### Phase 2.5 sub-PR 9 (failurePattern registry infrastructure)
+
+- [x] 既存 asset audit: `docs/contracts/src/docs/document-failure-taxonomy.yaml` (= 10 patterns pre-articulated) + `docs/contracts/schema/document-failure-taxonomy.schema.json` (= 既存 schema 完備) を確認、duplicate articulate 防止
+- [x] gap 特定: generator 未実装 (= reading-decisions.yaml の使用と bidirectional cross-reference 機能なし)
+- [x] generator 実装: `tools/governance/build-document-failure-taxonomy.mjs`
+  - taxonomy authoring source schema validation (= ajv conform fail fast)
+  - reading-decisions.yaml scan で per-pattern observedCount + observedPaths + observedDispositions auto-compute
+  - computedMaturity auto-promotion ルール articulate (= observedCount 1-4 → observed / >=5 → guardrail-candidate-emitted、promote のみ = 下方向 demotion なし)
+  - unregistered DOC-FAIL-* in use 検出 (= reading-decisions で使用されているが taxonomy 未登録 = advisory warning)
+  - deterministic JSON output (= sorted keys、reproducible)
+- [x] generated artifacts 着地:
+  - `docs/contracts/generated/document-failure-taxonomy.generated.json` (= machine truth)
+  - `references/04-tracking/generated/document-failure-taxonomy.generated.md` (= human view)
+- [x] authoring source comment 更新 (= sub-PR 9 で generator landed を明記、derived block + advisory 機能を articulate)
+- [x] 初回実行検証:
+  - 10 patterns registered / 6 observed / 4 unobserved
+  - 4 guard candidates auto-promoted (= PROJECT-CONTENT-IN-REFERENCE 16 + LOCATION-MISMATCH 13 + TEMPORAL-MIXING 6 + GENERATED-AS-MANUAL 5)
+  - 2 emerging patterns tracked (= ARCHIVE-CONTENT-IN-CANONICAL 1 + AI-ROUTING-AMBIGUITY 1)
+  - 0 unregistered DOC-FAIL-* in use (= clean state、reading-decisions の全 failurePattern が registry 登録済)
+- [x] hard gate 追加なし (= Wave 2 advisory only、AAG-SCP-DOC-LEARNING-002 整合)
+
+### Phase 2.5 sub-PR 9 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] generator が deterministic に動作 (= reproducible output、2 回連続実行で diff 0)
+- [x] 既存 taxonomy schema を改変せず derived block で auto-enrichment 実装 (= curated taxonomy preserve)
+- [x] computedMaturity の promotion ルールが articulate (= observedCount threshold + 5 段階 progression)
+- [x] unregistered DOC-FAIL-* surface 機能あり (= 未登録 pattern 検出、advisory warning)
+- [x] guard candidate 抽出機能あり (= observedCount >= 5 で eligible 判定、Wave 3 で guard 着地候補)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、未登録 pattern も hard gate なし)
+- [x] Reading Pass の毎 batch で registry が自動 enrich (= node 1 コマンドで再生成可能)
+
+### Phase 2.5 sub-PR 9 で articulate された Failure Learning Loop mechanism
+
+1. **Reading Pass で failurePattern observation** (= reading-decisions.yaml entry に DOC-FAIL-* tag 付与)
+2. **Generator が auto-aggregate** (= per-pattern observedCount + observedPaths + observedDispositions)
+3. **Maturity auto-promotion** (= observedCount threshold で computedMaturity 昇格)
+4. **Guard candidate surface** (= observedCount >= 5 で eligible flag)
+5. **Wave 3 で guard 実装** (= guard candidate を実際の guard test に articulate)
+6. **同種 failure 再発時に hard fail** (= ratchet-down 完成、CLAUDE.md G8 整合)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

@@ -850,6 +850,10 @@
         {
           "path": "references/04-tracking/generated/document-universe.generated.md",
           "label": "Document Universe Index — repo 内 Markdown を 1 枚で articulate した分類済み索引 (AAG SCP Wave 2 / Phase 2.5、ADR-SCP-022 整合、observed-only / promotionAllowed: false)"
+        },
+        {
+          "path": "references/04-tracking/generated/document-failure-taxonomy.generated.md",
+          "label": "Document Failure Taxonomy (machine view) — Reading Pass で観測された DOC-FAIL-* per pattern の observedCount + observedPaths + computedMaturity + guard candidate eligibility を articulate (AAG SCP Wave 2 / Phase 2.5 sub-PR 9、Failure Learning Loop infrastructure)"
         }
       ]
     },
