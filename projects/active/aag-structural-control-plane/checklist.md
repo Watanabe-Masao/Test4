@@ -490,6 +490,39 @@
 - [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
 - [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
 
+## Wave 2 / Phase 2.5 sub-PR 7: Reading Pass Batch 4 (= 残非elements 3 + elements/ サンプル 2、reviewedAtCommit fa58cc7)
+
+> **目的**: Reading Pass Batch 1+2+3 の continuation。残 non-elements 3 件 (quality-audit-latest +
+> generated/architecture-state-snapshot + 不要だった technical-debt-roadmap は次回 batch) +
+> elements/ サンプル 2 件 (element-taxonomy + CALC-001 + calculations/README) を articulate。
+> 新 disposition 'delete-candidate' + 'generated-register' を初使用、新 proposedKind
+> 'generated-report' を初使用 → disposition 7 種 + kind 7 種 articulate 達成。
+
+### Phase 2.5 sub-PR 7 (Reading Pass Batch 4、5 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 7 着手 (= user 「よろしくお願いします」継続承認)
+- [x] 5 docs を read + articulate: references/04-tracking/quality-audit-latest.md + generated/architecture-state-snapshot.md + elements/element-taxonomy.md + elements/calculations/CALC-001.md + elements/calculations/README.md
+- [x] 5 entry を document-reading-decisions.yaml に append (= entries: 15 → 20、stage: in-progress)
+- [x] 各 entry に 9 disposition のいずれかを articulate: keep-and-contract 3 件 (element-taxonomy + CALC-001 + calculations/README) / delete-candidate 1 件 (quality-audit-latest) / generated-register 1 件 (architecture-state-snapshot)
+- [x] 各 entry に 5 hasX flags + rationaleSummary + alternativesConsidered + duplicates + failurePatterns articulate
+- [x] 新 disposition 'delete-candidate' 初使用 (= quality-audit-latest、stale snapshot で architecture-health.json と redundant)
+- [x] 新 disposition 'generated-register' 初使用 (= architecture-state-snapshot、機械生成だが naming convention 不整合)
+- [x] 新 proposedKind 'generated-report' 初使用 (= architecture-state-snapshot)
+- [x] elements/ exemplar articulate: element-taxonomy (= ID prefix 正本) + CALC-001 (= per-element spec exemplar) + calculations/README (= directory README + Lifecycle State Machine)
+- [x] candidates regenerate (= 383 → 378 candidates、HIGH 179 → 174、alreadyReviewedCount 15 → 20)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 20 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 7 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 4 5 entry append 済 (= 累計 20 entries、stage: in-progress)
+- [x] 全 entry が 9 disposition のいずれかに分類完了 (= 空 disposition 0 件)
+- [x] 全 entry に reviewedBy / reviewedAtCommit / reviewedAtSha 記載 (= reproducibility articulate)
+- [x] disposition 7 種 articulate 達成 (= 9 中 7、未使用 2: archive-and-replace / merge)
+- [x] proposedKind 7 種 articulate 達成 (= 開放 vocabulary、新規: generated-report)
+- [x] candidates regenerate で alreadyReviewedPaths が exclusion されている (= 重複 reading 防止)
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-DOC-LEARNING-002 整合、Wave 3+ で gate 化判断)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

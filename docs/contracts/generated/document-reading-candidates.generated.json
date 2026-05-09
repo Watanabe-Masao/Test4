@@ -887,21 +887,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/CALC-001.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/elements/calculations/CALC-002.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -1247,21 +1232,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/elements/calculations/README.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/elements/charts/CHART-001/implementation-ledger.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -1428,22 +1398,6 @@
       "universeDocumentStatus": "declared",
       "universeIndexSection": "tracking",
       "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/elements/element-taxonomy.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tracking",
-      "universeKind": "unknown"
     },
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
@@ -2408,21 +2362,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
-      "path": "references/04-tracking/generated/architecture-state-snapshot.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
       "path": "references/04-tracking/promotion-readiness-customerGap.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
@@ -2559,21 +2498,6 @@
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": true,
       "path": "references/04-tracking/promotion-readiness-trendAnalysis.md",
-      "priority": "HIGH",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "tracking",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": true,
-      "path": "references/04-tracking/quality-audit-latest.md",
       "priority": "HIGH",
       "recommendedDispositionCandidates": [
         "keep-and-contract",
@@ -5707,24 +5631,24 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T09:57:03.755Z",
+    "generatedAt": "2026-05-09T10:16:29.705Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "a564f374a98ef6ac10d281fb4cc51a5eecb5b5ea"
+    "sourceSha": "fa58cc7cb99e665362023e5aa6f5a71ac9112e3f"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 15,
+    "alreadyReviewedCount": 20,
     "byKind": {
-      "canonical-doc": 263,
+      "canonical-doc": 259,
       "project-plan": 52,
       "repo-entrypoint": 2,
-      "unknown": 66
+      "unknown": 65
     },
     "byPriority": {
-      "HIGH": 179,
+      "HIGH": 174,
       "MEDIUM": 204
     },
     "bySection": {
@@ -5739,10 +5663,10 @@
       "repository-entrypoints": 3,
       "roles": 16,
       "tools": 1,
-      "tracking": 114,
+      "tracking": 109,
       "tree-readers": 2,
       "unmanaged": 5
     },
-    "totalCandidates": 383
+    "totalCandidates": 378
   }
 }

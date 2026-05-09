@@ -402,3 +402,127 @@ entries:
     duplicates:
       - references/04-tracking/observation-evaluation-guide.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 4 (Wave 2 / Phase 2.5 sub-PR 7、reviewedAtCommit fa58cc7)
+  # 5 文書 = references/04-tracking/ 残非elements 3 + elements/ サンプル 2
+  # (quality-audit-latest + architecture-state-snapshot + element-taxonomy +
+  #  CALC-001 + calculations/README)
+  # ============================================================================
+
+  - path: references/04-tracking/quality-audit-latest.md
+    proposedKind: status-snapshot
+    temporalScope: past
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      品質チェックレポート (= 2026-03-29 更新)。CI 6段階ゲート結果 + 前回比較 + Lint 警告 + 層境界
+      allowlist の手 articulate snapshot。'latest' を名乗りながら 1 ヶ月以上 stale、内容は
+      architecture-health.json (= producer 経由 generated) と完全 redundant。
+    alternativesConsidered: |
+      archive (= 履歴 preserve) も候補だが、architecture-health.json + architecture-health.generated.md
+      が同等以上の articulate を generate しているため履歴的価値は重複。delete-candidate 推奨、
+      確認手順 = inbound link 0 件 verify 後の物理削除。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates:
+      - references/04-tracking/generated/architecture-health.generated.md
+    failurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+      - DOC-FAIL-AI-ROUTING-AMBIGUITY
+
+  - path: references/04-tracking/generated/architecture-state-snapshot.md
+    proposedKind: generated-report
+    temporalScope: present
+    disposition: generated-register
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      Allowlist Summary + Category Breakdown + Active Bridges + Facade Hooks の機械生成 snapshot
+      (= 'Generated: 2026-05-06T10:49:45.742Z')。内容は明確に generated だが file 名が
+      `*.generated.md` suffix を欠いており、CLAUDE.md '命名規約予告 (= R3 以降適用): 機械生成
+      file は *.generated.md suffix で明示' に不整合。generated-register で正規化。
+    alternativesConsidered: |
+      keep-and-contract (= rename 不要、現状維持) も候補だが、命名規約 articulate との不整合は
+      `generatedFileEditGuard` 予定実装時に hard fail trigger。rewrite-and-contract も候補だが、
+      file は既に generated で manual edit がない、generated-register で producer + naming
+      canonicalize が articulate。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/element-taxonomy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      element ID prefix 正本 (= WID-/CHART-/ENG-/PAGE-/FLOW- 5 prefix articulation + 物理配置 +
+      reader articulate)。aag-self-hosting-completion R4 で landing、'本 doc が canonical' 自称、
+      per-element directory 構造 articulate 明確。post-R7 全 category 展開判断は将来 program。
+    alternativesConsidered: |
+      なし (= 役割明確 + canonical 性 articulate 済、検証 mechanism 予告も articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/CALC-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      `calculateCustomerGap` (BIZ-013) 計算正本仕様 (= 客数 GAP)。frontmatter (id / kind /
+      exportName / sourceRef / sourceLine / definitionDoc / contractId / semanticClass /
+      authorityKind / lifecycleStatus / lastSourceCommit 等) で機械検証可能な metadata articulate +
+      Input/Output Contract + Invariants + Behavior Claims (CLM-001~003 evidenceLevel) + Migration
+      Plan + Consumers + Co-Change Impact + Guard References articulate 整理済。CALC-* 全 24 件の
+      exemplar として articulate 完成度高い。
+    alternativesConsidered: |
+      なし (= per-element canonical-doc としての完成形、frontmatter + lifecycleStatus + Behavior
+      Claims の structured articulate が exemplary)。CALC-002~024 も同 pattern + 同 disposition
+      推奨だが、各 element 固有の内容は別 batch で articulate (= group articulate は schema 上
+      不可、個別 entry が原則)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/calculations/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    reviewedAtSha: fa58cc7cb99e665362023e5aa6f5a71ac9112e3f
+    rationaleSummary: |
+      Domain Calculation 仕様書カタログ = 'CALC-* 型番体系' + 'Lifecycle State Machine (Phase D で
+      institutionalize)' + 'Promote Ceremony' + 'Candidate Slot 二状態モデル' を articulate 整理済。
+      CALC-* 24 件の per-element spec を統制する mechanism doc、AAG-SCP-DOC-INDEX-008 整合
+      (= directory 案内 + lifecycle articulate)。
+    alternativesConsidered: |
+      なし (= directory README として完成形、機械検証 + lifecycle + Promote Ceremony 等 institute
+      済概念を articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
