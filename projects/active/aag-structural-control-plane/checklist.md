@@ -1916,14 +1916,14 @@ taxonomy-constitution.md の rewrite で:
   - 8 taxonomy-v2 duplicates: 0 inbound (= safe to delete)
   - quality-audit-latest: 1 inbound = 自分 (aag-scp/checklist.md) のみ (= safe)
 - [x] 9 files deletion 実施:
-  - projects/active/taxonomy-v2/DERIVED.md
-  - projects/active/taxonomy-v2/derived/README.md
-  - projects/active/taxonomy-v2/derived/acceptance-suite.md
-  - projects/active/taxonomy-v2/derived/inventory/00-example.md
-  - projects/active/taxonomy-v2/derived/inventory/README.md
-  - projects/active/taxonomy-v2/derived/pr-breakdown.md
-  - projects/active/taxonomy-v2/derived/review-checklist.md
-  - projects/active/taxonomy-v2/derived/test-plan.md
+  - `taxonomy-v2/DERIVED.md`
+  - `taxonomy-v2/derived/README.md`
+  - `taxonomy-v2/derived/acceptance-suite.md`
+  - `taxonomy-v2/derived/inventory/00-example.md`
+  - `taxonomy-v2/derived/inventory/README.md`
+  - `taxonomy-v2/derived/pr-breakdown.md`
+  - `taxonomy-v2/derived/review-checklist.md`
+  - `taxonomy-v2/derived/test-plan.md`
   - references/04-tracking/quality-audit-latest.md
 - [x] empty dirs cleanup: derived/ + derived/inventory/
 - [x] reading-decisions entries は audit trail として preserve (= 何が delete されたかの履歴)

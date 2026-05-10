@@ -640,10 +640,6 @@
           "label": "AR-rule binding 品質基準 protocol — Project B (aag-rule-schema-meta-guard) Phase 3 batch 1 deliverable。canonicalDocRef + metaRequirementRefs 記入時の品質基準 5 件 (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) を articulate、Phase 4 で実装する semanticArticulationQualityGuard が hard fail で機械検証する正本。batch 1 articulation result (5 rule = AR-001 / AR-002 / AR-A1-DOMAIN / AR-G3-SUPPRESS / AR-005) + batch 2〜N 運用方針"
         },
         {
-          "path": "references/04-tracking/quality-audit-latest.md",
-          "label": "品質監査レポート"
-        },
-        {
           "path": "references/04-tracking/recent-changes.generated.md",
           "label": "直近の主要変更"
         },
