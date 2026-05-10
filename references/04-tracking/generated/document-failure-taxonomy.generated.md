@@ -4,8 +4,8 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T11:43:27.437Z
-- generatedAtSha: `6cf9214d6f2d386b667564d8af1ecc3b351156c5`
+- 生成: 2026-05-10T11:52:40.914Z
+- generatedAtSha: `6af4196ccdea26885fc9ef8f20ce3398b568011e`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 

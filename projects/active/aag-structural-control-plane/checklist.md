@@ -1903,6 +1903,61 @@ taxonomy-constitution.md の rewrite で:
 
 → AAG-TAXONOMY framework の改訂規律 (= AI 単独 vocabulary 改変禁止) と staleness 解消の両立。
 
+## Wave 3 / Phase 6 sub-PR 5: delete-candidate 9 件 cleanup (reviewedAtCommit 6af4196)
+
+> **目的**: Wave 2 Reading Pass で articulate した delete-candidate 9 件を実 delete。
+> taxonomy-v2 unfilled template duplicates 8 件 + quality-audit-latest 1 件 = 9 files removed。
+> Wave 2 → Wave 3 の delete cycle 完成。
+
+### Phase 6 sub-PR 5 (= delete-candidate cleanup)
+
+- [x] Wave 3 / Phase 6 sub-PR 5 着手 (= user 「順番によろしくお願いします」承認)
+- [x] inbound 検証完了:
+  - 8 taxonomy-v2 duplicates: 0 inbound (= safe to delete)
+  - quality-audit-latest: 1 inbound = 自分 (aag-scp/checklist.md) のみ (= safe)
+- [x] 9 files deletion 実施:
+  - projects/active/taxonomy-v2/DERIVED.md
+  - projects/active/taxonomy-v2/derived/README.md
+  - projects/active/taxonomy-v2/derived/acceptance-suite.md
+  - projects/active/taxonomy-v2/derived/inventory/00-example.md
+  - projects/active/taxonomy-v2/derived/inventory/README.md
+  - projects/active/taxonomy-v2/derived/pr-breakdown.md
+  - projects/active/taxonomy-v2/derived/review-checklist.md
+  - projects/active/taxonomy-v2/derived/test-plan.md
+  - references/04-tracking/quality-audit-latest.md
+- [x] empty dirs cleanup: derived/ + derived/inventory/
+- [x] reading-decisions entries は audit trail として preserve (= 何が delete されたかの履歴)
+- [x] candidates regenerate: totalCandidates 0 維持 (= deleted files が candidates に再登場せず)
+- [x] Failure Loop: DUPLICATE-RESPONSIBILITY 8 件 observations preserved (= 履歴として有効)
+- [x] docs:generate Hard Gate PASS
+
+### Phase 6 sub-PR 5 完了条件
+
+- [x] 9 files の inbound 0 確認 → 安全 delete
+- [x] taxonomy-v2 family の identical-to-template duplicates 完全 cleanup
+- [x] empty dirs cleanup (= directory pollution 回避)
+- [x] reading-decisions entries audit trail 維持 (= what + why was deleted)
+- [x] guards / hard gate / KPI 全 PASS (= no regression)
+
+### Wave 2 → Wave 3 delete cycle 完成
+
+```
+Wave 2 / Batch 11 (= taxonomy-v2 articulate)
+   ↓ DOC-FAIL-DUPLICATE-RESPONSIBILITY 8 件観測
+   ↓ disposition: delete-candidate 8 件 articulate
+   ↓ Failure Loop auto-promotion (= 4 → 5 guard candidates)
+↓
+Wave 2 / Batch 15 (= projects/_template/ articulate)
+   ↓ canonical 側 articulate (= bidirectional cross-reference)
+↓
+Wave 3 / sub-PR 5 (本 sub-PR)
+   ↓ 9 files actual delete
+   ↓ repo cleanup 完成
+```
+
+→ Reading Pass で観測した duplicate finding が **実 cleanup** に converted。Wave 2 articulate
+努力 → Wave 3 actionable cleanup の value chain を完全に実証 (= sub-PR 4 の staleness fix と同 pattern)。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
