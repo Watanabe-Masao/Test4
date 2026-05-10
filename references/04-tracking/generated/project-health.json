@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-10T13:41:08.953Z",
+  "timestamp": "2026-05-10T13:57:29.555Z",
   "summary": {
-    "active": 5,
+    "active": 6,
     "archived": 42,
-    "inProgress": 4,
+    "inProgress": 5,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 2175,
-    "checkedCheckboxes": 2083
+    "totalCheckboxes": 2199,
+    "checkedCheckboxes": 2087
   },
   "projects": [
     {
@@ -127,6 +127,19 @@
       "progress": 0,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-governance-ratchet-down",
+      "title": "AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 4,
+      "total": 24,
+      "progress": 0.167,
+      "entrypoint": "projects/active/aag-governance-ratchet-down/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-governance-ratchet-down/checklist.md",
       "parent": null
     },
     {
