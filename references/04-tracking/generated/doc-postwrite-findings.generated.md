@@ -3,8 +3,8 @@
 > 機械生成。手で編集しない。generator = `tools/governance/check-doc-postwrite.mjs`。
 > Wave 3 advisory: 違反検出は warning のみ、CI fail なし。
 
-- 生成: 2026-05-10T11:26:53.905Z
-- generatedAtSha: `b5b9b49c8fd159a5e803db4767bf5f0016dea6cd`
+- 生成: 2026-05-10T11:43:28.631Z
+- generatedAtSha: `6cf9214d6f2d386b667564d8af1ecc3b351156c5`
 
 ## Summary
 

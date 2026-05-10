@@ -3,8 +3,8 @@
 > 機械生成。手で編集しない。authoring source = `docs/contracts/src/docs/ai-doc-template-rules.yaml`、
 > generator = `tools/governance/build-ai-doc-instructions.mjs`。
 
-- 生成: 2026-05-10T11:26:52.969Z
-- generatedAtSha: `b5b9b49c8fd159a5e803db4767bf5f0016dea6cd`
+- 生成: 2026-05-10T11:43:27.749Z
+- generatedAtSha: `6cf9214d6f2d386b667564d8af1ecc3b351156c5`
 - schemaVersion: `ai-doc-template-rules-v1`
 - stage: `pre-articulate`
 

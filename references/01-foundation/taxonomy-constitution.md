@@ -6,7 +6,7 @@
 >
 > **改訂規律**: 本文書は **review window 経由でのみ改訂**可能（原則 3 + AR-TAXONOMY-AI-VOCABULARY-BINDING）。AI が単独で原則を書き換えることは禁止。
 >
-> **status**: **draft（Phase 1 起草中）**。Constitution 本体 landed → Origin Journal + Interlock + bootstrap guard 完成で `final` に昇格。
+> **status**: **observation phase**（taxonomy-v2 project Phase 1+2+3+4 実装完遂、両子 archive 済 2026-04-27、観察フェーズ 2026-04-27〜）。Constitution 本体 + Origin Journal + Interlock + bootstrap guard 全 landed。`final` 昇格は **連続 2 四半期 observation 完遂 + interlock マトリクス違反 0 連続 2 四半期** (= forward-looking commitment) 達成後に review window で判断。
 
 ## 1. なぜ Constitution が必要か（前段）
 

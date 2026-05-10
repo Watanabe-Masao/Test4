@@ -1838,6 +1838,71 @@ Wave 2 (articulate) → Wave 3 / sub-PR 2 (surface) → Wave 3 / sub-PR 3 (fix)
 
 → Wave 2 articulate 努力 → Wave 3 actionable fix への conversion を実証。
 
+## Wave 3 / Phase 6 sub-PR 4: DOC-FAIL-STALE-DESCRIPTION 追加 + 3 stale docs rewrite (reviewedAtCommit 6cf9214)
+
+> **目的**: Wave 2 で 3 件 + Wave 3 / Phase 6 sub-PR 2/3 で 1 件 = 計 4 件観測した staleness pattern を
+> taxonomy に正式 articulate (= DOC-FAIL-STALE-DESCRIPTION) + 3 stale docs を実際に rewrite して
+> staleness 解消。bidirectional articulate (= rule + taxonomy + reading-decisions cross-ref + 実 doc rewrite)
+> で完全整合。
+
+### Phase 6 sub-PR 4 (= staleness pattern landing + cleanup)
+
+- [x] Wave 3 / Phase 6 sub-PR 4 着手 (= user 「順番によろしくお願いします」承認、sub-PR 4 として first)
+- [x] **段 1: taxonomy 追加**: docs/contracts/src/docs/document-failure-taxonomy.yaml に DOC-FAIL-STALE-DESCRIPTION 新 pattern entry 追加
+  - title: '完了済 work を未完了として articulate (= staleness)'
+  - maturityHint: 'observed' (= 既に 4 件観測)
+  - suggestedRemedy: 'rewrite-and-contract'
+  - examplePaths: 3 stale docs articulate
+  - description で doc 内 drift と machine ↔ doc drift の 2 variant articulate
+- [x] **段 2: reading-decisions cross-reference 追加**: 3 stale entries に DOC-FAIL-STALE-DESCRIPTION を failurePatterns に追加
+  - references/05-aag-interface/protocols/README.md (Batch 17 articulate)
+  - aag/_internal/README.md (Batch 18)
+  - references/01-foundation/taxonomy-constitution.md (Batch 20)
+- [x] **段 3: 実 doc rewrite (= staleness 解消)**:
+  - protocols/README.md: 'skeleton + R5 で fill 予定' → 'filled (= 9 protocols all landed 2026-05-04)'、表は landing date articulate に rewrite、status section update
+  - aag/_internal/README.md: '構造債務 articulation (= relocation 未着手)' → 'relocation 完了 articulation (= 本 file location 自体が証拠)' に rewrite
+  - taxonomy-constitution.md: 'status: draft (Phase 1 起草中)' → 'status: observation phase (Phase 1+2+3+4 完遂、両子 archive 済、observation phase 2026-04-27〜)' に rewrite (= metadata accuracy fix のみ、原則 content unchanged、改訂規律違反回避)
+- [x] Failure Loop generator 再実行 (= totalPatterns 10 → 11、observed 7 → 8、totalObservedReferences 50 → 53、unobserved 4 → 3)
+- [x] post-write checker 再実行 (= 0 findings 維持、no regression)
+- [x] hard gate 追加なし (= Wave 3 advisory only 維持)
+
+### Phase 6 sub-PR 4 完了条件 (不可侵原則 6 + 11 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] DOC-FAIL-STALE-DESCRIPTION pattern が taxonomy に正式 articulate
+- [x] 3 stale docs の reading-decisions entries に bidirectional cross-reference 完成
+- [x] 3 stale docs の実 staleness 解消 (= 'skeleton/未着手/draft' → 'filled/完了/observation phase')
+- [x] taxonomy-constitution.md は metadata fix のみ (= 7 不可侵原則 + OCS + 制度成立 5 要件 unchanged、改訂規律 = AR-TAXONOMY-AI-VOCABULARY-BINDING 違反回避)
+- [x] Failure Learning Loop の new pattern landing → cross-reference → 実 cleanup の完全 cycle articulate
+- [x] 即 Gate 化禁止維持
+
+### Phase 6 sub-PR 4 で articulate された pattern
+
+**1. Failure Learning Loop の完全 value chain 実証**:
+
+```
+Wave 2 articulate (= 3 stale docs 観測 + disposition: rewrite-and-contract articulate)
+   ↓
+Wave 3 / sub-PR 2 surface (= 4 件目 = machine ↔ doc drift 観測)
+   ↓
+Wave 3 / sub-PR 4 (本 sub-PR):
+   - 段 1: taxonomy に新 pattern landing
+   - 段 2: bidirectional cross-reference
+   - 段 3: 実 doc rewrite (= staleness 解消)
+```
+
+→ Reading Pass で観測した failure pattern が **正式 taxonomy entry + 実 cleanup** に converted。
+Failure Learning Loop の design intent (= 'observed → pattern-articulated → cleanup' の cycle) を
+完全に実証。
+
+**2. taxonomy-v2 改訂規律遵守 (= AR-TAXONOMY-AI-VOCABULARY-BINDING)**:
+
+taxonomy-constitution.md の rewrite で:
+- ❌ AI が 7 不可侵原則 / OCS / 制度成立 5 要件 を書き換え (= 改訂規律違反)
+- ✅ AI が status metadata 'draft (Phase 1 起草中)' → 'observation phase' に accuracy fix
+   (= 原則 content unchanged、metadata の事実誤認修正のみ)
+
+→ AAG-TAXONOMY framework の改訂規律 (= AI 単独 vocabulary 改変禁止) と staleness 解消の両立。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

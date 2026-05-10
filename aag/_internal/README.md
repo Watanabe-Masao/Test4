@@ -12,7 +12,7 @@
 >
 > **位置付け**: AAG architecture pattern の 5 層 × 5 縦スライス matrix における各層の正本 doc が本ディレクトリに集約される。新規書き起こし → 旧 doc 退役の段階パスで `references/01-foundation/` flat 構造から階層化された (project: `aag-bidirectional-integrity`、Phase 1〜10)。
 >
-> **構造債務 articulation** (= drawer Pattern 4 self-application): 本 sub-tree は AAG framework 内部だが `references/01-foundation/` 内に同階層配置されており、**主アプリ業務 doc (= gross-profit-definition.md 等) と peer 配置** = 境界違反 (= 構造債務)。relocation (= top-level `aag/` への consolidate) は scope 大 (= 101 inbound、AAG Pilot 級) のため未着手、本 README 冒頭の boundary 警告で navigation 補完。
+> **relocation 完了 articulation**: 本 sub-tree は AAG framework 内部 docs を集約する canonical location (= `aag/_internal/`、top-level `aag/` 配下)。旧 location (= `references/01-foundation/` 内に主アプリ業務 doc と peer 配置されていた境界違反) からの relocation は完遂済 (= 本 file location 自体が relocation 完了の証拠)。reader-別 boundary は本 README 冒頭の警告で articulate (= 主アプリ改修 user は本 sub-tree not read、AAG framework 改修者向け)。
 
 ## AAG Meta (Layer 0 + 1: 目的 + 要件)
 
