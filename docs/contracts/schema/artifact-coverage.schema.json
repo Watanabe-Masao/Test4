@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/artifact-coverage-v1.json",
+  "title": "Artifact Coverage Matrix v1",
+  "description": "AAG SCP Wave 3 / Phase 9 — repo 内 artifact を 6 category (declared / generated / archived / external / temporary-with-expiry / ignored-with-reason) に分類する authoring source schema (= ADR-SCP-021 + plan.md Wave 3 / Phase 9 整合)。各 rule entry は 1 classification rule の articulate (= category + pathPattern + rationale)。consumer = check-coverage.mjs が repo を scan + matrix 経由で unmanaged artifact (= 6 category いずれにも分類されない artifact) を articulate。Wave 3 = advisory only (= warnings、CI fail なし)。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family と同 draft-07 / Ajv 既定 dialect。設計判断 (plan.md Wave 3 / Phase 9 完了条件 整合): 初期は inventory only (= 全 artifact 分類)、次 phase で new-only gate (= 新規追加 unmanaged artifact のみ warning)。'pre-write 強制機構は実装しない' (不可侵原則 11) と整合。各 category は固有の articulate を持つ: declared (= contract で articulate)、generated (= machine producer)、archived (= 退役)、external (= 3rd party)、temporary-with-expiry (= TODO + 期限)、ignored-with-reason (= 明示的除外 + rationale)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rules"],
+  "properties": {
+    "$comment": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "const": "artifact-coverage-v1"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["pre-articulate", "in-use", "mature"],
+      "description": "Coverage stage articulate。`pre-articulate` = 設計時 articulate のみ、checker で実 scan されていない (= sub-PR 1 着手時の初版)。`in-use` = checker landing 済、advisory として運用。`mature` = new-only gate 達成 (= 既存 unmanaged baseline + 新規追加 ratchet-down で運用)。"
+    },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/CoverageRule" }
+    }
+  },
+  "definitions": {
+    "CoverageRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "pathPattern", "rationale"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": [
+            "declared",
+            "generated",
+            "archived",
+            "external",
+            "temporary-with-expiry",
+            "ignored-with-reason"
+          ],
+          "description": "Artifact category (= 6 種、plan.md Wave 3 / Phase 9 articulate 整合)。"
+        },
+        "pathPattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "検出 path pattern (= path prefix or simple glob)。例: 'docs/contracts/generated/' / 'references/99-archive/' / 'node_modules/'。trailing '/' で directory prefix、それ以外で literal path or glob。"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "本 rule の根拠 articulate (= なぜ本 path pattern を本 category に分類するか)。"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date",
+          "description": "temporary-with-expiry category のみ articulate (= ISO date、本 path の expiry timing、過ぎたら検出 candidate)。"
+        },
+        "owner": {
+          "type": "string",
+          "description": "本 rule の owner (= temporary-with-expiry / ignored-with-reason で必須 articulate、他 category は optional)。"
+        }
+      }
+    }
+  }
+}

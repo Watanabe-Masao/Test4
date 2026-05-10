@@ -4,18 +4,18 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T07:05:16.076Z
-- generatedAtSha: `3bd719192ec101012c9e4a726c5490cd888c384e`
+- 生成: 2026-05-10T11:52:40.914Z
+- generatedAtSha: `6af4196ccdea26885fc9ef8f20ce3398b568011e`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
 ## Summary
 
-- Total registered patterns: 10
-- Total observed references in reading-decisions: 50
+- Total registered patterns: 11
+- Total observed references in reading-decisions: 53
 - Reading-decision entries scanned: 398
 - Guard candidates (observed >= 5): **5**
-- Emerging patterns (observed 1-4): 2
+- Emerging patterns (observed 1-4): 3
 - Unobserved patterns (observed 0): 3
 - Unregistered DOC-FAIL-* in use: 0
 
@@ -24,7 +24,7 @@
 | maturity | count |
 |---|---|
 | pattern-articulated | 3 |
-| observed | 2 |
+| observed | 3 |
 | guardrail-candidate-emitted | 5 |
 | guardrail-shadow | 0 |
 | guardrail-advisory | 0 |
@@ -43,6 +43,7 @@
 
 | id | observedCount | inputMaturity | computedMaturity |
 |---|---|---|---|
+| `DOC-FAIL-STALE-DESCRIPTION` | 3 | observed | observed |
 | `DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL` | 1 | observed | observed |
 | `DOC-FAIL-AI-ROUTING-AMBIGUITY` | 1 | pattern-articulated | observed |
 
@@ -157,6 +158,19 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
   - `references/04-tracking/frozen-list.md`
   - `references/04-tracking/quality-audit-latest.md`
 - **observedDispositions**: `archive`, `delete-candidate`, `rewrite-and-contract`, `split`
+
+### `DOC-FAIL-STALE-DESCRIPTION`
+
+- **title**: 完了済 work を未完了として articulate (= staleness)
+- **inputMaturity**: `observed`
+- **computedMaturity**: `observed`
+- **observedCount**: 3
+- **suggestedRemedy**: rewrite-and-contract (= 現状を articulate する rewrite、未完了 articulate を削除し完了状態を反映)
+- **observedPaths** (3):
+  - `aag/_internal/README.md`
+  - `references/01-foundation/taxonomy-constitution.md`
+  - `references/05-aag-interface/protocols/README.md`
+- **observedDispositions**: `rewrite-and-contract`
 
 ### `DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL`
 

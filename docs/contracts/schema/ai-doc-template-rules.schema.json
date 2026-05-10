@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/ai-doc-template-rules-v1.json",
+  "title": "AI Doc Template Rules v1",
+  "description": "AAG SCP Wave 3 / Phase 6 — AI Instruction Pack の authoring source schema (= ADR-SCP-021 + AAG-SCP-GUIDANCE-003 + 不可侵原則 6 + 11 整合)。各 rule entry は 1 Document Kind (= canonical-doc / project-plan / template-doc 等の 20 種) に対する AI 向け post-write validation guidance を articulate。consumer = AI session が文書 kind ごとの purpose / readers / requiredSections / forbiddenContent / temporalScope / referencePolicy を理解するための補助。producer = Wave 3 / Phase 6 で initial 20 kinds (= Wave 2 Reading Pass で articulate された全 proposedKind) を pre-articulate。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family と同 draft-07 / Ajv 既定 dialect。設計判断 (不可侵原則 11 整合): post-write validation 限定 (= AI 出力を pre-write で機械的に拘束しない、AI session の自由度確保)。各 rule は 'AI が文脈を取り違えずに能力を発揮するための補助' であり、'命令書' ではない。requiredSections / forbiddenContent は機械検証可能な構造的観点のみ articulate (= '設計の良し悪し' '表現品質' '比喩の適切さ' は scope 外、AI / human review の責務)。relatedFailurePatterns 経由で document-failure-taxonomy.yaml と bidirectional articulate (= 各 rule が防止する failure pattern を明示)。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rules"],
+  "properties": {
+    "$comment": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "const": "ai-doc-template-rules-v1"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["pre-articulate", "in-use", "mature"],
+      "description": "Rules stage articulate。`pre-articulate` = 設計時 articulate のみ、AI session で実際に consumed されていない (= Wave 3 / Phase 6 sub-PR 1 着手時の初版 stage)。`in-use` = generator + post-write checker が landing 済 (sub-PR 2 以降)、AI session が rule を consume。`mature` = post-write checker が hard gate 化 (= 構造的欠落 / 混入 を fail させる、別 program 候補)。"
+    },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/DocTemplateRule" }
+    }
+  },
+  "definitions": {
+    "DocTemplateRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "purpose",
+        "readers",
+        "temporalScope",
+        "referencePolicy"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "proposedKind id (= Wave 2 Reading Pass で articulate された 20 種のいずれか)。例: 'canonical-doc' / 'project-plan' / 'template-doc'。document-reading-decisions.yaml entry の proposedKind と意味的に同一。"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1,
+          "description": "本 kind の役割を 1〜2 文で articulate (= AI が文書作成時に '何のための文書か' を理解する補助)。"
+        },
+        "readers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "本 kind を読む reader 一覧 (= AI / 主アプリ改修 user / AAG framework 改修者 / human reviewer / 等)。AI が '誰に向けて書くか' を判断する補助。"
+        },
+        "requiredSections": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本 kind の文書が含むべき section 一覧 (= 構造的必須要素、機械検証可能な観点のみ)。空配列許可 (= 必須 section なし、purpose だけで十分な kind = template-doc 等)。例: project-plan は ['不可侵原則', 'Phase 構造']、project-checklist は ['Phase X セクション', 'AI 自己レビュー', '最終レビュー']。"
+        },
+        "forbiddenContent": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本 kind の文書に含めてはいけない content 一覧 (= 構造的禁止要素、機械検証可能な観点のみ)。空配列許可。例: project-checklist は ['live task 以外の judgment rationale (= plan.md に分離)']、canonical-doc は ['live task list (= projects/<id>/checklist.md に分離)']。"
+        },
+        "temporalScope": {
+          "type": "string",
+          "enum": ["present", "past", "future", "mixed"],
+          "description": "本 kind の典型的な temporal scope (= 現在状態 / 過去履歴 / 未来計画 / 混合)。AI が '時間軸' を判断する補助。例: canonical-doc = present (= 現状の正本)、archive-doc = past、project-plan = present (= 不可侵原則は present、Phase 構造は future plan 含む場合 mixed)、template-doc = present (= unfilled placeholder = 現状)。"
+        },
+        "referencePolicy": {
+          "type": "string",
+          "enum": ["canonical-source", "summary-pointer", "scratchpad", "registry-entry"],
+          "description": "本 kind の reference role articulate。`canonical-source` = 他 doc から canonical reference される正本 (= canonical-doc / project-plan の多数)。`summary-pointer` = 他正本への pointer + summary view (= AAG_OVERVIEW / breaking-changes summary 等)。`scratchpad` = 一時的 working note (= AI session scratchpad)。`registry-entry` = registry entry の articulate (= per-element spec、CALC-NNN 等)。"
+        },
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本 kind の文書例 path 一覧 (= Wave 2 Reading Pass で articulate された entry path)。AI が具体例を参照する補助。"
+        },
+        "relatedFailurePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^DOC-FAIL-"
+          },
+          "description": "本 rule の遵守が防止する DOC-FAIL-* pattern 一覧 (= document-failure-taxonomy.yaml の entry id に bidirectional 整合)。例: project-checklist の本 rule 遵守は DOC-FAIL-TEMPORAL-MIXING (= live + history 混在) を防止。"
+        },
+        "additionalGuidance": {
+          "type": "string",
+          "description": "本 kind に対する追加 guidance (= 任意、AI session が context として活用)。長文可。設計判断 / 慣例 / 注意事項を articulate。"
+        }
+      }
+    }
+  }
+}

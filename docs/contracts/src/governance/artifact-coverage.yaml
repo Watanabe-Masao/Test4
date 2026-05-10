@@ -1,0 +1,145 @@
+# Artifact Coverage Matrix authoring source (Wave 3 / Phase 9 sub-PR 1 = stage: pre-articulate)
+#
+# 役割: repo 内 artifact を 6 category (declared / generated / archived / external /
+# temporary-with-expiry / ignored-with-reason) に分類する rules。consumer = check-coverage.mjs が
+# repo を scan + matrix 経由で unmanaged artifact を articulate (= advisory only、不可侵原則 11 整合)。
+#
+# 機械正本: docs/contracts/generated/artifact-coverage.generated.json
+# (Wave 3 / Phase 9 sub-PR 1 で generator landing 後に生成)。
+#
+# 不可侵 (ADR-SCP-021 + plan.md Wave 3 / Phase 9 完了条件 + 不可侵原則 11 整合):
+# - 初期は inventory only (= 全 artifact 分類)、次 phase で new-only gate (= 新規追加 unmanaged のみ
+#   warning)
+# - pre-write 強制機構なし
+# - temporary-with-expiry / ignored-with-reason は owner 必須 articulate
+# - external category は 3rd party (= node_modules / lock files / vendored など)、本 repo の責務 scope 外
+#
+# 出典: plan.md Wave 3 / Phase 9 articulate 6 category を pre-articulate landing。
+#
+# schema: docs/contracts/schema/artifact-coverage.schema.json (本 sub-PR で landing)
+
+schemaVersion: artifact-coverage-v1
+stage: pre-articulate
+
+rules:
+  # ============================================================================
+  # generated category (= machine producer による生成物、手編集禁止)
+  # ============================================================================
+
+  - category: generated
+    pathPattern: docs/contracts/generated/
+    rationale: |
+      docs/contracts/generated/ 配下は全件 machine-generated (= tools/governance/build-*.mjs
+      producer 出力)。authoring source = docs/contracts/src/、生成された JSON は手編集禁止。
+
+  - category: generated
+    pathPattern: references/04-tracking/generated/
+    rationale: |
+      references/04-tracking/generated/ 配下は全件 machine-generated (= architecture-health +
+      Reading Pass + Failure Loop + AI Instruction Pack 等の各 generator 出力)。
+      filename suffix '.generated.md' で機械検証 (= generatedFileEditGuard)。
+
+  - category: generated
+    pathPattern: docs/generated/
+    rationale: |
+      docs/generated/ 配下は AAG architecture-rules merger 出力 (= aag-platformization Phase 1
+      A2b で landing)。手編集禁止、merge generator が re-emit。
+
+  # ============================================================================
+  # archived category (= 退役済 / 履歴記録)
+  # ============================================================================
+
+  - category: archived
+    pathPattern: references/99-archive/
+    rationale: |
+      references/99-archive/ 配下は全件 archive-doc (= 退役済 doc の immutable 保管)。
+      ADR-SCP-008 例外条項 articulate、archive frontmatter で archived/archivedAt 等 articulate。
+
+  - category: archived
+    pathPattern: projects/completed/
+    rationale: |
+      projects/completed/ 配下は全件 archived project (= active project の archive 移管先)。
+      Archive v2 形式 (= ARCHIVE.md + archive.manifest.json) で immutable 保管。
+
+  # ============================================================================
+  # external category (= 3rd party、本 repo の責務 scope 外)
+  # ============================================================================
+
+  - category: external
+    pathPattern: node_modules/
+    rationale: |
+      npm dependencies。本 repo の責務 scope 外、package.json + package-lock.json で articulate。
+
+  - category: external
+    pathPattern: app/node_modules/
+    rationale: |
+      app/ サブ workspace の npm dependencies。同 external rationale。
+
+  - category: external
+    pathPattern: tools/architecture-health/node_modules/
+    rationale: |
+      tools/architecture-health/ サブ workspace の npm dependencies。同 external rationale。
+
+  # ============================================================================
+  # ignored-with-reason category (= 明示的除外 + rationale)
+  # ============================================================================
+
+  - category: ignored-with-reason
+    pathPattern: .git/
+    rationale: |
+      git repository internal storage。本 repo の content scope 外、git tooling が管理。
+    owner: git
+
+  - category: ignored-with-reason
+    pathPattern: .github/
+    rationale: |
+      GitHub-specific configuration (= workflows + PR template + issue templates)。
+      .github/PULL_REQUEST_TEMPLATE.md 等は doc-registry 個別 articulate (= declared category)、
+      他は GitHub platform configuration として ignored articulate。
+    owner: ci
+
+  - category: ignored-with-reason
+    pathPattern: app/dist/
+    rationale: |
+      Vite build output (= production bundle)。本 repo に commit されない (= .gitignore)、
+      build artifact として ignored articulate。
+    owner: build
+
+  - category: ignored-with-reason
+    pathPattern: app/coverage/
+    rationale: |
+      vitest coverage output。本 repo に commit されない、test artifact として ignored articulate。
+    owner: test
+
+  - category: ignored-with-reason
+    pathPattern: wasm/*/pkg/
+    rationale: |
+      wasm-pack build output。各 wasm module の pkg/ は build artifact、commit されない (= .gitignore)。
+    owner: wasm-build
+
+  # ============================================================================
+  # declared category (= contract で articulate された artifact)
+  # ============================================================================
+
+  - category: declared
+    pathPattern: docs/contracts/src/
+    rationale: |
+      docs/contracts/src/ 配下は全件 authoring source (= 各 schema の YAML 入力)。
+      docs/contracts/schema/*.json で type articulate 済。
+
+  - category: declared
+    pathPattern: docs/contracts/schema/
+    rationale: |
+      JSON Schema definitions (= authoring source の type 制約)。draft-07 / Ajv 既定 dialect。
+
+  - category: declared
+    pathPattern: docs/contracts/aag/
+    rationale: |
+      AAG-specific contracts (= aag-finding / detector-result / aag-response 等の schema)。
+      Project B (aag-rule-schema-meta-guard) で landing。
+
+  - category: declared
+    pathPattern: tools/governance/
+    rationale: |
+      governance generators + checkers (= build-* / check-* .mjs)。AAG framework 内部実装、
+      aag/_internal/ + aag/_framework/ の articulate 補完。

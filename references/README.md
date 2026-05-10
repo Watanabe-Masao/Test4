@@ -231,12 +231,17 @@
 | Engine maturity 定義                                                                                   | `04-tracking/engine-maturity-matrix.md`                           |
 | Engine 昇格マトリクス                                                                                  | `04-tracking/engine-promotion-matrix.md`                          |
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |
-| 品質監査レポート                                                                                       | `04-tracking/quality-audit-latest.md`                             |
 | 技術的負債ロードマップ                                                                                 | `04-tracking/technical-debt-roadmap.md`                           |
 | AAG Core doc audit report (Phase 3 deliverable)                                                        | `04-tracking/aag-doc-audit-report.md`                             |
 | AR-rule binding 品質基準 protocol (Project B Phase 3 batch 1)                                          | `04-tracking/ar-rule-audit.md`                                    |
 | 直近の主要変更                                                                                         | `04-tracking/recent-changes.generated.md`                                   |
 | プロジェクト構成                                                                                       | `04-tracking/project-structure.md`                                |
+| Document Universe Index (= 全 Markdown の分類済み索引、AAG SCP Wave 2)                                  | `04-tracking/generated/document-universe.generated.md`            |
+| Document Failure Taxonomy (= DOC-FAIL-* 観測 + maturity tracking、AAG SCP Wave 2 sub-PR 9)            | `04-tracking/generated/document-failure-taxonomy.generated.md`    |
+| AI Instruction Pack (= 20 Document Kind の AI 向け guidance、AAG SCP Wave 3 / Phase 6)                  | `04-tracking/generated/ai-doc-instructions.generated.md`          |
+| Document Post-write Findings (= 構造的適合性 advisory findings、AAG SCP Wave 3 / Phase 6)              | `04-tracking/generated/doc-postwrite-findings.generated.md`       |
+| Required Docs Matrix (= repo 構造から導出される必要 doc advisory、AAG SCP Wave 3 / Phase 7)             | `04-tracking/generated/required-docs-matrix.generated.md`         |
+| Artifact Coverage Matrix (= 6 category artifact 分類 advisory、AAG SCP Wave 3 / Phase 9)                | `04-tracking/generated/artifact-coverage.generated.md`            |
 | PI値昇格準備度                                                                                         | `04-tracking/promotion-readiness-piValue.md`                      |
 | 客数GAP昇格準備度                                                                                      | `04-tracking/promotion-readiness-customerGap.md`                  |
 | 残予算率昇格準備度                                                                                     | `04-tracking/promotion-readiness-remainingBudgetRate.md`          |

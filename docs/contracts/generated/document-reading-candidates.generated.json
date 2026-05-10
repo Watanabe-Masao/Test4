@@ -1,12 +1,12 @@
 {
   "candidates": [],
   "metadata": {
-    "generatedAt": "2026-05-10T07:05:15.718Z",
+    "generatedAt": "2026-05-10T11:52:40.614Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "3bd719192ec101012c9e4a726c5490cd888c384e"
+    "sourceSha": "6af4196ccdea26885fc9ef8f20ce3398b568011e"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {

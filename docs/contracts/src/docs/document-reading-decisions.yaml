@@ -5155,7 +5155,8 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates: []
-    failurePatterns: []
+    failurePatterns:
+      - DOC-FAIL-STALE-DESCRIPTION
 
   - path: references/05-aag-interface/protocols/bug-fix-protocol.md
     proposedKind: canonical-doc
@@ -5419,7 +5420,8 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates:
       - references/05-aag-interface/protocols/README.md
-    failurePatterns: []
+    failurePatterns:
+      - DOC-FAIL-STALE-DESCRIPTION
 
   - path: aag/_internal/architecture.md
     proposedKind: canonical-doc
@@ -6688,7 +6690,8 @@ entries:
     hasFuturePlan: false
     hasGeneratedCurrentValue: false
     duplicates: []
-    failurePatterns: []
+    failurePatterns:
+      - DOC-FAIL-STALE-DESCRIPTION
 
   - path: references/01-foundation/taxonomy-interlock.md
     proposedKind: canonical-doc

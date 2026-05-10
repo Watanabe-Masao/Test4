@@ -640,10 +640,6 @@
           "label": "AR-rule binding 品質基準 protocol — Project B (aag-rule-schema-meta-guard) Phase 3 batch 1 deliverable。canonicalDocRef + metaRequirementRefs 記入時の品質基準 5 件 (禁止 keyword + 20 文字 minimum + 重複検出 + status 整合性 + path 実在) を articulate、Phase 4 で実装する semanticArticulationQualityGuard が hard fail で機械検証する正本。batch 1 articulation result (5 rule = AR-001 / AR-002 / AR-A1-DOMAIN / AR-G3-SUPPRESS / AR-005) + batch 2〜N 運用方針"
         },
         {
-          "path": "references/04-tracking/quality-audit-latest.md",
-          "label": "品質監査レポート"
-        },
-        {
           "path": "references/04-tracking/recent-changes.generated.md",
           "label": "直近の主要変更"
         },
@@ -854,6 +850,22 @@
         {
           "path": "references/04-tracking/generated/document-failure-taxonomy.generated.md",
           "label": "Document Failure Taxonomy (machine view) — Reading Pass で観測された DOC-FAIL-* per pattern の observedCount + observedPaths + computedMaturity + guard candidate eligibility を articulate (AAG SCP Wave 2 / Phase 2.5 sub-PR 9、Failure Learning Loop infrastructure)"
+        },
+        {
+          "path": "references/04-tracking/generated/ai-doc-instructions.generated.md",
+          "label": "AI Instruction Pack (machine view) — 20 Document Kind 別 AI 向け post-write validation guidance の rendered view (purpose + readers + requiredSections + forbiddenContent + temporalScope + referencePolicy + relatedFailurePatterns + observedCount per kind、AAG SCP Wave 3 / Phase 6 sub-PR 2)"
+        },
+        {
+          "path": "references/04-tracking/generated/doc-postwrite-findings.generated.md",
+          "label": "Document Post-write Findings (machine view) — ai-doc-template-rules.yaml の各 rule に対する Markdown 文書の構造的適合性 (requiredSections 充足) advisory findings (AAG SCP Wave 3 / Phase 6 sub-PR 2、advisory only)"
+        },
+        {
+          "path": "references/04-tracking/generated/required-docs-matrix.generated.md",
+          "label": "Required Docs Matrix (machine view) — repo 構造から導出される必要 doc の advisory matrix (= active-project / feature-slice / wasm-module / roles-role / roles-specialist の 5 target type、46 targets enumerate、missing required docs を advisory で surface) (AAG SCP Wave 3 / Phase 7 sub-PR 1)"
+        },
+        {
+          "path": "references/04-tracking/generated/artifact-coverage.generated.md",
+          "label": "Artifact Coverage Matrix (machine view) — repo 内 artifact を 6 category (declared / generated / archived / external / temporary-with-expiry / ignored-with-reason) に分類し unmanaged artifact を advisory surface (= 17 rules、3704 tracked files inventory、初期は inventory only) (AAG SCP Wave 3 / Phase 9 sub-PR 1)"
         }
       ]
     },
