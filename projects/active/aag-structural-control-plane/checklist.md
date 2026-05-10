@@ -1404,6 +1404,62 @@ docs/v2-to-v2.1-changes.md は v2.0 の '推測ベース提案誤り' を articu
 articulate (= present) + 類似 DS 設計 reference articulate (= future) で structural mixed temporal。
 '反省文として残す' role explicit articulate のため failurePattern 未付与 (= governance-articulated)。
 
+## Wave 2 / Phase 2.5 sub-PR 24: Reading Pass Batch 20 (= references/01-foundation/ family + staleness 3 例目、reviewedAtCommit 0a2a370)
+
+> **目的**: MEDIUM Reading Pass 継続。references/01-foundation/ family 42 docs (= foundation layer
+> 全 MEDIUM) を 1 batch で articulate。**新発見**: taxonomy-constitution.md staleness (= 'draft
+> Phase 1 起草中' articulate しているが Phase 1+2+3+4 完了済) → staleness pattern 3 例目検出。
+> 残 41 件 keep-and-contract。
+
+### Phase 2.5 sub-PR 24 (Reading Pass Batch 20、42 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 24 着手 (= user 「1」承認、= references/01-foundation/ 一括)
+- [x] 42 docs を read + articulate:
+  - business definitions 12 (budget / customer / customer-gap / discount / dual-period / free-period-analysis / free-period-budget-kpi / gross-profit / kpi / pi-value / purchase-cost / sales)
+  - calculation/engine 8 (authoritative-calculation / canonicalization-map / canonical-input-sets / canonical-value-ownership / canonicalization-principles / domain-ratio-primitives / engine-boundary-policy / engine-responsibility)
+  - architecture/principles 7 (app-lifecycle / architecture-rule-feasibility / design-principles / modular-monolith-evolution / monthly-data-architecture / semantic-classification-policy / uiux-principles)
+  - performance/safety 8 (safe-performance / critical-path-safety / cache-responsibility / observation-period-spec / platformization-standard / temporal-scope-semantics / data-flow / data-pipeline-integrity)
+  - taxonomy 6 (constitution / interlock / origin-journal / responsibility-schema / test-schema / test-signal-integrity)
+  - misc 1 (decisions/README)
+- [x] 42 entry を document-reading-decisions.yaml に append (= entries: 276 → 318、stage: in-progress)
+- [x] 41 entry disposition: keep-and-contract articulate
+- [x] **1 件 staleness 検出**: taxonomy-constitution.md 'draft (Phase 1 起草中)' articulate しているが Phase 1+2+3+4 完了済 (Batch 11) → disposition: rewrite-and-contract
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= 122 → 80 MEDIUM、alreadyReviewedCount 276 → 318)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 318 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 24 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 20 42 entry append 済 (= 累計 318 entries、stage: in-progress)
+- [x] references/01-foundation/ family 完遂 (= 42 件全件 articulate)
+- [x] **staleness pattern 3 例目観測** (= G8 閾値超え、Wave 3 候補性増加)
+- [x] disposition rewrite-and-contract が 3 → 4 件に増加
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 24 で articulate された pattern
+
+**1. staleness pattern 累計 3 件観測** (= Wave 3 候補性大幅増加):
+
+| Path | Staleness 内容 | Batch |
+|---|---|---|
+| references/05-aag-interface/protocols/README.md | 'skeleton + R5 で fill 予定' but M1-M5 fill 完了済 | 17 |
+| aag/_internal/README.md | 'relocation 未着手' but 既に top-level に relocate 済 | 18 |
+| references/01-foundation/taxonomy-constitution.md | 'status: draft (Phase 1 起草中)' but Phase 1+2+3+4 完了済 | 20 (本 batch) |
+
+→ 3 例観測 = Wave 3 で **DOC-FAIL-STALE-DESCRIPTION pattern を taxonomy review window で正式 articulate
++ baseline 3 で ratchet 開始** が articulate 済の Wave 3 next step。
+
+**2. foundation layer の articulate 完遂**:
+
+references/01-foundation/ は repo の **business / governance / architecture knowledge の正本 layer**。
+Batch 20 完遂で foundation layer 全件 articulate 済 (= 42 docs、CLAUDE.md / 主アプリ / 各 active project
+の widely referenced source)。
+
+→ 残 MEDIUM 80 件は references/03-implementation/ 中心 (= 70 docs implementation guides + その他 ~10)。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

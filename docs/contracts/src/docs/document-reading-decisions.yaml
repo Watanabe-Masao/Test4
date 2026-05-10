@@ -6032,3 +6032,769 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 20 (Wave 2 / Phase 2.5 sub-PR 24、reviewedAtCommit 0a2a370)
+  # 42 文書 = references/01-foundation/ family 全 MEDIUM 候補。foundation layer (= business
+  # definitions + calculation + architecture + performance/safety + taxonomy + misc)。
+  # 新発見: taxonomy-constitution.md が status 'draft (Phase 1 起草中)' articulate しているが、
+  # taxonomy-v2 Phase 1+2+3+4 完了済 (Batch 11) → staleness 3 例目検出、disposition: rewrite-and-contract。
+  # 残 41 件 keep-and-contract。全件 canonical-doc、failurePatterns: []。
+  # ============================================================================
+
+  - path: references/01-foundation/budget-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      予算 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/customer-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      客数 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/customer-gap-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      客数 GAP definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/discount-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      値引き definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/dual-period-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      二期間比較 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/free-period-analysis-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      自由期間分析 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/free-period-budget-kpi-contract.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      自由期間予算 KPI contract。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/gross-profit-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      粗利 definition (= 計算正本化)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/kpi-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      KPI definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/pi-value-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      PI 値 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/purchase-cost-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      仕入原価 definition (= 取得正本化)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/sales-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      売上 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/authoritative-calculation-definition.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      authoritative 計算 definition。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/calculation-canonicalization-map.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      domain/calculations/ 分類正本マップ。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/canonical-input-sets.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      canonical input sets。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/canonical-value-ownership.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      canonical value ownership。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/canonicalization-principles.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      正本化原則。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/domain-ratio-primitives.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      domain ratio primitives。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/engine-boundary-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      3 engine boundary policy。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/engine-responsibility.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      engine responsibility articulate。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/app-lifecycle-principles.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      app lifecycle principles。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/architecture-rule-feasibility.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      architecture rule feasibility。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/design-principles.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      設計原則 9 カテゴリ A〜H+Q (= 722 行、CLAUDE.md §設計原則の詳細)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/modular-monolith-evolution.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      modular monolith 進化方針。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/monthly-data-architecture.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      月次 data architecture。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/semantic-classification-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      意味分類ポリシー (= business / analytic / candidate authoritative 修飾義務)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/uiux-principles.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      UI/UX 4 原則。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/safe-performance-principles.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      safe performance H 原則。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/critical-path-safety-map.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      Safety Tier 分類。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/cache-responsibility.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      cache responsibility。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/observation-period-spec.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      observation period spec。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/platformization-standard.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      platformization standard。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/temporal-scope-semantics.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      temporal scope semantics (= 期間スコープ分離 ルール)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/data-flow.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      data flow articulate (= 4 段階)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/data-pipeline-integrity.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      data pipeline integrity。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/taxonomy-constitution.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      taxonomy v2 Constitution (= 7 不可侵原則 + OCS + 制度成立 5 要件)。 **staleness 検出**: status 'draft（Phase 1 起草中）' articulate しているが、taxonomy-v2 project は Phase 1+2+3+4 完了済 (Batch 11 で articulate)、両子 archive 済。'final' 昇格条件 (Constitution 本体 landed + Origin Journal + Interlock + bootstrap guard 完成) は満たされている。staleness pattern 3 例目 (= protocols/README + aag/_internal/README に続く)。
+    alternativesConsidered: |
+      keep-and-contract も候補だが、status drift は AI routing ambiguity を招くため rewrite で final 昇格 articulate が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/taxonomy-interlock.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      taxonomy R⇔T interlock マトリクス。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/taxonomy-origin-journal.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      taxonomy Origin Journal。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/responsibility-taxonomy-schema.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      責務 taxonomy schema。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/test-taxonomy-schema.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      test taxonomy schema。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/test-signal-integrity.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      test signal integrity。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/01-foundation/decisions/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    reviewedAtSha: 0a2a3707c4ef0827b2620568180f57cb2f741579
+    rationaleSummary: |
+      user 判断置き場 articulate (= aag-self-hosting-completion R3d、4 系統 lens 整合)。 foundation layer 正本、CLAUDE.md / その他 docs から widely referenced。
+    alternativesConsidered: |
+      なし (= foundation canonical-doc family の一員、widely referenced)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+

@@ -4,8 +4,8 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T03:32:28.549Z
-- generatedAtSha: `34291e4b6c580656aa18c88976f6ef221e571492`
+- 生成: 2026-05-10T03:42:24.864Z
+- generatedAtSha: `0a2a3707c4ef0827b2620568180f57cb2f741579`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
@@ -13,7 +13,7 @@
 
 - Total registered patterns: 10
 - Total observed references in reading-decisions: 50
-- Reading-decision entries scanned: 276
+- Reading-decision entries scanned: 318
 - Guard candidates (observed >= 5): **5**
 - Emerging patterns (observed 1-4): 2
 - Unobserved patterns (observed 0): 3
