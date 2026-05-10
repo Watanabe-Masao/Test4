@@ -1351,6 +1351,59 @@ Batch 15 で articulate した template-doc kind を本 batch で再使用:
 → template-doc kind は 'unfilled、placeholder 含む、fill 時 customize される canonical source' の
 共通 abstraction を articulate 可能。
 
+## Wave 2 / Phase 2.5 sub-PR 23: Reading Pass Batch 19 (= references/02-design-system/ family、reviewedAtCommit 34291e4)
+
+> **目的**: MEDIUM Reading Pass 継続。references/02-design-system/ family 14 docs を 1 batch で
+> articulate。**新発見**: SKILL.md が Claude Code skill 定義 (= roles/*/SKILL.md と異なる kind、
+> frontmatter + user-invocable + skill activation protocol)。新 proposedKind 1 種 articulate
+> (claude-skill)。
+
+### Phase 2.5 sub-PR 23 (Reading Pass Batch 19、14 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 23 着手 (= user 「1」承認、= references/02-design-system/ family)
+- [x] 14 docs を read + articulate:
+  - README.md (= DS root、'Test4 本体が正本' articulate)
+  - SKILL.md (= **Claude Code skill 定義、新 kind**)
+  - docs/ 11 (= category-gradients / chart-semantic-colors / content-and-voice / echarts-integration / iconography / route-b-guide / theme-object / tokens / trend-helpers / v2-to-v2.1-changes / visual-foundations)
+  - ui_kits/app/README.md (= UI Kit prototype)
+- [x] 14 entry を document-reading-decisions.yaml に append (= entries: 262 → 276、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 1 種 articulate: claude-skill (= /<skill-name> で invoke される user-facing skill、frontmatter + user-invocable + skill activation protocol)
+- [x] proposedKind 20 種に拡張達成 (= 19 → 20)
+- [x] candidates regenerate (= 136 → 122 MEDIUM、alreadyReviewedCount 262 → 276)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 276 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 23 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 19 14 entry append 済 (= 累計 276 entries、stage: in-progress)
+- [x] references/02-design-system/ family 完遂 (= 14 件全件 articulate)
+- [x] 新 proposedKind 'claude-skill' articulate (= 20 種に拡張)
+- [x] SKILL.md の kind 区別 articulate (= role-skill vs claude-skill、両者 governance contract が異なる)
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 23 で articulate された pattern
+
+**1. SKILL.md kind 区別 (= role-skill vs claude-skill)**:
+
+SKILL.md という同名 file が 2 種類の異なる role を持つことを articulate:
+
+| Path | proposedKind | 役割 |
+|---|---|---|
+| roles/*/SKILL.md (Batch 16) | role-skill | role の Execution layer (= 論理構造 + 方法論) |
+| references/02-design-system/SKILL.md (本 batch) | **claude-skill (新)** | /<skill-name> で invoke される user-facing skill |
+
+→ filename だけでは kind 判定不可 (= governance contract で区別)。Reading Pass の articulate では
+proposedKind で role を明示 articulate。
+
+**2. governance-articulated mixed temporal '反省文' role**:
+
+docs/v2-to-v2.1-changes.md は v2.0 の '推測ベース提案誤り' を articulate (= past) + v2.1 訂正方針
+articulate (= present) + 類似 DS 設計 reference articulate (= future) で structural mixed temporal。
+'反省文として残す' role explicit articulate のため failurePattern 未付与 (= governance-articulated)。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

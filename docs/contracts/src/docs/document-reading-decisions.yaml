@@ -5747,3 +5747,288 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 19 (Wave 2 / Phase 2.5 sub-PR 23、reviewedAtCommit 34291e4)
+  # 14 文書 = references/02-design-system/ family。
+  # 新発見: SKILL.md が Claude Code skill 定義 (= roles/*/SKILL.md と異なる kind、
+  # frontmatter + user-invocable + skill activation protocol)。
+  # 新 proposedKind 1 種 articulate: claude-skill (= /<skill-name> で invokable な user-facing skill)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: references/02-design-system/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      Shiire-Arari Design System root README (= v2.1)。'Test4 本体の実装が正本、DS は外部説明
+      layer' という立場 articulate (= v2.0 の '本体 tokens.ts に新意味層を提案する' 誤り訂正)。
+      命名 / 構造 / 階層は本体に合わせる方針。
+    alternativesConsidered: |
+      なし (= design system root README の articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/02-design-system/SKILL.md
+    proposedKind: claude-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      **Claude Code skill 定義** (= name: shiire-arari-design、user-invocable: true、frontmatter
+      含む)。/<skill-name> で invoke される user-facing skill。roles/*/SKILL.md (= role-skill kind、
+      Identity layer SKILL の Execution layer 対応) とは role が異なる (= Claude session が invoke
+      する behavior pattern、role の execution methodology ではない)。新 proposedKind 'claude-skill'
+      articulate。
+    alternativesConsidered: |
+      role-skill / canonical-doc で統合も候補だが、Claude skill は固有の activation protocol
+      (= user-invocable + frontmatter で skill metadata articulate) を持ち、role-skill (= 内部
+      methodology) とは role が異なるため別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/category-gradients.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      design system category gradients articulate (= transaction direction + operational gradients
+      with ti/to/bi/bo terminology)。Test4 本体の実装 reference。
+    alternativesConsidered: |
+      なし (= design system docs/ family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/chart-semantic-colors.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      ChartSemanticColors articulate (= business concept → color mapping)。Test4 本体 reference。
+    alternativesConsidered: |
+      なし (= design system docs/ family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/content-and-voice.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      content and voice articulate (= UI コピー / メッセージ tone)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/echarts-integration.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      ECharts integration articulate (= statusAlpha utilities 含む)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/iconography.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      iconography articulate (= icon system + usage guidelines)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/route-b-guide.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      route-b guide articulate (= 特定 route 設計 guide)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/theme-object.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      AppTheme object articulate (= styled-components 経由アクセス pattern)。tokens.md と分離 (=
+      CSS 変数 list 用途 vs styled-components 用途)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/tokens.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/tokens.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      Test4 本体 tokens.ts の全値を CSS 変数として列挙 (= TS 側 ↔ CSS 側 命名規則対応 articulate)。
+      DS preview 用途。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/theme-object.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/trend-helpers.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      sc.* trend helpers articulate (= semantic color trend utilities)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/v2-to-v2.1-changes.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      v2.0 → v2.1 changes articulate (= '反省文として残す' role explicit articulate)。past (= v2.0 の
+      推測ベース提案誤り) + present (= v2.1 訂正方針) + future (= 類似 DS 設計時の reference)。
+      governance-articulated mixed temporal (= '反省文' role 要求)。
+    alternativesConsidered: |
+      archive (= 反省文として歴史記録) も候補だが、'類似 DS 設計を他製品で行うときの reference
+      として残す' 役割が明示 articulate されているため keep-and-contract が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/02-design-system/docs/visual-foundations.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      visual foundations articulate (= color / typography / spacing 等の視覚基盤)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/02-design-system/docs/category-gradients.md
+    failurePatterns: []
+
+  - path: references/02-design-system/ui_kits/app/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 34291e4b6c580656aa18c88976f6ef221e571492
+    reviewedAtSha: 34291e4b6c580656aa18c88976f6ef221e571492
+    rationaleSummary: |
+      UI Kit Full App Prototype articulate (= React クリックスルー試作機、DS v2.1 token 準拠)。
+      DS v1 時代の JSX を流用、CSS token 参照のみ v2.1 へ差し替え。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
