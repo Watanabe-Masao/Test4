@@ -1982,6 +1982,74 @@ Wave 3 / sub-PR 5 (本 sub-PR)
 2. **nested directory pattern handling**: roles/line/specialist は exceptions + 別 roles-specialist rule
 3. **AI Instruction Pack との bidirectional articulate**: docKind cross-reference で integrity 整合
 
+## Wave 3 / Phase 9 sub-PR 7: Artifact Coverage Gate infrastructure landing (reviewedAtCommit 1e6a75c)
+
+> **目的**: plan.md Wave 3 / Phase 9 = repo 内 artifact を 6 category に分類する advisory matrix を着地。
+> 17 rules + 3704 tracked files inventory + unmanaged artifact 86.2% を advisory baseline として surface。
+> Wave 3 = inventory only、Wave 4+ で new-only gate に発展候補。
+
+### Phase 9 sub-PR 7 完了状況
+
+- [x] Wave 3 / Phase 9 sub-PR 7 着手 (= user 「順番によろしくお願いします」承認、最終 sub-PR)
+- [x] Schema landing (docs/contracts/schema/artifact-coverage.schema.json)
+  - CoverageRule entry articulate (= category enum 6 種 / pathPattern / rationale / expiresAt / owner)
+  - 6 category enum (= declared / generated / archived / external / temporary-with-expiry / ignored-with-reason)
+- [x] Authoring source landing (docs/contracts/src/governance/artifact-coverage.yaml、17 rules):
+  - generated 3 (= docs/contracts/generated/, references/04-tracking/generated/, docs/generated/)
+  - archived 2 (= references/99-archive/, projects/completed/)
+  - external 3 (= node_modules/ 各種)
+  - ignored-with-reason 5 (= .git/, .github/, app/dist/, app/coverage/, wasm/*/pkg/)
+  - declared 4 (= docs/contracts/src/, schema/, aag/, tools/governance/)
+- [x] Generator landing (tools/governance/build-artifact-coverage.mjs):
+  - schema validation
+  - git ls-files で tracked files 取得 (= node_modules / .git 自動除外)
+  - simple pattern matching (= directory prefix + glob support)
+  - unmanaged 集計 + by-zone aggregation
+  - deterministic JSON output
+- [x] Generator 出力着地:
+  - docs/contracts/generated/artifact-coverage.generated.json (machine truth)
+  - references/04-tracking/generated/artifact-coverage.generated.md (human view、doc-registry articulate 済)
+- [x] Checker landing (tools/governance/check-coverage.mjs):
+  - bulk advisory report + --zone filter
+  - exit code 0 維持 (advisory)
+- [x] 初回実行検証:
+  - 17 rules / 3704 tracked files
+  - managed 511 / unmanaged 3193 (= 86.2%、初期 baseline)
+  - top unmanaged zones: app/ 2318 / references/ 331 / wasm/ 163 / aag-engine/ 90 / projects/ 88
+- [x] hard gate 追加なし (= Wave 3 advisory only 維持)
+
+### Phase 9 sub-PR 7 で articulate された pattern
+
+**1. inventory baseline + zone-level visibility**:
+
+86.2% unmanaged は初期 baseline (= Wave 3 では intentional)。zone-level aggregation で:
+- app/ 2318 = 主アプリ source code (= Wave 4+ で declared rule 追加候補、例: app/src/ → 'source-code' category)
+- references/ 331 = doc 残部 (= individual doc は doc-registry で articulate されているため、zone rule の追加で大幅 reduction 可能)
+- wasm/ 163 + aag-engine/ 90 = build sources (= zone rule 追加候補)
+- projects/ 88 = active project content (= 既存 project-checklist-governance で articulate、coverage rule 追加候補)
+→ 各 unmanaged zone は将来 articulate 候補 (= Wave 4+ ratchet-down 対象)
+
+**2. existing inventories との role 区別 articulate**:
+
+既存 inventory (= generated-artifact-inventory / markdown-inventory / yaml-inventory) は **kind 推測**
+(= machine inferred candidate)。本 artifact-coverage は **classification rules による articulate**
+(= human-articulated coverage)。両者は補完関係:
+- existing inventory = bottom-up (= file から kind を推測)
+- artifact-coverage = top-down (= rules から file を分類)
+
+→ 両 view を併用することで coverage gap を articulate に surface 可能。
+
+**3. Wave 3 完遂達成**:
+
+Wave 3 / Phase 6 + 7 + 9 の全 sub-PR landed:
+- Phase 6: AI Instruction Pack (sub-PR 1〜4) = 20 kinds + generator + checker + staleness fix
+- Phase 7: Required Docs Matrix (sub-PR 6) = 5 rules + generator + checker
+- Phase 9: Artifact Coverage Gate (sub-PR 7) = 17 rules + generator + checker
+
+→ plan.md Wave 3 = Governance Migration (4〜6 PR) を 7 sub-PR で完遂。**plan の予定 4〜6 PR を上回る**
+articulate 量 (= Wave 2 → Wave 3 transition での staleness 発見 + delete cleanup + cross-reference
+articulate が追加 sub-PR を生んだ)。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

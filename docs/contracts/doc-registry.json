@@ -862,6 +862,10 @@
         {
           "path": "references/04-tracking/generated/required-docs-matrix.generated.md",
           "label": "Required Docs Matrix (machine view) — repo 構造から導出される必要 doc の advisory matrix (= active-project / feature-slice / wasm-module / roles-role / roles-specialist の 5 target type、46 targets enumerate、missing required docs を advisory で surface) (AAG SCP Wave 3 / Phase 7 sub-PR 1)"
+        },
+        {
+          "path": "references/04-tracking/generated/artifact-coverage.generated.md",
+          "label": "Artifact Coverage Matrix (machine view) — repo 内 artifact を 6 category (declared / generated / archived / external / temporary-with-expiry / ignored-with-reason) に分類し unmanaged artifact を advisory surface (= 17 rules、3704 tracked files inventory、初期は inventory only) (AAG SCP Wave 3 / Phase 9 sub-PR 1)"
         }
       ]
     },
