@@ -105,9 +105,7 @@ describe('docDuplicateResponsibilityGuard (= DOC-FAIL-DUPLICATE-RESPONSIBILITY s
       for (const f of findings) {
         console.warn(`  - ${f.activePath} == ${f.templatePath}`)
       }
-      console.warn(
-        '  → これらは _template から copy 後 customize されていない duplicate copies。',
-      )
+      console.warn('  → これらは _template から copy 後 customize されていない duplicate copies。')
       console.warn(
         '  → Wave 4+ で hard-fail 化 (= guardrail-shadow → guardrail-advisory → hard-fail 5 段階 progression)、本 stage は advisory のみ。',
       )
