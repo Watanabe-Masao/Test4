@@ -1460,6 +1460,60 @@ Batch 20 完遂で foundation layer 全件 articulate 済 (= 42 docs、CLAUDE.md
 
 → 残 MEDIUM 80 件は references/03-implementation/ 中心 (= 70 docs implementation guides + その他 ~10)。
 
+## Wave 2 / Phase 2.5 sub-PR 25: Reading Pass Batch 21 (= references/03-implementation/ family 76 docs、reviewedAtCommit 4c77ce1)
+
+> **目的**: MEDIUM Reading Pass 大型 batch。references/03-implementation/ family 76 docs (= 残
+> MEDIUM の大半、implementation guides + plans + templates + FAQ + checklists) を 1 batch で
+> articulate。残 MEDIUM 4 件のみ。Reading Pass 完遂視野に。
+
+### Phase 2.5 sub-PR 25 (Reading Pass Batch 21、76 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 25 着手 (= user 「1」承認、= references/03-implementation/ 一括)
+- [x] 76 docs を read + articulate:
+  - implementation guides (= aag-articulation-map / aag-onboarding-path / api / coding-conventions / data-models 等)
+  - plans / migrations 14 (= mixed temporal、aag-phase4-6-plan / active-debt-refactoring-plan / 各種 migration / retirement plans)
+  - templates 3 (= aag-change-impact-template / promote-ceremony-{pr,}-template、template-doc kind)
+  - FAQ / checklists / playbooks
+- [x] 76 entry を document-reading-decisions.yaml に append (= entries: 318 → 394、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 73 件 proposedKind: canonical-doc + 3 件 template-doc articulate
+- [x] 14 件 mixed temporal articulate (= plans / migrations、past + future plan の articulate)
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= 80 → 4 MEDIUM、alreadyReviewedCount 318 → 394)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 394 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 25 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 21 76 entry append 済 (= 累計 394 entries、stage: in-progress)
+- [x] references/03-implementation/ family 完遂 (= 76 件全件 articulate)
+- [x] 残 MEDIUM 4 件のみ (= references/AAG_CRITICAL_RULES + AAG_OVERVIEW + README + tools/architecture-health/src/detectors/README)
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 25 で articulate された pattern
+
+**1. implementation layer の articulate 完遂**:
+
+references/03-implementation/ = repo の implementation guides + plans + templates + procedures
+の正本 layer。Batch 21 完遂で 76 件全件 articulate 済。foundation layer (Batch 20) と implementation
+layer (Batch 21) で references/ 配下の主要 layer 完遂。
+
+**2. template-doc family の articulate 拡張 (3 例目以降)**:
+
+template-doc kind を本 batch でも適用:
+- aag-change-impact-template.md (= AAG 変更時の impact analysis template)
+- promote-ceremony-pr-template.md (= Promote Ceremony PR template)
+- promote-ceremony-template.md (= Promote Ceremony 提案 template)
+
+→ template-doc family は projects/_template/ (Batch 15) + .github/PULL_REQUEST_TEMPLATE (Batch 18)
++ design-system/SKILL (Batch 19、claude-skill 別 kind に分離) + 本 batch 3 件 で拡大。
+
+**3. mixed temporal plans / migrations の articulate**:
+
+14 件の plan / migration / retirement docs は past (= 完了済 phase) + future (= 計画中 phase) の
+articulate mixed temporal。governance-articulated (= plan role 要求) のため failurePattern 未付与。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
