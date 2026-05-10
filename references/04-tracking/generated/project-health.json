@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-10T13:25:18.156Z",
+  "timestamp": "2026-05-10T13:39:59.508Z",
   "summary": {
-    "active": 6,
-    "archived": 41,
-    "inProgress": 5,
+    "active": 5,
+    "archived": 42,
+    "inProgress": 4,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
     "totalCheckboxes": 2175,
-    "checkedCheckboxes": 2082
+    "checkedCheckboxes": 2083
   },
   "projects": [
     {
@@ -198,13 +198,13 @@
       "projectId": "aag-structural-control-plane",
       "title": "AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く",
       "kind": "project",
-      "declaredStatus": "active",
-      "derivedStatus": "in_progress",
-      "checked": 738,
+      "declaredStatus": "archived",
+      "derivedStatus": "archived",
+      "checked": 739,
       "total": 745,
-      "progress": 0.991,
-      "entrypoint": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
-      "checklistPath": "projects/active/aag-structural-control-plane/checklist.md",
+      "progress": 0.992,
+      "entrypoint": "projects/completed/aag-structural-control-plane/AI_CONTEXT.md",
+      "checklistPath": "projects/completed/aag-structural-control-plane/checklist.md",
       "parent": null
     },
     {

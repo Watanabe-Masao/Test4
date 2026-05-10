@@ -1,3 +1,21 @@
+# [ARCHIVED] HANDOFF — aag-structural-control-plane
+
+> **Archived: 2026-05-10** — Wave 1 + 2 + 3 全完遂、user 承認 (本 commit) により archive
+> プロセス完了。physical archive 移管 = `projects/completed/aag-structural-control-plane/`
+> (本 commit)。
+>
+> **deliverable summary**:
+> - Wave 1 (Schema MVP + Skeleton-aware Parse): 3 schema + structural skeleton + Phase 2A〜2E + Tree Contract Shadow checker
+> - Wave 2 (Document Reset Pass + Failure Loop + Universe Index): Reading Pass 100% 完遂 (= 22 batches、398 docs articulate)、11 failure patterns、Phase 4 Document Kind + Temporal Scope Shadow
+> - Wave 3 (Governance Migration): Phase 6 AI Instruction Pack (20 kinds) + Phase 7 Required Docs Matrix (5 rules / 46 targets) + Phase 9 Artifact Coverage Gate (17 rules / 3704 tracked)
+> - Cleanup: 3 stale rewrites + 9 deletes + 1 governance gap fix + 1 HANDOFF sync
+> - Failure Learning Loop auto-promotion 2 例実証 (= DOC-FAIL-DUPLICATE-RESPONSIBILITY + DOC-FAIL-STALE-DESCRIPTION) → 6 guard candidates
+> - AAG version 6.0 → 6.1 bump (= aag/CHANGELOG.md [AAG 6.1] entry articulate 済)
+>
+> **以下は archive 前の active 時 articulate**。後任者は archive 後の参照のみ、編集禁止 (= immutable)。
+
+---
+
 # HANDOFF — aag-structural-control-plane
 
 > 役割: 起点文書。後任者が最初に読む。

@@ -2162,4 +2162,4 @@ DOC-FAIL-STALE-DESCRIPTION tag を retroactive 付与しなかった。
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Wave の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Wave の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する
