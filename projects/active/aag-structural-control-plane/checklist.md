@@ -1958,6 +1958,30 @@ Wave 3 / sub-PR 5 (本 sub-PR)
 → Reading Pass で観測した duplicate finding が **実 cleanup** に converted。Wave 2 articulate
 努力 → Wave 3 actionable cleanup の value chain を完全に実証 (= sub-PR 4 の staleness fix と同 pattern)。
 
+## Wave 3 / Phase 7 sub-PR 6: Required Docs Matrix infrastructure landing (reviewedAtCommit a1984d3)
+
+> **目的**: plan.md Wave 3 / Phase 7 = repo 構造から必要 doc を導出する advisory matrix を着地。
+> 5 target type (= active-project / feature-slice / wasm-module / roles-role / roles-specialist) の
+> articulate + 46 targets enumerate + missing required docs を advisory で surface。
+
+### Phase 7 sub-PR 6 完了状況
+
+- [x] Wave 3 / Phase 7 sub-PR 6 着手 (= user 「順番によろしくお願いします」承認)
+- [x] Schema landing (docs/contracts/schema/required-docs-matrix.schema.json)
+- [x] Authoring source landing (docs/contracts/src/docs/required-docs-matrix.yaml、5 rules)
+- [x] Generator landing (tools/governance/build-required-docs-matrix.mjs、deterministic + cross-ref)
+- [x] Generator 出力着地: docs/contracts/generated/required-docs-matrix.generated.json + .generated.md (doc-registry articulate 済)
+- [x] Checker landing (tools/governance/check-required-docs.mjs、advisory + --target filter)
+- [x] 初回実行検証: 5 rules / 46 targets / 0 missing required / 0 unknown docKinds
+- [x] 2 件の real findings 即時解消 (= optional articulate + exceptions + 別 rule articulate)
+
+### Phase 7 sub-PR 6 で articulate された pattern
+
+1. **governance-articulated optional articulate**: collection mode の projectization.md missing は
+   `optional: true` で advisory excluded (= sub-PR 3 collection mode exception と同 governance pattern)
+2. **nested directory pattern handling**: roles/line/specialist は exceptions + 別 roles-specialist rule
+3. **AI Instruction Pack との bidirectional articulate**: docKind cross-reference で integrity 整合
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

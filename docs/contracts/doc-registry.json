@@ -858,6 +858,10 @@
         {
           "path": "references/04-tracking/generated/doc-postwrite-findings.generated.md",
           "label": "Document Post-write Findings (machine view) — ai-doc-template-rules.yaml の各 rule に対する Markdown 文書の構造的適合性 (requiredSections 充足) advisory findings (AAG SCP Wave 3 / Phase 6 sub-PR 2、advisory only)"
+        },
+        {
+          "path": "references/04-tracking/generated/required-docs-matrix.generated.md",
+          "label": "Required Docs Matrix (machine view) — repo 構造から導出される必要 doc の advisory matrix (= active-project / feature-slice / wasm-module / roles-role / roles-specialist の 5 target type、46 targets enumerate、missing required docs を advisory で surface) (AAG SCP Wave 3 / Phase 7 sub-PR 1)"
         }
       ]
     },

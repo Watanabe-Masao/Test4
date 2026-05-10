@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aag.local/schemas/required-docs-matrix-v1.json",
+  "title": "Required Docs Matrix v1",
+  "description": "AAG SCP Wave 3 / Phase 7 — repo 構造から必要 doc を導出する authoring source schema (= ADR-SCP-021 + plan.md Wave 3 / Phase 7 整合)。各 rule entry は 1 target-type (= feature-slice / wasm-module / active-project / source-layer 等) の articulate (= 検出 path pattern + 要求 doc 一覧 + rationale)。consumer = check-required-docs.mjs が repo を scan + matrix 経由で missing doc finding を articulate。producer = Wave 3 / Phase 7 sub-PR 1 で initial 4 target-type を pre-articulate。",
+  "$comment": "format 選定根拠: AAG repo 既存 schema family と同 draft-07 / Ajv 既定 dialect。設計判断 (plan.md Wave 3 / Phase 7 完了条件 整合): 初期は advisory + new-only gate のみ foul (= 既存 missing は baseline、新規追加 path で missing が増える場合のみ warning)。'pre-write 強制機構は実装しない' (不可侵原則 11) と整合 (= post-detection advisory)。each requirement は path-pattern (= path prefix or glob) で検出 + 要求 doc list で articulate。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rules"],
+  "properties": {
+    "$comment": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "const": "required-docs-matrix-v1"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["pre-articulate", "in-use", "mature"],
+      "description": "Matrix stage articulate。`pre-articulate` = 設計時 articulate のみ、checker で実 scan されていない (= sub-PR 1 着手時の初版)。`in-use` = checker landing 済、advisory として運用。`mature` = new-only gate 達成 (= 既存 baseline + new 追加 ratchet-down で運用)。"
+    },
+    "rules": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/RequiredDocsRule" }
+    }
+  },
+  "definitions": {
+    "RequiredDocsRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetType",
+        "pathPattern",
+        "requiredDocs",
+        "rationale"
+      ],
+      "properties": {
+        "targetType": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "target type id。例: 'feature-slice' / 'wasm-module' / 'active-project' / 'source-layer'。本 matrix の axis。"
+        },
+        "pathPattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "検出 path pattern (= path prefix or glob)。例: 'app/src/features/<feature>/' / 'wasm/<module>/' / 'projects/active/<id>/' / 'app/src/<layer>/'。<...> placeholder は 1 階層分の id capture。"
+        },
+        "requiredDocs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["docPath", "docKind"],
+            "properties": {
+              "docPath": {
+                "type": "string",
+                "description": "要求 doc path (= pathPattern の <...> capture を {{capture}} で referenced)。例: 'projects/active/{{id}}/plan.md'。"
+              },
+              "docKind": {
+                "type": "string",
+                "description": "ai-doc-template-rules.yaml の kind (= 期待 kind articulate、cross-reference)。例: 'project-plan' / 'project-checklist'。"
+              },
+              "optional": {
+                "type": "boolean",
+                "description": "true なら missing でも warning なし (= 任意 doc)、false (default) なら required (= advisory finding)。"
+              }
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "本 rule の根拠 articulate (= なぜ本 target-type に本 doc が必要か)。"
+        },
+        "exceptions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "本 rule の除外 path 一覧 (= exception articulate、例: collection mode project は AI 自己レビュー section 不要 と同 governance pattern)。"
+        }
+      }
+    }
+  }
+}
