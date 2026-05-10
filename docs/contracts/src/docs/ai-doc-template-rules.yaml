@@ -216,7 +216,11 @@ rules:
       - DOC-FAIL-TEMPORAL-MIXING
     additionalGuidance: |
       checklist.md format guard が機械検証。AI 自己レビュー section + 最終レビュー section が
-      必須構造。collection kind の checklist は [x] 蓄積 OK (= governance-articulated feature)。
+      finite project (= kind: project) の必須構造 (= project-checklist-governance §3.1)。
+      collection kind の checklist は [x] 蓄積 OK (= governance-articulated feature)、かつ
+      AI 自己レビュー / 最終レビュー section は **collection mode 例外** で不要 (= governance §3.1
+      で articulate 済、projectizationPolicyGuard PZ-13 も isCollection() で skip)。
+      post-write checker (= check-doc-postwrite.mjs) も同 exception で collection mode を skip。
 
   - kind: project-discovery-log
     purpose: |

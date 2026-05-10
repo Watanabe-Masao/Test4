@@ -1763,6 +1763,81 @@ post-write validation 限定 + advisory only mechanism で不可侵原則 11 (= 
 - hard gate 化は別 program candidate (= 'mature' stage 到達条件は AI session が rules を consume
   し始めてから)
 
+## Wave 3 / Phase 6 sub-PR 3: Collection mode governance gap 解消 (= 3 段 articulate、reviewedAtCommit b5b9b49)
+
+> **目的**: Wave 3 / Phase 6 sub-PR 2 で post-write checker が surface した collection mode
+> governance gap (= quick-fixes/checklist.md の AI 自己レビュー + 最終レビュー section 不在) を 3 段で
+> 解消。**重要発見**: machine guard (= projectizationPolicyGuard PZ-13) は collection mode を
+> 既に exception 扱いしていたが、governance doc (= project-checklist-governance §3.1) は articulate
+> していなかった (= **machine ↔ doc drift**)。
+
+### Phase 6 sub-PR 3 (= governance gap 3 段解消)
+
+- [x] Wave 3 / Phase 6 sub-PR 3 着手 (= user 「1」承認)
+- [x] **重要発見の articulate**: machine ↔ doc drift
+  - PZ-13 guard は collection mode を `isCollection()` check で exception 扱い (= 既存)
+  - governance doc は '全 checklist は両 section を持つこと' と articulate (= exception 不在)
+  - → drift により AI session が doc を読んで '全 project に必要' と誤解する可能性
+- [x] **段 1: governance doc 更新**: references/05-aag-interface/operations/project-checklist-governance.md §3.1
+  - '全 checklist' → 'finite project (= kind: project または kind 未指定) の checklist' に scope 限定
+  - 'collection mode 例外' 段落を新設 (= '不要' を articulate、PZ-13 ↔ post-write checker 整合 articulate)
+  - § 11 (collection 不可侵原則) との bidirectional articulate
+- [x] **段 2: ai-doc-template-rules.yaml 更新**: project-checklist の additionalGuidance
+  - 'finite project の必須構造' を明示
+  - 'collection mode 例外' を articulate (= governance §3.1 + PZ-13 + post-write checker と整合)
+- [x] **段 3: post-write checker 更新**: tools/governance/check-doc-postwrite.mjs
+  - `detectCollectionProjects()` 関数追加 (= projects/active/<id>/config/project.json から `kind: collection` 検出)
+  - `isCollectionPath()` helper で path 経由 collection mode 判定
+  - `COLLECTION_EXEMPT_SECTIONS_PER_KIND` 表で kind ごとの exempt section 一覧 articulate
+  - checkFile() で collection mode の effectiveRequired から exempt section を除外
+- [x] 検証: post-write checker re-run で **0 findings 達成** (= 2 → 0、machine ↔ doc 整合)
+- [x] hard gate 追加なし (= Wave 3 advisory only 維持)
+
+### Phase 6 sub-PR 3 完了条件 (不可侵原則 6 + 11 整合)
+
+- [x] machine ↔ doc drift 解消 (= 3 つの artifact が同 exception を articulate)
+- [x] post-write checker findings 0 達成
+- [x] governance doc が collection mode exception を explicit に articulate
+- [x] AI session が governance doc を読んで誤解しない構造
+- [x] AAG framework 既存の guard (PZ-13) との整合性維持
+
+### Phase 6 sub-PR 3 で articulate された pattern
+
+**1. machine ↔ doc drift pattern 初観測**:
+
+machine-enforced behavior (= PZ-13 guard が collection mode を exception 扱い) と human-readable
+governance contract (= project-checklist-governance §3.1 が exception を articulate しない) の間に
+**drift** が存在した:
+
+| artifact | exception articulate 状態 (修正前) |
+|---|---|
+| projectizationPolicyGuard PZ-13 (machine) | あり (= isCollection() check 経由) |
+| project-checklist-governance §3.1 (doc) | **なし** (= drift) |
+| ai-doc-template-rules.yaml (rule、本 program で新設) | **なし** (= drift) |
+
+→ post-write checker が初めて両者の drift を surface した。本 sub-PR で 3 つ全てを整合 articulate。
+
+これは **DOC-FAIL-STALE-DESCRIPTION pattern** の variant (= machine 実装が先行、doc が追従していない)。
+Wave 2 で観測した 3 件の staleness pattern (= protocols/README + aag/_internal/README +
+taxonomy-constitution) は **doc 内** の drift だったが、本 case は **machine ↔ doc** の drift。
+Wave 3 で taxonomy review window 経由で `DOC-FAIL-STALE-DESCRIPTION` 追加時に variant articulate
+candidate。
+
+**2. Wave 2 → Wave 3 surface → fix の value chain 完成**:
+
+Wave 2 Reading Pass で articulate した quick-fixes (= collection mode、Batch 7) と
+project-checklist-governance contract (= Batch 17) の接続を、Wave 3 の post-write checker (= sub-PR 2)
+が drift として **surface**、本 sub-PR (= sub-PR 3) で **fix** した完全な value chain:
+
+```
+Wave 2 (articulate) → Wave 3 / sub-PR 2 (surface) → Wave 3 / sub-PR 3 (fix)
+   |                       |                              |
+   reading-decisions    post-write checker         3 段 articulate (doc + rule + checker)
+   .yaml entries        --all で 2 findings        machine ↔ doc 整合
+```
+
+→ Wave 2 articulate 努力 → Wave 3 actionable fix への conversion を実証。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

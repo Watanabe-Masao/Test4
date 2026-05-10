@@ -3,8 +3,8 @@
 > 機械生成。手で編集しない。authoring source = `docs/contracts/src/docs/ai-doc-template-rules.yaml`、
 > generator = `tools/governance/build-ai-doc-instructions.mjs`。
 
-- 生成: 2026-05-10T10:24:35.365Z
-- generatedAtSha: `1c9712d4f1a911d8d3da6fd1599d67c47af1f411`
+- 生成: 2026-05-10T11:26:52.969Z
+- generatedAtSha: `b5b9b49c8fd159a5e803db4767bf5f0016dea6cd`
 - schemaVersion: `ai-doc-template-rules-v1`
 - stage: `pre-articulate`
 
@@ -261,7 +261,11 @@
 **additionalGuidance**:
 
 > checklist.md format guard が機械検証。AI 自己レビュー section + 最終レビュー section が
-> 必須構造。collection kind の checklist は [x] 蓄積 OK (= governance-articulated feature)。
+> finite project (= kind: project) の必須構造 (= project-checklist-governance §3.1)。
+> collection kind の checklist は [x] 蓄積 OK (= governance-articulated feature)、かつ
+> AI 自己レビュー / 最終レビュー section は **collection mode 例外** で不要 (= governance §3.1
+> で articulate 済、projectizationPolicyGuard PZ-13 も isCollection() で skip)。
+> post-write checker (= check-doc-postwrite.mjs) も同 exception で collection mode を skip。
 > 
 
 ### `project-discovery-log`

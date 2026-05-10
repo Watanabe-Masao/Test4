@@ -164,8 +164,16 @@ collector (`project-checklist-collector.ts::countCheckboxes`) は heading 抑制
 
 ### 3.1. 必須構造: AI 自己レビュー + 最終レビュー (user 承認) の 2 段 gate
 
-> **全 checklist は、最後の 2 section として `## AI 自己レビュー (= user 承認の手前)` →
+> **finite project (= `kind: project` または kind 未指定) の checklist は、最後の 2 section として `## AI 自己レビュー (= user 承認の手前)` →
 > `## 最終レビュー (user 承認)` の順で持つこと。**
+
+> **collection mode 例外** (= `kind: "collection"`、§11 articulate): `kind: collection` の project は
+> 'collection は終わらない、archive しない' 不可侵原則 (= §11 quick-fixes 例) のため approval gate を
+> 持たない。本 2 段 gate 構造は **collection mode で不要** (= 機械検証 = projectizationPolicyGuard PZ-13
+> も collection mode を除外、`isCollection()` check 経由)。collection mode の checklist は単発 fix の
+> [x]/[ ] 集約のみで articulate される (= governance-articulated feature、Wave 2 Reading Pass で
+> articulate 済)。post-write checker (= `tools/governance/check-doc-postwrite.mjs`) も同 exception
+> を kind = collection で skip。
 
 役割 (= 2 段 gate):
 

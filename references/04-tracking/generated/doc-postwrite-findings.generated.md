@@ -3,21 +3,20 @@
 > 機械生成。手で編集しない。generator = `tools/governance/check-doc-postwrite.mjs`。
 > Wave 3 advisory: 違反検出は warning のみ、CI fail なし。
 
-- 生成: 2026-05-10T10:24:35.506Z
-- generatedAtSha: `1c9712d4f1a911d8d3da6fd1599d67c47af1f411`
+- 生成: 2026-05-10T11:26:53.905Z
+- generatedAtSha: `b5b9b49c8fd159a5e803db4767bf5f0016dea6cd`
 
 ## Summary
 
 - Total reviewed Markdown files scanned: 398
-- Total findings (advisory): 2
-- Files with findings: 1
+- Total findings (advisory): 0
+- Files with findings: 0
 - Files with errors: 0
 
 ## By Kind
 
 | kind | total | withFindings | findings |
 |---|---|---|---|
-| `project-checklist` | 6 | 1 | 2 |
 | `repo-entrypoint` | 1 | 0 | 0 |
 | `project-plan` | 30 | 0 | 0 |
 | `canonical-doc` | 277 | 0 | 0 |
@@ -25,6 +24,7 @@
 | `status-snapshot` | 16 | 0 | 0 |
 | `log-journal` | 1 | 0 | 0 |
 | `generated-report` | 1 | 0 | 0 |
+| `project-checklist` | 6 | 0 | 0 |
 | `project-discovery-log` | 5 | 0 | 0 |
 | `project-projectization` | 5 | 0 | 0 |
 | `project-decision-audit` | 2 | 0 | 0 |
@@ -37,10 +37,3 @@
 | `role-identity` | 8 | 0 | 0 |
 | `role-skill` | 8 | 0 | 0 |
 | `claude-skill` | 1 | 0 | 0 |
-
-## Files with Findings
-
-### `projects/active/quick-fixes/checklist.md` [`project-checklist`]
-
-- **[warning]** missing-required-section: requiredSection 不在: 'AI 自己レビュー' を含む header (= ^#+\s+...) が見つからない
-- **[warning]** missing-required-section: requiredSection 不在: '最終レビュー' を含む header (= ^#+\s+...) が見つからない

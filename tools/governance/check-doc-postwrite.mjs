@@ -129,6 +129,40 @@ function checkRequiredSections(headers, requiredSections) {
 }
 
 // ----------------------------------------------------------------------------
+// Collection mode detection (= kind: collection projects skip approval gate sections)
+// ----------------------------------------------------------------------------
+
+const collectionProjectIds = new Set()
+function detectCollectionProjects() {
+  const fg = require('node:fs')
+  const projectsActive = resolve(REPO_ROOT, 'projects/active')
+  if (!fg.existsSync(projectsActive)) return
+  for (const dir of fg.readdirSync(projectsActive)) {
+    const configPath = resolve(projectsActive, dir, 'config/project.json')
+    if (!fg.existsSync(configPath)) continue
+    try {
+      const cfg = JSON.parse(fg.readFileSync(configPath, 'utf8'))
+      if (cfg.kind === 'collection') collectionProjectIds.add(dir)
+    } catch {
+      /* skip malformed config */
+    }
+  }
+}
+detectCollectionProjects()
+
+function isCollectionPath(filePath) {
+  // 'projects/active/quick-fixes/checklist.md' → match if 'quick-fixes' in collectionProjectIds
+  const m = filePath.match(/^projects\/active\/([\w-]+)\//)
+  return m ? collectionProjectIds.has(m[1]) : false
+}
+
+// project-checklist の AI 自己レビュー / 最終レビュー section は collection mode で不要
+// (= project-checklist-governance §3.1 articulate 済 exception、Wave 3 / Phase 6 sub-PR 3 で articulate)
+const COLLECTION_EXEMPT_SECTIONS_PER_KIND = {
+  'project-checklist': ['AI 自己レビュー', '最終レビュー'],
+}
+
+// ----------------------------------------------------------------------------
 // File check
 // ----------------------------------------------------------------------------
 
@@ -160,8 +194,17 @@ function checkFile(filePath, kind) {
   const content = readFileSync(fullPath, 'utf8')
   const headers = extractHeaders(content)
   const findings = []
-  if (rule.requiredSections && rule.requiredSections.length > 0) {
-    findings.push(...checkRequiredSections(headers, rule.requiredSections))
+  // collection mode exception: skip approval-gate sections for project-checklist in collection projects
+  let effectiveRequired = rule.requiredSections ?? []
+  const isCollection = isCollectionPath(filePath)
+  if (isCollection && COLLECTION_EXEMPT_SECTIONS_PER_KIND[kind]) {
+    const exempt = COLLECTION_EXEMPT_SECTIONS_PER_KIND[kind]
+    effectiveRequired = effectiveRequired.filter(
+      (s) => !exempt.some((e) => extractSectionPrefix(s).startsWith(e)),
+    )
+  }
+  if (effectiveRequired.length > 0) {
+    findings.push(...checkRequiredSections(headers, effectiveRequired))
   }
   // forbiddenContent: 機械検証困難 (= 概念的制約)、advisory hint としてのみ list
   // 別 sub-PR で AST-level 検証検討
