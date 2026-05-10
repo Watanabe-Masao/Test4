@@ -2125,11 +2125,35 @@ DOC-FAIL-STALE-DESCRIPTION tag を retroactive 付与しなかった。
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-- [ ] **総チェック**: 全 Wave 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
-- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
-- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 + aag/CHANGELOG.md aagVersion 整合（本 program は app +0.0.0 / aag +0.1）
+- [x] **総チェック**: 全 Wave 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+  - Wave 1 (Schema MVP + Skeleton-aware Parse): 完遂、merged main 反映済
+  - Wave 2 (Document Reset Pass + Failure Loop + Universe Index): 100% 完遂 (= 22 batches、398 docs)
+  - Wave 3 (Governance Migration、Phase 6+7+9): 全 sub-PR landed
+  - 各 sub-PR commit message に scope / 不可侵原則整合 / hard gate 追加なし articulate 済
+  - 不可侵原則違反 0 (= ADR-SCP-021 + AAG-SCP-DOC-LEARNING-002 + AR-TAXONOMY-AI-VOCABULARY-BINDING + 不可侵原則 6 / 11 整合維持)
+- [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+  - scope 外 commit: なし (= 各 commit は対応 sub-PR scope 内、Wave 4+ candidate は明示 articulate)
+  - 設計負債: Wave 4+ candidate articulate 済 (= unmanaged 86.2% / 5 disposition 残 / 6 guard candidate 昇格)、本 program scope 外として明示
+  - drawer Pattern 違反: なし (= drawer pattern は適用 instance、違反 mechanism なし)
+  - 隠れた前提変更: なし (= taxonomy-constitution status flip は metadata accuracy fix のみ、原則 content 不変、改訂規律違反回避)
+- [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+  - 各 generator: deterministic + ajv schema validation fail fast
+  - post-write checker: exit 0 維持 (= advisory only)、generated.md 出力安定
+  - collection mode exception: 3 段で機械的整合 (= governance doc + rule + checker)
+  - guard test PASS 維持 (= 各 sub-PR で test:guards 通過確認)
+  - edge case 観測 + 即時 fix 済: sub-PR 5 deleted file path parse (= backtick wrap)、sub-PR 6 nested directory pattern (= 別 rule articulate)
+  - null / 型 / race: pure functions / deterministic / no concurrency (= シンプルな file walker + JSON output)
+  - fail-safe: schema validation fail で fail fast (= exit 1)、unknown patterns で advisory warn
+- [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+  - references/README.md: 6 generated.md 追加 + quality-audit-latest 削除 (= sub-PR 8 で完了)
+  - CLAUDE.md: 直接編集なし (= 既存 articulate を活用、改変不要)
+  - references/: 各 generated.md は doc-registry articulate 済、各 staleness fix は実 rewrite 済
+  - 関連 plan / decision-audit: 各 sub-PR で本 checklist に articulate 済
+  - HANDOFF.md: sub-PR 8 で完全 sync 済 (= post-Wave 3 staleness 解消)
+- [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 + aag/CHANGELOG.md aagVersion 整合（本 program は app +0.0.0 / aag +0.1）
+  - app +0.0.0: 本 program は app/ 配下を一切 touch しない (= references/ + docs/contracts/ + tools/governance/ + projects/ のみ)、CHANGELOG.md エントリ不要
+  - aag +0.1: aag/CHANGELOG.md に [AAG 6.1] entry 追加 (= 本 program 完遂 articulate)、aag-metadata.json aagVersion 6.0 → 6.1 bump
+  - versionSyncGuard PASS 確認 (= 16 test pass、aag/CHANGELOG 最新 [AAG x.y] と aag-metadata.json aagVersion の loop 整合)
 
 ## 最終レビュー (user 承認)
 
