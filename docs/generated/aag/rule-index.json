@@ -2,8 +2,8 @@
   "$schemaDescription": "Rule Index — 軽量 overview drawer。AI が rule 全景を 1 read で把握する用途。詳細は merged-architecture-rules.json (A2b) 参照。",
   "canonicalSource": "app-domain/gross-profit/rule-catalog/base-rules.ts",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-09T13:23:45.322Z",
-  "sourceCommit": "5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5",
+  "generatedAt": "2026-05-10T03:08:11.642Z",
+  "sourceCommit": "fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989",
   "summary": {
     "totalRules": 172
   },

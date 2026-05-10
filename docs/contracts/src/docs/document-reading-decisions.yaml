@@ -2160,3 +2160,3590 @@ entries:
       - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md
       - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 11 (Wave 2 / Phase 2.5 sub-PR 15、reviewedAtCommit 256da35)
+  # 17 文書 = projects/active/taxonomy-v2/ 全 HIGH 候補。Level 4 Umbrella project の articulate。
+  # 重大発見: 8 件 (DERIVED.md + derived/ 7 files) が projects/_template/ identical 複製
+  # → DOC-FAIL-DUPLICATE-RESPONSIBILITY 初観測 (= unobserved pattern の surface)。
+  # 新 proposedKind 1 種 articulate: project-sub-project-map (= umbrella governance)。
+  # ============================================================================
+
+  - path: projects/active/taxonomy-v2/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      project 意味空間の入口。responsibility-taxonomy-v2 + test-taxonomy-v2 の 2 軸を束ねる
+      umbrella articulate (= Level 4 Umbrella、AAG 第 3 の柱)。
+    alternativesConsidered: |
+      なし (= Batch 7-10 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/breaking-changes.md
+    proposedKind: project-breaking-changes
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.breakingChange: true)。BC-TAX-1〜4 articulate
+      (= 責務タグ vocabulary 全入替 + テストタグ新規導入 + R⇔T interlock + Origin Journal 必須化)。
+      正本 = plan.md の 7 不可侵原則 + interlock 仕様。
+    alternativesConsidered: |
+      なし (= Batch 10 breaking-changes.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/breaking-changes.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。Phase 1〜4 articulate、
+      両子 archive 完遂後の観察フェーズ articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-10 checklist.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/DERIVED.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/DERIVED.md と完全 identical (= diff 0)。aag-scp の derived/README.md は
+      project-specific 内容にカスタマイズされているのに対し、本 file は unfilled template copy で
+      project-specific value なし。canonical = _template、本 copy は重複 articulate (= 派生セット
+      判断基準は project root に置かなくても _template から参照可)。
+    alternativesConsidered: |
+      keep-and-contract (= bootstrap policy 上 mandate されている可能性) も候補だが、aag-scp が
+      本 file を持たず derived/README.md だけ articulate している事実から、bootstrap mandate ではない
+      = delete 可能と判断。最終 disposition は user 確認 + bootstrap policy 整合性検証後に確定。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/DERIVED.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/README.md と完全 identical (= unfilled template copy)。
+      aag-scp が同位置で project-specific 内容にカスタマイズしている対比で、本 copy は
+      project-specific value なし。
+    alternativesConsidered: |
+      keep-and-contract (= bootstrap policy 整合) も候補だが、_template に canonical あり。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/README.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/acceptance-suite.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/acceptance-suite.md と完全 identical (= <PROJECT-ID> placeholder
+      未置換の unfilled template copy)。canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= 7 derived/ template-copy family の一員、同 disposition)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/acceptance-suite.md
+      - projects/active/taxonomy-v2/derived/pr-breakdown.md
+      - projects/active/taxonomy-v2/derived/review-checklist.md
+      - projects/active/taxonomy-v2/derived/test-plan.md
+      - projects/active/taxonomy-v2/derived/inventory/README.md
+      - projects/active/taxonomy-v2/derived/inventory/00-example.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/inventory/00-example.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/inventory/00-example.md と完全 identical (= サンプル棚卸し template)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/inventory/00-example.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/inventory/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/inventory/README.md と完全 identical (= 棚卸し置き場 articulate)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/inventory/README.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/pr-breakdown.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/pr-breakdown.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/pr-breakdown.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/review-checklist.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/review-checklist.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/review-checklist.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/derived/test-plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: delete-candidate
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      projects/_template/derived/test-plan.md と完全 identical (= unfilled template copy)。
+      canonical = _template、project-specific value なし。
+    alternativesConsidered: |
+      なし (= template-copy family の一員)。
+    hasCurrentContract: false
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/derived/test-plan.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+
+  - path: projects/active/taxonomy-v2/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      DA-β-003 institute artifact、同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-10 と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+      - projects/active/pure-calculation-reorg/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      起点文書。Phase 1+2+3+4 完遂 articulate (= past) + 観察フェーズ continuation articulate (= future)。
+      両子 archive 済 + 親 active 維持の dual-state articulate。governance-articulated mixed temporal。
+    alternativesConsidered: |
+      なし (= Batch 8-10 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+      - projects/active/pure-calculation-reorg/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/legacy-retirement.md
+    proposedKind: project-legacy-retirement
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA mandatory artifact (= projectization.requiresLegacyRetirement: true)。
+      v1 責務タグ体系 + テストタグ + R⇔T interlock 等の撤退 articulate。
+    alternativesConsidered: |
+      なし (= Batch 10 legacy-retirement.md と同 kind、bidirectional governance pair)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/pure-calculation-reorg/legacy-retirement.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      7 不可侵原則 + interlock 仕様 + Phase 構造 articulate (= 630 行)。両子 project の正本でもある
+      (= breaking-changes / legacy-retirement の正本 source、sub-project-map の依存関係 source)。
+    alternativesConsidered: |
+      なし (= Batch 7-10 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      AAG-COA 判定結果。projectizationLevel: Level 4 (Umbrella) (= 初観測の最大 level)。
+      breakingChange + requiresLegacyRetirement + requiresGuard 全 true。両子 project と
+      bidirectional governance contract を articulate (= sub-project-map 経由)。
+    alternativesConsidered: |
+      なし (= Batch 8-10 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+      - projects/active/pure-calculation-reorg/projectization.md
+    failurePatterns: []
+
+  - path: projects/active/taxonomy-v2/sub-project-map.md
+    proposedKind: project-sub-project-map
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    reviewedAtSha: 256da353ceedb7cb7b7ceb478d6656f86a085770
+    rationaleSummary: |
+      umbrella project (Level 4) 固有の governance artifact (= sub-project 一覧 + 依存関係 articulate)。
+      responsibility-taxonomy-v2 + test-taxonomy-v2 の状態 / changeType / scope を articulate。
+      正本 = plan.md §Interlock 仕様、本 doc は AAG-COA 入口の summary。
+      新 proposedKind 'project-sub-project-map' を articulate (= Level 4 Umbrella 固有 governance contract)。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、umbrella governance contract は projectizationLevel: Level 4 で
+      初出 (= 他 active project は Level 2/3) で固有 articulate role を持つため別 kind articulate。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 12 (Wave 2 / Phase 2.5 sub-PR 16、reviewedAtCommit babfc69)
+  # 17 文書 = projects/active/aag-structural-control-plane/ 全 HIGH 候補 (= 自プロジェクト self-reference)。
+  # 標準 7 + derived/ 1 (= customized) + aag/scp-checkers/ 1 + inquiry/ 8 (= 新 sub-structure)。
+  # 新 proposedKind 1 種 articulate: project-inquiry (= Phase 0 投資調査記録、採用後は履歴参照役)。
+  # ============================================================================
+
+  - path: projects/active/aag-structural-control-plane/aag/scp-checkers/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      project-scoped boundary protection checkers articulate (= plan.md §A2、ADR-SCP-014/015 整合)。
+      lifecycle = project-active 期間のみ (= Archive 時に aag/ folder ごと物理削除)、parse-free spirit
+      限定。touch しない app/src/ 等の boundary を CI level で foul させる project-scoped checker 群。
+    alternativesConsidered: |
+      新 kind project-scoped-checker-suite も候補だが、role は project-plan の sub-scope variant
+      (= governance contract は plan.md / projectization.md の derivative) で別 kind articulate は
+      vocabulary 過剰、project-plan で十分。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/AI_CONTEXT.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      project 意味空間の入口。AAG Structural Control Plane (= Tree / Document / Temporal の構造補助
+      設計) articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-11 AI_CONTEXT.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/presentation-quality-hardening/AI_CONTEXT.md
+      - projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md
+      - projects/active/pure-calculation-reorg/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/checklist.md
+    proposedKind: project-checklist
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      live task list 正本 (= project-checklist-governance §3 整合)。本 file で本 batch の articulate を
+      行っている self-reference doc。Phase 0〜2.5 sub-PR の incremental articulate articulate。
+    alternativesConsidered: |
+      self-reference のため articulate には慎重を要するが、role は他 project の checklist と同 kind、
+      governance contract も同じ。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/decision-audit.md
+    proposedKind: project-decision-audit
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      L3 重判断 institute (= drawer Pattern 1 application)。ADR-SCP-001〜022 の lineage articulate。
+      Batch 9 reposteward decision-audit.md と同 governance contract、同 5 軸 schema。
+    alternativesConsidered: |
+      なし (= Batch 9 decision-audit.md と同 kind family)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/reposteward-ai-ops-platform/decision-audit.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/derived/README.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Wave 2 deliverable space articulate (= Document Reset Pass + Failure Learning Loop で蓄積される
+      派生成果物の配置先)。projects/_template/derived/README.md と diff (= customized)、taxonomy-v2 の
+      identical copy と対照的に project-specific value あり (= Batch 11 Failure Loop auto-promotion の
+      reference 例)。
+    alternativesConsidered: |
+      なし (= customized doc、_template の duplicate ではない)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/discovery-log.md
+    proposedKind: project-discovery-log
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      DA-β-003 institute artifact、同 governance contract、同 role articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-11 discovery-log.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+      - projects/active/pure-calculation-reorg/discovery-log.md
+      - projects/active/taxonomy-v2/discovery-log.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/HANDOFF.md
+    proposedKind: project-plan
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      起点文書。Wave 1〜2 進行状況 articulate (= past Phase 完遂 + future Wave 3 articulate)。
+      governance-articulated mixed temporal。
+    alternativesConsidered: |
+      なし (= Batch 8-11 HANDOFF.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/HANDOFF.md
+      - projects/active/presentation-quality-hardening/HANDOFF.md
+      - projects/active/reposteward-ai-ops-platform/HANDOFF.md
+      - projects/active/pure-calculation-reorg/HANDOFF.md
+      - projects/active/taxonomy-v2/HANDOFF.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= 既存 contract 資産の棚卸 + 本 program 新 schema との配置関係 articulate)。
+      ADR-SCP-002 へ feeding した investigation。past (= 調査 timing) + present (= 採用後の reference)
+      の articulate mixed temporal。新 proposedKind 'project-inquiry' を articulate (= decision-audit と
+      別物、PRE-decision investigation の articulate role)。
+    alternativesConsidered: |
+      project-decision-audit で統合も候補だが、inquiry は PRE-decision investigation で
+      decision-audit (= POST-decision lineage) と role が異なる。inquiry が decision-audit に feeding
+      する関係で articulate に分離が適切。archive-doc (= 過去調査) も候補だが '採用後の reference として
+      参照する' の役割が articulate されているため keep articulate。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= 既存 YAML 資産の棚卸)。ADR-SCP-002/003 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= doc-registry 拡張戦略)。ADR-SCP-002 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= self-check substrate sync 戦略)。ADR-SCP-005 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= obligation map migration 戦略)。ADR-SCP-007/008 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= temporal scope shadow policy)。ADR-SCP-009/010 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= acceptance criteria、551 行 = inquiry family 最大規模)。
+      ADR-SCP-011〜015 へ feeding。
+    alternativesConsidered: |
+      なし (= inquiry family の一員)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md
+    proposedKind: project-inquiry
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      Phase 0 投資調査記録 (= Wave restructuring 棚卸し)。'採用済み (2026-05-08、ADR-SCP-016 で正式採用)'
+      status を doc 冒頭に articulate (= governance-articulated past + 採用後 reference 役)。
+      本 inquiry は Wave 1/2/3 構造化の正本 source、本 PR session の構造はここから derived。
+    alternativesConsidered: |
+      archive-doc (= 採用済み履歴) も候補だが、'採用後の reference として参照する' の役割が
+      articulate されているため keep-and-contract が適切。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/plan.md
+    proposedKind: project-plan
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      不可侵原則 + Wave 構造 + Phase 定義 articulate (= AAG Structural Control Plane の正本)。
+      ADR-SCP-016 で Wave restructuring 採用後の structure articulate。
+    alternativesConsidered: |
+      なし (= Batch 7-11 plan.md と同 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/quick-fixes/plan.md
+      - projects/active/presentation-quality-hardening/plan.md
+      - projects/active/reposteward-ai-ops-platform/plan.md
+      - projects/active/pure-calculation-reorg/plan.md
+      - projects/active/taxonomy-v2/plan.md
+    failurePatterns: []
+
+  - path: projects/active/aag-structural-control-plane/projectization.md
+    proposedKind: project-projectization
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: babfc69979b1120f6b20e81499fa2ea1932dab80
+    reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
+    rationaleSummary: |
+      AAG-COA 判定結果 articulate。
+    alternativesConsidered: |
+      なし (= Batch 8-11 projectization.md と同 kind)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/active/presentation-quality-hardening/projectization.md
+      - projects/active/reposteward-ai-ops-platform/projectization.md
+      - projects/active/pure-calculation-reorg/projectization.md
+      - projects/active/taxonomy-v2/projectization.md
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 13 (Wave 2 / Phase 2.5 sub-PR 17、reviewedAtCommit b80b2df)
+  # 29 文書 = elements/ family の charts (11) + read-models (11) + ui-components (6) +
+  # parent README (1)。widgets (46) は次 batch で扱う。Batch 6 CALC-* と同 pattern
+  # (= per-element 業務契約 spec、frontmatter + 構造化 spec、lifecycleStatus: active)。
+  # 全件 keep-and-contract / canonical-doc / failurePatterns: []。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      elements/ category root README。実装要素の現状把握台帳としての位置付け articulate (= 改修・変更のための前提資料)、'振る舞い (behavior) を書く、使い方 (usage) は書かない' の判断基準 articulate。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      charts/ category README。Chart Component 仕様書カタログ articulate (= 型番体系 CHART-NNN、source / input builder / logic / view model / option builder / styles / 状態カバレッジ / visual evidence)。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-001/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-001 = SalesPurchaseComparisonChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/SalesPurchaseComparisonChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-002/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-002 = PerformanceIndexChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/PerformanceIndexChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-003/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-003 = BudgetVsActualChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/BudgetVsActualChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-004/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-004 = CustomerScatterChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/CustomerScatterChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-005/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-005 = GrossProfitAmountChart (kind: chart)。改修者向け事実台帳 (= app/src/presentation/components/charts/GrossProfitAmountChart.tsx の chart spec、frontmatter + 構造化 spec)。lifecycleStatus: active。per-element directory 構造 (= R4 institute) の主 spec layer。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-001/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-001 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-002/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-002 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-003/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-003 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-004/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-004 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/charts/CHART-005/implementation-ledger.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      CHART-005 の implementation-ledger (= 手書き正本 layer)。改修履歴 + commit lineage + 変更 rationale を articulate。aag-self-hosting-completion R4 で institute、機械生成 layer (= quality-status.generated.md / open-issues.generated.md) と分離。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      read-models/ category README。ReadModel 仕様書カタログ articulate (= application/readModels/ の正本 readModel の現状把握台帳)。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-001 = readPurchaseCost (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/purchaseCost/readPurchaseCost.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-002 = calculateGrossProfit (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/grossProfit/calculateGrossProfit.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-003 = buildSalesFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/salesFact/readSalesFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-004 = buildDiscountFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/discountFact/readDiscountFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-005 = buildCustomerFactReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/customerFact/readCustomerFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-006 = calculateFactorDecomposition (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/factorDecomposition/calculateFactorDecomposition.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-007 = buildFreePeriodReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-008 = buildFreePeriodBudgetReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodBudgetFact.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-009 = buildFreePeriodDeptKPIReadModel (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/freePeriod/readFreePeriodDeptKPI.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/read-models/RM-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      RM-010 = selectMonthlyPrevYearSales (kind: read-model)。改修者向け事実台帳 (= app/src/application/readModels/prevYear/selectMonthlyPrevYearSales.ts の readModel spec、frontmatter + 入出力契約 + 依存 source + consumer + fallback 戦略)。Batch 6 CALC-* と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      ui-components/ category README。UI Component 仕様書カタログ articulate。改修前の前提資料 role。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-001 = ConditionSummaryEnhanced (kind: ui-component、category: dashboard-summary)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-002 = KpiCard (kind: ui-component、category: kpi-display)。改修者向け事実台帳 (= app/src/presentation/components/common/KpiCard.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-003 = KpiGrid (kind: ui-component、category: kpi-layout)。改修者向け事実台帳 (= app/src/presentation/components/common/KpiCard.styles.ts の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-004 = ChartCard (kind: ui-component、category: chart-shell)。改修者向け事実台帳 (= app/src/presentation/components/charts/ChartCard.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/ui-components/UIC-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    reviewedAtSha: b80b2dfa5327f5cb12e63e1d6cbb978483946da1
+    rationaleSummary: |
+      UIC-005 = ChartLoading (kind: ui-component、category: chart-state)。改修者向け事実台帳 (= app/src/presentation/components/charts/ChartState.tsx の UI component spec、frontmatter + hooks + children + sideEffects + states + stories + visualTests articulate)。lifecycleStatus: active。
+    alternativesConsidered: |
+      family-level 一括処理 (= elements/ category 配下を 1 batch で articulate、Batch 6 CALC-* と同方針)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+
+  # ============================================================================
+  # Reading Pass Batch 14 (Wave 2 / Phase 2.5 sub-PR 18、reviewedAtCommit cfae04e)
+  # 47 文書 = elements/widgets/ family 46 (= README + WID-001〜045) + technical-debt-roadmap.md 1。
+  # 本 batch で HIGH priority 完遂 (= remaining HIGH 47 → 0)。
+  # 全件 keep-and-contract / canonical-doc / failurePatterns: []。
+  # technical-debt-roadmap.md は governance-articulated mixed temporal (= judgment rationale doc)。
+  # ============================================================================
+
+  - path: references/04-tracking/elements/widgets/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      widgets/ category README。45 件の widget 仕様書カタログ articulate (= 改修前の前提資料、source / 型 / 依存 ctx / データ経路 / co-change 影響面)。型番体系 WID-NNN articulate (= 一度割り当てたら再利用しない、@widget-id JSDoc 宣言で機械検証)。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-001.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-001 = widget-budget-achievement (kind: widget、registry: WIDGETS_KPI、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryKpiWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-002.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-002 = chart-daily-sales (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-003.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-003 = chart-gross-profit-amount (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-004.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-004 = chart-timeslot-heatmap (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-005.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-005 = chart-store-timeslot-comparison (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-006.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-006 = chart-sales-purchase-comparison (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-007.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-007 = chart-weather-correlation (kind: widget、registry: WIDGETS_CHART、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryChartWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-008.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-008 = analysis-alert-panel (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-009.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-009 = exec-dow-average (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-010.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-010 = exec-weekly-summary (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-011.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-011 = exec-daily-store-sales (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-012.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-012 = exec-daily-inventory (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-013.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-013 = exec-store-kpi (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-014.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-014 = exec-forecast-tools (kind: widget、registry: WIDGETS_EXEC、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryExecWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-015.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-015 = analysis-waterfall (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-016.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-016 = analysis-gp-heatmap (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-017.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-017 = analysis-customer-scatter (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-018.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-018 = analysis-performance-index (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-019.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-019 = analysis-category-pi (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-020.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-020 = analysis-causal-chain (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-021.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-021 = analysis-sensitivity (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-022.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-022 = analysis-regression-insight (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-023.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-023 = analysis-seasonal-benchmark (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-024.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-024 = analysis-duckdb-features (kind: widget、registry: WIDGETS_ANALYSIS、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryAnalysisWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-025.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-025 = duckdb-dow-pattern (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-026.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-026 = duckdb-category-mix (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-027.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-027 = duckdb-category-benchmark (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-028.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-028 = duckdb-category-boxplot (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-029.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-029 = duckdb-cv-timeseries (kind: widget、registry: WIDGETS_DUCKDB、contextType: Dashboard-local)。改修者向け事実台帳 (= app/src/presentation/pages/Dashboard/widgets/registryDuckDBWidgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-030.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-030 = daily-chart-gp-rate (kind: widget、registry: DAILY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Daily/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-031.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-031 = daily-chart-shapley (kind: widget、registry: DAILY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Daily/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-032.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-032 = insight-budget (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-033.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-033 = insight-budget-simulator (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-034.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-034 = insight-gross-profit (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-035.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-035 = insight-forecast (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-036.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-036 = insight-decomposition (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-037.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-037 = insight-pi-cv-map (kind: widget、registry: INSIGHT_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Insight/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-038.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-038 = category-total-view (kind: widget、registry: CATEGORY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Category/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-039.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-039 = category-comparison-view (kind: widget、registry: CATEGORY_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Category/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-040.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-040 = costdetail-kpi-summary (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-041.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-041 = costdetail-purchase (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-042.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-042 = costdetail-transfer (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-043.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-043 = costdetail-cost-inclusion (kind: widget、registry: COST_DETAIL_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/CostDetail/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-044.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-044 = reports-summary-grid (kind: widget、registry: REPORTS_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Reports/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/elements/widgets/WID-045.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      WID-045 = reports-dept-table (kind: widget、registry: REPORTS_WIDGETS、contextType: Unified)。改修者向け事実台帳 (= app/src/presentation/pages/Reports/widgets.tsx の widget spec、frontmatter + 構造化 spec + 依存 ctx + acquisition path articulate)。Batch 6 CALC-* + Batch 13 RM/UIC/CHART と同 family pattern。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/04-tracking/technical-debt-roadmap.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: cfae04e91d643d759e70e87178309391a51163a7
+    reviewedAtSha: cfae04e91d643d759e70e87178309391a51163a7
+    rationaleSummary: |
+      judgment rationale doc (= 方針・優先順位・判断理由・歴史)。documentation-steward 管理。'件数の一次情報源: architecture-health.json' で manual rationale と generated current value を articulate に分離 (= GENERATED-AS-MANUAL 違反なし)。'live task は本文書に書かない、正本は projects/<id>/checklist.md' を articulate (= project-checklist-governance pointer)。P1〜P5 完了済 project は履歴記録として保持 (= governance-articulated mixed temporal、past 履歴 + present 健全性 + 新規 project guidance)。
+    alternativesConsidered: |
+      family-level 一括処理 (= Batch 6/13 と同方針、47 件 1 batch articulate)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: true
+    duplicates: []
+    failurePatterns: []
+
+
+  # ============================================================================
+  # Reading Pass Batch 15 (Wave 2 / Phase 2.5 sub-PR 19、reviewedAtCommit 879f13e)
+  # 15 文書 = projects/_template/ 全件 (= canonical project bootstrap templates)。
+  # 初の MEDIUM priority batch + Batch 11 で観測された taxonomy-v2 duplicate の canonical 側 articulate。
+  # 新 proposedKind 1 種 articulate: template-doc (= placeholder 含む unfilled template、bootstrap 時 copy & customize 対象)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: projects/_template/AI_CONTEXT.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 AI_CONTEXT 雛形 (= 必須セット 6 の 1 つ)。新 proposedKind 'template-doc'
+      を articulate (= 各 active project が bootstrap 時に copy + project-specific customize する
+      canonical source)。Batch 11 で観測した taxonomy-v2 duplicate の canonical 側。
+    alternativesConsidered: |
+      project-plan で統合も候補だが、template (= 未充填、placeholder 含む) と filled-in active doc
+      は role が異なる (= 前者は bootstrap reference / 後者は project-specific filled artifact)。
+      別 kind articulate が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: projects/_template/checklist.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 checklist 雛形 (= 必須セット 6 の 1 つ、project-checklist-governance 整合)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/decision-audit.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 decision-audit 雛形 (= drawer Pattern 1 application、5 軸 + 観測点 +
+      Lineage 構造の template)。template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/DERIVED.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生セット判断基準 (= 5 質問で derived/ から何を足すか決める decision framework)。
+      Batch 11 で観測した taxonomy-v2/DERIVED.md (= identical duplicate) の **canonical 側**。
+      本 file こそ正本、taxonomy-v2 側は不要 copy。
+    alternativesConsidered: |
+      なし (= template-doc family の一員、判断基準 articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/DERIVED.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/acceptance-suite.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 acceptance-suite 雛形 (= 必要時のみ project root へ copy + customize)。
+      Batch 11 で観測した taxonomy-v2/derived/acceptance-suite.md (= identical duplicate) の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/acceptance-suite.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/inventory/00-example.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 inventory/00-example 雛形 (= サンプル棚卸しファイル、コピー時の参考)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/inventory/00-example.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/inventory/README.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 inventory/README 雛形 (= Phase 0 棚卸しの結果を章単位で固定する置き場 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/inventory/README.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/pr-breakdown.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 pr-breakdown 雛形 (= project を複数 PR に分解する scope / 依存 / マージ順 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/pr-breakdown.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/README.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 directory README (= 派生ファイルセットのテンプレート集 articulate、判断基準は ../DERIVED.md 参照)。
+      taxonomy-v2 側 identical copy (= 未カスタマイズ) と aag-scp 側 customized copy (= Wave 2 deliverable
+      space articulate) の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/README.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/review-checklist.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 review-checklist 雛形 (= カテゴリ別レビュー観点を固定化、レビュー脱属人化)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/review-checklist.md
+    failurePatterns: []
+
+  - path: projects/_template/derived/test-plan.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      派生 test-plan 雛形 (= 追加 / 修正 test を G0〜G6 ガード + L0〜L4 ロジックに分類する計画 articulate)。
+      taxonomy-v2 側 identical copy の canonical 側。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+      - projects/active/taxonomy-v2/derived/test-plan.md
+    failurePatterns: []
+
+  - path: projects/_template/discovery-log.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 discovery-log 雛形 (= DA-β-003 institute、AAG 5 系統目: 発見蓄積)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/HANDOFF.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 HANDOFF 雛形 (= 必須セット 6 の 1 つ、起点文書 role)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/plan.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 plan 雛形 (= 必須セット 6 の 1 つ、不可侵原則 + Phase 構造 articulate role)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/_template/projectization.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 879f13e51ff61bb1e63f77e4471355a528800154
+    reviewedAtSha: 879f13e51ff61bb1e63f77e4471355a528800154
+    rationaleSummary: |
+      project bootstrap 用 projectization 雛形 (= AAG-COA 判定結果、projectization-policy.md governance contract)。
+      template-doc family の一員。
+    alternativesConsidered: |
+      なし (= template-doc family の一員)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 16 (Wave 2 / Phase 2.5 sub-PR 20、reviewedAtCommit efa8469)
+  # 16 文書 = roles/ family 全 8 roles × 2 (ROLE.md + SKILL.md) = 16。
+  # 新 proposedKind 2 種 articulate: role-identity (ROLE.md) + role-skill (SKILL.md)。
+  # 全件 keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: roles/line/architecture/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      architecture (line) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'4層境界・エンジン責務分離の守護者' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/architecture/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      architecture (line) ロールの Execution layer (= 論理構造 + 方法論 articulate)。architecture の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/implementation/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      implementation (line) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'コーディングの実行者 (= コードを書く唯一のロール)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/implementation/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      implementation (line) ロールの Execution layer (= 論理構造 + 方法論 articulate)。implementation の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/duckdb-specialist/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      duckdb-specialist (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'DuckDB クエリ・スキーマ・SQL/JS 責務境界' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/explanation-steward/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/duckdb-specialist/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      duckdb-specialist (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。duckdb-specialist の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/explanation-steward/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/explanation-steward/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      explanation-steward (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'Explanation L1-L3 の説明責任' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/explanation-steward/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      explanation-steward (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。explanation-steward の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/invariant-guardian/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      invariant-guardian (line/specialist) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'数学検証 (= シャープリー恒等式・計算正確性)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/line/specialist/invariant-guardian/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      invariant-guardian (line/specialist) ロールの Execution layer (= 論理構造 + 方法論 articulate)。invariant-guardian の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/documentation-steward/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      documentation-steward (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'CLAUDE.md / roles/ / references/ 整合性管理 (全過程の記録係)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/documentation-steward/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      documentation-steward (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。documentation-steward の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/pm-business/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      pm-business (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'要件正確さ・受入基準 (= 指示者・要件入口)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/pm-business/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      pm-business (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。pm-business の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+  - path: roles/staff/review-gate/ROLE.md
+    proposedKind: role-identity
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      review-gate (staff) ロールの Identity layer (= 前提・価値基準・判断基準 articulate)。'設計原則・ガードテスト・CI 通過 (品質の出口)' role articulate。CLAUDE.md 4 層 governance model (Authority/Orchestration/Identity/Execution) の Identity layer に対応。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/ROLE.md
+      - roles/line/implementation/ROLE.md
+      - roles/line/specialist/duckdb-specialist/ROLE.md
+    failurePatterns: []
+
+  - path: roles/staff/review-gate/SKILL.md
+    proposedKind: role-skill
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    reviewedAtSha: efa8469ec9783acf2f64bb9b5d130b6a6518bb8a
+    rationaleSummary: |
+      review-gate (staff) ロールの Execution layer (= 論理構造 + 方法論 articulate)。review-gate の SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。CLAUDE.md 4 層 governance model の Execution layer に対応。ROLE.md と pair で role-bound governance contract を構成。
+    alternativesConsidered: |
+      role-doc 単一 kind での統合も候補だが、ROLE.md (Identity layer) と SKILL.md (Execution layer)
+      は CLAUDE.md 4 層 governance model で明示的に分離されており、role が異なる。別 kind articulate
+      が適切。canonical-doc で統合も候補だが、role-bound governance contract は generic canonical-doc
+      より specific。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - roles/line/architecture/SKILL.md
+      - roles/line/implementation/SKILL.md
+      - roles/line/specialist/duckdb-specialist/SKILL.md
+    failurePatterns: []
+
+
+  # ============================================================================
+  # Reading Pass Batch 17 (Wave 2 / Phase 2.5 sub-PR 21、reviewedAtCommit ff958dc)
+  # 16 文書 = references/05-aag-interface/ 全件 (= AAG public interface family)。
+  # README + drawer/ 1 + operations/ 4 + protocols/ 10 = 16。
+  # 新発見: protocols/README.md が staleness (= skeleton + R5 で fill 予定 articulate しているが、
+  # 実際は M1-M5 fill 完了済 2026-05-04)、disposition: rewrite-and-contract に articulate。
+  # 残 15 件は keep-and-contract、failurePatterns: []。
+  # ============================================================================
+
+  - path: references/05-aag-interface/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG public interface root README (= 主アプリ改修 user knowledge interface)。3 tree boundary
+      integration 整合 (= aag/_internal/ を読まずに本 directory のみで pattern / operations /
+      protocols に reach 可能)。境界 (= 不可侵原則) articulate (= AAG-specific term 持ち込み禁止)。
+    alternativesConsidered: |
+      なし (= AAG public interface root の articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/drawer/decision-articulation-patterns.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      drawer Pattern catalog (= AI ↔ AAG primary interface、領域 agnostic な change articulation
+      pattern 集)。Pattern 1 = decision-audit.md の正本 contract (= Batch 9/12 の project-decision-audit
+      kind articulate の governance source)。aag-self-hosting-completion R2 で AAG public interface
+      へ移管済。
+    alternativesConsidered: |
+      なし (= drawer 単一 doc の役割明確、operations / protocols とは異なる layer = AI 対話 pattern)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/deferred-decision-pattern.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG-COA Deferred Decision Pattern (= 判断保留の articulate)。AAG Layer 4A System Operations。
+    alternativesConsidered: |
+      なし (= operations layer の articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/new-project-bootstrap-guide.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      新 project bootstrap guide (= projects/_template/ から copy + customize する手順 articulate)。
+      Batch 15 articulate した template-doc family の利用ガイド。
+    alternativesConsidered: |
+      なし (= operations layer の articulate role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/project-checklist-governance.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      project-checklist-governance contract 正本 (= Batch 7-12 で観測した project-checklist kind の
+      governance source、live task list は projects/<id>/checklist.md のみ articulate)。
+      多数の active project / template / 主アプリ doc が本 contract を pointer 経由で参照。
+    alternativesConsidered: |
+      なし (= governance contract の正本 role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/operations/projectization-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      AAG-COA Projectization Policy 正本 (= Batch 8-11 で観測した project-projectization kind の
+      governance source、projectizationLevel L0〜L4 + breakingChange / requiresLegacyRetirement /
+      requiresGuard / requiresHumanApproval flag articulate)。Batch 10 で観測した bidirectional
+      governance contract (= projectization.flag ↔ breaking-changes / legacy-retirement) の source。
+    alternativesConsidered: |
+      なし (= governance contract の正本 role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/README.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      **staleness 検出**: README が 'status: skeleton (= R2 で landed)、R5 で fill 予定' と articulate
+      しているが、実際は protocols/ 配下の 9 protocol docs (task-protocol-system / task-class-catalog /
+      session-protocol / complexity-policy / planning-protocol / refactor-protocol / bug-fix-protocol /
+      new-capability-protocol / seam-integration) が 2026-05-04 で M1-M5 fill 完了済。'projects/completed/
+      operational-protocol-system/' (= bottom 'status' section の参照先) も既に completed。本 README は
+      古い skeleton 状態 articulate を維持しており、現状 (= filled state) を反映する rewrite が必要。
+    alternativesConsidered: |
+      keep-and-contract (= 'skeleton 段階の歴史記録' として保持) も候補だが、reader (= 主アプリ改修 user)
+      に対して staleness ある index を提供すると AI routing ambiguity を招く。rewrite-and-contract で
+      現状 (M1-M5 filled) を articulate すべき。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/bug-fix-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Bug Fix Protocol — TC-3 (= operational-protocol-system M4 fill、2026-05-04 landed)。
+      Task Class 6 類型の 1 つ。
+    alternativesConsidered: |
+      なし (= 9 protocols family の 1、同 governance role)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/complexity-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Complexity Policy — L1 / L2 / L3 (= operational-protocol-system M1 fill、2026-05-04 landed)。
+      動的昇格・降格 trigger articulate。Batch 9 で observed の L3 重判断 institute (= drawer Pattern 1)
+      の正本 source。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/new-capability-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      New Capability Protocol — TC-4 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/planning-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Planning Protocol — TC-1 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/refactor-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Refactor Protocol — TC-2 (= 2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/seam-integration.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Seam Integration (= AAG drawer _seam × Task Protocol System、operational-protocol-system M5 fill、
+      2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/session-protocol.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Session Protocol — 開始 / 実行中 / 終了 / 引き継ぎ (= L1/L2/L3 別 read order articulate、
+      operational-protocol-system M1+M2 fill、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/task-class-catalog.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Task Class Catalog — 6 類型 (= Planning / Refactor / Bug Fix / New Capability / Incident
+      Discovery / Handoff、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/05-aag-interface/protocols/task-protocol-system.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    reviewedAtSha: ff958dce5475301675841f3a1b7c2b47b789cfdf
+    rationaleSummary: |
+      Task Protocol System — index (= M1-M5 全体 index、2026-05-04 landed)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 18 (Wave 2 / Phase 2.5 sub-PR 22、reviewedAtCommit fe59e49)
+  # 21 文書 = aag/ 14 + root 6 + projects/README 1。
+  # 新発見 2 件:
+  #   1. aag/_internal/README.md staleness (= relocation 未着手と articulate しているが既に完了)
+  #   2. .claude/plans/next-session-plan.md = 2026-04-09 dated 完了報告 (= 名前と内容の mismatch)
+  # disposition: keep-and-contract 19 + rewrite-and-contract 1 + archive 1。
+  # ============================================================================
+
+  - path: aag/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG framework 本体 root README。3 tree boundary 第二階層 articulate (= references = 主アプリ
+      knowledge interface / aag = framework 本体 / projects = 作業単位 lens)。reader 別 boundary 警告
+      articulate (= 主アプリ改修 user は本 tree not read、AAG framework 改修者向け)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/CHANGELOG.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG framework version 履歴 (= aagVersion canonical source、2026-05-06 AAG 6.0 institute)。
+      app (粗利管理ツール) version とは完全独立、3-tree boundary 整合の役割分担 articulate。
+      governance-articulated mixed temporal (= changelog role 要求の past + present 併存)。
+    alternativesConsidered: |
+      changelog-doc 新 kind も候補だが、canonical-doc で版管理 role articulate 可能。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_framework/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      aag/_framework/ skeleton README (= R1 で landed、後続 phase で fill 予定)。**legitimate skeleton**
+      (= protocols/README.md staleness と異なる、本 skeleton の fill は '別 program で判断' と明示的に
+      defer されている)。
+    alternativesConsidered: |
+      protocols/README staleness (Batch 17) と外形は似るが、本 skeleton は意図的 defer (= governance-
+      articulated)、staleness ではない。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/README.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      **staleness 検出**: README が '本 sub-tree は AAG framework 内部だが references/01-foundation/
+      内に同階層配置されており... relocation (= top-level aag/ への consolidate) は scope 大のため未着手'
+      と articulate しているが、**実際は既に top-level aag/_internal/ に relocate 済** (= 本 file
+      location 自体が relocation 完了の証拠)。'未着手' 記述は stale。'本 README 冒頭の boundary 警告で
+      navigation 補完' という workaround 説明も relocation 完了後は不要。protocols/README.md (Batch 17)
+      と同 staleness pattern (= 完了済 work を未完了として articulate)。
+    alternativesConsidered: |
+      keep-and-contract (= staleness は minor) も候補だが、構造債務 articulation 自体が AAG self-application
+      の重要 pattern であり、その描写が現状と乖離していると AI routing ambiguity を招く。
+      rewrite で現状 (= relocation 完了) を articulate すべき。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/05-aag-interface/protocols/README.md
+    failurePatterns: []
+
+  - path: aag/_internal/architecture.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG architecture pattern 5 層構造定義 (= Layer 0+1 / 2+3 / 4 articulate)。AAG framework 改修者
+      向け正本。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/display-rule-registry.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG display rule registry articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/evolution.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 進化動学 articulate (= Project A Phase 1 で adaptive-governance-evolution.md から Rewrite +
+      Relocate + Rename)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/layer-map.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 5 層 × 5 縦スライス matrix articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/meta.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Meta (Layer 0+1: 目的 + 要件) articulate。strategy.md と並ぶ Layer 0 articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/operational-classification.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 運用区分 articulate (= 6 系統 lens、Feedback / Audit / Trigger 等)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/source-of-truth.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 正本ポリシー articulate (= 正本構造 + 更新主体 + drift 検出 mechanism)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/strategy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 戦略マスター (= Layer 0+1、戦略 + 文化論 + 意図的に残す弱さ)。'動くが意図に反するコード' 早期検出
+      mechanism の戦略指針。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/core/AAG_CORE_INDEX.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Core 索引 (= 共通原則 / schema / 共通 guard / 共通運用 の恒久資産)。本体アプリや案件に依存しない。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/core/principles/core-boundary-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Core boundary policy (= 共通原則の 1 つ)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      repo root README (= 仕入粗利管理ツール product description、user-facing)。CLAUDE.md (=
+      AI orchestration) とは reader が異なる (= human user vs AI session)。役割明確、location 整合。
+    alternativesConsidered: |
+      repo-entrypoint kind (= CLAUDE.md と同じ) も候補だが、人間 user-facing と AI orchestration は
+      reader が異なるため canonical-doc が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: CHANGELOG.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      app (粗利管理ツール) version 履歴 (= appVersion canonical source)。aag/CHANGELOG.md (= aagVersion)
+      とは scope 異なる、3-tree boundary 整合の役割分担 articulate。governance-articulated mixed temporal
+      (= changelog role 要求)。
+    alternativesConsidered: |
+      なし (= aag/CHANGELOG と同じ kind 適用)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - aag/CHANGELOG.md
+    failurePatterns: []
+
+  - path: CONTRIBUTING.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      contribution guide (= repo root)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: CURRENT_PROJECT.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      active project pointer 限定 (= R0 で articulate refine、'詳細進捗 / 判断 / state を本 file に
+      inline 記載しない' 不可侵原則 articulate、二重管理防止)。R6 で projectsStructureGuard sub-invariant
+      (b) で inline state 検出 → Hard fail で防御予定。CLAUDE.md からも参照される governance pointer。
+    alternativesConsidered: |
+      project-pointer 新 kind も候補だが、canonical-doc で governance pointer role articulate 可能。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: .claude/plans/next-session-plan.md
+    proposedKind: canonical-doc
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      **filename と content の mismatch 検出**: filename が 'next-session-plan.md' だが content は
+      '実施結果 (2026-04-09 全セッション)' の **完了報告** (= 過去 session の post-mortem)。'next' でない、
+      stale planning artifact。.claude/plans/ は AI scratchpad context、本 file は 2026-04-09 dated で
+      session 完遂時に repurpose されたが filename 未更新 = naming mismatch + stale content。
+    alternativesConsidered: |
+      rewrite-and-contract (= filename を 'session-2026-04-09-report.md' 等に rename) も候補だが、
+      AI scratchpad の歴史 archive として preserve するのが適切。delete-candidate も候補だが、
+      session 履歴は valuable record。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: .github/PULL_REQUEST_TEMPLATE.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      GitHub PR template (= 変更種別 + 影響レイヤー + チェックリスト articulate、PR 作成時 fill 対象)。
+      Batch 15 で articulate した template-doc kind と同 family (= 'unfilled、placeholder 含む、fill
+      時 customize される canonical source')、ただし target が GitHub PR (= 主アプリ改修 user 提出)。
+    alternativesConsidered: |
+      project-template と区別する pr-template 新 kind も候補だが、template-doc family の variant として
+      統合が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      projects/ tree articulate (= 3 tree boundary 第三階層、作業単位 lens)。active subdirectory +
+      completed subdirectory に分離 (= aag-self-hosting-completion R6b で institute、2026-05-03 完了)。
+      '本 tree に置かないもの' を articulate (= 業務 domain knowledge / AAG framework 内部 / 機械観測 dynamic state)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []

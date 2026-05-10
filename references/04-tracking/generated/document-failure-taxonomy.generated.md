@@ -4,28 +4,28 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-09T13:22:32.831Z
-- generatedAtSha: `5b5a9d1aa1769d6f93efbb3c2644dadb899d6bc5`
+- 生成: 2026-05-10T03:06:50.041Z
+- generatedAtSha: `fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
 ## Summary
 
 - Total registered patterns: 10
-- Total observed references in reading-decisions: 42
-- Reading-decision entries scanned: 84
-- Guard candidates (observed >= 5): **4**
+- Total observed references in reading-decisions: 50
+- Reading-decision entries scanned: 262
+- Guard candidates (observed >= 5): **5**
 - Emerging patterns (observed 1-4): 2
-- Unobserved patterns (observed 0): 4
+- Unobserved patterns (observed 0): 3
 - Unregistered DOC-FAIL-* in use: 0
 
 ### byComputedMaturity
 
 | maturity | count |
 |---|---|
-| pattern-articulated | 4 |
+| pattern-articulated | 3 |
 | observed | 2 |
-| guardrail-candidate-emitted | 4 |
+| guardrail-candidate-emitted | 5 |
 | guardrail-shadow | 0 |
 | guardrail-advisory | 0 |
 
@@ -35,6 +35,7 @@
 |---|---|---|---|---|
 | `DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE` | 16 | observed | **guardrail-candidate-emitted** | move (= projects/active/<id>/ へ移動) または split (= 残すべき部分は canonical 化、TODO 部分は project へ) |
 | `DOC-FAIL-LOCATION-MISMATCH` | 13 | observed | **guardrail-candidate-emitted** | move (= 適切な zone へ移動 + 参照更新) |
+| `DOC-FAIL-DUPLICATE-RESPONSIBILITY` | 8 | pattern-articulated | **guardrail-candidate-emitted** | merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後) |
 | `DOC-FAIL-TEMPORAL-MIXING` | 6 | observed | **guardrail-candidate-emitted** | split (= 過去 → archive-doc / 未来 → project-plan / 現在のみ canonical-doc に残す) |
 | `DOC-FAIL-GENERATED-AS-MANUAL` | 5 | observed | **guardrail-candidate-emitted** | generated-register (= producer 経由で generated-report 化、ADR-SCP-008 例外条項 articulate) |
 
@@ -49,7 +50,6 @@
 
 | id | inputMaturity | suggestedRemedy |
 |---|---|---|
-| `DOC-FAIL-DUPLICATE-RESPONSIBILITY` | pattern-articulated | merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後) |
 | `DOC-FAIL-README-OVEREXPLAINS-UNREVIEWED-STRUCTURE` | pattern-articulated | rewrite-and-contract (= AAG-SCP-DOC-INDEX-005~008 整合の README rewrite + Universe Index への pointer 化) |
 | `DOC-FAIL-UNEXPLAINED-CANONICAL` | pattern-articulated | rewrite-and-contract (= 役割 / consumer / 適用範囲を冒頭に articulate) |
 | `DOC-FAIL-UNOWNED-DOC` | pattern-articulated | rewrite-and-contract (= owner / consumer / update trigger を明示) または delete-candidate |
@@ -109,6 +109,24 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
   - `references/04-tracking/promotion-readiness-trendAnalysis.md`
 - **observedDispositions**: `archive`, `move`
 
+### `DOC-FAIL-DUPLICATE-RESPONSIBILITY`
+
+- **title**: 責務重複 (= 同責務の文書が複数 zone に存在)
+- **inputMaturity**: `pattern-articulated`
+- **computedMaturity**: `guardrail-candidate-emitted`
+- **observedCount**: 8
+- **suggestedRemedy**: merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後)
+- **observedPaths** (8):
+  - `projects/active/taxonomy-v2/DERIVED.md`
+  - `projects/active/taxonomy-v2/derived/README.md`
+  - `projects/active/taxonomy-v2/derived/acceptance-suite.md`
+  - `projects/active/taxonomy-v2/derived/inventory/00-example.md`
+  - `projects/active/taxonomy-v2/derived/inventory/README.md`
+  - `projects/active/taxonomy-v2/derived/pr-breakdown.md`
+  - `projects/active/taxonomy-v2/derived/review-checklist.md`
+  - `projects/active/taxonomy-v2/derived/test-plan.md`
+- **observedDispositions**: `delete-candidate`
+
 ### `DOC-FAIL-TEMPORAL-MIXING`
 
 - **title**: 時間軸の混在 (= present + past + future content が同 doc 内に混在)
@@ -161,14 +179,6 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedPaths** (1):
   - `references/04-tracking/quality-audit-latest.md`
 - **observedDispositions**: `delete-candidate`
-
-### `DOC-FAIL-DUPLICATE-RESPONSIBILITY`
-
-- **title**: 責務重複 (= 同責務の文書が複数 zone に存在)
-- **inputMaturity**: `pattern-articulated`
-- **computedMaturity**: `pattern-articulated`
-- **observedCount**: 0
-- **suggestedRemedy**: merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後)
 
 ### `DOC-FAIL-UNOWNED-DOC`
 
