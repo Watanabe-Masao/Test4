@@ -5324,3 +5324,426 @@ entries:
     hasGeneratedCurrentValue: false
     duplicates: []
     failurePatterns: []
+
+  # ============================================================================
+  # Reading Pass Batch 18 (Wave 2 / Phase 2.5 sub-PR 22、reviewedAtCommit fe59e49)
+  # 21 文書 = aag/ 14 + root 6 + projects/README 1。
+  # 新発見 2 件:
+  #   1. aag/_internal/README.md staleness (= relocation 未着手と articulate しているが既に完了)
+  #   2. .claude/plans/next-session-plan.md = 2026-04-09 dated 完了報告 (= 名前と内容の mismatch)
+  # disposition: keep-and-contract 19 + rewrite-and-contract 1 + archive 1。
+  # ============================================================================
+
+  - path: aag/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG framework 本体 root README。3 tree boundary 第二階層 articulate (= references = 主アプリ
+      knowledge interface / aag = framework 本体 / projects = 作業単位 lens)。reader 別 boundary 警告
+      articulate (= 主アプリ改修 user は本 tree not read、AAG framework 改修者向け)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/CHANGELOG.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG framework version 履歴 (= aagVersion canonical source、2026-05-06 AAG 6.0 institute)。
+      app (粗利管理ツール) version とは完全独立、3-tree boundary 整合の役割分担 articulate。
+      governance-articulated mixed temporal (= changelog role 要求の past + present 併存)。
+    alternativesConsidered: |
+      changelog-doc 新 kind も候補だが、canonical-doc で版管理 role articulate 可能。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_framework/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      aag/_framework/ skeleton README (= R1 で landed、後続 phase で fill 予定)。**legitimate skeleton**
+      (= protocols/README.md staleness と異なる、本 skeleton の fill は '別 program で判断' と明示的に
+      defer されている)。
+    alternativesConsidered: |
+      protocols/README staleness (Batch 17) と外形は似るが、本 skeleton は意図的 defer (= governance-
+      articulated)、staleness ではない。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/README.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: rewrite-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      **staleness 検出**: README が '本 sub-tree は AAG framework 内部だが references/01-foundation/
+      内に同階層配置されており... relocation (= top-level aag/ への consolidate) は scope 大のため未着手'
+      と articulate しているが、**実際は既に top-level aag/_internal/ に relocate 済** (= 本 file
+      location 自体が relocation 完了の証拠)。'未着手' 記述は stale。'本 README 冒頭の boundary 警告で
+      navigation 補完' という workaround 説明も relocation 完了後は不要。protocols/README.md (Batch 17)
+      と同 staleness pattern (= 完了済 work を未完了として articulate)。
+    alternativesConsidered: |
+      keep-and-contract (= staleness は minor) も候補だが、構造債務 articulation 自体が AAG self-application
+      の重要 pattern であり、その描写が現状と乖離していると AI routing ambiguity を招く。
+      rewrite で現状 (= relocation 完了) を articulate すべき。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - references/05-aag-interface/protocols/README.md
+    failurePatterns: []
+
+  - path: aag/_internal/architecture.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG architecture pattern 5 層構造定義 (= Layer 0+1 / 2+3 / 4 articulate)。AAG framework 改修者
+      向け正本。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/display-rule-registry.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG display rule registry articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/evolution.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 進化動学 articulate (= Project A Phase 1 で adaptive-governance-evolution.md から Rewrite +
+      Relocate + Rename)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/layer-map.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 5 層 × 5 縦スライス matrix articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/meta.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Meta (Layer 0+1: 目的 + 要件) articulate。strategy.md と並ぶ Layer 0 articulate。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/operational-classification.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 運用区分 articulate (= 6 系統 lens、Feedback / Audit / Trigger 等)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/source-of-truth.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 正本ポリシー articulate (= 正本構造 + 更新主体 + drift 検出 mechanism)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/_internal/strategy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG 戦略マスター (= Layer 0+1、戦略 + 文化論 + 意図的に残す弱さ)。'動くが意図に反するコード' 早期検出
+      mechanism の戦略指針。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/core/AAG_CORE_INDEX.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Core 索引 (= 共通原則 / schema / 共通 guard / 共通運用 の恒久資産)。本体アプリや案件に依存しない。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: aag/core/principles/core-boundary-policy.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      AAG Core boundary policy (= 共通原則の 1 つ)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      repo root README (= 仕入粗利管理ツール product description、user-facing)。CLAUDE.md (=
+      AI orchestration) とは reader が異なる (= human user vs AI session)。役割明確、location 整合。
+    alternativesConsidered: |
+      repo-entrypoint kind (= CLAUDE.md と同じ) も候補だが、人間 user-facing と AI orchestration は
+      reader が異なるため canonical-doc が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: CHANGELOG.md
+    proposedKind: canonical-doc
+    temporalScope: mixed
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      app (粗利管理ツール) version 履歴 (= appVersion canonical source)。aag/CHANGELOG.md (= aagVersion)
+      とは scope 異なる、3-tree boundary 整合の役割分担 articulate。governance-articulated mixed temporal
+      (= changelog role 要求)。
+    alternativesConsidered: |
+      なし (= aag/CHANGELOG と同じ kind 適用)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - aag/CHANGELOG.md
+    failurePatterns: []
+
+  - path: CONTRIBUTING.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      contribution guide (= repo root)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: CURRENT_PROJECT.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      active project pointer 限定 (= R0 で articulate refine、'詳細進捗 / 判断 / state を本 file に
+      inline 記載しない' 不可侵原則 articulate、二重管理防止)。R6 で projectsStructureGuard sub-invariant
+      (b) で inline state 検出 → Hard fail で防御予定。CLAUDE.md からも参照される governance pointer。
+    alternativesConsidered: |
+      project-pointer 新 kind も候補だが、canonical-doc で governance pointer role articulate 可能。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: .claude/plans/next-session-plan.md
+    proposedKind: canonical-doc
+    temporalScope: past
+    disposition: archive
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      **filename と content の mismatch 検出**: filename が 'next-session-plan.md' だが content は
+      '実施結果 (2026-04-09 全セッション)' の **完了報告** (= 過去 session の post-mortem)。'next' でない、
+      stale planning artifact。.claude/plans/ は AI scratchpad context、本 file は 2026-04-09 dated で
+      session 完遂時に repurpose されたが filename 未更新 = naming mismatch + stale content。
+    alternativesConsidered: |
+      rewrite-and-contract (= filename を 'session-2026-04-09-report.md' 等に rename) も候補だが、
+      AI scratchpad の歴史 archive として preserve するのが適切。delete-candidate も候補だが、
+      session 履歴は valuable record。
+    hasCurrentContract: false
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: .github/PULL_REQUEST_TEMPLATE.md
+    proposedKind: template-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      GitHub PR template (= 変更種別 + 影響レイヤー + チェックリスト articulate、PR 作成時 fill 対象)。
+      Batch 15 で articulate した template-doc kind と同 family (= 'unfilled、placeholder 含む、fill
+      時 customize される canonical source')、ただし target が GitHub PR (= 主アプリ改修 user 提出)。
+    alternativesConsidered: |
+      project-template と区別する pr-template 新 kind も候補だが、template-doc family の variant として
+      統合が適切。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates:
+      - projects/_template/AI_CONTEXT.md
+    failurePatterns: []
+
+  - path: projects/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    reviewedAtSha: fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989
+    rationaleSummary: |
+      projects/ tree articulate (= 3 tree boundary 第三階層、作業単位 lens)。active subdirectory +
+      completed subdirectory に分離 (= aag-self-hosting-completion R6b で institute、2026-05-03 完了)。
+      '本 tree に置かないもの' を articulate (= 業務 domain knowledge / AAG framework 内部 / 機械観測 dynamic state)。
+    alternativesConsidered: |
+      なし。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []

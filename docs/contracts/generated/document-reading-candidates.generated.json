@@ -3,329 +3,6 @@
     {
       "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
       "isHotZone": false,
-      "path": ".claude/plans/next-session-plan.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "unmanaged",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": ".github/PULL_REQUEST_TEMPLATE.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "unmanaged",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_framework/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "aag-framework",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/architecture.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/display-rule-registry.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/evolution.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/layer-map.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/meta.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/operational-classification.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/source-of-truth.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/_internal/strategy.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "aag-framework-internal",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/CHANGELOG.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "aag-framework",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/core/AAG_CORE_INDEX.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "aag-framework",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/core/principles/core-boundary-policy.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "aag-framework",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "aag/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "aag-framework",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "CHANGELOG.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "rewrite-and-contract",
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "repository-entrypoints",
-      "universeKind": "repo-entrypoint"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "CONTRIBUTING.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "unmanaged",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "CURRENT_PROJECT.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "repository-entrypoints",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "projects/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tree-readers",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "rewrite-and-contract",
-        "keep-and-contract"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "repository-entrypoints",
-      "universeKind": "repo-entrypoint"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
       "path": "references/01-foundation/app-lifecycle-principles.md",
       "priority": "MEDIUM",
       "recommendedDispositionCandidates": [
@@ -2369,35 +2046,31 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-09T21:26:59.881Z",
+    "generatedAt": "2026-05-10T03:06:49.524Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "ff958dce5475301675841f3a1b7c2b47b789cfdf"
+    "sourceSha": "fe59e49eb02fd6b21c2a1b61a400ea8a7c6fc989"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 241,
+    "alreadyReviewedCount": 262,
     "byKind": {
-      "canonical-doc": 141,
-      "repo-entrypoint": 2,
-      "unknown": 14
+      "canonical-doc": 132,
+      "unknown": 4
     },
     "byPriority": {
-      "MEDIUM": 157
+      "MEDIUM": 136
     },
     "bySection": {
-      "aag-framework": 5,
-      "aag-framework-internal": 9,
       "design-system": 14,
       "foundation": 42,
       "implementation": 76,
-      "repository-entrypoints": 3,
       "tools": 1,
-      "tree-readers": 2,
-      "unmanaged": 5
+      "tree-readers": 1,
+      "unmanaged": 2
     },
-    "totalCandidates": 157
+    "totalCandidates": 136
   }
 }

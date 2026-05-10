@@ -1288,6 +1288,69 @@ references/05-aag-interface/ は AAG が主アプリ改修 user に提供する 
 
 → 多数の active project / template doc が本 interface を pointer 経由で参照する hub role。
 
+## Wave 2 / Phase 2.5 sub-PR 22: Reading Pass Batch 18 (= aag/ + root level 一括、reviewedAtCommit fe59e49)
+
+> **目的**: MEDIUM Reading Pass 継続。aag/ 14 + root 6 + projects/README 1 = 21 docs。
+> 新発見 2 件: aag/_internal/README.md staleness (= protocols/README と同 pattern、relocation 完了済)
+> + .claude/plans/next-session-plan.md filename と content の mismatch (= 'next-plan' but '完了報告')。
+> disposition spectrum 拡大 (= keep-and-contract 19 + rewrite-and-contract 1 + archive 1)。
+
+### Phase 2.5 sub-PR 22 (Reading Pass Batch 18、21 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 22 着手 (= user 「1」承認、= aag/ + root level 一括)
+- [x] 21 docs を read + articulate:
+  - aag/ 14 (= aag/README + CHANGELOG + _framework/README + _internal/ 8 + core/ 2)
+  - root 6 (= README + CHANGELOG + CONTRIBUTING + CURRENT_PROJECT + .claude/plans/next-session-plan + .github/PULL_REQUEST_TEMPLATE)
+  - projects/README.md 1
+- [x] 21 entry を document-reading-decisions.yaml に append (= entries: 241 → 262、stage: in-progress)
+- [x] 19 entry disposition: keep-and-contract articulate
+- [x] **2 件 staleness / mismatch 検出**:
+  - aag/_internal/README.md: relocation 完了済なのに '未着手' articulate → rewrite-and-contract (= protocols/README と同 staleness pattern)
+  - .claude/plans/next-session-plan.md: filename 'next-plan' だが content '実施結果 (2026-04-09 全セッション) 完了報告' → archive
+- [x] disposition 累計: keep-and-contract 231 / archive 3 / move 12 / split 3 / rewrite-and-contract 3 / delete-candidate 9 / generated-register 1 = 7 種
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= 157 → 136 MEDIUM、alreadyReviewedCount 241 → 262)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 262 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 22 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 18 21 entry append 済 (= 累計 262 entries、stage: in-progress)
+- [x] aag/ family 完遂 (= 14 件、framework 内部 articulate 全件)
+- [x] root level files 完遂 (= 6 件、CLAUDE.md は Batch 1 で articulate 済のため対象外)
+- [x] projects/README.md 完遂
+- [x] **staleness pattern 2 例目観測** (= protocols/README + aag/_internal/README、taxonomy 未登録 pattern 候補)
+- [x] **filename-content mismatch pattern 初観測** (= .claude/plans/next-session-plan.md、taxonomy 未登録)
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 22 で articulate された pattern
+
+**1. staleness pattern 累計 2 件観測** (= taxonomy 未登録の重要 pattern candidate):
+
+| Path | Staleness 内容 |
+|---|---|
+| references/05-aag-interface/protocols/README.md (Batch 17) | 'skeleton + R5 で fill 予定' articulate しているが M1-M5 fill 完了済 |
+| aag/_internal/README.md (本 batch) | 'relocation 未着手' articulate しているが既に top-level に relocate 済 |
+
+→ DOC-FAIL-STALE-DESCRIPTION 等の追加 pattern を Wave 3 で review window 経由で articulate 候補。
+2 件で **CLAUDE.md G8 の '同種 failure 2 回観測 → guard 候補昇格' 閾値** 到達。
+
+**2. filename-content mismatch pattern 初観測** (= taxonomy 未登録):
+
+`.claude/plans/next-session-plan.md` は filename が 'next-session-plan' だが content は完了報告。
+これは別の新 pattern candidate (= file 命名と内容の semantic mismatch)。1 観測のため Wave 3 で
+さらに同類観測されるか追跡。
+
+**3. template-doc family の articulate 拡張**:
+
+Batch 15 で articulate した template-doc kind を本 batch で再使用:
+- projects/_template/* (Batch 15) = project bootstrap templates
+- .github/PULL_REQUEST_TEMPLATE.md (本 batch) = GitHub PR template
+
+→ template-doc kind は 'unfilled、placeholder 含む、fill 時 customize される canonical source' の
+共通 abstraction を articulate 可能。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
