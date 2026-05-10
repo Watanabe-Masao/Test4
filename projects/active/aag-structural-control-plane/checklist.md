@@ -1290,7 +1290,7 @@ references/05-aag-interface/ は AAG が主アプリ改修 user に提供する 
 
 ## Wave 2 / Phase 2.5 sub-PR 22: Reading Pass Batch 18 (= aag/ + root level 一括、reviewedAtCommit fe59e49)
 
-> **目的**: MEDIUM Reading Pass 継続。aag/ 14 + root 6 + projects/README.md 1 = 21 docs。
+> **目的**: MEDIUM Reading Pass 継続。aag/ 14 + root 6 + projects-tree README 1 = 21 docs。
 > 新発見 2 件: aag/_internal/README.md staleness (= protocols/README と同 pattern、relocation 完了済)
 > + .claude/plans/next-session-plan.md filename と content の mismatch (= 'next-plan' but '完了報告')。
 > disposition spectrum 拡大 (= keep-and-contract 19 + rewrite-and-contract 1 + archive 1)。
@@ -1301,7 +1301,7 @@ references/05-aag-interface/ は AAG が主アプリ改修 user に提供する 
 - [x] 21 docs を read + articulate:
   - aag/ 14 (= aag/README + CHANGELOG + _framework/README + _internal/ 8 + core/ 2)
   - root 6 (= README + CHANGELOG + CONTRIBUTING + CURRENT_PROJECT + .claude/plans/next-session-plan + .github/PULL_REQUEST_TEMPLATE)
-  - projects/README.md 1
+  - projects-tree README 1
 - [x] 21 entry を document-reading-decisions.yaml に append (= entries: 241 → 262、stage: in-progress)
 - [x] 19 entry disposition: keep-and-contract articulate
 - [x] **2 件 staleness / mismatch 検出**:
@@ -1319,7 +1319,7 @@ references/05-aag-interface/ は AAG が主アプリ改修 user に提供する 
 - [x] reading-decisions.yaml に Batch 18 21 entry append 済 (= 累計 262 entries、stage: in-progress)
 - [x] aag/ family 完遂 (= 14 件、framework 内部 articulate 全件)
 - [x] root level files 完遂 (= 6 件、CLAUDE.md は Batch 1 で articulate 済のため対象外)
-- [x] projects/README.md 完遂
+- [x] projects-tree README 完遂
 - [x] **staleness pattern 2 例目観測** (= protocols/README + aag/_internal/README、taxonomy 未登録 pattern 候補)
 - [x] **filename-content mismatch pattern 初観測** (= .claude/plans/next-session-plan.md、taxonomy 未登録)
 - [x] 即 Gate 化禁止維持
