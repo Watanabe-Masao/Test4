@@ -1290,7 +1290,7 @@ references/05-aag-interface/ は AAG が主アプリ改修 user に提供する 
 
 ## Wave 2 / Phase 2.5 sub-PR 22: Reading Pass Batch 18 (= aag/ + root level 一括、reviewedAtCommit fe59e49)
 
-> **目的**: MEDIUM Reading Pass 継続。aag/ 14 + root 6 + projects/README 1 = 21 docs。
+> **目的**: MEDIUM Reading Pass 継続。aag/ 14 + root 6 + projects/README.md 1 = 21 docs。
 > 新発見 2 件: aag/_internal/README.md staleness (= protocols/README と同 pattern、relocation 完了済)
 > + .claude/plans/next-session-plan.md filename と content の mismatch (= 'next-plan' but '完了報告')。
 > disposition spectrum 拡大 (= keep-and-contract 19 + rewrite-and-contract 1 + archive 1)。
