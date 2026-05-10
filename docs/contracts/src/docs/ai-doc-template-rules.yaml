@@ -1,0 +1,499 @@
+# AI Doc Template Rules authoring source (Wave 3 / Phase 6 sub-PR 1 = stage: pre-articulate)
+#
+# 役割: AI Instruction Pack の 20 Document Kind 別 post-write validation guidance を articulate。
+# 各 rule entry は 1 kind (= Wave 2 Reading Pass で articulate された proposedKind) に対する
+# AI 向け補助 (= purpose + readers + requiredSections + forbiddenContent + temporalScope +
+# referencePolicy + examples + relatedFailurePatterns)。
+#
+# 機械正本: docs/contracts/generated/ai-doc-instructions.generated.json
+# (Wave 3 / Phase 6 sub-PR 2 で generator landing 後に生成)。
+#
+# 不可侵 (ADR-SCP-021 + AAG-SCP-GUIDANCE-003 + 不可侵原則 6 + 11 整合):
+# - post-write validation 限定 (= AI 出力を pre-write で機械的に拘束しない)
+# - guidance であって命令書ではない (= AI session の自由度確保)
+# - requiredSections / forbiddenContent は機械検証可能な構造的観点のみ
+# - 「設計の良し悪し」「表現品質」「比喩の適切さ」は scope 外 (= AI / human review の責務)
+# - relatedFailurePatterns で document-failure-taxonomy.yaml と bidirectional 整合
+#
+# 出典: Wave 2 Reading Pass で articulate された 20 proposedKind を pre-articulate landing。
+#
+# schema: docs/contracts/schema/ai-doc-template-rules.schema.json (本 sub-PR で landing)
+
+schemaVersion: ai-doc-template-rules-v1
+stage: pre-articulate
+
+rules:
+  # ============================================================================
+  # 主要 layer kinds (= references/ + root の正本)
+  # ============================================================================
+
+  - kind: repo-entrypoint
+    purpose: |
+      repo orchestration の最上位案内板。AI session が repo 全体に reach する starting point。
+      鉄則索引 + manifest pointer + 設計原則要約 + roles 連携 articulate を提供。
+    readers:
+      - AI session (= 全 task の起点)
+      - human user (= 補助的)
+    requiredSections:
+      - プロジェクト概要
+      - 設計原則 (= サマリ + drill-down link)
+      - コーディング規約
+      - 直近の主要変更 (= pointer to recent-changes.generated.md)
+    forbiddenContent:
+      - live task list (= projects/<id>/checklist.md に分離、project-checklist-governance 整合)
+      - 静的数値 (= 件数 / 残数 / バージョン履歴 等は generated section に寄せる)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - CLAUDE.md
+    relatedFailurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-GENERATED-AS-MANUAL
+    additionalGuidance: |
+      CLAUDE.md は唯一の repo-entrypoint。新規 entrypoint doc 追加は Wave 3 以降の review window 経由
+      で判断。drill-down は references/ family + roles/ family 経由で AI が必要な深さに reach 可能。
+
+  - kind: canonical-doc
+    purpose: |
+      domain knowledge / governance contract / architecture / business definition の正本。
+      他 doc から canonical reference される source-of-truth role。
+    readers:
+      - 主アプリ改修 AI / user
+      - AAG framework 改修者 (= aag/ 配下の場合)
+    requiredSections: []
+    forbiddenContent:
+      - live task list (= projects/<id>/checklist.md に分離)
+      - 完了済 work を未完了として articulate (= staleness 防止、Wave 2 で 3 例観測)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - references/01-foundation/gross-profit-definition.md
+      - references/03-implementation/coding-conventions.md
+      - aag/_internal/strategy.md
+      - references/04-tracking/elements/calculations/CALC-001.md
+    relatedFailurePatterns:
+      - DOC-FAIL-LOCATION-MISMATCH
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-TEMPORAL-MIXING
+      - DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL
+      - DOC-FAIL-UNEXPLAINED-CANONICAL
+    additionalGuidance: |
+      Wave 2 Reading Pass で 312 entries 観測 (= 78% of total)。最頻 kind。content drift (=
+      staleness) を避けるため、外部 program completion / Phase 完遂後は速やかに rewrite。
+
+  - kind: archive-doc
+    purpose: |
+      retired / past content の保管役。現在は valid でないが歴史的価値のため preserve される doc。
+    readers:
+      - human user (= 履歴調査時)
+      - AI session (= 過去判断 reference)
+    requiredSections: []
+    forbiddenContent:
+      - live task list
+      - present canonical claim (= 'これは現在の正本' 型表現は禁止)
+    temporalScope: past
+    referencePolicy: canonical-source
+    examples:
+      - references/04-tracking/aag-doc-audit-report.md
+      - references/04-tracking/authoritative-term-sweep.md
+    relatedFailurePatterns:
+      - DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL
+    additionalGuidance: |
+      archive-doc は references/99-archive/ 配下が canonical location。それ以外の location に置く
+      場合は disposition: archive で move 提案を articulate。
+
+  - kind: status-snapshot
+    purpose: |
+      ある時点での state / readiness / promotion-readiness を articulate する snapshot。
+      観測前 + 観測後 entry/exit criteria を併記する場合は mixed temporal。
+    readers:
+      - AI session (= state 確認時)
+      - user (= promotion approval 等の判断材料)
+    requiredSections: []
+    forbiddenContent:
+      - 'live task list (= status と task は別 kind)'
+    temporalScope: mixed
+    referencePolicy: canonical-source
+    examples:
+      - references/04-tracking/promotion-readiness-correlation.md
+      - references/04-tracking/engine-maturity-matrix.md
+    relatedFailurePatterns:
+      - DOC-FAIL-LOCATION-MISMATCH
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+    additionalGuidance: |
+      promotion-readiness-* family のように observed + expected criteria を併記する場合、
+      observed (= present/past) と criteria (= future) の articulate mixed temporal。
+      project-bound snapshot は projects/active/<id>/ 配下が canonical location。
+
+  - kind: log-journal
+    purpose: |
+      timeline 形式の event / decision / observation log。append-only で articulate される。
+    readers:
+      - AI session (= history navigation)
+      - user (= 判断 history review)
+    requiredSections:
+      - timeline section (= chronological articulate)
+    forbiddenContent:
+      - 'past entry の retroactive 改変 (= append-only 原則)'
+    temporalScope: past
+    referencePolicy: canonical-source
+    examples:
+      - references/04-tracking/recent-changes.generated.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      machine-generated log (= recent-changes.generated.md) と human-articulated journal は同じ kind
+      だが、generated section は手編集禁止。
+
+  - kind: generated-report
+    purpose: |
+      機械生成された current value report (= health metrics / project status / coverage / 等)。
+      手編集禁止、generator が re-emit する。
+    readers:
+      - AI session (= current value 参照)
+      - user (= 健全性確認)
+    requiredSections:
+      - generated metadata (= generator name + sha + timestamp)
+    forbiddenContent:
+      - 手編集 (= machine-generated only)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - references/04-tracking/generated/architecture-health.generated.md
+      - references/04-tracking/generated/document-failure-taxonomy.generated.md
+    relatedFailurePatterns:
+      - DOC-FAIL-GENERATED-AS-MANUAL
+    additionalGuidance: |
+      filename suffix '.generated.md' で機械検証 (= generatedFileEditGuard)。手編集は CI fail。
+      対応 generator は authoring source から re-emit する責務。
+
+  # ============================================================================
+  # project-bound kinds (= projects/active/<id>/ 配下)
+  # ============================================================================
+
+  - kind: project-plan
+    purpose: |
+      project の不可侵原則 + Phase 構造 + 判断基準を articulate。project の governance contract source。
+      AI_CONTEXT.md (= 入口) / HANDOFF.md (= 起点) / plan.md (= 原則) / phase-N/README.md (= phase entry)
+      が同 kind。
+    readers:
+      - 後任 AI session
+      - project 担当者
+    requiredSections:
+      - 役割 articulate (= 何のための文書か)
+    forbiddenContent:
+      - live task list (= checklist.md に分離)
+      - 完了済 work を未完了として articulate (= staleness 防止)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/quick-fixes/AI_CONTEXT.md
+      - projects/active/pure-calculation-reorg/plan.md
+      - projects/active/aag-structural-control-plane/HANDOFF.md
+    relatedFailurePatterns:
+      - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
+      - DOC-FAIL-TEMPORAL-MIXING
+    additionalGuidance: |
+      HANDOFF.md は handoff role (= past + future の併記) のため governance-articulated mixed temporal。
+      'staleness' (= past を present として articulate) は避ける。Phase 完了後は速やかに反映。
+
+  - kind: project-checklist
+    purpose: |
+      live task list 正本 (= project-checklist-governance contract)。required checkbox 集合。
+      collection mode は完了 [x] と open [ ] が併存 (= governance-articulated)。
+    readers:
+      - AI session (= task 着手判断)
+      - user (= progress 確認)
+    requiredSections:
+      - AI 自己レビュー (= user 承認の手前)
+      - 最終レビュー (user 承認)
+    forbiddenContent:
+      - judgment rationale (= plan.md に分離)
+      - 不可侵原則 (= plan.md に分離)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/quick-fixes/checklist.md
+      - projects/active/aag-structural-control-plane/checklist.md
+    relatedFailurePatterns:
+      - DOC-FAIL-TEMPORAL-MIXING
+    additionalGuidance: |
+      checklist.md format guard が機械検証。AI 自己レビュー section + 最終レビュー section が
+      必須構造。collection kind の checklist は [x] 蓄積 OK (= governance-articulated feature)。
+
+  - kind: project-discovery-log
+    purpose: |
+      project scope 外で発見した事項 / 改善 candidate / 詳細調査要事項を articulate (= DA-β-003 institute、
+      AAG 5 系統目: 発見蓄積)。projectizationPolicyGuard PZ-14 で機械検証 (= file 存在 + schema 軽量 check)。
+    readers:
+      - 後任 AI session (= scope 外 finding 引き継ぎ)
+      - user (= post-archive 別 program 起動判断)
+    requiredSections:
+      - priority 表 (= P1 / P2 / P3)
+    forbiddenContent:
+      - scope 内 task (= checklist.md に articulate)
+      - judgment 履歴 (= decision-audit.md に articulate)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/presentation-quality-hardening/discovery-log.md
+      - projects/active/reposteward-ai-ops-platform/discovery-log.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      discovery-log と decision-audit の役割分担を明確化:
+      - discovery-log = scope 外発見 (= 未処理 inventory)
+      - decision-audit = scope 内意思決定 (= lineage articulation)
+
+  - kind: project-projectization
+    purpose: |
+      AAG-COA 判定結果 articulate (= projectizationLevel + changeType + implementationScope +
+      breakingChange + requiresLegacyRetirement + requiresGuard + requiresHumanApproval)。
+      projectization-policy.md governance contract に基づく。
+    readers:
+      - AI session (= bootstrap 時の judgment 確認)
+      - user (= 重 project の approval gate)
+    requiredSections:
+      - 判定結果 表 (= projectizationLevel 等の決定値)
+      - 判定理由
+    forbiddenContent:
+      - live task list
+      - inline state articulation (= state は HANDOFF / decision-audit に分離)
+    temporalScope: mixed
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/pure-calculation-reorg/projectization.md
+      - projects/active/taxonomy-v2/projectization.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      projectization.flag (= breakingChange / requiresLegacyRetirement) が true の場合、対応する
+      mandatory artifact (= breaking-changes.md / legacy-retirement.md) が要求される (= bidirectional
+      governance contract、Wave 3 で機械検証 candidate)。
+
+  - kind: project-decision-audit
+    purpose: |
+      L3 重判断 institute (= drawer Pattern 1 application、複数 Phase に跨る判断の lineage articulation)。
+      各 entry が 5 軸 (= status / context / decision / rationale / alternatives) + 観測点 + Lineage
+      (judgementCommit + preJudgementCommit + retrospectiveCommit) + 振り返り判定。
+    readers:
+      - 後任 AI session (= 過去判断 reference)
+      - user (= 重判断 historical review)
+    requiredSections:
+      - DA entry (= per-decision section)
+    forbiddenContent:
+      - live task list
+      - scope 外 finding (= discovery-log.md に articulate)
+    temporalScope: mixed
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/reposteward-ai-ops-platform/decision-audit.md
+      - projects/active/aag-structural-control-plane/decision-audit.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      complexity-policy.md §3.4 + drawer Pattern 1 が governance contract source。Archive v2 で
+      archive.manifest.json の decisionEntries に圧縮される。
+
+  - kind: project-breaking-changes
+    purpose: |
+      AAG-COA mandatory artifact (= projectization.breakingChange: true 宣言時の必須 doc)。
+      対象破壊的変更 + Phase + 撤退条件を articulate。
+    readers:
+      - AI session (= 影響 scope 把握)
+      - user (= breaking change approval)
+    requiredSections:
+      - 対象破壊的変更 表 (= ID + 対象 + 破壊内容 + Phase)
+    forbiddenContent:
+      - non-breaking change (= 別 kind)
+    temporalScope: present
+    referencePolicy: summary-pointer
+    examples:
+      - projects/active/pure-calculation-reorg/breaking-changes.md
+      - projects/active/taxonomy-v2/breaking-changes.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      正本 = plan.md。本 doc は AAG-COA 入口の summary。projectization.breakingChange: true との
+      bidirectional governance contract (= Wave 3 で機械検証 candidate)。
+
+  - kind: project-legacy-retirement
+    purpose: |
+      AAG-COA mandatory artifact (= projectization.requiresLegacyRetirement: true 宣言時の必須 doc)。
+      撤退対象 + 撤退内容 + Phase + sunsetCondition を articulate。
+    readers:
+      - AI session (= 撤退 scope 把握)
+      - user (= retirement approval)
+    requiredSections:
+      - 撤退対象 表 (= 対象 + 撤退内容 + Phase + sunsetCondition)
+    forbiddenContent:
+      - non-retirement change
+    temporalScope: present
+    referencePolicy: summary-pointer
+    examples:
+      - projects/active/pure-calculation-reorg/legacy-retirement.md
+      - projects/active/taxonomy-v2/legacy-retirement.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      正本 = plan.md。本 doc は AAG-COA 入口の summary。projectization.requiresLegacyRetirement: true
+      との bidirectional governance contract。
+
+  - kind: project-promotion-proposal
+    purpose: |
+      Promote Ceremony 提案書 (= AI scaffold draft + user 承認 form の二段 workflow)。
+      候補情報 + 推奨順序 + 観測 entry/exit criteria + 承認 form を articulate。
+    readers:
+      - user (= 昇格 approval)
+      - AI session (= proposal status 確認)
+    requiredSections:
+      - 候補情報
+      - 承認 form (= 承認待ち user 含む)
+    forbiddenContent:
+      - AI self-approval (= user signature only、不可侵原則)
+    temporalScope: mixed
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/pure-calculation-reorg/phase-8/proposals/ANA-003-sensitivity.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      AI は提案者にとどまる (= user signature 承認 form を user が fill)。最終 promote 判断 = user 承認のみ。
+      Promote Ceremony 整合の governance workflow。
+
+  - kind: project-sub-project-map
+    purpose: |
+      umbrella project (Level 4) 固有の governance artifact (= sub-project 一覧 + 依存関係 articulate)。
+      umbrella から spawn した sub-project の status / changeType / scope を articulate。
+    readers:
+      - AI session (= umbrella scope 把握)
+      - user (= umbrella governance)
+    requiredSections:
+      - sub-project 一覧 表
+      - 依存関係 articulate
+    forbiddenContent:
+      - non-umbrella project (= Level 2/3 では不要)
+    temporalScope: present
+    referencePolicy: summary-pointer
+    examples:
+      - projects/active/taxonomy-v2/sub-project-map.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      正本 = plan.md §Interlock 仕様。本 doc は AAG-COA 入口の summary。projectizationLevel: Level 4
+      (Umbrella) でのみ articulate。
+
+  - kind: project-inquiry
+    purpose: |
+      Phase 0 投資調査記録 (= PRE-decision investigation、ADR への feeding source)。
+      decision-audit (= POST-decision lineage) と区別、inquiry → decision-audit feeding 関係 articulate。
+    readers:
+      - 後任 AI session (= 過去調査 reference)
+      - user (= 採用後の判断材料)
+    requiredSections: []
+    forbiddenContent:
+      - POST-decision lineage (= decision-audit.md に articulate)
+    temporalScope: mixed
+    referencePolicy: canonical-source
+    examples:
+      - projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
+      - projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      inquiry/<NN>-<topic>.md format。numbered 順に landing。採用済 status を doc 冒頭に articulate
+      (= governance-articulated past + 採用後 reference 役)。
+
+  # ============================================================================
+  # roles family (= roles/<tier>/<role>/ 配下)
+  # ============================================================================
+
+  - kind: role-identity
+    purpose: |
+      role の Identity layer (= 前提・価値基準・判断基準)。CLAUDE.md 4 層 governance model の
+      Identity layer に対応。
+    readers:
+      - AI session (= role consult 時)
+      - human reviewer (= role boundary 確認)
+    requiredSections:
+      - Identity (= role 名 + 守護対象)
+      - 前提（所与の事実）
+      - 価値基準（最適化する対象）
+      - 判断基準（選択の基準）
+    forbiddenContent:
+      - 実行手順 (= SKILL.md に articulate)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - roles/line/architecture/ROLE.md
+      - roles/staff/documentation-steward/ROLE.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      ROLE.md と SKILL.md は pair で role-bound governance contract を構成。pair の片方だけでは不完全。
+
+  - kind: role-skill
+    purpose: |
+      role の Execution layer (= 論理構造 + 方法論)。SKILL-N 構造 (= 因果関係 + 手順 + 出力テンプレート)。
+      CLAUDE.md 4 層 governance model の Execution layer に対応。
+    readers:
+      - AI session (= role 実行時)
+    requiredSections:
+      - SKILL-N (= per-skill section)
+      - 論理構造（なぜこの手順か）
+      - 方法論（手順）
+    forbiddenContent:
+      - role identity (= ROLE.md に articulate)
+      - claude-skill activation protocol (= 別 kind = claude-skill)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - roles/line/architecture/SKILL.md
+      - roles/staff/documentation-steward/SKILL.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      filename だけでは role-skill か claude-skill か判定不可 (= governance contract で区別)。
+      role-skill = roles/<tier>/<role>/SKILL.md の固定 location。
+
+  # ============================================================================
+  # template family (= placeholder 含む unfilled templates)
+  # ============================================================================
+
+  - kind: template-doc
+    purpose: |
+      bootstrap 時 copy + customize 対象 = canonical source。filled-in active doc とは role が異なる
+      (= 前者は bootstrap reference / 後者は project-specific filled artifact)。
+    readers:
+      - AI session (= bootstrap 時)
+      - user (= template review)
+    requiredSections: []
+    forbiddenContent:
+      - filled-in project-specific content (= active project 配下に置く)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - projects/_template/AI_CONTEXT.md
+      - .github/PULL_REQUEST_TEMPLATE.md
+      - references/03-implementation/promote-ceremony-template.md
+    relatedFailurePatterns:
+      - DOC-FAIL-DUPLICATE-RESPONSIBILITY
+    additionalGuidance: |
+      identical copy を別 location に置くと DOC-FAIL-DUPLICATE-RESPONSIBILITY (= Wave 2 Batch 11 で
+      taxonomy-v2 で 8 件観測)。canonical = projects/_template/、project-specific customize 必要時のみ
+      copy + 編集。
+
+  # ============================================================================
+  # claude-skill (= Claude Code skill 定義、user-invocable)
+  # ============================================================================
+
+  - kind: claude-skill
+    purpose: |
+      Claude Code skill 定義 (= /<skill-name> で invoke される user-facing skill)。frontmatter +
+      user-invocable + skill activation protocol を持つ。role-skill と区別 (= 後者は role の internal
+      methodology、前者は user-invocable behavior pattern)。
+    readers:
+      - AI session (= skill activation 時)
+      - user (= skill invocation)
+    requiredSections:
+      - frontmatter (= name + version + description + user-invocable)
+    forbiddenContent:
+      - role-internal methodology (= role-skill に articulate)
+    temporalScope: present
+    referencePolicy: canonical-source
+    examples:
+      - references/02-design-system/SKILL.md
+    relatedFailurePatterns: []
+    additionalGuidance: |
+      frontmatter 必須 (= name + version + description + user-invocable)。SKILL.md という同名 file が
+      role-skill (= roles/) と claude-skill (= 他 location) で role 異なる (= governance contract で区別)。
