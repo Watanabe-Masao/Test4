@@ -1,0 +1,47 @@
+{
+  "$comment": "AAG Coverage Rule Expansion (= Sub-1 of aag-governance-ratchet-down umbrella)。aag-scp で landed した artifact-coverage.yaml (= 17 rules、3704 tracked、86.2% unmanaged baseline) を拡張して unmanaged を ratchet-down する program。L2 governance-hardening。",
+  "projectId": "aag-coverage-rule-expansion",
+  "title": "AAG Coverage Rule Expansion — artifact-coverage rules 拡張で unmanaged 86.2% を ratchet-down",
+  "status": "active",
+  "projectRoot": "projects/active/aag-coverage-rule-expansion",
+  "versionImpact": {
+    "$comment": "本 program は coverage rule の articulate 拡張 (= authoring source の content 追加) のみ。app/ 配下 touch なし、aag framework は既存 coverage advisory checker の rule 拡張のみ。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "app/ 配下を一切触らない。docs/contracts/src/governance/artifact-coverage.yaml と generated artifact のみ touch。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.1",
+      "delta": "+0.0",
+      "rationale": "既存 coverage rule の content 拡張 (= authoring source 追加)。新 schema / 新 generator / 新 hard gate なし、既存 advisory mechanism の articulate 拡張のみで bump 不要。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定。本 sub-program は umbrella aag-governance-ratchet-down 配下、coverage rule 拡張のみ scope。L2 で十分 (= Level 4 Umbrella の sub-program は L2 が標準)。",
+    "level": 2,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "docs/contracts/src/governance/artifact-coverage.yaml",
+      "docs/contracts/generated/artifact-coverage.generated.json",
+      "references/04-tracking/generated/artifact-coverage.generated.md"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "新 coverage category 追加 (= 6 category articulate 維持)",
+      "新 schema 追加 (= 既存 artifact-coverage.schema.json 不変)",
+      "新 generator 追加 (= 既存 build-artifact-coverage.mjs 不変)",
+      "advisory → hard gate 昇格 (= Sub-2 scope、本 sub では advisory only)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-coverage-rule-expansion/HANDOFF.md",
+    "plan": "projects/active/aag-coverage-rule-expansion/plan.md",
+    "checklist": "projects/active/aag-coverage-rule-expansion/checklist.md",
+    "projectization": "projects/active/aag-coverage-rule-expansion/projectization.md"
+  }
+}

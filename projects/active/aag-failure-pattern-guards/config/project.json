@@ -1,0 +1,49 @@
+{
+  "$comment": "AAG Failure Pattern Guards (= Sub-2 of aag-governance-ratchet-down umbrella、最 leverage 高 sub-program)。aag-scp で auto-promote された 6 guard candidates (= DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE 16 + DOC-FAIL-LOCATION-MISMATCH 13 + DOC-FAIL-DUPLICATE-RESPONSIBILITY 8 + DOC-FAIL-TEMPORAL-MIXING 6 + DOC-FAIL-GENERATED-AS-MANUAL 5 + DOC-FAIL-STALE-DESCRIPTION 5) を実 guard test に articulate して ratchet-down 完成 (= CLAUDE.md G8 機械化実装最終段階)。L3 governance-hardening。",
+  "projectId": "aag-failure-pattern-guards",
+  "title": "AAG Failure Pattern Guards — 6 guard candidates の実 guard test articulate で ratchet-down 完成",
+  "status": "active",
+  "projectRoot": "projects/active/aag-failure-pattern-guards",
+  "versionImpact": {
+    "$comment": "本 program は app/src/test/guards/ への新 guard test 追加 + Failure Loop maturity progression が含まれる。app/ 配下の test infra に新 guard test landing は AAG framework scope (= app version 不変)、aag framework に新 guard 6 件追加は minor 増分。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "app/src/ 配下の business logic は touch しない。app/src/test/guards/ への新 guard test 追加は AAG framework scope。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.1",
+      "delta": "+0.1",
+      "rationale": "AAG framework に新 6 guard test 追加 (= DOC-FAIL-* pattern の機械検証実装)。既存 Failure Loop infrastructure に hard gate を additive 追加、minor 増分。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定。本 sub-program は umbrella の最 leverage 高 sub。Failure Loop ratchet-down 完成 = CLAUDE.md G8 機械化実装最終段階のため L3 (= 重要 governance-hardening)。各 guard 昇格は user 判断 gate (= AAG-SCP-DOC-LEARNING-002 整合)。",
+    "level": 3,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "app/src/test/guards",
+      "app/src/test/architectureRules",
+      "app-domain/gross-profit/rule-catalog/base-rules.ts",
+      "docs/contracts/src/docs/document-failure-taxonomy.yaml",
+      "docs/contracts/generated/document-failure-taxonomy.generated.json"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "新 failure pattern 追加 (= aag-scp で 11 patterns articulate 完了済、本 sub は既存 6 candidates の guard 化のみ)",
+      "advisory checker の改変 (= post-write checker / coverage checker は不変、新 guard は独立 articulate)",
+      "AI 単独で 6 guard を一括 hard gate 化 (= 5 段階 maturity progression を経て段階昇格、user 判断 gate 経由)",
+      "5 件未満の observed pattern の guard 化 (= guard candidate threshold ≥5 維持、unobserved 3 件は scope 外)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-failure-pattern-guards/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-failure-pattern-guards/HANDOFF.md",
+    "plan": "projects/active/aag-failure-pattern-guards/plan.md",
+    "checklist": "projects/active/aag-failure-pattern-guards/checklist.md",
+    "projectization": "projects/active/aag-failure-pattern-guards/projectization.md"
+  }
+}
