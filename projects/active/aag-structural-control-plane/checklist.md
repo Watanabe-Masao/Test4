@@ -2050,6 +2050,74 @@ Wave 3 / Phase 6 + 7 + 9 の全 sub-PR landed:
 articulate 量 (= Wave 2 → Wave 3 transition での staleness 発見 + delete cleanup + cross-reference
 articulate が追加 sub-PR を生んだ)。
 
+## Wave 3 / sub-PR 8: HANDOFF.md sync + DOC-FAIL-STALE-DESCRIPTION 5 件目 + 6 件目観測 (reviewedAtCommit 0b2128b)
+
+> **目的**: User external review で発見された HANDOFF.md staleness を fix。本 HANDOFF.md 自身が
+> Phase 0 bootstrap 直後の content を維持していた (= Wave 1 + 2 + 3 完遂後も articulate 未更新)。
+> DOC-FAIL-STALE-DESCRIPTION pattern の 5 件目 (= HANDOFF self-staleness) + 6 件目 (= retroactive
+> tag = project-checklist-governance.md sub-PR 2/3 で観測した machine ↔ doc drift) 観測 →
+> **guard candidate auto-promotion 達成** (= 5 → 6 guard candidates)。
+
+### sub-PR 8 (= handoff sync + retroactive observation tag)
+
+- [x] Wave 3 / sub-PR 8 着手 (= user external review で staleness 発見、優先 fix 提案)
+- [x] HANDOFF.md 完全 rewrite:
+  - 現在地 = Phase 0 bootstrap → **Wave 1 + 2 + 3 完遂、archive 移行前の最終 review 段階**
+  - 完遂 milestones table articulate (= Phase 0 / Wave 1 / Wave 2 / Phase 4 / Wave 3 全件)
+  - 数値 snapshot (= Reading Pass 398 / Failure Loop 11 patterns / project-health 98% 等)
+  - 次にやること rewrite (= 高 = checklist 最終 sweep + AI 自己 review + user 承認 / 中 = archive プロセス / 低 = Wave 4 candidate + Separate Program 移譲)
+  - ハマりポイント rewrite (= post-Wave 3 risk articulate、特に project-health 98% でも user 承認 [x] flip 前は archive しない)
+  - 関連文書 + 本 program landed deliverables table 追加
+  - 後任者向け checklist (= 6 項目) 追加
+- [x] reading-decisions tag 更新:
+  - aag-scp/HANDOFF.md → DOC-FAIL-STALE-DESCRIPTION 追加 (= 5 件目観測)
+  - project-checklist-governance.md → DOC-FAIL-STALE-DESCRIPTION 追加 (= sub-PR 2/3 で観測 + fix 済の retroactive tag、6 件目)
+- [x] Failure Loop generator 再実行:
+  - DOC-FAIL-STALE-DESCRIPTION observedCount: 3 → **5** (= +2、HANDOFF + retroactive tag)
+  - computedMaturity: 'observed' → **'guardrail-candidate-emitted'** (= auto-promotion)
+  - guardCandidates total: 5 → **6** (= +1、ratchet-down 自動化 2 例目実証 = Batch 11 DUPLICATE-RESPONSIBILITY 以来)
+  - totalObservedReferences: 53 → 55
+- [x] taxonomy.yaml description update (= '計 4 件' → '計 5 件')、examplePaths に HANDOFF.md 追加
+- [x] hard gate 追加なし (= Wave 3 advisory only 維持)
+
+### sub-PR 8 完了条件
+
+- [x] HANDOFF.md が現在状態を articulate (= 後任 AI が Phase 0 直後と誤認するリスク解消)
+- [x] DOC-FAIL-STALE-DESCRIPTION の 5 件目 + 6 件目観測 = guard candidate threshold ≥5 到達
+- [x] Failure Loop auto-promotion 動作実証 (= sub-PR 11 DUPLICATE-RESPONSIBILITY 以来 2 例目)
+- [x] retroactive observation tag mechanism articulate (= sub-PR 2/3 で観測した case を後から tag)
+- [x] 即 Gate 化禁止維持
+
+### sub-PR 8 で articulate された pattern
+
+**1. 大量 commit + 長 session の HANDOFF sync risk**:
+
+本 program は 41 commits + 22 batches を 1 session で landing。各 sub-PR commit は impressively
+articulate されたが、**HANDOFF.md は Phase 0 直後のまま放置** (= user external review で発見)。
+
+→ Lesson: 大量 commit 時に **起点文書 (HANDOFF / 後任者入口) の sync を後回しにしない**。
+本 case では post-Wave 3 完遂 後に user external review が必要だったが、これは "AI session 内
+self-review が起点文書の rewrite を能動的に trigger しない" 構造的 gap を示す。
+
+**2. retroactive observation tag mechanism articulate**:
+
+sub-PR 2/3 で observed + fixed した machine ↔ doc drift case (= project-checklist-governance.md
+が collection mode exception を articulate していなかった) は当時 reading-decisions に
+DOC-FAIL-STALE-DESCRIPTION tag を retroactive 付与しなかった。
+
+→ retroactive tag は Failure Loop の正確な observation count に必要。本 sub-PR で fix
+(= 6 件目観測 articulate)。
+
+**3. Failure Loop auto-promotion 2 例目実証**:
+
+| 観測 | event | guard candidates total |
+|---|---|---|
+| Batch 11 (Wave 2) | DOC-FAIL-DUPLICATE-RESPONSIBILITY 0 → 8 | 4 → 5 |
+| sub-PR 8 (本) | DOC-FAIL-STALE-DESCRIPTION 3 → 5 | **5 → 6** |
+
+→ ratchet-down mechanism (= CLAUDE.md G8 機械化実装) が **2 例目で再実証**。Reading Pass で
+観測した failure pattern が **設計通りに** guard candidate に auto-promote される。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

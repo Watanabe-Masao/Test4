@@ -2684,9 +2684,14 @@ entries:
     reviewedAtSha: babfc69979b1120f6b20e81499fa2ea1932dab80
     rationaleSummary: |
       起点文書。Wave 1〜2 進行状況 articulate (= past Phase 完遂 + future Wave 3 articulate)。
-      governance-articulated mixed temporal。
+      governance-articulated mixed temporal。**post-Wave 3 staleness 検出 (= 2026-05-10、user
+      external review で発見)**: 当時 articulate された 'Wave 1〜2 進行' は staleness 化、
+      Wave 1 + 2 + 3 全完遂後も Phase 0 bootstrap 直後の content を維持していた。
+      DOC-FAIL-STALE-DESCRIPTION pattern の 5 件目観測 (= guard candidate threshold ≥5 到達)。
+      Wave 3 / sub-PR 8 (handoff sync) で完全 rewrite (= 後任者向け正確な現在地 + Wave 4 candidate
+      + archive readiness checklist)。
     alternativesConsidered: |
-      なし (= Batch 8-11 HANDOFF.md と同 pattern)。
+      なし (= sub-PR 8 で staleness 解消)。
     hasCurrentContract: true
     hasHistory: true
     hasFuturePlan: true
@@ -2697,7 +2702,8 @@ entries:
       - projects/active/reposteward-ai-ops-platform/HANDOFF.md
       - projects/active/pure-calculation-reorg/HANDOFF.md
       - projects/active/taxonomy-v2/HANDOFF.md
-    failurePatterns: []
+    failurePatterns:
+      - DOC-FAIL-STALE-DESCRIPTION
 
   - path: projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md
     proposedKind: project-inquiry
@@ -5102,14 +5108,19 @@ entries:
       project-checklist-governance contract 正本 (= Batch 7-12 で観測した project-checklist kind の
       governance source、live task list は projects/<id>/checklist.md のみ articulate)。
       多数の active project / template / 主アプリ doc が本 contract を pointer 経由で参照。
+      **Wave 3 / Phase 6 sub-PR 2-3 で staleness 観測 + fix 完遂** (= machine ↔ doc drift variant、
+      PZ-13 guard が collection mode を exception 扱いしているが governance doc は articulate
+      していなかった、3 段 articulate で fix 済 = governance doc + ai-doc-template-rules +
+      post-write checker の整合)。retroactive tag (Wave 3 sub-PR 8 = handoff sync)。
     alternativesConsidered: |
-      なし (= governance contract の正本 role 明確)。
+      なし (= governance contract の正本 role 明確、staleness は sub-PR 3 で fix 済)。
     hasCurrentContract: true
-    hasHistory: false
+    hasHistory: true
     hasFuturePlan: false
     hasGeneratedCurrentValue: false
     duplicates: []
-    failurePatterns: []
+    failurePatterns:
+      - DOC-FAIL-STALE-DESCRIPTION
 
   - path: references/05-aag-interface/operations/projectization-policy.md
     proposedKind: canonical-doc
