@@ -133,11 +133,13 @@ patterns:
   - id: DOC-FAIL-STALE-DESCRIPTION
     title: 完了済 work を未完了として articulate (= staleness)
     description: |
-      doc が 'skeleton + 後続 fill 予定' / 'relocation 未着手' / 'draft 起草中' 等の **未完了状態**
-      を articulate しているが、実際は対応する work が **完了済** な drift。reader (= AI / human)
-      が文脈を取り違える原因。doc 内 drift (= 自身の articulate と reality の乖離) と
-      machine ↔ doc drift (= machine 実装が先行、doc が追従していない) の 2 variant あり。
-      Wave 2 Reading Pass で 3 件 + Wave 3 / Phase 6 sub-PR 2 で 1 件 = 計 4 件観測。
+      doc が 'skeleton + 後続 fill 予定' / 'relocation 未着手' / 'draft 起草中' / 'Phase 0 bootstrap
+      直後' 等の **未完了状態** を articulate しているが、実際は対応する work が **完了済** な drift。
+      reader (= AI / human) が文脈を取り違える原因。doc 内 drift (= 自身の articulate と reality の
+      乖離) と machine ↔ doc drift (= machine 実装が先行、doc が追従していない) の 2 variant あり。
+      特に高 risk = HANDOFF / 起点文書 系 (= 後任者の最初の入口、staleness で全体認識を誤らせる)。
+      Wave 2 で 3 件 + Wave 3 / Phase 6 sub-PR 2 で 1 件 + 本 program HANDOFF.md self-staleness
+      (sub-PR 8、user external review で発見) で 1 件 = 計 5 件観測 (= guard candidate threshold ≥5 到達)。
     maturityHint: observed
     suggestedRemedy: rewrite-and-contract (= 現状を articulate する rewrite、未完了 articulate を削除し完了状態を反映)
     relatedDispositions: [rewrite-and-contract]
@@ -145,3 +147,4 @@ patterns:
       - references/05-aag-interface/protocols/README.md
       - aag/_internal/README.md
       - references/01-foundation/taxonomy-constitution.md
+      - projects/active/aag-structural-control-plane/HANDOFF.md

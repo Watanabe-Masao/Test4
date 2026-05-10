@@ -2,8 +2,8 @@
   "$comment": "AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く governance-hardening project。reposteward-ai-ops-platform の Task Capsule / AAG Parameters / SourceFacts substrate を入力として消費し、その上に Tree Contract / Document Contract / Temporal Scope Contract / AI Document Instruction Pack を additive に積む。Level 3 / requiresHumanApproval=true / requiresGuard=true (= governance-hardening 本体)。詳細判定根拠: projectization.md §2。versionImpact: app=+0.0.0 (app に変更なし、references/ + docs/contracts/ + tools/ のみ touch) / aag=+0.1 (AAG framework に Tree Contract + Document Contract + Temporal Scope の新 substrate を additive 追加、minor)。",
   "projectId": "aag-structural-control-plane",
   "title": "AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く",
-  "status": "active",
-  "projectRoot": "projects/active/aag-structural-control-plane",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-structural-control-plane",
   "versionImpact": {
     "$comment": "app は本 project で touch しない (= references/ + docs/contracts/ + tools/governance/ のみ)、aag framework は Tree Contract + Document Contract + Temporal Scope の新 schema + 新 generated artifact を additive 追加 (minor)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準。",
     "app": {
@@ -43,10 +43,10 @@
     ]
   },
   "entrypoints": {
-    "aiContext": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
-    "handoff": "projects/active/aag-structural-control-plane/HANDOFF.md",
-    "plan": "projects/active/aag-structural-control-plane/plan.md",
-    "checklist": "projects/active/aag-structural-control-plane/checklist.md",
-    "projectization": "projects/active/aag-structural-control-plane/projectization.md"
+    "aiContext": "projects/completed/aag-structural-control-plane/AI_CONTEXT.md",
+    "handoff": "projects/completed/aag-structural-control-plane/HANDOFF.md",
+    "plan": "projects/completed/aag-structural-control-plane/plan.md",
+    "checklist": "projects/completed/aag-structural-control-plane/checklist.md",
+    "projectization": "projects/completed/aag-structural-control-plane/projectization.md"
   }
 }

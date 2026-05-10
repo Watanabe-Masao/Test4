@@ -4,18 +4,18 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T11:52:40.914Z
-- generatedAtSha: `6af4196ccdea26885fc9ef8f20ce3398b568011e`
+- 生成: 2026-05-10T13:05:15.886Z
+- generatedAtSha: `0b2128bf2cec6110ab98e676ef4b01b31811d53b`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
 ## Summary
 
 - Total registered patterns: 11
-- Total observed references in reading-decisions: 53
+- Total observed references in reading-decisions: 55
 - Reading-decision entries scanned: 398
-- Guard candidates (observed >= 5): **5**
-- Emerging patterns (observed 1-4): 3
+- Guard candidates (observed >= 5): **6**
+- Emerging patterns (observed 1-4): 2
 - Unobserved patterns (observed 0): 3
 - Unregistered DOC-FAIL-* in use: 0
 
@@ -24,8 +24,8 @@
 | maturity | count |
 |---|---|
 | pattern-articulated | 3 |
-| observed | 3 |
-| guardrail-candidate-emitted | 5 |
+| observed | 2 |
+| guardrail-candidate-emitted | 6 |
 | guardrail-shadow | 0 |
 | guardrail-advisory | 0 |
 
@@ -38,12 +38,12 @@
 | `DOC-FAIL-DUPLICATE-RESPONSIBILITY` | 8 | pattern-articulated | **guardrail-candidate-emitted** | merge (= 統合 + 1 doc に正本化) または delete-candidate (= 参照 0 確認後) |
 | `DOC-FAIL-TEMPORAL-MIXING` | 6 | observed | **guardrail-candidate-emitted** | split (= 過去 → archive-doc / 未来 → project-plan / 現在のみ canonical-doc に残す) |
 | `DOC-FAIL-GENERATED-AS-MANUAL` | 5 | observed | **guardrail-candidate-emitted** | generated-register (= producer 経由で generated-report 化、ADR-SCP-008 例外条項 articulate) |
+| `DOC-FAIL-STALE-DESCRIPTION` | 5 | observed | **guardrail-candidate-emitted** | rewrite-and-contract (= 現状を articulate する rewrite、未完了 articulate を削除し完了状態を反映) |
 
 ## Emerging Patterns (observedCount 1-4)
 
 | id | observedCount | inputMaturity | computedMaturity |
 |---|---|---|---|
-| `DOC-FAIL-STALE-DESCRIPTION` | 3 | observed | observed |
 | `DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL` | 1 | observed | observed |
 | `DOC-FAIL-AI-ROUTING-AMBIGUITY` | 1 | pattern-articulated | observed |
 
@@ -163,14 +163,16 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 
 - **title**: 完了済 work を未完了として articulate (= staleness)
 - **inputMaturity**: `observed`
-- **computedMaturity**: `observed`
-- **observedCount**: 3
+- **computedMaturity**: `guardrail-candidate-emitted`
+- **observedCount**: 5
 - **suggestedRemedy**: rewrite-and-contract (= 現状を articulate する rewrite、未完了 articulate を削除し完了状態を反映)
-- **observedPaths** (3):
+- **observedPaths** (5):
   - `aag/_internal/README.md`
+  - `projects/active/aag-structural-control-plane/HANDOFF.md`
   - `references/01-foundation/taxonomy-constitution.md`
+  - `references/05-aag-interface/operations/project-checklist-governance.md`
   - `references/05-aag-interface/protocols/README.md`
-- **observedDispositions**: `rewrite-and-contract`
+- **observedDispositions**: `keep-and-contract`, `rewrite-and-contract`
 
 ### `DOC-FAIL-ARCHIVE-CONTENT-IN-CANONICAL`
 

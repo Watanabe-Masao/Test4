@@ -2050,6 +2050,74 @@ Wave 3 / Phase 6 + 7 + 9 の全 sub-PR landed:
 articulate 量 (= Wave 2 → Wave 3 transition での staleness 発見 + delete cleanup + cross-reference
 articulate が追加 sub-PR を生んだ)。
 
+## Wave 3 / sub-PR 8: HANDOFF.md sync + DOC-FAIL-STALE-DESCRIPTION 5 件目 + 6 件目観測 (reviewedAtCommit 0b2128b)
+
+> **目的**: User external review で発見された HANDOFF.md staleness を fix。本 HANDOFF.md 自身が
+> Phase 0 bootstrap 直後の content を維持していた (= Wave 1 + 2 + 3 完遂後も articulate 未更新)。
+> DOC-FAIL-STALE-DESCRIPTION pattern の 5 件目 (= HANDOFF self-staleness) + 6 件目 (= retroactive
+> tag = project-checklist-governance.md sub-PR 2/3 で観測した machine ↔ doc drift) 観測 →
+> **guard candidate auto-promotion 達成** (= 5 → 6 guard candidates)。
+
+### sub-PR 8 (= handoff sync + retroactive observation tag)
+
+- [x] Wave 3 / sub-PR 8 着手 (= user external review で staleness 発見、優先 fix 提案)
+- [x] HANDOFF.md 完全 rewrite:
+  - 現在地 = Phase 0 bootstrap → **Wave 1 + 2 + 3 完遂、archive 移行前の最終 review 段階**
+  - 完遂 milestones table articulate (= Phase 0 / Wave 1 / Wave 2 / Phase 4 / Wave 3 全件)
+  - 数値 snapshot (= Reading Pass 398 / Failure Loop 11 patterns / project-health 98% 等)
+  - 次にやること rewrite (= 高 = checklist 最終 sweep + AI 自己 review + user 承認 / 中 = archive プロセス / 低 = Wave 4 candidate + Separate Program 移譲)
+  - ハマりポイント rewrite (= post-Wave 3 risk articulate、特に project-health 98% でも user 承認 [x] flip 前は archive しない)
+  - 関連文書 + 本 program landed deliverables table 追加
+  - 後任者向け checklist (= 6 項目) 追加
+- [x] reading-decisions tag 更新:
+  - aag-scp/HANDOFF.md → DOC-FAIL-STALE-DESCRIPTION 追加 (= 5 件目観測)
+  - project-checklist-governance.md → DOC-FAIL-STALE-DESCRIPTION 追加 (= sub-PR 2/3 で観測 + fix 済の retroactive tag、6 件目)
+- [x] Failure Loop generator 再実行:
+  - DOC-FAIL-STALE-DESCRIPTION observedCount: 3 → **5** (= +2、HANDOFF + retroactive tag)
+  - computedMaturity: 'observed' → **'guardrail-candidate-emitted'** (= auto-promotion)
+  - guardCandidates total: 5 → **6** (= +1、ratchet-down 自動化 2 例目実証 = Batch 11 DUPLICATE-RESPONSIBILITY 以来)
+  - totalObservedReferences: 53 → 55
+- [x] taxonomy.yaml description update (= '計 4 件' → '計 5 件')、examplePaths に HANDOFF.md 追加
+- [x] hard gate 追加なし (= Wave 3 advisory only 維持)
+
+### sub-PR 8 完了条件
+
+- [x] HANDOFF.md が現在状態を articulate (= 後任 AI が Phase 0 直後と誤認するリスク解消)
+- [x] DOC-FAIL-STALE-DESCRIPTION の 5 件目 + 6 件目観測 = guard candidate threshold ≥5 到達
+- [x] Failure Loop auto-promotion 動作実証 (= sub-PR 11 DUPLICATE-RESPONSIBILITY 以来 2 例目)
+- [x] retroactive observation tag mechanism articulate (= sub-PR 2/3 で観測した case を後から tag)
+- [x] 即 Gate 化禁止維持
+
+### sub-PR 8 で articulate された pattern
+
+**1. 大量 commit + 長 session の HANDOFF sync risk**:
+
+本 program は 41 commits + 22 batches を 1 session で landing。各 sub-PR commit は impressively
+articulate されたが、**HANDOFF.md は Phase 0 直後のまま放置** (= user external review で発見)。
+
+→ Lesson: 大量 commit 時に **起点文書 (HANDOFF / 後任者入口) の sync を後回しにしない**。
+本 case では post-Wave 3 完遂 後に user external review が必要だったが、これは "AI session 内
+self-review が起点文書の rewrite を能動的に trigger しない" 構造的 gap を示す。
+
+**2. retroactive observation tag mechanism articulate**:
+
+sub-PR 2/3 で observed + fixed した machine ↔ doc drift case (= project-checklist-governance.md
+が collection mode exception を articulate していなかった) は当時 reading-decisions に
+DOC-FAIL-STALE-DESCRIPTION tag を retroactive 付与しなかった。
+
+→ retroactive tag は Failure Loop の正確な observation count に必要。本 sub-PR で fix
+(= 6 件目観測 articulate)。
+
+**3. Failure Loop auto-promotion 2 例目実証**:
+
+| 観測 | event | guard candidates total |
+|---|---|---|
+| Batch 11 (Wave 2) | DOC-FAIL-DUPLICATE-RESPONSIBILITY 0 → 8 | 4 → 5 |
+| sub-PR 8 (本) | DOC-FAIL-STALE-DESCRIPTION 3 → 5 | **5 → 6** |
+
+→ ratchet-down mechanism (= CLAUDE.md G8 機械化実装) が **2 例目で再実証**。Reading Pass で
+観測した failure pattern が **設計通りに** guard candidate に auto-promote される。
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
@@ -2057,11 +2125,35 @@ articulate が追加 sub-PR を生んだ)。
 > 機械検証: projectizationPolicyGuard PZ-13 (= section 存在 + ordering 検証、checkbox 内容は AI session 責任)。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.2
 
-- [ ] **総チェック**: 全 Wave 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
-- [ ] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
-- [ ] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
-- [ ] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
-- [ ] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 + aag/CHANGELOG.md aagVersion 整合（本 program は app +0.0.0 / aag +0.1）
+- [x] **総チェック**: 全 Wave 成果物 (commit / PR / 関連正本 / generated artifact) を AI が再 review し、scope 内 / 内容妥当 / 不可侵原則違反 0 を確認
+  - Wave 1 (Schema MVP + Skeleton-aware Parse): 完遂、merged main 反映済
+  - Wave 2 (Document Reset Pass + Failure Loop + Universe Index): 100% 完遂 (= 22 batches、398 docs)
+  - Wave 3 (Governance Migration、Phase 6+7+9): 全 sub-PR landed
+  - 各 sub-PR commit message に scope / 不可侵原則整合 / hard gate 追加なし articulate 済
+  - 不可侵原則違反 0 (= ADR-SCP-021 + AAG-SCP-DOC-LEARNING-002 + AR-TAXONOMY-AI-VOCABULARY-BINDING + 不可侵原則 6 / 11 整合維持)
+- [x] **歪み検出**: 実装中に scope 外 commit / 設計負債 / drawer Pattern 違反 / 隠れた前提変更 が無いことを確認
+  - scope 外 commit: なし (= 各 commit は対応 sub-PR scope 内、Wave 4+ candidate は明示 articulate)
+  - 設計負債: Wave 4+ candidate articulate 済 (= unmanaged 86.2% / 5 disposition 残 / 6 guard candidate 昇格)、本 program scope 外として明示
+  - drawer Pattern 違反: なし (= drawer pattern は適用 instance、違反 mechanism なし)
+  - 隠れた前提変更: なし (= taxonomy-constitution status flip は metadata accuracy fix のみ、原則 content 不変、改訂規律違反回避)
+- [x] **潜在バグ確認**: edge case / null 取扱 / 型 assertion / race condition / fail-safe paths を改めて点検
+  - 各 generator: deterministic + ajv schema validation fail fast
+  - post-write checker: exit 0 維持 (= advisory only)、generated.md 出力安定
+  - collection mode exception: 3 段で機械的整合 (= governance doc + rule + checker)
+  - guard test PASS 維持 (= 各 sub-PR で test:guards 通過確認)
+  - edge case 観測 + 即時 fix 済: sub-PR 5 deleted file path parse (= backtick wrap)、sub-PR 6 nested directory pattern (= 別 rule articulate)
+  - null / 型 / race: pure functions / deterministic / no concurrency (= シンプルな file walker + JSON output)
+  - fail-safe: schema validation fail で fail fast (= exit 1)、unknown patterns で advisory warn
+- [x] **ドキュメント抜け漏れ確認**: 実装変更に対する README / CLAUDE.md / references/ / 関連 plan / decision-audit の更新が漏れなく完了
+  - references/README.md: 6 generated.md 追加 + quality-audit-latest 削除 (= sub-PR 8 で完了)
+  - CLAUDE.md: 直接編集なし (= 既存 articulate を活用、改変不要)
+  - references/: 各 generated.md は doc-registry articulate 済、各 staleness fix は実 rewrite 済
+  - 関連 plan / decision-audit: 各 sub-PR で本 checklist に articulate 済
+  - HANDOFF.md: sub-PR 8 で完全 sync 済 (= post-Wave 3 staleness 解消)
+- [x] **CHANGELOG.md 更新 + バージョン管理**: 該当 release entry 追記 + semver 適切 + project-metadata.json appVersion 整合 + aag/CHANGELOG.md aagVersion 整合（本 program は app +0.0.0 / aag +0.1）
+  - app +0.0.0: 本 program は app/ 配下を一切 touch しない (= references/ + docs/contracts/ + tools/governance/ + projects/ のみ)、CHANGELOG.md エントリ不要
+  - aag +0.1: aag/CHANGELOG.md に [AAG 6.1] entry 追加 (= 本 program 完遂 articulate)、aag-metadata.json aagVersion 6.0 → 6.1 bump
+  - versionSyncGuard PASS 確認 (= 16 test pass、aag/CHANGELOG 最新 [AAG x.y] と aag-metadata.json aagVersion の loop 整合)
 
 ## 最終レビュー (user 承認)
 
@@ -2070,4 +2162,4 @@ articulate が追加 sub-PR を生んだ)。
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Wave の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Wave の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する

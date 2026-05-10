@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-10T12:20:36.507Z
+> 生成: 2026-05-10T13:41:08.953Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 6 |
-| archived project 数 | 41 |
-| in_progress project 数 | 5 |
+| active project 数（archive 未実施を含む） | 5 |
+| archived project 数 | 42 |
+| in_progress project 数 | 4 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 2164 |
-| 全 project の checked checkbox 総数 | 2066 |
+| 全 project の required checkbox 総数 | 2175 |
+| 全 project の checked checkbox 総数 | 2083 |
 
 ## projects
 
@@ -36,7 +36,7 @@
 | `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **archived** | — | 34/42 (81%) | [`projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
 | `aag-rule-splitting-execution` | AAG ルール分割実行 — AR-STRUCT-RESP-SEPARATION 7 分割 | **archived** | — | 17/17 (100%) | [`projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md`](../../../projects/completed/aag-rule-splitting-execution/AI_CONTEXT.md) |
 | `aag-self-hosting-completion` | AAG Self-Hosting Completion — references + aag + projects 構造再編による AAG-REQ-SELF-HOSTING 真の closure 達成 | **archived** | — | — | [`projects/completed/aag-self-hosting-completion/AI_CONTEXT.md`](../../../projects/completed/aag-self-hosting-completion/AI_CONTEXT.md) |
-| `aag-structural-control-plane` | AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く | **in_progress** | — | 722/734 (98%) | [`projects/active/aag-structural-control-plane/AI_CONTEXT.md`](../../../projects/active/aag-structural-control-plane/AI_CONTEXT.md) |
+| `aag-structural-control-plane` | AAG Structural Control Plane — repo tree / document contract / temporal scope を AAG 統制下に置く | **archived** | — | 739/745 (99%) | [`projects/completed/aag-structural-control-plane/AI_CONTEXT.md`](../../../projects/completed/aag-structural-control-plane/AI_CONTEXT.md) |
 | `aag-temporal-governance-hardening` | AAG / Temporal Governance 強化（SP-D） | **archived** | `architecture-debt-recovery` | 30/30 (100%) | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) |
 | `architecture-debt-recovery` | アーキテクチャ負債回収（widget 起点の大型改修） | **archived** | — | 73/73 (100%) | [`projects/completed/architecture-debt-recovery/AI_CONTEXT.md`](../../../projects/completed/architecture-debt-recovery/AI_CONTEXT.md) |
 | `architecture-decision-backlog` | アーキテクチャ判断 backlog — 未決定の設計判断 | **archived** | — | 1/1 (100%) | [`projects/completed/architecture-decision-backlog/AI_CONTEXT.md`](../../../projects/completed/architecture-decision-backlog/AI_CONTEXT.md) |

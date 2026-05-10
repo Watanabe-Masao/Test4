@@ -92,6 +92,55 @@ archive 移行 trigger (= active → archived):
 - declare 段階の rationale が後続 audit で navigable (= 判断履歴の transparent 化)
 - user の bump 判断 burden を archive 直前ではなく **計画段階** に前倒し
 
+## [AAG 6.1] - 2026-05-10
+
+### AAG Structural Control Plane (= aag-structural-control-plane program 完遂)
+
+**minor**: AAG framework に **Tree Contract / Document Contract / Temporal Scope / AI Document Instruction Pack / Required Docs Matrix / Artifact Coverage Gate** を additive に追加。reposteward-ai-ops-platform の Task Capsule / AAG Parameters / SourceFacts substrate を入力として消費し、その上に repo tree / document / temporal の 4 layer governance を articulate。後方互換あり (= 既存 TS guard / WASM detector に変更なし、新 schema + 新 generator + 新 advisory checker の追加のみ)。
+
+- **Wave 1 (Schema MVP + Skeleton-aware Parse)**:
+  - 3 新 schema landed (`aag-finding` / `tree-contracts` / `doc-kind-registry`)
+  - structural-skeleton.yaml + Phase 2A〜2E (= structural skeleton declaration + repo topology parser + skeleton diff generator + managed-zone file-level inventories + top-level disposition articulation)
+  - check-tree.mjs (= Tree Contract advisory checker)
+
+- **Wave 2 (Document Reset Pass + Failure Learning Loop + Document Universe Index)**:
+  - Reading Pass infrastructure (= document-reading-decisions schema + candidates generator + universe index)
+  - Document Failure Taxonomy (= 11 patterns articulate、5 guard candidates auto-promote 達成 = DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE 16 + DOC-FAIL-LOCATION-MISMATCH 13 + DOC-FAIL-DUPLICATE-RESPONSIBILITY 8 + DOC-FAIL-TEMPORAL-MIXING 6 + DOC-FAIL-GENERATED-AS-MANUAL 5 + DOC-FAIL-STALE-DESCRIPTION 5)
+  - Reading Pass 100% 完遂 (= 22 batches、398 docs articulate)
+  - Phase 4 Document Kind + Temporal Scope Shadow checker landed
+
+- **Wave 3 (Governance Migration)**:
+  - Phase 6 AI Instruction Pack (= 20 Document Kind の AI 向け post-write validation guidance、不可侵原則 11 整合 = guidance であって命令書ではない)
+  - Phase 7 Required Docs Matrix (= 5 target type rules、46 targets enumerate)
+  - Phase 9 Artifact Coverage Gate (= 17 rules、3704 tracked files inventory、6 category 分類)
+
+- **Cleanup work** (= Wave 2 → Wave 3 value chain 実証):
+  - 3 stale docs rewrite (= protocols/README + aag/_internal/README + taxonomy-constitution)
+  - 9 files delete (= taxonomy-v2 unfilled template duplicates 8 + quality-audit-latest 1)
+  - 1 governance gap fix (= collection mode exception 3 段 articulate、machine ↔ doc drift fix)
+  - 1 HANDOFF.md staleness fix (= post-Wave 3 sync、auto-promotion 2 例目 trigger)
+
+- **Failure Learning Loop auto-promotion 2 例実証**:
+  - Wave 2 Batch 11: DOC-FAIL-DUPLICATE-RESPONSIBILITY (0 → 8) で guard candidates 4 → 5
+  - Wave 3 sub-PR 8: DOC-FAIL-STALE-DESCRIPTION (3 → 5) で guard candidates 5 → 6
+  - → CLAUDE.md G8 (= 同種 failure 観測 → guard 候補昇格) の機械化実装が **2 例で再実証**
+
+- **Generated artifacts (= 7 新 generated docs)**:
+  - document-universe.generated.{json,md} (Wave 2)
+  - document-failure-taxonomy.generated.{json,md} (Wave 2)
+  - document-reading-candidates.generated.json (Wave 2)
+  - ai-doc-instructions.generated.{json,md} (Wave 3)
+  - doc-postwrite-findings.generated.md (Wave 3)
+  - required-docs-matrix.generated.{json,md} (Wave 3)
+  - artifact-coverage.generated.{json,md} (Wave 3)
+
+- **不可侵 (= ADR-SCP-021 + AAG-SCP-DOC-LEARNING-002 + 不可侵原則 6 + 11 整合)**:
+  - 即 Gate 化禁止 (= 全 sub-PR advisory only、hard gate 追加 0)
+  - guidance であって命令書ではない (= AI session の自由度確保、pre-write 強制 mechanism なし)
+  - 5 段階 maturity progression 維持 (= observed → pattern-articulated → guardrail-candidate-emitted → guardrail-shadow → guardrail-advisory)
+
+- **versionImpact**: app +0.0.0 (= app/ 配下 touch なし、references/ + docs/contracts/ + tools/governance/ + projects/ のみ) / aag +0.1 (= 本 AAG 6.0 → 6.1 minor bump、6 新 governance subsystem 追加)
+
 ## [AAG 6.0] - 2026-05-06
 
 ### Read-Only Governance Engine (Go MVP)
