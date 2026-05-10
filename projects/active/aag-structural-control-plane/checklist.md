@@ -1351,6 +1351,266 @@ Batch 15 で articulate した template-doc kind を本 batch で再使用:
 → template-doc kind は 'unfilled、placeholder 含む、fill 時 customize される canonical source' の
 共通 abstraction を articulate 可能。
 
+## Wave 2 / Phase 2.5 sub-PR 23: Reading Pass Batch 19 (= references/02-design-system/ family、reviewedAtCommit 34291e4)
+
+> **目的**: MEDIUM Reading Pass 継続。references/02-design-system/ family 14 docs を 1 batch で
+> articulate。**新発見**: SKILL.md が Claude Code skill 定義 (= roles/*/SKILL.md と異なる kind、
+> frontmatter + user-invocable + skill activation protocol)。新 proposedKind 1 種 articulate
+> (claude-skill)。
+
+### Phase 2.5 sub-PR 23 (Reading Pass Batch 19、14 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 23 着手 (= user 「1」承認、= references/02-design-system/ family)
+- [x] 14 docs を read + articulate:
+  - README.md (= DS root、'Test4 本体が正本' articulate)
+  - SKILL.md (= **Claude Code skill 定義、新 kind**)
+  - docs/ 11 (= category-gradients / chart-semantic-colors / content-and-voice / echarts-integration / iconography / route-b-guide / theme-object / tokens / trend-helpers / v2-to-v2.1-changes / visual-foundations)
+  - ui_kits/app/README.md (= UI Kit prototype)
+- [x] 14 entry を document-reading-decisions.yaml に append (= entries: 262 → 276、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 failurePatterns: [] articulate
+- [x] 新 proposedKind 1 種 articulate: claude-skill (= /<skill-name> で invoke される user-facing skill、frontmatter + user-invocable + skill activation protocol)
+- [x] proposedKind 20 種に拡張達成 (= 19 → 20)
+- [x] candidates regenerate (= 136 → 122 MEDIUM、alreadyReviewedCount 262 → 276)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 276 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 23 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 19 14 entry append 済 (= 累計 276 entries、stage: in-progress)
+- [x] references/02-design-system/ family 完遂 (= 14 件全件 articulate)
+- [x] 新 proposedKind 'claude-skill' articulate (= 20 種に拡張)
+- [x] SKILL.md の kind 区別 articulate (= role-skill vs claude-skill、両者 governance contract が異なる)
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 23 で articulate された pattern
+
+**1. SKILL.md kind 区別 (= role-skill vs claude-skill)**:
+
+SKILL.md という同名 file が 2 種類の異なる role を持つことを articulate:
+
+| Path | proposedKind | 役割 |
+|---|---|---|
+| roles/*/SKILL.md (Batch 16) | role-skill | role の Execution layer (= 論理構造 + 方法論) |
+| references/02-design-system/SKILL.md (本 batch) | **claude-skill (新)** | /<skill-name> で invoke される user-facing skill |
+
+→ filename だけでは kind 判定不可 (= governance contract で区別)。Reading Pass の articulate では
+proposedKind で role を明示 articulate。
+
+**2. governance-articulated mixed temporal '反省文' role**:
+
+docs/v2-to-v2.1-changes.md は v2.0 の '推測ベース提案誤り' を articulate (= past) + v2.1 訂正方針
+articulate (= present) + 類似 DS 設計 reference articulate (= future) で structural mixed temporal。
+'反省文として残す' role explicit articulate のため failurePattern 未付与 (= governance-articulated)。
+
+## Wave 2 / Phase 2.5 sub-PR 24: Reading Pass Batch 20 (= references/01-foundation/ family + staleness 3 例目、reviewedAtCommit 0a2a370)
+
+> **目的**: MEDIUM Reading Pass 継続。references/01-foundation/ family 42 docs (= foundation layer
+> 全 MEDIUM) を 1 batch で articulate。**新発見**: taxonomy-constitution.md staleness (= 'draft
+> Phase 1 起草中' articulate しているが Phase 1+2+3+4 完了済) → staleness pattern 3 例目検出。
+> 残 41 件 keep-and-contract。
+
+### Phase 2.5 sub-PR 24 (Reading Pass Batch 20、42 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 24 着手 (= user 「1」承認、= references/01-foundation/ 一括)
+- [x] 42 docs を read + articulate:
+  - business definitions 12 (budget / customer / customer-gap / discount / dual-period / free-period-analysis / free-period-budget-kpi / gross-profit / kpi / pi-value / purchase-cost / sales)
+  - calculation/engine 8 (authoritative-calculation / canonicalization-map / canonical-input-sets / canonical-value-ownership / canonicalization-principles / domain-ratio-primitives / engine-boundary-policy / engine-responsibility)
+  - architecture/principles 7 (app-lifecycle / architecture-rule-feasibility / design-principles / modular-monolith-evolution / monthly-data-architecture / semantic-classification-policy / uiux-principles)
+  - performance/safety 8 (safe-performance / critical-path-safety / cache-responsibility / observation-period-spec / platformization-standard / temporal-scope-semantics / data-flow / data-pipeline-integrity)
+  - taxonomy 6 (constitution / interlock / origin-journal / responsibility-schema / test-schema / test-signal-integrity)
+  - misc 1 (decisions/README)
+- [x] 42 entry を document-reading-decisions.yaml に append (= entries: 276 → 318、stage: in-progress)
+- [x] 41 entry disposition: keep-and-contract articulate
+- [x] **1 件 staleness 検出**: taxonomy-constitution.md 'draft (Phase 1 起草中)' articulate しているが Phase 1+2+3+4 完了済 (Batch 11) → disposition: rewrite-and-contract
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= 122 → 80 MEDIUM、alreadyReviewedCount 276 → 318)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 318 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 24 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 20 42 entry append 済 (= 累計 318 entries、stage: in-progress)
+- [x] references/01-foundation/ family 完遂 (= 42 件全件 articulate)
+- [x] **staleness pattern 3 例目観測** (= G8 閾値超え、Wave 3 候補性増加)
+- [x] disposition rewrite-and-contract が 3 → 4 件に増加
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 24 で articulate された pattern
+
+**1. staleness pattern 累計 3 件観測** (= Wave 3 候補性大幅増加):
+
+| Path | Staleness 内容 | Batch |
+|---|---|---|
+| references/05-aag-interface/protocols/README.md | 'skeleton + R5 で fill 予定' but M1-M5 fill 完了済 | 17 |
+| aag/_internal/README.md | 'relocation 未着手' but 既に top-level に relocate 済 | 18 |
+| references/01-foundation/taxonomy-constitution.md | 'status: draft (Phase 1 起草中)' but Phase 1+2+3+4 完了済 | 20 (本 batch) |
+
+→ 3 例観測 = Wave 3 で **DOC-FAIL-STALE-DESCRIPTION pattern を taxonomy review window で正式 articulate
++ baseline 3 で ratchet 開始** が articulate 済の Wave 3 next step。
+
+**2. foundation layer の articulate 完遂**:
+
+references/01-foundation/ は repo の **business / governance / architecture knowledge の正本 layer**。
+Batch 20 完遂で foundation layer 全件 articulate 済 (= 42 docs、CLAUDE.md / 主アプリ / 各 active project
+の widely referenced source)。
+
+→ 残 MEDIUM 80 件は references/03-implementation/ 中心 (= 70 docs implementation guides + その他 ~10)。
+
+## Wave 2 / Phase 2.5 sub-PR 25: Reading Pass Batch 21 (= references/03-implementation/ family 76 docs、reviewedAtCommit 4c77ce1)
+
+> **目的**: MEDIUM Reading Pass 大型 batch。references/03-implementation/ family 76 docs (= 残
+> MEDIUM の大半、implementation guides + plans + templates + FAQ + checklists) を 1 batch で
+> articulate。残 MEDIUM 4 件のみ。Reading Pass 完遂視野に。
+
+### Phase 2.5 sub-PR 25 (Reading Pass Batch 21、76 docs)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 25 着手 (= user 「1」承認、= references/03-implementation/ 一括)
+- [x] 76 docs を read + articulate:
+  - implementation guides (= aag-articulation-map / aag-onboarding-path / api / coding-conventions / data-models 等)
+  - plans / migrations 14 (= mixed temporal、aag-phase4-6-plan / active-debt-refactoring-plan / 各種 migration / retirement plans)
+  - templates 3 (= aag-change-impact-template / promote-ceremony-{pr,}-template、template-doc kind)
+  - FAQ / checklists / playbooks
+- [x] 76 entry を document-reading-decisions.yaml に append (= entries: 318 → 394、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 73 件 proposedKind: canonical-doc + 3 件 template-doc articulate
+- [x] 14 件 mixed temporal articulate (= plans / migrations、past + future plan の articulate)
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= 80 → 4 MEDIUM、alreadyReviewedCount 318 → 394)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 394 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 25 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 21 76 entry append 済 (= 累計 394 entries、stage: in-progress)
+- [x] references/03-implementation/ family 完遂 (= 76 件全件 articulate)
+- [x] 残 MEDIUM 4 件のみ (= references/AAG_CRITICAL_RULES + AAG_OVERVIEW + README + tools/architecture-health/src/detectors/README)
+- [x] 即 Gate 化禁止維持
+
+### Phase 2.5 sub-PR 25 で articulate された pattern
+
+**1. implementation layer の articulate 完遂**:
+
+references/03-implementation/ = repo の implementation guides + plans + templates + procedures
+の正本 layer。Batch 21 完遂で 76 件全件 articulate 済。foundation layer (Batch 20) と implementation
+layer (Batch 21) で references/ 配下の主要 layer 完遂。
+
+**2. template-doc family の articulate 拡張 (3 例目以降)**:
+
+template-doc kind を本 batch でも適用:
+- aag-change-impact-template.md (= AAG 変更時の impact analysis template)
+- promote-ceremony-pr-template.md (= Promote Ceremony PR template)
+- promote-ceremony-template.md (= Promote Ceremony 提案 template)
+
+→ template-doc family は projects/_template/ (Batch 15) + .github/PULL_REQUEST_TEMPLATE (Batch 18)
++ design-system/SKILL (Batch 19、claude-skill 別 kind に分離) + 本 batch 3 件 で拡大。
+
+**3. mixed temporal plans / migrations の articulate**:
+
+14 件の plan / migration / retirement docs は past (= 完了済 phase) + future (= 計画中 phase) の
+articulate mixed temporal。governance-articulated (= plan role 要求) のため failurePattern 未付与。
+
+## Wave 2 / Phase 2.5 sub-PR 26: Reading Pass Batch 22 (= 残 4 件 → **Reading Pass 100% 完遂達成**、reviewedAtCommit 3bd7191)
+
+> **目的**: Wave 2 Reading Pass の最終 batch。残 MEDIUM 4 件 (= references/AAG_CRITICAL_RULES +
+> AAG_OVERVIEW + README + tools/architecture-health/src/detectors/README) を articulate。
+> **本 batch で Reading Pass 100% 完遂達成** (= candidates 0、Wave 2 開始から累計 398 docs)。
+
+### Phase 2.5 sub-PR 26 (Reading Pass Batch 22、4 docs、Reading Pass 完遂)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 26 着手 (= user 「1」承認、= Reading Pass 100% 完遂視野)
+- [x] 4 docs を read + articulate:
+  - references/AAG_CRITICAL_RULES.md (= Tier 0 一覧、AAG critical rules summary)
+  - references/AAG_OVERVIEW.md (= AAG 一枚サマリ、思想正本ではなく索引)
+  - references/README.md (= references/ knowledge interface root、3 tree boundary 第一階層)
+  - tools/architecture-health/src/detectors/README.md (= detector layer articulate、4 層 layered model)
+- [x] 4 entry を document-reading-decisions.yaml に append (= entries: 394 → 398、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= **MEDIUM 4 → 0**、alreadyReviewedCount 394 → **398**、totalCandidates 0)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 398 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 26 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 22 4 entry append 済 (= 累計 398 entries、stage: in-progress)
+- [x] **Wave 2 Reading Pass 100% 完遂達成** (= 22 batches で 398/398 docs articulate)
+- [x] HIGH + MEDIUM 全件 articulate 完遂
+- [x] 即 Gate 化禁止維持
+
+## Wave 2 Reading Pass 完遂 — 最終成果サマリ
+
+### 22 batches 累計成果
+
+| Metric | 開始 | 完遂 |
+|---|---|---|
+| Total candidates | 398 | 0 |
+| alreadyReviewedCount | 0 | **398** (100%) |
+| HIGH priority remaining | 194 | 0 |
+| MEDIUM priority remaining | 204 | 0 |
+| proposedKind 種類 | 1 (= unknown) | **20 種** articulate |
+| disposition 種類 | 0 | **7 種** articulate (= 9 中 7) |
+
+### Disposition 内訳 (= 398 entries)
+
+| Disposition | Count | % |
+|---|---|---|
+| keep-and-contract | 312 | 78% |
+| move | 12 | 3% |
+| delete-candidate | 9 | 2% |
+| rewrite-and-contract | 4 | 1% |
+| split | 3 | 1% |
+| archive | 3 | 1% |
+| generated-register | 1 | 0.25% |
+
+### Failure Learning Loop 累計成果
+
+- totalObservedReferences: 0 → **50**
+- guard candidates (>=5 occurrences): 0 → **5**:
+  - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE (16)
+  - DOC-FAIL-LOCATION-MISMATCH (13)
+  - DOC-FAIL-DUPLICATE-RESPONSIBILITY (8) ← Batch 11 で auto-promotion 実証
+  - DOC-FAIL-TEMPORAL-MIXING (6)
+  - DOC-FAIL-GENERATED-AS-MANUAL (5)
+- observed patterns: 7 (= 10 中 7)
+- unobserved patterns: 3
+- unregistered DOC-FAIL-* 検出: 0 (= clean state 維持)
+
+### Wave 3 候補事項 (= Reading Pass 完遂後の next step)
+
+1. **staleness pattern (3 件観測) を taxonomy review window で正式 articulate**:
+   - protocols/README.md (skeleton claim but filled)
+   - aag/_internal/README.md (relocation claim but completed)
+   - taxonomy-constitution.md (draft Phase 1 but Phase 1+2+3+4 完了)
+   → DOC-FAIL-STALE-DESCRIPTION pattern 追加 candidate
+
+2. **filename-content mismatch pattern (1 件観測) も同様**:
+   - .claude/plans/next-session-plan.md (= 'next-plan' but 完了報告)
+
+3. **delete-candidate 9 件の実 delete 実行** (= taxonomy-v2 duplicate 8 件 + .claude/plans が archive 候補)
+
+4. **rewrite-and-contract 4 件の rewrite 実行** (= staleness 修正)
+
+5. **5 guard candidates の guard 実装** (= ratchet-down 完成)
+
+## Wave 2 Reading Pass 進化 timeline
+
+- 2026-05-09: Wave 2 開始 (= sub-PR 1〜3 で infrastructure 着地)
+- 2026-05-09: Reading Pass Batch 1〜5 (= references/04-tracking/ HIGH 主要部 25 docs)
+- 2026-05-09 (推定): Failure Learning Loop infrastructure 着地 (sub-PR 9)
+- 2026-05-09 (推定): Batch 6 で CALC-* family 23 docs (= family-level 一括 mechanism 確立)
+- 2026-05-09 (推定): Batch 7〜12 で projects/active/ 全 6 projects 65 docs (= zone shift)
+- 2026-05-09 (推定): Batch 11 で Failure Loop auto-promotion 実証 (= guard candidates 4 → 5)
+- 2026-05-09 (推定): Batch 13〜14 で elements/ 76 docs + HIGH 完遂 (= 194/194)
+- 2026-05-09 (推定): Batch 15〜22 で MEDIUM 204 docs articulate
+- 2026-05-09 (推定): **Batch 22 で Reading Pass 100% 完遂達成** (= 398/398)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に
