@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-10T14:55:57.753Z",
+  "timestamp": "2026-05-10T15:16:51.628Z",
   "kpis": [
     {
       "id": "allowlist.total",
@@ -249,7 +249,7 @@
       "id": "guard.files.count",
       "label": "ガードテストファイル数",
       "category": "guard",
-      "value": 140,
+      "value": 141,
       "unit": "count",
       "status": "ok",
       "owner": "architecture",
@@ -320,6 +320,7 @@
         "app/src/test/guards/displayRuleGuard.test.ts",
         "app/src/test/guards/docCodeConsistencyGuard.test.ts",
         "app/src/test/guards/docDuplicateResponsibilityGuard.test.ts",
+        "app/src/test/guards/docFailurePatternBaselineGuard.test.ts",
         "app/src/test/guards/docRegistryGuard.test.ts",
         "app/src/test/guards/docStaticNumberGuard.test.ts",
         "app/src/test/guards/dualRunExitCriteriaGuard.test.ts",
