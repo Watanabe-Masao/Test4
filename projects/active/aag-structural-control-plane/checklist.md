@@ -1514,6 +1514,103 @@ template-doc kind を本 batch でも適用:
 14 件の plan / migration / retirement docs は past (= 完了済 phase) + future (= 計画中 phase) の
 articulate mixed temporal。governance-articulated (= plan role 要求) のため failurePattern 未付与。
 
+## Wave 2 / Phase 2.5 sub-PR 26: Reading Pass Batch 22 (= 残 4 件 → **Reading Pass 100% 完遂達成**、reviewedAtCommit 3bd7191)
+
+> **目的**: Wave 2 Reading Pass の最終 batch。残 MEDIUM 4 件 (= references/AAG_CRITICAL_RULES +
+> AAG_OVERVIEW + README + tools/architecture-health/src/detectors/README) を articulate。
+> **本 batch で Reading Pass 100% 完遂達成** (= candidates 0、Wave 2 開始から累計 398 docs)。
+
+### Phase 2.5 sub-PR 26 (Reading Pass Batch 22、4 docs、Reading Pass 完遂)
+
+- [x] Wave 2 / Phase 2.5 sub-PR 26 着手 (= user 「1」承認、= Reading Pass 100% 完遂視野)
+- [x] 4 docs を read + articulate:
+  - references/AAG_CRITICAL_RULES.md (= Tier 0 一覧、AAG critical rules summary)
+  - references/AAG_OVERVIEW.md (= AAG 一枚サマリ、思想正本ではなく索引)
+  - references/README.md (= references/ knowledge interface root、3 tree boundary 第一階層)
+  - tools/architecture-health/src/detectors/README.md (= detector layer articulate、4 層 layered model)
+- [x] 4 entry を document-reading-decisions.yaml に append (= entries: 394 → 398、stage: in-progress)
+- [x] 全 entry に同 disposition: keep-and-contract articulate
+- [x] 全 entry に同 proposedKind: canonical-doc articulate
+- [x] 全 entry に failurePatterns: [] articulate
+- [x] candidates regenerate (= **MEDIUM 4 → 0**、alreadyReviewedCount 394 → **398**、totalCandidates 0)
+- [x] Failure Loop generator 再実行 (= clean batch、observed/guard candidates 状態維持)
+- [x] yaml schema validation OK (= ajv conform、reading-decisions in-progress 398 entries)
+- [x] hard gate 追加なし (= Wave 2 advisory only)
+
+### Phase 2.5 sub-PR 26 完了条件 (ADR-SCP-021 D7 + AAG-SCP-DOC-LEARNING-002 整合)
+
+- [x] reading-decisions.yaml に Batch 22 4 entry append 済 (= 累計 398 entries、stage: in-progress)
+- [x] **Wave 2 Reading Pass 100% 完遂達成** (= 22 batches で 398/398 docs articulate)
+- [x] HIGH + MEDIUM 全件 articulate 完遂
+- [x] 即 Gate 化禁止維持
+
+## Wave 2 Reading Pass 完遂 — 最終成果サマリ
+
+### 22 batches 累計成果
+
+| Metric | 開始 | 完遂 |
+|---|---|---|
+| Total candidates | 398 | 0 |
+| alreadyReviewedCount | 0 | **398** (100%) |
+| HIGH priority remaining | 194 | 0 |
+| MEDIUM priority remaining | 204 | 0 |
+| proposedKind 種類 | 1 (= unknown) | **20 種** articulate |
+| disposition 種類 | 0 | **7 種** articulate (= 9 中 7) |
+
+### Disposition 内訳 (= 398 entries)
+
+| Disposition | Count | % |
+|---|---|---|
+| keep-and-contract | 312 | 78% |
+| move | 12 | 3% |
+| delete-candidate | 9 | 2% |
+| rewrite-and-contract | 4 | 1% |
+| split | 3 | 1% |
+| archive | 3 | 1% |
+| generated-register | 1 | 0.25% |
+
+### Failure Learning Loop 累計成果
+
+- totalObservedReferences: 0 → **50**
+- guard candidates (>=5 occurrences): 0 → **5**:
+  - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE (16)
+  - DOC-FAIL-LOCATION-MISMATCH (13)
+  - DOC-FAIL-DUPLICATE-RESPONSIBILITY (8) ← Batch 11 で auto-promotion 実証
+  - DOC-FAIL-TEMPORAL-MIXING (6)
+  - DOC-FAIL-GENERATED-AS-MANUAL (5)
+- observed patterns: 7 (= 10 中 7)
+- unobserved patterns: 3
+- unregistered DOC-FAIL-* 検出: 0 (= clean state 維持)
+
+### Wave 3 候補事項 (= Reading Pass 完遂後の next step)
+
+1. **staleness pattern (3 件観測) を taxonomy review window で正式 articulate**:
+   - protocols/README.md (skeleton claim but filled)
+   - aag/_internal/README.md (relocation claim but completed)
+   - taxonomy-constitution.md (draft Phase 1 but Phase 1+2+3+4 完了)
+   → DOC-FAIL-STALE-DESCRIPTION pattern 追加 candidate
+
+2. **filename-content mismatch pattern (1 件観測) も同様**:
+   - .claude/plans/next-session-plan.md (= 'next-plan' but 完了報告)
+
+3. **delete-candidate 9 件の実 delete 実行** (= taxonomy-v2 duplicate 8 件 + .claude/plans が archive 候補)
+
+4. **rewrite-and-contract 4 件の rewrite 実行** (= staleness 修正)
+
+5. **5 guard candidates の guard 実装** (= ratchet-down 完成)
+
+## Wave 2 Reading Pass 進化 timeline
+
+- 2026-05-09: Wave 2 開始 (= sub-PR 1〜3 で infrastructure 着地)
+- 2026-05-09: Reading Pass Batch 1〜5 (= references/04-tracking/ HIGH 主要部 25 docs)
+- 2026-05-09 (推定): Failure Learning Loop infrastructure 着地 (sub-PR 9)
+- 2026-05-09 (推定): Batch 6 で CALC-* family 23 docs (= family-level 一括 mechanism 確立)
+- 2026-05-09 (推定): Batch 7〜12 で projects/active/ 全 6 projects 65 docs (= zone shift)
+- 2026-05-09 (推定): Batch 11 で Failure Loop auto-promotion 実証 (= guard candidates 4 → 5)
+- 2026-05-09 (推定): Batch 13〜14 で elements/ 76 docs + HIGH 完遂 (= 194/194)
+- 2026-05-09 (推定): Batch 15〜22 で MEDIUM 204 docs articulate
+- 2026-05-09 (推定): **Batch 22 で Reading Pass 100% 完遂達成** (= 398/398)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

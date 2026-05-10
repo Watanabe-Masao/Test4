@@ -8175,3 +8175,92 @@ entries:
     duplicates: []
     failurePatterns: []
 
+
+  # ============================================================================
+  # Reading Pass Batch 22 (Wave 2 / Phase 2.5 sub-PR 26、reviewedAtCommit 3bd7191)
+  # 4 文書 = 残 MEDIUM 全件 (= references/AAG_CRITICAL_RULES + AAG_OVERVIEW + README +
+  # tools/architecture-health/src/detectors/README)。
+  # **本 batch で Reading Pass 100% 完遂達成** (= candidates 0、Wave 2 開始から累計 398 docs)。
+  # 全件 keep-and-contract / canonical-doc / failurePatterns: []。
+  # ============================================================================
+
+  - path: references/AAG_CRITICAL_RULES.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 3bd719192ec101012c9e4a726c5490cd888c384e
+    reviewedAtSha: 3bd719192ec101012c9e4a726c5490cd888c384e
+    rationaleSummary: |
+      Tier 0 一覧 (= 絶対に踏んではいけない最重要 rule)。1 ページ集約 articulate。schema 正本 =
+      app-domain/gross-profit/rule-catalog/base-rules.ts の tier field。Phase Q.O-1 + Q.O-2 deliverable
+      (= risk tiering の最重要層)。
+    alternativesConsidered: |
+      なし (= Tier 0 articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/AAG_OVERVIEW.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 3bd719192ec101012c9e4a726c5490cd888c384e
+    reviewedAtSha: 3bd719192ec101012c9e4a726c5490cd888c384e
+    rationaleSummary: |
+      AAG (Adaptive Architecture Governance) 一枚サマリ。'本 doc は索引、思想の正本ではない' 自己 articulate
+      (= 正本: references/99-archive/adaptive-architecture-governance.md)。Phase Q.O-1 deliverable
+      (= onboarding cognitive load 削減)。4 layer model articulate。
+    alternativesConsidered: |
+      なし (= 索引 articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: references/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 3bd719192ec101012c9e4a726c5490cd888c384e
+    reviewedAtSha: 3bd719192ec101012c9e4a726c5490cd888c384e
+    rationaleSummary: |
+      references/ knowledge interface root README (= 3 tree boundary 第一階層 articulate)。
+      '主アプリ改修 AI / user の knowledge interface' role articulate。aag/ tree (= AAG framework 内部)
+      / projects/ tree (= 作業単位 lens) との境界 articulate。R3a directory rename 完了 articulate
+      (= 01-principles → 01-foundation 等)。
+    alternativesConsidered: |
+      なし (= 3-tree boundary 第一階層 articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: true
+    hasFuturePlan: false
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []
+
+  - path: tools/architecture-health/src/detectors/README.md
+    proposedKind: canonical-doc
+    temporalScope: present
+    disposition: keep-and-contract
+    reviewedBy: ai-claude-session
+    reviewedAtCommit: 3bd719192ec101012c9e4a726c5490cd888c384e
+    reviewedAtSha: 3bd719192ec101012c9e4a726c5490cd888c384e
+    rationaleSummary: |
+      detectors/ pure violation detection layer articulate (= aag-engine-readiness-refactor project
+      Phase 2〜3 deliverable、将来 Go/Rust engine 部分移行想定の layered model detector 層)。
+      4 層 layered model (collector → detector → evaluator → renderer) の detector 層 role。
+    alternativesConsidered: |
+      なし (= layered model detector layer の articulate role 明確)。
+    hasCurrentContract: true
+    hasHistory: false
+    hasFuturePlan: true
+    hasGeneratedCurrentValue: false
+    duplicates: []
+    failurePatterns: []

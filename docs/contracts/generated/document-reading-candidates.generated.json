@@ -1,91 +1,19 @@
 {
-  "candidates": [
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "references/AAG_CRITICAL_RULES.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "unmanaged",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "references/AAG_OVERVIEW.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "keep-and-contract",
-        "rewrite-and-contract",
-        "split"
-      ],
-      "universeContractStatus": "declared",
-      "universeDocumentStatus": "declared",
-      "universeIndexSection": "unmanaged",
-      "universeKind": "canonical-doc"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "references/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tree-readers",
-      "universeKind": "unknown"
-    },
-    {
-      "hint": "Reading Pass で disposition 確定 (= 9 disposition values + 5 hasX flags + duplicates articulate)",
-      "isHotZone": false,
-      "path": "tools/architecture-health/src/detectors/README.md",
-      "priority": "MEDIUM",
-      "recommendedDispositionCandidates": [
-        "move",
-        "rewrite-and-contract",
-        "archive",
-        "delete-candidate"
-      ],
-      "universeContractStatus": "unreviewed",
-      "universeDocumentStatus": "observed-only",
-      "universeIndexSection": "tools",
-      "universeKind": "unknown"
-    }
-  ],
+  "candidates": [],
   "metadata": {
-    "generatedAt": "2026-05-10T03:51:12.031Z",
+    "generatedAt": "2026-05-10T07:05:15.718Z",
     "sourcePaths": [
       "docs/contracts/generated/document-universe.generated.json",
       "docs/contracts/src/docs/document-reading-decisions.yaml"
     ],
-    "sourceSha": "4c77ce19e5d069549469d0256cf42d3c6babdb72"
+    "sourceSha": "3bd719192ec101012c9e4a726c5490cd888c384e"
   },
   "schemaVersion": "document-reading-candidates-v1",
   "summary": {
-    "alreadyReviewedCount": 394,
-    "byKind": {
-      "canonical-doc": 2,
-      "unknown": 2
-    },
-    "byPriority": {
-      "MEDIUM": 4
-    },
-    "bySection": {
-      "tools": 1,
-      "tree-readers": 1,
-      "unmanaged": 2
-    },
-    "totalCandidates": 4
+    "alreadyReviewedCount": 398,
+    "byKind": {},
+    "byPriority": {},
+    "bySection": {},
+    "totalCandidates": 0
   }
 }
