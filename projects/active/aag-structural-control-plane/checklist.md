@@ -1672,6 +1672,97 @@ collection mode checklist 等) が rules の temporalScope = mixed として art
 
 → governance-articulated mixed temporal は failure ではなく feature として AI に articulate。
 
+## Wave 3 / Phase 6 sub-PR 2: AI Instruction Pack — Generator + Post-write Checker landing (reviewedAtCommit 1c9712d)
+
+> **目的**: Wave 3 / Phase 6 sub-PR 1 で着地した authoring source (= ai-doc-template-rules.yaml、20 kinds)
+> を AI session が consume できる形に変換 (= generator) + 構造的適合性 advisory check (= checker)。
+> Wave 3 advisory only (= warnings、CI fail なし)。
+
+### Phase 6 sub-PR 2 (= AI Instruction Pack consumable infrastructure)
+
+- [x] Wave 3 / Phase 6 sub-PR 2 着手 (= user 「1」承認)
+- [x] Generator 着地: tools/governance/build-ai-doc-instructions.mjs
+  - authoring source schema validation (= ajv conform fail fast)
+  - reading-decisions.yaml scan で per-kind observedCount + observedPathsSample auto-compute
+  - taxonomy.yaml cross-ref で unregisteredFailurePatterns surface
+  - kindsInUseButUnarticulated 検出 (= advisory)
+  - deterministic JSON output
+- [x] Generator 出力着地:
+  - docs/contracts/generated/ai-doc-instructions.generated.json (= machine truth)
+  - references/04-tracking/generated/ai-doc-instructions.generated.md (= human view、doc-registry articulate 済)
+- [x] 初回実行検証:
+  - 20 rules articulated / 398 entries scanned / 20 observed kinds
+  - 全 20 rules に observation あり (= rulesWithoutObservations 0)
+  - unarticulated kinds 0 / unregistered failure patterns 0
+- [x] Post-write checker 着地: tools/governance/check-doc-postwrite.mjs
+  - --all mode (= 全 reviewed docs scan) + 単一 file mode + --kind override
+  - --report option で markdown report 出力
+  - Markdown header 抽出 (= ^#+\s+... 構造、code fence 除外)
+  - requiredSections 充足検査 (= section title prefix の substring match)
+  - forbiddenContent は機械検証困難 (= 概念的制約) のため advisory hint としてのみ list
+  - Wave 3 advisory: 違反検出は warning のみ、exit code 0 維持
+- [x] Checker 出力着地:
+  - references/04-tracking/generated/doc-postwrite-findings.generated.md (= --report output、doc-registry articulate 済)
+- [x] requiredSections refinement (= initial false-positive 65 → real findings 2):
+  - log-journal: 'timeline section' 削除 (= 概念的、section title でない)
+  - generated-report: 'generated metadata' 削除 (= 同上)
+  - project-plan: '役割 articulate' 削除 (= 'role articulation' は quote line `> 役割:` で section ではない)
+  - project-discovery-log: 'priority 表' → 'priority' (= 実 header は `## priority`)
+  - project-projectization: '判定結果 表' → '判定結果' / '判定理由' は keep
+  - project-decision-audit: 'DA entry' 削除 (= variable suffix の per-decision section、prefix match 困難)
+  - project-breaking-changes: '対象破壊的変更 表' → '対象破壊的変更'
+  - project-legacy-retirement: '撤退対象 表' → '撤退対象'
+  - project-promotion-proposal: '承認 form' 削除 (= form は section でない)
+  - project-sub-project-map: '表' suffix 削除
+  - role-skill: 'SKILL-N' 削除 (= variable suffix N=1,2,...)
+  - claude-skill: 'frontmatter' 削除 (= YAML block で section ではない)
+- [x] 最終 advisory baseline: 2 findings 残 (= projects/active/quick-fixes/checklist.md の AI 自己レビュー + 最終レビュー section 不在)
+- [x] hard gate 追加なし (= Wave 3 advisory only、AAG-SCP-GUIDANCE-003 整合)
+
+### Phase 6 sub-PR 2 完了条件 (不可侵原則 6 + 11 整合)
+
+- [x] generator が deterministic に動作 (= sorted JSON keys、reproducible)
+- [x] checker が exit code 0 維持 (= advisory only、CI fail なし)
+- [x] 既存 ai-doc-template-rules.schema.json を改変せず derived block で auto-enrichment 実装
+- [x] reading-decisions.yaml と taxonomy.yaml との bidirectional cross-reference articulate
+- [x] requiredSections refinement で false-positive を排除 (= 初回 65 → 2 real findings)
+- [x] forbiddenContent は machine 検証困難 (= 概念的) のため advisory hint としてのみ articulate
+- [x] doc-registry に 2 新 generated.md 登録済
+- [x] 即 Gate 化禁止維持 (= AAG-SCP-GUIDANCE-003 整合)
+
+### Phase 6 sub-PR 2 で articulate された pattern
+
+**1. requiredSections refinement learning (= 初回 advisory ↔ rule design 反復)**:
+
+initial 20 rules articulate 時、「あるべき」section name を articulate したが実 markdown header と
+mismatch (= 65 false positives)。refinement で:
+- '表' suffix (= 表が含まれていても header text には付かない) を削除
+- '<noun> articulate' (= 概念的、section title でない) を削除
+- variable suffix (= SKILL-N、DA entry per-decision) を削除
+- structural metadata (= frontmatter / generated metadata) は section ではないため削除
+→ 最終 2 real findings (= quick-fixes/checklist.md の collection mode 例外候補)
+
+**2. real signal observed (= advisory baseline)**:
+
+quick-fixes/checklist.md が AI 自己レビュー + 最終レビュー section を含まない:
+- project-checklist-governance §3 は finite project に対して両 section を mandate
+- collection mode (= 'collection は終わらない、archive しない') では approval gate がない
+- 仕様 vs 実装の整合性課題 candidate (= Wave 3 別 sub-PR で governance review)
+
+→ post-write checker が **collection mode の governance contract 課題を初めて surface**。Wave 3
+で governance review window 経由で「collection mode は両 section 不要」を articulate するか、
+quick-fixes に両 section を追加するかの判断が必要。
+
+**3. 不可侵原則 11 articulate**:
+
+post-write validation 限定 + advisory only mechanism で不可侵原則 11 (= AAG-SCP-GUIDANCE-003)
+を機械的に articulate:
+- AI session が rule に違反する markdown を作成しても block されない (= 自由度確保)
+- post-write check で warning surface (= AI に judgment material 提供)
+- AI / human が rewrite / 例外 articulate のいずれかを判断
+- hard gate 化は別 program candidate (= 'mature' stage 到達条件は AI session が rules を consume
+  し始めてから)
+
 ## AI 自己レビュー (= user 承認の手前)
 
 > 本 section は **必ず最終レビュー (user 承認) の直前** に置く。実装 AI が project 完了前に

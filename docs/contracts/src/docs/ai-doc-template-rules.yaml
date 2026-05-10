@@ -132,8 +132,7 @@ rules:
     readers:
       - AI session (= history navigation)
       - user (= 判断 history review)
-    requiredSections:
-      - timeline section (= chronological articulate)
+    requiredSections: []
     forbiddenContent:
       - 'past entry の retroactive 改変 (= append-only 原則)'
     temporalScope: past
@@ -152,8 +151,7 @@ rules:
     readers:
       - AI session (= current value 参照)
       - user (= 健全性確認)
-    requiredSections:
-      - generated metadata (= generator name + sha + timestamp)
+    requiredSections: []
     forbiddenContent:
       - 手編集 (= machine-generated only)
     temporalScope: present
@@ -179,8 +177,7 @@ rules:
     readers:
       - 後任 AI session
       - project 担当者
-    requiredSections:
-      - 役割 articulate (= 何のための文書か)
+    requiredSections: []
     forbiddenContent:
       - live task list (= checklist.md に分離)
       - 完了済 work を未完了として articulate (= staleness 防止)
@@ -229,7 +226,7 @@ rules:
       - 後任 AI session (= scope 外 finding 引き継ぎ)
       - user (= post-archive 別 program 起動判断)
     requiredSections:
-      - priority 表 (= P1 / P2 / P3)
+      - priority
     forbiddenContent:
       - scope 内 task (= checklist.md に articulate)
       - judgment 履歴 (= decision-audit.md に articulate)
@@ -253,7 +250,7 @@ rules:
       - AI session (= bootstrap 時の judgment 確認)
       - user (= 重 project の approval gate)
     requiredSections:
-      - 判定結果 表 (= projectizationLevel 等の決定値)
+      - 判定結果
       - 判定理由
     forbiddenContent:
       - live task list
@@ -277,8 +274,7 @@ rules:
     readers:
       - 後任 AI session (= 過去判断 reference)
       - user (= 重判断 historical review)
-    requiredSections:
-      - DA entry (= per-decision section)
+    requiredSections: []
     forbiddenContent:
       - live task list
       - scope 外 finding (= discovery-log.md に articulate)
@@ -300,7 +296,7 @@ rules:
       - AI session (= 影響 scope 把握)
       - user (= breaking change approval)
     requiredSections:
-      - 対象破壊的変更 表 (= ID + 対象 + 破壊内容 + Phase)
+      - 対象破壊的変更
     forbiddenContent:
       - non-breaking change (= 別 kind)
     temporalScope: present
@@ -321,7 +317,7 @@ rules:
       - AI session (= 撤退 scope 把握)
       - user (= retirement approval)
     requiredSections:
-      - 撤退対象 表 (= 対象 + 撤退内容 + Phase + sunsetCondition)
+      - 撤退対象
     forbiddenContent:
       - non-retirement change
     temporalScope: present
@@ -343,7 +339,6 @@ rules:
       - AI session (= proposal status 確認)
     requiredSections:
       - 候補情報
-      - 承認 form (= 承認待ち user 含む)
     forbiddenContent:
       - AI self-approval (= user signature only、不可侵原則)
     temporalScope: mixed
@@ -363,8 +358,8 @@ rules:
       - AI session (= umbrella scope 把握)
       - user (= umbrella governance)
     requiredSections:
-      - sub-project 一覧 表
-      - 依存関係 articulate
+      - sub-project 一覧
+      - 依存関係
     forbiddenContent:
       - non-umbrella project (= Level 2/3 では不要)
     temporalScope: present
@@ -429,10 +424,7 @@ rules:
       CLAUDE.md 4 層 governance model の Execution layer に対応。
     readers:
       - AI session (= role 実行時)
-    requiredSections:
-      - SKILL-N (= per-skill section)
-      - 論理構造（なぜこの手順か）
-      - 方法論（手順）
+    requiredSections: []
     forbiddenContent:
       - role identity (= ROLE.md に articulate)
       - claude-skill activation protocol (= 別 kind = claude-skill)
@@ -485,8 +477,7 @@ rules:
     readers:
       - AI session (= skill activation 時)
       - user (= skill invocation)
-    requiredSections:
-      - frontmatter (= name + version + description + user-invocable)
+    requiredSections: []
     forbiddenContent:
       - role-internal methodology (= role-skill に articulate)
     temporalScope: present

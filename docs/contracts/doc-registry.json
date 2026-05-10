@@ -854,6 +854,14 @@
         {
           "path": "references/04-tracking/generated/document-failure-taxonomy.generated.md",
           "label": "Document Failure Taxonomy (machine view) — Reading Pass で観測された DOC-FAIL-* per pattern の observedCount + observedPaths + computedMaturity + guard candidate eligibility を articulate (AAG SCP Wave 2 / Phase 2.5 sub-PR 9、Failure Learning Loop infrastructure)"
+        },
+        {
+          "path": "references/04-tracking/generated/ai-doc-instructions.generated.md",
+          "label": "AI Instruction Pack (machine view) — 20 Document Kind 別 AI 向け post-write validation guidance の rendered view (purpose + readers + requiredSections + forbiddenContent + temporalScope + referencePolicy + relatedFailurePatterns + observedCount per kind、AAG SCP Wave 3 / Phase 6 sub-PR 2)"
+        },
+        {
+          "path": "references/04-tracking/generated/doc-postwrite-findings.generated.md",
+          "label": "Document Post-write Findings (machine view) — ai-doc-template-rules.yaml の各 rule に対する Markdown 文書の構造的適合性 (requiredSections 充足) advisory findings (AAG SCP Wave 3 / Phase 6 sub-PR 2、advisory only)"
         }
       ]
     },
