@@ -33,7 +33,10 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { load as loadYaml } from 'js-yaml'
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- js-yaml lacks type declarations; require は CJS interop で警告回避
+const yaml = require('js-yaml')
+
+const loadYaml = (content: string): unknown => yaml.load(content)
 
 const REPO_ROOT = resolve(__dirname, '../../../..')
 const READING_DECISIONS_PATH = resolve(
