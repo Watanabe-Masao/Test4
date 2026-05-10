@@ -4,8 +4,8 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T13:05:15.886Z
-- generatedAtSha: `0b2128bf2cec6110ab98e676ef4b01b31811d53b`
+- 生成: 2026-05-10T21:47:35.060Z
+- generatedAtSha: `0c27afd4052d00ffa170d5c3468d92a9c8a1a9f1`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
@@ -69,8 +69,6 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 16
 - **suggestedRemedy**: move (= projects/active/<id>/ へ移動) または split (= 残すべき部分は canonical 化、TODO 部分は project へ)
 - **observedPaths** (16):
-  - `references/04-tracking/aag-doc-audit-report.md`
-  - `references/04-tracking/authoritative-term-sweep.md`
   - `references/04-tracking/engine-maturity-matrix.md`
   - `references/04-tracking/engine-promotion-matrix.md`
   - `references/04-tracking/features-migration-status.md`
@@ -85,6 +83,8 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
   - `references/04-tracking/promotion-readiness-remainingBudgetRate.md`
   - `references/04-tracking/promotion-readiness-sensitivity.md`
   - `references/04-tracking/promotion-readiness-trendAnalysis.md`
+  - `references/99-archive/aag-doc-audit-report.md`
+  - `references/99-archive/authoritative-term-sweep.md`
 - **observedDispositions**: `archive`, `move`, `split`
 
 ### `DOC-FAIL-LOCATION-MISMATCH`
@@ -95,7 +95,6 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 13
 - **suggestedRemedy**: move (= 適切な zone へ移動 + 参照更新)
 - **observedPaths** (13):
-  - `references/04-tracking/aag-doc-audit-report.md`
   - `references/04-tracking/ar-rule-audit.md`
   - `references/04-tracking/promotion-readiness-correlation.md`
   - `references/04-tracking/promotion-readiness-customerGap.md`
@@ -108,6 +107,7 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
   - `references/04-tracking/promotion-readiness-remainingBudgetRate.md`
   - `references/04-tracking/promotion-readiness-sensitivity.md`
   - `references/04-tracking/promotion-readiness-trendAnalysis.md`
+  - `references/99-archive/aag-doc-audit-report.md`
 - **observedDispositions**: `archive`, `move`
 
 ### `DOC-FAIL-DUPLICATE-RESPONSIBILITY`
@@ -136,12 +136,12 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 6
 - **suggestedRemedy**: split (= 過去 → archive-doc / 未来 → project-plan / 現在のみ canonical-doc に残す)
 - **observedPaths** (6):
-  - `references/04-tracking/aag-doc-audit-report.md`
-  - `references/04-tracking/authoritative-term-sweep.md`
   - `references/04-tracking/engine-maturity-matrix.md`
   - `references/04-tracking/engine-promotion-matrix.md`
   - `references/04-tracking/features-migration-status.md`
   - `references/04-tracking/frozen-list.md`
+  - `references/99-archive/aag-doc-audit-report.md`
+  - `references/99-archive/authoritative-term-sweep.md`
 - **observedDispositions**: `archive`, `rewrite-and-contract`, `split`
 
 ### `DOC-FAIL-GENERATED-AS-MANUAL`
@@ -152,11 +152,11 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 5
 - **suggestedRemedy**: generated-register (= producer 経由で generated-report 化、ADR-SCP-008 例外条項 articulate)
 - **observedPaths** (5):
-  - `references/04-tracking/authoritative-term-sweep.md`
   - `references/04-tracking/engine-maturity-matrix.md`
   - `references/04-tracking/engine-promotion-matrix.md`
   - `references/04-tracking/frozen-list.md`
   - `references/04-tracking/quality-audit-latest.md`
+  - `references/99-archive/authoritative-term-sweep.md`
 - **observedDispositions**: `archive`, `delete-candidate`, `rewrite-and-contract`, `split`
 
 ### `DOC-FAIL-STALE-DESCRIPTION`

@@ -1,4 +1,8 @@
-# AAG Core doc audit report — Phase 3 deliverable
+# [ARCHIVED] AAG Core doc audit report — Phase 3 deliverable
+
+> **Archived**: 2026-05-10 (= aag-disposition-execution Sub-3 sub-PR 1)
+> **Migrated From**: `references/04-tracking/aag-doc-audit-report.md`
+> **Rationale**: completed project (aag-bidirectional-integrity) の audit findings。Wave 2 Reading Pass Batch 1 で 'Phase 3 deliverable を自称し、references/04-tracking/ 配下にあるが content は project audit 履歴で、現在の canonical reference ではない' と articulate、disposition: archive 確定。
 
 > **役割**: AAG 関連 doc 群 (`references/01-foundation/` 配下 8 doc + `CLAUDE.md` AAG セクション) の **5 層位置付け / 責務 / write/non-write list / drill-down pointer / 必要 operation / 影響範囲 inventory / migration order** を articulate する Phase 3 audit findings。
 >

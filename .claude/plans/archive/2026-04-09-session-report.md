@@ -1,4 +1,8 @@
-# セッション計画 — 完了報告
+# [ARCHIVED] セッション計画 — 完了報告 (2026-04-09)
+
+> **Archived**: 2026-05-10 (= aag-disposition-execution Sub-3 sub-PR 1)
+> **Migrated From**: `.claude/plans/next-session-plan.md`
+> **Rationale**: filename と content の mismatch (= 'next-session-plan' という名前だが content は 2026-04-09 dated 完了報告)。AI scratchpad の歴史 archive として preserve。Wave 2 Reading Pass Batch 18 で articulate 済 disposition: archive。
 
 ## 実施結果（2026-04-09 全セッション）
 

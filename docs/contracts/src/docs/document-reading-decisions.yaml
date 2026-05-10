@@ -49,7 +49,7 @@ entries:
     duplicates: []
     failurePatterns: []
 
-  - path: references/04-tracking/aag-doc-audit-report.md
+  - path: references/99-archive/aag-doc-audit-report.md
     proposedKind: project-plan
     temporalScope: past
     disposition: archive
@@ -97,7 +97,7 @@ entries:
     failurePatterns:
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/authoritative-term-sweep.md
+  - path: references/99-archive/authoritative-term-sweep.md
     proposedKind: archive-doc
     temporalScope: past
     disposition: archive
@@ -5696,7 +5696,7 @@ entries:
     duplicates: []
     failurePatterns: []
 
-  - path: .claude/plans/next-session-plan.md
+  - path: .claude/plans/archive/2026-04-09-session-report.md
     proposedKind: canonical-doc
     temporalScope: past
     disposition: archive
