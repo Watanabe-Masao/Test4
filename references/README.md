@@ -233,7 +233,7 @@
 | Engine 昇格基準                                                                                        | `04-tracking/promotion-criteria.md`                               |
 | 技術的負債ロードマップ                                                                                 | `04-tracking/technical-debt-roadmap.md`                           |
 | AAG Core doc audit report (Phase 3 deliverable)                                                        | `04-tracking/aag-doc-audit-report.md`                             |
-| AR-rule binding 品質基準 protocol (Project B Phase 3 batch 1)                                          | `04-tracking/ar-rule-audit.md`                                    |
+| AR-rule binding 品質基準 protocol (Project B Phase 3 batch 1)                                          | `03-implementation/ar-rule-binding-protocol.md`                   |
 | 直近の主要変更                                                                                         | `04-tracking/recent-changes.generated.md`                                   |
 | プロジェクト構成                                                                                       | `04-tracking/project-structure.md`                                |
 | Document Universe Index (= 全 Markdown の分類済み索引、AAG SCP Wave 2)                                  | `04-tracking/generated/document-universe.generated.md`            |

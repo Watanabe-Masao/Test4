@@ -411,7 +411,7 @@ describe('Architecture State Audit — 構造状態スナップショット', ()
         ),
     ].join('\n')
 
-    const mdPath = path.join(reportDir, 'architecture-state-snapshot.md')
+    const mdPath = path.join(reportDir, 'architecture-state-snapshot.generated.md')
     fs.writeFileSync(mdPath, md, 'utf-8')
 
     expect(fs.existsSync(jsonPath)).toBe(true)

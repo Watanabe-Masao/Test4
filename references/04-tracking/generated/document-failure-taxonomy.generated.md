@@ -4,8 +4,8 @@
 > 観測 source = `docs/contracts/src/docs/document-reading-decisions.yaml`、
 > generator = `tools/governance/build-document-failure-taxonomy.mjs`。
 
-- 生成: 2026-05-10T21:47:35.060Z
-- generatedAtSha: `0c27afd4052d00ffa170d5c3468d92a9c8a1a9f1`
+- 生成: 2026-05-11T13:58:28.916Z
+- generatedAtSha: `87ca39ecfe3382b37d4ff4ec4baf43506d9cc479`
 - schemaVersion: `document-failure-taxonomy-v1`
 - stage: `in-use`
 
@@ -69,20 +69,20 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 16
 - **suggestedRemedy**: move (= projects/active/<id>/ へ移動) または split (= 残すべき部分は canonical 化、TODO 部分は project へ)
 - **observedPaths** (16):
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md`
   - `references/04-tracking/engine-maturity-matrix.md`
   - `references/04-tracking/engine-promotion-matrix.md`
   - `references/04-tracking/features-migration-status.md`
-  - `references/04-tracking/promotion-readiness-correlation.md`
-  - `references/04-tracking/promotion-readiness-customerGap.md`
-  - `references/04-tracking/promotion-readiness-dowGapAnalysis.md`
-  - `references/04-tracking/promotion-readiness-inventoryCalc.md`
-  - `references/04-tracking/promotion-readiness-movingAverage.md`
-  - `references/04-tracking/promotion-readiness-observationPeriod.md`
-  - `references/04-tracking/promotion-readiness-piValue.md`
-  - `references/04-tracking/promotion-readiness-pinIntervals.md`
-  - `references/04-tracking/promotion-readiness-remainingBudgetRate.md`
-  - `references/04-tracking/promotion-readiness-sensitivity.md`
-  - `references/04-tracking/promotion-readiness-trendAnalysis.md`
   - `references/99-archive/aag-doc-audit-report.md`
   - `references/99-archive/authoritative-term-sweep.md`
 - **observedDispositions**: `archive`, `move`, `split`
@@ -95,18 +95,18 @@ _(none — all DOC-FAIL-* used in reading-decisions are registered in taxonomy)_
 - **observedCount**: 13
 - **suggestedRemedy**: move (= 適切な zone へ移動 + 参照更新)
 - **observedPaths** (13):
-  - `references/04-tracking/ar-rule-audit.md`
-  - `references/04-tracking/promotion-readiness-correlation.md`
-  - `references/04-tracking/promotion-readiness-customerGap.md`
-  - `references/04-tracking/promotion-readiness-dowGapAnalysis.md`
-  - `references/04-tracking/promotion-readiness-inventoryCalc.md`
-  - `references/04-tracking/promotion-readiness-movingAverage.md`
-  - `references/04-tracking/promotion-readiness-observationPeriod.md`
-  - `references/04-tracking/promotion-readiness-piValue.md`
-  - `references/04-tracking/promotion-readiness-pinIntervals.md`
-  - `references/04-tracking/promotion-readiness-remainingBudgetRate.md`
-  - `references/04-tracking/promotion-readiness-sensitivity.md`
-  - `references/04-tracking/promotion-readiness-trendAnalysis.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md`
+  - `references/03-implementation/ar-rule-binding-protocol.md`
   - `references/99-archive/aag-doc-audit-report.md`
 - **observedDispositions**: `archive`, `move`
 

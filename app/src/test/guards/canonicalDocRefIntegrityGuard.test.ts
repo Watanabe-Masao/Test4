@@ -14,7 +14,7 @@
  *
  * @guard F8 正本保護
  * @guard G8 責務分離ガード
- * @see references/04-tracking/ar-rule-audit.md §2.5 (`AAG-REQ-SEMANTIC-ARTICULATION` + `AAG-REQ-BIDIRECTIONAL-INTEGRITY` の機械検証)
+ * @see references/03-implementation/ar-rule-binding-protocol.md §2.5 (`AAG-REQ-SEMANTIC-ARTICULATION` + `AAG-REQ-BIDIRECTIONAL-INTEGRITY` の機械検証)
  *
  * @responsibility R:unclassified
  *

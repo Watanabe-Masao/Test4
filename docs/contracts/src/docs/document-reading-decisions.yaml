@@ -75,7 +75,7 @@ entries:
       - DOC-FAIL-LOCATION-MISMATCH
       - DOC-FAIL-TEMPORAL-MIXING
 
-  - path: references/04-tracking/ar-rule-audit.md
+  - path: references/03-implementation/ar-rule-binding-protocol.md
     proposedKind: canonical-doc
     temporalScope: present
     disposition: move
@@ -435,7 +435,7 @@ entries:
       - DOC-FAIL-GENERATED-AS-MANUAL
       - DOC-FAIL-AI-ROUTING-AMBIGUITY
 
-  - path: references/04-tracking/generated/architecture-state-snapshot.md
+  - path: references/04-tracking/generated/architecture-state-snapshot.generated.md
     proposedKind: generated-report
     temporalScope: present
     disposition: generated-register
