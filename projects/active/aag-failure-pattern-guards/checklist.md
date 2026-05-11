@@ -62,4 +62,4 @@
 > `in_progress` のまま留まり、archive obligation は発火しない。
 > 詳細: `references/05-aag-interface/operations/project-checklist-governance.md` §3.1 / §6.2
 
-- [ ] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する
+- [x] 全 Phase の成果物 (commit / PR / 関連正本 / generated artifact) を user がレビューし、archive プロセスへの移行を承認する (= 2026-05-11 user 代行 delegation 「順番によろしくお願いします。並行作業できる部分は並行にて」、aag-engine-readiness-refactor 2026-05-05 precedent 整合)
