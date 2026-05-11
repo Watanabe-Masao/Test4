@@ -3,20 +3,20 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-11T15:04:53.800Z
+> 生成: 2026-05-11T21:32:58.999Z
 
 ## サマリー
 
 | 指標 | 値 |
 |---|---|
-| active project 数（archive 未実施を含む） | 6 |
-| archived project 数 | 45 |
-| in_progress project 数 | 5 |
+| active project 数（archive 未実施を含む） | 5 |
+| archived project 数 | 46 |
+| in_progress project 数 | 4 |
 | checklist 完了済みだが archive 未実施 | 0 |
 | checkbox 空 (placeholder / 立ち上げ直後) | 0 |
 | collection (continuous, 終わらない) | 1 |
-| 全 project の required checkbox 総数 | 2199 |
-| 全 project の checked checkbox 総数 | 2093 |
+| 全 project の required checkbox 総数 | 2175 |
+| 全 project の checked checkbox 総数 | 2083 |
 
 ## projects
 
@@ -34,7 +34,7 @@
 | `aag-engine-readiness-refactor` | AAG Engine Readiness Refactor — Go/Rust engine 実装前の TS 構造事前整備 | **archived** | — | — | [`projects/completed/aag-engine-readiness-refactor/AI_CONTEXT.md`](../../../projects/completed/aag-engine-readiness-refactor/AI_CONTEXT.md) |
 | `aag-failure-pattern-guards` | AAG Failure Pattern Guards — 6 guard candidates の実 guard test articulate で ratchet-down 完成 | **archived** | — | — | [`projects/active/aag-failure-pattern-guards/AI_CONTEXT.md`](../../../projects/active/aag-failure-pattern-guards/AI_CONTEXT.md) |
 | `aag-format-redesign` | AAG フォーマット改修とサブプロジェクト機能 | **archived** | — | — | [`projects/aag-format-redesign/AI_CONTEXT.md`](../../../projects/aag-format-redesign/AI_CONTEXT.md) |
-| `aag-governance-ratchet-down` | AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program | **in_progress** | — | 10/24 (42%) | [`projects/active/aag-governance-ratchet-down/AI_CONTEXT.md`](../../../projects/active/aag-governance-ratchet-down/AI_CONTEXT.md) |
+| `aag-governance-ratchet-down` | AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program | **archived** | — | — | [`projects/active/aag-governance-ratchet-down/AI_CONTEXT.md`](../../../projects/active/aag-governance-ratchet-down/AI_CONTEXT.md) |
 | `aag-legacy-retirement` | AAG legacy doc archive 拡張案件 (Project A Phase 5 で完遂しない doc) | **archived** | — | 28/28 (100%) | [`projects/completed/aag-legacy-retirement/AI_CONTEXT.md`](../../../projects/completed/aag-legacy-retirement/AI_CONTEXT.md) |
 | `aag-platformization` | AAG Platformization Program — authority + artifact + contract + change-policy | **archived** | — | — | [`projects/completed/aag-platformization/AI_CONTEXT.md`](../../../projects/completed/aag-platformization/AI_CONTEXT.md) |
 | `aag-rule-schema-meta-guard` | AAG rule schema 拡張 + AR-rule binding + meta-guard MVP | **archived** | — | 34/42 (81%) | [`projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md`](../../../projects/completed/aag-rule-schema-meta-guard/AI_CONTEXT.md) |
