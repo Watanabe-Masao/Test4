@@ -16,7 +16,7 @@
  *   selfHostingGuard.test.ts (= 本 file、closure 構造を hard fail で検証)
  *
  * 本 guard の存在自体が AAG framework が自分自身を保護する instance であり、
- * AAG-REQ-SELF-HOSTING の達成判定 mechanism (= ar-rule-audit.md §6 articulate 済)。
+ * AAG-REQ-SELF-HOSTING の達成判定 mechanism (= ar-rule-binding-protocol.md §6 articulate 済)。
  *
  * ## 検証 (5 tests)
  *
@@ -52,7 +52,7 @@
  * @taxonomyKind T:meta-guard
  * @responsibility R:guard
  * @see aag/_internal/meta.md §2 (AAG-REQ-SELF-HOSTING)
- * @see references/04-tracking/ar-rule-audit.md §6 (selfHostingGuard scope articulate)
+ * @see references/03-implementation/ar-rule-binding-protocol.md §6 (selfHostingGuard scope articulate)
  */
 import { describe, it, expect } from 'vitest'
 import * as fs from 'fs'

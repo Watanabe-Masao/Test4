@@ -75,7 +75,7 @@ entries:
       - DOC-FAIL-LOCATION-MISMATCH
       - DOC-FAIL-TEMPORAL-MIXING
 
-  - path: references/04-tracking/ar-rule-audit.md
+  - path: references/03-implementation/ar-rule-binding-protocol.md
     proposedKind: canonical-doc
     temporalScope: present
     disposition: move

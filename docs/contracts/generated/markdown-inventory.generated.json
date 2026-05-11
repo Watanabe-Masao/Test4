@@ -166,180 +166,323 @@
       "topHeading": "projectization — &lt;PROJECT-ID&gt;"
     },
     {
-      "candidateKind": "project-other",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/aag/scp-checkers/README.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 9555,
-      "topHeading": "scp-checkers — aag-structural-control-plane project-scoped boundary protection"
-    },
-    {
       "candidateKind": "project-ai-context",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/AI_CONTEXT.md",
+      "path": "projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 12228,
-      "topHeading": "AI_CONTEXT — aag-structural-control-plane"
+      "size": 1392,
+      "topHeading": "AI_CONTEXT — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-checklist",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/checklist.md",
+      "path": "projects/active/aag-coverage-rule-expansion/checklist.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 27077,
-      "topHeading": "checklist — aag-structural-control-plane"
+      "size": 3212,
+      "topHeading": "checklist — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-decision-audit",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/decision-audit.md",
+      "path": "projects/active/aag-coverage-rule-expansion/decision-audit.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 136021,
-      "topHeading": "decision-audit — aag-structural-control-plane"
+      "size": 5871,
+      "topHeading": "decision-audit — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-discovery-log",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/discovery-log.md",
+      "path": "projects/active/aag-coverage-rule-expansion/discovery-log.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 4539,
-      "topHeading": "discovery-log — aag-structural-control-plane"
+      "size": 2741,
+      "topHeading": "discovery-log — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-handoff",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/HANDOFF.md",
+      "path": "projects/active/aag-coverage-rule-expansion/HANDOFF.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 7785,
-      "topHeading": "HANDOFF — aag-structural-control-plane"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 7772,
-      "topHeading": "inquiry/01 — Existing Contract Assets"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 6799,
-      "topHeading": "inquiry/02 — Existing YAML Inventory"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 8586,
-      "topHeading": "inquiry/03 — doc-registry.json Extension Strategy"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 7857,
-      "topHeading": "inquiry/04 — self-check Substrate Sync"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 7718,
-      "topHeading": "inquiry/05 — Obligation / Required Reads Migration Strategy"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 11539,
-      "topHeading": "inquiry/06 — Temporal Scope Shadow Policy"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 31669,
-      "topHeading": "inquiry/07 — Phase 0 Acceptance Criteria（10 項目集約）"
-    },
-    {
-      "candidateKind": "project-inquiry",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 20808,
-      "topHeading": "inquiry/08 — Wave Restructuring 棚卸し"
+      "size": 1061,
+      "topHeading": "HANDOFF — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-plan",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/plan.md",
+      "path": "projects/active/aag-coverage-rule-expansion/plan.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 80178,
-      "topHeading": "plan — aag-structural-control-plane"
+      "size": 565,
+      "topHeading": "plan — aag-coverage-rule-expansion"
     },
     {
       "candidateKind": "project-projectization",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
-      "path": "projects/active/aag-structural-control-plane/projectization.md",
+      "path": "projects/active/aag-coverage-rule-expansion/projectization.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 9977,
-      "topHeading": "projectization — aag-structural-control-plane"
+      "size": 2643,
+      "topHeading": "projectization — aag-coverage-rule-expansion"
+    },
+    {
+      "candidateKind": "project-ai-context",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/AI_CONTEXT.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2412,
+      "topHeading": "AI_CONTEXT — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-checklist",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/checklist.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3210,
+      "topHeading": "checklist — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-decision-audit",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/decision-audit.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 5867,
+      "topHeading": "decision-audit — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-discovery-log",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/discovery-log.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2739,
+      "topHeading": "discovery-log — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-handoff",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/HANDOFF.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1059,
+      "topHeading": "HANDOFF — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-plan",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/plan.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 563,
+      "topHeading": "plan — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-projectization",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-disposition-execution/projectization.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2641,
+      "topHeading": "projectization — aag-disposition-execution"
+    },
+    {
+      "candidateKind": "project-ai-context",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/AI_CONTEXT.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2669,
+      "topHeading": "AI_CONTEXT — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-checklist",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/checklist.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3211,
+      "topHeading": "checklist — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-decision-audit",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/decision-audit.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 5869,
+      "topHeading": "decision-audit — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-discovery-log",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/discovery-log.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2740,
+      "topHeading": "discovery-log — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-handoff",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/HANDOFF.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1060,
+      "topHeading": "HANDOFF — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-plan",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/plan.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 564,
+      "topHeading": "plan — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-projectization",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-failure-pattern-guards/projectization.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2642,
+      "topHeading": "projectization — aag-failure-pattern-guards"
+    },
+    {
+      "candidateKind": "project-ai-context",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/AI_CONTEXT.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3816,
+      "topHeading": "AI_CONTEXT — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-checklist",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/checklist.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 4778,
+      "topHeading": "checklist — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-decision-audit",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/decision-audit.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 5871,
+      "topHeading": "decision-audit — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-discovery-log",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/discovery-log.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2741,
+      "topHeading": "discovery-log — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-handoff",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 9178,
+      "topHeading": "HANDOFF — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-plan",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/plan.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3416,
+      "topHeading": "plan — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-projectization",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/projectization.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3955,
+      "topHeading": "projectization — aag-governance-ratchet-down"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/aag-governance-ratchet-down/sub-project-map.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 4796,
+      "topHeading": "sub-project-map — aag-governance-ratchet-down (umbrella)"
     },
     {
       "candidateKind": "project-ai-context",
@@ -533,6 +676,127 @@
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 561,
+      "topHeading": "Promotion-Ready 判定表 — correlation (CAND-ANA-005)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1539,
+      "topHeading": "Promotion-Ready 判定表 — customerGap (CAND-BIZ-013)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 601,
+      "topHeading": "Promotion-Ready 判定表 — dowGapAnalysis (CAND-ANA-007)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1854,
+      "topHeading": "Promotion-Ready 判定表 — inventoryCalc (CAND-BIZ-009)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 561,
+      "topHeading": "Promotion-Ready 判定表 — computeMovingAverage (CAND-ANA-009)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1545,
+      "topHeading": "Promotion-Ready 判定表 — observationPeriod (CAND-BIZ-010)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1603,
+      "topHeading": "Promotion-Ready 判定表 — pinIntervals (CAND-BIZ-011)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 2814,
+      "topHeading": "Promotion-Ready 判定表 — piValue (CAND-BIZ-012)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1503,
+      "topHeading": "Promotion-Ready 判定表 — remainingBudgetRate (CAND-BIZ-008)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 481,
+      "topHeading": "Promotion-Ready 判定表 — sensitivity (CAND-ANA-003)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 597,
+      "topHeading": "Promotion-Ready 判定表 — trendAnalysis (CAND-ANA-004)"
+    },
+    {
+      "candidateKind": "project-other",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
       "path": "projects/active/pure-calculation-reorg/phase-8/README.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
@@ -714,94 +978,6 @@
       "promotionAllowed": false,
       "size": 11701,
       "topHeading": "checklist — taxonomy-v2（親）"
-    },
-    {
-      "candidateKind": "project-derived-index",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/DERIVED.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 3158,
-      "topHeading": "DERIVED — 派生セットの判断基準"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/acceptance-suite.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1219,
-      "topHeading": "acceptance-suite — <PROJECT-ID>"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/inventory/00-example.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 525,
-      "topHeading": "00-example — サンプル棚卸しファイル"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/inventory/README.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1093,
-      "topHeading": "inventory — <PROJECT-ID>"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/pr-breakdown.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1089,
-      "topHeading": "pr-breakdown — <PROJECT-ID>"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/README.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1291,
-      "topHeading": "derived/ — 派生ファイルセットのテンプレート集"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/review-checklist.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1925,
-      "topHeading": "review-checklist — <PROJECT-ID>"
-    },
-    {
-      "candidateKind": "project-derived",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "projects/active/taxonomy-v2/derived/test-plan.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1343,
-      "topHeading": "test-plan — <PROJECT-ID>"
     },
     {
       "candidateKind": "project-discovery-log",
@@ -1572,6 +1748,182 @@
       "promotionAllowed": false,
       "size": 6839,
       "topHeading": "aag-self-hosting-completion"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/AI_CONTEXT.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 12228,
+      "topHeading": "AI_CONTEXT — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/checklist.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 170011,
+      "topHeading": "checklist — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/decision-audit.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 182244,
+      "topHeading": "decision-audit — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/derived/README.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 5034,
+      "topHeading": "derived — aag-structural-control-plane (Wave 2 deliverable space)"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/discovery-log.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 4539,
+      "topHeading": "discovery-log — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/HANDOFF.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 13069,
+      "topHeading": "[ARCHIVED] HANDOFF — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/01-existing-contract-assets.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 7772,
+      "topHeading": "inquiry/01 — Existing Contract Assets"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 6799,
+      "topHeading": "inquiry/02 — Existing YAML Inventory"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 8586,
+      "topHeading": "inquiry/03 — doc-registry.json Extension Strategy"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 7857,
+      "topHeading": "inquiry/04 — self-check Substrate Sync"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 7718,
+      "topHeading": "inquiry/05 — Obligation / Required Reads Migration Strategy"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 11539,
+      "topHeading": "inquiry/06 — Temporal Scope Shadow Policy"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 31669,
+      "topHeading": "inquiry/07 — Phase 0 Acceptance Criteria（10 項目集約）"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/inquiry/08-wave-restructuring.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 20808,
+      "topHeading": "inquiry/08 — Wave Restructuring 棚卸し"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/plan.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 99664,
+      "topHeading": "plan — aag-structural-control-plane"
+    },
+    {
+      "candidateKind": "archive-doc",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "projects/completed/aag-structural-control-plane/projectization.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 9977,
+      "topHeading": "projectization — aag-structural-control-plane"
     },
     {
       "candidateKind": "archive-doc",
@@ -4280,39 +4632,6 @@
       "topHeading": "projects/ — 作業単位 lens"
     },
     {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/aag-doc-audit-report.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 34272,
-      "topHeading": "AAG Core doc audit report — Phase 3 deliverable"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/ar-rule-audit.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 19035,
-      "topHeading": "AR-rule binding 品質基準 protocol — Project B Phase 3 deliverable"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/authoritative-term-sweep.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 5469,
-      "topHeading": "authoritative 用語スイープ結果"
-    },
-    {
       "candidateKind": "generated-report",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
@@ -5659,6 +5978,17 @@
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
+      "path": "references/04-tracking/generated/ai-doc-instructions.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 25159,
+      "topHeading": "AI Instruction Pack (machine view)"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
       "path": "references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
@@ -5673,7 +6003,7 @@
       "path": "references/04-tracking/generated/architecture-health-certificate.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 2728,
+      "size": 2520,
       "topHeading": "Architecture Health Report"
     },
     {
@@ -5714,10 +6044,54 @@
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
       "observed": true,
+      "path": "references/04-tracking/generated/artifact-coverage.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 870,
+      "topHeading": "Artifact Coverage Matrix (machine view)"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/doc-postwrite-findings.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 1244,
+      "topHeading": "Document Post-write Findings (machine view)"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/document-failure-taxonomy.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 10952,
+      "topHeading": "Document Failure Taxonomy (machine view)"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/document-universe.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 138438,
+      "topHeading": "Document Universe Index (generated)"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
       "path": "references/04-tracking/generated/project-health.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 13863,
+      "size": 15131,
       "topHeading": "Project Health — generated artifact"
     },
     {
@@ -5730,6 +6104,17 @@
       "promotionAllowed": false,
       "size": 6729,
       "topHeading": "Query Access Audit Report"
+    },
+    {
+      "candidateKind": "generated-report",
+      "contractStatus": "unreviewed",
+      "inventoryStatus": "observed-only",
+      "observed": true,
+      "path": "references/04-tracking/generated/required-docs-matrix.generated.md",
+      "preservationAssumed": false,
+      "promotionAllowed": false,
+      "size": 3690,
+      "topHeading": "Required Docs Matrix (machine view)"
     },
     {
       "candidateKind": "generated-report",
@@ -5761,7 +6146,7 @@
       "path": "references/04-tracking/open-issues.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 27822,
+      "size": 29631,
       "topHeading": "active projects 索引"
     },
     {
@@ -5772,7 +6157,7 @@
       "path": "references/04-tracking/project-structure.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 8292,
+      "size": 8379,
       "topHeading": "プロジェクト構成"
     },
     {
@@ -5785,138 +6170,6 @@
       "promotionAllowed": false,
       "size": 12189,
       "topHeading": "Promotion Criteria — Engine 昇格基準"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-correlation.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 561,
-      "topHeading": "Promotion-Ready 判定表 — correlation (CAND-ANA-005)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-customerGap.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1539,
-      "topHeading": "Promotion-Ready 判定表 — customerGap (CAND-BIZ-013)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-dowGapAnalysis.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 601,
-      "topHeading": "Promotion-Ready 判定表 — dowGapAnalysis (CAND-ANA-007)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-inventoryCalc.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1854,
-      "topHeading": "Promotion-Ready 判定表 — inventoryCalc (CAND-BIZ-009)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-movingAverage.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 561,
-      "topHeading": "Promotion-Ready 判定表 — computeMovingAverage (CAND-ANA-009)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-observationPeriod.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1545,
-      "topHeading": "Promotion-Ready 判定表 — observationPeriod (CAND-BIZ-010)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-pinIntervals.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1603,
-      "topHeading": "Promotion-Ready 判定表 — pinIntervals (CAND-BIZ-011)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-piValue.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 2814,
-      "topHeading": "Promotion-Ready 判定表 — piValue (CAND-BIZ-012)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-remainingBudgetRate.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 1503,
-      "topHeading": "Promotion-Ready 判定表 — remainingBudgetRate (CAND-BIZ-008)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-sensitivity.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 481,
-      "topHeading": "Promotion-Ready 判定表 — sensitivity (CAND-ANA-003)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/promotion-readiness-trendAnalysis.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 597,
-      "topHeading": "Promotion-Ready 判定表 — trendAnalysis (CAND-ANA-004)"
-    },
-    {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/quality-audit-latest.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 8571,
-      "topHeading": "品質チェックレポート（2026-03-29 更新）"
     },
     {
       "candidateKind": "generated-report",
@@ -5953,36 +6206,33 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-08T15:37:27.364Z",
+    "generatedAt": "2026-05-11T13:49:34.052Z",
     "sourcePaths": [
       "projects/",
       "references/04-tracking/",
       "docs/contracts/"
     ],
-    "sourceSha": "c58b6ff840795eb478e017e1488f2153b714bdd7"
+    "sourceSha": "cfcee7e179a1c8783e83482212fe892a1389cf60"
   },
   "schemaVersion": "markdown-inventory-v1",
   "scope": "managed-zone-3",
   "summary": {
     "candidateKindHistogram": {
-      "archive-doc": 298,
-      "generated-report": 24,
-      "project-ai-context": 6,
+      "archive-doc": 314,
+      "generated-report": 30,
+      "project-ai-context": 9,
       "project-archive-summary": 11,
-      "project-checklist": 6,
-      "project-decision-audit": 2,
-      "project-derived": 7,
-      "project-derived-index": 1,
-      "project-discovery-log": 5,
-      "project-handoff": 6,
-      "project-inquiry": 8,
-      "project-other": 12,
-      "project-plan": 6,
-      "project-projectization": 5,
+      "project-checklist": 9,
+      "project-decision-audit": 5,
+      "project-discovery-log": 8,
+      "project-handoff": 9,
+      "project-other": 23,
+      "project-plan": 9,
+      "project-projectization": 8,
       "project-template": 15,
-      "tracking-report": 116,
+      "tracking-report": 101,
       "tree-readme": 13
     },
-    "totalEntries": 541
+    "totalEntries": 564
   }
 }

@@ -3,8 +3,8 @@
 > 機械生成。手で編集しない。authoring source = `docs/contracts/src/docs/ai-doc-template-rules.yaml`、
 > generator = `tools/governance/build-ai-doc-instructions.mjs`。
 
-- 生成: 2026-05-10T11:43:27.749Z
-- generatedAtSha: `6cf9214d6f2d386b667564d8af1ecc3b351156c5`
+- 生成: 2026-05-11T13:49:34.698Z
+- generatedAtSha: `cfcee7e179a1c8783e83482212fe892a1389cf60`
 - schemaVersion: `ai-doc-template-rules-v1`
 - stage: `pre-articulate`
 
@@ -39,7 +39,7 @@
   - `aag/_internal/strategy.md`
   - `references/04-tracking/elements/calculations/CALC-001.md`
 - **observedPathsSample** (5/277):
-  - `references/04-tracking/ar-rule-audit.md`
+  - `references/03-implementation/ar-rule-binding-protocol.md`
   - `references/04-tracking/dashboards/README.md`
   - `references/04-tracking/frozen-list.md`
   - `references/04-tracking/open-issues.md`
@@ -74,7 +74,7 @@
   - `projects/active/quick-fixes/AI_CONTEXT.md`
   - `projects/active/quick-fixes/HANDOFF.md`
   - `projects/active/quick-fixes/plan.md`
-  - `references/04-tracking/aag-doc-audit-report.md`
+  - `references/99-archive/aag-doc-audit-report.md`
   - _...(+25 more)_
 
 **additionalGuidance**:
@@ -127,13 +127,13 @@
   - live task list (= status と task は別 kind)
 - **relatedFailurePatterns**: `DOC-FAIL-LOCATION-MISMATCH`, `DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE`
 - **examples** (2):
-  - `references/04-tracking/promotion-readiness-correlation.md`
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`
   - `references/04-tracking/engine-maturity-matrix.md`
 - **observedPathsSample** (5/16):
+  - `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`
   - `references/04-tracking/engine-maturity-matrix.md`
   - `references/04-tracking/engine-promotion-matrix.md`
   - `references/04-tracking/features-migration-status.md`
-  - `references/04-tracking/promotion-readiness-correlation.md`
   - `references/04-tracking/quality-audit-latest.md`
   - _...(+11 more)_
 
@@ -475,7 +475,7 @@
   - `references/04-tracking/aag-doc-audit-report.md`
   - `references/04-tracking/authoritative-term-sweep.md`
 - **observedPathsSample** (1/1):
-  - `references/04-tracking/authoritative-term-sweep.md`
+  - `references/99-archive/authoritative-term-sweep.md`
 
 **additionalGuidance**:
 

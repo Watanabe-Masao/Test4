@@ -4,11 +4,11 @@
 >
 > 正本: `docs/contracts/generated/document-universe.generated.json` (= machine truth、本ファイルは projection)
 
-**generated**: 2026-05-09T02:49:19.179Z — sourceSha: `3b03c0477293cb01a44ef066ae40dfa02ec1f627`
+**generated**: 2026-05-11T13:49:34.226Z — sourceSha: `cfcee7e179a1c8783e83482212fe892a1389cf60`
 
 ## Summary
 
-- Total entries: **744**
+- Total entries: **768**
 
 ### By Index Section
 
@@ -17,19 +17,19 @@
 | aag-framework | 5 |
 | aag-framework-internal | 9 |
 | aag-interface | 16 |
-| active-projects | 65 |
-| archive | 12 |
-| completed-projects | 309 |
+| active-projects | 80 |
+| archive | 14 |
+| completed-projects | 325 |
 | design-system | 14 |
 | foundation | 42 |
 | generated-other | 16 |
-| implementation | 76 |
+| implementation | 77 |
 | project-templates | 15 |
 | repository-entrypoints | 4 |
 | roles | 16 |
 | tools | 1 |
-| tracking | 128 |
-| tracking-generated | 9 |
+| tracking | 113 |
+| tracking-generated | 14 |
 | tree-readers | 2 |
 | unmanaged | 5 |
 
@@ -37,28 +37,28 @@
 
 | Kind | Count |
 |---|---|
-| archive-doc | 321 |
-| canonical-doc | 269 |
-| generated-report | 25 |
-| project-plan | 52 |
+| archive-doc | 339 |
+| canonical-doc | 267 |
+| generated-report | 30 |
+| project-plan | 57 |
 | repo-entrypoint | 3 |
-| unknown | 74 |
+| unknown | 72 |
 
 ### By Document Status
 
 | Status | Count |
 |---|---|
-| archive | 321 |
-| declared | 269 |
-| generated | 25 |
-| observed-only | 129 |
+| archive | 339 |
+| declared | 267 |
+| generated | 30 |
+| observed-only | 132 |
 
 ### By Contract Status
 
 | Status | Count |
 |---|---|
-| declared | 284 |
-| unreviewed | 460 |
+| declared | 288 |
+| unreviewed | 480 |
 
 ## Entries
 
@@ -109,27 +109,39 @@
 | [`references/05-aag-interface/protocols/task-protocol-system.md`](../../05-aag-interface/protocols/task-protocol-system.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/05-aag-interface/README.md`](../../05-aag-interface/README.md) | unknown | observed-only | unreviewed | markdown-inventory |
 
-### active-projects (65)
+### active-projects (80)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
-| [`projects/active/aag-structural-control-plane/aag/scp-checkers/README.md`](../../../projects/active/aag-structural-control-plane/aag/scp-checkers/README.md) | unknown | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/AI_CONTEXT.md`](../../../projects/active/aag-structural-control-plane/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/checklist.md`](../../../projects/active/aag-structural-control-plane/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/decision-audit.md`](../../../projects/active/aag-structural-control-plane/decision-audit.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/derived/README.md`](../../../projects/active/aag-structural-control-plane/derived/README.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/discovery-log.md`](../../../projects/active/aag-structural-control-plane/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/HANDOFF.md`](../../../projects/active/aag-structural-control-plane/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md`](../../../projects/active/aag-structural-control-plane/inquiry/01-existing-contract-assets.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md`](../../../projects/active/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md`](../../../projects/active/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md`](../../../projects/active/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md`](../../../projects/active/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md`](../../../projects/active/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md`](../../../projects/active/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md`](../../../projects/active/aag-structural-control-plane/inquiry/08-wave-restructuring.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/plan.md`](../../../projects/active/aag-structural-control-plane/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/aag-structural-control-plane/projectization.md`](../../../projects/active/aag-structural-control-plane/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md`](../../../projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/checklist.md`](../../../projects/active/aag-coverage-rule-expansion/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/decision-audit.md`](../../../projects/active/aag-coverage-rule-expansion/decision-audit.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/discovery-log.md`](../../../projects/active/aag-coverage-rule-expansion/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/HANDOFF.md`](../../../projects/active/aag-coverage-rule-expansion/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/plan.md`](../../../projects/active/aag-coverage-rule-expansion/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-coverage-rule-expansion/projectization.md`](../../../projects/active/aag-coverage-rule-expansion/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/AI_CONTEXT.md`](../../../projects/active/aag-disposition-execution/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/checklist.md`](../../../projects/active/aag-disposition-execution/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/decision-audit.md`](../../../projects/active/aag-disposition-execution/decision-audit.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/discovery-log.md`](../../../projects/active/aag-disposition-execution/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/HANDOFF.md`](../../../projects/active/aag-disposition-execution/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/plan.md`](../../../projects/active/aag-disposition-execution/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-disposition-execution/projectization.md`](../../../projects/active/aag-disposition-execution/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/AI_CONTEXT.md`](../../../projects/active/aag-failure-pattern-guards/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/checklist.md`](../../../projects/active/aag-failure-pattern-guards/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/decision-audit.md`](../../../projects/active/aag-failure-pattern-guards/decision-audit.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/discovery-log.md`](../../../projects/active/aag-failure-pattern-guards/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/HANDOFF.md`](../../../projects/active/aag-failure-pattern-guards/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/plan.md`](../../../projects/active/aag-failure-pattern-guards/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-failure-pattern-guards/projectization.md`](../../../projects/active/aag-failure-pattern-guards/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/AI_CONTEXT.md`](../../../projects/active/aag-governance-ratchet-down/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/checklist.md`](../../../projects/active/aag-governance-ratchet-down/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/decision-audit.md`](../../../projects/active/aag-governance-ratchet-down/decision-audit.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/discovery-log.md`](../../../projects/active/aag-governance-ratchet-down/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/HANDOFF.md`](../../../projects/active/aag-governance-ratchet-down/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/plan.md`](../../../projects/active/aag-governance-ratchet-down/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/projectization.md`](../../../projects/active/aag-governance-ratchet-down/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/aag-governance-ratchet-down/sub-project-map.md`](../../../projects/active/aag-governance-ratchet-down/sub-project-map.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/presentation-quality-hardening/AI_CONTEXT.md`](../../../projects/active/presentation-quality-hardening/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/presentation-quality-hardening/checklist.md`](../../../projects/active/presentation-quality-hardening/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/presentation-quality-hardening/discovery-log.md`](../../../projects/active/presentation-quality-hardening/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
@@ -147,6 +159,17 @@
 | [`projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md`](../../../projects/active/pure-calculation-reorg/phase-8/proposals/ANA-004-trendAnalysis.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md`](../../../projects/active/pure-calculation-reorg/phase-8/proposals/ANA-007-dowGapAnalysis.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md`](../../../projects/active/pure-calculation-reorg/phase-8/proposals/ANA-009-computeMovingAverage.md) | unknown | observed-only | unreviewed | markdown-inventory |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md) | canonical-doc | declared | declared | doc-registry |
+| [`projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md`](../../../projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md) | canonical-doc | declared | declared | doc-registry |
 | [`projects/active/pure-calculation-reorg/phase-8/README.md`](../../../projects/active/pure-calculation-reorg/phase-8/README.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/pure-calculation-reorg/plan.md`](../../../projects/active/pure-calculation-reorg/plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/pure-calculation-reorg/projectization.md`](../../../projects/active/pure-calculation-reorg/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
@@ -164,14 +187,6 @@
 | [`projects/active/taxonomy-v2/AI_CONTEXT.md`](../../../projects/active/taxonomy-v2/AI_CONTEXT.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/breaking-changes.md`](../../../projects/active/taxonomy-v2/breaking-changes.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/checklist.md`](../../../projects/active/taxonomy-v2/checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/DERIVED.md`](../../../projects/active/taxonomy-v2/DERIVED.md) | unknown | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/acceptance-suite.md`](../../../projects/active/taxonomy-v2/derived/acceptance-suite.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/inventory/00-example.md`](../../../projects/active/taxonomy-v2/derived/inventory/00-example.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/inventory/README.md`](../../../projects/active/taxonomy-v2/derived/inventory/README.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/pr-breakdown.md`](../../../projects/active/taxonomy-v2/derived/pr-breakdown.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/README.md`](../../../projects/active/taxonomy-v2/derived/README.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/review-checklist.md`](../../../projects/active/taxonomy-v2/derived/review-checklist.md) | project-plan | observed-only | unreviewed | markdown-inventory |
-| [`projects/active/taxonomy-v2/derived/test-plan.md`](../../../projects/active/taxonomy-v2/derived/test-plan.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/discovery-log.md`](../../../projects/active/taxonomy-v2/discovery-log.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/HANDOFF.md`](../../../projects/active/taxonomy-v2/HANDOFF.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/legacy-retirement.md`](../../../projects/active/taxonomy-v2/legacy-retirement.md) | unknown | observed-only | unreviewed | markdown-inventory |
@@ -179,24 +194,26 @@
 | [`projects/active/taxonomy-v2/projectization.md`](../../../projects/active/taxonomy-v2/projectization.md) | project-plan | observed-only | unreviewed | markdown-inventory |
 | [`projects/active/taxonomy-v2/sub-project-map.md`](../../../projects/active/taxonomy-v2/sub-project-map.md) | unknown | observed-only | unreviewed | markdown-inventory |
 
-### archive (12)
+### archive (14)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
 | [`references/99-archive/aag-5-constitution.md`](../../99-archive/aag-5-constitution.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/aag-5-layer-map.md`](../../99-archive/aag-5-layer-map.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/aag-5-source-of-truth-policy.md`](../../99-archive/aag-5-source-of-truth-policy.md) | archive-doc | archive | declared | doc-registry |
+| [`references/99-archive/aag-doc-audit-report.md`](../../99-archive/aag-doc-audit-report.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/aag-four-layer-architecture.md`](../../99-archive/aag-four-layer-architecture.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/aag-operational-classification.md`](../../99-archive/aag-operational-classification.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/aag-rule-splitting-plan.md`](../../99-archive/aag-rule-splitting-plan.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/adaptive-architecture-governance.md`](../../99-archive/adaptive-architecture-governance.md) | archive-doc | archive | declared | doc-registry |
 | [`references/99-archive/adaptive-governance-evolution.md`](../../99-archive/adaptive-governance-evolution.md) | archive-doc | archive | declared | doc-registry |
+| [`references/99-archive/authoritative-term-sweep.md`](../../99-archive/authoritative-term-sweep.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`references/99-archive/old-plans-summary.md`](../../99-archive/old-plans-summary.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`references/99-archive/plan.md`](../../99-archive/plan.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`references/99-archive/PLAN.md`](../../99-archive/PLAN.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`references/99-archive/principle-migration-map.md`](../../99-archive/principle-migration-map.md) | archive-doc | archive | unreviewed | markdown-inventory |
 
-### completed-projects (309)
+### completed-projects (325)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
@@ -264,6 +281,22 @@
 | [`projects/completed/aag-rule-splitting-execution/HANDOFF.md`](../../../projects/completed/aag-rule-splitting-execution/HANDOFF.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`projects/completed/aag-rule-splitting-execution/plan.md`](../../../projects/completed/aag-rule-splitting-execution/plan.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`projects/completed/aag-self-hosting-completion/ARCHIVE.md`](../../../projects/completed/aag-self-hosting-completion/ARCHIVE.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/AI_CONTEXT.md`](../../../projects/completed/aag-structural-control-plane/AI_CONTEXT.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/checklist.md`](../../../projects/completed/aag-structural-control-plane/checklist.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/decision-audit.md`](../../../projects/completed/aag-structural-control-plane/decision-audit.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/derived/README.md`](../../../projects/completed/aag-structural-control-plane/derived/README.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/discovery-log.md`](../../../projects/completed/aag-structural-control-plane/discovery-log.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/HANDOFF.md`](../../../projects/completed/aag-structural-control-plane/HANDOFF.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/01-existing-contract-assets.md`](../../../projects/completed/aag-structural-control-plane/inquiry/01-existing-contract-assets.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md`](../../../projects/completed/aag-structural-control-plane/inquiry/02-existing-yaml-inventory.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md`](../../../projects/completed/aag-structural-control-plane/inquiry/03-doc-registry-extension-strategy.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md`](../../../projects/completed/aag-structural-control-plane/inquiry/04-self-check-substrate-sync.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md`](../../../projects/completed/aag-structural-control-plane/inquiry/05-obligation-migration-strategy.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md`](../../../projects/completed/aag-structural-control-plane/inquiry/06-temporal-scope-shadow-policy.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md`](../../../projects/completed/aag-structural-control-plane/inquiry/07-phase0-acceptance-criteria.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/inquiry/08-wave-restructuring.md`](../../../projects/completed/aag-structural-control-plane/inquiry/08-wave-restructuring.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/plan.md`](../../../projects/completed/aag-structural-control-plane/plan.md) | archive-doc | archive | unreviewed | markdown-inventory |
+| [`projects/completed/aag-structural-control-plane/projectization.md`](../../../projects/completed/aag-structural-control-plane/projectization.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md`](../../../projects/completed/aag-temporal-governance-hardening/AI_CONTEXT.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`projects/completed/aag-temporal-governance-hardening/breaking-changes.md`](../../../projects/completed/aag-temporal-governance-hardening/breaking-changes.md) | archive-doc | archive | unreviewed | markdown-inventory |
 | [`projects/completed/aag-temporal-governance-hardening/checklist.md`](../../../projects/completed/aag-temporal-governance-hardening/checklist.md) | archive-doc | archive | unreviewed | markdown-inventory |
@@ -597,7 +630,7 @@
 | [`references/04-tracking/elements/element-index.generated.md`](../elements/element-index.generated.md) | generated-report | generated | unreviewed | markdown-inventory |
 | [`references/04-tracking/recent-changes.generated.md`](../recent-changes.generated.md) | generated-report | generated | declared | doc-registry |
 
-### implementation (76)
+### implementation (77)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
@@ -613,6 +646,7 @@
 | [`references/03-implementation/analytic-kernel-migration-plan.md`](../../03-implementation/analytic-kernel-migration-plan.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/03-implementation/api.md`](../../03-implementation/api.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/03-implementation/app-lifecycle-implementation.md`](../../03-implementation/app-lifecycle-implementation.md) | canonical-doc | declared | declared | doc-registry |
+| [`references/03-implementation/ar-rule-binding-protocol.md`](../../03-implementation/ar-rule-binding-protocol.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/03-implementation/architecture-rule-system.md`](../../03-implementation/architecture-rule-system.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/03-implementation/authoritative-display-rules.md`](../../03-implementation/authoritative-display-rules.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/03-implementation/calculation-engine.md`](../../03-implementation/calculation-engine.md) | canonical-doc | declared | declared | doc-registry |
@@ -734,13 +768,10 @@
 |---|---|---|---|---|
 | [`tools/architecture-health/src/detectors/README.md`](../../../tools/architecture-health/src/detectors/README.md) | unknown | observed-only | unreviewed | markdown-inventory |
 
-### tracking (128)
+### tracking (113)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
-| [`references/04-tracking/aag-doc-audit-report.md`](../aag-doc-audit-report.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/ar-rule-audit.md`](../ar-rule-audit.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/authoritative-term-sweep.md`](../authoritative-term-sweep.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/dashboards/README.md`](../dashboards/README.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/elements/calculations/CALC-001.md`](../elements/calculations/CALC-001.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/elements/calculations/CALC-002.md`](../elements/calculations/CALC-002.md) | canonical-doc | declared | declared | doc-registry |
@@ -852,33 +883,26 @@
 | [`references/04-tracking/open-issues.md`](../open-issues.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/project-structure.md`](../project-structure.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/promotion-criteria.md`](../promotion-criteria.md) | unknown | observed-only | unreviewed | markdown-inventory |
-| [`references/04-tracking/promotion-readiness-correlation.md`](../promotion-readiness-correlation.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-customerGap.md`](../promotion-readiness-customerGap.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-dowGapAnalysis.md`](../promotion-readiness-dowGapAnalysis.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-inventoryCalc.md`](../promotion-readiness-inventoryCalc.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-movingAverage.md`](../promotion-readiness-movingAverage.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-observationPeriod.md`](../promotion-readiness-observationPeriod.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-pinIntervals.md`](../promotion-readiness-pinIntervals.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-piValue.md`](../promotion-readiness-piValue.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-remainingBudgetRate.md`](../promotion-readiness-remainingBudgetRate.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-sensitivity.md`](../promotion-readiness-sensitivity.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/promotion-readiness-trendAnalysis.md`](../promotion-readiness-trendAnalysis.md) | canonical-doc | declared | declared | doc-registry |
-| [`references/04-tracking/quality-audit-latest.md`](../quality-audit-latest.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/taxonomy-review-journal.md`](../taxonomy-review-journal.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/technical-debt-roadmap.md`](../technical-debt-roadmap.md) | canonical-doc | declared | declared | doc-registry |
 
-### tracking-generated (9)
+### tracking-generated (14)
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
 | [`references/04-tracking/generated/aag-size-statistics.generated.md`](aag-size-statistics.generated.md) | generated-report | generated | declared | doc-registry |
+| [`references/04-tracking/generated/ai-doc-instructions.generated.md`](ai-doc-instructions.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md`](architecture-debt-recovery-remediation.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-health-certificate.generated.md`](architecture-health-certificate.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-health.generated.md`](architecture-health.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-state-snapshot.generated.md`](architecture-state-snapshot.generated.md) | generated-report | generated | unreviewed | markdown-inventory |
+| [`references/04-tracking/generated/artifact-coverage.generated.md`](artifact-coverage.generated.md) | generated-report | generated | declared | doc-registry |
+| [`references/04-tracking/generated/doc-postwrite-findings.generated.md`](doc-postwrite-findings.generated.md) | generated-report | generated | declared | doc-registry |
+| [`references/04-tracking/generated/document-failure-taxonomy.generated.md`](document-failure-taxonomy.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/document-universe.generated.md`](document-universe.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/project-health.generated.md`](project-health.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/query-access-audit.generated.md`](query-access-audit.generated.md) | generated-report | generated | unreviewed | markdown-inventory |
+| [`references/04-tracking/generated/required-docs-matrix.generated.md`](required-docs-matrix.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/test-signal-baseline.generated.md`](test-signal-baseline.generated.md) | generated-report | generated | unreviewed | markdown-inventory |
 
 ### tree-readers (2)
@@ -892,7 +916,7 @@
 
 | Path | Kind | Status | Contract | Source |
 |---|---|---|---|---|
-| [`.claude/plans/next-session-plan.md`](../../../.claude/plans/next-session-plan.md) | unknown | observed-only | unreviewed | markdown-inventory |
+| [`.claude/plans/archive/2026-04-09-session-report.md`](../../../.claude/plans/archive/2026-04-09-session-report.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`.github/PULL_REQUEST_TEMPLATE.md`](../../../.github/PULL_REQUEST_TEMPLATE.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/AAG_CRITICAL_RULES.md`](../../AAG_CRITICAL_RULES.md) | canonical-doc | declared | declared | doc-registry |

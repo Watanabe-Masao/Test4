@@ -1,14 +1,14 @@
 {
   "schemaVersion": "source-facts-v1",
-  "generatedAt": "2026-05-06T10:17:05.477Z",
+  "generatedAt": "2026-05-11T13:49:54.240Z",
   "summary": {
-    "totalFiles": 2714,
+    "totalFiles": 2843,
     "byKind": {
       "tsx": 351,
-      "typescript": 1958,
-      "markdown": 358,
-      "json": 24,
-      "go": 23
+      "typescript": 1964,
+      "markdown": 379,
+      "json": 60,
+      "go": 89
     },
     "excludedKinds": [
       "generated",
@@ -18,44 +18,584 @@
   },
   "facts": [
     {
-      "path": "aag-engine/cmd/aag/main_test.go",
+      "path": "aag-engine/cmd/aag/command_bootstrap.go",
       "kind": "go",
       "layer": "aag-engine",
-      "physicalLines": 422,
-      "blankLines": 38,
-      "commentLines": 54,
-      "effectiveCodeLines": 330,
+      "physicalLines": 54,
+      "blankLines": 5,
+      "commentLines": 18,
+      "effectiveCodeLines": 31,
       "imports": [
-        "bytes",
-        "encoding/json",
-        "path/filepath",
-        "runtime",
-        "strings",
-        "testing"
+        "flag",
+        "fmt",
+        "io",
+        "aag-engine/internal/bootstrap"
       ],
-      "exports": 21
+      "exports": 0
     },
     {
-      "path": "aag-engine/cmd/aag/main.go",
+      "path": "aag-engine/cmd/aag/command_chaos.go",
       "kind": "go",
       "layer": "aag-engine",
-      "physicalLines": 343,
-      "blankLines": 40,
-      "commentLines": 65,
-      "effectiveCodeLines": 238,
+      "physicalLines": 94,
+      "blankLines": 7,
+      "commentLines": 24,
+      "effectiveCodeLines": 63,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "os",
+        "strings",
+        "aag-engine/internal/chaos"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_clean.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 67,
+      "blankLines": 8,
+      "commentLines": 7,
+      "effectiveCodeLines": 52,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/cleanliness",
+        "aag-engine/internal/navigation"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_comments.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 74,
+      "blankLines": 8,
+      "commentLines": 2,
+      "effectiveCodeLines": 64,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/commentscan",
+        "aag-engine/internal/navigation"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_describe.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 83,
+      "blankLines": 7,
+      "commentLines": 25,
+      "effectiveCodeLines": 51,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "strings",
+        "aag-engine/internal/describe"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_docs.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 62,
+      "blankLines": 8,
+      "commentLines": 2,
+      "effectiveCodeLines": 52,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/cleanliness",
+        "aag-engine/internal/navigation"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_fixtures.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 62,
+      "blankLines": 9,
+      "commentLines": 7,
+      "effectiveCodeLines": 46,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "aag-engine/internal/fixture",
+        "aag-engine/internal/report"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_index.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 59,
+      "blankLines": 5,
+      "commentLines": 20,
+      "effectiveCodeLines": 34,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "aag-engine/internal/aagindex"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_introspect.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 113,
+      "blankLines": 8,
+      "commentLines": 30,
+      "effectiveCodeLines": 75,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "strings",
+        "aag-engine/internal/introspect"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_navigation.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 271,
+      "blankLines": 25,
+      "commentLines": 29,
+      "effectiveCodeLines": 217,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/navigation"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_obligation.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 70,
+      "blankLines": 8,
+      "commentLines": 2,
+      "effectiveCodeLines": 60,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/navigation",
+        "aag-engine/internal/obligation"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_project.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 100,
+      "blankLines": 12,
+      "commentLines": 3,
+      "effectiveCodeLines": 85,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/navigation",
+        "aag-engine/internal/projectstatus"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_repair.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 63,
+      "blankLines": 7,
+      "commentLines": 2,
+      "effectiveCodeLines": 54,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/navigation",
+        "aag-engine/internal/repaircontext"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_selfcheck.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 56,
+      "blankLines": 5,
+      "commentLines": 24,
+      "effectiveCodeLines": 27,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "aag-engine/internal/selfcheck"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_shadow.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 69,
+      "blankLines": 10,
+      "commentLines": 7,
+      "effectiveCodeLines": 52,
       "imports": [
         "encoding/json",
         "flag",
         "fmt",
         "io",
-        "os",
-        "path/filepath",
-        "aag-engine/internal/fixture",
         "aag-engine/internal/report",
-        "aag-engine/internal/shadow",
+        "aag-engine/internal/shadow"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_stats.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 88,
+      "blankLines": 8,
+      "commentLines": 14,
+      "effectiveCodeLines": 66,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/stats"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_task.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 186,
+      "blankLines": 16,
+      "commentLines": 21,
+      "effectiveCodeLines": 149,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "path/filepath",
+        "aag-engine/internal/navigation",
         "aag-engine/internal/taskcapsule"
       ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_validate.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 53,
+      "blankLines": 9,
+      "commentLines": 7,
+      "effectiveCodeLines": 37,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "aag-engine/internal/report"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/command_wrap.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 62,
+      "blankLines": 6,
+      "commentLines": 17,
+      "effectiveCodeLines": 39,
+      "imports": [
+        "flag",
+        "fmt",
+        "io",
+        "os",
+        "aag-engine/internal/responsewrap"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/cmd/aag/main_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 1108,
+      "blankLines": 83,
+      "commentLines": 100,
+      "effectiveCodeLines": 925,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 63
+    },
+    {
+      "path": "aag-engine/cmd/aag/main.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 140,
+      "blankLines": 7,
+      "commentLines": 53,
+      "effectiveCodeLines": 80,
+      "imports": [
+        "fmt",
+        "io",
+        "os"
+      ],
       "exports": 1
+    },
+    {
+      "path": "aag-engine/cmd/aag/usage.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 88,
+      "blankLines": 11,
+      "commentLines": 4,
+      "effectiveCodeLines": 73,
+      "imports": [],
+      "exports": 0
+    },
+    {
+      "path": "aag-engine/internal/aagindex/aagindex_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 90,
+      "blankLines": 8,
+      "commentLines": 2,
+      "effectiveCodeLines": 80,
+      "imports": [
+        "encoding/json",
+        "testing"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/aagindex/aagindex.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 178,
+      "blankLines": 17,
+      "commentLines": 29,
+      "effectiveCodeLines": 132,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "sort",
+        "aag-engine/internal/describe",
+        "aag-engine/internal/introspect",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 11
+    },
+    {
+      "path": "aag-engine/internal/bootstrap/bootstrap_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 66,
+      "blankLines": 6,
+      "commentLines": 2,
+      "effectiveCodeLines": 58,
+      "imports": [
+        "encoding/json",
+        "path/filepath",
+        "runtime",
+        "testing"
+      ],
+      "exports": 3
+    },
+    {
+      "path": "aag-engine/internal/bootstrap/bootstrap.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 152,
+      "blankLines": 19,
+      "commentLines": 38,
+      "effectiveCodeLines": 95,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "aag-engine/internal/navigation",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/chaos/chaos_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 166,
+      "blankLines": 14,
+      "commentLines": 7,
+      "effectiveCodeLines": 145,
+      "imports": [
+        "encoding/json",
+        "os/exec",
+        "strings",
+        "testing"
+      ],
+      "exports": 11
+    },
+    {
+      "path": "aag-engine/internal/chaos/chaos.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 367,
+      "blankLines": 31,
+      "commentLines": 66,
+      "effectiveCodeLines": 270,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "os/exec",
+        "sort",
+        "strings",
+        "aag-engine/internal/describe",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 13
+    },
+    {
+      "path": "aag-engine/internal/cleanliness/clean_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 189,
+      "blankLines": 18,
+      "commentLines": 6,
+      "effectiveCodeLines": 165,
+      "imports": [
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 9
+    },
+    {
+      "path": "aag-engine/internal/cleanliness/clean.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 290,
+      "blankLines": 29,
+      "commentLines": 49,
+      "effectiveCodeLines": 212,
+      "imports": [
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "strings"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/cleanliness/docs_placement_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 119,
+      "blankLines": 12,
+      "commentLines": 3,
+      "effectiveCodeLines": 104,
+      "imports": [
+        "os",
+        "path/filepath",
+        "strings",
+        "testing"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/cleanliness/docs_placement.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 270,
+      "blankLines": 28,
+      "commentLines": 44,
+      "effectiveCodeLines": 198,
+      "imports": [
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "strings"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 171,
+      "blankLines": 17,
+      "commentLines": 5,
+      "effectiveCodeLines": 149,
+      "imports": [
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing",
+        "time"
+      ],
+      "exports": 8
+    },
+    {
+      "path": "aag-engine/internal/commentscan/comments.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 292,
+      "blankLines": 32,
+      "commentLines": 37,
+      "effectiveCodeLines": 223,
+      "imports": [
+        "bufio",
+        "fmt",
+        "os",
+        "path/filepath",
+        "regexp",
+        "sort",
+        "strings",
+        "time"
+      ],
+      "exports": 7
     },
     {
       "path": "aag-engine/internal/contract/detector_result_test.go",
@@ -89,6 +629,51 @@
         "fmt"
       ],
       "exports": 12
+    },
+    {
+      "path": "aag-engine/internal/describe/describe_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 135,
+      "blankLines": 11,
+      "commentLines": 2,
+      "effectiveCodeLines": 122,
+      "imports": [
+        "encoding/json",
+        "strings",
+        "testing"
+      ],
+      "exports": 9
+    },
+    {
+      "path": "aag-engine/internal/describe/describe.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 700,
+      "blankLines": 20,
+      "commentLines": 77,
+      "effectiveCodeLines": 603,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "sort",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 10
+    },
+    {
+      "path": "aag-engine/internal/describe/property_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 108,
+      "blankLines": 7,
+      "commentLines": 16,
+      "effectiveCodeLines": 85,
+      "imports": [
+        "testing"
+      ],
+      "exports": 5
     },
     {
       "path": "aag-engine/internal/detectors/archive_manifest_test.go",
@@ -281,6 +866,386 @@
       "exports": 9
     },
     {
+      "path": "aag-engine/internal/introspect/introspect_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 128,
+      "blankLines": 10,
+      "commentLines": 1,
+      "effectiveCodeLines": 117,
+      "imports": [
+        "encoding/json",
+        "strings",
+        "testing",
+        "aag-engine/internal/describe"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/introspect/introspect.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 441,
+      "blankLines": 19,
+      "commentLines": 61,
+      "effectiveCodeLines": 361,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "aag-engine/internal/describe",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 10
+    },
+    {
+      "path": "aag-engine/internal/introspect/schema_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 109,
+      "blankLines": 9,
+      "commentLines": 2,
+      "effectiveCodeLines": 98,
+      "imports": [
+        "encoding/json",
+        "testing"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/introspect/schema.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 358,
+      "blankLines": 13,
+      "commentLines": 31,
+      "effectiveCodeLines": 314,
+      "imports": [
+        "fmt",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/navigation/changed_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 130,
+      "blankLines": 9,
+      "commentLines": 3,
+      "effectiveCodeLines": 118,
+      "imports": [
+        "strings",
+        "testing"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/navigation/changed.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 252,
+      "blankLines": 21,
+      "commentLines": 26,
+      "effectiveCodeLines": 205,
+      "imports": [
+        "fmt",
+        "os/exec",
+        "sort",
+        "strings"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/navigation/context_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 134,
+      "blankLines": 9,
+      "commentLines": 3,
+      "effectiveCodeLines": 122,
+      "imports": [
+        "os",
+        "path/filepath",
+        "strings",
+        "testing"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/navigation/context.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 169,
+      "blankLines": 20,
+      "commentLines": 32,
+      "effectiveCodeLines": 117,
+      "imports": [
+        "bufio",
+        "encoding/json",
+        "fmt",
+        "os",
+        "path/filepath",
+        "strings"
+      ],
+      "exports": 4
+    },
+    {
+      "path": "aag-engine/internal/navigation/detector_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 103,
+      "blankLines": 7,
+      "commentLines": 1,
+      "effectiveCodeLines": 95,
+      "imports": [
+        "strings",
+        "testing"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/navigation/detector.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 163,
+      "blankLines": 18,
+      "commentLines": 36,
+      "effectiveCodeLines": 109,
+      "imports": [
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "strings"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/navigation/rule_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 107,
+      "blankLines": 7,
+      "commentLines": 2,
+      "effectiveCodeLines": 98,
+      "imports": [
+        "strings",
+        "testing"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/navigation/rule.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 225,
+      "blankLines": 18,
+      "commentLines": 25,
+      "effectiveCodeLines": 182,
+      "imports": [
+        "encoding/json",
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "strings"
+      ],
+      "exports": 4
+    },
+    {
+      "path": "aag-engine/internal/navigation/whereami_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 223,
+      "blankLines": 13,
+      "commentLines": 12,
+      "effectiveCodeLines": 198,
+      "imports": [
+        "encoding/json",
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 9
+    },
+    {
+      "path": "aag-engine/internal/navigation/whereami.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 292,
+      "blankLines": 20,
+      "commentLines": 69,
+      "effectiveCodeLines": 203,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "os",
+        "os/exec",
+        "path/filepath",
+        "strings"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/obligation/obligation_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 145,
+      "blankLines": 10,
+      "commentLines": 5,
+      "effectiveCodeLines": 130,
+      "imports": [
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/obligation/obligation.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 263,
+      "blankLines": 23,
+      "commentLines": 46,
+      "effectiveCodeLines": 194,
+      "imports": [
+        "encoding/json",
+        "fmt",
+        "os",
+        "os/exec",
+        "path/filepath",
+        "sort",
+        "strings"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/projectstatus/next.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 180,
+      "blankLines": 24,
+      "commentLines": 26,
+      "effectiveCodeLines": 130,
+      "imports": [
+        "fmt",
+        "os",
+        "os/exec",
+        "path/filepath",
+        "strings",
+        "aag-engine/internal/navigation"
+      ],
+      "exports": 4
+    },
+    {
+      "path": "aag-engine/internal/projectstatus/projectstatus_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 145,
+      "blankLines": 12,
+      "commentLines": 3,
+      "effectiveCodeLines": 130,
+      "imports": [
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing",
+        "time"
+      ],
+      "exports": 9
+    },
+    {
+      "path": "aag-engine/internal/projectstatus/stale.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 145,
+      "blankLines": 13,
+      "commentLines": 17,
+      "effectiveCodeLines": 115,
+      "imports": [
+        "fmt",
+        "os",
+        "os/exec",
+        "path/filepath",
+        "sort",
+        "strings",
+        "time"
+      ],
+      "exports": 5
+    },
+    {
+      "path": "aag-engine/internal/provenance/provenance_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 53,
+      "blankLines": 5,
+      "commentLines": 6,
+      "effectiveCodeLines": 42,
+      "imports": [
+        "strings",
+        "testing",
+        "time"
+      ],
+      "exports": 3
+    },
+    {
+      "path": "aag-engine/internal/provenance/provenance.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 68,
+      "blankLines": 6,
+      "commentLines": 28,
+      "effectiveCodeLines": 34,
+      "imports": [
+        "os/exec",
+        "strings",
+        "time"
+      ],
+      "exports": 2
+    },
+    {
+      "path": "aag-engine/internal/repaircontext/repaircontext_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 227,
+      "blankLines": 13,
+      "commentLines": 1,
+      "effectiveCodeLines": 213,
+      "imports": [
+        "os",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 9
+    },
+    {
+      "path": "aag-engine/internal/repaircontext/repaircontext.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 359,
+      "blankLines": 44,
+      "commentLines": 61,
+      "effectiveCodeLines": 254,
+      "imports": [
+        "encoding/json",
+        "fmt",
+        "io",
+        "os",
+        "path/filepath",
+        "sort"
+      ],
+      "exports": 6
+    },
+    {
       "path": "aag-engine/internal/report/report_test.go",
       "kind": "go",
       "layer": "aag-engine",
@@ -310,6 +1275,78 @@
         "aag-engine/internal/contract"
       ],
       "exports": 7
+    },
+    {
+      "path": "aag-engine/internal/responsewrap/wrap_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 124,
+      "blankLines": 10,
+      "commentLines": 5,
+      "effectiveCodeLines": 109,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "strings",
+        "testing",
+        "time"
+      ],
+      "exports": 8
+    },
+    {
+      "path": "aag-engine/internal/responsewrap/wrap.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 148,
+      "blankLines": 13,
+      "commentLines": 63,
+      "effectiveCodeLines": 72,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "io",
+        "time"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/selfcheck/selfcheck_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 130,
+      "blankLines": 9,
+      "commentLines": 9,
+      "effectiveCodeLines": 112,
+      "imports": [
+        "encoding/json",
+        "os",
+        "path/filepath",
+        "runtime",
+        "testing"
+      ],
+      "exports": 6
+    },
+    {
+      "path": "aag-engine/internal/selfcheck/selfcheck.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 453,
+      "blankLines": 24,
+      "commentLines": 88,
+      "effectiveCodeLines": 341,
+      "imports": [
+        "bytes",
+        "encoding/json",
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "aag-engine/internal/describe",
+        "aag-engine/internal/introspect",
+        "aag-engine/internal/provenance"
+      ],
+      "exports": 6
     },
     {
       "path": "aag-engine/internal/shadow/shadow_test.go",
@@ -345,13 +1382,49 @@
       "exports": 4
     },
     {
+      "path": "aag-engine/internal/stats/stats_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 268,
+      "blankLines": 19,
+      "commentLines": 16,
+      "effectiveCodeLines": 233,
+      "imports": [
+        "encoding/json",
+        "path/filepath",
+        "runtime",
+        "strings",
+        "testing"
+      ],
+      "exports": 16
+    },
+    {
+      "path": "aag-engine/internal/stats/stats.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 418,
+      "blankLines": 43,
+      "commentLines": 66,
+      "effectiveCodeLines": 309,
+      "imports": [
+        "encoding/json",
+        "fmt",
+        "os",
+        "path/filepath",
+        "sort",
+        "strconv",
+        "strings"
+      ],
+      "exports": 13
+    },
+    {
       "path": "aag-engine/internal/taskcapsule/prepare.go",
       "kind": "go",
       "layer": "aag-engine",
-      "physicalLines": 315,
+      "physicalLines": 316,
       "blankLines": 27,
       "commentLines": 53,
-      "effectiveCodeLines": 235,
+      "effectiveCodeLines": 236,
       "imports": [
         "bytes",
         "encoding/json",
@@ -366,10 +1439,10 @@
       "path": "aag-engine/internal/taskcapsule/task_capsule_test.go",
       "kind": "go",
       "layer": "aag-engine",
-      "physicalLines": 427,
-      "blankLines": 32,
-      "commentLines": 17,
-      "effectiveCodeLines": 378,
+      "physicalLines": 544,
+      "blankLines": 36,
+      "commentLines": 20,
+      "effectiveCodeLines": 488,
       "imports": [
         "encoding/json",
         "os",
@@ -380,20 +1453,54 @@
         "strings",
         "testing"
       ],
-      "exports": 21
+      "exports": 25
     },
     {
       "path": "aag-engine/internal/taskcapsule/task_capsule.go",
       "kind": "go",
       "layer": "aag-engine",
-      "physicalLines": 194,
-      "blankLines": 25,
-      "commentLines": 59,
-      "effectiveCodeLines": 110,
+      "physicalLines": 221,
+      "blankLines": 27,
+      "commentLines": 72,
+      "effectiveCodeLines": 122,
       "imports": [
-        "fmt"
+        "fmt",
+        "regexp"
       ],
       "exports": 10
+    },
+    {
+      "path": "aag-engine/internal/taskcapsule/validate_test.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 174,
+      "blankLines": 19,
+      "commentLines": 1,
+      "effectiveCodeLines": 154,
+      "imports": [
+        "encoding/json",
+        "os",
+        "path/filepath",
+        "strings",
+        "testing"
+      ],
+      "exports": 10
+    },
+    {
+      "path": "aag-engine/internal/taskcapsule/validate.go",
+      "kind": "go",
+      "layer": "aag-engine",
+      "physicalLines": 185,
+      "blankLines": 24,
+      "commentLines": 32,
+      "effectiveCodeLines": 129,
+      "imports": [
+        "encoding/json",
+        "fmt",
+        "io",
+        "os"
+      ],
+      "exports": 6
     },
     {
       "path": "app/src/App.test.tsx",
@@ -33660,6 +34767,37 @@
       "exports": 0
     },
     {
+      "path": "app/src/test/guards/docDuplicateResponsibilityGuard.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 126,
+      "blankLines": 10,
+      "commentLines": 34,
+      "effectiveCodeLines": 82,
+      "imports": [
+        "vitest",
+        "node:fs",
+        "node:path",
+        "node:crypto"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "app/src/test/guards/docFailurePatternBaselineGuard.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 161,
+      "blankLines": 16,
+      "commentLines": 42,
+      "effectiveCodeLines": 103,
+      "imports": [
+        "vitest",
+        "node:fs",
+        "node:path"
+      ],
+      "exports": 0
+    },
+    {
       "path": "app/src/test/guards/docRegistryGuard.test.ts",
       "kind": "typescript",
       "layer": "test",
@@ -34483,6 +35621,36 @@
       "exports": 0
     },
     {
+      "path": "app/src/test/guards/repostewardCommandRegistryGuard.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 196,
+      "blankLines": 16,
+      "commentLines": 45,
+      "effectiveCodeLines": 135,
+      "imports": [
+        "vitest",
+        "node:fs",
+        "node:path"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "app/src/test/guards/repostewardPrincipleGuard.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 113,
+      "blankLines": 10,
+      "commentLines": 31,
+      "effectiveCodeLines": 72,
+      "imports": [
+        "vitest",
+        "node:fs",
+        "node:path"
+      ],
+      "exports": 0
+    },
+    {
       "path": "app/src/test/guards/responsibilitySeparationGuard.test.ts",
       "kind": "typescript",
       "layer": "test",
@@ -34661,10 +35829,10 @@
       "path": "app/src/test/guards/sizeGuard.test.ts",
       "kind": "typescript",
       "layer": "test",
-      "physicalLines": 324,
+      "physicalLines": 330,
       "blankLines": 68,
       "commentLines": 22,
-      "effectiveCodeLines": 234,
+      "effectiveCodeLines": 240,
       "imports": [
         "vitest",
         "fs",
@@ -35013,15 +36181,15 @@
       "path": "app/src/test/guardTestHelpers.ts",
       "kind": "typescript",
       "layer": "test",
-      "physicalLines": 120,
-      "blankLines": 11,
-      "commentLines": 25,
-      "effectiveCodeLines": 84,
+      "physicalLines": 143,
+      "blankLines": 12,
+      "commentLines": 38,
+      "effectiveCodeLines": 93,
       "imports": [
         "fs",
         "path"
       ],
-      "exports": 10
+      "exports": 11
     },
     {
       "path": "app/src/test/integrity/bidirectionalReference.test.ts",
@@ -35949,15 +37117,30 @@
       "path": "app/src/test/tools/sourceFactsCollector.test.ts",
       "kind": "typescript",
       "layer": "test",
-      "physicalLines": 265,
+      "physicalLines": 261,
       "blankLines": 16,
       "commentLines": 21,
-      "effectiveCodeLines": 228,
+      "effectiveCodeLines": 224,
       "imports": [
         "vitest",
         "node:fs",
         "node:os",
         "node:path",
+        "@tools/architecture-health/facts/source-facts"
+      ],
+      "exports": 0
+    },
+    {
+      "path": "app/src/test/tools/sourceFactsStatistics.test.ts",
+      "kind": "typescript",
+      "layer": "test",
+      "physicalLines": 169,
+      "blankLines": 15,
+      "commentLines": 24,
+      "effectiveCodeLines": 130,
+      "imports": [
+        "vitest",
+        "@tools/architecture-health/facts/source-facts-statistics",
         "@tools/architecture-health/facts/source-facts"
       ],
       "exports": 0
@@ -36077,6 +37260,195 @@
       "effectiveCodeLines": 93
     },
     {
+      "path": "docs/contracts/aag/commands/bootstrap-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 40,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "docs/contracts/aag/commands/changed-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 38,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 37
+    },
+    {
+      "path": "docs/contracts/aag/commands/chaos-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 93,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 92
+    },
+    {
+      "path": "docs/contracts/aag/commands/clean-check-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 39,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 38
+    },
+    {
+      "path": "docs/contracts/aag/commands/comments-list-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 37,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 36
+    },
+    {
+      "path": "docs/contracts/aag/commands/context-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 40,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "docs/contracts/aag/commands/describe-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 213,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 212
+    },
+    {
+      "path": "docs/contracts/aag/commands/detector-refs-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 47,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 46
+    },
+    {
+      "path": "docs/contracts/aag/commands/docs-placement-check-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 51,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 50
+    },
+    {
+      "path": "docs/contracts/aag/commands/fixtures-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 71,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 70
+    },
+    {
+      "path": "docs/contracts/aag/commands/index-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 61,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 60
+    },
+    {
+      "path": "docs/contracts/aag/commands/obligation-check-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 48,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 47
+    },
+    {
+      "path": "docs/contracts/aag/commands/project-stale-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 48,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 47
+    },
+    {
+      "path": "docs/contracts/aag/commands/repair-context-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 25,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 24
+    },
+    {
+      "path": "docs/contracts/aag/commands/rule-locate-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 62,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 61
+    },
+    {
+      "path": "docs/contracts/aag/commands/self-check-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 110,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 109
+    },
+    {
+      "path": "docs/contracts/aag/commands/stats-files-query-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 46,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 45
+    },
+    {
+      "path": "docs/contracts/aag/commands/task-close-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 38,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 37
+    },
+    {
+      "path": "docs/contracts/aag/commands/task-validate-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 29,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 28
+    },
+    {
+      "path": "docs/contracts/aag/commands/where-am-i-output.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 69,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 68
+    },
+    {
+      "path": "docs/contracts/aag/detection-inventory.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 76,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 75
+    },
+    {
       "path": "docs/contracts/aag/detector-result.schema.json",
       "kind": "json",
       "layer": "docs",
@@ -36084,6 +37456,15 @@
       "blankLines": 1,
       "commentLines": 0,
       "effectiveCodeLines": 45
+    },
+    {
+      "path": "docs/contracts/aag/premise-contract.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 94,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 93
     },
     {
       "path": "docs/contracts/aag/source-facts.schema.json",
@@ -36098,19 +37479,19 @@
       "path": "docs/contracts/aag/task-capsule.schema.json",
       "kind": "json",
       "layer": "docs",
-      "physicalLines": 120,
+      "physicalLines": 127,
       "blankLines": 1,
       "commentLines": 0,
-      "effectiveCodeLines": 119
+      "effectiveCodeLines": 126
     },
     {
       "path": "docs/contracts/doc-registry.json",
       "kind": "json",
       "layer": "docs",
-      "physicalLines": 1239,
+      "physicalLines": 1379,
       "blankLines": 0,
       "commentLines": 0,
-      "effectiveCodeLines": 1239
+      "effectiveCodeLines": 1379
     },
     {
       "path": "docs/contracts/escalation-criteria.json",
@@ -36147,6 +37528,96 @@
       "blankLines": 1,
       "commentLines": 0,
       "effectiveCodeLines": 39
+    },
+    {
+      "path": "docs/contracts/schema/aag-finding.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 149,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 148
+    },
+    {
+      "path": "docs/contracts/schema/ai-doc-template-rules.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 95,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 94
+    },
+    {
+      "path": "docs/contracts/schema/artifact-coverage.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 67,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 66
+    },
+    {
+      "path": "docs/contracts/schema/doc-kind-registry.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 102,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 101
+    },
+    {
+      "path": "docs/contracts/schema/document-failure-taxonomy.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 104,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 103
+    },
+    {
+      "path": "docs/contracts/schema/document-reading-decisions.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 134,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 133
+    },
+    {
+      "path": "docs/contracts/schema/document-universe.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 150,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 149
+    },
+    {
+      "path": "docs/contracts/schema/required-docs-matrix.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 84,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 83
+    },
+    {
+      "path": "docs/contracts/schema/temporal-scope-policy.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 107,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 106
+    },
+    {
+      "path": "docs/contracts/schema/tree-contracts.schema.json",
+      "kind": "json",
+      "layer": "docs",
+      "physicalLines": 126,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 125
     },
     {
       "path": "docs/contracts/test-contract.json",
@@ -36313,6 +37784,303 @@
       "blankLines": 16,
       "commentLines": 0,
       "effectiveCodeLines": 52
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 39,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 27
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/checklist.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 51,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/config/project.json",
+      "kind": "json",
+      "layer": "projects",
+      "physicalLines": 48,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 47
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/decision-audit.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 134,
+      "blankLines": 40,
+      "commentLines": 0,
+      "effectiveCodeLines": 94
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/discovery-log.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 53,
+      "blankLines": 14,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/HANDOFF.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 40,
+      "blankLines": 18,
+      "commentLines": 0,
+      "effectiveCodeLines": 22
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/plan.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 29,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 17
+    },
+    {
+      "path": "projects/active/aag-coverage-rule-expansion/projectization.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 68,
+      "blankLines": 16,
+      "commentLines": 0,
+      "effectiveCodeLines": 52
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/AI_CONTEXT.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 57,
+      "blankLines": 15,
+      "commentLines": 0,
+      "effectiveCodeLines": 42
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/checklist.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 51,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/config/project.json",
+      "kind": "json",
+      "layer": "projects",
+      "physicalLines": 49,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 48
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/decision-audit.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 134,
+      "blankLines": 40,
+      "commentLines": 0,
+      "effectiveCodeLines": 94
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/discovery-log.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 53,
+      "blankLines": 14,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/HANDOFF.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 40,
+      "blankLines": 18,
+      "commentLines": 0,
+      "effectiveCodeLines": 22
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/plan.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 29,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 17
+    },
+    {
+      "path": "projects/active/aag-disposition-execution/projectization.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 68,
+      "blankLines": 16,
+      "commentLines": 0,
+      "effectiveCodeLines": 52
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/AI_CONTEXT.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 58,
+      "blankLines": 15,
+      "commentLines": 0,
+      "effectiveCodeLines": 43
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/checklist.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 51,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/config/project.json",
+      "kind": "json",
+      "layer": "projects",
+      "physicalLines": 50,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 49
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/decision-audit.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 134,
+      "blankLines": 40,
+      "commentLines": 0,
+      "effectiveCodeLines": 94
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/discovery-log.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 53,
+      "blankLines": 14,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/HANDOFF.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 40,
+      "blankLines": 18,
+      "commentLines": 0,
+      "effectiveCodeLines": 22
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/plan.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 29,
+      "blankLines": 12,
+      "commentLines": 0,
+      "effectiveCodeLines": 17
+    },
+    {
+      "path": "projects/active/aag-failure-pattern-guards/projectization.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 68,
+      "blankLines": 16,
+      "commentLines": 0,
+      "effectiveCodeLines": 52
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/AI_CONTEXT.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 70,
+      "blankLines": 19,
+      "commentLines": 0,
+      "effectiveCodeLines": 51
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/checklist.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 69,
+      "blankLines": 17,
+      "commentLines": 0,
+      "effectiveCodeLines": 52
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/config/project.json",
+      "kind": "json",
+      "layer": "projects",
+      "physicalLines": 51,
+      "blankLines": 1,
+      "commentLines": 0,
+      "effectiveCodeLines": 50
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/decision-audit.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 134,
+      "blankLines": 40,
+      "commentLines": 0,
+      "effectiveCodeLines": 94
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/discovery-log.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 53,
+      "blankLines": 14,
+      "commentLines": 0,
+      "effectiveCodeLines": 39
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 146,
+      "blankLines": 43,
+      "commentLines": 0,
+      "effectiveCodeLines": 103
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/plan.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 50,
+      "blankLines": 14,
+      "commentLines": 0,
+      "effectiveCodeLines": 36
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/projectization.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 74,
+      "blankLines": 16,
+      "commentLines": 0,
+      "effectiveCodeLines": 58
+    },
+    {
+      "path": "projects/active/aag-governance-ratchet-down/sub-project-map.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 75,
+      "blankLines": 18,
+      "commentLines": 0,
+      "effectiveCodeLines": 57
     },
     {
       "path": "projects/active/presentation-quality-hardening/AI_CONTEXT.md",
@@ -36535,6 +38303,105 @@
       "effectiveCodeLines": 92
     },
     {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 18,
+      "blankLines": 4,
+      "commentLines": 0,
+      "effectiveCodeLines": 14
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 38,
+      "blankLines": 8,
+      "commentLines": 0,
+      "effectiveCodeLines": 30
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 18,
+      "blankLines": 4,
+      "commentLines": 0,
+      "effectiveCodeLines": 14
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 40,
+      "blankLines": 8,
+      "commentLines": 0,
+      "effectiveCodeLines": 32
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 18,
+      "blankLines": 4,
+      "commentLines": 0,
+      "effectiveCodeLines": 14
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 37,
+      "blankLines": 8,
+      "commentLines": 0,
+      "effectiveCodeLines": 29
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 38,
+      "blankLines": 8,
+      "commentLines": 0,
+      "effectiveCodeLines": 30
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 52,
+      "blankLines": 11,
+      "commentLines": 0,
+      "effectiveCodeLines": 41
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 37,
+      "blankLines": 8,
+      "commentLines": 0,
+      "effectiveCodeLines": 29
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 17,
+      "blankLines": 4,
+      "commentLines": 0,
+      "effectiveCodeLines": 13
+    },
+    {
+      "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md",
+      "kind": "markdown",
+      "layer": "projects",
+      "physicalLines": 18,
+      "blankLines": 4,
+      "commentLines": 0,
+      "effectiveCodeLines": 14
+    },
+    {
       "path": "projects/active/pure-calculation-reorg/phase-8/README.md",
       "kind": "markdown",
       "layer": "projects",
@@ -36610,19 +38477,19 @@
       "path": "projects/active/reposteward-ai-ops-platform/AI_CONTEXT.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 87,
-      "blankLines": 22,
+      "physicalLines": 97,
+      "blankLines": 25,
       "commentLines": 0,
-      "effectiveCodeLines": 65
+      "effectiveCodeLines": 72
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/checklist.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 107,
-      "blankLines": 22,
+      "physicalLines": 379,
+      "blankLines": 82,
       "commentLines": 0,
-      "effectiveCodeLines": 85
+      "effectiveCodeLines": 297
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/config/project.json",
@@ -36637,10 +38504,10 @@
       "path": "projects/active/reposteward-ai-ops-platform/decision-audit.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 485,
-      "blankLines": 142,
+      "physicalLines": 2102,
+      "blankLines": 638,
       "commentLines": 0,
-      "effectiveCodeLines": 343
+      "effectiveCodeLines": 1464
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/discovery-log.md",
@@ -36655,10 +38522,10 @@
       "path": "projects/active/reposteward-ai-ops-platform/HANDOFF.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 104,
-      "blankLines": 33,
+      "physicalLines": 111,
+      "blankLines": 35,
       "commentLines": 0,
-      "effectiveCodeLines": 71
+      "effectiveCodeLines": 76
     },
     {
       "path": "projects/active/reposteward-ai-ops-platform/plan.md",
@@ -36726,78 +38593,6 @@
       "blankLines": 1,
       "commentLines": 0,
       "effectiveCodeLines": 36
-    },
-    {
-      "path": "projects/active/taxonomy-v2/DERIVED.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 88,
-      "blankLines": 30,
-      "commentLines": 0,
-      "effectiveCodeLines": 58
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/acceptance-suite.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 52,
-      "blankLines": 17,
-      "commentLines": 0,
-      "effectiveCodeLines": 35
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/inventory/00-example.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 21,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 13
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/inventory/README.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 55,
-      "blankLines": 20,
-      "commentLines": 0,
-      "effectiveCodeLines": 35
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/pr-breakdown.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 48,
-      "blankLines": 16,
-      "commentLines": 0,
-      "effectiveCodeLines": 32
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/README.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 39,
-      "blankLines": 11,
-      "commentLines": 0,
-      "effectiveCodeLines": 28
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/review-checklist.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 63,
-      "blankLines": 23,
-      "commentLines": 0,
-      "effectiveCodeLines": 40
-    },
-    {
-      "path": "projects/active/taxonomy-v2/derived/test-plan.md",
-      "kind": "markdown",
-      "layer": "projects",
-      "physicalLines": 66,
-      "blankLines": 22,
-      "commentLines": 0,
-      "effectiveCodeLines": 44
     },
     {
       "path": "projects/active/taxonomy-v2/discovery-log.md",
@@ -37367,6 +39162,15 @@
       "effectiveCodeLines": 51
     },
     {
+      "path": "references/03-implementation/aag-articulation-map.md",
+      "kind": "markdown",
+      "layer": "references",
+      "physicalLines": 136,
+      "blankLines": 39,
+      "commentLines": 0,
+      "effectiveCodeLines": 97
+    },
+    {
       "path": "references/03-implementation/aag-change-impact-template.md",
       "kind": "markdown",
       "layer": "references",
@@ -37464,6 +39268,15 @@
       "blankLines": 28,
       "commentLines": 0,
       "effectiveCodeLines": 89
+    },
+    {
+      "path": "references/03-implementation/ar-rule-binding-protocol.md",
+      "kind": "markdown",
+      "layer": "references",
+      "physicalLines": 211,
+      "blankLines": 60,
+      "commentLines": 0,
+      "effectiveCodeLines": 151
     },
     {
       "path": "references/03-implementation/architecture-rule-system.md",
@@ -37610,6 +39423,15 @@
       "effectiveCodeLines": 812
     },
     {
+      "path": "references/03-implementation/detection-inventory-v2.md",
+      "kind": "markdown",
+      "layer": "references",
+      "physicalLines": 71,
+      "blankLines": 19,
+      "commentLines": 0,
+      "effectiveCodeLines": 52
+    },
+    {
       "path": "references/03-implementation/directory-registry-ownership-policy.md",
       "kind": "markdown",
       "layer": "references",
@@ -37721,10 +39543,10 @@
       "path": "references/03-implementation/guard-test-map.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 451,
+      "physicalLines": 455,
       "blankLines": 49,
       "commentLines": 0,
-      "effectiveCodeLines": 402
+      "effectiveCodeLines": 406
     },
     {
       "path": "references/03-implementation/integrity-domain-architecture.md",
@@ -37842,6 +39664,15 @@
       "blankLines": 65,
       "commentLines": 0,
       "effectiveCodeLines": 225
+    },
+    {
+      "path": "references/03-implementation/reposteward-command-surface.md",
+      "kind": "markdown",
+      "layer": "references",
+      "physicalLines": 161,
+      "blankLines": 44,
+      "commentLines": 0,
+      "effectiveCodeLines": 117
     },
     {
       "path": "references/03-implementation/responsibility-separation-catalog.md",
@@ -38022,33 +39853,6 @@
       "blankLines": 21,
       "commentLines": 0,
       "effectiveCodeLines": 56
-    },
-    {
-      "path": "references/04-tracking/aag-doc-audit-report.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 383,
-      "blankLines": 87,
-      "commentLines": 0,
-      "effectiveCodeLines": 296
-    },
-    {
-      "path": "references/04-tracking/ar-rule-audit.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 211,
-      "blankLines": 60,
-      "commentLines": 0,
-      "effectiveCodeLines": 151
-    },
-    {
-      "path": "references/04-tracking/authoritative-term-sweep.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 112,
-      "blankLines": 29,
-      "commentLines": 0,
-      "effectiveCodeLines": 83
     },
     {
       "path": "references/04-tracking/dashboards/boundary-health.generated.md",
@@ -39152,19 +40956,19 @@
       "path": "references/04-tracking/open-issues.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 97,
+      "physicalLines": 102,
       "blankLines": 13,
       "commentLines": 0,
-      "effectiveCodeLines": 84
+      "effectiveCodeLines": 89
     },
     {
       "path": "references/04-tracking/project-structure.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 216,
+      "physicalLines": 220,
       "blankLines": 15,
       "commentLines": 0,
-      "effectiveCodeLines": 201
+      "effectiveCodeLines": 205
     },
     {
       "path": "references/04-tracking/promotion-criteria.md",
@@ -39174,114 +40978,6 @@
       "blankLines": 101,
       "commentLines": 0,
       "effectiveCodeLines": 234
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-correlation.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 18,
-      "blankLines": 4,
-      "commentLines": 0,
-      "effectiveCodeLines": 14
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-customerGap.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 38,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 30
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-dowGapAnalysis.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 18,
-      "blankLines": 4,
-      "commentLines": 0,
-      "effectiveCodeLines": 14
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-inventoryCalc.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 40,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 32
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-movingAverage.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 18,
-      "blankLines": 4,
-      "commentLines": 0,
-      "effectiveCodeLines": 14
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-observationPeriod.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 37,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 29
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-pinIntervals.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 38,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 30
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-piValue.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 52,
-      "blankLines": 11,
-      "commentLines": 0,
-      "effectiveCodeLines": 41
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-remainingBudgetRate.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 37,
-      "blankLines": 8,
-      "commentLines": 0,
-      "effectiveCodeLines": 29
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-sensitivity.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 17,
-      "blankLines": 4,
-      "commentLines": 0,
-      "effectiveCodeLines": 13
-    },
-    {
-      "path": "references/04-tracking/promotion-readiness-trendAnalysis.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 18,
-      "blankLines": 4,
-      "commentLines": 0,
-      "effectiveCodeLines": 14
-    },
-    {
-      "path": "references/04-tracking/quality-audit-latest.md",
-      "kind": "markdown",
-      "layer": "references",
-      "physicalLines": 162,
-      "blankLines": 32,
-      "commentLines": 0,
-      "effectiveCodeLines": 130
     },
     {
       "path": "references/04-tracking/recent-changes.generated.md",
@@ -39341,10 +41037,10 @@
       "path": "references/05-aag-interface/operations/project-checklist-governance.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 1006,
-      "blankLines": 255,
+      "physicalLines": 1014,
+      "blankLines": 256,
       "commentLines": 0,
-      "effectiveCodeLines": 751
+      "effectiveCodeLines": 758
     },
     {
       "path": "references/05-aag-interface/operations/projectization-policy.md",
@@ -39395,10 +41091,10 @@
       "path": "references/05-aag-interface/protocols/README.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 46,
-      "blankLines": 16,
+      "physicalLines": 39,
+      "blankLines": 11,
       "commentLines": 0,
-      "effectiveCodeLines": 30
+      "effectiveCodeLines": 28
     },
     {
       "path": "references/05-aag-interface/protocols/refactor-protocol.md",
@@ -39476,10 +41172,10 @@
       "path": "references/README.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 518,
+      "physicalLines": 547,
       "blankLines": 64,
       "commentLines": 0,
-      "effectiveCodeLines": 454
+      "effectiveCodeLines": 483
     },
     {
       "path": "tools/architecture-health/src/aag-response.ts",
@@ -39910,17 +41606,31 @@
       "path": "tools/architecture-health/src/facts/source-facts-statistics-cli.ts",
       "kind": "typescript",
       "layer": "tools",
-      "physicalLines": 61,
-      "blankLines": 9,
+      "physicalLines": 70,
+      "blankLines": 10,
       "commentLines": 15,
-      "effectiveCodeLines": 37,
+      "effectiveCodeLines": 45,
       "imports": [
         "node:fs",
         "node:path",
         "./source-facts-statistics",
+        "./source-facts-statistics-md",
         "./source-facts"
       ],
       "exports": 0
+    },
+    {
+      "path": "tools/architecture-health/src/facts/source-facts-statistics-md.ts",
+      "kind": "typescript",
+      "layer": "tools",
+      "physicalLines": 97,
+      "blankLines": 8,
+      "commentLines": 32,
+      "effectiveCodeLines": 57,
+      "imports": [
+        "./source-facts-statistics"
+      ],
+      "exports": 1
     },
     {
       "path": "tools/architecture-health/src/facts/source-facts-statistics.ts",
