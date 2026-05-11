@@ -3,7 +3,7 @@
 > **役割: 生成された project KPI 正本（生成後手編集禁止）。**
 > 規約: [`references/05-aag-interface/operations/project-checklist-governance.md`](../../05-aag-interface/operations/project-checklist-governance.md)
 
-> 生成: 2026-05-11T14:59:19.234Z
+> 生成: 2026-05-11T15:04:53.800Z
 
 ## サマリー
 
