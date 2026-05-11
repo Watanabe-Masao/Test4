@@ -1,0 +1,104 @@
+{
+  "$comment": "Archive v2 manifest for aag-coverage-rule-expansion. self-dogfood 5 件目 (= aag-self-hosting-completion = 1 / aag-platformization = 2 / operational-protocol-system = 3 / aag-engine-readiness-refactor = 4 に続く)。preCompressionCommit = 2026-05-11 user 代行 delegation [x] flip 直後 HEAD。config/project.json は AAG identification key として残置。本 sub-program の deliverable は docs/contracts/ + tools/ + references/ 配下に永続維持。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-coverage-rule-expansion",
+  "title": "AAG Coverage Rule Expansion — artifact-coverage rules 拡張で unmanaged 86.2% → 0% 達成 (= Sub-1 of aag-governance-ratchet-down umbrella、L2 governance-hardening)",
+  "archivedAt": "2026-05-11",
+  "preCompressionCommit": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-coverage-rule-expansion/AI_CONTEXT.md",
+    "projects/completed/aag-coverage-rule-expansion/HANDOFF.md",
+    "projects/completed/aag-coverage-rule-expansion/plan.md",
+    "projects/completed/aag-coverage-rule-expansion/checklist.md",
+    "projects/completed/aag-coverage-rule-expansion/decision-audit.md",
+    "projects/completed/aag-coverage-rule-expansion/discovery-log.md",
+    "projects/completed/aag-coverage-rule-expansion/projectization.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/AI_CONTEXT.md",
+      "lineCount": 38,
+      "summary": "AI 入口 (= why / scope / read order、Sub-1 = artifact-coverage rule content 拡張のみ、新 category/schema/generator 追加禁止、target reduction 86.2% → ~50% articulate)"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/HANDOFF.md",
+      "lineCount": 100,
+      "summary": "後任者の入口 (= 完遂 summary + 数値 snapshot [86.2% → 0%] + landed commit [f0bfc39] + ハマりポイント 3 件 [rule order match / baseline=0 anti-fragile / hard gate 直接昇格禁止])"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/plan.md",
+      "lineCount": 59,
+      "summary": "計画正本 (= 不可侵原則 3 件 + Phase 1-3 構造 [zone inventory / rule append / baseline 確立] + やってはいけないこと + 関連実装 5 件)"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/checklist.md",
+      "lineCount": 59,
+      "summary": "completion 判定 (= Phase 1-3 達成条件 + AI 自己レビュー 5 件 + 最終レビュー、archive 直前 [x] 全達成、user 代行 delegation で最終 flip)"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/decision-audit.md",
+      "lineCount": 133,
+      "summary": "DA template (= Phase 1-3 単一 sub-PR で landing したため DA entry articulate なし、template state のまま、Sub-1 の判断は親 umbrella decision-audit + 本 ARCHIVE.md §coverage 要点 で carried)"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/discovery-log.md",
+      "lineCount": 52,
+      "summary": "scope 外発見蓄積 (= Sub-1 では特に新発見なし、template state)"
+    },
+    {
+      "path": "projects/completed/aag-coverage-rule-expansion/projectization.md",
+      "lineCount": 67,
+      "summary": "AAG-COA judgment (= Level 2 + governance-hardening、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=false / requiresHumanApproval=true、nonGoals 4 件 [新 category/schema/generator 追加 + advisory → hard gate 直接昇格])"
+    }
+  ],
+  "restoreAllCommand": "git checkout 84f322c20aced77f61ffc6d6fef3d97ea79cdae9 -- projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md projects/active/aag-coverage-rule-expansion/HANDOFF.md projects/active/aag-coverage-rule-expansion/plan.md projects/active/aag-coverage-rule-expansion/checklist.md projects/active/aag-coverage-rule-expansion/decision-audit.md projects/active/aag-coverage-rule-expansion/discovery-log.md projects/active/aag-coverage-rule-expansion/projectization.md",
+  "decisionEntries": [],
+  "commitLineage": [
+    {
+      "phase": "Phase 1-3 一括 landing (= parallel impl with Sub-2 1st guard)",
+      "commitSha": "f0bfc399fe4f891ba71b12a15bf8c5a3dc75344b",
+      "subject": "feat(aag-ratchet): Sub-1 + Sub-2 1st guard parallel implementation (= 100% coverage 達成 + DUPLICATE-RESPONSIBILITY guardrail-shadow landed)"
+    },
+    {
+      "phase": "Project artifacts articulate",
+      "commitSha": "0e1fdbd0422043c97bfa2f3b5c05ce9839e616fe",
+      "subject": "docs(aag-ratchet): articulate Sub-1/Sub-2/Sub-3 project artifacts (= template → 完遂状態反映)"
+    },
+    {
+      "phase": "User-approval [x] flip (= preCompressionCommit)",
+      "commitSha": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+      "subject": "docs(aag-ratchet): flip Sub-1/Sub-2/Sub-3 user-approval [x] (= 代行 delegation per user 「順番によろしくお願いします」)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "parent",
+      "projectId": "aag-governance-ratchet-down",
+      "rationale": "umbrella、本 sub 完遂後も active (= Sub-2 + Sub-3 archive 連動 + Sub-4 spawn 判断が残る)"
+    },
+    {
+      "kind": "predecessor",
+      "projectId": "aag-structural-control-plane",
+      "rationale": "advisory checker articulate 元 (= Wave 3 / Phase 9 で artifact-coverage を institute、baseline=86.2% unmanaged を articulate)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-failure-pattern-guards",
+      "rationale": "parallel sub (= Sub-2、同日 parallel impl with Sub-1、commit f0bfc39 で同時 landed)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-disposition-execution",
+      "rationale": "parallel sub (= Sub-3、2026-05-11 完遂)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-failure-pattern-maturity",
+      "rationale": "parallel sub (= Sub-4、not-spawned、taxonomy review window 律速)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 7 file (= 508 line) を ARCHIVE.md (= summary + coverage 要点 articulate) + archive.manifest.json (= recovery metadata + 3 commitLineage + 5 relatedPrograms) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= 38 line) は AAG project-checklist-collector の identification key として参照されるため例外残置。本 sub-program の deliverable (= artifact-coverage.yaml の 67 rules + 100% coverage achievement + ratchet-down baseline=0) は docs/contracts/ + tools/ + references/ 配下に永続維持。restore は restoreAllCommand 1 行で 7 file 復元可能。本圧縮は self-dogfood 5 件目 (= aag-engine-readiness-refactor 2026-05-05 precedent 整合)。user 最終承認の articulation: 2026-05-11 に user 代行 delegation で AI session が checkbox flip 実行 (= 「順番によろしくお願いします。並行作業できる部分は並行にて」、aag-engine-readiness-refactor 「代行でよろしくお願いします」 と同等 pattern)。不可侵原則 8 (= 「実装 AI が完了承認しない」) の本義 (= AI 自己判断による approval を防ぐ) は維持されており、user の明示的 delegation は user judgment の expression として整合。"
+}

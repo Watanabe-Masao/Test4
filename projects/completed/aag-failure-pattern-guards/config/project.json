@@ -2,8 +2,8 @@
   "$comment": "AAG Failure Pattern Guards (= Sub-2 of aag-governance-ratchet-down umbrella、最 leverage 高 sub-program)。aag-scp で auto-promote された 6 guard candidates (= DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE 16 + DOC-FAIL-LOCATION-MISMATCH 13 + DOC-FAIL-DUPLICATE-RESPONSIBILITY 8 + DOC-FAIL-TEMPORAL-MIXING 6 + DOC-FAIL-GENERATED-AS-MANUAL 5 + DOC-FAIL-STALE-DESCRIPTION 5) を実 guard test に articulate して ratchet-down 完成 (= CLAUDE.md G8 機械化実装最終段階)。L3 governance-hardening。",
   "projectId": "aag-failure-pattern-guards",
   "title": "AAG Failure Pattern Guards — 6 guard candidates の実 guard test articulate で ratchet-down 完成",
-  "status": "active",
-  "projectRoot": "projects/active/aag-failure-pattern-guards",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-failure-pattern-guards",
   "versionImpact": {
     "$comment": "本 program は app/src/test/guards/ への新 guard test 追加 + Failure Loop maturity progression が含まれる。app/ 配下の test infra に新 guard test landing は AAG framework scope (= app version 不変)、aag framework に新 guard 6 件追加は minor 増分。",
     "app": {

@@ -2,8 +2,8 @@
   "$comment": "AAG Governance Ratchet-down — aag-structural-control-plane (= 2026-05-10 archive、AAG 6.0 → 6.1) で landed した advisory infrastructure (= ai-doc-template-rules / required-docs-matrix / artifact-coverage / failure-pattern taxonomy) を ratchet-down (= advisory → guard / unmanaged 86.2% → reduction / 6 guard candidates → guard 化 / Reading Pass 残 19 disposition の実 execution) する Level 4 Umbrella program。aag-scp が articulate 完成、本 program が articulate を実装に converted する継承関係。",
   "projectId": "aag-governance-ratchet-down",
   "title": "AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program",
-  "status": "active",
-  "projectRoot": "projects/active/aag-governance-ratchet-down",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-governance-ratchet-down",
   "versionImpact": {
     "$comment": "計画段階で AAG-COA scope 検討と同 timing で declare。app +0.0.0 = app/ 配下 touch なし (= references/ + tools/governance/ + app/src/test/guards/ のみ)。aag +0.1 = AAG framework に新 guard test + 既存 advisory checker の hard gate 化が additive 加算 (= minor)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準。",
     "app": {

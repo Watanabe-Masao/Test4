@@ -2,8 +2,8 @@
   "$comment": "AAG Disposition Execution (= Sub-3 of aag-governance-ratchet-down umbrella)。aag-scp Reading Pass で articulate した残 19 件 disposition (= move 12 + split 3 + archive 3 + generated-register 1) を実 execution する program。各 disposition は file movement / content split / archive / generator 登録 を実施。L3 architecture-refactor。",
   "projectId": "aag-disposition-execution",
   "title": "AAG Disposition Execution — Reading Pass 残 19 件 disposition の実 execution",
-  "status": "active",
-  "projectRoot": "projects/active/aag-disposition-execution",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-disposition-execution",
   "versionImpact": {
     "$comment": "本 program は実 file movement (= 19 件の物理的 move/split/archive/generated-register)。app/ 配下 touch なし、references/ + docs/contracts/ の物理構造変更のため aag framework に impact あり。",
     "app": {

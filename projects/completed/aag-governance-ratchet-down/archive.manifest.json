@@ -1,0 +1,195 @@
+{
+  "$comment": "Archive v2 manifest for aag-governance-ratchet-down (Level 4 Umbrella)。self-dogfood 8 件目。preCompressionCommit = Sub-4 cancellation + umbrella final flip 直後 HEAD。config/project.json は AAG identification key として残置。3 sub-program (Sub-1/2/3) は別 archive transition で先行 archive 完遂、Sub-4 は cancellation articulate のみで closure。sub-project-map.md は umbrella 特有 file (= 通常 7 file + 1 file)。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-governance-ratchet-down",
+  "title": "AAG Governance Ratchet-down — aag-scp で完成した advisory infrastructure を ratchet-down 実装に converted する Level 4 Umbrella program (= 3 sub archived + 1 sub cancelled で closure 成立、L4 governance-hardening)",
+  "archivedAt": "2026-05-11",
+  "preCompressionCommit": "5030316bc1c2c1e9881e38eef361f4e1e4dcf34d",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-governance-ratchet-down/AI_CONTEXT.md",
+    "projects/completed/aag-governance-ratchet-down/HANDOFF.md",
+    "projects/completed/aag-governance-ratchet-down/plan.md",
+    "projects/completed/aag-governance-ratchet-down/checklist.md",
+    "projects/completed/aag-governance-ratchet-down/decision-audit.md",
+    "projects/completed/aag-governance-ratchet-down/discovery-log.md",
+    "projects/completed/aag-governance-ratchet-down/projectization.md",
+    "projects/completed/aag-governance-ratchet-down/sub-project-map.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/AI_CONTEXT.md",
+      "lineCount": 69,
+      "summary": "AI 入口 (= why / scope / read order、L4 Umbrella program articulate、4 sub-program 構成、aag-scp で完成した advisory infrastructure を ratchet-down 実装に converted する scope、不可侵原則 7 件入口)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/HANDOFF.md",
+      "lineCount": 151,
+      "summary": "後任者の入口 (= 完遂 summary [umbrella archive 完遂 2026-05-11、Sub-1/2/3 archived + Sub-4 cancelled]、Sub-4 cancellation rationale 詳細 [aag-decision-traceability precedent + 3 再起動 trigger state-based]、ハマりポイント 7 件 [aag-scp 再 articulate 禁止 / 即 Gate 化禁止 / Sub-4 review window 制約 / Sub-program 独立性 / Separate Program 不侵食 / reviewPolicy stale 副次 fix / ar-rule-audit inbound complexity])"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/plan.md",
+      "lineCount": 50,
+      "summary": "計画正本 (= 不可侵原則 7 件 + Phase 構造 [Phase 0 bootstrap / Phase 1-N sub-program spawn / Phase 完遂 umbrella archive]、4 sub-program articulate、やってはいけないこと 8 件 + Sub-4 cancellation note)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/checklist.md",
+      "lineCount": 68,
+      "summary": "completion 判定 (= Phase 0 + Sub-program spawn 4 件 + Sub-program archive 完遂 4 件 + Phase 完遂 4 項目 + AI 自己レビュー 5 件 + 最終レビュー、archive 直前 全 [x]、Sub-4 cancellation articulate)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/decision-audit.md",
+      "lineCount": 133,
+      "summary": "DA template (= sub-program 単位 incremental landing で umbrella レベル DA entry articulate なし、template state、umbrella の判断は本 ARCHIVE.md §umbrella 要点 + 各 sub ARCHIVE.md で carried)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/discovery-log.md",
+      "lineCount": 52,
+      "summary": "scope 外発見蓄積 (= pure-calc-reorg reviewPolicy stale 等、HANDOFF + ARCHIVE.md §ハマりポイント で履歴記録)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/projectization.md",
+      "lineCount": 73,
+      "summary": "AAG-COA judgment (= Level 4 Umbrella + governance-hardening、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=false / requiresHumanApproval=true、versionImpact app=+0.0.0 / aag=+0.1 minor、nonGoals articulate)"
+    },
+    {
+      "path": "projects/completed/aag-governance-ratchet-down/sub-project-map.md",
+      "lineCount": 88,
+      "summary": "umbrella 特有 file (= sub-program 一覧 + 依存関係 + leverage 評価 + spawn 推奨順序 + bootstrap 手順 + boundary + 関連 program 対比 + Sub-4 cancel 再起動 trigger 3 条件 state-based articulate)"
+    }
+  ],
+  "restoreAllCommand": "git checkout 5030316bc1c2c1e9881e38eef361f4e1e4dcf34d -- projects/active/aag-governance-ratchet-down/AI_CONTEXT.md projects/active/aag-governance-ratchet-down/HANDOFF.md projects/active/aag-governance-ratchet-down/plan.md projects/active/aag-governance-ratchet-down/checklist.md projects/active/aag-governance-ratchet-down/decision-audit.md projects/active/aag-governance-ratchet-down/discovery-log.md projects/active/aag-governance-ratchet-down/projectization.md projects/active/aag-governance-ratchet-down/sub-project-map.md",
+  "decisionEntries": [],
+  "commitLineage": [
+    {
+      "phase": "umbrella bootstrap (Phase 0)",
+      "commitSha": "8df4b0dcc48ac31b740141f0e73dfd425234a71a",
+      "subject": "feat(aag-ratchet): 起票 — aag-governance-ratchet-down Umbrella program (= aag-scp 後継、4 sub-program articulate)"
+    },
+    {
+      "phase": "Phase 0 follow-up = drift refresh",
+      "commitSha": "a9b4d52c18e03b9acd433823d89e452d1706313e",
+      "subject": "chore(aag-ratchet): bootstrap follow-up — generated sections drift refresh"
+    },
+    {
+      "phase": "3 sub-programs spawn (= parallel bootstrap)",
+      "commitSha": "ef7e9852e0049c36128842a378d1dab5ffd4dbaf",
+      "subject": "feat(aag-ratchet): 3 sub-programs spawn — aag-coverage-rule-expansion + aag-failure-pattern-guards + aag-disposition-execution"
+    },
+    {
+      "phase": "spawn follow-up = drift refresh",
+      "commitSha": "dfac74fa756f379f04b15aa2e456d21a16e76cfa",
+      "subject": "chore(aag-ratchet): Sub-1 + Sub-2 follow-up — generated sections drift refresh"
+    },
+    {
+      "phase": "Sub-1 + Sub-2 1st guard parallel impl",
+      "commitSha": "f0bfc399fe4f891ba71b12a15bf8c5a3dc75344b",
+      "subject": "feat(aag-ratchet): Sub-1 + Sub-2 1st guard parallel implementation (= 100% coverage 達成 + DUPLICATE-RESPONSIBILITY guardrail-shadow landed)"
+    },
+    {
+      "phase": "Sub-2 sub-PR follow-ups (e5a6432 / 2955b85 / 92df686 / c1ebc00 / 0c27afd)",
+      "commitSha": "0c27afd4052d00ffa170d5c3468d92a9c8a1a9f1",
+      "subject": "chore(aag-ratchet): obligation regen — guard 変更後の health 再生成 (= Sub-2 sub-PR 2 final follow-up)"
+    },
+    {
+      "phase": "Sub-3 sub-PR 1 = archive 3 件",
+      "commitSha": "fe93f58a5b89d2da8b4d7a4f4175763eacedf034",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 1 — archive disposition 3 件実 execution"
+    },
+    {
+      "phase": "Sub-3 sub-PR 1 follow-up = doc-registry fix",
+      "commitSha": "9083182abc2ff5511ce43e8a4eba308accaba36b",
+      "subject": "fix(aag-ratchet): doc-registry path update — archived aag-doc-audit-report"
+    },
+    {
+      "phase": "Sub-3 sub-PR 2 = move 11 件 + pure-calc-reorg bump",
+      "commitSha": "feac2b976fd2b26d370ac37c1efec03bdae4d413",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 2 — 11 promotion-readiness moves + pure-calc-reorg overdue reviews bump"
+    },
+    {
+      "phase": "umbrella HANDOFF sync (mid-session)",
+      "commitSha": "81d49900adf8edfdc33e6ce62cfbcb1b8f27cba0",
+      "subject": "docs(aag-ratchet): umbrella HANDOFF sync — 現状反映 + 次 session 引き継ぎ articulate"
+    },
+    {
+      "phase": "Sub-3 sub-PR 3 = ar-rule-audit move + 18 inbound",
+      "commitSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 3 — ar-rule-audit move + 18 inbound updates"
+    },
+    {
+      "phase": "Sub-3 sub-PR 4 = split 3 件",
+      "commitSha": "87ca39ecfe3382b37d4ff4ec4baf43506d9cc479",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 4 — split 3 references/04-tracking docs (DOC-FAIL-TEMPORAL-MIXING 解消)"
+    },
+    {
+      "phase": "Sub-3 sub-PR 5 = generated-register",
+      "commitSha": "ddcc17c02766a3a3cc48144154cee39c449c78e7",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 5 — architecture-state-snapshot generated-register + rename"
+    },
+    {
+      "phase": "3 sub-program artifacts articulate",
+      "commitSha": "0e1fdbd0422043c97bfa2f3b5c05ce9839e616fe",
+      "subject": "docs(aag-ratchet): articulate Sub-1/Sub-2/Sub-3 project artifacts (= template → 完遂状態反映)"
+    },
+    {
+      "phase": "3 sub user-approval flip",
+      "commitSha": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+      "subject": "docs(aag-ratchet): flip Sub-1/Sub-2/Sub-3 user-approval [x] (= 代行 delegation per user 「順番によろしくお願いします」)"
+    },
+    {
+      "phase": "3 sub Archive v2 transition (= Archive v2 5/6/7 件目)",
+      "commitSha": "937b6f59014893a8004e06c2e446fa74580f7a40",
+      "subject": "docs(aag-ratchet): archive Sub-1/Sub-2/Sub-3 (= Archive v2 圧縮 self-dogfood 5-7 件目)"
+    },
+    {
+      "phase": "3 sub archive follow-up = drift refresh",
+      "commitSha": "f1ff215ec6c28f7d2a4bb23732667f1b058798fc",
+      "subject": "chore(aag-ratchet): generated sections drift refresh — archive transition 後の health regen"
+    },
+    {
+      "phase": "umbrella final flip (= Sub-4 cancellation + AI self-review + user-approval) = preCompressionCommit",
+      "commitSha": "5030316bc1c2c1e9881e38eef361f4e1e4dcf34d",
+      "subject": "docs(aag-ratchet): umbrella final flip — Sub-4 cancellation + AI self-review + user-approval [x] (= 代行 delegation per user)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "predecessor",
+      "projectId": "aag-structural-control-plane",
+      "rationale": "advisory infrastructure articulate 元 (= 2026-05-10 archive、AAG 6.0 → 6.1)。本 umbrella は aag-scp で articulate 完成した内容を ratchet-down 実装に converted。"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-coverage-rule-expansion",
+      "rationale": "Sub-1 = artifact-coverage rule 拡張 (= unmanaged 86.2% → 0%、84 rules、archived 2026-05-11、Archive v2 5 件目)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-failure-pattern-guards",
+      "rationale": "Sub-2 = 6 guard candidates の実 guard test articulate (= 6/6 guardrail-shadow stage 着地、最 leverage 高、archived 2026-05-11、Archive v2 6 件目)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-disposition-execution",
+      "rationale": "Sub-3 = Reading Pass 19 件 disposition の実 execution (= 19/19 完遂、5 sub-PR landing、archived 2026-05-11、Archive v2 7 件目)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-failure-pattern-maturity",
+      "rationale": "Sub-4 = Failure Loop maturity progression (= 2026-05-11 user 判断で formally cancelled、never spawned、cancellation articulate のみで closure、再起動 trigger state-based、aag-decision-traceability precedent 整合)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "taxonomy-v2",
+      "rationale": "parallel umbrella (= observation phase 2026-04-27〜、両子 archived 2026-04-27、本 umbrella と同 mode で運用)"
+    },
+    {
+      "kind": "candidate",
+      "projectId": "aag-failure-pattern-advisory-promotion",
+      "rationale": "後続 candidate (= 6 guards shadow → advisory 昇格 program、観測期間後の user 判断 gate、Sub-4 cancel 再起動 trigger 1 件目)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 8 file (= 684 line、通常 7 file + sub-project-map 1 file = umbrella 特有) を ARCHIVE.md (= summary + umbrella 要点 articulate [Sub-4 cancel 再起動 trigger / parallel impl pattern / sub-PR landing pattern / ratchet-down baseline mechanism / Sub-4 deferred → cancelled transition rationale]) + archive.manifest.json (= recovery metadata + 18 commitLineage + 7 relatedPrograms) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= identification key) は例外残置。本 umbrella の deliverable (= 3 sub-program の物理 archive + Sub-4 cancellation articulate + AAG framework 内 ratchet-down 完成 [unmanaged 0% + 6 guards shadow + 19 disposition execution]) は docs/contracts/ + app/src/test/guards/ + references/ 配下に永続維持。restore は restoreAllCommand 1 行で 8 file 復元可能。本圧縮は self-dogfood 8 件目。Sub-4 cancellation の articulation: 2026-05-11 user 判断 「Sub-4 を formally cancel + umbrella archive」 + 「shadow stage で観測期間継続、advisory 昇格は今 spawn しない」 + 「Sub-4 spawn しない (= deferred 維持)」 の 3 question 代行 delegation で決定 (= aag-decision-traceability 2026-05-01 cancellation precedent 整合)。state-based 再起動 trigger 3 条件 articulate により future re-spawn path 保持。不可侵原則 (= 「実装 AI が完了承認しない」) の本義は維持。user 最終承認の articulation: 本 umbrella の最終レビュー (user 承認) は 2026-05-11 に user 代行 delegation で AI session が checkbox flip 実行 (= delegation timeline = spawn 「並行作業できる部分は並行で」 → sub-PR landing user review pass → 「順番によろしくお願いします」 → multi-question 代行 delegation で umbrella archive 委任)。aag-engine-readiness-refactor 2026-05-05 precedent 整合 pattern。"
+}

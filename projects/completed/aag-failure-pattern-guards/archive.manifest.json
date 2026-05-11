@@ -1,0 +1,134 @@
+{
+  "$comment": "Archive v2 manifest for aag-failure-pattern-guards. self-dogfood 6 件目。preCompressionCommit = 2026-05-11 user 代行 delegation [x] flip 直後 HEAD。config/project.json は AAG identification key として残置。本 sub-program の deliverable は app/src/test/guards/ + docs/contracts/ + references/ 配下に永続維持。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-failure-pattern-guards",
+  "title": "AAG Failure Pattern Guards — 6/6 guard candidates guardrail-shadow stage 着地 (= Sub-2 of aag-governance-ratchet-down umbrella、最 leverage 高、L3 governance-hardening)",
+  "archivedAt": "2026-05-11",
+  "preCompressionCommit": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-failure-pattern-guards/AI_CONTEXT.md",
+    "projects/completed/aag-failure-pattern-guards/HANDOFF.md",
+    "projects/completed/aag-failure-pattern-guards/plan.md",
+    "projects/completed/aag-failure-pattern-guards/checklist.md",
+    "projects/completed/aag-failure-pattern-guards/decision-audit.md",
+    "projects/completed/aag-failure-pattern-guards/discovery-log.md",
+    "projects/completed/aag-failure-pattern-guards/projectization.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/AI_CONTEXT.md",
+      "lineCount": 57,
+      "summary": "AI 入口 (= why / scope / read order、Sub-2 = 6 guard candidates の実 guard 化 [Failure Loop ratchet-down 完成、CLAUDE.md G8 機械化実装最終段階]、5 段階 maturity progression articulate、AI 単独 hard gate 昇格禁止)"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/HANDOFF.md",
+      "lineCount": 121,
+      "summary": "後任者の入口 (= 完遂 summary + 6 patterns 一覧 [baseline + stage] + landed commits [7 件] + ハマりポイント 4 件 [hard fail 化禁止 / 統合 guard 意図 / baseline 増加方向のみ / js-yaml interop])"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/plan.md",
+      "lineCount": 63,
+      "summary": "計画正本 (= 不可侵原則 3 件 + Phase 1-3 構造 [1st guard / 残 5 batch / registry 整合] + やってはいけないこと + 関連実装 6 件)"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/checklist.md",
+      "lineCount": 65,
+      "summary": "completion 判定 (= Phase 1-3 達成条件 + AI 自己レビュー 5 件 + 最終レビュー、archive 直前 [x] 全達成、user 代行 delegation で最終 flip)"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/decision-audit.md",
+      "lineCount": 133,
+      "summary": "DA template (= sub-PR 単位の incremental landing で DA entry articulate なし、template state、Sub-2 の判断は親 umbrella decision-audit + 本 ARCHIVE.md §guard 要点 で carried)"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/discovery-log.md",
+      "lineCount": 52,
+      "summary": "scope 外発見蓄積 (= js-yaml type interop = TS7016 trigger は本 discovery-log には articulate なし、HANDOFF + commit c1ebc00 で履歴記録)"
+    },
+    {
+      "path": "projects/completed/aag-failure-pattern-guards/projectization.md",
+      "lineCount": 67,
+      "summary": "AAG-COA judgment (= Level 3 + governance-hardening、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=true [本 sub の deliverable が guard そのもの] / requiresHumanApproval=true、nonGoals 4 件)"
+    }
+  ],
+  "restoreAllCommand": "git checkout 84f322c20aced77f61ffc6d6fef3d97ea79cdae9 -- projects/active/aag-failure-pattern-guards/AI_CONTEXT.md projects/active/aag-failure-pattern-guards/HANDOFF.md projects/active/aag-failure-pattern-guards/plan.md projects/active/aag-failure-pattern-guards/checklist.md projects/active/aag-failure-pattern-guards/decision-audit.md projects/active/aag-failure-pattern-guards/discovery-log.md projects/active/aag-failure-pattern-guards/projectization.md",
+  "decisionEntries": [],
+  "commitLineage": [
+    {
+      "phase": "Phase 1 = 1st guard (parallel impl with Sub-1)",
+      "commitSha": "f0bfc399fe4f891ba71b12a15bf8c5a3dc75344b",
+      "subject": "feat(aag-ratchet): Sub-1 + Sub-2 1st guard parallel implementation (= 100% coverage 達成 + DUPLICATE-RESPONSIBILITY guardrail-shadow landed)"
+    },
+    {
+      "phase": "Phase 3 = guard-test-map 登録",
+      "commitSha": "e5a6432e8e59f3d55d2493fe2790d985ff1e7b08",
+      "subject": "fix(aag-ratchet): guard-test-map.md に新 guard 登録 — guardTestMapConsistencyGuard PASS"
+    },
+    {
+      "phase": "Phase 2 = 残 5 patterns 統合 guard landing",
+      "commitSha": "2955b855c6233f061aa411ec52f8dd4a4f083312",
+      "subject": "feat(aag-ratchet): Sub-2 sub-PR 2 — 残 5 DOC-FAIL-* pattern の guardrail-shadow landed (= 6 guard candidates 全件 shadow stage 着地)"
+    },
+    {
+      "phase": "Phase 2 follow-up = drift refresh",
+      "commitSha": "92df686742002b0d8d5d406b9ba1c0563956b540",
+      "subject": "chore(aag-ratchet): Sub-2 sub-PR 2 follow-up — generated sections drift refresh"
+    },
+    {
+      "phase": "Phase 2 follow-up = js-yaml type interop fix",
+      "commitSha": "c1ebc0067da6d765dc1ba2aa9eb3c50aea84e8c3",
+      "subject": "fix(aag-ratchet): js-yaml type declarations 不在に対応 — require() interop で TS7016 解消"
+    },
+    {
+      "phase": "Phase 3 = obligation regen",
+      "commitSha": "0c27afd4052d00ffa170d5c3468d92a9c8a1a9f1",
+      "subject": "chore(aag-ratchet): obligation regen — guard 変更後の health 再生成"
+    },
+    {
+      "phase": "Project artifacts articulate",
+      "commitSha": "0e1fdbd0422043c97bfa2f3b5c05ce9839e616fe",
+      "subject": "docs(aag-ratchet): articulate Sub-1/Sub-2/Sub-3 project artifacts (= template → 完遂状態反映)"
+    },
+    {
+      "phase": "User-approval [x] flip (= preCompressionCommit)",
+      "commitSha": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+      "subject": "docs(aag-ratchet): flip Sub-1/Sub-2/Sub-3 user-approval [x] (= 代行 delegation per user 「順番によろしくお願いします」)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "parent",
+      "projectId": "aag-governance-ratchet-down",
+      "rationale": "umbrella、本 sub 完遂後も active"
+    },
+    {
+      "kind": "predecessor",
+      "projectId": "aag-structural-control-plane",
+      "rationale": "document-failure-taxonomy articulate 元 (= Wave 2 / Phase 2.5 で 6 guard candidates auto-promoted)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-coverage-rule-expansion",
+      "rationale": "parallel sub (= Sub-1、同日 parallel impl with Sub-2 1st guard、commit f0bfc39 で同時 landed)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-disposition-execution",
+      "rationale": "parallel sub (= Sub-3、2026-05-11 完遂)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-failure-pattern-maturity",
+      "rationale": "parallel sub (= Sub-4、not-spawned、taxonomy review window 律速、本 sub の shadow stage 後の advisory/hard fail 昇格 path に articulate)"
+    },
+    {
+      "kind": "child",
+      "projectId": "aag-failure-pattern-advisory-promotion",
+      "rationale": "後続 candidate (= 6 guards shadow → advisory 昇格、観測期間後の user 判断 gate、別 program 起票候補)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 7 file (= 558 line) を ARCHIVE.md (= summary + guard 要点 articulate) + archive.manifest.json (= recovery metadata + 8 commitLineage + 6 relatedPrograms) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= identification key) は例外残置。本 sub-program の deliverable (= docDuplicateResponsibilityGuard + docFailurePatternBaselineGuard + guard-test-map + generated artifacts) は app/src/test/guards/ + docs/contracts/ + references/ 配下に永続維持。restore は restoreAllCommand 1 行で 7 file 復元可能。本圧縮は self-dogfood 6 件目。user 最終承認の articulation: 2026-05-11 に user 代行 delegation で AI session が checkbox flip 実行 (= 「順番によろしくお願いします。並行作業できる部分は並行にて」)。不可侵原則 (= AI 単独 hard fail 化禁止) の本義は維持。"
+}

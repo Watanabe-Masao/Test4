@@ -2,8 +2,8 @@
   "$comment": "AAG Coverage Rule Expansion (= Sub-1 of aag-governance-ratchet-down umbrella)。aag-scp で landed した artifact-coverage.yaml (= 17 rules、3704 tracked、86.2% unmanaged baseline) を拡張して unmanaged を ratchet-down する program。L2 governance-hardening。",
   "projectId": "aag-coverage-rule-expansion",
   "title": "AAG Coverage Rule Expansion — artifact-coverage rules 拡張で unmanaged 86.2% を ratchet-down",
-  "status": "active",
-  "projectRoot": "projects/active/aag-coverage-rule-expansion",
+  "status": "archived",
+  "projectRoot": "projects/completed/aag-coverage-rule-expansion",
   "versionImpact": {
     "$comment": "本 program は coverage rule の articulate 拡張 (= authoring source の content 追加) のみ。app/ 配下 touch なし、aag framework は既存 coverage advisory checker の rule 拡張のみ。",
     "app": {
