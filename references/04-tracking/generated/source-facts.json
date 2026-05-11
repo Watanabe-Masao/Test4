@@ -1,6 +1,6 @@
 {
   "schemaVersion": "source-facts-v1",
-  "generatedAt": "2026-05-11T13:54:37.023Z",
+  "generatedAt": "2026-05-11T13:58:30.626Z",
   "summary": {
     "totalFiles": 2843,
     "byKind": {
@@ -38050,10 +38050,10 @@
       "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 145,
+      "physicalLines": 146,
       "blankLines": 43,
       "commentLines": 0,
-      "effectiveCodeLines": 102
+      "effectiveCodeLines": 103
     },
     {
       "path": "projects/active/aag-governance-ratchet-down/plan.md",

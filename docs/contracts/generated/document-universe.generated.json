@@ -9816,7 +9816,7 @@
     },
     {
       "continuityStatus": "unreviewed",
-      "contractStatus": "unreviewed",
+      "contractStatus": "declared",
       "documentStatus": "generated",
       "href": "architecture-state-snapshot.generated.md",
       "indexSection": "tracking-generated",
@@ -9825,21 +9825,21 @@
       "meaningStatus": "unknown",
       "path": "references/04-tracking/generated/architecture-state-snapshot.generated.md",
       "promotionAllowed": false,
-      "source": "markdown-inventory",
+      "source": "doc-registry",
       "temporalScope": "computed-current"
     },
     {
       "continuityStatus": "unreviewed",
-      "contractStatus": "declared",
-      "documentStatus": "declared",
+      "contractStatus": "unreviewed",
+      "documentStatus": "observed-only",
       "href": "architecture-state-snapshot.md",
       "indexSection": "tracking",
       "intentStatus": "unknown",
-      "kind": "canonical-doc",
+      "kind": "unknown",
       "meaningStatus": "unknown",
       "path": "references/04-tracking/generated/architecture-state-snapshot.md",
       "promotionAllowed": false,
-      "source": "doc-registry",
+      "source": "markdown-inventory",
       "temporalScope": "unreviewed"
     },
     {
@@ -10754,14 +10754,14 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-11T13:54:35.036Z",
+    "generatedAt": "2026-05-11T13:58:28.647Z",
     "sourcePaths": [
       "docs/contracts/generated/markdown-inventory.generated.json",
       "docs/contracts/doc-registry.json",
       "docs/contracts/generated/tree-contracts.generated.json",
       "git ls-files '*.md' (= universe scope は markdown-inventory より broad)"
     ],
-    "sourceSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819"
+    "sourceSha": "87ca39ecfe3382b37d4ff4ec4baf43506d9cc479"
   },
   "schemaVersion": "document-universe-v1",
   "summary": {
@@ -10771,17 +10771,17 @@
     },
     "byDocumentStatus": {
       "archive": 339,
-      "declared": 267,
+      "declared": 266,
       "generated": 30,
-      "observed-only": 132
+      "observed-only": 133
     },
     "byKind": {
       "archive-doc": 339,
-      "canonical-doc": 267,
+      "canonical-doc": 266,
       "generated-report": 30,
       "project-plan": 57,
       "repo-entrypoint": 3,
-      "unknown": 72
+      "unknown": 73
     },
     "bySection": {
       "aag-framework": 5,

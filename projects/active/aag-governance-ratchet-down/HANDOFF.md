@@ -19,27 +19,28 @@ AAG 6.0 → 6.1)。aag-scp で **articulate 完成** した advisory infrastruct
 |---|---|---|---|
 | Sub-1 | aag-coverage-rule-expansion | **完遂** (= unmanaged 86.2% → 0%、84 rules) | f0bfc39 (= parallel impl with Sub-2) |
 | Sub-2 | aag-failure-pattern-guards | **完遂** (= 6/6 guard candidates → guardrail-shadow stage) | f0bfc39 (= 1st guard) + 2955b85 (= 5 patterns baseline) + dfac74f / c1ebc00 / 0c27afd (= follow-up fixes) |
-| Sub-3 | aag-disposition-execution | **95% 完遂** (= 18/19、archive 3 + move 12 + split 3) | fe93f58 (= archive 3) + 9083182 (= doc-registry fix) + feac2b9 (= move 11 + reviews bump) + f23062a (= ar-rule-audit move) + [本 sub-PR] (= split 3) |
+| Sub-3 | aag-disposition-execution | **完遂** (= 19/19、archive 3 + move 12 + split 3 + generated-register 1) | fe93f58 (= archive 3) + 9083182 (= doc-registry fix) + feac2b9 (= move 11 + reviews bump) + f23062a (= ar-rule-audit move) + 87ca39e (= split 3) + [本 sub-PR] (= architecture-state-snapshot generated-register) |
 | Sub-4 | aag-failure-pattern-maturity | **deferred** (= review window 律速、user 判断 gate) | (not-spawned) |
 
-### Sub-3 残 1 件 (= 次 session continuation candidate)
+### Sub-3 残 0 件 (= 全件完遂、本 session で 4 sub-PR landed)
 
-| Disposition | Target | Status | Effort |
-|---|---|---|---|
-| generated-register 1 | references/04-tracking/generated/architecture-state-snapshot.md | 残 (= producer articulate + .generated.md rename) | medium |
+Sub-3 (aag-disposition-execution) は 19/19 件完遂。残作業なし。Sub-3 archive 移行は別 session で実施。
 
 ## 2. 次にやること
 
 詳細は `checklist.md` + `plan.md` を参照。優先順位を 1-2 段で要約する。
 
-### 高優先 (= Sub-3 sub-PR 5 で残 1 disposition 完遂)
+### 高優先 (= Sub-3 全件完遂、本 session で sub-PR 3-5 landed)
 
 - **Sub-3 sub-PR 3** = ar-rule-audit move + 18 inbound updates (= **完遂、commit f23062a**)
-- **Sub-3 sub-PR 4** = split 3 件 execution (= **完遂、本 sub-PR で landed**)
+- **Sub-3 sub-PR 4** = split 3 件 execution (= **完遂、commit 87ca39e**)
   - engine-maturity-matrix.md: 旧 doc は ステージ定義 / 状態 / TODO 混在 → stable definitions のみ保持 (Aggregate Boundary + Bridge Infrastructure 含む)
   - engine-promotion-matrix.md: per-engine narrative 削除、current state summary + 更新ルール のみ保持
   - features-migration-status.md: 完遂記録 + Widget Ownership は code 正本への pointer + 別 Epic 候補 inventory
-- **Sub-3 sub-PR 5** = generated-register 1 件 (= architecture-state-snapshot.md producer articulate + .generated.md rename)
+- **Sub-3 sub-PR 5** = generated-register 1 件 (= **完遂、本 sub-PR で landed**)
+  - architecture-state-snapshot.md → .generated.md rename (= AR-DOC-NAMING-GENERATED 整合)
+  - producer (architectureStateAudit.test.ts L414) write target を `.generated.md` に update
+  - inbound (reading-decisions.yaml + doc-registry.json) path 整合
 
 ### 中優先 (= Sub-2 + Sub-3 完遂後、user 判断 gate)
 
@@ -140,5 +141,5 @@ principles.json + 各種 generated artifacts) のため deferred → **Sub-3 sub
 2. [ ] `cd app && npm run docs:generate` で current health 確認 (= Hard Gate PASS が baseline)
 3. [ ] `references/04-tracking/generated/project-health.generated.md` で 4 active project の状態確認
 4. [ ] `projects/active/aag-governance-ratchet-down/sub-project-map.md` で sub-program status 確認
-5. [ ] Sub-3 残 1 件 (= generated-register) の着手判断
+5. [x] Sub-3 全件完遂 (= 19/19、本 session で sub-PR 3-5 landed)、Sub-3 archive 移行判断は別 session
 6. [ ] Sub-2 guardrail-advisory 昇格判断は本 session scope 外、別 user 判断 gate

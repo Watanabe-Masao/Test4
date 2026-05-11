@@ -448,7 +448,7 @@
       "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 9096,
+      "size": 9374,
       "topHeading": "HANDOFF — aag-governance-ratchet-down"
     },
     {
@@ -481,7 +481,7 @@
       "path": "projects/active/aag-governance-ratchet-down/sub-project-map.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 4796,
+      "size": 4832,
       "topHeading": "sub-project-map — aag-governance-ratchet-down (umbrella)"
     },
     {
@@ -6029,17 +6029,6 @@
       "topHeading": "Architecture State Snapshot"
     },
     {
-      "candidateKind": "tracking-report",
-      "contractStatus": "unreviewed",
-      "inventoryStatus": "observed-only",
-      "observed": true,
-      "path": "references/04-tracking/generated/architecture-state-snapshot.md",
-      "preservationAssumed": false,
-      "promotionAllowed": false,
-      "size": 4851,
-      "topHeading": "Architecture State Snapshot"
-    },
-    {
       "candidateKind": "generated-report",
       "contractStatus": "unreviewed",
       "inventoryStatus": "observed-only",
@@ -6206,13 +6195,13 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-11T13:54:34.863Z",
+    "generatedAt": "2026-05-11T13:58:28.470Z",
     "sourcePaths": [
       "projects/",
       "references/04-tracking/",
       "docs/contracts/"
     ],
-    "sourceSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819"
+    "sourceSha": "87ca39ecfe3382b37d4ff4ec4baf43506d9cc479"
   },
   "schemaVersion": "markdown-inventory-v1",
   "scope": "managed-zone-3",
@@ -6230,9 +6219,9 @@
       "project-plan": 9,
       "project-projectization": 8,
       "project-template": 15,
-      "tracking-report": 101,
+      "tracking-report": 100,
       "tree-readme": 13
     },
-    "totalEntries": 564
+    "totalEntries": 563
   }
 }

@@ -3,8 +3,8 @@
 > 機械生成。手で編集しない。authoring source = `docs/contracts/src/docs/ai-doc-template-rules.yaml`、
 > generator = `tools/governance/build-ai-doc-instructions.mjs`。
 
-- 生成: 2026-05-11T13:54:35.510Z
-- generatedAtSha: `f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819`
+- 生成: 2026-05-11T13:58:29.116Z
+- generatedAtSha: `87ca39ecfe3382b37d4ff4ec4baf43506d9cc479`
 - schemaVersion: `ai-doc-template-rules-v1`
 - stage: `pre-articulate`
 
@@ -521,7 +521,7 @@
   - `references/04-tracking/generated/architecture-health.generated.md`
   - `references/04-tracking/generated/document-failure-taxonomy.generated.md`
 - **observedPathsSample** (1/1):
-  - `references/04-tracking/generated/architecture-state-snapshot.md`
+  - `references/04-tracking/generated/architecture-state-snapshot.generated.md`
 
 **additionalGuidance**:
 

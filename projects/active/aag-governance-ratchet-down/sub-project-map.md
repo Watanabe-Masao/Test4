@@ -11,7 +11,7 @@
 |---|---|---|---|---|---|
 | Sub-1 | `aag-coverage-rule-expansion` (C1) | artifact-coverage rules 拡張で unmanaged 86.2% を ratchet-down (= app/src/ 等の zone を coverage に articulate) | medium | **active (= 2026-05-10 spawn)** | governance-hardening |
 | **Sub-2** | **`aag-failure-pattern-guards` (C2 + C3)** | **6 guard candidates の実 guard test articulate (= ratchet-down 完成、CLAUDE.md G8)** | **high (= 最 leverage)** | **active (= 2026-05-10 spawn)** | **governance-hardening** |
-| Sub-3 | `aag-disposition-execution` (C4) | Reading Pass 残 19 件 disposition の実 execution (= move 12 + split 3 + archive 3 + generated-register 1) | medium | **active (= 2026-05-10 spawn)** | architecture-refactor |
+| Sub-3 | `aag-disposition-execution` (C4) | Reading Pass 残 19 件 disposition の実 execution (= move 12 + split 3 + archive 3 + generated-register 1) | medium | **完遂 (= 19/19、2026-05-11 本 session で sub-PR 3-5 landed)** | architecture-refactor |
 | Sub-4 | `aag-failure-pattern-maturity` (C5) | Failure Loop maturity progression (= observed → guardrail-shadow → guardrail-advisory) | low (= taxonomy review window 律速) | not-spawned (= review window 経由で user 判断 gate) | governance-hardening |
 
 ## 依存関係

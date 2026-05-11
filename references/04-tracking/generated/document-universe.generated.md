@@ -4,7 +4,7 @@
 >
 > 正本: `docs/contracts/generated/document-universe.generated.json` (= machine truth、本ファイルは projection)
 
-**generated**: 2026-05-11T13:54:35.036Z — sourceSha: `f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819`
+**generated**: 2026-05-11T13:58:28.647Z — sourceSha: `87ca39ecfe3382b37d4ff4ec4baf43506d9cc479`
 
 ## Summary
 
@@ -38,20 +38,20 @@
 | Kind | Count |
 |---|---|
 | archive-doc | 339 |
-| canonical-doc | 267 |
+| canonical-doc | 266 |
 | generated-report | 30 |
 | project-plan | 57 |
 | repo-entrypoint | 3 |
-| unknown | 72 |
+| unknown | 73 |
 
 ### By Document Status
 
 | Status | Count |
 |---|---|
 | archive | 339 |
-| declared | 267 |
+| declared | 266 |
 | generated | 30 |
-| observed-only | 132 |
+| observed-only | 133 |
 
 ### By Contract Status
 
@@ -878,7 +878,7 @@
 | [`references/04-tracking/engine-promotion-matrix.md`](../engine-promotion-matrix.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/features-migration-status.md`](../features-migration-status.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/frozen-list.md`](../frozen-list.md) | unknown | observed-only | unreviewed | markdown-inventory |
-| [`references/04-tracking/generated/architecture-state-snapshot.md`](architecture-state-snapshot.md) | canonical-doc | declared | declared | doc-registry |
+| [`references/04-tracking/generated/architecture-state-snapshot.md`](architecture-state-snapshot.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/observation-evaluation-guide.md`](../observation-evaluation-guide.md) | unknown | observed-only | unreviewed | markdown-inventory |
 | [`references/04-tracking/open-issues.md`](../open-issues.md) | canonical-doc | declared | declared | doc-registry |
 | [`references/04-tracking/project-structure.md`](../project-structure.md) | canonical-doc | declared | declared | doc-registry |
@@ -895,7 +895,7 @@
 | [`references/04-tracking/generated/architecture-debt-recovery-remediation.generated.md`](architecture-debt-recovery-remediation.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-health-certificate.generated.md`](architecture-health-certificate.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/architecture-health.generated.md`](architecture-health.generated.md) | generated-report | generated | declared | doc-registry |
-| [`references/04-tracking/generated/architecture-state-snapshot.generated.md`](architecture-state-snapshot.generated.md) | generated-report | generated | unreviewed | markdown-inventory |
+| [`references/04-tracking/generated/architecture-state-snapshot.generated.md`](architecture-state-snapshot.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/artifact-coverage.generated.md`](artifact-coverage.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/doc-postwrite-findings.generated.md`](doc-postwrite-findings.generated.md) | generated-report | generated | declared | doc-registry |
 | [`references/04-tracking/generated/document-failure-taxonomy.generated.md`](document-failure-taxonomy.generated.md) | generated-report | generated | declared | doc-registry |

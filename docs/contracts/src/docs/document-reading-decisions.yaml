@@ -435,7 +435,7 @@ entries:
       - DOC-FAIL-GENERATED-AS-MANUAL
       - DOC-FAIL-AI-ROUTING-AMBIGUITY
 
-  - path: references/04-tracking/generated/architecture-state-snapshot.md
+  - path: references/04-tracking/generated/architecture-state-snapshot.generated.md
     proposedKind: generated-report
     temporalScope: present
     disposition: generated-register

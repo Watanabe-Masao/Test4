@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-05-05T05:14:15.515Z
+> Generated: 2026-05-11T13:57:30.492Z
 
 ## Allowlist Summary
 
@@ -95,16 +95,16 @@
 
 | ファイル | useMemo | useState | 行数 |
 |---|---|---|---|
-| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 527 |
-| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 216 |
-| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 467 |
-| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 451 |
-| presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 411 |
-| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 250 |
-| application/hooks/useMetricBreakdown.ts | 7 | 5 | 284 |
-| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 347 |
-| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 307 |
-| application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 196 |
+| presentation/pages/Dashboard/widgets/HourlyChart.tsx | 9 | 6 | 480 |
+| presentation/components/charts/TimeSlotChart.tsx | 8 | 6 | 172 |
+| presentation/pages/Dashboard/widgets/ConditionSummaryEnhanced.tsx | 7 | 7 | 412 |
+| presentation/pages/Dashboard/widgets/YoYWaterfallChart.tsx | 9 | 5 | 388 |
+| presentation/pages/Weather/WeatherPage.tsx | 9 | 5 | 350 |
+| presentation/pages/Insight/useInsightData.ts | 5 | 7 | 215 |
+| application/hooks/useMetricBreakdown.ts | 7 | 5 | 220 |
+| presentation/components/day-detail/DayDetailModal.tsx | 7 | 4 | 299 |
+| presentation/hooks/useUnifiedWidgetContext.ts | 8 | 3 | 230 |
+| application/hooks/plans/useDayDetailPlan.ts | 11 | 0 | 153 |
 
 ## Near-Limit Files (≥80%)
 

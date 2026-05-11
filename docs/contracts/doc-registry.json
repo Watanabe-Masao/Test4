@@ -680,7 +680,7 @@
           "label": "Source Facts 正本（reposteward-ai-ops-platform Wave 1 #4、repo 全 file の size + 構造 facts）"
         },
         {
-          "path": "references/04-tracking/generated/architecture-state-snapshot.md",
+          "path": "references/04-tracking/generated/architecture-state-snapshot.generated.md",
           "label": "Architecture State Snapshot view（architectureStateAudit 出力、bridge inventory + complexity hotspot）"
         },
         {
