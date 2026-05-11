@@ -1,0 +1,150 @@
+# HANDOFF — aag-governance-ratchet-down
+
+> 役割: 起点文書。後任者が最初に読む。
+> 完了済みの全景 + 次にやること + ハマりポイントを 1 画面で把握できる。
+
+## 1. 現在地
+
+**Sub-1 完遂 + Sub-2 完遂 + Sub-3 73% 進行中、Sub-4 deferred** (= 2026-05-11 時点)。
+本 umbrella spawn (2026-05-10) 直後の session で 3 sub-program を parallel 実装、umbrella の
+4 sub-scope のうち 2 件完遂 + 1 件 73% 完遂 + 1 件 deferred (= review window 律速)。
+
+**前駆 program**: `projects/completed/aag-structural-control-plane/` (= 2026-05-10 archive、
+AAG 6.0 → 6.1)。aag-scp で **articulate 完成** した advisory infrastructure を本 program で
+**ratchet-down 実装に converted**。
+
+### Sub-program 進捗 (= sub-project-map.md の status も同期維持)
+
+| ID | sub-program | 完遂状態 | landed commits |
+|---|---|---|---|
+| Sub-1 | aag-coverage-rule-expansion | **完遂** (= unmanaged 86.2% → 0%、84 rules) | f0bfc39 (= parallel impl with Sub-2) |
+| Sub-2 | aag-failure-pattern-guards | **完遂** (= 6/6 guard candidates → guardrail-shadow stage) | f0bfc39 (= 1st guard) + 2955b85 (= 5 patterns baseline) + dfac74f / c1ebc00 / 0c27afd (= follow-up fixes) |
+| Sub-3 | aag-disposition-execution | **73% 完遂** (= 14/19、archive 3 + move 11) | fe93f58 (= archive 3) + 9083182 (= doc-registry fix) + feac2b9 (= move 11 + reviews bump) |
+| Sub-4 | aag-failure-pattern-maturity | **deferred** (= review window 律速、user 判断 gate) | (not-spawned) |
+
+### Sub-3 残 5 件 (= 次 session continuation candidate)
+
+| Disposition | Target | Status | Effort |
+|---|---|---|---|
+| move 1 | references/04-tracking/ar-rule-audit.md → references/03-implementation/ar-rule-binding-protocol.md | 残 (= inbound 18 件 articulate 済、本 session で deferred) | medium |
+| split 3 | references/04-tracking/engine-maturity-matrix.md + engine-promotion-matrix.md + features-migration-status.md | 残 (= 各 doc の content split 必要、state part → generated / TODO part → projects/active/) | large |
+| generated-register 1 | references/04-tracking/generated/architecture-state-snapshot.md | 残 (= producer articulate + .generated.md rename) | medium |
+
+## 2. 次にやること
+
+詳細は `checklist.md` + `plan.md` を参照。優先順位を 1-2 段で要約する。
+
+### 高優先 (= Sub-3 sub-PR 3〜5 で残 5 disposition 完遂)
+
+- **Sub-3 sub-PR 3** = ar-rule-audit move + 18 inbound updates (= medium effort)
+  - 5 guard tests (canonicalDocBackLinkGuard / canonicalDocRefIntegrityGuard / selfHostingGuard / semanticArticulationQualityGuard / statusIntegrityGuard) の `@see` comments
+  - aag/_internal/display-rule-registry.md, docs/contracts/principles.json, document-failure-taxonomy.yaml
+  - target path: references/03-implementation/ar-rule-binding-protocol.md (= articulate 済)
+- **Sub-3 sub-PR 4** = split 3 件 execution (= content split 要、慎重)
+  - engine-maturity-matrix.md: state part (= 5 engine WASM bridge / compare status) を generated 化、TODO part を projects/active/ へ
+  - engine-promotion-matrix.md: 同様 split
+  - features-migration-status.md: 同様 split
+- **Sub-3 sub-PR 5** = generated-register 1 件 (= architecture-state-snapshot.md producer articulate + .generated.md rename)
+
+### 中優先 (= Sub-2 + Sub-3 完遂後、user 判断 gate)
+
+- **Sub-2 guardrail-advisory 昇格判断** (= 6 guards の現 shadow stage → advisory stage)
+- **Sub-4 spawn 判断** (= taxonomy review window 経由、user judgment required)
+
+### 低優先 (= 本 umbrella 完遂後、別 program 候補)
+
+- Archive v2 圧縮 PR (= aag-scp archive を圧縮形式に変換、optional optimization)
+- Separate Program candidate 起票 (= Phase 8a/8b/8c / Phase 10、reposteward 系統移譲)
+
+## 3. ハマりポイント
+
+### 3.1. aag-scp で完成した articulate を再 articulate しない
+
+aag-scp は **articulate 完成** で archive 済。本 program は **articulate された内容を ratchet-down**
+するのみ。新 governance pattern 追加 / 新 schema 追加 / 新 Reading Pass batch は **scope 外**
+(= projectization.md §4 nonGoals)。
+
+### 3.2. 即 Gate 化禁止 (AAG-SCP-DOC-LEARNING-002 整合)
+
+各 guard candidate の guard 化は **5 段階 maturity progression** を経る:
+observed → pattern-articulated → guardrail-candidate-emitted → guardrail-shadow → guardrail-advisory
+
+各昇格は user 判断 gate を含む。AI 単独で advisory を hard gate に直接昇格させることは禁止。
+review window 経由で user 承認後にのみ昇格。
+
+### 3.3. Sub-program 4 の review window 制約
+
+C5 (= maturity progression) は **taxonomy review window** を経由。AI 単独で taxonomy maturity を
+昇格させることは AR-TAXONOMY-AI-VOCABULARY-BINDING 違反候補。Sub-program 4 spawn 判断は user
+review が必要。
+
+### 3.4. Sub-program 独立性
+
+各 sub-program は **独立 spawn 可能** (= 順序依存なし、parallel 進行可、本 session で 3 sub-program
+parallel 実装 = 実証済)。ただし Sub-2 (guard 化) が最 leverage 高、Sub-1 (coverage 拡張) は Sub-2 と
+並走可、Sub-3 (disposition execution) と Sub-4 (maturity) は順序自由。
+
+### 3.5. Separate Program candidate の侵入禁止
+
+Phase 8a/8b/8c (= Obligation Migration) と Phase 10 (= Runner Parity Contract) は
+aag-scp plan.md §Separate Program candidate で reposteward 系統への移譲が articulate 済。
+本 program で着手しない (= scope 違い、reposteward 重複 risk)。
+
+### 3.6. pre-existing time-based reviewPolicy stale (= 副次 fix experience)
+
+pure-calculation-reorg/aag/execution-overlay.ts に reviewPolicy.lastReviewedAt が articulate されており、
+cadenceDays 経過で overdue になる。本 session で Sub-3 sub-PR 2 着地時に 4 件 overdue (= cadence 30、
+2026-04-10 + 30 = 2026-05-10、現在 2026-05-11 で 1 日超過) が hard gate fail を trigger、bump で unblock。
+
+**注意**: pure-calc-reorg は別 project scope (= 本 umbrella 配下外)、bump は最小限 scope crossover。
+今後 file 変更で hard gate fail trigger があった場合、まず reviewPolicy stale を疑う。
+
+### 3.7. ar-rule-audit move の inbound complexity
+
+Sub-3 sub-PR 2 で当初 ar-rule-audit move を含めようとしたが、inbound 18 件 (= 5 guards + display-rule-registry +
+principles.json + 各種 generated artifacts) のため deferred。**Sub-3 sub-PR 3 で慎重に execution**:
+- guards の `@see` comment update (= 5 files)
+- canonical-doc references (= display-rule-registry / principles)
+- generated artifacts は regen で自動更新
+
+inbound list は `git grep -l "references/04-tracking/ar-rule-audit.md"` で確認可。
+
+## 4. 関連文書
+
+| ファイル | 役割 |
+|---|---|
+| `AI_CONTEXT.md` | project 意味空間の入口 (= why / scope / read order) |
+| `plan.md` | 不可侵原則 7 件 + Sub-program-based 運用 |
+| `checklist.md` | sub-program spawn tracking (= 本 PR で sub-program 3 spawn checkbox flip 済) |
+| `decision-audit.md` | ADR-RAT-* lineage template |
+| `discovery-log.md` | scope 外発見の蓄積 inventory |
+| `projectization.md` | AAG-COA 判定 (= Level 4 Umbrella / governance-hardening / requiresHumanApproval=true) |
+| `sub-project-map.md` | 4 sub-program 一覧と依存関係 articulate (= Sub-1/2/3 active、Sub-4 not-spawned) |
+| `projects/completed/aag-structural-control-plane/HANDOFF.md` | 前駆 program (= advisory infrastructure articulate 完成、本 program input) |
+
+### 本 session で完遂した sub-programs (= 詳細は各 sub-program HANDOFF / commit message)
+
+- **`projects/active/aag-coverage-rule-expansion/`**: artifact-coverage rules 17 → 84 (= 67 new rules)、unmanaged 86.2% → 0%
+- **`projects/active/aag-failure-pattern-guards/`**: 6 guards 全件 guardrail-shadow stage 着地 (= docDuplicateResponsibilityGuard + docFailurePatternBaselineGuard 5 patterns)
+- **`projects/active/aag-disposition-execution/`**: 14/19 disposition execution (= archive 3 + move 11)、残 5 件で完遂
+
+### 前駆 program landed deliverables (= 本 program の input)
+
+| Wave / Phase | Deliverable (= aag-scp で landed) |
+|---|---|
+| Wave 2 / Phase 2.5 sub-PR 9 | document-failure-taxonomy.yaml (= 11 patterns、6 guard candidates) |
+| Wave 3 / Phase 6 | ai-doc-template-rules.yaml (= 20 kinds) + post-write checker (= advisory) |
+| Wave 3 / Phase 7 | required-docs-matrix.yaml (= 5 rules、46 targets、0 missing baseline) |
+| Wave 3 / Phase 9 | artifact-coverage.yaml (= 17 rules、3704 tracked、86.2% unmanaged baseline) |
+| Wave 2 Reading Pass | document-reading-decisions.yaml (= 398 docs、disposition articulate) |
+
+## 5. session 引き継ぎ checklist
+
+次 session 開始時に確認:
+
+1. [ ] `git log --oneline -5` で最新 commits 確認 (= 本 sync 時点で feac2b9 + 引き継ぎ commit)
+2. [ ] `cd app && npm run docs:generate` で current health 確認 (= Hard Gate PASS が baseline)
+3. [ ] `references/04-tracking/generated/project-health.generated.md` で 4 active project の状態確認
+4. [ ] `projects/active/aag-governance-ratchet-down/sub-project-map.md` で sub-program status 確認
+5. [ ] Sub-3 残 5 件 (= ar-rule-audit / split 3 / generated-register) のうちどれから着手か user 判断
+6. [ ] Sub-2 guardrail-advisory 昇格判断は本 session scope 外、別 user 判断 gate

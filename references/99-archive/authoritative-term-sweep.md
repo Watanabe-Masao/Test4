@@ -1,4 +1,8 @@
-# authoritative 用語スイープ結果
+# [ARCHIVED] authoritative 用語スイープ結果
+
+> **Archived**: 2026-05-10 (= aag-disposition-execution Sub-3 sub-PR 1)
+> **Migrated From**: `references/04-tracking/authoritative-term-sweep.md`
+> **Rationale**: 2026-04-10 時点の用語スイープ結果 (279 箇所 / 65 ファイル)。一度限りの調査 snapshot で、件数は本来 generated report 化すべき (DOC-FAIL-GENERATED-AS-MANUAL)。Wave 2 Reading Pass Batch 1 で disposition: archive articulate 済。
 
 > 生成日: 2026-04-10
 > 方針: `references/01-foundation/semantic-classification-policy.md`

@@ -1,0 +1,48 @@
+{
+  "$comment": "AAG Disposition Execution (= Sub-3 of aag-governance-ratchet-down umbrella)。aag-scp Reading Pass で articulate した残 19 件 disposition (= move 12 + split 3 + archive 3 + generated-register 1) を実 execution する program。各 disposition は file movement / content split / archive / generator 登録 を実施。L3 architecture-refactor。",
+  "projectId": "aag-disposition-execution",
+  "title": "AAG Disposition Execution — Reading Pass 残 19 件 disposition の実 execution",
+  "status": "active",
+  "projectRoot": "projects/active/aag-disposition-execution",
+  "versionImpact": {
+    "$comment": "本 program は実 file movement (= 19 件の物理的 move/split/archive/generated-register)。app/ 配下 touch なし、references/ + docs/contracts/ の物理構造変更のため aag framework に impact あり。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "app/ 配下を一切触らない。references/ + docs/contracts/ の文書 location 整理のみ。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.1",
+      "delta": "+0.0",
+      "rationale": "既存 doc の location 整理のみ。新 schema / 新 generator / 新 guard なし。articulate された disposition の物理 execution は版 bump 対象外。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定。19 件 file 物理 movement + reference update は architecture-refactor scope。L3 (= scope 大、複数 commit 分割必要)。",
+    "level": 3,
+    "changeType": "architecture-refactor",
+    "implementationScope": [
+      "references/04-tracking",
+      "references/99-archive",
+      "projects/active/pure-calculation-reorg",
+      "docs/contracts/src/docs/document-reading-decisions.yaml"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": false,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "新 disposition 追加 (= aag-scp で articulate された 19 件のみ scope)",
+      "Reading Pass の new batch (= 100% 完遂済、本 sub は articulate 済 disposition の execution のみ)",
+      "新 schema 追加",
+      "AI 単独 archive (= 各 disposition execution は user 判断 gate を通る、特に sub-PR 分割で確認)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-disposition-execution/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-disposition-execution/HANDOFF.md",
+    "plan": "projects/active/aag-disposition-execution/plan.md",
+    "checklist": "projects/active/aag-disposition-execution/checklist.md",
+    "projectization": "projects/active/aag-disposition-execution/projectization.md"
+  }
+}

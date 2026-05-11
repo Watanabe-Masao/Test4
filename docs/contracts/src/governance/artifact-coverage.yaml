@@ -143,3 +143,333 @@ rules:
     rationale: |
       governance generators + checkers (= build-* / check-* .mjs)。AAG framework 内部実装、
       aag/_internal/ + aag/_framework/ の articulate 補完。
+
+  # ============================================================================
+  # declared category — Wave 3 / Phase 9 sub-PR ratchet-down (= 86.2% → ~50%)
+  # major zone (app / references / wasm / aag-engine / projects / tools / etc.) を
+  # 各 zone の articulate 入口を rationale に明示しつつ declared 分類する。
+  # ============================================================================
+
+  # --- app/ (= 主アプリ source、最大 zone) ----------------------------------
+
+  - category: declared
+    pathPattern: app/src/
+    rationale: |
+      主アプリ source code (= domain / application / infrastructure / presentation /
+      features / stories / test 配下)。articulate 入口 = app/src/test/guards/
+      architectureRuleGuard.test.ts (= 層境界 + 責務 + size 制約) +
+      references/04-tracking/project-structure.md (= 物理配置正本)。
+
+  - category: declared
+    pathPattern: app/e2e/
+    rationale: |
+      Playwright E2E test suite。articulate 入口 = app/playwright.config.ts +
+      CLAUDE.md コマンド表 (= npm run test:e2e)。
+
+  - category: declared
+    pathPattern: app/public/
+    rationale: |
+      PWA static assets (= manifest.json / sw.js / icons / 404.html)。articulate 入口 =
+      app/public/manifest.json + Vite PWA plugin 設定 (= vite.config.ts)。
+
+  - category: declared
+    pathPattern: app/scripts/
+    rationale: |
+      app workspace 補助 scripts (= project overlay resolve / project switch verify)。
+      articulate 入口 = app/package.json scripts entry。
+
+  - category: declared
+    pathPattern: app/.storybook/
+    rationale: |
+      Storybook 設定 (= main.ts + preview.ts)。articulate 入口 = app/package.json
+      scripts (= storybook / build-storybook) + CLAUDE.md コマンド表。
+
+  - category: declared
+    pathPattern: app/projects/
+    rationale: |
+      app workspace 内 project overlay (= 主アプリ build 時の active project 切替用)。
+      articulate 入口 = app/scripts/resolve-project-overlay.mjs。
+
+  # app/ 直下 config files (= package.json / config / README 等) を declared 化
+  - category: declared
+    pathPattern: app/package.json
+    rationale: app workspace package manifest。npm dependencies + scripts の articulate 入口。
+  - category: declared
+    pathPattern: app/package-lock.json
+    rationale: app workspace npm lockfile。reproducible install の articulate 入口。
+  - category: declared
+    pathPattern: app/tsconfig.json
+    rationale: app workspace TypeScript root config。strict mode + path alias の articulate 入口。
+  - category: declared
+    pathPattern: app/tsconfig.app.json
+    rationale: app workspace TypeScript app build config (= tsc -b 構成の一部)。
+  - category: declared
+    pathPattern: app/tsconfig.node.json
+    rationale: app workspace TypeScript node build config (= vite config 等の node 環境用)。
+  - category: declared
+    pathPattern: app/vite.config.ts
+    rationale: Vite build + dev server 設定。bundle / PWA / alias の articulate 入口。
+  - category: declared
+    pathPattern: app/vitest.config.ts
+    rationale: Vitest test runner 設定。test 探索 + coverage の articulate 入口。
+  - category: declared
+    pathPattern: app/eslint.config.js
+    rationale: ESLint flat config。lint rule の articulate 入口 (= CLAUDE.md コーディング規約整合)。
+  - category: declared
+    pathPattern: app/playwright.config.ts
+    rationale: Playwright E2E test runner 設定。test scenario 探索の articulate 入口。
+  - category: declared
+    pathPattern: app/index.html
+    rationale: Vite SPA entry HTML。app source の rendering target 入口。
+  - category: declared
+    pathPattern: app/.prettierrc
+    rationale: Prettier 設定。CLAUDE.md コーディング規約 (= semi false / singleQuote / printWidth) の articulate 入口。
+  - category: declared
+    pathPattern: app/.prettierignore
+    rationale: Prettier 除外設定。format 対象 scope の articulate 入口。
+  - category: declared
+    pathPattern: app/.gitignore
+    rationale: app workspace gitignore。app/dist 等 build artifact 除外の articulate 入口。
+  - category: declared
+    pathPattern: app/README.md
+    rationale: app workspace README。主アプリ workspace の articulate 入口。
+
+  # --- references/ (= reader-向け doc tree、project-structure.md 整合) -------
+
+  - category: declared
+    pathPattern: references/01-foundation/
+    rationale: |
+      foundation layer doc (= design-principles / data-flow / engine-boundary-policy /
+      semantic-classification-policy / uiux-principles / canonicalization-principles 等)。
+      articulate 入口 = docs/contracts/doc-registry.json + references/README.md。
+
+  - category: declared
+    pathPattern: references/02-design-system/
+    rationale: |
+      design-system layer doc (= UI component / theme / token articulate)。
+      articulate 入口 = docs/contracts/doc-registry.json + references/README.md。
+
+  - category: declared
+    pathPattern: references/03-implementation/
+    rationale: |
+      implementation layer doc (= coding-conventions / invariant-catalog /
+      explanation-architecture / runtime-data-path / allowlist-management 等)。
+      articulate 入口 = docs/contracts/doc-registry.json + references/README.md。
+
+  - category: declared
+    pathPattern: references/04-tracking/
+    rationale: |
+      tracking layer doc (= recent-changes 履歴 + elements 一覧 + dashboards + audit report)。
+      generated/ subdir は別 rule で generated 分類済、本 rule は手書き doc を declared 分類。
+      articulate 入口 = docs/contracts/doc-registry.json + references/README.md。
+
+  - category: declared
+    pathPattern: references/05-aag-interface/
+    rationale: |
+      AAG public interface doc (= 主アプリ改修 user 向け AAG operations / drawers / protocols)。
+      articulate 入口 = aag/_internal/ + references/README.md (= 3 tree boundary articulate)。
+
+  - category: declared
+    pathPattern: references/README.md
+    rationale: references/ tree の入口 doc (= 3 tree boundary + reader 別 routing articulate)。
+  - category: declared
+    pathPattern: references/AAG_CRITICAL_RULES.md
+    rationale: AAG 不可侵原則の summary doc (= 主アプリ改修 user 向け critical rule articulate)。
+  - category: declared
+    pathPattern: references/AAG_OVERVIEW.md
+    rationale: AAG framework overview (= 主アプリ改修 user 向け 5 層構造 + 戦略 概観)。
+
+  # --- wasm/ (= Rust WASM module source、pkg/ は別 rule で ignored) ---------
+
+  - category: declared
+    pathPattern: wasm/
+    rationale: |
+      WASM module source (= Rust 実装 + Cargo.toml + tests)。各 module の Cargo.toml +
+      lib.rs が articulate 入口。pkg/ subdir は wasm-pack build 出力 (= 別 rule で
+      ignored-with-reason 分類済)。articulate 入口 = wasm/*/Cargo.toml +
+      references/04-tracking/project-structure.md (= WASM module 一覧)。
+
+  # --- aag-engine/ (= Go 実装の AAG engine MVP) ----------------------------
+
+  - category: declared
+    pathPattern: aag-engine/
+    rationale: |
+      Go 実装の AAG engine (= aag-engine-go-mvp project の成果物)。articulate 入口 =
+      aag-engine/internal/ packages (= Go module 構造) +
+      projects/completed/aag-engine-go-mvp/ARCHIVE.md (= 完了 project の archive)。
+
+  # --- projects/ (= active + _template、completed/ は archived 分類済) -------
+
+  - category: declared
+    pathPattern: projects/active/
+    rationale: |
+      active project workspace (= plan / checklist / discovery-log / decision-audit /
+      inquiry 等)。articulate 入口 = projects/README.md +
+      references/05-aag-interface/operations/project-checklist-governance.md。
+
+  - category: declared
+    pathPattern: projects/_template/
+    rationale: |
+      project workspace template (= 新規 project 起票時の skeleton)。articulate 入口 =
+      projects/README.md (= project 構造正本)。
+
+  - category: declared
+    pathPattern: projects/README.md
+    rationale: projects/ tree の入口 doc (= active + completed + _template の articulate)。
+
+  # --- tools/ (= governance 以外の tooling) ---------------------------------
+
+  - category: declared
+    pathPattern: tools/architecture-health/
+    rationale: |
+      architecture-health 収集 + 評価 + 生成 tooling (= collectors / detectors /
+      evaluator / docs-check)。CLAUDE.md ドキュメント運用原則の物理実装、
+      docs:generate / docs:check / health コマンドの本体。
+
+  - category: declared
+    pathPattern: tools/scripts/
+    rationale: |
+      補助 shell / mjs scripts (= repo-wide automation)。articulate 入口 =
+      package.json scripts entry + CLAUDE.md コマンド表。
+
+  - category: declared
+    pathPattern: tools/git-hooks/
+    rationale: |
+      git hooks (= pre-commit / commit-msg)。docs:generate 未実行検出 + lint gate の
+      articulate 入口 (= CLAUDE.md ドキュメント運用原則整合)。
+
+  - category: declared
+    pathPattern: tools/widget-specs/
+    rationale: |
+      widget spec 関連 tooling。Screen Plan / widget contract の articulate 補助。
+
+  - category: declared
+    pathPattern: tools/aag-render-cli.ts
+    rationale: AAG render CLI (= AAG output 整形 tool)。aag/_framework/ 補助実装。
+  - category: declared
+    pathPattern: tools/check-substantive-change.mjs
+    rationale: substantive change checker (= PR 内容の実質変更判定)。CI 補助 tooling。
+  - category: declared
+    pathPattern: tools/scaffold-guard.mjs
+    rationale: scaffold guard (= 新規 file scaffold の articulate 検証)。CI 補助 tooling。
+
+  # --- fixtures/ (= test fixture data、external scope) ---------------------
+
+  - category: external
+    pathPattern: fixtures/
+    rationale: |
+      test fixture data (= AAG test scenario の input 標本)。本 repo の content 責務 scope
+      外、test consumer (= aag-engine + tools/governance) が参照する standalone data。
+
+  # --- app-domain/ (= domain 抽出 workspace) -------------------------------
+
+  - category: declared
+    pathPattern: app-domain/
+    rationale: |
+      domain 抽出 workspace (= app/src/domain/ から分離した独立 module)。articulate 入口 =
+      app-domain/gross-profit/rule-catalog/base-rules.ts (= architecture rule 物理正本) +
+      app-domain/integrity/ (= 不変条件 検証 module)。
+
+  # --- roles/ (= ロール定義 4 層モデル) -------------------------------------
+
+  - category: declared
+    pathPattern: roles/
+    rationale: |
+      ロール定義 (= staff/ 部門 + line/ 部門の ROLE.md + SKILL.md + scope.json)。
+      articulate 入口 = CLAUDE.md ロール・スキルシステム 4 層モデル + scopeJsonGuard.test.ts
+      (= 編集権限境界の機械検証)。
+
+  # --- aag/ (= AAG framework 本体、内部 articulate) -------------------------
+
+  - category: declared
+    pathPattern: aag/
+    rationale: |
+      AAG framework 本体 (= _internal/ 戦略 + 構造 + 進化 / _framework/ 実装 skeleton /
+      core/ 不可侵原則 / parameters/ 設定 + CHANGELOG)。articulate 入口 =
+      aag/_internal/README.md (= AAG 関連 doc 群の単一エントリ) + CLAUDE.md AAG セクション。
+
+  # --- docs/contracts/ 直下 JSON (= 構造化正本) -----------------------------
+
+  - category: declared
+    pathPattern: docs/contracts/doc-registry.json
+    rationale: doc-registry 正本 (= 全 references doc の機械可読 index)。docRegistryGuard で機械検証。
+  - category: declared
+    pathPattern: docs/contracts/escalation-criteria.json
+    rationale: escalation criteria 正本 (= AAG 違反の escalation tier articulate)。
+  - category: declared
+    pathPattern: docs/contracts/principles.json
+    rationale: design principles 正本 (= 9 カテゴリ rule の機械可読 articulate)。principlesGuard で機械検証。
+  - category: declared
+    pathPattern: docs/contracts/project-archive.schema.json
+    rationale: project archive schema (= Archive v2 形式 ARCHIVE.md + archive.manifest.json の type 制約)。
+  - category: declared
+    pathPattern: docs/contracts/project-metadata.json
+    rationale: project metadata 正本 (= active project 一覧 + CI workflow 整合の articulate)。
+  - category: declared
+    pathPattern: docs/contracts/test-contract.json
+    rationale: test contract 正本 (= CLAUDE.md 暗黙テスト依存の機械可読 articulate)。testContractGuard で機械検証。
+
+  # --- .claude/ (= AI session 設定) -----------------------------------------
+
+  - category: declared
+    pathPattern: .claude/manifest.json
+    rationale: AI single entry manifest (= discovery / pathTriggers / activeContext の articulate)。manifestGuard で機械検証。
+  - category: declared
+    pathPattern: .claude/settings.json
+    rationale: Claude Code harness 設定 (= permissions / hooks / env articulate)。
+  - category: declared
+    pathPattern: .claude/hooks/
+    rationale: Claude Code session hooks (= session-start / user-prompt-submit)。AI session の起動 + 入力 articulate。
+  - category: declared
+    pathPattern: .claude/plans/
+    rationale: AI session 間で受け渡す next-session-plan free-form notebook。CLAUDE.md activeContext と整合。
+
+  # --- workers/ (= Cloudflare Worker 等の独立 service) ---------------------
+
+  - category: declared
+    pathPattern: workers/
+    rationale: |
+      独立 service workspace (= 現在 jma-proxy = 気象庁 API proxy worker)。articulate 入口 =
+      workers/jma-proxy/wrangler.toml + package.json (= Cloudflare Worker deployment 設定)。
+
+  # --- repo root files (= top-level config + entry doc) --------------------
+
+  - category: declared
+    pathPattern: README.md
+    rationale: repo root README (= プロジェクト入口 doc)。
+  - category: declared
+    pathPattern: CLAUDE.md
+    rationale: 開発ルール 正本 (= 全 reader 必読 doc)。本 file 自体が articulate 入口。
+  - category: declared
+    pathPattern: CHANGELOG.md
+    rationale: app user-facing 変更履歴 (= AAG framework version とは独立)。
+  - category: declared
+    pathPattern: CONTRIBUTING.md
+    rationale: contribution guideline (= PR / commit / branch 規約 articulate)。
+  - category: declared
+    pathPattern: CURRENT_PROJECT.md
+    rationale: active project pointer (= CLAUDE.md 3 tree boundary articulate 整合)。
+  - category: declared
+    pathPattern: package.json
+    rationale: repo root package manifest (= workspace 構成 + root scripts articulate)。
+  - category: declared
+    pathPattern: package-lock.json
+    rationale: repo root npm lockfile (= reproducible install articulate)。
+  - category: declared
+    pathPattern: go.work
+    rationale: Go workspace manifest (= aag-engine Go module の workspace 構成 articulate)。
+  - category: declared
+    pathPattern: .gitignore
+    rationale: repo root gitignore (= build artifact + node_modules + secrets 除外 articulate)。
+  - category: declared
+    pathPattern: .nvmrc
+    rationale: Node.js version 固定 (= reproducible build articulate)。
+  - category: declared
+    pathPattern: .coderabbit.yaml
+    rationale: CodeRabbit AI review 設定 (= PR 自動 review tool の articulate)。
+
+  - category: declared
+    pathPattern: scripts/
+    rationale: |
+      repo root scripts (= bootstrap + dependency check 等の repo-wide automation)。
+      articulate 入口 = package.json scripts entry (= root-level automation tooling)。

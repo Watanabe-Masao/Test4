@@ -242,17 +242,17 @@
 | Document Post-write Findings (= 構造的適合性 advisory findings、AAG SCP Wave 3 / Phase 6)              | `04-tracking/generated/doc-postwrite-findings.generated.md`       |
 | Required Docs Matrix (= repo 構造から導出される必要 doc advisory、AAG SCP Wave 3 / Phase 7)             | `04-tracking/generated/required-docs-matrix.generated.md`         |
 | Artifact Coverage Matrix (= 6 category artifact 分類 advisory、AAG SCP Wave 3 / Phase 9)                | `04-tracking/generated/artifact-coverage.generated.md`            |
-| PI値昇格準備度                                                                                         | `04-tracking/promotion-readiness-piValue.md`                      |
-| 客数GAP昇格準備度                                                                                      | `04-tracking/promotion-readiness-customerGap.md`                  |
-| 残予算率昇格準備度                                                                                     | `04-tracking/promotion-readiness-remainingBudgetRate.md`          |
-| 観測期間昇格準備度                                                                                     | `04-tracking/promotion-readiness-observationPeriod.md`            |
-| 棚卸区間昇格準備度                                                                                     | `04-tracking/promotion-readiness-pinIntervals.md`                 |
-| 推定在庫昇格準備度                                                                                     | `04-tracking/promotion-readiness-inventoryCalc.md`                |
-| 感度分析昇格準備度                                                                                     | `04-tracking/promotion-readiness-sensitivity.md`                  |
-| 相関分析昇格準備度                                                                                     | `04-tracking/promotion-readiness-correlation.md`                  |
-| 移動平均昇格準備度                                                                                     | `04-tracking/promotion-readiness-movingAverage.md`                |
-| トレンド分析昇格準備度                                                                                 | `04-tracking/promotion-readiness-trendAnalysis.md`                |
-| 曜日GAP昇格準備度                                                                                      | `04-tracking/promotion-readiness-dowGapAnalysis.md`               |
+| PI値昇格準備度                                                                                         | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md`                      |
+| 客数GAP昇格準備度                                                                                      | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md`                  |
+| 残予算率昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md`          |
+| 観測期間昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md`            |
+| 棚卸区間昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md`                 |
+| 推定在庫昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md`                |
+| 感度分析昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md`                  |
+| 相関分析昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`                  |
+| 移動平均昇格準備度                                                                                     | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md`                |
+| トレンド分析昇格準備度                                                                                 | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md`                |
+| 曜日GAP昇格準備度                                                                                      | `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md`               |
 | responsibility-taxonomy-v2 Migration Map                                                               | `03-implementation/responsibility-v1-to-v2-migration-map.md`            |
 | test-taxonomy-v2 TSIG Migration Map                                                                    | `03-implementation/test-tsig-to-v2-migration-map.md`                    |
 | Discovery Review チェックリスト                                                                        | `03-implementation/discovery-review-checklist.md`                       |
@@ -487,17 +487,17 @@
 
 | ファイル                                               | 内容                                     |
 | ------------------------------------------------------ | ---------------------------------------- |
-| `04-tracking/promotion-readiness-piValue.md`             | PI値の昇格準備度判定表（Phase 5 Step 8） |
-| `04-tracking/promotion-readiness-customerGap.md`         | 客数GAPの昇格準備度判定表                |
-| `04-tracking/promotion-readiness-remainingBudgetRate.md` | 残予算率の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-observationPeriod.md`   | 観測期間の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-pinIntervals.md`        | 棚卸区間の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-inventoryCalc.md`       | 推定在庫の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-sensitivity.md`         | 感度分析の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-correlation.md`         | 相関分析の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-movingAverage.md`       | 移動平均の昇格準備度判定表               |
-| `04-tracking/promotion-readiness-trendAnalysis.md`       | トレンド分析の昇格準備度判定表           |
-| `04-tracking/promotion-readiness-dowGapAnalysis.md`      | 曜日GAPの昇格準備度判定表                |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md`             | PI値の昇格準備度判定表（Phase 5 Step 8） |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md`         | 客数GAPの昇格準備度判定表                |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md` | 残予算率の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md`   | 観測期間の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md`        | 棚卸区間の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md`       | 推定在庫の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md`         | 感度分析の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md`         | 相関分析の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md`       | 移動平均の昇格準備度判定表               |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md`       | トレンド分析の昇格準備度判定表           |
+| `projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md`      | 曜日GAPの昇格準備度判定表                |
 
 ### WASM 移行
 

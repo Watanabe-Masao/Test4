@@ -116,7 +116,7 @@ rules:
     temporalScope: mixed
     referencePolicy: canonical-source
     examples:
-      - references/04-tracking/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
       - references/04-tracking/engine-maturity-matrix.md
     relatedFailurePatterns:
       - DOC-FAIL-LOCATION-MISMATCH

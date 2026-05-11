@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-10T13:41:08.953Z",
+  "timestamp": "2026-05-11T03:45:00.334Z",
   "summary": {
-    "active": 5,
+    "active": 9,
     "archived": 42,
-    "inProgress": 4,
+    "inProgress": 8,
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 2175,
-    "checkedCheckboxes": 2083
+    "totalCheckboxes": 2232,
+    "checkedCheckboxes": 2090
   },
   "projects": [
     {
@@ -52,6 +52,19 @@
       "parent": null
     },
     {
+      "projectId": "aag-coverage-rule-expansion",
+      "title": "AAG Coverage Rule Expansion — artifact-coverage rules 拡張で unmanaged 86.2% を ratchet-down",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 11,
+      "progress": 0,
+      "entrypoint": "projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-coverage-rule-expansion/checklist.md",
+      "parent": null
+    },
+    {
       "projectId": "aag-decision-traceability",
       "title": "AAG Decision Traceability — AI / Human 判断 trace と blame-free retrospective",
       "kind": "project",
@@ -75,6 +88,19 @@
       "progress": 0.789,
       "entrypoint": "projects/completed/aag-display-rule-registry/AI_CONTEXT.md",
       "checklistPath": "projects/completed/aag-display-rule-registry/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-disposition-execution",
+      "title": "AAG Disposition Execution — Reading Pass 残 19 件 disposition の実 execution",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 11,
+      "progress": 0,
+      "entrypoint": "projects/active/aag-disposition-execution/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-disposition-execution/checklist.md",
       "parent": null
     },
     {
@@ -117,6 +143,19 @@
       "parent": null
     },
     {
+      "projectId": "aag-failure-pattern-guards",
+      "title": "AAG Failure Pattern Guards — 6 guard candidates の実 guard test articulate で ratchet-down 完成",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 0,
+      "total": 11,
+      "progress": 0,
+      "entrypoint": "projects/active/aag-failure-pattern-guards/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-failure-pattern-guards/checklist.md",
+      "parent": null
+    },
+    {
       "projectId": "aag-format-redesign",
       "title": "AAG フォーマット改修とサブプロジェクト機能",
       "kind": "project",
@@ -127,6 +166,19 @@
       "progress": 0,
       "entrypoint": "projects/aag-format-redesign/AI_CONTEXT.md",
       "checklistPath": "projects/aag-format-redesign/checklist.md",
+      "parent": null
+    },
+    {
+      "projectId": "aag-governance-ratchet-down",
+      "title": "AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program",
+      "kind": "project",
+      "declaredStatus": "active",
+      "derivedStatus": "in_progress",
+      "checked": 7,
+      "total": 24,
+      "progress": 0.292,
+      "entrypoint": "projects/active/aag-governance-ratchet-down/AI_CONTEXT.md",
+      "checklistPath": "projects/active/aag-governance-ratchet-down/checklist.md",
       "parent": null
     },
     {

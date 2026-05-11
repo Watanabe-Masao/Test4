@@ -1,0 +1,50 @@
+{
+  "$comment": "AAG Governance Ratchet-down — aag-structural-control-plane (= 2026-05-10 archive、AAG 6.0 → 6.1) で landed した advisory infrastructure (= ai-doc-template-rules / required-docs-matrix / artifact-coverage / failure-pattern taxonomy) を ratchet-down (= advisory → guard / unmanaged 86.2% → reduction / 6 guard candidates → guard 化 / Reading Pass 残 19 disposition の実 execution) する Level 4 Umbrella program。aag-scp が articulate 完成、本 program が articulate を実装に converted する継承関係。",
+  "projectId": "aag-governance-ratchet-down",
+  "title": "AAG Governance Ratchet-down — aag-scp で articulate された advisory infrastructure を ratchet-down で実 guard / 実 cleanup に converted する Umbrella program",
+  "status": "active",
+  "projectRoot": "projects/active/aag-governance-ratchet-down",
+  "versionImpact": {
+    "$comment": "計画段階で AAG-COA scope 検討と同 timing で declare。app +0.0.0 = app/ 配下 touch なし (= references/ + tools/governance/ + app/src/test/guards/ のみ)。aag +0.1 = AAG framework に新 guard test + 既存 advisory checker の hard gate 化が additive 加算 (= minor)。判定基準: aag/CHANGELOG.md §バージョンアップ判定基準。",
+    "app": {
+      "baselineAtCreation": "1.10.0",
+      "delta": "+0.0.0",
+      "rationale": "app/ 配下を一切触らない program。app/src/test/guards/ への新 guard test 追加は AAG framework scope (= app version 不変)、references/ + tools/governance/ のみ touch。"
+    },
+    "aag": {
+      "baselineAtCreation": "6.1",
+      "delta": "+0.1",
+      "rationale": "aag-scp で landed した 6 guard candidates を実 guard test に articulate + artifact-coverage rules 拡張 + Reading Pass disposition 実 execution + Failure Loop maturity progression。既存 substrate (= advisory checker) を hard gate に追加昇格 minor。"
+    }
+  },
+  "projectization": {
+    "$comment": "AAG-COA 判定結果。projects/active/aag-governance-ratchet-down/projectization.md §1 と一致。Level 4 (Umbrella) は taxonomy-v2 に続き本 program が 2 例目 = aag-scp で articulate された 4 sub-scope (= coverage / guards / dispositions / maturity) を sub-program で扱う umbrella governance。requiresHumanApproval=true (= 各 sub-program の guard 昇格は user 判断、AAG-SCP-DOC-LEARNING-002 整合)、requiresGuard=true (= 本 program 自体が guard 拡張 program)、breakingChange=false (= advisory → guard 昇格は既存検出 mechanism に hard gate 追加であり、既存挙動の破壊ではない)、requiresLegacyRetirement=false (= 既存 advisory checker は archive 後も継続運用)。",
+    "level": 4,
+    "changeType": "governance-hardening",
+    "implementationScope": [
+      "app/src/test/guards",
+      "tools/governance",
+      "docs/contracts/src",
+      "references/04-tracking/generated"
+    ],
+    "breakingChange": false,
+    "requiresLegacyRetirement": false,
+    "requiresGuard": true,
+    "requiresHumanApproval": true,
+    "nonGoals": [
+      "app/src/ 配下の業務 logic / domain calculations / readModels の touch",
+      "新 governance pattern の articulate (= aag-scp で完了済、本 program は articulate を ratchet-down するのみ)",
+      "Reading Pass の new batch (= 398 docs articulate 100% 完遂済、新 reading は不要)",
+      "新 schema 追加 (= aag-scp で 4 schema landing、本 program は authoring source の content 拡張のみ)",
+      "AAG-SCP-DOC-LEARNING-002 違反の即 Gate 化 (= 各 guard 昇格は 5 段階 maturity progression を経る、user 判断 gate を含む)",
+      "Separate Program candidate (= Phase 8a/8b/8c / Phase 10) への侵入 (= reposteward 系統に移譲、本 program は触らない)"
+    ]
+  },
+  "entrypoints": {
+    "aiContext": "projects/active/aag-governance-ratchet-down/AI_CONTEXT.md",
+    "handoff": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
+    "plan": "projects/active/aag-governance-ratchet-down/plan.md",
+    "checklist": "projects/active/aag-governance-ratchet-down/checklist.md",
+    "projectization": "projects/active/aag-governance-ratchet-down/projectization.md"
+  }
+}
