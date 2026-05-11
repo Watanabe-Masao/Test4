@@ -216,7 +216,7 @@ entries:
     duplicates: []
     failurePatterns: []
 
-  - path: references/04-tracking/promotion-readiness-correlation.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -239,16 +239,16 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
@@ -533,7 +533,7 @@ entries:
   # 6 BIZ-* candidate (Phase 5 Step 8) + 4 ANA-* candidate (Phase 6 Step 9)、全件同 disposition: move。
   # ============================================================================
 
-  - path: references/04-tracking/promotion-readiness-customerGap.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -554,21 +554,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-dowGapAnalysis.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -589,21 +589,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-inventoryCalc.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -624,21 +624,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-movingAverage.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -659,21 +659,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-observationPeriod.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -694,21 +694,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-pinIntervals.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -729,21 +729,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-piValue.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -764,21 +764,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-remainingBudgetRate.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -799,21 +799,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-sensitivity.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -834,21 +834,21 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-trendAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH
 
-  - path: references/04-tracking/promotion-readiness-trendAnalysis.md
+  - path: projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md
     proposedKind: status-snapshot
     temporalScope: mixed
     disposition: move
@@ -869,16 +869,16 @@ entries:
     hasFuturePlan: true
     hasGeneratedCurrentValue: false
     duplicates:
-      - references/04-tracking/promotion-readiness-correlation.md
-      - references/04-tracking/promotion-readiness-customerGap.md
-      - references/04-tracking/promotion-readiness-dowGapAnalysis.md
-      - references/04-tracking/promotion-readiness-inventoryCalc.md
-      - references/04-tracking/promotion-readiness-movingAverage.md
-      - references/04-tracking/promotion-readiness-observationPeriod.md
-      - references/04-tracking/promotion-readiness-pinIntervals.md
-      - references/04-tracking/promotion-readiness-piValue.md
-      - references/04-tracking/promotion-readiness-remainingBudgetRate.md
-      - references/04-tracking/promotion-readiness-sensitivity.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md
+      - projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md
     failurePatterns:
       - DOC-FAIL-PROJECT-CONTENT-IN-REFERENCE
       - DOC-FAIL-LOCATION-MISMATCH

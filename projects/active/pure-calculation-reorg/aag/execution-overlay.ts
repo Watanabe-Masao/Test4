@@ -896,7 +896,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     executionPlan: { effort: "small", priority: 3 },
     reviewPolicy: {
       owner: "solo-maintainer",
-      lastReviewedAt: "2026-04-10",
+      lastReviewedAt: "2026-05-11",
       reviewCadenceDays: 30,
     },
     lifecyclePolicy: {
@@ -926,7 +926,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     executionPlan: { effort: "small", priority: 1 },
     reviewPolicy: {
       owner: "solo-maintainer",
-      lastReviewedAt: "2026-04-10",
+      lastReviewedAt: "2026-05-11",
       reviewCadenceDays: 30,
     },
   },
@@ -950,7 +950,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     executionPlan: { effort: "trivial", priority: 2 },
     reviewPolicy: {
       owner: "solo-maintainer",
-      lastReviewedAt: "2026-04-10",
+      lastReviewedAt: "2026-05-11",
       reviewCadenceDays: 30,
     },
     lifecyclePolicy: {
@@ -980,7 +980,7 @@ export const EXECUTION_OVERLAY: ExecutionOverlay = {
     executionPlan: { effort: "small", priority: 1 },
     reviewPolicy: {
       owner: "solo-maintainer",
-      lastReviewedAt: "2026-04-10",
+      lastReviewedAt: "2026-05-11",
       reviewCadenceDays: 30,
     },
   },

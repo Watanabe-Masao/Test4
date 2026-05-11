@@ -2,8 +2,8 @@
   "$schemaDescription": "Merged ARCHITECTURE_RULES artifact. App Domain (BaseRule) + Project Overlay (RuleOperationalState) を ruleId で merge した結果 + resolvedBy 追跡。",
   "canonicalMergePolicy": "aag/_internal/source-of-truth.md §4 (Merge Policy)",
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-10T21:53:38.231Z",
-  "sourceCommit": "fe93f58a5b89d2da8b4d7a4f4175763eacedf034",
+  "generatedAt": "2026-05-11T03:24:33.786Z",
+  "sourceCommit": "9083182abc2ff5511ce43e8a4eba308accaba36b",
   "activeProjectId": "pure-calculation-reorg",
   "summary": {
     "totalRules": 172,
@@ -7771,7 +7771,7 @@
       },
       "reviewPolicy": {
         "owner": "solo-maintainer",
-        "lastReviewedAt": "2026-04-10",
+        "lastReviewedAt": "2026-05-11",
         "reviewCadenceDays": 30
       },
       "lifecyclePolicy": {
@@ -7865,7 +7865,7 @@
       },
       "reviewPolicy": {
         "owner": "solo-maintainer",
-        "lastReviewedAt": "2026-04-10",
+        "lastReviewedAt": "2026-05-11",
         "reviewCadenceDays": 30
       },
       "lifecyclePolicy": {
@@ -7960,7 +7960,7 @@
       },
       "reviewPolicy": {
         "owner": "solo-maintainer",
-        "lastReviewedAt": "2026-04-10",
+        "lastReviewedAt": "2026-05-11",
         "reviewCadenceDays": 30
       },
       "resolvedBy": {
@@ -8044,7 +8044,7 @@
       },
       "reviewPolicy": {
         "owner": "solo-maintainer",
-        "lastReviewedAt": "2026-04-10",
+        "lastReviewedAt": "2026-05-11",
         "reviewCadenceDays": 30
       },
       "resolvedBy": {

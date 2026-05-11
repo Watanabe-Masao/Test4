@@ -792,47 +792,47 @@
           "label": "active project 索引（live task table は持たない）"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-piValue.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-piValue.md",
           "label": "PI値昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-customerGap.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-customerGap.md",
           "label": "客数GAP昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-remainingBudgetRate.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-remainingBudgetRate.md",
           "label": "残予算率昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-observationPeriod.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-observationPeriod.md",
           "label": "観測期間昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-pinIntervals.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-pinIntervals.md",
           "label": "棚卸区間昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-inventoryCalc.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-inventoryCalc.md",
           "label": "推定在庫昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-sensitivity.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-sensitivity.md",
           "label": "感度分析昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-correlation.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-correlation.md",
           "label": "相関分析昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-movingAverage.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-movingAverage.md",
           "label": "移動平均昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-trendAnalysis.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-trendAnalysis.md",
           "label": "トレンド分析昇格準備度"
         },
         {
-          "path": "references/04-tracking/promotion-readiness-dowGapAnalysis.md",
+          "path": "projects/active/pure-calculation-reorg/phase-8/readiness/promotion-readiness-dowGapAnalysis.md",
           "label": "曜日GAP昇格準備度"
         },
         {
