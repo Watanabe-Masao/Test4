@@ -12,7 +12,7 @@
 | Sub-1 | `aag-coverage-rule-expansion` (C1) | artifact-coverage rules 拡張で unmanaged 86.2% → 0% 達成 (= 84 rules、100% coverage) | medium | **archived 2026-05-11 (= Archive v2 5 件目)** | governance-hardening |
 | **Sub-2** | **`aag-failure-pattern-guards` (C2 + C3)** | **6 guard candidates の実 guard test articulate (= 6/6 guardrail-shadow stage 着地、CLAUDE.md G8)** | **high (= 最 leverage)** | **archived 2026-05-11 (= Archive v2 6 件目)** | **governance-hardening** |
 | Sub-3 | `aag-disposition-execution` (C4) | Reading Pass 残 19 件 disposition の実 execution (= 19/19 完遂、5 sub-PR landing) | medium | **archived 2026-05-11 (= Archive v2 7 件目)** | architecture-refactor |
-| Sub-4 | `aag-failure-pattern-maturity` (C5) | Failure Loop maturity progression (= observed → guardrail-shadow → guardrail-advisory) | low (= taxonomy review window 律速) | not-spawned (= review window 経由で user 判断 gate) | governance-hardening |
+| Sub-4 | `aag-failure-pattern-maturity` (C5) | Failure Loop maturity progression (= observed → guardrail-shadow → guardrail-advisory) | low (= taxonomy review window 律速) | **cancelled 2026-05-11** (= user 判断「spawn しない」、observation phase 継続で別 program 候補) | governance-hardening |
 
 ## 依存関係
 
@@ -62,13 +62,27 @@ aag-governance-ratchet-down (= 本 umbrella)
 - 各 sub-program は独立 governance contract (= 独自 plan / checklist / projectization) を持つ
 - 各 sub-program archive 完遂は本 umbrella checklist で track (= sub-program 完遂 ≠ umbrella 完遂)
 - 本 umbrella 完遂条件: 全 sub-program archive 完遂 + 本 umbrella final review
+- **Sub-4 は 2026-05-11 user 判断で formally cancelled** (= not-spawned のまま archive、`aag-decision-traceability` 2026-05-01 cancellation precedent 整合)。本 umbrella 完遂条件は「3 sub archive + Sub-4 cancel articulate + final review」で成立。Sub-4 scope (= Failure Loop maturity progression) は **observation phase に戻し、再 spawn trigger 発生時に別 program で起票** (= state-based trigger、本 sub-project-map §Sub-4 cancel 再起動 trigger に articulate)
+
+## Sub-4 cancel 再起動 trigger (= state-based、`aag-decision-traceability` precedent 整合)
+
+Sub-4 (= aag-failure-pattern-maturity) は **observation phase** に戻る。以下の **state-based trigger** が
+発生したら別 program で起票 (= 本 umbrella archive 後の re-spawn は別 program scope、本 umbrella で 4th
+sub-program として復活させない):
+
+- Sub-2 で landed した 6 guards のうち 1 件でも **shadow → advisory 昇格** が user gate で承認された (= advisory promotion で具体的 painful gap が観測された場合の trigger)
+- 新 failure pattern が aag-scp Wave 2 mechanism で auto-promote され、shadow stage 着地後に advisory 昇格が必要になった
+- taxonomy review window で AR-TAXONOMY-AI-VOCABULARY-BINDING 制約の例外承認が articulate された
+
+trigger 不在状態が長期持続する場合 (= 6 guards が shadow のまま維持される場合)、Sub-4 の必要性は
+低いままで、`aag-decision-traceability` 同様 **speculative concept への先回り program 化を回避**。
 
 ## 関連 program との対比
 
 | 軸 | aag-governance-ratchet-down (本 umbrella) | taxonomy-v2 (parallel umbrella) |
 |---|---|---|
-| sub-program count | 4 (= coverage / guards / dispositions / maturity) | 2 (= responsibility-taxonomy-v2 + test-taxonomy-v2、両子 archive 済) |
-| spawn 状態 | 全 not-spawned | 両子 archived 2026-04-27 |
-| umbrella status | active (= bootstrap 直後) | active (= observation phase 2026-04-27〜) |
+| sub-program count | 4 (= coverage / guards / dispositions / maturity、Sub-4 cancelled) | 2 (= responsibility-taxonomy-v2 + test-taxonomy-v2、両子 archive 済) |
+| spawn 状態 | Sub-1/2/3 archived 2026-05-11、Sub-4 cancelled 2026-05-11 | 両子 archived 2026-04-27 |
+| umbrella status | archived 2026-05-11 (= 3 sub archived + Sub-4 cancel articulate) | active (= observation phase 2026-04-27〜) |
 | changeType | governance-hardening | architecture-refactor |
 | 不可侵原則 | 7 件 (= articulate 完成、即 Gate 化禁止 等) | 7 不可侵原則 (= 未分類は分類である 等) |

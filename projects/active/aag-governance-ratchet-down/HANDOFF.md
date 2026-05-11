@@ -5,35 +5,31 @@
 
 ## 1. 現在地
 
-**Sub-1 + Sub-2 + Sub-3 全 archived、Sub-4 deferred** (= 2026-05-11 時点)。
-本 umbrella spawn (2026-05-10) 直後の session で 3 sub-program を parallel 実装、翌 session
-(2026-05-11) で user 代行 delegation の下に 3 sub 全件 Archive v2 圧縮で移行完了。
+**umbrella archive 完遂** (= 2026-05-11、Archive v2 8 件目)。Sub-1/2/3 全 archived + Sub-4 formally
+cancelled で closure 成立。本 HANDOFF + plan + checklist + sub-project-map は本 commit を最後に
+ARCHIVE.md + archive.manifest.json に圧縮、active 期 8 file は削除予定。
 
 **前駆 program**: `projects/completed/aag-structural-control-plane/` (= 2026-05-10 archive、
 AAG 6.0 → 6.1)。aag-scp で **articulate 完成** した advisory infrastructure を本 program で
 **ratchet-down 実装に converted**。
 
-### Sub-program 進捗 (= sub-project-map.md の status も同期維持)
+### Sub-program 進捗
 
 | ID | sub-program | 完遂状態 | archive |
 |---|---|---|---|
 | Sub-1 | aag-coverage-rule-expansion | **archived 2026-05-11** (= unmanaged 86.2% → 0%、84 rules) | `projects/completed/aag-coverage-rule-expansion/` (= Archive v2 5 件目) |
 | Sub-2 | aag-failure-pattern-guards | **archived 2026-05-11** (= 6/6 guard candidates → guardrail-shadow stage) | `projects/completed/aag-failure-pattern-guards/` (= Archive v2 6 件目) |
 | Sub-3 | aag-disposition-execution | **archived 2026-05-11** (= 19/19 disposition execution) | `projects/completed/aag-disposition-execution/` (= Archive v2 7 件目) |
-| Sub-4 | aag-failure-pattern-maturity | **deferred** (= review window 律速、user 判断 gate) | (not-spawned) |
+| Sub-4 | aag-failure-pattern-maturity | **cancelled 2026-05-11** (= user 判断、observation phase に戻す) | (not-spawned、cancellation articulate のみで closure、再起動 trigger は sub-project-map §Sub-4 cancel 再起動 trigger) |
 
-### 本 umbrella の archive 判断 (= 残作業)
+### Sub-4 cancellation rationale
 
-4 sub-program のうち 3 sub archived + 1 sub (Sub-4) deferred (= not-spawned)。
-本 umbrella の完遂条件 (= sub-project-map.md §boundary)「全 sub-program archive 完遂 + 本 umbrella
-final review」を **Sub-4 deferred の扱い** が決定する。
-
-判断 option:
-- (a) Sub-4 を formally cancel し、本 umbrella を archive (= Sub-4 は never spawn として記録)
-- (b) Sub-4 spawn まで本 umbrella を active 維持 (= taxonomy review window 経由で eventually spawn)
-- (c) Sub-4 scope を別 program に移譲し、本 umbrella を archive
-
-option 選択は **user 判断 gate**。本 session では決定せず、user 判断待ち。
+user 判断 (= 2026-05-11)「Sub-4 を formally cancel + umbrella archive」 + 「shadow stage で観測
+期間継続、advisory 昇格は今 spawn しない」。`aag-decision-traceability` 2026-05-01 cancellation
+precedent (= speculative concept への先回り program 化を回避、state-based trigger で再起動 articulate)
+整合。再起動 trigger は `sub-project-map.md §Sub-4 cancel 再起動 trigger` で 3 条件 articulate
+(= 1 件でも advisory 昇格 / 新 pattern auto-promote + advisory 必要化 / taxonomy review window
+例外承認)。
 
 ## 2. 次にやること
 

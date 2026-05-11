@@ -25,17 +25,18 @@
 
 ### Phase 1〜N: Sub-program spawn (= 各 sub-program の独立 program 化、user 判断で起動)
 
-- **Sub-program 1**: aag-coverage-rule-expansion (C1)
-- **Sub-program 2**: aag-failure-pattern-guards (C2 + C3) — 最 leverage 高
-- **Sub-program 3**: aag-disposition-execution (C4)
-- **Sub-program 4**: aag-failure-pattern-maturity (C5)
+- **Sub-program 1**: aag-coverage-rule-expansion (C1) — **archived 2026-05-11** (= Archive v2 5 件目)
+- **Sub-program 2**: aag-failure-pattern-guards (C2 + C3) — 最 leverage 高、**archived 2026-05-11** (= Archive v2 6 件目)
+- **Sub-program 3**: aag-disposition-execution (C4) — **archived 2026-05-11** (= Archive v2 7 件目)
+- **Sub-program 4**: aag-failure-pattern-maturity (C5) — **cancelled 2026-05-11** (= user 判断、observation phase に戻す、再起動 trigger は `sub-project-map.md §Sub-4 cancel 再起動 trigger` で state-based articulate)
 
 詳細: `sub-project-map.md`
 
-### Phase 完遂: 本 umbrella archive
+### Phase 完遂: 本 umbrella archive (= 2026-05-11)
 
-各 sub-program archive 完遂 + 本 umbrella の review 完了 + user 承認で本 umbrella も archive。
-taxonomy-v2 と同 mode (= 親 active 維持で連続 observation phase 移行も candidate)。
+3 sub-program archive 完遂 + Sub-4 cancellation articulate + 本 umbrella final review (= AI 自己
+レビュー + user 承認) で本 umbrella も archive。`aag-decision-traceability` 2026-05-01 cancellation
+precedent (= sub-program scope out 判断は state-based trigger で再起動 articulate) 整合。
 
 ## やってはいけないこと (= nonGoals 整合)
 
