@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "timestamp": "2026-05-11T13:58:28.324Z",
+  "timestamp": "2026-05-11T14:24:54.353Z",
   "summary": {
     "active": 9,
     "archived": 42,
@@ -8,8 +8,8 @@
     "completedNotArchived": 0,
     "empty": 0,
     "collection": 1,
-    "totalCheckboxes": 2232,
-    "checkedCheckboxes": 2090
+    "totalCheckboxes": 2277,
+    "checkedCheckboxes": 2165
   },
   "projects": [
     {
@@ -57,9 +57,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
-      "total": 11,
-      "progress": 0,
+      "checked": 16,
+      "total": 17,
+      "progress": 0.941,
       "entrypoint": "projects/active/aag-coverage-rule-expansion/AI_CONTEXT.md",
       "checklistPath": "projects/active/aag-coverage-rule-expansion/checklist.md",
       "parent": null
@@ -96,9 +96,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
-      "total": 11,
-      "progress": 0,
+      "checked": 37,
+      "total": 38,
+      "progress": 0.974,
       "entrypoint": "projects/active/aag-disposition-execution/AI_CONTEXT.md",
       "checklistPath": "projects/active/aag-disposition-execution/checklist.md",
       "parent": null
@@ -148,9 +148,9 @@
       "kind": "project",
       "declaredStatus": "active",
       "derivedStatus": "in_progress",
-      "checked": 0,
-      "total": 11,
-      "progress": 0,
+      "checked": 22,
+      "total": 23,
+      "progress": 0.957,
       "entrypoint": "projects/active/aag-failure-pattern-guards/AI_CONTEXT.md",
       "checklistPath": "projects/active/aag-failure-pattern-guards/checklist.md",
       "parent": null
