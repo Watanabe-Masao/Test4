@@ -1,4 +1,6 @@
-# Engine Maturity Matrix
+# Engine Maturity Matrix — 定義 (split)
+
+> **disposition: split 完遂 (= AAG-COA Sub-3 sub-PR 4)**: 旧 doc は (1) maturity ステージ定義 (= 本 doc、stable canonical) + (2) 現在の状態 snapshot (= 全 5 engine authoritative 完遂、`engine-promotion-matrix.md` に articulate) + (3) 次にやること TODO (= 全 engine authoritative 昇格済、stale 化 = 削除) の責務複合だった。本 doc は **stable definitions** のみを保持。state は `engine-promotion-matrix.md`、根本的な promotion 基準は `promotion-criteria.md` を参照。
 
 ## ステージ定義
 
@@ -14,68 +16,7 @@
 | **promotion-candidate** | 観測完了、昇格可能 | verdict: clean or tolerance-only |
 | **authoritative** | WASM が authoritative | TS フォールバック削除済み |
 
-## 現在の状態（2026-03-29 更新）
-
-| Engine | 関数数 | audited | bridge | compare-ready | compare-impl | rust | wasm | obs | promo | auth |
-|---|---|---|---|---|---|---|---|---|---|---|
-| factorDecomposition | 4 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - |
-| grossProfit | 8 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - |
-| budgetAnalysis | 2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - |
-| forecast | 5+5 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | - |
-| timeSlot | 2 | ✅ | ✅ | - | - | ✅ | ✅ | - | - | - |
-
-**観測テスト結果（2026-03-29 確認）:**
-- factorDecomposition: 17 テスト pass
-- grossProfit: 16 テスト pass
-- budgetAnalysis: 15 テスト pass
-- forecast: 9 テスト pass
-- **合計: 57 テスト全 pass**
-
-### forecast 詳細
-
-| 関数 | compare 対象 | Rust | 備考 |
-|---|---|---|---|
-| calculateStdDev | ✅ | ✅ | Date 非依存 |
-| detectAnomalies | ✅ | ✅ | Date 非依存 |
-| calculateWMA | ✅ | ✅ | Date 非依存 |
-| linearRegression | ✅ | ✅ | Date 非依存 |
-| analyzeTrend | ✅ | ✅ | Date 非依存 |
-| getWeekRanges | ❌ | - | Date 依存 |
-| calculateDayOfWeekAverages | ❌ | - | Date 依存 |
-| calculateWeeklySummaries | ❌ | - | Date 依存 |
-| calculateMonthEndProjection | ❌ | - | Date 依存 |
-| calculateForecast | ❌ | - | Date 依存（composite） |
-
-### timeSlot 詳細
-
-| 関数 | compare 対象 | Rust | 備考 |
-|---|---|---|---|
-| findCoreTime | - | ✅ | bridge + wasm wrapper 実装済み |
-| findTurnaroundHour | - | ✅ | bridge + wasm wrapper 実装済み |
-
-**注:** timeSlot は bridge-ready + rust/wasm 実装済みだが、観測テスト未作成。
-compare 計画策定 → 観測テスト作成が必要。
-
-## 次にやること
-
-| Engine | 次のステージ | 必要な作業 |
-|---|---|---|
-| factorDecomposition | **wasm-only trial** | CI 実 WASM 観測で追加検証 → wasm-only 試験実行 |
-| grossProfit | **wasm-only trial** | CI 実 WASM 観測で追加検証 → wasm-only 試験実行 |
-| budgetAnalysis | **wasm-only trial** | CI 実 WASM 観測で追加検証 → wasm-only 試験実行 |
-| forecast | **wasm-only trial** | CI 実 WASM 観測で追加検証 → wasm-only 試験実行 |
-| timeSlot | **compare-ready** | compare 計画策定 + 観測テスト作成 |
-
-### 昇格判断フレーム（Phase 11 成果物）
-
-各遷移の判断基準は以下の文書で定義されている:
-
-| 文書 | 内容 |
-|---|---|
-| `promotion-criteria.md` | 共通昇格基準（promotion-candidate / wasm-only 試験 / authoritative 条件） |
-| `observation-evaluation-guide.md` | mismatch 評価基準・観測ログ最低量・記録テンプレート |
-| `engine-promotion-matrix.md` | 4 engine の現在地・blocker・次条件の一覧 |
-| `rollback-policy.md` | wasm-only 試験時の復旧手順・即 rollback 条件 |
+詳細遷移条件・昇格基準は `references/04-tracking/promotion-criteria.md` を参照。
 
 ## Aggregate Boundary
 

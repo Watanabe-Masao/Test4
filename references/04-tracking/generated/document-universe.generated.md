@@ -4,7 +4,7 @@
 >
 > 正本: `docs/contracts/generated/document-universe.generated.json` (= machine truth、本ファイルは projection)
 
-**generated**: 2026-05-11T13:49:34.226Z — sourceSha: `cfcee7e179a1c8783e83482212fe892a1389cf60`
+**generated**: 2026-05-11T13:54:35.036Z — sourceSha: `f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819`
 
 ## Summary
 

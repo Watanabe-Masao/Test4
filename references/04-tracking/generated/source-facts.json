@@ -1,6 +1,6 @@
 {
   "schemaVersion": "source-facts-v1",
-  "generatedAt": "2026-05-11T13:49:54.240Z",
+  "generatedAt": "2026-05-11T13:54:37.023Z",
   "summary": {
     "totalFiles": 2843,
     "byKind": {
@@ -38050,10 +38050,10 @@
       "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
       "kind": "markdown",
       "layer": "projects",
-      "physicalLines": 146,
+      "physicalLines": 145,
       "blankLines": 43,
       "commentLines": 0,
-      "effectiveCodeLines": 103
+      "effectiveCodeLines": 102
     },
     {
       "path": "projects/active/aag-governance-ratchet-down/plan.md",
@@ -40911,28 +40911,28 @@
       "path": "references/04-tracking/engine-maturity-matrix.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 103,
-      "blankLines": 21,
+      "physicalLines": 44,
+      "blankLines": 10,
       "commentLines": 0,
-      "effectiveCodeLines": 82
+      "effectiveCodeLines": 34
     },
     {
       "path": "references/04-tracking/engine-promotion-matrix.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 161,
-      "blankLines": 41,
+      "physicalLines": 23,
+      "blankLines": 7,
       "commentLines": 0,
-      "effectiveCodeLines": 120
+      "effectiveCodeLines": 16
     },
     {
       "path": "references/04-tracking/features-migration-status.md",
       "kind": "markdown",
       "layer": "references",
-      "physicalLines": 58,
-      "blankLines": 15,
+      "physicalLines": 38,
+      "blankLines": 12,
       "commentLines": 0,
-      "effectiveCodeLines": 43
+      "effectiveCodeLines": 26
     },
     {
       "path": "references/04-tracking/frozen-list.md",

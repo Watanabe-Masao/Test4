@@ -448,7 +448,7 @@
       "path": "projects/active/aag-governance-ratchet-down/HANDOFF.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 9178,
+      "size": 9096,
       "topHeading": "HANDOFF — aag-governance-ratchet-down"
     },
     {
@@ -5926,8 +5926,8 @@
       "path": "references/04-tracking/engine-maturity-matrix.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 5200,
-      "topHeading": "Engine Maturity Matrix"
+      "size": 2967,
+      "topHeading": "Engine Maturity Matrix — 定義 (split)"
     },
     {
       "candidateKind": "tracking-report",
@@ -5937,8 +5937,8 @@
       "path": "references/04-tracking/engine-promotion-matrix.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 7103,
-      "topHeading": "Engine Promotion Matrix — 昇格状況一覧（2026-03-29 更新）"
+      "size": 1921,
+      "topHeading": "Engine Promotion Matrix — 状態 (split)"
     },
     {
       "candidateKind": "tracking-report",
@@ -5948,8 +5948,8 @@
       "path": "references/04-tracking/features-migration-status.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 3107,
-      "topHeading": "features/ 縦スライス移行 進捗管理表"
+      "size": 2724,
+      "topHeading": "features/ 縦スライス移行 — 完遂記録 (split)"
     },
     {
       "candidateKind": "tracking-report",
@@ -5981,7 +5981,7 @@
       "path": "references/04-tracking/generated/ai-doc-instructions.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 25159,
+      "size": 25242,
       "topHeading": "AI Instruction Pack (machine view)"
     },
     {
@@ -6069,7 +6069,7 @@
       "path": "references/04-tracking/generated/document-failure-taxonomy.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 10952,
+      "size": 11717,
       "topHeading": "Document Failure Taxonomy (machine view)"
     },
     {
@@ -6080,7 +6080,7 @@
       "path": "references/04-tracking/generated/document-universe.generated.md",
       "preservationAssumed": false,
       "promotionAllowed": false,
-      "size": 138438,
+      "size": 144331,
       "topHeading": "Document Universe Index (generated)"
     },
     {
@@ -6206,13 +6206,13 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-11T13:49:34.052Z",
+    "generatedAt": "2026-05-11T13:54:34.863Z",
     "sourcePaths": [
       "projects/",
       "references/04-tracking/",
       "docs/contracts/"
     ],
-    "sourceSha": "cfcee7e179a1c8783e83482212fe892a1389cf60"
+    "sourceSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819"
   },
   "schemaVersion": "markdown-inventory-v1",
   "scope": "managed-zone-3",

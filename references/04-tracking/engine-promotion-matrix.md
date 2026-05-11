@@ -1,160 +1,22 @@
-# Engine Promotion Matrix — 昇格状況一覧（2026-03-29 更新）
+# Engine Promotion Matrix — 状態 (split)
 
-## 目的
+> **disposition: split 完遂 (= AAG-COA Sub-3 sub-PR 4)**: 旧 doc は (1) 一覧表 + 個別 engine 詳細 = state snapshot + (2) 昇格ロードマップ + 優先順序 = 過去の判断 narrative + (3) 更新ルール = meta-rule の混在だった。本 doc は **current state 集約** のみ。stage 定義は `engine-maturity-matrix.md`、promotion 判定基準は `promotion-criteria.md` を参照。本 doc 内容は machine-verifiable な engine state ではなく **人手 articulate** であり、内容更新時は `次にやること` 欄 (本 doc 外) ではなく状態が変わった engine の行のみ change する。
 
-4+1 engine の現在地・blocker・次条件を一目で把握できるようにする。
-`engine-maturity-matrix.md` がステージ定義を、本文書が各 engine の個別状況を管理する。
+## 現在の状態 (2026-04-05 全 engine 昇格完遂)
 
----
+| Engine | Current State | Rust | WASM | Observation Test | 昇格日 |
+|---|---|---|---|---|---|
+| factorDecomposition | **authoritative** ✅ | ✅ | ✅ | 18 pass | 2026-04-05 |
+| grossProfit | **authoritative** ✅ | ✅ | ✅ | 16 pass | 2026-04-05 |
+| budgetAnalysis | **authoritative** ✅ | ✅ | ✅ | 12 pass | 2026-04-05 |
+| forecast | **authoritative** ✅ | ✅ | ✅ | 21 pass | 2026-04-05 |
+| timeSlot | **authoritative** ✅ | ✅ | ✅ | 25 pass | 2026-04-05 |
 
-## 一覧表
+各 engine の不変条件テストは `app/src/test/observation/*Observation.test.ts` に articulate (= authoritative 昇格後も観測テストを不変条件テストとして維持)。
 
-| Engine | Current State | Compare | Rust | WASM | Observation | Blocker | Next Action | Risk | Rollback Ready |
-|---|---|---|---|---|---|---|---|---|---|
-| factorDecomposition | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 18 pass | — | 完了（2026-04-05 昇格） | — | — |
-| grossProfit | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 16 pass | — | 完了（2026-04-05 昇格） | — | — |
-| budgetAnalysis | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 12 pass | — | 完了（2026-04-05 昇格） | — | — |
-| forecast | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 21 pass | — | 完了（2026-04-05 昇格） | — | — |
-| timeSlot | **authoritative** ✅ | ✅ | ✅ | ✅ | ✅ 25 pass | — | 完了（2026-04-05 昇格） | — | — |
+## 更新ルール (meta)
 
----
-
-## Engine 別詳細
-
-### factorDecomposition
-
-| 項目 | 状態 |
-|---|---|
-| 関数数 | 4（decompose2, decompose3, decompose5, decomposePriceMix） |
-| maturity | **authoritative** ✅（2026-04-05 昇格） |
-| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
-| Rust crate | `wasm/factor-decomposition/` — cargo test 全通過 |
-| WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
-| observer | FnName 削除済み（authoritative のため観測不要） |
-| observation test | 18 テスト pass — 不変条件テストとして維持 |
-| invariant tests | decomposition sum identity（effects 合計 = delta） |
-| cross-validation | TS golden fixture との一致確認済み |
-| edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
-
-**Blocker:** なし。全条件クリア済み。
-
-**次の一手:** wasm-only trial を実行し、TS フォールバックを一時停止して実環境で検証する。
-
----
-
-### grossProfit
-
-| 項目 | 状態 |
-|---|---|
-| 関数数 | 8 |
-| maturity | **promotion-candidate** ✅ |
-| compare | 実装済み。bridge test 通過 |
-| Rust crate | `wasm/gross-profit/` — cargo test 全通過 |
-| WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
-| observer | FnName 8 件登録済み。DevTools アクセス可 |
-| observation test | 16 テスト pass（2026-03-29 確認） |
-| invariant tests | GP-INV-1〜12（COGS 等式、粗利等式、null 伝播等） |
-| cross-validation | TS golden fixture との一致確認済み |
-| edge cases | ゼロ / 負値 / NaN / 大値カバー済み |
-
-**Blocker:** なし。全条件クリア済み。
-
-**次の一手:** wasm-only trial を実行。invMethod / estMethod の null 在庫パターンに特に注意。
-
----
-
-### budgetAnalysis
-
-| 項目 | 状態 |
-|---|---|
-| 関数数 | 2（calculateBudgetAnalysis, calculateGrossProfitBudget） |
-| maturity | **authoritative** ✅（2026-04-05 昇格） |
-| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
-| Rust crate | `wasm/budget-analysis/` — cargo test 全通過 |
-| WASM | wasm-pack build 済み。wasmEngine.ts 接続済み |
-| observer | FnName 削除済み（authoritative のため観測不要） |
-| observation test | 12 テスト pass — 不変条件テストとして維持 |
-| invariant tests | B-INV-1〜5（残予算、進捗率、累計単調性等） |
-| cross-validation | TS golden fixture との一致確認済み |
-| edge cases | ゼロ予算 / ゼロ売上 / 月末境界カバー済み |
-| 類型 | B — scalar は WASM authoritative、dailyCumulative は TS 補完 |
-
-**Blocker:** なし。全条件クリア済み。
-
-**注意:** `calculateAggregateBudget` は compare 対象外。
-
-**次の一手:** wasm-only trial を実行。
-
----
-
-### forecast
-
-| 項目 | 状態 |
-|---|---|
-| 関数数 | 5 pure（Date 非依存）+ 5 Date 依存（compare 対象外） |
-| maturity | **authoritative** ✅（2026-04-05 昇格） |
-| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
-| Rust crate | `wasm/forecast/` — cargo test 全通過（77 テスト） |
-| WASM | wasm-pack build 済み。forecastBridge.ts + forecastWasm.ts 接続済み |
-| observer | FnName 削除済み（authoritative のため観測不要） |
-| observation test | 21 テスト pass — 不変条件テストとして維持 |
-| invariant tests | F-INV-1〜13 + F-BIZ-1〜4（TS）、F-INV-1/2/3/8/10/12/13 + finiteness（Rust） |
-| cross-validation | TS golden fixture との一致確認済み |
-| edge cases | 空入力 / 単一値 / 極値 / 負値 / 未ソート入力カバー済み |
-| 類型 | B — pure 5 は WASM authoritative、Date-dependent 5 は TS 直接委譲 |
-
-**Blocker:** なし。全条件クリア済み。
-
-**次の一手:** wasm-only trial を実行。
-
----
-
-### timeSlot（第 5 engine）
-
-| 項目 | 状態 |
-|---|---|
-| 関数数 | 2（findCoreTime, findTurnaroundHour） |
-| maturity | **authoritative** ✅（2026-04-05 昇格） |
-| compare | 不要（authoritative 昇格済み。dual-run compare 削除） |
-| Rust crate | `wasm/time-slot/` — 実装済み |
-| WASM | wasm-pack build 済み。timeSlotWasm.ts 接続済み |
-| bridge | timeSlotBridge.ts — WASM authoritative + TS fallback（174→36 行） |
-| observer | 退役（dualRunObserver.ts 全体が退役済み） |
-| observation test | 25 テスト pass — 不変条件テストとして維持 |
-
-**次の一手:**
-1. compare 計画策定（compare plan 文書作成）
-2. timeSlotObservation.test.ts を作成
-3. 観測ログ蓄積 → promotion-candidate 判定
-
----
-
-## 昇格ロードマップ
-
-```
-現在                                            目標
-────────────────────────────────────────────────────
-
-factorDecomposition  [authoritative] ✅  ← 完了（2026-04-05）
-grossProfit          [authoritative] ✅  ← 完了（2026-04-05）
-budgetAnalysis       [authoritative] ✅  ← 完了（2026-04-05）
-forecast             [authoritative] ✅  ← 完了（2026-04-05）
-timeSlot             [authoritative] ✅  ← 完了（2026-04-05）
-```
-
-### 優先順序の推奨
-
-1. **factorDecomposition** — 最も関数数が少なく（4）、最初に実証済みのため最もリスクが低い
-2. **budgetAnalysis** — 関数数が少ない（2）。scalar のみで null sentinel も限定的
-3. **forecast** — 関数数 5。Date 非依存の純粋統計関数のみが対象
-4. **grossProfit** — 関数数が最多（8）。null sentinel パターンあり。慎重に
-5. **timeSlot** — compare 計画から開始が必要
-
----
-
-## 更新ルール
-
-- engine の状態が変わったら本文書を更新する
-- blocker が解消されたら「次の一手」を更新する
-- wasm-only trial の結果は trial 日・期間・verdict を記録する
-- authoritative 昇格時は日付・TS fallback 削除の commit hash を記録する
+- engine の状態 (= current state column) が変わったら本表の行を update する
+- authoritative 昇格時は昇格日 + TS fallback 削除の commit hash を articulate する
+- 観測テスト件数 (= Observation Test column) は test ファイルの実 count 値を articulate
+- 個別 engine の詳細状況 (= TS fallback delete 経緯 / WASM crate 構成 / 観測 verdict 等) は本 doc には書かない (= 該当 engine の README / aag/_internal/ を参照)

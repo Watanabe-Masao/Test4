@@ -10754,14 +10754,14 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-05-11T13:49:34.226Z",
+    "generatedAt": "2026-05-11T13:54:35.036Z",
     "sourcePaths": [
       "docs/contracts/generated/markdown-inventory.generated.json",
       "docs/contracts/doc-registry.json",
       "docs/contracts/generated/tree-contracts.generated.json",
       "git ls-files '*.md' (= universe scope は markdown-inventory より broad)"
     ],
-    "sourceSha": "cfcee7e179a1c8783e83482212fe892a1389cf60"
+    "sourceSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819"
   },
   "schemaVersion": "document-universe-v1",
   "summary": {
