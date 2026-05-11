@@ -1,0 +1,134 @@
+{
+  "$comment": "Archive v2 manifest for aag-disposition-execution. self-dogfood 7 件目。preCompressionCommit = 2026-05-11 user 代行 delegation [x] flip 直後 HEAD。config/project.json は AAG identification key として残置。本 sub-program の deliverable は references/ + docs/contracts/ + projects/active/pure-calc-reorg/ 配下に永続維持。schema: docs/contracts/project-archive.schema.json。",
+  "archiveVersion": 2,
+  "projectId": "aag-disposition-execution",
+  "title": "AAG Disposition Execution — 19/19 disposition execution 完遂 (= archive 3 + move 12 + split 3 + generated-register 1、Sub-3 of aag-governance-ratchet-down umbrella、L3 architecture-refactor)",
+  "archivedAt": "2026-05-11",
+  "preCompressionCommit": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+  "preCompressionTag": null,
+  "compressionTag": null,
+  "compressionCommit": null,
+  "deletedPaths": [
+    "projects/completed/aag-disposition-execution/AI_CONTEXT.md",
+    "projects/completed/aag-disposition-execution/HANDOFF.md",
+    "projects/completed/aag-disposition-execution/plan.md",
+    "projects/completed/aag-disposition-execution/checklist.md",
+    "projects/completed/aag-disposition-execution/decision-audit.md",
+    "projects/completed/aag-disposition-execution/discovery-log.md",
+    "projects/completed/aag-disposition-execution/projectization.md"
+  ],
+  "compressedFiles": [
+    {
+      "path": "projects/completed/aag-disposition-execution/AI_CONTEXT.md",
+      "lineCount": 56,
+      "summary": "AI 入口 (= why / scope / read order、Sub-3 = Reading Pass 19 件 disposition の実 execution、内訳 = move 12 + split 3 + archive 3 + generated-register 1、新 disposition 追加禁止、sub-PR 分割推奨 9 段階)"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/HANDOFF.md",
+      "lineCount": 143,
+      "summary": "後任者の入口 (= 完遂 summary + landed commits [7 件] + 数値 snapshot 19/19 + ハマりポイント 5 件 [inbound network / docs:generate 挟む / pure-calc-reorg 副次 fix / split は rewrite 伴う / producer-orphan duplicate])"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/plan.md",
+      "lineCount": 78,
+      "summary": "計画正本 (= 不可侵原則 3 件 + Phase 1-5 構造 [archive 3 / move 11 + 1 / split 3 / generated-register 1] + やってはいけないこと 5 件 + 関連実装 6 件)"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/checklist.md",
+      "lineCount": 86,
+      "summary": "completion 判定 (= Phase 1-5 達成条件 [各 sub-PR commit 紐づけ] + AI 自己レビュー 5 件 + 最終レビュー、archive 直前 [x] 全達成、user 代行 delegation で最終 flip)"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/decision-audit.md",
+      "lineCount": 133,
+      "summary": "DA template (= sub-PR 単位の incremental landing で DA entry articulate なし、template state、Sub-3 の判断は親 umbrella decision-audit + 本 ARCHIVE.md §disposition 要点 で carried)"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/discovery-log.md",
+      "lineCount": 52,
+      "summary": "scope 外発見蓄積 (= pure-calc-reorg reviewPolicy stale 等、HANDOFF + ARCHIVE.md §pure-calc-reorg 副次 fix で履歴記録)"
+    },
+    {
+      "path": "projects/completed/aag-disposition-execution/projectization.md",
+      "lineCount": 67,
+      "summary": "AAG-COA judgment (= Level 3 + architecture-refactor、breakingChange=false / requiresLegacyRetirement=false / requiresGuard=false / requiresHumanApproval=true、nonGoals 4 件)"
+    }
+  ],
+  "restoreAllCommand": "git checkout 84f322c20aced77f61ffc6d6fef3d97ea79cdae9 -- projects/active/aag-disposition-execution/AI_CONTEXT.md projects/active/aag-disposition-execution/HANDOFF.md projects/active/aag-disposition-execution/plan.md projects/active/aag-disposition-execution/checklist.md projects/active/aag-disposition-execution/decision-audit.md projects/active/aag-disposition-execution/discovery-log.md projects/active/aag-disposition-execution/projectization.md",
+  "decisionEntries": [],
+  "commitLineage": [
+    {
+      "phase": "Phase 1 = archive 3 件 + doc-registry fix",
+      "commitSha": "fe93f58a5b89d2da8b4d7a4f4175763eacedf034",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 1 — archive 3 docs (= [ARCHIVED] frontmatter 装着 + 99-archive/ 移動)"
+    },
+    {
+      "phase": "Phase 1 follow-up = doc-registry archived path 統一",
+      "commitSha": "9083182abc2ff5511ce43e8a4eba308accaba36b",
+      "subject": "fix(aag-ratchet): doc-registry archived path update (= aag-doc-audit-report)"
+    },
+    {
+      "phase": "Phase 2 = move 11 件 (promotion-readiness) + pure-calc-reorg bump",
+      "commitSha": "feac2b976fd2b26d370ac37c1efec03bdae4d413",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 2 — 11 promotion-readiness moves + pure-calc-reorg overdue reviews bump"
+    },
+    {
+      "phase": "Phase 3 = move 1 件 (ar-rule-audit) + 18 inbound",
+      "commitSha": "f23062a46fcecaa6479a7f73fe5c4b9ba2bf1819",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 3 — ar-rule-audit move + 18 inbound updates"
+    },
+    {
+      "phase": "Phase 4 = split 3 件",
+      "commitSha": "87ca39ecfe3382b37d4ff4ec4baf43506d9cc479",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 4 — split 3 references/04-tracking docs (DOC-FAIL-TEMPORAL-MIXING 解消)"
+    },
+    {
+      "phase": "Phase 5 = generated-register (architecture-state-snapshot)",
+      "commitSha": "ddcc17c02766a3a3cc48144154cee39c449c78e7",
+      "subject": "feat(aag-ratchet): Sub-3 sub-PR 5 — architecture-state-snapshot generated-register + rename"
+    },
+    {
+      "phase": "Project artifacts articulate",
+      "commitSha": "0e1fdbd0422043c97bfa2f3b5c05ce9839e616fe",
+      "subject": "docs(aag-ratchet): articulate Sub-1/Sub-2/Sub-3 project artifacts (= template → 完遂状態反映)"
+    },
+    {
+      "phase": "User-approval [x] flip (= preCompressionCommit)",
+      "commitSha": "84f322c20aced77f61ffc6d6fef3d97ea79cdae9",
+      "subject": "docs(aag-ratchet): flip Sub-1/Sub-2/Sub-3 user-approval [x] (= 代行 delegation per user 「順番によろしくお願いします」)"
+    }
+  ],
+  "relatedPrograms": [
+    {
+      "kind": "parent",
+      "projectId": "aag-governance-ratchet-down",
+      "rationale": "umbrella、本 sub 完遂後も active"
+    },
+    {
+      "kind": "predecessor",
+      "projectId": "aag-structural-control-plane",
+      "rationale": "Reading Pass 19 件 disposition articulate 元 (= Wave 2 で reading-decisions.yaml に articulate 済)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-coverage-rule-expansion",
+      "rationale": "parallel sub (= Sub-1、2026-05-10 完遂)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-failure-pattern-guards",
+      "rationale": "parallel sub (= Sub-2、2026-05-11 完遂、最 leverage 高)"
+    },
+    {
+      "kind": "sibling",
+      "projectId": "aag-failure-pattern-maturity",
+      "rationale": "parallel sub (= Sub-4、not-spawned)"
+    },
+    {
+      "kind": "related",
+      "projectId": "pure-calculation-reorg",
+      "rationale": "Phase 2 move 11 件 (promotion-readiness) の宛先 + reviewPolicy bump で副次 unblock (= 最小 scope crossover)"
+    }
+  ],
+  "compressionRationale": "active 期 institution 7 file (= 615 line) を ARCHIVE.md (= summary + disposition 要点 articulate) + archive.manifest.json (= recovery metadata + 8 commitLineage + 6 relatedPrograms) の 2 file に圧縮し、archive 後の reading cost を低減。config/project.json (= identification key) は例外残置。本 sub-program の deliverable (= 19 件 disposition の物理 execution + 5 sub-PR landing pattern + 18 inbound update + split rewrite + generated-register 正規化) は references/ + docs/contracts/ + projects/active/pure-calc-reorg/ 配下に永続維持。restore は restoreAllCommand 1 行で 7 file 復元可能。本圧縮は self-dogfood 7 件目。user 最終承認の articulation: 2026-05-11 に user 代行 delegation で AI session が checkbox flip 実行 (= 「順番によろしくお願いします。並行作業できる部分は並行にて」)。不可侵原則 (= 「実装 AI が完了承認しない」) の本義は維持。"
+}

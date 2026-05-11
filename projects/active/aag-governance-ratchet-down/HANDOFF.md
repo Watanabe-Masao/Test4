@@ -5,9 +5,9 @@
 
 ## 1. 現在地
 
-**Sub-1 完遂 + Sub-2 完遂 + Sub-3 73% 進行中、Sub-4 deferred** (= 2026-05-11 時点)。
-本 umbrella spawn (2026-05-10) 直後の session で 3 sub-program を parallel 実装、umbrella の
-4 sub-scope のうち 2 件完遂 + 1 件 73% 完遂 + 1 件 deferred (= review window 律速)。
+**Sub-1 + Sub-2 + Sub-3 全 archived、Sub-4 deferred** (= 2026-05-11 時点)。
+本 umbrella spawn (2026-05-10) 直後の session で 3 sub-program を parallel 実装、翌 session
+(2026-05-11) で user 代行 delegation の下に 3 sub 全件 Archive v2 圧縮で移行完了。
 
 **前駆 program**: `projects/completed/aag-structural-control-plane/` (= 2026-05-10 archive、
 AAG 6.0 → 6.1)。aag-scp で **articulate 完成** した advisory infrastructure を本 program で
@@ -15,16 +15,25 @@ AAG 6.0 → 6.1)。aag-scp で **articulate 完成** した advisory infrastruct
 
 ### Sub-program 進捗 (= sub-project-map.md の status も同期維持)
 
-| ID | sub-program | 完遂状態 | landed commits |
+| ID | sub-program | 完遂状態 | archive |
 |---|---|---|---|
-| Sub-1 | aag-coverage-rule-expansion | **完遂** (= unmanaged 86.2% → 0%、84 rules) | f0bfc39 (= parallel impl with Sub-2) |
-| Sub-2 | aag-failure-pattern-guards | **完遂** (= 6/6 guard candidates → guardrail-shadow stage) | f0bfc39 (= 1st guard) + 2955b85 (= 5 patterns baseline) + dfac74f / c1ebc00 / 0c27afd (= follow-up fixes) |
-| Sub-3 | aag-disposition-execution | **完遂** (= 19/19、archive 3 + move 12 + split 3 + generated-register 1) | fe93f58 (= archive 3) + 9083182 (= doc-registry fix) + feac2b9 (= move 11 + reviews bump) + f23062a (= ar-rule-audit move) + 87ca39e (= split 3) + [本 sub-PR] (= architecture-state-snapshot generated-register) |
+| Sub-1 | aag-coverage-rule-expansion | **archived 2026-05-11** (= unmanaged 86.2% → 0%、84 rules) | `projects/completed/aag-coverage-rule-expansion/` (= Archive v2 5 件目) |
+| Sub-2 | aag-failure-pattern-guards | **archived 2026-05-11** (= 6/6 guard candidates → guardrail-shadow stage) | `projects/completed/aag-failure-pattern-guards/` (= Archive v2 6 件目) |
+| Sub-3 | aag-disposition-execution | **archived 2026-05-11** (= 19/19 disposition execution) | `projects/completed/aag-disposition-execution/` (= Archive v2 7 件目) |
 | Sub-4 | aag-failure-pattern-maturity | **deferred** (= review window 律速、user 判断 gate) | (not-spawned) |
 
-### Sub-3 残 0 件 (= 全件完遂、本 session で 4 sub-PR landed)
+### 本 umbrella の archive 判断 (= 残作業)
 
-Sub-3 (aag-disposition-execution) は 19/19 件完遂。残作業なし。Sub-3 archive 移行は別 session で実施。
+4 sub-program のうち 3 sub archived + 1 sub (Sub-4) deferred (= not-spawned)。
+本 umbrella の完遂条件 (= sub-project-map.md §boundary)「全 sub-program archive 完遂 + 本 umbrella
+final review」を **Sub-4 deferred の扱い** が決定する。
+
+判断 option:
+- (a) Sub-4 を formally cancel し、本 umbrella を archive (= Sub-4 は never spawn として記録)
+- (b) Sub-4 spawn まで本 umbrella を active 維持 (= taxonomy review window 経由で eventually spawn)
+- (c) Sub-4 scope を別 program に移譲し、本 umbrella を archive
+
+option 選択は **user 判断 gate**。本 session では決定せず、user 判断待ち。
 
 ## 2. 次にやること
 
@@ -119,9 +128,9 @@ principles.json + 各種 generated artifacts) のため deferred → **Sub-3 sub
 
 ### 本 session で完遂した sub-programs (= 詳細は各 sub-program HANDOFF / commit message)
 
-- **`projects/active/aag-coverage-rule-expansion/`**: artifact-coverage rules 17 → 84 (= 67 new rules)、unmanaged 86.2% → 0%
-- **`projects/active/aag-failure-pattern-guards/`**: 6 guards 全件 guardrail-shadow stage 着地 (= docDuplicateResponsibilityGuard + docFailurePatternBaselineGuard 5 patterns)
-- **`projects/active/aag-disposition-execution/`**: 14/19 disposition execution (= archive 3 + move 11)、残 5 件で完遂
+- **`projects/completed/aag-coverage-rule-expansion/`**: artifact-coverage rules 17 → 84 (= 67 new rules)、unmanaged 86.2% → 0%
+- **`projects/completed/aag-failure-pattern-guards/`**: 6 guards 全件 guardrail-shadow stage 着地 (= docDuplicateResponsibilityGuard + docFailurePatternBaselineGuard 5 patterns)
+- **`projects/completed/aag-disposition-execution/`**: 19/19 disposition execution 完遂 (= archive 3 + move 12 + split 3 + generated-register 1)
 
 ### 前駆 program landed deliverables (= 本 program の input)
 
@@ -141,5 +150,6 @@ principles.json + 各種 generated artifacts) のため deferred → **Sub-3 sub
 2. [ ] `cd app && npm run docs:generate` で current health 確認 (= Hard Gate PASS が baseline)
 3. [ ] `references/04-tracking/generated/project-health.generated.md` で 4 active project の状態確認
 4. [ ] `projects/active/aag-governance-ratchet-down/sub-project-map.md` で sub-program status 確認
-5. [x] Sub-3 全件完遂 (= 19/19、本 session で sub-PR 3-5 landed)、Sub-3 archive 移行判断は別 session
-6. [ ] Sub-2 guardrail-advisory 昇格判断は本 session scope 外、別 user 判断 gate
+5. [x] Sub-1 + Sub-2 + Sub-3 全 archived (= Archive v2 5/6/7 件目、2026-05-11 user 代行 delegation で transition)
+6. [ ] **本 umbrella の archive 判断** (= Sub-4 deferred 扱いの user 判断 gate、本 HANDOFF §1 の option (a)/(b)/(c))
+7. [ ] Sub-2 guardrail-advisory 昇格判断は本 session scope 外、別 user 判断 gate

@@ -26,17 +26,17 @@
 > projectization 判定 + 8 ファイル一式 articulate)。本 umbrella の checklist には sub-program
 > spawn の有無のみ記録。
 
-- [x] **Sub-program 1: aag-coverage-rule-expansion (C1)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、`projects/active/aag-coverage-rule-expansion/`)
-- [x] **Sub-program 2: aag-failure-pattern-guards (C2 + C3)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、最 leverage 高、`projects/active/aag-failure-pattern-guards/`)
-- [x] **Sub-program 3: aag-disposition-execution (C4)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、`projects/active/aag-disposition-execution/`)
+- [x] **Sub-program 1: aag-coverage-rule-expansion (C1)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、`projects/completed/aag-coverage-rule-expansion/`)
+- [x] **Sub-program 2: aag-failure-pattern-guards (C2 + C3)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、最 leverage 高、`projects/completed/aag-failure-pattern-guards/`)
+- [x] **Sub-program 3: aag-disposition-execution (C4)** — spawn 判断 + bootstrap (= 2026-05-10 spawn 完了、`projects/completed/aag-disposition-execution/`)
 - [ ] **Sub-program 4: aag-failure-pattern-maturity (C5)** — spawn 判断 + bootstrap (= taxonomy review window 経由、user 判断 gate)
 
 ### Sub-program archive 完遂 (= 各 sub-program の archive 移行を本 umbrella で track)
 
-- [ ] Sub-program 1 archive 完遂
-- [ ] Sub-program 2 archive 完遂
-- [ ] Sub-program 3 archive 完遂
-- [ ] Sub-program 4 archive 完遂
+- [x] Sub-program 1 archive 完遂 (= 2026-05-11、Archive v2 5 件目)
+- [x] Sub-program 2 archive 完遂 (= 2026-05-11、Archive v2 6 件目)
+- [x] Sub-program 3 archive 完遂 (= 2026-05-11、Archive v2 7 件目)
+- [ ] Sub-program 4 archive 完遂 (= deferred、Sub-4 spawn 判断 user gate 経由)
 
 ## Phase 完遂: 本 umbrella archive
 
