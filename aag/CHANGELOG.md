@@ -92,6 +92,39 @@ archive 移行 trigger (= active → archived):
 - declare 段階の rationale が後続 audit で navigable (= 判断履歴の transparent 化)
 - user の bump 判断 burden を archive 直前ではなく **計画段階** に前倒し
 
+## [AAG 6.2] - 2026-05-11
+
+### AAG Governance Ratchet-down (= aag-governance-ratchet-down umbrella + Sub-1/2/3 完遂、Sub-4 cancelled)
+
+**minor**: AAG 6.1 (= aag-structural-control-plane) で **articulate 完成** した advisory infrastructure (= ai-doc-template-rules / required-docs-matrix / artifact-coverage / failure-pattern taxonomy) を **ratchet-down 実装に converted**。新 governance pattern や新 schema の追加なし (= articulate 完成済を実装に下ろす変換)、既存 advisory checker は不変、app/src/ business logic は不変。3 sub-program archive (= Sub-1/2/3) + 1 sub formally cancelled (= Sub-4) で closure 成立、umbrella + sub の Archive v2 圧縮 self-dogfood 4 件 landing。
+
+- **Sub-1 (aag-coverage-rule-expansion)** — artifact-coverage rules 17 → 84 (= 67 new、unmanaged 86.2% → **0% 達成**、3704 tracked files 100% classified)。`docs/contracts/src/governance/artifact-coverage.yaml` + `tools/governance/check-coverage.mjs` baseline=0 ratchet-down (= 増加方向のみ advisory fail)。Archive v2 self-dogfood 5 件目
+
+- **Sub-2 (aag-failure-pattern-guards)** — Failure Loop **6/6 guard candidates → guardrail-shadow stage 着地** (= CLAUDE.md G8 機械化実装最終段階)。6 patterns 統合 guard 採用 = `docDuplicateResponsibilityGuard` (= 1st、sha256 byte-comparison) + `docFailurePatternBaselineGuard` (= 残 5 patterns 統合、baseline 配列 ratchet-down)。`docs/contracts/src/docs/document-failure-taxonomy.yaml` 6 pattern articulate 正本。Archive v2 self-dogfood 6 件目
+
+- **Sub-3 (aag-disposition-execution)** — Reading Pass 19/19 disposition の物理 execution (= archive 3 + move 12 + split 3 + generated-register 1)。`document-reading-decisions.yaml` 19 path 整合済 + `ar-rule-binding-protocol.md` move (= ar-rule-audit.md から split) + 3 reference docs split (= engine-maturity-matrix / engine-promotion-matrix / features-migration-status、DOC-FAIL-TEMPORAL-MIXING 解消) + architecture-state-snapshot generated-register rename。Archive v2 self-dogfood 7 件目
+
+- **Sub-4 (aag-failure-pattern-maturity)** — **formally cancelled 2026-05-11** (= not-spawned、cancellation articulate のみで closure)。user 判断「spawn しない」+ Sub-2 6 guards shadow stage で観測期間継続、advisory 昇格は別 program で起票。再起動 trigger 3 条件 state-based articulate (= `projects/completed/aag-governance-ratchet-down/ARCHIVE.md` §umbrella 要点)。`aag-decision-traceability` 2026-05-01 cancellation precedent 整合 (= speculative concept への先回り program 化を回避)
+
+- **Umbrella archive** — `aag-governance-ratchet-down` umbrella を Archive v2 圧縮で self-dogfood **8 件目** として archive。umbrella 特有 file `sub-project-map.md` (= 通常 7 file + 1 file) も圧縮対象、ARCHIVE.md §umbrella 要点 で parallel impl pattern + sub-PR landing pattern + ratchet-down baseline mechanism + Sub-4 deferred → cancelled rationale を後続 program 向け knowledge として permanent articulate
+
+- **不可侵 (= 不可侵原則 7 件 全件 maintained)**:
+  - 新 articulate を加えない (= aag-scp 完成 articulate を実装に converted)
+  - 即 Gate 化禁止 (= 5 段階 maturity progression、AAG-SCP-DOC-LEARNING-002 整合)
+  - AI 単独 vocabulary 改変禁止 (= AR-TAXONOMY-AI-VOCABULARY-BINDING 整合)
+  - Sub-program 独立性 (= parallel impl 実証、`f0bfc39` で Sub-1 + Sub-2 1st guard 同時 landed)
+  - Separate Program candidate 不侵食 (= Phase 8a/b/c + Phase 10 は reposteward 移譲、本 program 着手 0)
+  - app/src/ 配下不変 (= business logic touch なし、test/guards/ 新 guard test のみ追加)
+  - 既存 advisory checker 継続運用 (= aag-scp で landed の post-write / required-docs / coverage checker は不変)
+  - 不可侵原則 8 (= 「実装 AI が完了承認しない」) 本義維持 (= user 代行 delegation で flip、aag-engine-readiness-refactor 2026-05-05 precedent 整合)
+
+- **Failure Learning Loop 機械化実装の閉じる**:
+  - AAG 6.1 Wave 2 で auto-promotion 2 例実証 (= guard candidates 4 → 5 → 6) → AAG 6.2 Sub-2 で 6/6 全件 guardrail-shadow 着地
+  - 残り maturity progression (= shadow → advisory → enforced) は **観測期間ベース**、AAG 単独で自動昇格させない (= user judgment gate 維持)
+  - CLAUDE.md G8 (= 同種 failure 観測 → guard 候補昇格) の articulate complete + 実装 complete
+
+- **versionImpact**: app +0.0.0 (= app/ 配下 touch なし、app/src/test/guards/ + tools/governance/ + docs/contracts/ + references/ + projects/ のみ、Sub-2 の 2 新 guard test は AAG framework scope) / aag +0.1 (= 本 AAG 6.1 → 6.2 minor bump、advisory → ratchet-down guard 化 + artifact-coverage 100% coverage + Reading Pass 完遂)
+
 ## [AAG 6.1] - 2026-05-10
 
 ### AAG Structural Control Plane (= aag-structural-control-plane program 完遂)

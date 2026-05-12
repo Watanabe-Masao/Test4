@@ -1,4 +1,4 @@
 {
   "$comment": "AAG framework metadata の唯一正本。AAG version (= AAG framework 自体のリリース version、app/package.json version と完全独立) を articulate。本 file は 2026-05-06 aag-engine-go-mvp Phase 12 closure で institute (= AAG version の app version からの分離、3-tree boundary 整合)。同期検証は app/src/test/guards/versionSyncGuard.test.ts が aag/CHANGELOG.md 最新 [AAG x.y] と本 file aagVersion を 1 ペアとして loop 検証。AAG version 整合の詳細: aag/CHANGELOG.md §役割分担 + projects/completed/aag-engine-go-mvp/decision-audit.md DA-α-013 (= 本 separation の institute 経緯)。",
-  "aagVersion": "6.1"
+  "aagVersion": "6.2"
 }
