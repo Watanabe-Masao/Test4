@@ -228,14 +228,14 @@ describe('意味分類ガード（Phase 2）', () => {
 
     expect(business + analytic + utility).toBe(entries.length)
     // ratchet: 意味分類の内訳が変わったら意図的に更新する
-    // business: 13 current + 6 candidate (BIZ-008〜013) = 19
-    expect(business).toBe(19)
-    // analytic: 11 current (ANA-001 + ANA-010 budgetSimulator + budgetSimulatorAggregations + 8 algorithms) + 5 candidate (ANA-003, ANA-004, ANA-005, ANA-007, ANA-009) + 1 ANA-005-related (ANA-005 prevYearCostApprox SP-B ADR-B-004 PR2) = 17
-    expect(analytic).toBe(17)
+    // business: 13 current (BIZ-001〜007 + 既存)
+    expect(business).toBe(13)
+    // analytic: 11 current (ANA-001 + ANA-010 budgetSimulator + budgetSimulatorAggregations + 8 algorithms) + 1 ANA-005-related (prevYearCostApprox)
+    expect(analytic).toBe(12)
     expect(utility).toBe(13)
   })
 
-  it('統合 drift 検出: registry → view → wasmEngine → bridge 全層が同じ truth を見ている', () => {
+  it('統合 drift 検出: registry → view → wasmEngine 全層が同じ truth を見ている', () => {
     const wasmEnginePath = path.resolve(SRC_DIR, 'application/services/wasmEngine.ts')
     const wasmEngineSource = fs.readFileSync(wasmEnginePath, 'utf-8') as string
 
@@ -248,22 +248,11 @@ describe('意味分類ガード（Phase 2）', () => {
     }
 
     const currentModules = extractArray('WASM_MODULE_NAMES')
-    const candidateModules = extractArray('WASM_CANDIDATE_MODULE_NAMES')
-
-    // wasmEngine.ts から WASM_CANDIDATE_MODULE_METADATA の contractId を抽出
-    const candidateContractIds: string[] = []
-    const contractIdMatches = wasmEngineSource.matchAll(/contractId:\s*'([^']+)'/g)
-    for (const m of contractIdMatches) {
-      candidateContractIds.push(m[1])
-    }
 
     const violations: string[] = []
 
     // --- Layer 1: registry truth ---
 
-    const registryCandidate = Object.entries(CALCULATION_CANON_REGISTRY).filter(
-      ([, e]) => e.runtimeStatus === 'candidate',
-    )
     const registryNonTarget = Object.entries(CALCULATION_CANON_REGISTRY).filter(
       ([, e]) => e.runtimeStatus === 'non-target',
     )
@@ -280,54 +269,11 @@ describe('意味分類ガード（Phase 2）', () => {
         violations.push(`ANALYTIC view に非 current: ${entry.path} (${entry.runtimeStatus})`)
       }
     }
-    for (const entry of MIGRATION_CANDIDATE_VIEW) {
-      if (entry.runtimeStatus !== 'candidate') {
-        violations.push(`CANDIDATE view に非 candidate: ${entry.path} (${entry.runtimeStatus})`)
-      }
-    }
-
-    if (MIGRATION_CANDIDATE_VIEW.length !== registryCandidate.length) {
-      violations.push(
-        `CANDIDATE view(${MIGRATION_CANDIDATE_VIEW.length}) != registry candidate(${registryCandidate.length})`,
-      )
-    }
 
     // --- Layer 3: wasmEngine truth ---
 
     if (currentModules.length === 0) {
       violations.push('wasmEngine に current module が登録されていない')
-    }
-
-    if (candidateModules.length !== registryCandidate.length) {
-      violations.push(
-        `wasmEngine candidate(${candidateModules.length}) != registry candidate(${registryCandidate.length})`,
-      )
-    }
-
-    // wasmEngine candidate の contractId が registry に存在するか
-    const registryContractIds = registryCandidate
-      .map(([, e]) => e.contractId)
-      .filter((id): id is string => !!id)
-    for (const contractId of candidateContractIds) {
-      if (!registryContractIds.includes(contractId)) {
-        violations.push(
-          `wasmEngine の contractId="${contractId}" が registry candidate に存在しない`,
-        )
-      }
-    }
-
-    // --- Layer 4: bridge ファイル存在チェック ---
-
-    const bridgeDir = path.resolve(SRC_DIR, 'application/services')
-
-    for (const candidateName of candidateModules) {
-      const bridgeFile = `${candidateName}Bridge.ts`
-      const bridgePath = path.join(bridgeDir, bridgeFile)
-      if (!fs.existsSync(bridgePath)) {
-        violations.push(
-          `wasmEngine candidate "${candidateName}" の bridge ファイルがない: ${bridgeFile}`,
-        )
-      }
     }
 
     // --- non-target（business/analytic）が wasmEngine に登録されていないか ---
@@ -336,60 +282,9 @@ describe('意味分類ガード（Phase 2）', () => {
     for (const [filePath, entry] of registryNonTarget) {
       if (entry.semanticClass === 'utility') continue
       const basename = path.basename(filePath, '.ts')
-      if (currentModules.includes(basename) || candidateModules.includes(basename)) {
+      if (currentModules.includes(basename)) {
         violations.push(
           `non-target "${filePath}" (${entry.semanticClass}) が wasmEngine に登録されている`,
-        )
-      }
-    }
-
-    expect(violations, violations.join('\n')).toEqual([])
-  })
-
-  it('wasmEngine candidate の contractId が registry と 1:1 で対応する', () => {
-    const wasmEnginePath = path.resolve(SRC_DIR, 'application/services/wasmEngine.ts')
-    const wasmEngineSource = fs.readFileSync(wasmEnginePath, 'utf-8')
-
-    // wasmEngine から contractId + semanticClass を抽出
-    const candidateBlock = wasmEngineSource.match(
-      /WASM_CANDIDATE_MODULE_METADATA[\s\S]*?\}\s*\}/,
-    )?.[0]
-    if (!candidateBlock) {
-      expect.fail('WASM_CANDIDATE_MODULE_METADATA が見つかりません')
-      return
-    }
-
-    const engineEntries: { name: string; contractId: string; semanticClass: string }[] = []
-    const entryRe = /(\w+):\s*\{[^}]*contractId:\s*'([^']+)'[^}]*semanticClass:\s*'([^']+)'/g
-    let m: RegExpExecArray | null
-    while ((m = entryRe.exec(candidateBlock)) !== null) {
-      engineEntries.push({ name: m[1], contractId: m[2], semanticClass: m[3] })
-    }
-    // semanticClass が contractId の前に来るパターンも対応
-    const entryRe2 = /(\w+):\s*\{[^}]*semanticClass:\s*'([^']+)'[^}]*contractId:\s*'([^']+)'/g
-    while ((m = entryRe2.exec(candidateBlock)) !== null) {
-      const match = m
-      if (!engineEntries.some((e) => e.name === match[1])) {
-        engineEntries.push({ name: match[1], contractId: match[3], semanticClass: match[2] })
-      }
-    }
-
-    const violations: string[] = []
-
-    for (const eng of engineEntries) {
-      const registryEntry = Object.entries(CALCULATION_CANON_REGISTRY).find(
-        ([, e]) => e.contractId === eng.contractId,
-      )
-      if (!registryEntry) {
-        violations.push(
-          `wasmEngine "${eng.name}" の contractId="${eng.contractId}" が registry にない`,
-        )
-        continue
-      }
-      const [, canon] = registryEntry
-      if (canon.semanticClass !== eng.semanticClass) {
-        violations.push(
-          `contractId="${eng.contractId}": semanticClass 不一致 (engine=${eng.semanticClass}, registry=${canon.semanticClass})`,
         )
       }
     }
@@ -414,7 +309,6 @@ describe('意味分類ガード（Phase 2）', () => {
       'semantic-boundary',
       'registry-integrity',
       'bridge-runtime-boundary',
-      'current-candidate-lifecycle',
       'docs-synchronization',
       'promote-retire-lifecycle',
       'ratchet-legacy-control',

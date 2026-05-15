@@ -1,6 +1,6 @@
 # Architecture State Snapshot
 
-> Generated: 2026-05-11T13:57:30.492Z
+> Generated: 2026-05-15T05:17:05.801Z
 
 ## Allowlist Summary
 

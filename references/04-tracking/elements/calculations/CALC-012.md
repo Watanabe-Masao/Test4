@@ -53,7 +53,6 @@ specVersion: 1
 | CLM-001 | `countDowsInMonth(year, month)` は常に長さ 7 配列を返す（曜日網羅、INV-DOW-01） | tested | high | app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts | - | - |
 | CLM-002 | `prevDowSales` 未指定 / 該当曜日 0 → `dailyAverageSales` でフォールバック（safeDivide で前年データ欠損時も計算継続） | tested | medium | app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts | - | - |
 | CLM-003 | `isSameStructure` 検出時 `estimatedImpact = 0` で warning 付与（曜日構成同一は平均法では影響額計算不能） | tested | medium | app/src/domain/calculations/__tests__/dowGapAnalysis.test.ts | - | - |
-| CLM-004 | candidate (`candidate/dowGapAnalysis.ts`) との数値同等性 (dual-run observation guard 監視下、Promote Ceremony 着手前の数値検証経路) | guarded | high | - | app/src/test/observation/dowGapCandidateObservation.test.ts | - |
 
 ## 5. Migration Plan
 

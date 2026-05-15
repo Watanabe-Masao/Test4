@@ -59,7 +59,6 @@ specVersion: 1
 | CLM-001 | `deltas` 全 0 → `simulatedGrossProfit === baseGrossProfit`（pure ID 性、INV-SENS-01、何もしない刺激は何も変えない） | tested | high | app/src/domain/calculations/sensitivity.test.ts | - | - |
 | CLM-002 | `customersDelta` / `transactionValueDelta` は **乗算効果**（売上 = `(1+δc) × (1+δt) × baseSales`、INV-SENS-02、加算誤用禁止） | tested | high | app/src/domain/calculations/sensitivity.test.ts | - | - |
 | CLM-003 | `simDiscountRate >= 1` で `safeDivide(..., 1 - simDiscountRate, simSales)` フォールバック（無限大回避、INV-SENS-03） | tested | high | app/src/domain/calculations/sensitivity.test.ts | - | - |
-| CLM-004 | candidate (`candidate/algorithms/sensitivity.ts`) との数値同等性 (dual-run observation guard 監視下) | guarded | high | - | app/src/test/observation/sensitivityCandidateObservation.test.ts | - |
 
 ## 5. Migration Plan
 

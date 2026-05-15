@@ -81,16 +81,10 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
     // baseline = 0 は **絶対不可侵**。new physical candidate が landing したのに spec が
     //   無ければ即 fail。current entry に spec が無い場合も即 fail。
     //
-    // Phase D Step 7 (2026-04-28) 時点で:
+    // WASM candidate 撤退 (2026-05-15) 後:
     //   - cover 済 (24 件): current 全件 (CALC-001〜024)
-    //   - active candidate (0 件): physical .ts 存在の candidate は今のところ無い
-    //   - planning-only candidate (11 件): candidate/* 全て (sensitivity / correlation /
-    //     trendAnalysis / computeMovingAverage / piValue / inventoryCalc / pinIntervals /
-    //     observationPeriod / remainingBudgetRate / customerGap / dowGapAnalysis、
-    //     対応 WASM module は存在)
-    //
-    // Promote Ceremony 着手 = candidate file の physical landing。その PR で spec も
-    // 同時 landing しないと本 guard が hard fail させる (1 PR 5 同期の機械強制)。
+    //   - active candidate (0 件): candidate 概念そのものを撤退
+    //   - planning-only candidate (0 件): registry から candidate slot 全削除
     const SPEC_COVERAGE_BASELINE = 0
     const specSourceRefs = new Set<string>()
     for (const spec of loadAllSpecs()) {
@@ -126,7 +120,7 @@ describe('Content Spec Canonical Registration Sync Guard (AR-CONTENT-SPEC-CANONI
     // planning-only counter の drift 検出。registry に新 candidate slot を追加 / 削除
     // するときに人間レビュー必要であることを informational に強制する。
     // expected 値は registry に candidate/* slot を増減させたら同 PR で本数を更新する運用。
-    const PLANNING_ONLY_EXPECTED = 11
+    const PLANNING_ONLY_EXPECTED = 0
     const specSourceRefs = new Set<string>()
     for (const spec of loadAllSpecs()) {
       if (spec.kind !== 'calculation') continue

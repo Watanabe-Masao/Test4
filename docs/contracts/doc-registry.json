@@ -660,6 +660,10 @@
           "label": "健康診断書"
         },
         {
+          "path": "references/04-tracking/generated/query-access-audit.md",
+          "label": "Query Access Audit Report (生成物 — chart→DuckDB 経路の audit、docs:generate で再生成)"
+        },
+        {
           "path": "references/04-tracking/generated/project-health.json",
           "label": "Project Health KPI 正本（projects/<id>/checklist.md からの動的導出）"
         },
