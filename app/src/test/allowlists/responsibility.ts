@@ -23,10 +23,10 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/services/wasmEngine.ts',
     ruleId: 'AR-RESP-MODULE-STATE',
-    reason: 'WASM エンジンのシングルトン管理。module let 17 個（current 6 + candidate 11）',
+    reason: 'WASM エンジンのシングルトン管理。module let 6 個（current 5 + currentMode）',
     category: 'structural',
     removalCondition: 'クラスまたは WeakRef ベースに移行時',
-    limit: 18,
+    limit: 7,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
     reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
@@ -65,41 +65,9 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
     createdAt: '2026-04-08',
     reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
   },
-  // ── Candidate bridge allowlist（factory 生成） ──
-  // 全 candidate bridge は同一構造: module let 2 個（bridgeMode + lastDualRunResult）
-  // Phase 8 Promote Ceremony 完了後に current bridge に統合して卒業
-  ...(
-    [
-      'dowGapBridge',
-      'piValueBridge',
-      'remainingBudgetRateBridge',
-      'trendAnalysisBridge',
-      'movingAverageBridge',
-      'correlationBridge',
-      'sensitivityBridge',
-      'inventoryCalcBridge',
-      'pinIntervalsBridge',
-      'observationPeriodBridge',
-      'customerGapBridge',
-    ] as const
-  ).map(
-    (name): QuantitativeAllowlistEntry => ({
-      path: `application/services/${name}.ts`,
-      ruleId: 'AR-RESP-MODULE-STATE',
-      reason: 'Candidate bridge のモード管理 + dual-run 結果保持。module let 2 個',
-      category: 'structural',
-      removalCondition: 'Phase 8 Promote Ceremony 完了後、current bridge に統合時',
-      limit: 3,
-      lifecycle: 'active-debt',
-      createdAt: '2026-04-10',
-      expiresAt: '2027-04-10',
-      reviewPolicy: {
-        owner: 'architecture',
-        lastReviewedAt: '2026-04-24',
-        reviewCadenceDays: 180,
-      },
-    }),
-  ),
+  // candidate bridge 群 (piValue / customerGap / sensitivity / correlation / movingAverage /
+  //   trendAnalysis / dowGap / remainingBudgetRate / observationPeriod / pinIntervals /
+  //   inventoryCalc) は WASM frozen 方針確定により撤退。許可リスト卒業。
   // useLoadComparisonData.ts — const object ベースに移行。module let 0 個。許可リスト卒業
   // widgetLayout.ts — const object ベースに移行。module let 0 個。許可リスト卒業
 ] as const

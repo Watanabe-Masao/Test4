@@ -1,24 +1,13 @@
 {
-  "timestamp": "2026-05-05T05:14:18.547Z",
+  "timestamp": "2026-05-15T05:17:20.077Z",
   "wasmModules": [
     "budget-analysis",
     "core-utils",
-    "correlation",
-    "customer-gap",
-    "dow-gap",
     "factor-decomposition",
     "forecast",
     "gross-profit",
-    "inventory-calc",
-    "moving-average",
-    "observation-period",
-    "pi-value",
-    "pin-intervals",
-    "remaining-budget-rate",
-    "sensitivity",
     "statistics",
-    "time-slot",
-    "trend-analysis"
+    "time-slot"
   ],
   "packageScripts": [
     "build:wasm",

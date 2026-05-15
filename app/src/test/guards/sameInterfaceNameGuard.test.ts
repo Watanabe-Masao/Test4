@@ -42,7 +42,7 @@ const APP_SRC = path.join(PROJECT_ROOT, 'app/src')
 // PR4 (2026-04-24): WidgetDef を UnifiedWidgetDef / DashboardWidgetDef に分離して
 //                   alias 削除完了。baseline 28→27 ratchet-down。
 //                   残 27 件は ADR-A-003 scope 外の local interface 重複で fixed mode。
-const BASELINE_DUPLICATE_INTERFACE_COUNT = 27
+const BASELINE_DUPLICATE_INTERFACE_COUNT = 26
 
 /**
  * 既知の duplicate interface name。ADR-A-003 scope は `WidgetDef` のみ。
@@ -59,7 +59,7 @@ const KNOWN_DUPLICATE_INTERFACES: readonly string[] = [
   'DiffResult',
   'DowAggregate',
   'DrillState',
-  'DualRunResult',
+  // 'DualRunResult': WASM candidate bridge 撤退 (2026-05-15) で全 11 bridge 削除 — 重複解消
   'EtrnStation',
   'EtrnStationEntry',
   'FileImportResult',
