@@ -23,13 +23,14 @@ export const moduleScopeLetLimits: readonly QuantitativeAllowlistEntry[] = [
   {
     path: 'application/services/wasmEngine.ts',
     ruleId: 'AR-RESP-MODULE-STATE',
-    reason: 'WASM エンジンのシングルトン管理。module let 6 個（current 5 + currentMode）',
+    reason:
+      'WASM エンジンのシングルトン管理。registry-driven 化により module let 1 個（currentMode のみ）',
     category: 'structural',
     removalCondition: 'クラスまたは WeakRef ベースに移行時',
-    limit: 7,
+    limit: 2,
     lifecycle: 'permanent',
     createdAt: '2026-04-08',
-    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-04-24', reviewCadenceDays: 180 },
+    reviewPolicy: { owner: 'architecture', lastReviewedAt: '2026-05-15', reviewCadenceDays: 180 },
   },
   {
     path: 'application/workers/calculationWorker.ts',

@@ -2,7 +2,9 @@
  * WASM Engine ローダーシングルトン
  *
  * WASM モジュールの初期化・状態管理・モード切替を担当する。
- * 対応モジュール: factorDecomposition, grossProfit, budgetAnalysis, forecast, timeSlot
+ * **Registry-driven**: `WASM_MODULES` が唯一の正本。新規モジュール追加は
+ * registry に 1 record を足し、bridge / wasm wrapper が呼ぶ named wrapper
+ * 2 個（init / getter）を 1 行ずつ追加するだけ。
  *
  * ## 初期化経路
  *
@@ -15,8 +17,8 @@
  *
  * ## Fallback ポリシー
  *
- * 各 bridge（例: `factorDecompositionBridge.ts`）は `getWasmModuleState(name)` を
- * チェックし、`'ready'` なら WASM、それ以外なら TS 実装を使う。
+ * 各 bridge（例: `factorDecompositionBridge.ts`）は `getXxxWasmExports()` を
+ * チェックし、non-null なら WASM、null なら TS 実装を使う。
  * `getExecutionMode()` が `'ts-only'` なら WASM は常にスキップされる。
  *
  * 保証:
@@ -30,15 +32,6 @@
  */
 
 export type WasmState = 'idle' | 'loading' | 'ready' | 'error'
-export const WASM_MODULE_NAMES = [
-  'factorDecomposition',
-  'grossProfit',
-  'budgetAnalysis',
-  'forecast',
-  'timeSlot',
-] as const
-
-export type WasmModuleName = (typeof WASM_MODULE_NAMES)[number]
 export type ExecutionMode = 'ts-only' | 'wasm-only'
 
 /**
@@ -53,143 +46,108 @@ export interface WasmModuleMetadata {
   readonly bridgeKind: 'business' | 'analytics'
 }
 
-export const WASM_MODULE_METADATA: Readonly<Record<WasmModuleName, WasmModuleMetadata>> = {
-  factorDecomposition: { semanticClass: 'business', bridgeKind: 'business' },
-  grossProfit: { semanticClass: 'business', bridgeKind: 'business' },
-  budgetAnalysis: { semanticClass: 'business', bridgeKind: 'business' },
-  forecast: { semanticClass: 'analytic', bridgeKind: 'analytics' },
-  timeSlot: { semanticClass: 'analytic', bridgeKind: 'analytics' },
-}
+/* ── Registry (唯一の正本) ──────────────────────── */
 
-/* ── 内部状態 ─────────────────────────────────── */
+const WASM_MODULES = {
+  factorDecomposition: {
+    packageName: 'factor-decomposition-wasm',
+    metadata: { semanticClass: 'business', bridgeKind: 'business' },
+    loader: () => import('factor-decomposition-wasm'),
+  },
+  grossProfit: {
+    packageName: 'gross-profit-wasm',
+    metadata: { semanticClass: 'business', bridgeKind: 'business' },
+    loader: () => import('gross-profit-wasm'),
+  },
+  budgetAnalysis: {
+    packageName: 'budget-analysis-wasm',
+    metadata: { semanticClass: 'business', bridgeKind: 'business' },
+    loader: () => import('budget-analysis-wasm'),
+  },
+  forecast: {
+    packageName: 'forecast-wasm',
+    metadata: { semanticClass: 'analytic', bridgeKind: 'analytics' },
+    loader: () => import('forecast-wasm'),
+  },
+  timeSlot: {
+    packageName: 'time-slot-wasm',
+    metadata: { semanticClass: 'analytic', bridgeKind: 'analytics' },
+    loader: () => import('time-slot-wasm'),
+  },
+} as const satisfies Readonly<
+  Record<
+    string,
+    {
+      readonly packageName: string
+      readonly metadata: WasmModuleMetadata
+      readonly loader: () => Promise<unknown>
+    }
+  >
+>
 
-// idle 以外は再初期化しない（一度 loading/ready/error に到達したら state は変わらない）
-const moduleStates: Record<WasmModuleName, WasmState> = {
-  factorDecomposition: 'idle',
-  grossProfit: 'idle',
-  budgetAnalysis: 'idle',
-  forecast: 'idle',
-  timeSlot: 'idle',
-}
+export type WasmModuleName = keyof typeof WASM_MODULES
+type ModuleExports<N extends WasmModuleName> = Awaited<
+  ReturnType<(typeof WASM_MODULES)[N]['loader']>
+>
+
+/* ── Derived views (registry から派生) ───────────── */
+
+export const WASM_MODULE_NAMES = Object.keys(WASM_MODULES) as readonly WasmModuleName[]
+
+export const WASM_MODULE_METADATA = Object.fromEntries(
+  WASM_MODULE_NAMES.map((name) => [name, WASM_MODULES[name].metadata]),
+) as Readonly<Record<WasmModuleName, WasmModuleMetadata>>
+
+/* ── 内部状態 (registry から自動生成) ──────────── */
+
+const moduleStates: Record<WasmModuleName, WasmState> = Object.fromEntries(
+  WASM_MODULE_NAMES.map((name) => [name, 'idle' as WasmState]),
+) as Record<WasmModuleName, WasmState>
+
+const moduleExports: Partial<Record<WasmModuleName, unknown>> = {}
+
 let currentMode: ExecutionMode = 'ts-only'
 
-// WASM モジュールの export を保持
-let wasmExports: typeof import('factor-decomposition-wasm') | null = null
-let grossProfitWasmExports: typeof import('gross-profit-wasm') | null = null
-let budgetAnalysisWasmExports: typeof import('budget-analysis-wasm') | null = null
-let forecastWasmExports: typeof import('forecast-wasm') | null = null
-let timeSlotWasmExports: typeof import('time-slot-wasm') | null = null
-
-/* ── 初期化 ───────────────────────────────────── */
+/* ── 初期化 (generic + named wrapper) ────────────── */
 
 /**
- * WASM モジュールを非同期で初期化する。
+ * 単一 WASM モジュールを非同期で初期化する。
  * 複数回呼ばれても安全（idle 以外では no-op）。
  */
-export async function initFactorDecompositionWasm(): Promise<void> {
-  if (moduleStates.factorDecomposition !== 'idle') return
+async function initWasmModule(name: WasmModuleName): Promise<void> {
+  if (moduleStates[name] !== 'idle') return
 
-  moduleStates.factorDecomposition = 'loading'
+  moduleStates[name] = 'loading'
   try {
-    const wasm = await import('factor-decomposition-wasm')
-    await wasm.default()
-    wasmExports = wasm
-    moduleStates.factorDecomposition = 'ready'
+    const wasm = await WASM_MODULES[name].loader()
+    // wasm-bindgen が生成する WASM モジュールは default export の `init()` を持つ
+    await (wasm as { default: () => Promise<unknown> }).default()
+    moduleExports[name] = wasm
+    moduleStates[name] = 'ready'
     if (import.meta.env.DEV) {
-      console.info('[wasmEngine] factorDecomposition ready — WASM authoritative ready')
+      console.info(`[wasmEngine] ${name} ready — WASM authoritative ready`)
     }
   } catch (e) {
-    moduleStates.factorDecomposition = 'error'
-    console.warn(
-      '[wasmEngine] factorDecomposition WASM initialization failed, falling back to TS:',
-      e,
-    )
+    moduleStates[name] = 'error'
+    console.warn(`[wasmEngine] ${name} WASM initialization failed, falling back to TS:`, e)
   }
 }
 
-/**
- * grossProfit WASM モジュールを非同期で初期化する。
- * factorDecomposition と独立して初期化可能。
- */
-export async function initGrossProfitWasm(): Promise<void> {
-  if (moduleStates.grossProfit !== 'idle') return
-
-  moduleStates.grossProfit = 'loading'
-  try {
-    const wasm = await import('gross-profit-wasm')
-    await wasm.default()
-    grossProfitWasmExports = wasm
-    moduleStates.grossProfit = 'ready'
-    if (import.meta.env.DEV) {
-      console.info('[wasmEngine] grossProfit ready — WASM authoritative ready')
-    }
-  } catch (e) {
-    moduleStates.grossProfit = 'error'
-    console.warn('[wasmEngine] grossProfit WASM initialization failed, falling back to TS:', e)
-  }
-}
+// Named init wrappers — consumer API 互換。
+// 新規モジュール追加時はここに 1 行追加（registry の N record と対称）。
+export const initFactorDecompositionWasm = (): Promise<void> =>
+  initWasmModule('factorDecomposition')
+export const initGrossProfitWasm = (): Promise<void> => initWasmModule('grossProfit')
+export const initBudgetAnalysisWasm = (): Promise<void> => initWasmModule('budgetAnalysis')
+export const initForecastWasm = (): Promise<void> => initWasmModule('forecast')
+export const initTimeSlotWasm = (): Promise<void> => initWasmModule('timeSlot')
 
 /**
- * budgetAnalysis WASM モジュールを非同期で初期化する。
+ * 全 WASM モジュールを並列初期化する。
+ * main.tsx から呼び出し、モジュール一覧と初期化の不一致を防ぐ。
  */
-export async function initBudgetAnalysisWasm(): Promise<void> {
-  if (moduleStates.budgetAnalysis !== 'idle') return
-
-  moduleStates.budgetAnalysis = 'loading'
-  try {
-    const wasm = await import('budget-analysis-wasm')
-    await wasm.default()
-    budgetAnalysisWasmExports = wasm
-    moduleStates.budgetAnalysis = 'ready'
-    if (import.meta.env.DEV) {
-      console.info('[wasmEngine] budgetAnalysis ready — WASM authoritative ready')
-    }
-  } catch (e) {
-    moduleStates.budgetAnalysis = 'error'
-    console.warn('[wasmEngine] budgetAnalysis WASM initialization failed, falling back to TS:', e)
-  }
-}
-
-/**
- * forecast WASM モジュールを非同期で初期化する。
- */
-export async function initForecastWasm(): Promise<void> {
-  if (moduleStates.forecast !== 'idle') return
-
-  moduleStates.forecast = 'loading'
-  try {
-    const wasm = await import('forecast-wasm')
-    await wasm.default()
-    forecastWasmExports = wasm
-    moduleStates.forecast = 'ready'
-    if (import.meta.env.DEV) {
-      console.info('[wasmEngine] forecast ready — WASM authoritative ready')
-    }
-  } catch (e) {
-    moduleStates.forecast = 'error'
-    console.warn('[wasmEngine] forecast WASM initialization failed, falling back to TS:', e)
-  }
-}
-
-/**
- * timeSlot WASM モジュールを非同期で初期化する。
- */
-export async function initTimeSlotWasm(): Promise<void> {
-  if (moduleStates.timeSlot !== 'idle') return
-
-  moduleStates.timeSlot = 'loading'
-  try {
-    const wasm = await import('time-slot-wasm')
-    await wasm.default()
-    timeSlotWasmExports = wasm
-    moduleStates.timeSlot = 'ready'
-    if (import.meta.env.DEV) {
-      console.info('[wasmEngine] timeSlot ready — WASM authoritative ready')
-    }
-  } catch (e) {
-    moduleStates.timeSlot = 'error'
-    console.warn('[wasmEngine] timeSlot WASM initialization failed, falling back to TS:', e)
-  }
+export async function initAllWasmModules(): Promise<void> {
+  await Promise.allSettled(WASM_MODULE_NAMES.map((name) => initWasmModule(name)))
 }
 
 /* ── 状態取得 ─────────────────────────────────── */
@@ -204,43 +162,23 @@ export function getAllWasmStates(): Readonly<Record<WasmModuleName, WasmState>> 
   return { ...moduleStates }
 }
 
-export function getWasmExports(): typeof import('factor-decomposition-wasm') | null {
-  return wasmExports
+/** Generic typed getter — module 名から型安全に exports を引く */
+function getWasmModuleExports<N extends WasmModuleName>(name: N): ModuleExports<N> | null {
+  return (moduleExports[name] as ModuleExports<N> | undefined) ?? null
 }
 
-export function getGrossProfitWasmExports(): typeof import('gross-profit-wasm') | null {
-  return grossProfitWasmExports
-}
-
-export function getBudgetAnalysisWasmExports(): typeof import('budget-analysis-wasm') | null {
-  return budgetAnalysisWasmExports
-}
-
-export function getForecastWasmExports(): typeof import('forecast-wasm') | null {
-  return forecastWasmExports
-}
-
-export function getTimeSlotWasmExports(): typeof import('time-slot-wasm') | null {
-  return timeSlotWasmExports
-}
-
-/* ── 一括初期化 ──────────────────────────────── */
-
-const initFns: Record<WasmModuleName, () => Promise<void>> = {
-  factorDecomposition: initFactorDecompositionWasm,
-  grossProfit: initGrossProfitWasm,
-  budgetAnalysis: initBudgetAnalysisWasm,
-  forecast: initForecastWasm,
-  timeSlot: initTimeSlotWasm,
-}
-
-/**
- * 全 WASM モジュールを並列初期化する。
- * main.tsx から呼び出し、モジュール一覧と初期化の不一致を防ぐ。
- */
-export async function initAllWasmModules(): Promise<void> {
-  await Promise.allSettled(WASM_MODULE_NAMES.map((name) => initFns[name]()))
-}
+// Named getter wrappers — consumer API 互換。
+// 新規モジュール追加時はここに 1 行追加（registry の N record と対称）。
+export const getWasmExports = (): ModuleExports<'factorDecomposition'> | null =>
+  getWasmModuleExports('factorDecomposition')
+export const getGrossProfitWasmExports = (): ModuleExports<'grossProfit'> | null =>
+  getWasmModuleExports('grossProfit')
+export const getBudgetAnalysisWasmExports = (): ModuleExports<'budgetAnalysis'> | null =>
+  getWasmModuleExports('budgetAnalysis')
+export const getForecastWasmExports = (): ModuleExports<'forecast'> | null =>
+  getWasmModuleExports('forecast')
+export const getTimeSlotWasmExports = (): ModuleExports<'timeSlot'> | null =>
+  getWasmModuleExports('timeSlot')
 
 /* ── Availability 統合 ───────────────────────── */
 

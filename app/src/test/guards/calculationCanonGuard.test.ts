@@ -20,7 +20,6 @@
  */
 import { describe, it, expect } from 'vitest'
 import * as path from 'path'
-import * as fs from 'fs'
 import { collectTsFiles } from '../guardTestHelpers'
 import { CALCULATION_CANON_REGISTRY } from '../calculationCanonRegistry'
 import { GUARD_CATEGORY_MAP } from '../guardCategoryMap'
@@ -29,6 +28,7 @@ import {
   ANALYTIC_KERNEL_VIEW,
   MIGRATION_CANDIDATE_VIEW,
 } from '../semanticViews'
+import { WASM_MODULE_NAMES } from '@/application/services/wasmEngine'
 import {
   tsRegistry,
   checkBidirectionalExistence,
@@ -236,18 +236,8 @@ describe('意味分類ガード（Phase 2）', () => {
   })
 
   it('統合 drift 検出: registry → view → wasmEngine 全層が同じ truth を見ている', () => {
-    const wasmEnginePath = path.resolve(SRC_DIR, 'application/services/wasmEngine.ts')
-    const wasmEngineSource = fs.readFileSync(wasmEnginePath, 'utf-8') as string
-
-    // wasmEngine.ts からモジュール名リストを静的に抽出
-    const extractArray = (varName: string): string[] => {
-      const re = new RegExp(`${varName}\\s*=\\s*\\[([\\s\\S]*?)\\]\\s*as\\s*const`)
-      const match = wasmEngineSource.match(re)
-      if (!match) return []
-      return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1])
-    }
-
-    const currentModules = extractArray('WASM_MODULE_NAMES')
+    // wasmEngine.ts は registry-driven なので、runtime export を直接読む
+    const currentModules: readonly string[] = WASM_MODULE_NAMES
 
     const violations: string[] = []
 
